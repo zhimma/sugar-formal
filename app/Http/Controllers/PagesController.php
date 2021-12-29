@@ -2626,11 +2626,19 @@ class PagesController extends BaseController
                         
                             if(!empty($umeta->city)){
                                 foreach($umeta->city as $key => $cityval){
-                                    // if ($loop->first){
-                                    //     // {{$umeta->city[$key]}} @if($visitor->user_meta->isHideArea == 0){{$umeta->area[$key]}}@endif
-                                    // }else{
-                                    //     // <span>{{$umeta->city[$key]}} @if($visitor->user_meta->isHideArea == 0){{$umeta->area[$key]}}@endif</span>
-                                    // }
+                                    if ($key==0){
+                                       $ssrData .=  $umeta->city[$key];
+									   if($visitor->user_meta->isHideArea == 0){
+										   $ssrData .=  $umeta->area[$key].'  ';
+										   
+									   }
+                                    }else{
+										
+                                        $ssrData .=  '<span>'.$umeta->city[$key];
+										if($visitor->user_meta->isHideArea == 0){
+											$ssrData .= ($umeta->area[$key].'</span>');
+										}
+                                    }
                                 }
                                     
                              
@@ -6779,3 +6787,6 @@ class PagesController extends BaseController
         return $service->delByIgnoreId($request->target)?1:0;
     }
 }
+
+
+

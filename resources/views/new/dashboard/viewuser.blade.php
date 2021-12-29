@@ -332,7 +332,7 @@
         .he_tkcn_img {display: unset;margin-top: unset;}
     </style>
     <script src="{{asset('/new/js/pick_real_error.js')}}" type="text/javascript"></script>
-    <script>
+    <script type="application/javascript">
         function setTextAreaHeight(rowid) {
             $('#re_content_'+rowid).each(function () {
                 this.setAttribute('style', 'height:' + (this.scrollHeight) + 'px;overflow-y:hidden;');
@@ -536,10 +536,10 @@
                             </ul>
                         </div>
                         <!--引导弹出层-->
-                        <script type="text/javascript" src="/new/intro/intro.js"></script>
+                        <script type="application/javascript" src="/new/intro/intro.js"></script>
                         <link href="/new/intro/introjs.css" rel="stylesheet">
-                        <link rel="stylesheet" href="/new/intro/cover.css">
-                        <script>
+                        <link rel="stylesheet" href="/new/intro/cover.css" rel="stylesheet">
+                        <script type="application/javascript">
                             $(function(){
                                 @if($introCount == 1)
                                     $('.tubiao').attr('data-tooltipClass', 'yindao1 yd_small')
@@ -640,6 +640,7 @@
                             <li class="evaluation">
                                 <a><img src="/new/images/icon_14.png" class="tubiao_i"><span>評價</span></a>
                             </li>
+							
                             <li style="position: relative;">
                                 <div class="userlogo"><img src="/new/images/icon_15.png" class="tubiao_i"><span>更多</span></div>
                                 <div class="he_tkcn showslide">
@@ -679,9 +680,9 @@
                     </div>
 
                     <!-- Swiper JS -->
-                    <script src="/new/js/swiper.min.js"></script>
+                    <script type="application/javascript" src="/new/js/swiper.min.js"></script>
                     <!-- Initialize Swiper -->
-                    <script>
+                    <script type="application/javascript">
 
                         var swiper = new Swiper('.swiper-container', {
                             pagination: '.swiper-pagination',
@@ -1107,7 +1108,7 @@
                                                             <input type="hidden" name="eid" value={{$to->id}}>
                                                         </form>
                                                     </div>
-                                                    <script>
+                                                    <script type="application/javascript">
                                                         setTextAreaHeight('{{ $row->id }}');
                                                     </script>
                                                 @elseif(!empty($row->re_content))
@@ -1228,7 +1229,7 @@
                                                             <input type="hidden" name="eid" value={{$to->id}}>
                                                         </form>
                                                     </div>
-                                                    <script>
+                                                    <script type="application/javascript">
                                                         setTextAreaHeight('{{ $row->id }}');
                                                     </script>
                                                 @elseif(!empty($row->re_content))
@@ -1490,7 +1491,8 @@
 
 @section('javascript')
 
-<script>
+<script type="application/javascript">
+console.log('111111111111111')
     let is_banned = {{ $is_banned ? 1 : 0 }};
     function jidutiao() {
         c5('此會員使用紀錄不足，無法判斷');
@@ -1676,6 +1678,7 @@
             }
         });
     });
+	$(document).ready(function () {
     // $( document ).ready(function() {
         @if(isset($to))
             @if(isset($is_block_mid) && $is_block_mid == '是')
@@ -2010,6 +2013,7 @@
 
     @if(isset($to))
         $('.evaluation').on('click', function() {
+			console.log('evaluation')
             @if($user->id != $to->id)
                 @if($user->meta->isWarned == 1 || $isAdminWarned)
                     c5('您目前為警示帳戶，暫不可評價');
@@ -2151,11 +2155,11 @@
         }
         return false;
     });
-
+	});
     //解衝突，排除mobile無法作用的問題
     // jQuery.noConflict();
     </script>
-<script>
+<script type="application/javascript">
     $(document).on('click', '.toggleBlockMid', function() {
             //do stuff
             if ( $('#plshow').is(':visible') ){
@@ -2179,7 +2183,7 @@
 <!--
 <script src="{{ asset('new/js/resize_before_upload.js') }}" type="text/javascript"></script>
 -->
-<script>
+<script type="application/javascript">
 
     $(document).ready(function () {        
         images_uploader=$('input[name="images"]').fileuploader({
@@ -2453,46 +2457,48 @@
 
     });
 
-    function tab_evaluation_close(){
-        $(".announce_bg").hide();
-        $("#tab_evaluation").hide();
-        $('body').css("overflow", "auto");
-    }
+	$(document).ready(function () {
+		function tab_evaluation_close(){
+			$(".announce_bg").hide();
+			$("#tab_evaluation").hide();
+			$('body').css("overflow", "auto");
+		}
 
-    function tab_evaluation_reply_close(){
-        $(".announce_bg").hide();
-        $("#tab_evaluation_reply").hide();
-        $('body').css("overflow", "auto");
-    }
+		function tab_evaluation_reply_close(){
+			$(".announce_bg").hide();
+			$("#tab_evaluation_reply").hide();
+			$('body').css("overflow", "auto");
+		}
 
-    function show_banned_close(){
-        $(".announce_bg").hide();
-        $("#show_banned").hide();
-        $('body').css("overflow", "auto");
-    }
+		function show_banned_close(){
+			$(".announce_bg").hide();
+			$("#show_banned").hide();
+			$('body').css("overflow", "auto");
+		}
 
-    function show_reportPic_close(){
-        $(".announce_bg").hide();
-        $("#show_reportPic").hide();
-        $(".blbg").hide();
-        $('body').css("overflow", "auto");
-    }
+		function show_reportPic_close(){
+			$(".announce_bg").hide();
+			$("#show_reportPic").hide();
+			$(".blbg").hide();
+			$('body').css("overflow", "auto");
+		}
 
-    function tab_evaluation_reply_show(id, eid) {
-        $(".announce_bg").show();
-        //$("#re_content_reply").val('');
-        //$("#images_reply").val('');
-        $("#tab_evaluation_reply").show();
-        $("#tab_evaluation_reply #id_reply").val(id);
-        $("#tab_evaluation_reply #eid_reply").val(eid);
-        $('body').css("overflow", "hidden");
-    }
+		function tab_evaluation_reply_show(id, eid) {
+			$(".announce_bg").show();
+			//$("#re_content_reply").val('');
+			//$("#images_reply").val('');
+			$("#tab_evaluation_reply").show();
+			$("#tab_evaluation_reply #id_reply").val(id);
+			$("#tab_evaluation_reply #eid_reply").val(eid);
+			$('body').css("overflow", "hidden");
+		}
+	})
 </script>
 
 <link type="text/css" rel="stylesheet" href="/new/css/app.css">
 <link rel="stylesheet" type="text/css" href="/new/css/swiper2.min.css"/>
 <script type="text/javascript" src="/new/js/swiper.min.js"></script>
-<script>
+<script type="application/javascript">
     $(document).ready(function () {
         /*调起大图 S*/
         var mySwiper = new Swiper('.swiper-container2',{
@@ -2610,22 +2616,24 @@
     });
     /*调起大图 E*/
 </script>
-<script>
-    $('.userlogo').click(function() {
-        event.stopPropagation()
-        if($(this).hasClass('on1')) {
-            $(this).removeClass('on1')
-            $('.showslide').fadeOut()
-        } else {
-            $(this).addClass('on1')
-            $('.fadeinboxs').fadeIn()
-            $('.showslide').fadeIn()
-        }
-    })
-    $('body').click(function() {
-        $('.userlogo').removeClass('on1')
-        $('.showslide').fadeOut()
-    })
+<script type="application/javascript">
+	$(document).ready(function () {
+		$('.userlogo').click(function() {
+			event.stopPropagation()
+			if($(this).hasClass('on1')) {
+				$(this).removeClass('on1')
+				$('.showslide').fadeOut()
+			} else {
+				$(this).addClass('on1')
+				$('.fadeinboxs').fadeIn()
+				$('.showslide').fadeIn()
+			}
+		})
+		$('body').click(function() {
+			$('.userlogo').removeClass('on1')
+			$('.showslide').fadeOut()
+		})
+	})
 </script>	
 
 <script>
@@ -2715,3 +2723,6 @@
         });
 </script>
 @stop
+
+
+

@@ -549,7 +549,8 @@
         }
 
     </style>
-    <script>
+    <script type="application/javascript">
+	 $(document).ready(function () {       
         $('#search_reset').click(function(){
             $.ajax({
                 type: 'POST',
@@ -650,10 +651,11 @@
             $("#budget option[value='']").attr('selected', true);
 
         });
+	 });
     </script>
     <script src="/js/jquery.twzipcode.min.js" type="text/javascript"></script>
-    <script src="//cdnjs.cloudflare.com/ajax/libs/cropperjs/1.0.0/cropper.min.js"></script>
-    <script>
+    <script src="//cdnjs.cloudflare.com/ajax/libs/cropperjs/1.0.0/cropper.min.js" type="text/javascript"></script>
+    <script type="text/javascript">
         $(document).ready(function(){
             //var BootstrapDatepicker=function(){var t=function(){$("#m_datepicker_1, #m_datepicker_1_validate").datepicker({todayHighlight:!0,orientation:"bottom left",templates:{leftArrow:'<i class="la la-angle-left"></i>',rightArrow:'<i class="la la-angle-right"></i>'}}),$("#m_datepicker_1_modal").datepicker({todayHighlight:!0,orientation:"bottom left",templates:{leftArrow:'<i class="la la-angle-left"></i>',rightArrow:'<i class="la la-angle-right"></i>'}}),$("#m_datepicker_2, #m_datepicker_2_validate").datepicker({todayHighlight:!0,orientation:"bottom left",templates:{leftArrow:'<i class="la la-angle-left"></i>',rightArrow:'<i class="la la-angle-right"></i>'}}),$("#m_datepicker_2_modal").datepicker({todayHighlight:!0,orientation:"bottom left",templates:{leftArrow:'<i class="la la-angle-left"></i>',rightArrow:'<i class="la la-angle-right"></i>'}}),$("#m_datepicker_3, #m_datepicker_3_validate").datepicker({todayBtn:"linked",clearBtn:!0,todayHighlight:!0,templates:{leftArrow:'<i class="la la-angle-left"></i>',rightArrow:'<i class="la la-angle-right"></i>'}}),$("#m_datepicker_3_modal").datepicker({todayBtn:"linked",clearBtn:!0,todayHighlight:!0,templates:{leftArrow:'<i class="la la-angle-left"></i>',rightArrow:'<i class="la la-angle-right"></i>'}}),$("#m_datepicker_4_1").datepicker({orientation:"top left",todayHighlight:!0,templates:{leftArrow:'<i class="la la-angle-left"></i>',rightArrow:'<i class="la la-angle-right"></i>'}}),$("#m_datepicker_4_2").datepicker({orientation:"top right",todayHighlight:!0,templates:{leftArrow:'<i class="la la-angle-left"></i>',rightArrow:'<i class="la la-angle-right"></i>'}}),$("#m_datepicker_4_3").datepicker({orientation:"bottom left",todayHighlight:!0,templates:{leftArrow:'<i class="la la-angle-left"></i>',rightArrow:'<i class="la la-angle-right"></i>'}}),$("#m_datepicker_4_4").datepicker({orientation:"bottom right",todayHighlight:!0,templates:{leftArrow:'<i class="la la-angle-left"></i>',rightArrow:'<i class="la la-angle-right"></i>'}}),$("#m_datepicker_5").datepicker({todayHighlight:!0,templates:{leftArrow:'<i class="la la-angle-left"></i>',rightArrow:'<i class="la la-angle-right"></i>'}}),$("#m_datepicker_6").datepicker({todayHighlight:!0,templates:{leftArrow:'<i class="la la-angle-left"></i>',rightArrow:'<i class="la la-angle-right"></i>'}})};return{init:function(){t()}}}();jQuery(document).ready(function(){BootstrapDatepicker.init()});
             // var BootstrapSelect=function(){var t=function(){$(".m_selectpicker").selectpicker()};return{init:function(){t()}}}();jQuery(document).ready(function(){BootstrapSelect.init()});
@@ -701,9 +703,12 @@
             },
 
         mounted () {
+			
+			 let cup={!! json_encode($cup) !!};
+			 let body={!! json_encode($body) !!};
+			 let exchange_period={!! json_encode($exchange_period) !!};
              let county = "{{$county}}";
              let district="{{$district}}";
-             let cup="{{$cup}}";
              let marriage="{{$marriage}}";
              let budget="{{$budget}}";
              let income="{{$income}}";
@@ -715,9 +720,6 @@
              let user={!! $user !!};
              let umeta={!! $umeta !!}
              let seqtime="{{$seqtime}}";
-             let body="{{$body}}";
-
-             let exchange_period="{{$exchange_period}}";
              let isBlocked="{{$isBlocked}}";
              let userIsVip="{{$userIsVip}}";
              let heightfrom="{{$heightfrom}}";
@@ -730,7 +732,6 @@
              let isWarned="{{$isWarned}}";
              let isPhoneAuth="{{$isPhoneAuth}}";
              let userIsAdvanceAuth="{{$userIsAdvanceAuth}}";
-
              let page= "{{$page}}";
              console.log(page)
             axios.post('/getSearchData', {
@@ -777,3 +778,6 @@
         });
     </script>
 @stop
+
+
+
