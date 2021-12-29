@@ -73,6 +73,7 @@ use App\Http\Controllers\Admin\UserController;
 use App\Models\SimpleTables\short_message;
 use App\Models\LogAdvAuthApi;
 use Illuminate\Support\Facades\Http;
+use App\Services\SearchIgnoreService;
 
 class PagesController extends BaseController
 {
@@ -5269,6 +5270,10 @@ class PagesController extends BaseController
 
         $posts_forum = Forum::where('user_id', $user->id)->first();
 
+        if(!$posts_forum) {
+            return back()->with('message', '您的討論區不存在。');
+        }
+
         $posts_manage_users = ForumManage::select('forum_manage.user_id','users.name','forum_manage.status')
             ->leftJoin('users', 'users.id','=','forum_manage.user_id')
             ->where('forum_manage.apply_user_id', $user->id)
@@ -5697,7 +5702,7 @@ class PagesController extends BaseController
                          break;
                          case 'remain':
                             if($existHeaderImage && $vipStatusPicTime->diffInSeconds(Carbon::now()) <= 86400 ) {
-                                $vipStatus = '您於  '.$vipStatusPicTime->format('Y/m/d H:i').' 上傳大頭照+生活照三張， vip 權限不受影響。';
+                                $vipStatus = '您於  '.$vipStatusPicTime->format('Y/m/d H:i').' 上傳大頭照+生活照三張，已成為本站vip！';
                             }
                          break;                     
                      }
@@ -6753,5 +6758,24 @@ class PagesController extends BaseController
 
         $setting = UserTinySetting::where([['user_id',$user->id],['cat',$cat]])->orderByDesc('id')->first();
         if($setting) return $setting->value;
+    }
+    
+    public function listSearchIgnore(Request $request,SearchIgnoreService $service) {
+        $user = auth()->user();
+        $data['service'] = $service->fillPagingEntrys();
+        return view('/new/dashboard/search_ignore_list',$data)->with('user', $user);
+    }
+    
+    public function addSearchIgnore(Request $request,SearchIgnoreService $service)  {
+        if(!$request->target??null) return;
+            
+        $ignore_data['ignore_id'] = $request->target;
+        
+        return $service->create($ignore_data)?1:0;
+    }
+    
+    public function delSearchIgnore(Request $request,SearchIgnoreService $service) {
+        if(!$request->target??null) return $service->delMemberAll()?1:0;
+        return $service->delByIgnoreId($request->target)?1:0;
     }
 }
