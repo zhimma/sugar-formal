@@ -733,7 +733,7 @@
 
              let page= "{{$page}}";
              console.log(page)
-            axios.post('http://sugar66666.com/getSearchData', {
+            axios.post('/getSearchData', {
                 county:county,
                 district:district,
                 cup:cup,
