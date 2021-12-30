@@ -49,7 +49,7 @@ class UserService
     public function __construct(
         User $model,
         UserMeta $userMeta,
-        Role $role
+        Role $role=null
     ) {
         $this->model = $model;
         $this->userMeta = $userMeta;
@@ -538,6 +538,10 @@ class UserService
                     $this->assignRole($payload['roles'], $userId);
                 }
                 $user->update($payload);
+                $user->tattoo()->delete();
+                if(($payload['tattoo_part']??null) || $payload['tattoo_range']??null) {
+                    $user->tattoo()->create(['part'=>$payload['tattoo_part'],'range'=>$payload['tattoo_range']]);
+                }
                 return $user;
             });
         } catch (Exception $e) {

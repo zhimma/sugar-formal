@@ -198,7 +198,8 @@ class UserMeta extends Model
                                   $isVip = '',
                                   $isWarned = 2,
                                   $isPhoneAuth = '',
-                                  $isAdvanceAuth=null)
+                                  $isAdvanceAuth=null,
+                                  $tattoo=null)
     {
         if ($engroup == 1) { $engroup = 2; }
         else if ($engroup == 2) { $engroup = 1; }
@@ -426,9 +427,17 @@ class UserMeta extends Model
                     ->where('active', $isVip);
             });
         }
+        
+        if($tattoo==1) {
+            $query->has('tattoo');
+        }
+        else if($tattoo==-1) {
+            $query->doesntHave('tattoo');
+        }
+            
         if($userIsVip) {
-            $siService = new SearchIgnoreService(new SearchIgnore);
-            $ignore_user_ids = $siService->setMemberId($userid)->member_query->get()->pluck('ignore_id')->all();
+            $siService = new SearchIgnoreService(new \App\Services\UserService(new User,new UserMeta));
+            $ignore_user_ids = $siService->member_query()->get()->pluck('ignore_id')->all();
             $query->whereNotIn('users.id',$ignore_user_ids);
         }
         return $query->orderBy($orderBy, 'desc')->paginate(12);

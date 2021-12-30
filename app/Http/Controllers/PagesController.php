@@ -132,9 +132,13 @@ class PagesController extends BaseController
         });
         $rules = [
             'name'     => ['required', 'max:255', 'not_contains'],
+            'tattoo_part'=> ['required_with:tattoo_range'],
+            'tattoo_range'=> ['required_with:tattoo_part']        
         ];
         $messages = [
-            'not_contains'  => '請勿使用包含「站長」或「管理員」的字眼做為暱稱！'
+            'not_contains'  => '請勿使用包含「站長」或「管理員」的字眼做為暱稱！',
+            'tattoo_part' => '請選擇刺青位置',
+            'tattoo_range' => '請選擇刺青面積'            
         ];
         $validator = \Validator::make($request->all(), $rules, $messages);
         if($validator->fails()){
@@ -168,9 +172,13 @@ class PagesController extends BaseController
         });
         $rules = [
             'name'     => ['required', 'max:255', 'not_contains'],
+            'tattoo_part'=> ['required_with:tattoo_range'],
+            'tattoo_range'=> ['required_with:tattoo_part']
         ];
         $messages = [
-            'not_contains'  => '請勿使用包含「站長」或「管理員」的字眼做為暱稱！'
+            'not_contains'  => '請勿使用包含「站長」或「管理員」的字眼做為暱稱！',
+            'tattoo_part' => '請選擇刺青位置',
+            'tattoo_range' => '請選擇刺青面積'
         ];
         $validator = \Validator::make($request->all(), $rules, $messages);
         $status_data=[];
