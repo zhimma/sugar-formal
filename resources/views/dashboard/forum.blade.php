@@ -119,7 +119,7 @@
 													<a href="/dashboard/forum_manage_chat/{{$post->uid}}/{{$user->id}}" class="shenhe_z">審核中</a>
 												@elseif(isset($getStatus) && $getStatus->status==2)
 													<div class="wtg_z">未通過</div>
-												@elseif($post->uid != $user->id && !isset($getStatus))
+												@elseif($post->uid != $user->id && !isset($getStatus) && $post->f_status==1)
 													<a onclick="forum_manage_toggle({{$post->uid}}, 0, {{$post->f_id}})" class="seqr">申請加入</a>
 												@endif
 
@@ -226,15 +226,15 @@
 			}, function (data) {
 				$("#tab04").hide();
 				var obj = JSON.parse(data);
-				// c5(obj.message);
-				// $(".n_bllbut").on('click', function() {
+				c5(obj.message);
+				$(".n_bllbut").on('click', function() {
 					if(obj.message=='申請成功'){
-						window.location.href = "/dashboard/forum_manage_chat/" + auid + "/" + uid + "";
-						// window.location.href = "/dashboard/forum";
+						// window.location.href = "/dashboard/forum_manage_chat/" + auid + "/" + uid + "";
+						window.location.href = "/dashboard/forum";
 					}else {
 						location.reload();
 					}
-				// });
+				});
 			});
 		});
 	}
