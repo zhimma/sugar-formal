@@ -1615,7 +1615,7 @@ border-radius:100px;margin-top:5px;font-weight:normal;font-size:18px;padding:15p
 
 /*.message{width:94%; margin:0 auto; display:flow-root; max-height:500px; !*margin-bottom:40px;*! overflow-y: auto}*/
 .send:after,.show:after,.msg:after{content: "";clear: both;display: table;}
-.msg>img{width:40px; height:40px;float: left; border-radius:100px;}
+.msg>img{width:40px; height:40px;float: left; border-radius:100px; object-fit: contain;}
 
 .msg>p{float: left;margin:0 10px;padding:15px 8px;background: #f7f6fb;font-size:14px;position: relative;border-radius:10px;max-width:560px ;box-sizing: border-box;color:#333;word-break: break-word; /*min-width: 60px !important;*/max-width:476px;}
 

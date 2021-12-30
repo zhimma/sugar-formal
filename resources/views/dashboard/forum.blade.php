@@ -1,5 +1,5 @@
 @extends('new.layouts.website')
-@section('style')
+{{--@section('style')--}}
 		<link rel="stylesheet" href="/posts/css/style.css">
 		<link rel="stylesheet" href="/posts/css/font/font_n/iconfont.css">
 		<link rel="stylesheet" href="/posts/css/font/iconfont.css">
@@ -14,7 +14,7 @@
 				height: 28px;
 			}
 		</style>
-@endsection
+{{--@endsection--}}
 		@section('app-content')
 		<div class="container matop70">
 			<div class="row">
@@ -86,7 +86,7 @@
 									$show_a = 0;
 									$getStatus = \App\Models\ForumManage::where('user_id', $user->id)->where('apply_user_id', $post->uid)->get()->first();
 								@endphp
-								<li>
+								<li @if($post->f_status==0) class="huis_01" @endif>
 									<div class="ta_lwid_left">
 										<a href="/dashboard/viewuser/{{$post->uid}}">
 										<img src="@if(file_exists( public_path().$post->umpic ) && $post->umpic != ""){{$post->umpic}} @elseif($post->uengroup==2)/new/images/female.png @else/new/images/male.png @endif" class="hycov">
@@ -118,7 +118,7 @@
 												@if(isset($getStatus) && $getStatus->status==0)
 													<a href="/dashboard/forum_manage_chat/{{$post->uid}}/{{$user->id}}" class="shenhe_z">審核中</a>
 												@elseif(isset($getStatus) && $getStatus->status==2)
-													<a href="javascript:void(0);" class="wtg_z">未通過</a>
+													<div class="wtg_z">未通過</div>
 												@elseif($post->uid != $user->id && !isset($getStatus))
 													<a onclick="forum_manage_toggle({{$post->uid}}, 0, {{$post->f_id}})" class="seqr">申請加入</a>
 												@endif
@@ -226,15 +226,15 @@
 			}, function (data) {
 				$("#tab04").hide();
 				var obj = JSON.parse(data);
-				c5(obj.message);
-				$(".n_bllbut").on('click', function() {
+				// c5(obj.message);
+				// $(".n_bllbut").on('click', function() {
 					if(obj.message=='申請成功'){
-						// window.location.href = "/dashboard/forum_manage_chat/" + auid + "/" + uid + "";
-						window.location.href = "/dashboard/forum";
+						window.location.href = "/dashboard/forum_manage_chat/" + auid + "/" + uid + "";
+						// window.location.href = "/dashboard/forum";
 					}else {
 						location.reload();
 					}
-				});
+				// });
 			});
 		});
 	}
