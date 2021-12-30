@@ -4808,16 +4808,24 @@ class PagesController extends BaseController
 
     public function forum(Request $request)
     {
-        $user = $this->user;
-        if ($user && $user->engroup == 2){
+        $user=$request->user();
+        if ($user && $user->engroup == 2) {
             return back();
         }
 
-//        $ban = banned_users::where('member_id', $user->id)->first();
-//        $banImplicitly = \App\Models\BannedUsersImplicitly::where('target', $user->id)->first();
-//        if($ban || $banImplicitly){
-//            return back();
-//        }
+        $posts_list = Posts::selectraw('
+         posts.id as pid,
+         users.id as uid,
+         users.engroup,
+         user_meta.pic as umpic
+         ')->selectRaw('
+            (select count(*) from posts left join users on users.id = posts.user_id where (posts.type="main")) as posts_num, 
+            (select count(*) from posts where (type="sub" and reply_id in (select id from posts where (type="main") ) )) as posts_reply_num
+            ')
+            ->LeftJoin('users', 'users.id','=','posts.user_id')
+            ->join('user_meta', 'users.id','=','user_meta.user_id')
+            ->groupBy('users.id')
+            ->take(6)->get();
 
         $post_forum = Forum::where('user_id', $user->id)->first();
 
@@ -4839,27 +4847,16 @@ class PagesController extends BaseController
             ->leftJoin('forum_posts', 'forum_posts.user_id','=', 'users.id')
 //            ->where('forum.status', 1)
             ->orderBy('currentReplyTime','desc')
+            ->orderBy('forum.status', 'desc')
             ->groupBy('forum.id')
             ->paginate(10);
 
         $data = array(
             //            'posts' => null
             'posts' => $posts,
-            'post_forum' => $post_forum
+            'post_forum' => $post_forum,
+            'posts_list' => $posts_list
         );
-
-        if ($user)
-        {
-            // blocked by user->id
-            $blocks = \App\Models\Blocked::where('member_id', $user->id)->paginate(15);
-
-            $usersInfo = array();
-            foreach($blocks as $blockUser){
-                $id = $blockUser->blocked_id;
-                $usersInfo[$id] = User::findById($id);
-            }
-
-        }
 
         //檢查是否為連續兩個月以上的VIP會員
         $checkUserVip=0;
@@ -4873,8 +4870,6 @@ class PagesController extends BaseController
 
         return view('/dashboard/forum', $data)
             ->with('checkUserVip', $checkUserVip)
-            ->with('blocks', $blocks)
-            ->with('users', $usersInfo)
             ->with('user', $user);
     }
 

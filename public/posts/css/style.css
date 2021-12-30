@@ -380,8 +380,8 @@
     .n_sq_title{width:100%;}
 }
 
-.tao_qu{width: 100%; margin:0 auto; display: block; border-radius: 10px; background: #fff; margin-top: 14px; padding: 10px; min-height:65vh; position: relative; overflow-y: scroll;}
-.tao_time{ background: #eee; font-size: 12px; padding:5px 5px; margin: 0 auto; display: table; border-radius:100px; color: #999999;}
+.tao_qu{width: 100%; height:600px; margin:0 auto; display: block; border-radius: 10px; background: #fff; margin-top: 14px; padding: 10px; min-height:65vh; position: relative; overflow-y: scroll;}
+.tao_time{ background: #eee; font-size: 12px; padding:5px 5px; margin: 0 auto; display: table; border-radius:100px; color: #999999; margin-top: 10px; margin-bottom: 10px;}
 .msg_input_nn{position: absolute;background: url(../images/lijt.png) no-repeat;background-size: 100% 100%;width: 12px;height: 16px;left: -7px;top: 0px;}
 .msg_input_nn_2{position: absolute;background: url(../images/lijt2.png) no-repeat;background-size: 100% 100%;width: 12px;height: 16px;right: -7px;top: 0px;}
 
@@ -390,7 +390,7 @@
 .maspp0{ padding-bottom: 0;}
 
 
-.tao_qu_1{width: 100%; margin:0 auto; display: table; border-radius:10px; background: #fff; margin-top:10px; padding: 5px; position: relative;}
+.tao_qu_1{width: 100%; margin:0 auto; display: block; border-radius:10px; background: #fff; margin-top:10px; padding: 5px; position: relative;}
 
 /*.tia_icon{width:36px;height: 36px; background: #fbd7d8; border-radius: 100px; display: table;float: left; color: #ee5472; text-align: center;line-height: 40px;}*/
 .tia_icon img{ height: 22px;}
@@ -446,13 +446,15 @@
 .ta_tetime{width:100px; float: right; color: #999999; text-align: right;}
 .ta_tetime span{ color: #cdcdcd;}
 
-.shenqing{width: 100%; position: absolute; bottom:20px; left: 0;}
+.shenqing{width: 100%; position: absolute; bottom:20px;}
 .shenq_button{width:140px; height: 40px;box-shadow: 0 5px 5px #ffc9d3;background:linear-gradient(to top, #ffe3e6, #fff);
     margin: 0 auto;display: table; border-radius: 100px; text-align: center; color: #fe92a8; line-height: 40px; border: #ffe2e7 1px solid; font-size: 15px;}
 /* .shenq_button:hover{color:#fe92a8;
 box-shadow:4px 4px 6px 0 rgba(214,92,117,.5),-4px -4px 6px 0 rgba(255,255,255,.5),inset -4px -4px 6px 0 rgba(254,146,168,.2),inset 4px 4px 6px 0 rgba(123,23,24,.4)!important;}
  */
-.shenq_button:hover{color:#fe92a8; background: #ffe3e6;box-shadow:4px 4px 6px 0 rgba(255,255,255,.5),-4px -4px 6px 0 rgba(116,125,136,.5),inset -4px -4px 6px 0 rgba(255,255,255,.2),inset 4px 4px 6px 0 rgba(0,0,0,.4)!important;}
+.shenq_button:hover{color:#fe92a8; background: #ffe3e6;box-shadow:4px 4px 6px 0 rgba(255,255,255,.5),-4px -4px 6px 0 rgba(116,125,136,.5),inset -4px -4px 6px 0 rgba(255,255,255,.2),inset 4px 4px 6px 0 rgba(0,0,0,.4) !important;}
+
+.shenq_button:active{color:#fe92a8; background: #ffe3e6; box-shadow:unset !important;}
 
 
 .sqnc{width:95%; margin: 0 auto; display: table;border-radius:10px;height: 50px;background:linear-gradient(to top, #fd5f7c, #ff9ea3); color: #fff;
@@ -594,8 +596,8 @@ box-shadow:4px 4px 6px 0 rgba(214,92,117,.5),-4px -4px 6px 0 rgba(255,255,255,.5
 .shenhe_z:hover{width: 82px;height:28px;background: url(../images/jr_button_sh_h.png) no-repeat; background-size:cover; color: #fff;}
 
 .wtg_z{border-radius: 100px;display: table;background: url(../images/jr_button_wtg.png) no-repeat; background-size: cover;width: 82px;
-    height:28px; line-height: 28px; float: right; color: #fff; cursor: pointer; text-align: center; font-size: 14px;}
-.wtg_z:hover{width: 82px;height:28px;background: url(../images/jr_button_wtg_h.png) no-repeat; background-size:cover; color: #fff;}
+    height:28px; line-height: 28px; float: right; color: #fff; cursor: inherit; text-align: center; font-size: 14px;}
+/*.wtg_z:hover{width: 82px;height:28px;background: url(../images/jr_button_wtg_h.png) no-repeat; background-size:cover; color: #fff;}*/
 
 
 .wt_txb{width: auto;overflow: hidden;float: right;display: block;height: 28px;}
@@ -652,6 +654,27 @@ box-shadow:4px 4px 6px 0 rgba(214,92,117,.5),-4px -4px 6px 0 rgba(255,255,255,.5
     font-size: 18px;
 }
 
+
+.tl_bbg{width: 95%; margin: 0 auto; display: table;background:url("../images/taolq01.png") no-repeat;background-size: cover; padding: 10px 0 4px 0; border-radius:20px;
+    box-shadow:0 5px 17px rgba(255,37,81,0.3); cursor: pointer;}
+.tl_bbg_img{width:260px; margin: 0 auto; display: table;}
+.tl_bbg:hover{box-shadow: 0 0px 20px rgba(255,37,81,0.2);}
+
+
+.te_ins{width: 97%; margin: 0 auto; display: table; background: rgba(255,255,255,0.2);border-radius: 0 0 20px 20px;box-shadow: 0 10px 10px rgba(255,37,81,0.5); padding:8px 10px 5px 10px;}
+.te_incob{ color: #fff;}
+@media (max-width:450px){
+    .tl_bbg_img{width:200px; margin: 0 auto; display: table;}
+    .te_ins{padding:8px 10px 5px 10px;}
+}
+@media (max-width:360px){
+    .te_ins{padding:5px 10px 0px 10px;}
+}
+@media (max-width:320px){
+    .te_ins{padding:5px 10px 5px 10px;}
+}
+
+.huis_01{ background: #dcdcdc;}
 
 
 
