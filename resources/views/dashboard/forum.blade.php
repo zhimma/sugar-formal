@@ -25,7 +25,7 @@
 					<div class="shou">
 						<span>討論區</span><font>Discussion</font>
 						<a @if(isset($post_forum))  onclick="forumTip({{$user->id}})"  @else onclick="ForumCheckEnterPop()"
-						   href="/dashboard/ForumEdit/{{$user->id}}"
+{{--						   href="/dashboard/ForumEdit/{{$user->id}}"--}}
 						   @endif
 						   class="xinzeng_but" style="font-size: 12px;"><img src="/posts/images/liuyan_03.png" style="height:15px;">個人討論區</a>
 					</div>
@@ -226,15 +226,15 @@
 			}, function (data) {
 				$("#tab04").hide();
 				var obj = JSON.parse(data);
-				c5(obj.message);
-				$(".n_bllbut").on('click', function() {
+				// c5(obj.message);
+				// $(".n_bllbut").on('click', function() {
 					if(obj.message=='申請成功'){
-						// window.location.href = "/dashboard/forum_manage_chat/" + auid + "/" + uid + "";
-						window.location.href = "/dashboard/forum";
+						window.location.href = "/dashboard/forum_manage_chat/" + auid + "/" + uid + "";
+						// window.location.href = "/dashboard/forum";
 					}else {
 						location.reload();
 					}
-				});
+				// });
 			});
 		});
 	}
