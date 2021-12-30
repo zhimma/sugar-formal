@@ -28,6 +28,7 @@ use App\Models\IsBannedLog;
 use App\Models\IsWarnedLog;
 use App\Models\SimpleTables\short_message;
 use App\Models\LogAdvAuthApi;
+use App\Models\UserTattoo;
 
 class User extends Authenticatable
 {
@@ -1412,6 +1413,19 @@ class User extends Authenticatable
     public function search_ignore()
     {
         return $this->hasMany(SearchIgnore::class, 'member_id', 'id');
-    } 
+    }
+
+    //刺青
+    public function tattoo() {
+        return $this->hasMany(UserTattoo::class, 'user_id', 'id');
+    }
+    
+    public function isTattooRange($range) {
+        return ($this->tattoo->first()->range??null)==$range;
+    }
+    
+    public function isTattooPart($part) {
+        return ($this->tattoo->first()->part??null)==$part;
+    }    
 
 }

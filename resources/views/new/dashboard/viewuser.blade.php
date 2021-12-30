@@ -812,7 +812,15 @@
                                         </span>
                                     </dt>
                                     @endif
-
+                                    @if($to->engroup == 2 && $to->tattoo->count())
+                                    <dt>
+                                        <span>刺青</span>                                    
+                                        <span>
+                                            <font class="select_xx senhs left hy_new">{{$to->tattoo->first()->part}}</font>
+                                            <font class="select_xx senhs right hy_new">{{$to->tattoo->first()->range}}</font>
+                                        </span>                                    
+                                    </dt>
+                                    @endif
                                     @if(!empty($to->meta->about))
                                     <dt>
                                         <span>關於我</span>
