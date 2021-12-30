@@ -5036,7 +5036,13 @@ class PagesController extends BaseController
             if(!isset($checkData)){
                 ForumManage::insert(['forum_id'=>$fid->id, 'user_id' => $uid, 'apply_user_id' => $auid, 'status'=> 1, 'created_at' => Carbon::now(), 'updated_at' => Carbon::now()]);
                 $msg = '申請成功';
-//                ForumManage::insert(['forum_id'=>$fid->id, 'user_id' => $uid, 'apply_user_id' => $auid, 'created_at' => Carbon::now(), 'updated_at' => Carbon::now()]);
+//                ForumManage::insert([
+//                    'forum_id'=>$fid->id,
+//                    'user_id' => $uid,
+//                    'apply_user_id' => $auid,
+//                    'created_at' => Carbon::now(),
+//                    'updated_at' => Carbon::now()
+//                ]);
 //                $msg = '申請成功';
             }else{
                 $msg = '已重複申請';
