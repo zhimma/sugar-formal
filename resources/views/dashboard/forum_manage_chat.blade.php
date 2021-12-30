@@ -69,13 +69,15 @@
 							<div class="btn_back"></div>
 						</a>
 						<span style="margin: 0 auto; position: relative;line-height: 44px;padding-bottom: 3px;">{{$forumInfo->title}}</span>
+						@if($user->id ==$checkStatus->apply_user_id && $checkStatus->status==0)
 						<a class="toug_back btn_img01 userlogo xzgn">
 							<div class="btn_back">功能選單<img src="/posts/images/jiant_a.png"></div>
 						</a>
 						<div class="fabiao showslide">
 							<a onclick="checkUserVip();">我要發表</a>
-							<a href="/dashboard/posts_manage">會員管理</a>
+							<a href="/dashboard/forum_manage">會員管理</a>
 						</div>
+						@endif
 					</div>
 					<div class="fadeinboxs"></div>
 					<script>
@@ -113,58 +115,58 @@
 						<div class="taol_tab01" >
 							<div class="tao_qu" style="padding-bottom: 80px;">
 								Coming Soon...
-								<div class="tao_time">08-30(二）</div>
+{{--								<div class="tao_time">08-30(二）</div>--}}
 
-								<div class="show maspp0">
-									<div class="msg msg1">
-										<img src="/posts/images/icon_010.png">
-										<div class="msg_p1">
-											<i class="msg_input_nn_2"></i>阿龍的聊天室阿龍的聊天室
-										</div>
-									</div>
-								</div>
-								<div class="send maspp0">
-									<div class="msg">
-										<img src="/posts/images/icon_010.png">
-										<div class="msg_p"><i class="msg_input_nn"></i>版主好！</div>
-									</div>
-								</div>
-								<div class="send maspp0">
-									<div class="msg">
-										<img src="/posts/images/icon_010.png">
-										<div class="msg_p"><i class="msg_input_nn"></i>疫情終於快走了～</div>
-									</div>
-								</div>
-								<div class="show maspp0">
-									<div class="msg msg1">
-										<img src="/posts/images/icon_010.png">
-										<div class="msg_p1">
-											<i class="msg_input_nn_2"></i>疫情期間大辛苦了
-										</div>
-									</div>
-								</div>
-								<div class="tao_time matop10">08-30(二）</div>
-								<div class="show maspp0">
-									<div class="msg msg1">
-										<img src="/posts/images/icon_010.png">
-										<div class="msg_p1">
-											<i class="msg_input_nn_2"></i>疫情期間大辛苦了
-										</div>
-									</div>
-								</div>
+{{--								<div class="show maspp0">--}}
+{{--									<div class="msg msg1">--}}
+{{--										<img src="/posts/images/icon_010.png">--}}
+{{--										<div class="msg_p1">--}}
+{{--											<i class="msg_input_nn_2"></i>阿龍的聊天室阿龍的聊天室--}}
+{{--										</div>--}}
+{{--									</div>--}}
+{{--								</div>--}}
+{{--								<div class="send maspp0">--}}
+{{--									<div class="msg">--}}
+{{--										<img src="/posts/images/icon_010.png">--}}
+{{--										<div class="msg_p"><i class="msg_input_nn"></i>版主好！</div>--}}
+{{--									</div>--}}
+{{--								</div>--}}
+{{--								<div class="send maspp0">--}}
+{{--									<div class="msg">--}}
+{{--										<img src="/posts/images/icon_010.png">--}}
+{{--										<div class="msg_p"><i class="msg_input_nn"></i>疫情終於快走了～</div>--}}
+{{--									</div>--}}
+{{--								</div>--}}
+{{--								<div class="show maspp0">--}}
+{{--									<div class="msg msg1">--}}
+{{--										<img src="/posts/images/icon_010.png">--}}
+{{--										<div class="msg_p1">--}}
+{{--											<i class="msg_input_nn_2"></i>疫情期間大辛苦了--}}
+{{--										</div>--}}
+{{--									</div>--}}
+{{--								</div>--}}
+{{--								<div class="tao_time matop10">08-30(二）</div>--}}
+{{--								<div class="show maspp0">--}}
+{{--									<div class="msg msg1">--}}
+{{--										<img src="/posts/images/icon_010.png">--}}
+{{--										<div class="msg_p1">--}}
+{{--											<i class="msg_input_nn_2"></i>疫情期間大辛苦了--}}
+{{--										</div>--}}
+{{--									</div>--}}
+{{--								</div>--}}
 
 
 
-								<div class="shenqing">
-									@if($checkStatus->status==0 && $user->id ==$checkStatus->apply_user_id)
-									<div style=" margin: 0 auto; display: table">
-										<a onclick="forum_manage_toggle({{$checkStatus->user_id}}, 1)" class="shenq_button_a">通過</a>
-										<a onclick="forum_manage_toggle({{$checkStatus->user_id}}, 2)" class="shenq_button_a">不通過</a>
-									</div>
-									@elseif($checkStatus->status==0 && $user->id != $checkStatus->apply_user_id)
-									<a onclick="forum_manage_toggle({{$checkStatus->apply_user_id}}, 3)" class="shenq_button">取消申請</a>
-									@endif
-								</div>
+{{--								<div class="shenqing">--}}
+{{--									@if($checkStatus->status==0 && $user->id ==$checkStatus->apply_user_id)--}}
+{{--									<div style=" margin: 0 auto; display: table">--}}
+{{--										<a onclick="forum_manage_toggle({{$checkStatus->user_id}}, 1)" class="shenq_button_a">通過</a>--}}
+{{--										<a onclick="forum_manage_toggle({{$checkStatus->user_id}}, 2)" class="shenq_button_a">不通過</a>--}}
+{{--									</div>--}}
+{{--									@elseif($checkStatus->status==0 && $user->id != $checkStatus->apply_user_id)--}}
+{{--									<a onclick="forum_manage_toggle({{$checkStatus->apply_user_id}}, 3)" class="shenq_button">取消申請</a>--}}
+{{--									@endif--}}
+{{--								</div>--}}
 
 							</div>
 
@@ -178,11 +180,11 @@
 											{{--<a href="javascript:void(0);" class="ta_yyah" disabled="disabled">--}}
 												{{--<img src="/posts/images/yyqh.png">--}}
 											{{--</a>--}}
-											<input placeholder="请输入内容" class="ta_input_po">
+											<input placeholder="请输入内容" class="ta_input_po" disabled="disabled">
 										</div>
 									</div>
 									<a  href="javascript:void(0);" class="fs_icon"></a>
-									<input type="file" id="files" name="files" data-fileuploader-files="">
+									<input type="file" id="files" name="files" data-fileuploader-files="" disabled="disabled">
 								</form>
 							</div>
 						</div>
