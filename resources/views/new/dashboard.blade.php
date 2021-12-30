@@ -313,7 +313,7 @@ dt span.engroup_type_title {display:inline-block;width:10%;white-space:nowrap;}
 {{--                                                                       @endif value="1"> 隱藏體重--}}
 {{--                      </div>--}}
 {{--                  </dt>--}}
-                  <dt>
+                  <dt style="margin-bottom:7px;">
                       <span>CUP</span>
                       <span>
                         <select name="cup"  class="select_xx01" >
@@ -345,6 +345,22 @@ dt span.engroup_type_title {display:inline-block;width:10%;white-space:nowrap;}
                           </div>
                       </div>
                   </dt>
+                <dt>
+                    <span>有刺青</span>
+                    <font>
+                        <select name="tattoo_part" id="tattoo_part" class="select_xx01 new_iptnone select_xx2" style="width: 48%; float: left;color:#666666;">
+                            <option value="">請選擇位置</option>
+                            <option value="四肢" {{$user->isTattooPart('四肢')?'selected':''}}>四肢</option>
+                            <option value="身體" {{$user->isTattooPart('身體')?'selected':''}}>身體</option>
+                        </select>
+                        <select name="tattoo_range" id="tattoo_range" class="select_xx01 new_iptnone select_xx2" style="width: 48%; float: right;color:#666666;">
+                            <option value="">請選擇面積</option>
+                            <option value="大" {{$user->isTattooRange('大')?'selected':''}}>大</option>
+                            <option value="小" {{$user->isTattooRange('小')?'selected':''}}>小</option>
+                        </select>
+                        
+                    </font>
+                </dt>                  
                   @endif
                   <dt>
                       <span>體型</span>
@@ -998,6 +1014,8 @@ dt span.engroup_type_title {display:inline-block;width:10%;white-space:nowrap;}
           let smoking = $('select[name=smoking]');
           let county = $("#county");
           let situation = $('select[name=situation]');
+          let tattoo_part = $('#tattoo_part');
+          let tattoo_range = $('#tattoo_range');
           if(title.val() === "") {
             title.focus();
             c5('請輸入一句話形容自己');
@@ -1084,6 +1102,18 @@ dt span.engroup_type_title {display:inline-block;width:10%;white-space:nowrap;}
               return false;
             }
           }
+          
+          if(tattoo_part.val()=='' && tattoo_range.val()!='') {
+              tattoo_part.focus();
+              c5('請選擇刺青位置');
+              return false;
+          } 
+          
+          if(tattoo_range.val()=='' && tattoo_part.val()!='') {
+              tattoo_range.focus();
+              c5('請選擇刺青面積');
+              return false;
+          }           
           
           
           var form_dump = $(this);

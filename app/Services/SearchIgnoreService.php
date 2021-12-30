@@ -9,43 +9,72 @@ use Exception;
 use App\Models\SearchIgnore;
 use App\Models\User;
 use Illuminate\Support\Facades\Schema;
+use App\Services\UserService;
 
 class SearchIgnoreService
 {
     public function __construct(
-        SearchIgnore $model
+        UserService $userService
     ) {
-        $this->model = $model;
-        $this->member_id = $model->member_id??null;
-        if(!$this->member_id) {
-            $this->member_id = Auth::user()->id;
+        $this->userService = $userService;
+        $this->user = $userService->model??null;
+
+        if(!$this->user->id??null) {
+            $this->user = Auth::user();
         }
-        $this->member_query = $model->where('member_id',$this->member_id);
+
+        $this->member_query = $this->user->search_ignore();
         $this->entrys = null;
     }
+    
+    public function model() {
+        if(!$this->model??null) {
+            if($this->user->search_ignore->count()>0)
+                $this->model = $this->user->search_ignore->first();
+            else $this->model = new SearchIgnore;
+        }
+        return $this->model;
+    }
+    
+    public function member_query() {
+        if(!$this->member_query??null) {
+            $this->user->search_ignore();
+        }
+        return $this->member_query;
+    }
+    
+    public function userService() {
+        if(!$this->userService??null) 
+            $this->userService = new UserService($this->user,$this->user->meta);
+        else if($this->userService->model->id!=$this->user->id) {
+            $this->userService = new UserService($this->user,$this->user->meta);
+        }
+        
+        return $this->userService;
+        
+    }
+    
+    
 
     public function find($id)
     {
-        return $this->model->find($id);
+        return $this->model()->find($id);
     }
     
     public function getMemberQueryByIgnoreId($ignore_id)
     {
-        return $this->member_query->where('ignore_id', $ignore_id);
+        return $this->member_query()->where('ignore_id', $ignore_id);
     }
     
     public function create($input)
     {
         try {
-            if(!($input['member_id']??null)) {
-                 $input['member_id'] = $this->member_id;
-            }
-            $memUser = User::find($input['member_id']);
-            $ignreUser = User::find($input['ignore_id']);
+            $memUser = $this->user;
+            $ignreUser = $this->userService()->find($input['ignore_id']);
             if($memUser->engroup == $ignreUser->engroup) return false;
-            return $this->model->firstOrCreate($input);
+            return $this->member_query()->firstOrCreate($input);
         } catch (Exception $e) {
-            throw new Exception("Failed to create role", 1);
+            throw new Exception("Failed to create search ignore", 1);
         }
     }
 
@@ -69,19 +98,13 @@ class SearchIgnoreService
     }
     
     public function delMemberAll() {
-        if(!($this->member_id??null)) return false;
-        return $this->member_query->delete();
-    }
-    
-    public function setMemberId($member_id) {
-        $this->member_id = $member_id??null;
-        $this->member_query = $this->model->where('member_id',$this->member_id);        
-        return $this;
+        if(!($this->member_query()??null)) return false;
+        return $this->member_query()->delete();
     }
     
     public function appendFilterListQuery() {
-        $member_id = $this->member_id;
-        $this->member_query->whereHas('ignore_user',function($query) use ($member_id){
+        $member_id = $this->user->id;;
+        $this->member_query()->whereHas('ignore_user',function($query) use ($member_id){
             $query->where('accountStatus',1)->where('account_status_admin',1);
             $query->doesntHave('banned');
             $query->doesntHave('implicitlyBanned');
@@ -94,7 +117,7 @@ class SearchIgnoreService
     }
     
     public function fillPagingEntrys() {
-        $this->entrys = $this->appendFilterListQuery()->member_query->orderByDesc('id')->paginate(15);
+        $this->entrys = $this->appendFilterListQuery()->member_query()->orderByDesc('id')->paginate(15);
         return $this;
     } 
 
@@ -119,7 +142,7 @@ class SearchIgnoreService
     }
     
     public function isBlurAvatarByUser($userEntry) {
-        return \App\Services\UserService::isBlurAvatar($userEntry, auth()->user());
+        return $this->userService()->isBlurAvatar($userEntry, auth()->user());
     }
     
     public function getShowPicByUser($userEntry) {

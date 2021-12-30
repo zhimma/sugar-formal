@@ -290,6 +290,13 @@
                             <label class="n_tx"><input type="checkbox" name="cup[5]" value="F" id="Check5" @if( !empty( $_POST["cup"][5] ) && $_POST["cup"][5] == "F" ) checked @elseif(!empty( $_GET["cup"][5] ) && $_GET["cup"][5] == "F") checked @elseif(isset( session()->get('search_page_key.cup')[5] ) && session()->get('search_page_key.cup')[5] == "F") checked @endif><i>F</i></label>
                             </span>
                                 </dt>
+                                <dt class="matopj15">
+									<span>有無刺青<i class="ssrgf">(僅顯示有填寫者)</i></span>
+									<span class="line20">
+                                        <label class="n_tx"><input type="radio" name="tattoo" value="1" id="tattoo1" {{(request()->tattoo==1 || session()->get('search_page_key.tattoo')==1)?'checked':''}}><i>有</i></label>
+                                        <label class="n_tx"><input type="radio" name="tattoo" value="-1" id="tattoo0" {{(request()->tattoo==-1 ||  session()->get('search_page_key.tattoo')==-1)?'checked':''}}><i>無</i></label>
+									</span>
+								</dt>                               
                             @else
                             <dt class="matopj15">
                                 <span>PR值(大方指數)</span>
@@ -435,6 +442,7 @@
                         $isVip = "";
                         $isWarned = "";
                         $isPhoneAuth = "";
+                        $tattoo= "";
                     }
                     catch (\Exception $e){
                         \Illuminate\Support\Facades\Log::info('Search error, $user: ' . $user);
@@ -467,6 +475,7 @@
                     if (isset($_POST['isVip'])){$isVip = $_POST['isVip'];}elseif(isset($_GET['isVip'])){$isVip = $_GET['isVip'];}elseif(!empty(session()->get('search_page_key.isVip'))){$isVip = session()->get('search_page_key.isVip');}
                     if (isset($_POST['isWarned'])){$isWarned = $_POST['isWarned'];}elseif(isset($_GET['isWarned'])){$isWarned = $_GET['isWarned'];}elseif(!empty(session()->get('search_page_key.isWarned'))){$isWarned = session()->get('search_page_key.isWarned');}
                     if (isset($_POST['isPhoneAuth'])){$isPhoneAuth = $_POST['isPhoneAuth'];}elseif(isset($_GET['isPhoneAuth'])){$isPhoneAuth = $_GET['isPhoneAuth'];}elseif(!empty(session()->get('search_page_key.isPhoneAuth'))){$isPhoneAuth = session()->get('search_page_key.isPhoneAuth');}
+                    $tattoo = request()->tattoo??session()->get('search_page_key.tattoo');
                     ?>
                 @endif
                 <?php $icc = 1;
@@ -504,7 +513,8 @@
                     $isVip,
                     $isWarned,
                     $isPhoneAuth,
-                    $userIsAdvanceAuth
+                    $userIsAdvanceAuth,
+                    $tattoo
                 );
                 // vi vendor/laravel/framework/src/Illuminate/Database/Query/Builder.php
                 // addWhereExistsQuery() remove $operator
