@@ -229,8 +229,8 @@
 				// c5(obj.message);
 				// $(".n_bllbut").on('click', function() {
 					if(obj.message=='申請成功'){
-						window.location.href = "/dashboard/forum_manage_chat/" + auid + "/" + uid + "";
-						// window.location.href = "/dashboard/forum";
+						// window.location.href = "/dashboard/forum_manage_chat/" + auid + "/" + uid + "";
+						window.location.href = "/dashboard/forum";
 					}else {
 						location.reload();
 					}
