@@ -571,7 +571,7 @@
 {{--                                            @php--}}
 {{--                                                if($pr==1){$pr = 0;}--}}
 {{--                                            @endphp--}}
-                                            <div class="progress progress-striped vvipjdt_pre" title="大方指數" @if($pr=='無') onClick="jidutiao() @endif">
+                                            <div class="progress progress-striped vvipjdt_pre" title="大方指數" @if($pr=='無') onClick="jidutiao()" @endif>
                                                 <div class="progress-bar progress_info" role="progressbar" aria-valuenow="{{$pr}}" aria-valuemin="0"
                                                      aria-valuemax="100" style="width:{{$pr}}%;">
 {{--                                                    <span class="prfont">PR: {{$pr}}</span>--}}
