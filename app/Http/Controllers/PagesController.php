@@ -4846,8 +4846,8 @@ class PagesController extends BaseController
             ->join('user_meta', 'users.id','=','user_meta.user_id')
             ->leftJoin('forum_posts', 'forum_posts.user_id','=', 'users.id')
 //            ->where('forum.status', 1)
-            ->orderBy('currentReplyTime','desc')
             ->orderBy('forum.status', 'desc')
+            ->orderBy('currentReplyTime','desc')
             ->groupBy('forum.id')
             ->paginate(10);
 
