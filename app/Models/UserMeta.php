@@ -701,7 +701,16 @@ class UserMeta extends Model
         $page = $page-1;
         $count = 12;
         $start = $page*$count;
-        return $query->orderBy($orderBy, 'desc')->skip($start)->take($count)->get();
+        $DataQuery = $query->orderBy($orderBy, 'desc');
+        $allPageDataCount = $DataQuery->count();
+        $singlePageData = $DataQuery->skip($start)->take($count)->get();
+        
+        $output = array(
+            'singlePageData'=> $singlePageData,
+            'allPageDataCount'=>$allPageDataCount 
+        );
+
+        return $output;
     }
     
     public static function findByMemberId($memberId)
@@ -739,3 +748,6 @@ class UserMeta extends Model
         return ImagesCompareService::isNeedCompareByEntry($this);
     }        
 }
+
+
+

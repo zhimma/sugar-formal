@@ -2465,8 +2465,8 @@ class PagesController extends BaseController
         $ssrData = '';
   
         $user = Auth::user();
-    if (!empty($vis) && isset($vis) && sizeof($vis) > 0){
-            foreach ($vis as $vi){
+    if (!empty($vis['singlePageData']) && isset($vis['singlePageData']) && sizeof($vis['singlePageData']) > 0){
+            foreach ($vis['singlePageData'] as $vi){
             $visitor = $vi;
             try{
                 $umeta = $visitor->user_meta;
@@ -2677,10 +2677,14 @@ class PagesController extends BaseController
                         $ssrData .='</a>';
                         $ssrData .='</li>';
                          }
-    }else{
-        $ssrData .='<div class="fengsicon search"><img src="/new/images/loupe.png" class="feng_img"><span>沒有資料</span></div>';
-    }
-        return $ssrData;
+        }else{
+            $ssrData .='<div class="fengsicon search"><img src="/new/images/loupe.png" class="feng_img"><span>沒有資料</span></div>';
+        }
+        $output = array(
+            "ssrData"=>$ssrData,
+            "count"=>$vis['allPageDataCount']
+        );
+        return json_encode($output);
     }
 
     public function evaluation_self(Request $request)

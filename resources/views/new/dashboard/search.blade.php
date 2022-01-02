@@ -502,7 +502,7 @@
                 }
                 
                 ?>
-                <div style="text-align: center;"><div class="fenye"><a href="/dashboard/search?page=<?php echo $page_pre;?>">上一頁</a> <span class="new_page">第 <?php echo $page;?> 頁</span> <a href="/dashboard/search?page=<?php echo $page_next;?>">下一頁</a></div></div>
+                <div style="text-align: center;"><div class="fenye"><span v-if="isPrePageShow"><a href="/dashboard/search?page=<?php echo $page_pre;?>">上一頁</a></span><span class="new_page">第 <?php echo $page;?> 頁</span> <span v-if="isNextPageShow"><a href="/dashboard/search?page=<?php echo $page_next;?>">下一頁</a></span></div></div>
 
             </div>
 
@@ -698,7 +698,9 @@
                     '<li class="nt_fg"><div class="n_seicon"><a><div class="nt_photo blur_img"></div><div class="nt_bot nt_bgco"><h2>loading...</h2><h3>loading...</h3><h3>最後上線時間：loading... </h3></div></a></div></li>'+
                     '<li class="nt_fg"><div class="n_seicon"><a><div class="nt_photo blur_img"></div><div class="nt_bot nt_bgco"><h2>loading...</h2><h3>loading...</h3><h3>最後上線時間：loading... </h3></div></a></div></li>'+
                     '<li class="nt_fg"><div class="n_seicon"><a><div class="nt_photo blur_img"></div><div class="nt_bot nt_bgco"><h2>loading...</h2><h3>loading...</h3><h3>最後上線時間：loading... </h3></div></a></div></li>'+
-                    '<li class="nt_fg"><div class="n_seicon"><a><div class="nt_photo blur_img"></div><div class="nt_bot nt_bgco"><h2>loading...</h2><h3>loading...</h3><h3>最後上線時間：loading... </h3></div></a></div></li>'
+                    '<li class="nt_fg"><div class="n_seicon"><a><div class="nt_photo blur_img"></div><div class="nt_bot nt_bgco"><h2>loading...</h2><h3>loading...</h3><h3>最後上線時間：loading... </h3></div></a></div></li>',
+                    "isPrePageShow":true,
+                    "isNextPageShow":true
                 }
             },
 
@@ -768,8 +770,13 @@
             })
             .then(response => {
                     console.log(response)
-                    this.ssrData = response.data;
- 
+                    this.ssrData = response.data.ssrData;
+                    this.ssrCount = response.data.count;
+
+                    if(this.ssrCount<=12){
+                        this.isPrePageShow=false;
+                        this.isNextPageShow=false;
+                    }
                 })
             .catch(function (error) { // 请求失败处理
                 console.log(error);
