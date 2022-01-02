@@ -736,7 +736,6 @@
              let isPhoneAuth="{{$isPhoneAuth}}";
              let userIsAdvanceAuth="{{$userIsAdvanceAuth}}";
              let page= "{{$page ?? 1}}";
-             console.log(page)
             axios.post('/getSearchData', {
                 county:county,
                 district:district,
@@ -770,7 +769,6 @@
                 page:page
             })
             .then(response => {
-                    console.log(response)
                     this.ssrData = response.data.ssrData;
                     this.ssrCount = response.data.count;
                     this.ssrSingleCount = response.data.singleCount;

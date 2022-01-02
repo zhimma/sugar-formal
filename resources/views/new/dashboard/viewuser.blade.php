@@ -1492,7 +1492,6 @@
 @section('javascript')
 
 <script type="application/javascript">
-console.log('111111111111111')
     let is_banned = {{ $is_banned ? 1 : 0 }};
     function jidutiao() {
         c5('此會員使用紀錄不足，無法判斷');
@@ -2671,7 +2670,6 @@ console.log('111111111111111')
                 axios
                 .post('/getHideData', {uid, uid})
                 .then(response => {
-                    console.log(response)
                     let data = response.data;
                     this.be_visit_other_count = data.be_visit_other_count;
                     this.be_visit_other_count_7 = data.be_visit_other_count_7;
@@ -2699,7 +2697,6 @@ console.log('111111111111111')
                 axios
                 .post('/getFavCount', {uid:uid})
                 .then(response => {
-                    console.log(response)
                     let data = response.data;
                     this.be_faved = data.be_fav_count;
                     this.faved = data.fav_count;
