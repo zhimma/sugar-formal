@@ -734,7 +734,7 @@
              let isWarned="{{$isWarned}}";
              let isPhoneAuth="{{$isPhoneAuth}}";
              let userIsAdvanceAuth="{{$userIsAdvanceAuth}}";
-             let page= "{{$page}}";
+             let page= "{{$page ?? 1}}";
              console.log(page)
             axios.post('/getSearchData', {
                 county:county,
