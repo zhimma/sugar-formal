@@ -2682,7 +2682,8 @@ class PagesController extends BaseController
         }
         $output = array(
             "ssrData"=>$ssrData,
-            "count"=>$vis['allPageDataCount']
+            "count"=>$vis['allPageDataCount'],
+            'singleCount'=>$vis['singlePageCount']
         );
         return json_encode($output);
     }

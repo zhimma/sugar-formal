@@ -703,10 +703,14 @@ class UserMeta extends Model
         $start = $page*$count;
         $DataQuery = $query->orderBy($orderBy, 'desc');
         $allPageDataCount = $DataQuery->count();
-        $singlePageData = $DataQuery->skip($start)->take($count)->get();
+        $singlePageDataQuery = $DataQuery->skip($start)->take($count);
+
+        $singlePageData = $singlePageDataQuery->get();
+        $singlePageCount = count($singlePageData);
         
         $output = array(
             'singlePageData'=> $singlePageData,
+            'singlePageCount'=> $singlePageCount,
             'allPageDataCount'=>$allPageDataCount 
         );
 
