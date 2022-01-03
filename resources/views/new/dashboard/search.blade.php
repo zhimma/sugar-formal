@@ -502,7 +502,7 @@
                 }
                 
                 ?>
-                <div style="text-align: center;"><div class="fenye"><span v-if="isPrePageShow"><a href="/dashboard/search?page=<?php echo $page_pre;?>">上一頁</a></span><span class="new_page" v-if="isNowPageShow">第 <?php echo $page;?> 頁</span> <span v-if="isNextPageShow"><a href="/dashboard/search?page=<?php echo $page_next;?>">下一頁</a></span></div></div>
+                <div style="text-align: center;"><div class="fenye"><span v-if="isPrePageShow"><a :href="'/dashboard/search?page=' + page_pre">上一頁</a></span><span class="new_page" v-if="isNowPageShow">第 <?php echo $page;?> 頁</span> <span v-if="isNextPageShow"><a :href="'/dashboard/search?page=' + page_next">下一頁</a></span></div></div>
 
             </div>
 
@@ -701,10 +701,11 @@
                     '<li class="nt_fg"><div class="n_seicon"><a><div class="nt_photo blur_img"></div><div class="nt_bot nt_bgco"><h2>loading...</h2><h3>loading...</h3><h3>最後上線時間：loading... </h3></div></a></div></li>',
                     "isPrePageShow":false,
                     "isNextPageShow":false,
-                    "isNowPageShow":false
+                    "isNowPageShow":false,
+                    "page_next":"{{$page_next}}",
+                    "page_pre":"{{$page_pre}}"
                 }
             },
-
         mounted () {
 			
 			 let cup={!! json_encode($cup) !!};
@@ -775,10 +776,9 @@
                     if(this.ssrCount>12){
                         this.isNowPageShow=true;
                         this.isPrePageShow=true;
+                        this.isNextPageShow=true;
                         if(this.ssrSingleCount<12){
-                            this.isNextPageShow=false;
-                        }else{
-                            this.isNextPageShow=true;
+                            this.page_next = (Math.floor( this.ssrCount / 12 ) + 1);
                         }
                     }
                 })
