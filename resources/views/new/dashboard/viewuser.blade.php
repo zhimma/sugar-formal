@@ -929,14 +929,14 @@
                             <div class="xiliao_input">
                                 <div class="xl_text">
                                     
-                                    <dt><span>註冊時間</span>@if($user->isVip())<font>{{substr($to->created_at,0,10)}}</font>@else <img src="/new/images/icon_35.png"> @endif</dt>
+                                    <dt><span>註冊時間</span>@if($user->isVip())<font>{{substr($to->created_at,0,10)}}</font>@else <span class="mtop"><img src="/new/images/icon_35.png"></span> @endif</dt>
                                     <dt><span>最後上線時間</span>
                                         <span v-if="is_vip"><font>@{{last_login}}</font></span>
-                                        <span v-else><img src="/new/images/icon_35.png" /></span>
+                                        <span class="mtop" v-else><img src="/new/images/icon_35.png" /></span>
                                     </dt>
                                     <dt><span>每周平均上線次數</span>
                                         <span v-if="is_vip"><font>@{{login_times_per_week }}</font></span>
-                                        <span v-else><img src="/new/images/icon_35.png" /></span>
+                                        <span class="mtop" v-else><img src="/new/images/icon_35.png" /></span>
                                     </dt>
 {{--                                    <dt><span>使用者評價</span>--}}
 {{--                                        @if($user->isVip())--}}
@@ -963,7 +963,7 @@
                                                 @{{be_faved}}
                                             </font>
                                         </span>
-                                        <span v-else><img src="/new/images/icon_35.png" /></span>
+                                        <span class="mtop" v-else><img src="/new/images/icon_35.png" /></span>
                                     </dt>
                                     <dt><span>收藏會員次數</span>
                                         <span v-if="is_vip">
@@ -971,54 +971,54 @@
                                                 @{{faved}}
                                             </font>
                                         </span>
-                                        <span v-else><img src="/new/images/icon_35.png" /></span>
+                                        <span class="mtop" v-else><img src="/new/images/icon_35.png" /></span>
                                     </dt>
 
                                     <dt><span>車馬費邀請次數</span>
                                         <span v-if="is_vip"><font>@{{tip_count}}</font></span>
-                                        <span v-else><img src="/new/images/icon_35.png" /></span>
+                                        <span class="mtop" v-else><img src="/new/images/icon_35.png" /></span>
                                     <dt><span>發信次數</span>
                                         <span v-if="is_vip"><font>@{{message_count}}</font></span>
-                                        <span v-else><img src="/new/images/icon_35.png" /></span>
+                                        <span class="mtop" v-else><img src="/new/images/icon_35.png" /></span>
                                     <dt><span>過去7天發信次數</span>
                                         <span v-if="is_vip"><font>@{{message_count_7}}</font></span>
-                                            <span v-else><img src="/new/images/icon_35.png" /></span>
+                                        <span class="mtop" v-else><img src="/new/images/icon_35.png" /></span>
                                     </dt>
                                     <dt><span>回信次數</span>
                                         <span v-if="is_vip"><font>@{{message_reply_count}}</font></span>
-                                        <span v-else><img src="/new/images/icon_35.png" /></span>
+                                        <span class="mtop" v-else><img src="/new/images/icon_35.png" /></span>
                                         </dt>
                                     <dt><span>過去7天回信次數</span>
                                         <span v-if="is_vip"><font>@{{message_reply_count_7}}</font></span>
-                                        <span v-else><img src="/new/images/icon_35.png" /></span>
+                                        <span class="mtop" v-else><img src="/new/images/icon_35.png" /></span>
                                     </dt>
                                     <dt><span>過去7天罐頭訊息比例</span>
                                         <span v-if="is_vip"><font>@{{message_percent_7}}</font></span>
-                                       <span v-else><img src="/new/images/icon_35.png" /></span>
+                                        <span class="mtop" v-else><img src="/new/images/icon_35.png" /></span>
                                     </dt>
                                     <dt><span>是否封鎖我</span>
                                         <span v-if="is_vip"><font>@{{is_block_mid}}</font></span>
-                                        <span v-else><img src="/new/images/icon_35.png" /></span>
+                                        <span class="mtop" v-else><img src="/new/images/icon_35.png" /></span>
                                     </dt>
                                     <dt><span>是否看過我</span>
                                         <span v-if="is_vip"><font>@{{is_visit_mid}}</font></span>
-                                        <span v-else><img src="/new/images/icon_35.png" /></span>
+                                        <span class="mtop" v-else><img src="/new/images/icon_35.png" /></span>
                                     </dt>
                                     <dt><span>瀏覽其他會員次數</span>
                                         <span v-if="is_vip"><font>@{{visit_other_count}}</font></span>
-                                        <span v-else><img src="/new/images/icon_35.png" /></span>
+                                        <span class="mtop" v-else><img src="/new/images/icon_35.png" /></span>
                                     </dt>
                                     <dt><span>過去7天瀏覽其他會員次數</span>
                                         <span v-if="is_vip"><font>@{{visit_other_count_7}}</font></span>
-                                        <span v-else><img src="/new/images/icon_35.png" /></span>
+                                        <span class="mtop" v-else><img src="/new/images/icon_35.png" /></span>
                                     </dt>
                                     <dt><span>被瀏覽次數</span>
                                         <span v-if="is_vip"><font>@{{be_visit_other_count}}</font></span>
-                                        <span v-else><img src="/new/images/icon_35.png" /></span>
+                                        <span class="mtop" v-else><img src="/new/images/icon_35.png" /></span>
                                     </dt>
                                     <dt><span>過去7天被瀏覽次數</span>
                                         <span v-if="is_vip"><font>@{{be_visit_other_count_7}}</font></span>
-                                        <span v-else><img src="/new/images/icon_35.png" /></span>
+                                        <span class="mtop" v-else><img src="/new/images/icon_35.png" /></span>
                                     </dt>
 
                                     <dt><span>封鎖多少會員</span>
@@ -1027,7 +1027,7 @@
                                                 @{{blocked_other_count}}
                                             </font>
                                         </span>
-                                        <span v-else><img src="/new/images/icon_35.png" /></span>
+                                        <span class="mtop" v-else><img src="/new/images/icon_35.png" /></span>
                                     </dt>
                                     <dt><span>被多少會員封鎖</span>
                                         <span v-if="is_vip">
@@ -1035,7 +1035,7 @@
                                                 @{{be_blocked_other_count}}
                                             </font>
                                         </span>
-                                        <span v-else><img src="/new/images/icon_35.png" /></span>
+                                        <span class="mtop" v-else><img src="/new/images/icon_35.png" /></span>
                                     </dt>
                                 </div>
                             </div>
