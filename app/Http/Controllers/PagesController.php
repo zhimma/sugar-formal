@@ -2311,7 +2311,7 @@ class PagesController extends BaseController
                 }
             }
 
-
+        if($is_vip){
             $data = array(
                 'login_times_per_week' => $login_times_per_week,
                 'tip_count' => $tip_count,
@@ -2339,6 +2339,36 @@ class PagesController extends BaseController
                 // 'hideOnlineDays' => $hideOnlineDays
                 //end
             );
+        }else{
+            $data = array(
+                'login_times_per_week' => "<img src='/new/images/icon_35.png' />",
+                'tip_count' => "<img src='/new/images/icon_35.png' />",
+                'is_vip' => 0,
+                'is_block_mid' => "<img src='/new/images/icon_35.png' />",
+                'is_visit_mid' => "<img src='/new/images/icon_35.png' />",
+                'visit_other_count' => "<img src='/new/images/icon_35.png' />",
+                'visit_other_count_7' => "<img src='/new/images/icon_35.png' />",
+                'be_visit_other_count' => "<img src='/new/images/icon_35.png' />",
+                'be_visit_other_count_7' => "<img src='/new/images/icon_35.png' />",
+                'message_count' => "<img src='/new/images/icon_35.png' />",
+                'message_count_7' => "<img src='/new/images/icon_35.png' />",
+                'message_reply_count' => "<img src='/new/images/icon_35.png' />",
+                'message_reply_count_7' => "<img src='/new/images/icon_35.png' />",
+                'message_percent_7' => "<img src='/new/images/icon_35.png' />",
+                'is_banned' => "<img src='/new/images/icon_35.png' />",
+                'userHideOnlinePayStatus' => "<img src='/new/images/icon_35.png' />",
+                'last_login' => "<img src='/new/images/icon_35.png' />"
+                //此段僅測試用
+                //上正式機前起移除
+                ,
+                // 'message_count_7_old' => $message_count_7_old,
+                // 'message_reply_count_7_old' => $message_reply_count_7_old,
+                // 'visit_other_count_7_old' => $visit_other_count_7_old,
+                // 'hideOnlineDays' => $hideOnlineDays
+                //end
+            );
+        }
+            
        
         
      
@@ -2526,7 +2556,9 @@ class PagesController extends BaseController
                     }else{
                         if($user->isVip()){
                             $ssr_var = 'xa_ssbg';
-                        } 
+                        }else{
+                            $ssr_var = '';
+                        }
                         if($visitor->isPhoneAuth()){
                             $ssrData .='<div class="hoverTip '.$ssr_var.'">';                            
                             if($user->isVip()){
