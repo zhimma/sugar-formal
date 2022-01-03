@@ -333,7 +333,7 @@
                                     </p>
                                 </div>
                             </div>
-                            @elseif($message['sys_notice']==0 && $message['unsend']==0)
+                            @elseif($message['sys_notice']!=0 && $message['unsend']==0)
                             @if($isVip && $message['from_id'] == $user->id)
                                 @if((!isset($admin) || $to->id != $admin->id) && !isset($to->banned )&& !isset($to->implicitlyBanned))
                             <form method="post" id="unsend_form_{{$message['id']}}" action="{{route('unsendChat')}}">
