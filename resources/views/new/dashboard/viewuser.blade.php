@@ -368,7 +368,7 @@
                 <div class="rightbg">
                     <div class="metx">
                         @if(Request()->get('page_mode')=='edit')
-                            <a href="{!! url('dashboard') !!}" class="hyneback" style="z-index: 6;"><img src="/new/images/back_icon.png">修改</a>
+                            <a href="{!! url('dashboard') !!}" class="zh_shed" style="z-index: 6;"></a>
                         @else
                             <a href="{{ !empty(session()->get('goBackPage')) ? session()->get('goBackPage') : \Illuminate\Support\Facades\URL::previous() }}" {{--href="javascript: history.back()"--}} class="hyneback" style="z-index: 6;"><img src="/new/images/back_icon.png">返回</a>                          
                         @endif                        

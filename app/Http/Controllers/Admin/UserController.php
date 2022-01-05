@@ -820,7 +820,8 @@ class UserController extends \App\Http\Controllers\BaseController
         if($block=='pic') {
             return view('admin.users.advInfoPicBlock')
                 ->with('user', $user)
-                ->with('userMeta', $userMeta);
+                ->with('userMeta', $userMeta)
+                ->with('last_images_compare_encode',ImagesCompareEncode::orderByDesc('id')->firstOrNew());
         }        
         
         $userMessage = Message::where('from_id', $id)->orderBy('created_at', 'desc')->paginate(config('social.admin.showMessageCount'));
@@ -1343,7 +1344,7 @@ class UserController extends \App\Http\Controllers\BaseController
                 ->with('ip',$ip)
                 ->with('userAgent',$userAgent)
 				->with('banned_advance_auth_status', $banned_advance_auth_status)
-                ->with('last_images_compare_encode',ImagesCompareEncode::orderByDesc('id')->first())
+                ->with('last_images_compare_encode',ImagesCompareEncode::orderByDesc('id')->firstOrNew())
                 ->with('posts_forum', $posts_forum);
         }
     }
@@ -3516,7 +3517,7 @@ class UserController extends \App\Http\Controllers\BaseController
             ->where(function($query)use($date_start,$date_end,$bannedUsers,$isAdminWarnedList)
             {
                 $query->where('message.from_id','<>',1049)
-                    ->where('message.sys_notice',0)
+                    ->where('message.sys_notice', 0)->orWhereNull('message.sys_notice')
                     ->whereNotIn('message.from_id',$bannedUsers)
                     ->whereNotIn('message.from_id',$isAdminWarnedList)
                     ->whereBetween('message.created_at', array($date_start . ' 00:00', $date_end . ' 23:59'));
@@ -3561,7 +3562,7 @@ class UserController extends \App\Http\Controllers\BaseController
 
                 $messages = Message::select('id','content','created_at')
                     ->where('from_id',$result->from_id)
-                    ->where('sys_notice',0)
+                    ->where('sys_notice', 0)->orWhereNull('message.sys_notice')
                     ->whereBetween('created_at', array($date_start . ' 00:00', $date_end . ' 23:59'))
                     ->orderBy('created_at','desc')
                     ->take(100)
@@ -4669,7 +4670,7 @@ class UserController extends \App\Http\Controllers\BaseController
 
         return view('admin.users.userPicturesSimilar',[
             'users' => $users
-        ])->with('last_images_compare_encode',ImagesCompareEncode::orderByDesc('id')->first());
+        ])->with('last_images_compare_encode',ImagesCompareEncode::orderByDesc('id')->firstOrNew());
     }
 
     public function UserPicturesSimilarLog(Request $request){
@@ -4728,7 +4729,7 @@ class UserController extends \App\Http\Controllers\BaseController
 
         return view('admin.users.userPicturesSimilarLog', [
             'AdminPicturesSimilarActionLogs' => $AdminPicturesSimilarActionLogs
-        ])->with('last_images_compare_encode',ImagesCompareEncode::orderByDesc('id')->first());
+        ])->with('last_images_compare_encode',ImagesCompareEncode::orderByDesc('id')->firstOrNew());
     }
 
     public function UserPicturesSimilarJobCreate(Request $request){

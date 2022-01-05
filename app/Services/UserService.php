@@ -539,7 +539,8 @@ class UserService
                 }
                 $user->update($payload);
                 $user->tattoo()->delete();
-                if(($payload['tattoo_part']??null) || $payload['tattoo_range']??null) {
+                if(isset($payload['tattoo_part']) && 
+                   (($payload['tattoo_part'] ?? null) || ($payload['tattoo_range'] ?? null))) {
                     $user->tattoo()->create(['part'=>$payload['tattoo_part'],'range'=>$payload['tattoo_range']]);
                 }
                 return $user;
