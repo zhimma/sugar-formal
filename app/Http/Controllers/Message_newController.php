@@ -248,7 +248,7 @@ class Message_newController extends BaseController {
 
             $messagePosted = $this->message_pic_save($messageInfo->id, $request->file('images'));
         }else {
-            $messagePosted = Message::post($user->id, $payload['to'], $payload['msg'],true,null,$payload['parent']??null);
+            $messagePosted = Message::post($user->id, $payload['to'], $payload['msg'],true,0,$payload['parent']??null);
         }
 
         //line通知訊息

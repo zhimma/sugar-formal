@@ -40,6 +40,7 @@ class InsertPR extends Command
      */
     public function handle()
     {
+        ini_set("memory_limit","20G");
         //
         try {
 

@@ -1053,7 +1053,7 @@ class User extends Authenticatable
 				->whereNull('wu.member_id')
 				->where(function($query)use($date_start,$date_end) {
 					$query->where('message.from_id','<>',1049)
-						->where('message.sys_notice',0)
+						->where('message.sys_notice', 0)->orWhereNull('message.sys_notice')
 						->whereBetween('message.created_at', array($date_start . ' 00:00', $date_end . ' 23:59'));
 				});
 			$query->where('users.email',$user->email);
@@ -1066,7 +1066,7 @@ class User extends Authenticatable
 
 				$messages = Message::select('id','content','created_at')
 					->where('from_id', $user->id)
-					->where('sys_notice',0)
+					->where('sys_notice', 0)->orWhereNull('message.sys_notice')
 					->whereBetween('created_at', array($date_start . ' 00:00', $date_end . ' 23:59'))
 					->orderBy('created_at','desc')
 					->take(100)
@@ -1228,7 +1228,7 @@ class User extends Authenticatable
                 ->whereNull('wu.member_id')
                 ->where(function($query)use($date_start,$date_end) {
                     $query->where('message.from_id','<>',1049)
-                        ->where('message.sys_notice',0)
+                        ->where('message.sys_notice', 0)->orWhereNull('message.sys_notice')
                         ->whereBetween('message.created_at', array($date_start . ' 00:00', $date_end . ' 23:59'));
                 });
             $query->where('users.email',$user->email);
@@ -1241,7 +1241,7 @@ class User extends Authenticatable
 
                 $messages = Message::select('id','content','created_at')
                     ->where('from_id', $user->id)
-                    ->where('sys_notice',0)
+                    ->where('sys_notice', 0)->orWhereNull('message.sys_notice')
                     ->whereBetween('created_at', array($date_start . ' 00:00', $date_end . ' 23:59'))
                     ->orderBy('created_at','desc')
                     ->take(100)

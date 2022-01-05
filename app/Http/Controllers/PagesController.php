@@ -2063,7 +2063,8 @@ class PagesController extends BaseController
                 ->where('users.account_status_admin', 1)
                 ->where(function($query)use($date_start,$date_end) {
                     $query->where('message.from_id','<>',1049)
-                        ->where('message.sys_notice',0)
+                        ->where('message.sys_notice', 0)
+                        ->orWhereNull('message.sys_notice')
                         ->whereBetween('message.created_at', array($date_start . ' 00:00', $date_end . ' 23:59'));
                 });
             $query->where('users.email',$targetUser->email);
@@ -2076,7 +2077,8 @@ class PagesController extends BaseController
 
                 $messages = Message::select('id','content','created_at')
                     ->where('from_id', $targetUser->id)
-                    ->where('sys_notice',0)
+                    ->where('message.sys_notice', 0)
+                    ->orWhereNull('message.sys_notice')
                     ->whereBetween('created_at', array($date_start . ' 00:00', $date_end . ' 23:59'))
                     ->orderBy('created_at','desc')
                     ->take(100)
@@ -4846,6 +4848,7 @@ class PagesController extends BaseController
             ->join('user_meta', 'users.id','=','user_meta.user_id')
             ->leftJoin('forum_posts', 'forum_posts.user_id','=', 'users.id')
 //            ->where('forum.status', 1)
+            ->orderBy('forum.status', 'desc')
             ->orderBy('currentReplyTime','desc')
             ->groupBy('forum.id')
             ->paginate(10);
@@ -5049,7 +5052,13 @@ class PagesController extends BaseController
             if(!isset($checkData)){
                 ForumManage::insert(['forum_id'=>$fid->id, 'user_id' => $uid, 'apply_user_id' => $auid, 'status'=> 1, 'created_at' => Carbon::now(), 'updated_at' => Carbon::now()]);
                 $msg = '申請成功';
-//                ForumManage::insert(['forum_id'=>$fid->id, 'user_id' => $uid, 'apply_user_id' => $auid, 'created_at' => Carbon::now(), 'updated_at' => Carbon::now()]);
+//                ForumManage::insert([
+//                    'forum_id'=>$fid->id,
+//                    'user_id' => $uid,
+//                    'apply_user_id' => $auid,
+//                    'created_at' => Carbon::now(),
+//                    'updated_at' => Carbon::now()
+//                ]);
 //                $msg = '申請成功';
             }else{
                 $msg = '已重複申請';
@@ -5300,7 +5309,7 @@ class PagesController extends BaseController
             $query->where($whereArr1);
         });
         if($sys_notice) $query->where('sys_notice',1);
-        else $query->where('sys_notice','<>',1);
+        else $query->where('sys_notice',0)->orWhereNull('sys_notice');
         $query = $query->orderBy('created_at', 'desc')->orderBy('read');
         if(!$sys_notice) $query->appends(['manual'=>intval(!$sys_notice)]);
 
@@ -5831,7 +5840,7 @@ class PagesController extends BaseController
 		$admin_msgs = [];
         $admin_msgs_sys = [];
 
-		foreach($admin_msg_entrys->where('sys_notice','<>','1') as $admin_msg_entry) {             
+		foreach($admin_msg_entrys->where('sys_notice',0) as $admin_msg_entry) {
             $admin_msg_entry->content = str_replace('NAME', $user->name, $admin_msg_entry->content);
             $admin_msg_entry->content = str_replace('|$report|', $user->name, $admin_msg_entry->content);
             $admin_msg_entry->content = str_replace('LINE_ICON', AdminService::$line_icon_html, $admin_msg_entry->content);
@@ -6078,7 +6087,7 @@ class PagesController extends BaseController
 				$admin_msgs = [];
 				$i=0;
                 if($sys_remind) $admin_msg_entrys = $admin_msg_entrys->where('sys_notice',1);
-                else $admin_msg_entrys = $admin_msg_entrys->where('sys_notice','<>',1);
+                else $admin_msg_entrys = $admin_msg_entrys->where('sys_notice',0)->orWhereNull('sys_notice');
 				foreach($admin_msg_entrys as $admin_msg_entry) {
 					$admin_msgs[] = $admin_msg_entry;
 					$i++;

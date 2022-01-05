@@ -10,7 +10,7 @@ class BaseController extends Controller
     protected $user, $user_meta, $userIsVip, $unread, $valueAddedServices;
 
     public function __construct() {
-        if(\Request::route()->getName() != "showMessages"){
+        if(\Request::route() && \Request::route()->getName() != "showMessages"){
             $this->middleware('global');
             $this->middleware(function ($request, $next) {
                 $this->user = view()->shared('user');

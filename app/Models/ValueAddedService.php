@@ -389,7 +389,7 @@ class ValueAddedService extends Model
             ->where('users.account_status_admin', 1)
             ->where(function ($query) use ($date_start, $date_end) {
                 $query->where('message.from_id', '<>', 1049)
-                    ->where('message.sys_notice', 0)
+                    ->where('message.sys_notice','<>', 1)
                     ->whereBetween('message.created_at', array($date_start . ' 00:00', $date_end . ' 23:59'));
             });
         $query->where('users.email', $user->email);
@@ -402,7 +402,7 @@ class ValueAddedService extends Model
 
             $messages = Message::select('id', 'content', 'created_at')
                 ->where('from_id', $user->id)
-                ->where('sys_notice', 0)
+                ->where('sys_notice','<>',1)
                 ->whereBetween('created_at', array($date_start . ' 00:00', $date_end . ' 23:59'))
                 ->orderBy('created_at', 'desc')
                 ->take(100)
