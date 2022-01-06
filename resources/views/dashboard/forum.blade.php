@@ -30,10 +30,53 @@
 						   class="xinzeng_but" style="font-size: 12px;"><img src="/posts/images/liuyan_03.png" style="height:15px;">個人討論區</a>
 					</div>
 					<!--  -->
-					<a class="tl_button_PC" href="/dashboard/posts_list" style="width: 95%;"><img src="/posts/images/taolun_but_pc.png"></a>
-					<a class="tl_button" href="/dashboard/posts_list"><img src="/posts/images/taolun_but.png"></a>
+{{--					<a class="tl_button_PC" href="/dashboard/posts_list" style="width: 95%;"><img src="/posts/images/taolun_but_pc.png"></a>--}}
+{{--					<a class="tl_button" href="/dashboard/posts_list"><img src="/posts/images/taolun_but.png"></a>--}}
 
+					<div class="tl_bbg">
+						<a href="/dashboard/posts_list">
+						<img src="/posts/images/taolq02.png" class="tl_bbg_img">
+						<div class="te_ins">
+							<div class="ta_wdka_text te_incob">主題數<span>{{$posts_list[0]->posts_num}}</span><i>丨</i>回覆數<span>{{$posts_list[0]->posts_reply_num}}</span></div>
+							<div class="ta_witx_rig">
+								<div class="wt_txb">
+									@foreach($posts_list as $key=>$row)
+										@if(count($posts_list)>5)
+											@once
+											<span class="ta_toxmr">
+																<img src="/posts/images/imor.png" class="hycov">
+															</span>
+											@endonce
+										@endif
+{{--											<span class="ta_toxmr xa_rig10">--}}
+{{--																<img src="@if(file_exists( public_path().$row->umpic ) && $row->umpic != ""){{$row->umpic}} @elseif($row->engroup==2)/new/images/female.png @else/new/images/male.png @endif" class="hycov">--}}
+{{--															</span>--}}
 
+										@if($key==0)
+											<span class="ta_toxmr @if(count($posts_list)>5) xa_rig10 @endif">
+																<img src="@if(file_exists( public_path().$row->umpic ) && $row->umpic != ""){{$row->umpic}} @elseif($row->engroup==2)/new/images/female.png @else/new/images/male.png @endif" class="hycov">
+															</span>
+										@elseif($key>0 && $key<5)
+											<span class="ta_toxmr xa_rig10">
+																<img src="@if(file_exists( public_path().$row->umpic ) && $row->umpic != ""){{$row->umpic}} @elseif($row->engroup==2)/new/images/female.png @else/new/images/male.png @endif" class="hycov">
+															</span>
+{{--										@elseif($key>=5)--}}
+{{--											<span class="ta_toxmr xa_rig10">--}}
+{{--																<img src="/posts/images/imor.png" class="hycov hycov_down">--}}
+{{--															</span>--}}
+{{--											@break--}}
+										@endif
+									@endforeach
+{{--									<span class="ta_toxmr"><img src="/posts/images/imor.png" class="hycov"></span>--}}
+{{--									<span class="ta_toxmr xa_rig10"><img src="/posts/images/zx.jpg" class="hycov"></span>--}}
+{{--									<span class="ta_toxmr xa_rig10"><img src="/posts/images/zx.jpg" class="hycov"></span>--}}
+{{--									<span class="ta_toxmr xa_rig10"><img src="/posts/images/zx.jpg" class="hycov"></span>--}}
+{{--									<span class="ta_toxmr xa_rig10"><img src="/posts/images/icon_010.png" class="hycov"></span>--}}
+								</div>
+							</div>
+						</div>
+						</a>
+					</div>
 
 
 					<div class="taolun_btl">
@@ -64,10 +107,10 @@
 											@php
 												$show_a = 1;
 											@endphp
-											<a onclick="forumTip({{$user->id}})">
+											<div onclick="forumTip({{$user->id}})">
 										@endif
 										<h2>{{$post->f_title}}</h2>
-										<h3>{!!  $post->f_sub_title !!}}</h3>
+										<h3>{!!  $post->f_sub_title !!}</h3>
 										<div class="ta_wdka">
 											<div class="ta_wdka_text">主題數<span>{{$post->posts_num}}</span><i>丨</i>回覆數<span>{{$post->posts_reply_num}}</span></div>
 											<div class="ta_witx_rig">
@@ -130,6 +173,8 @@
 			</div>
 		</div>
 		@stop
+
+@section('javascript')
 <script>
 
 	$(document).ready(function() {
@@ -222,3 +267,4 @@
 	}
 
 </script>
+@endsection
