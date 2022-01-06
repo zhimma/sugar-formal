@@ -18,6 +18,8 @@ use App\Services\AdminService;
 use Intervention\Image\Facades\Image;
 use App\Models\SimpleTables\banned_users;
 
+use function Clue\StreamFilter\fun;
+
 class Message extends Model
 {
     use SoftDeletes;
@@ -614,7 +616,16 @@ class Message extends Model
            
             $query = Message::where('created_at','>=',self::$date);
             
-            if($includeUnsend) $query->withTrashed()->where(function ($q) {$q->where('unsend',0)->whereNull('deleted_at');$q->orwhere('unsend',1);});
+            if($includeUnsend) { 
+                $query->withTrashed()->where(function ($q) {
+                    $q->where(function ($q1) {
+                        $q1->where('unsend', 0)->whereNull('deleted_at');
+                    })
+                    ->orWhere(function ($q2) {
+                        $q2->where('unsend', 1);
+                    });
+                });
+            }
         }  
         else {
             $query = Message::whereNotNull('id');
