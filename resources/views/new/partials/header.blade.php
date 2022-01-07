@@ -22,7 +22,7 @@
         @if (\App::environment('local'))
             <script src="{{ asset('js/app_local.js') }}" type="text/javascript"></script>
         @else
-            <script src="{{ asset('js/app.js') }}" type="text/javascript"></script>
+            <script src="{{ mix('js/app.js') }}" type="text/javascript"></script>
         @endif
         <script src="/new/js/jquery.lazyload.min.js" type="text/javascript"></script>
         <?php //新樣板css?>
