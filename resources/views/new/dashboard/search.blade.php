@@ -1,6 +1,4 @@
 @extends('new.layouts.website')
-<script src="{{ mix('/js/app.js') }}"></script>
-
 @section('app-content')
 <style>
 .pagination > li > a:focus,

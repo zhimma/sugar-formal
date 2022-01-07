@@ -5,7 +5,6 @@
     header("Expires: Fri, 01 Jan 1990 00:00:00 GMT");
 @endphp
 @extends('new.layouts.website')
-<script src="{{ mix('/js/app.js') }}"></script>
 @section('app-content')
     <style>
         .blur_img {
