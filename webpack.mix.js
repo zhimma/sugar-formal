@@ -13,8 +13,20 @@ const mix = require('laravel-mix');
 
 mix.js('resources/js/app.js', 'public/js')
     .vue()
-    .polyfill({
-       enabled: true,
-       useBuiltIns: "usage"
-    })
-    .sass('resources/sass/app.scss', 'public/css');
+    .sass('resources/sass/app.scss', 'public/css')
+.webpackConfig({
+  module: {
+    rules: [
+      {
+        test: /\.m?js$/,
+        exclude: /(bower_components)/,
+        use: {
+          loader: "babel-loader",
+          options: {
+            presets: ["@babel/preset-env"],
+          },
+        },
+      },
+    ],
+  },
+});
