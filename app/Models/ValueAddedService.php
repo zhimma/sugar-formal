@@ -493,4 +493,12 @@ class ValueAddedService extends Model
         ]);
     }
 
+    public function isPaidCanceled() {
+        if($this->active==1){
+            if($this->expiry >= Carbon::now()){
+                return 1;
+            }
+        }
+        return 0;        
+    }
 }
