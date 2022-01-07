@@ -71,6 +71,15 @@ Route::get('/ts_2', 'PagesController@ts_2');
 |--------------------------------------------------------------------------
 */
 Route::get('/', 'PagesController@home');
+Route::get('/vue_test', 'PagesController@vue_test');
+Route::get('/getAllData', 'PagesController@getAllData');
+Route::get('/getCollectionData', 'PagesController@getCollectionData');
+Route::post('/getSearchData', 'PagesController@getSearchData');
+
+Route::post('/getHideData', 'PagesController@getHideData');
+Route::post('/getFavCount', 'PagesController@getFavCount');
+Route::post('/getBlockUser', 'PagesController@getBlockUser');
+
 Route::get('/privacy', 'PagesController@privacy');
 Route::get('/notification', 'PagesController@notification');
 Route::get('/feature', 'PagesController@feature');
@@ -428,6 +437,7 @@ Route::group(['middleware' => ['auth', 'global', 'active', 'femaleActive', 'vipC
 
         Route::middleware("HasReferer:listSeatch2")->group(function (){
             Route::get('/dashboard/viewuser/{uid?}', 'PagesController@viewuser2')->name('viewuser'); //new route
+            Route::get('/dashboard/viewuser_re/{uid?}', 'PagesController@viewuser_re')->name('viewuser');
         });
 		Route::get('/dashboard/switch_other_engroup', 'PagesController@switchOtherEngroup')->name('switch_other_engroup');
 		Route::get('/dashboard/switch_engroup_back', 'PagesController@switchEngroupBack')->name('switch_engroup_back');
