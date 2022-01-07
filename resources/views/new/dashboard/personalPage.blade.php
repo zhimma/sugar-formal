@@ -810,29 +810,6 @@
         });
     });
 
-    $('#collapseExample').collapse('show');
-
-    $('#collapseExample').collapse('show',{
-        toggle: true
-
-    });
-
-    $('#collapseExample').on('hidden.bs.collapse', function () {
-        // do something…
-        $('.collapse_word').html('[＋]　展開');
-    });
-    $('#collapseExample').on('shown.bs.collapse', function () {
-        // do something…
-        $('.collapse_word').html('[－]　收起');
-    });
-
-    $( document ).ready(function() {
-        //
-        $('#collapseExample').collapse('show');
-    });
-
-
-
     @if (isset($errors) && $errors->count() > 0)
         @foreach ($errors->all() as $error)
             c5('{{ $error }}');
