@@ -2351,7 +2351,7 @@
                 }
             }
         });
-        //resize_before_upload(images_uploader,400,600,'#tab_evaluation,#show_reportPic');
+        {{-- resize_before_upload(images_uploader,400,600,'#tab_evaluation,#show_reportPic'); --}}
         reportedImages_uploader = $('input[name="reportedImages"]').fileuploader({
             //extensions: ['jpg', 'png', 'jpeg', 'bmp'],
             changeInput: ' ',
@@ -2483,7 +2483,7 @@
                 }
             }
         });
-        //resize_before_upload(reportedImages_uploader,400,600,'#show_banned');
+        {{-- resize_before_upload(reportedImages_uploader,400,600,'#show_banned'); --}}
         $(".announce_bg").on("click", function() {
             $('.bl_tab_aa').hide();
             $('body').css("overflow", "auto");
