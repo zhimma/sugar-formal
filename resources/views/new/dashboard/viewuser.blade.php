@@ -1700,6 +1700,10 @@
             $(this).parent().prev().find('.context').find(".zap_photo").toggleClass('huiyoic');
         });
 
+        function isEllipsisActive(e) {
+            return (Math.ceil($(e).innerHeight()) < $(e)[0].scrollHeight);
+        }
+
         $('div.context-wrap').each(function(i) {
             if (isEllipsisActive(this)) {
                 $(this).parents('.hu_p').find('span.z_more').removeClass('hide_more');
@@ -2175,10 +2179,6 @@
             }
         });
     });
-
-    function isEllipsisActive(e) {
-        return (Math.ceil($(e).innerHeight()) < $(e)[0].scrollHeight);
-    }
 
     $(".al_but").on("click", function() {
         if ($(this).hasClass("active")) {
