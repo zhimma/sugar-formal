@@ -75,6 +75,9 @@
         float: left;
         display: block;
     }
+    
+    .n_search .n_input .twzipcode {margin-bottom:10px;} 
+    .n_search .n_input .twzipcode:last-child {margin-bottom:0;} 
     </style>
     <div id="app">
     <div class="container matop70">
@@ -98,6 +101,18 @@
                                 <div class="sew6" style="width:13%"></div>
                                 <div class="select_xx08 right" data-role="district" data-name="district" data-value="@if(!empty($_POST['district'])){{ $_POST['district'] }}@elseif(!empty($_GET['district'])){{ $_GET['district'] }}@elseif(!empty(session()->get('search_page_key.district'))){{ session()->get('search_page_key.district')  }}@endif" style=""></div>
                                 </span>
+                                @if ($user->isVIP())
+                                <span class="twzipcode" id="twzipcode2" style="display:inline-flex">
+                                <div class="select_xx08 left" data-role="county" data-name="county2" data-value="{{ request()->county2??session()->get('search_page_key.county2')  }}" style=""></div>
+                                <div class="sew6" style="width:13%"></div>
+                                <div class="select_xx08 right" data-role="district" data-name="district2" data-value="{{ request()->district2??session()->get('search_page_key.district2')  }}" style=""></div>
+                                </span>
+                                <span class="twzipcode" id="twzipcode3" style="display:inline-flex">
+                                <div class="select_xx08 left" data-role="county" data-name="county3" data-value="{{ request()->county3??session()->get('search_page_key.county3')  }}" style=""></div>
+                                <div class="sew6" style="width:13%"></div>
+                                <div class="select_xx08 right" data-role="district" data-name="district3" data-value="{{ request()->district3??session()->get('search_page_key.district3')  }}" style=""></div>
+                                </span>  
+                                @endif
                             </dt>
 
                             @if (!$user->isVIP())
@@ -417,6 +432,10 @@
                     try{
                         $district = "";
                         $county = "";
+                        $district2 = "";
+                        $county2 = "";
+                        $district3 = "";
+                        $county3 = "";                        
                         $cup = "";
                         $marriage = "";
                         $budget = "";
@@ -478,12 +497,16 @@
                     if (isset($_POST['isWarned'])){$isWarned = $_POST['isWarned'];}elseif(isset($_GET['isWarned'])){$isWarned = $_GET['isWarned'];}elseif(!empty(session()->get('search_page_key.isWarned'))){$isWarned = session()->get('search_page_key.isWarned');}
                     if (isset($_POST['isPhoneAuth'])){$isPhoneAuth = $_POST['isPhoneAuth'];}elseif(isset($_GET['isPhoneAuth'])){$isPhoneAuth = $_GET['isPhoneAuth'];}elseif(!empty(session()->get('search_page_key.isPhoneAuth'))){$isPhoneAuth = session()->get('search_page_key.isPhoneAuth');}
                     $tattoo = request()->tattoo??session()->get('search_page_key.tattoo');
+                    $county2 = request()->county2??session()->get('search_page_key.county2');
+                    $county3 = request()->county3??session()->get('search_page_key.county3');
+                    $district2 = request()->district2??session()->get('search_page_key.district2');
+                    $district3 = request()->district3??session()->get('search_page_key.district3');
                     ?>
                 @endif
                 <?php $icc = 1;
                 $userIsVip = $user->isVIP();
                 $userIsAdvanceAuth = isset($_POST['isAdvanceAuth'])?1:0;
-                
+
                 // vi vendor/laravel/framework/src/Illuminate/Database/Query/Builder.php
                 // addWhereExistsQuery() remove $operator
                 // https://learnku.com/articles/28283?order_by=vote_count&
@@ -668,14 +691,28 @@
         $(document).ready(function(){
             //var BootstrapDatepicker=function(){var t=function(){$("#m_datepicker_1, #m_datepicker_1_validate").datepicker({todayHighlight:!0,orientation:"bottom left",templates:{leftArrow:'<i class="la la-angle-left"></i>',rightArrow:'<i class="la la-angle-right"></i>'}}),$("#m_datepicker_1_modal").datepicker({todayHighlight:!0,orientation:"bottom left",templates:{leftArrow:'<i class="la la-angle-left"></i>',rightArrow:'<i class="la la-angle-right"></i>'}}),$("#m_datepicker_2, #m_datepicker_2_validate").datepicker({todayHighlight:!0,orientation:"bottom left",templates:{leftArrow:'<i class="la la-angle-left"></i>',rightArrow:'<i class="la la-angle-right"></i>'}}),$("#m_datepicker_2_modal").datepicker({todayHighlight:!0,orientation:"bottom left",templates:{leftArrow:'<i class="la la-angle-left"></i>',rightArrow:'<i class="la la-angle-right"></i>'}}),$("#m_datepicker_3, #m_datepicker_3_validate").datepicker({todayBtn:"linked",clearBtn:!0,todayHighlight:!0,templates:{leftArrow:'<i class="la la-angle-left"></i>',rightArrow:'<i class="la la-angle-right"></i>'}}),$("#m_datepicker_3_modal").datepicker({todayBtn:"linked",clearBtn:!0,todayHighlight:!0,templates:{leftArrow:'<i class="la la-angle-left"></i>',rightArrow:'<i class="la la-angle-right"></i>'}}),$("#m_datepicker_4_1").datepicker({orientation:"top left",todayHighlight:!0,templates:{leftArrow:'<i class="la la-angle-left"></i>',rightArrow:'<i class="la la-angle-right"></i>'}}),$("#m_datepicker_4_2").datepicker({orientation:"top right",todayHighlight:!0,templates:{leftArrow:'<i class="la la-angle-left"></i>',rightArrow:'<i class="la la-angle-right"></i>'}}),$("#m_datepicker_4_3").datepicker({orientation:"bottom left",todayHighlight:!0,templates:{leftArrow:'<i class="la la-angle-left"></i>',rightArrow:'<i class="la la-angle-right"></i>'}}),$("#m_datepicker_4_4").datepicker({orientation:"bottom right",todayHighlight:!0,templates:{leftArrow:'<i class="la la-angle-left"></i>',rightArrow:'<i class="la la-angle-right"></i>'}}),$("#m_datepicker_5").datepicker({todayHighlight:!0,templates:{leftArrow:'<i class="la la-angle-left"></i>',rightArrow:'<i class="la la-angle-right"></i>'}}),$("#m_datepicker_6").datepicker({todayHighlight:!0,templates:{leftArrow:'<i class="la la-angle-left"></i>',rightArrow:'<i class="la la-angle-right"></i>'}})};return{init:function(){t()}}}();jQuery(document).ready(function(){BootstrapDatepicker.init()});
             // var BootstrapSelect=function(){var t=function(){$(".m_selectpicker").selectpicker()};return{init:function(){t()}}}();jQuery(document).ready(function(){BootstrapSelect.init()});
-            $('.twzipcode').twzipcode({
+            $('.twzipcode').eq(0).twzipcode({
                 'detect': true, 'css': ['select_xx08','select_xx08'], onCountySelect: function() {
                     $("select[name='district']").prepend('<option selected value="">全市</option>');
                 }
             });
             $('input[name="zipcode"]').remove();
+            
 
-
+            $('.twzipcode').eq(1).twzipcode({
+                'detect': true, 'css': ['select_xx08','select_xx08'],countyName : 'country2',districtName : 'district2', onCountySelect: function() {
+                    $("select[name='district2']").prepend('<option selected value="">全市</option>');
+                }
+            });
+            $('input[name="zipcode"]').remove();
+            
+            $('.twzipcode').eq(2).twzipcode({
+                'detect': true, 'css': ['select_xx08','select_xx08'],countyName : 'country3',districtName : 'district3', onCountySelect: function() {
+                    $("select[name='district3']").prepend('<option selected value="">全市</option>');
+                }
+            });            
+            $('input[name="zipcode"]').remove();
+            
             $('[data-toggle="popover"]').popover({
                 animated: 'fade',
                 placement: 'bottom',
@@ -746,6 +783,11 @@
              let isPhoneAuth="{{$isPhoneAuth}}";
              let userIsAdvanceAuth="{{$userIsAdvanceAuth}}";
              let page= "{{$page ?? 1}}";
+             let tattoo= "{{$tattoo ?? null}}";
+             let district2= "{{$district2  ?? null}}";
+             let county2= "{{$county2  ?? null}}";
+             let district3= "{{$district3  ?? null}}";
+             let county3= "{{$county3  ?? null}}";
             axios.post('/getSearchData', {
                 county:county,
                 district:district,
@@ -776,7 +818,13 @@
                 isWarned:isWarned,
                 isPhoneAuth:isPhoneAuth,
                 userIsAdvanceAuth:userIsAdvanceAuth,
-                page:page
+                page:page,
+                tattoo:tattoo,
+                city2:county2,
+                area2:district2,
+                city3:county3,
+                area3:district3
+                
             })
             .then(response => {
                     this.ssrData = response.data.ssrData;
