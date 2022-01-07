@@ -2499,7 +2499,12 @@ class PagesController extends BaseController
             $request->isWarned,
             $request->isPhoneAuth,
             $request->userIsAdvanceAuth,
-            $request->page
+            $request->page,
+            $request->tattoo,
+            $request->city2,
+            $request->area2,
+            $request->city3,
+            $request->area3
         );
 
         $ssrData = '';
@@ -5669,8 +5674,8 @@ class PagesController extends BaseController
             $vipStatus='您已是 VIP';
             $vip_record = Carbon::parse($user->vip_record);
             $vipDays = $vip_record->diffInDays(Carbon::now());
-            if(!$user->isFreeVip()) {
-                $vip = Vip::select('business_id', 'order_id', 'payment', 'payment_method', 'expiry', 'amount')->where('member_id', $user->id)->first();
+            if(!$user->isFreeVip()) {               
+                $vip = $user->vip->first();               
                 if($vip->payment){
 
                     switch ($vip->payment_method){
@@ -5719,24 +5724,36 @@ class PagesController extends BaseController
                         }
                         $nextProcessDate = substr($lastProcessDate->addDays($periodRemained),0,10);
                     }
+                    $last_vip_log = null;                   
 
                     switch ($vip->payment){
                         case 'cc_monthly_payment':
-                            if(isset($nextProcessDate)){
+                            if(!$vip->isPaidCanceled() && ($nextProcessDate??null)){
                                 $nextProcessDate = '預計下次扣款日為 '.$nextProcessDate.' 扣款金額：'.$vip->amount;
-                            }else{
-                                $nextProcessDate = '已停止扣款，VIP 到期日為' . substr($vip->expiry,0,10);
+                                $vipStatus='您目前的 VIP 是每月定期 '.$payment.'。'.$nextProcessDate;
+                            }else if($vip->isPaidCanceled()){
+                                $cancel_str = '';
+                                $latest_vip_log = $user->getLatestVipLog();
+                                if($latest_vip_log->isCancel()) {
+                                    $cancel_str='您已經在 '.substr($latest_vip_log->created_at,0,10).' 取消續約，';
+                                }
+                                
+                                $vipStatus='您是本站VIP。'.$cancel_str.'VIP到期日為 '. substr($vip->expiry,0,10).'。';
                             }
-                            $vipStatus='您目前的 VIP 是每月定期 '.$payment.'。'.$nextProcessDate;
                             break;
                         case 'cc_quarterly_payment':
-
-                            if(isset($nextProcessDate)){
+                            if(!$vip->isPaidCanceled() && ($nextProcessDate??null)){
                                 $nextProcessDate = '預計下次扣款日為 '.$nextProcessDate.' 扣款金額：'.$vip->amount;
-                            }else{
-                                $nextProcessDate = '已停止扣款，VIP 到期日為' . substr($vip->expiry,0,10);
+                                $vipStatus='您目前的 VIP 是每季定期 '.$payment.'。'.$nextProcessDate;
+                            }else if($vip->isPaidCanceled()){
+                                $cancel_str = '';
+                                $latest_vip_log = $user->getLatestVipLog();
+                                if($latest_vip_log->isCancel()) {
+                                    $cancel_str='您已經在 '.substr($latest_vip_log->created_at,0,10).' 取消續約，';
+                                }
+                                
+                                $vipStatus='您是本站VIP。'.$cancel_str.'VIP到期日為 '. substr($vip->expiry,0,10).'。';                                
                             }
-                            $vipStatus='您目前的 VIP 是每季定期 '.$payment.'。'.$nextProcessDate;
                             break;
                         case 'one_month_payment':
                             $vipStatus='您目前的 VIP 是單次支付本月費用 '.$payment.'，到期日為'. substr($vip->expiry,0,10);
@@ -5819,7 +5836,87 @@ class PagesController extends BaseController
             
             }
         }
+        
+        $vasStatus = '';
+        if($user->valueAddedServiceStatus('hideOnline') == 1) {
+            $vasStatus = '您已購買隱藏付費功能';
+            $vas = $user->vas->where('service_name','hideOnline')->first();
+            if($vas->payment){
+                if(\App::environment('local')){
+                    $envStr = '_test';
+                }
+                else{
+                    $envStr = '';
+                }
+                if(substr($vas->payment,0,3) == 'cc_' && $vas->business_id == Config::get('ecpay.payment'.$envStr.'.MerchantID')){
 
+                    $ecpay = new \App\Services\ECPay_AllInOne();
+                    $ecpay->MerchantID = Config::get('ecpay.payment'.$envStr.'.MerchantID');
+                    $ecpay->ServiceURL = Config::get('ecpay.payment'.$envStr.'.ServiceURL');//定期定額查詢
+                    $ecpay->HashIV = Config::get('ecpay.payment'.$envStr.'.HashIV');
+                    $ecpay->HashKey = Config::get('ecpay.payment'.$envStr.'.HashKey');
+                    $ecpay->Query = [
+                        'MerchantTradeNo' => $vas->order_id,
+                        'TimeStamp' => 	time()
+                    ];
+                    $paymentData = $ecpay->QueryPeriodCreditCardTradeInfo(); //信用卡定期定額
+                    $last = last($paymentData['ExecLog']);
+                    $lastProcessDate = str_replace('%20', ' ', $last['process_date']);
+                    $lastProcessDate = \Carbon\Carbon::createFromFormat('Y/m/d H:i:s', $lastProcessDate);
+
+                    //計算下次扣款日
+                    if($vas->payment == 'cc_quarterly_payment'){
+                        $periodRemained = 92;
+                    }else {
+                        $periodRemained = 30;
+                    }
+                    $nextProcessDate = substr($lastProcessDate->addDays($periodRemained),0,10);
+                }
+                $payment = '信用卡繳費';
+                switch ($vas->payment){
+                    case 'cc_monthly_payment':
+                         if(!$vas->isPaidCanceled() && $nextProcessDate??null){
+                            $nextProcessDate = '預計下次扣款日為 '.$nextProcessDate.' 扣款金額：'.$vas->amount;
+                            $vasStatus='您目前的隱藏付費是每月定期 '.$payment.'。'.$nextProcessDate;
+                        }else if($vas->isPaidCanceled()){
+                            $cancel_str = '';
+                            $latest_vas_log = $user->getLatestVasLog();
+                            if($latest_vas_log->isCancel()) {
+                                $cancel_str='您已經在 '.substr($latest_vas_log->created_at,0,10).' 取消續約，';
+                            }
+                            
+                            $vasStatus='您目前為隱藏付費者。'.$cancel_str.'隱藏付費到期日為 '. substr($vas->expiry,0,10).'。';                              
+                        }
+                        break;
+                    case 'cc_quarterly_payment':
+                         if(!$vas->isPaidCanceled() && $nextProcessDate??null){
+                            $nextProcessDate = '預計下次扣款日為 '.$nextProcessDate.' 扣款金額：'.$vas->amount;
+                            $vasStatus='您目前的隱藏付費功能是每季定期 '.$payment.'。'.$nextProcessDate;
+                        }else if($vas->isPaidCanceled()){
+                            //$nextProcessDate = '已停止扣款，隱藏付費功能到期日為' . substr($vas->expiry,0,10);
+                            $cancel_str = '';
+                            $latest_vas_log = $user->getLatestVasLog();
+                            if($latest_vas_log->isCancel()) {
+                                $cancel_str='您已經在 '.substr($latest_vas_log->created_at,0,10).' 取消續約，';
+                            }
+                            
+                            $vasStatus='您目前為隱藏付費者。'.$cancel_str.'隱藏付費到期日為 '. substr($vas->expiry,0,10).'。';                                   
+                        }
+                        break;
+                    case 'one_month_payment':
+                        $vasStatus='您目前的隱藏付費功能是單次支付本月費用 '.$payment.'，到期日為'. substr($vas->expiry,0,10);
+                        break;
+                    case 'one_quarter_payment':
+                        $vasStatus='您目前的隱藏付費功能是單次支付本季費用 '.$payment.'，到期日為'. substr($vas->expiry,0,10);
+                        break;
+                }
+            }
+         
+        }
+        else {
+            $vasStatus = '您尚未購買隱藏付費功能';
+        }
+ 
         $user_isBannedOrWarned = User::select(
             'm.isWarned',
             'm.isWarnedType',
@@ -6209,6 +6306,7 @@ class PagesController extends BaseController
         if (isset($user)) {
             $data = array(
                 'vipStatus' => $vipStatus,
+                'vasStatus'=> $vasStatus,
                 'isBannedStatus' => $isBannedStatus,
 //                'isBannedImplicitlyStatus' => $isBannedImplicitlyStatus,
                 'adminWarnedStatus' => $adminWarnedStatus,

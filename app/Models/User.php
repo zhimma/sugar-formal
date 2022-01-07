@@ -5,6 +5,7 @@ namespace App\Models;
 use App\Models\Role;
 use App\Models\Blocked;
 use App\Models\ValueAddedService;
+use App\Models\ValueAddedServiceLog;
 use App\Models\Vip;
 use App\Models\Tip;
 use App\Models\UserMeta;
@@ -73,11 +74,21 @@ class User extends Authenticatable
     {
         return $this->hasMany(Vip::class, 'member_id', 'id')->where('active', 1)->orderBy('created_at', 'desc');
     }
+    
+    public function vip_log()
+    {
+        return $this->hasMany(VipLog::class, 'member_id', 'id');
+    }    
 
     public function vas()
     {
         return $this->hasMany(ValueAddedService::class, 'member_id', 'id')->where('active', 1)->orderBy('created_at', 'desc');
     }
+    
+    public function vas_log()
+    {
+        return $this->hasMany(ValueAddedServiceLog::class, 'member_id', 'id');
+    }    
 
     public function aw_relation() {
         return $this->hasOne(\App\Models\SimpleTables\warned_users::class, 'member_id', 'id')->where(function ($query){
@@ -1428,6 +1439,16 @@ class User extends Authenticatable
     
     public function isTattooPart($part) {
         return ($this->tattoo->first()->part??null)==$part;
-    }    
+    } 
+
+    public function getLatestVipLog() {
+        return $this->vip_log()->orderByDesc('created_at')->first();
+    }
+    
+    public function getLatestVasLog($service_name=null) {
+        $query = $this->vas_log()->orderByDesc('created_at');
+        if($service_name) $query->where('service_name',$service_name);
+        return $query->first();
+    }
 
 }

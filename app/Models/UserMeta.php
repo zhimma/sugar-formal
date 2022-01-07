@@ -199,7 +199,12 @@ class UserMeta extends Model
                                   $isWarned = 2,
                                   $isPhoneAuth = '',
                                   $isAdvanceAuth=null,
-                                  $tattoo=null)
+                                  $tattoo=null,
+                                    $city2=null,
+                                    $area2=null, 
+                                    $city3=null,
+                                    $area3=null                               
+                                  )
     {
         if ($engroup == 1) { $engroup = 2; }
         else if ($engroup == 2) { $engroup = 1; }
@@ -235,10 +240,47 @@ class UserMeta extends Model
             $education,
             $isVip,
             $isWarned,
-            $isPhoneAuth){
+            $isPhoneAuth,
+            $city2,
+            $area2,
+            $city3,
+            $area3            
+            ){
             $query->select('*')->where('user_meta.birthdate', '<', Carbon::now()->subYears(18));      
-            if (isset($city) && strlen($city) != 0) $query->where('city','like', '%'.$city.'%');
-            if (isset($area) && strlen($area) != 0) $query->where('area','like', '%'.$area.'%');
+            
+            if($city || $city2 || $city3) {
+                $query->where(function($q) use ($city,$city2,$city3,$area,$area2,$area3) {
+                    if($city) {
+                        $q->orWhere(function($qq) use ($city,$area) {
+                            $qq->where('city','like','%'.$city.'%');
+                            if($area) {
+                                $qq->where('area','like','%'.$area.'%');
+                            }
+                        });
+                    }
+                    
+                    
+                    if($city2) {
+                        $q->orWhere(function($qq) use ($city2,$area2) {
+                            $qq->where('city','like','%'.$city2.'%');
+                            if($area2) {
+                                $qq->where('area','like','%'.$area2.'%');
+                            }
+                        });
+                    }
+
+                    if($city3) {
+                        $q->orWhere(function($qq) use ($city3,$area3) {
+                            $qq->where('city','like','%'.$city3.'%');
+                            if($area3) {
+                                $qq->where('area','like','%'.$area3.'%');
+                            }
+                        });
+                    }                    
+                    
+                });
+            }
+            
             if (isset($cup) && $cup!=''){
                 if(count($cup) > 0){
                     $query->whereIn('cup', $cup);
@@ -475,7 +517,12 @@ class UserMeta extends Model
                                   $isWarned = 2,
                                   $isPhoneAuth = '',
                                   $isAdvanceAuth=null,
-                                  $page)
+                                  $page,
+                                  $tattoo=null,
+                                  $city2=null,
+                                  $area2=null, 
+                                  $city3=null,
+                                  $area3=null  )
     {
         if ($engroup == 1) { $engroup = 2; }
         else if ($engroup == 2) { $engroup = 1; }
@@ -511,10 +558,45 @@ class UserMeta extends Model
             $education,
             $isVip,
             $isWarned,
-            $isPhoneAuth){
+            $isPhoneAuth,
+            $city2,
+            $area2,
+            $city3,
+            $area3){
             $query->select('*')->where('user_meta.birthdate', '<', Carbon::now()->subYears(18));
-            if (isset($city) && strlen($city) != 0) $query->where('city','like', '%'.$city.'%');
-            if (isset($area) && strlen($area) != 0) $query->where('area','like', '%'.$area.'%');
+            if($city || $city2 || $city3) {
+                $query->where(function($q) use ($city,$city2,$city3,$area,$area2,$area3) {
+                    if($city) {
+                        $q->orWhere(function($qq) use ($city,$area) {
+                            $qq->where('city','like','%'.$city.'%');
+                            if($area) {
+                                $qq->where('area','like','%'.$area.'%');
+                            }
+                        });
+                    }
+                    
+                    
+                    if($city2) {
+                        $q->orWhere(function($qq) use ($city2,$area2) {
+                            $qq->where('city','like','%'.$city2.'%');
+                            if($area2) {
+                                $qq->where('area','like','%'.$area2.'%');
+                            }
+                        });
+                    }
+
+                    if($city3) {
+                        $q->orWhere(function($qq) use ($city3,$area3) {
+                            $qq->where('city','like','%'.$city3.'%');
+                            if($area3) {
+                                $qq->where('area','like','%'.$area3.'%');
+                            }
+                        });
+                    }                    
+                    
+                });
+            }            
+
             if (isset($cup) && $cup!=''){
                 if(count($cup) > 0){
                     $query->whereIn('cup', $cup);
@@ -706,6 +788,19 @@ class UserMeta extends Model
                     ->where('active', $isVip);
             });
         }
+    
+        if($tattoo==1) {
+            $query->has('tattoo');
+        }
+        else if($tattoo==-1) {
+            $query->doesntHave('tattoo');
+        }
+            
+        if($userIsVip) {
+            $siService = new SearchIgnoreService(new \App\Services\UserService(new User,new UserMeta));
+            $ignore_user_ids = $siService->member_query()->get()->pluck('ignore_id')->all();
+            $query->whereNotIn('users.id',$ignore_user_ids);
+        }    
 
         $page = $page-1;
         $count = 12;
