@@ -1332,7 +1332,7 @@
     </div>
     
     @if(isset($to))
-    <div class="bl bl_tab" id="show_chat">
+    <div class="bl bl_tab" id="show_chat_ele">
         <div class="bltitle"><span>發送給{{$to->name}}</span></div>
         <div class="n_blnr01 ">
 
@@ -1349,7 +1349,7 @@
         <a id="" onclick="gmBtnNoReload()" class="bl_gb"><img src="/new/images/gb_icon.png"></a>
     </div>
 
-    <div class="bl_tab_aa" id="show_banned" style="display: none;">
+    <div class="bl_tab_aa" id="show_banned_ele" style="display: none;">
         <div class="bl_tab_bb">
             <div class="bltitle"><span style="text-align: center; float: none;">檢舉 {{$to->name}}</span></div>
             <div class="new_pot new_poptk_nn new_pot001">
@@ -1864,7 +1864,7 @@
         var to='{{$to->id}}';
         if(uid != to){
             $(".announce_bg").show();
-            $("#show_chat").show();
+            $("#show_chat_ele").show();
         }else{
             c5('不可發信給自己');
         }
@@ -1881,7 +1881,7 @@
         var to='{{$to->id}}';
         if(uid != to){
             $(".announce_bg").show();
-            $("#show_banned").show();
+            $("#show_banned_ele").show();
             $('body').css("overflow", "hidden");
         }else{
             c5('不可檢舉自己');
@@ -2483,7 +2483,7 @@
                 }
             }
         });
-        {{-- resize_before_upload(reportedImages_uploader,400,600,'#show_banned'); --}}
+        {{-- resize_before_upload(reportedImages_uploader,400,600,'#show_banned_ele'); --}}
         $(".announce_bg").on("click", function() {
             $('.bl_tab_aa').hide();
             $('body').css("overflow", "auto");
@@ -2506,7 +2506,7 @@
 
 		function show_banned_close(){
 			$(".announce_bg").hide();
-			$("#show_banned").hide();
+			$("#show_banned_ele").hide();
 			$('body').css("overflow", "auto");
 		}
 
