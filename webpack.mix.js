@@ -14,19 +14,19 @@ const mix = require('laravel-mix');
 mix.js('resources/js/app.js', 'public/js')
     .vue()
     .sass('resources/sass/app.scss', 'public/css')
-.webpackConfig({
-  module: {
-    rules: [
-      {
-        test: /\.m?js$/,
-        exclude: /(bower_components)/,
-        use: {
-          loader: "babel-loader",
-          options: {
-            presets: ["@babel/preset-env"],
-          },
+    .webpackConfig({
+        module: {
+            rules:[
+                {
+                    test: /\.m?js$/,
+                    exclude: /(bower_components)/,
+                    use: {
+                        loader: "babel-loader",
+                        options: {
+                            presets: ["@babel/preset-env"],
+                        },
+                    },
+                }
+            ],
         },
-      },
-    ],
-  },
-});
+    });
