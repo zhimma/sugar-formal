@@ -1533,6 +1533,10 @@
         c5('此會員使用紀錄不足，無法判斷');
     }
 
+    function isEllipsisActive(e) {
+        return (Math.ceil($(e).innerHeight()) < $(e)[0].scrollHeight);
+    }
+
     $( document ).ready(function() {
 
 
@@ -1699,10 +1703,6 @@
             $(this).html($(this).text() === '展開' ? '收起' : '展開');
             $(this).parent().prev().find('.context').find(".zap_photo").toggleClass('huiyoic');
         });
-
-        function isEllipsisActive(e) {
-            return (Math.ceil($(e).innerHeight()) < $(e)[0].scrollHeight);
-        }
 
         $('div.context-wrap').each(function(i) {
             if (isEllipsisActive(this)) {
