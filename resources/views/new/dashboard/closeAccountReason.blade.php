@@ -173,7 +173,7 @@ header("Expires: Fri, 01 Jan 1990 00:00:00 GMT");
                             @if($reasonType == 3)
                                 <dt class="lebox_alert tab">已找到長期穩定對象</dt>
                                 <dd class="lebox_alert_content">
-                                    <div class="bl bl_tab" id="show_banned" style="display: block; position: unset; width: 80%; margin: 20px auto;">
+                                    <div class="bl bl_tab" id="show_banned_ele" style="display: block; position: unset; width: 80%; margin: 20px auto;">
                                         <div class="bltitle"><span>已找到長期穩定對象</span></div>
                                         <div class="n_blnr01 ">
                                             <form method="POST" action="/dashboard/updateAccountStatus">

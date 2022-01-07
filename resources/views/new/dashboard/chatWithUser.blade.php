@@ -534,7 +534,7 @@
 
     </div>
 
-    <div class="bl_tab_aa" id="show_banned">
+    <div class="bl_tab_aa" id="show_banned_ele">
         <div class="bl_tab_bb">
             <div class="bltitle banned_name"></div>
             <div class="new_pot new_poptk_nn new_pot001 ">
@@ -1006,13 +1006,13 @@
         $(".banned_name").html('');
         $(".banned_name").append("<span>檢舉" + name + "</span>")
         $(".announce_bg").show();
-        $("#show_banned").show();
+        $("#show_banned_ele").show();
         $('body').css("overflow", "hidden");
     }
 
     function show_banned_close(){
         $(".announce_bg").hide();
-        $("#show_banned").hide();
+        $("#show_banned_ele").hide();
         $('body').css("overflow", "auto");
     }
 
@@ -1204,8 +1204,8 @@
                 }
             }
         });
-        //resize_before_upload(images_uploader,400,600,'#show_banned,#tab_uploadPic');
-        resize_before_upload($(images_uploader.eq(1)),400,600,'#show_banned,#tab_uploadPic','json');
+        //resize_before_upload(images_uploader,400,600,'#show_banned_ele,#tab_uploadPic');
+        resize_before_upload($(images_uploader.eq(1)),400,600,'#show_banned_ele,#tab_uploadPic','json');
         $(".announce_bg").on("click", function() {
             $('.bl_tab_aa').hide();
         });
