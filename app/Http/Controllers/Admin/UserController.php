@@ -3517,7 +3517,8 @@ class UserController extends \App\Http\Controllers\BaseController
             ->where(function($query)use($date_start,$date_end,$bannedUsers,$isAdminWarnedList)
             {
                 $query->where('message.from_id','<>',1049)
-                    ->where('message.sys_notice','<>',1)
+                    ->where('message.sys_notice', 0)
+                    ->orWhereNull('message.sys_notice')
                     ->whereNotIn('message.from_id',$bannedUsers)
                     ->whereNotIn('message.from_id',$isAdminWarnedList)
                     ->whereBetween('message.created_at', array($date_start . ' 00:00', $date_end . ' 23:59'));
