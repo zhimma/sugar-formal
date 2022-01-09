@@ -31,6 +31,8 @@ use App\Models\SimpleTables\short_message;
 use App\Models\LogAdvAuthApi;
 use App\Models\UserTattoo;
 
+use function Clue\StreamFilter\fun;
+
 class User extends Authenticatable
 {
     use Notifiable;
@@ -1336,7 +1338,11 @@ class User extends Authenticatable
     }
     
     public function isForbidAdvAuth() {
-        return $this->log_adv_auth_api()->where('forbid_user',1)->orWhere('is_duplicate',1)->count()>0;
+        return $this->log_adv_auth_api()->where(
+            function ($query) {
+                $query->where('forbid_user',1)->orWhere('is_duplicate',1);
+            }
+        )->count() > 0;
     }
     
     public function getPassAdvAuthApiQuery() {
