@@ -44,7 +44,7 @@ CREATE TABLE `line_notify_chat` (
 INSERT INTO `line_notify_chat` (`id`, `name`, `gender`, `active`, `order`) VALUES
 (1, '長期為主', 1, 1, 1),
 (2, '長短皆可', 1, 1, 2),
-(3, '單次為主', 1, 1, 3),
+(3, '短期為主', 1, 1, 3),
 (4, 'VVIP', 2, 0, 1),
 (5, 'VIP', 2, 1, 2),
 (6, '普通會員', 2, 1, 3),
