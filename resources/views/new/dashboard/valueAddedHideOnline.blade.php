@@ -24,7 +24,7 @@
                         <div class="n_sjvip" id="vip" style="display: table;">
 
                             <div class="vipline"><img src="/new/images/VIP_05.png"></div>
-                            <div class="dq_fangan">信用卡隱藏上線訊息自動續約扣款
+                            <div class="dq_fangan">信用卡隱藏上線功能自動續約扣款
                             </div>
                             <div class="new_viplist" style="margin-bottom: 10px;">
                                 <ul>
@@ -67,7 +67,7 @@
                             </div>
 
                             <div class="new_xline"></div>
-                            <div class="dq_fangan">單筆付款，短期隱藏上線訊息體驗</div>
+                            <div class="dq_fangan">單筆付款，隱藏上線功能體驗</div>
                             <div class="new_viplist">
                                 <ul>
                                     <li>
