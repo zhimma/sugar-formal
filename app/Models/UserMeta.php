@@ -175,7 +175,7 @@ class UserMeta extends Model
                                   $income,
                                   $smoking,
                                   $drinking,
-                                  $photo,
+                                  $pic,
                                   $agefrom,
                                   $ageto,
                                   $engroup,
@@ -221,7 +221,7 @@ class UserMeta extends Model
             $income,
             $smoking,
             $drinking,
-            $photo,
+            $pic,
             $engroup,
             $blockcity,
             $blockarea,
@@ -305,7 +305,8 @@ class UserMeta extends Model
                     $query->whereIn('body', $body);
                 }
             }
-            if (isset($photo) && $photo == 1) $query->whereNotNull('pic')->where('pic', '<>', 'NULL')->where('pic', '<>', '');
+            if (isset($pic) && $pic == 1) $query->whereNotNull('pic');
+            //->where('pic', '<>', 'NULL')->where('pic', '<>', '');
             if (isset($heightfrom) && isset($heightto) && strlen($heightfrom) != 0 && strlen($heightto) != 0) {
                 $query->whereBetween('height', [$heightfrom, $heightto]);
             }
@@ -493,7 +494,7 @@ class UserMeta extends Model
                                   $income,
                                   $smoking,
                                   $drinking,
-                                  $photo,
+                                  $pic,
                                   $agefrom,
                                   $ageto,
                                   $engroup,
@@ -539,7 +540,7 @@ class UserMeta extends Model
             $income,
             $smoking,
             $drinking,
-            $photo,
+            $pic,
             $engroup,
             $blockcity,
             $blockarea,
@@ -621,7 +622,8 @@ class UserMeta extends Model
                     $query->whereIn('body', $body);
                 }
             }
-            if (isset($photo) && $photo == 1) $query->whereNotNull('pic')->where('pic', '<>', 'NULL')->where('pic', '<>', '');
+            if (isset($pic) && $pic == 1) $query->whereNotNull('pic');
+                //->where('pic', '<>', 'NULL')->where('pic', '<>', '');
             if (isset($heightfrom) && isset($heightto) && strlen($heightfrom) != 0 && strlen($heightto) != 0) {
                 $query->whereBetween('height', [$heightfrom, $heightto]);
             }

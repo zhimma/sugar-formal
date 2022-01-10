@@ -440,7 +440,7 @@
                         $income = "";
                         $smoking = "";
                         $drinking = "";
-                        $photo = "";
+                        $pic = "";
                         $ageto = "";
                         $agefrom = "";
                         $seqtime = "";
@@ -477,7 +477,7 @@
                     if (isset($_POST['income'])){$income = $_POST['income'];}elseif(isset($_GET['income'])){$income = $_GET['income'];}elseif(!empty(session()->get('search_page_key.income'))){$income = session()->get('search_page_key.income');}
                     if (isset($_POST['smoking'])){$smoking = $_POST['smoking'];}elseif(isset($_GET['smoking'])){$smoking = $_GET['smoking'];}elseif(!empty(session()->get('search_page_key.smoking'))){$smoking = session()->get('search_page_key.smoking');}
                     if (isset($_POST['drinking'])){$drinking = $_POST['drinking'];}elseif(isset($_GET['drinking'])){$drinking = $_GET['drinking'];}elseif(!empty(session()->get('search_page_key.drinking'))){$drinking = session()->get('search_page_key.drinking');}
-                    if (isset($_POST['pic'])){$photo = $_POST['pic'];}elseif(isset($_GET['pic'])){$photo = $_GET['pic'];}elseif(!empty(session()->get('search_page_key.pic'))){$pic = session()->get('search_page_key.pic');}
+                    if (isset($_POST['pic'])){$pic = $_POST['pic'];}elseif(isset($_GET['pic'])){$pic = $_GET['pic'];}elseif(!empty(session()->get('search_page_key.pic'))){$pic = session()->get('search_page_key.pic');}
                     if (isset($_POST['ageto'])){$ageto = $_POST['ageto'];}elseif(isset($_GET['ageto'])){$ageto = $_GET['ageto'];}elseif(!empty(session()->get('search_page_key.ageto'))){$ageto = session()->get('search_page_key.ageto');}
                     if (isset($_POST['agefrom'])){$agefrom = $_POST['agefrom'];}elseif(isset($_GET['agefrom'])){ $agefrom = $_GET['agefrom'];}elseif(!empty(session()->get('search_page_key.agefrom'))){$agefrom = session()->get('search_page_key.agefrom');}
                     if (isset($_POST['seqtime'])){$seqtime = $_POST['seqtime'];}elseif(isset($_GET['seqtime'])){ $seqtime = $_GET['seqtime'];}elseif(!empty(session()->get('search_page_key.seqtime'))){$seqtime = session()->get('search_page_key.seqtime');}
@@ -762,7 +762,7 @@
              let income="{{$income}}";
              let smoking="{{$smoking}}";
              let drinking="{{$drinking}}";
-             let photo="{{$drinking}}";
+             let pic="{{$pic}}";
              let agefrom="{{$agefrom}}";
              let ageto="{{$ageto}}";
              let user={!! $user !!};
@@ -795,14 +795,13 @@
                 income:income,
                 smoking:smoking,
                 drinking:drinking,
-                photo:drinking,
+                pic:pic,
                 agefrom:agefrom,
                 ageto:ageto,
                 user:user,
                 umeta:umeta,
                 seqtime:seqtime,
                 body:body,
-
                 exchange_period:exchange_period,
                 isBlocked:isBlocked,
                 userIsVip:userIsVip,
@@ -822,7 +821,6 @@
                 area2:district2,
                 city3:county3,
                 area3:district3
-                
             })
             .then(response => {
                     this.ssrData = response.data.ssrData;
