@@ -3089,9 +3089,9 @@ border-radius:100px;margin-top:5px;font-weight:normal;font-size:18px;padding:15p
 .sxyh{ height:2.1em; margin-left:2px; margin-top: -10px;}
 
 /* 3-15 */
-.sj_iconleft{ position: relative; /*left: 0;*/ top: 10px; cursor: pointer;float: left;}
+.sj_iconleft{ position: relative; /*left: 0;*/ top: 2px; cursor: pointer;float: left;}
 .sj_iconleft img{ height: 24px;}
-.sj_iconright{ position: relative; /*right: 0;*/ top: 10px; cursor: pointer; float: right;}
+.sj_iconright{ position: relative; /*right: 0;*/ top: 2px; cursor: pointer; float: right;}
 .sj_iconright img{ height: 24px;}
 
 /* chatSet */
