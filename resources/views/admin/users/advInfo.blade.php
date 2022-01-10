@@ -486,6 +486,7 @@
             $isEverWarned_log[$key]['created_at']=$row->created_at;
             $isEverWarned_log[$key]['reason']=$row->reason;
             $isEverWarned_log[$key]['vip_pass']=$row->vip_pass;
+            $isEverWarned_log[$key]['adv_auth']=$row->adv_auth;
         }
     }
     //曾被封鎖
@@ -496,6 +497,7 @@
             $isEverBanned_log[$key]['reason']=$row->reason;
             $isEverBanned_log[$key]['expire_date']=$row->expire_date;
             $isEverBanned_log[$key]['vip_pass']=$row->vip_pass;
+            $isEverBanned_log[$key]['adv_auth']=$row->adv_auth;
         }
     }
     //目前正被警示
@@ -506,6 +508,7 @@
              $isWarned_show['reason']=$row->reason;
              $isWarned_show['expire_date']=$row->expire_date;
              $isWarned_show['vip_pass']=$row->vip_pass;
+             $isWarned_show['adv_auth']=$row->adv_auth;
          }
     }
     //目前正被封鎖
@@ -516,6 +519,7 @@
              $isBanned_show['reason']=$row->reason;
              $isBanned_show['expire_date']=$row->expire_date;
              $isBanned_show['vip_pass']=$row->vip_pass;
+             $isBanned_show['adv_auth']=$row->adv_auth;
          }
     }
 
@@ -603,21 +607,33 @@
 			@endif
 		</tr>
 		<tr>
-			<th>付費封鎖</th>
+			<th>付費封鎖/驗證封鎖</th>
 			@if(count($isBanned_show)>0 || count($isEverBanned_log)>0)
-				<td>{{ array_get($isBanned_show,'vip_pass')==1  ? '付費封鎖' : '' }}</td>
+				<td>
+                    {{ array_get($isBanned_show,'vip_pass')==1  ? '付費封鎖' : '' }}
+                    {{ array_get($isBanned_show,'adv_auth')==1  ? '驗證封鎖' : '' }}
+                </td>
 			@endif
 			@if(count($isWarned_show)>0 || count($isEverWarned_log)>0)
-				<td>{{ array_get($isWarned_show,'vip_pass')==1  ? '付費封鎖' : '' }}</td>
+				<td>
+                    {{ array_get($isWarned_show,'vip_pass')==1  ? '付費警示' : '' }}
+                    {{ array_get($isWarned_show,'adv_auth')==1  ? '驗證警示' : '' }}
+                </td>
 			@endif
 			@if(count($isEverBanned_log)>0)
 				@if(!is_null(array_get($isEverBanned_log,'0')))
-					<td>{{ array_get($isEverBanned_log,'0.vip_pass') == 1 ? '付費封鎖' : '' }}</td>
+					<td>
+                        {{ array_get($isEverBanned_log,'0.vip_pass') == 1 ? '付費封鎖' : '' }}
+                        {{ array_get($isEverBanned_log,'0.adv_auth') == 1 ? '驗證封鎖' : '' }}
+                    </td>
 				@endif
 			@endif
 			@if(count($isEverWarned_log)>0)
 				@if(!is_null(array_get($isEverWarned_log,'0')))
-					<td>{{ array_get($isEverWarned_log,'0.vip_pass') == 1 ? '付費封鎖' : '' }}</td>
+					<td>
+                        {{ array_get($isEverWarned_log,'0.vip_pass') == 1 ? '付費警示' : '' }}
+                        {{ array_get($isEverWarned_log,'0.adv_auth') == 1 ? '驗證警示' : '' }}
+                    </td>
 				@endif
 			@endif
 		</tr>
@@ -658,6 +674,23 @@
 					@endif
 				@endif
 			</tr>
+			<tr>
+				<th>付費/驗證</th>
+				@if(count($isEverBanned_log)>0)
+					@if(!is_null(array_get($isEverBanned_log,'1')))
+						<td>
+                            {{ (array_get($isEverBanned_log,'1.vip_pass')==1) ? '付費封鎖' : '' }}
+                            {{ (array_get($isEverBanned_log,'1.adv_auth')==1) ? '驗證封鎖' : '' }}
+                        </td>
+					@endif
+					@if(!is_null(array_get($isEverBanned_log,'2')))
+						<td>
+                            {{ (array_get($isEverBanned_log,'2.vip_pass')==1) ? '付費封鎖' : '' }}
+                            {{ (array_get($isEverBanned_log,'2.adv_auth')==1) ? '驗證封鎖' : '' }}
+                        </td>
+					@endif
+				@endif
+			</tr>            
 		</table>
 	</div>
 	<div id="showMore_warned_log" style="width: 80%;display: none;">
@@ -695,6 +728,23 @@
 					@endif
 				@endif
 			</tr>
+			<tr>
+				<th>付費/驗證</th>
+				@if(count($isEverWarned_log)>0)
+					@if(!is_null(array_get($isEverWarned_log,'1')))
+						<td>
+                            {{ (array_get($isEverWarned_log,'1.vip_pass')==1) ? '付費警示' : '' }}
+                            {{ (array_get($isEverWarned_log,'1.adv_auth')==1) ? '驗證警示' : '' }}
+                        </td>
+					@endif
+					@if(!is_null(array_get($isEverWarned_log,'2')))
+						<td>
+                            {{ (array_get($isEverWarned_log,'2.vip_pass')==1) ? '付費警示' : '' }}
+                            {{ (array_get($isEverWarned_log,'2.adv_auth')==1) ? '驗證警示' : '' }}
+                        </td>
+					@endif
+				@endif
+			</tr>            
 		</table>
 	</div>
 
