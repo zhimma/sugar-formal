@@ -333,7 +333,7 @@
                                     </p>
                                 </div>
                             </div>
-                            @elseif($message['sys_notice']==0 && $message['unsend']==0)
+                            @elseif( ($message['sys_notice']==0 || $message['sys_notice']== null)  && $message['unsend']==0)
                             @if($isVip && $message['from_id'] == $user->id)
                                 @if((!isset($admin) || $to->id != $admin->id) && !isset($to->banned )&& !isset($to->implicitlyBanned))
                             <form method="post" id="unsend_form_{{$message['id']}}" action="{{route('unsendChat')}}">
@@ -502,7 +502,8 @@
                                     <a class="xin_nleft" onclick="tab_uploadPic();"><img src="/new/images/moren_pic.png"></a>
                                     <textarea id="msg" name="msg" rows="1" class="xin_input" placeholder="請輸入"></textarea>
                                 </div>
-                                <button type="submit" class="xin_right" style="border: none;"><img src="/new/images/fasong.png"></button>
+                                <a onclick="chatForm_submit();" class="xin_right" style="border: none;"><img src="/new/images/fasong.png" style="margin-top:6px;"></a>
+                                {{--<button type="submit" class="xin_right" style="border: none;"><img src="/new/images/fasong.png"></button>--}}
                                 {{--<div class="message_fixed"></div>--}}
                             </form>
                         </div>
@@ -533,7 +534,7 @@
 
     </div>
 
-    <div class="bl_tab_aa" id="show_banned">
+    <div class="bl_tab_aa" id="show_banned_ele">
         <div class="bl_tab_bb">
             <div class="bltitle banned_name"></div>
             <div class="new_pot new_poptk_nn new_pot001 ">
@@ -555,6 +556,30 @@
             <a onclick="show_banned_close()" class="bl_gb"><img src="/new/images/gb_icon.png"></a>
         </div>
     </div>
+
+    <div class="bl bl_tab" id="messageBoard_enter_limit" style="display: none;">
+        <div class="bltitle"><span>提示</span></div>
+        <div class="n_blnr01 ">
+            <div class="new_tkfont">您目前未達標準<br>不可使用留言板功能</div>
+            <div class="new_tablema">
+                <table>
+                    @if($user->engroup==2)
+                        <tr>
+                            <td class="new_baa new_baa1">須通過手機驗證</td>
+                            <td class="new_baa1">@if($user->isPhoneAuth())<img src="/new/images/ticon_01.png">@else<img src="/new/images/ticon_02.png">@endif</td>
+                        </tr>
+                    @endif
+                    <tr>
+                        <td class="new_baa">需為VIP會員</td>
+                        <td class="">@if(!$user->isVip())<img src="/new/images/ticon_02.png">@else<img src="/new/images/ticon_01.png">@endif</td>
+                    </tr>
+                </table>
+            </div>
+        </div>
+        <a id="" onClick="gmBtnNoReload()" class="bl_gb"><img src="/new/images/gb_icon.png"></a>
+    </div>
+
+
     @if($to)
         <div class="bl_tab_aa" id="tab_uploadPic" style="display: none;">
             <form id="form_uploadPic" action="/dashboard/chat2/{{ \Carbon\Carbon::now()->timestamp }}" method="post" enctype="multipart/form-data">
@@ -645,6 +670,29 @@
         $( ".message_fixed" ).append( "<div><a href='{!! url('dashboard/new_vip') !!}' style='color: red;' class='tips'>成為VIP即可知道對方是否讀取信件哦！</a></div>" );
     }
 
+    $(document).keypress(function(e) {
+        if((e.keyCode == 13 && e.shiftKey)){
+            //換行
+            var content = $("#msg").val();
+            $("#msg").append(content+"\n");
+
+        }else if(e.keyCode == 13){
+            e.preventDefault();
+            var msg_str = $("#msg").val().replace(/\r\n|\n/g,"").replace(/\s+/g, "");
+            if(msg_str.length>300) {
+                c5('訊息輸入至多300個字');
+                e.preventDefault();
+                return false;
+            }
+            if(msg_str.length>0){
+                $('#chatForm').submit();
+            }else{
+                $('.xin_input').css('height', '38px');
+                $('.xin_nleft, .xin_right').css('margin-top', '0px');
+            }
+        }
+    });
+
     $('#msg').keyup(function(e) {
         let msgsnd = $('.msgsnd');
 
@@ -667,8 +715,33 @@
         window.location.reload();
     }, 300000); --}}
 
-    $('#chatForm').submit(function () {
+    // $('#chatForm').submit(function (e) {
+    //     let content = $('#msg').val(), msgsnd = $('.msgsnd');
+    //
+    //     if($.trim(content) == "" ){
+    //         $('.alert').remove();
+    //         // $("<a style='color: red; font-weight: bold;' class='alert'>請勿僅輸入空白！</a>").insertAfter($('.msg'));
+    //         $( ".message_fixed" ).html();
+    //         $( ".message_fixed" ).append( "<div><a style='color: red; font-weight: bold;' class='alert'>請勿僅輸入空白！</a></div>" );
+    //         msgsnd.prop('disabled', true);
+    //         return checkForm;
+    //     }
+    //     else {
+    //         $('.alert').remove();
+    //         return checkForm;
+    //     }
+    // });
+
+    function chatForm_submit() {
         let content = $('#msg').val(), msgsnd = $('.msgsnd');
+        var msg_str = $("#msg").val().replace(/\r\n|\n/g,"").replace(/\s+/g, "");
+        if(msg_str.length>300) {
+            c5('訊息輸入至多300個字');
+            return false;
+        }else{
+            $('#chatForm').submit();
+        }
+
         if($.trim(content) == "" ){
             $('.alert').remove();
             // $("<a style='color: red; font-weight: bold;' class='alert'>請勿僅輸入空白！</a>").insertAfter($('.msg'));
@@ -681,7 +754,7 @@
             $('.alert').remove();
             return checkForm;
         }
-    });
+    }
     function checkForm(){
                 @if(isset($m_time))
         let m_time = '{{ $m_time }}';
@@ -933,13 +1006,13 @@
         $(".banned_name").html('');
         $(".banned_name").append("<span>檢舉" + name + "</span>")
         $(".announce_bg").show();
-        $("#show_banned").show();
+        $("#show_banned_ele").show();
         $('body').css("overflow", "hidden");
     }
 
     function show_banned_close(){
         $(".announce_bg").hide();
-        $("#show_banned").hide();
+        $("#show_banned_ele").hide();
         $('body').css("overflow", "auto");
     }
 
@@ -1131,8 +1204,8 @@
                 }
             }
         });
-        //resize_before_upload(images_uploader,400,600,'#show_banned,#tab_uploadPic');
-        resize_before_upload($(images_uploader.eq(1)),400,600,'#show_banned,#tab_uploadPic','json');
+        //resize_before_upload(images_uploader,400,600,'#show_banned_ele,#tab_uploadPic');
+        resize_before_upload($(images_uploader.eq(1)),400,600,'#show_banned_ele,#tab_uploadPic','json');
         $(".announce_bg").on("click", function() {
             $('.bl_tab_aa').hide();
         });

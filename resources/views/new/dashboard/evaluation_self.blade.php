@@ -274,7 +274,9 @@
 
 @section('javascript')
 <script>
-
+    function isEllipsisActive(e) {
+        return (Math.ceil($(e).innerHeight()) < $(e)[0].scrollHeight);
+    }
     $('.shou_but').on('click', function() {
         c4('確定要全部刪除嗎?');
         $(".n_left").on('click', function() {
@@ -417,10 +419,6 @@
             }
         });
     });
-
-    function isEllipsisActive(e) {
-        return (Math.ceil($(e).innerHeight()) < $(e)[0].scrollHeight);
-    }
 </script>
 <!--照片查看-->
 <div class="big_img">

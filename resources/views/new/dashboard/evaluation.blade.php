@@ -346,6 +346,10 @@ header("Expires: Fri, 01 Jan 1990 00:00:00 GMT");
             }
         });
 
+        function isEllipsisActive(e) {
+            return ($(e).innerHeight() < $(e)[0].scrollHeight);
+        }
+
         $('div.context-wrap').each(function(i) {
             if (isEllipsisActive(this)) {
                 $(this).parents('.hu_p').find('span.z_more').removeClass('hide_more');
@@ -407,10 +411,6 @@ header("Expires: Fri, 01 Jan 1990 00:00:00 GMT");
                 }
             });
         });
-
-        function isEllipsisActive(e) {
-            return ($(e).innerHeight() < $(e)[0].scrollHeight);
-        }
 
         $('.content_delete').on( "click", function() {
             c4('確定要刪除嗎?');

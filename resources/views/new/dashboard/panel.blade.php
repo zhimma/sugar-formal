@@ -72,20 +72,22 @@
         </div>
     </div>
     <script>
-        let scriptText = '<a href="https://lin.ee/rLqcCns"><img src="https://scdn.line-apps.com/n/line_add_friends/btn/zh-Hant.png" alt="加入好友" height="36" border="0"></a>';
-        let vipScriptText = '<a href="/dashboard/new_vip"><span style="color: red;">請點此升級</span></a>';
-        function CheckEnterPop() {
-            c5('您好，您目前被站方限制使用討論區，若有疑問請點右下角，聯繫站長Line@');
-            $('.bltext').append(scriptText);
-        }
-        function CheckEnterPop2() {
-            // c5('您成為VIP未達滿三個月以上');
-            c5('此功能目前僅開放VIP使用，');
-            $('.bltext').append(vipScriptText);
-        }
-        function CheckEnterPopOther(text) {
-            c5(text);
-            $('.bltext').append(scriptText);
+        if(!scriptText){
+            let scriptText = '<a href="https://lin.ee/rLqcCns"><img src="https://scdn.line-apps.com/n/line_add_friends/btn/zh-Hant.png" alt="加入好友" height="36" border="0"></a>';
+            let vipScriptText = '<a href="/dashboard/new_vip"><span style="color: red;">請點此升級</span></a>';
+            function CheckEnterPop() {
+                c5('您好，您目前被站方限制使用討論區，若有疑問請點右下角，聯繫站長Line@');
+                $('.bltext').append(scriptText);
+            }
+            function CheckEnterPop2() {
+                // c5('您成為VIP未達滿三個月以上');
+                c5('此功能目前僅開放VIP使用，');
+                $('.bltext').append(vipScriptText);
+            }
+            function CheckEnterPopOther(text) {
+                c5(text);
+                $('.bltext').append(scriptText);
+            }
         }
         function CheckEnterPopOK() {
             @if(!str_contains(url()->current(), 'dashboard/forum'))

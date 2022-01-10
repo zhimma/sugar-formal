@@ -140,6 +140,16 @@
                             @endif
                         </div>
                     </div>
+                   <div class="sys_aa" id="vip_state_block">
+                        <div class="tabbox_new_dt"><span>隱藏狀態</span></div>
+                        <div class="tabbox_new_dd">
+                            @if($user->valueAddedServiceStatus('hideOnline') == 1)
+                                <h2 class="tabbox_h2">{!! $vasStatus !!}</h2>
+                            @else
+                            <h2 class="tabbox_h2"><span class="tu_dfont">您尚未購買隱藏付費功能</span></h2>
+                            @endif
+                        </div>
+                    </div>                    
                     <div class="sys_aa">
                         <div class="tabbox_new_dt"><span>Line通知設定</span></div>
                         <div class="tabbox_new_dd">
@@ -799,29 +809,6 @@
             window.location.href = URL;
         });
     });
-
-    $('#collapseExample').collapse('show');
-
-    $('#collapseExample').collapse('show',{
-        toggle: true
-
-    });
-
-    $('#collapseExample').on('hidden.bs.collapse', function () {
-        // do something…
-        $('.collapse_word').html('[＋]　展開');
-    });
-    $('#collapseExample').on('shown.bs.collapse', function () {
-        // do something…
-        $('.collapse_word').html('[－]　收起');
-    });
-
-    $( document ).ready(function() {
-        //
-        $('#collapseExample').collapse('show');
-    });
-
-
 
     @if (isset($errors) && $errors->count() > 0)
         @foreach ($errors->all() as $error)

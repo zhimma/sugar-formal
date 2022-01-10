@@ -5,6 +5,7 @@ namespace App\Models;
 use App\Models\Role;
 use App\Models\Blocked;
 use App\Models\ValueAddedService;
+use App\Models\ValueAddedServiceLog;
 use App\Models\Vip;
 use App\Models\Tip;
 use App\Models\UserMeta;
@@ -29,6 +30,8 @@ use App\Models\IsWarnedLog;
 use App\Models\SimpleTables\short_message;
 use App\Models\LogAdvAuthApi;
 use App\Models\UserTattoo;
+
+use function Clue\StreamFilter\fun;
 
 class User extends Authenticatable
 {
@@ -73,11 +76,21 @@ class User extends Authenticatable
     {
         return $this->hasMany(Vip::class, 'member_id', 'id')->where('active', 1)->orderBy('created_at', 'desc');
     }
+    
+    public function vip_log()
+    {
+        return $this->hasMany(VipLog::class, 'member_id', 'id');
+    }    
 
     public function vas()
     {
         return $this->hasMany(ValueAddedService::class, 'member_id', 'id')->where('active', 1)->orderBy('created_at', 'desc');
     }
+    
+    public function vas_log()
+    {
+        return $this->hasMany(ValueAddedServiceLog::class, 'member_id', 'id');
+    }    
 
     public function aw_relation() {
         return $this->hasOne(\App\Models\SimpleTables\warned_users::class, 'member_id', 'id')->where(function ($query){
@@ -1053,7 +1066,8 @@ class User extends Authenticatable
 				->whereNull('wu.member_id')
 				->where(function($query)use($date_start,$date_end) {
 					$query->where('message.from_id','<>',1049)
-						->where('message.sys_notice',0)
+						->where('message.sys_notice', 0)
+                        ->orWhereNull('message.sys_notice')
 						->whereBetween('message.created_at', array($date_start . ' 00:00', $date_end . ' 23:59'));
 				});
 			$query->where('users.email',$user->email);
@@ -1066,7 +1080,7 @@ class User extends Authenticatable
 
 				$messages = Message::select('id','content','created_at')
 					->where('from_id', $user->id)
-					->where('sys_notice',0)
+					->where('sys_notice', 0)->orWhereNull('sys_notice')
 					->whereBetween('created_at', array($date_start . ' 00:00', $date_end . ' 23:59'))
 					->orderBy('created_at','desc')
 					->take(100)
@@ -1228,7 +1242,8 @@ class User extends Authenticatable
                 ->whereNull('wu.member_id')
                 ->where(function($query)use($date_start,$date_end) {
                     $query->where('message.from_id','<>',1049)
-                        ->where('message.sys_notice',0)
+                        ->where('message.sys_notice', 0)
+                        ->orWhereNull('message.sys_notice')
                         ->whereBetween('message.created_at', array($date_start . ' 00:00', $date_end . ' 23:59'));
                 });
             $query->where('users.email',$user->email);
@@ -1241,7 +1256,7 @@ class User extends Authenticatable
 
                 $messages = Message::select('id','content','created_at')
                     ->where('from_id', $user->id)
-                    ->where('sys_notice',0)
+                    ->where('sys_notice', 0)->orWhereNull('sys_notice')
                     ->whereBetween('created_at', array($date_start . ' 00:00', $date_end . ' 23:59'))
                     ->orderBy('created_at','desc')
                     ->take(100)
@@ -1323,7 +1338,11 @@ class User extends Authenticatable
     }
     
     public function isForbidAdvAuth() {
-        return $this->log_adv_auth_api()->where('forbid_user',1)->orWhere('is_duplicate',1)->count()>0;
+        return $this->log_adv_auth_api()->where(
+            function ($query) {
+                $query->where('forbid_user',1)->orWhere('is_duplicate',1);
+            }
+        )->count() > 0;
     }
     
     public function getPassAdvAuthApiQuery() {
@@ -1426,6 +1445,16 @@ class User extends Authenticatable
     
     public function isTattooPart($part) {
         return ($this->tattoo->first()->part??null)==$part;
-    }    
+    } 
+
+    public function getLatestVipLog() {
+        return $this->vip_log()->orderByDesc('created_at')->first();
+    }
+    
+    public function getLatestVasLog($service_name=null) {
+        $query = $this->vas_log()->orderByDesc('created_at');
+        if($service_name) $query->where('service_name',$service_name);
+        return $query->first();
+    }
 
 }

@@ -387,7 +387,7 @@
     <a id="" onclick="$('.blbg').click();" class="bl_gb"><img src="/new/images/gb_icon.png"></a>
 </div>
 
-<div class="bl bl_tab" id="show_banned">
+<div class="bl bl_tab" id="show_banned_ele">
     <div class="bltitle banned_name"><span></span></div>
     <div class="n_blnr01 ">
         <form class="m-form m-form--fit m-form--label-align-right" method="POST" action="{{ route('reportPost') }}">
@@ -1759,7 +1759,7 @@
             $("input[name='uid']").val(sid);
             $(".banned_name").append("<span>" + name + "</span>")
             $(".announce_bg").show();
-            $("#show_banned").show();
+            $("#show_banned_ele").show();
         }
 
         $('.vip_delete').on('click', function() {

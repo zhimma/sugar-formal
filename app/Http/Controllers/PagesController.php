@@ -1944,37 +1944,180 @@ class PagesController extends BaseController
                 Visited::visit($user->id, $targetUser);
             }
 
+
+            $member_pic = MemberPic::where('member_id', $uid)->where('pic', '<>', $targetUser->meta->pic)->whereNull('deleted_at')->orderByDesc('created_at')->get();
+
+            if($user->isVip()){
+                $vipLevel = 1;
+            }else{
+                $vipLevel = 0;
+            }
+
+            $basic_setting = BasicSetting::where('vipLevel',$vipLevel)->where('gender',$user->engroup)->get()->first();
+
+            if(isset($basic_setting['countSet'])){
+                if($basic_setting['countSet']==-1){
+                    $basic_setting['countSet'] = 10000;
+                }
+                $data['timeSet']  = (int)$basic_setting['timeSet'];
+                $data['countSet'] = (int)$basic_setting['countSet'];
+            }
+            $blockadepopup = AdminCommonText::getCommonText(5);//id5封鎖說明popup
+            $isVip = $user->isVip() ? '1':'0';
+
+            $adminCommonTexts = AdminCommonText::whereIn('alias', ['report_reason', 'report_member', 'report_avatar', 'new_sweet', 'well_member', 'money_cert', 'alert_account', 'label_vip'])->get();
+            $adminCommonTextArray = array();
+            foreach($adminCommonTexts as $adminCommonText){
+                $adminCommonTextArray[$adminCommonText->alias] = $adminCommonText;
+            }
+
+            /*編輯文案-檢舉會員訊息-START*/
+            $report_reason = $adminCommonTextArray['report_reason'];
+            /*編輯文案-檢舉會員訊息-END*/
+            /*編輯文案-檢舉會員-START*/
+            $report_member = $adminCommonTextArray['report_member'];
+            /*編輯文案-檢舉會員-END*/
+            /*編輯文案-檢舉大頭照-START*/
+            $report_avatar = $adminCommonTextArray['report_avatar'];
+            /*編輯文案-檢舉大頭照-END*/
+            /*編輯文案-new_sweet-START*/
+            $new_sweet = $adminCommonTextArray['new_sweet'];
+            /*編輯文案-new_sweet-END*/
+            /*編輯文案-well_member-START*/
+            $well_member = $adminCommonTextArray['well_member'];
+            /*編輯文案-well_member-END*/
+            /*編輯文案-money_cert-START*/
+            $money_cert = $adminCommonTextArray['money_cert'];
+            /*編輯文案-money_cert-END*/
+            /*編輯文案-alert_account-START*/
+            $alert_account = $adminCommonTextArray['alert_account'];
+            /*編輯文案-alert_account-END*/
+            /*編輯文案-label_vip-START*/
+            $label_vip = $adminCommonTextArray['label_vip'];
+            /*編輯文案-label_vip-END*/
+
+            
+
+            /**
+             * 效能調整：使用左結合以大幅降低處理時間，並且減少 query 次數，進一步降低時間及程式碼複雜度
+             *
+             * @author LZong <lzong.tw@gmail.com>
+             */
+
+
+            $query = \App\Models\Evaluation::select('evaluation.*')->from('evaluation as evaluation')->with('user')
+                ->leftJoin('banned_users as b1', 'b1.member_id', '=', 'evaluation.from_id')
+                ->leftJoin('banned_users_implicitly as b3', 'b3.target', '=', 'evaluation.from_id')
+                ->leftJoin('users as u1', 'u1.id', '=', 'evaluation.from_id')
+//                ->leftJoin('users as u2', 'u2.id', '=', 'evaluation.from_id')
+//                ->leftJoin('user_meta as um', function($join) {
+//                    $join->on('um.user_id', '=', 'evaluation.from_id')
+//                        ->where('isWarned', 1); })
+//                ->leftJoin('warned_users as wu', function($join) {
+//                    $join->on('wu.member_id', '=', 'evaluation.from_id')
+//                        ->where(function($query){
+//                            $query->where('wu.expire_date', '>=', Carbon::now())
+//                                ->orWhere('wu.expire_date', null); }); })
+                ->whereNull('b1.member_id')
+                ->whereNull('b3.target')
+                ->whereNotNull('u1.id')
+//                ->whereNotNull('u2.id')
+                ->where('u1.accountStatus', 1)
+                ->where('u1.account_status_admin', 1)
+//                ->where('u2.accountStatus', 1)
+//                ->where('u2.account_status_admin', 1)
+//                ->whereNull('um.user_id')
+//                ->whereNull('wu.member_id')
+                ->orderBy('evaluation.created_at','desc')
+                ->where('evaluation.to_id', $uid);
+
+            $evaluation_data = $query->paginate(10);
+
+            $evaluation_self = Evaluation::where('to_id',$uid)->where('from_id',$user->id)->first();
+            /*編輯文案-被封鎖者看不到封鎖者的提示-START*/
+//            $user_closed = AdminCommonText::where('alias','user_closed')->get()->first();
+            /*編輯文案-被封鎖者看不到封鎖者的提示-END*/
+
+            // todo: 此處程式碼有誤，應檢查檢視者是否被被檢視者封鎖，若是，才存入變數
+//            if(User::isBanned($uid)){
+//                Session::flash('message', $user_closed->content);
+//            }
+            if($uid == $user->id) {
+                \App\Models\Evaluation::where('to_id',$uid)->update(['read'=>0]);
+            }
+
+            $to = $targetUser;
+            $valueAddedServicesStatus['hideOnline'] = 0;
+            $valueAddedServicesStatusRows = $to->valueAddedServiceStatus();
+            if($valueAddedServicesStatusRows){
+                foreach($valueAddedServicesStatusRows as $valueAddedServicesStatusRow){
+                    $valueAddedServicesStatus[$valueAddedServicesStatusRow->service_name] = 1;
+                }
+            }
+            $isSent3Msg = $user->isSent3Msg($uid);
+
+            $isReadIntro = $user->isReadIntro;
+
+            $pr = DB::table('pr_log')->where('user_id',$to->id)->where('active',1)->first();
+            if(isset($pr)){
+                $pr = $pr->pr;
+            }else{
+                $pr = '0';
+            }
+
+            //紀錄返回上一頁的url,避免發信後,按返回還在發信頁面
+            if(isset($_SERVER['HTTP_REFERER'])){
+                if(!str_contains($_SERVER['HTTP_REFERER'],'dashboard/chat2/chatShow') && !str_contains($_SERVER['HTTP_REFERER'],'dashboard/viewuser')){
+                    session()->put('goBackPage',$_SERVER['HTTP_REFERER']);
+                }
+            }
+
+            // die();
+            return view('new.dashboard.viewuser', $data)
+                    ->with('user', $user)
+                    ->with('blockadepopup', $blockadepopup)
+                    ->with('to', $to)
+                    ->with('valueAddedServiceStatus', $valueAddedServicesStatus)
+                    ->with('isSent3Msg', $isSent3Msg)
+                    ->with('cur', $user)
+                    ->with('member_pic',$member_pic)
+                    ->with('isVip', $isVip)
+                    ->with('engroup', $user->engroup)
+                    ->with('report_reason',$report_reason->content)
+                    ->with('report_member',$report_member->content)
+                    ->with('report_avatar',$report_avatar->content)
+                    ->with('new_sweet',$new_sweet->content)
+                    ->with('well_member',$well_member->content)
+                    ->with('money_cert',$money_cert->content)
+                    ->with('alert_account',$alert_account->content)
+                    ->with('label_vip',$label_vip->content)
+                    // ->with('rating_avg',$rating_avg)
+//                    ->with('user_closed',$user_closed->content)
+                    ->with('evaluation_self',$evaluation_self)
+                    ->with('evaluation_data',$evaluation_data)
+                    ->with('vipDays',$vipDays)
+                    ->with('isReadIntro',$isReadIntro)
+                    ->with('auth_check',$auth_check)
+                    ->with('is_banned',User::isBanned($user->id))
+                    ->with('pr', $pr);
+            }
+
+    }
+
+    public function getHideData(Request $request){
+            
+            $user = $request->user();
+            $is_vip = $user->isVip();
+            $uid = $request->uid;
+            $targetUser = User::where('id', $uid)->where('accountStatus',1)->where('account_status_admin',1)->get()->first();
             /*七天前*/
             $date = date('Y-m-d H:m:s', strtotime('-7 days'));
-
             /*車馬費邀請次數*/
             if($targetUser->engroup==2) {
                 $tip_count = Tip::where('to_id', $uid)->get()->count();
             }else{
                 $tip_count = Tip::where('member_id', $uid)->get()->count();
             }
-
-            /*收藏會員次數*/
-            $fav_count = MemberFav::select('member_fav.*')
-                ->join('users', 'users.id', '=', 'member_fav.member_fav_id')
-                ->whereNotNull('users.id')
-                ->where('users.accountStatus', 1)
-                ->where('users.account_status_admin', 1)
-                ->where('member_fav.member_id', $uid)
-                ->whereNotIn('member_fav.member_fav_id',$bannedUsers)
-                ->get()->count();
-
-            /*被收藏次數*/
-            $be_fav_count = MemberFav::select('member_fav.*')
-                ->join('users', 'users.id', '=', 'member_fav.member_id')
-                ->whereNotNull('users.id')
-                ->where('users.accountStatus', 1)
-                ->where('users.account_status_admin', 1)
-                ->where('member_fav.member_fav_id', $uid)
-                ->whereNotIn('member_fav.member_id',$bannedUsers)
-                ->get()->count();
-
-
             /*是否封鎖我*/
             $is_block_mid = Blocked::where('blocked_id', $user->id)->where('member_id', $uid)->count() >= 1 ? '是' : '否';
             /*是否看過我*/
@@ -1991,7 +2134,7 @@ class PagesController extends BaseController
 
             /*過去7天被瀏覽次數*/
             $be_visit_other_count_7 = Visited::where('visited_id', $uid)->where('created_at', '>=', $date)->distinct('member_id')->count();
-
+           
 
             /*發信＆回信次數統計*/
             $messages_all = Message::select('id','to_id','from_id','created_at')->where('to_id', $uid)->orwhere('from_id', $uid)->orderBy('id')->get();
@@ -2063,7 +2206,8 @@ class PagesController extends BaseController
                 ->where('users.account_status_admin', 1)
                 ->where(function($query)use($date_start,$date_end) {
                     $query->where('message.from_id','<>',1049)
-                        ->where('message.sys_notice',0)
+                        ->where('message.sys_notice', 0)
+                        ->orWhereNull('message.sys_notice')
                         ->whereBetween('message.created_at', array($date_start . ' 00:00', $date_end . ' 23:59'));
                 });
             $query->where('users.email',$targetUser->email);
@@ -2076,7 +2220,8 @@ class PagesController extends BaseController
 
                 $messages = Message::select('id','content','created_at')
                     ->where('from_id', $targetUser->id)
-                    ->where('sys_notice',0)
+                    ->where('sys_notice', 0)
+                    ->orWhereNull('sys_notice')
                     ->whereBetween('created_at', array($date_start . ' 00:00', $date_end . ' 23:59'))
                     ->orderBy('created_at','desc')
                     ->take(100)
@@ -2111,26 +2256,7 @@ class PagesController extends BaseController
             }
             $message_percent_7 = count($user_similar_msg) > 0 ? round( (count($user_similar_msg) / count($messages))*100 ).'%'  : '0%';
 
-
-            /*此會員封鎖多少其他會員*/
-            $blocked_other_count = Blocked::with(['blocked_user'])
-                ->join('users', 'users.id', '=', 'blocked.blocked_id')
-                ->where('blocked.member_id', $uid)
-                ->whereNotIn('blocked.blocked_id',$bannedUsers)
-                ->whereNotNull('users.id')
-                ->where('users.accountStatus', 1)
-                ->where('users.account_status_admin', 1)
-                ->count();
-
-            /*此會員被多少會員封鎖*/
-            $be_blocked_other_count = Blocked::with(['blocked_user'])
-                ->join('users', 'users.id', '=', 'blocked.member_id')
-                ->where('blocked.blocked_id', $uid)
-                ->whereNotIn('blocked.member_id',$bannedUsers)
-                ->whereNotNull('users.id')
-                ->where('users.accountStatus', 1)
-                ->where('users.account_status_admin', 1)
-                ->count();
+            
 
             /*每周平均上線次數*/
             $datetime1 = new \DateTime(now());
@@ -2148,22 +2274,15 @@ class PagesController extends BaseController
 
             $is_banned = null;
 
-            //此段僅測試用
-            //上正式機前起移除
-            $message_count_7_old='';
-            $message_reply_count_7_old='';
-            $visit_other_count_7_old='';
-            $hideOnlineDays='';
-            //end
-
+        
             $userHideOnlinePayStatus = ValueAddedService::status($uid,'hideOnline');
             if($userHideOnlinePayStatus == 1 /*&& $targetUser->is_hide_online != 0*/){
                 $hideOnlineData = hideOnlineData::where('user_id',$uid)->where('deleted_at',null)->get()->first();
                 if(isset($hideOnlineData)){
-                    $hideOnlineDays = now()->diffInDays($hideOnlineData->created_at);
+                    // $hideOnlineDays = now()->diffInDays($hideOnlineData->created_at);
                     $login_times_per_week = $hideOnlineData->login_times_per_week;
-                    $be_fav_count = $hideOnlineData->be_fav_count;//new add
-                    $fav_count = $hideOnlineData->fav_count;//new add
+                    // $be_fav_count = $hideOnlineData->be_fav_count;//new add
+                    // $fav_count = $hideOnlineData->fav_count;//new add
                     $tip_count = $hideOnlineData->tip_count;//new add
                     $message_count = $hideOnlineData->message_count;//new add
                     $message_count_7 = $hideOnlineData->message_count_7;
@@ -2174,40 +2293,38 @@ class PagesController extends BaseController
                     $visit_other_count_7 = $hideOnlineData->visit_other_count_7;
                     $be_visit_other_count = $hideOnlineData->be_visit_other_count;//new add
                     $be_visit_other_count_7 = $hideOnlineData->be_visit_other_count_7;//new add
-                    $blocked_other_count = $hideOnlineData->blocked_other_count;//new add
-                    $be_blocked_other_count = $hideOnlineData->be_blocked_other_count;//new add
+                    // $blocked_other_count = $hideOnlineData->blocked_other_count;//new add
+                    // $be_blocked_other_count = $hideOnlineData->be_blocked_other_count;//new add
                     $last_login = $hideOnlineData->updated_at; //new add
 
                     //此段僅測試用
                     //上正式機前起移除
-                    $message_count_7_old = $hideOnlineData->message_count_7;
-                    $message_reply_count_7_old = $hideOnlineData->message_reply_count_7;
-                    $visit_other_count_7_old = $hideOnlineData->visit_other_count_7;
+                    // $message_count_7_old = $hideOnlineData->message_count_7;
+                    // $message_reply_count_7_old = $hideOnlineData->message_reply_count_7;
+                    // $visit_other_count_7_old = $hideOnlineData->visit_other_count_7;
                     //end
 
-                    for($x=0; $x<$hideOnlineDays; $x++) {
+                    // for($x=0; $x<$hideOnlineDays; $x++) {
 
-                        $message_count_7 = $message_count_7 - ($message_count_7 / 7);
-                        $message_reply_count_7 = $message_reply_count_7 - ($message_reply_count_7 / 7);
-                        $visit_other_count_7 = $visit_other_count_7 - ($visit_other_count_7 / 7);
+                    //     $message_count_7 = $message_count_7 - ($message_count_7 / 7);
+                    //     $message_reply_count_7 = $message_reply_count_7 - ($message_reply_count_7 / 7);
+                    //     $visit_other_count_7 = $visit_other_count_7 - ($visit_other_count_7 / 7);
 
-                        if($message_count_7<0 && $message_reply_count_7<0 && $visit_other_count_7<0){
-                            break;
-                        }
-                    }
+                    //     if($message_count_7<0 && $message_reply_count_7<0 && $visit_other_count_7<0){
+                    //         break;
+                    //     }
+                    // }
 
-                    $message_count_7 = round((int)$message_count_7);
-                    $message_reply_count_7 = round((int)$message_reply_count_7);
-                    $visit_other_count_7 = round((int)$visit_other_count_7);
+                    // $message_count_7 = round((int)$message_count_7);
+                    // $message_reply_count_7 = round((int)$message_reply_count_7);
+                    // $visit_other_count_7 = round((int)$visit_other_count_7);
                 }
             }
 
-
+        if($is_vip){
             $data = array(
                 'login_times_per_week' => $login_times_per_week,
                 'tip_count' => $tip_count,
-                'fav_count' => $fav_count,
-                'be_fav_count' => $be_fav_count,
                 'is_vip' => 0,
                 'is_block_mid' => $is_block_mid,
                 'is_visit_mid' => $is_visit_mid,
@@ -2220,204 +2337,402 @@ class PagesController extends BaseController
                 'message_reply_count' => $message_reply_count,
                 'message_reply_count_7' => $message_reply_count_7,
                 'message_percent_7' => $message_percent_7,
-                'blocked_other_count' => $blocked_other_count,
-                'be_blocked_other_count' => $be_blocked_other_count,
                 'is_banned' => $is_banned,
                 'userHideOnlinePayStatus' => $userHideOnlinePayStatus,
                 'last_login' => $last_login
                 //此段僅測試用
                 //上正式機前起移除
                 ,
-                'message_count_7_old' => $message_count_7_old,
-                'message_reply_count_7_old' => $message_reply_count_7_old,
-                'visit_other_count_7_old' => $visit_other_count_7_old,
-                'hideOnlineDays' => $hideOnlineDays
+                // 'message_count_7_old' => $message_count_7_old,
+                // 'message_reply_count_7_old' => $message_reply_count_7_old,
+                // 'visit_other_count_7_old' => $visit_other_count_7_old,
+                // 'hideOnlineDays' => $hideOnlineDays
                 //end
             );
+        }else{
+            $data = array(
+                'login_times_per_week' => "<img src='/new/images/icon_35.png' />",
+                'tip_count' => "<img src='/new/images/icon_35.png' />",
+                'is_vip' => 0,
+                'is_block_mid' => "<img src='/new/images/icon_35.png' />",
+                'is_visit_mid' => "<img src='/new/images/icon_35.png' />",
+                'visit_other_count' => "<img src='/new/images/icon_35.png' />",
+                'visit_other_count_7' => "<img src='/new/images/icon_35.png' />",
+                'be_visit_other_count' => "<img src='/new/images/icon_35.png' />",
+                'be_visit_other_count_7' => "<img src='/new/images/icon_35.png' />",
+                'message_count' => "<img src='/new/images/icon_35.png' />",
+                'message_count_7' => "<img src='/new/images/icon_35.png' />",
+                'message_reply_count' => "<img src='/new/images/icon_35.png' />",
+                'message_reply_count_7' => "<img src='/new/images/icon_35.png' />",
+                'message_percent_7' => "<img src='/new/images/icon_35.png' />",
+                'is_banned' => "<img src='/new/images/icon_35.png' />",
+                'userHideOnlinePayStatus' => "<img src='/new/images/icon_35.png' />",
+                'last_login' => "<img src='/new/images/icon_35.png' />"
+                //此段僅測試用
+                //上正式機前起移除
+                ,
+                // 'message_count_7_old' => $message_count_7_old,
+                // 'message_reply_count_7_old' => $message_reply_count_7_old,
+                // 'visit_other_count_7_old' => $visit_other_count_7_old,
+                // 'hideOnlineDays' => $hideOnlineDays
+                //end
+            );
+        }
+            
+       
+        
+     
+        return $data;
+    }
 
-            $member_pic = MemberPic::where('member_id', $uid)->where('pic', '<>', $targetUser->meta->pic)->whereNull('deleted_at')->orderByDesc('created_at')->get();
+    public function getBlockUser(Request $request){
+        $user = $request->user();
+        $is_vip = $user->isVip();
+        if($is_vip){
+            $uid = $request->uid;
+            $bannedUsers = \App\Services\UserService::getBannedId();
+            /*此會員封鎖多少其他會員*/
+            $blocked_other_count = Blocked::with(['blocked_user'])
+            ->join('users', 'users.id', '=', 'blocked.blocked_id')
+            ->where('blocked.member_id', $uid)
+            ->whereNotIn('blocked.blocked_id',$bannedUsers)
+            ->whereNotNull('users.id')
+            ->where('users.accountStatus', 1)
+            ->where('users.account_status_admin', 1)
+            ->count();
+    
+            /*此會員被多少會員封鎖*/
+            $be_blocked_other_count = Blocked::with(['blocked_user'])
+                ->join('users', 'users.id', '=', 'blocked.member_id')
+                ->where('blocked.blocked_id', $uid)
+                ->whereNotIn('blocked.member_id',$bannedUsers)
+                ->whereNotNull('users.id')
+                ->where('users.accountStatus', 1)
+                ->where('users.account_status_admin', 1)
+                ->count();
+    
+            $output = array(
+                'blocked_other_count'=>$blocked_other_count,
+                'be_blocked_other_count'=>$be_blocked_other_count
+            );
+        }else{
+            $output = array(
+                'blocked_other_count'=>'<img src="/new/images/icon_35.png">',
+                'be_blocked_other_count'=>'<img src="/new/images/icon_35.png">'
+            );
+        }
 
-            if($user->isVip()){
-                $vipLevel = 1;
-            }else{
-                $vipLevel = 0;
-            }
-            // dd($vipLevel, $user->engroup);
-            $basic_setting = BasicSetting::where('vipLevel',$vipLevel)->where('gender',$user->engroup)->get()->first();
-            // dd($user);
-            if(isset($basic_setting['countSet'])){
-                if($basic_setting['countSet']==-1){
-                    $basic_setting['countSet'] = 10000;
+        return json_encode($output);
+    }
+
+    public function getFavCount(Request $request){
+        $user = $request->user();
+        $is_vip = $user->isVip();
+        if($is_vip){
+            $uid = $request->uid;
+            $bannedUsers = \App\Services\UserService::getBannedId();
+            /*收藏會員次數*/
+            $fav_count = MemberFav::select('member_fav.*')
+            ->join('users', 'users.id', '=', 'member_fav.member_fav_id')
+            ->whereNotNull('users.id')
+            ->where('users.accountStatus', 1)
+            ->where('users.account_status_admin', 1)
+            ->where('member_fav.member_id', $uid)
+            ->whereNotIn('member_fav.member_fav_id',$bannedUsers)
+            ->get()->count();
+    
+            /*被收藏次數*/
+            $be_fav_count = MemberFav::select('member_fav.*')
+                ->join('users', 'users.id', '=', 'member_fav.member_id')
+                ->whereNotNull('users.id')
+                ->where('users.accountStatus', 1)
+                ->where('users.account_status_admin', 1)
+                ->where('member_fav.member_fav_id', $uid)
+                ->whereNotIn('member_fav.member_id',$bannedUsers)
+                ->get()->count();
+    
+            $output = array(
+                'fav_count'=>$fav_count,
+                'be_fav_count'=>$be_fav_count
+            );
+        }else{
+            $output = array(
+                'blocked_other_count'=>'<img src="/new/images/icon_35.png">',
+                'be_blocked_other_count'=>'<img src="/new/images/icon_35.png">'
+            );
+        }
+
+        return json_encode($output); 
+    }
+    
+    public function getSearchData(Request $request){
+        $vis = \App\Models\UserMeta::searchApi(
+            $request->county,
+            $request->district,
+            $request->cup,
+            $request->marriage,
+            $request->budget,
+            $request->income,
+            $request->smoking,
+            $request->drinking,
+            $request->photo,
+            $request->agefrom,
+            $request->ageto,
+            $request->user['engroup'],
+            $request->umeta['city'],
+            $request->umeta['area'],
+            $request->umeta['blockdomain'],
+            $request->umeta['blockdomainType'],
+            $request->seqtime,
+            $request->body,
+            $request->user['id'],
+            $request->exchange_period,
+            $request->isBlocked,
+            $request->userIsVip,
+            $request->heightfrom,
+            $request->heightto,
+            $request->prRange_none,
+            $request->prRange,
+            $request->situation,
+            $request->education,
+            $request->isVip,
+            $request->isWarned,
+            $request->isPhoneAuth,
+            $request->userIsAdvanceAuth,
+            $request->page,
+            $request->tattoo,
+            $request->city2,
+            $request->area2,
+            $request->city3,
+            $request->area3
+        );
+
+        $ssrData = '';
+  
+        $user = Auth::user();
+    if (!empty($vis['singlePageData']) && isset($vis['singlePageData']) && sizeof($vis['singlePageData']) > 0){
+            foreach ($vis['singlePageData'] as $vi){
+            $visitor = $vi;
+            try{
+                $umeta = $visitor->user_meta;
+                if(isset($umeta->city)){
+                    $umeta->city = explode(",",$umeta->city);
+                    $umeta->area = explode(",",$umeta->area);
                 }
-                $data['timeSet']  = (int)$basic_setting['timeSet'];
-                $data['countSet'] = (int)$basic_setting['countSet'];
             }
-            $blockadepopup = AdminCommonText::getCommonText(5);//id5封鎖說明popup
-            $isVip = $user->isVip() ? '1':'0';
-
-            $adminCommonTexts = AdminCommonText::whereIn('alias', ['report_reason', 'report_member', 'report_avatar', 'new_sweet', 'well_member', 'money_cert', 'alert_account', 'label_vip'])->get();
-            $adminCommonTextArray = array();
-            foreach($adminCommonTexts as $adminCommonText){
-                $adminCommonTextArray[$adminCommonText->alias] = $adminCommonText;
+            catch (\Exception $e){
+                \Illuminate\Support\Facades\Log::info('Search error, visitor: ' . $vi);
             }
+           
+            $ssrData .='<li class="nt_fg">';
+                $ssrData .='<div class="n_seicon">';
+                   
+                        $data = \App\Services\UserService::checkRecommendedUser($visitor);
+                    
 
-            /*編輯文案-檢舉會員訊息-START*/
-            $report_reason = $adminCommonTextArray['report_reason'];
-            /*編輯文案-檢舉會員訊息-END*/
-            /*編輯文案-檢舉會員-START*/
-            $report_member = $adminCommonTextArray['report_member'];
-            /*編輯文案-檢舉會員-END*/
-            /*編輯文案-檢舉大頭照-START*/
-            $report_avatar = $adminCommonTextArray['report_avatar'];
-            /*編輯文案-檢舉大頭照-END*/
-            /*編輯文案-new_sweet-START*/
-            $new_sweet = $adminCommonTextArray['new_sweet'];
-            /*編輯文案-new_sweet-END*/
-            /*編輯文案-well_member-START*/
-            $well_member = $adminCommonTextArray['well_member'];
-            /*編輯文案-well_member-END*/
-            /*編輯文案-money_cert-START*/
-            $money_cert = $adminCommonTextArray['money_cert'];
-            /*編輯文案-money_cert-END*/
-            /*編輯文案-alert_account-START*/
-            $alert_account = $adminCommonTextArray['alert_account'];
-            /*編輯文案-alert_account-END*/
-            /*編輯文案-label_vip-START*/
-            $label_vip = $adminCommonTextArray['label_vip'];
-            /*編輯文案-label_vip-END*/
+                    if(!$visitor->user_meta){
+                        logger("Searched user no meta, id:" . $visitor->id);
+                        continue;
+                    }
+                   
+                    if($visitor->user_meta->isWarned == 1 || $visitor->isAdminWarned()){
+                        $ssrData .='<div class="hoverTip">';
+                            $ssrData .='<div class="tagText" data-toggle="popover" data-content="此會員為警示會員，與此會員交流務必提高警覺！">';
+                            if($user->isVip()){
+                                $ssrData .='<img src="/new/images/a5.png">';
+                            }else{
+                                $ssrData .='<img src="/new/images/b_5.png">';
+                            }
+                          
+                            $ssrData .='</div>';
+                        $ssrData .='</div>';
+                        
+                    }elseif(isset($data['description']) && $visitor->engroup == 2){
+                        $ssrData .='<div class="hoverTip">';
+                            $ssrData .='<div class="tagText" data-toggle="popover" data-content="新進甜心是指註冊未滿30天的新進會員，建議男會員可以多多接觸，不過要注意是否為八大行業人員。">';
+                                if($user->isVip()){
+                                    $ssrData .='<img src="/new/images/a1.png">';
+                                }else{
+                                    $ssrData .='<img src="/new/images/b_1.png">';
+                                }
 
-            /**
-             * 效能調整：使用左結合以大幅降低處理時間，並且減少 query 次數，進一步降低時間及程式碼複雜度
-             *
-             * @author LZong <lzong.tw@gmail.com>
-             */
-            $query = \App\Models\Evaluation::select('evaluation.*')->from('evaluation as evaluation')->with('user')
-                ->leftJoin('banned_users as b1', 'b1.member_id', '=', 'evaluation.from_id')
-                ->leftJoin('banned_users_implicitly as b3', 'b3.target', '=', 'evaluation.from_id')
-                ->leftJoin('blocked as b7', function($join) use($uid) {
-                    $join->on('b7.member_id', '=', 'evaluation.from_id')
-                        ->where('b7.blocked_id', $uid); })
-//                ->leftJoin('user_meta as um', function($join) {
-//                    $join->on('um.user_id', '=', 'evaluation.from_id')
-//                        ->where('isWarned', 1); })
-                ->leftJoin('warned_users as wu', function($join) {
-                    $join->on('wu.member_id', '=', 'evaluation.from_id')
-                        ->where(function($query){
-                            $query->where('wu.expire_date', '>=', Carbon::now())
-                                ->orWhere('wu.expire_date', null); }); })
-                ->leftJoin('is_warned_log as iw', 'iw.user_id', '=', 'evaluation.from_id')
-                ->whereNull('b1.member_id')
-                ->whereNull('b3.target')
-                ->whereNull('b7.member_id')
-//                ->whereNull('um.user_id')
-                ->whereNull('wu.member_id')
-                ->whereNull('iw.user_id')
-                ->where('evaluation.to_id', $uid);
+                            $ssrData .='</div>';
+                        $ssrData .='</div>';
+                    }elseif($visitor->isVip() && $visitor->engroup == 1){
+                        $ssrData .='<div class="hoverTip">';
+                            $ssrData .='<div class="tagText" data-toggle="popover" data-content="本站的付費會員。">';
+                                if($user->isVip()){
+                                    $ssrData .='<img src="/new/images/a4.png">';
+                                }else{
+                                    $ssrData .='<img src="/new/images/b_4.png">';
+                                }
+                            $ssrData .='</div>';
+                        $ssrData .='</div>';
+                    }else{
+                        if($user->isVip()){
+                            $ssr_var = 'xa_ssbg';
+                        }else{
+                            $ssr_var = '';
+                        }
+                        if($visitor->isPhoneAuth()){
+                            $ssrData .='<div class="hoverTip '.$ssr_var.'">';                            
+                            if($user->isVip()){
+                                if($visitor->isAdvanceAuth() && $visitor->engroup==2){
+                                    $ssrData .='<div class="tagText"  data-toggle="popover" data-content="本站的進階認證會員，本會員通過本站的嚴格驗證，基本資料正確無誤。">';
+                                    $ssrData .='<img src="/new/images/c_03.png">';
+                                    $ssrData .='</div> ';
+                                    $ssrData .='<span>丨</span>';
+                                }else if(!$visitor->isAdvanceAuth() && $visitor->engroup==2){
+                                    $ssrData .='<div class="tagText"  data-toggle="popover" data-content="通過本站手機驗證的會員。">';
+                                    $ssrData .='<img src="/new/images/c_09.png">';
+                                    $ssrData .='</div>  ';
+                                    $ssrData .='<span>丨</span>';
+                                }
+                               
+                                $ssrData .='<div class="tagText"  data-toggle="popover" data-content="通過本站手機驗證的會員。">';
+                                $ssrData .='<img src="/new/images/c_10.png">';
+                                $ssrData .='</div>';
+                            }else{
+                                if($visitor->isAdvanceAuth() && $visitor->engroup==2){
+                                    $ssrData .='<div class="tagText"  data-toggle="popover" data-content="本站的進階認證會員，本會員通過本站的嚴格驗證，基本資料正確無誤。">';
+                                    $ssrData .='<img src="/new/images/b_8x.png">';
+                                    $ssrData .='</div> ';
+                                }else if(!$visitor->isAdvanceAuth() && $visitor->engroup==2){
+                                    $ssrData .='<div class="tagText"  data-toggle="popover" data-content="通過本站手機驗證的會員。">';
+                                    $ssrData .='<img src="/new/images/b_5x.png">';
+                                    $ssrData .='</div>  ';
+                                }else{
+                                    $ssrData .='<div class="tagText"  data-toggle="popover" data-content="通過本站手機驗證的會員。">';
+                                    $ssrData .='<img src="/new/images/b_6.png">';
+                                    $ssrData .='</div>  ';  
+                                } 
+                            }
+                            $ssrData .='</div>';
+                        }
+                     
+                    }
+          
+                    if(isset($visitor->pr_log)){
+                        $ssr_var = $visitor->pr_log->pr."%;"; 
+                    }else{
+                        $ssr_var = "0%;";
+                    } 
+                                                       
+                 
+                  
+                    if($visitor->engroup == 1){
+                        $ssrData .='<div class="tixright_a">';
+                        $ssrData .='<div class="span zi_sc">大方指數</div>';
+                        $ssrData .='<div class="font">';
+                        $ssrData .='<div class="vvipjdt tm_new">';
+                        $ssrData .='<div class="progress progress-striped vvipjdt_pre_a">';
+                        $ssrData .='<div class="progress-bar progress_info_a" role="progressbar" aria-valuenow="60" aria-valuemin="0"
+                                         aria-valuemax="100" style="width:'.$ssr_var.'"'; //need to check again
+                                         $ssrData .='<span class="prfont_a">PR</span>';
+                                         $ssrData .='</div>';
+                                         $ssrData .='</div>';
+                                         $ssrData .='</div>';
+                                         $ssrData .='</div>';
+                                         $ssrData .='</div>';
+                    }
+                    
+                   
+                    $ssrData .='</div>';
+                
+                    $isBlurAvatar = \App\Services\UserService::isBlurAvatar($visitor, $user);
+                    if($isBlurAvatar) $ssr_var = 'blur_img';
+                    if($visitor->user_meta->isAvatarHidden == 1){
+                        $ssr_var2 = 'makesomeerror';
+                    } else {
+                        $ssr_var2 = $visitor->user_meta->pic;
+                    }
+                   
+                    if ($visitor->engroup == 1){
+                        $onerror="this.src='/new/images/male.png'" ;
+                    } else {
+                        $onerror="this.src='/new/images/female.png'";
+                    }
+                $ssrData .='<a href="/dashboard/viewuser/'.$visitor->id.'?time='.\Carbon\Carbon::now()->timestamp.'">';
+                $ssrData .='<div class="nt_photo '.$ssr_var.'"><img class="lazy" src="'.$ssr_var2.'" data-original="'.$ssr_var2.'" onerror="'.$onerror.'"/></div>'; // need to check again
 
-            $rating_avg = $query->avg('rating');
-            $rating_avg = floatval($rating_avg);
+                $ssrData .='<div class="nt_bot nt_bgco">';
+                $ssrData .='<h2>';
+                $ssrData .='<font class="left">'.$visitor->name.'<span>'.$visitor->age().'歲</span></font>';
+                            if($user->isVip()){
+                                if($visitor->isOnline()){
+                                    $ssrData .='<span class="onlineStatusSearch"></span>';
+                                }
+                            }else{
+                                $ssrData .='<div class="onlineStatusNonVipSearch"><img src="/new/images/wsx.png"></div>';
+                            }
+                                
+                          
 
-            /**
-             * 效能調整：使用左結合以大幅降低處理時間，並且減少 query 次數，進一步降低時間及程式碼複雜度
-             *
-             * @author LZong <lzong.tw@gmail.com>
-             */
-            $query = \App\Models\Evaluation::select('evaluation.*')->from('evaluation as evaluation')->with('user')
-                ->leftJoin('banned_users as b1', 'b1.member_id', '=', 'evaluation.from_id')
-                ->leftJoin('banned_users_implicitly as b3', 'b3.target', '=', 'evaluation.from_id')
-                ->leftJoin('users as u1', 'u1.id', '=', 'evaluation.from_id')
-//                ->leftJoin('users as u2', 'u2.id', '=', 'evaluation.from_id')
-//                ->leftJoin('user_meta as um', function($join) {
-//                    $join->on('um.user_id', '=', 'evaluation.from_id')
-//                        ->where('isWarned', 1); })
-//                ->leftJoin('warned_users as wu', function($join) {
-//                    $join->on('wu.member_id', '=', 'evaluation.from_id')
-//                        ->where(function($query){
-//                            $query->where('wu.expire_date', '>=', Carbon::now())
-//                                ->orWhere('wu.expire_date', null); }); })
-                ->whereNull('b1.member_id')
-                ->whereNull('b3.target')
-                ->whereNotNull('u1.id')
-//                ->whereNotNull('u2.id')
-                ->where('u1.accountStatus', 1)
-                ->where('u1.account_status_admin', 1)
-//                ->where('u2.accountStatus', 1)
-//                ->where('u2.account_status_admin', 1)
-//                ->whereNull('um.user_id')
-//                ->whereNull('wu.member_id')
-                ->orderBy('evaluation.created_at','desc')
-                ->where('evaluation.to_id', $uid);
+                            $ssrData .='</h2>';
+                            $ssrData .='<h3>';
+                        
+                            if(!empty($umeta->city)){
+                                foreach($umeta->city as $key => $cityval){
+                                    if ($key==0){
+                                       $ssrData .=  $umeta->city[$key];
+									   if($visitor->user_meta->isHideArea == 0){
+										   $ssrData .=  $umeta->area[$key].'  ';
+										   
+									   }
+                                    }else{
+										
+                                        $ssrData .=  '<span>'.$umeta->city[$key];
+										if($visitor->user_meta->isHideArea == 0){
+											$ssrData .= ($umeta->area[$key].'</span>');
+										}
+                                    }
+                                }
+                                    
+                             
+                            }
+                                
+                           
+                            if($user->isVip()){
+                                if($visitor->user_meta->isHideOccupation == 0 && !empty($visitor->user_meta->occupation) && $visitor->user_meta->occupation != 'null'){
+                                    $ssrData .='<span style="margin-left: 0;">'.$visitor->user_meta->occupation.'</span>';
+                                }
+                            }else{
+                                $ssrData .='<span style="margin-left: 10px;"><span style="padding-left: 5px;">職業</span><img src="/new/images/icon_35.png" class="nt_img"></span>';
+                            }
+                                
+                          
 
-            $evaluation_data = $query->paginate(10);
-
-            $evaluation_self = Evaluation::where('to_id',$uid)->where('from_id',$user->id)->first();
-            /*編輯文案-被封鎖者看不到封鎖者的提示-START*/
-//            $user_closed = AdminCommonText::where('alias','user_closed')->get()->first();
-            /*編輯文案-被封鎖者看不到封鎖者的提示-END*/
-
-            // todo: 此處程式碼有誤，應檢查檢視者是否被被檢視者封鎖，若是，才存入變數
-//            if(User::isBanned($uid)){
-//                Session::flash('message', $user_closed->content);
-//            }
-            if($uid == $user->id) {
-                \App\Models\Evaluation::where('to_id',$uid)->update(['read'=>0]);
-            }
-
-            $to = $targetUser;
-            $valueAddedServicesStatus['hideOnline'] = 0;
-            $valueAddedServicesStatusRows = $to->valueAddedServiceStatus();
-            if($valueAddedServicesStatusRows){
-                foreach($valueAddedServicesStatusRows as $valueAddedServicesStatusRow){
-                    $valueAddedServicesStatus[$valueAddedServicesStatusRow->service_name] = 1;
-                }
-            }
-            $isSent3Msg = $user->isSent3Msg($uid);
-
-            $isReadIntro = $user->isReadIntro;
-
-            $pr = DB::table('pr_log')->where('user_id',$to->id)->where('active',1)->first();
-            if(isset($pr)){
-                $pr = $pr->pr;
-            }else{
-                $pr = '0';
-            }
-
-            //紀錄返回上一頁的url,避免發信後,按返回還在發信頁面
-            if(isset($_SERVER['HTTP_REFERER'])){
-                if(!str_contains($_SERVER['HTTP_REFERER'],'dashboard/chat2/chatShow') && !str_contains($_SERVER['HTTP_REFERER'],'dashboard/viewuser')){
-                    session()->put('goBackPage',$_SERVER['HTTP_REFERER']);
-                }
-            }
-
-            return view('new.dashboard.viewuser', $data)
-                    ->with('user', $user)
-                    ->with('blockadepopup', $blockadepopup)
-                    ->with('to', $to)
-                    ->with('valueAddedServiceStatus', $valueAddedServicesStatus)
-                    ->with('isSent3Msg', $isSent3Msg)
-                    ->with('cur', $user)
-                    ->with('member_pic',$member_pic)
-                    ->with('isVip', $isVip)
-                    ->with('engroup', $user->engroup)
-                    ->with('report_reason',$report_reason->content)
-                    ->with('report_member',$report_member->content)
-                    ->with('report_avatar',$report_avatar->content)
-                    ->with('new_sweet',$new_sweet->content)
-                    ->with('well_member',$well_member->content)
-                    ->with('money_cert',$money_cert->content)
-                    ->with('alert_account',$alert_account->content)
-                    ->with('label_vip',$label_vip->content)
-                    ->with('rating_avg',$rating_avg)
-//                    ->with('user_closed',$user_closed->content)
-                    ->with('evaluation_self',$evaluation_self)
-                    ->with('evaluation_data',$evaluation_data)
-                    ->with('vipDays',$vipDays)
-                    ->with('isReadIntro',$isReadIntro)
-                    ->with('auth_check',$auth_check)
-                    ->with('is_banned',User::isBanned($user->id))
-                    ->with('pr', $pr);
-            }
-
+                            if($user->engroup==1){
+                                if($user->isVip()){
+                                    $exchange_period_name = DB::table('exchange_period_name')->where('id',$visitor->exchange_period)->first();
+                                    
+                                    $ssrData .='<i class="j_lxx">丨</i><span>'.$exchange_period_name->name.'</span>';
+                                }else{
+                                    $ssrData .='<i class="j_lxx">丨</i><span>包養關係<img src="/new/images/icon_35.png" class="nt_img"></span>';
+                                }
+                            }
+                            
+                            $ssrData .='</h3>';
+                            $ssrData .='<h3>最後上線時間：';
+                            if($visitor->valueAddedServiceStatus('hideOnline')==1 && $visitor->is_hide_online==1){
+                                $ssrData .= substr($visitor->hide_online_time,0,11);
+                            }else{
+                                $ssrData .= substr($visitor->last_login,0,11);
+                            }
+                            $ssrData .='</h3>';
+                        $ssrData .='</div>';
+                        $ssrData .='</a>';
+                        $ssrData .='</li>';
+                         }
+        }else{
+            $ssrData .='<div class="fengsicon search"><img src="/new/images/loupe.png" class="feng_img"><span>沒有資料</span></div>';
+        }
+        $output = array(
+            "ssrData"=>$ssrData,
+            "count"=>$vis['allPageDataCount'],
+            'singleCount'=>$vis['singlePageCount']
+        );
+        return json_encode($output);
     }
 
     public function evaluation_self(Request $request)
@@ -4816,16 +5131,24 @@ class PagesController extends BaseController
 
     public function forum(Request $request)
     {
-        $user = $this->user;
-        if ($user && $user->engroup == 2){
+        $user=$request->user();
+        if ($user && $user->engroup == 2) {
             return back();
         }
 
-//        $ban = banned_users::where('member_id', $user->id)->first();
-//        $banImplicitly = \App\Models\BannedUsersImplicitly::where('target', $user->id)->first();
-//        if($ban || $banImplicitly){
-//            return back();
-//        }
+        $posts_list = Posts::selectraw('
+         posts.id as pid,
+         users.id as uid,
+         users.engroup,
+         user_meta.pic as umpic
+         ')->selectRaw('
+            (select count(*) from posts left join users on users.id = posts.user_id where (posts.type="main")) as posts_num, 
+            (select count(*) from posts where (type="sub" and reply_id in (select id from posts where (type="main") ) )) as posts_reply_num
+            ')
+            ->LeftJoin('users', 'users.id','=','posts.user_id')
+            ->join('user_meta', 'users.id','=','user_meta.user_id')
+            ->groupBy('users.id')
+            ->take(6)->get();
 
         $post_forum = Forum::where('user_id', $user->id)->first();
 
@@ -4846,6 +5169,7 @@ class PagesController extends BaseController
             ->join('user_meta', 'users.id','=','user_meta.user_id')
             ->leftJoin('forum_posts', 'forum_posts.user_id','=', 'users.id')
 //            ->where('forum.status', 1)
+            ->orderBy('forum.status', 'desc')
             ->orderBy('currentReplyTime','desc')
             ->groupBy('forum.id')
             ->paginate(10);
@@ -4853,21 +5177,9 @@ class PagesController extends BaseController
         $data = array(
             //            'posts' => null
             'posts' => $posts,
-            'post_forum' => $post_forum
+            'post_forum' => $post_forum,
+            'posts_list' => $posts_list
         );
-
-        if ($user)
-        {
-            // blocked by user->id
-            $blocks = \App\Models\Blocked::where('member_id', $user->id)->paginate(15);
-
-            $usersInfo = array();
-            foreach($blocks as $blockUser){
-                $id = $blockUser->blocked_id;
-                $usersInfo[$id] = User::findById($id);
-            }
-
-        }
 
         //檢查是否為連續兩個月以上的VIP會員
         $checkUserVip=0;
@@ -4881,8 +5193,6 @@ class PagesController extends BaseController
 
         return view('/dashboard/forum', $data)
             ->with('checkUserVip', $checkUserVip)
-            ->with('blocks', $blocks)
-            ->with('users', $usersInfo)
             ->with('user', $user);
     }
 
@@ -5049,7 +5359,13 @@ class PagesController extends BaseController
             if(!isset($checkData)){
                 ForumManage::insert(['forum_id'=>$fid->id, 'user_id' => $uid, 'apply_user_id' => $auid, 'status'=> 1, 'created_at' => Carbon::now(), 'updated_at' => Carbon::now()]);
                 $msg = '申請成功';
-//                ForumManage::insert(['forum_id'=>$fid->id, 'user_id' => $uid, 'apply_user_id' => $auid, 'created_at' => Carbon::now(), 'updated_at' => Carbon::now()]);
+//                ForumManage::insert([
+//                    'forum_id'=>$fid->id,
+//                    'user_id' => $uid,
+//                    'apply_user_id' => $auid,
+//                    'created_at' => Carbon::now(),
+//                    'updated_at' => Carbon::now()
+//                ]);
 //                $msg = '申請成功';
             }else{
                 $msg = '已重複申請';
@@ -5300,7 +5616,7 @@ class PagesController extends BaseController
             $query->where($whereArr1);
         });
         if($sys_notice) $query->where('sys_notice',1);
-        else $query->where('sys_notice','<>',1);
+        else $query->where('sys_notice',0)->orWhereNull('sys_notice');
         $query = $query->orderBy('created_at', 'desc')->orderBy('read');
         if(!$sys_notice) $query->appends(['manual'=>intval(!$sys_notice)]);
 
@@ -5358,8 +5674,8 @@ class PagesController extends BaseController
             $vipStatus='您已是 VIP';
             $vip_record = Carbon::parse($user->vip_record);
             $vipDays = $vip_record->diffInDays(Carbon::now());
-            if(!$user->isFreeVip()) {
-                $vip = Vip::select('business_id', 'order_id', 'payment', 'payment_method', 'expiry', 'amount')->where('member_id', $user->id)->first();
+            if(!$user->isFreeVip()) {               
+                $vip = $user->vip->first();               
                 if($vip->payment){
 
                     switch ($vip->payment_method){
@@ -5408,24 +5724,36 @@ class PagesController extends BaseController
                         }
                         $nextProcessDate = substr($lastProcessDate->addDays($periodRemained),0,10);
                     }
+                    $last_vip_log = null;                   
 
                     switch ($vip->payment){
                         case 'cc_monthly_payment':
-                            if(isset($nextProcessDate)){
+                            if(!$vip->isPaidCanceled() && ($nextProcessDate??null)){
                                 $nextProcessDate = '預計下次扣款日為 '.$nextProcessDate.' 扣款金額：'.$vip->amount;
-                            }else{
-                                $nextProcessDate = '已停止扣款，VIP 到期日為' . substr($vip->expiry,0,10);
+                                $vipStatus='您目前的 VIP 是每月定期 '.$payment.'。'.$nextProcessDate;
+                            }else if($vip->isPaidCanceled()){
+                                $cancel_str = '';
+                                $latest_vip_log = $user->getLatestVipLog();
+                                if($latest_vip_log->isCancel()) {
+                                    $cancel_str='您已經在 '.substr($latest_vip_log->created_at,0,10).' 取消續約，';
+                                }
+                                
+                                $vipStatus='您是本站VIP。'.$cancel_str.'VIP到期日為 '. substr($vip->expiry,0,10).'。';
                             }
-                            $vipStatus='您目前的 VIP 是每月定期 '.$payment.'。'.$nextProcessDate;
                             break;
                         case 'cc_quarterly_payment':
-
-                            if(isset($nextProcessDate)){
+                            if(!$vip->isPaidCanceled() && ($nextProcessDate??null)){
                                 $nextProcessDate = '預計下次扣款日為 '.$nextProcessDate.' 扣款金額：'.$vip->amount;
-                            }else{
-                                $nextProcessDate = '已停止扣款，VIP 到期日為' . substr($vip->expiry,0,10);
+                                $vipStatus='您目前的 VIP 是每季定期 '.$payment.'。'.$nextProcessDate;
+                            }else if($vip->isPaidCanceled()){
+                                $cancel_str = '';
+                                $latest_vip_log = $user->getLatestVipLog();
+                                if($latest_vip_log->isCancel()) {
+                                    $cancel_str='您已經在 '.substr($latest_vip_log->created_at,0,10).' 取消續約，';
+                                }
+                                
+                                $vipStatus='您是本站VIP。'.$cancel_str.'VIP到期日為 '. substr($vip->expiry,0,10).'。';                                
                             }
-                            $vipStatus='您目前的 VIP 是每季定期 '.$payment.'。'.$nextProcessDate;
                             break;
                         case 'one_month_payment':
                             $vipStatus='您目前的 VIP 是單次支付本月費用 '.$payment.'，到期日為'. substr($vip->expiry,0,10);
@@ -5508,7 +5836,87 @@ class PagesController extends BaseController
             
             }
         }
+        
+        $vasStatus = '';
+        if($user->valueAddedServiceStatus('hideOnline') == 1) {
+            $vasStatus = '您已購買隱藏付費功能';
+            $vas = $user->vas->where('service_name','hideOnline')->first();
+            if($vas->payment){
+                if(\App::environment('local')){
+                    $envStr = '_test';
+                }
+                else{
+                    $envStr = '';
+                }
+                if(substr($vas->payment,0,3) == 'cc_' && $vas->business_id == Config::get('ecpay.payment'.$envStr.'.MerchantID')){
 
+                    $ecpay = new \App\Services\ECPay_AllInOne();
+                    $ecpay->MerchantID = Config::get('ecpay.payment'.$envStr.'.MerchantID');
+                    $ecpay->ServiceURL = Config::get('ecpay.payment'.$envStr.'.ServiceURL');//定期定額查詢
+                    $ecpay->HashIV = Config::get('ecpay.payment'.$envStr.'.HashIV');
+                    $ecpay->HashKey = Config::get('ecpay.payment'.$envStr.'.HashKey');
+                    $ecpay->Query = [
+                        'MerchantTradeNo' => $vas->order_id,
+                        'TimeStamp' => 	time()
+                    ];
+                    $paymentData = $ecpay->QueryPeriodCreditCardTradeInfo(); //信用卡定期定額
+                    $last = last($paymentData['ExecLog']);
+                    $lastProcessDate = str_replace('%20', ' ', $last['process_date']);
+                    $lastProcessDate = \Carbon\Carbon::createFromFormat('Y/m/d H:i:s', $lastProcessDate);
+
+                    //計算下次扣款日
+                    if($vas->payment == 'cc_quarterly_payment'){
+                        $periodRemained = 92;
+                    }else {
+                        $periodRemained = 30;
+                    }
+                    $nextProcessDate = substr($lastProcessDate->addDays($periodRemained),0,10);
+                }
+                $payment = '信用卡繳費';
+                switch ($vas->payment){
+                    case 'cc_monthly_payment':
+                         if(!$vas->isPaidCanceled() && $nextProcessDate??null){
+                            $nextProcessDate = '預計下次扣款日為 '.$nextProcessDate.' 扣款金額：'.$vas->amount;
+                            $vasStatus='您目前的隱藏付費是每月定期 '.$payment.'。'.$nextProcessDate;
+                        }else if($vas->isPaidCanceled()){
+                            $cancel_str = '';
+                            $latest_vas_log = $user->getLatestVasLog();
+                            if($latest_vas_log->isCancel()) {
+                                $cancel_str='您已經在 '.substr($latest_vas_log->created_at,0,10).' 取消續約，';
+                            }
+                            
+                            $vasStatus='您目前為隱藏付費者。'.$cancel_str.'隱藏付費到期日為 '. substr($vas->expiry,0,10).'。';                              
+                        }
+                        break;
+                    case 'cc_quarterly_payment':
+                         if(!$vas->isPaidCanceled() && $nextProcessDate??null){
+                            $nextProcessDate = '預計下次扣款日為 '.$nextProcessDate.' 扣款金額：'.$vas->amount;
+                            $vasStatus='您目前的隱藏付費功能是每季定期 '.$payment.'。'.$nextProcessDate;
+                        }else if($vas->isPaidCanceled()){
+                            //$nextProcessDate = '已停止扣款，隱藏付費功能到期日為' . substr($vas->expiry,0,10);
+                            $cancel_str = '';
+                            $latest_vas_log = $user->getLatestVasLog();
+                            if($latest_vas_log->isCancel()) {
+                                $cancel_str='您已經在 '.substr($latest_vas_log->created_at,0,10).' 取消續約，';
+                            }
+                            
+                            $vasStatus='您目前為隱藏付費者。'.$cancel_str.'隱藏付費到期日為 '. substr($vas->expiry,0,10).'。';                                   
+                        }
+                        break;
+                    case 'one_month_payment':
+                        $vasStatus='您目前的隱藏付費功能是單次支付本月費用 '.$payment.'，到期日為'. substr($vas->expiry,0,10);
+                        break;
+                    case 'one_quarter_payment':
+                        $vasStatus='您目前的隱藏付費功能是單次支付本季費用 '.$payment.'，到期日為'. substr($vas->expiry,0,10);
+                        break;
+                }
+            }
+         
+        }
+        else {
+            $vasStatus = '您尚未購買隱藏付費功能';
+        }
+ 
         $user_isBannedOrWarned = User::select(
             'm.isWarned',
             'm.isWarnedType',
@@ -5831,7 +6239,7 @@ class PagesController extends BaseController
 		$admin_msgs = [];
         $admin_msgs_sys = [];
 
-		foreach($admin_msg_entrys->where('sys_notice','<>','1') as $admin_msg_entry) {             
+		foreach($admin_msg_entrys->where('sys_notice',0) as $admin_msg_entry) {
             $admin_msg_entry->content = str_replace('NAME', $user->name, $admin_msg_entry->content);
             $admin_msg_entry->content = str_replace('|$report|', $user->name, $admin_msg_entry->content);
             $admin_msg_entry->content = str_replace('LINE_ICON', AdminService::$line_icon_html, $admin_msg_entry->content);
@@ -5898,6 +6306,7 @@ class PagesController extends BaseController
         if (isset($user)) {
             $data = array(
                 'vipStatus' => $vipStatus,
+                'vasStatus'=> $vasStatus,
                 'isBannedStatus' => $isBannedStatus,
 //                'isBannedImplicitlyStatus' => $isBannedImplicitlyStatus,
                 'adminWarnedStatus' => $adminWarnedStatus,
@@ -6078,7 +6487,7 @@ class PagesController extends BaseController
 				$admin_msgs = [];
 				$i=0;
                 if($sys_remind) $admin_msg_entrys = $admin_msg_entrys->where('sys_notice',1);
-                else $admin_msg_entrys = $admin_msg_entrys->where('sys_notice','<>',1);
+                else $admin_msg_entrys = $admin_msg_entrys->where('sys_notice',0)->orWhereNull('sys_notice');
 				foreach($admin_msg_entrys as $admin_msg_entry) {
 					$admin_msgs[] = $admin_msg_entry;
 					$i++;
@@ -6524,3 +6933,6 @@ class PagesController extends BaseController
         return $service->delByIgnoreId($request->target)?1:0;
     }
 }
+
+
+

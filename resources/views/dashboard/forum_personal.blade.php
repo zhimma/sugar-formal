@@ -62,13 +62,15 @@
 							<div class="btn_back"></div>
 						</a>
 						<span style="margin: 0 auto; position: relative;line-height: 44px;padding-bottom: 3px; left: 40px; font-size: 18px;">{{$post_forum->title}}</span>
-						<a class="toug_back btn_img01 userlogo xzgn">
-							<div class="btn_back">功能選單<img src="/posts/images/jiant_a.png"></div>
-						</a>
-						<div class="fabiao showslide" style="text-align: center;">
-							<a onclick="checkUserVip();">我要發表</a>
-							<a href="/dashboard/forum_manage">會員管理</a>
-						</div>
+						@if ($user->id == $post_forum->user_id)
+							<a class="toug_back btn_img01 userlogo xzgn">
+								<div class="btn_back">功能選單<img src="/posts/images/jiant_a.png"></div>
+							</a>
+							<div class="fabiao showslide" style="text-align: center;">
+								<a onclick="checkUserVip();">我要發表</a>
+								<a href="/dashboard/forum_manage">會員管理</a>
+							</div>
+						@endif
 					</div>
 					<div class="fadeinboxs"></div>
 					<script>

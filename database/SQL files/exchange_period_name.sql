@@ -40,7 +40,7 @@ CREATE TABLE `exchange_period_name` (
 INSERT INTO `exchange_period_name` (`id`, `name`) VALUES
 (1, '長期為主'),
 (2, '長短皆可'),
-(3, '單次為主');
+(3, '短期為主');
 
 --
 -- 已傾印資料表的索引

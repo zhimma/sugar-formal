@@ -47,4 +47,9 @@ class VipLog extends Model
         $log->updated_at = Carbon::now();
         $log->save();
     }
+    
+    public function isCancel() {
+        return stripos($this->member_name,'cancel')!==false;
+       
+    }
 }

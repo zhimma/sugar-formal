@@ -800,7 +800,7 @@ dt span.engroup_type_title {display:inline-block;width:10%;white-space:nowrap;}
       </div>
   </div>
 
-  <div class="bl bl_tab" id="messageBoard_enter_limit">
+  {{--<div class="bl bl_tab" id="messageBoard_enter_limit">
       <div class="bltitle">提示</div>
       <div class="n_blnr01 matop10">
           @if($user->engroup==2)
@@ -810,6 +810,27 @@ dt span.engroup_type_title {display:inline-block;width:10%;white-space:nowrap;}
           @endif
           <a class="n_bllbut matop30" onclick="gmBtnNoReload()">確定</a>
       </div>
+  </div>--}}
+  <div class="bl bl_tab" id="messageBoard_enter_limit" style="display: none;">
+      <div class="bltitle"><span>提示</span></div>
+      <div class="n_blnr01 ">
+          <div class="new_tkfont">您目前未達標準<br>不可使用留言板功能</div>
+          <div class="new_tablema">
+              <table>
+                  @if($user->engroup==2)
+                      <tr>
+                          <td class="new_baa new_baa1">須通過手機驗證</td>
+                          <td class="new_baa1">@if($user->isPhoneAuth())<img src="/new/images/ticon_01.png">@else<img src="/new/images/ticon_02.png">@endif</td>
+                      </tr>
+                  @endif
+                  <tr>
+                      <td class="new_baa">需為VIP會員</td>
+                      <td class="">@if(!$user->isVip())<img src="/new/images/ticon_02.png">@else<img src="/new/images/ticon_01.png">@endif</td>
+                  </tr>
+              </table>
+          </div>
+      </div>
+      <a id="" onClick="gmBtnNoReload()" class="bl_gb"><img src="/new/images/gb_icon.png"></a>
   </div>
   <div class="bl bl_tab" id="messageBoard_msg">
       <div class="bltitle">提示</div>
@@ -1047,19 +1068,19 @@ dt span.engroup_type_title {display:inline-block;width:10%;white-space:nowrap;}
             // });
             return false;
           }
-          if(height.val() == '' || height.val() < 140 || height.val() > 210) {
+          if(height.val() == '' || height.val().charAt(0)==0 || height.val() < 140 || height.val() > 210) {
             height.focus();
-            c5('身高不在140~210數字範圍：請輸入數字範圍140~210');
+            c5('請輸入身高140～210');
             return false;
           }
           if(about.val().length < 4 || about.val().length > 300) {
             about.focus();
-            c5('關於我低於4個字：請輸入4～300個字');
+            c5('關於我：請輸入4～300個字');
             return false;
           }
           if(style.val().length < 4 || style.val().length > 300) {
             style.focus();
-            c5('期待約會模式低於4個字：請輸入4～300個字');
+            c5('期待約會模式：請輸入4～300個字');
             return false;
           }
           if('{{$user->engroup}}' == '2'){
@@ -1300,7 +1321,7 @@ dt span.engroup_type_title {display:inline-block;width:10%;white-space:nowrap;}
         $("#height").on("change", function() {
             var val = Math.abs(parseInt(this.value, 10) || 1);
             if(this.value>210 || this.value<140) {
-                c5('請輸入數字範圍140～210');
+                c5('請輸入身高140～210');
                 this.value = val > 210 ? 210 : val < 140 ? 140 : val ;
             }
         });

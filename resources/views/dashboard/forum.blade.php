@@ -1,5 +1,5 @@
 @extends('new.layouts.website')
-
+{{--@section('style')--}}
 		<link rel="stylesheet" href="/posts/css/style.css">
 		<link rel="stylesheet" href="/posts/css/font/font_n/iconfont.css">
 		<link rel="stylesheet" href="/posts/css/font/iconfont.css">
@@ -14,7 +14,7 @@
 				height: 28px;
 			}
 		</style>
-
+{{--@endsection--}}
 		@section('app-content')
 		<div class="container matop70">
 			<div class="row">
@@ -25,15 +25,58 @@
 					<div class="shou">
 						<span>討論區</span><font>Discussion</font>
 						<a @if(isset($post_forum))  onclick="forumTip({{$user->id}})"  @else onclick="ForumCheckEnterPop()"
-{{--						   href="/dashboard/ForumEdit/{{$user->id}}" --}}
+{{--						   href="/dashboard/ForumEdit/{{$user->id}}"--}}
 						   @endif
 						   class="xinzeng_but" style="font-size: 12px;"><img src="/posts/images/liuyan_03.png" style="height:15px;">個人討論區</a>
 					</div>
 					<!--  -->
-					<a class="tl_button_PC" href="/dashboard/posts_list" style="width: 95%;"><img src="/posts/images/taolun_but_pc.png"></a>
-					<a class="tl_button" href="/dashboard/posts_list"><img src="/posts/images/taolun_but.png"></a>
+{{--					<a class="tl_button_PC" href="/dashboard/posts_list" style="width: 95%;"><img src="/posts/images/taolun_but_pc.png"></a>--}}
+{{--					<a class="tl_button" href="/dashboard/posts_list"><img src="/posts/images/taolun_but.png"></a>--}}
 
+					<div class="tl_bbg">
+						<a href="/dashboard/posts_list">
+						<img src="/posts/images/taolq02.png" class="tl_bbg_img">
+						<div class="te_ins">
+							<div class="ta_wdka_text te_incob">主題數<span>{{$posts_list[0]->posts_num}}</span><i>丨</i>回覆數<span>{{$posts_list[0]->posts_reply_num}}</span></div>
+							<div class="ta_witx_rig">
+								<div class="wt_txb">
+									@foreach($posts_list as $key=>$row)
+										@if(count($posts_list)>5)
+											@once
+											<span class="ta_toxmr">
+																<img src="/posts/images/imor.png" class="hycov">
+															</span>
+											@endonce
+										@endif
+{{--											<span class="ta_toxmr xa_rig10">--}}
+{{--																<img src="@if(file_exists( public_path().$row->umpic ) && $row->umpic != ""){{$row->umpic}} @elseif($row->engroup==2)/new/images/female.png @else/new/images/male.png @endif" class="hycov">--}}
+{{--															</span>--}}
 
+										@if($key==0)
+											<span class="ta_toxmr @if(count($posts_list)>5) xa_rig10 @endif">
+																<img src="@if(file_exists( public_path().$row->umpic ) && $row->umpic != ""){{$row->umpic}} @elseif($row->engroup==2)/new/images/female.png @else/new/images/male.png @endif" class="hycov">
+															</span>
+										@elseif($key>0 && $key<5)
+											<span class="ta_toxmr xa_rig10">
+																<img src="@if(file_exists( public_path().$row->umpic ) && $row->umpic != ""){{$row->umpic}} @elseif($row->engroup==2)/new/images/female.png @else/new/images/male.png @endif" class="hycov">
+															</span>
+{{--										@elseif($key>=5)--}}
+{{--											<span class="ta_toxmr xa_rig10">--}}
+{{--																<img src="/posts/images/imor.png" class="hycov hycov_down">--}}
+{{--															</span>--}}
+{{--											@break--}}
+										@endif
+									@endforeach
+{{--									<span class="ta_toxmr"><img src="/posts/images/imor.png" class="hycov"></span>--}}
+{{--									<span class="ta_toxmr xa_rig10"><img src="/posts/images/zx.jpg" class="hycov"></span>--}}
+{{--									<span class="ta_toxmr xa_rig10"><img src="/posts/images/zx.jpg" class="hycov"></span>--}}
+{{--									<span class="ta_toxmr xa_rig10"><img src="/posts/images/zx.jpg" class="hycov"></span>--}}
+{{--									<span class="ta_toxmr xa_rig10"><img src="/posts/images/icon_010.png" class="hycov"></span>--}}
+								</div>
+							</div>
+						</div>
+						</a>
+					</div>
 
 
 					<div class="taolun_btl">
@@ -43,7 +86,7 @@
 									$show_a = 0;
 									$getStatus = \App\Models\ForumManage::where('user_id', $user->id)->where('apply_user_id', $post->uid)->get()->first();
 								@endphp
-								<li>
+								<li @if($post->f_status==0) class="huis_01" @endif>
 									<div class="ta_lwid_left">
 										<a href="/dashboard/viewuser/{{$post->uid}}">
 										<img src="@if(file_exists( public_path().$post->umpic ) && $post->umpic != ""){{$post->umpic}} @elseif($post->uengroup==2)/new/images/female.png @else/new/images/male.png @endif" class="hycov">
@@ -64,10 +107,10 @@
 											@php
 												$show_a = 1;
 											@endphp
-											<a onclick="forumTip({{$user->id}})">
+											<div onclick="forumTip({{$user->id}})">
 										@endif
 										<h2>{{$post->f_title}}</h2>
-										<h3>{!!  $post->f_sub_title !!}}</h3>
+										<h3>{!!  $post->f_sub_title !!}</h3>
 										<div class="ta_wdka">
 											<div class="ta_wdka_text">主題數<span>{{$post->posts_num}}</span><i>丨</i>回覆數<span>{{$post->posts_reply_num}}</span></div>
 											<div class="ta_witx_rig">
@@ -75,8 +118,8 @@
 												@if(isset($getStatus) && $getStatus->status==0)
 													<a href="/dashboard/forum_manage_chat/{{$post->uid}}/{{$user->id}}" class="shenhe_z">審核中</a>
 												@elseif(isset($getStatus) && $getStatus->status==2)
-													<a href="javascript:void(0);" class="wtg_z">未通過</a>
-												@elseif($post->uid != $user->id && !isset($getStatus))
+													<div class="wtg_z">未通過</div>
+												@elseif($post->uid != $user->id && !isset($getStatus) && $post->f_status==1)
 													<a onclick="forum_manage_toggle({{$post->uid}}, 0, {{$post->f_id}})" class="seqr">申請加入</a>
 												@endif
 
@@ -130,6 +173,8 @@
 			</div>
 		</div>
 		@stop
+
+@section('javascript')
 <script>
 
 	$(document).ready(function() {
@@ -181,15 +226,15 @@
 			}, function (data) {
 				$("#tab04").hide();
 				var obj = JSON.parse(data);
-				c5(obj.message);
-				$(".n_bllbut").on('click', function() {
+				// c5(obj.message);
+				// $(".n_bllbut").on('click', function() {
 					if(obj.message=='申請成功'){
 						// window.location.href = "/dashboard/forum_manage_chat/" + auid + "/" + uid + "";
 						window.location.href = "/dashboard/forum";
 					}else {
 						location.reload();
 					}
-				});
+				// });
 			});
 		});
 	}
@@ -222,3 +267,4 @@
 	}
 
 </script>
+@endsection

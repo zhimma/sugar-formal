@@ -328,7 +328,7 @@
         .he_tkcn_img {display: unset;margin-top: unset;}
     </style>
     <script src="{{asset('/new/js/pick_real_error.js')}}" type="text/javascript"></script>
-    <script>
+    <script type="application/javascript">
         function setTextAreaHeight(rowid) {
             $('#re_content_'+rowid).each(function () {
                 this.setAttribute('style', 'height:' + (this.scrollHeight) + 'px;overflow-y:hidden;');
@@ -358,6 +358,7 @@
         $isBlurAvatar = \App\Services\UserService::isBlurAvatar($to, $user);
         $isBlurLifePhoto = \App\Services\UserService::isBlurLifePhoto($to, $user);
     @endphp
+    <div id="app">
     <div class="container matop80">
         <div class="row">
             <div class="col-sm-2 col-xs-2 col-md-2 dinone">
@@ -368,7 +369,7 @@
                 <div class="rightbg">
                     <div class="metx">
                         @if(Request()->get('page_mode')=='edit')
-                            <a href="{!! url('dashboard') !!}" class="hyneback" style="z-index: 6;"><img src="/new/images/back_icon.png">修改</a>
+                            <a href="{!! url('dashboard') !!}" class="zh_shed" style="z-index: 6;"></a>
                         @else
                             <a href="{{ !empty(session()->get('goBackPage')) ? session()->get('goBackPage') : \Illuminate\Support\Facades\URL::previous() }}" {{--href="javascript: history.back()"--}} class="hyneback" style="z-index: 6;"><img src="/new/images/back_icon.png">返回</a>                          
                         @endif                        
@@ -531,10 +532,10 @@
                             </ul>
                         </div>
                         <!--引导弹出层-->
-                        <script type="text/javascript" src="/new/intro/intro.js"></script>
+                        <script type="application/javascript" src="/new/intro/intro.js"></script>
                         <link href="/new/intro/introjs.css" rel="stylesheet">
-                        <link rel="stylesheet" href="/new/intro/cover.css">
-                        <script>
+                        <link rel="stylesheet" href="/new/intro/cover.css" rel="stylesheet">
+                        <script type="application/javascript">
                             $(function(){
                                 @if($introCount == 1)
                                     $('.tubiao').attr('data-tooltipClass', 'yindao1 yd_small')
@@ -566,7 +567,7 @@
 {{--                                            @php--}}
 {{--                                                if($pr==1){$pr = 0;}--}}
 {{--                                            @endphp--}}
-                                            <div class="progress progress-striped vvipjdt_pre" title="大方指數" @if($pr=='無') onClick="jidutiao() @endif">
+                                            <div class="progress progress-striped vvipjdt_pre" title="大方指數" @if($pr=='無') onClick="jidutiao()" @endif>
                                                 <div class="progress-bar progress_info" role="progressbar" aria-valuenow="{{$pr}}" aria-valuemin="0"
                                                      aria-valuemax="100" style="width:{{$pr}}%;">
 {{--                                                    <span class="prfont">PR: {{$pr}}</span>--}}
@@ -635,6 +636,7 @@
                             <li class="evaluation">
                                 <a><img src="/new/images/icon_14.png" class="tubiao_i"><span>評價</span></a>
                             </li>
+							
                             <li style="position: relative;">
                                 <div class="userlogo"><img src="/new/images/icon_15.png" class="tubiao_i"><span>更多</span></div>
                                 <div class="he_tkcn showslide">
@@ -674,9 +676,9 @@
                     </div>
 
                     <!-- Swiper JS -->
-                    <script src="/new/js/swiper.min.js"></script>
+                    <script type="application/javascript" src="/new/js/swiper.min.js"></script>
                     <!-- Initialize Swiper -->
-                    <script>
+                    <script type="application/javascript">
 
                         var swiper = new Swiper('.swiper-container', {
                             pagination: '.swiper-pagination',
@@ -930,17 +932,15 @@
                             <div class="ztitle"><span>進階資料</span>Advanced materials</div>
                             <div class="xiliao_input">
                                 <div class="xl_text">
-                                    <dt>{{$hideOnlineDays}}</dt><!--此行僅提供測試用 上正式機前請移除-->
-                                    <dt><span>註冊時間</span>@if($user->isVip())<font>{{substr($to->created_at,0,10)}}</font>@else <img src="/new/images/icon_35.png"> @endif</dt>
+                                    
+                                    <dt><span>註冊時間</span>@if($user->isVip())<font>{{substr($to->created_at,0,10)}}</font>@else <span class="mtop"><img src="/new/images/icon_35.png"></span> @endif</dt>
                                     <dt><span>最後上線時間</span>
-                                        @if($user->isVip())
-                                            <font>{{substr($last_login,0,10)}}</font>
-                                        @else
-                                            <img src="/new/images/icon_35.png">
-                                        @endif
+                                        <span v-if="is_vip"><font>@{{last_login}}</font></span>
+                                        <span class="mtop" v-else><img src="/new/images/icon_35.png" /></span>
                                     </dt>
                                     <dt><span>每周平均上線次數</span>
-                                        @if($user->isVip())  <font>{{$login_times_per_week }}</font> @else <img src="/new/images/icon_35.png"> @endif
+                                        <span v-if="is_vip"><font>@{{login_times_per_week }}</font></span>
+                                        <span class="mtop" v-else><img src="/new/images/icon_35.png" /></span>
                                     </dt>
 {{--                                    <dt><span>使用者評價</span>--}}
 {{--                                        @if($user->isVip())--}}
@@ -961,36 +961,86 @@
 {{--                                            </font>--}}
 {{--                                        @else <img src="/new/images/icon_35.png"> @endif--}}
 {{--                                    </dt>--}}
-                                    <dt><span>被收藏次數</span>@if($user->isVip()) <font>{{$be_fav_count}}</font> @else <img src="/new/images/icon_35.png"> @endif</dt>
-                                    <dt><span>收藏會員次數</span>@if($user->isVip())<font>{{$fav_count}}</font>@else <img src="/new/images/icon_35.png"> @endif</dt>
-                                    <dt><span>車馬費邀請次數</span>@if($user->isVip())<font>{{$tip_count}}</font>@else <img src="/new/images/icon_35.png"> @endif</dt>
-                                    <dt><span>發信次數</span>@if($user->isVip())<font>{{$message_count}}</font>@else <img src="/new/images/icon_35.png"> @endif</dt>
-                                    <dt><span>過去7天發信次數</span>
-                                        @if($user->isVip())  <font>
-                                            {{$message_count_7_old}} => <!--此行僅提供測試用 上正式機前請移除-->
-                                            {{$message_count_7}}</font> @else <img src="/new/images/icon_35.png"> @endif
+                                    <dt><span>被收藏次數</span>
+                                        <span v-if="is_vip">
+                                            <font id="be_faved_count" ref="be_faved_count">
+                                                @{{be_faved}}
+                                            </font>
+                                        </span>
+                                        <span class="mtop" v-else><img src="/new/images/icon_35.png" /></span>
                                     </dt>
-                                    <dt><span>回信次數</span>@if($user->isVip())<font>{{$message_reply_count}}</font>@else <img src="/new/images/icon_35.png"> @endif</dt>
+                                    <dt><span>收藏會員次數</span>
+                                        <span v-if="is_vip">
+                                            <font id="faved_count" ref="faved_count">
+                                                @{{faved}}
+                                            </font>
+                                        </span>
+                                        <span class="mtop" v-else><img src="/new/images/icon_35.png" /></span>
+                                    </dt>
+
+                                    <dt><span>車馬費邀請次數</span>
+                                        <span v-if="is_vip"><font>@{{tip_count}}</font></span>
+                                        <span class="mtop" v-else><img src="/new/images/icon_35.png" /></span>
+                                    <dt><span>發信次數</span>
+                                        <span v-if="is_vip"><font>@{{message_count}}</font></span>
+                                        <span class="mtop" v-else><img src="/new/images/icon_35.png" /></span>
+                                    <dt><span>過去7天發信次數</span>
+                                        <span v-if="is_vip"><font>@{{message_count_7}}</font></span>
+                                        <span class="mtop" v-else><img src="/new/images/icon_35.png" /></span>
+                                    </dt>
+                                    <dt><span>回信次數</span>
+                                        <span v-if="is_vip"><font>@{{message_reply_count}}</font></span>
+                                        <span class="mtop" v-else><img src="/new/images/icon_35.png" /></span>
+                                        </dt>
                                     <dt><span>過去7天回信次數</span>
-                                        @if($user->isVip())  <font>
-                                            {{$message_reply_count_7_old}} => <!--此行僅提供測試用 上正式機前請移除-->
-                                            {{$message_reply_count_7}}</font> @else <img src="/new/images/icon_35.png"> @endif
+                                        <span v-if="is_vip"><font>@{{message_reply_count_7}}</font></span>
+                                        <span class="mtop" v-else><img src="/new/images/icon_35.png" /></span>
                                     </dt>
                                     <dt><span>過去7天罐頭訊息比例</span>
-                                        @if($user->isVip())  <font>{{$message_percent_7}}</font> @else <img src="/new/images/icon_35.png"> @endif
+                                        <span v-if="is_vip"><font>@{{message_percent_7}}</font></span>
+                                        <span class="mtop" v-else><img src="/new/images/icon_35.png" /></span>
                                     </dt>
-                                    <dt><span>是否封鎖我</span>@if($user->isVip())<font>{{$is_block_mid}}</font>@else <img src="/new/images/icon_35.png"> @endif</dt>
-                                    <dt><span>是否看過我</span>@if($user->isVip())<font>{{$is_visit_mid}}</font>@else <img src="/new/images/icon_35.png"> @endif</dt>
-                                    <dt><span>瀏覽其他會員次數</span>@if($user->isVip())<font>{{$visit_other_count}}</font>@else <img src="/new/images/icon_35.png"> @endif</dt>
+                                    <dt><span>是否封鎖我</span>
+                                        <span v-if="is_vip"><font>@{{is_block_mid}}</font></span>
+                                        <span class="mtop" v-else><img src="/new/images/icon_35.png" /></span>
+                                    </dt>
+                                    <dt><span>是否看過我</span>
+                                        <span v-if="is_vip"><font>@{{is_visit_mid}}</font></span>
+                                        <span class="mtop" v-else><img src="/new/images/icon_35.png" /></span>
+                                    </dt>
+                                    <dt><span>瀏覽其他會員次數</span>
+                                        <span v-if="is_vip"><font>@{{visit_other_count}}</font></span>
+                                        <span class="mtop" v-else><img src="/new/images/icon_35.png" /></span>
+                                    </dt>
                                     <dt><span>過去7天瀏覽其他會員次數</span>
-                                        @if($user->isVip())  <font>
-                                            {{$visit_other_count_7_old}} => <!--此行僅提供測試用 上正式機前請移除-->
-                                            {{$visit_other_count_7}}</font>  @else <img src="/new/images/icon_35.png"> @endif
+                                        <span v-if="is_vip"><font>@{{visit_other_count_7}}</font></span>
+                                        <span class="mtop" v-else><img src="/new/images/icon_35.png" /></span>
                                     </dt>
-                                    <dt><span>被瀏覽次數</span>@if($user->isVip())<font>{{$be_visit_other_count}}</font>@else <img src="/new/images/icon_35.png"> @endif</dt>
-                                    <dt><span>過去7天被瀏覽次數</span>@if($user->isVip())<font>{{$be_visit_other_count_7}}</font>@else <img src="/new/images/icon_35.png"> @endif</dt>
-                                    <dt><span>封鎖多少會員</span>@if($user->isVip())<font>{{$blocked_other_count}}</font>@else <img src="/new/images/icon_35.png"> @endif</dt>
-                                    <dt><span>被多少會員封鎖</span>@if($user->isVip())<font>{{$be_blocked_other_count}}</font>@else <img src="/new/images/icon_35.png"> @endif</dt>
+                                    <dt><span>被瀏覽次數</span>
+                                        <span v-if="is_vip"><font>@{{be_visit_other_count}}</font></span>
+                                        <span class="mtop" v-else><img src="/new/images/icon_35.png" /></span>
+                                    </dt>
+                                    <dt><span>過去7天被瀏覽次數</span>
+                                        <span v-if="is_vip"><font>@{{be_visit_other_count_7}}</font></span>
+                                        <span class="mtop" v-else><img src="/new/images/icon_35.png" /></span>
+                                    </dt>
+
+                                    <dt><span>封鎖多少會員</span>
+                                        <span v-if="is_vip">
+                                            <font id="blocked_other_count" ref="blocked_other_count">
+                                                @{{blocked_other_count}}
+                                            </font>
+                                        </span>
+                                        <span class="mtop" v-else><img src="/new/images/icon_35.png" /></span>
+                                    </dt>
+                                    <dt><span>被多少會員封鎖</span>
+                                        <span v-if="is_vip">
+                                            <font id="be_blocked_other_count" ref="be_blocked_other_count">
+                                                @{{be_blocked_other_count}}
+                                            </font>
+                                        </span>
+                                        <span class="mtop" v-else><img src="/new/images/icon_35.png" /></span>
+                                    </dt>
                                 </div>
                             </div>
                         </div>
@@ -1087,7 +1137,7 @@
                                                             <input type="hidden" name="eid" value={{$to->id}}>
                                                         </form>
                                                     </div>
-                                                    <script>
+                                                    <script type="application/javascript">
                                                         setTextAreaHeight('{{ $row->id }}');
                                                     </script>
                                                 @elseif(!empty($row->re_content))
@@ -1208,7 +1258,7 @@
                                                             <input type="hidden" name="eid" value={{$to->id}}>
                                                         </form>
                                                     </div>
-                                                    <script>
+                                                    <script type="application/javascript">
                                                         setTextAreaHeight('{{ $row->id }}');
                                                     </script>
                                                 @elseif(!empty($row->re_content))
@@ -1270,37 +1320,13 @@
                         </div>
                     </div>
 
-{{--                    <!--會員評價-->--}}
-{{--                        <div class="ziliao">--}}
-{{--                            <div class="ztitle"><span>會員評價</span>Evaluation</div>--}}
-{{--                            <div class="pw_body" style="margin-top:40px; margin-bottom:40px">--}}
-{{--                                <a class="pjnew_but01" href="{{ url('/dashboard/evaluation/'.$to->id) }}"><img src="/new/images/ly01.png">我要評價</a>--}}
-{{--                                <ul>--}}
-{{--                                    <div class="huiy_a">--}}
-{{--                                        @for ($i = 1; $i <= 5; $i++)--}}
-{{--                                            @if(intval($rating_avg)>=$i)--}}
-{{--                                                <img src="/new/images/sxx_1.png">--}}
-{{--                                            @elseif(strstr($rating_avg,'.') && ctype_digit($rating_avg)==false)--}}
-{{--                                                <img src="/new/images/sxx_2.png">--}}
-{{--                                                @break--}}
-{{--                                            @endif--}}
-{{--                                        @endfor--}}
-{{--                                        @for ($i = 1; $i <= 5-round($rating_avg); $i++)--}}
-{{--                                            <img src="/new/images/sxx_4.png">--}}
-{{--                                        @endfor--}}
-{{--                                        {{round($rating_avg,1)}}--}}
-{{--                                    </div>--}}
-{{--                                </ul>--}}
-{{--                            </div>--}}
-{{--                        </div>--}}
-{{--                    <!--會員評價-->--}}
                 @endif
             </div>
         </div>
     </div>
-
+    
     @if(isset($to))
-    <div class="bl bl_tab" id="show_chat">
+    <div class="bl bl_tab" id="show_chat_ele">
         <div class="bltitle"><span>發送給{{$to->name}}</span></div>
         <div class="n_blnr01 ">
 
@@ -1317,7 +1343,7 @@
         <a id="" onclick="gmBtnNoReload()" class="bl_gb"><img src="/new/images/gb_icon.png"></a>
     </div>
 
-    <div class="bl_tab_aa" id="show_banned" style="display: none;">
+    <div class="bl_tab_aa" id="show_banned_ele" style="display: none;">
         <div class="bl_tab_bb">
             <div class="bltitle"><span style="text-align: center; float: none;">檢舉 {{$to->name}}</span></div>
             <div class="new_pot new_poptk_nn new_pot001">
@@ -1474,7 +1500,7 @@
         </div>
         <a id="" onClick="gmBtnNoReload()" class="bl_gb"><img src="/new/images/gb_icon.png"></a>
     </div>
-
+    </div>
     @endif
 
     <!--照片查看-->
@@ -1494,10 +1520,14 @@
 
 @section('javascript')
 
-<script>
+<script type="application/javascript">
     let is_banned = {{ $is_banned ? 1 : 0 }};
     function jidutiao() {
         c5('此會員使用紀錄不足，無法判斷');
+    }
+
+    function isEllipsisActive(e) {
+        return (Math.ceil($(e).innerHeight()) < $(e)[0].scrollHeight);
     }
 
     $( document ).ready(function() {
@@ -1680,6 +1710,7 @@
             }
         });
     });
+	$(document).ready(function () {
     // $( document ).ready(function() {
         @if(isset($to))
             @if(isset($is_block_mid) && $is_block_mid == '是')
@@ -1827,7 +1858,7 @@
         var to='{{$to->id}}';
         if(uid != to){
             $(".announce_bg").show();
-            $("#show_chat").show();
+            $("#show_chat_ele").show();
         }else{
             c5('不可發信給自己');
         }
@@ -1844,7 +1875,7 @@
         var to='{{$to->id}}';
         if(uid != to){
             $(".announce_bg").show();
-            $("#show_banned").show();
+            $("#show_banned_ele").show();
             $('body').css("overflow", "hidden");
         }else{
             c5('不可檢舉自己');
@@ -2014,6 +2045,7 @@
 
     @if(isset($to))
         $('.evaluation').on('click', function() {
+			console.log('evaluation')
             @if($user->id != $to->id)
                 @if($user->meta->isWarned == 1 || $isAdminWarned)
                     c5('您目前為警示帳戶，暫不可評價');
@@ -2141,10 +2173,6 @@
         });
     });
 
-    function isEllipsisActive(e) {
-        return (Math.ceil($(e).innerHeight()) < $(e)[0].scrollHeight);
-    }
-
     $(".al_but").on("click", function() {
         if ($(this).hasClass("active")) {
             $(this).text("[完整評價]");
@@ -2155,11 +2183,11 @@
         }
         return false;
     });
-
+	});
     //解衝突，排除mobile無法作用的問題
     // jQuery.noConflict();
     </script>
-<script>
+<script type="application/javascript">
     $(document).on('click', '.toggleBlockMid', function() {
             //do stuff
             if ( $('#plshow').is(':visible') ){
@@ -2183,7 +2211,7 @@
 <!--
 <script src="{{ asset('new/js/resize_before_upload.js') }}" type="text/javascript"></script>
 -->
-<script>
+<script type="application/javascript">
 
     $(document).ready(function () {        
         images_uploader=$('input[name="images"]').fileuploader({
@@ -2317,7 +2345,7 @@
                 }
             }
         });
-        //resize_before_upload(images_uploader,400,600,'#tab_evaluation,#show_reportPic');
+        {{-- resize_before_upload(images_uploader,400,600,'#tab_evaluation,#show_reportPic'); --}}
         reportedImages_uploader = $('input[name="reportedImages"]').fileuploader({
             //extensions: ['jpg', 'png', 'jpeg', 'bmp'],
             changeInput: ' ',
@@ -2449,7 +2477,7 @@
                 }
             }
         });
-        //resize_before_upload(reportedImages_uploader,400,600,'#show_banned');
+        {{-- resize_before_upload(reportedImages_uploader,400,600,'#show_banned_ele'); --}}
         $(".announce_bg").on("click", function() {
             $('.bl_tab_aa').hide();
             $('body').css("overflow", "auto");
@@ -2457,46 +2485,48 @@
 
     });
 
-    function tab_evaluation_close(){
-        $(".announce_bg").hide();
-        $("#tab_evaluation").hide();
-        $('body').css("overflow", "auto");
-    }
+	$(document).ready(function () {
+		function tab_evaluation_close(){
+			$(".announce_bg").hide();
+			$("#tab_evaluation").hide();
+			$('body').css("overflow", "auto");
+		}
 
-    function tab_evaluation_reply_close(){
-        $(".announce_bg").hide();
-        $("#tab_evaluation_reply").hide();
-        $('body').css("overflow", "auto");
-    }
+		function tab_evaluation_reply_close(){
+			$(".announce_bg").hide();
+			$("#tab_evaluation_reply").hide();
+			$('body').css("overflow", "auto");
+		}
 
-    function show_banned_close(){
-        $(".announce_bg").hide();
-        $("#show_banned").hide();
-        $('body').css("overflow", "auto");
-    }
+		function show_banned_close(){
+			$(".announce_bg").hide();
+			$("#show_banned_ele").hide();
+			$('body').css("overflow", "auto");
+		}
 
-    function show_reportPic_close(){
-        $(".announce_bg").hide();
-        $("#show_reportPic").hide();
-        $(".blbg").hide();
-        $('body').css("overflow", "auto");
-    }
+		function show_reportPic_close(){
+			$(".announce_bg").hide();
+			$("#show_reportPic").hide();
+			$(".blbg").hide();
+			$('body').css("overflow", "auto");
+		}
 
-    function tab_evaluation_reply_show(id, eid) {
-        $(".announce_bg").show();
-        //$("#re_content_reply").val('');
-        //$("#images_reply").val('');
-        $("#tab_evaluation_reply").show();
-        $("#tab_evaluation_reply #id_reply").val(id);
-        $("#tab_evaluation_reply #eid_reply").val(eid);
-        $('body').css("overflow", "hidden");
-    }
+		function tab_evaluation_reply_show(id, eid) {
+			$(".announce_bg").show();
+			//$("#re_content_reply").val('');
+			//$("#images_reply").val('');
+			$("#tab_evaluation_reply").show();
+			$("#tab_evaluation_reply #id_reply").val(id);
+			$("#tab_evaluation_reply #eid_reply").val(eid);
+			$('body').css("overflow", "hidden");
+		}
+	})
 </script>
 
 <link type="text/css" rel="stylesheet" href="/new/css/app.css">
 <link rel="stylesheet" type="text/css" href="/new/css/swiper2.min.css"/>
 <script type="text/javascript" src="/new/js/swiper.min.js"></script>
-<script>
+<script type="application/javascript">
     $(document).ready(function () {
         /*调起大图 S*/
         var mySwiper = new Swiper('.swiper-container2',{
@@ -2614,22 +2644,111 @@
     });
     /*调起大图 E*/
 </script>
-<script>
-    $('.userlogo').click(function() {
-        event.stopPropagation()
-        if($(this).hasClass('on1')) {
-            $(this).removeClass('on1')
-            $('.showslide').fadeOut()
-        } else {
-            $(this).addClass('on1')
-            $('.fadeinboxs').fadeIn()
-            $('.showslide').fadeIn()
-        }
-    })
-    $('body').click(function() {
-        $('.userlogo').removeClass('on1')
-        $('.showslide').fadeOut()
-    })
+<script type="application/javascript">
+	$(document).ready(function () {
+		$('.userlogo').click(function() {
+			event.stopPropagation()
+			if($(this).hasClass('on1')) {
+				$(this).removeClass('on1')
+				$('.showslide').fadeOut()
+			} else {
+				$(this).addClass('on1')
+				$('.fadeinboxs').fadeIn()
+				$('.showslide').fadeIn()
+			}
+		})
+		$('body').click(function() {
+			$('.userlogo').removeClass('on1')
+			$('.showslide').fadeOut()
+		})
+	})
 </script>	
 
+<script>
+    const vm = new Vue({
+            el: '#app',
+            data () {
+                return {
+                    "is_vip": "{{$user->isVip()}}",
+                    "faved":"loading...",
+                    "be_faved":"loading...",
+                    "blocked_other_count":"loading...",
+                    "be_blocked_other_count":"loading...",
+
+                    'login_times_per_week':'loading...',
+                    'tip_count':'loading...',
+                    /* 'is_vip' => 0, */
+                    'is_block_mid':'loading...',
+                    'is_visit_mid':'loading...',
+                    'visit_other_count':'loading...',
+                    'visit_other_count_7':'loading...',
+                    'be_visit_other_count':'loading...',
+                    'be_visit_other_count_7':'loading...',
+                    'message_count':'loading...',
+                    'message_count_7':'loading...',
+                    'message_reply_count':'loading...',
+                    'message_reply_count_7':'loading...',
+                    'message_percent_7':'loading...',
+                    'is_banned':'loading...',
+                    'userHideOnlinePayStatus':'loading...',
+                    'last_login':'loading...'
+                }
+            },
+        mounted () {
+            const uid = window.location.pathname.split('/').pop();
+                axios
+                .post('/getHideData', {uid, uid})
+                .then(response => {
+                    let data = response.data;
+                    this.be_visit_other_count = data.be_visit_other_count;
+                    this.be_visit_other_count_7 = data.be_visit_other_count_7;
+                    this.is_banned = data.is_banned;
+                    this.is_block_mid = data.is_block_mid;
+                    this.is_visit_mid = data.is_visit_mid;
+                    this.last_login = data.last_login;
+                    this.login_times_per_week = data.login_times_per_week;
+                    this.message_count = data.message_count;
+                    this.message_count_7 = data.message_count_7;
+                    this.message_percent_7 = data.message_percent_7;
+                    this.message_reply_count = data.message_reply_count;
+                    this.message_reply_count_7 = data.message_reply_count_7;
+                    this.tip_count = data.tip_count;
+                    this.userHideOnlinePayStatus = data.userHideOnlinePayStatus;
+                    this.visit_other_count = data.visit_other_count;
+                    this.visit_other_count_7 = data.visit_other_count_7;
+                   
+                })
+                .catch(function (error) { // 请求失败处理
+                    console.log(error);
+                });
+       
+
+                axios
+                .post('/getFavCount', {uid:uid})
+                .then(response => {
+                    let data = response.data;
+                    this.be_faved = data.be_fav_count;
+                    this.faved = data.fav_count;
+                })
+                .catch(function (error) { // 请求失败处理
+                    console.log(error);
+                });
+   
+                axios
+                .post('/getBlockUser',{uid:uid})
+
+                .then(response => {
+                    let data = response.data;
+                    this.be_blocked_other_count = data.be_blocked_other_count;
+                    this.blocked_other_count = data.blocked_other_count;
+                })
+                .catch(function (error) { // 请求失败处理
+                    console.log(error);
+                });
+        }
+        });
+</script>
 @stop
+
+
+
