@@ -2475,7 +2475,7 @@ class PagesController extends BaseController
             $request->income,
             $request->smoking,
             $request->drinking,
-            $request->photo,
+            $request->pic,
             $request->agefrom,
             $request->ageto,
             $request->user['engroup'],
