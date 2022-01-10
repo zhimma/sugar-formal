@@ -1529,6 +1529,24 @@
     function isEllipsisActive(e) {
         return (Math.ceil($(e).innerHeight()) < $(e)[0].scrollHeight);
     }
+    
+    function show_banned() {
+
+        if(is_banned){
+            return  c5('您目前被站方封鎖，無檢舉權限');
+        }
+
+        //$(".blbg").show();
+        var uid='{{ $user->id }}';
+        var to='{{$to->id}}';
+        if(uid != to){
+            $(".announce_bg").show();
+            $("#show_banned_ele").show();
+            $('body').css("overflow", "hidden");
+        }else{
+            c5('不可檢舉自己');
+        }
+    }    
 
     $( document ).ready(function() {
 
@@ -1710,6 +1728,33 @@
             }
         });
     });
+    
+    function show_reportPic() {
+
+        if(is_banned){
+            return  c5('您目前被站方封鎖，無檢舉權限');
+        }
+
+        $(".blbg").show();
+        $("#show_reportPic").show();
+        $('body').css("overflow", "hidden");
+        // alert($('.swiper-slide-active').data('type'));
+        $('input[name="picType"]').val($('.swiper-slide-active').data('type'));
+        $('input[name="pic_id"]').val($('.swiper-slide-active').data('pic_id'));
+    } 
+
+    function show_chat() {
+        //$(".blbg").show();
+        var uid='{{ $user->id }}';
+        var to='{{$to->id}}';
+        if(uid != to){
+            $(".announce_bg").show();
+            $("#show_chat_ele").show();
+        }else{
+            c5('不可發信給自己');
+        }
+    }    
+    
 	$(document).ready(function () {
     // $( document ).ready(function() {
         @if(isset($to))
@@ -1852,49 +1897,6 @@
         });
     @endif
 
-    function show_chat() {
-        //$(".blbg").show();
-        var uid='{{ $user->id }}';
-        var to='{{$to->id}}';
-        if(uid != to){
-            $(".announce_bg").show();
-            $("#show_chat_ele").show();
-        }else{
-            c5('不可發信給自己');
-        }
-    }
-
-    function show_banned() {
-
-        if(is_banned){
-            return  c5('您目前被站方封鎖，無檢舉權限');
-        }
-
-        //$(".blbg").show();
-        var uid='{{ $user->id }}';
-        var to='{{$to->id}}';
-        if(uid != to){
-            $(".announce_bg").show();
-            $("#show_banned_ele").show();
-            $('body').css("overflow", "hidden");
-        }else{
-            c5('不可檢舉自己');
-        }
-    }
-
-    function show_reportPic() {
-
-        if(is_banned){
-            return  c5('您目前被站方封鎖，無檢舉權限');
-        }
-
-        $(".blbg").show();
-        $("#show_reportPic").show();
-        $('body').css("overflow", "hidden");
-        // alert($('.swiper-slide-active').data('type'));
-        $('input[name="picType"]').val($('.swiper-slide-active').data('type'));
-        $('input[name="pic_id"]').val($('.swiper-slide-active').data('pic_id'));
-    }
     @if(isset($to))
         $(".but_block").on('click', function() {
             let uid='{{ $user->id }}';
@@ -2070,43 +2072,7 @@
         });
     @endif
 
-    function form_submit(){
-        // if( $("input[name='rating']:checked").val() == undefined) {
-        //     // c5('請先點擊星等再評價');
-        //     $('.alert_tip').text();
-        //     $('.alert_tip').text('請先點擊星等再評價');
-        //     return false;
-        // }else
-        if($.trim($(".evaluation_content").val())=='') {
-            // c5('請輸入評價內容');
-            $('.alert_tip').text();
-            $('.alert_tip').text('請輸入評價內容');
-            return false;
-        }else if($(".evaluation_content").val().length>300) {
-            // c5('請輸入評價內容');
-            $('.alert_tip').text();
-            $('.alert_tip').text('評價至多300個字元');
-            return false;
-        }else if($("input[name='agree']:checked").val() == undefined) {
-            // c5('請勾選同意上述說明');
-            $('.alert_tip').text();
-            $('.alert_tip').text('請勾選同意上述說明');
-            return false;
-        }else{
-            $('#form1').submit();
-        }
-        return false;
-    }
 
-    function reportPostForm_submit() {
-        if($("input[name='agree']:checked").val() == undefined) {
-            $('.alert_tip').text();
-            $('.alert_tip').text('請勾選同意上述說明');
-            return false;
-        }else{
-            $('#reportPostForm').submit();
-        }
-    }
     // function form_re_content_submit(){
     //     if($.trim($(".hf_i").val())=='') {
     //         c5('請輸入內容');
@@ -2115,14 +2081,6 @@
     //     }
     // }
 
-    function form_evaluation_reply_submit(){
-        if($.trim($("#re_content_reply").val())=='') {
-            $('.alert_tip').text();
-            $('.alert_tip').text('請輸入內容');
-        }else{
-            $('#form_evaluation_reply').submit();
-        }
-    }
 
     $(window).resize(function() {
         $('div.context-wrap').each(function(i) {
@@ -2184,6 +2142,54 @@
         return false;
     });
 	});
+
+    function form_submit(){
+        // if( $("input[name='rating']:checked").val() == undefined) {
+        //     // c5('請先點擊星等再評價');
+        //     $('.alert_tip').text();
+        //     $('.alert_tip').text('請先點擊星等再評價');
+        //     return false;
+        // }else
+        if($.trim($(".evaluation_content").val())=='') {
+            // c5('請輸入評價內容');
+            $('.alert_tip').text();
+            $('.alert_tip').text('請輸入評價內容');
+            return false;
+        }else if($(".evaluation_content").val().length>300) {
+            // c5('請輸入評價內容');
+            $('.alert_tip').text();
+            $('.alert_tip').text('評價至多300個字元');
+            return false;
+        }else if($("input[name='agree']:checked").val() == undefined) {
+            // c5('請勾選同意上述說明');
+            $('.alert_tip').text();
+            $('.alert_tip').text('請勾選同意上述說明');
+            return false;
+        }else{
+            $('#form1').submit();
+        }
+        return false;
+    }
+
+    function reportPostForm_submit() {
+        if($("input[name='agree']:checked").val() == undefined) {
+            $('.alert_tip').text();
+            $('.alert_tip').text('請勾選同意上述說明');
+            return false;
+        }else{
+            $('#reportPostForm').submit();
+        }
+    }
+   
+    function form_evaluation_reply_submit(){
+        if($.trim($("#re_content_reply").val())=='') {
+            $('.alert_tip').text();
+            $('.alert_tip').text('請輸入內容');
+        }else{
+            $('#form_evaluation_reply').submit();
+        }
+    }
+    
     //解衝突，排除mobile無法作用的問題
     // jQuery.noConflict();
     </script>
@@ -2484,6 +2490,19 @@
         });
 
     });
+    
+    function show_banned_close(){
+        $(".announce_bg").hide();
+        $("#show_banned_ele").hide();
+        $('body').css("overflow", "auto");
+    } 
+
+    function show_reportPic_close(){
+        $(".announce_bg").hide();
+        $("#show_reportPic").hide();
+        $(".blbg").hide();
+        $('body').css("overflow", "auto");
+    }    
 
 	$(document).ready(function () {
 		function tab_evaluation_close(){
@@ -2495,19 +2514,6 @@
 		function tab_evaluation_reply_close(){
 			$(".announce_bg").hide();
 			$("#tab_evaluation_reply").hide();
-			$('body').css("overflow", "auto");
-		}
-
-		function show_banned_close(){
-			$(".announce_bg").hide();
-			$("#show_banned_ele").hide();
-			$('body').css("overflow", "auto");
-		}
-
-		function show_reportPic_close(){
-			$(".announce_bg").hide();
-			$("#show_reportPic").hide();
-			$(".blbg").hide();
 			$('body').css("overflow", "auto");
 		}
 
