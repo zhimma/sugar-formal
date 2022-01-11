@@ -242,7 +242,131 @@ div.new_poptk{color:#6783c7;}
             $('#tab04 .bl_gb img').hide();
 			$('#tab04 .n_bbutton .n_left').html('是');
 			$('#tab04 .n_bbutton .n_right').html('否');
-			$(document).off('click','.blbg',closeAndReload);
+			
+            var winDirect1 = window.orientation;
+            var winDirect2 = null;
+            var winHeight1 = $(window).height();
+            var winWidth1 = $(window).width();
+            var winHeight2 = winWidth1;
+            var winWidth2 = winHeight1;
+            var ratio1 = winWidth1/winHeight1;
+            var ratio2 = winWidth2/winHeight2;
+          
+            var tabHeight1 = $('#tab04').height();
+            var tabHeight2 = 0;
+            var tabWidth1 = $('#tab04').width();
+            var tabWidth2 = 0;   
+            var tabRatio1 = tabWidth1/tabHeight1;
+            var tabRatio2 = 0;
+            var tabTopOrg1 = $('#tab04').css('top');
+            var tabTopOrg2 = 0;
+            var tabPosTop1 = parseInt($('#tab04').position().top);
+            var tabPosTop2 = 0;
+            var tabTop1 = parseInt(tabPosTop1/3)+'px';
+            var tabTop2 = 0;
+            
+            if(tabHeight1>winHeight1) {
+                $('#tab04').width(winWidth1*0.9);
+                $('#tab04').css('left',winWidth1*0.1*0.5);
+                tabWidth1 = $('#tab04').width();
+                tabHeight1 = $('#tab04').height();
+            }
+
+            if(($('#tab04').position().top+tabHeight1)>(winHeight1-10)) {
+                $('#tab04').css('top',tabTop1);
+            }
+
+            $( window ).on( "orientationchange", function( event ) {
+                $('#tab04').css('top','');
+                $('#tab04').css('width','');
+                $('#tab04').css('left','');
+                if(window.orientation==winDirect1) {
+                    if(!tabHeight2) {
+                        tabHeight2 = $('#tab04').height();
+                        tabWidth2 = $('#tab04').width();
+                        tabRatio2 = tabWidth2/tabHeight2;
+                                  
+                    }
+                    else {
+                        tabWidth2 = $('#tab04').width();
+                        tabHeight2 = $('#tab04').height();                        
+                    }
+                    if(!tabPosTop2) {
+                        tabPosTop2 = parseInt($('#tab04').position().top);
+                        tabTop2 = parseInt(tabPosTop2/3)+'px';
+                    }
+
+                    if(tabHeight1>winHeight1) {
+                        $('#tab04').width(winWidth1*0.9);
+                        $('#tab04').css('left',winWidth1*0.1*0.5);
+                        tabWidth1 = $('#tab04').width();
+                        tabHeight1 = $('#tab04').height();
+                    }                    
+                    $('#tab04').css('top',tabTop1);
+                }
+                else {
+                    tabWidth1 = $('#tab04').width();
+                    tabHeight1 = $('#tab04').height();                    
+                    if(winDirect2==null) {
+                        winDirect2 = window.orientation;
+                        if(!tabHeight2) {  
+                            var h_offset = 17*(ratio1);
+                            if(ratio1<0.8) h_offset = -20*(1/ratio1);
+                            
+                            if(tabHeight1<=winHeight1) {
+                                if(ratio1*tabHeight1+(winHeight2*0.08) > (winHeight2+h_offset)) {
+                                    $('#tab04').css('top','1%');
+                                }
+                                else if(ratio1*tabHeight1+(winHeight2*0.2) > (winHeight2+h_offset)) {
+                                    $('#tab04').css('top','8%');
+                                }
+                            }
+                            else {
+                                $('#tab04').css('top',(tabHeight1-winHeight1)*0.5);
+                            }
+                            
+                            tabWidth2 = $('#tab04').width();
+                            tabHeight2 = $('#tab04').height();                            
+                            
+                            if(tabHeight2>winHeight2) {
+                                $('#tab04').width(winWidth2*0.9);
+                                $('#tab04').css('left',winWidth2*0.1*0.5);
+                                tabWidth2 = $('#tab04').width();
+                                tabHeight2 = $('#tab04').height();
+                                $('#tab04').css('top',((winHeight2-tabHeight2)>0?(winHeight2-tabHeight2):0)*0.5);
+                            }                             
+                        }
+                        else {                          
+                            if(tabHeight2>winHeight2) {
+                                $('#tab04').width(winWidth2*0.9);
+                                $('#tab04').css('left',winWidth2*0.1*0.5);
+                                tabWidth2 = $('#tab04').width();
+                                tabHeight2 = $('#tab04').height();
+                                $('#tab04').css('top',((winHeight2-tabHeight2)>0?(winHeight2-tabHeight2):0)*0.5);
+                            }         
+                            else if((tabPosTop2+tabHeight2)>(winHeight2-10)) {
+                                $('#tab04').css('top',tabTop2);
+                            }                            
+                        }
+                    } 
+                    else {
+                        
+                        if(tabHeight2>winHeight2) {
+                            $('#tab04').width(winWidth2*0.9);
+                            $('#tab04').css('left',winWidth2*0.1*0.5);
+                            tabWidth2 = $('#tab04').width();
+                            tabHeight2 = $('#tab04').height();
+                        }                        
+                        
+                        if((tabPosTop2+tabHeight2)>(winHeight2-10)) {
+                            $('#tab04').css('top',tabTop2);
+                        }                            
+                    }                    
+                    
+                } 
+            });            
+            
+            $(document).off('click','.blbg',closeAndReload);
 			$(document).on('click','#tab04 .n_bbutton .n_left',rebuildForm);
 			
 			$(document).on('click','#tab04 .n_bbutton .n_right',function() {
