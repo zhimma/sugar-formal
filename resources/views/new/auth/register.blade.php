@@ -262,7 +262,7 @@ div.new_poptk{color:#6783c7;}
             var tabTopOrg2 = 0;
             var tabPosTop1 = parseInt($('#tab04').position().top);
             var tabPosTop2 = 0;
-            var tabTop1 = parseInt(tabPosTop1/3)+'px';
+            var tabTop1 = parseInt(((winHeight1-tabHeight1)>0?(winHeight1-tabHeight1):0)*0.5*0.8)+'px';
             var tabTop2 = 0;
             
             if(tabHeight1>winHeight1) {
@@ -270,9 +270,10 @@ div.new_poptk{color:#6783c7;}
                 $('#tab04').css('left',winWidth1*0.1*0.5);
                 tabWidth1 = $('#tab04').width();
                 tabHeight1 = $('#tab04').height();
+                tabTop1 = parseInt(((winHeight1-tabHeight1)>0?(winHeight1-tabHeight1):0)*0.5*0.8)+'px';
             }
 
-            if(($('#tab04').position().top+tabHeight1)>(winHeight1-10)) {
+            if(($('#tab04').position().top+tabHeight1)>(winHeight1*0.9)) {
                 $('#tab04').css('top',tabTop1);
             }
 
@@ -281,19 +282,13 @@ div.new_poptk{color:#6783c7;}
                 $('#tab04').css('width','');
                 $('#tab04').css('left','');
                 if(window.orientation==winDirect1) {
-                    if(!tabHeight2) {
+                        tabWidth2 = $('#tab04').width();
                         tabHeight2 = $('#tab04').height();
-                        tabWidth2 = $('#tab04').width();
-                        tabRatio2 = tabWidth2/tabHeight2;
-                                  
-                    }
-                    else {
-                        tabWidth2 = $('#tab04').width();
-                        tabHeight2 = $('#tab04').height();                        
-                    }
+                        tabTop2 = parseInt(((winHeight2-tabHeight2)>0?(winHeight2-tabHeight2):0)*0.5*0.8)+'px';                     
+                    
                     if(!tabPosTop2) {
                         tabPosTop2 = parseInt($('#tab04').position().top);
-                        tabTop2 = parseInt(tabPosTop2/3)+'px';
+                        tabTop2 = parseInt(((winHeight2-tabHeight2)>0?(winHeight2-tabHeight2):0)*0.5*0.8)+'px';
                     }
 
                     if(tabHeight1>winHeight1) {
@@ -301,19 +296,21 @@ div.new_poptk{color:#6783c7;}
                         $('#tab04').css('left',winWidth1*0.1*0.5);
                         tabWidth1 = $('#tab04').width();
                         tabHeight1 = $('#tab04').height();
+                        tabTop1 = parseInt(((winHeight1-tabHeight1)>0?(winHeight1-tabHeight1):0)*0.5*0.8)+'px';
                     }                    
                     $('#tab04').css('top',tabTop1);
                 }
                 else {
                     tabWidth1 = $('#tab04').width();
                     tabHeight1 = $('#tab04').height();                    
+                    tabTop1 = parseInt(((winHeight1-tabHeight1)>0?(winHeight1-tabHeight1):0)*0.5*0.8)+'px';
                     if(winDirect2==null) {
                         winDirect2 = window.orientation;
                         if(!tabHeight2) {  
                             var h_offset = 17*(ratio1);
                             if(ratio1<0.8) h_offset = -20*(1/ratio1);
                             
-                            if(tabHeight1<=winHeight1) {
+                            if(tabHeight1<winHeight1) {
                                 if(ratio1*tabHeight1+(winHeight2*0.08) > (winHeight2+h_offset)) {
                                     $('#tab04').css('top','1%');
                                 }
@@ -326,14 +323,16 @@ div.new_poptk{color:#6783c7;}
                             }
                             
                             tabWidth2 = $('#tab04').width();
-                            tabHeight2 = $('#tab04').height();                            
+                            tabHeight2 = $('#tab04').height(); 
+                            tabTop2 = parseInt(((winHeight2-tabHeight2)>0?(winHeight2-tabHeight2):0)*0.5*0.8)+'px';                            
                             
                             if(tabHeight2>winHeight2) {
                                 $('#tab04').width(winWidth2*0.9);
                                 $('#tab04').css('left',winWidth2*0.1*0.5);
                                 tabWidth2 = $('#tab04').width();
                                 tabHeight2 = $('#tab04').height();
-                                $('#tab04').css('top',((winHeight2-tabHeight2)>0?(winHeight2-tabHeight2):0)*0.5);
+                                tabTop2 = parseInt(((winHeight2-tabHeight2)>0?(winHeight2-tabHeight2):0)*0.5*0.8)+'px';
+                                $('#tab04').css('top',tabTop2);
                             }                             
                         }
                         else {                          
@@ -342,7 +341,8 @@ div.new_poptk{color:#6783c7;}
                                 $('#tab04').css('left',winWidth2*0.1*0.5);
                                 tabWidth2 = $('#tab04').width();
                                 tabHeight2 = $('#tab04').height();
-                                $('#tab04').css('top',((winHeight2-tabHeight2)>0?(winHeight2-tabHeight2):0)*0.5);
+                                tabTop2 = parseInt(((winHeight2-tabHeight2)>0?(winHeight2-tabHeight2):0)*0.5*0.8)+'px';
+                                $('#tab04').css('top',tabTop2);
                             }         
                             else if((tabPosTop2+tabHeight2)>(winHeight2-10)) {
                                 $('#tab04').css('top',tabTop2);
@@ -356,6 +356,7 @@ div.new_poptk{color:#6783c7;}
                             $('#tab04').css('left',winWidth2*0.1*0.5);
                             tabWidth2 = $('#tab04').width();
                             tabHeight2 = $('#tab04').height();
+                            tabTop2 = parseInt(((winHeight2-tabHeight2)>0?(winHeight2-tabHeight2):0)*0.5*0.8)+'px';
                         }                        
                         
                         if((tabPosTop2+tabHeight2)>(winHeight2-10)) {
