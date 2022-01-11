@@ -4261,7 +4261,7 @@ class PagesController extends BaseController
         $authId = auth()->id();
         if($userId == $authId){
             $avatar = UserMeta::where('user_id', $userId)->get()->first();
-            $avatar->blurryAvatar = $request->input('blurrys');
+            $avatar->blurryAvatar = $request->input('blurrys')??'none';
             $avatar->save();
 
             $data = array(
@@ -4277,7 +4277,7 @@ class PagesController extends BaseController
         $authId = auth()->id();
         if($userId == $authId){
             $avatar = UserMeta::where('user_id', $userId)->get()->first();
-            $avatar->blurryLifePhoto = $request->input('blurrys');
+            $avatar->blurryLifePhoto = $request->input('blurrys')??'none';
             $avatar->save();
 
             $data = array(
