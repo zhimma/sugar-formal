@@ -37,11 +37,11 @@
                     <div class="wxsy_title">忘記密碼</div>
                     <div class="wxsy_k ">
                         <form action="/password/reset" method="post">
-                            {!! csrf_field() !!}
+                            @csrf
                             <input type="hidden" name="token" value="{{ $token }}">
-                        <div class="wo_input01 dlmarbot"><input name="email" type="text" class="zcinput" placeholder="帳號 (您的E-mail)" value="{{ old('email') }}"></div>
-                        <div class="wo_input01 dlmarbot"><input name="password" id="password" type="password" class="zcinput" placeholder="密碼" required></div>
-                        <div class="wo_input01"><input name="password_confirmation" id="password_confirmation" type="password" class="zcinput" placeholder="密碼確認" required></div>
+                            <div class="wo_input01 dlmarbot"><input name="email" type="text" class="zcinput" placeholder="帳號 (您的E-mail)" value="{{ old('email') }}"></div>
+                            <div class="wo_input01 dlmarbot"><input name="password" id="password" type="password" class="zcinput" placeholder="密碼" required></div>
+                            <div class="wo_input01"><input name="password_confirmation" id="password_confirmation" type="password" class="zcinput" placeholder="密碼確認" required></div>
                             <button type="submit" class="dlbut" style="margin-bottom:20px;border-style: none;">更改密碼</button>
                         </form>
                     </div>
