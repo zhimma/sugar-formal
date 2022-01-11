@@ -49,6 +49,45 @@
 </style>
 <script src="/plugins/hopscotch/js/hopscotch.min.js"></script>
 <script src="/plugins/fileuploader2.2/src/jquery.fileuploader.js"></script>
+<script>
+function requestBlurryLifePhoto(ruserId,rvalues) {
+    $.ajax({
+        url: '/dashboard/lifephoto/blurry/' + ruserId,
+        method: 'POST',
+        data: {
+            _token: "{{ csrf_token() }}",
+            'blurrys': rvalues
+        },
+        dataType: 'json',
+
+        success: function(data) {
+        }
+    });    
+}
+
+function requestBlurryLifePhotoDefault() {
+    requestBlurryLifePhoto('{{$user->id}}','general,');
+}
+
+function requestBlurryAvatar(userId,values) {
+    $.ajax({
+        url: '/dashboard/avatar/blurry/' + userId,
+        method: 'POST',
+        data: {
+            _token: "{{ csrf_token() }}",
+            'blurrys': values
+        },
+        dataType: 'json',
+
+        success: function(data) {
+        }
+    });    
+}
+
+function requestBlurryAvatarDefault() {
+    requestBlurryAvatar('{{$user->id}}','general,');
+}
+</script>
 <div class="container matop70 chat">
     <div class="row">
         <div class="col-sm-2 col-xs-2 col-md-2 dinone">
@@ -253,6 +292,11 @@
                             $blurryAvatar = isset($blurry_avatar)? $blurry_avatar : '';
                             $blurryAvatar = explode(',', $blurryAvatar);
                             $isVVIP = true;$isVIP = true;$isGeneral = true;
+                            $isDefault = false;
+                            if(!($blurry_avatar??null)) {                              
+                                $isGeneral = false;
+                                $isDefault = true;
+                            }                            
                             foreach($blurryAvatar as $row){
                                 if($row == 'V_VIP'){
                                     $isVVIP = false;
@@ -294,6 +338,12 @@
                             $blurryLifePhoto = isset($blurry_life_photo)? $blurry_life_photo : '';
                             $blurryLifePhoto = explode(',', $blurryLifePhoto);
                             $isVVIP = true;$isVIP = true;$isGeneral = true;
+                            $isDefault=false;
+                            if(!($blurry_life_photo??null)) {                              
+                                $isGeneral = false;
+                                $isDefault = true;
+                            }
+
                             foreach($blurryLifePhoto as $row){
                                 if($row == 'V_VIP'){
                                     $isVVIP = false;
@@ -313,7 +363,12 @@
                           <h3>清晰照片開放給</h3>
                           <h4>
                               <span><input name="picBlurryLifePhoto" type="checkbox" value="VIP" @if($isVIP) checked @endif>VIP</span>
-                              <span><input name="picBlurryLifePhoto" type="checkbox" value="general" @if($isGeneral) checked @endif>普通會員</span>
+                              <span><input name="picBlurryLifePhoto" type="checkbox" value="general"  @if($isGeneral) checked @endif>普通會員</span>
+                              @if($isDefault) 
+                              <script>  
+                                requestBlurryLifePhotoDefault();
+                              </script>
+                              @endif
                           </h4>
                     </div>
                     @endif
@@ -569,18 +624,7 @@
                 values = values + $(this).val() +',';
             }
         });
-        $.ajax({
-            url: '/dashboard/lifephoto/blurry/' + userId,
-            method: 'POST',
-            data: {
-                _token: "{{ csrf_token() }}",
-                'blurrys': values
-            },
-            dataType: 'json',
-
-            success: function(data) {
-            }
-        });
+        requestBlurryLifePhoto(userId,values);
     });
     //preload avatar
 
