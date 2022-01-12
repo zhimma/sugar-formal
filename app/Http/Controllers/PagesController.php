@@ -3362,23 +3362,7 @@ class PagesController extends BaseController
                 $forbid_msg_data = UserService::checkNewSugarForbidMsg($cid_user,$user);
                 
                 if(($cid_user->engroup) === ($user->engroup)){
-                    return '<h1>同性會員不可聊天。</h1>';
-                    //back();
-                    /*
-                    return view('new.dashboard.chatWithUser')
-                    ->with('user', $user)
-                    ->with('admin', $admin)
-                    ->with('is_banned', $is_banned)
-                    ->with('cmeta', $c_user_meta)
-                    //->with('to', $this->service->find($cid))
-                    ->with('to', $cid_user)
-                    ->with('to_forbid_msg_data',$forbid_msg_data)                    
-                    ->with('m_time', $m_time)
-                    ->with('isVip', $isVip)
-                    ->with('tippopup', $tippopup)
-                    ->with('messages', $messages)
-                    ->with('report_reason', $report_reason->content);
-                    */
+                    return back();
                 }
 
                 if(!$user->isVip() && $user->engroup == 1){
