@@ -2711,7 +2711,7 @@
                     this.is_banned = data.is_banned;
                     this.is_block_mid = data.is_block_mid;
                     this.is_visit_mid = data.is_visit_mid;
-                    this.last_login = data.last_login;
+                    this.last_login = data.last_login.substring(0, 10);
                     this.login_times_per_week = data.login_times_per_week;
                     this.message_count = data.message_count;
                     this.message_count_7 = data.message_count_7;
