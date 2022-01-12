@@ -14,7 +14,7 @@ header("Expires: Fri, 01 Jan 1990 00:00:00 GMT");
                     c5('test');
                     alert('test');
                 </script>
-{{--                @include('partials.errors')--}}
+                @include('partials.errors')
 {{--                @include('partials.message')--}}
             </div>
         </div>
@@ -93,11 +93,6 @@ header("Expires: Fri, 01 Jan 1990 00:00:00 GMT");
         } --}}
 
         $(document).ready(function() {
-            
-            @if (Session::has('message') && ! is_array(Session::get('message')))
-            c5('{{Session::get('message')}}');
-            @endif
-            <? Session::forget('message'); ?>
 
             $("form[name=login]").parsley().on('form:validate', function (formInstance) {
 
@@ -128,6 +123,11 @@ header("Expires: Fri, 01 Jan 1990 00:00:00 GMT");
                     showLink: '<a class="n_bllbut matop30" href="/password/reset">忘記密碼 (請點我)</a>'
                 });
                 //c5(errormsg);
+            @endif
+
+            @if (Session::has('message') && ! is_array(Session::get('message')))
+            c5('{{Session::get('message')}}');
+            <? Session::forget('message'); ?>
             @endif
         });
 
