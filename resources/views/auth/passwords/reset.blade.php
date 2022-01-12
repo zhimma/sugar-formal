@@ -68,9 +68,9 @@
         $(document).ready(function() {
 
             $("#r_form").submit(function() {
-                if ( ($("#password").val() !='' && $("#password").val().length < 8) ||
-                    ($("#password_confirmation").val() != '' && $("#password_confirmation").val().length < 8) ) {
-                    c5('密碼設定至少需8個字元以上');
+                if ( ($("#password").val() !='' && $("#password").val().length < 6) ||
+                    ($("#password_confirmation").val() != '' && $("#password_confirmation").val().length < 6) ) {
+                    c5('密碼設定至少需6個字元以上');
                     return false;
                 }else if($("#password").val() != $("#password_confirmation").val()){
                     c5('密碼確認與上述密碼不相符');
