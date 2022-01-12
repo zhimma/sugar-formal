@@ -24,7 +24,7 @@ header("Expires: Fri, 01 Jan 1990 00:00:00 GMT");
           $umeta->blockarea = explode(",",$umeta->blockarea);
       }
     }
-    $blockcity_limit_count = 10;
+    $blockcity_limit_count = 3;
   ?>
   <style type="text/css">
     .abtn{cursor: pointer;}
@@ -895,7 +895,6 @@ dt span.engroup_type_title {display:inline-block;width:10%;white-space:nowrap;}
         if(type=='')$('#domain option:not(:first)').remove();
     }
     $(document).ready(function() {
-        console.log({{$blockcity_limit_count}});
         var blockarea_selected = '{{ isset($umeta->blockarea[0]) ? ($umeta->blockarea[0] == "" ? "全區" : str_replace($umeta->blockcity[0],'',$umeta->blockarea[0])) : '全區' }}';
         var blockarea1_selected = '{{ isset($umeta->blockarea[1]) ? str_replace($umeta->blockcity[1],'',$umeta->blockarea[1]) :'全區'  }}';
         var blockarea2_selected = '{{ isset($umeta->blockarea[2]) ? str_replace($umeta->blockcity[2],'',$umeta->blockarea[2]) : '全區'  }}';
