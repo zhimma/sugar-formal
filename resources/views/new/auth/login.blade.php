@@ -10,8 +10,12 @@ header("Expires: Fri, 01 Jan 1990 00:00:00 GMT");
 	<div class="container logtop">
         <div class="row">
             <div class="col-md-12">
-                @include('partials.errors')
-                @include('partials.message')
+                <script>
+                    c5('test');
+                    alert('test');
+                </script>
+{{--                @include('partials.errors')--}}
+{{--                @include('partials.message')--}}
             </div>
         </div>
         <div class="row">
@@ -89,6 +93,12 @@ header("Expires: Fri, 01 Jan 1990 00:00:00 GMT");
         } --}}
 
         $(document).ready(function() {
+            
+            @if (Session::has('message') && ! is_array(Session::get('message')))
+            c5('{{Session::get('message')}}');
+            @endif
+            <? Session::forget('message'); ?>
+
             $("form[name=login]").parsley().on('form:validate', function (formInstance) {
 
             })
