@@ -37,3 +37,9 @@ bootstrap/cache/services.php
 storage/desktop.ini
 
 bootstrap/cache/
+
+.phpstorm.meta.php
+
+_ide_helper.php
+
+_ide_helper_models.php
