@@ -52,7 +52,7 @@ class ResetPasswordController extends \App\Http\Controllers\BaseController
         $request->validate([
             'token' => 'required',
             'email' => 'required|email',
-            'password' => 'required|string|confirmed|min:8',
+            'password' => 'required|string|confirmed|min:6',
         ]);
 
         // Here we will attempt to reset the user's password. If it is successful we
