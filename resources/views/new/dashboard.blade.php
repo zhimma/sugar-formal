@@ -221,17 +221,31 @@ dt span.engroup_type_title {display:inline-block;width:10%;white-space:nowrap;}
                                     data-name="blockarea{{$key == 0 ? '' : $key}}"
                                     data-value="{{$umeta->blockarea[$key]}}">
                                     <?php
-                                        if ($key ==0)
+                                        /*if ($key ==0)
                                             $blockarea_selected = $umeta->blockarea[0];
                                         else if ($key ==1){
                                             $blockarea1_selected = $umeta->blockarea[1];
                                         }else if ($key ==2){
                                             $blockarea2_selected = $umeta->blockarea[2];
-                                        }
+                                        }*/
+
                                     ?>
                                 </div>
                               </div>
                           @endforeach
+                          @for ($i = 0; $i < $blockcity_limit_count; $i++)
+                            <?php
+                                if($i == 0)
+                                {
+                                    $blockarea_selected[] = isset($umeta->blockarea[$i]) ? ($umeta->blockarea[$i] == "" ? "全區" : str_replace($umeta->blockcity[$i],'',$umeta->blockarea[$i])) : '全區';
+                                }
+                                else
+                                {
+                                    $blockarea_selected[] = isset($umeta->blockarea[$i]) ? str_replace($umeta->blockcity[$i],'',$umeta->blockarea[$i]) :'全區';
+                                }
+                                
+                            ?>
+                          @endfor
                         @else
                           <div class="twzipcode">
                             <div class="twzip" data-role="county" data-name="blockcity" data-value="{{$umeta->blockcity}}">
@@ -895,9 +909,11 @@ dt span.engroup_type_title {display:inline-block;width:10%;white-space:nowrap;}
         if(type=='')$('#domain option:not(:first)').remove();
     }
     $(document).ready(function() {
-        var blockarea_selected = '{{ isset($umeta->blockarea[0]) ? ($umeta->blockarea[0] == "" ? "全區" : str_replace($umeta->blockcity[0],'',$umeta->blockarea[0])) : '全區' }}';
-        var blockarea1_selected = '{{ isset($umeta->blockarea[1]) ? str_replace($umeta->blockcity[1],'',$umeta->blockarea[1]) :'全區'  }}';
-        var blockarea2_selected = '{{ isset($umeta->blockarea[2]) ? str_replace($umeta->blockcity[2],'',$umeta->blockarea[2]) : '全區'  }}';
+        let blockarea_selected_arr = @json($blockarea_selected);
+
+        /*取代*/var blockarea_selected = '{{ isset($umeta->blockarea[0]) ? ($umeta->blockarea[0] == "" ? "全區" : str_replace($umeta->blockcity[0],'',$umeta->blockarea[0])) : '全區' }}';
+        /*取代*/var blockarea1_selected = '{{ isset($umeta->blockarea[1]) ? str_replace($umeta->blockcity[1],'',$umeta->blockarea[1]) :'全區'  }}';
+        /*取代*/var blockarea2_selected = '{{ isset($umeta->blockarea[2]) ? str_replace($umeta->blockcity[2],'',$umeta->blockarea[2]) : '全區'  }}';
 
 
         if ($("select[name='blockarea'] option:eq(0)").text() !== '全區') {
