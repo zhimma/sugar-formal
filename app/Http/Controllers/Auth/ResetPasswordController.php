@@ -74,8 +74,8 @@ class ResetPasswordController extends \App\Http\Controllers\BaseController
         // the application's home authenticated view. If there is an error we can
         // redirect them back to where they came from with their error message.
         return $status == Password::PASSWORD_RESET
-                    ? redirect()->route('login')->with('status', __($status))
+                    ? redirect()->route('login')->with('status', __($status))->with('message', '您的密碼已變更，請使用新密碼登入。')
                     : back()->withInput($request->only('email'))
-                            ->withErrors(['email' => __($status)]);
+                            ->withErrors(['email' => __($status)])->with('message', '密碼設定失敗，請重新操作一次。');
     }
 }
