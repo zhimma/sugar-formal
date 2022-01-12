@@ -8,7 +8,6 @@
         "php": ">=7.3|^8.0",
         "ext-json": "*",
         "aws/aws-sdk-php": "^3.166",
-        "barryvdh/laravel-ide-helper": "^2.1",
         "beyondcode/laravel-websockets": "^1.12",
         "facade/ignition": "^2.3.6",
         "fideloper/proxy": "^4.0",
@@ -30,6 +29,7 @@
         "yajra/laravel-datatables-oracle": "~9.0"
     },
     "require-dev": {
+        "barryvdh/laravel-ide-helper": "^2.1",
         "barryvdh/laravel-debugbar": ">=3.2",
         "dietercoopman/laravel-showsql": "^1.1",
         "filp/whoops": "~2.0",
