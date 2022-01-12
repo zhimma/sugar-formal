@@ -8,6 +8,7 @@
         "php": ">=7.3|^8.0",
         "ext-json": "*",
         "aws/aws-sdk-php": "^3.166",
+        "barryvdh/laravel-ide-helper": "^2.1",
         "beyondcode/laravel-websockets": "^1.12",
         "facade/ignition": "^2.3.6",
         "fideloper/proxy": "^4.0",
@@ -71,7 +72,10 @@
         ],
         "post-autoload-dump": [
             "Illuminate\\Foundation\\ComposerScripts::postAutoloadDump",
-            "@php artisan package:discover"
+            "@php artisan package:discover",
+            "@php artisan ide-helper:generate",
+            "@php artisan ide-helper:meta",
+            "@php artisan ide-helper:models --nowrite"
         ]
     },
     "config": {
