@@ -1,0 +1,104 @@
+.button{ftext-shadow:1px 1px 0 rgba(255,255,255,0.4);text-decoration:none !important;white-space:nowrap;
+display:inline-block;vertical-align:baseline;position:relative;cursor:pointer;padding:0px 0px;
+background-repeat:no-repeat;background-position:bottom left;background-image: url(../images/button_bg.png);background-position:bottom left, top right, 0 0, 0 0;background-clip:border-box;
+-moz-box-shadow:0 0 1px #fff inset;-webkit-box-shadow:0 0 1px #fff inset;box-shadow:0 0 1px #fff inset;
+-webkit-transition:background-position 1s;-moz-transition:background-position 1s;transition:background-position 1s;}
+.button:hover{background-position:top left;background-position:top left, bottom right, 0 0, 0 0;}
+.button:active{bottom:-1px;}
+
+
+.button.rounded{-moz-border-radius:100px;-webkit-border-radius:100px;border-radius:100px;}
+.blue.button{color:#0f4b6d !important;border:1px solid #84acc3 !important;background-color: #48b5f2;background-image: url(../images/button_bg.png),  url(../images/button_bg.png),
+-moz-radial-gradient(center bottom, circle,rgba(89,208,244,1) 0,rgba(89,208,244,0) 100px),-moz-linear-gradient(#4fbbf7, #3faeeb);
+background-image: url(../images/button_bg.png),  url(../images/button_bg.png),-webkit-gradient(	radial, 50% 100%, 0, 50% 100%, 100,from(rgba(89,208,244,1)), to(rgba(89,208,244,0))),-webkit-gradient(linear, 0% 0%, 0% 100%, from(#4fbbf7), to(#3faeeb));}
+
+.blue.button:hover{background-color:#63c7fe;
+background-image: url(../images/button_bg.png), url(../images/button_bg.png),-moz-radial-gradient(	center bottom, circle,
+rgba(109,217,250,1) 0,rgba(109,217,250,0) 100px),-moz-linear-gradient(#63c7fe, #58bef7);
+background-image: url(../images/button_bg.png),  url(../images/button_bg.png),-webkit-gradient(	radial, 50% 100%, 0, 50% 100%, 100,from(rgba(109,217,250,1)), to(rgba(109,217,250,0))),-webkit-gradient(linear, 0% 0%, 0% 100%, from(#63c7fe), to(#58bef7));}
+
+.green.button{color:#345903 !important;border:1px solid #96a37b !important;	background-color: #79be1e;
+background-image: url(../images/button_bg.png),  url(../images/button_bg.png), -moz-radial-gradient(center bottom, circle, rgba(162,211,30,1) 0,rgba(162,211,30,0) 100px),-moz-linear-gradient(#82cc27, #74b317);
+background-image: url(../images/button_bg.png),  url(../images/button_bg.png), -webkit-gradient(radial, 50% 100%, 0, 50% 100%, 100, from(rgba(162,211,30,1)), to(rgba(162,211,30,0))),-webkit-gradient(linear, 0% 0%, 0% 100%, from(#82cc27), to(#74b317));}
+
+.green.button:hover{background-color:#89d228;
+background-image: url(../images/button_bg.png),  url(../images/button_bg.png), -moz-radial-gradient(center bottom, circle, rgba(183,229,45,1) 0,rgba(183,229,45,0) 100px),-moz-linear-gradient(#90de31, #7fc01e);
+background-image: url(../images/button_bg.png),  url(../images/button_bg.png), -webkit-gradient(radial, 50% 100%, 0, 50% 100%, 100, from(rgba(183,229,45,1)), to(rgba(183,229,45,0))),-webkit-gradient(linear, 0% 0%, 0% 100%, from(#90de31), to(#7fc01e));}
+
+/* Orange Button */
+.orange.button{color:#693e0a !important;border:1px solid #bea280 !important;	background-color: #e38d27;
+background-image: url(../images/button_bg.png),  url(../images/button_bg.png), -moz-radial-gradient(center bottom, circle, rgba(232,189,45,1) 0,rgba(232,189,45,0) 100px),-moz-linear-gradient(#f1982f, #d4821f);
+background-image: url(../images/button_bg.png),  url(../images/button_bg.png), -webkit-gradient(radial, 50% 100%, 0, 50% 100%, 100, from(rgba(232,189,45,1)), to(rgba(232,189,45,0))),-webkit-gradient(linear, 0% 0%, 0% 100%, from(#f1982f), to(#d4821f));}
+
+.orange.button:hover{background-color:#ec9732;
+background-image: url(../images/button_bg.png),  url(../images/button_bg.png), -moz-radial-gradient(center bottom, circle, rgba(241,192,52,1) 0,rgba(241,192,52,0) 100px),-moz-linear-gradient(#f9a746, #e18f2b);
+background-image: url(../images/button_bg.png),  url(../images/button_bg.png), -webkit-gradient(radial, 50% 100%, 0, 50% 100%, 100, from(rgba(241,192,52,1)), to(rgba(241,192,52,0))),-webkit-gradient(linear, 0% 0%, 0% 100%, from(#f9a746), to(#e18f2b));}
+
+
+
+.red.button{color:#ffffff !important;border:1px solid #fe92a8 !important;	background-color: #fe92a8;
+background-image: url(../images/button_bg.png),  url(../images/button_bg.png), -moz-radial-gradient(center bottom, circle, rgba(0,57,17,1) 0,rgba(232,189,45,0) 100px),-moz-linear-gradient(#fe92a8, #fe92a8);
+background-image: url(../images/button_bg.png),  url(../images/button_bg.png), -webkit-gradient(radial, 50% 100%, 0, 50% 100%, 100, from(rgba(0,0,0,0)), to(rgba(0,0,0,0))),-webkit-gradient(linear, 0% 0%, 0% 100%, from(#fe92a8), to(#fe92a8));}
+
+.red.button:hover{background-color:#fe92a8;
+background-image: url(../images/button_bg.png),  url(../images/button_bg.png), -moz-radial-gradient(center bottom, circle, rgba(0,57,17,1) 0,rgba(241,192,52,0) 100px),-moz-linear-gradient(#ff6887, #fe92a8);
+background-image: url(../images/button_bg.png),  url(../images/button_bg.png), -webkit-gradient(radial, 50% 100%, 0, 50% 100%, 100, from(rgba(0,81,36,0)), to(rgba(0,81,36,0))),
+-webkit-gradient(linear, 0% 0%, 0% 100%, from(#ff6887), to(#fe92a8));}
+
+
+
+
+.dengrub{width: 250px;height: 40px; line-height:40px; border-radius:100px;margin:0 auto; display:table; text-align:center; font-size:16px;}
+
+
+
+/*二种*/
+
+.a_demo {background-color:#fe92a8;text-align:center;text-decoration:none;color:#fff;position:relative;
+background-image: linear-gradient(bottom, rgb(255,105,135) 0%, rgb(254,146,168) 100%);background-image: -o-linear-gradient(bottom, rgb(254,146,168) 0%, rgb(62,184,229) 100%);
+background-image: -moz-linear-gradient(bottom, rgb(255,105,135) 0%, rgb(254,146,168) 100%);
+background-image: -webkit-linear-gradient(bottom, rgb(255,105,135) 0%, rgb(254,146,168) 100%);
+background-image: -ms-linear-gradient(bottom, rgb(255,105,135) 0%, rgb(254,146,168) 100%);
+background-image: -webkit-gradient(linear,left bottom,left top,color-stop(0, rgb(255,105,135)),color-stop(1, rgb(254,146,168)));
+-webkit-box-shadow: inset 0px 1px 0px #fe92a8, 0px 5px 0px 0px #e55370, 0px 10px 5px #ddd;
+-moz-box-shadow: inset 0px 1px 0px #fe92a8, 0px 5px 0px 0px #e55370, 0px 10px 5px #ddd;
+-o-box-shadow: inset 0px 1px 0px #fe92a8, 0px 5px 0px 0px #e55370, 0px 10px 5px #ddd;
+box-shadow: inset 0px 1px 0px #fe92a8, 0px 5px 0px 0px #e55370, 0px 10px 5px #ddd;}
+
+
+.a_demo:active {top:0px;color:#fff;
+background-image: linear-gradient(bottom, rgb(254,146,168) 0%, rgb(255,105,135) 100%);
+background-image: -o-linear-gradient(bottom, rgb(254,146,168) 0%, rgb(255,105,135) 100%);
+background-image: -moz-linear-gradient(bottom, rgb(254,146,168) 0%, rgb(255,105,135) 100%);
+background-image: -webkit-linear-gradient(bottom, rgb(254,146,168) 0%, rgb(255,105,135) 100%);
+background-image: -ms-linear-gradient(bottom, rgb(254,146,168) 0%, rgb(255,105,135) 100%);
+background-image: -webkit-gradient(linear,left bottom,left top,color-stop(0, rgb(254,146,168)),color-stop(1, rgb(255,105,135)));
+-webkit-box-shadow: inset 0px 4px 1px #fe92a8, 0px 2px 0px 0px #e55370, 0px 5px 3px #ddd;
+-moz-box-shadow: inset 0px 4px 1px #fe92a8,0px 2px 0px 1px #e55370, 0px 5px 3px #ddd;
+-o-box-shadow:inset 0px 4px 1px #fe92a8, 0px 2px 0px 1px #e55370, 0px 5px 3px #ddd;
+box-shadow: inset 0px 4px 1px #fe92a8, 0px 2px 0px 0px #e55370, 0px 5px 3px #ddd;}
+
+.a_demo:hover {top:0px;color:#fff;
+background-image: linear-gradient(bottom, rgb(254,146,168) 0%, rgb(255,105,135) 100%);
+background-image: -o-linear-gradient(bottom, rgb(254,146,168) 0%, rgb(255,105,135) 100%);
+background-image: -moz-linear-gradient(bottom, rgb(254,146,168) 0%, rgb(255,105,135) 100%);
+background-image: -webkit-linear-gradient(bottom, rgb(254,146,168) 0%, rgb(255,105,135) 100%);
+background-image: -ms-linear-gradient(bottom, rgb(254,146,168) 0%, rgb(255,105,135) 100%);
+background-image: -webkit-gradient(linear,left bottom,left top,color-stop(0, rgb(254,146,168)),color-stop(1, rgb(255,105,135)));
+-webkit-box-shadow: inset 0px 4px 1px #e55370, 0px 2px 0px 0px #fe92a8, 0px 5px 3px #ddd;
+-moz-box-shadow: inset 0px 4px 1px #e55370,0px 2px 0px 1px #fe92a8, 0px 5px 3px #ddd;
+-o-box-shadow:inset 0px 4px 1px #e55370, 0px 2px 0px 1px #fe92a8, 0px 5px 3px #ddd;
+box-shadow: inset 0px 4px 1px #e55370, 0px 2px 0px 0px #fe92a8, 0px 5px 3px #ddd;}
+
+
+.a_demo::before {background-color:#fff;background-image:url(Pic/heart.gif);background-repeat:no-repeat;background-position:center center;content:"";z-index:-1;color:#fff !important;}
+.a_demo:active::before{-webkit-box-shadow: 0px 3px 0px #ccc;-moz-box-shadow: 0px 3px 0px #ccc;-o-box-shadow: 0px 3px 0px #ccc;box-shadow: 0px 3px 0px #ccc;color:#fff !important;}
+
+
+
+
+
+
+
+
+
