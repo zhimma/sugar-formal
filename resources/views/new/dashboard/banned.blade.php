@@ -13,6 +13,37 @@
     /* color:white !important; */
 }
 </style>
+<head>
+    
+    <meta charset="utf-8">
+    <meta http-equiv="X-UA-Compatible" content="IE=edge">
+    <meta name="format-detection" content="telephone=no" />
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+    <!-- The above 3 meta tags *must* come first in the head; any other head content must come *after* these tags -->
+    <title>懲處名單</title>
+    <!-- Bootstrap -->
+    <link href={{asset("alert/css/bootstrap.min.css")}} rel="stylesheet">
+    <link href={{asset("alert/css/bootstrap-theme.min.css")}} rel="stylesheet">
+    <!-- owl-carousel-->
+    <!--    css-->
+    <link rel="stylesheet" href={{asset("alert/css/style.css")}}>
+    <link rel="stylesheet" href={{asset("alert/css/swiper.min.css")}}>
+    <script src={{asset('alert/js/bootstrap.min.js')}}></script>
+    <script src={{asset("alert/js/jquery-2.1.1.min.js")}} type="text/javascript"></script>
+    <script src={{asset("alert/js/main.js")}} type="text/javascript"></script>
+
+</head>
+<script>
+    function changediv(id) {
+        document.getElementById("fs").style.display = "none";
+        document.getElementById("fs2").style.display = "none";
+        document.getElementById("fs_a").className = "";
+        document.getElementById("fs2_a").className = "";
+        document.getElementById(id).style.display = "table";
+        document.getElementById(id + "_a").className = "nn_dontt_hover";
+        return false;
+    }
+</script>
 @section('app-content')
     <div class="container matop70">
         <input type="hidden" value="{{ \App\Models\User::isBanned($user->id) ?1:2 }}">
@@ -21,32 +52,65 @@
                 @include('new.dashboard.panel')
             </div>
             <div class="col-sm-12 col-xs-12 col-md-10">
-                <div class="fs_name">
-                    <div class="fs_title">本月封鎖名單<h2>共{{$count}}筆資料</h2></div>
-                    <div class="fs_table">
-                        <table>
-                            <tr class="fs_tb">
-                                <th width="25%" style=" border-radius:5px 0 0 5px;">名稱</th>
-                                <th width="25%">封鎖原因</th>
-                                <th width="25%">開始日期</th>
-                                <th width="25%" style=" border-radius:0 5px 5px 0;">解除時間</th>
-                            </tr>
-                            @foreach($banned_user as $row)
-
-                            <tr>
-                                <td>{{$row->name}}</td>
-                                <td>{{$row->reason}}</td>
-                                <td>{{ date('Y/m/d', strtotime($row->created_at))}}</td>
-                                <td>@if($row->expire_date<>''){{ date('Y/m/d', strtotime($row->expire_date))}}@else - @endif</td>
-                            </tr>
-                            @endforeach
-                        </table>
-
-                        <div style="text-align: center;">
-                            {!! $banned_user->links('pagination::sg-pages2') !!}
-                        </div>
-
+                <div class="ddt_list">
+                    <div class="nn_dontt">
+                        <ul>
+                            <li onclick='return changediv("fs")' id="fs_a" class="nn_dontt_hover" target=_parent>封鎖名單</li>
+                            <li onclick='return changediv("fs2")' id="fs2_a" target=_parent>警示名單</li>
+                            
+                        </ul>
                     </div>
+                </div>
+                <!--  -->
+                    <div class="fs_name" id="fs">
+                          <div class="fs_title"><h2>本月封鎖名單，共{{$count}}筆資料</h2></div> 
+                           <div class="fs_table">
+                            <table>
+                                <tr class="fs_tb">
+                                    <th width="25%" style=" border-radius:5px 0 0 5px;">名稱</th>
+                                    <th width="25%">封鎖原因</th>
+                                    <th width="25%">開始日期</th>
+                                    <th width="25%" style=" border-radius:0 5px 5px 0;">解除時間</th>
+                                </tr>
+                                @foreach($banned_user as $row)
+                                
+                                <tr>
+                                    <td>{{$row->name}}</td>
+                                    <td>{{$row->reason}}</td>
+                                    <td>{{ date('Y/m/d', strtotime($row->created_at))}}</td>
+                                    <td>@if($row->expire_date<>''){{ date('Y/m/d', strtotime($row->expire_date))}}@else - @endif</td>
+                                </tr>
+                                @endforeach
+                            </table>
+                                  <div class="fenye"><a href="">上一頁</a><span class="new_page">1/5</span><a href="">下一頁</a></div>
+                           </div>
+                    </div>
+                <!--  -->
+            <!--  -->
+
+                    
+                    <div class="fs_name" id="fs2" style="display: none;">
+                        <div class="fs_title"><h2>本月警示名單，共{{$count}}筆資料</h2></div>
+                        <div class="fs_table">
+                               <table>
+                                    <tr class="fs_tb">
+                                        <th width="25%" style=" border-radius:5px 0 0 5px;">名稱</th>
+                                        <th width="25%">封鎖原因</th>
+                                        <th width="25%">開始日期</th>
+                                        <th width="25%" style=" border-radius:0 5px 5px 0;">解除時間</th>
+                                    </tr>
+                                    @foreach($banned_user as $row)
+                                
+                                    <tr>
+                                        <td>{{$row->name}}</td>
+                                        <td>{{$row->reason}}</td>
+                                        <td>{{ date('Y/m/d', strtotime($row->created_at))}}</td>
+                                        <td>@if($row->expire_date<>''){{ date('Y/m/d', strtotime($row->expire_date))}}@else - @endif</td>
+                                    </tr>
+                                    @endforeach
+                               </table>
+                               <div class="fenye"><a href="">上一頁</a><span class="new_page">1/5</span><a href="">下一頁</a></div>
+                        </div>
                 </div>
             </div>
         </div>

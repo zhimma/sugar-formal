@@ -3849,17 +3849,18 @@ class PagesController extends BaseController
 
         // $time = \Carbon\Carbon::now();
         //$count = banned_users::select('*')->where('banned_users.created_at','>=',\Carbon\Carbon::parse(date("Y-m-01"))->toDateTimeString())->count();
+        
         $banned_users = banned_users::select('banned_users.reason','banned_users.created_at','banned_users.expire_date','users.name')
             ->where('banned_users.created_at','>=',\Carbon\Carbon::parse(date("Y-m-01"))->toDateTimeString())
             ->join('users','banned_users.member_id','=','users.id')
             ->orderBy('banned_users.created_at','desc');
-
+         
         //隱形封鎖要出現在瀏覽資料/懲處名單中，封鎖原因為"廣告"
         $banned_users_implicitly = BannedUsersImplicitly::selectRaw('banned_users_implicitly.reason AS reason, banned_users_implicitly.created_at AS created_at, ""  AS expire_date ,users.name AS name')
             ->where('banned_users_implicitly.created_at','>=',\Carbon\Carbon::parse(date("Y-m-01"))->toDateTimeString())
             ->join('users','banned_users_implicitly.target','=','users.id')
             ->orderBy('banned_users_implicitly.created_at','desc');
-
+         
         //取得資料總筆數
         $count = $banned_users->get()->count() + $banned_users_implicitly->get()->count();
         $getUnionList = $banned_users->union($banned_users_implicitly)->get();
@@ -3867,7 +3868,7 @@ class PagesController extends BaseController
         $page = $request->get('page');
         $perPage = 15;
         $banned_users = new LengthAwarePaginator($getUnionList->forPage($page, $perPage), $count, $perPage, $page,  ['path' => '/dashboard/banned/']);
-
+        
         foreach ($banned_users as &$b){
             $b->name = $this->substr_cut($b->name);
         }
@@ -3896,11 +3897,15 @@ class PagesController extends BaseController
     /**
      * Check the user is banned or not then show notice page.
      */
-    public function banned(Request $request)
+    //本月警示名單
+    
+
+
+    public function warned(Request $request)
     {
         if($user = Auth::user()){
-            $banned_users = banned_users::select('*')->where('member_id', \Auth::user()->id)->count();
-            if($banned_users > 0){    
+            $warned_users = warned_users::select('*')->where('member_id', \Auth::user()->id)->count();
+            if($warned_users > 0){    
                 Auth::logout();
                 $request->session()->flush();
                 return view('errors.User-banned');
@@ -3909,6 +3914,7 @@ class PagesController extends BaseController
         }
         abort(404);
     }
+
 
     // 公告封鎖名單
     public function showWebAnnouncement(Request $request) {
