@@ -542,7 +542,7 @@ Route::group(['middleware' => ['auth', 'global', 'active', 'femaleActive', 'vipC
         Route::post('/dashboard/evaluation_self/deleteAll', 'PagesController@evaluation_self_deleteAll')->name('evaDeleteAll'); //new route
 
 
-        Route::get('/dashboard/banned', 'PagesController@dashboard_banned');
+        Route::get('/dashboard/banned_warned_list', 'PagesController@banned_warned_list');
         Route::get('/dashboard/visited', 'PagesController@visited');
 
         Route::middleware("HasReferer:listSeatch2")->group(function (){

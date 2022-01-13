@@ -3838,8 +3838,8 @@ class PagesController extends BaseController
         }
     }
 
-    //本月封鎖名單
-    public function dashboard_banned(Request $request)
+    //本月封鎖 + 警示名單
+    public function banned_warned_list(Request $request)
     {
         $user = $request->user();
 
@@ -3856,23 +3856,38 @@ class PagesController extends BaseController
             ->where('banned_users_implicitly.created_at','>=',\Carbon\Carbon::parse(date("Y-m-01"))->toDateTimeString())
             ->join('users','banned_users_implicitly.target','=','users.id')
             ->orderBy('banned_users_implicitly.created_at','desc');
+
+        $warned_users = warned_users::select('warned_users.reason','warned_users.created_at','warned_users.expire_date','users.name')
+            ->where('warned_users.created_at','>=',\Carbon\Carbon::parse(date("Y-m-01"))->toDateTimeString())
+            ->join('users','warned_users.member_id','=','users.id')
+            ->orderBy('warned_users.created_at','desc')->get();
          
         //取得資料總筆數
-        $count = $banned_users->get()->count() + $banned_users_implicitly->get()->count();
-        $getUnionList = $banned_users->union($banned_users_implicitly)->get();
+        $banned_count = $banned_users->get()->count() + $banned_users_implicitly->get()->count();
+        $getBannedUnionList = $banned_users->union($banned_users_implicitly)->get();
+
+        $warned_count = $warned_users->count();
 
         $page = $request->get('page');
         $perPage = 15;
-        $banned_users = new LengthAwarePaginator($getUnionList->forPage($page, $perPage), $count, $perPage, $page,  ['path' => '/dashboard/banned/']);
-        
+
+        $banned_users = new LengthAwarePaginator($getBannedUnionList->forPage($page, $perPage), $banned_count, $perPage, $page,  ['path' => '/dashboard/banned_warned_list/']);
+        $warned_users = new LengthAwarePaginator($warned_users->forPage($page, $perPage), $warned_count, $perPage, $page,  ['path' => '/dashboard/banned_warned_list/']);
+
         foreach ($banned_users as &$b){
             $b->name = $this->substr_cut($b->name);
         }
 
-        return view('new.dashboard.banned')
-            ->with('banned_user', $banned_users)
+        foreach ($warned_users as &$w){
+            $w->name = $this->substr_cut($w->name);
+        }
+
+        return view('new.dashboard.banned_warned_list')
+            ->with('banned_users', $banned_users)
+            ->with('warned_users', $warned_users)
             ->with('user', $user)
-            ->with('count',$count);
+            ->with('banned_count', $banned_count)
+            ->with('warned_count', $warned_count);
     }
 
     function substr_cut($user_name){
@@ -3890,13 +3905,6 @@ class PagesController extends BaseController
         }
     }
 
-    /**
-     * Check the user is banned or not then show notice page.
-     */
-    //本月警示名單
-    
-
-
     public function warned(Request $request)
     {
         if($user = Auth::user()){
@@ -3910,7 +3918,6 @@ class PagesController extends BaseController
         }
         abort(404);
     }
-
 
     // 公告封鎖名單
     public function showWebAnnouncement(Request $request) {
