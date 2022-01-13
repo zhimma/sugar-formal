@@ -36,12 +36,12 @@
                 <div class="wd_xsy wpaword">
                     <div class="wxsy_title">忘記密碼</div>
                     <div class="wxsy_k ">
-                        <form action="/password/reset" method="post">
+                        <form action="/password/reset" method="post" id="r_form">
                             @csrf
                             <input type="hidden" name="token" value="{{ $token }}">
-                            <div class="wo_input01 dlmarbot"><input name="email" type="text" class="zcinput" placeholder="帳號 (您的E-mail)" value="{{ old('email') }}"></div>
-                            <div class="wo_input01 dlmarbot"><input name="password" id="password" type="password" class="zcinput" placeholder="密碼" required></div>
-                            <div class="wo_input01"><input name="password_confirmation" id="password_confirmation" type="password" class="zcinput" placeholder="密碼確認" required></div>
+                            <div class="wo_input01 dlmarbot"><input name="email" id="email" type="text" class="zcinput" placeholder="帳號 (您的E-mail)" value="{{ old('email') }}"></div>
+                            <div class="wo_input01 dlmarbot"><input name="password" id="password" type="password" class="zcinput" placeholder="密碼"></div>
+                            <div class="wo_input01"><input name="password_confirmation" id="password_confirmation" type="password" class="zcinput" placeholder="密碼確認"></div>
                             <button type="submit" class="dlbut" style="margin-bottom:20px;border-style: none;">更改密碼</button>
                         </form>
                     </div>
@@ -51,19 +51,48 @@
         </div>
     </div>
     <script>
-        var password = document.getElementById("password")
-            , confirm_password = document.getElementById("password_confirmation");
+        // var password = document.getElementById("password")
+        //     , confirm_password = document.getElementById("password_confirmation");
+        //
+        // function validatePassword(){
+        //     if(password.value != confirm_password.value) {
+        //         confirm_password.setCustomValidity("密碼確認與上述密碼不相符");
+        //     } else {
+        //         confirm_password.setCustomValidity('');
+        //     }
+        // }
+        //
+        // password.onchange = validatePassword;
+        // confirm_password.onkeyup = validatePassword;
 
-        function validatePassword(){
-            if(password.value != confirm_password.value) {
-                confirm_password.setCustomValidity("密碼確認與上述密碼不相符");
-            } else {
-                confirm_password.setCustomValidity('');
-            }
-        }
+        $(document).ready(function() {
 
-        password.onchange = validatePassword;
-        confirm_password.onkeyup = validatePassword;
+            $("#r_form").submit(function() {
+                if ( ($("#password").val() !='' && $("#password").val().length < 6) ||
+                    ($("#password_confirmation").val() != '' && $("#password_confirmation").val().length < 6) ) {
+                    c5('密碼設定至少需6個字元以上');
+                    return false;
+                }else if($("#password").val() != $("#password_confirmation").val()){
+                    c5('密碼確認與上述密碼不相符');
+                    return false;
+                }else if($("#email").val()==''){
+                    c5('Email為必填欄位');
+                    return false;
+                }else if($("#password").val()==''){
+                    c5('密碼為必填欄位');
+                    return false;
+                }else if($("#password").val()==''){
+                    c5('密碼確認為必填欄位');
+                    return false;
+                }
+            });
+
+
+            @if (Session::has('message') && ! is_array(Session::get('message')))
+            c5('{{Session::get('message')}}');
+            @endif
+            <? Session::forget('message'); ?>
+        });
     </script>
 @stop
 
