@@ -5860,7 +5860,7 @@ class PagesController extends BaseController
                         'TimeStamp' => 	time()
                     ];
                     $paymentData = $ecpay->QueryPeriodCreditCardTradeInfo(); //信用卡定期定額
-                    if(isset($paymentData))
+                    if(isset($paymentData['ExecLog']))
                     {
                         $last = last($paymentData['ExecLog']);
                     }
