@@ -796,6 +796,15 @@
                                         </span>
                                     </dt>
                                     @endif
+                                    
+                                    @if((!empty($to->meta->weight) && $to->meta->isHideWeight == '0' ))
+                                    <dt>
+                                        <span>體重（kg）</span>
+                                        <span>
+                                            <div class="select_xx01 senhs hy_new">{{$to->meta->weight}}</div>
+                                        </span>
+                                    </dt>
+                                    @endif
 
                                     @if(!empty($to->meta->body) && $to->meta->body != null && $to->meta->body != 'null')
                                     <dt>
