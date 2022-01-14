@@ -26,6 +26,7 @@ header("Expires: Fri, 01 Jan 1990 00:00:00 GMT");
     }
     //拒絕接受搜索縣市最大數量
     $blockcity_limit_count = 10;
+    $blockarea_selected = [];
   ?>
   <style type="text/css">
     .abtn{cursor: pointer;}

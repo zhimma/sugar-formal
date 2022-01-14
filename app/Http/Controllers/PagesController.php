@@ -5860,7 +5860,10 @@ class PagesController extends BaseController
                         'TimeStamp' => 	time()
                     ];
                     $paymentData = $ecpay->QueryPeriodCreditCardTradeInfo(); //信用卡定期定額
-                    $last = last($paymentData['ExecLog']);
+                    if(isset($paymentData))
+                    {
+                        $last = last($paymentData['ExecLog']);
+                    }
                     $lastProcessDate = str_replace('%20', ' ', $last['process_date']);
                     $lastProcessDate = \Carbon\Carbon::createFromFormat('Y/m/d H:i:s', $lastProcessDate);
 
