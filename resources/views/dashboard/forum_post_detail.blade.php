@@ -3,7 +3,7 @@
 </style>
 @extends('new.layouts.website')
 <meta charset="utf-8">
-
+		<script src="/js/app_1.js" type="text/javascript"></script>
 		<link rel="stylesheet" href="/posts/css/style.css">
 		<link rel="stylesheet" href="/posts/css/iconfont.css">
 		<style>
