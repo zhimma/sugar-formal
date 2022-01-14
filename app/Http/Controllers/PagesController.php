@@ -5863,17 +5863,16 @@ class PagesController extends BaseController
                     if(isset($paymentData['ExecLog']))
                     {
                         $last = last($paymentData['ExecLog']);
-                    }
-                    $lastProcessDate = str_replace('%20', ' ', $last['process_date']);
-                    $lastProcessDate = \Carbon\Carbon::createFromFormat('Y/m/d H:i:s', $lastProcessDate);
-
-                    //計算下次扣款日
-                    if($vas->payment == 'cc_quarterly_payment'){
-                        $periodRemained = 92;
-                    }else {
-                        $periodRemained = 30;
-                    }
-                    $nextProcessDate = substr($lastProcessDate->addDays($periodRemained),0,10);
+                        $lastProcessDate = str_replace('%20', ' ', $last['process_date']);
+                        $lastProcessDate = \Carbon\Carbon::createFromFormat('Y/m/d H:i:s', $lastProcessDate);
+                        //計算下次扣款日
+                        if($vas->payment == 'cc_quarterly_payment'){
+                            $periodRemained = 92;
+                        }else {
+                            $periodRemained = 30;
+                        }
+                        $nextProcessDate = substr($lastProcessDate->addDays($periodRemained),0,10);
+                    } 
                 }
                 $payment = '信用卡繳費';
                 switch ($vas->payment){
