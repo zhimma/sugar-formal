@@ -3356,11 +3356,11 @@ class PagesController extends BaseController
                 
                 $cid_recommend_data = [];
                 $forbid_msg_data = UserService::checkNewSugarForbidMsg($cid_user,$user);
-                
+                /*
                 if(($cid_user->engroup) === ($user->engroup)){
                     return back();
                 }
-
+                */
                 if(!$user->isVip() && $user->engroup == 1){
                     $m_time = Message::select('created_at')->
                     where('from_id', $user->id)->

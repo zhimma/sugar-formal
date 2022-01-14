@@ -55,8 +55,8 @@
                 <div class="ddt_list">
                     <div class="nn_dontt">
                         <ul>
-                            <li onclick='return changediv("fs")' id="fs_a" class="nn_dontt_hover" target=_parent>封鎖名單</li>
-                            <li onclick='return changediv("fs2")' id="fs2_a" target=_parent>警示名單</li>
+                            <li onclick='return changediv("fs")' id="fs_a" class="nn_dontt_hover" target=_parent style="color:#ee5472 ">封鎖名單</li>
+                            <li onclick='return changediv("fs2")' id="fs2_a" target=_parent style="color:#ee5472 ">警示名單</li>
                         </ul>
                     </div>
                 </div>
