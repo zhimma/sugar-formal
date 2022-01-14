@@ -5124,13 +5124,8 @@ window.axios.defaults.headers.common['X-Requested-With'] = 'XMLHttpRequest';
 window.Pusher = __webpack_require__(/*! pusher-js */ "./node_modules/pusher-js/dist/web/pusher.js");
 window.Echo = new laravel_echo__WEBPACK_IMPORTED_MODULE_0__.default({
   broadcaster: 'pusher',
-<<<<<<< HEAD
   key: "",
   cluster: "mt1",
-=======
-  key: "fe9b1b5348bc4bd77998",
-  cluster: "ap3",
->>>>>>> d4afe5f985cfe90344a69042fa193bda75cdf7fe
   forceTLS: true // authEndpoint: '/custom/endpoint/auth',
 
   /**
@@ -21194,24 +21189,14 @@ function _createSuper(Derived) {
 }
 
 var Connector = /*#__PURE__*/function () {
-<<<<<<< HEAD
   /**
    * Create a new class instance.
-=======
-  /**
-   * Create a new class instance.
->>>>>>> d4afe5f985cfe90344a69042fa193bda75cdf7fe
    */
   function Connector(options) {
     _classCallCheck(this, Connector);
 
-<<<<<<< HEAD
     /**
      * Default connector options.
-=======
-    /**
-     * Default connector options.
->>>>>>> d4afe5f985cfe90344a69042fa193bda75cdf7fe
      */
     this._defaultOptions = {
       auth: {
@@ -21227,13 +21212,8 @@ var Connector = /*#__PURE__*/function () {
     this.setOptions(options);
     this.connect();
   }
-<<<<<<< HEAD
   /**
    * Merge the custom options with the defaults.
-=======
-  /**
-   * Merge the custom options with the defaults.
->>>>>>> d4afe5f985cfe90344a69042fa193bda75cdf7fe
    */
 
 
@@ -21248,13 +21228,8 @@ var Connector = /*#__PURE__*/function () {
 
       return options;
     }
-<<<<<<< HEAD
     /**
      * Extract the CSRF token from the page.
-=======
-    /**
-     * Extract the CSRF token from the page.
->>>>>>> d4afe5f985cfe90344a69042fa193bda75cdf7fe
      */
 
   }, {
@@ -21277,13 +21252,8 @@ var Connector = /*#__PURE__*/function () {
   return Connector;
 }();
 
-<<<<<<< HEAD
 /**
  * This class represents a basic channel.
-=======
-/**
- * This class represents a basic channel.
->>>>>>> d4afe5f985cfe90344a69042fa193bda75cdf7fe
  */
 var Channel = /*#__PURE__*/function () {
   function Channel() {
@@ -21293,24 +21263,14 @@ var Channel = /*#__PURE__*/function () {
   _createClass(Channel, [{
     key: "listenForWhisper",
 
-<<<<<<< HEAD
     /**
      * Listen for a whisper event on the channel instance.
-=======
-    /**
-     * Listen for a whisper event on the channel instance.
->>>>>>> d4afe5f985cfe90344a69042fa193bda75cdf7fe
      */
     value: function listenForWhisper(event, callback) {
       return this.listen('.client-' + event, callback);
     }
-<<<<<<< HEAD
     /**
      * Listen for an event on the channel instance.
-=======
-    /**
-     * Listen for an event on the channel instance.
->>>>>>> d4afe5f985cfe90344a69042fa193bda75cdf7fe
      */
 
   }, {
@@ -21318,13 +21278,8 @@ var Channel = /*#__PURE__*/function () {
     value: function notification(callback) {
       return this.listen('.Illuminate\\Notifications\\Events\\BroadcastNotificationCreated', callback);
     }
-<<<<<<< HEAD
     /**
      * Stop listening for a whisper event on the channel instance.
-=======
-    /**
-     * Stop listening for a whisper event on the channel instance.
->>>>>>> d4afe5f985cfe90344a69042fa193bda75cdf7fe
      */
 
   }, {
@@ -21337,34 +21292,20 @@ var Channel = /*#__PURE__*/function () {
   return Channel;
 }();
 
-<<<<<<< HEAD
 /**
  * Event name formatter
  */
 var EventFormatter = /*#__PURE__*/function () {
   /**
    * Create a new class instance.
-=======
-/**
- * Event name formatter
- */
-var EventFormatter = /*#__PURE__*/function () {
-  /**
-   * Create a new class instance.
->>>>>>> d4afe5f985cfe90344a69042fa193bda75cdf7fe
    */
   function EventFormatter(namespace) {
     _classCallCheck(this, EventFormatter);
 
     this.setNamespace(namespace);
   }
-<<<<<<< HEAD
   /**
    * Format the given event name.
-=======
-  /**
-   * Format the given event name.
->>>>>>> d4afe5f985cfe90344a69042fa193bda75cdf7fe
    */
 
 
@@ -21379,13 +21320,8 @@ var EventFormatter = /*#__PURE__*/function () {
 
       return event.replace(/\./g, '\\');
     }
-<<<<<<< HEAD
     /**
      * Set the event namespace.
-=======
-    /**
-     * Set the event namespace.
->>>>>>> d4afe5f985cfe90344a69042fa193bda75cdf7fe
      */
 
   }, {
@@ -21398,13 +21334,8 @@ var EventFormatter = /*#__PURE__*/function () {
   return EventFormatter;
 }();
 
-<<<<<<< HEAD
 /**
  * This class represents a Pusher channel.
-=======
-/**
- * This class represents a Pusher channel.
->>>>>>> d4afe5f985cfe90344a69042fa193bda75cdf7fe
  */
 
 var PusherChannel = /*#__PURE__*/function (_Channel) {
@@ -21412,13 +21343,8 @@ var PusherChannel = /*#__PURE__*/function (_Channel) {
 
   var _super = _createSuper(PusherChannel);
 
-<<<<<<< HEAD
   /**
    * Create a new class instance.
-=======
-  /**
-   * Create a new class instance.
->>>>>>> d4afe5f985cfe90344a69042fa193bda75cdf7fe
    */
   function PusherChannel(pusher, name, options) {
     var _this;
@@ -21435,13 +21361,8 @@ var PusherChannel = /*#__PURE__*/function (_Channel) {
 
     return _this;
   }
-<<<<<<< HEAD
   /**
    * Subscribe to a Pusher channel.
-=======
-  /**
-   * Subscribe to a Pusher channel.
->>>>>>> d4afe5f985cfe90344a69042fa193bda75cdf7fe
    */
 
 
@@ -21450,13 +21371,8 @@ var PusherChannel = /*#__PURE__*/function (_Channel) {
     value: function subscribe() {
       this.subscription = this.pusher.subscribe(this.name);
     }
-<<<<<<< HEAD
     /**
      * Unsubscribe from a Pusher channel.
-=======
-    /**
-     * Unsubscribe from a Pusher channel.
->>>>>>> d4afe5f985cfe90344a69042fa193bda75cdf7fe
      */
 
   }, {
@@ -21464,13 +21380,8 @@ var PusherChannel = /*#__PURE__*/function (_Channel) {
     value: function unsubscribe() {
       this.pusher.unsubscribe(this.name);
     }
-<<<<<<< HEAD
     /**
      * Listen for an event on the channel instance.
-=======
-    /**
-     * Listen for an event on the channel instance.
->>>>>>> d4afe5f985cfe90344a69042fa193bda75cdf7fe
      */
 
   }, {
@@ -21479,13 +21390,8 @@ var PusherChannel = /*#__PURE__*/function (_Channel) {
       this.on(this.eventFormatter.format(event), callback);
       return this;
     }
-<<<<<<< HEAD
     /**
      * Listen for all events on the channel instance.
-=======
-    /**
-     * Listen for all events on the channel instance.
->>>>>>> d4afe5f985cfe90344a69042fa193bda75cdf7fe
      */
 
   }, {
@@ -21505,13 +21411,8 @@ var PusherChannel = /*#__PURE__*/function (_Channel) {
       });
       return this;
     }
-<<<<<<< HEAD
     /**
      * Stop listening for an event on the channel instance.
-=======
-    /**
-     * Stop listening for an event on the channel instance.
->>>>>>> d4afe5f985cfe90344a69042fa193bda75cdf7fe
      */
 
   }, {
@@ -21525,13 +21426,8 @@ var PusherChannel = /*#__PURE__*/function (_Channel) {
 
       return this;
     }
-<<<<<<< HEAD
     /**
      * Stop listening for all events on the channel instance.
-=======
-    /**
-     * Stop listening for all events on the channel instance.
->>>>>>> d4afe5f985cfe90344a69042fa193bda75cdf7fe
      */
 
   }, {
@@ -21545,13 +21441,8 @@ var PusherChannel = /*#__PURE__*/function (_Channel) {
 
       return this;
     }
-<<<<<<< HEAD
     /**
      * Register a callback to be called anytime a subscription succeeds.
-=======
-    /**
-     * Register a callback to be called anytime a subscription succeeds.
->>>>>>> d4afe5f985cfe90344a69042fa193bda75cdf7fe
      */
 
   }, {
@@ -21562,13 +21453,8 @@ var PusherChannel = /*#__PURE__*/function (_Channel) {
       });
       return this;
     }
-<<<<<<< HEAD
     /**
      * Register a callback to be called anytime a subscription error occurs.
-=======
-    /**
-     * Register a callback to be called anytime a subscription error occurs.
->>>>>>> d4afe5f985cfe90344a69042fa193bda75cdf7fe
      */
 
   }, {
@@ -21579,13 +21465,8 @@ var PusherChannel = /*#__PURE__*/function (_Channel) {
       });
       return this;
     }
-<<<<<<< HEAD
     /**
      * Bind a channel to an event.
-=======
-    /**
-     * Bind a channel to an event.
->>>>>>> d4afe5f985cfe90344a69042fa193bda75cdf7fe
      */
 
   }, {
@@ -21599,13 +21480,8 @@ var PusherChannel = /*#__PURE__*/function (_Channel) {
   return PusherChannel;
 }(Channel);
 
-<<<<<<< HEAD
 /**
  * This class represents a Pusher private channel.
-=======
-/**
- * This class represents a Pusher private channel.
->>>>>>> d4afe5f985cfe90344a69042fa193bda75cdf7fe
  */
 
 var PusherPrivateChannel = /*#__PURE__*/function (_PusherChannel) {
@@ -21622,13 +21498,8 @@ var PusherPrivateChannel = /*#__PURE__*/function (_PusherChannel) {
   _createClass(PusherPrivateChannel, [{
     key: "whisper",
 
-<<<<<<< HEAD
     /**
      * Trigger client event on the channel.
-=======
-    /**
-     * Trigger client event on the channel.
->>>>>>> d4afe5f985cfe90344a69042fa193bda75cdf7fe
      */
     value: function whisper(eventName, data) {
       this.pusher.channels.channels[this.name].trigger("client-".concat(eventName), data);
@@ -21639,13 +21510,8 @@ var PusherPrivateChannel = /*#__PURE__*/function (_PusherChannel) {
   return PusherPrivateChannel;
 }(PusherChannel);
 
-<<<<<<< HEAD
 /**
  * This class represents a Pusher private channel.
-=======
-/**
- * This class represents a Pusher private channel.
->>>>>>> d4afe5f985cfe90344a69042fa193bda75cdf7fe
  */
 
 var PusherEncryptedPrivateChannel = /*#__PURE__*/function (_PusherChannel) {
@@ -21662,13 +21528,8 @@ var PusherEncryptedPrivateChannel = /*#__PURE__*/function (_PusherChannel) {
   _createClass(PusherEncryptedPrivateChannel, [{
     key: "whisper",
 
-<<<<<<< HEAD
     /**
      * Trigger client event on the channel.
-=======
-    /**
-     * Trigger client event on the channel.
->>>>>>> d4afe5f985cfe90344a69042fa193bda75cdf7fe
      */
     value: function whisper(eventName, data) {
       this.pusher.channels.channels[this.name].trigger("client-".concat(eventName), data);
@@ -21679,13 +21540,8 @@ var PusherEncryptedPrivateChannel = /*#__PURE__*/function (_PusherChannel) {
   return PusherEncryptedPrivateChannel;
 }(PusherChannel);
 
-<<<<<<< HEAD
 /**
  * This class represents a Pusher presence channel.
-=======
-/**
- * This class represents a Pusher presence channel.
->>>>>>> d4afe5f985cfe90344a69042fa193bda75cdf7fe
  */
 
 var PusherPresenceChannel = /*#__PURE__*/function (_PusherChannel) {
@@ -21702,13 +21558,8 @@ var PusherPresenceChannel = /*#__PURE__*/function (_PusherChannel) {
   _createClass(PusherPresenceChannel, [{
     key: "here",
 
-<<<<<<< HEAD
     /**
      * Register a callback to be called anytime the member list changes.
-=======
-    /**
-     * Register a callback to be called anytime the member list changes.
->>>>>>> d4afe5f985cfe90344a69042fa193bda75cdf7fe
      */
     value: function here(callback) {
       this.on('pusher:subscription_succeeded', function (data) {
@@ -21718,13 +21569,8 @@ var PusherPresenceChannel = /*#__PURE__*/function (_PusherChannel) {
       });
       return this;
     }
-<<<<<<< HEAD
     /**
      * Listen for someone joining the channel.
-=======
-    /**
-     * Listen for someone joining the channel.
->>>>>>> d4afe5f985cfe90344a69042fa193bda75cdf7fe
      */
 
   }, {
@@ -21735,13 +21581,8 @@ var PusherPresenceChannel = /*#__PURE__*/function (_PusherChannel) {
       });
       return this;
     }
-<<<<<<< HEAD
     /**
      * Listen for someone leaving the channel.
-=======
-    /**
-     * Listen for someone leaving the channel.
->>>>>>> d4afe5f985cfe90344a69042fa193bda75cdf7fe
      */
 
   }, {
@@ -21752,13 +21593,8 @@ var PusherPresenceChannel = /*#__PURE__*/function (_PusherChannel) {
       });
       return this;
     }
-<<<<<<< HEAD
     /**
      * Trigger client event on the channel.
-=======
-    /**
-     * Trigger client event on the channel.
->>>>>>> d4afe5f985cfe90344a69042fa193bda75cdf7fe
      */
 
   }, {
@@ -21772,13 +21608,8 @@ var PusherPresenceChannel = /*#__PURE__*/function (_PusherChannel) {
   return PusherPresenceChannel;
 }(PusherChannel);
 
-<<<<<<< HEAD
 /**
  * This class represents a Socket.io channel.
-=======
-/**
- * This class represents a Socket.io channel.
->>>>>>> d4afe5f985cfe90344a69042fa193bda75cdf7fe
  */
 
 var SocketIoChannel = /*#__PURE__*/function (_Channel) {
@@ -21786,13 +21617,8 @@ var SocketIoChannel = /*#__PURE__*/function (_Channel) {
 
   var _super = _createSuper(SocketIoChannel);
 
-<<<<<<< HEAD
   /**
    * Create a new class instance.
-=======
-  /**
-   * Create a new class instance.
->>>>>>> d4afe5f985cfe90344a69042fa193bda75cdf7fe
    */
   function SocketIoChannel(socket, name, options) {
     var _this;
@@ -21800,7 +21626,6 @@ var SocketIoChannel = /*#__PURE__*/function (_Channel) {
     _classCallCheck(this, SocketIoChannel);
 
     _this = _super.call(this);
-<<<<<<< HEAD
     /**
      * The event callbacks applied to the socket.
      */
@@ -21808,15 +21633,6 @@ var SocketIoChannel = /*#__PURE__*/function (_Channel) {
     _this.events = {};
     /**
      * User supplied callbacks for events on this channel.
-=======
-    /**
-     * The event callbacks applied to the socket.
-     */
-
-    _this.events = {};
-    /**
-     * User supplied callbacks for events on this channel.
->>>>>>> d4afe5f985cfe90344a69042fa193bda75cdf7fe
      */
 
     _this.listeners = {};
@@ -21829,13 +21645,8 @@ var SocketIoChannel = /*#__PURE__*/function (_Channel) {
 
     return _this;
   }
-<<<<<<< HEAD
   /**
    * Subscribe to a Socket.io channel.
-=======
-  /**
-   * Subscribe to a Socket.io channel.
->>>>>>> d4afe5f985cfe90344a69042fa193bda75cdf7fe
    */
 
 
@@ -21847,13 +21658,8 @@ var SocketIoChannel = /*#__PURE__*/function (_Channel) {
         auth: this.options.auth || {}
       });
     }
-<<<<<<< HEAD
     /**
      * Unsubscribe from channel and ubind event callbacks.
-=======
-    /**
-     * Unsubscribe from channel and ubind event callbacks.
->>>>>>> d4afe5f985cfe90344a69042fa193bda75cdf7fe
      */
 
   }, {
@@ -21865,13 +21671,8 @@ var SocketIoChannel = /*#__PURE__*/function (_Channel) {
         auth: this.options.auth || {}
       });
     }
-<<<<<<< HEAD
     /**
      * Listen for an event on the channel instance.
-=======
-    /**
-     * Listen for an event on the channel instance.
->>>>>>> d4afe5f985cfe90344a69042fa193bda75cdf7fe
      */
 
   }, {
@@ -21880,13 +21681,8 @@ var SocketIoChannel = /*#__PURE__*/function (_Channel) {
       this.on(this.eventFormatter.format(event), callback);
       return this;
     }
-<<<<<<< HEAD
     /**
      * Stop listening for an event on the channel instance.
-=======
-    /**
-     * Stop listening for an event on the channel instance.
->>>>>>> d4afe5f985cfe90344a69042fa193bda75cdf7fe
      */
 
   }, {
@@ -21895,13 +21691,8 @@ var SocketIoChannel = /*#__PURE__*/function (_Channel) {
       this.unbindEvent(this.eventFormatter.format(event), callback);
       return this;
     }
-<<<<<<< HEAD
     /**
      * Register a callback to be called anytime a subscription succeeds.
-=======
-    /**
-     * Register a callback to be called anytime a subscription succeeds.
->>>>>>> d4afe5f985cfe90344a69042fa193bda75cdf7fe
      */
 
   }, {
@@ -21912,13 +21703,8 @@ var SocketIoChannel = /*#__PURE__*/function (_Channel) {
       });
       return this;
     }
-<<<<<<< HEAD
     /**
      * Register a callback to be called anytime an error occurs.
-=======
-    /**
-     * Register a callback to be called anytime an error occurs.
->>>>>>> d4afe5f985cfe90344a69042fa193bda75cdf7fe
      */
 
   }, {
@@ -21926,13 +21712,8 @@ var SocketIoChannel = /*#__PURE__*/function (_Channel) {
     value: function error(callback) {
       return this;
     }
-<<<<<<< HEAD
     /**
      * Bind the channel's socket to an event and store the callback.
-=======
-    /**
-     * Bind the channel's socket to an event and store the callback.
->>>>>>> d4afe5f985cfe90344a69042fa193bda75cdf7fe
      */
 
   }, {
@@ -21957,13 +21738,8 @@ var SocketIoChannel = /*#__PURE__*/function (_Channel) {
       this.listeners[event].push(callback);
       return this;
     }
-<<<<<<< HEAD
     /**
      * Unbind the channel's socket from all stored event callbacks.
-=======
-    /**
-     * Unbind the channel's socket from all stored event callbacks.
->>>>>>> d4afe5f985cfe90344a69042fa193bda75cdf7fe
      */
 
   }, {
@@ -21975,13 +21751,8 @@ var SocketIoChannel = /*#__PURE__*/function (_Channel) {
         _this3.unbindEvent(event);
       });
     }
-<<<<<<< HEAD
     /**
      * Unbind the listeners for the given event.
-=======
-    /**
-     * Unbind the listeners for the given event.
->>>>>>> d4afe5f985cfe90344a69042fa193bda75cdf7fe
      */
 
   }, {
@@ -22009,13 +21780,8 @@ var SocketIoChannel = /*#__PURE__*/function (_Channel) {
   return SocketIoChannel;
 }(Channel);
 
-<<<<<<< HEAD
 /**
  * This class represents a Socket.io private channel.
-=======
-/**
- * This class represents a Socket.io private channel.
->>>>>>> d4afe5f985cfe90344a69042fa193bda75cdf7fe
  */
 
 var SocketIoPrivateChannel = /*#__PURE__*/function (_SocketIoChannel) {
@@ -22032,13 +21798,8 @@ var SocketIoPrivateChannel = /*#__PURE__*/function (_SocketIoChannel) {
   _createClass(SocketIoPrivateChannel, [{
     key: "whisper",
 
-<<<<<<< HEAD
     /**
      * Trigger client event on the channel.
-=======
-    /**
-     * Trigger client event on the channel.
->>>>>>> d4afe5f985cfe90344a69042fa193bda75cdf7fe
      */
     value: function whisper(eventName, data) {
       this.socket.emit('client event', {
@@ -22053,13 +21814,8 @@ var SocketIoPrivateChannel = /*#__PURE__*/function (_SocketIoChannel) {
   return SocketIoPrivateChannel;
 }(SocketIoChannel);
 
-<<<<<<< HEAD
 /**
  * This class represents a Socket.io presence channel.
-=======
-/**
- * This class represents a Socket.io presence channel.
->>>>>>> d4afe5f985cfe90344a69042fa193bda75cdf7fe
  */
 
 var SocketIoPresenceChannel = /*#__PURE__*/function (_SocketIoPrivateChann) {
@@ -22076,13 +21832,8 @@ var SocketIoPresenceChannel = /*#__PURE__*/function (_SocketIoPrivateChann) {
   _createClass(SocketIoPresenceChannel, [{
     key: "here",
 
-<<<<<<< HEAD
     /**
      * Register a callback to be called anytime the member list changes.
-=======
-    /**
-     * Register a callback to be called anytime the member list changes.
->>>>>>> d4afe5f985cfe90344a69042fa193bda75cdf7fe
      */
     value: function here(callback) {
       this.on('presence:subscribed', function (members) {
@@ -22092,13 +21843,8 @@ var SocketIoPresenceChannel = /*#__PURE__*/function (_SocketIoPrivateChann) {
       });
       return this;
     }
-<<<<<<< HEAD
     /**
      * Listen for someone joining the channel.
-=======
-    /**
-     * Listen for someone joining the channel.
->>>>>>> d4afe5f985cfe90344a69042fa193bda75cdf7fe
      */
 
   }, {
@@ -22109,13 +21855,8 @@ var SocketIoPresenceChannel = /*#__PURE__*/function (_SocketIoPrivateChann) {
       });
       return this;
     }
-<<<<<<< HEAD
     /**
      * Listen for someone leaving the channel.
-=======
-    /**
-     * Listen for someone leaving the channel.
->>>>>>> d4afe5f985cfe90344a69042fa193bda75cdf7fe
      */
 
   }, {
@@ -22131,13 +21872,8 @@ var SocketIoPresenceChannel = /*#__PURE__*/function (_SocketIoPrivateChann) {
   return SocketIoPresenceChannel;
 }(SocketIoPrivateChannel);
 
-<<<<<<< HEAD
 /**
  * This class represents a null channel.
-=======
-/**
- * This class represents a null channel.
->>>>>>> d4afe5f985cfe90344a69042fa193bda75cdf7fe
  */
 
 var NullChannel = /*#__PURE__*/function (_Channel) {
@@ -22154,7 +21890,6 @@ var NullChannel = /*#__PURE__*/function (_Channel) {
   _createClass(NullChannel, [{
     key: "subscribe",
 
-<<<<<<< HEAD
     /**
      * Subscribe to a channel.
      */
@@ -22162,28 +21897,14 @@ var NullChannel = /*#__PURE__*/function (_Channel) {
 
     /**
      * Unsubscribe from a channel.
-=======
-    /**
-     * Subscribe to a channel.
-     */
-    value: function subscribe() {} //
-
-    /**
-     * Unsubscribe from a channel.
->>>>>>> d4afe5f985cfe90344a69042fa193bda75cdf7fe
      */
 
   }, {
     key: "unsubscribe",
     value: function unsubscribe() {} //
 
-<<<<<<< HEAD
     /**
      * Listen for an event on the channel instance.
-=======
-    /**
-     * Listen for an event on the channel instance.
->>>>>>> d4afe5f985cfe90344a69042fa193bda75cdf7fe
      */
 
   }, {
@@ -22191,13 +21912,8 @@ var NullChannel = /*#__PURE__*/function (_Channel) {
     value: function listen(event, callback) {
       return this;
     }
-<<<<<<< HEAD
     /**
      * Stop listening for an event on the channel instance.
-=======
-    /**
-     * Stop listening for an event on the channel instance.
->>>>>>> d4afe5f985cfe90344a69042fa193bda75cdf7fe
      */
 
   }, {
@@ -22205,13 +21921,8 @@ var NullChannel = /*#__PURE__*/function (_Channel) {
     value: function stopListening(event, callback) {
       return this;
     }
-<<<<<<< HEAD
     /**
      * Register a callback to be called anytime a subscription succeeds.
-=======
-    /**
-     * Register a callback to be called anytime a subscription succeeds.
->>>>>>> d4afe5f985cfe90344a69042fa193bda75cdf7fe
      */
 
   }, {
@@ -22219,13 +21930,8 @@ var NullChannel = /*#__PURE__*/function (_Channel) {
     value: function subscribed(callback) {
       return this;
     }
-<<<<<<< HEAD
     /**
      * Register a callback to be called anytime an error occurs.
-=======
-    /**
-     * Register a callback to be called anytime an error occurs.
->>>>>>> d4afe5f985cfe90344a69042fa193bda75cdf7fe
      */
 
   }, {
@@ -22233,13 +21939,8 @@ var NullChannel = /*#__PURE__*/function (_Channel) {
     value: function error(callback) {
       return this;
     }
-<<<<<<< HEAD
     /**
      * Bind a channel to an event.
-=======
-    /**
-     * Bind a channel to an event.
->>>>>>> d4afe5f985cfe90344a69042fa193bda75cdf7fe
      */
 
   }, {
@@ -22252,13 +21953,8 @@ var NullChannel = /*#__PURE__*/function (_Channel) {
   return NullChannel;
 }(Channel);
 
-<<<<<<< HEAD
 /**
  * This class represents a null private channel.
-=======
-/**
- * This class represents a null private channel.
->>>>>>> d4afe5f985cfe90344a69042fa193bda75cdf7fe
  */
 
 var NullPrivateChannel = /*#__PURE__*/function (_NullChannel) {
@@ -22275,13 +21971,8 @@ var NullPrivateChannel = /*#__PURE__*/function (_NullChannel) {
   _createClass(NullPrivateChannel, [{
     key: "whisper",
 
-<<<<<<< HEAD
     /**
      * Trigger client event on the channel.
-=======
-    /**
-     * Trigger client event on the channel.
->>>>>>> d4afe5f985cfe90344a69042fa193bda75cdf7fe
      */
     value: function whisper(eventName, data) {
       return this;
@@ -22291,13 +21982,8 @@ var NullPrivateChannel = /*#__PURE__*/function (_NullChannel) {
   return NullPrivateChannel;
 }(NullChannel);
 
-<<<<<<< HEAD
 /**
  * This class represents a null presence channel.
-=======
-/**
- * This class represents a null presence channel.
->>>>>>> d4afe5f985cfe90344a69042fa193bda75cdf7fe
  */
 
 var NullPresenceChannel = /*#__PURE__*/function (_NullChannel) {
@@ -22314,24 +22000,14 @@ var NullPresenceChannel = /*#__PURE__*/function (_NullChannel) {
   _createClass(NullPresenceChannel, [{
     key: "here",
 
-<<<<<<< HEAD
     /**
      * Register a callback to be called anytime the member list changes.
-=======
-    /**
-     * Register a callback to be called anytime the member list changes.
->>>>>>> d4afe5f985cfe90344a69042fa193bda75cdf7fe
      */
     value: function here(callback) {
       return this;
     }
-<<<<<<< HEAD
     /**
      * Listen for someone joining the channel.
-=======
-    /**
-     * Listen for someone joining the channel.
->>>>>>> d4afe5f985cfe90344a69042fa193bda75cdf7fe
      */
 
   }, {
@@ -22339,13 +22015,8 @@ var NullPresenceChannel = /*#__PURE__*/function (_NullChannel) {
     value: function joining(callback) {
       return this;
     }
-<<<<<<< HEAD
     /**
      * Listen for someone leaving the channel.
-=======
-    /**
-     * Listen for someone leaving the channel.
->>>>>>> d4afe5f985cfe90344a69042fa193bda75cdf7fe
      */
 
   }, {
@@ -22353,13 +22024,8 @@ var NullPresenceChannel = /*#__PURE__*/function (_NullChannel) {
     value: function leaving(callback) {
       return this;
     }
-<<<<<<< HEAD
     /**
      * Trigger client event on the channel.
-=======
-    /**
-     * Trigger client event on the channel.
->>>>>>> d4afe5f985cfe90344a69042fa193bda75cdf7fe
      */
 
   }, {
@@ -22372,13 +22038,8 @@ var NullPresenceChannel = /*#__PURE__*/function (_NullChannel) {
   return NullPresenceChannel;
 }(NullChannel);
 
-<<<<<<< HEAD
 /**
  * This class creates a connector to Pusher.
-=======
-/**
- * This class creates a connector to Pusher.
->>>>>>> d4afe5f985cfe90344a69042fa193bda75cdf7fe
  */
 
 var PusherConnector = /*#__PURE__*/function (_Connector) {
@@ -22392,25 +22053,15 @@ var PusherConnector = /*#__PURE__*/function (_Connector) {
     _classCallCheck(this, PusherConnector);
 
     _this = _super.apply(this, arguments);
-<<<<<<< HEAD
     /**
      * All of the subscribed channel names.
-=======
-    /**
-     * All of the subscribed channel names.
->>>>>>> d4afe5f985cfe90344a69042fa193bda75cdf7fe
      */
 
     _this.channels = {};
     return _this;
   }
-<<<<<<< HEAD
   /**
    * Create a fresh Pusher connection.
-=======
-  /**
-   * Create a fresh Pusher connection.
->>>>>>> d4afe5f985cfe90344a69042fa193bda75cdf7fe
    */
 
 
@@ -22423,13 +22074,8 @@ var PusherConnector = /*#__PURE__*/function (_Connector) {
         this.pusher = new Pusher(this.options.key, this.options);
       }
     }
-<<<<<<< HEAD
     /**
      * Listen for an event on a channel instance.
-=======
-    /**
-     * Listen for an event on a channel instance.
->>>>>>> d4afe5f985cfe90344a69042fa193bda75cdf7fe
      */
 
   }, {
@@ -22437,13 +22083,8 @@ var PusherConnector = /*#__PURE__*/function (_Connector) {
     value: function listen(name, event, callback) {
       return this.channel(name).listen(event, callback);
     }
-<<<<<<< HEAD
     /**
      * Get a channel instance by name.
-=======
-    /**
-     * Get a channel instance by name.
->>>>>>> d4afe5f985cfe90344a69042fa193bda75cdf7fe
      */
 
   }, {
@@ -22455,13 +22096,8 @@ var PusherConnector = /*#__PURE__*/function (_Connector) {
 
       return this.channels[name];
     }
-<<<<<<< HEAD
     /**
      * Get a private channel instance by name.
-=======
-    /**
-     * Get a private channel instance by name.
->>>>>>> d4afe5f985cfe90344a69042fa193bda75cdf7fe
      */
 
   }, {
@@ -22473,13 +22109,8 @@ var PusherConnector = /*#__PURE__*/function (_Connector) {
 
       return this.channels['private-' + name];
     }
-<<<<<<< HEAD
     /**
      * Get a private encrypted channel instance by name.
-=======
-    /**
-     * Get a private encrypted channel instance by name.
->>>>>>> d4afe5f985cfe90344a69042fa193bda75cdf7fe
      */
 
   }, {
@@ -22491,13 +22122,8 @@ var PusherConnector = /*#__PURE__*/function (_Connector) {
 
       return this.channels['private-encrypted-' + name];
     }
-<<<<<<< HEAD
     /**
      * Get a presence channel instance by name.
-=======
-    /**
-     * Get a presence channel instance by name.
->>>>>>> d4afe5f985cfe90344a69042fa193bda75cdf7fe
      */
 
   }, {
@@ -22509,13 +22135,8 @@ var PusherConnector = /*#__PURE__*/function (_Connector) {
 
       return this.channels['presence-' + name];
     }
-<<<<<<< HEAD
     /**
      * Leave the given channel, as well as its private and presence variants.
-=======
-    /**
-     * Leave the given channel, as well as its private and presence variants.
->>>>>>> d4afe5f985cfe90344a69042fa193bda75cdf7fe
      */
 
   }, {
@@ -22528,13 +22149,8 @@ var PusherConnector = /*#__PURE__*/function (_Connector) {
         _this2.leaveChannel(name);
       });
     }
-<<<<<<< HEAD
     /**
      * Leave the given channel.
-=======
-    /**
-     * Leave the given channel.
->>>>>>> d4afe5f985cfe90344a69042fa193bda75cdf7fe
      */
 
   }, {
@@ -22545,13 +22161,8 @@ var PusherConnector = /*#__PURE__*/function (_Connector) {
         delete this.channels[name];
       }
     }
-<<<<<<< HEAD
     /**
      * Get the socket ID for the connection.
-=======
-    /**
-     * Get the socket ID for the connection.
->>>>>>> d4afe5f985cfe90344a69042fa193bda75cdf7fe
      */
 
   }, {
@@ -22559,13 +22170,8 @@ var PusherConnector = /*#__PURE__*/function (_Connector) {
     value: function socketId() {
       return this.pusher.connection.socket_id;
     }
-<<<<<<< HEAD
     /**
      * Disconnect Pusher connection.
-=======
-    /**
-     * Disconnect Pusher connection.
->>>>>>> d4afe5f985cfe90344a69042fa193bda75cdf7fe
      */
 
   }, {
@@ -22578,13 +22184,8 @@ var PusherConnector = /*#__PURE__*/function (_Connector) {
   return PusherConnector;
 }(Connector);
 
-<<<<<<< HEAD
 /**
  * This class creates a connnector to a Socket.io server.
-=======
-/**
- * This class creates a connnector to a Socket.io server.
->>>>>>> d4afe5f985cfe90344a69042fa193bda75cdf7fe
  */
 
 var SocketIoConnector = /*#__PURE__*/function (_Connector) {
@@ -22598,25 +22199,15 @@ var SocketIoConnector = /*#__PURE__*/function (_Connector) {
     _classCallCheck(this, SocketIoConnector);
 
     _this = _super.apply(this, arguments);
-<<<<<<< HEAD
     /**
      * All of the subscribed channel names.
-=======
-    /**
-     * All of the subscribed channel names.
->>>>>>> d4afe5f985cfe90344a69042fa193bda75cdf7fe
      */
 
     _this.channels = {};
     return _this;
   }
-<<<<<<< HEAD
   /**
    * Create a fresh Socket.io connection.
-=======
-  /**
-   * Create a fresh Socket.io connection.
->>>>>>> d4afe5f985cfe90344a69042fa193bda75cdf7fe
    */
 
 
@@ -22634,13 +22225,8 @@ var SocketIoConnector = /*#__PURE__*/function (_Connector) {
       });
       return this.socket;
     }
-<<<<<<< HEAD
     /**
      * Get socket.io module from global scope or options.
-=======
-    /**
-     * Get socket.io module from global scope or options.
->>>>>>> d4afe5f985cfe90344a69042fa193bda75cdf7fe
      */
 
   }, {
@@ -22656,13 +22242,8 @@ var SocketIoConnector = /*#__PURE__*/function (_Connector) {
 
       throw new Error('Socket.io client not found. Should be globally available or passed via options.client');
     }
-<<<<<<< HEAD
     /**
      * Listen for an event on a channel instance.
-=======
-    /**
-     * Listen for an event on a channel instance.
->>>>>>> d4afe5f985cfe90344a69042fa193bda75cdf7fe
      */
 
   }, {
@@ -22670,13 +22251,8 @@ var SocketIoConnector = /*#__PURE__*/function (_Connector) {
     value: function listen(name, event, callback) {
       return this.channel(name).listen(event, callback);
     }
-<<<<<<< HEAD
     /**
      * Get a channel instance by name.
-=======
-    /**
-     * Get a channel instance by name.
->>>>>>> d4afe5f985cfe90344a69042fa193bda75cdf7fe
      */
 
   }, {
@@ -22688,13 +22264,8 @@ var SocketIoConnector = /*#__PURE__*/function (_Connector) {
 
       return this.channels[name];
     }
-<<<<<<< HEAD
     /**
      * Get a private channel instance by name.
-=======
-    /**
-     * Get a private channel instance by name.
->>>>>>> d4afe5f985cfe90344a69042fa193bda75cdf7fe
      */
 
   }, {
@@ -22706,13 +22277,8 @@ var SocketIoConnector = /*#__PURE__*/function (_Connector) {
 
       return this.channels['private-' + name];
     }
-<<<<<<< HEAD
     /**
      * Get a presence channel instance by name.
-=======
-    /**
-     * Get a presence channel instance by name.
->>>>>>> d4afe5f985cfe90344a69042fa193bda75cdf7fe
      */
 
   }, {
@@ -22724,13 +22290,8 @@ var SocketIoConnector = /*#__PURE__*/function (_Connector) {
 
       return this.channels['presence-' + name];
     }
-<<<<<<< HEAD
     /**
      * Leave the given channel, as well as its private and presence variants.
-=======
-    /**
-     * Leave the given channel, as well as its private and presence variants.
->>>>>>> d4afe5f985cfe90344a69042fa193bda75cdf7fe
      */
 
   }, {
@@ -22743,13 +22304,8 @@ var SocketIoConnector = /*#__PURE__*/function (_Connector) {
         _this3.leaveChannel(name);
       });
     }
-<<<<<<< HEAD
     /**
      * Leave the given channel.
-=======
-    /**
-     * Leave the given channel.
->>>>>>> d4afe5f985cfe90344a69042fa193bda75cdf7fe
      */
 
   }, {
@@ -22760,13 +22316,8 @@ var SocketIoConnector = /*#__PURE__*/function (_Connector) {
         delete this.channels[name];
       }
     }
-<<<<<<< HEAD
     /**
      * Get the socket ID for the connection.
-=======
-    /**
-     * Get the socket ID for the connection.
->>>>>>> d4afe5f985cfe90344a69042fa193bda75cdf7fe
      */
 
   }, {
@@ -22774,13 +22325,8 @@ var SocketIoConnector = /*#__PURE__*/function (_Connector) {
     value: function socketId() {
       return this.socket.id;
     }
-<<<<<<< HEAD
     /**
      * Disconnect Socketio connection.
-=======
-    /**
-     * Disconnect Socketio connection.
->>>>>>> d4afe5f985cfe90344a69042fa193bda75cdf7fe
      */
 
   }, {
@@ -22793,13 +22339,8 @@ var SocketIoConnector = /*#__PURE__*/function (_Connector) {
   return SocketIoConnector;
 }(Connector);
 
-<<<<<<< HEAD
 /**
  * This class creates a null connector.
-=======
-/**
- * This class creates a null connector.
->>>>>>> d4afe5f985cfe90344a69042fa193bda75cdf7fe
  */
 
 var NullConnector = /*#__PURE__*/function (_Connector) {
@@ -22813,25 +22354,15 @@ var NullConnector = /*#__PURE__*/function (_Connector) {
     _classCallCheck(this, NullConnector);
 
     _this = _super.apply(this, arguments);
-<<<<<<< HEAD
     /**
      * All of the subscribed channel names.
-=======
-    /**
-     * All of the subscribed channel names.
->>>>>>> d4afe5f985cfe90344a69042fa193bda75cdf7fe
      */
 
     _this.channels = {};
     return _this;
   }
-<<<<<<< HEAD
   /**
    * Create a fresh connection.
-=======
-  /**
-   * Create a fresh connection.
->>>>>>> d4afe5f985cfe90344a69042fa193bda75cdf7fe
    */
 
 
@@ -22839,13 +22370,8 @@ var NullConnector = /*#__PURE__*/function (_Connector) {
     key: "connect",
     value: function connect() {} //
 
-<<<<<<< HEAD
     /**
      * Listen for an event on a channel instance.
-=======
-    /**
-     * Listen for an event on a channel instance.
->>>>>>> d4afe5f985cfe90344a69042fa193bda75cdf7fe
      */
 
   }, {
@@ -22853,13 +22379,8 @@ var NullConnector = /*#__PURE__*/function (_Connector) {
     value: function listen(name, event, callback) {
       return new NullChannel();
     }
-<<<<<<< HEAD
     /**
      * Get a channel instance by name.
-=======
-    /**
-     * Get a channel instance by name.
->>>>>>> d4afe5f985cfe90344a69042fa193bda75cdf7fe
      */
 
   }, {
@@ -22867,13 +22388,8 @@ var NullConnector = /*#__PURE__*/function (_Connector) {
     value: function channel(name) {
       return new NullChannel();
     }
-<<<<<<< HEAD
     /**
      * Get a private channel instance by name.
-=======
-    /**
-     * Get a private channel instance by name.
->>>>>>> d4afe5f985cfe90344a69042fa193bda75cdf7fe
      */
 
   }, {
@@ -22881,13 +22397,8 @@ var NullConnector = /*#__PURE__*/function (_Connector) {
     value: function privateChannel(name) {
       return new NullPrivateChannel();
     }
-<<<<<<< HEAD
     /**
      * Get a presence channel instance by name.
-=======
-    /**
-     * Get a presence channel instance by name.
->>>>>>> d4afe5f985cfe90344a69042fa193bda75cdf7fe
      */
 
   }, {
@@ -22895,39 +22406,24 @@ var NullConnector = /*#__PURE__*/function (_Connector) {
     value: function presenceChannel(name) {
       return new NullPresenceChannel();
     }
-<<<<<<< HEAD
     /**
      * Leave the given channel, as well as its private and presence variants.
-=======
-    /**
-     * Leave the given channel, as well as its private and presence variants.
->>>>>>> d4afe5f985cfe90344a69042fa193bda75cdf7fe
      */
 
   }, {
     key: "leave",
     value: function leave(name) {} //
 
-<<<<<<< HEAD
     /**
      * Leave the given channel.
-=======
-    /**
-     * Leave the given channel.
->>>>>>> d4afe5f985cfe90344a69042fa193bda75cdf7fe
      */
 
   }, {
     key: "leaveChannel",
     value: function leaveChannel(name) {} //
 
-<<<<<<< HEAD
     /**
      * Get the socket ID for the connection.
-=======
-    /**
-     * Get the socket ID for the connection.
->>>>>>> d4afe5f985cfe90344a69042fa193bda75cdf7fe
      */
 
   }, {
@@ -22935,13 +22431,8 @@ var NullConnector = /*#__PURE__*/function (_Connector) {
     value: function socketId() {
       return 'fake-socket-id';
     }
-<<<<<<< HEAD
     /**
      * Disconnect the connection.
-=======
-    /**
-     * Disconnect the connection.
->>>>>>> d4afe5f985cfe90344a69042fa193bda75cdf7fe
      */
 
   }, {
@@ -22953,7 +22444,6 @@ var NullConnector = /*#__PURE__*/function (_Connector) {
   return NullConnector;
 }(Connector);
 
-<<<<<<< HEAD
 /**
  * This class is the primary API for interacting with broadcasting.
  */
@@ -22961,15 +22451,6 @@ var NullConnector = /*#__PURE__*/function (_Connector) {
 var Echo = /*#__PURE__*/function () {
   /**
    * Create a new class instance.
-=======
-/**
- * This class is the primary API for interacting with broadcasting.
- */
-
-var Echo = /*#__PURE__*/function () {
-  /**
-   * Create a new class instance.
->>>>>>> d4afe5f985cfe90344a69042fa193bda75cdf7fe
    */
   function Echo(options) {
     _classCallCheck(this, Echo);
@@ -22981,13 +22462,8 @@ var Echo = /*#__PURE__*/function () {
       this.registerInterceptors();
     }
   }
-<<<<<<< HEAD
   /**
    * Get a channel instance by name.
-=======
-  /**
-   * Get a channel instance by name.
->>>>>>> d4afe5f985cfe90344a69042fa193bda75cdf7fe
    */
 
 
@@ -22996,13 +22472,8 @@ var Echo = /*#__PURE__*/function () {
     value: function channel(_channel) {
       return this.connector.channel(_channel);
     }
-<<<<<<< HEAD
     /**
      * Create a new connection.
-=======
-    /**
-     * Create a new connection.
->>>>>>> d4afe5f985cfe90344a69042fa193bda75cdf7fe
      */
 
   }, {
@@ -23018,13 +22489,8 @@ var Echo = /*#__PURE__*/function () {
         this.connector = new this.options.broadcaster(this.options);
       }
     }
-<<<<<<< HEAD
     /**
      * Disconnect from the Echo server.
-=======
-    /**
-     * Disconnect from the Echo server.
->>>>>>> d4afe5f985cfe90344a69042fa193bda75cdf7fe
      */
 
   }, {
@@ -23032,13 +22498,8 @@ var Echo = /*#__PURE__*/function () {
     value: function disconnect() {
       this.connector.disconnect();
     }
-<<<<<<< HEAD
     /**
      * Get a presence channel instance by name.
-=======
-    /**
-     * Get a presence channel instance by name.
->>>>>>> d4afe5f985cfe90344a69042fa193bda75cdf7fe
      */
 
   }, {
@@ -23046,13 +22507,8 @@ var Echo = /*#__PURE__*/function () {
     value: function join(channel) {
       return this.connector.presenceChannel(channel);
     }
-<<<<<<< HEAD
     /**
      * Leave the given channel, as well as its private and presence variants.
-=======
-    /**
-     * Leave the given channel, as well as its private and presence variants.
->>>>>>> d4afe5f985cfe90344a69042fa193bda75cdf7fe
      */
 
   }, {
@@ -23060,13 +22516,8 @@ var Echo = /*#__PURE__*/function () {
     value: function leave(channel) {
       this.connector.leave(channel);
     }
-<<<<<<< HEAD
     /**
      * Leave the given channel.
-=======
-    /**
-     * Leave the given channel.
->>>>>>> d4afe5f985cfe90344a69042fa193bda75cdf7fe
      */
 
   }, {
@@ -23074,13 +22525,8 @@ var Echo = /*#__PURE__*/function () {
     value: function leaveChannel(channel) {
       this.connector.leaveChannel(channel);
     }
-<<<<<<< HEAD
     /**
      * Listen for an event on a channel instance.
-=======
-    /**
-     * Listen for an event on a channel instance.
->>>>>>> d4afe5f985cfe90344a69042fa193bda75cdf7fe
      */
 
   }, {
@@ -23088,13 +22534,8 @@ var Echo = /*#__PURE__*/function () {
     value: function listen(channel, event, callback) {
       return this.connector.listen(channel, event, callback);
     }
-<<<<<<< HEAD
     /**
      * Get a private channel instance by name.
-=======
-    /**
-     * Get a private channel instance by name.
->>>>>>> d4afe5f985cfe90344a69042fa193bda75cdf7fe
      */
 
   }, {
@@ -23102,13 +22543,8 @@ var Echo = /*#__PURE__*/function () {
     value: function _private(channel) {
       return this.connector.privateChannel(channel);
     }
-<<<<<<< HEAD
     /**
      * Get a private encrypted channel instance by name.
-=======
-    /**
-     * Get a private encrypted channel instance by name.
->>>>>>> d4afe5f985cfe90344a69042fa193bda75cdf7fe
      */
 
   }, {
@@ -23116,13 +22552,8 @@ var Echo = /*#__PURE__*/function () {
     value: function encryptedPrivate(channel) {
       return this.connector.encryptedPrivateChannel(channel);
     }
-<<<<<<< HEAD
     /**
      * Get the Socket ID for the connection.
-=======
-    /**
-     * Get the Socket ID for the connection.
->>>>>>> d4afe5f985cfe90344a69042fa193bda75cdf7fe
      */
 
   }, {
@@ -23130,15 +22561,9 @@ var Echo = /*#__PURE__*/function () {
     value: function socketId() {
       return this.connector.socketId();
     }
-<<<<<<< HEAD
     /**
      * Register 3rd party request interceptiors. These are used to automatically
      * send a connections socket id to a Laravel app with a X-Socket-Id header.
-=======
-    /**
-     * Register 3rd party request interceptiors. These are used to automatically
-     * send a connections socket id to a Laravel app with a X-Socket-Id header.
->>>>>>> d4afe5f985cfe90344a69042fa193bda75cdf7fe
      */
 
   }, {
@@ -23156,13 +22581,8 @@ var Echo = /*#__PURE__*/function () {
         this.registerjQueryAjaxSetup();
       }
     }
-<<<<<<< HEAD
     /**
      * Register a Vue HTTP interceptor to add the X-Socket-ID header.
-=======
-    /**
-     * Register a Vue HTTP interceptor to add the X-Socket-ID header.
->>>>>>> d4afe5f985cfe90344a69042fa193bda75cdf7fe
      */
 
   }, {
@@ -23178,13 +22598,8 @@ var Echo = /*#__PURE__*/function () {
         next();
       });
     }
-<<<<<<< HEAD
     /**
      * Register an Axios HTTP interceptor to add the X-Socket-ID header.
-=======
-    /**
-     * Register an Axios HTTP interceptor to add the X-Socket-ID header.
->>>>>>> d4afe5f985cfe90344a69042fa193bda75cdf7fe
      */
 
   }, {
@@ -23200,13 +22615,8 @@ var Echo = /*#__PURE__*/function () {
         return config;
       });
     }
-<<<<<<< HEAD
     /**
      * Register jQuery AjaxPrefilter to add the X-Socket-ID header.
-=======
-    /**
-     * Register jQuery AjaxPrefilter to add the X-Socket-ID header.
->>>>>>> d4afe5f985cfe90344a69042fa193bda75cdf7fe
      */
 
   }, {
