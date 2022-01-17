@@ -1,60 +1,101 @@
-<style>
-    .icon-shenqing:before {
-        content: "\e61a";
-    }
-	.fileuploader {
-		max-width: 560px;
-	}
-	{{--.fileuploader-input-button{--}}
-	{{--	width: 35px !important;--}}
-	{{--	height: 35px !important;--}}
-	{{--	background: url({{ asset('posts/images/tutj.png')}}) #fff !important;--}}
-	{{--	background-size: 35px !important;--}}
-	{{--	outline: none !important;--}}
-	{{--	border-radius: 100px !important;--}}
-	{{--	float: left !important;--}}
-	{{--	margin-top: 2px !important;--}}
-	{{--	color: #fd5678 !important;--}}
-	{{--	box-shadow: 0 0 15px #eaeaea !important;--}}
-	{{--	padding: 0px !important;--}}
-	{{--}--}}
-	{{--.fileuploader-input-button:hover{--}}
-	{{--	background:url({{ asset('posts/images/tutj_h.png')}}) #fff !important;--}}
-	{{--	background-size:25px; !important;--}}
-	{{--	color: #fff; !important;--}}
-	{{--	outline: none !important;--}}
-	{{--	box-shadow:2px 2px 6px 0 rgba(255,255,255,.8),-4px -4px 6px 0 rgba(254,121,139,.5),inset -4px -4px 6px 0 rgba(254,121,139,.5),inset 4px 4px 6px 0 rgba(254,121,139,.5) !important;--}}
-	{{--	/*box-shadow: 0 0 15px #fd5678 !important;*/--}}
-	{{--	background-position: center !important;--}}
-	{{--	/*background-position:left;*/--}}
-	{{--	/*box-shadow:0 8px 25px rgba(0,0,0,.15);*/--}}
-	{{--	transform: unset !important;--}}
-	{{--}--}}
-	{{--.fileuploader-input-button span{--}}
-	{{--	display: none;--}}
-	{{--}--}}
-
-	.tia_icon{
-		position: relative;
-		left: -15px;
-		top: -30px;
-	}
-	.fs_icon{
-		position: relative;
-		top: -15px;
-	}
-</style>
 @extends('new.layouts.website')
+@section('style')
+	<link rel="stylesheet" href="/posts/css/style.css">
+	<link rel="stylesheet" href="/posts/css/font/font_n/iconfont.css">
+	<link rel="stylesheet" href="/posts/css/font/iconfont.css">
+	<link rel="stylesheet" href="/posts/css/taolunqu/iconfont.css">
+	<link href="https://fonts.googleapis.com/css?family=Roboto:400|700" rel="stylesheet">
+	<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/4.7.0/css/font-awesome.min.css">
+	<link
+			rel="stylesheet"
+			href="https://cdn.jsdelivr.net/npm/@fancyapps/ui/dist/fancybox.css"
+	/>
 
-		<link rel="stylesheet" href="/posts/css/style.css">
-		<link rel="stylesheet" href="/posts/css/font/font_n/iconfont.css">
-		<link rel="stylesheet" href="/posts/css/font/iconfont.css">
-		<link rel="stylesheet" href="/posts/css/taolunqu/iconfont.css">
-		<link href="https://fonts.googleapis.com/css?family=Roboto:400|700" rel="stylesheet">
-		<link href="/new/fileuploader/jquery.fileuploader.min.css" media="all" rel="stylesheet">
-		<link href="/new/fileuploader/jquery.fileuploader-theme-onebutton.css" media="all" rel="stylesheet">
-{{--		<script src="https://ajax.googleapis.com/ajax/libs/jquery/3.6.0/jquery.min.js"></script>--}}
-{{--<script src="https://code.jquery.com/jquery-3.2.1.min.js" crossorigin="anonymous"></script>--}}
+	<style>
+		.icon-shenqing:before {
+			content: "\e61a";
+		}
+
+		.fileuploader {
+			max-width: 643px;
+			margin: 16px 0 0 !important;
+		}
+
+		/*.tia_icon{*/
+		/*	position: relative;*/
+		/*	left: -16px;*/
+		/*	top: -30px;*/
+		/*}*/
+
+		.fs_icon{
+			border: unset;
+		}
+
+		.tao_qu_1{
+			display: block;
+			min-height: 58px;
+
+		}
+
+		/*.fileuploader-thumbnails-input{*/
+		/*	display: none;*/
+		/*}*/
+		/*.fileuploader-items{*/
+		/*	margin-top: 16px;*/
+		/*}*/
+		/*.fileuploader-items-list{*/
+		/*	margin: -16px 0 0 32px !important;*/
+		/*}*/
+
+		/*.fileuploader-item-inner{*/
+		/*	left: -32px !important;*/
+		/*}*/
+		/*@media (max-width: 480px){*/
+		/*	.fileuploader-item {*/
+		/*		width: calc(44% - 16px) !important;*/
+		/*	}*/
+		/*}*/
+
+		/*input[type="file"] {*/
+			/*display: none;*/
+		/*}*/
+
+		.removeImg{
+			border: unset;
+			position: relative;
+			float: right;
+			left: 5px;
+			background: unset;
+		}
+
+		.tempImg{
+			display: inline-block;
+
+		}
+		.tempImg img{
+			max-width: 100px;
+		}
+		.msgPics{
+			text-align: center;
+			position: relative;
+		}
+		.chatShowAvatarLeft{
+			width: 40px;
+			height: 40px;
+			float: left;
+			object-fit: contain;
+			border-radius: 100px;
+		}
+		.chatShowAvatarRight{
+			width: 40px;
+			height: 40px;
+			float: right;
+			object-fit: contain;
+			border-radius: 100px;
+		}
+	</style>
+@endsection
+
 		@section('app-content')
 		<div class="container matop70">
 			<div class="row">
@@ -64,16 +105,16 @@
 				<div class="col-sm-12 col-xs-12 col-md-10">
 
 
-					<div class="shou" style="text-align: left; position: relative;">
-						<a href="{{url()->previous()}}" class="toug_back btn_img" style=" position: absolute; left: 0;">
+					<div class="shou" style="text-align: @if($user->id != $checkStatus->apply_user_id) center @else left @endif ; position: relative;">
+						<a href="/dashboard/forum" class="toug_back btn_img" style=" position: absolute; left: 0;">
 							<div class="btn_back"></div>
 						</a>
-						<span style="margin: 0 auto; position: relative;line-height: 44px;padding-bottom: 3px;left: 40px; font-size: 18px;">{{$forumInfo->title}}</span>
-						@if($user->id ==$checkStatus->apply_user_id && $checkStatus->status==0)
+						<span style="margin: 0 auto; position: relative;line-height: 44px;padding-bottom: 3px;@if($user->id == $checkStatus->apply_user_id) left: 40px; @endif font-size: 18px;">{{$forumInfo->title}}</span>
+						@if($user->id == $checkStatus->apply_user_id /*&& $checkStatus->status==0*/)
 						<a class="toug_back btn_img01 userlogo xzgn">
 							<div class="btn_back">功能選單<img src="/posts/images/jiant_a.png"></div>
 						</a>
-						<div class="fabiao showslide">
+						<div class="fabiao showslide" style="text-align: center;">
 							<a onclick="checkUserVip();">我要發表</a>
 							<a href="/dashboard/forum_manage">會員管理</a>
 						</div>
@@ -101,91 +142,56 @@
 						//切换,第一个盒子和菜单默认显示
 
 					</script>
-					<!--  -->
-{{--					<livewire:posts-manage-chat :checkStatus="$checkStatus"/>--}}
 
 					<div class="taol_lt">
 						<!-- 聊天室 -->
 						@if($checkStatus->status==0 && $user->id ==$checkStatus->apply_user_id)
-						<div class="sqnc">
-							<span class="iconfont icon-shenqing"></span>{{$uidInfo->name}}
-						</div>
+							<div class="sqnc">
+								<span class="iconfont icon-shenqing"></span><a href="/dashboard/viewuser/{{$uidInfo->id}}" style="color: white;">{{$uidInfo->name}}</a>
+							</div>
 						@endif
+						@php
+							$forum_id = $forumInfo->id;
+
+                           if($user->id ==$checkStatus->apply_user_id){
+                               $to_id = $checkStatus->user_id;
+                           }elseif($user->id != $checkStatus->apply_user_id){
+                               $to_id = $checkStatus->apply_user_id;
+                           }
+
+						@endphp
 
 						<div class="taol_tab01" >
-							<div class="tao_qu" style="padding-bottom: 80px;">
-								Coming Soon...
-{{--								<div class="tao_time">08-30(二）</div>--}}
+							<div class="tao_qu" style="overflow: unset;">
+								<div style="overflow: auto; position: relative; max-height: 550px;">
+									<livewire:forum-manage-chat-show :forum_id="$forum_id" :to_id="$to_id" :user="$user"/>
+								</div>
 
-{{--								<div class="show maspp0">--}}
-{{--									<div class="msg msg1">--}}
-{{--										<img src="/posts/images/icon_010.png">--}}
-{{--										<div class="msg_p1">--}}
-{{--											<i class="msg_input_nn_2"></i>阿龍的聊天室阿龍的聊天室--}}
-{{--										</div>--}}
-{{--									</div>--}}
-{{--								</div>--}}
-{{--								<div class="send maspp0">--}}
-{{--									<div class="msg">--}}
-{{--										<img src="/posts/images/icon_010.png">--}}
-{{--										<div class="msg_p"><i class="msg_input_nn"></i>版主好！</div>--}}
-{{--									</div>--}}
-{{--								</div>--}}
-{{--								<div class="send maspp0">--}}
-{{--									<div class="msg">--}}
-{{--										<img src="/posts/images/icon_010.png">--}}
-{{--										<div class="msg_p"><i class="msg_input_nn"></i>疫情終於快走了～</div>--}}
-{{--									</div>--}}
-{{--								</div>--}}
-{{--								<div class="show maspp0">--}}
-{{--									<div class="msg msg1">--}}
-{{--										<img src="/posts/images/icon_010.png">--}}
-{{--										<div class="msg_p1">--}}
-{{--											<i class="msg_input_nn_2"></i>疫情期間大辛苦了--}}
-{{--										</div>--}}
-{{--									</div>--}}
-{{--								</div>--}}
-{{--								<div class="tao_time matop10">08-30(二）</div>--}}
-{{--								<div class="show maspp0">--}}
-{{--									<div class="msg msg1">--}}
-{{--										<img src="/posts/images/icon_010.png">--}}
-{{--										<div class="msg_p1">--}}
-{{--											<i class="msg_input_nn_2"></i>疫情期間大辛苦了--}}
-{{--										</div>--}}
-{{--									</div>--}}
-{{--								</div>--}}
-
-
-
-{{--								<div class="shenqing">--}}
-{{--									@if($checkStatus->status==0 && $user->id ==$checkStatus->apply_user_id)--}}
-{{--									<div style=" margin: 0 auto; display: table">--}}
-{{--										<a onclick="forum_manage_toggle({{$checkStatus->user_id}}, 1)" class="shenq_button_a">通過</a>--}}
-{{--										<a onclick="forum_manage_toggle({{$checkStatus->user_id}}, 2)" class="shenq_button_a">不通過</a>--}}
-{{--									</div>--}}
-{{--									@elseif($checkStatus->status==0 && $user->id != $checkStatus->apply_user_id)--}}
-{{--									<a onclick="forum_manage_toggle({{$checkStatus->apply_user_id}}, 3)" class="shenq_button">取消申請</a>--}}
-{{--									@endif--}}
-{{--								</div>--}}
+								<style>
+									.dc-button1{overflow: hidden;width:120px; height: 40px;display: block; margin: 0 auto; /*float: left*/;
+										border-radius:100px;background:linear-gradient(to top, #ffe3e6, #fff); cursor: pointer; font-size:15px;;box-shadow: 0 0 10px rgba(0, 0, 0, 0.05);color: #fe92a8;
+										display: flex;align-items: center;justify-content: center;border: #ffe2e7 1px solid;box-shadow: 0 5px 5px #ffc9d3;}
+									.dc-anniudh.hover{box-shadow:4px 4px 6px 0 rgba(255,255,255,.5),-4px -4px 6px 0 rgba(116,125,136,.5),inset -4px -4px 6px 0 rgba(255,255,255,.2),inset 4px 4px 6px 0 rgba(0,0,0,.4)!important;
+										color:#fe92a8; background: #ffe3e6;}
+									.dc_l{ margin-left: 5px; margin-right: 5px;}
+								</style>
+								<script type="text/javascript" src="/posts/js/self.js"></script>
+								<div class="shenqing">
+									@if($user->id ==$checkStatus->apply_user_id && $checkStatus->status==0)
+										<div style=" margin: 0 auto; display: table">
+											<a onclick="forum_manage_toggle({{$checkStatus->user_id}}, 1)" class="dc-button1 dc-anniudh dc-tcbox1-open1 dc_l" style="float: left;">通過</a>
+											<a onclick="forum_manage_toggle({{$checkStatus->user_id}}, 2)" class="dc-button1 dc-anniudh dc-tcbox1-open1 dc_l">不通過</a>
+										</div>
+									@elseif($user->id != $checkStatus->apply_user_id && $checkStatus->status==0)
+										<a onclick="forum_manage_toggle({{$checkStatus->apply_user_id}}, 4)" class="dc-button1 dc-anniudh dc-tcbox1-open1">取消申請</a>
+									@endif
+								</div>
 
 							</div>
 
 
 							<div class="tao_qu_1">
-								<form id="" action="" method="post" enctype="multipart/form-data">
-{{--								<a href="javascript:void(0);" class="tia_icon"></a>--}}
-
-									<div class="ta_input">
-										<div class="ta_input_a">
-											{{--<a href="javascript:void(0);" class="ta_yyah" disabled="disabled">--}}
-												{{--<img src="/posts/images/yyqh.png">--}}
-											{{--</a>--}}
-											<input placeholder="请输入内容" class="ta_input_po" disabled="disabled">
-										</div>
-									</div>
-									<a  href="javascript:void(0);" class="fs_icon"></a>
-									<input type="file" id="files" name="files" data-fileuploader-files="" disabled="disabled">
-								</form>
+								<livewire:forum-manage-chat-submit :forum_id="$forum_id" :to_id="$to_id" />
 							</div>
 						</div>
 						<!-- 结束 -->
@@ -197,251 +203,75 @@
 				</div>
 			</div>
 		</div>
-		@stop
-<script>
-	$.noConflict();
-	// Code that uses other library's $ can follow here.
-</script>
-<script src="https://code.jquery.com/jquery-3.2.1.min.js" crossorigin="anonymous"></script>
-<script src="/new/fileuploader/jquery.fileuploader.min.js" type="text/javascript"></script>
-{{--<link href="{{ asset('css/jquery.fileuploader.min.css') }}" media="all" rel="stylesheet">--}}
-{{--<link href="{{ asset('new/css/fileupload.css') }}" media="all" rel="stylesheet">--}}
-{{--<link href="{{ asset('css/font/font-fileuploader.css') }}" media="all" rel="stylesheet">--}}
+		@endsection
 
-{{--<script src="https://code.jquery.com/jquery-3.2.1.min.js" crossorigin="anonymous"></script>--}}
-{{--<script src="{{ asset('js/jquery.fileuploader.js') }}" type="text/javascript"></script>--}}
+@section('javascript')
 
-<script>
-	// $('input[name="files"]').fileuploader({
-	// 	theme: 'onebutton'
-	// });
-	// $('input[name="files"]').fileuploader({
-	// 	extensions: null,
-	// 	changeInput: ' ',
-	// 	theme: 'One-button',
-	// 	enableApi: true,
-	// 	addMore: true,
-	// 	thumbnails: {
-	// 		box: '<div class="fileuploader-items">' +
-	// 				'<ul class="fileuploader-items-list">' +
-	// 				'<li class="fileuploader-thumbnails-input"><div class="fileuploader-thumbnails-input-inner"><i>上傳文件</i></div></li>' +
-	// 				'</ul>' +
-	// 				'</div>',
-	// 		item: '<li class="fileuploader-item">' +
-	// 				'<div class="fileuploader-item-inner">' +
-	// 				'<div class="type-holder">${extension}</div>' +
-	// 				'<div class="actions-holder">' +
-	// 				'<button type="button" class="fileuploader-action fileuploader-action-remove" title="${captions.remove}"><i class="fileuploader-icon-remove"></i></button>' +
-	// 				'</div>' +
-	// 				'<div class="thumbnail-holder">' +
-	// 				'${image}' +
-	// 				'<span class="fileuploader-action-popup"></span>' +
-	// 				'</div>' +
-	// 				'<div class="content-holder"><h5>${name}</h5><span>${size2}</span></div>' +
-	// 				'<div class="progress-holder">${progressBar}</div>' +
-	// 				'</div>' +
-	// 				'</li>',
-	// 		item2: '<li class="fileuploader-item">' +
-	// 				'<div class="fileuploader-item-inner">' +
-	// 				'<div class="type-holder">${extension}</div>' +
-	// 				'<div class="actions-holder">' +
-	// 				'<a href="${file}" class="fileuploader-action fileuploader-action-download" title="${captions.download}" download><i class="fileuploader-icon-download"></i></a>' +
-	// 				'<button type="button" class="fileuploader-action fileuploader-action-remove" title="${captions.remove}"><i class="fileuploader-icon-remove"></i></button>' +
-	// 				'</div>' +
-	// 				'<div class="thumbnail-holder">' +
-	// 				'${image}' +
-	// 				'<span class="fileuploader-action-popup"></span>' +
-	// 				'</div>' +
-	// 				'<div class="content-holder"><h5 title="${name}">${name}</h5><span>${size2}</span></div>' +
-	// 				'<div class="progress-holder">${progressBar}</div>' +
-	// 				'</div>' +
-	// 				'</li>',
-	// 		startImageRenderer: true,
-	// 		canvasImage: false,
-	// 		_selectors: {
-	// 			list: '.fileuploader-items-list',
-	// 			item: '.fileuploader-item',
-	// 			start: '.fileuploader-action-start',
-	// 			retry: '.fileuploader-action-retry',
-	// 			remove: '.fileuploader-action-remove'
-	// 		},
-	// 		onItemShow: function(item, listEl, parentEl, newInputEl, inputEl) {
-	// 			var plusInput = listEl.find('.fileuploader-thumbnails-input'),
-	// 					api = $.fileuploader.getInstance(inputEl.get(0));
-	//
-	// 			plusInput.insertAfter(item.html)[api.getOptions().limit && api.getChoosedFiles().length >= api.getOptions().limit ? 'hide' : 'show']();
-	//
-	// 			if(item.format == 'image') {
-	// 				item.html.find('.fileuploader-item-icon').hide();
-	// 			}
-	// 		},
-	// 		onItemRemove: function(html, listEl, parentEl, newInputEl, inputEl) {
-	// 			var plusInput = listEl.find('.fileuploader-thumbnails-input'),
-	// 					api = $.fileuploader.getInstance(inputEl.get(0));
-	//
-	// 			html.children().animate({'opacity': 0}, 200, function() {
-	// 				html.remove();
-	//
-	// 				if (api.getOptions().limit && api.getChoosedFiles().length - 1 < api.getOptions().limit)
-	// 					plusInput.show();
-	// 			});
-	// 		}
-	// 	},
-	// 	dragDrop: {
-	// 		container: '.fileuploader-thumbnails-input'
-	// 	},
-	// 	afterRender: function(listEl, parentEl, newInputEl, inputEl) {
-	// 		var plusInput = listEl.find('.fileuploader-thumbnails-input'),
-	// 				api = $.fileuploader.getInstance(inputEl.get(0));
-	//
-	// 		plusInput.on('click', function() {
-	// 			api.open();
-	// 		});
-	//
-	// 		api.getOptions().dragDrop.container = plusInput;
-	// 	},
-	//
-	// });
-
-	$(document).ready(function() {
-
-		// $('input[name="files"]').fileuploader({
-		// 	theme: 'onebutton'
-		// });
-
-		@if(Session::has('message'))
-		c5('{{Session::get('message')}}');
-		<?php session()->forget('message');?>
-		@endif
-	});
-
-	function forum_manage_toggle(auid, status) {
-		var msg, apply_user_id, user_id;
-		var fid = '{{$forumInfo->id}}';
-		if(status==1){
-			user_id = auid;
-			apply_user_id = '{{$user->id}}';
-			msg='您確定要通過該會員加入嗎?'
-		}else if(status==2){
-			user_id = auid;
-			apply_user_id = '{{$user->id}}';
-			msg='您確定要拒絕該會員加入嗎?'
-		}else if(status==3){
-			user_id = '{{$user->id}}';
-			apply_user_id = auid;
-			msg='您確定要取消申請嗎?'
-		}else{
-			return false;
-		}
-		c4(msg);
-		$(".n_left").on('click', function() {
-			$.post('{{ route('forum_manage_toggle') }}', {
-				uid: user_id,
-				auid: apply_user_id,
-				fid: fid,
-				status: status,
-				_token: '{{ csrf_token() }}'
-			}, function (data) {
-				$("#tab04").hide();
-				var obj = JSON.parse(data);
-				c5(obj.message);
-				$(".n_bllbut").on('click', function() {
-					location.reload();
+	<script>
+		function forum_manage_toggle(auid, status) {
+			var msg, apply_user_id, user_id;
+			var fid = '{{$forumInfo->id}}';
+			if(status==1){
+				user_id = auid;
+				apply_user_id = '{{$user->id}}';
+				msg='您確定要通過該會員加入嗎?';
+			}else if(status==2){
+				user_id = auid;
+				apply_user_id = '{{$user->id}}';
+				msg='您確定要拒絕該會員加入嗎?';
+			}else if(status==4){
+				user_id = '{{$user->id}}';
+				apply_user_id = auid;
+				msg='您確定要取消申請嗎?';
+			}else{
+				return false;
+			}
+			c4(msg);
+			$('.shenq_button:hover').css("box-shadow","0 5px 5px #ffc9d3 !important");
+			$('.shenq_button_a:hover').css("box-shadow","0 5px 5px #ffc9d3 !important");
+			$(".n_left").on('click', function() {
+				$.post('{{ route('forum_manage_toggle') }}', {
+					uid: user_id,
+					auid: apply_user_id,
+					fid: fid,
+					status: status,
+					_token: '{{ csrf_token() }}'
+				}, function (data) {
+					$("#tab04").hide();
+					var obj = JSON.parse(data);
+					c5(obj.message);
+					$(".n_bllbut").on('click', function() {
+                        if(obj.message == '該會員已通過'){
+							window.location.href = "/dashboard/forum_manage";
+						}else if(obj.message == '已取消申請'){
+							window.location.href = "/dashboard/forum";
+						}else {
+							location.reload();
+						}
+					});
 				});
 			});
-		});
-	}
-
-	function checkUserVip() {
-
-		var checkUserVip='{{ $checkUserVip }}';
-		var checkProhibit='{{ $user->prohibit_posts }}';
-		var checkAccess='{{ $user->access_posts }}';
-		if(checkUserVip==0) {
-			c5('此功能目前開放給連續兩個月以上的VIP會員使用');
-			return false;
-		}else if(checkProhibit==1){
-			c5('您好，您目前被站方禁止發言，若有疑問請點右下角，聯繫站長Line@');
-			return false;
-		}else if(checkAccess==1){
-			c5('您好，您目前被站方限制使用討論區，若有疑問請點右下角，聯繫站長Line@');
-			return false;
-		} else{
-			window.location.href = "/dashboard/forum";
 		}
-	}
 
-	function shenhe() {
-		$(".sh").show()
-		$(".sh1").hide()
-	}
-	function shenhe1() {
-		$(".sh").hide()
-		$(".sh1").show()
-	}
+		function checkUserVip() {
 
-	$('.pda_zx').click(function (){
-		$(this).children('span').toggleClass('showText')
-		$(this).children('a').toggle(0)
-	})
-
-	$(".text span").each(function(){
-		var  h = $(this).innerHeight();
-		if( h > 39){
-			$(this).addClass('on');
-
-		}else{
-			$(this).next('a').hide();
+			var checkUserVip='{{ $checkUserVip }}';
+			var checkProhibit='{{ $user->prohibit_posts }}';
+			var checkAccess='{{ $user->access_posts }}';
+			if(checkUserVip==0) {
+				c5('此功能目前開放給連續兩個月以上的VIP會員使用');
+				return false;
+			}else if(checkProhibit==1){
+				c5('您好，您目前被站方禁止發言，若有疑問請點右下角，聯繫站長Line@');
+				return false;
+			}else if(checkAccess==1){
+				c5('您好，您目前被站方限制使用討論區，若有疑問請點右下角，聯繫站長Line@');
+				return false;
+			} else{
+				window.location.href = "/dashboard/forum_posts/{{$forumInfo->id}}";
+			}
 		}
-	})
-	$(function (){
-		$(".zhap_new a:first").addClass("zhap_new_hover");
-		$(".zap_ullist").hide();
-		$(".zap_ullist:first").show();
-		$(".zhap_new a").click(function () {
-			$('.zhap_new a:not(this)').removeClass("zhap_new_hover");
-			$(this).addClass("zhap_new_hover");
-			$('.zap_ullist').hide();
-			var i=$(this).index();
-			$('.zap_ullist').eq(i).show();
-			$('.zap_ullist').eq(i).find(".text span").each(function(){
-				var  h = $(this).innerHeight();
-				if( h > 39){
-					$(this).addClass('on');
-					$(this).next('a').show();
-				}else{
-					$(this).next('a').remove();
-				}
-			})
-		});
 
-		// $(".text>a").click(function(){
-		//           var btn = $(this).prev();
-		//           if(btn.hasClass('on')){
-		//               btn.removeClass("on");
-		//               $(this).html("<em></em>");
-		//           }else{
-		//               btn.addClass("on");
-		//               $(this).html("…<em>更多</em>");
-		//           }
-		//       });
-
-	})
-</script>
-
-<script src="https://code.jquery.com/jquery-3.2.1.min.js" crossorigin="anonymous"></script>
-<script src="/new/fileuploader/jquery.fileuploader.min.js" type="text/javascript"></script>
-
-<script>
-	$.noConflict();
-	jQuery( document ).ready(function( $ ) {
-
-		$('input[name="files"]').fileuploader({
-			extensions: null,
-			changeInput: '<a href="javascript:void(0);" class="tia_icon"></a>',
-			theme: 'onebutton',
-			enableApi: true,
-			addMore: true
-		});
-	});
-</script>
+	</script>
+	<script src="https://cdn.jsdelivr.net/npm/@fancyapps/ui@4.0/dist/fancybox.umd.js"></script>
+@endsection
