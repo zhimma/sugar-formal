@@ -246,7 +246,7 @@
 
 
         @media (max-width:450px) {
-            .huiyoic{ height:118px;}
+           .huiyoic{ height:118px;}
         }
         @if(!$user->isVip())
         .tubiao ul li img {height:50px !important;}
@@ -326,6 +326,9 @@
         .he_tkcn ul a span.vip_space {display:inline;height:0;float:left;}
         .he_tkcn ul a span.vip_space .tap-vip {top: -31px;left: 16px;}
         .he_tkcn_img {display: unset;margin-top: unset;}
+        div.kll {word-break:break-all;}
+        /*** iphone12 會吃掉右邊的字  ****/
+        button.al_but {width:auto;white-space: nowrap;} 
     </style>
     <script src="{{asset('/new/js/pick_real_error.js')}}" type="text/javascript"></script>
     <script type="application/javascript">
@@ -760,6 +763,25 @@
 							</li>                            
                         </ul>
                     </div>
+					<!--新改-->
+
+					<script>
+						$('.userlogo').click(function() {
+							event.stopPropagation()
+							if($(this).hasClass('on1')) {
+								$(this).removeClass('on1')
+								$('.showslide').fadeOut()
+							} else {
+								$(this).addClass('on1')
+								$('.fadeinboxs').fadeIn()
+								$('.showslide').fadeIn()
+							}
+						})
+						$('body').click(function() {
+							$('.userlogo').removeClass('on1')
+							$('.showslide').fadeOut()
+						})
+					</script>	
 
                     <!-- Swiper JS -->
                     <script type="application/javascript" src="/new/js/swiper.min.js"></script>
@@ -1613,7 +1635,10 @@
     }
 
     function isEllipsisActive(e) {
-        return (Math.ceil($(e).innerHeight()) < $(e)[0].scrollHeight);
+        console.log('$(e).attr("class")='+$(e).attr("class"));
+        console.log('$(e).innerHeight()='+$(e).innerHeight());
+        console.log(' $(e)[0].scrollHeight='+ $(e)[0].scrollHeight);
+        return (Math.ceil($(e).innerHeight()==undefined?0:$(e).innerHeight()) < ($(e)[0].scrollHeight==undefined?0:$(e)[0].scrollHeight));
     }
     
     function show_banned() {
@@ -1816,16 +1841,30 @@
         });
 
         $('div.context-wrap').each(function(i) {
+            var more_elt = $(this).parents('.hu_p').find('span.z_more');
             if (isEllipsisActive(this)) {
-                $(this).parents('.hu_p').find('span.z_more').removeClass('hide_more');
-                $(this).parents('.hu_p').find('span.z_more').removeClass('show_more');
-                $(this).parents('.hu_p').find('span.z_more').addClass('show_more');
+                more_elt.removeClass('hide_more');
+                more_elt.removeClass('show_more');
+                more_elt.addClass('show_more');
             }
             else {
-                $(this).parents('.hu_p').find('span.z_more').removeClass('show_more');
-                $(this).parents('.hu_p').find('span.z_more').removeClass('hide_more');
-                $(this).parents('.hu_p').find('span.z_more').addClass('hide_more');
+                more_elt.removeClass('show_more');
+                more_elt.removeClass('hide_more');
+                more_elt.addClass('hide_more');
             }
+            
+            if(more_elt.hasClass('hide_more')) {
+                if (p_elt.length>0 && isEllipsisActive(p_elt)) {
+                    more_elt.removeClass('hide_more');
+                    more_elt.removeClass('show_more');
+                    more_elt.addClass('show_more');
+                }
+                else {
+                    more_elt.removeClass('show_more');
+                    more_elt.removeClass('hide_more');
+                    more_elt.addClass('hide_more');
+                }                            
+            }            
         });
     });
 
@@ -2167,50 +2206,125 @@
 
     $(window).resize(function() {
         $('div.context-wrap').each(function(i) {
+            var more_elt = $(this).parents('.hu_p').find('span.z_more');
+            var p_elt = $(this).parents('.hu_p').find('ul.zap_photo');
             if (isEllipsisActive(this)) {
-                $(this).parents('.hu_p').find('span.z_more').removeClass('hide_more');
-                $(this).parents('.hu_p').find('span.z_more').removeClass('show_more');
-
-                $(this).parents('.hu_p').find('span.z_more').addClass('show_more');
+                more_elt.removeClass('hide_more');
+                more_elt.removeClass('show_more');
+                more_elt.addClass('show_more');
             }
             else {
-                $(this).parents('.hu_p').find('span.z_more').removeClass('show_more');
-                $(this).parents('.hu_p').find('span.z_more').removeClass('hide_more');
-
-                $(this).parents('.hu_p').find('span.z_more').addClass('hide_more');
+                more_elt.removeClass('show_more');
+                more_elt.removeClass('hide_more');
+                more_elt.addClass('hide_more');
             }
+            
+            if(more_elt.hasClass('hide_more')) {
+                if (p_elt.length>0 && isEllipsisActive(p_elt)) {
+                    more_elt.removeClass('hide_more');
+                    more_elt.removeClass('show_more');
+                    more_elt.addClass('show_more');
+                }
+                else {
+                    more_elt.removeClass('show_more');
+                    more_elt.removeClass('hide_more');
+                    more_elt.addClass('hide_more');
+                }                            
+            }            
         });
     });
-
-    $('.many-txt').each(function(i) {
+    
+    $('div.context-wrap').each(function(i) {
+        var more_elt = $(this).parents('.hu_p').find('span.z_more');
+        var p_elt = $(this).parents('.hu_p').find('ul.zap_photo');
         if (isEllipsisActive(this)) {
-            $(this).parents('.con').find('.al_but').removeClass('hide_more');
-            $(this).parents('.con').find('.al_but').removeClass('show_more');
-
-            $(this).parents('.con').find('.al_but').addClass('show_more');
+            more_elt.removeClass('hide_more');
+            more_elt.removeClass('show_more');
+            more_elt.addClass('show_more');
         }
         else {
-            $(this).parents('.con').find('.al_but').removeClass('hide_more');
-            $(this).parents('.con').find('.al_but').removeClass('show_more');
-
-            $(this).parents('.con').find('.al_but').addClass('hide_more');
+            more_elt.removeClass('show_more');
+            more_elt.removeClass('hide_more');
+            more_elt.addClass('hide_more');
         }
+        
+        if(more_elt.hasClass('hide_more')) {
+            if (p_elt.length>0 && isEllipsisActive(p_elt)) {
+                more_elt.removeClass('hide_more');
+                more_elt.removeClass('show_more');
+                more_elt.addClass('show_more');
+            }
+            else {
+                more_elt.removeClass('show_more');
+                more_elt.removeClass('hide_more');
+                more_elt.addClass('hide_more');
+            }                            
+        }            
+    });    
+
+    $('.many-txt').each(function(i) {
+        var but_elt = $(this).parents('.con').find('.al_but');
+        var photo_elt = $(this).parents('.con').find('.zap_photo');         
+        if (isEllipsisActive(this)) {
+            but_elt.removeClass('hide_more');
+            but_elt.removeClass('show_more');
+
+            but_elt.addClass('show_more');
+        }
+        else {
+            but_elt.removeClass('hide_more');
+            but_elt.removeClass('show_more');
+
+            but_elt.addClass('hide_more');
+        }
+        
+        if(but_elt.hasClass('hide_more')) {
+            if (photo_elt.length>0 && isEllipsisActive(photo_elt)) {
+                but_elt.removeClass('hide_more');
+                but_elt.removeClass('show_more');
+
+                but_elt.addClass('show_more');                                    
+            }
+            else {
+                but_elt.removeClass('hide_more');
+                but_elt.removeClass('show_more');
+
+                but_elt.addClass('hide_more');
+            }                                
+        }        
     });
 
     $(window).resize(function() {
         $('.many-txt').each(function(i) {
+            var but_elt = $(this).parents('.con').find('.al_but');
+            var photo_elt = $(this).parents('.con').find('.zap_photo');            
             if (isEllipsisActive(this)) {
-                $(this).parents('.con').find('.al_but').removeClass('hide_more');
-                $(this).parents('.con').find('.al_but').removeClass('show_more');
+                but_elt.removeClass('hide_more');
+                but_elt.removeClass('show_more');
 
-                $(this).parents('.con').find('.al_but').addClass('show_more');
+                but_elt.addClass('show_more');
             }
             else {
-                $(this).parents('.con').find('.al_but').removeClass('hide_more');
-                $(this).parents('.con').find('.al_but').removeClass('show_more');
+                but_elt.removeClass('hide_more');
+                but_elt.removeClass('show_more');
 
-                $(this).parents('.con').find('.al_but').addClass('hide_more');
+                but_elt.addClass('hide_more');
             }
+            
+            if(but_elt.hasClass('hide_more')) {
+                if (photo_elt.length>0 && isEllipsisActive(photo_elt)) {
+                    but_elt.removeClass('hide_more');
+                    but_elt.removeClass('show_more');
+
+                    but_elt.addClass('show_more');                                    
+                }
+                else {
+                    but_elt.removeClass('hide_more');
+                    but_elt.removeClass('show_more');
+
+                    but_elt.addClass('hide_more');
+                }                                
+            }            
         });
     });
 
@@ -2239,9 +2353,71 @@
                 $('.hzk').find('img').attr("src","/new/images/zk_icon.png");
                 $('.hzk').find('h2').text('部分被封鎖的會員評價已經被隱藏，點此全部顯示');
             }else{
-                $('#plshow').show();
+                $('#plshow').show(function(){
+                    $('div.context-wrap').each(function(i) {
+                        var more_elt = $(this).parents('.hu_p').find('span.z_more');
+                        var p_elt = $(this).parents('.hu_p').find('ul.zap_photo');
+                        if (isEllipsisActive(this)) {
+                            more_elt.removeClass('hide_more');
+                            more_elt.removeClass('show_more');
+                            more_elt.addClass('show_more');
+                        }
+                        else {
+                            more_elt.removeClass('show_more');
+                            more_elt.removeClass('hide_more');
+                            more_elt.addClass('hide_more');
+                        }
+                        
+                        if(more_elt.hasClass('hide_more')) {
+                            if (p_elt.length>0 && isEllipsisActive(p_elt)) {
+                                more_elt.removeClass('hide_more');
+                                more_elt.removeClass('show_more');
+                                more_elt.addClass('show_more');
+                            }
+                            else {
+                                more_elt.removeClass('show_more');
+                                more_elt.removeClass('hide_more');
+                                more_elt.addClass('hide_more');
+                            }                            
+                        }
+                                               
+                    }); 
+
+                    $('.many-txt').each(function(i) {
+                        var but_elt = $(this).parents('.con').find('.al_but');
+                        var photo_elt = $(this).parents('.con').find('.zap_photo');
+                        if (isEllipsisActive(this)) {
+                            but_elt.removeClass('hide_more');
+                            but_elt.removeClass('show_more');
+
+                            but_elt.addClass('show_more');
+                        }
+                        else {
+                            but_elt.removeClass('hide_more');
+                            but_elt.removeClass('show_more');
+
+                            but_elt.addClass('hide_more');
+                        }
+                        
+                        if(but_elt.hasClass('hide_more')) {
+                            if (photo_elt.length>0 && isEllipsisActive(photo_elt)) {
+                                but_elt.removeClass('hide_more');
+                                but_elt.removeClass('show_more');
+
+                                but_elt.addClass('show_more');                                    
+                            }
+                            else {
+                                but_elt.removeClass('hide_more');
+                                but_elt.removeClass('show_more');
+
+                                but_elt.addClass('hide_more');
+                            }                                
+                        }
+                    });                     
+                });
                 $('.hzk').find('img').attr("src","/new/images/zk_iconup.png");
                 $('.hzk').find('h2').text('收起');
+
 
             }
         });
