@@ -2342,7 +2342,7 @@ class PagesController extends BaseController
                 'last_login' => $last_login
                 //此段僅測試用
                 //上正式機前起移除
-                ,
+                // ,
                 // 'message_count_7_old' => $message_count_7_old,
                 // 'message_reply_count_7_old' => $message_reply_count_7_old,
                 // 'visit_other_count_7_old' => $visit_other_count_7_old,
