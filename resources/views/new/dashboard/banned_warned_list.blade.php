@@ -83,6 +83,7 @@
                             {!! $banned_users->links('pagination::sg-pages2') !!}
                         </div>
                     </div>
+
                 </div>
                 <div class="fs_name" id="fs2" style="display: none;">
                     <div class="fs_title"><h2>本月警示名單，共{{ $warned_count }}筆資料</h2></div>
@@ -105,6 +106,7 @@
                         </table>
                         <div style="text-align: center;">
                             {!! $warned_users->links('pagination::sg-pages2') !!}
+
                         </div>
                     </div>
                 </div>

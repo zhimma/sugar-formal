@@ -3350,17 +3350,18 @@ class PagesController extends BaseController
             //$messages = Message::allSenders($user->id, 1);
             if (isset($cid)) {
                 $cid_user = $this->service->find($cid);
+                /*
                 if(!$cid_user){
                     return '<h1>該會員不存在。</h1>';
                 }
-                
+                */
                 $cid_recommend_data = [];
                 $forbid_msg_data = UserService::checkNewSugarForbidMsg($cid_user,$user);
-                /*
+                
                 if(($cid_user->engroup) === ($user->engroup)){
                     return back();
                 }
-                */
+
                 if(!$user->isVip() && $user->engroup == 1){
                     $m_time = Message::select('created_at')->
                     where('from_id', $user->id)->
@@ -3904,6 +3905,7 @@ class PagesController extends BaseController
             return $strlen == 2 ? $firstStr . str_repeat('*', mb_strlen($user_name, 'utf-8') - 1) : $firstStr . str_repeat("*", $strlen - 2) . $lastStr;
         }
     }
+
 
     public function warned(Request $request)
     {

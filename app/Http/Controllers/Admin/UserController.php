@@ -9,6 +9,7 @@ use App\Models\Evaluation;
 use App\Models\EvaluationPic;
 use App\Models\ExpectedBanningUsers;
 use App\Models\Fingerprint2;
+use App\Models\hideOnlineData;
 use App\Models\LogUserLogin;
 use App\Models\MemberPic;
 use App\Models\Message;
@@ -55,7 +56,7 @@ use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\File;
 use Intervention\Image\Facades\Image;
 use Session;
-
+use App\Http\Controller\PagesController;
 class UserController extends \App\Http\Controllers\BaseController
 {
     public function __construct(UserService $userService, AdminService $adminService)
@@ -235,6 +236,80 @@ class UserController extends \App\Http\Controllers\BaseController
         }
 
     }
+//隱藏功能
+    public function toggleHidden(Request $request)
+    {
+        $user = \View::shared('user');
+        //if($user->valueAddedServiceStatus('hideOnline') == 1){
+
+            $isHidden = $user->valueAddedServiceStatus('hideOnline');
+        if ($isHidden == 0) {
+            //關閉隱藏權限
+            $sethideOnline = 0;
+            $user = hideOnlineData::select('member_id', 'active')
+                ->where('member_id', $request->user_id)
+                ->update(array(
+                    'active' => $sethideOnline,
+                    'expiry' => '0000-00-00 00:00:00',
+                    'business_id' => '',
+                    'order_id' => ''
+                ));
+            
+        } else {
+            //提供隱藏權限
+            $sethideOnline = 1;
+            $tmpsql = hideOnlineData::select('expiry')->where('member_id', $request->user_id)->get()->first();
+            if (isset($tmpsql)) {
+                $user = hideOnlineData::select('member_id', 'active')
+                    ->where('member_id', $request->user_id)
+                    ->update(array(
+                        'active' => $sethideOnline,
+                        'business_id' => 'BackendFree',
+                        'order_id' => 'BackendFree',
+                        'expiry' => '0000-00-00 00:00:00',
+                        'free' => 0
+                    ));
+            } else {
+                //從來都沒VIP資料的
+                $hideOnline_user = new hideOnlineData;
+                $hideOnline_user->member_id = $request->user_id;
+                $hideOnline_user->active = $sethideOnline;
+                $hideOnline_user->created_at = Carbon::now()->toDateTimeString();
+                $hideOnline_user->save();
+            }
+
+
+        }
+        return view('admin.users.advInfo')
+        ->with('isHidden',$isHidden);
+        //新增Admin操作log
+        
+        $this->insertAdminActionLog($request->user_id, $request->isHidden ==1 ? '取消隱藏' : '升級隱藏');
+
+        VipLog::addToLog($request->user_id, $sethideOnline == 0 ? 'manual_cancel' : 'manual_upgrade', 'Manual Setting', $sethideOnline, 0);
+        $user = User::select('id', 'email', 'name')
+            ->where('id', $request->user_id)
+            ->get()->first();
+        if (isset($request->page)) {
+            switch ($request->page) {
+                case 'advInfo':
+                    return redirect('admin/users/advInfo/' . $request->user_id);
+                    break;
+                case 'back':
+                    return back()->with('message', '成功解除' . $user->name . '的權限');
+                default:
+                    return view('admin.users.success')
+                        ->with('email', $user->email);
+                    break;
+            }
+        } else {
+            return view('admin.users.success')
+                ->with('email', $user->email);
+        }
+        
+    }
+
+
 
     /**
      * Toggle a specific member is blocked or not.
@@ -1340,6 +1415,7 @@ class UserController extends \App\Http\Controllers\BaseController
                 ->with('isEverBanned',$isEverBanned)
                 ->with('isWarned',$isWarned)
                 ->with('isBanned',$isBanned)
+                //->with('isHideOnline',$isHideOnline)
                 ->with('cfp_id',$cfp_id)
                 ->with('ip',$ip)
                 ->with('userAgent',$userAgent)

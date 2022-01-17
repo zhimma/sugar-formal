@@ -491,6 +491,7 @@
                     @if((!isset($admin) || $to->id != $admin->id) && !isset($to->banned )&& !isset($to->implicitlyBanned))
                         <div class="se_text_bot"  id="message_input" style="padding-right: 3%; padding-left:3%;">
                             @if(($to->engroup) === ($user->engroup))
+                            
                             @else
                                 <form style="margin: 0 auto;" method="POST" action="/dashboard/chat2/{{ \Carbon\Carbon::now()->timestamp }}" id="chatForm" name="chatForm">
                                     

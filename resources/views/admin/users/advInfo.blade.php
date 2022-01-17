@@ -143,6 +143,20 @@
 	@else 
 		<button class="btn btn-info" onclick="VipAction({{($user['isvip'])?'1':'0' }},{{ $user['id'] }})"> 升級VIP </button>
 	@endif
+<!--隱藏-->
+	@if($user['isHidden'])
+		<button class="btn btn-info" onclick="HiddenAction({{($user['isHidden'])?'1':'0' }},{{ $user['id'] }})"> 取消隱藏 </button>
+		@if($user->engroup==1)
+			@if($user->Recommended==1)
+				<button class="btn btn-info" onclick="RecommendedToggler({{ $user['id'] }},'1')">給予優選</button>
+			@else
+				<button class="btn btn-danger ban-user" onclick="RecommendedToggler({{ $user['id'] }},'0')">取消優選</button>
+			@endif
+		@endif
+	@else 
+		<button class="btn btn-info" onclick="HiddenAction({{($user['isHidden'])?'1':'0' }},{{ $user['id'] }})"> 升級隱藏 </button>
+	@endif
+<!---->
 	@if (Auth::user()->can('admin') || Auth::user()->can('juniorAdmin'))
 		<a href="{{ route('AdminMessage', $user['id']) }}" target="_blank" class='btn btn-dark'>撰寫站長訊息</a>
 	@elseif (Auth::user()->can('readonly'))
@@ -1725,7 +1739,25 @@
         </div>
     </div>
 </div>
-
+<!--隱藏 -->
+<div>
+	@if (Auth::user()->can('admin') || Auth::user()->can('juniorAdmin'))
+		<form action="/admin/users/VIPToggler" method="POST" id="clickisHiddenAction">
+			{{ csrf_field() }}
+			<input type="hidden" value="" name="user_id" id="HiddenID">
+			<input type="hidden" value="" name="isHidden" id="isHidden">
+			<input type="hidden" value="advInfo" name="page">
+		</form>
+	@elseif (Auth::user()->can('readonly'))
+		<form action="/users/VIPToggler/readOnly" method="POST" id="clickisHiddenAction">
+			{{ csrf_field() }}
+			<input type="hidden" value="" name="user_id" id="HiddenID">
+			<input type="hidden" value="" name="isHidden" id="isHidden">
+			<input type="hidden" value="back" name="page">
+		</form>
+	@endif
+</div>
+<!-- -->
 <div>
 	@if (Auth::user()->can('admin') || Auth::user()->can('juniorAdmin'))
 		<form action="/admin/users/VIPToggler" method="POST" id="clickVipAction">
@@ -1743,6 +1775,8 @@
 		</form>
 	@endif
 </div>
+
+
 <div>
 	<form action="/admin/users/RecommendedToggler" method="POST" id="toggleRecommendedUser">
 		{{ csrf_field() }}
@@ -1934,6 +1968,11 @@ function VipAction(isVip, user_id){
 	$("#isVip").val(isVip);
 	$("#vipID").val(user_id);
 	$("#clickVipAction").submit();
+}
+function HiddenAction(isHidden, user_id){
+	$("#isHidden").val(isHidden);
+	$("#HiddenID").val(user_id);
+	$("#clickisHiddenAction").submit();
 }
 function RecommendedToggler(user_id,Recommended){
 	$("#RecommendedUserID").val(user_id);
