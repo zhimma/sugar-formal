@@ -254,7 +254,10 @@
     </style>
     <style>
         .new_pot1{width:96%;height:auto;margin: 0 auto;color: #666666;display: block; margin-top: 20px; margin-bottom: 20px;}
-        @media (max-width:824px){
+        .new_pot,.new_pot001, .new_po000 {max-height:500px;}
+        .new_pot001, .new_po000 {overflow-y:scroll;}
+        .new_pot {overflow-y:hidden;}
+        media (max-width:824px){
             .new_pot1{height:195px;overflow-y: scroll; padding-bottom:15px; }
         }
         @media (max-width:450px){
@@ -319,6 +322,10 @@
             margin-top: 8px;
             margin-left: 5px;
             font-size: 12px;
+        }
+        .fpt_pic {
+            overflow-y: scroll;
+            max-height: 480px;            
         }
     </style>
     <style>
