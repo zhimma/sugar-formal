@@ -1,53 +1,51 @@
-<style>
-	.toug_but:hover{ color:white !important; text-decoration:none !important}
-
-	.article{
-		overflow : hidden;
-			text-overflow: ellipsis;
-			display: -webkit-box;
-			-webkit-line-clamp: 2;
-			-webkit-box-orient: vertical;
-	}
-
-		@media (max-width:320px) {
-			.contents{
-				width: 200px !important;
-			}
-		}
-		@media (min-width:321px) and (max-width:375px) {
-			.contents{
-				width:250px !important;
-			}
-		}
-		@media (min-width:376px) and (max-width:414px) {
-			.contents{
-				width:300px !important;
-			}
-		}
-		@media (min-width:415px) and (max-width:768px){
-			.contents{
-				width:520px !important;
-			}
-		}
-		@media (min-width:769px) and (max-width:1024px){
-			.contents{
-				width:350px !important;
-			}
-		}
-		.read-more:hover {
-		  color:#e44e71;
-		}
-</style>
 @extends('new.layouts.website')
-
+@section('style')
 		<link rel="stylesheet" href="/posts/css/style.css">
 		<link rel="stylesheet" href="/posts/css/font/font_n/iconfont.css">
 		<link rel="stylesheet" href="/posts/css/font/iconfont.css">
 		<link rel="stylesheet" href="/posts/css/taolunqu/iconfont.css">
 		<link href="https://fonts.googleapis.com/css?family=Roboto:400|700" rel="stylesheet">
-        <script src="/posts/js/jquery-2.1.1.min.js" type="text/javascript"></script>
-        <script src="/posts/js/bootstrap.min.js"></script>
+		<style>
+			.toug_but:hover{ color:white !important; text-decoration:none !important}
 
+			.article{
+				overflow : hidden;
+				text-overflow: ellipsis;
+				display: -webkit-box;
+				-webkit-line-clamp: 2;
+				-webkit-box-orient: vertical;
+			}
+
+			@media (max-width:320px) {
+				.contents{
+					width: 200px !important;
+				}
+			}
+			@media (min-width:321px) and (max-width:375px) {
+				.contents{
+					width:250px !important;
+				}
+			}
+			@media (min-width:376px) and (max-width:414px) {
+				.contents{
+					width:300px !important;
+				}
+			}
+			@media (min-width:415px) and (max-width:768px){
+				.contents{
+					width:520px !important;
+				}
+			}
+			@media (min-width:769px) and (max-width:1024px){
+				.contents{
+					width:350px !important;
+				}
+			}
+			.read-more:hover {
+				color:#e44e71;
+			}
+		</style>
+@endsection
 		@section('app-content')
 		<div class="container matop70">
 			<div class="row">
@@ -61,8 +59,8 @@
 						<a href="/dashboard/forum" class="toug_back btn_img" style=" position: absolute; left: 0;">
 							<div class="btn_back"></div>
 						</a>
-						<span style="margin: 0 auto; position: relative;line-height: 44px;padding-bottom: 3px; left: 40px; font-size: 18px;">{{$post_forum->title}}</span>
-						@if ($user->id == $post_forum->user_id)
+						<span style="margin: 0 auto; position: relative;line-height: 44px;padding-bottom: 3px; left: 40px; font-size: 18px;">{{$forum->title}}</span>
+						@if($forum->user_id == $user->id)
 							<a class="toug_back btn_img01 userlogo xzgn">
 								<div class="btn_back">功能選單<img src="/posts/images/jiant_a.png"></div>
 							</a>
@@ -70,7 +68,10 @@
 								<a onclick="checkUserVip();">我要發表</a>
 								<a href="/dashboard/forum_manage">會員管理</a>
 							</div>
+						@else
+							<a onclick="checkUserVip();" class="aid_but"><img style="margin-left: 10px;" src="/posts/images/tg_03.png">我要發表</a>
 						@endif
+
 					</div>
 					<div class="fadeinboxs"></div>
 					<script>
@@ -109,8 +110,13 @@
 							<div class="liaotian_s">
 								@if(count($posts_personal_all)>0)
 								@foreach( $posts_personal_all as $row)
-								<li @if($row->top==1)style="background: oldlace;"@endif>
-									<a href="/dashboard/forum_post_detail/{{$row->pid}}">
+								<li @if($row->top==1)style="background: oldlace;"@endif @if($row->deleted_by != null) class="huis_01" @elseif($row->forum_status==0) @endif>
+									<a @if($row->deleted_by == null)
+										   @if($forum->user_id != $user->id && $user->id != 1049 && $checkForumMangeStatus->forum_status==0) onclick="view_alert()"
+										   @else href="/dashboard/forum_post_detail/{{$row->pid}}"
+										   @endif
+									   @else onclick="delete_alert()"
+									   @endif>
 										<div class="ta_icon"><img src="/posts/images/tl_icon.png">{{$row->posts_reply_num}}</div>
 										<div class="alit_font">{{$row->ptitle}}</div>
 										<div class="alit_font01">
@@ -126,10 +132,11 @@
 									</li>
 								@endif
 
+								@if($posts_personal_all->hasPages())
 								<div class="fenye ba_but" style="margin-bottom: 0;">
 									{{ $posts_personal_all->links('pagination::sg-pages2') }}
-{{--									<a href="">上一頁</a><span class="new_page">1/5</span><a href="">下一頁</a>--}}
 								</div>
+								@endif
 							</div>
 
 						</div>
@@ -209,14 +216,17 @@
 			</div>
 		</div>
 		@stop
+
+@section('javascript')
 <script>
 
-	$(document).ready(function() {
-		@if(Session::has('message'))
-		c5('{{Session::get('message')}}');
-		<?php session()->forget('message');?>
-		@endif
-	});
+	function delete_alert() {
+        c5('此文章已刪除');
+	}
+
+	function view_alert() {
+		c5('您目前尚無權限');
+	}
 
 	function checkUserVip() {
 
@@ -233,7 +243,7 @@
 			c5('您好，您目前被站方限制使用討論區，若有疑問請點右下角，聯繫站長Line@');
 			return false;
 		} else{
-			window.location.href = "/dashboard/forum_posts/{{$post_forum->id}}";
+			window.location.href = "/dashboard/forum_posts/{{$forum->id}}";
 		}
 	}
 
@@ -284,3 +294,4 @@
 
 	})
 </script>
+@endsection
