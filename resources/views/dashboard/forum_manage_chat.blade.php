@@ -168,7 +168,7 @@
 								</div>
 
 								<style>
-									.dc-button1{overflow: hidden;width:120px; height: 40px;display: block; margin: 0 auto; float: left;
+									.dc-button1{overflow: hidden;width:120px; height: 40px;display: block; margin: 0 auto; /*float: left*/;
 										border-radius:100px;background:linear-gradient(to top, #ffe3e6, #fff); cursor: pointer; font-size:15px;;box-shadow: 0 0 10px rgba(0, 0, 0, 0.05);color: #fe92a8;
 										display: flex;align-items: center;justify-content: center;border: #ffe2e7 1px solid;box-shadow: 0 5px 5px #ffc9d3;}
 									.dc-anniudh.hover{box-shadow:4px 4px 6px 0 rgba(255,255,255,.5),-4px -4px 6px 0 rgba(116,125,136,.5),inset -4px -4px 6px 0 rgba(255,255,255,.2),inset 4px 4px 6px 0 rgba(0,0,0,.4)!important;
@@ -179,11 +179,11 @@
 								<div class="shenqing">
 									@if($user->id ==$checkStatus->apply_user_id && $checkStatus->status==0)
 										<div style=" margin: 0 auto; display: table">
-											<a onclick="forum_manage_toggle({{$checkStatus->user_id}}, 1)" class="dc-button1 dc-anniudh dc-tcbox1-open1 dc_l">通過</a>
+											<a onclick="forum_manage_toggle({{$checkStatus->user_id}}, 1)" class="dc-button1 dc-anniudh dc-tcbox1-open1 dc_l" style="float: left;">通過</a>
 											<a onclick="forum_manage_toggle({{$checkStatus->user_id}}, 2)" class="dc-button1 dc-anniudh dc-tcbox1-open1 dc_l">不通過</a>
-										</div>									@endif--}}
+										</div>
 									@elseif($user->id != $checkStatus->apply_user_id && $checkStatus->status==0)
-										<a onclick="forum_manage_toggle({{$checkStatus->apply_user_id}}, 4)" class="dc_anniudh shenq_button">取消申請</a>
+										<a onclick="forum_manage_toggle({{$checkStatus->apply_user_id}}, 4)" class="dc-button1 dc-anniudh dc-tcbox1-open1">取消申請</a>
 									@endif
 								</div>
 
