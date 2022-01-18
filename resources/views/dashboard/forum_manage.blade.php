@@ -60,11 +60,13 @@
 
 
 					<div class="shou" style="text-align: left; position: relative; ">
-						<a href="{{url()->previous()}}" class="toug_back btn_img" style=" position: absolute; left: 0;">
+						<a href="/dashboard/forum_personal/{{$forum->id}}"
+{{--								href="{{url()->previous()}}" --}}
+						   class="toug_back btn_img" style=" position: absolute; left: 0;">
 							<div class="btn_back"></div>
 						</a>
-						<span style="margin: 0 auto; position: relative;line-height: 44px;padding-bottom: 3px; left: 40px; font-size: 18px;">{{$posts_forum->title}}</span>
-						@if($posts_forum->user_id == $user->id)
+						<span style="margin: 0 auto; position: relative;line-height: 44px;padding-bottom: 3px; left: 40px; font-size: 18px;"><a href="/dashboard/forum_personal/{{$forum->id}}" style="color: #fd5678;">{{$forum->title}}</a></span>
+						@if($forum->user_id == $user->id)
 						<a class="toug_back btn_img01 userlogo xzgn">
 							<div class="btn_back">功能選單<img src="/posts/images/jiant_a.png"></div>
 						</a>
@@ -102,7 +104,7 @@
 						<!-- 聊天室 -->
 						<div class="hygl_b">
 							<li class="na_se hyg_wid">
-								<div class="n_sq_hover" style="display: table; height: 50px;"><img src="/posts/images/zp_gl.png" class="hy_spangl" style="margin-top: 10px;"></div>
+								<div class="n_sq_hover" style="display: table; height: 50px;"><img src="/posts/images/zp_gl.png" class="hy_spangl"></div>
 							</li>
 							<li class="lis_sq01 hy_tefo" style="margin-left: -15px;">會員管理</li>
 						</div>
@@ -115,7 +117,7 @@
 								<div class="h3_divtab1"><span>會員暱稱丨 </span><font><a href="/dashboard/viewuser/{{$row->user_id}}">{{$row->name}}</a></font></div>
 								<div class="hy_icobutton list1"  id="itemssxN">
 								@if($row->status == 0)
-								<a href="/dashboard/forum_manage_chat/{{$user->id}}/{{$row->user_id}}" class="hy_icon022 custom_s"><span class="iconfont icon-fangdajing"></span>審核中，點此查看聊天記錄</a>
+								<a href="/dashboard/forum_manage_chat/{{$user->id}}/{{$row->user_id}}?fromUrl=/dashboard/forum_manage" class="hy_icon022 custom_s"><span class="iconfont icon-fangdajing"></span>審核中，點此查看聊天記錄</a>
 								@elseif($row->status == 1)
 								<font class="hy_icon011 custom_s @if($row->forum_status==1) active @endif" onclick="forum_status_toggle({{$row->user_id}}, {{$row->forum_status == 1 ? 1 : 0}})"><span class="iconfont icon-liaotian1"></span>
 									討論區
@@ -157,7 +159,7 @@
 
 	function forum_manage_toggle(auid, status) {
 		var msg;
-		var fid='{{$posts_forum->id}}';
+		var fid='{{$forum->id}}';
 		if(status==3){
 			msg='您確定要移除此會員嗎?'
 		}else{
@@ -184,7 +186,7 @@
 
 	function forum_status_toggle(uid, status) {
 		var msg;
-		var fid='{{$posts_forum->id}}';
+		var fid='{{$forum->id}}';
 		if(status==1){
 			msg='您確定要移除此會員討論區權限嗎?';
 		}else if(status==0){
@@ -224,7 +226,7 @@
 			c5('您好，您目前被站方限制使用討論區，若有疑問請點右下角，聯繫站長Line@');
 			return false;
 		} else{
-			window.location.href = "/dashboard/forum_posts/{{$posts_forum->id}}";
+			window.location.href = "/dashboard/forum_posts/{{$forum->id}}";
 		}
 	}
 

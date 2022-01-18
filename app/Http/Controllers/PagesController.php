@@ -5171,7 +5171,7 @@ class PagesController extends BaseController
          forum.sub_title as f_sub_title
          ')
             ->selectRaw('(select updated_at from forum_posts where (type="main" and id=pid and forum_id = f_id and deleted_at is null) or reply_id=pid or reply_id in ((select distinct(id) from forum_posts where type="sub" and reply_id=pid and forum_id = f_id and deleted_at is null) )  order by updated_at desc limit 1) as currentReplyTime')
-            ->selectRaw('(select count(*) from forum_posts where (type="main" and user_id=uid and forum_id = f_id and deleted_at is null)) as posts_num, (select count(*) from forum_posts where (type="sub" and forum_id = f_id and deleted_at is null and reply_id in (select id from forum_posts where (type="main" and user_id = uid and forum_id = f_id and deleted_at is null)) )) as posts_reply_num')
+            ->selectRaw('(select count(*) from forum_posts where (type="main" and forum_id = f_id and deleted_at is null)) as posts_num, (select count(*) from forum_posts where (type="sub" and forum_id = f_id and deleted_at is null and reply_id in (select id from forum_posts where (type="main" and user_id = uid and forum_id = f_id and deleted_at is null)) )) as posts_reply_num')
             ->LeftJoin('users', 'users.id','=','forum.user_id')
             ->join('user_meta', 'users.id','=','user_meta.user_id')
             ->leftJoin('forum_posts', 'forum_posts.user_id','=', 'users.id')
@@ -5336,9 +5336,9 @@ class PagesController extends BaseController
 
         $user = $request->user();
 
-        $posts_forum = Forum::where('user_id', $user->id)->first();
+        $forum = Forum::where('user_id', $user->id)->first();
 
-        if(!$posts_forum) {
+        if(!$forum) {
             return back()->with('message', '您的討論區不存在。');
         }
 
@@ -5357,7 +5357,7 @@ class PagesController extends BaseController
 //            }
         }
 
-        return view('/dashboard/forum_manage', compact( 'posts_manage_users', 'posts_forum', 'checkUserVip'))->with('user', $user);
+        return view('/dashboard/forum_manage', compact( 'posts_manage_users', 'forum', 'checkUserVip'))->with('user', $user);
     }
 
     public function forum_manage_toggle(Request $request)

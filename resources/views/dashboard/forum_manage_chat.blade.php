@@ -106,10 +106,10 @@
 
 
 					<div class="shou" style="text-align: @if($user->id != $checkStatus->apply_user_id) center @else left @endif ; position: relative;">
-						<a href="/dashboard/forum" class="toug_back btn_img" style=" position: absolute; left: 0;">
+						<a href="@if(isset($_GET['fromUrl'])){{$_GET['fromUrl']}}@else /dashboard/forum @endif" class="toug_back btn_img" style=" position: absolute; left: 0;">
 							<div class="btn_back"></div>
 						</a>
-						<span style="margin: 0 auto; position: relative;line-height: 44px;padding-bottom: 3px;@if($user->id == $checkStatus->apply_user_id) left: 40px; @endif font-size: 18px;">{{$forumInfo->title}}</span>
+						<span style="margin: 0 auto; position: relative;line-height: 44px;padding-bottom: 3px;@if($user->id == $checkStatus->apply_user_id) left: 40px; @endif font-size: 18px;"><a href="/dashboard/forum_personal/{{$forumInfo->id}}" style="color: #fd5678;">{{$forumInfo->title}}</a></span>
 						@if($user->id == $checkStatus->apply_user_id /*&& $checkStatus->status==0*/)
 						<a class="toug_back btn_img01 userlogo xzgn">
 							<div class="btn_back">功能選單<img src="/posts/images/jiant_a.png"></div>
@@ -151,6 +151,7 @@
 							</div>
 						@endif
 						@php
+
 							$forum_id = $forumInfo->id;
 
                            if($user->id ==$checkStatus->apply_user_id){
@@ -241,7 +242,7 @@
 					var obj = JSON.parse(data);
 					c5(obj.message);
 					$(".n_bllbut").on('click', function() {
-                        if(obj.message == '該會員已通過'){
+                        if(obj.message == '該會員已通過' || obj.message == '已拒絕該會員申請'){
 							window.location.href = "/dashboard/forum_manage";
 						}else if(obj.message == '已取消申請'){
 							window.location.href = "/dashboard/forum";
