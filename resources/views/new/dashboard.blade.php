@@ -8,6 +8,9 @@ header("Expires: Fri, 01 Jan 1990 00:00:00 GMT");
 @section('app-content')
 
   <?php
+    //拒絕接受搜索縣市最大數量
+    $blockcity_limit_count = 10;
+    $blockarea_selected = [];
     if (!isset($user)) {
         $umeta = null;
     } else {
@@ -20,13 +23,28 @@ header("Expires: Fri, 01 Jan 1990 00:00:00 GMT");
         }
 
         if(isset($umeta->blockcity)){
-          $umeta->blockcity = explode(",",$umeta->blockcity);
-          $umeta->blockarea = explode(",",$umeta->blockarea);
+            $city = explode(",",$umeta->blockcity);
+            $area = explode(",",$umeta->blockarea);
+            $arr = [];
+            for($i = 0; $i < count($area); $i++)
+            {
+                for($j = $i+1; $j < count($area); $j++)
+                {
+                    if($area[$i] == $area[$j])
+                    {
+                        $arr[] = $j;
+                    }
+                }
+            }
+            foreach($arr as $a)
+            {
+                unset($city[$a]);
+                unset($area[$a]);
+            }
+            $umeta->blockcity = $city;
+            $umeta->blockarea = $area;
       }
     }
-    //拒絕接受搜索縣市最大數量
-    $blockcity_limit_count = 10;
-    $blockarea_selected = [];
   ?>
   <style type="text/css">
     .abtn{cursor: pointer;}
@@ -1043,6 +1061,7 @@ dt span.engroup_type_title {display:inline-block;width:10%;white-space:nowrap;}
 
       //ajax_表單送出
       $('form[name=user_data]').submit(function(e){
+
         e.preventDefault();
         if($(this).parsley().isValid()){
           let birth = $('select[name=year]').val()+'/'+$('select[name=month]').val()+'/'+$('input[name=day]').val();
@@ -1062,6 +1081,7 @@ dt span.engroup_type_title {display:inline-block;width:10%;white-space:nowrap;}
           let situation = $('select[name=situation]');
           let tattoo_part = $('#tattoo_part');
           let tattoo_range = $('#tattoo_range');
+
           if(title.val() === "") {
             title.focus();
             c5('請輸入一句話形容自己');
