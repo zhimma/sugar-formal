@@ -19,7 +19,7 @@
         <script src="https://cdnjs.cloudflare.com/ajax/libs/webfont/1.6.28/webfontloader.js"></script>
         <!-- livewire -->
         <script src="https://cdn.jsdelivr.net/gh/alpinejs/alpine@v2.8.2/dist/alpine.min.js" defer></script>
-        @livewireStyles
+        <livewire:styles />
         <!-- livewire end-->
         <script src="{{ mix('js/app.js') }}" type="text/javascript"></script>
         <script src="/new/js/jquery.lazyload.min.js" type="text/javascript"></script>

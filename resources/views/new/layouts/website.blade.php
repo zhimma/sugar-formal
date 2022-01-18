@@ -350,7 +350,7 @@
         });
     </script>
     <!-- livewire -->
-    @livewireScripts
+    <livewire:scripts />
     <!-- livewire end-->
 </body>
 </html>
