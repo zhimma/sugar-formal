@@ -341,13 +341,25 @@ dt span.engroup_type_title {display:inline-block;width:10%;white-space:nowrap;}
                   <!--新增體重欄位 By Simon-->
                   <dt>
                       <span>體重（kg）</span>
-                      <span><input name="weight" id="weight" type="number" class="select_xx01" value="{{$umeta->weight}}"></span>
+                      <span>
+                        <select name="weight"  class="select_xx01">
+                          <option value=null>請選擇</option>
+                          @for ($i = 0; $i < 21; $i++)
+                          <option value="{{$i*5}}"
+                                  @if($umeta->weight == $i*5) selected @endif>{{$i*5}}
+                          </option>
+                          @endfor
+                        </select>
+                      </span>
+                      <!--<span>
+                          <input name="weight" id="weight" type="number" class="select_xx01" value="{{$umeta->weight}}">
+                      </span>
                       <div class="n_xqline">
                           <div class="right" style="margin-bottom: 10px;">
-                              <input type="hidden" name="isHideWeight" value="0">
+                              <input type="hidden" name="isHideWeight" value="">
                               <input name="isHideWeight" type="checkbox" @if($umeta->isHideWeight == true) checked @endif value="1"> 隱藏體重
                           </div>
-                      </div>
+                      </div>-->
                   </dt>
 
                   @if($user->engroup==2)

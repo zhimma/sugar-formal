@@ -150,6 +150,19 @@ header("Expires: Fri, 01 Jan 1990 00:00:00 GMT");
                                 </span>
                             </dt>
 
+                            <!--增加體重搜尋-->
+                            <dt class="matopj15">
+                            <div class="n_se left">
+                            <span>體重</span>
+                                <select name="weight" id="weight" class="select_xx01">
+                                    <option value="">請選擇</option>
+                                    @for ($i = 0; $i < 21; $i++)
+                                    <option value="{{$i*5}}" @if( !empty( $_POST["weight"] ) && $_POST["weight"] == $i*5 ) selected @elseif(!empty( $_GET["weight"] ) && $_GET["weight"] == $i*5) selected @elseif(!empty( session()->get('search_page_key.weight') ) && session()->get('search_page_key.weight') == $i*5) selected @endif>{{$i*5}}</option>
+                                    @endfor
+                                </select>
+                            </div>
+                            </dt>
+
                             <dt class="matopj15">
                                 <div class="n_se left">
                                     <span>預算</span>
@@ -460,6 +473,9 @@ header("Expires: Fri, 01 Jan 1990 00:00:00 GMT");
                         }
                         $heightfrom = "";
                         $heightto = "";
+                        //新增體重
+                        $weight = "";
+
                         $prRange_none = "";
                         $prRange = "";
                         $situation = "";
@@ -500,6 +516,9 @@ header("Expires: Fri, 01 Jan 1990 00:00:00 GMT");
                     if (isset($_POST['isVip'])){$isVip = $_POST['isVip'];}elseif(isset($_GET['isVip'])){$isVip = $_GET['isVip'];}elseif(!empty(session()->get('search_page_key.isVip'))){$isVip = session()->get('search_page_key.isVip');}
                     if (isset($_POST['isWarned'])){$isWarned = $_POST['isWarned'];}elseif(isset($_GET['isWarned'])){$isWarned = $_GET['isWarned'];}elseif(!empty(session()->get('search_page_key.isWarned'))){$isWarned = session()->get('search_page_key.isWarned');}
                     if (isset($_POST['isPhoneAuth'])){$isPhoneAuth = $_POST['isPhoneAuth'];}elseif(isset($_GET['isPhoneAuth'])){$isPhoneAuth = $_GET['isPhoneAuth'];}elseif(!empty(session()->get('search_page_key.isPhoneAuth'))){$isPhoneAuth = session()->get('search_page_key.isPhoneAuth');}
+                    //新增體重
+                    if (isset($_POST['weight'])){$weight = $_POST['weight'];}elseif(isset($_GET['weight'])){$weight = $_GET['weight'];}elseif(!empty(session()->get('search_page_key.weight'))){$weight = session()->get('search_page_key.weight');}
+                    
                     $tattoo = request()->tattoo??session()->get('search_page_key.tattoo');
                     $county2 = request()->county2??session()->get('search_page_key.county2');
                     $county3 = request()->county3??session()->get('search_page_key.county3');
@@ -686,6 +705,14 @@ header("Expires: Fri, 01 Jan 1990 00:00:00 GMT");
             @endif
             $("#budget option[value='']").attr('selected', true);
 
+            //新增體重
+            @if(!empty($_POST['weight']))
+            $("#weight option[value='{{$_POST['weight']}}']").attr('selected', false);
+            @elseif(!empty($_GET['weight']))
+            $("#weight option[value='{{$_GET['weight']}}']").attr('selected', false);
+            @endif
+            $("#weight option[value='']").attr('selected', true);
+
         });
 	 });
     </script>
@@ -778,6 +805,10 @@ header("Expires: Fri, 01 Jan 1990 00:00:00 GMT");
              let userIsVip="{{$userIsVip}}";
              let heightfrom="{{$heightfrom}}";
              let heightto="{{$heightto}}";
+
+             //新增體重
+             let weight="{{$weight}}";
+
              let prRange_none="{{$prRange_none}}";
              let prRange="{{$prRange}}";
              let situation="{{$situation}}";
@@ -813,6 +844,9 @@ header("Expires: Fri, 01 Jan 1990 00:00:00 GMT");
                 userIsVip:userIsVip,
                 heightfrom:heightfrom,
                 heightto:heightto,
+                //新增體重
+                weight:weight,   
+                
                 prRange_none:prRange_none,
                 prRange:prRange,
                 situation:situation,
