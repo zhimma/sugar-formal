@@ -142,7 +142,7 @@
 .hycov{ width: auto;height: auto;max-width: 100%;max-height: 100%; object-fit: contain;}
 .ta_rightnr{width: calc(100% - 60px); float: right;}
 
-.ta_nr{width: 100%; display: table;/* background: #f1f2f6; */ border-radius:20px; padding: 0px 0px 10px 0px; position: relative;}
+.ta_nr{width: 100%; display: table;/* background: #f1f2f6; */ border-radius:20px; padding: 0px 10px 10px 0px; position: relative; word-break: break-all;}
 .ta_nr h2{width: 100%;font-size: 13px; color: #333; display: table; margin-bottom: 3px;}
 .ta_nr h2 font{ font-size: 13px; color: #999; display: table;}
 .ta_nr p{ color: #333;}
