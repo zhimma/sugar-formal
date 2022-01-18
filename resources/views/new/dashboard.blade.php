@@ -351,6 +351,12 @@ dt span.engroup_type_title {display:inline-block;width:10%;white-space:nowrap;}
                           @endfor
                         </select>
                       </span>
+                      <div class="n_xqline">
+                          <div class="right" style="margin-bottom: 10px;">
+                              <input type="hidden" name="isHideWeight" value="">
+                              <input name="isHideWeight" type="checkbox" @if($umeta->isHideWeight == true) checked @endif value="1"> 隱藏體重
+                          </div>
+                      </div>
                       <!--<span>
                           <input name="weight" id="weight" type="number" class="select_xx01" value="{{$umeta->weight}}">
                       </span>
