@@ -3750,14 +3750,31 @@ border-radius:100px;margin-top:5px;font-weight:normal;font-size:18px;padding:15p
 .xin_right:hover{background: #fd5678;}
 
 .n_pic_lt{width:150px;}
-
-@media (max-width: 450px){
-    .new_po000 {height: auto;}
+.new_pot001,.new_po000 {width:96%;height:auto;margin: 0 auto;color: #666666;padding-bottom: 20px; padding-top:15px; display: block;}
+@media (max-width:824px){
+    .new_pot001,.new_po000 {height:195px;overflow-y: scroll; padding-bottom:0px; }
+}
+@media (max-width:450px){
+    .new_pot001,.new_po000 {height:450px;padding-bottom: 20px;}
+}
+@media (max-width:320px){
+    .new_pot001,.new_po000 {height:380px;}
 }
 
-@media (max-width: 450px){
-    .new_pot001 {height: auto; padding-bottom: 20px;}
-
+.new_pot001  ::-webkit-scrollbar,.new_po000  ::-webkit-scrollbar {
+    /*滚动条整体样式*/
+    width :4px;  /*高宽分别对应横竖滚动条的尺寸*/
+    height: 1px;
+}
+.new_pot001  ::-webkit-scrollbar-thumb,.new_po000  ::-webkit-scrollbar-thumb {
+    /*滚动条里面小方块*/
+    border-radius: 100px;
+    background: #8a9fef;
+}
+.new_pot001  ::-webkit-scrollbar-track,.new_po000  ::-webkit-scrollbar-track {
+    /*滚动条里面轨道*/
+    border-radius: 100px;
+    background:rgba(255,255,255,0.6);
 }
 
 
@@ -4142,16 +4159,6 @@ text-align: center;cursor: pointer;}
 text-align: center;cursor: pointer; line-height: 30px;}
 .zs_buttonn1:hover{ height: 30px; width:83px;background: url(../images/zs_but04.png) no-repeat;background-size: 100%;display: table;color: #fff;
  text-align: center; line-height: 30px}
-
-@media (max-width: 450px){
-.new_po000 {height: auto;}
-}
-
-@media (max-width: 450px){
-.new_pot001 {height: auto; padding-bottom: 20px;}
-
-}
-
 
 .dt_ckb01{width:20px;height:20px;position:absolute; top:0; right:5px; top: 5px; z-index:0}
 .dt_ckb01 img{width:100%}
