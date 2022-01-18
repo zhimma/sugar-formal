@@ -21,6 +21,7 @@
         "laravel/tinker": ">=1.0",
         "laravel/ui": "^3.4",
         "league/flysystem-sftp": "^1.0",
+        "livewire/livewire": "^2.8",
         "nunomaduro/collision": "^5.0",
         "phpunit/phpunit": "^9.0",
         "pusher/pusher-php-server": "~3.0",

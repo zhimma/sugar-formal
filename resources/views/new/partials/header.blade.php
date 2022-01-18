@@ -1,12 +1,10 @@
-<!DOCTYPE html>
-<html lang="{{ app()->getLocale() }}" >
-    <head>
         <meta charset="utf-8" />
         <meta name="viewport" content="width=device-width, initial-scale=1, shrink-to-fit=no">
         <title>甜心花園包養網，台灣人數最多的甜心與糖爹的約會包養網站。</title>
         <meta name="Keywords" content="包養|包養網|甜心花園|包養金額|包養管道|包養行情">
         <meta name="Description" content="甜心花園網是台灣最大，人數最多的包養媒合網站，本站管理嚴謹，制度完善，遠離詐騙。擁有最多上線人數的甜心與最優質的糖爹，是優秀男女約會交友的第一選擇。">
         <meta name="csrf-token" content="{{ csrf_token() }}">
+        <meta name="turbo-cache-control" content="no-cache">
         <script
             src="https://browser.sentry-cdn.com/6.15.0/bundle.min.js"
             integrity="sha384-uAr9Te+rNkmpaCjPTu4/ipQDpO1nR6fEY8JX+NHVNO5mY6LUs362JWJD8rHyaLEt"
@@ -19,6 +17,10 @@
         ></script>
         {!! \Sentry\Laravel\Integration::sentryTracingMeta() !!}
         <script src="https://cdnjs.cloudflare.com/ajax/libs/webfont/1.6.28/webfontloader.js"></script>
+        <!-- livewire -->
+        <script src="https://cdn.jsdelivr.net/gh/alpinejs/alpine@v2.8.2/dist/alpine.min.js" defer></script>
+        @livewireStyles
+        <!-- livewire end-->
         <script src="{{ mix('js/app.js') }}" type="text/javascript"></script>
         <script src="/new/js/jquery.lazyload.min.js" type="text/javascript"></script>
         <?php //新樣板css?>
@@ -238,4 +240,3 @@
             </script>
             @include('new.partials.unread')
         @endif
-</head>
