@@ -57,6 +57,7 @@ use Illuminate\Support\Facades\File;
 use Intervention\Image\Facades\Image;
 use Session;
 use App\Http\Controller\PagesController;
+use App\Models\ValueAddedService;
 class UserController extends \App\Http\Controllers\BaseController
 {
     public function __construct(UserService $userService, AdminService $adminService)
@@ -105,6 +106,9 @@ class UserController extends \App\Http\Controllers\BaseController
             } else {
                 $user['isVip'] = false;
             }
+
+
+
             if (member_vip::select("order_id")->where('member_id', $user->id)->get()->first()) {
                 $user['vip_order_id'] = member_vip::select("order_id")
                     ->where('member_id', $user->id)
@@ -239,14 +243,13 @@ class UserController extends \App\Http\Controllers\BaseController
 //隱藏功能
     public function toggleHidden(Request $request)
     {
-        $user = \View::shared('user');
-        //if($user->valueAddedServiceStatus('hideOnline') == 1){
-
-            $isHidden = $user->valueAddedServiceStatus('hideOnline');
-        if ($isHidden == 0) {
+        // $user = \View::shared('user');   這句是錯，這句是抓當下登入的人，也就是你
+        $user = User::find($request->user_id);        
+        $isHidden = $user->valueAddedServiceStatus('hideOnline');
+        if ($isHidden == 1) {
             //關閉隱藏權限
             $sethideOnline = 0;
-            $user = hideOnlineData::select('member_id', 'active')
+            $user = ValueAddedService::select('member_id', 'active')
                 ->where('member_id', $request->user_id)
                 ->update(array(
                     'active' => $sethideOnline,
@@ -258,19 +261,19 @@ class UserController extends \App\Http\Controllers\BaseController
         } else {
             //提供隱藏權限
             $sethideOnline = 1;
-            $tmpsql = hideOnlineData::select('expiry')->where('member_id', $request->user_id)->get()->first();
+            $tmpsql = ValueAddedService::select('expiry')->where('member_id', $request->user_id)->get()->first();
             if (isset($tmpsql)) {
-                $user = hideOnlineData::select('member_id', 'active')
+                $user = ValueAddedService::select('member_id', 'active')
                     ->where('member_id', $request->user_id)
                     ->update(array(
                         'active' => $sethideOnline,
                         'business_id' => 'BackendFree',
                         'order_id' => 'BackendFree',
-                        'expiry' => '0000-00-00 00:00:00',
-                        'free' => 0
+                        'expiry' => '0000-00-00 00:00:00'
+                        //'free' => 0
                     ));
             } else {
-                //從來都沒VIP資料的
+                //從來都沒隱藏資料的
                 $hideOnline_user = new hideOnlineData;
                 $hideOnline_user->member_id = $request->user_id;
                 $hideOnline_user->active = $sethideOnline;
@@ -280,16 +283,17 @@ class UserController extends \App\Http\Controllers\BaseController
 
 
         }
-        return view('admin.users.advInfo')
-        ->with('isHidden',$isHidden);
+        // return view('admin.users.advInfo')
+        // ->with('isHidden',$isHidden);
         //新增Admin操作log
         
-        $this->insertAdminActionLog($request->user_id, $request->isHidden ==1 ? '取消隱藏' : '升級隱藏');
+        $this->insertAdminActionLog($request->user_id, $request->isHidden == 0 ? '取消隱藏' : '升級隱藏');
 
         VipLog::addToLog($request->user_id, $sethideOnline == 0 ? 'manual_cancel' : 'manual_upgrade', 'Manual Setting', $sethideOnline, 0);
         $user = User::select('id', 'email', 'name')
             ->where('id', $request->user_id)
             ->get()->first();
+
         if (isset($request->page)) {
             switch ($request->page) {
                 case 'advInfo':
@@ -305,8 +309,7 @@ class UserController extends \App\Http\Controllers\BaseController
         } else {
             return view('admin.users.success')
                 ->with('email', $user->email);
-        }
-        
+        }        
     }
 
 
@@ -955,10 +958,12 @@ class UserController extends \App\Http\Controllers\BaseController
             $user['Recommended'] = 1;
         }
         $isVip = $user->isVip();
+        $isHidden = $user->valueAddedServiceStatus('hideOnline');
         $isFreeVip = $user->isFreeVip();
         $user['auth_status'] = 0;
         if ($user->isPhoneAuth() == 1) $user['auth_status'] = 1;
         $user['isvip'] = $isVip;
+        $user['isHidden'] = $isHidden;
         $user['isfreevip'] = $isFreeVip;
         $user['tipcount'] = Tip::TipCount_ChangeGood($user->id);
         $user['vip'] = Vip::vip_diamond($user->id);
@@ -1415,7 +1420,7 @@ class UserController extends \App\Http\Controllers\BaseController
                 ->with('isEverBanned',$isEverBanned)
                 ->with('isWarned',$isWarned)
                 ->with('isBanned',$isBanned)
-                //->with('isHideOnline',$isHideOnline)
+                //->with('isHidden',$isHidden)
                 ->with('cfp_id',$cfp_id)
                 ->with('ip',$ip)
                 ->with('userAgent',$userAgent)

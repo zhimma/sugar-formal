@@ -146,13 +146,6 @@
 <!--隱藏-->
 	@if($user['isHidden'])
 		<button class="btn btn-info" onclick="HiddenAction({{($user['isHidden'])?'1':'0' }},{{ $user['id'] }})"> 取消隱藏 </button>
-		@if($user->engroup==1)
-			@if($user->Recommended==1)
-				<button class="btn btn-info" onclick="RecommendedToggler({{ $user['id'] }},'1')">給予優選</button>
-			@else
-				<button class="btn btn-danger ban-user" onclick="RecommendedToggler({{ $user['id'] }},'0')">取消優選</button>
-			@endif
-		@endif
 	@else 
 		<button class="btn btn-info" onclick="HiddenAction({{($user['isHidden'])?'1':'0' }},{{ $user['id'] }})"> 升級隱藏 </button>
 	@endif
@@ -1742,14 +1735,14 @@
 <!--隱藏 -->
 <div>
 	@if (Auth::user()->can('admin') || Auth::user()->can('juniorAdmin'))
-		<form action="/admin/users/VIPToggler" method="POST" id="clickisHiddenAction">
+		<form action="/admin/users/toggleHidden" method="POST" id="clickisHiddenAction">
 			{{ csrf_field() }}
 			<input type="hidden" value="" name="user_id" id="HiddenID">
 			<input type="hidden" value="" name="isHidden" id="isHidden">
 			<input type="hidden" value="advInfo" name="page">
 		</form>
 	@elseif (Auth::user()->can('readonly'))
-		<form action="/users/VIPToggler/readOnly" method="POST" id="clickisHiddenAction">
+		<form action="/users/toggleHidden/readOnly" method="POST" id="clickisHiddenAction">
 			{{ csrf_field() }}
 			<input type="hidden" value="" name="user_id" id="HiddenID">
 			<input type="hidden" value="" name="isHidden" id="isHidden">
@@ -1972,6 +1965,8 @@ function VipAction(isVip, user_id){
 function HiddenAction(isHidden, user_id){
 	$("#isHidden").val(isHidden);
 	$("#HiddenID").val(user_id);
+	//console.log(isHidden, user_id); // 這裡有執行到
+	// 要善用 F12 檢查 Javascript 有沒有正常運作
 	$("#clickisHiddenAction").submit();
 }
 function RecommendedToggler(user_id,Recommended){
