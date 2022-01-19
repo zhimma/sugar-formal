@@ -525,7 +525,7 @@ class UserMeta extends Model
                                   $city3=null,
                                   $area3=null,
                                   //新增體重
-                                  $weight = '',  )
+                                  $weight = ''  )
     {
         if ($engroup == 1) { $engroup = 2; }
         else if ($engroup == 2) { $engroup = 1; }
