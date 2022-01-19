@@ -1,13 +1,20 @@
-<style>
-	.toug_but:hover{ color:white !important; text-decoration:none !important}
+@extends('new.layouts.website')
+@section('style')
+{{--	<link href="/posts/css/bootstrap.min.css" rel="stylesheet">--}}
+{{--	<link href="/posts/css/bootstrap-theme.min.css" rel="stylesheet">--}}
+	<!-- owl-carousel-->
+	<!--    css-->
+	<link rel="stylesheet" href="/posts/css/style.css">
+	<style>
+		.toug_but:hover{ color:white !important; text-decoration:none !important}
 
-	.article{
-		overflow : hidden;
+		.article{
+			overflow : hidden;
 			text-overflow: ellipsis;
 			display: -webkit-box;
 			-webkit-line-clamp: 2;
 			-webkit-box-orient: vertical;
-	}
+		}
 
 		@media (max-width:320px) {
 			.contents{
@@ -35,18 +42,10 @@
 			}
 		}
 		.read-more:hover {
-		  color:#e44e71;
+			color:#e44e71;
 		}
-</style>
-@extends('new.layouts.website')
-
-		<link href="/posts/css/bootstrap.min.css" rel="stylesheet">
-		<link href="/posts/css/bootstrap-theme.min.css" rel="stylesheet">
-		<!-- owl-carousel-->
-		<!--    css-->
-		<link rel="stylesheet" href="/posts/css/style.css">
-		<script src="/posts/js/jquery-2.1.1.min.js" type="text/javascript"></script>
-		<script src="/posts/js/bootstrap.min.js"></script>
+	</style>
+@endsection
 
 		@section('app-content')
 		<div class="container matop70">
@@ -55,7 +54,7 @@
 					@include('new.dashboard.panel')
 				</div>
 				<div class="col-sm-12 col-xs-12 col-md-10">
-					<div class="shou" style="position: relative;">
+					<div class="shou" style="text-align: center; position: relative;">
 						<a href="/dashboard/forum" class="toug_back btn_img" style=" position: absolute; left: 0;">
 							<div class="btn_back"></div>
 						</a>
@@ -63,7 +62,7 @@
 							<span>官方討論區</span>
 							<font>Discussion</font>
 						</div>
-						<a onclick="checkUserVip();" class="toug_but"><img src="/posts/images/tg_03.png">我要發表</a>
+						<a onclick="checkUserVip();" class="aid_but"><img src="/posts/images/tg_03.png">我要發表</a>
 					</div>
 
 					@if(!isset($posts) || count($posts)==0)
@@ -74,18 +73,18 @@
 						<div class="tou_list">
 							<ul>
 								@foreach($posts as $post)
-									<li {{ $post->uid==1049 && $post->top==0 ? 'style=background:#ddf3ff;padding:10px' : ''}} @if($post->top==1) style="background:#ffcf869e;padding:10px;" @endif>
+									<li {{ $post->uid==1049 && $post->top==0 ? 'style=background:#ddf3ff;padding:10px' : ''}} @if($post->top==1) style="background:#ffcf869e;padding:10px;" @endif @if($post->deleted_by != null) class="huis_02" @endif>
 										<div class="tou_tx">
 											<a href="/dashboard/viewuser/{{$post->uid}}">
 												<div class="tou_tx_img"><img src="@if(file_exists( public_path().$post->umpic ) && $post->umpic != ""){{$post->umpic}} @elseif($post->engroup==2)/new/images/female.png @else/new/images/male.png @endif" class="hycov"></div>
 											</a>
 											<a href="/dashboard/viewuser/{{$post->uid}}"><span>{{ $post->uname }}<i>{{ date('Y-m-d', strtotime($post->pcreated_at)) }}</i></span></a>
-											<a href="/dashboard/post_detail/{{$post->pid}}">
+											<a @if($post->deleted_by == null) href="/dashboard/post_detail/{{$post->pid}}" @else onclick="delete_alert()" @endif>
 												<font><i class="ne_talicon"><img src="/posts/images/tl_icon.png">{{ \App\Models\Posts::where('reply_id',$post->pid)->get()->count() }}</i></font>
 											</a>
 										</div>
-										<a href="/dashboard/post_detail/{{$post->pid}}">
-											<div class="tc_text_aa"><span>{{$post->ptitle}}</span></div>
+										<a @if($post->deleted_by == null) href="/dashboard/post_detail/{{$post->pid}}" @else onclick="delete_alert()" @endif>
+										<div class="tc_text_aa"><span>{{$post->ptitle}}</span></div>
 											<div class="tc_text_bb"><p>{!! \App\Models\Posts::showContent($post->pcontents) !!}</p></div>
 										</a>
 									</li>
@@ -100,14 +99,13 @@
 			</div>
 		</div>
 		@stop
+
+@section('javascript')
 <script>
 
-	$(document).ready(function() {
-		@if(Session::has('message'))
-		c5('{{Session::get('message')}}');
-		<?php session()->forget('message');?>
-		@endif
-	});
+	function delete_alert() {
+		c5('此文章已刪除');
+	}
 
 	function checkUserVip() {
 
@@ -128,3 +126,4 @@
 		}
 	}
 </script>
+@endsection

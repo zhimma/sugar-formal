@@ -1,5 +1,5 @@
 @extends('new.layouts.website')
-
+@section('style')
 	<link rel="stylesheet" href="/posts/css/style.css">
 	<link rel="stylesheet" href="/posts/css/font/font_n/iconfont.css">
 	<link rel="stylesheet" href="/posts/css/font/iconfont.css">
@@ -7,7 +7,10 @@
 	<link href="https://fonts.googleapis.com/css?family=Roboto:400|700" rel="stylesheet">
 	<script src="/posts/js/jquery-2.1.1.min.js" type="text/javascript"></script>
 	<script src="/posts/js/bootstrap.min.js"></script>
-
+	<style>
+		input[type='radio'],input[type='checkbox']{width:18px;height: 18px;vertical-align:middle;opacity: 0;}
+	</style>
+@endsection
 	@section('app-content')
 		<div class="container matop70">
 			<div class="row">
@@ -18,10 +21,9 @@
 					<div class="shou">
 						<span><img src="/posts/images/tg_15.png" style="height: 26px; margin-right: 5px; margin-bottom: 8px;">發表文章</span>
 						<font>Publish</font>
-						<a href="/dashboard/forum_personal/{{$user->id}}" class="toug_back btn_img">
+						<a href="{{url()->previous()}}" class="toug_back btn_img">
 							<div class="btn_back"></div>
 						</a>
-{{--						<a href="{{url()->previous()}}" class="toug_back"><img src="/posts/images/back_icon.png">返回</a>--}}
 					</div>
 					<div class="two_tg">
 						<div class="tow_input">
@@ -40,9 +42,7 @@
 		</div>
 	@stop
 
-<style>
-	input[type='radio'],input[type='checkbox']{width:18px;height: 18px;vertical-align:middle;opacity: 0;}
-</style>
+@section('javascript')
 <script>
 	$(document).ready(function(){
 		$('.input_radio').on('click',function(){
@@ -86,3 +86,4 @@
 		$(".gg_tab").hide();
 	});
 </script>
+@endsection

@@ -695,8 +695,8 @@
         }else if(e.keyCode == 13){
             e.preventDefault();
             var msg_str = $("#msg").val().replace(/\r\n|\n/g,"").replace(/\s+/g, "");
-            if(msg_str.length>300) {
-                c5('訊息輸入至多300個字');
+            if(msg_str.length>400) {
+                c5('訊息輸入至多400個字');
                 e.preventDefault();
                 return false;
             }
@@ -751,8 +751,8 @@
     function chatForm_submit() {
         let content = $('#msg').val(), msgsnd = $('.msgsnd');
         var msg_str = $("#msg").val().replace(/\r\n|\n/g,"").replace(/\s+/g, "");
-        if(msg_str.length>300) {
-            c5('訊息輸入至多300個字');
+        if(msg_str.length>400) {
+            c5('訊息輸入至多400個字');
             return false;
         }else{
             $('#chatForm').submit();

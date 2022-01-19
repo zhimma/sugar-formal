@@ -137,8 +137,7 @@ header("Expires: Fri, 01 Jan 1990 00:00:00 GMT");
 }
 
 
-
-div.new_poptk{color:#6783c7;} 
+div.new_poptk{color:#6783c7;overflow-y:scroll;} 
 </style>
 	<div class="container matop120">
         <div class="row">
@@ -217,6 +216,7 @@ div.new_poptk{color:#6783c7;}
         });
         $(document).ready(function() {
 			@if(\Session::get('is_remind_puppet')=='1')
+            $('body').css('position','fixed');
 			c4('您好，本站禁止註冊多重帳號。'
                 +'[br]除非特殊情況，否則一個人只能擁有一個帳號。'
                 +'[br]不能關閉舊帳號，然後不斷的申請並更換。'
@@ -254,8 +254,12 @@ div.new_poptk{color:#6783c7;}
           
             var tabHeight1 = $('#tab04').height();
             var tabHeight2 = 0;
+            var tabShowHeight1 = winHeight1*0.85;
+            var tabShowHeight2 = winHeight2*0.85;
             var tabWidth1 = $('#tab04').width();
-            var tabWidth2 = 0;   
+            var tabWidth2 = 0;  
+            var tabShowWidth1 = winWidth1*0.9;
+            var tabShowWidth2 = winWidth2*0.9;      
             var tabRatio1 = tabWidth1/tabHeight1;
             var tabRatio2 = 0;
             var tabTopOrg1 = $('#tab04').css('top');
@@ -264,106 +268,115 @@ div.new_poptk{color:#6783c7;}
             var tabPosTop2 = 0;
             var tabTop1 = parseInt(((winHeight1-tabHeight1)>0?(winHeight1-tabHeight1):0)*0.5*0.8)+'px';
             var tabTop2 = 0;
+            var tabShowTop1 = tabTop1;
+            var tabShowTop2 = tabTop2;
+            var changeTop1 = true;
+            var changeTop2 = true;
             
             if(tabHeight1>winHeight1) {
-                $('#tab04').width(winWidth1*0.9);
+                $('#tab04').width(tabShowWidth1);
+                $('#tab04').height(tabShowHeight1);
+                $('#tab04 .new_poptk').height(winHeight1*0.8-50).css('overflow-y','scroll');
                 $('#tab04').css('left',winWidth1*0.1*0.5);
-                tabWidth1 = $('#tab04').width();
-                tabHeight1 = $('#tab04').height();
-                tabTop1 = parseInt(((winHeight1-tabHeight1)>0?(winHeight1-tabHeight1):0)*0.5*0.8)+'px';
+                tabShowTop1 = ((winHeight1-tabShowHeight1)*0.5*0.8)+'px';
+                if(tabShowTop1.charAt(0)=='-') tabShowTop1='0px';
+                $('#tab04').css('top',tabShowTop1);
             }
-
-            if(($('#tab04').position().top+tabHeight1)>(winHeight1*0.9)) {
-                $('#tab04').css('top',tabTop1);
+            else {
+                if(winHeight1*0.99<tabHeight1) tabShowTop1=0;
+                else if(winHeight1*0.92<tabHeight1) tabShowTop1=winHeight1*0.02;
+                else if(winHeight1*0.8<tabHeight1) tabShowTop1=winHeight1*0.08;
+                else changeTop1 = false;
+                
+                if(changeTop1) $('#tab04').css('top',tabShowTop1);
             }
 
             $( window ).on( "orientationchange", function( event ) {
-                $('#tab04').css('top','');
-                $('#tab04').css('width','');
-                $('#tab04').css('left','');
+                var orgDisplay = $('#tab04').css('display');
+                $('#tab04').removeAttr('style');
+                $('#tab04 .new_poptk').removeAttr('style');
+                $('#tab04').css('display',orgDisplay);
                 if(window.orientation==winDirect1) {
-                        tabWidth2 = $('#tab04').width();
-                        tabHeight2 = $('#tab04').height();
-                        tabTop2 = parseInt(((winHeight2-tabHeight2)>0?(winHeight2-tabHeight2):0)*0.5*0.8)+'px';                     
-                    
-                    if(!tabPosTop2) {
-                        tabPosTop2 = parseInt($('#tab04').position().top);
-                        tabTop2 = parseInt(((winHeight2-tabHeight2)>0?(winHeight2-tabHeight2):0)*0.5*0.8)+'px';
-                    }
+
 
                     if(tabHeight1>winHeight1) {
-                        $('#tab04').width(winWidth1*0.9);
+
+                        $('#tab04').width(tabShowWidth1);
+                        $('#tab04').height(tabShowHeight1);
+                        $('#tab04 .new_poptk').height(winHeight1*0.8-50);
                         $('#tab04').css('left',winWidth1*0.1*0.5);
-                        tabWidth1 = $('#tab04').width();
-                        tabHeight1 = $('#tab04').height();
-                        tabTop1 = parseInt(((winHeight1-tabHeight1)>0?(winHeight1-tabHeight1):0)*0.5*0.8)+'px';
-                    }                    
-                    $('#tab04').css('top',tabTop1);
+                        $('#tab04').css('top',tabShowTop1);
+                    }
+                    else {
+                        if(changeTop1) $('#tab04').css('top',tabShowTop1);
+                    }
+
+
                 }
                 else {
-                    tabWidth1 = $('#tab04').width();
-                    tabHeight1 = $('#tab04').height();                    
-                    tabTop1 = parseInt(((winHeight1-tabHeight1)>0?(winHeight1-tabHeight1):0)*0.5*0.8)+'px';
                     if(winDirect2==null) {
                         winDirect2 = window.orientation;
-                        if(!tabHeight2) {  
-                            var h_offset = 17*(ratio1);
-                            if(ratio1<0.8) h_offset = -20*(1/ratio1);
-                            
-                            if(tabHeight1<winHeight1) {
-                                if(ratio1*tabHeight1+(winHeight2*0.08) > (winHeight2+h_offset)) {
-                                    $('#tab04').css('top','1%');
-                                }
-                                else if(ratio1*tabHeight1+(winHeight2*0.2) > (winHeight2+h_offset)) {
-                                    $('#tab04').css('top','8%');
-                                }
-                            }
-                            else {
-                                $('#tab04').css('top',(tabHeight1-winHeight1)*0.5);
-                            }
-                            
-                            tabWidth2 = $('#tab04').width();
-                            tabHeight2 = $('#tab04').height(); 
-                            tabTop2 = parseInt(((winHeight2-tabHeight2)>0?(winHeight2-tabHeight2):0)*0.5*0.8)+'px';                            
-                            
-                            if(tabHeight2>winHeight2) {
-                                $('#tab04').width(winWidth2*0.9);
-                                $('#tab04').css('left',winWidth2*0.1*0.5);
+                     
+                        if(!tabHeight2) {
+                            setTimeout(function(){ 
                                 tabWidth2 = $('#tab04').width();
                                 tabHeight2 = $('#tab04').height();
-                                tabTop2 = parseInt(((winHeight2-tabHeight2)>0?(winHeight2-tabHeight2):0)*0.5*0.8)+'px';
-                                $('#tab04').css('top',tabTop2);
-                            }                             
+                                winHeight2 = $(window).height();
+                                winWidth2 = $(window).width();
+                                tabShowHeight2 = winHeight2*0.85;
+                                tabShowWidth2 = winWidth2*0.9;                                 
+                                tabTop2 = parseInt(((winHeight2-tabShowHeight2)>0?(winHeight2-tabShowHeight2):0)*0.5*0.8)+'px';                     
+                       
+                                
+                                if(tabHeight2>winHeight2*0.8) {
+                                    $('#tab04').width(tabShowWidth2);
+                                    $('#tab04').height(tabShowHeight2); 
+                                    $('#tab04 .new_poptk').height(winHeight2*0.8-50);                        
+                                    
+                                    $('#tab04').css('left',winWidth2*0.1*0.5);
+                                    $('#tab04').css('top',tabTop2);
+                                } 
+                                else if(tabHeight2>winHeight2*0.7) {
+                                    $('#tab04').css('top',tabTop2);
+                                } 
+                                else {
+                                    if(winHeight2*0.99<tabHeight2) tabShowTop2=0;
+                                    else if(winHeight2*0.92<tabHeight2) tabShowTop2=winHeight2*0.02;
+                                    else if(winHeight2*0.8<tabHeight2) tabShowTop2=winHeight2*0.08;
+                                    else changeTop2 = false;
+                                    
+                                    if(changeTop2) $('#tab04').css('top',tabShowTop2);
+                                }                                
+                            }, 500);                                                      
                         }
-                        else {                          
-                            if(tabHeight2>winHeight2) {
-                                $('#tab04').width(winWidth2*0.9);
+                        else {
+                            if(tabHeight2>winHeight2*0.8) {
+                                $('#tab04').width(tabShowWidth2);
+                                $('#tab04').height(tabShowHeight2);
+                                $('#tab04 .new_poptk').height(winHeight2*0.8-50);                        
+                                
                                 $('#tab04').css('left',winWidth2*0.1*0.5);
-                                tabWidth2 = $('#tab04').width();
-                                tabHeight2 = $('#tab04').height();
-                                tabTop2 = parseInt(((winHeight2-tabHeight2)>0?(winHeight2-tabHeight2):0)*0.5*0.8)+'px';
-                                $('#tab04').css('top',tabTop2);
                             }         
-                            else if((tabPosTop2+tabHeight2)>(winHeight2-10)) {
-                                $('#tab04').css('top',tabTop2);
-                            }                            
+                            
+                            if(changeTop2) $('#tab04').css('top',tabShowTop2);
                         }
                     } 
                     else {
-                        
-                        if(tabHeight2>winHeight2) {
-                            $('#tab04').width(winWidth2*0.9);
+                        if(tabHeight2>winHeight2*0.8) {
+                            $('#tab04').width(tabShowWidth2);
+                            $('#tab04').height(tabShowHeight2);
+                            $('#tab04').css('top',tabTop2);                        
+                            $('#tab04 .new_poptk').height(winHeight2*0.8-50).css('overflow-y','scroll');                        
+                            
                             $('#tab04').css('left',winWidth2*0.1*0.5);
-                            tabWidth2 = $('#tab04').width();
-                            tabHeight2 = $('#tab04').height();
-                            tabTop2 = parseInt(((winHeight2-tabHeight2)>0?(winHeight2-tabHeight2):0)*0.5*0.8)+'px';
-                        }                        
-                        
-                        if((tabPosTop2+tabHeight2)>(winHeight2-10)) {
                             $('#tab04').css('top',tabTop2);
-                        }                            
-                    }                    
-                    
+                        }                        
+
+                        if(tabHeight2>(winHeight2*0.7)) {
+                            $('#tab04').css('top',tabTop2);
+                        }  
+                    }  
+
                 } 
             });            
             

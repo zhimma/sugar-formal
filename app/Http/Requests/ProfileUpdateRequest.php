@@ -31,11 +31,17 @@ class ProfileUpdateRequest extends FormRequest
     {
         return [
             'height' => 'required|digits_between:2,3|numeric',
-            'name' => array('required', 'regex:/^[\x{4e00}-\x{9fa5}_a-zA-Z0-9\s\.\,\。\;\'\"\(\)\，\/\-\=\+\?\!\~\>\<]+$/u'),
-            'title' => array('required', 'regex:/^[\x{4e00}-\x{9fa5}_a-zA-Z0-9\s\.\,\。\;\'\"\(\)\，\/\-\=\+\?\!\~\>\<]+$/u'),
-            'about'=> array('regex:/^[\x{4e00}-\x{9fa5}_a-zA-Z0-9\s\.\,\。\;\'\"\(\)\，\/\-\=\+\?\!\~\>\<]+$/u'),
-            'style' => array('regex:/^[\x{4e00}-\x{9fa5}_a-zA-Z0-9\s\.\,\。\;\'\"\(\)\，\/\-\=\+\?\!\~\>\<]+$/u'),
+            'name' => 'required',
+            'title' => 'required',
+            'about'=> 'required',
+            'style' => 'required',
             'assets' => 'required_if:voucher_enabled,1|integer|nullable'
+            //'height' => 'required|digits_between:2,3|numeric',
+            //'name' => array('required', 'regex:/^[\x{4e00}-\x{9fa5}_a-zA-Z0-9\s\.\,\。\;\'\"\(\)\，\/\-\=\+\?\!\~\>\<\^\、\♥]+$/u'),
+            //'title' => array('required', 'regex:/^[\x{4e00}-\x{9fa5}_a-zA-Z0-9\s\.\,\。\;\'\"\(\)\，\/\-\=\+\?\!\~\>\<\^\、\♥]+$/u'),
+            //'about'=> array('regex:/^[\x{4e00}-\x{9fa5}_a-zA-Z0-9\s\.\,\。\;\'\"\(\)\，\/\-\=\+\?\!\~\>\<\^\、\♥]+$/u'),
+            //'style' => array('regex:/^[\x{4e00}-\x{9fa5}_a-zA-Z0-9\s\.\,\。\;\'\"\(\)\，\/\-\=\+\?\!\~\>\<\^\、\♥]+$/u'),
+            //'assets' => 'required_if:voucher_enabled,1|integer|nullable'
         ];
     }
 
@@ -50,7 +56,7 @@ class ProfileUpdateRequest extends FormRequest
             'style.regex' => '期待的約會模式輸入錯誤',
             'height.numeric' => '請輸入數字',
             'height.required' => '請輸入身高',
-            'height.digits_between' => '請輸入兩到三位數字',
+            'height.digits_between' => '身高請輸入兩到三位數字',
             'assets.integer' => '資產必須為數字'
             //'height.digits_between' => '請輸入1~200的數字'
         ];

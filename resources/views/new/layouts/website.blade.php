@@ -1,5 +1,11 @@
+<!DOCTYPE html>
+<html lang="{{ app()->getLocale() }}" >
+<head>
 
-@include('new.partials.header')
+    @include('new.partials.header')
+    @yield("style")
+
+</head>
 <body class="" >
     @include('new.layouts.navigation')
     @yield("app-content")
@@ -330,12 +336,21 @@
                 });                
             }
 
-        })
+        });
     </script>
 
     @endif
 
-
-
+    <script>
+        $(document).ready(function() {
+            @if(Session::has('message'))
+            c5('{{Session::get('message')}}');
+            <?php session()->forget('message');?>
+            @endif
+        });
+    </script>
+    <!-- livewire -->
+    <livewire:scripts />
+    <!-- livewire end-->
 </body>
 </html>

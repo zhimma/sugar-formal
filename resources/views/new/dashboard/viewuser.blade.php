@@ -246,7 +246,7 @@
 
 
         @media (max-width:450px) {
-            .huiyoic{ height:118px;}
+           .huiyoic{ height:118px;}
         }
         @if(!$user->isVip())
         .tubiao ul li img {height:50px !important;}
@@ -254,7 +254,10 @@
     </style>
     <style>
         .new_pot1{width:96%;height:auto;margin: 0 auto;color: #666666;display: block; margin-top: 20px; margin-bottom: 20px;}
-        @media (max-width:824px){
+        .new_pot,.new_pot001, .new_po000 {max-height:500px;}
+        .new_pot001, .new_po000 {overflow-y:scroll;}
+        .new_pot {overflow-y:hidden;}
+        media (max-width:824px){
             .new_pot1{height:195px;overflow-y: scroll; padding-bottom:15px; }
         }
         @media (max-width:450px){
@@ -320,15 +323,26 @@
             margin-left: 5px;
             font-size: 12px;
         }
+        .fpt_pic {
+            overflow-y: scroll;
+            max-height: 480px;            
+        }
     </style>
     <style>
         .he_tkcn ul a span {text-align:left;font-size:unset;}
         .he_tkcn ul a span.vip_space {display:inline;height:0;float:left;}
         .he_tkcn ul a span.vip_space .tap-vip {top: -31px;left: 16px;}
         .he_tkcn_img {display: unset;margin-top: unset;}
+        div.kll {word-break:break-all;}
+        /*** iphone12 會吃掉右邊的字  ****/
+        button.al_but {width:auto;white-space: nowrap;} 
     </style>
     <script src="{{asset('/new/js/pick_real_error.js')}}" type="text/javascript"></script>
     <script type="application/javascript">
+        function show_Warned() {
+            return  c5('您目前被站方警示，無檢舉權限');
+        }    
+    
         function setTextAreaHeight(rowid) {
             $('#re_content_'+rowid).each(function () {
                 this.setAttribute('style', 'height:' + (this.scrollHeight) + 'px;overflow-y:hidden;');
@@ -352,7 +366,89 @@
                     $("#re_area_"+rowid).css('margin-top',textAreaHeight + 'px');
                 }
             })
-        }     
+        }    
+
+        function form_submit(){
+            // if( $("input[name='rating']:checked").val() == undefined) {
+            //     // c5('請先點擊星等再評價');
+            //     $('.alert_tip').text();
+            //     $('.alert_tip').text('請先點擊星等再評價');
+            //     return false;
+            // }else
+            if($.trim($(".evaluation_content").val())=='') {
+                // c5('請輸入評價內容');
+                $('.alert_tip').text();
+                $('.alert_tip').text('請輸入評價內容');
+                return false;
+            }else if($(".evaluation_content").val().length>300) {
+                // c5('請輸入評價內容');
+                $('.alert_tip').text();
+                $('.alert_tip').text('評價至多300個字元');
+                return false;
+            }else if($("input[name='agree']:checked").val() == undefined) {
+                // c5('請勾選同意上述說明');
+                $('.alert_tip').text();
+                $('.alert_tip').text('請勾選同意上述說明');
+                return false;
+            }else{
+                $('#form1').submit();
+            }
+            return false;
+        }
+
+        function reportPostForm_submit() {
+            if($("input[name='agree']:checked").val() == undefined) {
+                $('.alert_tip').text();
+                $('.alert_tip').text('請勾選同意上述說明');
+                return false;
+            }else{
+                $('#reportPostForm').submit();
+            }
+        }
+       
+        function form_evaluation_reply_submit(){
+            if($.trim($("#re_content_reply").val())=='') {
+                $('.alert_tip').text();
+                $('.alert_tip').text('請輸入內容');
+            }else{
+                $('#form_evaluation_reply').submit();
+            }
+        }  
+        
+        function show_banned_close(){
+            $(".announce_bg").hide();
+            $("#show_banned_ele").hide();
+            $('body').css("overflow", "auto");
+        } 
+
+        function show_reportPic_close(){
+            $(".announce_bg").hide();
+            $("#show_reportPic").hide();
+            $(".blbg").hide();
+            $('body').css("overflow", "auto");
+        }            
+
+		function tab_evaluation_close(){
+			$(".announce_bg").hide();
+			$("#tab_evaluation").hide();
+			$('body').css("overflow", "auto");
+		}
+
+		function tab_evaluation_reply_close(){
+			$(".announce_bg").hide();
+			$("#tab_evaluation_reply").hide();
+			$('body').css("overflow", "auto");
+		}
+
+		function tab_evaluation_reply_show(id, eid) {
+			$(".announce_bg").show();
+			//$("#re_content_reply").val('');
+			//$("#images_reply").val('');
+			$("#tab_evaluation_reply").show();
+			$("#tab_evaluation_reply #id_reply").val(id);
+			$("#tab_evaluation_reply #eid_reply").val(eid);
+			$('body').css("overflow", "hidden");
+		}        
     </script>
     @php
         $isBlurAvatar = \App\Services\UserService::isBlurAvatar($to, $user);
@@ -674,6 +770,25 @@
 							</li>                            
                         </ul>
                     </div>
+					<!--新改-->
+
+					<script>
+						$('.userlogo').click(function() {
+							event.stopPropagation()
+							if($(this).hasClass('on1')) {
+								$(this).removeClass('on1')
+								$('.showslide').fadeOut()
+							} else {
+								$(this).addClass('on1')
+								$('.fadeinboxs').fadeIn()
+								$('.showslide').fadeIn()
+							}
+						})
+						$('body').click(function() {
+							$('.userlogo').removeClass('on1')
+							$('.showslide').fadeOut()
+						})
+					</script>	
 
                     <!-- Swiper JS -->
                     <script type="application/javascript" src="/new/js/swiper.min.js"></script>
@@ -1384,7 +1499,7 @@
                         <input type="hidden" name="picType" value="">
                         <input type="hidden" name="pic_id" value="">
                         <textarea name="content" cols="" rows="" class="n_nutext" placeholder="{{$report_avatar}}" required></textarea>
-                        <input type="file" name="images">
+                        <input type="file" name="images" class="reportedUserInput">
                         <div class="n_bbutton" style="margin-top:10px;text-align:center;">
                             <button type="submit" class="n_right" style="border-style: none; background: #8a9ff0; color:#ffffff;float: unset; margin-left: 0px; margin-right: 20px;">送出</button>
                             <button type="reset" class="n_left" style="border-style: none;background: #ffffff; color:#8a9ff0; float: unset; margin-right: 0px;" onclick="show_reportPic_close()">返回</button>
@@ -1527,7 +1642,10 @@
     }
 
     function isEllipsisActive(e) {
-        return (Math.ceil($(e).innerHeight()) < $(e)[0].scrollHeight);
+        console.log('$(e).attr("class")='+$(e).attr("class"));
+        console.log('$(e).innerHeight()='+$(e).innerHeight());
+        console.log(' $(e)[0].scrollHeight='+ $(e)[0].scrollHeight);
+        return (Math.ceil($(e).innerHeight()==undefined?0:$(e).innerHeight()) < ($(e)[0].scrollHeight==undefined?0:$(e)[0].scrollHeight));
     }
     
     function show_banned() {
@@ -1546,7 +1664,21 @@
         }else{
             c5('不可檢舉自己');
         }
-    }    
+    }   
+
+   function show_reportPic() {
+
+        if(is_banned){
+            return  c5('您目前被站方封鎖，無檢舉權限');
+        }
+
+        $(".blbg").show();
+        $("#show_reportPic").show();
+        $('body').css("overflow", "hidden");
+        // alert($('.swiper-slide-active').data('type'));
+        $('input[name="picType"]').val($('.swiper-slide-active').data('type'));
+        $('input[name="pic_id"]').val($('.swiper-slide-active').data('pic_id'));
+    }     
 
     $( document ).ready(function() {
 
@@ -1716,32 +1848,32 @@
         });
 
         $('div.context-wrap').each(function(i) {
+            var more_elt = $(this).parents('.hu_p').find('span.z_more');
             if (isEllipsisActive(this)) {
-                $(this).parents('.hu_p').find('span.z_more').removeClass('hide_more');
-                $(this).parents('.hu_p').find('span.z_more').removeClass('show_more');
-                $(this).parents('.hu_p').find('span.z_more').addClass('show_more');
+                more_elt.removeClass('hide_more');
+                more_elt.removeClass('show_more');
+                more_elt.addClass('show_more');
             }
             else {
-                $(this).parents('.hu_p').find('span.z_more').removeClass('show_more');
-                $(this).parents('.hu_p').find('span.z_more').removeClass('hide_more');
-                $(this).parents('.hu_p').find('span.z_more').addClass('hide_more');
+                more_elt.removeClass('show_more');
+                more_elt.removeClass('hide_more');
+                more_elt.addClass('hide_more');
             }
+            
+            if(more_elt.hasClass('hide_more')) {
+                if (p_elt.length>0 && isEllipsisActive(p_elt)) {
+                    more_elt.removeClass('hide_more');
+                    more_elt.removeClass('show_more');
+                    more_elt.addClass('show_more');
+                }
+                else {
+                    more_elt.removeClass('show_more');
+                    more_elt.removeClass('hide_more');
+                    more_elt.addClass('hide_more');
+                }                            
+            }            
         });
     });
-    
-    function show_reportPic() {
-
-        if(is_banned){
-            return  c5('您目前被站方封鎖，無檢舉權限');
-        }
-
-        $(".blbg").show();
-        $("#show_reportPic").show();
-        $('body').css("overflow", "hidden");
-        // alert($('.swiper-slide-active').data('type'));
-        $('input[name="picType"]').val($('.swiper-slide-active').data('type'));
-        $('input[name="pic_id"]').val($('.swiper-slide-active').data('pic_id'));
-    } 
 
     function show_chat() {
         //$(".blbg").show();
@@ -2040,10 +2172,7 @@
 
     // $.noConflict();
 
-    function show_Warned() {
-        // c5('無法檢舉');
-        return  c5('您目前被站方封鎖，無檢舉權限');
-    }
+
 
     @if(isset($to))
         $('.evaluation').on('click', function() {
@@ -2084,50 +2213,125 @@
 
     $(window).resize(function() {
         $('div.context-wrap').each(function(i) {
+            var more_elt = $(this).parents('.hu_p').find('span.z_more');
+            var p_elt = $(this).parents('.hu_p').find('ul.zap_photo');
             if (isEllipsisActive(this)) {
-                $(this).parents('.hu_p').find('span.z_more').removeClass('hide_more');
-                $(this).parents('.hu_p').find('span.z_more').removeClass('show_more');
-
-                $(this).parents('.hu_p').find('span.z_more').addClass('show_more');
+                more_elt.removeClass('hide_more');
+                more_elt.removeClass('show_more');
+                more_elt.addClass('show_more');
             }
             else {
-                $(this).parents('.hu_p').find('span.z_more').removeClass('show_more');
-                $(this).parents('.hu_p').find('span.z_more').removeClass('hide_more');
-
-                $(this).parents('.hu_p').find('span.z_more').addClass('hide_more');
+                more_elt.removeClass('show_more');
+                more_elt.removeClass('hide_more');
+                more_elt.addClass('hide_more');
             }
+            
+            if(more_elt.hasClass('hide_more')) {
+                if (p_elt.length>0 && isEllipsisActive(p_elt)) {
+                    more_elt.removeClass('hide_more');
+                    more_elt.removeClass('show_more');
+                    more_elt.addClass('show_more');
+                }
+                else {
+                    more_elt.removeClass('show_more');
+                    more_elt.removeClass('hide_more');
+                    more_elt.addClass('hide_more');
+                }                            
+            }            
         });
     });
-
-    $('.many-txt').each(function(i) {
+    
+    $('div.context-wrap').each(function(i) {
+        var more_elt = $(this).parents('.hu_p').find('span.z_more');
+        var p_elt = $(this).parents('.hu_p').find('ul.zap_photo');
         if (isEllipsisActive(this)) {
-            $(this).parents('.con').find('.al_but').removeClass('hide_more');
-            $(this).parents('.con').find('.al_but').removeClass('show_more');
-
-            $(this).parents('.con').find('.al_but').addClass('show_more');
+            more_elt.removeClass('hide_more');
+            more_elt.removeClass('show_more');
+            more_elt.addClass('show_more');
         }
         else {
-            $(this).parents('.con').find('.al_but').removeClass('hide_more');
-            $(this).parents('.con').find('.al_but').removeClass('show_more');
-
-            $(this).parents('.con').find('.al_but').addClass('hide_more');
+            more_elt.removeClass('show_more');
+            more_elt.removeClass('hide_more');
+            more_elt.addClass('hide_more');
         }
+        
+        if(more_elt.hasClass('hide_more')) {
+            if (p_elt.length>0 && isEllipsisActive(p_elt)) {
+                more_elt.removeClass('hide_more');
+                more_elt.removeClass('show_more');
+                more_elt.addClass('show_more');
+            }
+            else {
+                more_elt.removeClass('show_more');
+                more_elt.removeClass('hide_more');
+                more_elt.addClass('hide_more');
+            }                            
+        }            
+    });    
+
+    $('.many-txt').each(function(i) {
+        var but_elt = $(this).parents('.con').find('.al_but');
+        var photo_elt = $(this).parents('.con').find('.zap_photo');         
+        if (isEllipsisActive(this)) {
+            but_elt.removeClass('hide_more');
+            but_elt.removeClass('show_more');
+
+            but_elt.addClass('show_more');
+        }
+        else {
+            but_elt.removeClass('hide_more');
+            but_elt.removeClass('show_more');
+
+            but_elt.addClass('hide_more');
+        }
+        
+        if(but_elt.hasClass('hide_more')) {
+            if (photo_elt.length>0 && isEllipsisActive(photo_elt)) {
+                but_elt.removeClass('hide_more');
+                but_elt.removeClass('show_more');
+
+                but_elt.addClass('show_more');                                    
+            }
+            else {
+                but_elt.removeClass('hide_more');
+                but_elt.removeClass('show_more');
+
+                but_elt.addClass('hide_more');
+            }                                
+        }        
     });
 
     $(window).resize(function() {
         $('.many-txt').each(function(i) {
+            var but_elt = $(this).parents('.con').find('.al_but');
+            var photo_elt = $(this).parents('.con').find('.zap_photo');            
             if (isEllipsisActive(this)) {
-                $(this).parents('.con').find('.al_but').removeClass('hide_more');
-                $(this).parents('.con').find('.al_but').removeClass('show_more');
+                but_elt.removeClass('hide_more');
+                but_elt.removeClass('show_more');
 
-                $(this).parents('.con').find('.al_but').addClass('show_more');
+                but_elt.addClass('show_more');
             }
             else {
-                $(this).parents('.con').find('.al_but').removeClass('hide_more');
-                $(this).parents('.con').find('.al_but').removeClass('show_more');
+                but_elt.removeClass('hide_more');
+                but_elt.removeClass('show_more');
 
-                $(this).parents('.con').find('.al_but').addClass('hide_more');
+                but_elt.addClass('hide_more');
             }
+            
+            if(but_elt.hasClass('hide_more')) {
+                if (photo_elt.length>0 && isEllipsisActive(photo_elt)) {
+                    but_elt.removeClass('hide_more');
+                    but_elt.removeClass('show_more');
+
+                    but_elt.addClass('show_more');                                    
+                }
+                else {
+                    but_elt.removeClass('hide_more');
+                    but_elt.removeClass('show_more');
+
+                    but_elt.addClass('hide_more');
+                }                                
+            }            
         });
     });
 
@@ -2143,52 +2347,7 @@
     });
 	});
 
-    function form_submit(){
-        // if( $("input[name='rating']:checked").val() == undefined) {
-        //     // c5('請先點擊星等再評價');
-        //     $('.alert_tip').text();
-        //     $('.alert_tip').text('請先點擊星等再評價');
-        //     return false;
-        // }else
-        if($.trim($(".evaluation_content").val())=='') {
-            // c5('請輸入評價內容');
-            $('.alert_tip').text();
-            $('.alert_tip').text('請輸入評價內容');
-            return false;
-        }else if($(".evaluation_content").val().length>300) {
-            // c5('請輸入評價內容');
-            $('.alert_tip').text();
-            $('.alert_tip').text('評價至多300個字元');
-            return false;
-        }else if($("input[name='agree']:checked").val() == undefined) {
-            // c5('請勾選同意上述說明');
-            $('.alert_tip').text();
-            $('.alert_tip').text('請勾選同意上述說明');
-            return false;
-        }else{
-            $('#form1').submit();
-        }
-        return false;
-    }
 
-    function reportPostForm_submit() {
-        if($("input[name='agree']:checked").val() == undefined) {
-            $('.alert_tip').text();
-            $('.alert_tip').text('請勾選同意上述說明');
-            return false;
-        }else{
-            $('#reportPostForm').submit();
-        }
-    }
-   
-    function form_evaluation_reply_submit(){
-        if($.trim($("#re_content_reply").val())=='') {
-            $('.alert_tip').text();
-            $('.alert_tip').text('請輸入內容');
-        }else{
-            $('#form_evaluation_reply').submit();
-        }
-    }
     
     //解衝突，排除mobile無法作用的問題
     // jQuery.noConflict();
@@ -2201,9 +2360,71 @@
                 $('.hzk').find('img').attr("src","/new/images/zk_icon.png");
                 $('.hzk').find('h2').text('部分被封鎖的會員評價已經被隱藏，點此全部顯示');
             }else{
-                $('#plshow').show();
+                $('#plshow').show(function(){
+                    $('div.context-wrap').each(function(i) {
+                        var more_elt = $(this).parents('.hu_p').find('span.z_more');
+                        var p_elt = $(this).parents('.hu_p').find('ul.zap_photo');
+                        if (isEllipsisActive(this)) {
+                            more_elt.removeClass('hide_more');
+                            more_elt.removeClass('show_more');
+                            more_elt.addClass('show_more');
+                        }
+                        else {
+                            more_elt.removeClass('show_more');
+                            more_elt.removeClass('hide_more');
+                            more_elt.addClass('hide_more');
+                        }
+                        
+                        if(more_elt.hasClass('hide_more')) {
+                            if (p_elt.length>0 && isEllipsisActive(p_elt)) {
+                                more_elt.removeClass('hide_more');
+                                more_elt.removeClass('show_more');
+                                more_elt.addClass('show_more');
+                            }
+                            else {
+                                more_elt.removeClass('show_more');
+                                more_elt.removeClass('hide_more');
+                                more_elt.addClass('hide_more');
+                            }                            
+                        }
+                                               
+                    }); 
+
+                    $('.many-txt').each(function(i) {
+                        var but_elt = $(this).parents('.con').find('.al_but');
+                        var photo_elt = $(this).parents('.con').find('.zap_photo');
+                        if (isEllipsisActive(this)) {
+                            but_elt.removeClass('hide_more');
+                            but_elt.removeClass('show_more');
+
+                            but_elt.addClass('show_more');
+                        }
+                        else {
+                            but_elt.removeClass('hide_more');
+                            but_elt.removeClass('show_more');
+
+                            but_elt.addClass('hide_more');
+                        }
+                        
+                        if(but_elt.hasClass('hide_more')) {
+                            if (photo_elt.length>0 && isEllipsisActive(photo_elt)) {
+                                but_elt.removeClass('hide_more');
+                                but_elt.removeClass('show_more');
+
+                                but_elt.addClass('show_more');                                    
+                            }
+                            else {
+                                but_elt.removeClass('hide_more');
+                                but_elt.removeClass('show_more');
+
+                                but_elt.addClass('hide_more');
+                            }                                
+                        }
+                    });                     
+                });
                 $('.hzk').find('img').attr("src","/new/images/zk_iconup.png");
                 $('.hzk').find('h2').text('收起');
+
 
             }
         });
@@ -2214,13 +2435,11 @@
 <link href="{{ asset('css/font/font-fileuploader.css') }}" media="all" rel="stylesheet">
 <script src="{{ asset('js/jquery.fileuploader.js') }}" type="text/javascript"></script>
 <script src="{{ asset('new/js/heic2any.min.js') }}" type="text/javascript"></script>
-<!--
 <script src="{{ asset('new/js/resize_before_upload.js') }}" type="text/javascript"></script>
--->
 <script type="application/javascript">
 
-    $(document).ready(function () {        
-        images_uploader=$('input[name="images"]').fileuploader({
+    $(document).ready(function () {  
+        var images_uploader_options = {
             //extensions: ['jpg', 'png', 'jpeg', 'bmp'],
             changeInput: ' ',
             theme: 'thumbnails',
@@ -2350,183 +2569,22 @@
                     fileName: '${name} 已有選取相同名稱的檔案.',
                 }
             }
-        });
-        {{-- resize_before_upload(images_uploader,400,600,'#tab_evaluation,#show_reportPic'); --}}
-        reportedImages_uploader = $('input[name="reportedImages"]').fileuploader({
-            //extensions: ['jpg', 'png', 'jpeg', 'bmp'],
-            changeInput: ' ',
-            theme: 'thumbnails',
-            enableApi: true,
-            addMore: true,
-            limit: 15,
-            thumbnails: {
-                box: '<div class="fileuploader-items">' +
-                    '<ul class="fileuploader-items-list">' +
-                    '<li class="fileuploader-thumbnails-input"><div class="fileuploader-thumbnails-input-inner" style="background: url({{ asset("new/images/addpic.png") }}); background-size:100%"></div></li>' +
-                    '</ul>' +
-                    '</div>',
-                item: '<li class="fileuploader-item">' +
-                    '<div class="fileuploader-item-inner">' +
-                    '<div class="type-holder">${extension}</div>' +
-                    '<div class="actions-holder">' +
-                    '<button type="button" class="fileuploader-action fileuploader-action-remove" title="${captions.remove}"><i class="fileuploader-icon-remove"></i></button>' +
-                    '</div>' +
-                    '<div class="thumbnail-holder">' +
-                    '${image}' +
-                    '<span class="fileuploader-action-popup"></span>' +
-                    '</div>' +
-                    '<div class="content-holder"><h5>${name}</h5><span>${size2}</span></div>' +
-                    '<div class="progress-holder">${progressBar}</div>' +
-                    '</div>' +
-                    '</li>',
-                item2: '<li class="fileuploader-item">' +
-                    '<div class="fileuploader-item-inner">' +
-                    '<div class="type-holder">${extension}</div>' +
-                    '<div class="actions-holder">' +
-                    '<a href="${file}" class="fileuploader-action fileuploader-action-download" title="${captions.download}" download><i class="fileuploader-icon-download"></i></a>' +
-                    '<button type="button" class="fileuploader-action fileuploader-action-remove" title="${captions.remove}"><i class="fileuploader-icon-remove"></i></button>' +
-                    '</div>' +
-                    '<div class="thumbnail-holder">' +
-                    '${image}' +
-                    '<span class="fileuploader-action-popup"></span>' +
-                    '</div>' +
-                    '<div class="content-holder"><h5 title="${name}">${name}</h5><span>${size2}</span></div>' +
-                    '<div class="progress-holder">${progressBar}</div>' +
-                    '</div>' +
-                    '</li>',
-                startImageRenderer: true,
-                canvasImage: false,
-                _selectors: {
-                    list: '.fileuploader-items-list',
-                    item: '.fileuploader-item',
-                    start: '.fileuploader-action-start',
-                    retry: '.fileuploader-action-retry',
-                    remove: '.fileuploader-action-remove'
-                },
-                onItemShow: function(item, listEl, parentEl, newInputEl, inputEl) {
-                    var plusInput = listEl.find('.fileuploader-thumbnails-input'),
-                        api = $.fileuploader.getInstance(inputEl.get(0));
+        };
+        images_uploader=$('input[name="images"]:not(.reportedUserInput)').fileuploader(images_uploader_options);
 
-                    plusInput.insertAfter(item.html)[api.getOptions().limit && api.getChoosedFiles().length >= api.getOptions().limit ? 'hide' : 'show']();
-
-                    if(item.format == 'image') {
-                        item.html.find('.fileuploader-item-icon').hide();
-                    }
-
-                    if (api.getListEl().length > 0) {
-                        $('.fileuploader-thumbnails-input-inner').css('background-image', 'url({{ asset("new/images/addpic.png") }})');
-                    }
-                },
-                onItemRemove: function(html, listEl, parentEl, newInputEl, inputEl) {
-                    var plusInput = listEl.find('.fileuploader-thumbnails-input'),
-                        api = $.fileuploader.getInstance(inputEl.get(0));
-
-                    html.children().animate({'opacity': 0}, 200, function() {
-                        html.remove();
-
-                        if (api.getOptions().limit && api.getChoosedFiles().length - 1 < api.getOptions().limit)
-                            plusInput.show();
-                    });
-
-                    if (api.getFiles().length == 1) {
-                        $('.fileuploader-thumbnails-input-inner').css('background-image', 'url({{ asset("new/images/addpic.png") }})');
-                    }
-                }
-            },
-            dialogs: {
-                alert:function(message) {
-                    alert(message);
-                }
-            },
-            dragDrop: {
-                container: '.fileuploader-thumbnails-input'
-            },
-            afterRender: function(listEl, parentEl, newInputEl, inputEl) {
-                var plusInput = listEl.find('.fileuploader-thumbnails-input'),
-                    api = $.fileuploader.getInstance(inputEl.get(0));
-
-                plusInput.on('click', function() {
-                    api.open();
-                });
-
-                api.getOptions().dragDrop.container = plusInput;
-            },
-            editor: {
-                cropper: {
-                    showGrid: true,
-                },
-            },
-            captions: {
-                confirm: '確認',
-                cancel: '取消',
-                name: '檔案名稱',
-                type: '類型',
-                size: '容量',
-                dimensions: '尺寸',
-                duration: '持續時間',
-                crop: '裁切',
-                rotate: '旋轉',
-                sort: '分類',
-                download: '下載',
-                remove: '刪除',
-                drop: '拖曳至此上傳檔案',
-                open: '打開',
-                removeConfirmation: '確認要刪除檔案嗎?',
-                errors: {
-                    filesLimit: function(options) {
-                        return '最多上傳 ${limit} 張圖片'
-                    },
-                    filesType: '檔名: ${name} 不支援此格式, 只允許 ${extensions} 檔案類型上傳.',
-                    fileSize: '${name} 檔案太大, 請確認容量需小於 ${fileMaxSize}MB.',
-                    filesSizeAll: '上傳的所有檔案過大, 請確認未超過 ${maxSize} MB.',
-                    fileName: '${name} 已有選取相同名稱的檔案.',
-                }
-            }
-        });
-        {{-- resize_before_upload(reportedImages_uploader,400,600,'#show_banned_ele'); --}}
+        resize_before_upload(images_uploader,400,600,'#tab_evaluation,#tab_evaluation_reply');
+        var reportedImages_options = images_uploader_options;
+        reportedImages_options.limit = 15;
+        
+        reportedImages_uploader = $('input[name="reportedImages"],input.reportedUserInput').fileuploader(reportedImages_options);
+        resize_before_upload(reportedImages_uploader,400,600,'#show_banned_ele,#show_reportPic');
         $(".announce_bg").on("click", function() {
             $('.bl_tab_aa').hide();
             $('body').css("overflow", "auto");
         });
 
     });
-    
-    function show_banned_close(){
-        $(".announce_bg").hide();
-        $("#show_banned_ele").hide();
-        $('body').css("overflow", "auto");
-    } 
 
-    function show_reportPic_close(){
-        $(".announce_bg").hide();
-        $("#show_reportPic").hide();
-        $(".blbg").hide();
-        $('body').css("overflow", "auto");
-    }    
-
-	$(document).ready(function () {
-		function tab_evaluation_close(){
-			$(".announce_bg").hide();
-			$("#tab_evaluation").hide();
-			$('body').css("overflow", "auto");
-		}
-
-		function tab_evaluation_reply_close(){
-			$(".announce_bg").hide();
-			$("#tab_evaluation_reply").hide();
-			$('body').css("overflow", "auto");
-		}
-
-		function tab_evaluation_reply_show(id, eid) {
-			$(".announce_bg").show();
-			//$("#re_content_reply").val('');
-			//$("#images_reply").val('');
-			$("#tab_evaluation_reply").show();
-			$("#tab_evaluation_reply #id_reply").val(id);
-			$("#tab_evaluation_reply #eid_reply").val(eid);
-			$('body').css("overflow", "hidden");
-		}
-	})
 </script>
 
 <link type="text/css" rel="stylesheet" href="/new/css/app.css">
