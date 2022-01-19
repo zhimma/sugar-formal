@@ -473,9 +473,6 @@ header("Expires: Fri, 01 Jan 1990 00:00:00 GMT");
                         }
                         $heightfrom = "";
                         $heightto = "";
-                        //新增體重
-                        $weight = "";
-
                         $prRange_none = "";
                         $prRange = "";
                         $situation = "";
@@ -484,6 +481,8 @@ header("Expires: Fri, 01 Jan 1990 00:00:00 GMT");
                         $isWarned = "";
                         $isPhoneAuth = "";
                         $tattoo= "";
+                        //新增體重
+                        $weight = "";
                     }
                     catch (\Exception $e){
                         \Illuminate\Support\Facades\Log::info('Search error, $user: ' . $user);
@@ -805,10 +804,6 @@ header("Expires: Fri, 01 Jan 1990 00:00:00 GMT");
              let userIsVip="{{$userIsVip}}";
              let heightfrom="{{$heightfrom}}";
              let heightto="{{$heightto}}";
-
-             //新增體重
-             let weight="{{$weight}}";
-
              let prRange_none="{{$prRange_none}}";
              let prRange="{{$prRange}}";
              let situation="{{$situation}}";
@@ -823,6 +818,8 @@ header("Expires: Fri, 01 Jan 1990 00:00:00 GMT");
              let county2= "{{$county2  ?? null}}";
              let district3= "{{$district3  ?? null}}";
              let county3= "{{$county3  ?? null}}";
+             //新增體重
+             let weight="{{$weight}}";
             axios.post('/getSearchData', {
                 county:county,
                 district:district,
@@ -844,9 +841,6 @@ header("Expires: Fri, 01 Jan 1990 00:00:00 GMT");
                 userIsVip:userIsVip,
                 heightfrom:heightfrom,
                 heightto:heightto,
-                //新增體重
-                weight:weight,   
-                
                 prRange_none:prRange_none,
                 prRange:prRange,
                 situation:situation,
@@ -860,7 +854,9 @@ header("Expires: Fri, 01 Jan 1990 00:00:00 GMT");
                 city2:county2,
                 area2:district2,
                 city3:county3,
-                area3:district3
+                area3:district3,
+                //新增體重
+                weight:weight
             })
             .then(response => {
                     this.ssrData = response.data.ssrData;

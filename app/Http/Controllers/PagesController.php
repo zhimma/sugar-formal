@@ -2508,7 +2508,8 @@ class PagesController extends BaseController
             $request->city2,
             $request->area2,
             $request->city3,
-            $request->area3
+            $request->area3,
+            $request->weight
         );
 
         $ssrData = '';
