@@ -1,2 +1,0 @@
-[27-Nov-2018 05:32:18 UTC] PHP Fatal error:  Class 'Illuminate\Database\Seeder' not found in /home/sguser/public_html/database/seeds/UserTableSeeder.php on line 17
-[27-Nov-2018 08:32:31 UTC] PHP Fatal error:  Class 'Illuminate\Database\Seeder' not found in /home/sguser/public_html/database/seeds/DatabaseSeeder.php on line 11
