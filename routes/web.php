@@ -424,16 +424,13 @@ Route::group(['middleware' => ['auth', 'global', 'active', 'femaleActive', 'vipC
         Route::get('/dashboard/evaluation_self', 'PagesController@evaluation_self');
         Route::post('/dashboard/evaluation_self/deleteAll', 'PagesController@evaluation_self_deleteAll')->name('evaDeleteAll'); //new route
 
-
-
         Route::get('/dashboard/evaluation/{uid}', 'PagesController@evaluation');
         Route::post('/dashboard/evaluation/save', 'PagesController@evaluation_save')->name('evaluation');
         Route::post('/dashboard/evaluation/re_content_save', 'PagesController@evaluation_re_content_save')->name('evaluation_re_content');
         Route::post('/dashboard/evaluation/re_content_delete', 'PagesController@evaluation_re_content_delete')->name('evaluation_re_content_delete');
         Route::post('/dashboard/evaluation/delete', 'PagesController@evaluation_delete')->name('evaluation_delete');
 
-
-        Route::get('/dashboard/banned', 'PagesController@dashboard_banned');
+        Route::get('/dashboard/banned_warned_list', 'PagesController@banned_warned_list');
         Route::get('/dashboard/visited', 'PagesController@visited');
 
         Route::middleware("HasReferer:listSeatch2")->group(function (){
