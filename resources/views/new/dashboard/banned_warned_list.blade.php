@@ -1,4 +1,5 @@
 @extends('new.layouts.website')
+
 <style>
     .pagination > li > a:focus,
 .pagination > li > a:hover,
@@ -12,6 +13,16 @@
     /* color:white !important; */
 }
 </style>
+<!-- Bootstrap -->
+<link href={{asset("alert/css/bootstrap.min.css")}} rel="stylesheet">
+<link href={{asset("alert/css/bootstrap-theme.min.css")}} rel="stylesheet">
+<!-- owl-carousel-->
+<!--    css-->
+<link rel="stylesheet" href={{asset("alert/css/style.css")}}>
+<link rel="stylesheet" href={{asset("alert/css/swiper.min.css")}}>
+<script src={{asset('alert/js/bootstrap.min.js')}}></script>
+<script src={{asset("alert/js/jquery-2.1.1.min.js")}} type="text/javascript"></script>
+<script src={{asset("alert/js/main.js")}} type="text/javascript"></script>
 <script>
     function changediv(id) {
         document.getElementById("fs").style.display = "none";
