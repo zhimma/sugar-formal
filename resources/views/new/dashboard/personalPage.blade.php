@@ -30,8 +30,11 @@
 		.fr_nbj{ float: right;}
 		@media (max-width:320px) {
 			.fr_nbj{ float: none;}
-		}	
-		
+		}
+
+        .tu_dfont a img{
+            all:unset !important;height:26px !important; margin:-7px 5px !important;
+        }
     </style>
     <style>
         .pj_add_a{margin: 0 auto;display: table;margin-bottom: 10px;}

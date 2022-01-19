@@ -234,7 +234,7 @@ div.new_poptk{color:#6783c7;overflow-y:scroll;}
                 @endif
                 +'。'
                 @endif
-                +'[br][br]若您有特殊需求請加站長<a href="https://lin.ee/rLqcCns" target="_blank">@giv4956r</a><a href="https://lin.ee/rLqcCns" target="_blank">&nbsp;<img src="https://scdn.line-apps.com/n/line_add_friends/btn/zh-Hant.png" alt="加入好友" height="36" border="0" style="height: 36px; float: unset;"></a>&nbsp;提出申請'
+                +'[br][br]若您有特殊需求請加站長<a href="https://lin.ee/rLqcCns" target="_blank">@giv4956r</a><a href="https://lin.ee/rLqcCns" target="_blank">&nbsp;<img src="https://scdn.line-apps.com/n/line_add_friends/btn/zh-Hant.png" alt="加入好友" height="26" border="0" style="height: 26px; float: unset;"></a>&nbsp;提出申請'
                 +'[br][br]是否繼續註冊？');
             $('#tab04 .n_blnr01').addClass('new_poptk');
             $('#tab04 .n_blnr01').removeClass('n_blnr01');

@@ -73,7 +73,7 @@
     </div>
     <script>
         if(!scriptText){
-            let scriptText = '<a href="https://lin.ee/rLqcCns"><img src="https://scdn.line-apps.com/n/line_add_friends/btn/zh-Hant.png" alt="加入好友" height="36" border="0"></a>';
+            let scriptText = '<a href="https://lin.ee/rLqcCns"><img src="https://scdn.line-apps.com/n/line_add_friends/btn/zh-Hant.png" alt="加入好友" height="26" border="0"></a>';
             let vipScriptText = '<a href="/dashboard/new_vip"><span style="color: red;">請點此升級</span></a>';
             function CheckEnterPop() {
                 c5('您好，您目前被站方限制使用討論區，若有疑問請點右下角，聯繫站長Line@');

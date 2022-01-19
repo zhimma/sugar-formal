@@ -40,7 +40,7 @@ class AdminService
      */
     protected $role;
 
-    public static $line_icon_html='<a href="https://lin.ee/rLqcCns"><img src="https://scdn.line-apps.com/n/line_add_friends/btn/zh-Hant.png" alt="加入好友" height="36" border="0" style="all: initial;all: unset;height: 36px; float: unset;"></a>';
+    public static $line_icon_html='<a href="https://lin.ee/rLqcCns"><img src="https://scdn.line-apps.com/n/line_add_friends/btn/zh-Hant.png" alt="加入好友" height="26" border="0" style="all: initial;all: unset;height: 26px; float: unset;"></a>';
 
     /**
      * Check admin user existence.

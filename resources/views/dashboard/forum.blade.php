@@ -180,7 +180,7 @@
 
 	function forumTip(uid) {
 		@if(isset($forum) && $forum->status==0 )
-		let script = '<a href="https://lin.ee/rLqcCns"><img src="https://scdn.line-apps.com/n/line_add_friends/btn/zh-Hant.png" alt="加入好友" height="36" border="0"></a>';
+		let script = '<a href="https://lin.ee/rLqcCns"><img src="https://scdn.line-apps.com/n/line_add_friends/btn/zh-Hant.png" alt="加入好友" height="26" border="0"></a>';
 		c5('您好，您的版面被系統關閉，如有意見請聯絡站長LINE@');
 		$('.bltext').append(script);
 		@elseif(isset($forum) && $forum->status==1 )
@@ -235,7 +235,7 @@
 		});
 	}
 
-	let script = '<a href="https://lin.ee/rLqcCns"><img src="https://scdn.line-apps.com/n/line_add_friends/btn/zh-Hant.png" alt="加入好友" height="36" border="0"></a>';
+	let script = '<a href="https://lin.ee/rLqcCns"><img src="https://scdn.line-apps.com/n/line_add_friends/btn/zh-Hant.png" alt="加入好友" height="26" border="0"></a>';
 	function ForumCheckEnterPop() {
 		@if(!$user->isCanPosts_vip())
 			c5('您成為VIP未達滿三個月以上');

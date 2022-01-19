@@ -495,8 +495,8 @@
                         msg2 = msg2.replace(/TIME/g, time);
                         msg2 = msg2.replace(/\|$responseTime\|/g, time);
                         msg2 = msg2.replace(/\|$reportTime\|/g, time);
-                        msg2 = msg2.replace(/LINE_ICON/g, '<a href="https://lin.ee/rLqcCns"><img src="https://scdn.line-apps.com/n/line_add_friends/btn/zh-Hant.png" alt="加入好友" height="36" border="0" style="height: 36px; float: unset;"></a>');
-                        msg2 = msg2.replace(/\|$lineIcon\|/g, '<a href="https://lin.ee/rLqcCns"><img src="https://scdn.line-apps.com/n/line_add_friends/btn/zh-Hant.png" alt="加入好友" height="36" border="0" style="height: 36px; float: unset;"></a>');                    
+                        msg2 = msg2.replace(/LINE_ICON/g, '<a href="https://lin.ee/rLqcCns"><img src="https://scdn.line-apps.com/n/line_add_friends/btn/zh-Hant.png" alt="加入好友" height="26" border="0" style="height: 26px; float: unset;"></a>');
+                        msg2 = msg2.replace(/\|$lineIcon\|/g, '<a href="https://lin.ee/rLqcCns"><img src="https://scdn.line-apps.com/n/line_add_friends/btn/zh-Hant.png" alt="加入好友" height="26" border="0" style="height: 26px; float: unset;"></a>');
                         $('.msg3').eq(k).val(msg2);
                     });
                 }

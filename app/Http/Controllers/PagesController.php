@@ -4397,7 +4397,7 @@ class PagesController extends BaseController
                 $init_check_msg = '請先通過 <a href="'.url('member_auth').'">手機驗證(<span class="obvious">點此前往</span>)</a>' ;
             } 
             else if($user->isForbidAdvAuth()) {
-                $init_check_msg = '您的進階驗證功能有誤，請<a href="https://lin.ee/rLqcCns" target="_blank">點此 <img src="https://scdn.line-apps.com/n/line_add_friends/btn/zh-Hant.png" alt="加入好友" height="36" border="0" style="height: 36px; float: unset;"></a> 或點右下聯絡我們加站長 line 與站長聯絡。';
+                $init_check_msg = '您的進階驗證功能有誤，請<a href="https://lin.ee/rLqcCns" target="_blank">點此 <img src="https://scdn.line-apps.com/n/line_add_friends/btn/zh-Hant.png" alt="加入好友" height="26" border="0" style="height: 26px; float: unset;"></a> 或點右下聯絡我們加站長 line 與站長聯絡。';
             }
             else if($user->isPauseAdvAuth()) {
                 $init_check_msg = $this->advance_auth_get_msg('user_pause') ;
@@ -4511,7 +4511,7 @@ class PagesController extends BaseController
                     ,'identity_encode'=>$encode_id_serial
                     ,'is_duplicate'=>1
                 ]);
-            return back()->with('message', ['您的進階驗證功能有誤，<a href="https://lin.ee/rLqcCns" target="_blank">請點此 <img src="https://scdn.line-apps.com/n/line_add_friends/btn/zh-Hant.png" alt="加入好友" height="36" border="0" style="height: 36px; float: unset;"></a> 或點右下聯絡我們加站長 line 與站長聯絡。']);
+            return back()->with('message', ['您的進階驗證功能有誤，<a href="https://lin.ee/rLqcCns" target="_blank">請點此 <img src="https://scdn.line-apps.com/n/line_add_friends/btn/zh-Hant.png" alt="加入好友" height="26" border="0" style="height: 26px; float: unset;"></a> 或點右下聯絡我們加站長 line 與站長聯絡。']);
         }        
 
         $data['api_base'] = 'https://'.config('memadvauth.service.host').(config('memadvauth.service.port')?':'.config('memadvauth.service.port'):'').'/';
@@ -4614,7 +4614,7 @@ class PagesController extends BaseController
             if(User::where('advance_auth_identity_encode',$encode_id_serial)->where('advance_auth_status',1)->count()) {
                 $logAdvAuthApi->is_duplicate=1;
                 $logAdvAuthApi->save();
-                return back()->with('message', ['您的進階驗證功能有誤，<a href="https://lin.ee/rLqcCns" target="_blank">請點此 <img src="https://scdn.line-apps.com/n/line_add_friends/btn/zh-Hant.png" alt="加入好友" height="36" border="0" style="height: 36px; float: unset;"></a> 或點右下聯絡我們加站長 line 與站長聯絡。']);
+                return back()->with('message', ['您的進階驗證功能有誤，<a href="https://lin.ee/rLqcCns" target="_blank">請點此 <img src="https://scdn.line-apps.com/n/line_add_friends/btn/zh-Hant.png" alt="加入好友" height="26" border="0" style="height: 26px; float: unset;"></a> 或點右下聯絡我們加站長 line 與站長聯絡。']);
             }
             $auth_date = date('Y-m-d H:i:s');
             $user->advance_auth_status = 1;
@@ -4722,7 +4722,7 @@ class PagesController extends BaseController
                 $logAdvAuthApi->save();
 
                 if(($logAdvAuthApi->forbid_user??null)==1 ) {
-                    return back()->with('message', ['您的進階驗證功能有誤，<a href="https://lin.ee/rLqcCns" target="_blank">請點此 <img src="https://scdn.line-apps.com/n/line_add_friends/btn/zh-Hant.png" alt="加入好友" height="36" border="0" style="height: 36px; float: unset;"></a> 或點右下聯絡我們加站長 line 與站長聯絡。']);
+                    return back()->with('message', ['您的進階驗證功能有誤，<a href="https://lin.ee/rLqcCns" target="_blank">請點此 <img src="https://scdn.line-apps.com/n/line_add_friends/btn/zh-Hant.png" alt="加入好友" height="26" border="0" style="height: 26px; float: unset;"></a> 或點右下聯絡我們加站長 line 與站長聯絡。']);
                 }
               
                 return back()->with('message', [
