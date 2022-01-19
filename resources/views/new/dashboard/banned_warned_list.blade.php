@@ -73,11 +73,24 @@
                             @foreach($banned_users as $row)
                                 <tr>
                                     <td>{{$row->name}}</td>
-                                    <td>{{$row->reason}}</td>
+                                    <td>
+                                        @if ($row->reason <>'')
+                                            @if(mb_strlen($row->reason) >57) 
+                                                {{mb_substr($row->reason,0,9,'utf-8')}}
+                                            @elseif(mb_strlen($row->reason) >50)
+                                                {{mb_substr($row->reason,0,5,'utf-8')}}
+                                            @else
+                                                {{$row->reason}}
+                                            @endif
+                                        @else
+                                            -
+                                        @endif
+                                    </td>
                                     <td>{{ date('Y/m/d', strtotime($row->created_at))}}</td>
                                     <td>@if($row->expire_date<>''){{ date('Y/m/d', strtotime($row->expire_date))}}@else - @endif</td>
                                 </tr>
                             @endforeach
+                            
                         </table>
                         <div style="text-align: center;">
                             {!! $banned_users->links('pagination::sg-pages2') !!}
@@ -98,7 +111,20 @@
                             @foreach($warned_users as $row)
                                 <tr>
                                     <td>{{$row->name}}</td>
-                                    <td>{{$row->reason}}</td>
+                                    <td>
+                                        @if ($row->reason <>'')                                       
+                                            @if(mb_strlen($row->reason) >57) 
+                                                {{mb_substr($row->reason,0,9,'utf-8')}}
+                                            @elseif(mb_strlen($row->reason) >50)
+                                                {{mb_substr($row->reason,0,5,'utf-8')}}
+                                            @else
+                                                {{$row->reason}}
+                                            @endif   
+                                        @else
+                                            -
+                                        @endif
+                                        
+                                    </td>
                                     <td>{{ date('Y/m/d', strtotime($row->created_at))}}</td>
                                     <td>@if($row->expire_date<>''){{ date('Y/m/d', strtotime($row->expire_date))}}@else - @endif</td>
                                 </tr>

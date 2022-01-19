@@ -3909,6 +3909,30 @@ class PagesController extends BaseController
             return $strlen == 2 ? $firstStr . str_repeat('*', mb_strlen($user_name, 'utf-8') - 1) : $firstStr . str_repeat("*", $strlen - 2) . $lastStr;
         }
     }
+    /*
+    function substr_cut_warned_reason($warned_users){
+        $warned_reason =$warned_users->reason;
+        $strlen = mb_strlen($warned_reason,'utf-8');
+        if ($strlen > 60 ){
+            $warned_reason = mb_substr($warned_reason,0,9,'utf-8');
+            return view('new.dashboard.banned_warned_list')
+            ->with('wanned_reason',$warned_reason);
+        }
+        else if ($strlen > 50 ) {
+            $warned_reason = mb_substr($warned_reason,0,5,'utf-8');
+            return view('new.dashboard.banned_warned_list')
+            ->with('warned_reason',$warned_reason);
+        } 
+        else{
+            return view('new.dashboard.banned_warned_list')
+            ->with('warned_reason',$warned_reason);
+        }
+    }
+    */
+
+
+        
+    
 
 
     public function warned(Request $request)
