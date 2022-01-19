@@ -156,8 +156,8 @@ header("Expires: Fri, 01 Jan 1990 00:00:00 GMT");
                             <span>體重</span>
                                 <select name="weight" id="weight" class="select_xx01">
                                     <option value="">請選擇</option>
-                                    @for ($i = 0; $i < 21; $i++)
-                                    <option value="{{$i*5}}" @if( !empty( $_POST["weight"] ) && $_POST["weight"] == $i*5 ) selected @elseif(!empty( $_GET["weight"] ) && $_GET["weight"] == $i*5) selected @elseif(!empty( session()->get('search_page_key.weight') ) && session()->get('search_page_key.weight') == $i*5) selected @endif>{{$i*5}}</option>
+                                    @for ($i = 1; $i < 21; $i++)
+                                    <option value="{{$i*5}}" @if( !empty( $_POST["weight"] ) && $_POST["weight"] == $i*5 ) selected @elseif(!empty( $_GET["weight"] ) && $_GET["weight"] == $i*5) selected @elseif(!empty( session()->get('search_page_key.weight') ) && session()->get('search_page_key.weight') == $i*5) selected @endif>{{$i*5-4}} ~ {{$i*5}}</option>
                                     @endfor
                                 </select>
                             </div>

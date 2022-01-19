@@ -344,16 +344,16 @@ dt span.engroup_type_title {display:inline-block;width:10%;white-space:nowrap;}
                       <span>
                         <select name="weight"  class="select_xx01">
                           <option value=null>請選擇</option>
-                          @for ($i = 0; $i < 21; $i++)
+                          @for ($i = 1; $i < 21; $i++)
                           <option value="{{$i*5}}"
-                                  @if($umeta->weight == $i*5) selected @endif>{{$i*5}}
+                                  @if($umeta->weight == $i*5) selected @endif>{{$i*5-4}} ~ {{$i*5}}
                           </option>
                           @endfor
                         </select>
                       </span>
                       <div class="n_xqline">
                           <div class="right" style="margin-bottom: 10px;">
-                              <input type="hidden" name="isHideWeight" value="">
+                              <input type="hidden" name="isHideWeight" value="0">
                               <input name="isHideWeight" type="checkbox" @if($umeta->isHideWeight == true) checked @endif value="1"> 隱藏體重
                           </div>
                       </div>
@@ -362,7 +362,7 @@ dt span.engroup_type_title {display:inline-block;width:10%;white-space:nowrap;}
                       </span>
                       <div class="n_xqline">
                           <div class="right" style="margin-bottom: 10px;">
-                              <input type="hidden" name="isHideWeight" value="">
+                              <input type="hidden" name="isHideWeight" value="0">
                               <input name="isHideWeight" type="checkbox" @if($umeta->isHideWeight == true) checked @endif value="1"> 隱藏體重
                           </div>
                       </div>-->

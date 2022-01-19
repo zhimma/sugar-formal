@@ -916,7 +916,7 @@
                                     <dt>
                                         <span>體重（kg）</span>
                                         <span>
-                                            <div class="select_xx01 senhs hy_new">{{$to->meta->weight}}</div>
+                                            <div class="select_xx01 senhs hy_new">{{$to->meta->weight-4}} ~ {{$to->meta->weight}}</div>
                                         </span>
                                     </dt>
                                     @else
