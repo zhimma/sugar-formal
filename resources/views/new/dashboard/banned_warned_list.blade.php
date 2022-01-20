@@ -12,6 +12,11 @@
     /* border-color:#ee5472 !important; */
     /* color:white !important; */
 }
+#reason_hidden{
+    background-color: #faf0f0;
+    border: 0px;
+}
+
 </style>
 <head>
     
@@ -30,7 +35,7 @@
     <link rel="stylesheet" href={{asset("alert/css/swiper.min.css")}}>
     <script src={{asset('alert/js/bootstrap.min.js')}}></script>
     <script src={{asset("alert/js/jquery-2.1.1.min.js")}} type="text/javascript"></script>
-    <script src={{asset("alert/js/main.js")}} type="text/javascript"></script>
+    <script src={{asset("/js/main.js")}} type="text/javascript"></script>
 
 </head>
 <script>
@@ -72,22 +77,21 @@
                             </tr>
                             @foreach($banned_users as $row)
                                 <tr>
-                                    <td>{{$row->name}}</td>
-                                    <td>
-                                        @if ($row->reason <>'')
-                                            @if(mb_strlen($row->reason) >57) 
-                                                {{mb_substr($row->reason,0,9,'utf-8')}}
-                                            @elseif(mb_strlen($row->reason) >50)
-                                                {{mb_substr($row->reason,0,5,'utf-8')}}
+                                    <td><font size="1">{{$row->name}}</font></td>
+                                    <td ><font size="1">
+                                        @if ($row->reason <>'')                                       
+                                            @if(mb_strlen($row->reason) >8) 
+                                                {{mb_substr($row->reason,0,5,'utf-8')}}<button id="reason_hidden" type="button" onclick="c5('{{$row->reason}}')">...</button>
                                             @else
                                                 {{$row->reason}}
-                                            @endif
+                                            @endif   
                                         @else
                                             -
                                         @endif
+                                        </font>
                                     </td>
-                                    <td>{{ date('Y/m/d', strtotime($row->created_at))}}</td>
-                                    <td>@if($row->expire_date<>''){{ date('Y/m/d', strtotime($row->expire_date))}}@else - @endif</td>
+                                    <td><font size="1">{{ date('Y/m/d', strtotime($row->created_at))}}</font></td>
+                                    <td><font size="1">@if($row->expire_date<>''){{ date('Y/m/d', strtotime($row->expire_date))}}@else - @endif</font></td>
                                 </tr>
                             @endforeach
                             
@@ -110,23 +114,21 @@
                             </tr>
                             @foreach($warned_users as $row)
                                 <tr>
-                                    <td>{{$row->name}}</td>
-                                    <td>
+                                    <td><font size="1">{{$row->name}}</font></td>
+                                    <td ><font size="1">
                                         @if ($row->reason <>'')                                       
-                                            @if(mb_strlen($row->reason) >57) 
-                                                {{mb_substr($row->reason,0,9,'utf-8')}}
-                                            @elseif(mb_strlen($row->reason) >50)
-                                                {{mb_substr($row->reason,0,5,'utf-8')}}
+                                            @if(mb_strlen($row->reason) >8) 
+                                                {{mb_substr($row->reason,0,5,'utf-8')}}<button id="reason_hidden" type="button" onclick="c5('{{$row->reason}}')">...</button>
                                             @else
                                                 {{$row->reason}}
                                             @endif   
                                         @else
                                             -
                                         @endif
-                                        
+                                        </font>
                                     </td>
-                                    <td>{{ date('Y/m/d', strtotime($row->created_at))}}</td>
-                                    <td>@if($row->expire_date<>''){{ date('Y/m/d', strtotime($row->expire_date))}}@else - @endif</td>
+                                    <td><font size="1">{{ date('Y/m/d', strtotime($row->created_at))}}</font></td>
+                                    <td><font size="1">@if($row->expire_date<>''){{ date('Y/m/d', strtotime($row->expire_date))}}@else - @endif</font></td>
                                 </tr>
                             @endforeach
                         </table>
