@@ -241,7 +241,7 @@
     .msg_has_parent {padding-top:0 !important;}
     .msg_has_parent .msg_input {top:28px;}
     .parent_msg_box img {margin-right:10px;height:15px;width:15px;float:initial !important;}
-  
+    .msg_content {display:block;}
 </style>
 @section('app-content')
     <div class="container matop70 chat">
@@ -1081,6 +1081,7 @@
     function tab_uploadPic_close() {
         $(".announce_bg").hide();
         $("#tab_uploadPic").hide();
+        $("#tab_loading").hide();
         $('body').css("overflow", "auto");
     }
     function form_uploadPic_submit(){
@@ -1194,6 +1195,7 @@
             },
             beforeResize: function(listEl,parentEl, newInputEl, inputEl) {
                 var now_tab = listEl.closest('.bl_tab_bb');
+                disableCloseTabAct(now_tab);
                 var btn_elt = now_tab.find('.n_bbutton .n_bllbut');
                 if(btn_elt.length==0) {
                     btn_elt = now_tab.find('.n_bbutton .n_right');
@@ -1203,6 +1205,7 @@
             },             
             afterResize: function(listEl,parentEl, newInputEl, inputEl) {
                 var now_tab = listEl.closest('.bl_tab_bb');
+                activeCloseTabAct(now_tab);
                 var btn_elt = now_tab.find('.n_bbutton .n_bllbut');
                 if(btn_elt.length==0) {
                     btn_elt = now_tab.find('.n_bbutton .n_right');
@@ -1210,8 +1213,9 @@
                 if(btn_elt.length)
                     btn_elt.css({'color':'','cursor':''}).css('color','#ffffff').attr('onclick',btn_elt.attr('onclick').replace('return false;','')).html(btn_elt.html().replace('選取照片中\<!--','').replace('--\>',''));
             }, 
-            beforeSubmit: function(e) {
+            beforeSubmit: function(e) {         
                 var nowElt = $(e.target); 
+                disableCloseTabAct(nowElt);
                 var btn_elt = nowElt.find('.n_bbutton .n_bllbut'); 
                 if(btn_elt.length==0) {
                     btn_elt = nowElt.find('.n_bbutton .n_right');
@@ -1220,8 +1224,9 @@
                     btn_elt.css({ 'cursor': 'default','color':'#d6d6d6'}).attr('onclick','return false;'+btn_elt.attr('onclick')).html(btn_elt.html()+'中');
                 }
             },  
-            afterSubmit: function(e) {
+            afterSubmit: function(e) {        
                 var nowElt = $(e.target);  
+                activeCloseTabAct(nowElt);
                 var btn_elt = nowElt.find('.n_bbutton .n_bllbut');    
                 if(btn_elt.length==0) {
                     btn_elt = nowElt.find('.n_bbutton .n_right');
@@ -1229,7 +1234,8 @@
                 if(btn_elt.length) {
                     btn_elt.css({'color':'','cursor':''}).css('color','#ffffff').attr('onclick',btn_elt.attr('onclick').replace('return false;','')).html(btn_elt.html().replace('中',''));
                 }
-                
+                resetSpecificMsgElt();
+                $('.announce_bg').hide();
                 resize_before_upload_fileReaderSet = {};
             },          
             afterRender: function(listEl, parentEl, newInputEl, inputEl) {
@@ -1276,9 +1282,7 @@
         });
         resize_before_upload($(images_uploader.eq(0)),400,600,'#show_banned_ele');
         resize_before_upload($(images_uploader.eq(1)),400,600,'#tab_uploadPic','json','c5');
-        $(".announce_bg").on("click", function() {
-            $('.bl_tab_aa').hide();
-        });
+        $(".announce_bg").attr('onclick',$(".announce_bg").attr('onclick')+";$('.bl_tab_aa').hide();");
     });
 </script>
 @if($to)
@@ -1441,6 +1445,21 @@
                 $('.message_parent').val('');
                 $('#specific_msg_box').hide();                
             }
+            
+            function disableCloseTabAct(elt) {
+                var org_bg_action = $(".announce_bg").attr('onclick');           
+                $(".announce_bg").attr('onclick','return false;'+org_bg_action);                
+                var now_close_btn = elt.find('a.bl_gb');
+                now_close_btn.attr('onclick','return false;'+now_close_btn.attr('onclick')); 
+            }
+            
+            function activeCloseTabAct(elt) {
+                var now_bg_action = $(".announce_bg").attr('onclick');
+                $(".announce_bg").attr('onclick',now_bg_action.replace('return false;',''));                
+                var now_close_btn = elt.find('a.bl_gb');
+                now_close_btn.attr('onclick',now_close_btn.attr('onclick').replace('return false;',''));                
+            }   
+            
     </script>
 @endif
 <style>
