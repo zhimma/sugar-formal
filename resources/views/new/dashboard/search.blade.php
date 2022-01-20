@@ -697,7 +697,7 @@ header("Expires: Fri, 01 Jan 1990 00:00:00 GMT");
             // var BootstrapSelect=function(){var t=function(){$(".m_selectpicker").selectpicker()};return{init:function(){t()}}}();jQuery(document).ready(function(){BootstrapSelect.init()});
             $('.twzipcode').eq(0).twzipcode({
                 'detect': true, 'css': ['select_xx08','select_xx08'], onCountySelect: function() {
-                    $("select[name='district']").prepend('<option selected value="">全市</option>');
+                    $("select[name='district']").prepend('<option selected value="">全部</option>');
                 }
             });
             $('input[name="zipcode"]').remove();
@@ -705,14 +705,14 @@ header("Expires: Fri, 01 Jan 1990 00:00:00 GMT");
 
             $('.twzipcode').eq(1).twzipcode({
                 'detect': true, 'css': ['select_xx08','select_xx08'],countyName : 'country2',districtName : 'district2', onCountySelect: function() {
-                    $("select[name='district2']").prepend('<option selected value="">全市</option>');
+                    $("select[name='district2']").prepend('<option selected value="">全部</option>');
                 }
             });
             $('input[name="zipcode"]').remove();
             
             $('.twzipcode').eq(2).twzipcode({
                 'detect': true, 'css': ['select_xx08','select_xx08'],countyName : 'country3',districtName : 'district3', onCountySelect: function() {
-                    $("select[name='district3']").prepend('<option selected value="">全市</option>');
+                    $("select[name='district3']").prepend('<option selected value="">全部</option>');
                 }
             });            
             $('input[name="zipcode"]').remove();
