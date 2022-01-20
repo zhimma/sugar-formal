@@ -5838,7 +5838,8 @@ class PagesController extends BaseController
         }
         
         $vasStatus = '';
-        if($user->valueAddedServiceStatus('hideOnline') == 1) {
+        if(false) { //測試站錯誤暫時修改略過
+        //if($user->valueAddedServiceStatus('hideOnline') == 1) {
             $vasStatus = '您已購買隱藏付費功能';
             $vas = $user->vas->where('service_name','hideOnline')->first();
             if($vas->payment){
@@ -5860,10 +5861,10 @@ class PagesController extends BaseController
                         'TimeStamp' => 	time()
                     ];
                     $paymentData = $ecpay->QueryPeriodCreditCardTradeInfo(); //信用卡定期定額
+                    
                     $last = last($paymentData['ExecLog']);
                     $lastProcessDate = str_replace('%20', ' ', $last['process_date']);
                     $lastProcessDate = \Carbon\Carbon::createFromFormat('Y/m/d H:i:s', $lastProcessDate);
-
                     //計算下次扣款日
                     if($vas->payment == 'cc_quarterly_payment'){
                         $periodRemained = 92;
@@ -5871,6 +5872,7 @@ class PagesController extends BaseController
                         $periodRemained = 30;
                     }
                     $nextProcessDate = substr($lastProcessDate->addDays($periodRemained),0,10);
+                    
                 }
                 $payment = '信用卡繳費';
                 switch ($vas->payment){

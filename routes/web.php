@@ -16,119 +16,6 @@ use App\Http\Controllers\Api\CfpController;
 */
 
 
-/*
-|--------------------------------------------------------------------------
-| All caches
-|--------------------------------------------------------------------------
-|
-| The section is to clear something that we want to use shared hosting but
-| it can't normally show we expected.
-| Here we need to clear cache using web route.
-|
-*/
-
-//Clear Cache facade value:
-Route::get('/clear-cache', function() {
-    $exitCode = Artisan::call('cache:clear');
-    return '<h1>Cache facade value cleared</h1>';
-});
-
-//Reoptimized class loader:
-Route::get('/optimize', function() {
-    $exitCode = Artisan::call('optimize');
-    return '<h1>Reoptimized class loader</h1>';
-});
-
-//Route cache:
-Route::get('/route-cache', function() {
-    $exitCode = Artisan::call('route:cache');
-    return '<h1>Routes cached</h1>';
-});
-
-//Clear Route cache:
-Route::get('/route-clear', function() {
-    $exitCode = Artisan::call('route:clear');
-    return '<h1>Route cache cleared</h1>';
-});
-
-//Clear View cache:
-Route::get('/view-clear', function() {
-    $exitCode = Artisan::call('view:clear');
-    return '<h1>View cache cleared</h1>';
-});
-
-//Clear Config cache:
-Route::get('/config-cache', function() {
-    $exitCode = Artisan::call('config:cache');
-    return '<h1>Clear Config cleared</h1>';
-});
-Route::get('/sftp-test', function(){
-    $date = \Carbon\Carbon::now()->subDay()->toDateString();
-    $date = str_replace('-', '', $date);
-    if(file_exists(storage_path('app/RP_761404_'.$date.'.dat'))){
-        $fileContent = file_get_contents(storage_path('app/RP_761404_'.$date.'.dat'));
-        $destinDate = \Carbon\Carbon::now()->toDateString();
-        $destinDate = str_replace('-', '', $destinDate);
-        $file = 'RP_761404_'.$destinDate.'.dat';
-        GrahamCampbell\Flysystem\Facades\Flysystem::connection('sftp')->put($file, $fileContent);
-
-        \DB::table('log_dat_file')->insert(
-            ['upload_check' => 0,
-                'local_file'    => 'RP_761404_'.$date.'.dat',
-                'remote_file' => $file,
-                'content' => "RP_761404_".$date.".dat: Upload completed."]
-        );
-        return "RP_761404_".$date."dat: Upload completed.";
-    }
-    else{
-        \DB::table('log_dat_file')->insert(
-            ['upload_check' => 0,
-                'local_file'    => 'RP_761404_'.$date.'.dat',
-                'remote_file' => '',
-                'content' => "File RP_761404_".$date.".dat not found, upload process didn't initiate."]
-        );
-        return "File not found, upload process didn't initiate.";
-    }
-});
-
-Route::get('/sftp-check-test', function(){
-    $localDate = \Carbon\Carbon::now()->subDay()->toDateString();
-    $localDate = str_replace('-', '', $localDate);
-    if(file_exists(storage_path('app/RP_761404_'.$localDate.'.dat'))){
-        $localFileContent = file_get_contents(storage_path('app/RP_761404_'.$localDate.'.dat'));
-        $remoteDate = \Carbon\Carbon::now()->toDateString();
-        $remoteDate = str_replace('-', '', $remoteDate);
-        $remoteFile = 'RP_761404_'.$remoteDate.'.dat';
-        $remoteFileContent = GrahamCampbell\Flysystem\Facades\Flysystem::connection('sftp')->read($remoteFile);
-        if($localFileContent == $remoteFileContent){
-            \DB::table('log_dat_file')->insert(
-                ['upload_check' => 1,
-                    'local_file'    => 'RP_761404_'.$localDate.'.dat',
-                    'remote_file' => $remoteFile,
-                    'content' => "File comparison success."]
-            );
-            return "File comparison success.";
-        }
-        else{
-            \DB::table('log_dat_file')->insert(
-                ['upload_check' => 1,
-                    'local_file'    => 'RP_761404_'.$localDate.'.dat',
-                    'remote_file' => $remoteFile,
-                    'content' => "File comparison failed."]
-            );
-            return "File comparison failed.";
-        }
-    }
-    else{
-        \DB::table('log_dat_file')->insert(
-            ['upload_check' => 1,
-                'local_file'    => 'RP_761404_'.$localDate.'.dat',
-                'remote_file' => '',
-                'content' => "Local file not found, check process didn't initiate."]
-        );
-        return "Local file not found, check process didn't initiate.";
-    }
-});
 Route::get('/fingerprint', 'PagesController@fingerprint');
 Route::post('/saveFingerprint', 'PagesController@saveFingerprint')->name('saveFingerprint');
 Route::get('Fingerprint2', 'Fingerprint@index');
@@ -183,7 +70,6 @@ Route::get('/ts_2', 'PagesController@ts_2');
 | Welcome Page
 |--------------------------------------------------------------------------
 */
-Route::get('/passwd', 'passwd@passwd');
 Route::get('/', 'PagesController@home');
 Route::get('/vue_test', 'PagesController@vue_test');
 Route::get('/getAllData', 'PagesController@getAllData');
@@ -376,9 +262,10 @@ Route::group(['middleware' => ['auth', 'global', 'active', 'femaleActive', 'vipC
 
 
         Route::post('/dashboard/doForumPosts', 'PagesController@doForumPosts');
-        Route::get('/dashboard/forum_personal/{uid}', 'PagesController@forum_personal');
+        Route::get('/dashboard/forum_personal/{fid}', 'PagesController@forum_personal');
         Route::get('/dashboard/forum_manage', 'PagesController@forum_manage')->name('forum_manage');
         Route::post('/dashboard/forum_manage_toggle', 'PagesController@forum_manage_toggle')->name('forum_manage_toggle');
+        Route::post('/dashboard/forum_status_toggle', 'PagesController@forum_status_toggle')->name('forum_status_toggle');
         Route::get('/dashboard/forum_manage_chat/{auid}/{uid}', 'PagesController@forum_manage_chat');
         Route::get('/dashboard/forum_posts/{fid}', 'PagesController@forum_posts');/*投稿功能*/
         Route::get('/dashboard/forum_post_detail/{pid}', 'PagesController@forum_post_detail');
@@ -425,7 +312,6 @@ Route::group(['middleware' => ['auth', 'global', 'active', 'femaleActive', 'vipC
     Route::post('/dashboard/avatar/upload', 'ImageController@uploadAvatar');
     Route::post('/dashboard/avatar/delete/{userId}', 'ImageController@deleteAvatar');
     Route::post('/dashboard/delPic', 'PagesController@delPic');
-
     Route::get('/dashboard/password', 'PagesController@view_changepassword'); //new route
     Route::post('/dashboard/changepassword', 'PagesController@changePassword'); //new route
 
@@ -487,10 +373,7 @@ Route::group(['middleware' => ['auth', 'global', 'active', 'femaleActive', 'vipC
     Route::group(['middleware' => ['api']], function() {
         Route::post('/dashboard/payback_ec', 'ECPayment@performPayBack')->name('payback_ec');
         Route::post('/dashboard/upgradepay_ec', 'ECPayment@performPayment')->name('upgradepay_ec');
-        Route::post('/dashboard/esafeCreditCard', 'EsafePayment@esafeCreditCard')->name('esafeCreditCard');
-        Route::post('/dashboard/esafePayment', 'EsafePayment@esafePayment')->name('esafePayment');
-        Route::post('/dashboard/esafePayCode', 'EsafePayment@esafePayCode')->name('esafePayCode');
-        Route::post('/dashboard/esafeWebATM', 'EsafePayment@esafeWebATM')->name('esafeWebATM');
+        Route::post('/dashboard/new_upgradepay_ec', 'ECPayment@commonPayment')->name('new_upgradepay_ec');
         Route::post('/dashboard/upgradepay', 'PagesController@upgradepay');
         Route::post('/dashboard/receive_esafe', 'PagesController@receive_esafe');
         Route::post('/dashboard/repaid_esafe', 'PagesController@repaid_esafe');
@@ -540,6 +423,14 @@ Route::group(['middleware' => ['auth', 'global', 'active', 'femaleActive', 'vipC
         Route::post('/dashboard/evaluation/delete', 'PagesController@evaluation_delete')->name('evaluation_delete');
         Route::get('/dashboard/evaluation_self', 'PagesController@evaluation_self');
         Route::post('/dashboard/evaluation_self/deleteAll', 'PagesController@evaluation_self_deleteAll')->name('evaDeleteAll'); //new route
+
+
+
+        Route::get('/dashboard/evaluation/{uid}', 'PagesController@evaluation');
+        Route::post('/dashboard/evaluation/save', 'PagesController@evaluation_save')->name('evaluation');
+        Route::post('/dashboard/evaluation/re_content_save', 'PagesController@evaluation_re_content_save')->name('evaluation_re_content');
+        Route::post('/dashboard/evaluation/re_content_delete', 'PagesController@evaluation_re_content_delete')->name('evaluation_re_content_delete');
+        Route::post('/dashboard/evaluation/delete', 'PagesController@evaluation_delete')->name('evaluation_delete');
 
 
         Route::get('/dashboard/banned', 'PagesController@dashboard_banned');
@@ -621,6 +512,53 @@ Route::group(['middleware' => ['auth', 'global', 'active', 'femaleActive', 'vipC
         });
     });
     Route::group(['prefix' => 'admin', 'namespace' => 'Admin', 'middleware' => 'Admin'], function () {
+        /*
+        |--------------------------------------------------------------------------
+        | All caches
+        |--------------------------------------------------------------------------
+        |
+        | The section is to clear something that we want to use shared hosting but
+        | it can't normally show we expected.
+        | Here we need to clear cache using web route.
+        |
+        */
+
+        //Clear Cache facade value:
+        Route::get('/clear-cache', function() {
+            $exitCode = Artisan::call('cache:clear');
+            return '<h1>Cache facade value cleared</h1>';
+        });
+
+        //Reoptimized class loader:
+        Route::get('/optimize', function() {
+            $exitCode = Artisan::call('optimize');
+            return '<h1>Reoptimized class loader</h1>';
+        });
+
+        //Route cache:
+        Route::get('/route-cache', function() {
+            $exitCode = Artisan::call('route:cache');
+            return '<h1>Routes cached</h1>';
+        });
+
+        //Clear Route cache:
+        Route::get('/route-clear', function() {
+            $exitCode = Artisan::call('route:clear');
+            return '<h1>Route cache cleared</h1>';
+        });
+
+        //Clear View cache:
+        Route::get('/view-clear', function() {
+            $exitCode = Artisan::call('view:clear');
+            return '<h1>View cache cleared</h1>';
+        });
+
+        //Clear Config cache:
+        Route::get('/config-cache', function() {
+            $exitCode = Artisan::call('config:cache');
+            return '<h1>Clear Config cleared</h1>';
+        });
+
         Route::get('dashboard/accessPermission', 'DashboardController@accessPermission')->name('accessPermission');
         Route::get('dashboard/accessPermission/show', 'DashboardController@showJuniorAdmin')->name('showJuniorAdmin');
         Route::post('dashboard/accessPermission/create', 'DashboardController@juniorAdminCreate')->name('juniorAdminCreate');

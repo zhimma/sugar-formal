@@ -1,0 +1,1 @@
+[27-Nov-2018 16:11:08 UTC] PHP Fatal error:  Class 'Illuminate\Database\Migrations\Migration' not found in /home/sguser/public_html/database/migrations/2017_04_07_210036_create_activity_table.php on line 11

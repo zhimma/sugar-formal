@@ -44,7 +44,7 @@
             @endif
             
         </select>
-        範本選項標題<input type="text" name="title_msglib" id="msglib_title" value="{{$title??''}}"></br>
+        範本選項標題<input type="text" name="title_msglib" id="msglib_title" value="{{$title??''}}"><br>
         範本內容<textarea name="textarea_msglib" id="msglib_content" class="form-control" cols="80" rows="5">{{$msg??''}}</textarea>
     </form>
     </table>

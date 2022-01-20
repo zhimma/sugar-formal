@@ -7,7 +7,7 @@
             <div class="col-sm-12 col-xs-12 col-md-12">
                 <div class="wxsy" style="min-height: 0!important;">
                     <div class="wxsy_title">
-                        連線過多
+                        連線頻率過高
                     </div>
                     <div class="wxsy_k">
                         <div class="wknr">

@@ -11,7 +11,6 @@ use Illuminate\Contracts\Broadcasting\ShouldBroadcast;
 use Carbon;
 use App\Models\User;
 use App\Models\Vip;
-use App\Models\User;
 use Illuminate\Support\Facades\Config;
 
 class FemaleVipActive

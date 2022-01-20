@@ -31,6 +31,10 @@ class Board extends Model
         return Board::all();
     }
 
+    public static function deleteBoard($uid, $ct_time, $content) {
+        return Board::where([['member_id', $uid], ['created_at', $ct_time], ['post', $content]])->delete();
+    }
+
     public static function findBoardById($uid) {
         return Board::where('member_id', $uid)->orderBy('created_at', 'desc')->first();
     }

@@ -1,5 +1,6 @@
 image_handling_num=0;
 image_handled_num=0;
+resize_before_upload_fileReaderSet = {};
 function resize_before_upload(uploader,checkWidth
                                 ,checkHeight
                                 ,outer_selector=''
@@ -17,8 +18,7 @@ function resize_before_upload(uploader,checkWidth
         var blobEltOfIos = [];
         var listInputElt = cur_uploader_api.getListInputEl();
 
-        cur_uploader_api.setOption('afterSelect',function(istEl,parentEl, newInputEl, inputEl){
-
+        cur_uploader_api.setOption('afterSelect',function(listEl,parentEl, newInputEl, inputEl){
             image_handling_num=0;
             image_handled_num=0;    
             
@@ -31,15 +31,18 @@ function resize_before_upload(uploader,checkWidth
 
             var fileSelected = cur_uploader_api.getChoosedFiles();
 
-            if(fileSelected.length>0) loading();
+            if(fileSelected.length>0 && resize_before_upload_fileReaderSet[fileSelected[fileSelected.length-1].name]==undefined) loading();
             else return false;
-            var fileReaderSet = []; 
+             
          
             for(i=0;i<fileSelected.length;i++) {
-                let curFileEntry = fileSelected[i];
-                fileReaderSet[curFileEntry.name]  = new FileReader();
 
-                fileReaderSet[curFileEntry.name].onload = function(evt) {
+                if(resize_before_upload_fileReaderSet[fileSelected[i].name]!=undefined) continue;
+
+                let curFileEntry = fileSelected[i];
+                resize_before_upload_fileReaderSet[curFileEntry.name]  = new FileReader();
+
+                resize_before_upload_fileReaderSet[curFileEntry.name].onload = function(evt) {
   
                     dataUrl[curFileEntry.name] = evt.target.result;
                     
@@ -75,7 +78,7 @@ function resize_before_upload(uploader,checkWidth
                         }
                     }                    
                 }
-                fileReaderSet[curFileEntry.name].readAsDataURL(curFileEntry.file);
+                resize_before_upload_fileReaderSet[curFileEntry.name].readAsDataURL(curFileEntry.file);
 
             }
         });  

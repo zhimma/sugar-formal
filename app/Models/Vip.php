@@ -231,9 +231,9 @@ class Vip extends Model
                 //測試機更新剩餘天數至到期日
                 //此測試訂單如有剩餘天數則加回到期日
                 //上正式機前這段請移除
-                if($user[0]->remain_days>0){
-                    $expiryDate = $expiryDate->addDays($user[0]->remain_days);
-                }
+                // if($user[0]->remain_days>0){
+                //     $expiryDate = $expiryDate->addDays($user[0]->remain_days);
+                // }
             }
 
             foreach ($user as $u){
