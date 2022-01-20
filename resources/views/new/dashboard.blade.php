@@ -8,6 +8,9 @@ header("Expires: Fri, 01 Jan 1990 00:00:00 GMT");
 @section('app-content')
 
   <?php
+    //拒絕接受搜索縣市最大數量
+    $blockcity_limit_count = 10;
+    $blockarea_selected = [];
     if (!isset($user)) {
         $umeta = null;
     } else {
@@ -20,13 +23,28 @@ header("Expires: Fri, 01 Jan 1990 00:00:00 GMT");
         }
 
         if(isset($umeta->blockcity)){
-          $umeta->blockcity = explode(",",$umeta->blockcity);
-          $umeta->blockarea = explode(",",$umeta->blockarea);
+            $city = explode(",",$umeta->blockcity);
+            $area = explode(",",$umeta->blockarea);
+            $arr = [];
+            for($i = 0; $i < count($area); $i++)
+            {
+                for($j = $i+1; $j < count($area); $j++)
+                {
+                    if($area[$i] == $area[$j])
+                    {
+                        $arr[] = $j;
+                    }
+                }
+            }
+            foreach($arr as $a)
+            {
+                unset($city[$a]);
+                unset($area[$a]);
+            }
+            $umeta->blockcity = $city;
+            $umeta->blockarea = $area;
       }
     }
-    //拒絕接受搜索縣市最大數量
-    $blockcity_limit_count = 10;
-    $blockarea_selected = [];
   ?>
   <style type="text/css">
     .abtn{cursor: pointer;}
@@ -925,6 +943,7 @@ dt span.engroup_type_title {display:inline-block;width:10%;white-space:nowrap;}
                 }
             } else {
                 $("select[name='blockarea'] option[value=" + blockarea_selected_arr[0] + "]").attr('selected', true);
+                $("select[name='blockarea']").prepend('<option value="">全區</option>');
             }
         }
 
@@ -937,6 +956,8 @@ dt span.engroup_type_title {display:inline-block;width:10%;white-space:nowrap;}
                     $("select[name=" +blockarea_name+ "]").prepend('<option selected value="">全區</option>');
                 } else {
                     $("select[name=" +blockarea_name+ "] option[value=" + blockarea_selected_arr[i] + "]").attr('selected', true);
+                    $("select[name=" +blockarea_name+ "]").prepend('<option value="">全區</option>');
+
                 }
             }
         }
@@ -945,11 +966,16 @@ dt span.engroup_type_title {display:inline-block;width:10%;white-space:nowrap;}
 
         $("select[name='blockcity']").on('change', function () {
             if ($("select[name='blockcity'] option:selected").text() == '縣市') {
-                if ($("select[name='blockarea'] option:eq(0)").text() !== '鄉鎮市區')
+                if ($("select[name='blockarea'] option:eq(0)").text() !== '鄉鎮市區'){
                     $("select[name='blockarea']").prepend('<option selected value="">鄉鎮市區</option>');
+                }
             } else {
-                if ($("select[name='blockarea'] option:eq(0)").text() !== '全區')
+                if ($("select[name='blockarea'] option:eq(0)").text() !== '全區'){
                     $("select[name='blockarea']").prepend('<option selected value="">全區</option>');
+                }
+                else{
+                    $("select[name='blockarea']").prepend('<option value="">全區</option>');
+                }    
             }
         });
         for(let i = 1;i < {{$blockcity_limit_count}}; i++)
@@ -958,11 +984,16 @@ dt span.engroup_type_title {display:inline-block;width:10%;white-space:nowrap;}
             let blockarea_name = 'blockarea' + i;
             $("select[name=" +blockcity_name+ "]").on('change', function () {
                 if ($("select[name=" +blockcity_name+ "] option:selected").text() == '縣市') {
-                    if ($("select[name=" +blockarea_name+ "] option:eq(0)").text() !== '鄉鎮市區')
+                    if ($("select[name=" +blockarea_name+ "] option:eq(0)").text() !== '鄉鎮市區'){
                         $("select[name=" +blockarea_name+ "]").prepend('<option selected value="">鄉鎮市區</option>');
+                    }
                 } else {
-                    if ($("select[name=" +blockarea_name+ "] option:eq(0)").text() !== '全區')
+                    if ($("select[name=" +blockarea_name+ "] option:eq(0)").text() !== '全區'){
                         $("select[name=" +blockarea_name+ "]").prepend('<option selected value="">全區</option>');
+                    }
+                    else{
+                        $("select[name=" +blockarea_name+ "]").prepend('<option value="">全區</option>');
+                    }
                 }
             });
         }
@@ -1209,22 +1240,6 @@ dt span.engroup_type_title {display:inline-block;width:10%;white-space:nowrap;}
         let block_county = $("#block_county");
         let add_block_county = $("#add_block_county");
         $(add_block_county).click(function(){
-            for(let i = 1;i < {{$blockcity_limit_count}}; i++)
-            {
-                let blockcity_name = 'blockcity' + i;
-                let blockarea_name = 'blockarea' + i;
-                $("select[name=" +blockcity_name+ "]").on('change', function() {
-                    if($("select[name=" +blockcity_name+ "] option:selected" ).text() == '縣市'){
-                        if($("select[name=" +blockarea_name+ "] option:eq(0)").text()!=='鄉鎮市區')
-                            $("select[name=" +blockarea_name+ "]").prepend('<option selected value="">鄉鎮市區</option>');
-                    }
-                    else{
-                    if($("select[name=" +blockarea_name+ "] option:eq(0)").text()!=='全區')
-                        $("select[name=" +blockarea_name+ "]").prepend('<option selected value="">全區</option>');
-                    }
-                });
-            }
-
           console.log($(block_county).find('.twzipcode').length)
             if($(block_county).find('.twzipcode').length < {{$blockcity_limit_count}}) {
                 let county_div=`
@@ -1254,6 +1269,26 @@ dt span.engroup_type_title {display:inline-block;width:10%;white-space:nowrap;}
                 //     title:'最多新增3筆',
                 //     type:'warning'
                 // });
+            }
+
+            for(let i = 1;i < {{$blockcity_limit_count}}; i++)
+            {
+                let blockcity_name = 'blockcity' + i;
+                let blockarea_name = 'blockarea' + i;
+                $("select[name=" +blockcity_name+ "]").on('change', function() {
+                    if($("select[name=" +blockcity_name+ "] option:selected" ).text() == '縣市'){
+                        if($("select[name=" +blockarea_name+ "] option:eq(0)").text()!=='鄉鎮市區')
+                            $("select[name=" +blockarea_name+ "]").prepend('<option selected value="">鄉鎮市區</option>');
+                    }
+                    else{
+                        if($("select[name=" +blockarea_name+ "] option:eq(0)").text()!=='全區'){
+                            $("select[name=" +blockarea_name+ "]").prepend('<option selected value="">全區</option>');
+                        }
+                        else{
+                            
+                        }
+                    }
+                });
             }
         });
 
