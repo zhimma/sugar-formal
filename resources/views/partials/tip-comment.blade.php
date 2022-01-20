@@ -9,16 +9,17 @@
     <input type="hidden" name="userId" value="{{$user->id}}">
     <input type="hidden" name="to" value="@if(isset($to)){{$to->id}}@endif">
     <input type=hidden name="MerchantNumber" value="761404">
-    <input type=hidden name="OrderNumber" value="<?php echo $orderNumber ?>">
+    <input type=hidden name="OrderNumber" value="<?php echo $orderNumber; ?>">
     <input type=hidden name="OrgOrderNumber" value="SG-車馬費評價({{$user->id}})">
     <input type=hidden name="ApproveFlag" value="1">
     <input type=hidden name="DepositFlag" value="1">
-    <input type=hidden name="iphonepage" value="0">
-    <input type=hidden name="Amount" value="1">
+    <input type=hidden class="device" name="iphonepage" value="">
+    <input type=hidden name="Amount" value=<?php echo Config::get('social.payment.tip-amount'); ?>>
     <input type=hidden name="op" value="AcceptPayment">
-    <input type=hidden name="checksum" value="<?php print md5("761404".$orderNumber.$code."1") ?>">
+    <input type=hidden name="checksum" value="<?php print md5("761404".$orderNumber.$code.Config::get('social.payment.tip-amount')); ?>">
     <input type=hidden name="ReturnURL" value="{{ route('chatpay') }}">
-    <a href="" class="m-nav__link" data-toggle="modal" data-target="#m_modal_2">
+    <input type=hidden name="OrderURL" value=<?php echo Config::get('social.payment.orderURL'); ?>>
+    <a href="#m_modal_2" class="m-nav__link" data-toggle="modal" data-target="">
         <i class="m-nav__link-icon flaticon-comment"></i>
         <span class="m-nav__link-text">車馬費評價</span>
     </a>

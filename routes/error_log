@@ -1,0 +1,20 @@
+[27-Nov-2018 12:19:16 UTC] PHP Fatal error:  Uncaught Error: Class 'Illuminate\Support\Facades\Route' not found in /home/sguser/public_html/routes/web_bak_20181026.php:29
+Stack trace:
+#0 {main}
+  thrown in /home/sguser/public_html/routes/web_bak_20181026.php on line 29
+[27-Nov-2018 12:19:19 UTC] PHP Fatal error:  Uncaught Error: Class 'Illuminate\Support\Facades\Route' not found in /home/sguser/public_html/routes/web_bak_20181026.php:29
+Stack trace:
+#0 {main}
+  thrown in /home/sguser/public_html/routes/web_bak_20181026.php on line 29
+[27-Nov-2018 12:44:08 UTC] PHP Fatal error:  Uncaught Error: Class 'Illuminate\Support\Facades\Route' not found in /home/sguser/public_html/routes/web_bak_20181024.php:29
+Stack trace:
+#0 {main}
+  thrown in /home/sguser/public_html/routes/web_bak_20181024.php on line 29
+[27-Nov-2018 12:44:10 UTC] PHP Fatal error:  Uncaught Error: Class 'Illuminate\Support\Facades\Route' not found in /home/sguser/public_html/routes/web_bak_20181024.php:29
+Stack trace:
+#0 {main}
+  thrown in /home/sguser/public_html/routes/web_bak_20181024.php on line 29
+[27-Nov-2018 12:44:11 UTC] PHP Fatal error:  Uncaught Error: Class 'Illuminate\Support\Facades\Route' not found in /home/sguser/public_html/routes/web_bak_20181024.php:29
+Stack trace:
+#0 {main}
+  thrown in /home/sguser/public_html/routes/web_bak_20181024.php on line 29

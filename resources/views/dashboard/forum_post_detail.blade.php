@@ -1,22 +1,24 @@
-<style>
-	.toug_back:hover{ color:white !important; text-decoration:none !important}
-</style>
 @extends('new.layouts.website')
-<meta charset="utf-8">
+@section('style')
+	<script src="/js/app_1.js" type="text/javascript"></script>
+	<link rel="stylesheet" href="/posts/css/style.css">
+	<link rel="stylesheet" href="/posts/css/iconfont.css">
+	<style>
+		.toug_back:hover{ color:white !important; text-decoration:none !important}
 
-		<link rel="stylesheet" href="/posts/css/style.css">
-		<link rel="stylesheet" href="/posts/css/iconfont.css">
-		<style>
-			img{
-				width: auto;
-				height: auto;
-				max-width: 100%;
-				max-height: 100%;	
-			}
-			.show{
-				margin-top: unset !important;
-			}
-		</style>
+		img{
+			width: auto;
+			height: auto;
+			max-width: 100%;
+			max-height: 100%;
+		}
+		.show{
+			margin-top: unset !important;
+		}
+		.blbg_new{width:100%; height:100%;width: 100%;height: 100%;position: fixed;top: 0px;left: 0;background: rgba(0,0,0,0.5);z-index: 9;display:none;}
+
+	</style>
+@endsection
 
 @section('app-content')
 		<div class="container matop70">
@@ -28,10 +30,9 @@
 					<div class="shou">
 						<span>文章詳情</span>
 						<font>Article</font>
-						<a href="/dashboard/forum_personal/{{$postDetail->uid}}" class="toug_back btn_img">
+						<a href="/dashboard/forum_personal/{{$postDetail->forum_id}}" class="toug_back btn_img">
 							<div class="btn_back"></div>
 						</a>
-{{--						<a href="{{url()->previous()}}" class="toug_back"><img src="/posts/images/back_icon.png">返回</a>--}}
 					</div>
 					<div class="t_xqheight">
 						<div class="toug_xq" style="position: relative; {{ $postDetail->uid==1049 ? 'background:#ddf3ff;' : ''}}">
@@ -42,13 +43,8 @@
 										<span>{{ $postDetail->uname }}<i class="tou_fi">{{ date('Y-m-d H:i',strtotime($postDetail->pcreated_at)) }}</i></span>
 									</div>
 								</a>
-								{{--<div class="tog_time">{{ date('Y-m-d H:i',strtotime($postDetail->pcreated_at)) }}</div>--}}
 							</div>
-							@if($postDetail->uid == auth()->user()->id)
-{{--								<div class="ap_but" style="margin-top: 10px; margin-right:5px;">--}}
-{{--									<a id="repostLink" href="/dashboard/postsEdit/{{ $postDetail->pid }}/all"><span class="iconfont icon-xiugai_nn"></span>修改</a>--}}
-{{--									<a onclick="postDelete({{ $postDetail->pid }})"><span class="iconfont icon-lajitong"></span>刪除</a>--}}
-{{--								</div>--}}
+							@if($postDetail->uid == auth()->user()->id || $forum->user_id == auth()->user()->id)
 								<div class="ap_butnew" style="margin-top: 10px; margin-right:10px;">
 									<a onclick="postDelete({{ $postDetail->pid }})" class="sc_cc"><img src="/posts/images/del_03n.png">刪除</a>
 									<a id="repostLink" href="/dashboard/forumPostsEdit/{{ $postDetail->pid }}/all" class="sc_cc"><img src="/posts/images/xiugai.png">修改</a>
@@ -56,12 +52,8 @@
 							@endif
 							<div id="ptitle" class="xq_text">{{ $postDetail->ptitle }}</div>
 							<div id="pcontents" class="xq_text01">{!! \App\Models\Posts::showContent($postDetail->pcontents) !!}</div>
-							{{--<div class="xq_textbot"><img src="/posts/images/tg_10.png"></div>--}}
 						</div>
 						<div class="botline_fnr" style="margin-bottom:0px;"></div>
-						{{--<div class="tou_xq">
-							<div class="touxqfont"><img src="/posts/images/ncion_13.png">瀏覽<span>{{ $postDetail->uviews }}</span></div>
-						</div>--}}
 						<!--  -->
 						<style>
 							.dropup,
@@ -238,146 +230,139 @@
 			<a onclick="gmBtn1()" class="bl_gb01"><img src="/posts/images/gb_icon.png"></a>
 		</div>
 
-		<script>
-
-			function readyNumber() {
-
-				$('textarea').each(function () {
-					this.setAttribute('style', 'height:' + (this.scrollHeight) + 'px;overflow-y:hidden;');
-				}).on('input', function () {
-					this.style.height = 'auto';
-					this.style.height = (this.scrollHeight) + 'px';
-					//alert((this.scrollHeight) + 'px');
-
-					var textAreaHeight = parseInt(this.scrollHeight);
-					if($("#tagAcc").text()!==''){
-						textAreaHeight = parseInt(this.scrollHeight+22);
-					}
-					if(textAreaHeight<50){
-						textAreaHeight=50;
-					}
-					$(".bot_nnew").css('height',textAreaHeight + 'px');
-				})
-			}
-
-			readyNumber();
-
-			$(document).ready(function(){
-				var showMsg = '{{ Session::has('message') }}';
-				if(showMsg){
-					c5('{{ Session::get("message") }}');
-				}
-			});
-
-			function gmBtn1(){
-				$(".blbg_new").hide();
-				$(".bl").hide();
-			}
-
-			function show(index) {
-				document.getElementById("more_"+index).style.display = "block";
-				document.getElementById('btn_'+index).innerHTML = "收起更多>";
-				document.getElementById('btn_'+index).href = "javascript:hide("+index+");";
-			}
-
-			function hide(index) {
-				document.getElementById('more_'+index).style.display = 'none';
-				document.getElementById('btn_'+index).innerHTML = "展開更多>";
-				document.getElementById('btn_'+index).href = "javascript:show("+index+");";
-			}
-			
-			function postReply(pid, tag_name, tag_user_id) {
-				$('#reply_id').val(pid);
-				$('#tag_user_id').val(tag_user_id);
-				$('#tagAcc').text('@'+tag_name);
-			}
-
-			function postDelete(pid) {
-				c4('確定要刪除嗎?');
-				$(".n_left").on('click', function() {
-					$.ajax({
-						url: '/dashboard/forum_posts_delete',
-						method: 'POST',
-						data: {
-							_token: "{{ csrf_token() }}",
-							'user_id': "{{ auth()->user()->id }}",
-							'pid': pid
-						},
-						dataType: 'json',
-						success: function(data) {
-							if(data.postType=='main'){
-								c5(data.msg);
-								window.location.href=data.redirectTo;
-							}
-							else
-								c5(data.msg);
-						}
-					});
-				});
-			}
-
-			$(document).on('click','.announce_bg, #tab05',function() {
-				window.location.reload();
-			});
-
-			$('#response_send').on('click', function() {
-
-				var checkUserVip='{{ $checkUserVip }}';
-				var checkProhibit='{{ $user->prohibit_posts }}';
-				var checkAccess='{{ $user->access_posts }}';
-				if(checkUserVip==0) {
-					c5('此功能目前開放給連續兩個月以上的VIP會員使用');
-					return false;
-				}else if(checkProhibit==1){
-					c5('您好，您目前被站方禁止發言，若有疑問請點右下角，聯繫站長Line@');
-					return false;
-				}else if(checkAccess==1){
-					c5('您好，您目前被站方限制使用討論區，若有疑問請點右下角，聯繫站長Line@');
-					return false;
-				}else{
-					var form = $(this).closest("form");
-					if($("#contents").val().length ==0){
-						c5('請輸入文字再送出');
-						return false;
-					}
-					form.submit();
-				}
-			});
-
-			$('.bot_wid_nr').on('click', function() {
-
-				var checkUserVip='{{ $checkUserVip }}';
-				var checkProhibit='{{ $user->prohibit_posts }}';
-				var checkAccess='{{ $user->access_posts }}';
-				if(checkUserVip==0) {
-					c5('此功能目前開放給連續兩個月以上的VIP會員使用');
-					return false;
-				}else if(checkProhibit==1){
-					c5('您好，您目前被站方禁止發言，若有疑問請點右下角，聯繫站長Line@');
-					return false;
-				}else if(checkAccess==1){
-					c5('您好，您目前被站方限制使用討論區，若有疑問請點右下角，聯繫站長Line@');
-					return false;
-				}
-			});
-
-			$(document).keydown(function (event) {
-				if (event.keyCode == 8 || event.keyCode == 46) {
-					if($("#contents").val().length ==0){
-						$('#tagAcc').text('');
-					}
-				}
-			});
-
-			function reposts() {
-				$('#repostLink').hide();
-				$('#ptitle').hide();
-				$('#pcontents').hide();
-			}
-
-</script>
-<style>
-	.commonMenu{z-index: 10001;}
-	.blbg_new{width:100%; height:100%;width: 100%;height: 100%;position: fixed;top: 0px;left: 0;background: rgba(0,0,0,0.5);z-index: 9;display:none;}
-</style>
 @stop
+
+@section('javascript')
+	<script>
+
+		function readyNumber() {
+
+			$('textarea').each(function () {
+				this.setAttribute('style', 'height:' + (this.scrollHeight) + 'px;overflow-y:hidden;');
+			}).on('input', function () {
+				this.style.height = 'auto';
+				this.style.height = (this.scrollHeight) + 'px';
+				//alert((this.scrollHeight) + 'px');
+
+				var textAreaHeight = parseInt(this.scrollHeight);
+				if($("#tagAcc").text()!==''){
+					textAreaHeight = parseInt(this.scrollHeight+22);
+				}
+				if(textAreaHeight<50){
+					textAreaHeight=50;
+				}
+				$(".bot_nnew").css('height',textAreaHeight + 'px');
+			})
+		}
+
+		readyNumber();
+
+		function gmBtn1(){
+			$(".blbg_new").hide();
+			$(".bl").hide();
+		}
+
+		function show(index) {
+			document.getElementById("more_"+index).style.display = "block";
+			document.getElementById('btn_'+index).innerHTML = "收起更多>";
+			document.getElementById('btn_'+index).href = "javascript:hide("+index+");";
+		}
+
+		function hide(index) {
+			document.getElementById('more_'+index).style.display = 'none';
+			document.getElementById('btn_'+index).innerHTML = "展開更多>";
+			document.getElementById('btn_'+index).href = "javascript:show("+index+");";
+		}
+
+		function postReply(pid, tag_name, tag_user_id) {
+			$('#reply_id').val(pid);
+			$('#tag_user_id').val(tag_user_id);
+			$('#tagAcc').text('@'+tag_name);
+		}
+
+		function postDelete(pid) {
+			c4('確定要刪除嗎?');
+			$(".n_left").on('click', function() {
+				$.ajax({
+					url: '/dashboard/forum_posts_delete',
+					method: 'POST',
+					data: {
+						_token: "{{ csrf_token() }}",
+						'user_id': "{{ auth()->user()->id }}",
+						'pid': pid,
+						'fid': {{$postDetail->forum_id}}
+					},
+					dataType: 'json',
+					success: function(data) {
+						if(data.postType=='main'){
+							c5(data.msg);
+							window.location.href=data.redirectTo;
+						}
+						else
+							c5(data.msg);
+					}
+				});
+			});
+		}
+
+		$(document).on('click','.announce_bg, #tab05',function() {
+			window.location.reload();
+		});
+
+		$('#response_send').on('click', function() {
+
+			var checkUserVip='{{ $checkUserVip }}';
+			var checkProhibit='{{ $user->prohibit_posts }}';
+			var checkAccess='{{ $user->access_posts }}';
+			if(checkUserVip==0) {
+				c5('此功能目前開放給連續兩個月以上的VIP會員使用');
+				return false;
+			}else if(checkProhibit==1){
+				c5('您好，您目前被站方禁止發言，若有疑問請點右下角，聯繫站長Line@');
+				return false;
+			}else if(checkAccess==1){
+				c5('您好，您目前被站方限制使用討論區，若有疑問請點右下角，聯繫站長Line@');
+				return false;
+			}else{
+				var form = $(this).closest("form");
+				if($("#contents").val().length ==0){
+					c5('請輸入文字再送出');
+					return false;
+				}
+				form.submit();
+			}
+		});
+
+		$('.bot_wid_nr').on('click', function() {
+
+			var checkUserVip='{{ $checkUserVip }}';
+			var checkProhibit='{{ $user->prohibit_posts }}';
+			var checkAccess='{{ $user->access_posts }}';
+			if(checkUserVip==0) {
+				c5('此功能目前開放給連續兩個月以上的VIP會員使用');
+				return false;
+			}else if(checkProhibit==1){
+				c5('您好，您目前被站方禁止發言，若有疑問請點右下角，聯繫站長Line@');
+				return false;
+			}else if(checkAccess==1){
+				c5('您好，您目前被站方限制使用討論區，若有疑問請點右下角，聯繫站長Line@');
+				return false;
+			}
+		});
+
+		$(document).keydown(function (event) {
+			if (event.keyCode == 8 || event.keyCode == 46) {
+				if($("#contents").val().length ==0){
+					$('#tagAcc').text('');
+				}
+			}
+		});
+
+		function reposts() {
+			$('#repostLink').hide();
+			$('#ptitle').hide();
+			$('#pcontents').hide();
+		}
+
+	</script>
+@endsection

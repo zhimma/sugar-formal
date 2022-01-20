@@ -1,5 +1,5 @@
 @extends('new.layouts.website')
-{{--@section('style')--}}
+@section('style')
 		<link rel="stylesheet" href="/posts/css/style.css">
 		<link rel="stylesheet" href="/posts/css/font/font_n/iconfont.css">
 		<link rel="stylesheet" href="/posts/css/font/iconfont.css">
@@ -14,7 +14,7 @@
 				height: 28px;
 			}
 		</style>
-{{--@endsection--}}
+@endsection
 		@section('app-content')
 		<div class="container matop70">
 			<div class="row">
@@ -24,14 +24,9 @@
 				<div class="col-sm-12 col-xs-12 col-md-10">
 					<div class="shou">
 						<span>討論區</span><font>Discussion</font>
-						<a @if(isset($post_forum))  onclick="forumTip({{$user->id}})"  @else onclick="ForumCheckEnterPop()"
-{{--						   href="/dashboard/ForumEdit/{{$user->id}}"--}}
-						   @endif
+						<a @if(isset($forum)) onclick="forumTip({{$user->id}})"  @else onclick="ForumCheckEnterPop()" @endif
 						   class="xinzeng_but" style="font-size: 12px;"><img src="/posts/images/liuyan_03.png" style="height:15px;">個人討論區</a>
 					</div>
-					<!--  -->
-{{--					<a class="tl_button_PC" href="/dashboard/posts_list" style="width: 95%;"><img src="/posts/images/taolun_but_pc.png"></a>--}}
-{{--					<a class="tl_button" href="/dashboard/posts_list"><img src="/posts/images/taolun_but.png"></a>--}}
 
 					<div class="tl_bbg">
 						<a href="/dashboard/posts_list">
@@ -44,34 +39,21 @@
 										@if(count($posts_list)>5)
 											@once
 											<span class="ta_toxmr">
-																<img src="/posts/images/imor.png" class="hycov">
-															</span>
+												<img src="/posts/images/imor.png" class="hycov">
+											</span>
 											@endonce
 										@endif
-{{--											<span class="ta_toxmr xa_rig10">--}}
-{{--																<img src="@if(file_exists( public_path().$row->umpic ) && $row->umpic != ""){{$row->umpic}} @elseif($row->engroup==2)/new/images/female.png @else/new/images/male.png @endif" class="hycov">--}}
-{{--															</span>--}}
 
 										@if($key==0)
 											<span class="ta_toxmr @if(count($posts_list)>5) xa_rig10 @endif">
-																<img src="@if(file_exists( public_path().$row->umpic ) && $row->umpic != ""){{$row->umpic}} @elseif($row->engroup==2)/new/images/female.png @else/new/images/male.png @endif" class="hycov">
-															</span>
+												<img src="@if(file_exists( public_path().$row->umpic ) && $row->umpic != ""){{$row->umpic}} @elseif($row->engroup==2)/new/images/female.png @else/new/images/male.png @endif" class="hycov">
+											</span>
 										@elseif($key>0 && $key<5)
 											<span class="ta_toxmr xa_rig10">
-																<img src="@if(file_exists( public_path().$row->umpic ) && $row->umpic != ""){{$row->umpic}} @elseif($row->engroup==2)/new/images/female.png @else/new/images/male.png @endif" class="hycov">
-															</span>
-{{--										@elseif($key>=5)--}}
-{{--											<span class="ta_toxmr xa_rig10">--}}
-{{--																<img src="/posts/images/imor.png" class="hycov hycov_down">--}}
-{{--															</span>--}}
-{{--											@break--}}
+												<img src="@if(file_exists( public_path().$row->umpic ) && $row->umpic != ""){{$row->umpic}} @elseif($row->engroup==2)/new/images/female.png @else/new/images/male.png @endif" class="hycov">
+											</span>
 										@endif
 									@endforeach
-{{--									<span class="ta_toxmr"><img src="/posts/images/imor.png" class="hycov"></span>--}}
-{{--									<span class="ta_toxmr xa_rig10"><img src="/posts/images/zx.jpg" class="hycov"></span>--}}
-{{--									<span class="ta_toxmr xa_rig10"><img src="/posts/images/zx.jpg" class="hycov"></span>--}}
-{{--									<span class="ta_toxmr xa_rig10"><img src="/posts/images/zx.jpg" class="hycov"></span>--}}
-{{--									<span class="ta_toxmr xa_rig10"><img src="/posts/images/icon_010.png" class="hycov"></span>--}}
 								</div>
 							</div>
 						</div>
@@ -93,11 +75,11 @@
 										</a>
 									</div>
 									<div class="ta_lwid_right">
-										@if(($post->uid == $user->id || (isset($getStatus) && $getStatus->status==1)) && $post->f_status==1)
+										@if(($post->uid == $user->id || (isset($getStatus) && $getStatus->status==1 && $getStatus->forum_status ==1)) && $post->f_status==1)
 											@php
 												$show_a = 1;
 											@endphp
-											<a href="/dashboard/forum_personal/{{$post->uid}}">
+											<a href="/dashboard/forum_personal/{{$post->f_id}}">
 										@elseif($post->f_status==0 && $post->uid != $user->id)
 											@php
 												$show_a = 1;
@@ -107,7 +89,22 @@
 											@php
 												$show_a = 1;
 											@endphp
-											<div onclick="forumTip({{$user->id}})">
+											<a onclick="forumTip({{$user->id}})">
+										@elseif(isset($getStatus) && $getStatus->status==0)
+											@php
+												$show_a = 1;
+											@endphp
+											<a href="/dashboard/forum_manage_chat/{{$post->uid}}/{{$user->id}}">
+										@elseif(isset($getStatus) && ($getStatus->status==2 || $getStatus->status==3))
+											@php
+												$show_a = 1;
+											@endphp
+											<a onclick="forumStatus({{$getStatus->status}})">
+										@elseif(isset($getStatus) && $getStatus->forum_status==0)
+											@php
+												$show_a = 1;
+											@endphp
+											<a onclick="c5('您目前已被管理員限制使用')">
 										@endif
 										<h2>{{$post->f_title}}</h2>
 										<h3>{!!  $post->f_sub_title !!}</h3>
@@ -117,8 +114,8 @@
 
 												@if(isset($getStatus) && $getStatus->status==0)
 													<a href="/dashboard/forum_manage_chat/{{$post->uid}}/{{$user->id}}" class="shenhe_z">審核中</a>
-												@elseif(isset($getStatus) && $getStatus->status==2)
-													<div class="wtg_z">未通過</div>
+												@elseif(isset($getStatus) && ($getStatus->status==2 || $getStatus->status==3))
+													<div class="wtg_z" onclick="forumStatus({{$getStatus->status}})">未通過</div>
 												@elseif($post->uid != $user->id && !isset($getStatus) && $post->f_status==1)
 													<a onclick="forum_manage_toggle({{$post->uid}}, 0, {{$post->f_id}})" class="seqr">申請加入</a>
 												@endif
@@ -133,6 +130,15 @@
 												@endphp
 												<div class="wt_txb">
 													@foreach($getApplyUsers as $key=>$row)
+
+														@if(count($getApplyUsers)>5)
+															@once
+																<span class="ta_toxmr">
+																<img src="/posts/images/imor.png" class="hycov">
+															</span>
+															@endonce
+														@endif
+
 														@if($key==0)
 															<span class="ta_toxmr">
 																<img src="@if(file_exists( public_path().$row->pic ) && $row->pic != ""){{$row->pic}} @elseif($row->engroup==2)/new/images/female.png @else/new/images/male.png @endif" class="hycov hycov_down">
@@ -141,11 +147,6 @@
 															<span class="ta_toxmr xa_rig10">
 																<img src="@if(file_exists( public_path().$row->pic ) && $row->pic != ""){{$row->pic}} @elseif($row->engroup==2)/new/images/female.png @else/new/images/male.png @endif" class="hycov hycov_down">
 															</span>
-														@elseif($key>=5)
-															<span class="ta_toxmr xa_rig10">
-																<img src="/posts/images/zx.jpg" class="hycov hycov_down">
-															</span>
-															@break
 														@endif
 													@endforeach
 												</div>
@@ -154,7 +155,7 @@
 											@if($show_a==1)
 											</a>
 											@endif
-									</div>
+									</a>
 								</li>
 							@endforeach
 						@else
@@ -177,22 +178,15 @@
 @section('javascript')
 <script>
 
-	$(document).ready(function() {
-		@if(Session::has('message'))
-		c5('{{Session::get('message')}}');
-		<?php session()->forget('message');?>
-		@endif
-	});
-
 	function forumTip(uid) {
-		@if(isset($post_forum) && $post_forum->status==0 )
+		@if(isset($forum) && $forum->status==0 )
 		let script = '<a href="https://lin.ee/rLqcCns"><img src="https://scdn.line-apps.com/n/line_add_friends/btn/zh-Hant.png" alt="加入好友" height="36" border="0"></a>';
 		c5('您好，您的版面被系統關閉，如有意見請聯絡站長LINE@');
 		$('.bltext').append(script);
-		@elseif(isset($post_forum) && $post_forum->status==1 )
+		@elseif(isset($forum) && $forum->status==1 )
 		c5('您已經新增過');
 		$(".n_bllbut").on('click', function() {
-			window.location.href = "/dashboard/forum_personal/" + uid + "";
+			window.location.href = "/dashboard/forum_personal/{{$forum->id}}";
 		});
 		@endif
 	}
@@ -200,6 +194,8 @@
 	function forumStatus(status) {
 		if(status == 0){
 			c5('您好，目前此版面暫不開放');
+		}else if(status == 2 || status == 3){
+			c5('您目前已無法申請進入');
 		}
 	}
 
@@ -229,8 +225,8 @@
 				// c5(obj.message);
 				// $(".n_bllbut").on('click', function() {
 					if(obj.message=='申請成功'){
-						// window.location.href = "/dashboard/forum_manage_chat/" + auid + "/" + uid + "";
-						window.location.href = "/dashboard/forum";
+						window.location.href = "/dashboard/forum_manage_chat/" + auid + "/" + uid + "";
+						// window.location.href = "/dashboard/forum";
 					}else {
 						location.reload();
 					}

@@ -24,9 +24,22 @@ config/social.php
 config/session.php
 config/session.php
 config/app.php
+bootstrap/cache/config.php
 /.vscode
 *.DS_Store
+/public/Member_pics
+
+
+bootstrap/cache/packages.php
+
+bootstrap/cache/services.php
 
 storage/desktop.ini
 
 bootstrap/cache/
+
+.phpstorm.meta.php
+
+_ide_helper.php
+
+_ide_helper_models.php

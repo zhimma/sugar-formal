@@ -22,7 +22,11 @@
                             $canPost = true;
                         ?>
 
-                        @if(!isset($posts))
+                        {{-- @if(!isset($posts)) --}}
+                        @if(true)
+                            <div class="m-widget3">
+                                <h1>留言板功能調整暨重新整理中，不便之處，敬請見諒。</h1>
+                            </div>
                         @else
                             <div class="m-widget3">
                                 @foreach ($posts as $post)
@@ -48,6 +52,15 @@
                                             <p class="m-widget3__text">
                                                 {{ $post->post }}
                                             </p>
+                                        </div>
+
+                                        <div class="m-widget3__delete">
+                                            @if($postUser->id == $user->id)
+                                                <form method="post" action="{{ route('deleteBoard', ['uid' => $user->id, 'ct_time' => $post->created_at, 'content' => $post->post]) }}">
+                                                    <input type="hidden" name="_token" value="{{ csrf_token() }}" />
+                                                    <input type="submit" class="btn btn-danger m-btn m-btn--air m-btn--custom" value="刪除" />
+                                                </form>
+                                            @endif
                                         </div>
                                     </div>
                                 @endforeach

@@ -93,7 +93,7 @@
 {{--                                </form>--}}
 
 {{--                            </span>--}}
-                            <a href="javascript:void(0);" class="gvipbut" id="pay_back">補刷卡</a>
+                            {{-- <a href="javascript:void(0);" class="gvipbut" id="pay_back">補刷卡</a> --}}
                         </div>
                         <div class="vipline"><img src="/new/images/VIP_05.png"></div>
                         <div class="vipbongn">

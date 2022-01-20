@@ -1,0 +1,4 @@
+[27-Nov-2018 16:33:25 UTC] PHP Fatal error:  Uncaught Error: Call to a member function define() on null in /home/sguser/public_html/database/factories/UserFactory.php:27
+Stack trace:
+#0 {main}
+  thrown in /home/sguser/public_html/database/factories/UserFactory.php on line 27

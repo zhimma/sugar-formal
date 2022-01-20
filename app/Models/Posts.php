@@ -8,12 +8,14 @@ use App\Models\Blocked;
 use App\Models\SimpleTables\banned_users;
 use Illuminate\Database\Eloquent\Model;
 use App\Notifications\MessageEmail;
+use Illuminate\Database\Eloquent\SoftDeletes;
 use Illuminate\Support\Facades\Config;
 use Carbon\Carbon;
 use Illuminate\Support\Facades\DB;
 
 class Posts extends Model
 {
+    use SoftDeletes;
     /**
      * The database table used by the model.
      *

@@ -8,20 +8,19 @@ use App\Models\SimpleTables\banned_users;
 class UserRepository
 {
     /**
-     * @var model user
-     * @var model banned_users
+     * @var model
      */
-    protected  $user;
-    protected  $banned_users;
+    protected static $user;
+    protected static $banned_users;
 
     /**
-     * @param model User
-     * @param model banned_users
+     * @param models User
+     * @param models banned_users
      */
     public function __construct(User $user, banned_users $banned_users)
     {
-        $this->user = $user;
-        $this->banned_users = $banned_users;
+        self::$user = $user;
+        self::$banned_users = $banned_users;
     }
 
    	/** 
@@ -29,9 +28,9 @@ class UserRepository
    	 *
      * @return array users
      */
-    public function all()
+    public static function all()
     {
-        return $this->user->get();
+        return self::$user->get();
     }
 
     /**

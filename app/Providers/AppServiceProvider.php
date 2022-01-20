@@ -13,7 +13,6 @@ class AppServiceProvider extends ServiceProvider
      * @return void
      */
     public function boot(Factory $validator) {
-        // \Debugbar::disable();
         //
         require_once app_path() . '/validators.php';
     }

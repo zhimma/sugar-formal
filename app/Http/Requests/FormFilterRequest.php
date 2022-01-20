@@ -29,7 +29,7 @@ class FormFilterRequest extends FormRequest
     public function rules()
     {
         return [
-            'post' => array('regex:/^[\x{4e00}-\x{9fa5}_a-zA-Z0-9\s]+$/u');
+            'post' => array('regex:/^[\x{4e00}-\x{9fa5}_a-zA-Z0-9\s]+$/u')
         ];
     }
 }

@@ -9,6 +9,16 @@ class ForumManageChat extends Model
 {
     use SoftDeletes;
 
+    protected $fillable = [
+        'id',
+        'forum_id',
+        'from_id',
+        'to_id',
+        'content',
+        'pic',
+        'read'
+    ];
+
     /**
      * The database table used by the model.
      *

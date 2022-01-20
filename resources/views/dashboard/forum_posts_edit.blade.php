@@ -1,9 +1,9 @@
 @extends('new.layouts.website')
-
+@section('style')
 	<link rel="stylesheet" href="/posts/css/style.css">
 	<script src="/posts/js/jquery-2.1.1.min.js" type="text/javascript"></script>
 	<script src="/posts/js/bootstrap.min.js"></script>
-
+@endsection
 	@section('app-content')
 		<div class="container matop70">
 			<div class="row">
@@ -39,7 +39,7 @@
 			</div>
 		</div>
 	@stop
-
+@section('javascript')
 <script>
 	function send_posts_btn() {
 		var editType = '{{ $editType }}';
@@ -65,3 +65,4 @@
 		$(".gg_tab").hide();
 	});
 </script>
+@endsection
