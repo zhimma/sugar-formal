@@ -345,11 +345,14 @@ class Message_newController extends BaseController {
         if($isCalledByEvent && gettype($isCalledByEvent) == "boolean") {
             return $messagePosted;
         }
-        \App\Events\Chat::dispatch($messagePosted, $request->from, $request->to);
+        
         if($justEchoAndExit) {
             echo '1';
             exit;
-        }        
+        }          
+        
+        \App\Events\Chat::dispatch($messagePosted, $request->from, $request->to);
+      
         return back();
     }
 
@@ -593,19 +596,24 @@ class Message_newController extends BaseController {
     }
     
     public function unsendChat(Request $request) {
+        $isAjax = false;
+        if($request->ajax()) $isAjax = true;        
         $payload = $request->all();
         $unsend_id = $payload['unsend_msg'];
         $user = Auth::user();
-        
+
         if($user->isVIP() &&  !isset($user->banned ) && !isset($user->implicitlyBanned)){
             $msg = Message::find($unsend_id);
             $msg->unsend = 1;
             $msg->save();
             $msg->delete();
-            return back();
+            if($isAjax) {
+                return event(new \App\Events\ChatUnsend($msg));
+            }
+            else return back();
         }
         else {
-            if($isCalledByEvent){
+            if($isAjax){
                 return array('error' => 1,
                             'content' => '非VIP無法收回訊息。');
             }

@@ -17,7 +17,13 @@ function resize_before_upload(uploader,checkWidth
         var blobEltOfIos = [];
         var listInputElt = cur_uploader_api.getListInputEl();
 
-        cur_uploader_api.setOption('afterSelect',function(istEl,parentEl, newInputEl, inputEl){
+        cur_uploader_api.setOption('afterSelect',function(listEl,parentEl, newInputEl, inputEl){
+
+            var cur_uploader_option = cur_uploader_api.getOptions();
+            
+            if(cur_uploader_option.beforeResize!=undefined){
+                cur_uploader_option.beforeResize(listEl,parentEl, newInputEl, inputEl);
+            }
 
             image_handling_num=0;
             image_handled_num=0;    
@@ -31,11 +37,17 @@ function resize_before_upload(uploader,checkWidth
 
             var fileSelected = cur_uploader_api.getChoosedFiles();
 
-            if(fileSelected.length>0) loading();
+            if(fileSelected.length>0) {
+                loading();
+            }
             else return false;
-            var fileReaderSet = []; 
-         
+             
+            var needless_resize = true;
             for(i=0;i<fileSelected.length;i++) {
+
+                if(resize_before_upload_fileReaderSet[fileSelected[i].name]!=undefined) continue;
+                else needless_resize = false;
+
                 let curFileEntry = fileSelected[i];
                 fileReaderSet[curFileEntry.name]  = new FileReader();
 
@@ -52,7 +64,7 @@ function resize_before_upload(uploader,checkWidth
                     ) 
                     {
                         image_handling_num++;
-                        create_img_to_resize(checkWidth,checkHeight,dataUrl[curFileEntry.name] ,blobElt,nowEltName,curFileEntry.name,curFileEntry.type) ;
+                        create_img_to_resize(checkWidth,checkHeight,dataUrl[curFileEntry.name] ,blobElt,nowEltName,curFileEntry.name,curFileEntry.type,cur_uploader_option,listEl,parentEl, newInputEl, inputEl) ;                      
                     }
                     else {
                         if(file_ext_name.toLowerCase()=='heic' || file_ext_name.toLowerCase()=='heif' ) {
@@ -65,18 +77,23 @@ function resize_before_upload(uploader,checkWidth
                                 quality: 1
                               }))
                               .then((blob) => {
-                                 create_img_to_resize(checkWidth,checkHeight,URL.createObjectURL(blob),blobElt,nowEltName,curFileEntry.name,blob.type) ;
+                                 create_img_to_resize(checkWidth,checkHeight,URL.createObjectURL(blob),blobElt,nowEltName,curFileEntry.name,blob.type,cur_uploader_option,listEl,parentEl, newInputEl, inputEl) ;
 
                               })
                               .catch((e) => {
                                 console.log(e);
                                 image_handled_num++;
+                                resize_pic_loading_close(cur_uploader_option,listEl,parentEl, newInputEl, inputEl);                          
                               });                    
                         }
                     }                    
                 }
                 fileReaderSet[curFileEntry.name].readAsDataURL(curFileEntry.file);
 
+            }  
+            
+            if(needless_resize) {
+                resize_pic_loading_close(cur_uploader_option,listEl,parentEl, newInputEl, inputEl);               
             }
         });  
 
@@ -86,6 +103,11 @@ function resize_before_upload(uploader,checkWidth
         else outer_selector='body';
         var curUploaderFormElt = cur_uploader_api.getParentEl().closest('form');
         curUploaderFormElt.on('submit',function(evt){
+            var cur_uploader_option = cur_uploader_api.getOptions();
+
+            if(cur_uploader_option.beforeSubmit!=undefined){
+                cur_uploader_option.beforeSubmit(evt);
+            }            
             loading();
             var nowElt = $(evt.target);
             var nowFormElt = nowElt;
@@ -162,24 +184,27 @@ function resize_before_upload(uploader,checkWidth
                     if(pop_type=='show_pop_message') {
                         pop_container_selector = '';
 
-                        show_pop_message(pop_content);
+                        if(pop_content!='') show_pop_message(pop_content);
                     }
                     else if(pop_type=='c5')  {
                         
                       
-                        c5(pop_content);
+                        if(pop_content!='') c5(pop_content);
                     }
                     if(form_showed_container!=null && form_showed_container!=undefined )
                         form_showed_container.hide();
                     console.log(xhr);
                     console.log(status);
                     console.log(error);
+                    if(cur_uploader_option.afterSubmit!=undefined){
+                        cur_uploader_option.afterSubmit(evt);
+                    }                     
                 },  
                 success: function(data) { 
                     returnDataType = returnDataType.toLowerCase();
                     pop_message = '';
                     return_url ='';
-                    $(".loading").hide(); 
+                    $("#tab_loading").hide();
                     if(form_showed_container!=null && form_showed_container!=undefined )
                         form_showed_container.hide();                
 
@@ -258,7 +283,9 @@ function resize_before_upload(uploader,checkWidth
                             });
                         }                 
                         
-                        show_pop_message(pop_message);
+                        if(pop_message!='') show_pop_message(pop_message);
+                        cur_uploader_api.reset();
+                        nowElt.find('.fileuploader-thumbnails-input').show();
                     }
                     else if(pop_type=='c5') {
                         if(return_url!='') {
@@ -270,9 +297,13 @@ function resize_before_upload(uploader,checkWidth
                                 return false;
                             });
                         }                  
-                        c5(pop_message); 
-
-                    }           
+                        if(pop_message!='') c5(pop_message); 
+                        cur_uploader_api.reset();
+                        nowElt.find('.fileuploader-thumbnails-input').show();
+                    }         
+                    if(cur_uploader_option.afterSubmit!=undefined){
+                        cur_uploader_option.afterSubmit(evt);
+                    }                       
                 },            
             }); 
 
@@ -286,7 +317,7 @@ function resize_before_upload(uploader,checkWidth
 }
 
 
-function create_img_to_resize(checkWidth,checkHeight,dataUrl,blobElt,eltName,fileName,fileType) {
+function create_img_to_resize(checkWidth,checkHeight,dataUrl,blobElt,eltName,fileName,fileType,cur_uploader_option,listEl,parentEl, newInputEl, inputEl) {
 
     var img = new Image();
     img.src = dataUrl;
@@ -329,7 +360,7 @@ function create_img_to_resize(checkWidth,checkHeight,dataUrl,blobElt,eltName,fil
 
            image_handled_num++;
            if(image_handling_num==image_handled_num) {
-               resize_pic_loading_close();
+               resize_pic_loading_close(cur_uploader_option,listEl,parentEl, newInputEl, inputEl);
                image_handling_num=image_handled_num=0;
            }
        }, fileType, compressRatio);
@@ -347,13 +378,15 @@ function convert_format_msg(){
     return false;
 }
 
-function resize_pic_loading_close() {
+function resize_pic_loading_close(cur_uploader_option,listEl,parentEl, newInputEl, inputEl) {
         $(document).off('click','#tabPopM .n_bllbut,.blbg,#tabPopM .bl_gb',convert_format_msg);
         $(document).on('click','.blbg',closeAndReload); 
         $(".announce_bg").attr('onclick',org_announce_bg_onclick_value);
-		$(".announce_bg").hide();
         $(".blbg").hide();
 		$("#tab_loading").hide();  
         $('#tabPopM').hide();   
-        $('#tab05').hide();   
+        $('#tab05').hide();  
+        if(cur_uploader_option.afterResize!=undefined) {
+           cur_uploader_option.afterResize(listEl,parentEl, newInputEl, inputEl);            
+        }                         
 }
