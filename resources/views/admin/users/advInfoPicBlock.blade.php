@@ -132,7 +132,7 @@
                         <p>搜尋失敗</p>
                     @endif
                 @else
-                    <p>無紀錄</p>
+                    <p>尚未檢查</p>
                 @endif
             </td>
             <td class="images_comparation_cell">
@@ -292,7 +292,7 @@
                         <p>搜尋失敗</p>
                     @endif
                 @else
-                    <p>無紀錄</p>
+                    <p>尚未檢查</p>
                 @endif
             </td>
             <td class="images_comparation_cell">
@@ -462,7 +462,7 @@
                         <p>搜尋失敗</p>
                     @endif
                 @else
-                    <p>無紀錄</p>
+                    <p>尚未檢查</p>
                 @endif
             </td>
             <td class="images_comparation_cell">
@@ -629,7 +629,7 @@
                         <p>搜尋失敗</p>
                     @endif
                 @else
-                    <p>無紀錄</p>
+                    <p>尚未檢查</p>
                 @endif
             </td>
             <td class="images_comparation_cell">
