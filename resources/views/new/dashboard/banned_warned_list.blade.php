@@ -81,7 +81,7 @@
                                     <td ><font size="1">
                                         @if ($row->reason <>'')                                       
                                             @if(mb_strlen($row->reason) >8) 
-                                                {{mb_substr($row->reason,0,5,'utf-8')}}<button id="reason_hidden" type="button" onclick="c5('{{$row->reason}}')">...</button>
+                                                {{mb_substr($row->reason,0,5,'utf-8')}}<button id="reason_hidden"  onclick="c5('{{$row->reason}}'),setTimeout(function(){window.location.reload();},3000)">...</button>
                                             @else
                                                 {{$row->reason}}
                                             @endif   
@@ -118,7 +118,7 @@
                                     <td ><font size="1">
                                         @if ($row->reason <>'')                                       
                                             @if(mb_strlen($row->reason) >8) 
-                                                {{mb_substr($row->reason,0,5,'utf-8')}}<button id="reason_hidden" type="button" onclick="c5('{{$row->reason}}')">...</button>
+                                                {{mb_substr($row->reason,0,5,'utf-8')}}<button  id="reason_hidden"  onclick="c5('{{$row->reason}}'),setTimeout(function(){window.location.reload();},3000)">...</button>
                                             @else
                                                 {{$row->reason}}
                                             @endif   
