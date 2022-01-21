@@ -801,7 +801,7 @@
             var styBlur = isBlur? "blur_img" : "";
             
             if(isBanned ==1 ){
-                li += `<a href="" onclick="c5('此人已被站方封鎖'),setTimeout('',10000)">
+                li += `<a type="button" onclick="c5('此人已被站方封鎖'),setTimeout(function(){window.location.reload();},3000)">
                     <div class="sjpic ${styBlur} shanx" id="${user_id}">
                             <img src="${pic}">
                             <div class="onlineStatusChatView"></div>
