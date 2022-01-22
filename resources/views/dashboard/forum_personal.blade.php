@@ -5,6 +5,11 @@
 		<link rel="stylesheet" href="/posts/css/font/iconfont.css">
 		<link rel="stylesheet" href="/posts/css/taolunqu/iconfont.css">
 		<link href="https://fonts.googleapis.com/css?family=Roboto:400|700" rel="stylesheet">
+		<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/4.7.0/css/font-awesome.min.css">
+		<link rel="stylesheet"
+				href="https://cdn.jsdelivr.net/npm/@fancyapps/ui/dist/fancybox.css"
+		/>
+{{--		<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/bootstrap-colorpicker/3.4.0/css/bootstrap-colorpicker.min.css" integrity="sha512-m/uSzCYYP5f55d4nUi9mnY9m49I8T+GUEe4OQd3fYTpFU9CIaPazUG/f8yUkY0EWlXBJnpsA7IToT2ljMgB87Q==" crossorigin="anonymous" referrerpolicy="no-referrer" />--}}
 		<style>
 			.toug_but:hover{ color:white !important; text-decoration:none !important}
 
@@ -44,7 +49,22 @@
 			.read-more:hover {
 				color:#e44e71;
 			}
+			.nickname{
+				display: block;
+				position: absolute;
+				float: left;
+				top: -10px;
+				color: white;
+				border-radius: 10px;
+				border: 1px #fe92a8;
+				background-color: #fe92a8;
+				padding-left: 5px;
+				padding-right: 5px;
+				left: 5px;
+				font-size: 10px;
+			}
 		</style>
+
 @endsection
 		@section('app-content')
 		<div class="container matop70">
@@ -150,60 +170,26 @@
 									<div class="n_sq_hover01"><span class="iconfont icon-gonggongliaotianshi-fill no_cx ba_wl10"></span>聊天室</div>
 								</li>
 							</div>
-							<div class="tao_qu">
-								Coming Soon...
-{{--								<div class="tao_time">08-30(二）</div>--}}
+							@php
+                                $forum_id = $forum->id;
+                                $color = $lastest_color;
+							@endphp
+							<div class="tao_qu" style="overflow: unset;">
 
-{{--								<div class="show maspp0">--}}
-{{--									<div class="msg msg1">--}}
-{{--										<img src="/posts/images/icon_010.png">--}}
-{{--										<div class="msg_p1">--}}
-{{--											<i class="msg_input_nn_2"></i>阿龍的聊天室阿龍的聊天室--}}
-{{--										</div>--}}
-{{--									</div>--}}
-{{--								</div>--}}
-{{--								<div class="send maspp0">--}}
-{{--									<div class="msg">--}}
-{{--										<img src="/posts/images/icon_010.png">--}}
-{{--										<div class="msg_p"><i class="msg_input_nn"></i>版主好！</div>--}}
-{{--									</div>--}}
-{{--								</div>--}}
-{{--								<div class="send maspp0">--}}
-{{--									<div class="msg">--}}
-{{--										<img src="/posts/images/icon_010.png">--}}
-{{--										<div class="msg_p"><i class="msg_input_nn"></i>疫情終於快走了～</div>--}}
-{{--									</div>--}}
-{{--								</div>--}}
-{{--								<div class="show maspp0">--}}
-{{--									<div class="msg msg1">--}}
-{{--										<img src="/posts/images/icon_010.png">--}}
-{{--										<div class="msg_p1">--}}
-{{--											<i class="msg_input_nn_2"></i>疫情期間大辛苦了--}}
-{{--										</div>--}}
-{{--									</div>--}}
-{{--								</div>--}}
-{{--								<div class="tao_time matop10">08-30(二）</div>--}}
-{{--								<div class="show maspp0">--}}
-{{--									<div class="msg msg1">--}}
-{{--										<img src="/posts/images/icon_010.png">--}}
-{{--										<div class="msg_p1">--}}
-{{--											<i class="msg_input_nn_2"></i>疫情期間大辛苦了--}}
-{{--										</div>--}}
-{{--									</div>--}}
-{{--								</div>--}}
+								@if($forum->user_id == $user->id || $checkForumMangeStatus->chat_status != 0)
+									<div style="overflow: auto; position: relative; max-height: 580px;">
+										<livewire:forum-chat-show :forum_id="$forum_id"/>
+									</div>
+								@else
+											您目前尚無聊天室權限
+								@endif
 
 							</div>
-
-{{--							<div class="tao_qu_1">--}}
-{{--								<a  href="" class="tia_icon"></a>--}}
-{{--								<div class="ta_input">--}}
-{{--									<div class="ta_input_a">--}}
-{{--										<a href="" class="ta_yyah"><img src="/posts/images/yyqh.png"></a>--}}
-{{--										<input placeholder="请输入内容" class="ta_input_po">--}}
-{{--									</div>--}}
-{{--								</div>--}}
-{{--								<a  href="" class="fs_icon"></a>--}}
-{{--							</div>--}}
+							@if($forum->user_id == $user->id || $checkForumMangeStatus->chat_status != 0)
+							<div class="tao_qu_1">
+								<livewire:forum-chat-submit :forum_id="$forum_id" :color="$color"/>
+							</div>
+							@endif
 
 						</div>
 						<!-- 討論區 -->
@@ -218,6 +204,7 @@
 		@stop
 
 @section('javascript')
+
 <script>
 
 	function delete_alert() {
@@ -230,6 +217,10 @@
 
 	function checkUserVip() {
 
+		@if($forum->user_id != $user->id && $user->id != 1049 && $checkForumMangeStatus->forum_status==0)
+		c5('您目前尚無討論區權限');
+		return false;
+		@endif
 		var checkUserVip='{{ $checkUserVip }}';
 		var checkProhibit='{{ $user->prohibit_posts }}';
 		var checkAccess='{{ $user->access_posts }}';
@@ -247,13 +238,25 @@
 		}
 	}
 
+	@if($forum->user_id != $user->id && $user->id != 1049 && $checkForumMangeStatus->forum_status==0)
+	$(".sh").hide();
+	$(".sh1").show();
+	@endif
 	function shenhe() {
-		$(".sh").show()
-		$(".sh1").hide()
+		@if($forum->user_id != $user->id && $user->id != 1049 && $checkForumMangeStatus->forum_status==0)
+		c5('您目前尚無討論區權限');
+		@else
+		$(".sh").show();
+		$(".sh1").hide();
+		@endif
 	}
 	function shenhe1() {
-		$(".sh").hide()
-		$(".sh1").show()
+		@if($forum->user_id != $user->id && $user->id != 1049 && $checkForumMangeStatus->chat_status==0)
+			c5('您目前尚無聊天室權限');
+		@else
+			$(".sh").hide();
+			$(".sh1").show();
+		@endif
 	}
 
 	$('.pda_zx').click(function (){
@@ -294,4 +297,6 @@
 
 	})
 </script>
+<script src="https://cdn.jsdelivr.net/npm/@fancyapps/ui@4.0/dist/fancybox.umd.js"></script>
+@stack('scripts')
 @endsection
