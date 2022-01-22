@@ -269,7 +269,9 @@
                                 
                         <a class="nnn_adbut" href="{{ !empty(session()->get('goBackPage_chat2')) ? session()->get('goBackPage_chat2') : \Illuminate\Support\Facades\URL::previous() }}"><img class="nnn_adbut_img" src="{{ asset('/new/images/back_icon.png') }}" style="height: 15px;">返回</a>
                         <span style="flex: 6; text-align: center;">   
-                            {{$is_banned = \App\Models\User::isBanned($to->id)}}
+                            @php
+                                $is_banned = \App\Models\User::isBanned($to->id);
+                            @endphp
                             @if($is_banned)
                                 <a type="button" style="color: #fd5678;" onclick="c5('{{'此人已被站方封鎖'}}'),setTimeout(function(){window.location.reload();},3000)">{{$to->name}}</a>
                             @else
@@ -354,8 +356,9 @@
                                         @if($message['from_id'] == $user->id)
                                             <img src="@if(file_exists( public_path().$user->meta->pic ) && $user->meta->pic != ""){{$user->meta->pic}} @elseif($user->engroup==2)/new/images/female.png @else/new/images/male.png @endif">
                                         @else
-                                            
-                                            {{$is_banned = \App\Models\User::isBanned($to->id)}}
+                                            @php
+                                                $is_banned = \App\Models\User::isBanned($to->id);
+                                            @endphp
                                             @if($is_banned)
                                                 <a class="chatWith" type="button"  onclick="c5('{{'此人已被站方封鎖'}}'),setTimeout(function(){window.location.reload();},3000)">
                                             @else
