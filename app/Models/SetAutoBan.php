@@ -12,6 +12,8 @@ use Illuminate\Database\Eloquent\Model;
 use Illuminate\Support\Facades\Log;
 use Illuminate\Support\Facades\DB;
 use Illuminate\Database\Eloquent\SoftDeletes;
+use App\Jobs\AutoBanCaller;
+use Carbon\Carbon;
 
 class SetAutoBan extends Model
 {
@@ -23,6 +25,11 @@ class SetAutoBan extends Model
 
     //自動封鎖 用後台設定的關鍵字查詢
     public static function auto_ban($uid)
+    {
+        AutoBanCaller::dispatch($uid)->delay(SetAutoBan::_getDelayTime());
+    }
+    
+    public static function autoBan($uid)
     {
         $user = User::findById($uid);
         try {
@@ -130,6 +137,11 @@ class SetAutoBan extends Model
 
     //發訊後的自動封鎖
     public static function msg_auto_ban($uid, $toid, $msg)
+    {                   
+        AutoBanCaller::dispatch($uid, $toid, $msg)->delay(SetAutoBan::_getDelayTime());                   
+    }
+    
+    public static function autoBanMsg($uid, $toid, $msg)
     {
         $user = User::findById($uid);
         try {
@@ -286,4 +298,14 @@ class SetAutoBan extends Model
         SetAutoBan::insert(['type' => $type, 'content' => $content, 'set_ban' => $set_ban, 'cuz_user_set' => $cuz_user_set, 'expiry' => $expiry, 'host' => $host, 'created_at' => now(), 'updated_at' => now() ]);
         return;
     }
+    
+    private static function _getDelayTime() {
+        $delay = 0;
+        $now=Carbon::now();
+        $next = $now->addDay();
+        $stime = Carbon::parse($now->format('Y-m-d').' 18:00:00');
+        $etime = Carbon::parse($next->format('Y-m-d').' 01:00:00');
+        if($now->gt($stime) && $now->lt($etime)) $delay=25200; 
+        return $delay;
+    }    
 }
