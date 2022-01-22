@@ -800,19 +800,8 @@
 
             var styBlur = isBlur? "blur_img" : "";
             
-            if(isBanned ==1 ){
-                li += `<a type="button" onclick="c5('此人已被站方封鎖'),setTimeout(function(){window.location.reload();},3000)">
-                    <div class="sjpic ${styBlur} shanx" id="${user_id}">
-                            <img src="${pic}">
-                            <div class="onlineStatusChatView"></div>
-                        </div>
-                        <div class="sjleftmm">
-                            <div class="sjtable ${user_id}">${(read_n!=0 && isBanned==0?`<i class="number ${user_id}">${read_n}</i>`:'')}<span class="ellipsis" style="width: 60%;">${user_name}</span></div>
-                  `;
-            }
 
-
-            else if(show==1) {
+            if(show==1) {
 
                 li += `<a href="${url}" target="_self">
                     <div class="sjpic ${styBlur} shanx" id="${user_id}">

@@ -268,19 +268,24 @@
                             @else
                                 
                         <a class="nnn_adbut" href="{{ !empty(session()->get('goBackPage_chat2')) ? session()->get('goBackPage_chat2') : \Illuminate\Support\Facades\URL::previous() }}"><img class="nnn_adbut_img" src="{{ asset('/new/images/back_icon.png') }}" style="height: 15px;">返回</a>
-                        <span style="flex: 6; text-align: center;">
-                            <a href="/dashboard/viewuser/{{$to->id}}" style="color: #fd5678;">
-                                <span class="se_rea">{{$to->name}}
-{{--                                    <div id="onlineStatus"></div>--}}
-                                    @if($isVip)
-                                        @if($to->isOnline())
-                                            <div class="onlineStatus"></div>
+                        <span style="flex: 6; text-align: center;">   
+                            {{$is_banned = \App\Models\User::isBanned($to->id)}}
+                            @if($is_banned)
+                                <a type="button" style="color: #fd5678;" onclick="c5('{{'此人已被站方封鎖'}}'),setTimeout(function(){window.location.reload();},3000)">{{$to->name}}</a>
+                            @else
+                                <a href="/dashboard/viewuser/{{$to->id}}" style="color: #fd5678;">
+                                    <span class="se_rea">{{$to->name}}
+    {{--                                    <div id="onlineStatus"></div>--}}
+                                        @if($isVip)
+                                            @if($to->isOnline())
+                                                <div class="onlineStatus"></div>
+                                            @endif
+                                        @else
+                                            <div class="onlineStatusNonVip"><img src="/new/images/wsx.png"></div>
                                         @endif
-                                    @else
-                                        <div class="onlineStatusNonVip"><img src="/new/images/wsx.png"></div>
-                                    @endif
-                                </span>
-                            </a>
+                                    </span>
+                                </a>
+                            @endif
                         </span>
                         @if($user->engroup==1)
                             <form class="" style="float: right; position: relative; text-align: right;" action="{{ route('chatpay_ec') }}" method=post id="ecpay">
@@ -349,7 +354,13 @@
                                         @if($message['from_id'] == $user->id)
                                             <img src="@if(file_exists( public_path().$user->meta->pic ) && $user->meta->pic != ""){{$user->meta->pic}} @elseif($user->engroup==2)/new/images/female.png @else/new/images/male.png @endif">
                                         @else
-                                            <a class="chatWith" href="{{ url('/dashboard/viewuser/' . $msgUser->id ) }}">
+                                            
+                                            {{$is_banned = \App\Models\User::isBanned($to->id)}}
+                                            @if($is_banned)
+                                                <a class="chatWith" type="button"  onclick="c5('{{'此人已被站方封鎖'}}'),setTimeout(function(){window.location.reload();},3000)">
+                                            @else
+                                                <a class="chatWith" href="{{ url('/dashboard/viewuser/' . $msgUser->id ) }}">
+                                            @endif
                                             <img class="@if($isBlurAvatar) blur_img @endif" src="@if(file_exists( public_path().$msgUser->meta->pic ) && $msgUser->meta->pic != ""){{$msgUser->meta->pic}} @elseif($msgUser->engroup==2)/new/images/female.png @else/new/images/male.png  @endif">
                                             </a>
                                         @endif
