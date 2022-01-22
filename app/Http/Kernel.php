@@ -81,8 +81,6 @@ class Kernel extends HttpKernel
         'pseudoThrottle' => \App\Http\Middleware\PseudoThrottle::class,
         'Admin' => \App\Http\Middleware\Admin::class,
         'ReadOnly' => \App\Http\Middleware\ReadOnly::class,
-        'permissions' => \App\Http\Middleware\Permissions::class,
-        'roles' => \App\Http\Middleware\Roles::class,
         'vipc' => \App\Http\Middleware\Vipc::class,
         'filled' => \App\Http\Middleware\Filled::class,
         'newerManual' => \App\Http\Middleware\NewerManual::class,

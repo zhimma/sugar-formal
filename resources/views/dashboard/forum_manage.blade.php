@@ -119,8 +119,11 @@
 								@if($row->status == 0)
 								<a href="/dashboard/forum_manage_chat/{{$user->id}}/{{$row->user_id}}?fromUrl=/dashboard/forum_manage" class="hy_icon022 custom_s"><span class="iconfont icon-fangdajing"></span>審核中，點此查看聊天記錄</a>
 								@elseif($row->status == 1)
-								<font class="hy_icon011 custom_s @if($row->forum_status==1) active @endif" onclick="forum_status_toggle({{$row->user_id}}, {{$row->forum_status == 1 ? 1 : 0}})"><span class="iconfont icon-liaotian1"></span>
+								<font class="hy_icon011 custom_s @if($row->forum_status==1) active @endif" onclick="forum_status_toggle({{$row->user_id}}, {{$row->forum_status == 1 ? 1 : 0}}, 'forum_status')"><span class="iconfont icon-liaotian1"></span>
 									討論區
+								</font>
+								<font class="hy_icon011 custom_s @if($row->chat_status==1) active @endif" onclick="forum_status_toggle({{$row->user_id}}, {{$row->chat_status == 1 ? 1 : 0}}, 'chat_status')"><span class="iconfont icon-liaotian1"></span>
+									聊天室
 								</font>
 								<font class="hy_icon011 custom_s"><span class="iconfont icon-yichuchengyuan1"></span><a onclick="forum_manage_toggle({{$row->user_id}}, 3)">移除成員</a></font>
 								@endif
@@ -150,12 +153,6 @@
 
 @section('javascript')
 <script>
-	$(document).ready(function() {
-		@if(Session::has('message'))
-		c5('{{Session::get('message')}}');
-		<?php session()->forget('message');?>
-		@endif
-	});
 
 	function forum_manage_toggle(auid, status) {
 		var msg;
@@ -184,21 +181,28 @@
 		});
 	}
 
-	function forum_status_toggle(uid, status) {
+	function forum_status_toggle(uid, status, mode) {
+		// alert(mode);
+		// return false;
 		var msg;
 		var fid='{{$forum->id}}';
-		if(status==1){
+		if(status==1 && mode=='forum_status'){
 			msg='您確定要移除此會員討論區權限嗎?';
-		}else if(status==0){
+		}else if(status==0 && mode=='forum_status'){
 			msg='您確定要賦予此會員討論區權限嗎?';
+		}else if(status==1 && mode=='chat_status'){
+			msg='您確定要移除此會員聊天室權限嗎?';
+		}else if(status==0 && mode=='chat_status'){
+			msg='您確定要賦予此會員聊天室權限嗎?';
 		}
-		// alert(msg);
+		// alert(mode);
 		c4(msg);
 		$(".n_left").on('click', function() {
 			$.post('{{ route('forum_status_toggle') }}', {
 				uid: uid,
 				fid: fid,
 				status: status,
+				mode: mode,
 				_token: '{{ csrf_token() }}'
 			}, function (data) {
 				$("#tab04").hide();

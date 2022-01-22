@@ -21,21 +21,6 @@
 			margin: 16px 0 0 !important;
 		}
 
-		/*.tia_icon{*/
-		/*	position: relative;*/
-		/*	left: -16px;*/
-		/*	top: -30px;*/
-		/*}*/
-
-		.fs_icon{
-			border: unset;
-		}
-
-		.tao_qu_1{
-			display: block;
-			min-height: 58px;
-
-		}
 
 		/*.fileuploader-thumbnails-input{*/
 		/*	display: none;*/
@@ -59,40 +44,6 @@
 		/*input[type="file"] {*/
 			/*display: none;*/
 		/*}*/
-
-		.removeImg{
-			border: unset;
-			position: relative;
-			float: right;
-			left: 5px;
-			background: unset;
-		}
-
-		.tempImg{
-			display: inline-block;
-
-		}
-		.tempImg img{
-			max-width: 100px;
-		}
-		.msgPics{
-			text-align: center;
-			position: relative;
-		}
-		.chatShowAvatarLeft{
-			width: 40px;
-			height: 40px;
-			float: left;
-			object-fit: contain;
-			border-radius: 100px;
-		}
-		.chatShowAvatarRight{
-			width: 40px;
-			height: 40px;
-			float: right;
-			object-fit: contain;
-			border-radius: 100px;
-		}
 	</style>
 @endsection
 

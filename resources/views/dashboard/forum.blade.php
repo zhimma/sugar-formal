@@ -75,7 +75,7 @@
 										</a>
 									</div>
 									<div class="ta_lwid_right">
-										@if(($post->uid == $user->id || (isset($getStatus) && $getStatus->status==1 && $getStatus->forum_status ==1)) && $post->f_status==1)
+										@if(($post->uid == $user->id || (isset($getStatus) && $getStatus->status==1 && $getStatus->forum_status ==1)) || (isset($getStatus) && $getStatus->status==1 && $getStatus->chat_status ==1) && $post->f_status==1)
 											@php
 												$show_a = 1;
 											@endphp
@@ -100,7 +100,7 @@
 												$show_a = 1;
 											@endphp
 											<a onclick="forumStatus({{$getStatus->status}})">
-										@elseif(isset($getStatus) && $getStatus->forum_status==0)
+										@elseif(isset($getStatus) && $getStatus->forum_status==0 && $getStatus->chat_status==0)
 											@php
 												$show_a = 1;
 											@endphp
@@ -133,7 +133,7 @@
 
 														@if(count($getApplyUsers)>5)
 															@once
-																<span class="ta_toxmr">
+																<span class="ta_toxmr" style="position: relative; left: -10px; z-index: -1;">
 																<img src="/posts/images/imor.png" class="hycov">
 															</span>
 															@endonce
