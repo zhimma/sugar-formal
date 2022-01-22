@@ -11,6 +11,7 @@ header("Expires: Fri, 01 Jan 1990 00:00:00 GMT");
     //拒絕接受搜索縣市最大數量
     $blockcity_limit_count = 10;
     $blockarea_selected = [];
+    $blockcity_selected = [];
     if (!isset($user)) {
         $umeta = null;
     } else {
@@ -255,15 +256,15 @@ dt span.engroup_type_title {display:inline-block;width:10%;white-space:nowrap;}
                           @endforeach
                           @for ($i = 0; $i < $blockcity_limit_count; $i++)
                             <?php
-                                if($i == 0)
+                                $blockcity_selected[] = isset($umeta->blockcity[$i]) ? $umeta->blockcity[$i] : '';
+                                $blockarea_selected[] = isset($umeta->blockarea[$i]) ? str_replace($umeta->blockcity[$i],'',$umeta->blockarea[$i]) :'';
+                                if($blockcity_selected[$i] == '海外')
                                 {
-                                    $blockarea_selected[] = isset($umeta->blockarea[$i]) ? ($umeta->blockarea[$i] == "" ? "全區" : str_replace($umeta->blockcity[$i],'',$umeta->blockarea[$i])) : '全區';
+                                    if($blockarea_selected[$i] == '全區')
+                                    {
+                                        $blockarea_selected[$i] = '全部';
+                                    }
                                 }
-                                else
-                                {
-                                    $blockarea_selected[] = isset($umeta->blockarea[$i]) ? str_replace($umeta->blockcity[$i],'',$umeta->blockarea[$i]) :'全區';
-                                }
-                                
                             ?>
                           @endfor
                         @else
@@ -961,73 +962,157 @@ dt span.engroup_type_title {display:inline-block;width:10%;white-space:nowrap;}
     }
     $(document).ready(function() {
         let blockarea_selected_arr = @json($blockarea_selected);
+        let blockcity_selected_arr = @json($blockcity_selected);
 
         //var blockarea_selected = '{{ isset($umeta->blockarea[0]) ? ($umeta->blockarea[0] == "" ? "全區" : str_replace($umeta->blockcity[0],'',$umeta->blockarea[0])) : '全區' }}';
         //var blockarea1_selected = '{{ isset($umeta->blockarea[1]) ? str_replace($umeta->blockcity[1],'',$umeta->blockarea[1]) :'全區'  }}';
         //var blockarea2_selected = '{{ isset($umeta->blockarea[2]) ? str_replace($umeta->blockcity[2],'',$umeta->blockarea[2]) : '全區'  }}';
 
-        if ($("select[name='blockarea'] option:eq(0)").text() !== '全區') {
-            //$("select[name='blockarea']").prepend('<option value="">全區</option>');
-            if (blockarea_selected_arr[0] == '全區') {
-                if ($("select[name='blockcity']").val() !== '') {
-                    $("select[name='blockarea']").prepend('<option selected value="">全區</option>');
-                }
-            } else {
+        if(blockcity_selected_arr[0] == '海外')
+        {
+            if(blockarea_selected_arr[0] == '全部')
+            {
+                $("select[name='blockarea']").prepend('<option selected value="">全部</option>');
+            }
+            else
+            {
+                $("select[name='blockarea'] option[value=" + blockarea_selected_arr[0] + "]").attr('selected', true);
+                $("select[name='blockarea']").prepend('<option value="">全部</option>');
+            }
+            
+        }
+        else if(blockcity_selected_arr[0] == '')
+        {
+
+        }
+        else
+        {
+            if (blockarea_selected_arr[0] == '全區') 
+            {
+                $("select[name='blockarea']").prepend('<option selected value="">全區</option>');
+            } 
+            else 
+            {
                 $("select[name='blockarea'] option[value=" + blockarea_selected_arr[0] + "]").attr('selected', true);
                 $("select[name='blockarea']").prepend('<option value="">全區</option>');
             }
         }
 
+        /*if ($("select[name='blockarea'] option:eq(0)").text() !== '全區') 
+        {
+            //$("select[name='blockarea']").prepend('<option value="">全區</option>');
+            if (blockarea_selected_arr[0] == '全區') 
+            {
+                if ($("select[name='blockcity']").val() !== '') 
+                {
+                    $("select[name='blockarea']").prepend('<option selected value="">全區</option>');
+                }
+            } 
+            else if(blockarea_selected_arr[0] == '全部')
+            {
+                $("select[name='blockarea']").prepend('<option selected value="">全部</option>');
+            }
+            else 
+            {
+                $("select[name='blockarea'] option[value=" + blockarea_selected_arr[0] + "]").attr('selected', true);
+                $("select[name='blockarea']").prepend('<option value="">全區</option>');
+            }
+        }*/
+
         for(let i = 1;i < {{$blockcity_limit_count}}; i++)
         {
             let blockarea_name = 'blockarea' + i;
-            if ($("select[name=" +blockarea_name+ "] option:eq(0)").text() !== '全區') {
-                //$("select[name='blockarea1']").prepend('<option value="">全區</option>');
-                if (blockarea_selected_arr[i] == '全區') {
+
+            if(blockcity_selected_arr[i] == '海外')
+            {
+                if(blockarea_selected_arr[i] == '全部')
+                {
+                    $("select[name=" +blockarea_name+ "]").prepend('<option selected value="">全部</option>');
+                }
+                else
+                {
+                    $("select[name=" +blockarea_name+ "] option[value=" + blockarea_selected_arr[i] + "]").attr('selected', true);
+                    $("select[name=" +blockarea_name+ "]").prepend('<option value="">全部</option>');
+                }
+                
+            }
+            else if(blockcity_selected_arr[i] == '')
+            {
+
+            }
+            else
+            {
+                if (blockarea_selected_arr[i] == '全區') 
+                {
                     $("select[name=" +blockarea_name+ "]").prepend('<option selected value="">全區</option>');
-                } else {
+                } 
+                else 
+                {
+                    $("select[name=" +blockarea_name+ "] option[value=" + blockarea_selected_arr[i] + "]").attr('selected', true);
+                    $("select[name=" +blockarea_name+ "]").prepend('<option value="">全區</option>');
+                }
+            }
+            
+
+
+            /*if ($("select[name=" +blockarea_name+ "] option:eq(0)").text() !== '全區') 
+            {
+                //$("select[name='blockarea1']").prepend('<option value="">全區</option>');
+                if (blockarea_selected_arr[i] == '全區') 
+                {
+                    $("select[name=" +blockarea_name+ "]").prepend('<option selected value="">全區</option>');
+                } 
+                else if(blockarea_selected_arr[i] == '全部')
+                {
+                    $("select[name=" +blockarea_name+ "]").prepend('<option selected value="">全部</option>');
+                }
+                else 
+                {
                     $("select[name=" +blockarea_name+ "] option[value=" + blockarea_selected_arr[i] + "]").attr('selected', true);
                     $("select[name=" +blockarea_name+ "]").prepend('<option value="">全區</option>');
 
                 }
-            }
+            }*/
         }
 
 
 
         $("select[name='blockcity']").on('change', function () {
-            if ($("select[name='blockcity'] option:selected").text() == '縣市') {
-                if ($("select[name='blockarea'] option:eq(0)").text() !== '鄉鎮市區'){
-                    $("select[name='blockarea']").prepend('<option selected value="">鄉鎮市區</option>');
-                }
-            } else {
-                if ($("select[name='blockarea'] option:eq(0)").text() !== '全區'){
-                    $("select[name='blockarea']").prepend('<option selected value="">全區</option>');
-                }
-                else{
-                    $("select[name='blockarea']").prepend('<option value="">全區</option>');
-                }    
+            if ($("select[name='blockcity'] option:selected").text() == '縣市') 
+            {
+                $("select[name='blockarea']").prepend('<option selected value="">鄉鎮市區</option>');
+            } 
+            else if($("select[name='blockcity'] option:selected").text() == '海外')
+            {
+                $("select[name='blockarea']").prepend('<option selected value="">全部</option>');
+            }
+            else 
+            {
+                $("select[name='blockarea']").prepend('<option selected value="">全區</option>');  
             }
         });
+
         for(let i = 1;i < {{$blockcity_limit_count}}; i++)
         {
             let blockcity_name = 'blockcity' + i;
             let blockarea_name = 'blockarea' + i;
-            $("select[name=" +blockcity_name+ "]").on('change', function () {
-                if ($("select[name=" +blockcity_name+ "] option:selected").text() == '縣市') {
-                    if ($("select[name=" +blockarea_name+ "] option:eq(0)").text() !== '鄉鎮市區'){
-                        $("select[name=" +blockarea_name+ "]").prepend('<option selected value="">鄉鎮市區</option>');
-                    }
-                } else {
-                    if ($("select[name=" +blockarea_name+ "] option:eq(0)").text() !== '全區'){
-                        $("select[name=" +blockarea_name+ "]").prepend('<option selected value="">全區</option>');
-                    }
-                    else{
-                        $("select[name=" +blockarea_name+ "]").prepend('<option value="">全區</option>');
-                    }
+            $("select[name=" +blockcity_name+ "]").on('change', function () 
+            {
+                if ($("select[name=" +blockcity_name+ "] option:selected").text() == '縣市') 
+                {
+                    $("select[name=" +blockarea_name+ "]").prepend('<option selected value="">鄉鎮市區</option>');
+                } 
+                else if($("select[name=" +blockcity_name+ "] option:selected").text() == '海外')
+                {
+                    $("select[name=" +blockarea_name+ "]").prepend('<option selected value="">全部</option>');
+                }
+                else 
+                {
+                    $("select[name=" +blockarea_name+ "]").prepend('<option selected value="">全區</option>');
                 }
             });
         }
+        
 
         function getAge(birth) {
             birth = Date.parse(birth.replace('/-/g', "/"));
@@ -1286,14 +1371,22 @@ dt span.engroup_type_title {display:inline-block;width:10%;white-space:nowrap;}
                 $(block_county).append(county_div)
                 $('.twzipcode').twzipcode({
                     'detect': true, 'css':['select_xx2', 'select_xx2', 'd-none'], onCountySelect: function() {
-                        for(let i = 1;i < {{$blockcity_limit_count}}; i++)
+                        /*for(let i = 1;i < {{$blockcity_limit_count}}; i++)
                         {
                             let blockcity_name = 'blockcity' + i;
                             let blockarea_name = 'blockarea' + i;
-                            if($("select[name=" +blockcity_name+ "] option:eq(0)").text()!=='縣市'){
-                                $("select[name=" +blockarea_name+ "]").prepend('<option selected value="">全區</option>');
+                            if($("select[name=" +blockcity_name+ "] option:eq(0)").text()!=='縣市')
+                            {
+                                if($("select[name=" +blockcity_name+ "] option:eq(0)").text()=='海外')
+                                {
+                                    $("select[name=" +blockarea_name+ "]").prepend('<option selected value="">全部</option>');
+                                }
+                                else
+                                {
+                                    $("select[name=" +blockarea_name+ "]").prepend('<option selected value="">全區</option>');
+                                }
                             }
-                        }
+                        }*/
                     }
                 });
             }else{
@@ -1309,17 +1402,17 @@ dt span.engroup_type_title {display:inline-block;width:10%;white-space:nowrap;}
                 let blockcity_name = 'blockcity' + i;
                 let blockarea_name = 'blockarea' + i;
                 $("select[name=" +blockcity_name+ "]").on('change', function() {
-                    if($("select[name=" +blockcity_name+ "] option:selected" ).text() == '縣市'){
-                        if($("select[name=" +blockarea_name+ "] option:eq(0)").text()!=='鄉鎮市區')
-                            $("select[name=" +blockarea_name+ "]").prepend('<option selected value="">鄉鎮市區</option>');
+                    if($("select[name=" +blockcity_name+ "] option:selected" ).text() == '縣市')
+                    {
+                        $("select[name=" +blockarea_name+ "]").prepend('<option selected value="">鄉鎮市區</option>');
                     }
-                    else{
-                        if($("select[name=" +blockarea_name+ "] option:eq(0)").text()!=='全區'){
-                            $("select[name=" +blockarea_name+ "]").prepend('<option selected value="">全區</option>');
-                        }
-                        else{
-                            
-                        }
+                    else if($("select[name=" +blockcity_name+ "] option:selected" ).text() == '海外')
+                    {
+                        $("select[name=" +blockarea_name+ "]").prepend('<option selected value="">全部</option>');
+                    }
+                    else
+                    {
+                        $("select[name=" +blockarea_name+ "]").prepend('<option selected value="">全區</option>');
                     }
                 });
             }
