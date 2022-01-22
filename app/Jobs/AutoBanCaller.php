@@ -50,7 +50,10 @@ class AutoBanCaller implements ShouldQueue
             SetAutoBan::autoBan($uid);
         }
         else {
-           Log::info('AutoBanCaller無法處理的參數個數 $uid='.$uid.'  $toid='.$toid.'  $msg='.$msg);                     
+            Log::info('AutoBanCaller無法處理的參數個數 $uid='.$uid.'  $toid='.$toid.'  $msg='.$msg);                
+            if(app()->bound('sentry')) {
+                \Sentry\captureMessage('AutoBanCaller無法處理的參數個數 $uid='.$uid.'  $toid='.$toid.'  $msg='.$msg);
+            }     
         }
         
         return;
