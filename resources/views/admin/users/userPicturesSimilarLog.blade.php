@@ -278,7 +278,7 @@
                                                     @endif
 
                                                 @else
-                                                    <p>無紀錄</p>
+                                                    <p>尚未檢查</p>
                                                 @endif
                                             @endif
                                         </td>
