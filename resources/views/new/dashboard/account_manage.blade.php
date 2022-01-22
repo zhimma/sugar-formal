@@ -123,7 +123,7 @@
             var advAuthStr = '';
             @if(!$isAdvAuthUsable??false)
                 @if($user->isForbidAdvAuth())
-                advAuthStr='您的進階驗證功能有誤，<a href="https://lin.ee/rLqcCns" target="_blank">請點此 <img src="https://scdn.line-apps.com/n/line_add_friends/btn/zh-Hant.png" alt="加入好友" height="36" border="0" style="height: 36px; float: unset;"></a> 或點右下聯絡我們加站長 line 與站長聯絡。';    
+                advAuthStr='您的進階驗證功能有誤，<a href="https://lin.ee/rLqcCns" target="_blank">請點此 <img src="https://scdn.line-apps.com/n/line_add_friends/btn/zh-Hant.png" alt="加入好友" height="26" border="0" style="height: 26px; float: unset;"></a> 或點右下聯絡我們加站長 line 與站長聯絡。';
                 @elseif($user->isPauseAdvAuth())
                 advAuthStr='{{$userPauseMsg}}';
                 @elseif(!$user->isAdvanceAuth() &&  $is_pause_api??false)

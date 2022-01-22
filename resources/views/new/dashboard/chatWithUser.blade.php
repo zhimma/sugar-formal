@@ -241,7 +241,7 @@
     .msg_has_parent {padding-top:0 !important;}
     .msg_has_parent .msg_input {top:28px;}
     .parent_msg_box img {margin-right:10px;height:15px;width:15px;float:initial !important;}
-  
+    .msg_content {display:block;}
 </style>
 @section('app-content')
     <div class="container matop70 chat">
@@ -336,13 +336,11 @@
                             @elseif( ($message['sys_notice']==0 || $message['sys_notice']== null)  && $message['unsend']==0)
                             @if($isVip && $message['from_id'] == $user->id)
                                 @if((!isset($admin) || $to->id != $admin->id) && !isset($to->banned )&& !isset($to->implicitlyBanned))
-                            <form method="post" id="unsend_form_{{$message['id']}}" action="{{route('unsendChat')}}">
-                            {!! csrf_field() !!}
-                            <input type="hidden" name="unsend_msg" value="{{$message['id']}}" />
+                            <form method="post" class="unsend_form" id="unsend_form_{{$message['id']}}" action="{{route('unsendChat')}}">
                                 @endif
                             @endif  
                             
-                            <div class="@if($message['from_id'] == $user->id) show @else send @endif">                           
+                            <div class="@if($message['from_id'] == $user->id) show @else send @endif" @if($message['from_id'] != $user->id) id="chat_msg_{{$message['id']}}" @endif>                           
                                 <div class="msg @if($message['from_id'] == $user->id) msg1 @endif">                                
                                     @if($message['from_id'] == $user->id)
                                         <img src="@if(file_exists( public_path().$user->meta->pic ) && $user->meta->pic != ""){{$user->meta->pic}} @elseif($user->engroup==2)/new/images/female.png @else/new/images/male.png @endif">
@@ -405,7 +403,7 @@
                                             </a>                                             
                                             @if($message['from_id'] == $user->id)
                                               
-                                                <a href="javascript:void(0)" class="" onclick="@if($isVip) document.getElementById('unsend_form_{{$message['id']}}').submit()  @else show_pop_message('非VIP無法收回訊息')@endif; return false;" title="收回">
+                                                <a href="javascript:void(0)" class="unsend_a" data-id="{{$message['id']}}" onclick="chatUnsend(this);return false;" title="收回">
                                                     <span class="shdel unsend"><span>收回</span></span>
                                                 </a>
                                             @endif  
@@ -422,7 +420,7 @@
                                             @endif
                                             @if((!isset($admin) || $to->id != $admin->id) && !isset($to->banned )&& !isset($to->implicitlyBanned))
                                             @if($message['from_id'] == $user->id)
-                                                 <a href="javascript:void(0)" class="" onclick="@if($isVip) document.getElementById('unsend_form_{{$message['id']}}').submit()  @else show_pop_message('非VIP無法收回訊息')@endif; return false;" title="收回">
+                                                 <a href="javascript:void(0)" onclick="chatUnsend(this);return false;"  class="unsend_a" data-id="{{$message['id']}}"   title="收回">
                                                     <span class="shdel_word unsend"><span>收回</span></span>
                                                 </a>
                                             @endif 
@@ -470,6 +468,7 @@
                     <div style="text-align: center; padding-bottom: 20px;">
                         {!! $messages->appends(request()->input())->links('pagination::sg-pages2') !!}
                     </div>
+
                 </div>
                 @if(isset($to))
                     {{--<div class="se_text_bot" id="message_input">
@@ -487,7 +486,10 @@
 
                     @if((!isset($admin) || $to->id != $admin->id) && !isset($to->banned )&& !isset($to->implicitlyBanned))
                         <div class="se_text_bot"  id="message_input" style="padding-right: 3%; padding-left:3%;">
+                            @if(($to->engroup) === ($user->engroup))
+                            @else
                             <form style="margin: 0 auto;" method="POST" action="/dashboard/chat2/{{ \Carbon\Carbon::now()->timestamp }}" id="chatForm" name="chatForm">
+
                                 <input type="hidden" name="_token" value="{{ csrf_token() }}" >
                                 <input type="hidden" name="userId" value="{{$user->id}}">
                                 <input type="hidden" name="to" value="{{$to->id}}">
@@ -498,6 +500,9 @@
                                     <div class="specific_msg"></div>
                                     <div class="specific_msg_close"><a href="javascript:void(0)" onclick="resetSpecificMsgElt();return false;">Ｘ</a></div>
                                 </div>
+
+
+
                                 <div class="xin_left">
                                     <a class="xin_nleft" onclick="tab_uploadPic();"><img src="/new/images/moren_pic.png"></a>
                                     <textarea id="msg" name="msg" rows="1" class="xin_input" placeholder="請輸入"></textarea>
@@ -505,7 +510,9 @@
                                 <a onclick="chatForm_submit();" class="xin_right" style="border: none;"><img src="/new/images/fasong.png" style="margin-top:6px;"></a>
                                 {{--<button type="submit" class="xin_right" style="border: none;"><img src="/new/images/fasong.png"></button>--}}
                                 {{--<div class="message_fixed"></div>--}}
+
                             </form>
+                            @endif
                         </div>
                     @endif
                 @else
@@ -582,7 +589,7 @@
 
     @if($to)
         <div class="bl_tab_aa" id="tab_uploadPic" style="display: none;">
-            <form id="form_uploadPic" action="/dashboard/chat2/{{ \Carbon\Carbon::now()->timestamp }}" method="post" enctype="multipart/form-data">
+            <form id="form_uploadPic" action="{{ route('realTimeChat') }}" method="post" enctype="multipart/form-data">
                 <input type="hidden" name="_token" value="{{ csrf_token() }}" >
                 <input type="hidden" name="userId" value="{{ $user->id }}">
                 <input type="hidden" name="from" value="{{ $user->id }}">
@@ -625,6 +632,10 @@
     });
 </script>
 <script>
+    @if (($to->engroup) === ($user->engroup))
+        c5('同性會員無法發送訊息!');
+    //return back();
+    @endif
     
     function readyNumber() {
 
@@ -692,6 +703,16 @@
             }
         }
     });
+    
+    $(document).keyup(function(e) {
+        if(e.keyCode == 13){
+            if($('#tab05').css('display')!='none') {
+                $('#msg').focus();
+                $('#tab05').hide();
+                $('.announce_bg').hide();
+            }
+        }
+    });
 
     $('#msg').keyup(function(e) {
         let msgsnd = $('.msgsnd');
@@ -733,6 +754,7 @@
     // });
 
     function chatForm_submit() {
+        $('#msg').focus();
         let content = $('#msg').val(), msgsnd = $('.msgsnd');
         var msg_str = $("#msg").val().replace(/\r\n|\n/g,"").replace(/\s+/g, "");
         if(msg_str.length>400) {
@@ -906,6 +928,7 @@
     $('.message').css('max-height',message_max_height-40);
 
     $(document).ready(function () {
+        $('#msg').focus();
         $(window).resize(function() {
             // alert($('.tab_payAlert').width());
             var message_max_height,bl_gb_fixed_top,bl_gb_fixed_right;
@@ -1042,7 +1065,10 @@
         }
     }
 
-
+    $('.n_bllbut').click(function(){
+        $('#msg').focus();
+    });
+    
     $(".announce_bg").click(function(){
         $('body').css("overflow", "auto");
     });
@@ -1055,9 +1081,14 @@
     function tab_uploadPic_close() {
         $(".announce_bg").hide();
         $("#tab_uploadPic").hide();
+        $("#tab_loading").hide();
         $('body').css("overflow", "auto");
     }
     function form_uploadPic_submit(){
+        if(image_handling_num>0) {
+            alert('請等照片選取完畢再送出');
+            return false;
+        }
         var num_of_images=$('.fileuploader-items-list .fileuploader-item').length;
         if(num_of_images==0) {
             $('.alert_tip').text();
@@ -1162,6 +1193,51 @@
             dragDrop: {
                 container: '.fileuploader-thumbnails-input'
             },
+            beforeResize: function(listEl,parentEl, newInputEl, inputEl) {
+                var now_tab = listEl.closest('.bl_tab_bb');
+                disableCloseTabAct(now_tab);
+                var btn_elt = now_tab.find('.n_bbutton .n_bllbut');
+                if(btn_elt.length==0) {
+                    btn_elt = now_tab.find('.n_bbutton .n_right');
+                }
+                if(btn_elt.length)
+                    btn_elt.css({ 'cursor': 'default','color':'#d6d6d6'}).attr('onclick','return false;'+btn_elt.attr('onclick')).html('選取照片中\<!--'+btn_elt.html()+'--\>');
+            },             
+            afterResize: function(listEl,parentEl, newInputEl, inputEl) {
+                var now_tab = listEl.closest('.bl_tab_bb');
+                activeCloseTabAct(now_tab);
+                var btn_elt = now_tab.find('.n_bbutton .n_bllbut');
+                if(btn_elt.length==0) {
+                    btn_elt = now_tab.find('.n_bbutton .n_right');
+                }
+                if(btn_elt.length)
+                    btn_elt.css({'color':'','cursor':''}).css('color','#ffffff').attr('onclick',btn_elt.attr('onclick').replace('return false;','')).html(btn_elt.html().replace('選取照片中\<!--','').replace('--\>',''));
+            }, 
+            beforeSubmit: function(e) {         
+                var nowElt = $(e.target); 
+                disableCloseTabAct(nowElt);
+                var btn_elt = nowElt.find('.n_bbutton .n_bllbut'); 
+                if(btn_elt.length==0) {
+                    btn_elt = nowElt.find('.n_bbutton .n_right');
+                }
+                if(btn_elt.length) {
+                    btn_elt.css({ 'cursor': 'default','color':'#d6d6d6'}).attr('onclick','return false;'+btn_elt.attr('onclick')).html(btn_elt.html()+'中');
+                }
+            },  
+            afterSubmit: function(e) {        
+                var nowElt = $(e.target);  
+                activeCloseTabAct(nowElt);
+                var btn_elt = nowElt.find('.n_bbutton .n_bllbut');    
+                if(btn_elt.length==0) {
+                    btn_elt = nowElt.find('.n_bbutton .n_right');
+                }
+                if(btn_elt.length) {
+                    btn_elt.css({'color':'','cursor':''}).css('color','#ffffff').attr('onclick',btn_elt.attr('onclick').replace('return false;','')).html(btn_elt.html().replace('中',''));
+                }
+                resetSpecificMsgElt();
+                $('.announce_bg').hide();
+                resize_before_upload_fileReaderSet = {};
+            },          
             afterRender: function(listEl, parentEl, newInputEl, inputEl) {
                 var plusInput = listEl.find('.fileuploader-thumbnails-input'),
                     api = $.fileuploader.getInstance(inputEl.get(0));
@@ -1204,16 +1280,16 @@
                 }
             }
         });
-        //resize_before_upload(images_uploader,400,600,'#show_banned_ele,#tab_uploadPic');
-        resize_before_upload($(images_uploader.eq(1)),400,600,'#show_banned_ele,#tab_uploadPic','json');
-        $(".announce_bg").on("click", function() {
-            $('.bl_tab_aa').hide();
-        });
+        resize_before_upload($(images_uploader.eq(0)),400,600,'#show_banned_ele');
+        resize_before_upload($(images_uploader.eq(1)),400,600,'#tab_uploadPic','json','c5');
+        $(".announce_bg").attr('onclick',$(".announce_bg").attr('onclick')+";$('.bl_tab_aa').hide();");
     });
 </script>
 @if($to)
     @include('new.dashboard.chat_to')
     @include('new.dashboard.chat_from')
+    @include('new.dashboard.chatUnsend_self')
+    @include('new.dashboard.chatUnsend_another')
     <script>
         if($('#chatForm').length){
             document.getElementById("chatForm").onsubmit = function(event) {
@@ -1222,6 +1298,33 @@
                 return false;
             }
         }
+        
+        function chatUnsend(elt) {
+            @if($isVip)
+            var nowelt = $(elt);
+            var formelt = nowelt.closest('form');
+            var action = formelt.attr('action');
+            
+            var formData = new FormData();
+            var xhr = new XMLHttpRequest();
+            
+            
+            formData.append('unsend_msg', nowelt.data('id'));
+            formData.append("_token", "{{ csrf_token() }}");
+            xhr.open("post", action, true);
+            xhr.onload = function (e) {
+                var response = e.currentTarget.response;
+                $("#tab_loading").hide();  
+            }
+            xhr.setRequestHeader('X-Requested-With', 'XMLHttpRequest');
+            $("#tab_loading").show();
+            xhr.send(formData); 
+            @else
+            c5('非VIP無法收回訊息');
+            @endif
+            return false;
+        }
+        
         function submit(){
             var formData = new FormData();
             var xhr = new XMLHttpRequest();
@@ -1234,11 +1337,20 @@
             xhr.open("post", "{{ route('realTimeChat') }}", true);
             xhr.onload = function (e) {
                 var response = e.currentTarget.response;
+                var rentry = JSON.parse(response);
+                if(rentry.error!=undefined && rentry.error) {
+                    c5(rentry.content);
+                    $('.n_bllbut').focus();
+                }
+                
+            }
+            xhr.onerror = function(e) {
+                c5('傳送失敗!');
+                $('.n_bllbut').focus();
             }
             xhr.send(formData);  /* Send to server */
             document.getElementById("msg").value = '';
             resetSpecificMsgElt();
-            if(parent_id!='' && parent_id!=null && parent_id!=undefined)location.reload();
         }
 
         function sendReadMessage(messageId){
@@ -1280,7 +1392,30 @@
                 let unread = parseInt($('#unreadCount').text(), 10);
                 unread--;
                 $('#unreadCount').text(unread);
+            }); 
+
+        Echo.private('ChatUnsend.{{ $to->id }}.{{ auth()->user()->id }}')
+            .listen('ChatUnsend', (e) => {
+                // Received
+                if(!e.message.error) {
+                    realtime_unsend_another(e);
+                }
+                else {
+                    c5('收回失敗：'+e.message.content);
+                    return false;                    
+                }
             });
+        Echo.private('ChatUnsend.{{ auth()->user()->id }}.{{ $to->id }}')
+            .listen('ChatUnsend', (e) => {
+                if(e.message.error){
+                    c5('收回失敗：'+e.message.content);
+                    return false;
+                }
+                else {
+                    // Sent
+                    realtime_unsend_self(e);
+                }
+           });            
             
         @if($to_forbid_msg_data)
             $(document).on('click','#chatForm button[type=submit],#chatForm .xin_nleft',function(){
@@ -1303,12 +1438,28 @@
                 var now_msg_sender_img = now_elt_parent.parent().find('img').first().clone();
                 $('#specific_msg_box').show().find('.specific_msg').html(now_elt_parent.find('.msg_content').text()+now_msg_html).prepend(now_msg_sender_img);
                 $('.message_parent').val(now_id);
+                $('#msg').focus();
             });
             
             function resetSpecificMsgElt() {
                 $('.message_parent').val('');
                 $('#specific_msg_box').hide();                
             }
+            
+            function disableCloseTabAct(elt) {
+                var org_bg_action = $(".announce_bg").attr('onclick');           
+                $(".announce_bg").attr('onclick','return false;'+org_bg_action);                
+                var now_close_btn = elt.find('a.bl_gb');
+                now_close_btn.attr('onclick','return false;'+now_close_btn.attr('onclick')); 
+            }
+            
+            function activeCloseTabAct(elt) {
+                var now_bg_action = $(".announce_bg").attr('onclick');
+                $(".announce_bg").attr('onclick',now_bg_action.replace('return false;',''));                
+                var now_close_btn = elt.find('a.bl_gb');
+                now_close_btn.attr('onclick',now_close_btn.attr('onclick').replace('return false;',''));                
+            }   
+            
     </script>
 @endif
 <style>

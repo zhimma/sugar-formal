@@ -338,6 +338,37 @@ dt span.engroup_type_title {display:inline-block;width:10%;white-space:nowrap;}
                       <span>身高（cm）<i>(必填)</i></span>
                       <span><input name="height" id="height" type="number" class="select_xx01"  placeholder="請輸入數字範圍140～210" value="{{$umeta->height}}" title="請輸入140~210範圍"></span>
                   </dt>
+                                
+                  <!--新增體重欄位 By Simon-->
+                  <dt>
+                      <span>體重（kg）</span>
+                      <span>
+                        <select name="weight"  class="select_xx01">
+                          <option value=null>請選擇</option>
+                          @for ($i = 1; $i < 21; $i++)
+                          <option value="{{$i*5}}"
+                                  @if($umeta->weight == $i*5) selected @endif>{{$i*5-4}} ~ {{$i*5}}
+                          </option>
+                          @endfor
+                        </select>
+                      </span>
+                      <div class="n_xqline">
+                          <div class="right" style="margin-bottom: 10px;">
+                              <input type="hidden" name="isHideWeight" value="0">
+                              <input name="isHideWeight" type="checkbox" @if($umeta->isHideWeight == true) checked @endif value="1"> 隱藏體重
+                          </div>
+                      </div>
+                      <!--<span>
+                          <input name="weight" id="weight" type="number" class="select_xx01" value="{{$umeta->weight}}">
+                      </span>
+                      <div class="n_xqline">
+                          <div class="right" style="margin-bottom: 10px;">
+                              <input type="hidden" name="isHideWeight" value="0">
+                              <input name="isHideWeight" type="checkbox" @if($umeta->isHideWeight == true) checked @endif value="1"> 隱藏體重
+                          </div>
+                      </div>-->
+                  </dt>
+
                   @if($user->engroup==2)
 {{--                  <dt>--}}
 {{--                      <span>體重（kg）</span>--}}
@@ -1146,6 +1177,7 @@ dt span.engroup_type_title {display:inline-block;width:10%;white-space:nowrap;}
 
       //ajax_表單送出
       $('form[name=user_data]').submit(function(e){
+
         e.preventDefault();
         if($(this).parsley().isValid()){
           let birth = $('select[name=year]').val()+'/'+$('select[name=month]').val()+'/'+$('input[name=day]').val();
@@ -1165,6 +1197,7 @@ dt span.engroup_type_title {display:inline-block;width:10%;white-space:nowrap;}
           let situation = $('select[name=situation]');
           let tattoo_part = $('#tattoo_part');
           let tattoo_range = $('#tattoo_range');
+
           if(title.val() === "") {
             title.focus();
             c5('請輸入一句話形容自己');

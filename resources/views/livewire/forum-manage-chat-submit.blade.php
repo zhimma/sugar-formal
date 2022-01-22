@@ -35,7 +35,7 @@
                 <script>
                     c5('至多上傳5張圖片');
                 </script>
-                <div wire:init="removeAll({{count($pic)}})">
+                <div wire:init="removeAll({{count($pic)}})"></div>
             @endif
         </div>
         @error('pic.*') <span class="error">{{ $message }}</span> @enderror

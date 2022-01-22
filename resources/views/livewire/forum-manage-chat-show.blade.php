@@ -40,7 +40,7 @@
                             @foreach(json_decode($row->pic,true) as $key => $pic)
                                 @if(isset($pic['file_path']))
                                 <div class="col-xs-6 col-sm-6 col-md-4 col-lg-3" @if($row->from_id == auth()->user()->id) style="float: right;" @endif>
-                                    <a href="{{$pic['file_path'] }}" data-fancybox="gallery" target="_blank" wire:init="viewImg">
+                                    <a href="{{$pic['file_path'] }}" data-fancybox="gallery" target="_blank">
                                         <img src="{{ $pic['file_path'] }}" style="height: 50px; width: 50px; object-fit: cover;">
                                     </a>
                                 </div>
@@ -59,18 +59,3 @@
 
     {{ $forumManageChatContent->links('livewire::sg-pages2') }}
 </div>
-
-@push('styles')
-    @once
-<link
-        rel="stylesheet"
-        href="https://cdn.jsdelivr.net/npm/@fancyapps/ui/dist/fancybox.css"
-/>
-    @endonce
-@endpush
-
-@push('scripts')
-    @once
-        <script src="https://cdn.jsdelivr.net/npm/@fancyapps/ui@4.0/dist/fancybox.umd.js"></script>
-    @endonce
-@endpush

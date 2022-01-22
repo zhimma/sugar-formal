@@ -78,6 +78,10 @@
             }             
 
             #announcement .item .new_poptk {overflow-x:hidden;width:95% !important;}
+
+            #new_poptk_content a img{
+                all:unset !important;height:26px !important;
+            }
         </style>
         <div class="announce_bg" onclick="gmBtnNoReload()" style="display:block;"></div>
         <div class="gg_tab gg_tkimg" id="announcement" style="display: block;">

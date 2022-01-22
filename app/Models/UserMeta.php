@@ -523,7 +523,9 @@ class UserMeta extends Model
                                   $city2=null,
                                   $area2=null, 
                                   $city3=null,
-                                  $area3=null  )
+                                  $area3=null,
+                                  //新增體重
+                                  $weight = ''  )
     {
         if ($engroup == 1) { $engroup = 2; }
         else if ($engroup == 2) { $engroup = 1; }
@@ -563,7 +565,8 @@ class UserMeta extends Model
             $city2,
             $area2,
             $city3,
-            $area3){
+            $area3,
+            $weight){
             $query->select('*')->where('user_meta.birthdate', '<', Carbon::now()->subYears(18));
             if($city || $city2 || $city3) {
                 $query->where(function($q) use ($city,$city2,$city3,$area,$area2,$area3) {
@@ -612,6 +615,7 @@ class UserMeta extends Model
             }
 
 
+            if (isset($weight) && strlen($weight) != 0) $query->where('weight', $weight);
             if (isset($marriage) && strlen($marriage) != 0) $query->where('marriage', $marriage);
             if (isset($budget) && strlen($budget) != 0) $query->where('budget', $budget);
             if (isset($income) && strlen($income) != 0) $query->where('income', $income);

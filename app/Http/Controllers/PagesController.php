@@ -12,6 +12,7 @@ use App\Models\BannedUsersImplicitly;
 use App\Models\CustomFingerPrint;
 use App\Models\Evaluation;
 use App\Models\EvaluationPic;
+use App\Models\ForumChat;
 use App\Models\ForumManage;
 use App\Models\ForumPosts;
 use App\Models\hideOnlineData;
@@ -2508,7 +2509,8 @@ class PagesController extends BaseController
             $request->city2,
             $request->area2,
             $request->city3,
-            $request->area3
+            $request->area3,
+            $request->weight
         );
 
         $ssrData = '';
@@ -3354,12 +3356,14 @@ class PagesController extends BaseController
             //$messages = Message::allSenders($user->id, 1);
             if (isset($cid)) {
                 $cid_user = $this->service->find($cid);
+                
                 if(!$cid_user){
                     return '<h1>該會員不存在。</h1>';
                 }
+                
                 $cid_recommend_data = [];
                 $forbid_msg_data = UserService::checkNewSugarForbidMsg($cid_user,$user);
-                
+
                 if(!$user->isVip() && $user->engroup == 1){
                     $m_time = Message::select('created_at')->
                     where('from_id', $user->id)->
@@ -3837,40 +3841,56 @@ class PagesController extends BaseController
         }
     }
 
-    //本月封鎖名單
-    public function dashboard_banned(Request $request)
+    //本月封鎖 + 警示名單
+    public function banned_warned_list(Request $request)
     {
         $user = $request->user();
 
         // $time = \Carbon\Carbon::now();
         //$count = banned_users::select('*')->where('banned_users.created_at','>=',\Carbon\Carbon::parse(date("Y-m-01"))->toDateTimeString())->count();
+        
         $banned_users = banned_users::select('banned_users.reason','banned_users.created_at','banned_users.expire_date','users.name')
             ->where('banned_users.created_at','>=',\Carbon\Carbon::parse(date("Y-m-01"))->toDateTimeString())
             ->join('users','banned_users.member_id','=','users.id')
             ->orderBy('banned_users.created_at','desc');
-
+         
         //隱形封鎖要出現在瀏覽資料/懲處名單中，封鎖原因為"廣告"
         $banned_users_implicitly = BannedUsersImplicitly::selectRaw('banned_users_implicitly.reason AS reason, banned_users_implicitly.created_at AS created_at, ""  AS expire_date ,users.name AS name')
             ->where('banned_users_implicitly.created_at','>=',\Carbon\Carbon::parse(date("Y-m-01"))->toDateTimeString())
             ->join('users','banned_users_implicitly.target','=','users.id')
             ->orderBy('banned_users_implicitly.created_at','desc');
 
+        $warned_users = warned_users::select('warned_users.reason','warned_users.created_at','warned_users.expire_date','users.name')
+            ->where('warned_users.created_at','>=',\Carbon\Carbon::parse(date("Y-m-01"))->toDateTimeString())
+            ->join('users','warned_users.member_id','=','users.id')
+            ->orderBy('warned_users.created_at','desc')->get();
+         
         //取得資料總筆數
-        $count = $banned_users->get()->count() + $banned_users_implicitly->get()->count();
-        $getUnionList = $banned_users->union($banned_users_implicitly)->get();
+        $banned_count = $banned_users->get()->count() + $banned_users_implicitly->get()->count();
+        $getBannedUnionList = $banned_users->union($banned_users_implicitly)->get();
+
+        $warned_count = $warned_users->count();
 
         $page = $request->get('page');
         $perPage = 15;
-        $banned_users = new LengthAwarePaginator($getUnionList->forPage($page, $perPage), $count, $perPage, $page,  ['path' => '/dashboard/banned/']);
+
+        $banned_users = new LengthAwarePaginator($getBannedUnionList->forPage($page, $perPage), $banned_count, $perPage, $page,  ['path' => '/dashboard/banned_warned_list/']);
+        $warned_users = new LengthAwarePaginator($warned_users->forPage($page, $perPage), $warned_count, $perPage, $page,  ['path' => '/dashboard/banned_warned_list/']);
 
         foreach ($banned_users as &$b){
             $b->name = $this->substr_cut($b->name);
         }
 
-        return view('new.dashboard.banned')
-            ->with('banned_user', $banned_users)
+        foreach ($warned_users as &$w){
+            $w->name = $this->substr_cut($w->name);
+        }
+
+        return view('new.dashboard.banned_warned_list')
+            ->with('banned_users', $banned_users)
+            ->with('warned_users', $warned_users)
             ->with('user', $user)
-            ->with('count',$count);
+            ->with('banned_count', $banned_count)
+            ->with('warned_count', $warned_count);
     }
 
     function substr_cut($user_name){
@@ -3888,14 +3908,11 @@ class PagesController extends BaseController
         }
     }
 
-    /**
-     * Check the user is banned or not then show notice page.
-     */
-    public function banned(Request $request)
+    public function warned(Request $request)
     {
         if($user = Auth::user()){
-            $banned_users = banned_users::select('*')->where('member_id', \Auth::user()->id)->count();
-            if($banned_users > 0){    
+            $warned_users = warned_users::select('*')->where('member_id', \Auth::user()->id)->count();
+            if($warned_users > 0){    
                 Auth::logout();
                 $request->session()->flush();
                 return view('errors.User-banned');
@@ -4382,7 +4399,7 @@ class PagesController extends BaseController
                 $init_check_msg = '請先通過 <a href="'.url('member_auth').'">手機驗證(<span class="obvious">點此前往</span>)</a>' ;
             } 
             else if($user->isForbidAdvAuth()) {
-                $init_check_msg = '您的進階驗證功能有誤，請<a href="https://lin.ee/rLqcCns" target="_blank">點此 <img src="https://scdn.line-apps.com/n/line_add_friends/btn/zh-Hant.png" alt="加入好友" height="36" border="0" style="height: 36px; float: unset;"></a> 或點右下聯絡我們加站長 line 與站長聯絡。';
+                $init_check_msg = '您的進階驗證功能有誤，請<a href="https://lin.ee/rLqcCns" target="_blank">點此 <img src="https://scdn.line-apps.com/n/line_add_friends/btn/zh-Hant.png" alt="加入好友" height="26" border="0" style="height: 26px; float: unset;"></a> 或點右下聯絡我們加站長 line 與站長聯絡。';
             }
             else if($user->isPauseAdvAuth()) {
                 $init_check_msg = $this->advance_auth_get_msg('user_pause') ;
@@ -4496,7 +4513,7 @@ class PagesController extends BaseController
                     ,'identity_encode'=>$encode_id_serial
                     ,'is_duplicate'=>1
                 ]);
-            return back()->with('message', ['您的進階驗證功能有誤，<a href="https://lin.ee/rLqcCns" target="_blank">請點此 <img src="https://scdn.line-apps.com/n/line_add_friends/btn/zh-Hant.png" alt="加入好友" height="36" border="0" style="height: 36px; float: unset;"></a> 或點右下聯絡我們加站長 line 與站長聯絡。']);
+            return back()->with('message', ['您的進階驗證功能有誤，<a href="https://lin.ee/rLqcCns" target="_blank">請點此 <img src="https://scdn.line-apps.com/n/line_add_friends/btn/zh-Hant.png" alt="加入好友" height="26" border="0" style="height: 26px; float: unset;"></a> 或點右下聯絡我們加站長 line 與站長聯絡。']);
         }        
 
         $data['api_base'] = 'https://'.config('memadvauth.service.host').(config('memadvauth.service.port')?':'.config('memadvauth.service.port'):'').'/';
@@ -4599,7 +4616,7 @@ class PagesController extends BaseController
             if(User::where('advance_auth_identity_encode',$encode_id_serial)->where('advance_auth_status',1)->count()) {
                 $logAdvAuthApi->is_duplicate=1;
                 $logAdvAuthApi->save();
-                return back()->with('message', ['您的進階驗證功能有誤，<a href="https://lin.ee/rLqcCns" target="_blank">請點此 <img src="https://scdn.line-apps.com/n/line_add_friends/btn/zh-Hant.png" alt="加入好友" height="36" border="0" style="height: 36px; float: unset;"></a> 或點右下聯絡我們加站長 line 與站長聯絡。']);
+                return back()->with('message', ['您的進階驗證功能有誤，<a href="https://lin.ee/rLqcCns" target="_blank">請點此 <img src="https://scdn.line-apps.com/n/line_add_friends/btn/zh-Hant.png" alt="加入好友" height="26" border="0" style="height: 26px; float: unset;"></a> 或點右下聯絡我們加站長 line 與站長聯絡。']);
             }
             $auth_date = date('Y-m-d H:i:s');
             $user->advance_auth_status = 1;
@@ -4707,7 +4724,7 @@ class PagesController extends BaseController
                 $logAdvAuthApi->save();
 
                 if(($logAdvAuthApi->forbid_user??null)==1 ) {
-                    return back()->with('message', ['您的進階驗證功能有誤，<a href="https://lin.ee/rLqcCns" target="_blank">請點此 <img src="https://scdn.line-apps.com/n/line_add_friends/btn/zh-Hant.png" alt="加入好友" height="36" border="0" style="height: 36px; float: unset;"></a> 或點右下聯絡我們加站長 line 與站長聯絡。']);
+                    return back()->with('message', ['您的進階驗證功能有誤，<a href="https://lin.ee/rLqcCns" target="_blank">請點此 <img src="https://scdn.line-apps.com/n/line_add_friends/btn/zh-Hant.png" alt="加入好友" height="26" border="0" style="height: 26px; float: unset;"></a> 或點右下聯絡我們加站長 line 與站長聯絡。']);
                 }
               
                 return back()->with('message', [
@@ -4855,22 +4872,22 @@ class PagesController extends BaseController
 //            return back();
 //        }
 
-        $posts = Posts::selectraw('posts.top, users.id as uid, users.name as uname, users.engroup as uengroup, posts.is_anonymous as panonymous, user_meta.pic as umpic, posts.id as pid, posts.title as ptitle, posts.contents as pcontents, posts.updated_at as pupdated_at, posts.created_at as pcreated_at, posts.deleted_by')
-            ->selectRaw('(select updated_at from posts where (type="main" and id=pid) or reply_id=pid or reply_id in ((select distinct(id) from posts where type="sub" and reply_id=pid) )  order by updated_at desc limit 1) as currentReplyTime')
-            ->selectRaw('(case when users.id=1049 then 1 else 0 end) as adminFlag')
-            ->LeftJoin('users', 'users.id','=','posts.user_id')
-            ->join('user_meta', 'users.id','=','user_meta.user_id')
-            ->where('posts.type','main')
-            ->orderBy('posts.deleted_at','asc')
-            ->orderBy('posts.top','desc')
-            ->orderBy('adminFlag','desc')
-            ->orderBy('currentReplyTime','desc')
-            ->withTrashed()
-            ->paginate(10);
+//        $posts = Posts::selectraw('posts.top, users.id as uid, users.name as uname, users.engroup as uengroup, posts.is_anonymous as panonymous, user_meta.pic as umpic, posts.id as pid, posts.title as ptitle, posts.contents as pcontents, posts.updated_at as pupdated_at, posts.created_at as pcreated_at, posts.deleted_by')
+//            ->selectRaw('(select updated_at from posts where (type="main" and id=pid) or reply_id=pid or reply_id in ((select distinct(id) from posts where type="sub" and reply_id=pid) )  order by updated_at desc limit 1) as currentReplyTime')
+//            ->selectRaw('(case when users.id=1049 then 1 else 0 end) as adminFlag')
+//            ->LeftJoin('users', 'users.id','=','posts.user_id')
+//            ->join('user_meta', 'users.id','=','user_meta.user_id')
+//            ->where('posts.type','main')
+//            ->orderBy('posts.deleted_at','asc')
+//            ->orderBy('posts.top','desc')
+//            ->orderBy('adminFlag','desc')
+//            ->orderBy('currentReplyTime','desc')
+//            ->withTrashed()
+//            ->paginate(10);
 
         $data = array(
-//            'posts' => null
-            'posts' => $posts
+            'posts' => null
+//            'posts' => $posts
         );
 
         if ($user)
@@ -5319,6 +5336,12 @@ class PagesController extends BaseController
         //            ->orderBy('pcreated_at','desc')
         //            ->where('posts.reply_id', $pid)->get();
 
+        //get lastest color
+        $query_color = ForumChat::select('color')->whereNotNull('color')->where('forum_id',$forum->id)->where('user_id', auth()->user()->id)->orderBy('created_at', 'desc')->first();
+        $lastest_color ='';
+        if(isset($query_color)){
+            $lastest_color = $query_color->color;
+        }
         //檢查是否為連續兩個月以上的VIP會員
         $checkUserVip=0;
         $isVip =Vip::where('member_id',auth()->user()->id)->where('active',1)->where('free',0)->first();
@@ -5328,7 +5351,7 @@ class PagesController extends BaseController
                 $checkUserVip=1;
 //            }
         }
-        return view('/dashboard/forum_personal', compact('posts_personal_all','forum', 'checkUserVip', 'checkForumMangeStatus'))->with('user', $user);
+        return view('/dashboard/forum_personal', compact('posts_personal_all','forum', 'checkUserVip', 'checkForumMangeStatus', 'lastest_color'))->with('user', $user);
     }
 
     public function forum_manage(Request $request)
@@ -5441,8 +5464,9 @@ class PagesController extends BaseController
         $uid = $request->uid;
         $status = $request->status;
         $fid =$request->fid;
+        $mode = $request->mode;
         $checkData = ForumManage::where('forum_id', $fid)->where('user_id', $uid)->first();
-        if($status==1){
+        if($status==1 && $mode=='forum_status'){
             if(isset($checkData)){
                 ForumManage::where('forum_id', $fid)->where('user_id', $uid)->update(['forum_status' => 0, 'updated_at' => Carbon::now()]);
                 $msg = '已移除討論區權限';
@@ -5450,7 +5474,7 @@ class PagesController extends BaseController
                 $msg = 'error';
             }
 
-        }else if($status==0){
+        }else if($status==0 && $mode=='forum_status'){
             if(isset($checkData)){
                 ForumManage::where('forum_id', $fid)->where('user_id', $uid)->update(['forum_status' => 1, 'updated_at' => Carbon::now()]);
                 $msg = '已開通該會員討論區權限';
@@ -5458,7 +5482,23 @@ class PagesController extends BaseController
                 $msg = 'error';
             }
 
+        }else if($status==1 && $mode=='chat_status'){
+            if(isset($checkData)){
+                ForumManage::where('forum_id', $fid)->where('user_id', $uid)->update(['chat_status' => 0, 'updated_at' => Carbon::now()]);
+                $msg = '已移除聊天室權限';
+            }else{
+                $msg = 'error';
+            }
+
+        }else if($status==0 && $mode=='chat_status'){
+            if(isset($checkData)){
+                ForumManage::where('forum_id', $fid)->where('user_id', $uid)->update(['chat_status' => 1, 'updated_at' => Carbon::now()]);
+                $msg = '已開通該會員聊天室權限';
+            }else{
+                $msg = 'error';
         }
+
+    }
         else{
             $msg = 'error';
         }

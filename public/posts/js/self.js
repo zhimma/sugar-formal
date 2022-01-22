@@ -2,7 +2,7 @@ $(document).ready(function($) {
   //----------------------------
   asmonload();//初始化执行函数
   $(window).resize(function() {asmresize();}); //浏览器动态放大缩小
-  $(window).bind("scroll", function(event){asmscroll();});//浏览器滚动监听函数
+  // $(window).bind("scroll", function(event){asmscroll();});//浏览器滚动监听函数
    //------------------------------
     function asmonload(){
       //pdappear();//是否出现在可视区域内
@@ -11,11 +11,11 @@ $(document).ready(function($) {
     function asmresize(){
       //pdappear();//是否出现在可视区域内 
     }//缩放监听
-    function asmscroll(){
-      //pdappear();//是否出现在可视区域内
-      setTimeout(function(){scrollfx();}, 10);
-      setTimeout(function(){asmtoped();}, 10);
-    }//滚动监听
+    // function asmscroll(){
+    //   //pdappear();//是否出现在可视区域内
+    //   setTimeout(function(){scrollfx();}, 10);
+    //   setTimeout(function(){asmtoped();}, 10);
+    // }//滚动监听
   //-----------------------------
 function widthresize(){
   var jqwd;

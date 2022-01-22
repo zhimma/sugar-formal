@@ -424,7 +424,11 @@ Route::group(['middleware' => ['auth', 'global', 'active', 'femaleActive', 'vipC
         Route::get('/dashboard/evaluation_self', 'PagesController@evaluation_self');
         Route::post('/dashboard/evaluation_self/deleteAll', 'PagesController@evaluation_self_deleteAll')->name('evaDeleteAll'); //new route
 
-
+        Route::get('/dashboard/evaluation/{uid}', 'PagesController@evaluation');
+        Route::post('/dashboard/evaluation/save', 'PagesController@evaluation_save')->name('evaluation');
+        Route::post('/dashboard/evaluation/re_content_save', 'PagesController@evaluation_re_content_save')->name('evaluation_re_content');
+        Route::post('/dashboard/evaluation/re_content_delete', 'PagesController@evaluation_re_content_delete')->name('evaluation_re_content_delete');
+        Route::post('/dashboard/evaluation/delete', 'PagesController@evaluation_delete')->name('evaluation_delete');
 
         Route::get('/dashboard/evaluation/{uid}', 'PagesController@evaluation');
         Route::post('/dashboard/evaluation/save', 'PagesController@evaluation_save')->name('evaluation');
@@ -432,13 +436,12 @@ Route::group(['middleware' => ['auth', 'global', 'active', 'femaleActive', 'vipC
         Route::post('/dashboard/evaluation/re_content_delete', 'PagesController@evaluation_re_content_delete')->name('evaluation_re_content_delete');
         Route::post('/dashboard/evaluation/delete', 'PagesController@evaluation_delete')->name('evaluation_delete');
 
-
-        Route::get('/dashboard/banned', 'PagesController@dashboard_banned');
+        Route::get('/dashboard/banned_warned_list', 'PagesController@banned_warned_list');
         Route::get('/dashboard/visited', 'PagesController@visited');
 
         Route::middleware("HasReferer:listSeatch2")->group(function (){
             Route::get('/dashboard/viewuser/{uid?}', 'PagesController@viewuser2')->name('viewuser'); //new route
-            Route::get('/dashboard/viewuser_re/{uid?}', 'PagesController@viewuser_re')->name('viewuser');
+            Route::get('/dashboard/viewuser_re/{uid?}', 'PagesController@viewuser_re')->name('viewuser_re');
         });
 		Route::get('/dashboard/switch_other_engroup', 'PagesController@switchOtherEngroup')->name('switch_other_engroup');
 		Route::get('/dashboard/switch_engroup_back', 'PagesController@switchEngroupBack')->name('switch_engroup_back');
