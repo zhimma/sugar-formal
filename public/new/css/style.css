@@ -671,10 +671,14 @@ background: transparent;
 .hy_bg03{ background:#ffffe3;}
 
 .fenye{ margin:0 auto; padding:0px; display:table; margin-top:20px; height:40px; margin-bottom:20px;}
-.fenye a{ float:left; margin:0 20px; border:#fd5678 1px solid; text-align: center; color:#fd5678; padding:0px 27px; border-radius:200px; line-height:35px; font-size:16px; text-align: center}
+.fenye a{ float:left; margin:0 20px; border:#fd5678 1px solid; text-align: center; color:#fd5678; padding:0px 27px; border-radius:200px; line-height:35px; font-size:16px;}
 .fenye a:hover{color:#ffffff;box-shadow:inset 0px 15px 10px -10px #f83964,inset 0px -10px 10px -20px #f83964; border:#fe92a8 1px solid; background:#fe92a8 !important}
 .zixun{ margin:0 auto; padding:0px; display:table;color:#fd5678; font-size:16px; padding-bottom: 20px;}
 .zixun span{ margin:0px 10px;}
+
+.fenye button{float:left; margin:0 20px; border:#fd5678 1px solid; text-align: center; color:#fd5678; padding:0px 27px; border-radius:200px; line-height:35px; font-size:16px;background: white;}
+.fenye button:hover{color:#ffffff;box-shadow:inset 0px 15px 10px -10px #f83964,inset 0px -10px 10px -20px #f83964; border:#fe92a8 1px solid; background:#fe92a8 !important}
+
 
 
 @media (max-width:767px) {

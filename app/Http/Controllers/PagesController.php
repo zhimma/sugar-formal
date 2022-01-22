@@ -12,6 +12,7 @@ use App\Models\BannedUsersImplicitly;
 use App\Models\CustomFingerPrint;
 use App\Models\Evaluation;
 use App\Models\EvaluationPic;
+use App\Models\ForumChat;
 use App\Models\ForumManage;
 use App\Models\ForumPosts;
 use App\Models\hideOnlineData;
@@ -4871,22 +4872,22 @@ class PagesController extends BaseController
 //            return back();
 //        }
 
-        $posts = Posts::selectraw('posts.top, users.id as uid, users.name as uname, users.engroup as uengroup, posts.is_anonymous as panonymous, user_meta.pic as umpic, posts.id as pid, posts.title as ptitle, posts.contents as pcontents, posts.updated_at as pupdated_at, posts.created_at as pcreated_at, posts.deleted_by')
-            ->selectRaw('(select updated_at from posts where (type="main" and id=pid) or reply_id=pid or reply_id in ((select distinct(id) from posts where type="sub" and reply_id=pid) )  order by updated_at desc limit 1) as currentReplyTime')
-            ->selectRaw('(case when users.id=1049 then 1 else 0 end) as adminFlag')
-            ->LeftJoin('users', 'users.id','=','posts.user_id')
-            ->join('user_meta', 'users.id','=','user_meta.user_id')
-            ->where('posts.type','main')
-            ->orderBy('posts.deleted_at','asc')
-            ->orderBy('posts.top','desc')
-            ->orderBy('adminFlag','desc')
-            ->orderBy('currentReplyTime','desc')
-            ->withTrashed()
-            ->paginate(10);
+//        $posts = Posts::selectraw('posts.top, users.id as uid, users.name as uname, users.engroup as uengroup, posts.is_anonymous as panonymous, user_meta.pic as umpic, posts.id as pid, posts.title as ptitle, posts.contents as pcontents, posts.updated_at as pupdated_at, posts.created_at as pcreated_at, posts.deleted_by')
+//            ->selectRaw('(select updated_at from posts where (type="main" and id=pid) or reply_id=pid or reply_id in ((select distinct(id) from posts where type="sub" and reply_id=pid) )  order by updated_at desc limit 1) as currentReplyTime')
+//            ->selectRaw('(case when users.id=1049 then 1 else 0 end) as adminFlag')
+//            ->LeftJoin('users', 'users.id','=','posts.user_id')
+//            ->join('user_meta', 'users.id','=','user_meta.user_id')
+//            ->where('posts.type','main')
+//            ->orderBy('posts.deleted_at','asc')
+//            ->orderBy('posts.top','desc')
+//            ->orderBy('adminFlag','desc')
+//            ->orderBy('currentReplyTime','desc')
+//            ->withTrashed()
+//            ->paginate(10);
 
         $data = array(
-//            'posts' => null
-            'posts' => $posts
+            'posts' => null
+//            'posts' => $posts
         );
 
         if ($user)
@@ -5335,6 +5336,12 @@ class PagesController extends BaseController
         //            ->orderBy('pcreated_at','desc')
         //            ->where('posts.reply_id', $pid)->get();
 
+        //get lastest color
+        $query_color = ForumChat::select('color')->whereNotNull('color')->where('forum_id',$forum->id)->where('user_id', auth()->user()->id)->orderBy('created_at', 'desc')->first();
+        $lastest_color ='';
+        if(isset($query_color)){
+            $lastest_color = $query_color->color;
+        }
         //檢查是否為連續兩個月以上的VIP會員
         $checkUserVip=0;
         $isVip =Vip::where('member_id',auth()->user()->id)->where('active',1)->where('free',0)->first();
@@ -5344,7 +5351,7 @@ class PagesController extends BaseController
                 $checkUserVip=1;
 //            }
         }
-        return view('/dashboard/forum_personal', compact('posts_personal_all','forum', 'checkUserVip', 'checkForumMangeStatus'))->with('user', $user);
+        return view('/dashboard/forum_personal', compact('posts_personal_all','forum', 'checkUserVip', 'checkForumMangeStatus', 'lastest_color'))->with('user', $user);
     }
 
     public function forum_manage(Request $request)
@@ -5457,8 +5464,9 @@ class PagesController extends BaseController
         $uid = $request->uid;
         $status = $request->status;
         $fid =$request->fid;
+        $mode = $request->mode;
         $checkData = ForumManage::where('forum_id', $fid)->where('user_id', $uid)->first();
-        if($status==1){
+        if($status==1 && $mode=='forum_status'){
             if(isset($checkData)){
                 ForumManage::where('forum_id', $fid)->where('user_id', $uid)->update(['forum_status' => 0, 'updated_at' => Carbon::now()]);
                 $msg = '已移除討論區權限';
@@ -5466,7 +5474,7 @@ class PagesController extends BaseController
                 $msg = 'error';
             }
 
-        }else if($status==0){
+        }else if($status==0 && $mode=='forum_status'){
             if(isset($checkData)){
                 ForumManage::where('forum_id', $fid)->where('user_id', $uid)->update(['forum_status' => 1, 'updated_at' => Carbon::now()]);
                 $msg = '已開通該會員討論區權限';
@@ -5474,7 +5482,23 @@ class PagesController extends BaseController
                 $msg = 'error';
             }
 
+        }else if($status==1 && $mode=='chat_status'){
+            if(isset($checkData)){
+                ForumManage::where('forum_id', $fid)->where('user_id', $uid)->update(['chat_status' => 0, 'updated_at' => Carbon::now()]);
+                $msg = '已移除聊天室權限';
+            }else{
+                $msg = 'error';
+            }
+
+        }else if($status==0 && $mode=='chat_status'){
+            if(isset($checkData)){
+                ForumManage::where('forum_id', $fid)->where('user_id', $uid)->update(['chat_status' => 1, 'updated_at' => Carbon::now()]);
+                $msg = '已開通該會員聊天室權限';
+            }else{
+                $msg = 'error';
         }
+
+    }
         else{
             $msg = 'error';
         }
