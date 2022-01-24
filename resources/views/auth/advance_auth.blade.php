@@ -63,7 +63,7 @@
                 color:red;
             } 
 
-            #tab_confirm.left .bltext,#tab_general_confirm  .bltext {
+            #tab_confirm.left .bltext  {
                 text-align: left;
             }
             
@@ -95,9 +95,6 @@
                     padding-top:10px !important;
                 }
             }  
-            
-            .i_am_student {margin-top:5%;}
-            .i_am_student a:active,.i_am_student a:visited,.i_am_student a:focus {text-decoration:none;}
         </style>   	
         </head>
 
@@ -119,19 +116,10 @@
 						<div class="vipbongn new_wyz">
 							<h2>驗證說明</h2>
 							<h3>
-                            
-                            @if($is_edu_mode??null)
-                            <div>還不能辦個人門號的學生可以透過校內 email 方式通過驗證
-                            ，請輸入您的學校 email。
-                            </div>
-                            
-                            @else
                             <div>您好，這是花園網的進階認證，將驗證您的以下資料，必須全部正確才能通過驗證。</div>
+                            
                             <div class="bolder red">請注意必須填門號申請人的資料，預付卡無法驗證</div>
-                            @if(substr(trim($user->email),-6)!='edu.tw')
-                            <div class="i_am_student"><a href="{{url('goto_advance_auth_email')}}">我是學生未滿20歲，沒有辦個人門號，請點我</a></div>
-                            @endif
-                            @endif
+
                             </h3>
 						</div>
                         @endif
@@ -143,12 +131,51 @@
                             @elseif($init_check_msg)
                                 <div class="center">{!!$init_check_msg!!}</div>
 							@else
-                                @if($is_edu_mode??null)
-                                    @include('auth.advance_auth_form_part-email')
-                                @else
-                                    @include('auth.advance_auth_form_part-pid')
-                                @endif
-                            @endif
+								@if(isset($_GET['status']))
+									@if($_GET['status']=='false')
+										<span style="color:red">資料輸入錯誤，請重新驗證</span>
+									@elseif($_GET['status']=='age_failed')
+										<span style="color:red">年齡未滿18歲，不得進行驗證</span>
+									@endif
+								@endif
+								<form id="advance_auth_form" name="advance_auth_form" class="m-form m-form--fit" method="POST" action="/advance_auth_process">
+									<input type="hidden" name="_token" value="{{ csrf_token() }}" >
+									<input type="hidden" name="userId" value="{{$user->id}}">
+
+									<div class="de_input mtb20">
+										<div class="zybg_new02 @if(in_array('i',Session::get('error_code')??[])) has_error @endif">                                       
+											<input name="id_serial" id="id_serial" type="text" class="xy_input xy_left wbd" placeholder="請輸入身分證字號"  autocomplete="off">
+										</div>
+										<div class="zybg_new02 @if(in_array('p',Session::get('error_code')??[])) has_error @endif"  onclick="origin_phone_popup('{{$user->getAuthMobile(true)}}');return false;">
+											<select name="phone_type" class="zy_select">
+												<option>台灣</option>
+											</select>
+											<input @if($user->isPhoneAuth()) value="{{$user->getAuthMobile(true)}}" @endif style="@if($user->isPhoneAuth()) display:none;  @endif" name="phone_number" id="phone_number" type="text" class="xy_input xy_left" placeholder="請輸入手機號碼"  autocomplete="off">
+                                            @if($user->isPhoneAuth())
+                                            <input autocomplete="off" value="{{$user->getAuthMobile(true)}} (已驗證)" class="xy_input xy_left only_show"  disabled>
+                                            @endif
+										</div>
+
+										<div class="zybg_new02 birthday_selector @if(in_array('b',Session::get('error_code')??[])) has_error @endif">
+											<em>生日</em>
+                                            <div class="se_zlman left">
+                                              <select data-parsley-errors-messages-disabled name="year" id="year"  class="xy_input select_xx04 sel_year">
+                                              </select>
+                                            </div>
+                                            <div class="se_zlman left">
+                                              <select data-parsley-errors-messages-disabled name="month" id="month"  class="xy_input select_xx04 sel_month">
+                                              </select>
+                                            </div>  
+                                            <div class="se_zlman left">
+                                              <select data-parsley-errors-messages-disabled name="day" id="day"  class="xy_input select_xx04 sel_day">
+                                              </select>
+                                            </div>                                              
+                                        </div>
+
+										<button type="text" class="n_zybg_right btn_yz advanceAuthSubmit" onclick="tab_agree();return false;">驗證</button>
+									</div>
+								</form>
+							@endif
 						</div>
 					</div>
 				</div>
@@ -203,18 +230,6 @@
     </div>
     <a  onclick="gmBtn1()" class="bl_gb"><img src="/auth/images/gb_icon.png"></a>
 </div>
-<div class="bl bl_tab" id="tab_general_confirm">
-    <div class="bltitle">提示</div>
-    <div class="n_blnr01">
-        <div class="blnr bltext">
-        </div>
-        <div class="n_bbutton">
-            <span><a class="n_left" href="#" onclick="" ></a></span>
-            <span><a onclick="gmBtn1()" class="n_right" href="javascript:"></a></span>
-        </div>
-    </div>
-    <a id="" onclick="gmBtn1()" class="bl_gb"><img src="/new/images/gb_icon.png"></a>
-</div> 
 <div class="bl bl_tab " id="tab01" >
     <div class="bltitle" style="margin-top: -1px;"><span>提示</span></div>
     <div class="n_blnr01 matop10">
@@ -223,7 +238,7 @@
                 @if(implode('_',Session::get('error_code')??[])!='b18')請輸入正確@endif
                 @for($i=0;$i<count(Session::get('error_code'));$i++)
                 @if(Session::get('error_code')[$i]!='b18')
-                {{$i?'/':''}}{!!Session::get('error_code_msg')[Session::get('error_code')[$i]]!!}
+                {{$i?'/':''}}{{Session::get('error_code_msg')[Session::get('error_code')[$i]]}}
                 @endif
                 @endfor
                 @if(implode('_',Session::get('error_code')??[])!='b18')<br>@endif
@@ -250,8 +265,9 @@
     </div>
     <a  onclick="gmBtn1()" class="bl_gb"><img src="/auth/images/gb_icon.png"></a>
 </div>
-
+<script src="/new/js/birthday.js" type="text/javascript"></script>
 <script>
+    $.ms_DatePicker();
     $(function(){
         $(".blbg").hide();
         $(".bl").hide();
@@ -261,20 +277,172 @@
         $("#tab01").show();
     }
     
+    function tab_confirm_send() {
+        $("#tab_confirm").show().addClass('left').find('.bltext').click().html('您輸入的資料如下'
+            +'<div>身分證字號：'+$('#id_serial').val()+'</div>'
+            +'<div>手機號碼：'+$('#phone_number').val()+'</div>'
+            +'<div>生日：'+$('#year').val()+'/'+$('#month').val()+'/'+$('#day').val()+'</div>'
+            +'<div>{{$user_pause_during_msg}}所以請務必確定資料正確！</div>'
+        ).parent().find('.n_left').blur().html('確定送出').attr('onclick','document.advance_auth_form.submit();this.setAttribute("onclick", "return false;");return false;')
+        .parent().parent().find('.n_right').html('返回修改');        
+    }
+    
+    function tab_agree() {
+        $(".blbg").show();
+        clear_error_appear();
+        if(check_val()) {
+            $("#tab_confirm").removeClass('left').show().find('.bltext').html(
+                    '本站會將您的門號以及生日同步更新到會員基本資料，'+
+                    '<span class="bolder red">身分證字號則只用在本次驗證並不會紀錄</span>'+
+                    '<div class="margin_top_one_line">此驗證依照以下條款進行</div>'+
+                    '<div><a target="_blank" href="{{url('advance_auth_midclause')}}">{{url('advance_auth_midclause')}}</a></div>'+
+                    '<div class="margin_top_one_line">請詳細閱讀後選擇</div>'
+                )
+                .parent().find('.n_left').html('同意').attr('onclick','tab_confirm_send();return false;')
+                .parent().parent().find('.n_right').html('不同意');
+        }
+        else cl();      
+        
+        return false;
+    }
+    
+    function clear_error_appear() {
+        $('#id_serial').parent().removeClass('has_error');
+        $('#phone_number').parent().removeClass('has_error');
+        $('#year,#month,#day').parent().parent().removeClass('has_error');        
+    }
+    
+    function check_val() {
+        var empty_str = '';
+        var age_error_msg = '';
+        var error_msg = '';
+        $('#tab01 .n_fengs').html('');
+        if(!checkIdSerial($('#id_serial').val(),'sex')) {
+            $('#id_serial').parent().addClass('has_error');
+            $('#tab01 .n_fengs').html('您輸入的身分證號與您登記的性別不符，請用本人申請的門號驗證');
+            return false;            
+        }
+        
+        if($('#id_serial').val()=='' || !checkIdSerial($('#id_serial').val())) {
+            $('#id_serial').parent().addClass('has_error');
+            empty_str='/身分證字號';
+        }
+        if($('#phone_number').val()=='' || !checkPhoneNumber($('#phone_number').val())) {
+            $('#phone_number').parent().addClass('has_error');
+            empty_str+='/門號';
+        }
+        if($('#year').val()=='' || $('#month').val()=='' || $('#day').val()=='') {
+            $('#year,#month,#day').parent().parent().addClass('has_error');
+            empty_str+='/生日';
+        }
+        else {
+            year = $('#year').val();
+            month = $('#month').val();
+            day = $('#day').val();
+            var now = new Date();
+            nowyear=now.getFullYear();
+            
+            nowmonth=now.getMonth();
+            nowday = now.getDate();
+            
+            age=nowyear-year;
+            
+            if(month>nowmonth || month==nowmonth && day>nowday){
+                age--;
+            }  
+
+            if(age<18) {
+                $('#year,#month,#day').parent().parent().addClass('has_error');
+                age_error_msg = '年齡未滿18歲，不得進行驗證';
+            }
+        }
+        
+        if(empty_str!='') {
+            error_msg = '請輸入正確'+empty_str.replace('/','');
+            if(age_error_msg!='')  error_msg+='<br>';
+        }
+        
+        if(age_error_msg!='') {
+            error_msg+=age_error_msg;
+        }
+        
+        if(error_msg=='') {
+            return true;
+        }
+        else {
+            $('#tab01 .n_fengs').html(error_msg);
+            return false;
+        }
+        
+    }
     function gmBtn1(){
         $(".blbg").hide();
         $(".bl").hide();
-        @if(!$user->isPhoneAuth() && !($is_edu_mode??null) && !$user->isAdvanceAuth())
-        location.href='{{url("goto_member_auth")}}';
+        @if(!$user->isPhoneAuth())
+        location.href='{{url("member_auth")}}';
         @endif
+    }
+    
+    function checkPhoneNumber(phone_number) {
+        return phone_number.match('^09[0-9]{8}$');
+    }
+
+    function checkIdSerial(id_serial,check_type=null) {
+        var id = id_serial.trim();
+        var check_id_rs = true;
+
+        if (id.length != 10) {
+            check_id_rs = false;
+        }
+
+
+        var regionCode = id.charCodeAt(0);
+        if (regionCode < 65 | regionCode > 90) {
+            check_id_rs = false;
+        }
+
+        var sexCode = id.charCodeAt(1);
+        if (sexCode != {{$user->engroup+48}}) {
+            check_id_rs = false;
+            if(check_type=='sex') {
+                return false;
+            }
+        } else if(check_type=='sex') return true;
+
+        var splitCode = id.slice(2)
+        for (var i in splitCode) {
+            var scode = splitCode.charCodeAt(i);
+            if (scode < 48 | scode > 57) {
+                check_id_rs = false;
+            }
+        }
+        if(check_id_rs) {
+            var letterConverter = "ABCDEFGHJKLMNPQRSTUVXYWZIO"
+            var weightArr = [1, 9, 8, 7, 6, 5, 4, 3, 2, 1, 1]
+
+            id_checking = String(letterConverter.indexOf(id[0])+10)
+                    + id.slice(1);
+
+            total = 0
+            for (let i = 0; i < id_checking.length; i++) {
+                c = parseInt(id_checking[i])
+                w = weightArr[i]
+                total += c * w
+            }
+
+            check_id_rs = total % 10 == 0
+        }
+        return check_id_rs
+    }
+    
+    function origin_phone_popup(phone) {
+        if(phone!='' && phone!=undefined) {
+            $(".blbg").show();
+            $('#tab_general_alert').show().find('.n_fengs').html('您之前驗證的手機門號為'+phone+'，需以相同的門號進行驗證，如需更換手機請<a href="https://lin.ee/rLqcCns" target="_blank">點此加站長line <img src="https://scdn.line-apps.com/n/line_add_friends/btn/zh-Hant.png" alt="加入好友" height="36" border="0" style="all: initial;all: unset;height: 36px; float: unset;vertical-align:middle;"></a> 聯絡');
+        }
     }
 
 </script>
-@if($is_edu_mode??null)
-    @include('auth.advance_auth_js_part-email')
-@else
-    @include('auth.advance_auth_js_part-pid')
-@endif
 
 <script> 
     $(function(){

@@ -169,8 +169,6 @@ Route::group(['middleware' => ['auth', 'global']], function () {
     Route::post('/check-cfp', 'PagesController@checkcfp')->name('checkcfp');
 });
 
-Route::get('/advance_auth_activate/token/{token}', 'PagesController@advance_auth_email_activate')->name('advance_auth_email_activate');
-
 Route::group(['middleware' => ['auth', 'global', 'active', 'femaleActive', 'vipCheck', 'newerManual','CheckIsWarned','CheckAccountStatus']], function () {
 
     Route::get('/dashboard/browse', 'PagesController@browse');
@@ -223,10 +221,7 @@ Route::group(['middleware' => ['auth', 'global', 'active', 'femaleActive', 'vipC
 
     /*會員驗證*/
     Route::get('member_auth', 'PagesController@member_auth');
-    Route::get('goto_member_auth', 'PagesController@goto_member_auth');
-    Route::get('goto_advance_auth_email', 'PagesController@goto_advance_auth_email');    
     Route::post('member_auth_phone_process', 'PagesController@member_auth_phone_process');
-    Route::post('advance_auth_email_process', 'PagesController@advance_auth_email_process');
     Route::get('member_auth_photo', 'PagesController@member_auth_photo');
 
     Route::get('hint_auth1', 'PagesController@hint_auth1');
@@ -238,7 +233,6 @@ Route::group(['middleware' => ['auth', 'global', 'active', 'femaleActive', 'vipC
 
     /*進階驗證*/
     Route::get('advance_auth', 'PagesController@advance_auth');
-    Route::get('advance_auth_email', 'PagesController@advance_auth_email');
     Route::post('advance_auth_process', 'PagesController@advance_auth_process');
 
     Route::get('is_advance_auth', 'PagesController@is_advance_auth');
