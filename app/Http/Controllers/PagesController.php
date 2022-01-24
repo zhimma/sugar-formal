@@ -4786,8 +4786,8 @@ class PagesController extends BaseController
         if(!$email) return [ 'empty'];
         if($_SERVER['SERVER_ADDR']=='127.0.0.1') return;
         if(substr($email,-6)!='edu.tw') return [ 'not_edu'];
-        if(substr($email,-9)!='tp.edu.tw') return [ 'not_accept_edu'];
-        if(substr($email,-16)!='educities.edu.tw') return [ 'not_accept_edu'];
+        if(substr($email,-10)=='.tp.edu.tw' || substr($email,-10)=='@tp.edu.tw') return [ 'not_accept_edu'];
+        if(substr($email,-17)=='.educities.edu.tw' || substr($email,-17)=='@educities.edu.tw') return [ 'not_accept_edu'];
     }
     
     public function advance_auth_email_prechase(Request $request){
