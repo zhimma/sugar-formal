@@ -86,10 +86,28 @@
                                     $waitDay = round((strtotime($baseDay)-strtotime($nowDay))/3600/24);
                                 }
                                 ?>
+
+                                <!--測試-->
+                                <?php
+                                    $waitDay = 1;
+                                ?>
+                                <!--測試-->
                                 @if($waitDay >0)
                                     <div class="n_shtab">
                                         <h2>您已於{{ $closeDay }}將會員帳號關閉，普通會員每個月僅可變更一次，你需再等{{ $waitDay }}天後才能再次開啟此帳號，造成不便請見諒。</h2>
                                     </div>
+
+                                    <!--新增升級解鎖VIP訊息及按鈕 by simon-->
+                                    <div class="n_shtab">
+                                        <h2>或者點此
+                                            <a href="{!! url('dashboard/new_vip') !!}" style="color:blue;">
+                                                升級VIP
+                                            </a>
+                                            即時解鎖(請用刷卡付費)
+                                        </h2>
+                                    </div>
+                                    <!--新增升級解鎖VIP訊息及按鈕 by simon-->
+
                                     <div class="sjlist_li">
                                         <div class="leftsidebar_box">
                                             <form method="GET" action="/logout">
