@@ -654,8 +654,7 @@ class User extends Authenticatable
 
     public function isAdvanceAuth()
     {
-        $count = $this->where('id',$this->id)->where('advance_auth_status',1)->count();
-        return $count >0 ;
+        return $this->advance_auth_status ;
     }
     
     public function isImgAuth()

@@ -911,35 +911,12 @@
                                         </span>
                                     </dt>
                                     @endif
-                                    
-                                    @if((!empty($to->meta->weight) && $to->meta->isHideWeight == '0' ))
-                                    <dt>
-                                        <span>體重（kg）</span>
-                                        <span>
-                                            <div class="select_xx01 senhs hy_new">{{$to->meta->weight-4}} ~ {{$to->meta->weight}}</div>
-                                        </span>
-                                    </dt>
-                                    @else
-                                    <dt>
-                                        <span>體重（kg）</span>
-                                        <span>
-                                            <div class="select_xx01 senhs hy_new">未填寫</div>
-                                        </span>
-                                    </dt>
-                                    @endif
 
                                     @if(!empty($to->meta->body) && $to->meta->body != null && $to->meta->body != 'null')
                                     <dt>
                                         <span>體型</span>
                                         <span>
                                             <div class="select_xx01 senhs hy_new">{{$to->meta->body}}</div>
-                                        </span>
-                                    </dt>
-                                    @else
-                                    <dt>
-                                        <span>體型</span>
-                                        <span>
-                                            <div class="select_xx01 senhs hy_new">未填寫</div>
                                         </span>
                                     </dt>
                                     @endif
@@ -951,15 +928,7 @@
                                             <div class="select_xx01 senhs hy_new">{{$to->meta->cup}}</div>
                                         </span>
                                     </dt>
-                                    @elseif($to->engroup == 2)
-                                    <dt>
-                                        <span>CUP</span>
-                                        <span>
-                                            <div class="select_xx01 senhs hy_new">未填寫</div>
-                                        </span>
-                                    </dt>
                                     @endif
-
                                     @if($to->engroup == 2 && $to->tattoo->count())
                                     <dt>
                                         <span>刺青</span>                                    
