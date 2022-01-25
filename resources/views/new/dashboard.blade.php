@@ -24,11 +24,28 @@ header("Expires: Fri, 01 Jan 1990 00:00:00 GMT");
         }
 
         if(isset($umeta->blockcity)){
-          $umeta->blockcity = explode(",",$umeta->blockcity);
-          $umeta->blockarea = explode(",",$umeta->blockarea);
+            $city = explode(",",$umeta->blockcity);
+            $area = explode(",",$umeta->blockarea);
+            $arr = [];
+            for($i = 0; $i < count($area); $i++)
+            {
+                for($j = $i+1; $j < count($area); $j++)
+                {
+                    if($area[$i] == $area[$j])
+                    {
+                        $arr[] = $j;
+                    }
+                }
+            }
+            foreach($arr as $a)
+            {
+                unset($city[$a]);
+                unset($area[$a]);
+            }
+            $umeta->blockcity = $city;
+            $umeta->blockarea = $area;
       }
     }
-
   ?>
   <style type="text/css">
     .abtn{cursor: pointer;}
@@ -225,13 +242,14 @@ dt span.engroup_type_title {display:inline-block;width:10%;white-space:nowrap;}
                                     data-name="blockarea{{$key == 0 ? '' : $key}}"
                                     data-value="{{$umeta->blockarea[$key]}}">
                                     <?php
-                                        if ($key ==0)
+                                        /*if ($key ==0)
                                             $blockarea_selected = $umeta->blockarea[0];
                                         else if ($key ==1){
                                             $blockarea1_selected = $umeta->blockarea[1];
                                         }else if ($key ==2){
                                             $blockarea2_selected = $umeta->blockarea[2];
-                                        }
+                                        }*/
+
                                     ?>
                                 </div>
                               </div>
@@ -915,6 +933,9 @@ dt span.engroup_type_title {display:inline-block;width:10%;white-space:nowrap;}
         let blockarea_selected_arr = @json($blockarea_selected);
         let blockcity_selected_arr = @json($blockcity_selected);
 
+        //var blockarea_selected = '{{ isset($umeta->blockarea[0]) ? ($umeta->blockarea[0] == "" ? "全區" : str_replace($umeta->blockcity[0],'',$umeta->blockarea[0])) : '全區' }}';
+        //var blockarea1_selected = '{{ isset($umeta->blockarea[1]) ? str_replace($umeta->blockcity[1],'',$umeta->blockarea[1]) :'全區'  }}';
+        //var blockarea2_selected = '{{ isset($umeta->blockarea[2]) ? str_replace($umeta->blockcity[2],'',$umeta->blockarea[2]) : '全區'  }}';
 
         if(blockcity_selected_arr[0] == '海外')
         {
@@ -1022,14 +1043,8 @@ dt span.engroup_type_title {display:inline-block;width:10%;white-space:nowrap;}
                 }
             }*/
         }
-        if ($("select[name='blockarea2'] option:eq(0)").text() !== '全區') {
-            //$("select[name='blockarea2']").prepend('<option value="">全區</option>');
-            if (blockarea2_selected == '全區') {
-                $("select[name='blockarea2']").prepend('<option selected value="">全區</option>');
-            } else {
-                $("select[name='blockarea2'] option[value=" + blockarea2_selected + "]").attr('selected', true);
-            }
-        }
+
+
 
         $("select[name='blockcity']").on('change', function () {
             if ($("select[name='blockcity'] option:selected").text() == '縣市') 
@@ -1131,6 +1146,7 @@ dt span.engroup_type_title {display:inline-block;width:10%;white-space:nowrap;}
 
       //ajax_表單送出
       $('form[name=user_data]').submit(function(e){
+
         e.preventDefault();
         if($(this).parsley().isValid()){
           let birth = $('select[name=year]').val()+'/'+$('select[name=month]').val()+'/'+$('input[name=day]').val();
@@ -1150,6 +1166,7 @@ dt span.engroup_type_title {display:inline-block;width:10%;white-space:nowrap;}
           let situation = $('select[name=situation]');
           let tattoo_part = $('#tattoo_part');
           let tattoo_range = $('#tattoo_range');
+
           if(title.val() === "") {
             title.focus();
             c5('請輸入一句話形容自己');
@@ -1310,30 +1327,8 @@ dt span.engroup_type_title {display:inline-block;width:10%;white-space:nowrap;}
         let block_county = $("#block_county");
         let add_block_county = $("#add_block_county");
         $(add_block_county).click(function(){
-            $("select[name='blockcity1']").on('change', function() {
-                if($("select[name='blockcity1'] option:selected" ).text() == '縣市'){
-                    if($("select[name='blockarea1'] option:eq(0)").text()!=='鄉鎮市區')
-                        $("select[name='blockarea1']").prepend('<option selected value="">鄉鎮市區</option>');
-                }
-                else{
-                   if($("select[name='blockarea1'] option:eq(0)").text()!=='全區')
-                    $("select[name='blockarea1']").prepend('<option selected value="">全區</option>');
-                }
-
-                $("select[name='blockcity2']").on('change', function() {
-                    if($("select[name='blockcity2'] option:selected" ).text() == '縣市'){
-                        if($("select[name='blockarea2'] option:eq(0)").text()!=='鄉鎮市區')
-                            $("select[name='blockarea2']").prepend('<option selected value="">鄉鎮市區</option>');
-                    }
-                    else{
-                       if($("select[name='blockarea2'] option:eq(0)").text()!=='全區')
-                            $("select[name='blockarea2']").prepend('<option selected value="">全區</option>');
-                    }
-                });
-            });
-
           console.log($(block_county).find('.twzipcode').length)
-            if($(block_county).find('.twzipcode').length < 3) {
+            if($(block_county).find('.twzipcode').length < {{$blockcity_limit_count}}) {
                 let county_div=`
                 <div class="twzipcode">
                   <div class="twzip" data-role="county" data-name="blockcity${$(block_county).find('.twzipcode').length}" data-value="">
@@ -1364,7 +1359,7 @@ dt span.engroup_type_title {display:inline-block;width:10%;white-space:nowrap;}
                     }
                 });
             }else{
-                c5('最多新增3筆');
+                c5('最多新增' +{{$blockcity_limit_count}}+ '筆');
                 // swal({
                 //     title:'最多新增3筆',
                 //     type:'warning'
