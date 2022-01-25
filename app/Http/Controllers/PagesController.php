@@ -1922,6 +1922,10 @@ class PagesController extends BaseController
         if($user->isPhoneAuth()==1){
             $auth_check=1;
         }
+
+        if($user->id==$uid){
+            $request->merge(['page_mode'=>'edit']);
+        }
         if (isset($user) && isset($uid)) {
             $targetUser = User::where('id', $uid)->where('accountStatus',1)->where('account_status_admin',1)->get()->first();
             if (!isset($targetUser)) {
@@ -2509,8 +2513,7 @@ class PagesController extends BaseController
             $request->city2,
             $request->area2,
             $request->city3,
-            $request->area3,
-            $request->weight
+            $request->area3
         );
 
         $ssrData = '';
@@ -5941,8 +5944,7 @@ class PagesController extends BaseController
         }
         
         $vasStatus = '';
-        if(false) { //測試站錯誤暫時修改略過
-        //if($user->valueAddedServiceStatus('hideOnline') == 1) {
+        if($user->valueAddedServiceStatus('hideOnline') == 1) {
             $vasStatus = '您已購買隱藏付費功能';
             $vas = $user->vas->where('service_name','hideOnline')->first();
             if($vas->payment){
@@ -5964,10 +5966,10 @@ class PagesController extends BaseController
                         'TimeStamp' => 	time()
                     ];
                     $paymentData = $ecpay->QueryPeriodCreditCardTradeInfo(); //信用卡定期定額
-                    
                     $last = last($paymentData['ExecLog']);
                     $lastProcessDate = str_replace('%20', ' ', $last['process_date']);
                     $lastProcessDate = \Carbon\Carbon::createFromFormat('Y/m/d H:i:s', $lastProcessDate);
+
                     //計算下次扣款日
                     if($vas->payment == 'cc_quarterly_payment'){
                         $periodRemained = 92;
@@ -5975,7 +5977,6 @@ class PagesController extends BaseController
                         $periodRemained = 30;
                     }
                     $nextProcessDate = substr($lastProcessDate->addDays($periodRemained),0,10);
-                    
                 }
                 $payment = '信用卡繳費';
                 switch ($vas->payment){
