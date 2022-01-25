@@ -1922,6 +1922,10 @@ class PagesController extends BaseController
         if($user->isPhoneAuth()==1){
             $auth_check=1;
         }
+
+        if($user->id==$uid){
+            $request->merge(['page_mode'=>'edit']);
+        }
         if (isset($user) && isset($uid)) {
             $targetUser = User::where('id', $uid)->where('accountStatus',1)->where('account_status_admin',1)->get()->first();
             if (!isset($targetUser)) {
