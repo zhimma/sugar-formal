@@ -89,6 +89,14 @@ class CheckECpayForValueAddedService implements ShouldQueue
                     $days = 31;
                 }
                 $now = \Carbon\Carbon::now();
+
+                //付款日期有差異時更新訂單
+                $currentOrder = Order::where('order_id', $this->valueAddedServiceData->order_id)->first();
+                $current_order_pay_date = last(json_decode($currentOrder->pay_date));
+                if($last['RtnCode'] == 1 && $lastProcessDate != $current_order_pay_date[0]){
+                    Order::updateEcPayOrder($this->valueAddedServiceData->order_id);
+                }
+
                 if ($last['RtnCode'] == 1 && $lastProcessDate->diffInDays($now) > $days) {
                     Log::info('付費失敗');
                     Log::info($paymentData);
