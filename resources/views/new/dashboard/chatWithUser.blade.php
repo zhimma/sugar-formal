@@ -274,7 +274,7 @@
                                 $is_banned = \App\Models\User::isBanned($to->id);
                             @endphp
                             @if($is_banned)
-                                <a href="{{ !empty(session()->get('goBackPage_chat2')) ? session()->get('goBackPage_chat2') : \Illuminate\Support\Facades\URL::previous() }}" type="button" style="color: #fd5678;" onclick="c5('{{'此人已被站方封鎖'}}'),setTimeout(function(){window.location.reload();},3000)">{{$to->name}}</a>
+                                <a  type="button" style="color: #fd5678;" onclick="c5('{{'此人已被站方封鎖'}}'),setTimeout(function(){window.location.href = ' {{ !empty(session()->get	('goBackPage_chat2')) ? session()->get('goBackPage_chat2') : \Illuminate\Support\Facades\URL::previous() }} '},3000)">{{$to->name}}</a>
                                 
                             @else
                                 <a href="/dashboard/viewuser/{{$to->id}}" style="color: #fd5678;">
@@ -362,7 +362,8 @@
                                                 $is_banned = \App\Models\User::isBanned($to->id);
                                             @endphp
                                             @if($is_banned)
-                                                <a href="{{ !empty(session()->get('goBackPage_chat2')) ? session()->get('goBackPage_chat2') : \Illuminate\Support\Facades\URL::previous() }}" class="chatWith" type="button"  onclick="c5('{{'此人已被站方封鎖'}}'),setTimeout(function(){window.location.reload();},3000)">
+                                            <a class="chatwith" type="button" style="color: #fd5678;" onclick="c5('{{'此人已被站方封鎖'}}'),setTimeout(function(){window.location.href = ' {{ !empty(session()->get	('goBackPage_chat2')) ? session()->get('goBackPage_chat2') : \Illuminate\Support\Facades\URL::previous() }} '},3000)">
+                                                
                                             @else
                                                 <a class="chatWith" href="{{ url('/dashboard/viewuser/' . $msgUser->id ) }}">
                                             @endif
@@ -507,7 +508,7 @@
                     @if((!isset($admin) || $to->id != $admin->id) && !isset($to->banned )&& !isset($to->implicitlyBanned))
                         <div class="se_text_bot"  id="message_input" style="padding-right: 3%; padding-left:3%;">
                             @if(($to->engroup) === ($user->engroup))
-                            
+                                
                             @else
                                 <form style="margin: 0 auto;" method="POST" action="/dashboard/chat2/{{ \Carbon\Carbon::now()->timestamp }}" id="chatForm" name="chatForm">
                                     
@@ -655,6 +656,8 @@
 <script>
     @if (($to->engroup) === ($user->engroup))
         c5('同性會員無法發送訊息!');
+        
+        setTimeout("window.location.href = ' {{ !empty(session()->get('goBackPage_chat2')) ? session()->get('goBackPage_chat2') : \Illuminate\Support\Facades\URL::previous() }} '",3000);
     //return back();
     @endif
 
