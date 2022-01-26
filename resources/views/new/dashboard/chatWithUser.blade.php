@@ -243,6 +243,7 @@
     .parent_msg_box img {margin-right:10px;height:15px;width:15px;float:initial !important;}
   
 </style>
+
 @section('app-content')
     <div class="container matop70 chat">
         <div class="row">
@@ -273,7 +274,8 @@
                                 $is_banned = \App\Models\User::isBanned($to->id);
                             @endphp
                             @if($is_banned)
-                                <a type="button" style="color: #fd5678;" onclick="c5('{{'此人已被站方封鎖'}}'),setTimeout(function(){window.location.reload();},3000)">{{$to->name}}</a>
+                                <a href="{{ !empty(session()->get('goBackPage_chat2')) ? session()->get('goBackPage_chat2') : \Illuminate\Support\Facades\URL::previous() }}" type="button" style="color: #fd5678;" onclick="c5('{{'此人已被站方封鎖'}}'),setTimeout(function(){window.location.reload();},3000)">{{$to->name}}</a>
+                                
                             @else
                                 <a href="/dashboard/viewuser/{{$to->id}}" style="color: #fd5678;">
                                     <span class="se_rea">{{$to->name}}
@@ -360,7 +362,7 @@
                                                 $is_banned = \App\Models\User::isBanned($to->id);
                                             @endphp
                                             @if($is_banned)
-                                                <a class="chatWith" type="button"  onclick="c5('{{'此人已被站方封鎖'}}'),setTimeout(function(){window.location.reload();},3000)">
+                                                <a href="{{ !empty(session()->get('goBackPage_chat2')) ? session()->get('goBackPage_chat2') : \Illuminate\Support\Facades\URL::previous() }}" class="chatWith" type="button"  onclick="c5('{{'此人已被站方封鎖'}}'),setTimeout(function(){window.location.reload();},3000)">
                                             @else
                                                 <a class="chatWith" href="{{ url('/dashboard/viewuser/' . $msgUser->id ) }}">
                                             @endif
