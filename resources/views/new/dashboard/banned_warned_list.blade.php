@@ -48,6 +48,7 @@
         document.getElementById(id + "_a").className = "nn_dontt_hover";
         return false;
     }
+
 </script>
 @section('app-content')
     <div class="container matop70">
@@ -76,6 +77,7 @@
                                 <th width="25%" style=" border-radius:0 5px 5px 0;">解除時間</th>
                             </tr>
                             @foreach($banned_users as $row)
+                            
                                 <tr>
                                     <td><font size="1">{{$row->name}}</font></td>
                                     <td ><font size="1">
@@ -97,7 +99,17 @@
                             
                         </table>
                         <div style="text-align: center;">
-                            {!! $banned_users->links('pagination::sg-pages2') !!}
+                            <div class="fenye">
+                                @if($banned_users->currentPage()==1)
+                                    <a  >上一頁</a>
+                                    <span class="new_page">第 {{ $banned_users->currentPage() }} 頁</span>
+                                    <a href="{{ $banned_users->nextPageUrl() }}" >下一頁</a>
+                                @elseif($banned_users->currentPage() == $banned_users->lastPage())
+                                    <a href="{{ $banned_users->previousPageUrl() }}" id="pPage">上一頁</a>
+                                    <span class="new_page">第 {{ $banned_users->currentPage() }} 頁</span>
+                                    <a  >下一頁</a>
+                                @endif
+                            </div>
                         </div>
                     </div>
 
