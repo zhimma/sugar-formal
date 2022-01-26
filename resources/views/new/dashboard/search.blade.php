@@ -133,7 +133,7 @@ header("Expires: Fri, 01 Jan 1990 00:00:00 GMT");
                                 </dt>
 
                                 @if (!$user->isVIP())
-                                    <div width: 100%; padding-top:5px; display: table;>
+                                    <div>
                                         <div class="wuziliao">
                                             <img src="/new/images/fengs_icon.png">
                                         </div>
