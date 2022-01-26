@@ -17,6 +17,7 @@ use App\Models\Message;
 use App\Repositories\UserRepository;
 use App\Events\UserRegisteredEmail;
 use App\Notifications\ActivateUserEmail;
+use App\Notifications\AdvAuthUserEmail;
 use Illuminate\Support\Facades\Schema;
 use Illuminate\Support\Facades\Log;
 use App\Observer\BadUserCommon;
@@ -769,6 +770,24 @@ class UserService
 
         $user->notify(new ActivateUserEmail($token));
     }
+    
+    public function setAndSendUserAdvAuthEmailToken($user)
+    {
+        $token = md5(str_random(40));
+
+        $user->advance_auth_email_token=$token;
+        $user->save();
+        
+        $receiver = new User;
+
+        $receiver->email = $user->advance_auth_email;
+        $receiver->name = $user->name;
+
+        $receiver->notify(new AdvAuthUserEmail($token));
+        
+        $user->advance_auth_email_at = Carbon::now();
+        $user->save();
+    }    
 
     /*
     |--------------------------------------------------------------------------
