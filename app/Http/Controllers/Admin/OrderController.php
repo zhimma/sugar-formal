@@ -219,7 +219,7 @@ class OrderController extends \App\Http\Controllers\BaseController
                 $result .= '新增訂單資料<br>';
             }
 
-            if(isset($paymentPeriodInfo)){
+            if(isset($paymentPeriodInfo) && $paymentPeriodInfo['ExecLog'] != ''){
                 $last = last($paymentPeriodInfo['ExecLog']);
                 $lastProcessDate = str_replace('%20', ' ', $last['process_date']);
                 $lastProcessDate = \Carbon\Carbon::createFromFormat('Y/m/d H:i:s', $lastProcessDate);
@@ -372,10 +372,57 @@ class OrderController extends \App\Http\Controllers\BaseController
             ->leftJoin('user_meta', 'user_meta.user_id', 'users.id')
             ->where('users.id', $paymentData['CustomField1'])->first();
 
+        if(isset($userInfo)) {
+            //VIP帳號：起始時間,付費方式,種類,現狀
+            //VIP起始時間,現狀,付費方式,種類
+            $vipInfo = Vip::findByIdWithDateDesc($paymentData['CustomField1']);
+
+            if (!is_null($vipInfo)) {
+                $upgradeDay = date('Y-m-d', strtotime($vipInfo->created_at));
+                $upgradeWay = '';
+                if ($vipInfo->payment_method == 'CREDIT')
+                    $upgradeWay = '信用卡';
+                else if ($vipInfo->payment_method == 'ATM')
+                    $upgradeWay = 'ATM';
+                else if ($vipInfo->payment_method == 'CVS')
+                    $upgradeWay = '超商代碼';
+                else if ($vipInfo->payment_method == 'BARCODE')
+                    $upgradeWay = '超商條碼';
+
+                $upgradeKind = '';
+                if ($vipInfo->payment == 'cc_quarterly_payment')
+                    $upgradeKind = '持續季繳';
+                else if ($vipInfo->payment == 'cc_monthly_payment')
+                    $upgradeKind = '持續月繳';
+                else if ($vipInfo->payment == 'one_quarter_payment')
+                    $upgradeKind = '季繳一季';
+                else if ($vipInfo->payment == 'one_month_payment')
+                    $upgradeKind = '月繳一月';
+
+                //VIP起始時間,現狀,付費方式,種類
+                if (is_null($vipInfo->payment_method) && is_null($vipInfo->payment)) {
+                    $upgradeWay = '手動升級';
+                    $upgradeKind = '手動升級';
+                }
+                if ($vipInfo->free == 1) {
+                    $upgradeWay = '免費';
+                    $upgradeKind = '免費';
+                }
+                $getUserInfo = \App\Models\User::findById($paymentData['CustomField1']);//->isVip? '是':'否';
+                $isVipStatus = $getUserInfo->isVip() ? '是' : '否';
+                $showVipInfo = $upgradeDay . ' / ' . $isVipStatus . ' / ' . $upgradeWay . ' / ' . $upgradeKind;
+            } else {
+                $showVipInfo = '未曾加入 / 否 / 無 / 無';
+            }
+        }else{
+            $showVipInfo = '';
+        }
+
         return view('admin.stats.test')
             ->with('paymentData', $paymentData)
             ->with('paymentPeriodInfo', $paymentPeriodInfo)
             ->with('result', $result)
-            ->with('userInfo', $userInfo);
+            ->with('userInfo', $userInfo)
+            ->with('showVipInfo', $showVipInfo);
     }
 }
