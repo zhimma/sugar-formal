@@ -799,15 +799,17 @@
             li += `<div class="si_bg">`;
 
             var styBlur = isBlur? "blur_img" : "";
+            
 
             if(show==1) {
+
                 li += `<a href="${url}" target="_self">
-                        <div class="sjpic ${styBlur} shanx" id="${user_id}">
-                            <img src="${pic}">
-                            <div class="onlineStatusChatView"></div>
-                        </div>
-                        <div class="sjleftmm">
-                            <div class="sjtable ${user_id}">${(read_n!=0 && isBanned==0?`<i class="number ${user_id}">${read_n}</i>`:'')}<span class="ellipsis" style="width: 60%;">${user_name}</span></div>
+                    <div class="sjpic ${styBlur} shanx" id="${user_id}">
+                        <img src="${pic}">
+                        <div class="onlineStatusChatView"></div>
+                    </div>
+                    <div class="sjleftmm">
+                        <div class="sjtable ${user_id}">${(read_n!=0 && isBanned==0?`<i class="number ${user_id}">${read_n}</i>`:'')}<span class="ellipsis" style="width: 60%;">${user_name}</span></div>
                   `;
             }else if(show==0 && engroup==2){
                 li += `<a href="javascript:void(0)" target="_self">

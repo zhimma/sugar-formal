@@ -2082,7 +2082,7 @@ class PagesController extends BaseController
             }
 
             // die();
-            return view('new.dashboard.viewuser', $data)
+            return view('new.dashboard.viewuser', $data ?? [])
                     ->with('user', $user)
                     ->with('blockadepopup', $blockadepopup)
                     ->with('to', $to)
@@ -3911,7 +3911,7 @@ class PagesController extends BaseController
             return $strlen == 2 ? $firstStr . str_repeat('*', mb_strlen($user_name, 'utf-8') - 1) : $firstStr . str_repeat("*", $strlen - 2) . $lastStr;
         }
     }
-
+    
     public function warned(Request $request)
     {
         if($user = Auth::user()){

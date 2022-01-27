@@ -69,12 +69,12 @@ class Handler extends ExceptionHandler
                     ->withInput($request->except('password', '_token'))
                     ->withError('驗證已過期，請再試一次');
         }
-        if($exception instanceof \Illuminate\Http\Exceptions\ThrottleRequestsException){
-            return parent::render($request, $exception);
-        }
-        if(!$exception instanceof ValidationException && !$exception instanceof AuthenticationException) {
-            return response()->view('errors.exception', [ 'exception' => $exception->getMessage() == null ? null : $exception->getMessage()]);
-        }        
+        // if($exception instanceof \Illuminate\Http\Exceptions\ThrottleRequestsException){
+        //     return parent::render($request, $exception);
+        // }
+        // if(!$exception instanceof ValidationException && !$exception instanceof AuthenticationException) {
+        //     return response()->view('errors.exception', [ 'exception' => $exception->getMessage() == null ? null : $exception->getMessage()]);
+        // }        
         
         return parent::render($request, $exception);
     }
