@@ -12,6 +12,7 @@
     /* border-color:#ee5472 !important; */
     /* color:white !important; */
 }
+<<<<<<< HEAD
 #reason_hidden{
     background-color: #faf0f0;
     border: 0px;
@@ -38,6 +39,19 @@
     <script src={{asset("/js/main.js")}} type="text/javascript"></script>
 
 </head>
+=======
+</style>
+<!-- Bootstrap -->
+<link href={{asset("alert/css/bootstrap.min.css")}} rel="stylesheet">
+<link href={{asset("alert/css/bootstrap-theme.min.css")}} rel="stylesheet">
+<!-- owl-carousel-->
+<!--    css-->
+<link rel="stylesheet" href={{asset("alert/css/style.css")}}>
+<link rel="stylesheet" href={{asset("alert/css/swiper.min.css")}}>
+<script src={{asset('alert/js/bootstrap.min.js')}}></script>
+<script src={{asset("alert/js/jquery-2.1.1.min.js")}} type="text/javascript"></script>
+<script src={{asset("alert/js/main.js")}} type="text/javascript"></script>
+>>>>>>> master
 <script>
     function changediv(id) {
         document.getElementById("fs").style.display = "none";
@@ -48,7 +62,10 @@
         document.getElementById(id + "_a").className = "nn_dontt_hover";
         return false;
     }
+<<<<<<< HEAD
 
+=======
+>>>>>>> master
 </script>
 @section('app-content')
     <div class="container matop70">
@@ -146,7 +163,6 @@
                         </table>
                         <div style="text-align: center;">
                             {!! $warned_users->links('pagination::sg-pages2') !!}
-
                         </div>
                     </div>
                 </div>

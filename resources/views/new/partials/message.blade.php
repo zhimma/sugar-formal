@@ -113,7 +113,7 @@
         <div class="blnr bltext">iPhone 的 Safari 在 Line 的綁定容易出問題。如果您在綁定過程中失敗，請改用 Google Chrome 嘗試看看。</div>
         <a class="n_bllbut matop30" onclick="gmBtnNoReload()" style="padding: 0 38px;">我知道了，繼續綁定Line</a>
         <hr size="8px" align="center" width="100%" style="border-top: 2px solid #8a9ff0;">
-        <div class="blnr bltext">若有其他問題，<a href="https://lin.ee/rLqcCns" target="_blank">請點此&nbsp;<img src="https://scdn.line-apps.com/n/line_add_friends/btn/zh-Hant.png" alt="加入好友" height="36" border="0" style="height: 36px; float: unset;"></a>&nbsp;或點右下聯絡我們加站長line。</div>
+        <div class="blnr bltext">若有其他問題，<a href="https://lin.ee/rLqcCns" target="_blank">請點此&nbsp;<img src="https://scdn.line-apps.com/n/line_add_friends/btn/zh-Hant.png" alt="加入好友" height="36" border="0" style="height: 26px; float: unset;"></a>&nbsp;或點右下聯絡我們加站長line。</div>
     </div>
     <a id="" onclick="gmBtnNoReload()" class="bl_gb"><img src="/new/images/gb_icon.png"></a>
 </div>

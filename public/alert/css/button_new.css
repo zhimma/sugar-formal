@@ -1,0 +1,62 @@
+@charset "UTF-8";
+
+/* 短 */
+.se_but1{width:150px;height: 40px;background: #fe92a8;border-radius:100px;color: #ffffff;text-align: center;line-height: 40px;display: table;
+font-size:16px; float:left; cursor: pointer; box-shadow: 0 0 20px #ffb6c5;cursor: pointer;}
+.se_but1:hover{color:#ffffff;box-shadow:inset 0px 13px 10px -10px #f83964,inset 0px -10px 10px -20px #f83964;}
+
+.se_but2{width: 150px;height: 40px;background: #ffffff; border:#e44e71 1px solid;border-radius: 100px;color: #e44e71;text-align: center;line-height: 40px;
+display: table; float:right;font-size:16px;box-shadow: 0 0 20px #ffb6c5;cursor: pointer;}
+.se_but2:hover{color:#ffffff;box-shadow:inset 0px 15px 10px -10px #f83964,inset 0px -10px 10px -20px #f83964;
+background:#fe92a8; border:#fe92a8 1px solid;}
+
+
+@media (max-width:797px) {
+.se_but1{width:140px;}
+.se_but2{width: 140px;}
+}
+
+@media (max-width:370px) {
+.se_but1{width:120px !important;}
+.se_but2{width: 120px !important;}
+}
+/* end */
+
+
+
+/* 长 */
+.dengl_but{width: 250px;height: 40px;background: #fe92a8;border-radius: 200px;color: #ffffff;text-align: center;line-height: 40px;display: table;margin: 0 auto;
+font-size:16px; cursor: pointer;box-shadow: 0 0 20px #ffb6c5;cursor: pointer;}
+.dengl_but:hover{color:#ffffff;box-shadow:inset 0px 15px 10px -10px #f83964,inset 0px -10px 10px -20px #f83964;}
+
+
+.nn_zcbut{width: 250px; margin-top: 15px!important;height: 40px;background: #ffffff; border:#e44e71 1px solid;border-radius: 200px;color: #e44e71;text-align: center;line-height: 40px;
+display: table;margin: 0 auto;font-size:16px;box-shadow: 0 0 20px #ffb6c5;cursor: pointer;}
+.nn_zcbut:hover{color:#ffffff;box-shadow:inset 0px 15px 10px -10px #f83964,inset 0px -10px 10px -20px #f83964;
+background:#fe92a8; border:#fe92a8 1px solid;}
+/* end */
+
+
+
+
+.n_embut{width:140px; height:40px; background:#fe92a8; border-radius:200px; color:#ffffff; text-align:center; line-height:40px; display:table; margin:0 auto;margin-left: 15px; 
+margin-right: 15px;box-shadow: 0 0 20px #ffb6c5; cursor: pointer;}
+.n_embut:hover{color:#ffffff;box-shadow:inset 0px 15px 10px -10px #f83964,inset 0px -10px 10px -20px #f83964;}
+
+@media (max-width:450px) {
+.n_embut{width:120px;margin-left: 10px; margin-right: 10px;}
+}
+
+
+.n_zybg_right{width:25%;height:40px; line-height:40px; color:#ffffff; text-align:center; background:#fe92a8; border-radius:50px; float:right;box-shadow: 0 0 20px #ffb6c5; cursor: pointer;}
+.n_zybg_right:hover{color:#ffffff;box-shadow:inset 0px 15px 10px -10px #f83964,inset 0px -10px 10px -20px #f83964;}
+
+.fa_g{box-shadow: 0 0 20px #ffb6c5;}
+
+
+
+.zi_but1{ float:right;width:120px;height: 40px;background: #8a9ff0;border-radius: 200px;color: #ffffff;text-align: center;line-height: 40px;font-size: 16px; margin-right:11px; cursor: pointer;}
+.zi_but1:hover{color:#ffffff;box-shadow:inset 0px 15px 10px -10px #4c6ded,inset 0px -10px 10px -20px #4c6ded;}
+
+.zi_but2{ float:left;width:120px;height: 40px;background: #ffffff; border: #8a9ff0 1px solid;border-radius: 200px;color: #8a9ff0;text-align: center;line-height: 40px;font-size: 16px;cursor: pointer; margin-left:11px;}
+.zi_but2:hover{color:#ffffff;box-shadow:inset 0px 15px 10px -10px #516cd4,inset 0px -10px 10px -20px #516cd4; background:#8a9ff0}

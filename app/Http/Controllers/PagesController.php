@@ -12,6 +12,7 @@ use App\Models\BannedUsersImplicitly;
 use App\Models\CustomFingerPrint;
 use App\Models\Evaluation;
 use App\Models\EvaluationPic;
+use App\Models\ForumChat;
 use App\Models\ForumManage;
 use App\Models\ForumPosts;
 use App\Models\hideOnlineData;
@@ -1921,6 +1922,10 @@ class PagesController extends BaseController
         if($user->isPhoneAuth()==1){
             $auth_check=1;
         }
+
+        if($user->id==$uid){
+            $request->merge(['page_mode'=>'edit']);
+        }
         if (isset($user) && isset($uid)) {
             $targetUser = User::where('id', $uid)->where('accountStatus',1)->where('account_status_admin',1)->get()->first();
             if (!isset($targetUser)) {
@@ -2508,7 +2513,8 @@ class PagesController extends BaseController
             $request->city2,
             $request->area2,
             $request->city3,
-            $request->area3
+            $request->area3,
+            $request->weight
         );
 
         $ssrData = '';
@@ -3361,11 +3367,7 @@ class PagesController extends BaseController
                 
                 $cid_recommend_data = [];
                 $forbid_msg_data = UserService::checkNewSugarForbidMsg($cid_user,$user);
-                /*
-                if(($cid_user->engroup) === ($user->engroup)){
-                    return back();
-                }
-                */
+
                 if(!$user->isVip() && $user->engroup == 1){
                     $m_time = Message::select('created_at')->
                     where('from_id', $user->id)->
@@ -3909,32 +3911,7 @@ class PagesController extends BaseController
             return $strlen == 2 ? $firstStr . str_repeat('*', mb_strlen($user_name, 'utf-8') - 1) : $firstStr . str_repeat("*", $strlen - 2) . $lastStr;
         }
     }
-    /*
-    function substr_cut_warned_reason($warned_users){
-        $warned_reason =$warned_users->reason;
-        $strlen = mb_strlen($warned_reason,'utf-8');
-        if ($strlen > 60 ){
-            $warned_reason = mb_substr($warned_reason,0,9,'utf-8');
-            return view('new.dashboard.banned_warned_list')
-            ->with('wanned_reason',$warned_reason);
-        }
-        else if ($strlen > 50 ) {
-            $warned_reason = mb_substr($warned_reason,0,5,'utf-8');
-            return view('new.dashboard.banned_warned_list')
-            ->with('warned_reason',$warned_reason);
-        } 
-        else{
-            return view('new.dashboard.banned_warned_list')
-            ->with('warned_reason',$warned_reason);
-        }
-    }
-    */
-
-
-        
     
-
-
     public function warned(Request $request)
     {
         if($user = Auth::user()){
@@ -4346,6 +4323,14 @@ class PagesController extends BaseController
     public function member_auth_photo(Request $request){
         return view('/auth/member_auth_photo');
     }
+    
+    public function goto_member_auth(Request $request) {
+        return redirect('/member_auth')->with('show_edu_option', '1');
+    }
+
+    public function goto_advance_auth_email(Request $request) {
+        return redirect('/advance_auth_email')->with('is_edu_mode', '1');
+    }    
 
     function getAge($birthday_date){
         $birthday = strtotime($birthday_date);
@@ -4365,7 +4350,13 @@ class PagesController extends BaseController
         }
         return $age;
     }
+    
+    public function clear_advance_auth_email_entrance() {
+        session()->forget( 'is_edu_mode');     
+    }
+    
     public function advance_auth(Request $request){
+        $this->clear_advance_auth_email_entrance();
         $user = $request->user();
         $init_check_msg = $this->advance_auth_prechase();
 
@@ -4373,8 +4364,25 @@ class PagesController extends BaseController
                 ->with('user',$user)
                 ->with('cur', $user)
                 ->with('init_check_msg',$init_check_msg??null)
-                ->with('user_pause_during_msg',$this->advance_auth_get_msg('user_pause'));
+                ->with('user_pause_during_msg',$this->advance_auth_get_msg('user_pause'))
+                ;
     }
+    
+    public function advance_auth_email(Request $request){
+        $user = $request->user();
+        $is_edu_mode = session()->get( 'is_edu_mode' );
+        $init_check_msg = $this->advance_auth_email_prechase($request);
+        
+        if($init_check_msg) $is_edu_mode = 1;
+
+        $this->clear_advance_auth_email_entrance();
+        if(!$is_edu_mode) return redirect('advance_auth');
+        return view('/auth/advance_auth')
+                ->with('user',$user)
+                ->with('cur', $user)
+                ->with('init_check_msg',$init_check_msg??null)
+                ->with('is_edu_mode',$is_edu_mode);
+    } 
     
     public function advance_auth_back(Request $request){
         $create = array(
@@ -4417,16 +4425,20 @@ class PagesController extends BaseController
     public function advance_auth_prechase() {
         $user =Auth::user();
         $init_check_msg = null;
+        $is_edu_mode = session()->get( 'is_edu_mode' );
         if($user->engroup!=2) {
             $init_check_msg = '僅供女會員驗證' ;
         }   
         else if(!$user->isAdvanceAuth()) {
-            if(!$user->isPhoneAuth() || !$user->getAuthMobile() || $user->getAuthMobile()=='0922222222' ) {
+            //0922222222是後台自動塞的假手機驗證資料，所以要當做沒手機驗證
+            if(!$is_edu_mode && (!$user->isPhoneAuth() || !$user->getAuthMobile() || $user->getAuthMobile()=='0922222222') ) {
                 $user->short_message()->delete();
-                $init_check_msg = '請先通過 <a href="'.url('member_auth').'">手機驗證(<span class="obvious">點此前往</span>)</a>' ;
+                $init_check_msg = '請先通過 <a href="'.url('goto_member_auth').'">手機驗證(<span class="obvious">點此前往</span>)</a>' ;
+                if(substr($user->email,-6)!='edu.tw')
+                    $init_check_msg.= '<div class="i_am_student"><a href="'.url('goto_advance_auth_email').'">我是學生未滿20歲，沒有辦個人門號，請點我</a></div>'; 
             } 
             else if($user->isForbidAdvAuth()) {
-                $init_check_msg = '您的進階驗證功能有誤，請<a href="https://lin.ee/rLqcCns" target="_blank">點此 <img src="https://scdn.line-apps.com/n/line_add_friends/btn/zh-Hant.png" alt="加入好友" height="36" border="0" style="height: 36px; float: unset;"></a> 或點右下聯絡我們加站長 line 與站長聯絡。';
+                $init_check_msg = '您的進階驗證功能有誤，請<a href="https://lin.ee/rLqcCns" target="_blank">點此 <img src="https://scdn.line-apps.com/n/line_add_friends/btn/zh-Hant.png" alt="加入好友" height="26" border="0" style="height: 26px; float: unset;"></a> 或點右下聯絡我們加站長 line 與站長聯絡。';
             }
             else if($user->isPauseAdvAuth()) {
                 $init_check_msg = $this->advance_auth_get_msg('user_pause') ;
@@ -4540,7 +4552,7 @@ class PagesController extends BaseController
                     ,'identity_encode'=>$encode_id_serial
                     ,'is_duplicate'=>1
                 ]);
-            return back()->with('message', ['您的進階驗證功能有誤，<a href="https://lin.ee/rLqcCns" target="_blank">請點此 <img src="https://scdn.line-apps.com/n/line_add_friends/btn/zh-Hant.png" alt="加入好友" height="36" border="0" style="height: 36px; float: unset;"></a> 或點右下聯絡我們加站長 line 與站長聯絡。']);
+            return back()->with('message', ['您的進階驗證功能有誤，<a href="https://lin.ee/rLqcCns" target="_blank">請點此 <img src="https://scdn.line-apps.com/n/line_add_friends/btn/zh-Hant.png" alt="加入好友" height="26" border="0" style="height: 26px; float: unset;"></a> 或點右下聯絡我們加站長 line 與站長聯絡。']);
         }        
 
         $data['api_base'] = 'https://'.config('memadvauth.service.host').(config('memadvauth.service.port')?':'.config('memadvauth.service.port'):'').'/';
@@ -4643,7 +4655,7 @@ class PagesController extends BaseController
             if(User::where('advance_auth_identity_encode',$encode_id_serial)->where('advance_auth_status',1)->count()) {
                 $logAdvAuthApi->is_duplicate=1;
                 $logAdvAuthApi->save();
-                return back()->with('message', ['您的進階驗證功能有誤，<a href="https://lin.ee/rLqcCns" target="_blank">請點此 <img src="https://scdn.line-apps.com/n/line_add_friends/btn/zh-Hant.png" alt="加入好友" height="36" border="0" style="height: 36px; float: unset;"></a> 或點右下聯絡我們加站長 line 與站長聯絡。']);
+                return back()->with('message', ['您的進階驗證功能有誤，<a href="https://lin.ee/rLqcCns" target="_blank">請點此 <img src="https://scdn.line-apps.com/n/line_add_friends/btn/zh-Hant.png" alt="加入好友" height="26" border="0" style="height: 26px; float: unset;"></a> 或點右下聯絡我們加站長 line 與站長聯絡。']);
             }
             $auth_date = date('Y-m-d H:i:s');
             $user->advance_auth_status = 1;
@@ -4692,41 +4704,7 @@ class PagesController extends BaseController
                 $check_other_user_mobile_query->update(['active'=>0,'canceled_date'=>$auth_date,'canceled_by'=>'adv_auth']);
             }
 
-            $userBanned = $user->getBannedOfAdvAuthQuery()->orderBy('created_at','DESC')->get()->first();
-            $user_meta = $user->meta;
-
-            $userWarned = $user->getWarnedOfAdvAuthQuery()->orderBy('created_at','DESC')->get()->first();                            
-            $isWarnedUser = $user_meta->isWarnedType=='adv_auth'?$user_meta->isWarned:0;
-            $banOrWarnCanceledMsg = [];
-            $banOrWarnCanceledStr = '';
-            if ($userBanned || $userWarned || $isWarnedUser) {
-                if($userBanned) {
-                    $checkLog = DB::table('is_banned_log')->where('user_id', $userBanned->member_id)->where('created_at', $userBanned->created_at)->first();
-                    if(!$checkLog) {
-                        //寫入log
-                        DB::table('is_banned_log')->insert(['user_id' => $userBanned->member_id, 'reason' => $userBanned->reason, 'expire_date' => $userBanned->expire_date,'vip_pass'=>$userBanned->vip_pass,'adv_auth'=>$userBanned->adv_auth, 'created_at' => $userBanned->created_at]);
-                    }
-                    $userBanned->delete();
-                    $banOrWarnCanceledMsg[] = '封鎖';
-                }
-                
-                if($userWarned) {
-                    $checkLog = DB::table('is_warned_log')->where('user_id', $userWarned->member_id)->where('created_at', $userWarned->created_at)->get()->first();
-                    if(!$checkLog) {
-                        //寫入log
-                        DB::table('is_warned_log')->insert(['user_id' => $userWarned->member_id, 'reason' => $userWarned->reason, 'created_at' => $userWarned->created_at,'vip_pass'=>$userWarned->vip_pass,'adv_auth'=>$userWarned->adv_auth]);
-                    }
-                    $userWarned->delete();
-                    $banOrWarnCanceledMsg[] = '警示';
-                }
-                
-                if($isWarnedUser) {
-                    $user->meta()->update(['isWarned'=>0,'isWarnedType'=>null]);
-                    if(!in_array('警示',$banOrWarnCanceledMsg)) $banOrWarnCanceledMsg[] = '警示';
-                }
-                
-                $banOrWarnCanceledStr = implode('/',$banOrWarnCanceledMsg);
-            }
+            $banOrWarnCanceledStr = $this->advance_auth_cancel_BanOrWarn($user);
 
             return back()->with('message',['
                                             驗證成功：恭喜您，您的資料已經通過驗證，'.($banOrWarnCanceledStr?'成功解除'.$banOrWarnCanceledStr.'，':'').'
@@ -4751,7 +4729,7 @@ class PagesController extends BaseController
                 $logAdvAuthApi->save();
 
                 if(($logAdvAuthApi->forbid_user??null)==1 ) {
-                    return back()->with('message', ['您的進階驗證功能有誤，<a href="https://lin.ee/rLqcCns" target="_blank">請點此 <img src="https://scdn.line-apps.com/n/line_add_friends/btn/zh-Hant.png" alt="加入好友" height="36" border="0" style="height: 36px; float: unset;"></a> 或點右下聯絡我們加站長 line 與站長聯絡。']);
+                    return back()->with('message', ['您的進階驗證功能有誤，<a href="https://lin.ee/rLqcCns" target="_blank">請點此 <img src="https://scdn.line-apps.com/n/line_add_friends/btn/zh-Hant.png" alt="加入好友" height="26" border="0" style="height: 26px; float: unset;"></a> 或點右下聯絡我們加站長 line 與站長聯絡。']);
                 }
               
                 return back()->with('message', [
@@ -4764,6 +4742,139 @@ class PagesController extends BaseController
             }
         }
     }
+    
+    public function advance_auth_cancel_BanOrWarn($user) {
+        if(!$user->isAdvanceAuth()) return;
+        $userBanned = $user->getBannedOfAdvAuthQuery()->orderBy('created_at','DESC')->get()->first();
+        $user_meta = $user->meta;
+
+        $userWarned = $user->getWarnedOfAdvAuthQuery()->orderBy('created_at','DESC')->get()->first();                            
+        $isWarnedUser = $user_meta->isWarnedType=='adv_auth'?$user_meta->isWarned:0;
+        $banOrWarnCanceledMsg = [];
+        $banOrWarnCanceledStr = '';
+        if ($userBanned || $userWarned || $isWarnedUser) {
+            if($userBanned) {
+                $checkLog = DB::table('is_banned_log')->where('user_id', $userBanned->member_id)->where('created_at', $userBanned->created_at)->first();
+                if(!$checkLog) {
+                    //寫入log
+                    DB::table('is_banned_log')->insert(['user_id' => $userBanned->member_id, 'reason' => $userBanned->reason, 'expire_date' => $userBanned->expire_date,'vip_pass'=>$userBanned->vip_pass,'adv_auth'=>$userBanned->adv_auth, 'created_at' => $userBanned->created_at]);
+                }
+                $userBanned->delete();
+                $banOrWarnCanceledMsg[] = '封鎖';
+            }
+            
+            if($userWarned) {
+                $checkLog = DB::table('is_warned_log')->where('user_id', $userWarned->member_id)->where('created_at', $userWarned->created_at)->get()->first();
+                if(!$checkLog) {
+                    //寫入log
+                    DB::table('is_warned_log')->insert(['user_id' => $userWarned->member_id, 'reason' => $userWarned->reason, 'created_at' => $userWarned->created_at,'vip_pass'=>$userWarned->vip_pass,'adv_auth'=>$userWarned->adv_auth]);
+                }
+                $userWarned->delete();
+                $banOrWarnCanceledMsg[] = '警示';
+            }
+            
+            if($isWarnedUser) {
+                $user->meta()->update(['isWarned'=>0,'isWarnedType'=>null]);
+                if(!in_array('警示',$banOrWarnCanceledMsg)) $banOrWarnCanceledMsg[] = '警示';
+            }
+            
+            $banOrWarnCanceledStr = implode('/',$banOrWarnCanceledMsg);
+        }
+        return $banOrWarnCanceledStr;
+    }
+    
+    public function advance_auth_email_precheck(Request $request){
+        $email = trim($request->email);
+        $check_rs = null;
+        
+        if(!$email) return [ 'empty'];
+        if($_SERVER['SERVER_ADDR']=='127.0.0.1') return;
+        if(substr($email,-7)!='.edu.tw' && substr($email,-7)!='@edu.tw') return [ 'not_edu'];
+        if(substr($email,-10)=='.tp.edu.tw' || substr($email,-10)=='@tp.edu.tw') return [ 'not_accept_edu'];
+        if(substr($email,-17)=='.educities.edu.tw' || substr($email,-17)=='@educities.edu.tw') return [ 'not_accept_edu'];
+    }
+    
+    public function advance_auth_email_prechase(Request $request){
+        $user =Auth::user();
+        $init_check_msg = null;
+        $is_edu_mode = session()->get( 'is_edu_mode' );
+        
+        if($user->isAdvanceAuth() ){
+            $init_check_msg = '您已通過進階驗證。' ;
+        }
+        else {
+            if($user->advance_auth_email??null) {
+                $init_check_msg = '請至校內信箱中點選連結，以通過進階驗證。' ;
+            }
+        }
+        
+        if($user->engroup!=2) {
+            $init_check_msg = '僅供女會員驗證' ;
+        } 
+        
+        return $init_check_msg;
+
+    }    
+    
+    public function advance_auth_email_process(Request $request){
+        $user =Auth::user();
+        $init_chase_msg = $this->advance_auth_email_prechase($request);
+        if($init_chase_msg) {
+            return back()->with('is_edu_mode','1');
+        }          
+       $check_rs = $this->advance_auth_email_precheck($request)??'';
+       
+        if(!$check_rs) {
+            $email =trim($request->email);
+        }
+        else {
+            return back()->with('error_code', $check_rs)
+                    ->with('error_code_msg',['empty'=>' edu.tw 網域的校內email信箱'
+                                            ,'not_edu'=>' edu.tw 網域的校內email信箱'
+                                            ,'not_accept_edu'=>'校內email信箱，此驗證方式只能接受學校信箱'
+                                                            .'<br>即 edu.tw 結尾的 Email'
+                                                            .'<br>但不接受 educities.edu.tw 以及 tp.edu.tw 此兩組 email'
+                                                            .'<br><br>您輸入的 email 為 '.$request->email
+                                                            .'<br>無法通過驗證'])
+                    ->with('is_edu_mode', '1');
+        } 
+        $user->advance_auth_email = $email;
+        $user->save();        
+        $this->service->setAndSendUserAdvAuthEmailToken($user);
+
+        return back()->with('is_edu_mode', '1');;      
+    }  
+
+    public function advance_auth_email_activate($token) {
+        $user = User::where('advance_auth_email_token', $token)->first();
+        $banOrWarnCanceledStr = '';
+        if ($user) {
+            if($user->advance_auth_status) {
+                if(request()->user())
+                    return redirect('advance_auth');
+                else return view('auth.advance_auth_email_result')->with('user', $user)->with('message', '驗證成功');
+            }
+            $user->advance_auth_status = 1;
+            $user->advance_auth_time = Carbon::now();
+            if($user->save()){
+                if(!$user->isPhoneAuth()) {
+                    $user->short_message()->create(['active'=>1]);
+                }
+                $banOrWarnCanceledStr = $this->advance_auth_cancel_BanOrWarn($user);
+                $success_msg = '驗證成功'.($banOrWarnCanceledStr?'，成功解除'.$banOrWarnCanceledStr:'');
+                if(request()->user()) {
+                    return redirect('advance_auth')->with('message', [$success_msg]);
+                }
+                else {
+                    return view('auth.advance_auth_email_result')->with('user', $user)->with('message', $success_msg);
+                }
+                
+            }
+            
+        }
+
+        return view('auth.advance_auth_email_result')->with('message', '驗證失敗');
+    }        
     
     public function advance_auth_result(Request $request){
         $data['BusinessNo'] = $request->BusinessNo;
@@ -4899,22 +5010,22 @@ class PagesController extends BaseController
 //            return back();
 //        }
 
-        $posts = Posts::selectraw('posts.top, users.id as uid, users.name as uname, users.engroup as uengroup, posts.is_anonymous as panonymous, user_meta.pic as umpic, posts.id as pid, posts.title as ptitle, posts.contents as pcontents, posts.updated_at as pupdated_at, posts.created_at as pcreated_at, posts.deleted_by')
-            ->selectRaw('(select updated_at from posts where (type="main" and id=pid) or reply_id=pid or reply_id in ((select distinct(id) from posts where type="sub" and reply_id=pid) )  order by updated_at desc limit 1) as currentReplyTime')
-            ->selectRaw('(case when users.id=1049 then 1 else 0 end) as adminFlag')
-            ->LeftJoin('users', 'users.id','=','posts.user_id')
-            ->join('user_meta', 'users.id','=','user_meta.user_id')
-            ->where('posts.type','main')
-            ->orderBy('posts.deleted_at','asc')
-            ->orderBy('posts.top','desc')
-            ->orderBy('adminFlag','desc')
-            ->orderBy('currentReplyTime','desc')
-            ->withTrashed()
-            ->paginate(10);
+//        $posts = Posts::selectraw('posts.top, users.id as uid, users.name as uname, users.engroup as uengroup, posts.is_anonymous as panonymous, user_meta.pic as umpic, posts.id as pid, posts.title as ptitle, posts.contents as pcontents, posts.updated_at as pupdated_at, posts.created_at as pcreated_at, posts.deleted_by')
+//            ->selectRaw('(select updated_at from posts where (type="main" and id=pid) or reply_id=pid or reply_id in ((select distinct(id) from posts where type="sub" and reply_id=pid) )  order by updated_at desc limit 1) as currentReplyTime')
+//            ->selectRaw('(case when users.id=1049 then 1 else 0 end) as adminFlag')
+//            ->LeftJoin('users', 'users.id','=','posts.user_id')
+//            ->join('user_meta', 'users.id','=','user_meta.user_id')
+//            ->where('posts.type','main')
+//            ->orderBy('posts.deleted_at','asc')
+//            ->orderBy('posts.top','desc')
+//            ->orderBy('adminFlag','desc')
+//            ->orderBy('currentReplyTime','desc')
+//            ->withTrashed()
+//            ->paginate(10);
 
         $data = array(
-//            'posts' => null
-            'posts' => $posts
+            'posts' => null
+//            'posts' => $posts
         );
 
         if ($user)
@@ -5363,6 +5474,12 @@ class PagesController extends BaseController
         //            ->orderBy('pcreated_at','desc')
         //            ->where('posts.reply_id', $pid)->get();
 
+        //get lastest color
+        $query_color = ForumChat::select('color')->whereNotNull('color')->where('forum_id',$forum->id)->where('user_id', auth()->user()->id)->orderBy('created_at', 'desc')->first();
+        $lastest_color ='';
+        if(isset($query_color)){
+            $lastest_color = $query_color->color;
+        }
         //檢查是否為連續兩個月以上的VIP會員
         $checkUserVip=0;
         $isVip =Vip::where('member_id',auth()->user()->id)->where('active',1)->where('free',0)->first();
@@ -5372,7 +5489,7 @@ class PagesController extends BaseController
                 $checkUserVip=1;
 //            }
         }
-        return view('/dashboard/forum_personal', compact('posts_personal_all','forum', 'checkUserVip', 'checkForumMangeStatus'))->with('user', $user);
+        return view('/dashboard/forum_personal', compact('posts_personal_all','forum', 'checkUserVip', 'checkForumMangeStatus', 'lastest_color'))->with('user', $user);
     }
 
     public function forum_manage(Request $request)
@@ -5485,8 +5602,9 @@ class PagesController extends BaseController
         $uid = $request->uid;
         $status = $request->status;
         $fid =$request->fid;
+        $mode = $request->mode;
         $checkData = ForumManage::where('forum_id', $fid)->where('user_id', $uid)->first();
-        if($status==1){
+        if($status==1 && $mode=='forum_status'){
             if(isset($checkData)){
                 ForumManage::where('forum_id', $fid)->where('user_id', $uid)->update(['forum_status' => 0, 'updated_at' => Carbon::now()]);
                 $msg = '已移除討論區權限';
@@ -5494,7 +5612,7 @@ class PagesController extends BaseController
                 $msg = 'error';
             }
 
-        }else if($status==0){
+        }else if($status==0 && $mode=='forum_status'){
             if(isset($checkData)){
                 ForumManage::where('forum_id', $fid)->where('user_id', $uid)->update(['forum_status' => 1, 'updated_at' => Carbon::now()]);
                 $msg = '已開通該會員討論區權限';
@@ -5502,7 +5620,23 @@ class PagesController extends BaseController
                 $msg = 'error';
             }
 
+        }else if($status==1 && $mode=='chat_status'){
+            if(isset($checkData)){
+                ForumManage::where('forum_id', $fid)->where('user_id', $uid)->update(['chat_status' => 0, 'updated_at' => Carbon::now()]);
+                $msg = '已移除聊天室權限';
+            }else{
+                $msg = 'error';
+            }
+
+        }else if($status==0 && $mode=='chat_status'){
+            if(isset($checkData)){
+                ForumManage::where('forum_id', $fid)->where('user_id', $uid)->update(['chat_status' => 1, 'updated_at' => Carbon::now()]);
+                $msg = '已開通該會員聊天室權限';
+            }else{
+                $msg = 'error';
         }
+
+    }
         else{
             $msg = 'error';
         }
@@ -5945,7 +6079,8 @@ class PagesController extends BaseController
         }
         
         $vasStatus = '';
-        if($user->valueAddedServiceStatus('hideOnline') == 1) {
+        if(false) { //測試站錯誤暫時修改略過
+        //if($user->valueAddedServiceStatus('hideOnline') == 1) {
             $vasStatus = '您已購買隱藏付費功能';
             $vas = $user->vas->where('service_name','hideOnline')->first();
             if($vas->payment){
@@ -5967,10 +6102,10 @@ class PagesController extends BaseController
                         'TimeStamp' => 	time()
                     ];
                     $paymentData = $ecpay->QueryPeriodCreditCardTradeInfo(); //信用卡定期定額
+                    
                     $last = last($paymentData['ExecLog']);
                     $lastProcessDate = str_replace('%20', ' ', $last['process_date']);
                     $lastProcessDate = \Carbon\Carbon::createFromFormat('Y/m/d H:i:s', $lastProcessDate);
-
                     //計算下次扣款日
                     if($vas->payment == 'cc_quarterly_payment'){
                         $periodRemained = 92;
@@ -5978,6 +6113,7 @@ class PagesController extends BaseController
                         $periodRemained = 30;
                     }
                     $nextProcessDate = substr($lastProcessDate->addDays($periodRemained),0,10);
+                    
                 }
                 $payment = '信用卡繳費';
                 switch ($vas->payment){

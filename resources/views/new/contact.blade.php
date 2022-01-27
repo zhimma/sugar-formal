@@ -12,13 +12,13 @@
 {{--                                @if(Auth::check() && isset($user))--}}
                                     <div class="wk_lx"><img src="/new/images/lx.png"><span>站長Line</span>
                                         <font>@giv4956r (包含@哦)
-                                            <a href="https://lin.ee/rLqcCns"><img src="https://scdn.line-apps.com/n/line_add_friends/btn/zh-Hant.png" alt="加入好友" height="36" border="0" style="height: 36px; float: unset;"></a>
+                                            <a href="https://lin.ee/rLqcCns"><img src="https://scdn.line-apps.com/n/line_add_friends/btn/zh-Hant.png" alt="加入好友" height="26" border="0" style="height: 26px; float: unset;"></a>
                                         </font>
                                     </div>
                                 <div class="wk_lx"><img src="/new/images/lo_10.png"><span>站長信箱</span><font>admin@sugar-garden.org</font></div>
                                     <div class="wk_lx"><img src="/new/images/lo_1x.png"><span>網站問題回報</span>
                                         <font>@giv4956r (包含@哦)
-                                            <a href="https://lin.ee/rLqcCns"><img src="https://scdn.line-apps.com/n/line_add_friends/btn/zh-Hant.png" alt="加入好友" height="36" border="0" style="height: 36px; float: unset;"></a>
+                                            <a href="https://lin.ee/rLqcCns"><img src="https://scdn.line-apps.com/n/line_add_friends/btn/zh-Hant.png" alt="加入好友" height="26" border="0" style="height: 26px; float: unset;"></a>
                                         </font>
                                     </div>
                                     <div class="wk_lx"><img src="/new/images/lo_1x.png"><span>網站問題回報</span><font>admin@sugar-garden.org</font></div>

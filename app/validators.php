@@ -20,3 +20,4 @@ $validator->extend(
         return strlen(preg_replace('#^.*([0-9]{3})[^0-9]*([0-9]{3})[^0-9]*([0-9]{4})$#', '$1$2$3', $value)) == 10;
     }
 );
+?>

@@ -101,6 +101,20 @@ class CheckECpay implements ShouldQueue
                     $days = 31;
                 }
                 $now = \Carbon\Carbon::now();
+
+                //付款日期有差異時更新訂單
+                $currentOrder = Order::where('order_id', $this->vipData->order_id)->first();
+                if(isset($currentOrder)) {
+                    $current_order_pay_date = last(json_decode($currentOrder->pay_date));
+                    if ($last['RtnCode'] == 1 && $lastProcessDate != $current_order_pay_date[0]) {
+                        Order::updateEcPayOrder($this->vipData->order_id);
+                    }
+                }else{
+                    //資料表無此訂單時新增
+                    //新增訂單
+                    Order::addEcPayOrder($this->vipData->order_id);
+                }
+
                 // 最後一次付款成功，但已過期
                 if ($last['RtnCode'] == 1 && $lastProcessDate->diffInDays($now) > $days) {
                     Log::info('付費失敗');

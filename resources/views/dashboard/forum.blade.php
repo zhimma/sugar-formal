@@ -75,7 +75,7 @@
 										</a>
 									</div>
 									<div class="ta_lwid_right">
-										@if(($post->uid == $user->id || (isset($getStatus) && $getStatus->status==1 && $getStatus->forum_status ==1)) && $post->f_status==1)
+										@if(($post->uid == $user->id || (isset($getStatus) && $getStatus->status==1 && $getStatus->forum_status ==1)) || (isset($getStatus) && $getStatus->status==1 && $getStatus->chat_status ==1) && $post->f_status==1)
 											@php
 												$show_a = 1;
 											@endphp
@@ -100,7 +100,7 @@
 												$show_a = 1;
 											@endphp
 											<a onclick="forumStatus({{$getStatus->status}})">
-										@elseif(isset($getStatus) && $getStatus->forum_status==0)
+										@elseif(isset($getStatus) && $getStatus->forum_status==0 && $getStatus->chat_status==0)
 											@php
 												$show_a = 1;
 											@endphp
@@ -133,7 +133,7 @@
 
 														@if(count($getApplyUsers)>5)
 															@once
-																<span class="ta_toxmr">
+																<span class="ta_toxmr" style="position: relative; left: -10px; z-index: -1;">
 																<img src="/posts/images/imor.png" class="hycov">
 															</span>
 															@endonce
@@ -180,7 +180,7 @@
 
 	function forumTip(uid) {
 		@if(isset($forum) && $forum->status==0 )
-		let script = '<a href="https://lin.ee/rLqcCns"><img src="https://scdn.line-apps.com/n/line_add_friends/btn/zh-Hant.png" alt="加入好友" height="36" border="0"></a>';
+		let script = '<a href="https://lin.ee/rLqcCns"><img src="https://scdn.line-apps.com/n/line_add_friends/btn/zh-Hant.png" alt="加入好友" height="26" border="0"></a>';
 		c5('您好，您的版面被系統關閉，如有意見請聯絡站長LINE@');
 		$('.bltext').append(script);
 		@elseif(isset($forum) && $forum->status==1 )
@@ -235,7 +235,7 @@
 		});
 	}
 
-	let script = '<a href="https://lin.ee/rLqcCns"><img src="https://scdn.line-apps.com/n/line_add_friends/btn/zh-Hant.png" alt="加入好友" height="36" border="0"></a>';
+	let script = '<a href="https://lin.ee/rLqcCns"><img src="https://scdn.line-apps.com/n/line_add_friends/btn/zh-Hant.png" alt="加入好友" height="26" border="0"></a>';
 	function ForumCheckEnterPop() {
 		@if(!$user->isCanPosts_vip())
 			c5('您成為VIP未達滿三個月以上');

@@ -49,21 +49,13 @@
                                 帳號類型（Daddy / Baby)
                             </label>
                             <label class="m-radio">
-<<<<<<< HEAD
-                                <input class="form-control" type="radio" name="engroup" value="1">甜心大哥/大姐<span></span>
-=======
                                 <input required class="form-control" type="radio" name="engroup" value="1">甜心大哥/大姐<span></span>
->>>>>>> sugar-dev/master
                             </label>
                             <span class="sugar-radio-helper">
                             你願意用禮物、美食、旅行等種種方式，寵愛對方，為了得到他的陪伴
                             </span>
                             <label class="m-radio">
-<<<<<<< HEAD
-                                <input lass="form-control" type="radio" name="engroup" value="2">甜心寶貝<span></span>
-=======
                                 <input required lass="form-control" type="radio" name="engroup" value="2">甜心寶貝<span></span>
->>>>>>> sugar-dev/master
                             </label>
                             <span class="sugar-radio-helper">
                             你想得到寵愛，陪伴甜心大哥/大姊
@@ -73,11 +65,7 @@
                     <div class="row form-group m-form__group m-login__form-sub">
                         <div class="col m--align-left">
                             <label class="m-checkbox m-checkbox--focus">
-<<<<<<< HEAD
-                                <input type="checkbox" name="agree">
-=======
                                 <input required type="checkbox" name="agree">
->>>>>>> sugar-dev/master
                                 我同意台灣甜心的<a href="terms" target="_blank" class="m-link m-link--danger">使用條款和隱私政策</a>.
                                 <span></span>
                             </label>

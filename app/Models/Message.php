@@ -61,6 +61,11 @@ class Message extends Model
     {
         return $this->belongsTo(User::class, 'to_id', 'id');
     }
+    
+    public function parent_message() 
+    {
+        return $this->belongsTo(Message::class, 'parent_msg', 'id');
+    }
 
     // handle delete Message
     public static function deleteBetween($uid, $sid) {

@@ -169,6 +169,8 @@ Route::group(['middleware' => ['auth', 'global']], function () {
     Route::post('/check-cfp', 'PagesController@checkcfp')->name('checkcfp');
 });
 
+Route::get('/advance_auth_activate/token/{token}', 'PagesController@advance_auth_email_activate')->name('advance_auth_email_activate');
+
 Route::group(['middleware' => ['auth', 'global', 'active', 'femaleActive', 'vipCheck', 'newerManual','CheckIsWarned','CheckAccountStatus']], function () {
 
     Route::get('/dashboard/browse', 'PagesController@browse');
@@ -221,7 +223,10 @@ Route::group(['middleware' => ['auth', 'global', 'active', 'femaleActive', 'vipC
 
     /*會員驗證*/
     Route::get('member_auth', 'PagesController@member_auth');
+    Route::get('goto_member_auth', 'PagesController@goto_member_auth');
+    Route::get('goto_advance_auth_email', 'PagesController@goto_advance_auth_email');    
     Route::post('member_auth_phone_process', 'PagesController@member_auth_phone_process');
+    Route::post('advance_auth_email_process', 'PagesController@advance_auth_email_process');
     Route::get('member_auth_photo', 'PagesController@member_auth_photo');
 
     Route::get('hint_auth1', 'PagesController@hint_auth1');
@@ -233,6 +238,7 @@ Route::group(['middleware' => ['auth', 'global', 'active', 'femaleActive', 'vipC
 
     /*進階驗證*/
     Route::get('advance_auth', 'PagesController@advance_auth');
+    Route::get('advance_auth_email', 'PagesController@advance_auth_email');
     Route::post('advance_auth_process', 'PagesController@advance_auth_process');
 
     Route::get('is_advance_auth', 'PagesController@is_advance_auth');
@@ -424,6 +430,15 @@ Route::group(['middleware' => ['auth', 'global', 'active', 'femaleActive', 'vipC
         Route::get('/dashboard/evaluation_self', 'PagesController@evaluation_self');
         Route::post('/dashboard/evaluation_self/deleteAll', 'PagesController@evaluation_self_deleteAll')->name('evaDeleteAll'); //new route
 
+<<<<<<< HEAD
+=======
+        Route::get('/dashboard/evaluation/{uid}', 'PagesController@evaluation');
+        Route::post('/dashboard/evaluation/save', 'PagesController@evaluation_save')->name('evaluation');
+        Route::post('/dashboard/evaluation/re_content_save', 'PagesController@evaluation_re_content_save')->name('evaluation_re_content');
+        Route::post('/dashboard/evaluation/re_content_delete', 'PagesController@evaluation_re_content_delete')->name('evaluation_re_content_delete');
+        Route::post('/dashboard/evaluation/delete', 'PagesController@evaluation_delete')->name('evaluation_delete');
+
+>>>>>>> master
         Route::get('/dashboard/evaluation/{uid}', 'PagesController@evaluation');
         Route::post('/dashboard/evaluation/save', 'PagesController@evaluation_save')->name('evaluation');
         Route::post('/dashboard/evaluation/re_content_save', 'PagesController@evaluation_re_content_save')->name('evaluation_re_content');
@@ -435,7 +450,7 @@ Route::group(['middleware' => ['auth', 'global', 'active', 'femaleActive', 'vipC
 
         Route::middleware("HasReferer:listSeatch2")->group(function (){
             Route::get('/dashboard/viewuser/{uid?}', 'PagesController@viewuser2')->name('viewuser'); //new route
-            Route::get('/dashboard/viewuser_re/{uid?}', 'PagesController@viewuser_re')->name('viewuser');
+            Route::get('/dashboard/viewuser_re/{uid?}', 'PagesController@viewuser_re')->name('viewuser_re');
         });
 		Route::get('/dashboard/switch_other_engroup', 'PagesController@switchOtherEngroup')->name('switch_other_engroup');
 		Route::get('/dashboard/switch_engroup_back', 'PagesController@switchEngroupBack')->name('switch_engroup_back');
