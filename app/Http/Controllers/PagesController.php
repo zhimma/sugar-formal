@@ -3911,7 +3911,7 @@ class PagesController extends BaseController
             return $strlen == 2 ? $firstStr . str_repeat('*', mb_strlen($user_name, 'utf-8') - 1) : $firstStr . str_repeat("*", $strlen - 2) . $lastStr;
         }
     }
-
+    
     public function warned(Request $request)
     {
         if($user = Auth::user()){
