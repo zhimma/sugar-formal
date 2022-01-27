@@ -2082,7 +2082,7 @@ class PagesController extends BaseController
             }
 
             // die();
-            return view('new.dashboard.viewuser', $data)
+            return view('new.dashboard.viewuser', $data ?? [])
                     ->with('user', $user)
                     ->with('blockadepopup', $blockadepopup)
                     ->with('to', $to)
