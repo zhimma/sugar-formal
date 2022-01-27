@@ -201,7 +201,8 @@ header("Expires: Fri, 01 Jan 1990 00:00:00 GMT");
                                     @endif
 
                                     <div class="btn_more">
-                                        進階搜尋     <span class="right"><img src="/new/images/xq_06.png"></span>
+                                        進階搜尋
+                                        <span class="right"><img src="/new/images/xq_06.png"></span>
                                     </div>
 
                                     <div class="se_nvd">
