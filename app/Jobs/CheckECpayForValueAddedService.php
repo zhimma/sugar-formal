@@ -92,9 +92,15 @@ class CheckECpayForValueAddedService implements ShouldQueue
 
                 //付款日期有差異時更新訂單
                 $currentOrder = Order::where('order_id', $this->valueAddedServiceData->order_id)->first();
-                $current_order_pay_date = last(json_decode($currentOrder->pay_date));
-                if($last['RtnCode'] == 1 && $lastProcessDate != $current_order_pay_date[0]){
-                    Order::updateEcPayOrder($this->valueAddedServiceData->order_id);
+                if(isset($currentOrder)) {
+                    $current_order_pay_date = last(json_decode($currentOrder->pay_date));
+                    if ($last['RtnCode'] == 1 && $lastProcessDate != $current_order_pay_date[0]) {
+                        Order::updateEcPayOrder($this->valueAddedServiceData->order_id);
+                    }
+                }else{
+                    //資料表無此訂單時新增
+                    //新增訂單
+                    Order::addEcPayOrder($this->valueAddedServiceData->order_id);
                 }
 
                 if ($last['RtnCode'] == 1 && $lastProcessDate->diffInDays($now) > $days) {

@@ -37,6 +37,10 @@
         <tr>
             <th>email</th><td>{{$userInfo->email}}</td>
         </tr>
+        <tr>
+            <th>VIP起始時間 / 現狀 / 付費方式 / 種類</th>
+            <td><a href="{{ route('stats/vip_log', $paymentData['CustomField1']) }}" target="_blank">{{ $showVipInfo }}</a></td>
+        </tr>
         @endif
         <tr>
             <th>服務項目</th><td>{{ ($paymentData['CustomField4']=='') ? 'VIP':$paymentData['CustomField4']}}</td>
