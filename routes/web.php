@@ -430,15 +430,12 @@ Route::group(['middleware' => ['auth', 'global', 'active', 'femaleActive', 'vipC
         Route::get('/dashboard/evaluation_self', 'PagesController@evaluation_self');
         Route::post('/dashboard/evaluation_self/deleteAll', 'PagesController@evaluation_self_deleteAll')->name('evaDeleteAll'); //new route
 
-<<<<<<< HEAD
-=======
         Route::get('/dashboard/evaluation/{uid}', 'PagesController@evaluation');
         Route::post('/dashboard/evaluation/save', 'PagesController@evaluation_save')->name('evaluation');
         Route::post('/dashboard/evaluation/re_content_save', 'PagesController@evaluation_re_content_save')->name('evaluation_re_content');
         Route::post('/dashboard/evaluation/re_content_delete', 'PagesController@evaluation_re_content_delete')->name('evaluation_re_content_delete');
         Route::post('/dashboard/evaluation/delete', 'PagesController@evaluation_delete')->name('evaluation_delete');
 
->>>>>>> master
         Route::get('/dashboard/evaluation/{uid}', 'PagesController@evaluation');
         Route::post('/dashboard/evaluation/save', 'PagesController@evaluation_save')->name('evaluation');
         Route::post('/dashboard/evaluation/re_content_save', 'PagesController@evaluation_re_content_save')->name('evaluation_re_content');
