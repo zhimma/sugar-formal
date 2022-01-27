@@ -3353,7 +3353,7 @@ class PagesController extends BaseController
 
         if (isset($user)) {
             $is_banned = User::isBanned($user->id);
-            $toUserIsBanned = User::isBanned($cid->id);
+            $toUserIsBanned = User::isBanned($cid);
             $isVip = $user->isVip();
             $tippopup = AdminCommonText::getCommonText(3);//id3車馬費popup說明
             $messages = Message::allToFromSender($user->id, $cid,true);
