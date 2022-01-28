@@ -786,8 +786,9 @@
 		$r_id = 0;
 	?>
 	@foreach($reportBySelf as $row)
-		<tr>
-			@if($row['reporter_id'] == $r_id)
+		
+		@if($row['reporter_id'] == $r_id)
+			<tr>
 				<td></td>
 				<td></td>
 				<td>{{ $row['created_at'] }}</td>
@@ -804,8 +805,10 @@
 						@endforeach
 					@endif
 				</td>
-			@else
-				<?php $r_id = $row['reporter_id']; ?>
+			</tr>
+		@else
+			<?php $r_id = $row['reporter_id']; ?>
+			<tr>
 				<td>
 					<a href="{{ route('admin/showMessagesBetween', [$user->id, $row['reporter_id']]) }}" target="_blank">{{$row['name']}}</a>
 					@if($row['vip'])
@@ -840,8 +843,8 @@
 						@endforeach
 					@endif
 				</td>
-			@endif
-		</tr>
+			</tr>
+		@endif
 	@endforeach
 	<!--test-->
 </table>
