@@ -5,7 +5,7 @@
 <link rel="stylesheet" href="{{ asset('css/photoswipe/styles.css') }}">
 <link rel="stylesheet" href="{{ asset('css/photoswipe/prittyprint.css') }}">
 <style>
-    .chatWith > img {
+    .chatWith>img {
         width: 40px;
         height: 40px;
         float: left;
@@ -22,7 +22,8 @@
         cursor: pointer;
     }
 
-    .dropbtn:hover, .dropbtn:focus {
+    .dropbtn:hover,
+    .dropbtn:focus {
         /*background-color: #2980B9;*/
     }
 
@@ -39,7 +40,7 @@
         background-color: #ffe4e7;
         min-width: 100px;
         overflow: auto;
-        box-shadow: 0px 8px 16px 0px rgba(0,0,0,0.2);
+        box-shadow: 0px 8px 16px 0px rgba(0, 0, 0, 0.2);
         z-index: 1;
         border-radius: 5px;
     }
@@ -51,21 +52,29 @@
         display: block;
     }
 
-    .dropdown-content.show{
+    .dropdown-content.show {
         right: 0;
         margin-top: 35px;
         padding: 0;
     }
-    .dropdown-content a:hover {background-color: #e44e71; color: #ffffff;}
 
-    .show {display: block;}
-    .alert{
+    .dropdown-content a:hover {
+        background-color: #e44e71;
+        color: #ffffff;
+    }
+
+    .show {
+        display: block;
+    }
+
+    .alert {
         padding: 0 !important;
         border: none !important;
         box-shadow: none !important;
         position: inherit;
         float: left;
     }
+
     .shdel_word {
         background-color: #ffffff;
         border-radius: 11px;
@@ -80,22 +89,33 @@
         float: right;
 
     }
+
     .shdel_word>span {
         padding-right: 1px;
         padding-left: 1px;
         font-size: 11px;
         color: #fd5678;
     }
+
     .shdel_word>i {
         font-size: 11pt;
-        color: #fd5678 ;
+        color: #fd5678;
         /*padding-top: 2px;*/
     }
-   
-    .shdel.unsend {border:#fd5678 1px solid;}
-    .shdel.unsend,.shdel.unsend>span,.shdel.specific_reply {width:auto;} 
 
-    .specific_reply {margin-right:5px;}
+    .shdel.unsend {
+        border: #fd5678 1px solid;
+    }
+
+    .shdel.unsend,
+    .shdel.unsend>span,
+    .shdel.specific_reply {
+        width: auto;
+    }
+
+    .specific_reply {
+        margin-right: 5px;
+    }
 
     .shdel {
         background-color: #ffffff;
@@ -106,574 +126,646 @@
         /*border: #fd5678 1px solid;*/
 
     }
+
     .shdel>span {
         padding-right: 1px;
         padding-left: 1px;
         font-size: 11px;
         color: #fd5678;
     }
+
     .shdel>i {
         font-size: 11pt;
-        color: #fd5678 ;
+        color: #fd5678;
         /*padding-top: 2px;*/
     }
-    .message_fixed{
+
+    .message_fixed {
         position: fixed;
     }
+
     .blur_img {
         filter: blur(2px);
         -webkit-filter: blur(2px);
     }
-    .fileuploader-icon-remove:after {content: none !important;}
-    .xxi{min-height:500px;width:92%; margin:0 auto}
-    @media (max-width:1024px) {
-        .xxi{min-height:920px;}
+
+    .fileuploader-icon-remove:after {
+        content: none !important;
     }
+
+    .xxi {
+        min-height: 500px;
+        width: 92%;
+        margin: 0 auto
+    }
+
+    @media (max-width:1024px) {
+        .xxi {
+            min-height: 920px;
+        }
+    }
+
     @media (max-width:992px) {
-        .xxi{min-height:560px;}
+        .xxi {
+            min-height: 560px;
+        }
     }
 
     @media (max-width:760px) {
-        .xxi{min-height:360px;}
+        .xxi {
+            min-height: 360px;
+        }
     }
-    img{
+
+    img {
         max-width: 100%;
     }
-    .new_pot1  ::-webkit-scrollbar {
+
+    .new_pot1 ::-webkit-scrollbar {
         /*滚动条整体样式*/
-        width :4px;  /*高宽分别对应横竖滚动条的尺寸*/
+        width: 4px;
+        /*高宽分别对应横竖滚动条的尺寸*/
         height: 1px;
     }
-    .new_pot1  ::-webkit-scrollbar-thumb {
+
+    .new_pot1 ::-webkit-scrollbar-thumb {
         /*滚动条里面小方块*/
         border-radius: 100px;
         background: #8a9fef;
     }
-    .new_pot1  ::-webkit-scrollbar-track {
+
+    .new_pot1 ::-webkit-scrollbar-track {
         /*滚动条里面轨道*/
         border-radius: 100px;
-        background:rgba(255,255,255,0.6);
+        background: rgba(255, 255, 255, 0.6);
     }
 
     .message::-webkit-scrollbar {
         display: none;
     }
+
     .message {
         -ms-overflow-style: none;
     }
+
     .message {
-        overflow: -moz-hidden-unscrollable; /*注意！若只打 hidden，chrome 的其它 hidden 會出問題*/
+        overflow: -moz-hidden-unscrollable;
+        /*注意！若只打 hidden，chrome 的其它 hidden 會出問題*/
         height: 100%;
     }
 
     .message {
         height: 100%;
-        width: calc(100vw + 18px); /*瀏覽器滾動條的長度大約是 18px*/
+        width: calc(100vw + 18px);
+        /*瀏覽器滾動條的長度大約是 18px*/
         overflow: auto;
     }
+
     .se_text_bot_add_bottom {
         bottom: 143px;
     }
-    .pad_bot{ padding-bottom: 20px;}
-    @media (max-width: 450px){
-        .pad_bot{ padding-bottom:0px;}
+
+    .pad_bot {
+        padding-bottom: 20px;
+    }
+
+    @media (max-width: 450px) {
+        .pad_bot {
+            padding-bottom: 0px;
+        }
     }
     
+    div .unsent_msg p {
+        color: #999;
+    }
 
+    .shdel.specific_reply {
+        right: 20px;
+        border: #fd5678 1px solid;
+    }
 
-</style>
-<style>
-    div .unsent_msg p {color:#999;}    
-    .shdel.specific_reply {right:20px;border:#fd5678 1px solid;}
-    
-    .specific_msg_box {display:none;background-color:#ffdbdb/*#aaa*/;position: relative;border-top-left-radius:5px;border-top-right-radius:5px;}
+    .specific_msg_box {
+        display: none;
+        background-color: #ffdbdb
+            /*#aaa*/
+        ;
+        position: relative;
+        border-top-left-radius: 5px;
+        border-top-right-radius: 5px;
+    }
+
     .specific_msg_close {
         width: 20px;
         position: absolute;
         top: 2px;
-        right: 0px; 
+        right: 0px;
     }
-    
-    .specific_msg_close a,.specific_msg_close a:visited,.specific_msg_close a:hover,.specific_msg_close a:active,.specific_msg_close a:focus {color:#fff;font-size:8px;text-decoration:none;}
-    
+
+    .specific_msg_close a,
+    .specific_msg_close a:visited,
+    .specific_msg_close a:hover,
+    .specific_msg_close a:active,
+    .specific_msg_close a:focus {
+        color: #fff;
+        font-size: 8px;
+        text-decoration: none;
+    }
+
     .specific_msg {
-        color:#626262;
+        color: #626262;
         width: calc(100% - 20px);
-        line-height:25px;
-        padding:5px;
-        font-size:14px;
-        font-weight:normal;
-        
-       overflow: hidden;
-       text-overflow: ellipsis;
-       display: -webkit-box;
-       -webkit-line-clamp: 1;
-               line-clamp: 1; 
-       -webkit-box-orient: vertical; 
-        word-wrap:break-word;
-        word-break:break-all;       
+        line-height: 25px;
+        padding: 5px;
+        font-size: 14px;
+        font-weight: normal;
+
+        overflow: hidden;
+        text-overflow: ellipsis;
+        display: -webkit-box;
+        -webkit-line-clamp: 1;
+        line-clamp: 1;
+        -webkit-box-orient: vertical;
+        word-wrap: break-word;
+        word-break: break-all;
     }
-    
-    .specific_msg img {height:15px;width:15px;}
-    .specific_msg > img {margin-right:20px;}
-    .show .parent_msg_box {background-color: #ffdbdb; }
-    .send .parent_msg_box {background-color: #F0F0F0; }
+
+    .specific_msg img {
+        height: 15px;
+        width: 15px;
+    }
+
+    .specific_msg>img {
+        margin-right: 20px;
+    }
+
+    .show .parent_msg_box {
+        background-color: #ffdbdb;
+    }
+
+    .send .parent_msg_box {
+        background-color: #F0F0F0;
+    }
+
     .parent_msg_box {
         width: calc(100% + 16px);
         /*margin: 0 10px;*/
-        margin:0 0 8px -8px;
-        padding: 4px 8px; 
+        margin: 0 0 8px -8px;
+        padding: 4px 8px;
         border-top-left-radius: 10px;
         border-top-right-radius: 10px;
-        color:#ababab;
-        border-bottom:#ababab 1px solid;
-        
-       overflow: hidden;
-       text-overflow: ellipsis;
-       display: -webkit-box;
-       -webkit-line-clamp: 1;
-               line-clamp: 1; 
-       -webkit-box-orient: vertical; 
-        word-wrap:break-word;
-        word-break:break-all;           
+        color: #ababab;
+        border-bottom: #ababab 1px solid;
+
+        overflow: hidden;
+        text-overflow: ellipsis;
+        display: -webkit-box;
+        -webkit-line-clamp: 1;
+        line-clamp: 1;
+        -webkit-box-orient: vertical;
+        word-wrap: break-word;
+        word-break: break-all;
     }
-    
-    .msg_has_parent {padding-top:0 !important;}
-    .msg_has_parent .msg_input {top:28px;}
-    .parent_msg_box img {margin-right:10px;height:15px;width:15px;float:initial !important;}
-    .msg_content {display:block;}
+
+    .msg_has_parent {
+        padding-top: 0 !important;
+    }
+
+    .msg_has_parent .msg_input {
+        top: 28px;
+    }
+
+    .parent_msg_box img {
+        margin-right: 10px;
+        height: 15px;
+        width: 15px;
+        float: initial !important;
+    }
+
+    .msg_content {
+        display: block;
+    }
 </style>
-
 @section('app-content')
-    <div class="container matop70 chat">
-        <div class="row">
-            <div class="col-sm-2 col-xs-2 col-md-2 dinone">
-                @include('new.dashboard.panel')
-            </div>
-            <div class="col-sm-12 col-xs-12 col-md-10">
-                @if(isset($to))
-{{--                    <div class="fbuttop"></div>--}}
-                    <div class="shouxq" style="display: flex;">
-                        @if(isset($admin))
-                            @if($to->id == $admin->id)
-                                <a class="nnn_adbut" href="{!! url('dashboard/personalPage') !!}">
-                                    <img class="nnn_adbut_img" src="{{ asset('/new/images/back_icon.png') }}" style="height: 15px;">返回
-                                </a>
-                                <span style="flex: 6; text-align: center;">
-                                    @if($to->id != $admin->id)
-                                        <a href="/dashboard/viewuser/{{$to->id}}" style="color: #fd5678;">{{$to->name}}</a>
-                                    @else
-                                        <span  style="color: #fd5678;">系統來訊通知</span>
-                                    @endif
-                                </span>
-                            @else
-                                
-                        <a class="nnn_adbut" href="{{ !empty(session()->get('goBackPage_chat2')) ? session()->get('goBackPage_chat2') : \Illuminate\Support\Facades\URL::previous() }}"><img class="nnn_adbut_img" src="{{ asset('/new/images/back_icon.png') }}" style="height: 15px;">返回</a>
-                        <span style="flex: 6; text-align: center;">   
-                            @php
-                                $is_banned = \App\Models\User::isBanned($to->id);
-                            @endphp
-                            @if($is_banned)
-                                <a  type="button" style="color: #fd5678;" onclick="c5('{{'此人已被站方封鎖'}}'),setTimeout(function(){window.location.href = ' {{ !empty(session()->get	('goBackPage_chat2')) ? session()->get('goBackPage_chat2') : \Illuminate\Support\Facades\URL::previous() }} '},3000)">{{$to->name}}</a>
-                                
-                            @else
-                                <a href="/dashboard/viewuser/{{$to->id}}" style="color: #fd5678;">
-                                    <span class="se_rea">{{$to->name}}
-    {{--                                    <div id="onlineStatus"></div>--}}
-                                        @if($isVip)
-                                            @if($to->isOnline())
-                                                <div class="onlineStatus"></div>
-                                            @endif
-                                        @else
-                                            <div class="onlineStatusNonVip"><img src="/new/images/wsx.png"></div>
-                                        @endif
-                                    </span>
-                                </a>
-                            @endif
-                        </span>
-                        @if($user->engroup==1)
-                            <form class="" style="float: right; position: relative; text-align: right;" action="{{ route('chatpay_ec') }}" method=post id="ecpay">
-                                <input type="hidden" name="_token" value="{{ csrf_token() }}" >
-                                <input type="hidden" name="userId" value="{{ $user->id }}">
-                                <input type="hidden" name="to" value="@if(isset($to)) {{ $to->id }} @endif">
-                                <button type="button" class="paypay" onclick="checkPay('ecpay')"><a class="nnn_adbut">車馬費</a></button>
-                            </form>
-                        @else
-                            <button style="float: right; position: relative;" type="button" class="paypay" onclick="c5('這是Daddy主動發起的，請提醒Daddy按此按紐發動車馬費邀請！')"><a class="nnn_adbut" style="margin-top: -15px">車馬費</a></button>
-                        @endif
-                        @endif
-                        @endif
-                    </div>
+<div class="container matop70 chat">
+    <div class="row">
+        <div class="col-sm-2 col-xs-2 col-md-2 dinone">
+            @include('new.dashboard.panel')
+        </div>
+        <div class="col-sm-12 col-xs-12 col-md-10">
+            @if(isset($to))
+            {{-- <div class="fbuttop"></div>--}}
+            <div class="shouxq" style="display: flex;">
+                @if(isset($admin))
+                @if($to->id == $admin->id)
+                <a class="nnn_adbut" href="{!! url('dashboard/personalPage') !!}">
+                    <img class="nnn_adbut_img" src="{{ asset('/new/images/back_icon.png') }}" style="height: 15px;">返回
+                </a>
+                <span style="flex: 6; text-align: center;">
+                    @if($to->id != $admin->id)
+                    <a href="/dashboard/viewuser/{{$to->id}}" style="color: #fd5678;">{{$to->name}}</a>
+                    @else
+                    <span style="color: #fd5678;">系統來訊通知</span>
+                    @endif
+                </span>
                 @else
-                    {{ logger('Chat with non-existing user: ' . url()->current()) }}
-                @endif
-                <div class="message pad_bot" >
 
-                    @php
-                        $date_temp='';
-                        $isBlurAvatar = \App\Services\UserService::isBlurAvatar($to, $user);
-                    @endphp
-
-                        @if(!empty($messages))
-                            @foreach ($messages as $message)
-                                @php
-                                    $msgUser = \App\Models\User::findById($message->from_id);
-                                    \App\Models\Message::read($message, $user->id);
-                                    $parentMsg = \App\Models\Message::find($message->parent_msg??0);
-                                    if($parentMsg) {
-                                        if($parentMsg->from_id==$user->id) $parentMsgSender=$user;
-                                        else {
-                                            $parentMsgSender = \App\Models\User::findById($parentMsg->from_id);
-                                            $isBlurParentSender = \App\Services\UserService::isBlurAvatar($parentMsgSender, $user);
-                                        }
-                                    }
-                                @endphp
-                                
-                                @if($date_temp != substr($message['created_at'],0,10)) <div class="sebg matopj10">{{substr($message['created_at'],0,10)}}</div>@endif
-
-                                @if($message['sys_notice']==1 || $msgUser->id == 1049)
-                                <div class="send">
-                                    <div class="msg">
-                                        <img src="/new/images/admin-avatar.jpg">
-                                        <p style="background: #DDF3FF;">
-                                            <i class="msg_input_blue"></i>
-                                            {!! nl2br($message['content']) !!}
-                                            <font class="sent_ri @if(!$isVip) novip @endif dr_r">
-                                                <span>{{ substr($message['created_at'],11,5) }}</span>
-                                            </font>
-                                        </p>
-                                    </div>
-                                </div>
-                            </div>
-                            @elseif( ($message['sys_notice']==0 || $message['sys_notice']== null)  && $message['unsend']==0)
-                            @if($isVip && $message['from_id'] == $user->id)
-                                @if((!isset($admin) || $to->id != $admin->id) && !isset($to->banned )&& !isset($to->implicitlyBanned))
-                            <form method="post" class="unsend_form" id="unsend_form_{{$message['id']}}" action="{{route('unsendChat')}}">
+                <a class="nnn_adbut"
+                    href="{{ !empty(session()->get('goBackPage_chat2')) ? session()->get('goBackPage_chat2') : \Illuminate\Support\Facades\URL::previous() }}"><img
+                        class="nnn_adbut_img" src="{{ asset('/new/images/back_icon.png') }}"
+                        style="height: 15px;">返回</a>
+                <span style="flex: 6; text-align: center;">
+                    @if($toUserIsBanned)
+                        <a type="button" style="color: #fd5678;" onclick="c5('{{'此人已被站方封鎖'}}'),setTimeout(function(){window.location.href = ' {{ !empty(session()->get	('goBackPage_chat2')) ? session()->get('goBackPage_chat2') : \Illuminate\Support\Facades\URL::previous() }} '},3000)">{{$to->name}}</a>
+                    @else
+                        <a href="/dashboard/viewuser/{{$to->id}}" style="color: #fd5678;">
+                            <span class="se_rea">{{$to->name}}
+                                @if($isVip)
+                                    @if($to->isOnline())
+                                        <div class="onlineStatus"></div>
+                                    @endif
+                                @else
+                                    <div class="onlineStatusNonVip"><img src="/new/images/wsx.png"></div>
                                 @endif
-                            @endif  
-                            
-                            <div class="@if($message['from_id'] == $user->id) show @else send @endif" @if($message['from_id'] != $user->id) id="chat_msg_{{$message['id']}}" @endif>                           
-                                <div class="msg @if($message['from_id'] == $user->id) msg1 @endif">                                
-                                    @if($message['from_id'] == $user->id)
-                                        <img src="@if(file_exists( public_path().$user->meta->pic ) && $user->meta->pic != ""){{$user->meta->pic}} @elseif($user->engroup==2)/new/images/female.png @else/new/images/male.png @endif">
-                                    @else
-                                        <a class="chatWith" href="{{ url('/dashboard/viewuser/' . $msgUser->id ) }}">
-                                        <img class="@if($isBlurAvatar) blur_img @endif" src="@if(file_exists( public_path().$msgUser->meta->pic ) && $msgUser->meta->pic != ""){{$msgUser->meta->pic}} @elseif($msgUser->engroup==2)/new/images/female.png @else/new/images/male.png  @endif">
-                                        </a>
-                                    {{-- @endif
-                                @endif   --}}
-                                
-                                <div class="@if($message['from_id'] == $user->id) show @else send @endif">                           
-                                    <div class="msg @if($message['from_id'] == $user->id) msg1 @endif">                                
-                                        @if($message['from_id'] == $user->id)
-                                            <img src="@if(file_exists( public_path().$user->meta->pic ) && $user->meta->pic != ""){{$user->meta->pic}} @elseif($user->engroup==2)/new/images/female.png @else/new/images/male.png @endif">
-                                        @else
-                                            @php
-                                                $is_banned = \App\Models\User::isBanned($to->id);
-                                            @endphp
-                                            @if($is_banned)
-                                            <a class="chatwith" type="button" style="color: #fd5678;" onclick="c5('{{'此人已被站方封鎖'}}'),setTimeout(function(){window.location.href = ' {{ !empty(session()->get	('goBackPage_chat2')) ? session()->get('goBackPage_chat2') : \Illuminate\Support\Facades\URL::previous() }} '},3000)">
-                                                
-                                            @else
-                                                <a class="chatWith" href="{{ url('/dashboard/viewuser/' . $msgUser->id ) }}">
-                                            @endif
-                                            <img class="@if($isBlurAvatar) blur_img @endif" src="@if(file_exists( public_path().$msgUser->meta->pic ) && $msgUser->meta->pic != ""){{$msgUser->meta->pic}} @elseif($msgUser->engroup==2)/new/images/female.png @else/new/images/male.png  @endif">
-                                            </a>
-                                        @endif
-                                        <p class="@if($parentMsg) msg_has_parent @endif">
-                                            @if($parentMsg)
-                                            <span class="parent_msg_box">
-                                                @if($parentMsg['from_id'] == $user->id)
-                                                    <img src="@if(file_exists( public_path().$user->meta->pic ) && $user->meta->pic != ""){{$user->meta->pic}} @elseif($user->engroup==2)/new/images/female.png @else/new/images/male.png @endif">
-                                                @else
-                                                    <img class="@if($isBlurParentSender) blur_img @endif" src="@if(file_exists( public_path().$parentMsgSender->meta->pic ) && $parentMsgSender->meta->pic != ""){{$parentMsgSender->meta->pic}} @elseif($parentMsgSender->engroup==2)/new/images/female.png @else/new/images/male.png  @endif">
-                                                @endif      
-                                                @if(!is_null(json_decode($parentMsg['pic'],true)))
-                                                <img src="{{ json_decode($parentMsg['pic'],true)[0]['file_path'] }}" class="n_pic_lt">                                            
-                                                @endif
-                                                {!! nl2br($parentMsg->content) !!}
-                                            </span>
-                                            @endif                                      
-                                            @if(!is_null(json_decode($message['pic'],true)))
-                                                <i class="msg_input"></i>
-                                                <span id="page" class="marl5">
-                                                    <span class="justify-content-center">
-                                                        <span class="gutters-10 pswp--loaded" data-pswp="">
-                                                            <span style="width: 150px;">
-                                                                @foreach(json_decode($message['pic'],true) as $key => $pic)
-                                                                    @if(isset($pic['file_path']))
-                                                                        <a href="{{$pic['file_path'] }}" target="_blank" data-pswp-index="{{ $key }}" class="pswp--item">
-                                                                            <img src="{{ $pic['file_path'] }}" class="n_pic_lt">
-                                                                        </a>
-                                                                    @else
-                                                                        {{ logger("Message pic failed, user id: " . $user->id) }}
-                                                                        {{ logger("to id: " . $to->id) }}
-                                                                    @endif
-                                                                @endforeach
-                                                                </span>
-                                                        </span>
-                                                        </span>
-                                                    <font class="sent_ri @if($message['from_id'] == $user->id)dr_l @if(!$isVip) novip @endif @else dr_r @endif">
-                                                        <span>{{ substr($message['created_at'],11,5) }}</span>
-                                                        @if(!$isVip && $message['from_id'] == $user->id)
-                                                            <span style="color:lightgrey;">已讀/未讀</span>
-                                                            <img src="/new/images/icon_35.png" style="position: absolute;float: left;left: 10px; top:20px;-moz-transform:rotate(-25deg);-webkit-transform:rotate(-30deg);">
-                                                        @else
-                                                            <span>@if($message['read'] == "Y" && $message['from_id'] == $user->id) 已讀 @elseif($message['read'] == "N" && $message['from_id'] == $user->id) 未讀 @endif</span>
-                                                        @endif
-                                                    </font>
-                                                </span>                                             
-                                                @if($message['from_id'] != $user->id)                                                
-                                                    <a href="javascript:void(0)" class="" onclick="banned('{{$message['id']}}','{{$msgUser->id}}','{{$msgUser->name}}');" title="檢舉">
-                                                        <span class="shdel" style="border: #fd5678 1px solid; width: auto;"><span>檢舉</span></span>
-                                                    </a>
-                                                @endif
-                                                @if((!isset($admin) || $to->id != $admin->id) && !isset($to->banned )&& !isset($to->implicitlyBanned))
-                                                <a href="javascript:void(0)" class="specific_reply_doer" onclick="return false;" title="回覆" data-id="{{$message['id']}}">
-                                                    <span class="shdel specific_reply"><span>回覆</span></span>
-                                                </a>                                             
-                                                @if($message['from_id'] == $user->id)
-                                                    
-                                                    <a href="javascript:void(0)" class="" onclick="@if($isVip) document.getElementById('unsend_form_{{$message['id']}}').submit()  @else show_pop_message('非VIP無法收回訊息')@endif; return false;" title="收回">
-                                                        <span class="shdel unsend"><span>收回</span></span>
-                                                    </a>
-                                                @endif  
-                                                @endif
-                                            @else
-                                                <i class="msg_input"></i>                                       
-                                                <span class="msg_content">{!! nl2br($message['content']) !!}</span>
-                                                
-                                                @if($message['from_id'] != $user->id)                                            
-                                                    <a href="javascript:void(0)" class="" onclick="banned('{{$message['id']}}','{{$msgUser->id}}','{{$msgUser->name}}');" title="檢舉">
-                                                        <span class="shdel_word"><span>檢舉</span></span>
-                                                    </a>
-                                                    
-                                                @endif
-                                                @if((!isset($admin) || $to->id != $admin->id) && !isset($to->banned )&& !isset($to->implicitlyBanned))
-                                                @if($message['from_id'] == $user->id)
-                                                        <a href="javascript:void(0)" class="" onclick="@if($isVip) document.getElementById('unsend_form_{{$message['id']}}').submit()  @else show_pop_message('非VIP無法收回訊息')@endif; return false;" title="收回">
-                                                        <span class="shdel_word unsend"><span>收回</span></span>
-                                                    </a>
-                                                @endif 
-                                                        <a href="javascript:void(0)" class="specific_reply_doer" onclick=" return false;" title="回覆" data-id="{{$message['id']}}">
-                                                        <span class="shdel_word specific_reply"><span>回覆</span></span>
-                                                    </a>
-                                                @endif
-                                                <font class="sent_ri @if($message['from_id'] == $user->id)dr_l @if(!$isVip) novip @endif @else dr_r @endif">
-                                                    <span>{{ substr($message['created_at'],11,5) }}</span>
-                                                    @if(!$isVip && $message['from_id'] == $user->id)
-                                                        <span style="color:lightgrey;">已讀/未讀</span>
-                                                        <img src="/new/images/icon_35.png" style="position: absolute;float: left;left: 10px; top:20px;-moz-transform:rotate(-25deg);-webkit-transform:rotate(-30deg);">
-                                                    @else
-                                                        <span>@if($message['read'] == "Y" && $message['from_id'] == $user->id) 已讀 @elseif($message['read'] == "N" && $message['from_id'] == $user->id) 未讀 @endif</span>
-                                                    @endif
-                                                </font>
-                                            @endif
-                                            @if((!isset($admin) || $to->id != $admin->id) && !isset($to->banned )&& !isset($to->implicitlyBanned))
-                                            <a href="javascript:void(0)" class="specific_reply_doer" onclick="return false;" title="回覆" data-id="{{$message['id']}}">
-                                                <span class="shdel specific_reply"><span>回覆</span></span>
-                                            </a>                                             
-                                            @if($message['from_id'] == $user->id)
-                                              
-                                                <a href="javascript:void(0)" class="unsend_a" data-id="{{$message['id']}}" onclick="chatUnsend(this);return false;" title="收回">
-                                                    <span class="shdel unsend"><span>收回</span></span>
-                                                </a>
-                                            @endif  
-                                            @endif
-                                        @else
-                                            <i class="msg_input"></i>                                       
-                                            <span class="msg_content">{!! nl2br($message['content']) !!}</span>
-                                           
-                                            @if($message['from_id'] != $user->id)                                            
-                                                <a href="javascript:void(0)" class="" onclick="banned('{{$message['id']}}','{{$msgUser->id}}','{{$msgUser->name}}');" title="檢舉">
-                                                    <span class="shdel_word"><span>檢舉</span></span>
-                                                </a>
-                                               
-                                            @endif
-                                            @if((!isset($admin) || $to->id != $admin->id) && !isset($to->banned )&& !isset($to->implicitlyBanned))
-                                            @if($message['from_id'] == $user->id)
-                                                 <a href="javascript:void(0)" onclick="chatUnsend(this);return false;"  class="unsend_a" data-id="{{$message['id']}}"   title="收回">
-                                                    <span class="shdel_word unsend"><span>收回</span></span>
-                                                </a>
-                                            @endif 
-                                                 <a href="javascript:void(0)" class="specific_reply_doer" onclick=" return false;" title="回覆" data-id="{{$message['id']}}">
-                                                    <span class="shdel_word specific_reply"><span>回覆</span></span>
-                                                </a>
-                                            @endif
-                                            <font class="sent_ri @if($message['from_id'] == $user->id)dr_l @if(!$isVip) novip @endif @else dr_r @endif">
-                                                <span>{{ substr($message['created_at'],11,5) }}</span>
-                                                @if(!$isVip && $message['from_id'] == $user->id)
-                                                    <span style="color:lightgrey;">已讀/未讀</span>
-                                                    <img src="/new/images/icon_35.png" style="position: absolute;float: left;left: 10px; top:20px;-moz-transform:rotate(-25deg);-webkit-transform:rotate(-30deg);">
-                                                @else
-                                                    <span>@if($message['read'] == "Y" && $message['from_id'] == $user->id) 已讀 @elseif($message['read'] == "N" && $message['from_id'] == $user->id) 未讀 @endif</span>
-                                                @endif
-                                            </font>
-                                        @endif
-                                       
-                                    </p>                              
-                                </div>
-                                @if($isVip && $message['from_id'] == $user->id)
-                                    @if((!isset($admin) || $to->id != $admin->id) && !isset($to->banned )&& !isset($to->implicitlyBanned))
-                                </form>
-                                    @endif
-                                    </p>                              
-                                </div>
-                            </div>                                
-                            @endif
-                            @php
-                                $date_temp = substr($message['created_at'],0,10);
-                            @endphp
-                        @endforeach
+                            </span>
+                        </a>
                     @endif
-                    <div style="text-align: center; padding-bottom: 20px;">
-                        {!! $messages->appends(request()->input())->links('pagination::sg-pages2') !!}
-                    </div>
-
-                </div>
-                @if(isset($to))
-                    {{--<div class="se_text_bot" id="message_input">
-                        <form style="margin: 0 auto;" method="POST" action="/dashboard/chat2/{{ \Carbon\Carbon::now()->timestamp }}" id="chatForm">
-                            <input type="hidden" name="_token" value="{{ csrf_token() }}" >
-                            <input type="hidden" name="userId" value="{{$user->id}}">
-                            <input type="hidden" name="to" value="{{$to->id}}">
-                            <input type="hidden" name="m_time" @if(isset($m_time)) value="{{ $m_time }}" @else value="" @endif>
-                            <input type="hidden" name="{{ \Carbon\Carbon::now()->timestamp }}" value="{{ \Carbon\Carbon::now()->timestamp }}">
-                            <textarea name="msg" cols="" rows="" class="se_text msg" id="msg" placeholder="請輸入" required></textarea>
-                            <div class="message_fixed"></div>
-                            <input type="submit" id="msgsnd" class="se_tbut matop20 msgsnd" value="回覆">
-                        </form>
-                    </div>--}}
-
-                    @if((!isset($admin) || $to->id != $admin->id) && !isset($to->banned )&& !isset($to->implicitlyBanned))
-                        <div class="se_text_bot"  id="message_input" style="padding-right: 3%; padding-left:3%;">
-                            @if(($to->engroup) === ($user->engroup))
-                            @else
-                            <form style="margin: 0 auto;" method="POST" action="/dashboard/chat2/{{ \Carbon\Carbon::now()->timestamp }}" id="chatForm" name="chatForm">
-
-                                <input type="hidden" name="_token" value="{{ csrf_token() }}" >
-                                <input type="hidden" name="userId" value="{{$user->id}}">
-                                <input type="hidden" name="to" value="{{$to->id}}">
-                                <input type="hidden" name="m_time" @if(isset($m_time)) value="{{ $m_time }}" @else value="" @endif>
-                                <input type="hidden" name="{{ \Carbon\Carbon::now()->timestamp }}" value="{{ \Carbon\Carbon::now()->timestamp }}">
-                                <input type="hidden" name="parent" id="message_parent"  class="message_parent"  value="" >
-                                <div class="xin_left specific_msg_box" id="specific_msg_box">
-                                    <div class="specific_msg"></div>
-                                    <div class="specific_msg_close"><a href="javascript:void(0)" onclick="resetSpecificMsgElt();return false;">Ｘ</a></div>
-                                </div>
-
-
-
-                                <div class="xin_left">
-                                    <a class="xin_nleft" onclick="tab_uploadPic();"><img src="/new/images/moren_pic.png"></a>
-                                    <textarea id="msg" name="msg" rows="1" class="xin_input" placeholder="請輸入"></textarea>
-                                </div>
-                                <a onclick="chatForm_submit();" class="xin_right" style="border: none;"><img src="/new/images/fasong.png" style="margin-top:6px;"></a>
-                                {{--<button type="submit" class="xin_right" style="border: none;"><img src="/new/images/fasong.png"></button>--}}
-                                {{--<div class="message_fixed"></div>--}}
-
-                            </form>
-                            @endif
-                        </div>
-                    @endif
+                </span>
+                @if($user->engroup==1)
+                <form class="" style="float: right; position: relative; text-align: right;"
+                    action="{{ route('chatpay_ec') }}" method=post id="ecpay">
+                    <input type="hidden" name="_token" value="{{ csrf_token() }}">
+                    <input type="hidden" name="userId" value="{{ $user->id }}">
+                    <input type="hidden" name="to" value="@if(isset($to)) {{ $to->id }} @endif">
+                    <button type="button" class="paypay" onclick="checkPay('ecpay')"><a
+                            class="nnn_adbut">車馬費</a></button>
+                </form>
                 @else
-                    <div class="se_text_bot">
-                        此會員資料已不存在。
-                    </div>
-                    {{ logger('Chat with non-existing user: ' . url()->current()) }}
+                <button style="float: right; position: relative;" type="button" class="paypay"
+                    onclick="c5('這是Daddy主動發起的，請提醒Daddy按此按紐發動車馬費邀請！')"><a class="nnn_adbut"
+                        style="margin-top: -15px">車馬費</a></button>
+                @endif
+                @endif
                 @endif
             </div>
-        </div>
-    </div>
-    <div class="bl bl_tab tab_payAlert" id="tab_payAlert">
-        <div class="bltitle bltitle_fixed"><span>車馬費說明</span></div>
-        <a id="" onclick="$('.blbg').click();" class="bl_gb bl_gb_fixed"><img src="/new/images/gb_icon.png"></a>
-        <div class="n_blnr01 matop20 tip_adjust">
-            <div class="n_fengs">
-            @if(isset($tippopup))
-                {!! $tippopup !!}
+            @else
+            {{ logger('Chat with non-existing user: ' . url()->current()) }}
             @endif
-            </div>
-            <div class="n_bbutton">
-                <span><a class="n_left" href="javascript:">確認</a></span>
-                <span><a onclick="$('.blbg').click();" class="n_right" href="javascript:">取消</a></span>
-            </div>
-        </div>
+            <div class="message pad_bot">
+                @php
+                $date_temp='';
+                $isBlurAvatar = \App\Services\UserService::isBlurAvatar($to, $user);
+                @endphp
+                @if(!empty($messages))
+                @foreach ($messages as $message)
+                @php
+                $msgUser = \App\Models\User::findById($message->from_id);
+                \App\Models\Message::read($message, $user->id);
+                $parentMsg = \App\Models\Message::find($message->parent_msg??0);
+                if($parentMsg) {
+                if($parentMsg->from_id==$user->id) $parentMsgSender=$user;
+                else {
+                $parentMsgSender = \App\Models\User::findById($parentMsg->from_id);
+                $isBlurParentSender = \App\Services\UserService::isBlurAvatar($parentMsgSender, $user);
+                }
+                }
+                @endphp
 
-    </div>
+                @if($date_temp != substr($message['created_at'],0,10)) <div class="sebg matopj10">
+                    {{substr($message['created_at'],0,10)}}</div>@endif
 
-    <div class="bl_tab_aa" id="show_banned_ele">
-        <div class="bl_tab_bb">
-            <div class="bltitle banned_name"></div>
-            <div class="new_pot new_poptk_nn new_pot001 ">
-                <div class="fpt_pic new_po000">
-                    <form id="reportMsgForm" class="m-form m-form--fit m-form--label-align-right" method="POST" action="{{ route('reportMsg') }}" enctype="multipart/form-data">
-                        {!! csrf_field() !!}
-                        <input type="hidden" name="aid" value="{{$user->id}}">
-                        <input type="hidden" name="uid" value="">
-                        <input type="hidden" name="id" value="">
-                        <textarea name="content" cols="" rows="" class="n_nutext" placeholder="{{$report_reason}}" required></textarea>
-                        <input id="images" type="file" name="images">
-                        <div class="n_bbutton" style="width: 100%; text-align: center;">
-                            <button type="submit" class="n_right" style="border-style: none; background: #8a9ff0; color:#ffffff; float: unset; margin-left: 0px; margin-right: 20px;">送出</button>
-                            <button type="reset" class="n_left" style="border: 1px solid #8a9ff0; background: #ffffff; color:#8a9ff0; float: unset; margin-right: 0px;" onclick="show_banned_close()">返回</button>
-                        </div>
-                    </form>
+                @if($message['sys_notice']==1 || $msgUser->id == 1049)
+                <div class="send">
+                    <div class="msg">
+                        <img src="/new/images/admin-avatar.jpg">
+                        <p style="background: #DDF3FF;">
+                            <i class="msg_input_blue"></i>
+                            {!! nl2br($message['content']) !!}
+                            <font class="sent_ri @if(!$isVip) novip @endif dr_r">
+                                <span>{{ substr($message['created_at'],11,5) }}</span>
+                            </font>
+                        </p>
+                    </div>
                 </div>
-            </div>
-            <a onclick="show_banned_close()" class="bl_gb"><img src="/new/images/gb_icon.png"></a>
-        </div>
-    </div>
-
-    <div class="bl bl_tab" id="messageBoard_enter_limit" style="display: none;">
-        <div class="bltitle"><span>提示</span></div>
-        <div class="n_blnr01 ">
-            <div class="new_tkfont">您目前未達標準<br>不可使用留言板功能</div>
-            <div class="new_tablema">
-                <table>
-                    @if($user->engroup==2)
-                        <tr>
-                            <td class="new_baa new_baa1">須通過手機驗證</td>
-                            <td class="new_baa1">@if($user->isPhoneAuth())<img src="/new/images/ticon_01.png">@else<img src="/new/images/ticon_02.png">@endif</td>
-                        </tr>
+                @elseif( ($message['sys_notice']==0 || $message['sys_notice']== null) && $message['unsend']==0)
+                @if($isVip && $message['from_id'] == $user->id)
+                @if((!isset($admin) || $to->id != $admin->id) && !isset($to->banned )&& !isset($to->implicitlyBanned))
+                <form method="post" class="unsend_form" id="unsend_form_{{$message['id']}}"
+                    action="{{route('unsendChat')}}">
                     @endif
-                    <tr>
-                        <td class="new_baa">需為VIP會員</td>
-                        <td class="">@if(!$user->isVip())<img src="/new/images/ticon_02.png">@else<img src="/new/images/ticon_01.png">@endif</td>
-                    </tr>
-                </table>
-            </div>
-        </div>
-        <a id="" onClick="gmBtnNoReload()" class="bl_gb"><img src="/new/images/gb_icon.png"></a>
-    </div>
+                    @endif
 
+                    <div class="@if($message['from_id'] == $user->id) show @else send @endif" @if($message['from_id']
+                        !=$user->id) id="chat_msg_{{$message['id']}}" @endif>
+                        <div class="msg @if($message['from_id'] == $user->id) msg1 @endif">
+                            @if($message['from_id'] == $user->id)
+                                <img
+                                src="@if(file_exists( public_path().$user->meta->pic ) && $user->meta->pic != ""){{$user->meta->pic}} @elseif($user->engroup==2)/new/images/female.png @else/new/images/male.png @endif">
+                            @else
+                                @if($toUserIsBanned)
+                                    <a type="button" style="color: #fd5678;" onclick="c5('{{'此人已被站方封鎖'}}'),setTimeout(function(){window.location.href = ' {{ !empty(session()->get	('goBackPage_chat2')) ? session()->get('goBackPage_chat2') : \Illuminate\Support\Facades\URL::previous() }} '},3000)">{{$to->name}}</a>
+                                @else
+                                    <a class="chatWith" href="{{ url('/dashboard/viewuser/' . $msgUser->id ) }}">
+                                @endif
+                                    <img class="@if($isBlurAvatar) blur_img @endif"
+                                        src="@if(file_exists( public_path().$msgUser->meta->pic ) && $msgUser->meta->pic != ""){{$msgUser->meta->pic}} @elseif($msgUser->engroup==2)/new/images/female.png @else/new/images/male.png  @endif">
+                                </a>
+                            @endif
+                            <p class="@if($parentMsg) msg_has_parent @endif">
+                                @if($parentMsg)
+                                <span class="parent_msg_box">
+                                    @if($parentMsg['from_id'] == $user->id)
+                                    <img
+                                        src="@if(file_exists( public_path().$user->meta->pic ) && $user->meta->pic != ""){{$user->meta->pic}} @elseif($user->engroup==2)/new/images/female.png @else/new/images/male.png @endif">
+                                    @else
+                                    <img class="@if($isBlurParentSender) blur_img @endif"
+                                        src="@if(file_exists( public_path().$parentMsgSender->meta->pic ) && $parentMsgSender->meta->pic != ""){{$parentMsgSender->meta->pic}} @elseif($parentMsgSender->engroup==2)/new/images/female.png @else/new/images/male.png  @endif">
+                                    @endif
+                                    @if(!is_null(json_decode($parentMsg['pic'],true)))
+                                    <img src="{{ json_decode($parentMsg['pic'],true)[0]['file_path'] }}"
+                                        class="n_pic_lt">
+                                    @endif
+                                    {!! nl2br($parentMsg->content) !!}
+                                </span>
+                                @endif
+                                @if(!is_null(json_decode($message['pic'],true)))
+                                <i class="msg_input"></i>
+                                <span id="page" class="marl5">
+                                    <span class="justify-content-center">
+                                        <span class="gutters-10 pswp--loaded" data-pswp="">
+                                            <span style="width: 150px;">
+                                                @foreach(json_decode($message['pic'],true) as $key => $pic)
+                                                @if(isset($pic['file_path']))
+                                                <a href="{{$pic['file_path'] }}" target="_blank"
+                                                    data-pswp-index="{{ $key }}" class="pswp--item">
+                                                    <img src="{{ $pic['file_path'] }}" class="n_pic_lt">
+                                                </a>
+                                                @else
+                                                {{ logger("Message pic failed, user id: " . $user->id) }}
+                                                {{ logger("to id: " . $to->id) }}
+                                                @endif
+                                                @endforeach
+                                            </span>
+                                        </span>
+                                    </span>
+                                    <font
+                                        class="sent_ri @if($message['from_id'] == $user->id)dr_l @if(!$isVip) novip @endif @else dr_r @endif">
+                                        <span>{{ substr($message['created_at'],11,5) }}</span>
+                                        @if(!$isVip && $message['from_id'] == $user->id)
+                                        <span style="color:lightgrey;">已讀/未讀</span>
+                                        <img src="/new/images/icon_35.png"
+                                            style="position: absolute;float: left;left: 10px; top:20px;-moz-transform:rotate(-25deg);-webkit-transform:rotate(-30deg);">
+                                        @else
+                                        <span>@if($message['read'] == "Y" && $message['from_id'] == $user->id) 已讀
+                                            @elseif($message['read'] == "N" && $message['from_id'] == $user->id) 未讀
+                                            @endif</span>
+                                        @endif
+                                    </font>
+                                </span>
+                                @if($message['from_id'] != $user->id)
+                                <a href="javascript:void(0)" class=""
+                                    onclick="banned('{{$message['id']}}','{{$msgUser->id}}','{{$msgUser->name}}');"
+                                    title="檢舉">
+                                    <span class="shdel"
+                                        style="border: #fd5678 1px solid; width: auto;"><span>檢舉</span></span>
+                                </a>
+                                @endif
+                                @if((!isset($admin) || $to->id != $admin->id) && !isset($to->banned )&&
+                                !isset($to->implicitlyBanned))
+                                <a href="javascript:void(0)" class="specific_reply_doer" onclick="return false;"
+                                    title="回覆" data-id="{{$message['id']}}">
+                                    <span class="shdel specific_reply"><span>回覆</span></span>
+                                </a>
+                                @if($message['from_id'] == $user->id)
 
-    @if($to)
-        <div class="bl_tab_aa" id="tab_uploadPic" style="display: none;">
-            <form id="form_uploadPic" action="{{ route('realTimeChat') }}" method="post" enctype="multipart/form-data">
-                <input type="hidden" name="_token" value="{{ csrf_token() }}" >
-                <input type="hidden" name="userId" value="{{ $user->id }}">
-                <input type="hidden" name="from" value="{{ $user->id }}">
-                <input type="hidden" name="to" value="{{ $to->id }}">
-                <input type="hidden" name="msg" value="">
-                <input type="hidden" name="m_time" @if(isset($m_time)) value="{{ $m_time }}" @else value="" @endif>
-                <input type="hidden" name="{{ \Carbon\Carbon::now()->timestamp }}" value="{{ \Carbon\Carbon::now()->timestamp }}">
-                <input type="hidden" name="parent" class="message_parent"  value="" >
-                <div class="bl_tab_bb">
-                    <div class="bltitle"><span style="text-align: center; float: none;">上傳照片</span></div>
-                    <div class="new_pot1 new_poptk_nn new_height_mobile ">
-                        <div class="fpt_pic">
-                            <input id="images" type="file" name="images" >
-                            <div class="n_bbutton" style="margin-top:0px;">
-                                <a class="n_bllbut" onclick="form_uploadPic_submit()">送出</a>
-                            </div>
+                                <a href="javascript:void(0)" class="unsend_a" data-id="{{$message['id']}}"
+                                    onclick="chatUnsend(this);return false;" title="收回">
+                                    <span class="shdel unsend"><span>收回</span></span>
+                                </a>
+                                @endif
+                                @endif
+                                @else
+                                <i class="msg_input"></i>
+                                <span class="msg_content">{!! nl2br($message['content']) !!}</span>
+
+                                @if($message['from_id'] != $user->id)
+                                <a href="javascript:void(0)" class=""
+                                    onclick="banned('{{$message['id']}}','{{$msgUser->id}}','{{$msgUser->name}}');"
+                                    title="檢舉">
+                                    <span class="shdel_word"><span>檢舉</span></span>
+                                </a>
+
+                                @endif
+                                @if((!isset($admin) || $to->id != $admin->id) && !isset($to->banned )&&
+                                !isset($to->implicitlyBanned))
+                                @if($message['from_id'] == $user->id)
+                                <a href="javascript:void(0)" onclick="chatUnsend(this);return false;" class="unsend_a"
+                                    data-id="{{$message['id']}}" title="收回">
+                                    <span class="shdel_word unsend"><span>收回</span></span>
+                                </a>
+                                @endif
+                                <a href="javascript:void(0)" class="specific_reply_doer" onclick=" return false;"
+                                    title="回覆" data-id="{{$message['id']}}">
+                                    <span class="shdel_word specific_reply"><span>回覆</span></span>
+                                </a>
+                                @endif
+                                <font
+                                    class="sent_ri @if($message['from_id'] == $user->id)dr_l @if(!$isVip) novip @endif @else dr_r @endif">
+                                    <span>{{ substr($message['created_at'],11,5) }}</span>
+                                    @if(!$isVip && $message['from_id'] == $user->id)
+                                    <span style="color:lightgrey;">已讀/未讀</span>
+                                    <img src="/new/images/icon_35.png"
+                                        style="position: absolute;float: left;left: 10px; top:20px;-moz-transform:rotate(-25deg);-webkit-transform:rotate(-30deg);">
+                                    @else
+                                    <span>@if($message['read'] == "Y" && $message['from_id'] == $user->id) 已讀
+                                        @elseif($message['read'] == "N" && $message['from_id'] == $user->id) 未讀
+                                        @endif</span>
+                                    @endif
+                                </font>
+                                @endif
+
+                            </p>
                         </div>
                     </div>
-                    <a onclick="tab_uploadPic_close()" class="bl_gb"><img src="/new/images/gb_icon.png"></a>
+                    @if($isVip && $message['from_id'] == $user->id)
+                    @if((!isset($admin) || $to->id != $admin->id) && !isset($to->banned )&&
+                    !isset($to->implicitlyBanned))
+                </form>
+                @endif
+                @endif
+                @elseif($message['unsend']==1 )
+                <div class="">
+                    <div class="sebg matopj10  unsent_msg">
+                        <p>
+                            @if($message['from_id'] == $user->id)
+                            您已收回訊息
+                            @else
+                            {{$to->name}}已收回訊息
+                            @endif
+                        </p>
+                    </div>
                 </div>
-            </form>
+                @endif
+                @php
+                $date_temp = substr($message['created_at'],0,10);
+                @endphp
+                @endforeach
+                @endif
+                <div style="text-align: center; padding-bottom: 20px;">
+                    {!! $messages->appends(request()->input())->links('pagination::sg-pages2') !!}
+                </div>
+
+            </div>
+            @if(isset($to))
+            {{--<div class="se_text_bot" id="message_input">
+                <form style="margin: 0 auto;" method="POST"
+                    action="/dashboard/chat2/{{ \Carbon\Carbon::now()->timestamp }}" id="chatForm">
+                    <input type="hidden" name="_token" value="{{ csrf_token() }}">
+                    <input type="hidden" name="userId" value="{{$user->id}}">
+                    <input type="hidden" name="to" value="{{$to->id}}">
+                    <input type="hidden" name="m_time" @if(isset($m_time)) value="{{ $m_time }}" @else value="" @endif>
+                    <input type="hidden" name="{{ \Carbon\Carbon::now()->timestamp }}"
+                        value="{{ \Carbon\Carbon::now()->timestamp }}">
+                    <textarea name="msg" cols="" rows="" class="se_text msg" id="msg" placeholder="請輸入"
+                        required></textarea>
+                    <div class="message_fixed"></div>
+                    <input type="submit" id="msgsnd" class="se_tbut matop20 msgsnd" value="回覆">
+                </form>
+            </div>--}}
+
+            @if((!isset($admin) || $to->id != $admin->id) && !isset($to->banned )&& !isset($to->implicitlyBanned))
+            <div class="se_text_bot" id="message_input" style="padding-right: 3%; padding-left:3%;">
+                @if(($to->engroup) === ($user->engroup))
+                @else
+                <form style="margin: 0 auto;" method="POST"
+                    action="/dashboard/chat2/{{ \Carbon\Carbon::now()->timestamp }}" id="chatForm" name="chatForm">
+                    <input type="hidden" name="_token" value="{{ csrf_token() }}">
+                    <input type="hidden" name="userId" value="{{$user->id}}">
+                    <input type="hidden" name="to" value="{{$to->id}}">
+                    <input type="hidden" name="m_time" @if(isset($m_time)) value="{{ $m_time }}" @else value="" @endif>
+                    <input type="hidden" name="{{ \Carbon\Carbon::now()->timestamp }}"
+                        value="{{ \Carbon\Carbon::now()->timestamp }}">
+                    <input type="hidden" name="parent" id="message_parent" class="message_parent" value="">
+                    <div class="xin_left specific_msg_box" id="specific_msg_box">
+                        <div class="specific_msg"></div>
+                        <div class="specific_msg_close"><a href="javascript:void(0)"
+                                onclick="resetSpecificMsgElt();return false;">Ｘ</a></div>
+                    </div>
+                    <div class="xin_left">
+                        <a class="xin_nleft" onclick="tab_uploadPic();"><img src="/new/images/moren_pic.png"></a>
+                        <textarea id="msg" name="msg" rows="1" class="xin_input" placeholder="請輸入"></textarea>
+                    </div>
+                    <a onclick="chatForm_submit();" class="xin_right" style="border: none;"><img
+                            src="/new/images/fasong.png" style="margin-top:6px;"></a>
+                </form>
+                @endif
+            </div>
+            @endif
+            @else
+            <div class="se_text_bot">
+                此會員資料已不存在。
+            </div>
+            {{ logger('Chat with non-existing user: ' . url()->current()) }}
+            @endif
         </div>
-    @endif
+    </div>
+</div>
+<div class="bl bl_tab tab_payAlert" id="tab_payAlert">
+    <div class="bltitle bltitle_fixed"><span>車馬費說明</span></div>
+    <a id="" onclick="$('.blbg').click();" class="bl_gb bl_gb_fixed"><img src="/new/images/gb_icon.png"></a>
+    <div class="n_blnr01 matop20 tip_adjust">
+        <div class="n_fengs">
+            @if(isset($tippopup))
+            {!! $tippopup !!}
+            @endif
+        </div>
+        <div class="n_bbutton">
+            <span><a class="n_left" href="javascript:">確認</a></span>
+            <span><a onclick="$('.blbg').click();" class="n_right" href="javascript:">取消</a></span>
+        </div>
+    </div>
+
+</div>
+
+<div class="bl_tab_aa" id="show_banned_ele">
+    <div class="bl_tab_bb">
+        <div class="bltitle banned_name"></div>
+        <div class="new_pot new_poptk_nn new_pot001 ">
+            <div class="fpt_pic new_po000">
+                <form id="reportMsgForm" class="m-form m-form--fit m-form--label-align-right" method="POST"
+                    action="{{ route('reportMsg') }}" enctype="multipart/form-data">
+                    {!! csrf_field() !!}
+                    <input type="hidden" name="aid" value="{{$user->id}}">
+                    <input type="hidden" name="uid" value="">
+                    <input type="hidden" name="id" value="">
+                    <textarea name="content" cols="" rows="" class="n_nutext" placeholder="{{$report_reason}}"
+                        required></textarea>
+                    <input id="images" type="file" name="images">
+                    <div class="n_bbutton" style="width: 100%; text-align: center;">
+                        <button type="submit" class="n_right"
+                            style="border-style: none; background: #8a9ff0; color:#ffffff; float: unset; margin-left: 0px; margin-right: 20px;">送出</button>
+                        <button type="reset" class="n_left"
+                            style="border: 1px solid #8a9ff0; background: #ffffff; color:#8a9ff0; float: unset; margin-right: 0px;"
+                            onclick="show_banned_close()">返回</button>
+                    </div>
+                </form>
+            </div>
+        </div>
+        <a onclick="show_banned_close()" class="bl_gb"><img src="/new/images/gb_icon.png"></a>
+    </div>
+</div>
+
+<div class="bl bl_tab" id="messageBoard_enter_limit" style="display: none;">
+    <div class="bltitle"><span>提示</span></div>
+    <div class="n_blnr01 ">
+        <div class="new_tkfont">您目前未達標準<br>不可使用留言板功能</div>
+        <div class="new_tablema">
+            <table>
+                @if($user->engroup==2)
+                <tr>
+                    <td class="new_baa new_baa1">須通過手機驗證</td>
+                    <td class="new_baa1">@if($user->isPhoneAuth())<img src="/new/images/ticon_01.png">@else<img
+                            src="/new/images/ticon_02.png">@endif</td>
+                </tr>
+                @endif
+                <tr>
+                    <td class="new_baa">需為VIP會員</td>
+                    <td class="">@if(!$user->isVip())<img src="/new/images/ticon_02.png">@else<img
+                            src="/new/images/ticon_01.png">@endif</td>
+                </tr>
+            </table>
+        </div>
+    </div>
+    <a id="" onClick="gmBtnNoReload()" class="bl_gb"><img src="/new/images/gb_icon.png"></a>
+</div>
+
+
+@if($to)
+<div class="bl_tab_aa" id="tab_uploadPic" style="display: none;">
+    <form id="form_uploadPic" action="{{ route('realTimeChat') }}" method="post" enctype="multipart/form-data">
+        <input type="hidden" name="_token" value="{{ csrf_token() }}">
+        <input type="hidden" name="userId" value="{{ $user->id }}">
+        <input type="hidden" name="from" value="{{ $user->id }}">
+        <input type="hidden" name="to" value="{{ $to->id }}">
+        <input type="hidden" name="msg" value="">
+        <input type="hidden" name="m_time" @if(isset($m_time)) value="{{ $m_time }}" @else value="" @endif>
+        <input type="hidden" name="{{ \Carbon\Carbon::now()->timestamp }}"
+            value="{{ \Carbon\Carbon::now()->timestamp }}">
+        <input type="hidden" name="parent" class="message_parent" value="">
+        <div class="bl_tab_bb">
+            <div class="bltitle"><span style="text-align: center; float: none;">上傳照片</span></div>
+            <div class="new_pot1 new_poptk_nn new_height_mobile ">
+                <div class="fpt_pic">
+                    <input id="images" type="file" name="images">
+                    <div class="n_bbutton" style="margin-top:0px;">
+                        <a class="n_bllbut" onclick="form_uploadPic_submit()">送出</a>
+                    </div>
+                </div>
+            </div>
+            <a onclick="tab_uploadPic_close()" class="bl_gb"><img src="/new/images/gb_icon.png"></a>
+        </div>
+    </form>
+</div>
+@endif
 @stop
 @section('javascript')
 <link href="{{ asset('css/jquery.fileuploader.min.css') }}" media="all" rel="stylesheet">
@@ -682,7 +774,8 @@
 <script src="{{ asset('js/jquery.fileuploader.js') }}" type="text/javascript"></script>
 <script src="https://rawgit.com/google/code-prettify/master/loader/run_prettify.js" defer></script>
 <script src="https://cdnjs.cloudflare.com/ajax/libs/photoswipe/4.1.2/photoswipe.min.js" charset="utf-8"></script>
-<script src="https://cdnjs.cloudflare.com/ajax/libs/photoswipe/4.1.2/photoswipe-ui-default.min.js" charset="utf-8"></script>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/photoswipe/4.1.2/photoswipe-ui-default.min.js" charset="utf-8">
+</script>
 <script src="{{ asset('new/js/photoswipe-simplify.min.js') }}" charset="utf-8"></script>
 <script src="{{ asset('new/js/heic2any.min.js') }}" type="text/javascript"></script>
 <script src="{{ asset('new/js/resize_before_upload.js') }}" type="text/javascript"></script>
@@ -695,11 +788,9 @@
 <script>
     @if (($to->engroup) === ($user->engroup))
         c5('同性會員無法發送訊息!');
-        
-        setTimeout("window.location.href = ' {{ !empty(session()->get('goBackPage_chat2')) ? session()->get('goBackPage_chat2') : \Illuminate\Support\Facades\URL::previous() }} '",3000);
-    //return back();
+        setTimeout("window.location.href = ' {{ !empty(session()->get('goBackPage_chat2')) ? session()->get('goBackPage_chat2') : \Illuminate\Support\Facades\URL::previous() }} '", 3000);
     @endif
-
+    
     function readyNumber() {
 
         $('textarea').each(function () {
@@ -1349,12 +1440,12 @@
     });
 </script>
 @if($to)
-    @include('new.dashboard.chat_to')
-    @include('new.dashboard.chat_from')
-    @include('new.dashboard.chatUnsend_self')
-    @include('new.dashboard.chatUnsend_another')
-    <script>
-        if($('#chatForm').length){
+@include('new.dashboard.chat_to')
+@include('new.dashboard.chat_from')
+@include('new.dashboard.chatUnsend_self')
+@include('new.dashboard.chatUnsend_another')
+<script>
+    if($('#chatForm').length){
             document.getElementById("chatForm").onsubmit = function(event) {
                 submit();
                 event.preventDefault();
@@ -1523,14 +1614,19 @@
                 now_close_btn.attr('onclick',now_close_btn.attr('onclick').replace('return false;',''));                
             }   
             
-    </script>
+</script>
 @endif
 <style>
     @media (max-width:450px) {
-        .fpt_pic{height:230px !important;}
+        .fpt_pic {
+            height: 230px !important;
+        }
     }
+
     @media (max-width:320px) {
-        .fpt_pic{height: 230px !important;}
+        .fpt_pic {
+            height: 230px !important;
+        }
     }
 </style>
 @stop
