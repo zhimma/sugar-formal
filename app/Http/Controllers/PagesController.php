@@ -2394,35 +2394,45 @@ class PagesController extends BaseController
         return $data;
     }
 
-    public function getBlockUser(Request $request){
+    public function getBlockUser(Request $request) {
         $user = $request->user();
         $is_vip = $user->isVip();
-        if($is_vip){
+        if($is_vip) {
             $uid = $request->uid;
-            $bannedUsers = \App\Services\UserService::getBannedId();
-            /*此會員封鎖多少其他會員*/
-            $blocked_other_count = Blocked::with(['blocked_user'])
-            ->join('users', 'users.id', '=', 'blocked.blocked_id')
-            ->where('blocked.member_id', $uid)
-            ->whereNotIn('blocked.blocked_id',$bannedUsers)
-            ->whereNotNull('users.id')
-            ->where('users.accountStatus', 1)
-            ->where('users.account_status_admin', 1)
-            ->count();
-    
-            /*此會員被多少會員封鎖*/
-            $be_blocked_other_count = Blocked::with(['blocked_user'])
-                ->join('users', 'users.id', '=', 'blocked.member_id')
-                ->where('blocked.blocked_id', $uid)
-                ->whereNotIn('blocked.member_id',$bannedUsers)
+            $target_user = User::find($uid);
+            if($target_user->valueAddedServiceStatus('hideOnline')) {
+                $data = hideOnlineData::select('user_id', 'blocked_other_count', 'be_blocked_other_count')->where('user_id', $uid)->first();
+                /*此會員封鎖多少其他會員*/
+                $blocked_other_count = $data->blocked_other_count;
+                /*此會員被多少會員封鎖*/
+                $be_blocked_other_count = $data->be_blocked_other_count;
+            }
+            else {
+                $bannedUsers = \App\Services\UserService::getBannedId();
+                /*此會員封鎖多少其他會員*/
+                $blocked_other_count = Blocked::with(['blocked_user'])
+                ->join('users', 'users.id', '=', 'blocked.blocked_id')
+                ->where('blocked.member_id', $uid)
+                ->whereNotIn('blocked.blocked_id',$bannedUsers)
                 ->whereNotNull('users.id')
                 ->where('users.accountStatus', 1)
                 ->where('users.account_status_admin', 1)
                 ->count();
+        
+                /*此會員被多少會員封鎖*/
+                $be_blocked_other_count = Blocked::with(['blocked_user'])
+                    ->join('users', 'users.id', '=', 'blocked.member_id')
+                    ->where('blocked.blocked_id', $uid)
+                    ->whereNotIn('blocked.member_id',$bannedUsers)
+                    ->whereNotNull('users.id')
+                    ->where('users.accountStatus', 1)
+                    ->where('users.account_status_admin', 1)
+                    ->count();
+            }
     
             $output = array(
-                'blocked_other_count'=>$blocked_other_count,
-                'be_blocked_other_count'=>$be_blocked_other_count
+                'blocked_other_count' => $blocked_other_count,
+                'be_blocked_other_count' => $be_blocked_other_count
             );
         }else{
             $output = array(
