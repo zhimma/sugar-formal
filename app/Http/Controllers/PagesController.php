@@ -2449,27 +2449,36 @@ class PagesController extends BaseController
         $is_vip = $user->isVip();
         if($is_vip){
             $uid = $request->uid;
-            $bannedUsers = \App\Services\UserService::getBannedId();
-            /*收藏會員次數*/
-            $fav_count = MemberFav::select('member_fav.*')
-            ->join('users', 'users.id', '=', 'member_fav.member_fav_id')
-            ->whereNotNull('users.id')
-            ->where('users.accountStatus', 1)
-            ->where('users.account_status_admin', 1)
-            ->where('member_fav.member_id', $uid)
-            ->whereNotIn('member_fav.member_fav_id',$bannedUsers)
-            ->get()->count();
-    
-            /*被收藏次數*/
-            $be_fav_count = MemberFav::select('member_fav.*')
-                ->join('users', 'users.id', '=', 'member_fav.member_id')
+            $target_user = User::find($uid);
+            if($target_user->valueAddedServiceStatus('hideOnline')) {
+                $data = hideOnlineData::select('user_id', 'fav_count', 'be_fav_count')->where('user_id', $uid)->first();
+                /*收藏會員次數*/
+                $fav_count = $data->fav_count;
+                /*被收藏次數*/
+                $be_fav_count = $data->be_fav_count;
+            }
+            else {
+                $bannedUsers = \App\Services\UserService::getBannedId();
+                /*收藏會員次數*/
+                $fav_count = MemberFav::select('member_fav.*')
+                ->join('users', 'users.id', '=', 'member_fav.member_fav_id')
                 ->whereNotNull('users.id')
                 ->where('users.accountStatus', 1)
                 ->where('users.account_status_admin', 1)
-                ->where('member_fav.member_fav_id', $uid)
-                ->whereNotIn('member_fav.member_id',$bannedUsers)
+                ->where('member_fav.member_id', $uid)
+                ->whereNotIn('member_fav.member_fav_id',$bannedUsers)
                 ->get()->count();
-    
+        
+                /*被收藏次數*/
+                $be_fav_count = MemberFav::select('member_fav.*')
+                    ->join('users', 'users.id', '=', 'member_fav.member_id')
+                    ->whereNotNull('users.id')
+                    ->where('users.accountStatus', 1)
+                    ->where('users.account_status_admin', 1)
+                    ->where('member_fav.member_fav_id', $uid)
+                    ->whereNotIn('member_fav.member_id',$bannedUsers)
+                    ->get()->count();
+            }
             $output = array(
                 'fav_count'=>$fav_count,
                 'be_fav_count'=>$be_fav_count
