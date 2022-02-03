@@ -85,8 +85,8 @@ class PagesController extends BaseController
         $this->service = $userService;
         $this->logService = $logService;
         $this->suspiciousRepo = $suspiciousRepo;
-        $this->middleware('throttle:100,1');
-        $this->middleware('pseudoThrottle:80,1');
+        $this->middleware('throttle:140,1');
+        $this->middleware('pseudoThrottle:120,1');
     }
 
     public function error() {
