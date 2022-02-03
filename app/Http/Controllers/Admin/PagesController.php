@@ -116,4 +116,8 @@ class PagesController extends \App\Http\Controllers\BaseController
             ->orderBy('created_at', 'desc')->get();
         return view('admin.stats.tooManyRequests', compact('results'));
     }
+
+    public function opcacheStatus() {
+        return view("admin.stats.opcacheStatus");
+    }
 }

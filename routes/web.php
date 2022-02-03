@@ -576,6 +576,8 @@ Route::group(['middleware' => ['auth', 'global', 'active', 'femaleActive', 'vipC
         Route::post('dashboard/accessPermission/delete/{userid}', 'DashboardController@juniorAdminDelete')->name('juniorAdminDelete');
 
         Route::get('dashboard', 'DashboardController@index');
+
+        Route::get('opcacheStatus', 'PagesController@opcacheStatus');
         /*
         |--------------------------------------------------------------------------
         | Users
