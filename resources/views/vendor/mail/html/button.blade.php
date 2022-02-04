@@ -7,7 +7,26 @@
                         <table border="0" cellpadding="0" cellspacing="0">
                             <tr>
                                 <td>
-                                    <a href="{{ $url }}" class="button button-{{ $color or 'blue' }}" target="_blank">{{ $slot }}</a>
+                                    <?php
+                                        $c='#008CBA';
+                                        switch ($color)
+                                        {
+                                            case 'red':
+                                                $c = '#f44336';
+                                                break;
+                                            case 'green':
+                                                $c = '#4CAF50';
+                                                break;
+                                            case 'blue':
+                                                $c = '#008CBA';
+                                        }
+                                    ?>
+                                    <a href="{{ $url }}" 
+                                       class="button" 
+                                       style="background-color:{{$c}}; width:120px; height:40px; text-align: center; line-height:40px;"
+                                       >
+                                       {{ $slot }}
+                                    </a>
                                 </td>
                             </tr>
                         </table>
@@ -15,5 +34,5 @@
                 </tr>
             </table>
         </td>
-    </tr>
+    </tr>   
 </table>
