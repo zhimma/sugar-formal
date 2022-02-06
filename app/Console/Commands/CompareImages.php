@@ -219,7 +219,11 @@ class CompareImages extends Command
                         
                         $compareEntry = $nowCompareFoundArr[$target->id];
 
-                        if(count($compareEntry)) {
+                        if(!is_countable($compareEntry)) {
+                            \Sentry\captureMessage('照片比對程序異常');                            
+                            return;
+                        }
+                        elseif(count($compareEntry)) {
                             continue;                            
                         }
 
