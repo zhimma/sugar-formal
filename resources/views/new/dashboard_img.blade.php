@@ -475,7 +475,11 @@ function requestBlurryAvatarDefault() {
                                 //c2("刪除成功")
                                 $(".announce_bg").hide();
                                 $("#tab02").hide();
-                                show_pop_message(data);
+                                if(data.length>100 || data=='' || data==undefined) {
+                                    show_pop_message('刪除已完成，請確認檔案已刪除');
+                                } else {
+                                    show_pop_message(data);
+                                }
                                 // if(data.length>4){
                                 //     c2(data);
                                 // }else {
@@ -549,7 +553,11 @@ function requestBlurryAvatarDefault() {
                             success: function(data){
                                 $(".announce_bg").hide();
                                 $("#tab02").hide();
-                                show_pop_message(data);
+                                if(data.length>100 || data=='' || data==undefined) {
+                                    show_pop_message('刪除已完成，請確認檔案已刪除');
+                                } else {                                
+                                    show_pop_message(data);
+                                }
                                 // if(data.length>4){
                                 //     c1(data);
                                 // }else {

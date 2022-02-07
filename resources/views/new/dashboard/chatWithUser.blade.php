@@ -1358,6 +1358,7 @@
                     btn_elt.css({ 'cursor': 'default','color':'#d6d6d6'}).attr('onclick','return false;'+btn_elt.attr('onclick')).html('選取照片中\<!--'+btn_elt.html()+'--\>');
             },             
             afterResize: function(listEl,parentEl, newInputEl, inputEl) {
+                $(".announce_bg").show();
                 var now_tab = listEl.closest('.bl_tab_bb');
                 activeCloseTabAct(now_tab);
                 var btn_elt = now_tab.find('.n_bbutton .n_bllbut');

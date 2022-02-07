@@ -217,10 +217,11 @@ class CompareImages extends Command
                         }
                         $last_target = null;
                         
-                        $compareEntry = $nowCompareFoundArr[$target->id];
+                        $compareEntry = $nowCompareFoundArr[$target->id]??[];
 
                         if(!is_countable($compareEntry)) {
                             \Sentry\captureMessage('照片比對程序異常');                            
+                            Log::info('CompareImages:照片比對程序異常，強制結束比對圖片 pic='.$statusEntry->pic);            
                             return;
                         }
                         elseif(count($compareEntry)) {
