@@ -983,6 +983,7 @@ class UserController extends \App\Http\Controllers\BaseController
 
         $collections = collect([$reported, $reported_pic, $reported_avatar, $reported_message]);
         $report_all_personal = $collections->collapse()->sortByDesc('reporter_time')->groupBy('rid')->collapse();
+        //Log::notice(print_r($report_all_personal,true));
 
         $reportBySelf = array();
         foreach ($report_all_personal as $row) {

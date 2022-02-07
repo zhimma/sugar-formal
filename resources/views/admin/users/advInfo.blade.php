@@ -783,12 +783,27 @@
 
 	<!--test-->
 	<?php 
+		$repo_id = 0;
+		$count = 0;
+	?>
+	@foreach($reportBySelf as $row)
+		@if($row['reporter_id'] == $repo_id)
+			<?php $count = $count + 1; ?>
+			<?php $r_count[$repo_id] = $count; ?>
+		@else
+			<?php $repo_id = $row['reporter_id']; ?>
+			<?php $count = 1; ?>
+			<?php $r_count[$repo_id] = $count; ?>
+		@endif
+	@endforeach
+
+	<?php 
 		$r_id = 0;
 	?>
 	@foreach($reportBySelf as $row)
 		
 		@if($row['reporter_id'] == $r_id)
-			<tr>
+			<tr class="tr_hide">
 				<td></td>
 				<td></td>
 				<td>{{ $row['created_at'] }}</td>
@@ -827,6 +842,11 @@
 				<td>
 					<a href="{{ route('users/advInfo', $row['reporter_id']) }}" target='_blank'>
 						{{ $row['email'] }}
+						(
+						<a>
+						{{ $r_count[$r_id] }}
+						</a>
+						)
 					</a>
 				</td>
 				<td>{{ $row['created_at'] }}</td>
