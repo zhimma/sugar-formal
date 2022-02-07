@@ -37,8 +37,8 @@ class CompareImagesCaller implements ShouldQueue
      */
     public function handle()
     {
-        $pic = $this->targetImg_path;
-        if(!$pic || !is_countable($pic)) {
+        $pic = $this->targetImg_path??'';
+        if(!$pic) {
             \Sentry\captureMessage('CompareImagesCaller 異常');     
             return;
         }

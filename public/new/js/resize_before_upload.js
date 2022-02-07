@@ -384,6 +384,7 @@ function resize_pic_loading_close(cur_uploader_option,listEl,parentEl, newInputE
         $(document).on('click','.blbg',closeAndReload); 
         $(".announce_bg").attr('onclick',org_announce_bg_onclick_value);
         $(".blbg").hide();
+        $(".announce_bg").hide();
 		$("#tab_loading").hide();  
         $('#tabPopM').hide();   
         $('#tab05').hide();  
