@@ -242,15 +242,20 @@ class CompareImages extends Command
                         $targetInterset = array_intersect_key($targetEncode,$srcEncode);                        
 
                         $srcPartInterDiffSum = 0;
-                        $i=0;
-                        $srcIntersetSum=0;
-                        foreach($srcInterset  as $ki=>$vi) {  
+                        $i = 0;
+                        $srcIntersetSum = 0;
+                        foreach($srcInterset  as $ki => $vi) {  
                             if($i>=10) break;
                             $srcPartInterDiffSum+= ($vi-$targetEncode[$ki]>0)?($vi-$targetEncode[$ki]):0;
                             $srcIntersetSum+=$vi;
                             $i++;
                         }
-                        $srcInterPercent =100-( 100*$srcPartInterDiffSum/ $srcIntersetSum);
+
+                        if($srcIntersetSum == 0) {
+                            // 避免 ÷ 0 的問題發生
+                            continue;
+                        }
+                        $srcInterPercent = 100 - ( 100 * $srcPartInterDiffSum / $srcIntersetSum);
 
                         $targetPartInterDiffSum = 0;
                         $i=0;
