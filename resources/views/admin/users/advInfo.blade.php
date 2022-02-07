@@ -803,7 +803,7 @@
 	@foreach($reportBySelf as $row)
 		
 		@if($row['reporter_id'] == $r_id)
-			<tr class="tr_hide">
+			<tr class="tr_hide tr_hide_{{$r_id}}">
 				<td></td>
 				<td></td>
 				<td>{{ $row['created_at'] }}</td>
@@ -842,12 +842,12 @@
 				<td>
 					<a href="{{ route('users/advInfo', $row['reporter_id']) }}" target='_blank'>
 						{{ $row['email'] }}
-						(
-						<a>
-						{{ $r_count[$r_id] }}
-						</a>
-						)
 					</a>
+					(
+					<a class="tr_more" r_id="{{$r_id}}">
+						{{ $r_count[$r_id] }}
+					</a>
+					)
 				</td>
 				<td>{{ $row['created_at'] }}</td>
 				<td>@if($row['isvip']==1) VIP @else 非VIP @endif</td>
@@ -1818,6 +1818,13 @@
 <script src="/js/vendors.bundle.js" type="text/javascript"></script>
 <script>
 jQuery(document).ready(function(){
+
+	//test
+	$('.tr_hide').hide();
+	$('.tr_more').click(function () {
+        $(".tr_hide_" + $(this).attr("r_id")).toggle();
+    });
+	//test
 
 	$('.message_toggle').on('click',function(e){
 		$(this).text(function(i,old){
