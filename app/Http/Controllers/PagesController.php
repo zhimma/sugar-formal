@@ -6100,8 +6100,8 @@ class PagesController extends BaseController
         }
         
         $vasStatus = '';
-        if(false) { //測試站錯誤暫時修改略過
-        //if($user->valueAddedServiceStatus('hideOnline') == 1) {
+
+        if($user->valueAddedServiceStatus('hideOnline') == 1) {
             $vasStatus = '您已購買隱藏付費功能';
             $vas = $user->vas->where('service_name','hideOnline')->first();
             if($vas->payment){
