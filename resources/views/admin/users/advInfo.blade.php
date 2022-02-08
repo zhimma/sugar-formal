@@ -775,7 +775,7 @@
 
 @if(count($reportBySelf)>0)
 <br>
-<h4>檢舉紀錄</h4>
+<h4>檢舉紀錄(最新一筆)</h4>
 <table class="table table-hover table-bordered">
 	<tr>
 		<th width="14%">暱稱</th>
@@ -787,42 +787,94 @@
 		<th width="20%">檢舉理由</th>
 		<th width="22%">上傳照片</th>
 	</tr>
+
+	<?php 
+		$repo_id = 0;
+		$count = 0;
+	?>
 	@foreach($reportBySelf as $row)
-		<tr>
-			<td><a href="{{ route('admin/showMessagesBetween', [$user->id, $row['reporter_id']]) }}" target="_blank">{{$row['name']}}</a>
-				@if($row['vip'])
-					@if($row['vip']=='diamond_black')
-						<img src="/img/diamond_black.png" style="height: 16px;width: 16px;">
-					@else
-						@for($z = 0; $z < $row['vip']; $z++)
-							<img src="/img/diamond.png" style="height: 16px;width: 16px;">
-						@endfor
-					@endif
-				@endif
-				@for($i = 0; $i < $row['tipcount']; $i++)
-					👍
-				@endfor</td>
-			<td>
-				<a href="{{ route('users/advInfo', $row['reporter_id']) }}" target='_blank'>
-					{{ $row['email'] }}
-				</a>
-			</td>
-			<td>{{ $row['created_at'] }}</td>
-			<td>@if($row['isvip']==1) VIP @endif</td>
-			<td>{{ $row['report_type'] }}</td>
-			<td>@if($row['auth_status']==1) 已認證 @else N/A @endif</td>
-			<td>{{ $row['content'] }}</td>
-			<td class="evaluation_zoomIn">
-				@if(isset($row['pic']))
-					@foreach($row['pic'] as $reportedPic)
-						<li style="float:left;margin:2px 2px;list-style:none;display:block;white-space: nowrap;width: 135px;">
-							<img src="{{ $reportedPic }}" style="max-width:130px;max-height:130px;margin-right: 5px;">
-						</li>
-					@endforeach
-				@endif
-			</td>
-		</tr>
+		@if($row['reporter_id'] == $repo_id)
+			<?php $count = $count + 1; ?>
+			<?php $r_count[$repo_id] = $count; ?>
+		@else
+			<?php $repo_id = $row['reporter_id']; ?>
+			<?php $count = 1; ?>
+			<?php $r_count[$repo_id] = $count; ?>
+		@endif
 	@endforeach
+
+	<?php 
+		$r_id = 0;
+	?>
+	@foreach($reportBySelf as $row)
+		
+		@if($row['reporter_id'] == $r_id)
+			<tr class="tr_hide tr_hide_{{$r_id}}">
+				<td></td>
+				<td></td>
+				<td>{{ $row['created_at'] }}</td>
+				<td></td>
+				<td>{{ $row['report_type'] }}</td>
+				<td></td>
+				<td>{{ $row['content'] }}</td>
+				<td class="evaluation_zoomIn">
+					@if(isset($row['pic']))
+						@foreach($row['pic'] as $reportedPic)
+							<li style="float:left;margin:2px 2px;list-style:none;display:block;white-space: nowrap;width: 135px;">
+								<img src="{{ $reportedPic }}" style="max-width:130px;max-height:130px;margin-right: 5px;">
+							</li>
+						@endforeach
+					@endif
+				</td>
+			</tr>
+		@else
+			<?php $r_id = $row['reporter_id']; ?>
+			<tr>
+				<td>
+					<a href="{{ route('admin/showMessagesBetween', [$user->id, $row['reporter_id']]) }}" target="_blank">{{$row['name']}}</a>
+					@if($row['vip'])
+						@if($row['vip']=='diamond_black')
+							<img src="/img/diamond_black.png" style="height: 16px;width: 16px;">
+						@else
+							@for($z = 0; $z < $row['vip']; $z++)
+								<img src="/img/diamond.png" style="height: 16px;width: 16px;">
+							@endfor
+						@endif
+					@endif
+					@for($i = 0; $i < $row['tipcount']; $i++)
+						👍
+					@endfor
+				</td>
+				<td>
+					<a href="{{ route('users/advInfo', $row['reporter_id']) }}" target='_blank'>
+						{{ $row['email'] }}
+					</a>
+					@if($r_count[$r_id] > 1)
+						(
+						<a class="tr_more" r_id="{{$r_id}}">
+							{{ $r_count[$r_id] }}
+						</a>
+						)
+					@endif
+				</td>
+				<td>{{ $row['created_at'] }}</td>
+				<td>@if($row['isvip']==1) VIP @else 非VIP @endif</td>
+				<td>{{ $row['report_type'] }}</td>
+				<td>@if($row['auth_status']==1) 已認證 @else N/A @endif</td>
+				<td>{{ $row['content'] }}</td>
+				<td class="evaluation_zoomIn">
+					@if(isset($row['pic']))
+						@foreach($row['pic'] as $reportedPic)
+							<li style="float:left;margin:2px 2px;list-style:none;display:block;white-space: nowrap;width: 135px;">
+								<img src="{{ $reportedPic }}" style="max-width:130px;max-height:130px;margin-right: 5px;">
+							</li>
+						@endforeach
+					@endif
+				</td>
+			</tr>
+		@endif
+	@endforeach
+
 </table>
 @endif
 
@@ -1794,6 +1846,13 @@
 <script src="/js/vendors.bundle.js" type="text/javascript"></script>
 <script>
 jQuery(document).ready(function(){
+
+	//test
+	$('.tr_hide').hide();
+	$('.tr_more').click(function () {
+        $(".tr_hide_" + $(this).attr("r_id")).toggle();
+    });
+	//test
 
 	$('.message_toggle').on('click',function(e){
 		$(this).text(function(i,old){
