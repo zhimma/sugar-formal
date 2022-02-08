@@ -908,7 +908,7 @@ header("Expires: Fri, 01 Jan 1990 00:00:00 GMT");
              let county3= "{{$county3  ?? null}}";
              //新增體重
              let weight="{{$weight}}";
-            axios.post('/getSearchData', {
+            axios.post('/getSearchData?{{ csrf_token() }}={{ now()->timestamp }}', {
                 county:county,
                 district:district,
                 cup:cup,
