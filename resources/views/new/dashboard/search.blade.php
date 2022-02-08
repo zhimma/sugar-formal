@@ -600,7 +600,9 @@ header("Expires: Fri, 01 Jan 1990 00:00:00 GMT");
 
                     <?php $icc = 1;
                     $userIsVip = $user->isVIP();
-                    $userIsAdvanceAuth = isset($_POST['isAdvanceAuth'])?1:0;
+                    $userIsAdvanceAuth = $_POST["isAdvanceAuth"] ?? 
+                                         $_GET["isAdvanceAuth"]  ?? 
+                                         session()->get('search_page_key.isAdvanceAuth') ?? 0;
 
                     // vi vendor/laravel/framework/src/Illuminate/Database/Query/Builder.php
                     // addWhereExistsQuery() remove $operator
@@ -936,7 +938,8 @@ header("Expires: Fri, 01 Jan 1990 00:00:00 GMT");
                 isVip:isVip,
                 isWarned:isWarned,
                 isPhoneAuth:isPhoneAuth,
-                userIsAdvanceAuth:userIsAdvanceAuth,
+                isAdvanceAuth:userIsAdvanceAuth,
+                userIsAdvanceAuth:userIsAdvanceAuth,  
                 page:page,
                 tattoo:tattoo,
                 city2:county2,
