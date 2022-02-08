@@ -918,7 +918,7 @@
 
             // alert(date);
             $.ajax({
-                url: '{{ route('showMessages') }}',
+                url: '{{ route('showMessages') }}?{{ csrf_token() }}={{ now()->timestamp }}',
                 type: 'POST',
                 dataType: 'json',
                 // headers: {
