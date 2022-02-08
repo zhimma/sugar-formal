@@ -168,8 +168,12 @@ class ValueAddedService extends Model
 
 
         if($service_name=='hideOnline'){
-            $HideOnlineData = \App\Models\hideOnlineData::where('user_id', $member_id)->first();
-            User::where('id',$member_id)->update(['is_hide_online' => 1, 'hide_online_time' => $HideOnlineData->login_time]);
+            $HideOnlineData = hideOnlineData::where('user_id', $member_id)->first();
+            if(isset($HideOnlineData)) {
+                User::where('id', $member_id)->update(['is_hide_online' => 1, 'hide_online_time' => $HideOnlineData->login_time]);
+            }else{
+                User::where('id', $member_id)->update(['is_hide_online' => 1]);
+            }
         }
 
         ValueAddedServiceLog::addToLog($member_id, $service_name,'Upgrade, payment: ' . $payment . ', service: ' . $service_name, $order_id, $txn_id, 0);
