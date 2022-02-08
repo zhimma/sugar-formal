@@ -781,7 +781,6 @@
 		<th width="22%">上傳照片</th>
 	</tr>
 
-	<!--test-->
 	<?php 
 		$repo_id = 0;
 		$count = 0;
@@ -843,11 +842,13 @@
 					<a href="{{ route('users/advInfo', $row['reporter_id']) }}" target='_blank'>
 						{{ $row['email'] }}
 					</a>
-					(
-					<a class="tr_more" r_id="{{$r_id}}">
-						{{ $r_count[$r_id] }}
-					</a>
-					)
+					@if($r_count[$r_id] > 1)
+						(
+						<a class="tr_more" r_id="{{$r_id}}">
+							{{ $r_count[$r_id] }}
+						</a>
+						)
+					@endif
 				</td>
 				<td>{{ $row['created_at'] }}</td>
 				<td>@if($row['isvip']==1) VIP @else 非VIP @endif</td>
@@ -866,7 +867,7 @@
 			</tr>
 		@endif
 	@endforeach
-	<!--test-->
+
 </table>
 @endif
 
