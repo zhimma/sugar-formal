@@ -20,22 +20,22 @@
 </style>
 <head>
     
-    <meta charset="utf-8">
-    <meta http-equiv="X-UA-Compatible" content="IE=edge">
-    <meta name="format-detection" content="telephone=no" />
-    <meta name="viewport" content="width=device-width, initial-scale=1">
+    <!--<meta charset="utf-8">-->
+    <!--<meta http-equiv="X-UA-Compatible" content="IE=edge">-->
+    <!--<meta name="format-detection" content="telephone=no" />-->
+    <!--<meta name="viewport" content="width=device-width, initial-scale=1">-->
     <!-- The above 3 meta tags *must* come first in the head; any other head content must come *after* these tags -->
-    <title>懲處名單</title>
+    <!--<title>懲處名單</title>-->
     <!-- Bootstrap -->
-    <link href={{asset("alert/css/bootstrap.min.css")}} rel="stylesheet">
-    <link href={{asset("alert/css/bootstrap-theme.min.css")}} rel="stylesheet">
+    <!--<link href={{asset("alert/css/bootstrap.min.css")}} rel="stylesheet">-->
+    <!--<link href={{asset("alert/css/bootstrap-theme.min.css")}} rel="stylesheet">-->
     <!-- owl-carousel-->
     <!--    css-->
-    <link rel="stylesheet" href={{asset("alert/css/style.css")}}>
-    <link rel="stylesheet" href={{asset("alert/css/swiper.min.css")}}>
-    <script src={{asset('alert/js/bootstrap.min.js')}}></script>
-    <script src={{asset("alert/js/jquery-2.1.1.min.js")}} type="text/javascript"></script>
-    <script src={{asset("/js/main.js")}} type="text/javascript"></script>
+    <!--<link rel="stylesheet" href={{asset("alert/css/style.css")}}>-->
+    <!--<link rel="stylesheet" href={{asset("alert/css/swiper.min.css")}}>-->
+    <!--<script src={{asset('alert/js/bootstrap.min.js')}}></script>-->
+    <!--<script src={{asset("alert/js/jquery-2.1.1.min.js")}} type="text/javascript"></script>-->
+    <!--<script src={{asset("/js/main.js")}} type="text/javascript"></script>-->
 
 </head>
 <!--<script>
