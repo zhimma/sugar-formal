@@ -157,7 +157,17 @@
                             @endforeach
                         </table>
                         <div style="text-align: center;">
-                            {!! $warned_users->links('pagination::sg-pages2') !!}
+                        <div class="fenye">
+                                @if($banned_users->currentPage()==1)
+                                    <a  >上一頁</a>
+                                    <span class="new_page">第 {{ $banned_users->currentPage() }} 頁</span>
+                                    <a href="{{ $banned_users->nextPageUrl()."&type=1" }}">下一頁</a>
+                                @elseif($banned_users->currentPage() == $banned_users->lastPage())
+                                    <a href="{{ $banned_users->previousPageUrl()."&type=1" }}" id="pPage">上一頁</a>
+                                    <span class="new_page">第 {{ $banned_users->currentPage() }} 頁</span>
+                                    <a  >下一頁</a>
+                                @endif
+                            </div>
                         </div>
                     </div>
                 </div>
