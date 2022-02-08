@@ -286,8 +286,8 @@
                                         </tr>
                                         @foreach($reportedStatus as $row)
                                             <tr data-recordtype="reportedRecord"  data-rid="{{$row['id']}}"  data-reportedType="{{$row['reported_type']}}">
-                                                <td style="font-size: 15px;color: #999999;">{!! $row['content'] !!}</td>
-                                                <td style="font-size: 15px;color: #999999;">{!! $row['status'] !!}</td>
+                                                <td style="font-size: 15px;color: #999999; word-break: break-word;">{!! $row['content'] !!}</td>
+                                                <td style="font-size: 15px;color: #999999; word-break: break-word;">{!! $row['status'] !!}</td>
                                             </tr>
                                         @endforeach
                                         </tbody>

@@ -91,6 +91,8 @@ class Kernel extends ConsoleKernel
             $schedule->call(function (){
                 $this->resetUserPicsSwitches();
             })->timezone('Asia/Taipei')->dailyAt('6:30');
+        }
+        if(app()->isProduction()) {
             $schedule->call(function (){
                 $this->send_registed_users_statistics_by_LineNotify();
             })->timezone('Asia/Taipei')->dailyAt('1:00');

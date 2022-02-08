@@ -509,6 +509,7 @@ Route::group(['middleware' => ['auth', 'global', 'active', 'femaleActive', 'vipC
         Route::match(['get', 'post'], 'users/VIP/ECCancellations/readOnly', 'PagesController@showECCancellations')->name('users/VIP/ECCancellations/readOnly');
         Route::get('stats/vip/paid/readOnly', 'StatController@vipPaid')->name('stats/vip/paid/readOnly');
         Route::post('users/VIPToggler/readOnly', 'UserController@toggleVIP')->name('VIPToggler/readOnly');
+        Route::post('users/toggleHidden/readOnly', 'UserController@toggleHidden')->name('toggleHidden/readOnly');        
         Route::get('users/advInfo/{id}/readOnly', 'UserController@advInfo')->name('users/advInfo/readOnly');
         Route::get('to/{id}/readOnly', 'UserController@showAdminMessenger')->name('AdminMessage/readOnly');
         Route::get('users/pictures', 'UserController@showUserPictures')->name('users/pictures/readOnly/GET');
@@ -575,6 +576,8 @@ Route::group(['middleware' => ['auth', 'global', 'active', 'femaleActive', 'vipC
         Route::post('dashboard/accessPermission/delete/{userid}', 'DashboardController@juniorAdminDelete')->name('juniorAdminDelete');
 
         Route::get('dashboard', 'DashboardController@index');
+
+        Route::get('opcacheStatus', 'PagesController@opcacheStatus');
         /*
         |--------------------------------------------------------------------------
         | Users
@@ -696,6 +699,7 @@ Route::group(['middleware' => ['auth', 'global', 'active', 'femaleActive', 'vipC
         Route::post('users/invite', 'UserController@postInvite');
         Route::post('users/genderToggler', 'UserController@toggleGender')->name('genderToggler');
         Route::post('users/VIPToggler', 'UserController@toggleVIP')->name('VIPToggler');
+        Route::post('users/toggleHidden', 'UserController@toggleHidden')->name('toggleHidden');        
         Route::post('users/RecommendedToggler', 'UserController@toggleRecommendedUser');
         Route::post('users/reportedToggler', 'UserController@reportedToggler');
         Route::get('users/banned_implicitly', 'UserController@showImplicitlyBannedUsers')->name('implicitlyBanned');

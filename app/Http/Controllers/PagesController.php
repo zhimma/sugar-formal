@@ -85,8 +85,8 @@ class PagesController extends BaseController
         $this->service = $userService;
         $this->logService = $logService;
         $this->suspiciousRepo = $suspiciousRepo;
-        $this->middleware('throttle:100,1');
-        $this->middleware('pseudoThrottle:80,1');
+        $this->middleware('throttle:140,1');
+        $this->middleware('pseudoThrottle:100,1');
     }
 
     public function error() {
@@ -2082,7 +2082,7 @@ class PagesController extends BaseController
             }
 
             // die();
-            return view('new.dashboard.viewuser', $data)
+            return view('new.dashboard.viewuser', $data ?? [])
                     ->with('user', $user)
                     ->with('blockadepopup', $blockadepopup)
                     ->with('to', $to)
@@ -2304,7 +2304,7 @@ class PagesController extends BaseController
                     $be_visit_other_count_7 = $hideOnlineData->be_visit_other_count_7;//new add
                     // $blocked_other_count = $hideOnlineData->blocked_other_count;//new add
                     // $be_blocked_other_count = $hideOnlineData->be_blocked_other_count;//new add
-                    $last_login = $hideOnlineData->updated_at; //new add
+                    $last_login = $hideOnlineData->login_time; //new add
 
                     //此段僅測試用
                     //上正式機前起移除
@@ -2394,35 +2394,45 @@ class PagesController extends BaseController
         return $data;
     }
 
-    public function getBlockUser(Request $request){
+    public function getBlockUser(Request $request) {
         $user = $request->user();
         $is_vip = $user->isVip();
-        if($is_vip){
+        if($is_vip) {
             $uid = $request->uid;
-            $bannedUsers = \App\Services\UserService::getBannedId();
-            /*此會員封鎖多少其他會員*/
-            $blocked_other_count = Blocked::with(['blocked_user'])
-            ->join('users', 'users.id', '=', 'blocked.blocked_id')
-            ->where('blocked.member_id', $uid)
-            ->whereNotIn('blocked.blocked_id',$bannedUsers)
-            ->whereNotNull('users.id')
-            ->where('users.accountStatus', 1)
-            ->where('users.account_status_admin', 1)
-            ->count();
-    
-            /*此會員被多少會員封鎖*/
-            $be_blocked_other_count = Blocked::with(['blocked_user'])
-                ->join('users', 'users.id', '=', 'blocked.member_id')
-                ->where('blocked.blocked_id', $uid)
-                ->whereNotIn('blocked.member_id',$bannedUsers)
+            $target_user = User::find($uid);
+            if($target_user->valueAddedServiceStatus('hideOnline')) {
+                $data = hideOnlineData::select('user_id', 'blocked_other_count', 'be_blocked_other_count')->where('user_id', $uid)->first();
+                /*此會員封鎖多少其他會員*/
+                $blocked_other_count = $data->blocked_other_count;
+                /*此會員被多少會員封鎖*/
+                $be_blocked_other_count = $data->be_blocked_other_count;
+            }
+            else {
+                $bannedUsers = \App\Services\UserService::getBannedId();
+                /*此會員封鎖多少其他會員*/
+                $blocked_other_count = Blocked::with(['blocked_user'])
+                ->join('users', 'users.id', '=', 'blocked.blocked_id')
+                ->where('blocked.member_id', $uid)
+                ->whereNotIn('blocked.blocked_id',$bannedUsers)
                 ->whereNotNull('users.id')
                 ->where('users.accountStatus', 1)
                 ->where('users.account_status_admin', 1)
                 ->count();
+        
+                /*此會員被多少會員封鎖*/
+                $be_blocked_other_count = Blocked::with(['blocked_user'])
+                    ->join('users', 'users.id', '=', 'blocked.member_id')
+                    ->where('blocked.blocked_id', $uid)
+                    ->whereNotIn('blocked.member_id',$bannedUsers)
+                    ->whereNotNull('users.id')
+                    ->where('users.accountStatus', 1)
+                    ->where('users.account_status_admin', 1)
+                    ->count();
+            }
     
             $output = array(
-                'blocked_other_count'=>$blocked_other_count,
-                'be_blocked_other_count'=>$be_blocked_other_count
+                'blocked_other_count' => $blocked_other_count,
+                'be_blocked_other_count' => $be_blocked_other_count
             );
         }else{
             $output = array(
@@ -2439,27 +2449,36 @@ class PagesController extends BaseController
         $is_vip = $user->isVip();
         if($is_vip){
             $uid = $request->uid;
-            $bannedUsers = \App\Services\UserService::getBannedId();
-            /*收藏會員次數*/
-            $fav_count = MemberFav::select('member_fav.*')
-            ->join('users', 'users.id', '=', 'member_fav.member_fav_id')
-            ->whereNotNull('users.id')
-            ->where('users.accountStatus', 1)
-            ->where('users.account_status_admin', 1)
-            ->where('member_fav.member_id', $uid)
-            ->whereNotIn('member_fav.member_fav_id',$bannedUsers)
-            ->get()->count();
-    
-            /*被收藏次數*/
-            $be_fav_count = MemberFav::select('member_fav.*')
-                ->join('users', 'users.id', '=', 'member_fav.member_id')
+            $target_user = User::find($uid);
+            if($target_user->valueAddedServiceStatus('hideOnline')) {
+                $data = hideOnlineData::select('user_id', 'fav_count', 'be_fav_count')->where('user_id', $uid)->first();
+                /*收藏會員次數*/
+                $fav_count = $data->fav_count;
+                /*被收藏次數*/
+                $be_fav_count = $data->be_fav_count;
+            }
+            else {
+                $bannedUsers = \App\Services\UserService::getBannedId();
+                /*收藏會員次數*/
+                $fav_count = MemberFav::select('member_fav.*')
+                ->join('users', 'users.id', '=', 'member_fav.member_fav_id')
                 ->whereNotNull('users.id')
                 ->where('users.accountStatus', 1)
                 ->where('users.account_status_admin', 1)
-                ->where('member_fav.member_fav_id', $uid)
-                ->whereNotIn('member_fav.member_id',$bannedUsers)
+                ->where('member_fav.member_id', $uid)
+                ->whereNotIn('member_fav.member_fav_id',$bannedUsers)
                 ->get()->count();
-    
+        
+                /*被收藏次數*/
+                $be_fav_count = MemberFav::select('member_fav.*')
+                    ->join('users', 'users.id', '=', 'member_fav.member_id')
+                    ->whereNotNull('users.id')
+                    ->where('users.accountStatus', 1)
+                    ->where('users.account_status_admin', 1)
+                    ->where('member_fav.member_fav_id', $uid)
+                    ->whereNotIn('member_fav.member_id',$bannedUsers)
+                    ->get()->count();
+            }
             $output = array(
                 'fav_count'=>$fav_count,
                 'be_fav_count'=>$be_fav_count
@@ -3353,6 +3372,7 @@ class PagesController extends BaseController
 
         if (isset($user)) {
             $is_banned = User::isBanned($user->id);
+            $toUserIsBanned = User::isBanned($cid);
             $isVip = $user->isVip();
             $tippopup = AdminCommonText::getCommonText(3);//id3車馬費popup說明
             $messages = Message::allToFromSender($user->id, $cid,true);
@@ -3380,8 +3400,8 @@ class PagesController extends BaseController
                     ->with('user', $user)
                     ->with('admin', $admin)
                     ->with('is_banned', $is_banned)
+                    ->with('toUserIsBanned', $toUserIsBanned)
                     ->with('cmeta', $c_user_meta)
-                    //->with('to', $this->service->find($cid))
                     ->with('to', $cid_user)
                     ->with('to_forbid_msg_data',$forbid_msg_data)                    
                     ->with('m_time', $m_time)
@@ -3395,6 +3415,7 @@ class PagesController extends BaseController
                     ->with('user', $user)
                     ->with('admin', $admin)
                     ->with('is_banned', $is_banned)
+                    ->with('toUserIsBanned', $toUserIsBanned)
                     ->with('cmeta', $c_user_meta)
                     ->with('m_time', $m_time)
                     ->with('isVip', $isVip)
@@ -3911,7 +3932,7 @@ class PagesController extends BaseController
             return $strlen == 2 ? $firstStr . str_repeat('*', mb_strlen($user_name, 'utf-8') - 1) : $firstStr . str_repeat("*", $strlen - 2) . $lastStr;
         }
     }
-
+    
     public function warned(Request $request)
     {
         if($user = Auth::user()){
@@ -6079,8 +6100,8 @@ class PagesController extends BaseController
         }
         
         $vasStatus = '';
-        if(false) { //測試站錯誤暫時修改略過
-        //if($user->valueAddedServiceStatus('hideOnline') == 1) {
+
+        if($user->valueAddedServiceStatus('hideOnline') == 1) {
             $vasStatus = '您已購買隱藏付費功能';
             $vas = $user->vas->where('service_name','hideOnline')->first();
             if($vas->payment){

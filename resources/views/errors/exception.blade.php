@@ -7,7 +7,8 @@
             <div class="col-sm-12 col-xs-12 col-md-12">
                 <div class="wxsy" style="min-height: 0!important;">
                     <div class="wxsy_title">
-                        @if(isset($exception))
+                        @if(isset($exception) && str_contains($exception, 'refused'))
+                        @elseif(isset($exception))
                             發生錯誤
                         @else
                             發生不明錯誤
@@ -15,7 +16,9 @@
                     </div>
                     <div class="wxsy_k">
                         <div class="wknr">
-                            @if(isset($exception))
+                            @if(isset($exception) && str_contains($exception, 'refused'))
+                                <h4>您好，這個操作失敗，請重新整理即可恢復正常，若重新讀取後無法修復，請點右下聯絡我們通知站長。</h4>
+                            @elseif(isset($exception))
                                 <h5>網站目前正在更新，請半小時後重試。如果還是出現此畫面，請與站長聯繫(右下角聯絡我們)，並提供以下資訊：</h5>
                                 <h4>時間：{{ \Carbon\Carbon::now()->toDateTimeString() }}</h4>
                                 <h4>錯誤類型：{{ substr($exception, 0, strpos($exception, ':')) }}</h4>

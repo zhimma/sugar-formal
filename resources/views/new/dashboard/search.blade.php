@@ -6,7 +6,6 @@ header("Expires: Fri, 01 Jan 1990 00:00:00 GMT");
 ?>
 @extends('new.layouts.website')
 @section('app-content')
-    <link rel="stylesheet" href="/css/style.css">
     <style>
         .pagination > li > a:focus,
         .pagination > li > a:hover,
@@ -133,7 +132,7 @@ header("Expires: Fri, 01 Jan 1990 00:00:00 GMT");
                                 </dt>
 
                                 @if (!$user->isVIP())
-                                    <div class="se_nvd">
+                                    <div>
                                         <div class="wuziliao">
                                             <img src="/new/images/fengs_icon.png">
                                         </div>
@@ -202,7 +201,8 @@ header("Expires: Fri, 01 Jan 1990 00:00:00 GMT");
                                     @endif
 
                                     <div class="btn_more">
-                                        進階搜尋     <span class="right"><img src="/new/images/xq_06.png"></span>
+                                        進階搜尋
+                                        <span class="right"><img src="/new/images/xq_06.png"></span>
                                     </div>
 
                                     <div class="se_nvd">

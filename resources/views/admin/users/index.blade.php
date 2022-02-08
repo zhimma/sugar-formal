@@ -25,6 +25,7 @@
 		<th>VIP資料更新時間</th>
 		<th>變更男/女</th>
 		<th>提供/取消VIP權限</th>
+		<th>是否升級隱藏</th>
 	</tr>
 	@forelse ($users as $user)
 		@php
@@ -138,6 +139,8 @@
 			<input type="hidden" name='isVip' value="@if($user->isVip) 1 @else 0 @endif">
 			<button type="submit" class="btn btn-info">@if($user->isVip) 取消權限 @else 提供權限 @endif</button></form>
 		</td>
+		<td>目前狀態：@if($user->valueAddedServiceStatus('hideOnline') == 1 ) 是 @else 否 @endif</td>
+		{{-- <td>{{$isVip}}</td> --}}
 	</tr>
 	@empty
 	<tr>

@@ -37,10 +37,13 @@ class CompareImagesCaller implements ShouldQueue
      */
     public function handle()
     {
-        $pic = $this->targetImg_path;
-        if(!$pic) return;
+        $pic = $this->targetImg_path??'';
+        if(!$pic) {
+            \Sentry\captureMessage('CompareImagesCaller 異常');     
+            return;
+        }
         $encode_by = $this->encode_by;
-        $force_all = $this->force_all;
+        $force_all = $this->force_all;        
         if($encode_by) {
             Artisan::call("EncodeImagesForCompare",['pic'=>$pic,'encode_by'=>$encode_by]); 
             if($force_all) Artisan::call("CompareImages",['pic'=>$pic]);            
