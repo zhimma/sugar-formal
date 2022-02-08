@@ -61,11 +61,11 @@
                     <div class="nn_dontt">
                         <ul>
                             @if($type == 0)
-                            <li onclick='return changediv("fs")' id="fs_a" class="nn_dontt_hover" target=_parent style="color:#ee5472 ">封鎖名單</li>
-                            <li onclick='return changediv("fs2")' id="fs2_a" target=_parent style="color:#ee5472 ">警示名單</li>
+                            <li id="fs_a" class="nn_dontt_hover" target=_parent style="color:#ee5472 ">封鎖名單</li>
+                            <li onclick="location.href='/dashboard/banned_warned_list?type=1';" id="fs2_a" target=_parent style="color:#ee5472 ">警示名單</li>
                             @elseif($type == 1)
-                            <li onclick='return changediv("fs")' id="fs_a" target=_parent style="color:#ee5472 ">封鎖名單</li>
-                            <li onclick='return changediv("fs2")' id="fs2_a" class="nn_dontt_hover" target=_parent style="color:#ee5472 ">警示名單</li>
+                            <li onclick="location.href='/dashboard/banned_warned_list';" id="fs_a" target=_parent style="color:#ee5472 ">封鎖名單</li>
+                            <li id="fs2_a" class="nn_dontt_hover" target=_parent style="color:#ee5472 ">警示名單</li>
                             @endif
                         </ul>
                     </div>
