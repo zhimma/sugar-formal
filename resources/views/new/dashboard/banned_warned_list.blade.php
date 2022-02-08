@@ -38,7 +38,7 @@
     <script src={{asset("/js/main.js")}} type="text/javascript"></script>
 
 </head>
-<script>
+<!--<script>
     function changediv(id) {
         document.getElementById("fs").style.display = "none";
         document.getElementById("fs2").style.display = "none";
@@ -48,7 +48,7 @@
         document.getElementById(id + "_a").className = "nn_dontt_hover";
         return false;
     }
-</script>
+</script>-->
 @section('app-content')
     <div class="container matop70">
         <input type="hidden" value="{{ \App\Models\User::isBanned($user->id) ?1:2 }}">

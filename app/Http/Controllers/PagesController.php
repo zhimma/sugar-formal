@@ -3868,7 +3868,7 @@ class PagesController extends BaseController
 
     //本月封鎖 + 警示名單
     //$type 0為封鎖名單 1為警示名單
-    public function banned_warned_list(Request $request, int $type = 0)
+    public function banned_warned_list(Request $request, $type = 0)
     {
         $user = $request->user();
 
