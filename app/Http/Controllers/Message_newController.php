@@ -49,7 +49,7 @@ class Message_newController extends BaseController {
 
         Message::deleteBetween($uid, $sid);
 
-        return redirect('dashboard/chat2/'.csrf_token().Carbon::now()->timestamp);
+        return redirect('dashboard/chat2/');
     }
 
     public function deleteBetweenGetAll($uid, $sid) {
@@ -57,13 +57,13 @@ class Message_newController extends BaseController {
         foreach($ids as $id){
             Message::deleteBetween($sid,$id);
         }
-        return redirect('dashboard/chat2/'.csrf_token().Carbon::now()->timestamp);
+        return redirect('dashboard/chat2/');
     }
 
     public function delete2Between(Request $request) {
         Message::deleteBetween($request->uid, $request->sid);
         return response()->json(['save' => 'ok']);
-        //return redirect('dashboard/chat2/'.csrf_token().Carbon::now()->timestamp);
+        //return redirect('dashboard/chat2/');
         //return redirect('dashboard/chat2/{randomNo?}');
     }
 
@@ -71,7 +71,7 @@ class Message_newController extends BaseController {
         Message::deleteAll($request->uid);
         return response()->json(['save' => 'ok']);
         //return redirect('dashboard/chat');
-        //return redirect('dashboard/chat2/'.csrf_token().Carbon::now()->timestamp);
+        //return redirect('dashboard/chat2/');
     }
 
     public function deleteSingle(Request $request) {

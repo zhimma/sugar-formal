@@ -16,7 +16,7 @@
 </li>
 
 <li class="m-nav__item m-topbar__notifications m-topbar__notifications--img m-dropdown m-dropdown--large m-dropdown--header-bg-fill m-dropdown--arrow m-dropdown--align-center	m-dropdown--mobile-full-width">
-    <a href="{!! url('dashboard/chat/'.csrf_token().\Carbon\Carbon::now()->timestamp) !!}" class="m-nav__link m-dropdown__toggle" id="m_topbar_notification_icon">
+    <a href="{!! url('dashboard/chat/') !!}" class="m-nav__link m-dropdown__toggle" id="m_topbar_notification_icon">
         <span class="m-nav__link-badge"><span
                     class="m-badge m-badge--danger">@if(!$user->isVip()) @if(\App\Models\Message::unread($user->id) >= 10) {{ \App\Models\Message::unread($user->id)-10 }}  @else {{ \App\Models\Message::unread($user->id) }} @endif
                 /{{ \App\Models\Message::unread($user->id) }} @else{{ \App\Models\Message::unread($user->id) }}@endif</span></span>
