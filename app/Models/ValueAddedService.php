@@ -168,7 +168,7 @@ class ValueAddedService extends Model
 
 
         if($service_name=='hideOnline'){
-            $HideOnlineData = \App\Models\hideOnlineData::where('user_id', $member_id)->where('deleted_at', null)->get()->first();
+            $HideOnlineData = \App\Models\hideOnlineData::where('user_id', $member_id)->first();
             User::where('id',$member_id)->update(['is_hide_online' => 1, 'hide_online_time' => $HideOnlineData->login_time]);
         }
 
