@@ -2,20 +2,20 @@
 
 <style>
     .pagination > li > a:focus,
-.pagination > li > a:hover,
-.pagination > li > span:focus,
-.pagination > li > span:hover{
-    z-index: 3;
-    /* color: #23527c !important; */
-    background-color: #FF8888 !important;
-    /* border-color: #ddd !important; */
-    /* border-color:#ee5472 !important; */
-    /* color:white !important; */
-}
-#reason_hidden{
-    background-color: #faf0f0;
-    border: 0px;
-}
+    .pagination > li > a:hover,
+    .pagination > li > span:focus,
+    .pagination > li > span:hover{
+        z-index: 3;
+        /* color: #23527c !important; */
+        background-color: #FF8888 !important;
+        /* border-color: #ddd !important; */
+        /* border-color:#ee5472 !important; */
+        /* color:white !important; */
+    }
+    #reason_hidden{
+        background-color: #faf0f0;
+        border: 0px;
+    }
 
 </style>
 <head>
@@ -60,12 +60,21 @@
                 <div class="ddt_list">
                     <div class="nn_dontt">
                         <ul>
+                            @if($type == 0)
                             <li onclick='return changediv("fs")' id="fs_a" class="nn_dontt_hover" target=_parent style="color:#ee5472 ">封鎖名單</li>
                             <li onclick='return changediv("fs2")' id="fs2_a" target=_parent style="color:#ee5472 ">警示名單</li>
+                            @elseif($type == 1)
+                            <li onclick='return changediv("fs")' id="fs_a" target=_parent style="color:#ee5472 ">封鎖名單</li>
+                            <li onclick='return changediv("fs2")' id="fs2_a" class="nn_dontt_hover" target=_parent style="color:#ee5472 ">警示名單</li>
+                            @endif
                         </ul>
                     </div>
                 </div>
+                @if($type == 0)
                 <div class="fs_name" id="fs">
+                @elseif($type == 1)
+                <div class="fs_name" id="fs" style="display: none;">
+                @endif
                     <div class="fs_title"><h2>本月封鎖名單，共{{ $banned_count }}筆資料</h2></div> 
                     <div class="fs_table">
                         <table>
@@ -113,7 +122,11 @@
                     </div>
 
                 </div>
+                @if($type == 0)
                 <div class="fs_name" id="fs2" style="display: none;">
+                @elseif($type == 1)
+                <div class="fs_name" id="fs2">
+                @endif
                     <div class="fs_title"><h2>本月警示名單，共{{ $warned_count }}筆資料</h2></div>
                     <div class="fs_table">
                         <table>
