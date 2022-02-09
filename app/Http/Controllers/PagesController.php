@@ -1910,7 +1910,6 @@ class PagesController extends BaseController
 
     public function viewuser2(Request $request, $uid = -1) {
         $user = $request->user();
-        $bannedUsers = \App\Services\UserService::getBannedId();
 
         $vipDays=0;
         if($user->isVip()) {

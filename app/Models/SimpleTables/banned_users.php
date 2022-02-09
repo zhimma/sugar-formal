@@ -3,9 +3,12 @@
 namespace App\Models\SimpleTables;
 
 use Illuminate\Database\Eloquent\Model;
+use Illuminate\Database\Eloquent\SoftDeletes;
 
 class banned_users extends Model
 {
+    use SoftDeletes;
+
     //
     protected $table = 'banned_users';
     
