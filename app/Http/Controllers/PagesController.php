@@ -3867,8 +3867,14 @@ class PagesController extends BaseController
     }
 
     //本月封鎖 + 警示名單
+    //$type 0為封鎖名單 1為警示名單
     public function banned_warned_list(Request $request)
     {
+        $type = 0;
+        if($request->has('type'))
+        {
+            $type = $request->input('type');
+        }
         $user = $request->user();
 
         // $time = \Carbon\Carbon::now();
@@ -3915,7 +3921,8 @@ class PagesController extends BaseController
             ->with('warned_users', $warned_users)
             ->with('user', $user)
             ->with('banned_count', $banned_count)
-            ->with('warned_count', $warned_count);
+            ->with('warned_count', $warned_count)
+            ->with('type',$type);
     }
 
     function substr_cut($user_name){
