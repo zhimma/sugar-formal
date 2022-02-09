@@ -709,7 +709,7 @@
                                         <a onclick="show_chat()"><img src="/new/images/icon_06.png" class="tubiao_i"><span>發信</span></a>
                                     @else
                                         @if($isBlocked)
-                                            <a onclick="show_block()"><img src="/new/images/icon_06.png" class="tubiao_i"><span>發信</span></a>
+                                            <a onclick="messenge_show_block()"><img src="/new/images/icon_06.png" class="tubiao_i"><span>發信</span></a>
                                         @else
                                             <a href="/dashboard/chat2/chatShow/{{ $to->id }}"><img src="/new/images/icon_06.png" class="tubiao_i"><span>發信</span></a>
                                         @endif
@@ -1922,7 +1922,7 @@
         }
     }   
     
-    function show_block(){
+    function messenge_show_block(){
         c5('封鎖中無法發信');
     }
     
