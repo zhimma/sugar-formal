@@ -2304,7 +2304,7 @@ class PagesController extends BaseController
                     $be_visit_other_count_7 = $hideOnlineData->be_visit_other_count_7;//new add
                     // $blocked_other_count = $hideOnlineData->blocked_other_count;//new add
                     // $be_blocked_other_count = $hideOnlineData->be_blocked_other_count;//new add
-                    $last_login = $hideOnlineData->updated_at; //new add
+                    $last_login = $hideOnlineData->login_time; //new add
 
                     //此段僅測試用
                     //上正式機前起移除
