@@ -685,7 +685,7 @@ header("Expires: Fri, 01 Jan 1990 00:00:00 GMT");
 
     </style>
     <script type="application/javascript">
-	 $(document).ready(function () {       
+	 $(document).ready(function () {
         $('#search_reset').click(function(){
             $.ajax({
                 type: 'POST',
@@ -725,6 +725,10 @@ header("Expires: Fri, 01 Jan 1990 00:00:00 GMT");
             {{-- if (!$("input[name='isWarned']").is(':checked')) {
                 $('#isWarned').attr('checked', true);
             } --}}
+        @endif
+
+        @if($isBlocked == 1)
+            $('#isBlocked').attr('checked', true);
         @endif
 
         $("input[name='isBlocked']").click(function(){
