@@ -718,9 +718,9 @@ header("Expires: Fri, 01 Jan 1990 00:00:00 GMT");
         @if($_SERVER['REQUEST_METHOD'] === 'POST' || isset($_POST['_token']) || isset($_GET['_token']))
 
         @else
-            if (!$("input[name='isBlocked']").is(':checked')) {
-                $('#isBlocked').attr('checked', true);
-            }
+            //if (!$("input[name='isBlocked']").is(':checked')) {
+            //    $('#isBlocked').attr('checked', true);
+            //}
 
             {{-- if (!$("input[name='isWarned']").is(':checked')) {
                 $('#isWarned').attr('checked', true);
