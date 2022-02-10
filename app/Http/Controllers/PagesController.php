@@ -2080,6 +2080,9 @@ class PagesController extends BaseController
                 }
             }
 
+            //判斷自己是否封鎖該用戶
+            $isBlocked = \App\Models\Blocked::isBlocked($user->id, $uid);
+
             // die();
             return view('new.dashboard.viewuser', $data ?? [])
                     ->with('user', $user)
@@ -2107,7 +2110,8 @@ class PagesController extends BaseController
                     ->with('isReadIntro',$isReadIntro)
                     ->with('auth_check',$auth_check)
                     ->with('is_banned',User::isBanned($user->id))
-                    ->with('pr', $pr);
+                    ->with('pr', $pr)
+                    ->with('isBlocked',$isBlocked);
             }
 
     }
