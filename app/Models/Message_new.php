@@ -408,7 +408,10 @@ class Message_new extends Model
          *
          * @author LZong <lzong.tw@gmail.com>
          */
-        $query = Message::with(['sender', 'receiver', 'sender.aw_relation', 'receiver.aw_relation'])
+        $query = Message::with(['sender',                  'receiver', 
+                                'sender.banned',           'receiver.banned',
+                                'sender.implicitlyBanned', 'receiver.implicitlyBanned',
+                                'sender.aw_relation',      'receiver.aw_relation'])
             ->select("message.*")
             //->from('message as m')
             ->leftJoin('users as u1', 'u1.id', '=', 'message.from_id')
