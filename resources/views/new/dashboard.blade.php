@@ -1213,6 +1213,10 @@ dt span.engroup_type_title {display:inline-block;width:10%;white-space:nowrap;}
                   return false;
                 }
             })
+              if($('select[name=city]').val() === ""){
+                  c5('請選擇地區');
+                  return false;
+              }
           }
           
           

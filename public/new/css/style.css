@@ -1285,7 +1285,7 @@ background-position: 50% 50%;-webkit-background-size: cover;background-size: cov
 .n_ulhh img{width:100%}
 
 }
-.n_blnr01 {width:90%;margin: 0 auto;color: #666666;padding-bottom: 20px; padding-top: 14px;}
+.n_blnr01 {width:90%;margin: 0 auto;color: #666666;padding-bottom: 20px; padding-top: 28px;}
 .n_nutext{width:100%; min-height:100px; background:#ffffff; border:none; padding:5px; color:#666666; border-radius:5px;}
 .n_blbut{margin-top:15px;}
 
@@ -3975,7 +3975,7 @@ border-radius:100px;margin-top:5px;font-weight:normal;font-size:18px;padding:15p
     .liuyan_text span{width:300px;}
 }
 @media (max-width:450px) {
-    .liuyan_text span{width:210px;}
+    .liuyan_text span{width:200px;}
 }
 @media (max-width:375px) {
     .liuyan_text span{width: 180px;}
