@@ -322,6 +322,7 @@ class UserController extends \App\Http\Controllers\BaseController
     public function toggleUserBlock(Request $request)
     {
         $userBanned = banned_users::where('member_id', $request->user_id)
+            ->orderBy('created_at', 'desc')
             ->get()->first();
 
         //勾選加入常用列表後新增
@@ -439,6 +440,7 @@ class UserController extends \App\Http\Controllers\BaseController
     public function toggleUserBlock_simple($id)
     {
         $userBanned = banned_users::where('member_id', $id)
+            ->orderBy('created_at', 'desc')
             ->get()->first();
         if ($userBanned) {
             $checkLog = DB::table('is_banned_log')->where('user_id', $userBanned->member_id)->where('created_at', $userBanned->created_at)->first();
@@ -464,6 +466,7 @@ class UserController extends \App\Http\Controllers\BaseController
     public function toggleUserWarned(Request $request)
     {
         $userWarned = warned_users::where('member_id', $request->user_id)
+            ->orderBy('created_at', 'desc')
             ->get()->first();
 
         //勾選加入常用列表後新增
@@ -744,6 +747,7 @@ class UserController extends \App\Http\Controllers\BaseController
         $isReported = $request->isReported;
 
         $userBanned = banned_users::where('member_id', $user_id)
+            ->orderBy('created_at', 'desc')
             ->get()->first();
         if (!$userBanned) {
             $userBanned = new banned_users;
@@ -811,6 +815,7 @@ class UserController extends \App\Http\Controllers\BaseController
     public function userUnblock(Request $request)
     {
         $userBanned = banned_users::where('member_id', $request->user_id)
+            ->orderBy('created_at', 'desc')
             ->get()->first();
         if ($userBanned) {
             $checkLog = DB::table('is_banned_log')->where('user_id', $userBanned->member_id)->where('created_at', $userBanned->created_at)->get()->first();
@@ -916,7 +921,7 @@ class UserController extends \App\Http\Controllers\BaseController
                     $to_ids[$u->to_id]['tipcount'] = Tip::TipCount_ChangeGood($u->to_id);
                     $to_ids[$u->to_id]['vip'] = Vip::vip_diamond($u->to_id);
                     $to_ids[$u->to_id]['name'] = $to_ids[$u->to_id]->name;
-                    $to_ids[$u->to_id]['isBlocked'] = banned_users::where('member_id', 'like', $u->to_id)->get()->first();
+                    $to_ids[$u->to_id]['isBlocked'] = banned_users::where('member_id', $u->to_id)->orderBy('created_at', 'desc')->orderBy('created_at', 'desc')->get()->first();
                     $to_ids[$u->to_id]['engroup'] = $to_ids[$u->to_id]->engroup;
                 } else {
                     $to_ids[$u->to_id] = array();
@@ -967,7 +972,7 @@ class UserController extends \App\Http\Controllers\BaseController
         $user['isfreevip'] = $isFreeVip;
         $user['tipcount'] = Tip::TipCount_ChangeGood($user->id);
         $user['vip'] = Vip::vip_diamond($user->id);
-        $user['isBlocked'] = banned_users::where('member_id', 'like', $user->id)->get()->first();
+        $user['isBlocked'] = banned_users::where('member_id', $user->id)->orderBy('created_at', 'desc')->get()->first();
         if (!isset($user['isBlocked'])) {
             $user['isBlocked'] = \App\Models\BannedUsersImplicitly::where('target', $user->id)->get()->first();
             if (isset($user['isBlocked'])) {
@@ -979,7 +984,7 @@ class UserController extends \App\Http\Controllers\BaseController
         //            ->where('expire_date','>=',now())
         //            ->orWhere('expire_date',NULL)
         //            ->get()->first();
-        $data = warned_users::where('member_id', $user->id)->first();
+        $data = warned_users::where('member_id', $user->id)->orderBy('created_at', 'desc')->first();
         if (isset($data) && ($data->expire_date == null || $data->expire_date >= Carbon::now())) {
             $user['isAdminWarned'] = 1;
             $user['adminWarned_expireDate'] = $data->expire_date;
@@ -1124,7 +1129,7 @@ class UserController extends \App\Http\Controllers\BaseController
                         'created_at' => $row->created_at,
                         'tipcount' => Tip::TipCount_ChangeGood($row->uid),
                         'vip' => Vip::vip_diamond($row->uid),
-                        'isBlocked' => banned_users::where('member_id', 'like', $row->uid)->get()->first(),
+                        'isBlocked' => banned_users::where('member_id', $row->uid)->orderBy('created_at', 'desc')->get()->first(),
                         'name' => "無會員資料，ID: " . $row->uid,
                         'email' => null,
                         'isvip' => null,
@@ -1151,7 +1156,7 @@ class UserController extends \App\Http\Controllers\BaseController
                     'created_at' => $row->created_at,
                     'tipcount' => Tip::TipCount_ChangeGood($row->uid),
                     'vip' => Vip::vip_diamond($row->uid),
-                    'isBlocked' => banned_users::where('member_id', 'like', $row->uid)->get()->first(),
+                    'isBlocked' => banned_users::where('member_id', $row->uid)->orderBy('created_at', 'desc')->get()->first(),
                     'name' => $f_user->name,
                     'email' => $f_user->email,
                     'isvip' => $f_user->isVip(),
@@ -1177,7 +1182,7 @@ class UserController extends \App\Http\Controllers\BaseController
                             'created_at' => $row->created_at,
                             'tipcount' => Tip::TipCount_ChangeGood($row->to_id),
                             'vip' => Vip::vip_diamond($row->to_id),
-                            'isBlocked' => banned_users::where('member_id', 'like', $row->to_id)->get()->first(),
+                            'isBlocked' => banned_users::where('member_id', $row->to_id)->orderBy('created_at', 'desc')->get()->first(),
                             'name' => "無會員資料，ID: " . $row->to_id,
                             'email' => null,
                             'isvip' => null,
@@ -1205,7 +1210,7 @@ class UserController extends \App\Http\Controllers\BaseController
                         'created_at' => $row->created_at,
                         'tipcount' => Tip::TipCount_ChangeGood($row->to_id),
                         'vip' => Vip::vip_diamond($row->to_id),
-                        'isBlocked' => banned_users::where('member_id', 'like', $row->to_id)->get()->first(),
+                        'isBlocked' => banned_users::where('member_id', $row->to_id)->orderBy('created_at', 'desc')->get()->first(),
                         'name' => $f_user->name,
                         'email' => $f_user->email,
                         'isvip' => $f_user->isVip(),
@@ -1232,7 +1237,7 @@ class UserController extends \App\Http\Controllers\BaseController
                             'created_at' => $row->created_at,
                             'tipcount' => Tip::TipCount_ChangeGood($row->member_id),
                             'vip' => Vip::vip_diamond($row->member_id),
-                            'isBlocked' => banned_users::where('member_id', 'like', $row->member_id)->get()->first(),
+                            'isBlocked' => banned_users::where('member_id', $row->member_id)->orderBy('created_at', 'desc')->get()->first(),
                             'name' => "無會員資料，ID: " . $row->member_id,
                             'email' => null,
                             'isvip' => null,
@@ -1260,7 +1265,7 @@ class UserController extends \App\Http\Controllers\BaseController
                         'created_at' => $row->created_at,
                         'tipcount' => Tip::TipCount_ChangeGood($row->member_id),
                         'vip' => Vip::vip_diamond($row->member_id),
-                        'isBlocked' => banned_users::where('member_id', 'like', $row->member_id)->get()->first(),
+                        'isBlocked' => banned_users::where('member_id', $row->member_id)->orderBy('created_at', 'desc')->get()->first(),
                         'name' => $f_user->name,
                         'email' => $f_user->email,
                         'isvip' => $f_user->isVip(),
@@ -1365,7 +1370,7 @@ class UserController extends \App\Http\Controllers\BaseController
         //正被警示
         $isWarned = warned_users::where('member_id', $user->id)->where('expire_date', null)->orWhere('expire_date','>',Carbon::now() )->where('member_id', $user->id)->orderBy('created_at','desc')->paginate(10);
         //正被封鎖
-        $isBanned = banned_users::where('member_id',$user->id)->where('expire_date', null)->orWhere('expire_date','>',Carbon::now() )->where('member_id', $user->id)->orderBy('created_at','desc')->paginate(10);
+        $isBanned = banned_users::where('member_id', $user->id)->where('expire_date', null)->orWhere('expire_date','>',Carbon::now() )->where('member_id', $user->id)->orderBy('created_at','desc')->paginate(10);
 
 
         //cfp_id distinct
@@ -1594,7 +1599,7 @@ class UserController extends \App\Http\Controllers\BaseController
             if ($user->isPhoneAuth() == 1) $account[$key]['auth_status'] = 1;
             $account[$key]['tipcount']= \App\Models\Tip::TipCount_ChangeGood($pic->member_id);
             $account[$key]['vip'] = \App\Models\Vip::vip_diamond($pic->member_id);
-            $account[$key]['isBlocked'] = \App\Models\SimpleTables\banned_users::where('member_id', 'like', $pic->member_id)->get()->first();
+            $account[$key]['isBlocked'] = \App\Models\SimpleTables\banned_users::where('member_id', $pic->member_id)->orderBy('created_at', 'desc')->get()->first();
             if (!isset($account[$key]['isBlocked'])) {
                 $account[$key]['isBlocked'] = \App\Models\BannedUsersImplicitly::where('target', $pic->member_id)->get()->first();
                 if (isset($account[$key]['isBlocked'])) {
@@ -1602,7 +1607,7 @@ class UserController extends \App\Http\Controllers\BaseController
                 }
             }
 
-            $data = \App\Models\SimpleTables\warned_users::where('member_id', $pic->member_id)->first();
+            $data = \App\Models\SimpleTables\warned_users::where('member_id', $pic->member_id)->orderBy('created_at', 'desc')->first();
             if (isset($data) && ($data->expire_date == null || $data->expire_date >= Carbon::now())) {
                 $account[$key]['isAdminWarned'] = 1;
                 $account[$key]['adminWarned_expireDate'] = $data->expire_date;
@@ -1811,7 +1816,7 @@ class UserController extends \App\Http\Controllers\BaseController
                     }
                     $senders[$key] = $sender->toArray();
                     $senders[$key]['vip'] = Vip::vip_diamond($id);
-                    $senders[$key]['isBlocked'] = banned_users::where('member_id', 'like', $id)->get()->first();
+                    $senders[$key]['isBlocked'] = banned_users::where('member_id', $id)->orderBy('created_at', 'desc')->get()->first();
                     $senders[$key]['tipcount'] = Tip::TipCount_ChangeGood($id);
                     //被檢舉者近一月曾被不同人檢舉次數
                     $tmp = $this->admin->reports_month($id);
@@ -1842,7 +1847,7 @@ class UserController extends \App\Http\Controllers\BaseController
                         $receivers[$id]['name'] = $name->name;
                         $receivers[$id]['tipcount'] = Tip::TipCount_ChangeGood($id);
                         $receivers[$id]['vip'] = Vip::vip_diamond($id);
-                        $receivers[$id]['isBlockedReceiver'] = banned_users::where('member_id', 'like', $id)->get()->first();
+                        $receivers[$id]['isBlockedReceiver'] = banned_users::where('member_id', $id)->orderBy('created_at', 'desc')->get()->first();
                         $receivers[$id]['engroup'] = $name->engroup;
                     } else {
                         $receivers[$id] = '資料庫沒有資料';
@@ -1974,7 +1979,7 @@ class UserController extends \App\Http\Controllers\BaseController
     public function showBannedList()
     {
         $list = banned_users::join('users', 'users.id', '=', 'banned_users.member_id')
-                ->select('banned_users.*', 'users.name', 'users.email', 'banned_users.reason')->orderBy('created_at', 'desc')->paginate(100);
+                ->select('banned_users.*', 'users.name', 'users.email', 'banned_users.reason')->orderBy('banned_users.created_at', 'desc')->paginate(100);
         return view('admin.users.bannedList')->with('list', $list);
     }
 
@@ -2242,11 +2247,11 @@ class UserController extends \App\Http\Controllers\BaseController
         $id1->vip = Vip::vip_diamond($id1->id);
         $id2->vip = Vip::vip_diamond($id2->id);
 
-        $id1->isBlocked = banned_users::where('member_id', 'like', $id1->id)->get()->first();
-        $id1->isBlockedReceiver = banned_users::where('member_id', 'like', $id1->id)->get()->first();
+        $id1->isBlocked = banned_users::where('member_id', $id1->id)->orderBy('created_at', 'desc')->get()->first();
+        $id1->isBlockedReceiver = banned_users::where('member_id', $id1->id)->orderBy('created_at', 'desc')->get()->first();
 
-        $id2->isBlocked = banned_users::where('member_id', 'like', $id2->id)->get()->first();
-        $id2->isBlockedReceiver = banned_users::where('member_id', 'like', $id2->id)->get()->first();
+        $id2->isBlocked = banned_users::where('member_id', $id2->id)->orderBy('created_at', 'desc')->get()->first();
+        $id2->isBlockedReceiver = banned_users::where('member_id', $id2->id)->orderBy('created_at', 'desc')->get()->first();
 
 
         return view('admin.users.showMessagesBetween', compact('messages', 'id1', 'id2'));
@@ -2559,7 +2564,7 @@ class UserController extends \App\Http\Controllers\BaseController
     public function warned_icondata($id)
     {
         $userMeta = UserMeta::where('user_id', $id)->get()->first();
-        $warned_users = warned_users::where('member_id', $id)->first();
+        $warned_users = warned_users::where('member_id', $id)->orderBy('created_at', 'desc')->first();
         $f_user = User::findById($id);
         if (isset($warned_users) && ($warned_users->expire_date == null || $warned_users->expire_date >= Carbon::now())) {
             $data['isAdminWarned'] = 1;
@@ -2924,7 +2929,7 @@ class UserController extends \App\Http\Controllers\BaseController
                     DB::table('is_banned_log')->insert(['user_id' => $r->member_id, 'reason' => $r->reason, 'expire_date' => $r->expire_date, 'vip_pass' => $r->vip_pass, 'adv_auth' => $r->adv_auth, 'created_at' => $r->created_at]);
                 }
             }
-            banned_users::where('member_id', '=', $data['id'])->first()->delete();
+            banned_users::where('member_id', $data['id'])->first()->delete();
             SetAutoBan::where('cuz_user_set', $data['id'])->where('host', null)->delete();
             SetAutoBan::where('cuz_user_set', $data['id'])->where('host', request()->getHttpHost())->delete();
         }
@@ -3241,7 +3246,7 @@ class UserController extends \App\Http\Controllers\BaseController
     public function unbanAll(Request $request)
     {
         $implicitly = BannedUsersImplicitly::where('target', $request->user_id)->first();
-        $banned = banned_users::where('member_id', $request->user_id)->first();
+        $banned = banned_users::where('member_id', $request->user_id)->orderBy('created_at', 'desc')->first();
         if ($implicitly) {
             $implicitly->delete();
         }
@@ -3935,7 +3940,7 @@ class UserController extends \App\Http\Controllers\BaseController
             if ($user->isPhoneAuth() == 1) $account[$key]['auth_status'] = 1;
             $account[$key]['tipcount']= \App\Models\Tip::TipCount_ChangeGood($pic->member_id);
             $account[$key]['vip'] = \App\Models\Vip::vip_diamond($pic->member_id);
-            $account[$key]['isBlocked'] = \App\Models\SimpleTables\banned_users::where('member_id', 'like', $pic->member_id)->get()->first();
+            $account[$key]['isBlocked'] = \App\Models\SimpleTables\banned_users::where('member_id', $pic->member_id)->orderBy('created_at', 'desc')->get()->first();
             if (!isset($account[$key]['isBlocked'])) {
                 $account[$key]['isBlocked'] = \App\Models\BannedUsersImplicitly::where('target', $pic->member_id)->get()->first();
                 if (isset($account[$key]['isBlocked'])) {
@@ -3943,7 +3948,7 @@ class UserController extends \App\Http\Controllers\BaseController
                 }
             }
 
-            $data = \App\Models\SimpleTables\warned_users::where('member_id', $pic->member_id)->first();
+            $data = \App\Models\SimpleTables\warned_users::where('member_id', $pic->member_id)->orderBy('created_at', 'desc')->first();
             if (isset($data) && ($data->expire_date == null || $data->expire_date >= Carbon::now())) {
                 $account[$key]['isAdminWarned'] = 1;
                 $account[$key]['adminWarned_expireDate'] = $data->expire_date;
