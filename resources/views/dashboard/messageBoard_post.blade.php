@@ -48,6 +48,15 @@
 		</div>
 	</div>
 </div>
+<div class="announce_bg_new" id="announce_bg_new" onclick="gmBtnNoReload()" style="display:none;"></div>
+<div class="bl bl_tab" id="tab05_new">
+	<div class="bltitle">提示</div>
+	<div class="n_blnr01 matop10">
+		<div class="blnr bltext"></div>
+		<a class="n_bllbut matop30" onclick="gmBtnNoReload()">確定</a>
+	</div>
+	<a id="" onclick="gmBtnNoReload()" class="bl_gb"><img src="/new/images/gb_icon.png"></a>
+</div>
 
 <link href="{{ asset('css/jquery.fileuploader.min.css') }}" media="all" rel="stylesheet">
 <link href="{{ asset('new/css/fileupload.css') }}" media="all" rel="stylesheet">
@@ -60,12 +69,12 @@
 
 		var title = $("#title").val();
 		if (title == '') {
-			c5('您的標題不可以為空！');
+			c5('請輸入標題');
 			return false;
 		}
 		var content =$('#contents').val();
 		if(content.length <=0 ){
-			c5('您的內容不可以為空！');
+			c5('請輸入內容');
 			return false;
 		}
 		$("#posts").submit();
@@ -132,7 +141,8 @@
 					var plusInput = listEl.find('.fileuploader-thumbnails-input'),
 							api = $.fileuploader.getInstance(inputEl.get(0));
 
-					plusInput.insertAfter(item.html)[api.getOptions().limit && api.getChoosedFiles().length >= api.getOptions().limit ? 'hide' : 'show']();
+					let lastItem = $('.fileuploader-items-list .fileuploader-item:last')
+					plusInput.insertAfter(lastItem)[api.getOptions().limit && api.getFiles().length >= api.getOptions().limit ? 'hide' : 'show']();
 
 					if(item.format == 'image') {
 						item.html.find('.fileuploader-item-icon').hide();
@@ -140,10 +150,6 @@
 
 					if (api.getListEl().length > 0) {
 						$('.fileuploader-thumbnails-input-inner').css('background-image', 'url({{ asset("new/images/addpic.png") }})');
-					}
-
-					if (api.getOptions().limit && api.getChoosedFiles().length - 1 < api.getOptions().limit){
-						plusInput.hide();
 					}
 				},
 				onItemRemove: function(html, listEl, parentEl, newInputEl, inputEl) {
@@ -164,7 +170,10 @@
 			},
 			dialogs: {
 				alert:function(message) {
-					c5(message);
+					//c5(message);
+					$(".announce_bg_new").show();
+					$("#tab05_new").show();
+					$("#tab05_new .bltext").text(message);
 				},
 				confirm: function(message, callback) {
 					c6(message) ? callback() : null;
@@ -219,11 +228,15 @@
 		$(".announce_bg").on("click", function() {
 			$('.bl_tab_aa').hide();
 		});
+		$("#announce_bg_new, #tab05_new").on("click", function() {
+			$('#announce_bg_new').hide();
+			$('#tab05_new').hide();
+		});
 	});
 </script>
 <style>
 	.blnr{padding-bottom: 14px;}
 	.fileuploader-icon-remove:after {content: none !important;}
-
+	.announce_bg_new{width:100%; height:100%;width: 100%;height: 100%;position: fixed;top: 0px;left: 0;background: rgba(0,0,0,0.5);z-index: 9;}
 </style>
 @stop

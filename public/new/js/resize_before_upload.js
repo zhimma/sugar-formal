@@ -387,7 +387,8 @@ function resize_pic_loading_close(cur_uploader_option,listEl,parentEl, newInputE
         $(".announce_bg").hide();
 		$("#tab_loading").hide();  
         $('#tabPopM').hide();   
-        $('#tab05').hide();  
+        $('#tab05').hide();
+        $('.announce_bg').hide();
         if(cur_uploader_option.afterResize!=undefined) {
            cur_uploader_option.afterResize(listEl,parentEl, newInputEl, inputEl);            
         }                         
