@@ -921,7 +921,7 @@ class UserController extends \App\Http\Controllers\BaseController
                     $to_ids[$u->to_id]['tipcount'] = Tip::TipCount_ChangeGood($u->to_id);
                     $to_ids[$u->to_id]['vip'] = Vip::vip_diamond($u->to_id);
                     $to_ids[$u->to_id]['name'] = $to_ids[$u->to_id]->name;
-                    $to_ids[$u->to_id]['isBlocked'] = banned_users::where('member_id', $u->to_id)->orderBy('created_at', 'desc')->orderBy('created_at', 'desc')->get()->first();
+                    $to_ids[$u->to_id]['isBlocked'] = banned_users::where('member_id', $u->to_id)->orderBy('created_at', 'desc')->get()->first();
                     $to_ids[$u->to_id]['engroup'] = $to_ids[$u->to_id]->engroup;
                 } else {
                     $to_ids[$u->to_id] = array();
