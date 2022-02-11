@@ -29,7 +29,7 @@
 			</div>
 			<div class="two_tg">
 				<div class="tow_input">
-					<form action="/MessageBoard/doPosts" id="posts" method="POST" enctype="multipart/form-data">
+					<form action="/MessageBoard/doPosts?{{ csrf_token() }}={{ \Carbon\Carbon::now()->timestamp }}" id="posts" method="POST" enctype="multipart/form-data">
 						<input type="hidden" name="_token" value="{{ csrf_token() }}">
 						<input name="title" id="title" type="text" class="tw_input" placeholder="#標題">
 						<textarea name="contents" id="contents" cols="" rows="" class="tw_textinput" placeholder="#内容"></textarea>

@@ -28,7 +28,7 @@
                             @foreach($service->entrys as $entry)
                             <li class="{{$entry->ignore_user->isVip()?'hy_bg01':''}}">
 								<div class="si_bg leftb5">
-                                    <a href="/dashboard/viewuser/{{$entry->ignore_user->id}}?time={{ time()}}">
+                                    <a href="/dashboard/viewuser/{{$entry->ignore_user->id}}">
                                         <div class="sjpic"><img class="{{$service->isBlurAvatarByUser($entry->ignore_user)?'blur_img':''}}" src="{{$service->getShowPicByUser($entry->ignore_user)}}"  data-original="{{$service->getShowPicByUser($entry->ignore_user)}}" onerror="this.src='{{$service->getPicOnErrorByEngroup($entry->ignore_user->engroup)}}';"></div>
                                         <div class="sjleft">
                                             <div class="sjtable"><span>{{$entry->ignore_user->name}}<i class="cicd">●</i>{{$entry->ignore_user->age()}}</span></div>

@@ -25,7 +25,7 @@
 					</div>
 					<div class="two_tg">
 						<div class="tow_input">
-							<form action="/dashboard/doPosts" id="posts" method="POST">
+							<form action="/dashboard/doPosts?{{ csrf_token() }}={{ \Carbon\Carbon::now()->timestamp }}" id="posts" method="POST">
 								<input type="hidden" name="_token" value="<?php echo csrf_token(); ?>">
 								<input type="hidden" name="type" value="main">
 								<input name="title" id="title" type="text" class="tw_input" placeholder="#標題">

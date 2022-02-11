@@ -2684,7 +2684,7 @@ class PagesController extends BaseController
                     } else {
                         $onerror="this.src='/new/images/female.png'";
                     }
-                $ssrData .='<a href="/dashboard/viewuser/'.$visitor->id.'?time='.\Carbon\Carbon::now()->timestamp.'">';
+                $ssrData .='<a href="/dashboard/viewuser/' . $visitor->id . '">';
                 $ssrData .='<div class="nt_photo '.$ssr_var.'"><img class="lazy" src="'.$ssr_var2.'" data-original="'.$ssr_var2.'" onerror="'.$onerror.'"/></div>'; // need to check again
 
                 $ssrData .='<div class="nt_bot nt_bgco">';
@@ -6363,7 +6363,7 @@ class PagesController extends BaseController
         $reportedStatus = array();
             foreach ($report_all as $row) {
                 if (isset($row->rid) && !empty($row->rid)) {
-                    $content_1 = '您於 ' . substr($row->reporter_time, 0, 10) . ' 檢舉了 <a href=../dashboard/viewuser/' . $row->rid . '?time=' . \Carbon\Carbon::now()->timestamp . '>' . $row->name . '</a>，檢舉緣由是 ' . $row->reason;
+                    $content_1 = '您於 ' . substr($row->reporter_time, 0, 10) . ' 檢舉了 <a href=../dashboard/viewuser/' . $row->rid . '>' . $row->name . '</a>，檢舉緣由是 ' . $row->reason;
                     $content_2 = '';
 
                     //封鎖
