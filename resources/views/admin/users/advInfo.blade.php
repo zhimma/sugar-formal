@@ -1571,6 +1571,7 @@
                 <div class="modal-body">
                         封鎖時間
                         <select name="days" class="days">
+							<option value="1">一天</option>
                             <option value="3">三天</option>
                             <option value="7">七天</option>
                             <option value="15">十五天</option>
