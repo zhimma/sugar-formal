@@ -131,7 +131,7 @@ class CheckIsWarned
             if(count($isWarned)==0){
                 
                 //刪除自動警示設定名單
-                SetAutoBan::where('cuz_user_set',$user->id)->delete();
+                SetAutoBan::where('cuz_user_set',$user->id)->where('set_ban','3')->delete();
 
                 //if ever banned by vip_pass then reBanned
                 $logWarned = IsWarnedLog::where('user_id', $user->id)->where('vip_pass', 1)->orderBy('created_at', 'desc')->first();
