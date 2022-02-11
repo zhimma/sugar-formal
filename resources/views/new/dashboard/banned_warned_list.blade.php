@@ -116,6 +116,10 @@
                                     <a href="{{ $banned_users->previousPageUrl() }}" id="pPage">上一頁</a>
                                     <span class="new_page">第 {{ $banned_users->currentPage() }} 頁</span>
                                     <a  >下一頁</a>
+                                @else
+                                    <a href="{{ $banned_users->previousPageUrl() }}" id="pPage">上一頁</a>
+                                    <span class="new_page">第 {{ $banned_users->currentPage() }} 頁</span>
+                                    <a href="{{ $banned_users->nextPageUrl() }}" >下一頁</a>
                                 @endif
                             </div>
                         </div>
@@ -166,6 +170,10 @@
                                     <a href="{{ $banned_users->previousPageUrl()."&type=1" }}" id="pPage">上一頁</a>
                                     <span class="new_page">第 {{ $banned_users->currentPage() }} 頁</span>
                                     <a  >下一頁</a>
+                                @else
+                                    <a href="{{ $banned_users->previousPageUrl()."&type=1" }}" id="pPage">上一頁</a>
+                                    <span class="new_page">第 {{ $banned_users->currentPage() }} 頁</span>
+                                    <a href="{{ $banned_users->nextPageUrl()."&type=1" }}" >下一頁</a>
                                 @endif
                             </div>
                         </div>
