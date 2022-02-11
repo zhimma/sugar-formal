@@ -66,11 +66,6 @@ class CheckIsWarned
                                 ->Where('expire_date','>',Carbon::now())
                                 ->orderBy('id', 'desc')
                         )->get();
-        
-        //正在自動警示設定名單中
-        $isAutoWarn = SetAutoBan::where('set_ban', '3')
-                                ->where('cuz_user_set', $user->id)
-                                ->get();
 
         //封鎖 警示 並存時 只保留封鎖 刪除警示
         if(count($isBanned)>0 && count($isWarned)>0){
