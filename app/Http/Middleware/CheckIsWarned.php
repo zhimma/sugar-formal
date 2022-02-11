@@ -156,6 +156,11 @@ class CheckIsWarned
             warned_users::where('member_id',$user->id)->where('vip_pass', 1)->delete();
         }
 
+        if(count($isWarned)==0){
+            //刪除自動警示設定名單
+            SetAutoBan::where('cuz_user_set',$user->id)->where('set_ban','3')->delete();
+        }
+
         if($user->meta->isWarned == 1){
             if($auth_status==1 && !$user->isAdminWarned()){
                 //取消警示
@@ -173,11 +178,6 @@ class CheckIsWarned
             UserMeta::where('user_id',$user->id)->update(['isWarned'=>1, 'isWarnedRead'=>0, 'isWarnedTime' => Carbon::now()]);
 
 //            return $next($request);
-        }
-
-        if(count($isWarned)==0){
-            //刪除自動警示設定名單
-            SetAutoBan::where('cuz_user_set',$user->id)->where('set_ban','3')->delete();
         }
 
         return $next($request);
