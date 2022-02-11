@@ -14,8 +14,8 @@
         $now = \Carbon\Carbon::parse(now());
         //echo $now->dayOfWeek;
         if($now->dayOfWeek==0){
-
-        }echo '<div class="red">今日晚上23:59 即將重置聊天室</div>';
+            echo '<div class="red">今日晚上23:59 即將重置聊天室</div>';
+        }
     @endphp
     @foreach($anonymousChat as $row)
         <div class="@if($row->user_id == auth()->user()->id) show @else send @endif">
