@@ -11,6 +11,7 @@ use Closure;
 use Illuminate\Contracts\Auth\Guard;
 use App\Models\UserMeta;
 use Carbon\Carbon;
+use App\Models\SetAutoBan;
 
 class CheckIsWarned
 {
@@ -65,6 +66,11 @@ class CheckIsWarned
                                 ->Where('expire_date','>',Carbon::now())
                                 ->orderBy('id', 'desc')
                         )->get();
+        
+        //正在自動警示設定名單中
+        $isAutoWarn = SetAutoBan::where('set_ban', '3')
+                                ->where('cuz_user_set', $user->id)
+                                ->get();
 
         //封鎖 警示 並存時 只保留封鎖 刪除警示
         if(count($isBanned)>0 && count($isWarned)>0){
@@ -128,6 +134,10 @@ class CheckIsWarned
 
             }
             if(count($isWarned)==0){
+                
+                //刪除自動警示設定名單
+                SetAutoBan::where('cuz_user_set',$user->id)->delete();
+
                 //if ever banned by vip_pass then reBanned
                 $logWarned = IsWarnedLog::where('user_id', $user->id)->where('vip_pass', 1)->orderBy('created_at', 'desc')->first();
 
