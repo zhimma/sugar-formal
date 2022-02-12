@@ -6208,8 +6208,14 @@ class PagesController extends BaseController
             'w.adv_auth as warned_adv_auth')
             ->from('users as u')
             ->leftJoin('user_meta as m','u.id','m.user_id')
-            ->leftJoin('banned_users as b','u.id','b.member_id')->where('b.deleted_at', null)
-            ->leftJoin('warned_users as w','u.id','w.member_id')->where('w.deleted_at', null)
+            ->leftJoin('banned_users as b', function ($join) {
+                $join->on('u.id', '=', 'b.member_id')
+                     ->on('b.deleted_at', \DB::raw("NULL"));
+            })
+            ->leftJoin('warned_users as w', function ($join) {
+                $join->on('u.id', '=', 'w.member_id')
+                     ->on('w.deleted_at', \DB::raw("NULL"));
+            })
             ->where('u.id',$user->id)
             ->get()->first();
         //封鎖
