@@ -514,7 +514,15 @@ class UserController extends \App\Http\Controllers\BaseController
         $userWarned->vip_pass = $request->vip_pass;
         $userWarned->adv_auth = $request->adv_auth;
         if ($request->days != 'X') {
-            $userWarned->expire_date = Carbon::now()->addDays($request->days);
+            //新增時間5分鐘
+            if($request->days == 'FM')
+            {
+                $userWarned->expire_date = Carbon::now()->addMinutes(5);
+            }
+            else
+            {
+                $userWarned->expire_date = Carbon::now()->addDays($request->days);
+            }
         }
         $userWarned->reason = $request->reason;
 

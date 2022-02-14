@@ -1688,6 +1688,7 @@
 				<div class="modal-body">
 					 警示時間
 					<select name="days" class="days">
+						<option value="FM">五分鐘</option>
 						<option value="1">一天</option>
 						<option value="3">三天</option>
 						<option value="7">七天</option>
