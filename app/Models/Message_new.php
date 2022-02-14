@@ -32,7 +32,10 @@ class Message_new extends Model
         'from_id',
         'to_id',
         'content',
-        'read'
+        'read',
+        'parent_msg',
+        'client_id',
+        'parent_client_id'
     ];
 
     static $date = null;

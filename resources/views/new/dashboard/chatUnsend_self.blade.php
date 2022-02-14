@@ -2,7 +2,7 @@
     function realtime_unsend_self(e){
         let m = e.message;
         var unsend_elt = $('#unsend_form_' + m['id']);
-
+        if(!unsend_elt.length) unsend_elt = $('#unsend_form_client_' + m['client_id']);
         if(unsend_elt.length>0) {
             unsend_elt.after(
                         '<div class="">'
