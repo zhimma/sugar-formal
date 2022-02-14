@@ -8,6 +8,9 @@ use App\Models\AccountStatusLog;
 use App\Models\AdminAnnounce;
 use App\Models\AdminCommonText;
 use App\Models\AnnouncementRead;
+use App\Models\AnonymousChat;
+use App\Models\AnonymousChatMessage;
+use App\Models\AnonymousChatReport;
 use App\Models\BannedUsersImplicitly;
 use App\Models\CustomFingerPrint;
 use App\Models\Evaluation;
@@ -7213,6 +7216,100 @@ class PagesController extends BaseController
     public function delSearchIgnore(Request $request,SearchIgnoreService $service) {
         if(!$request->target??null) return $service->delMemberAll()?1:0;
         return $service->delByIgnoreId($request->target)?1:0;
+    }
+
+    public function anonymousChat(Request $request) {
+        $user = auth()->user();
+
+        if($user->engroup==1 && !$user->isVip()){
+            $message = '目前僅提供給VIP會員使用，若欲前往使用，<a href="/dashboard/new_vip" class="red">請點此立即升級VIP！</a>';
+            return redirect('/dashboard/personalPage')->with('message', $message);
+        }else if($user->engroup==2 && (!$user->isVip() || !$user->isPhoneAuth())){
+            return redirect('/dashboard/personalPage')->with('message', '目前僅提供給完成手機驗證的VIP會員使用');
+        }
+
+        $checkReport = AnonymousChatReport::where('reported_user_id', $user->id)->distinct('user_id')->orderBy('created_at', 'desc')->get();
+        //dd($checkReport[0]->created_at);
+        if(count($checkReport) >= 5 && Carbon::parse($checkReport[0]->created_at)->diffInDays(Carbon::now())<3){
+            return redirect('/dashboard/personalPage')->with('message', '因被檢舉次數過多，目前已限制使用匿名聊天室');
+        }
+
+        $anonymous_chat_announcement = AdminCommonText::where('category_alias', 'anonymous_chat')->where('alias', 'announcement')->first();
+        if($anonymous_chat_announcement) {
+            $anonymous_chat_announcement = $anonymous_chat_announcement->content;
+        }else{
+            $anonymous_chat_announcement = '';
+        }
+
+        //可發訊時間計算 一周發訊一人
+        $checkMessage = AnonymousChatMessage::where('user_id', $user->id)->orderBy('created_at', 'desc')->first();
+        $canNotMessage = false;
+        if( isset($checkMessage) && Carbon::parse($checkMessage->created_at)->diffInDays(Carbon::now())<7){
+            $canNotMessage = true;
+        }
+
+        return view('/new/dashboard/anonymous_chat')
+            ->with('user', $user)
+            ->with('anonymous_chat_announcement', $anonymous_chat_announcement)
+            ->with('canNotMessage', $canNotMessage);
+    }
+
+    public function anonymous_chat_report(Request $request) {
+
+        $user = auth()->user();
+        $reported_user_id = AnonymousChat::where('id', $request->anonymous_chat_id)->first();
+
+        AnonymousChatReport::Create([
+            'anonymous_chat_id' => $request->anonymous_chat_id,
+            'user_id' => $user->id,
+            'reported_user_id' => $reported_user_id->user_id,
+            'content' => $request->content
+        ]);
+
+        $msg = '檢舉成功';
+
+        //判斷檢舉人數超過五人時刪除訊息
+        $checkReport = AnonymousChatReport::where('reported_user_id', $reported_user_id->user_id)->distinct('user_id')->get();
+        if(count($checkReport) >= 5){
+            AnonymousChat::where('user_id', $reported_user_id->user_id)->delete();
+        }
+
+        return back()->with('message', $msg);
+    }
+
+    public function anonymous_chat_message(Request $request) {
+
+        $user = auth()->user();
+
+        //可發訊時間計算 一周發訊一人
+        $checkMessage = AnonymousChatMessage::where('user_id', $user->id)->orderBy('created_at', 'desc')->first();
+        if( isset($checkMessage) && Carbon::parse($checkMessage->created_at)->diffInDays(Carbon::now())<7){
+            return back()->with('message', '您好，一週僅限發一則私訊！');
+        }
+        $user_chat_anonymous = AnonymousChat::where('user_id', $user->id)->orderBy('created_at', 'desc')->first();
+        if(!isset($user_chat_anonymous)){
+            return back()->with('message', '您好，您尚未在匿名聊天室發言過，無法使用私訊功能喔！');
+        }
+        $to_user_id = AnonymousChat::where('id', $request->anonymous_chat_message_id)->first();
+        AnonymousChatMessage::Create([
+            'anonymous_chat_id' => $request->anonymous_chat_message_id,
+            'user_id' => $user->id,
+            'to_user_id' => $to_user_id->user_id,
+            'content' => $request->content
+        ]);
+        $msg = '發訊成功';
+        //站長系統訊息
+        $to_user = User::findById($to_user_id->user_id);
+//        dd($to_user->name);
+        if(isset($to_user)) {
+
+            $sys_message = $to_user->name . ' 您好，您在 ' . substr(Carbon::now(), 0, 10) . ' 有一封來自匿名聊天室的訪客 ' . $user_chat_anonymous->anonymous . ' 來信，<a href="/dashboard/chat2/chatShow/' . $user->id . '">前往查看</a>';
+//            dd($sys_message);
+            Message::post(1049, $to_user_id->user_id, $sys_message, true, 1);
+            Message::post($user->id, $to_user_id->user_id, $request->content);
+        }
+
+        return back()->with('message', $msg);
     }
 }
 

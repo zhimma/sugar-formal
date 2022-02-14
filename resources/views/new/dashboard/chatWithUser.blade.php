@@ -1,4 +1,5 @@
 @extends('new.layouts.website')
+@section('app-content')
 <link href="https://fonts.googleapis.com/css?family=Roboto:400|700" rel="stylesheet">
 <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/photoswipe/4.1.2/photoswipe.min.css">
 <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/photoswipe/4.1.2/default-skin/default-skin.min.css">
@@ -242,6 +243,7 @@
     .shdel.specific_reply {
         right: 20px;
         border: #fd5678 1px solid;
+        white-space:nowrap;
     }
 
     .specific_msg_box {
@@ -345,7 +347,115 @@
         display: block;
     }
 </style>
-@section('app-content')
+<script>
+
+    function banned(id,sid,name){
+        let is_banned = {{ $is_banned ? 1 : 0 }};
+
+        if(is_banned){
+            return  c5('您目前被站方封鎖，無檢舉權限');
+        }
+
+        $("input[name='uid']").val(sid);
+        $("input[name='id']").val(id);
+        $(".banned_name").html('');
+        $(".banned_name").append("<span>檢舉" + name + "</span>")
+        $(".announce_bg").show();
+        $("#show_banned_ele").show();
+        $('body').css("overflow", "hidden");
+    }
+
+    function show_banned_close(){
+        $(".announce_bg").hide();
+        $("#show_banned_ele").hide();
+        $('body').css("overflow", "auto");
+    }
+
+        Echo.private('Chat.{{ $to->id }}.{{ auth()->user()->id }}')
+            .listen('Chat', (e) => {
+                // Received
+                if(!e.message.error) {
+                    realtime_from(e);
+                    sendReadMessage(e.message.id);
+                }
+            })
+            .listenForWhisper('sendMsg', (e) => {
+                realtime_from_msg(e);
+                sendReadMessage(e.message.client_id,true);
+                 
+            }) ;
+        Echo.private('Chat.{{ auth()->user()->id }}.{{ $to->id }}')
+            .listen('Chat', (e) => {
+                if(e.message.error){
+                    c5(e.message.content);
+                    return false;
+                }
+                else {
+                    // Sent
+                    realtime_to(e);
+                }
+           })
+            .listenForWhisper('sendMsg', (e) => {
+                realtime_to_msg(e);
+            });    
+
+        Echo.private('ChatRead.{{ auth()->user()->id }}.{{ $to->id }}')
+            .listen('ChatRead', (e) => {
+                $('#is_read.' + e.message_id).html("已讀");
+            }).listenForWhisper('readMsg', (e) => {
+                $('#is_read.client_' + e.message_client_id).html("已讀");
+            });
+        Echo.private('ChatReadSelf.{{ auth()->user()->id }}')
+            .listen('ChatReadSelf', (e) => {
+                if(unread>0) unread--;
+                if(unread2>0) unread2--;
+                $('#unreadCount').text(unread);
+                $('#unreadCount2').text(unread2);
+            })
+            ; 
+
+        Echo.private('ChatUnsend.{{ $to->id }}.{{ auth()->user()->id }}')
+            .listen('ChatUnsend', (e) => {
+                if(!e.message.error) {
+                    realtime_unsend_another(e);
+                }
+                else {
+                    c5('收回失敗：'+e.message.content);
+                    return false;                    
+                }
+            })
+            .listenForWhisper('unsendMsg', (e) => {
+                if(!e.message.error) {
+                    realtime_unsend_another(e);
+                }
+                else {
+                    c5('收回失敗：'+e.message.content);
+                    return false;                    
+                }
+            })         
+            ;
+        Echo.private('ChatUnsend.{{ auth()->user()->id }}.{{ $to->id }}')
+            .listen('ChatUnsend', (e) => {
+                if(e.message.error){
+                    c5('收回失敗：'+e.message.content);
+                    return false;
+                }
+                else {
+                    realtime_unsend_self(e);
+                }
+           })
+           .listenForWhisper('unsendMsg', (e) => {
+                if(e.message.error){
+                    c5('收回失敗：'+e.message.content);
+                    return false;
+                }
+                else {
+                    realtime_unsend_self(e);
+                }
+            }); 
+
+        Echo.private('ChatRead.{{ $to->id }}.{{ auth()->user()->id }}');            
+</script>
 <div class="container matop70 chat">
     <div class="row">
         <div class="col-sm-2 col-xs-2 col-md-2 dinone">
@@ -420,8 +530,9 @@
                 @php
                 $msgUser = \App\Models\User::findById($message->from_id);
                 \App\Models\Message::read($message, $user->id);
-                $parentMsg = \App\Models\Message::find($message->parent_msg??0);
-                if($parentMsg) {
+                if($message->parent_msg??null) $parentMsg = \App\Models\Message::find($message->parent_msg);
+                if(!($parentMsg??null) && $message->parent_client_id??null) $parentMsg = \App\Models\Message::where('client_id',$message->parent_client_id)->first();
+                if($parentMsg??null) {
                 if($parentMsg->from_id==$user->id) $parentMsgSender=$user;
                 else {
                 $parentMsgSender = \App\Models\User::findById($parentMsg->from_id);
@@ -470,14 +581,14 @@
                                         src="@if(file_exists( public_path().$msgUser->meta->pic ) && $msgUser->meta->pic != ""){{$msgUser->meta->pic}} @elseif($msgUser->engroup==2)/new/images/female.png @else/new/images/male.png  @endif">
                                 </a>
                             @endif
-                            <p class="@if($parentMsg) msg_has_parent @endif">
-                                @if($parentMsg)
+                            <p class="@if($parentMsg??null) msg_has_parent @endif">
+                                @if($parentMsg??null)
                                 <span class="parent_msg_box">
-                                    @if($parentMsg['from_id'] == $user->id)
+                                    @if(($parentMsg['from_id']??null) == $user->id)
                                     <img
                                         src="@if(file_exists( public_path().$user->meta->pic ) && $user->meta->pic != ""){{$user->meta->pic}} @elseif($user->engroup==2)/new/images/female.png @else/new/images/male.png @endif">
                                     @else
-                                    <img class="@if($isBlurParentSender) blur_img @endif"
+                                    <img class="@if($isBlurParentSender??null) blur_img @endif"
                                         src="@if(file_exists( public_path().$parentMsgSender->meta->pic ) && $parentMsgSender->meta->pic != ""){{$parentMsgSender->meta->pic}} @elseif($parentMsgSender->engroup==2)/new/images/female.png @else/new/images/male.png  @endif">
                                     @endif
                                     @if(!is_null(json_decode($parentMsg['pic'],true)))
@@ -509,7 +620,7 @@
                                     </span>
                                     <font
                                         class="sent_ri @if($message['from_id'] == $user->id)dr_l @if(!$isVip) novip @endif @else dr_r @endif">
-                                        <span>{{ substr($message['created_at'],11,5) }}</span>
+                                        <span>{{ ($message['created_at']??null)?substr($message['created_at'],11,5):'&nbsp;' }}</span>
                                         @if(!$isVip && $message['from_id'] == $user->id)
                                         <span style="color:lightgrey;">已讀/未讀</span>
                                         <img src="/new/images/icon_35.png"
@@ -532,13 +643,13 @@
                                 @if((!isset($admin) || $to->id != $admin->id) && !isset($to->banned )&&
                                 !isset($to->implicitlyBanned))
                                 <a href="javascript:void(0)" class="specific_reply_doer" onclick="return false;"
-                                    title="回覆" data-id="{{$message['id']}}">
+                                    title="回覆" data-id="{{$message['id']}}" data-client_id="{{$message['client_id']}}">
                                     <span class="shdel specific_reply"><span>回覆</span></span>
                                 </a>
                                 @if($message['from_id'] == $user->id)
 
                                 <a href="javascript:void(0)" class="unsend_a" data-id="{{$message['id']}}"
-                                    onclick="chatUnsend(this);return false;" title="收回">
+                                      data-client_id="{{$message['client_id']}}"  onclick="chatUnsend(this);return false;" title="收回">
                                     <span class="shdel unsend"><span>收回</span></span>
                                 </a>
                                 @endif
@@ -559,18 +670,18 @@
                                 !isset($to->implicitlyBanned))
                                 @if($message['from_id'] == $user->id)
                                 <a href="javascript:void(0)" onclick="chatUnsend(this);return false;" class="unsend_a"
-                                    data-id="{{$message['id']}}" title="收回">
+                                    data-id="{{$message['id']}}"  data-client_id="{{$message['client_id']}}" title="收回">
                                     <span class="shdel_word unsend"><span>收回</span></span>
                                 </a>
                                 @endif
                                 <a href="javascript:void(0)" class="specific_reply_doer" onclick=" return false;"
-                                    title="回覆" data-id="{{$message['id']}}">
+                                    title="回覆" data-id="{{$message['id']}}"  data-client_id="{{$message['client_id']}}">
                                     <span class="shdel_word specific_reply"><span>回覆</span></span>
                                 </a>
                                 @endif
                                 <font
                                     class="sent_ri @if($message['from_id'] == $user->id)dr_l @if(!$isVip) novip @endif @else dr_r @endif">
-                                    <span>{{ substr($message['created_at'],11,5) }}</span>
+                                    <span>{{ ($message['created_at']??null)?substr($message['created_at'],11,5):'&nbsp;' }}</span>
                                     @if(!$isVip && $message['from_id'] == $user->id)
                                     <span style="color:lightgrey;">已讀/未讀</span>
                                     <img src="/new/images/icon_35.png"
@@ -645,6 +756,8 @@
                     <input type="hidden" name="{{ \Carbon\Carbon::now()->timestamp }}"
                         value="{{ \Carbon\Carbon::now()->timestamp }}">
                     <input type="hidden" name="parent" id="message_parent" class="message_parent" value="">
+                                <input type="hidden" name="parent_client" id="message_parent_client"  class="message_parent_client"  value="" >
+                                <input type="hidden" name="client_id" id="chatFormClientId"   class="client_id"  value="" >
                     <div class="xin_left specific_msg_box" id="specific_msg_box">
                         <div class="specific_msg"></div>
                         <div class="specific_msg_close"><a href="javascript:void(0)"
@@ -669,6 +782,7 @@
         </div>
     </div>
 </div>
+    <img src="{{asset('new/owlcarousel/assets/ajax-loader.gif')}}" style="display:none;visible:hidden;z-index:-999;width:0;height:0;" >
 <div class="bl bl_tab tab_payAlert" id="tab_payAlert">
     <div class="bltitle bltitle_fixed"><span>車馬費說明</span></div>
     <a id="" onclick="$('.blbg').click();" class="bl_gb bl_gb_fixed"><img src="/new/images/gb_icon.png"></a>
@@ -751,6 +865,7 @@
         <input type="hidden" name="{{ \Carbon\Carbon::now()->timestamp }}"
             value="{{ \Carbon\Carbon::now()->timestamp }}">
         <input type="hidden" name="parent" class="message_parent" value="">
+                <input type="hidden" name="client_id" class="client_id" value="">
         <div class="bl_tab_bb">
             <div class="bltitle"><span style="text-align: center; float: none;">上傳照片</span></div>
             <div class="new_pot1 new_poptk_nn new_height_mobile ">
@@ -1171,27 +1286,7 @@
         }
     });
 
-    function banned(id,sid,name){
-        let is_banned = {{ $is_banned ? 1 : 0 }};
 
-        if(is_banned){
-            return  c5('您目前被站方封鎖，無檢舉權限');
-        }
-
-        $("input[name='uid']").val(sid);
-        $("input[name='id']").val(id);
-        $(".banned_name").html('');
-        $(".banned_name").append("<span>檢舉" + name + "</span>")
-        $(".announce_bg").show();
-        $("#show_banned_ele").show();
-        $('body').css("overflow", "hidden");
-    }
-
-    function show_banned_close(){
-        $(".announce_bg").hide();
-        $("#show_banned_ele").hide();
-        $('body').css("overflow", "auto");
-    }
 
     @if (Session::has('message'))
         {{--c5('{{ Session::get('message') }}');--}}
@@ -1236,10 +1331,10 @@
         $(".announce_bg").hide();
         $("#tab_uploadPic").hide();
         $("#tab_loading").hide();
-        $('body').css("overflow", "auto");
+        $('body').css("overflow", "auto").css("fixed", "");
     }
     function form_uploadPic_submit(){
-        if(image_handling_num>0) {
+        if(rbupld_image_handling_numSet[1]>0) {
             alert('請等照片選取完畢再送出');
             return false;
         }
@@ -1368,8 +1463,13 @@
                 if(btn_elt.length)
                     btn_elt.css({'color':'','cursor':''}).css('color','#ffffff').attr('onclick',btn_elt.attr('onclick').replace('return false;','')).html(btn_elt.html().replace('選取照片中\<!--','').replace('--\>',''));
             }, 
-            beforeSubmit: function(e) {         
+            beforeSubmit: function(e,cur_uploader_api) {        
                 var nowElt = $(e.target); 
+                var nowFormElt = nowElt;
+                var index = cur_uploader_api.rbupld_uploader_index;
+                if(nowFormElt.attr('id')=='reportMsgForm') return;
+                var fileElt = nowFormElt.find('input[type=file]');
+                var fileSelected = cur_uploader_api.getChoosedFiles();
                 disableCloseTabAct(nowElt);
                 var btn_elt = nowElt.find('.n_bbutton .n_bllbut'); 
                 if(btn_elt.length==0) {
@@ -1378,9 +1478,41 @@
                 if(btn_elt.length) {
                     btn_elt.css({ 'cursor': 'default','color':'#d6d6d6'}).attr('onclick','return false;'+btn_elt.attr('onclick')).html(btn_elt.html()+'中');
                 }
+                
+                var msg_data =getClientMsgData();
+                
+                nowElt.find('.client_id').val(msg_data.client_id);
+
+                if(fileSelected.length>rbupld_not_support_file_numSet[index])                
+                {
+                    var pic_num = 0;
+                    nowElt.parent().find('input[type=file]').each(function(){
+                        var curFiles = $(this).prop('files');
+                        pic_num = pic_num+curFiles.length;    
+                    });  
+
+                    msg_data.pic = pic_num;
+
+                    var msg_carrier = {
+                        message:msg_data
+                    };
+                    Echo.private('Chat.{{ auth()->user()->id }}.{{ $to->id }}')
+                        .whisper('sendMsg', {
+                            message: msg_data
+                        }) ;   
+                 
+                    realtime_to_msg(msg_carrier);
+                    $('.announce_bg').show();
+                }
+                tab_uploadPic_close(); 
+                $('#chatForm .xin_nleft').attr('onclick','return false;').find('img').attr('src','{{asset("new/owlcarousel/assets/ajax-loader.gif")}}');
             },  
             afterSubmit: function(e) {        
                 var nowElt = $(e.target);  
+                if(nowElt.attr('id')=='reportMsgForm') return;
+                $('#chatForm .xin_nleft').attr('onclick','tab_uploadPic();').find('img').attr('src','{{asset("new/images/moren_pic.png")}}');
+                
+     
                 activeCloseTabAct(nowElt);
                 var btn_elt = nowElt.find('.n_bbutton .n_bllbut');    
                 if(btn_elt.length==0) {
@@ -1390,8 +1522,63 @@
                     btn_elt.css({'color':'','cursor':''}).css('color','#ffffff').attr('onclick',btn_elt.attr('onclick').replace('return false;','')).html(btn_elt.html().replace('中',''));
                 }
                 resetSpecificMsgElt();
-                $('.announce_bg').hide();
-                resize_before_upload_fileReaderSet = {};
+            }, 
+            beforeSubmitedSuccess:function(data,status,xhr,ajaxObj,cur_uploader_api) {
+                if(data.error!=undefined && data.error==401) {
+                    show_pop_message('上傳失敗：'+data.content);
+                }
+                
+            },
+            afterSubmitedSuccess: function(data,status,xhr,ajaxObj,cur_uploader_api) {
+                var target_client_id=null;
+                var rtn_msg = '';
+                var rtn_error = 0;
+                if(data.content!=undefined) rtn_msg=data.content;
+                if(data.error!=undefined) rtn_error=data.error;
+
+                if(ajaxObj.data.client_id==undefined ) {
+                    target_client_id=ajaxObj.data.get('client_id');
+                }
+                else  {
+                    target_client_id = ajaxObj.data.client_id;
+                }
+                
+                var target_elt = $('#unsend_form_client_' + target_client_id);
+                var error_msg = '';
+
+                if(target_client_id!=undefined && target_client_id!=null) 
+                {
+                    if(rtn_msg!='' && rtn_msg.indexOf('發訊頻率太高')>=0 
+                        && rtn_msg.indexOf('秒限一則訊息')>=0 
+                        && rtn_msg.indexOf('請降低發訊頻率')>=0 
+                        ) 
+                    {
+                          
+                        error_msg='照片傳送失敗，建議可等照片上傳完再傳送其他訊息。';  
+                    }
+                    else if(rtn_error>0){
+                        error_msg=rtn_msg;
+                    }
+                
+                    if(error_msg!='') {     
+                        if(target_elt.length>0) {
+                            
+                            target_elt.after(
+                                        '<div class="">'
+                                           +'<div class="sebg matopj10  unsent_msg">'
+                                               +'<p>'+error_msg+'</p>'                              
+                                            +'</div>' 
+                                        +'</div>');
+                            target_elt.remove();
+
+                           var msg_carrier = {
+                                message:{id:'',client_id:target_client_id}
+                            };            
+
+                            realtime_unsend_self(msg_carrier);                            
+                        }
+                    }
+                }
             },          
             afterRender: function(listEl, parentEl, newInputEl, inputEl) {
                 var plusInput = listEl.find('.fileuploader-thumbnails-input'),
@@ -1465,15 +1652,22 @@
             
             
             formData.append('unsend_msg', nowelt.data('id'));
+            formData.append('unsend_msg_client', nowelt.data('client_id'));
             formData.append("_token", "{{ csrf_token() }}");
             xhr.open("post", action, true);
             xhr.onload = function (e) {
-                var response = e.currentTarget.response;
-                $("#tab_loading").hide();  
+                var response = e.currentTarget.response; 
             }
             xhr.setRequestHeader('X-Requested-With', 'XMLHttpRequest');
-            $("#tab_loading").show();
             xhr.send(formData); 
+            var msg_carrier = {
+                message:{id:nowelt.data('id'),client_id:nowelt.data('client_id')}
+            };            
+            
+            Echo.private('ChatUnsend.{{ auth()->user()->id }}.{{ $to->id }}')
+                .whisper('unsendMsg', msg_carrier);             
+            
+            realtime_unsend_self(msg_carrier);
             @else
             c5('非VIP無法收回訊息');
             @endif
@@ -1481,22 +1675,65 @@
         }
         
         function submit(){
-            var formData = new FormData();
-            var xhr = new XMLHttpRequest();
-            var parent_id = document.getElementById('message_parent').value;
-            formData.append("msg", document.getElementById("msg").value);
+            
+            var msg_data =getClientMsgData();
+            if(msg_data.content!='' && msg_data.content!=undefined) 
+            {
+                var msg_carrier = {
+                    message:msg_data
+                }
+                Echo.private('Chat.{{ auth()->user()->id }}.{{ $to->id }}')
+                    .whisper('sendMsg', {
+                        message: msg_data
+                    }) ;             
+                realtime_to_msg(msg_carrier); 
+            } ;
+
+            var msg_text = document.getElementById("msg").value;
+            if(msg_text!='' && msg_text!=undefined) 
+            {
+                var formData = new FormData();
+                var xhr = new XMLHttpRequest();
+                var parent_id = document.getElementById('message_parent').value;
+                var parent_client_id = document.getElementById('message_parent_client').value;
+                formData.append("msg", msg_text);
             formData.append("from", "{{ auth()->user()->id }}");
             formData.append("to", "{{ $to->id }}");
             formData.append('parent', parent_id);
+            formData.append('parent_client', parent_client_id);
+            formData.append('client_id',msg_data.client_id);
             formData.append("_token", "{{ csrf_token() }}");
             xhr.open("post", "{{ route('realTimeChat') }}", true);
             xhr.onload = function (e) {
                 var response = e.currentTarget.response;
-                var rentry = JSON.parse(response);
-                if(rentry.error!=undefined && rentry.error) {
-                    c5(rentry.content);
-                    $('.n_bllbut').focus();
-                }
+                    var rentry = null;
+                    try { 
+                        rentry = JSON.parse(response);
+                    }
+                    catch (e) {
+                        
+                        var logout_keyword = ['註冊','登入','忘記密碼','還沒有帳號' ,'免費註冊','login','name="login"','id="login"'];
+                        var logout_all_finded = false;
+                        
+                        for(var lgi=0;lgi<logout_keyword.length;lgi++) {
+                            if(lgi==0 || logout_all_finded) logout_all_finded = (response.indexOf(logout_keyword[lgi])>=0);
+                        }    
+
+                        var postmsg_error_show_msg = '傳送失敗 ';
+                        if(logout_all_finded) postmsg_error_show_msg+='。您已登出或基於帳號安全由系統自動登出，請重新登入。'
+                        else postmsg_error_show_msg+= e.name+'-'+e.message;
+                        show_pop_message(postmsg_error_show_msg);
+                        return;
+                    }   
+                    if(rentry.error!=undefined && rentry.error) {
+                        if(rentry.error==401) {
+                            show_pop_message('傳送失敗：'+rentry.content);
+                        }
+                        else {
+                            c5(rentry.content);
+                            $('.n_bllbut').focus();
+                        }
+                    }
                 
             }
             xhr.onerror = function(e) {
@@ -1504,75 +1741,35 @@
                 $('.n_bllbut').focus();
             }
             xhr.send(formData);  /* Send to server */
+            }
             document.getElementById("msg").value = '';
             resetSpecificMsgElt();
+            return false;
         }
 
-        function sendReadMessage(messageId){
+        function sendReadMessage(messageId,client=false){
             var formData = new FormData();
             var xhr = new XMLHttpRequest();
-            formData.append("messageId", messageId);
+            if(client) {
+                formData.append("messageClientId", messageId);
+            }
+            else {
+                formData.append("messageId", messageId);
+            }
+
             formData.append("_token", "{{ csrf_token() }}");
             xhr.open("post", "{{ route('realTimeChatRead') }}", true);
             xhr.onload = function (e) {
                 var response = e.currentTarget.response;
             }
             xhr.send(formData);  /* Send to server */
+            if(client) {
+                Echo.private('ChatRead.{{ $to->id }}.{{ auth()->user()->id }}')
+                    .whisper('readMsg', {message_client_id:messageId});         
+            }
         }
-        Echo.private('Chat.{{ $to->id }}.{{ auth()->user()->id }}')
-            .listen('Chat', (e) => {
-                // Received
-                if(!e.message.error) {
-                    realtime_from(e);
-                    sendReadMessage(e.message.id);
-                }
-            });
-        Echo.private('Chat.{{ auth()->user()->id }}.{{ $to->id }}')
-            .listen('Chat', (e) => {
-                if(e.message.error){
-                    c5(e.message.content);
-                    return false;
-                }
-                else {
-                    // Sent
-                    realtime_to(e);
-                }
-           });
-        Echo.private('ChatRead.{{ auth()->user()->id }}.{{ $to->id }}')
-            .listen('ChatRead', (e) => {
-                $('#is_read.' + e.message_id).html("已讀");
-            });
-        Echo.private('ChatReadSelf.{{ auth()->user()->id }}')
-            .listen('ChatReadSelf', (e) => {
-                let unread = parseInt($('#unreadCount').text(), 10);
-                unread--;
-                $('#unreadCount').text(unread);
-            }); 
-
-        Echo.private('ChatUnsend.{{ $to->id }}.{{ auth()->user()->id }}')
-            .listen('ChatUnsend', (e) => {
-                // Received
-                if(!e.message.error) {
-                    realtime_unsend_another(e);
-                }
-                else {
-                    c5('收回失敗：'+e.message.content);
-                    return false;                    
-                }
-            });
-        Echo.private('ChatUnsend.{{ auth()->user()->id }}.{{ $to->id }}')
-            .listen('ChatUnsend', (e) => {
-                if(e.message.error){
-                    c5('收回失敗：'+e.message.content);
-                    return false;
-                }
-                else {
-                    // Sent
-                    realtime_unsend_self(e);
-                }
-           });            
-            
-        @if($to_forbid_msg_data)
+      
+        @if($to_forbid_msg_data??null)
             $(document).on('click','#chatForm button[type=submit],#chatForm .xin_nleft',function(){
                 if($('.send').length==0) {
                     event.preventDefault();                    
@@ -1586,6 +1783,7 @@
             $(document).on('click','.specific_reply_doer',function() {
                 var now_elt = $(this);
                 var now_id = now_elt.attr('data-id');
+                var now_client_id = now_elt.attr('data-client_id');
                 var now_elt_parent = now_elt.parent();
                 var now_msg_pic_elt =  now_elt_parent.find('.marl5 .justify-content-center .pswp--loaded span a');
                 var now_msg_html = '';
@@ -1593,11 +1791,14 @@
                 var now_msg_sender_img = now_elt_parent.parent().find('img').first().clone();
                 $('#specific_msg_box').show().find('.specific_msg').html(now_elt_parent.find('.msg_content').text()+now_msg_html).prepend(now_msg_sender_img);
                 $('.message_parent').val(now_id);
+                $('.message_parent_client').val(now_client_id);
                 $('#msg').focus();
             });
             
             function resetSpecificMsgElt() {
                 $('.message_parent').val('');
+                $('#message_parent_client').val('');
+                $('.specific_msg').html('');
                 $('#specific_msg_box').hide();                
             }
             
@@ -1612,9 +1813,65 @@
                 var now_bg_action = $(".announce_bg").attr('onclick');
                 $(".announce_bg").attr('onclick',now_bg_action.replace('return false;',''));                
                 var now_close_btn = elt.find('a.bl_gb');
-                now_close_btn.attr('onclick',now_close_btn.attr('onclick').replace('return false;',''));                
+                if(now_close_btn.length>0 && now_close_btn.attr('onclick').length>0)
+                    now_close_btn.attr('onclick',now_close_btn.attr('onclick').replace('return false;',''));                
             }   
             
+            function getClientMsgData() {
+                var nowDate = new Date();
+                var parent_id_elt = document.getElementById('message_parent');
+                var parent_client_id_elt = document.getElementById('message_parent_client');
+                var parent_elt = $('.specific_msg_box .specific_msg');
+                var parent_message = {};
+
+                var client_msg_data = {
+                    content:document.getElementById("msg").value
+                    ,from_id :{{ auth()->user()->id }}
+                    ,to_id :{{ $to->id }}
+                    ,created_at:''//nowDate.getFullYear() + "-" + (nowDate.getMonth() + 1) + "-" + nowDate.getDate() + " " + nowDate.getHours() + ":" + nowDate.getMinutes() + ":" + nowDate.getSeconds()
+                    ,id:''
+                    ,pic:''
+                    ,client_id:document.getElementById('chatFormClientId').value?document.getElementById('chatFormClientId').value:generateSelfClientId()
+                }  ;
+                
+                if(parent_elt.length && parent_elt.html()!='') {
+                    parent_message = {
+                        content:parent_elt.text()
+                        ,pic:JSON.stringify([{file_path:parent_elt.find('img').eq(1).attr('src')}])
+                        ,id:parent_id_elt.value
+                        ,client_id:parent_client_id_elt.value
+                    } 
+                    
+                    if($('#unsend_form_'+parent_id_elt.value).length || $('#unsend_form_client_'+parent_client_id_elt.value).length)
+                    {
+                        client_msg_data.parent_msg_sender_blurryAvatar = {{\App\Services\UserService::isBlurAvatar($user,$to)?1:0}};
+                        client_msg_data.parent_msg_sender_isAvatarHidden = {{$user->meta->isAvatarHidden?1:0}};   
+                        client_msg_data.parent_msg_sender_id = {{$user->id}};
+                    
+                    }
+                    else if($('#chat_msg_'+parent_id_elt.value).length || $('#chat_msg_client_'+parent_client_id_elt.value).length) 
+                    {
+                        client_msg_data.parent_msg_sender_id = {{$to->id}};
+                    }
+                    client_msg_data.parent_message = parent_message;
+                    client_msg_data.parent=parent_id_elt.value;
+                    client_msg_data.parent_client=parent_client_id_elt.value;
+                    client_msg_data.parent_msg_sender_pic=parent_elt.find('img').first().attr('src');                
+                    
+                };
+
+                return client_msg_data;                
+            }
+            
+            function generateSelfClientId(){
+                var nowDate = new Date();
+                var rcode1 = Math.floor(Math.random()*1000).toString(36);
+                var rcode2 = Math.floor(Math.random()*1000).toString(36);
+                var init_str = nowDate.getTime().toString()+'{{auth()->user()->id}}';
+                var str1 = parseInt(init_str.substr(0, Math.floor(init_str.length/2)),10).toString(36);
+                var str2 = parseInt(init_str.substr(Math.floor(init_str.length/2), init_str.length),10).toString(36);
+                return rcode1+str1+str2+rcode2;
+            }
 </script>
 @endif
 <style>

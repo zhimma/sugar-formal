@@ -348,7 +348,9 @@
     <script>
         $(document).ready(function() {
             @if(Session::has('message'))
-            c5('{{Session::get('message')}}');
+                let messageText = '{!! Session::get('message') !!}';
+            c5(messageText);
+            $('.bltext').html(messageText);
             <?php session()->forget('message');?>
             @endif
         });

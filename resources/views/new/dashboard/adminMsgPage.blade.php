@@ -164,7 +164,7 @@
                                 <div class="tong_font">
                                     <h2>{{$msg_spoken}}<a><img src="{{ asset("new/images/cold.png") }}"  class="ronr_icon" onclick="deleteAdminMsg('{{ $msg->id }}')"></a></h2>
                                     <div class="text pda_zx">
-                                        <span class="showText">{{ $msg->content }}</span>
+                                        <span class="showText">{!! $msg->content !!}</span>
                                         <a>…<em>更多</em></a>
                                     </div>
                                     <h3>{{ $msg->created_at }}</h3>
@@ -182,7 +182,7 @@
                                     <div class="tong_font">
                                         <h2>{{$msg_spoken}}<a><img src="{{ asset("new/images/cold.png") }}"  class="ronr_icon" onclick="deleteAdminMsg('{{ $msg->id }}')"></a></h2>
                                         <div class="text pda_zx">
-                                            <span class="showText">{{ $msg->content }}</span>
+                                            <span class="showText">{!! $msg->content !!}</span>
                                             <a class="padc">…<em>更多</em></a>
                                         </div>
                                         <h3>{{ $msg->created_at }}</h3>
