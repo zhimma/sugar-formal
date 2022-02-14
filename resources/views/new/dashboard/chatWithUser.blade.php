@@ -380,8 +380,6 @@
                 }
             })
             .listenForWhisper('sendMsg', (e) => {
-                console.log('Chat.{{ $to->id }}.{{ auth()->user()->id }} sendMsg');
-                console.log(e);
                 realtime_from_msg(e);
                 sendReadMessage(e.message.client_id,true);
                  
@@ -398,8 +396,6 @@
                 }
            })
             .listenForWhisper('sendMsg', (e) => {
-                console.log('Chat.{{ $to->id }}.{{ auth()->user()->id }} sendMsg');
-                console.log(e);
                 realtime_to_msg(e);
             });    
 
