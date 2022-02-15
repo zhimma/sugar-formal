@@ -73,6 +73,7 @@ class SetAutoBan extends Model
                         $violation = true;
                     }
                     break;
+                /*
                 case 'cfp_id':
                     if(LogUserLogin::where('user_id',$uid)->where('cfp_id', $content)->first() != null) $violation = true;
                     break;
@@ -101,6 +102,7 @@ class SetAutoBan extends Model
                 case 'userAgent':
                     if(LogUserLogin::where('user_id',$uid)->where('userAgent', 'like','%'.$content.'%')->first() != null) $violation = true;
                     break;
+                */
                 default:
                     break;
             }
@@ -218,6 +220,7 @@ class SetAutoBan extends Model
             $content = $ban_set->content;
             $violation = false;
             switch ($ban_set->type) {
+                /*
                 case 'name':
                     if (User::where('id', $uid)->where('name', 'like', '%' . $content . '%')->first() != null) $violation = true;
                     break;
@@ -246,6 +249,7 @@ class SetAutoBan extends Model
                         $violation = true;
                     }
                     break;
+                */
                 case 'cfp_id':
                     if(LogUserLogin::where('user_id',$uid)->where('cfp_id', $content)->first() != null) $violation = true;
                     break;
