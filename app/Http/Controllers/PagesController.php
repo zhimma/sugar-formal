@@ -6209,7 +6209,9 @@ class PagesController extends BaseController
             ->from('users as u')
             ->leftJoin('user_meta as m','u.id','m.user_id')
             ->leftJoin('banned_users as b','u.id','b.member_id')
+            ->orderBy('b.id', 'desc')
             ->leftJoin('warned_users as w','u.id','w.member_id')
+            ->orderBy('w.id', 'desc')
             ->where('u.id',$user->id)
             ->get()->first();
         //封鎖
