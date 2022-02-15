@@ -28,14 +28,15 @@ use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\File;
 use Intervention\Image\Facades\Image;
 use App\Services\AdminService;
+use Session;
 //use Shivella\Bitly\Facade\Bitly;
 
 class Message_newController extends BaseController {
     public function __construct(UserService $userService) {
         parent::__construct();
         $this->service = $userService;
-        $this->middleware('throttle:180,1');
-        $this->middleware('pseudoThrottle:140,1');
+        $this->middleware('throttle:140,1');
+        $this->middleware('pseudoThrottle:100,1');
     }
 
     // handle delete message
@@ -49,7 +50,7 @@ class Message_newController extends BaseController {
 
         Message::deleteBetween($uid, $sid);
 
-        return redirect('dashboard/chat2/'.csrf_token().Carbon::now()->timestamp);
+        return redirect('dashboard/chat2/');
     }
 
     public function deleteBetweenGetAll($uid, $sid) {
@@ -57,13 +58,13 @@ class Message_newController extends BaseController {
         foreach($ids as $id){
             Message::deleteBetween($sid,$id);
         }
-        return redirect('dashboard/chat2/'.csrf_token().Carbon::now()->timestamp);
+        return redirect('dashboard/chat2/');
     }
 
     public function delete2Between(Request $request) {
         Message::deleteBetween($request->uid, $request->sid);
         return response()->json(['save' => 'ok']);
-        //return redirect('dashboard/chat2/'.csrf_token().Carbon::now()->timestamp);
+        //return redirect('dashboard/chat2/');
         //return redirect('dashboard/chat2/{randomNo?}');
     }
 
@@ -71,7 +72,7 @@ class Message_newController extends BaseController {
         Message::deleteAll($request->uid);
         return response()->json(['save' => 'ok']);
         //return redirect('dashboard/chat');
-        //return redirect('dashboard/chat2/'.csrf_token().Carbon::now()->timestamp);
+        //return redirect('dashboard/chat2/');
     }
 
     public function deleteSingle(Request $request) {
@@ -184,6 +185,21 @@ class Message_newController extends BaseController {
         $payload = $request->all();
         
         $user = Auth::user();
+        
+        if($payload['from']!=$user->id) {
+            $already_logout_error_msg='您已登出或基於帳號安全由系統自動登出，請重新登入。';
+            SetAutoBan::logout_warned($user->id);
+            Session::flush();
+            $request->session()->forget('announceClose');
+            Auth::logout();            
+            if($isCalledByEvent){
+                return array('error' => 401,
+                    'content' => $already_logout_error_msg);
+            }  
+          
+            return back()->withErrors([$already_logout_error_msg]);             
+        }
+        
         $to_user = User::findById($payload['to']);
         $forbid_msg_data = UserService::checkNewSugarForbidMsg($to_user,$user);
 
@@ -243,12 +259,16 @@ class Message_newController extends BaseController {
             $messageInfo = Message::create([
                 'from_id'=>$user->id,
                 'to_id'=>$payload['to'],
-                'parent_msg'=>($payload['parent']??null)
+                'client_id'=>$payload['client_id'],
+                'parent_msg'=>($payload['parent']??null),
+                'parent_client_id'=>($payload['parent_client']??null)
             ]);
 
             $messagePosted = $this->message_pic_save($messageInfo->id, $request->file('images'));
         }else {
-            $messagePosted = Message::post($user->id, $payload['to'], $payload['msg'],true,0,$payload['parent']??null);
+            $postArr = $payload;
+            $postArr['from_id'] = $user->id;
+            $messagePosted = Message::postByArr($postArr);
         }
 
         //line通知訊息
@@ -599,18 +619,25 @@ class Message_newController extends BaseController {
         $isAjax = false;
         if($request->ajax()) $isAjax = true;        
         $payload = $request->all();
-        $unsend_id = $payload['unsend_msg'];
+        $unsend_id = $payload['unsend_msg']??null;
+        $unsend_client_id = $payload['unsend_msg_client']??null;
         $user = Auth::user();
 
         if($user->isVIP() &&  !isset($user->banned ) && !isset($user->implicitlyBanned)){
-            $msg = Message::find($unsend_id);
-            $msg->unsend = 1;
-            $msg->save();
-            $msg->delete();
-            if($isAjax) {
-                return event(new \App\Events\ChatUnsend($msg));
+            if($unsend_id)
+                $msg = Message::find($unsend_id);
+            else if($unsend_client_id)
+                $msg = Message::where('client_id',$unsend_client_id)->first();
+            if($msg) {
+                $msg->unsend = 1;
+                $msg->save();
+                $msg->delete();
+                if($isAjax) {
+                    return event(new \App\Events\ChatUnsend($msg));
+                }
+                else return back();
             }
-            else return back();
+            else  return back();
         }
         else {
             if($isAjax){

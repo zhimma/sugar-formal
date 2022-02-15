@@ -26,7 +26,7 @@ background:#fe92a8; border:#fe92a8 1px solid;}
 
 /* 长 */
 .dengl_but{width: 250px;height: 40px;background: #fe92a8;border-radius: 200px;color: #ffffff;text-align: center;line-height: 40px;display: table;margin: 0 auto;
-font-size:16px; cursor: pointer;box-shadow: 0 0 20px #ffb6c5;cursor: pointer;}
+font-size:16px; cursor: pointer;box-shadow: 0 0 20px #ffb6c5;cursor: pointer;margin-top: 20px;}
 .dengl_but:hover{color:#ffffff;box-shadow:inset 0px 15px 10px -10px #f83964,inset 0px -10px 10px -20px #f83964;}
 
 

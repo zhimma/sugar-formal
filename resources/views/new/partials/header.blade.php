@@ -6,13 +6,13 @@
         <meta name="csrf-token" content="{{ csrf_token() }}">
         <meta name="turbo-cache-control" content="no-cache">
         <script
-            src="https://browser.sentry-cdn.com/6.15.0/bundle.min.js"
-            integrity="sha384-uAr9Te+rNkmpaCjPTu4/ipQDpO1nR6fEY8JX+NHVNO5mY6LUs362JWJD8rHyaLEt"
+            src="https://browser.sentry-cdn.com/6.17.4/bundle.min.js"
+            integrity="sha384-b8AsyZZuCfveCM8XQGBncVPihJcaG//cLVfziPjfE1RLhc++ZJ8x3BIS0Izv9Iey"
             crossorigin="anonymous"
         ></script>
         <script
-            src="https://browser.sentry-cdn.com/6.15.0/bundle.tracing.min.js"
-            integrity="sha384-1k7XKRQgqjUbNyG2sI+qsY8HTHMOeLdycMx6hoGuNSANZ3WrMa3LXkr+M4t+SIpF"
+            src="https://browser.sentry-cdn.com/6.17.4/bundle.tracing.min.js"
+            integrity="sha384-eIliztiJMgTUGzEQjjcCty1MN9hIqsz8GtzP/UTAHo6yxQgA6ZogOH2YNSlJRYWO"
             crossorigin="anonymous"
         ></script>
         {!! \Sentry\Laravel\Integration::sentryTracingMeta() !!}
@@ -55,7 +55,7 @@
 
                 // We recommend adjusting this value in production, or using tracesSampler
                 // for finer control
-                tracesSampleRate: 1.0,
+                tracesSampleRate: 0.3,
             });
 
             window.dataLayer = window.dataLayer || [];

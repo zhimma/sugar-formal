@@ -36,7 +36,7 @@
                                 @if(isset($histUser))
                                     <li @if($histUser->user->vip->first() && $histUser->user->vip->first()->active) class="hy_bg01" @endif>
                                         <div class="si_bg">
-                                            <a href="/dashboard/viewuser/{{$histUser->user->id}}?time={{ \Carbon\Carbon::now()->timestamp }}">
+                                            <a href="/dashboard/viewuser/{{$histUser->user->id}}">
                                             <div class="sjpic @if($isBlurAvatar) blur_img @endif"><img src="@if($histUser->user->meta->isAvatarHidden) {{ 'makesomeerror' }} @else {{$histUser->user->meta->pic}} @endif" @if ($histUser->user->engroup == 1) onerror="this.src='/new/images/male.png'" @else onerror="this.src='/new/images/female.png'" @endif></div>
                                             <div class="sjleft">
                                                 <div class="sjtable"><span>{{ $histUser->user->name }}<i class="cicd">●</i>{{ $histUser->user->meta->age() }}</span></div>

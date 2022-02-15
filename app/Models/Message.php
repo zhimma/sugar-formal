@@ -42,7 +42,9 @@ class Message extends Model
         'content',
         'pic',
         'read',
-        'parent_msg'
+        'parent_msg',
+        'client_id',
+        'parent_client_id'        
     ];
 
     static $date = null;
@@ -761,7 +763,7 @@ class Message extends Model
 
     public static function read($message, $uid)
     {
-        if ($message->to_id == $uid)
+        if ($message->to_id == $uid && $message->read!='Y')
         {
             $message->read = 'Y';
             $message->save();
@@ -771,7 +773,7 @@ class Message extends Model
     }
 
     public function compactRead(){
-        $this->read($this, $this->to_id);
+        $this->read($this, request()->user()->id);
     }
 
     public static function allMessage($uid, $tinker = false)
@@ -912,6 +914,63 @@ class Message extends Model
 
         return $message;
     }
+    
+
+    public static function postByArr($arr)
+    {
+        $tip_action = array_key_exists('tip_action',$arr)?$arr['tip_action']:true;
+        $sys_notice = array_key_exists('sys_notice',$arr)?$arr['sys_notice']:0;
+        $message = new Message;
+        $message->from_id = $arr['from_id']??null;
+        $message->to_id = $arr['to']??null;
+        $message->content = array_key_exists('msg',$arr)?$arr['msg']:'';
+        $message->parent_msg = array_key_exists('parent',$arr)?$arr['parent']:'';
+        $message->client_id = array_key_exists('client_id',$arr)?$arr['client_id']:'';
+        $message->parent_client_id = array_key_exists('parent_client',$arr)?$arr['parent_client']:'';
+
+        $message->all_delete_count = 0;
+        $message->is_row_delete_1 = 0;
+        $message->is_row_delete_2 = 0;
+        if($tip_action == false) {
+            $message->is_single_delete_1 = $to_id;
+        }
+        else{
+            $message->is_single_delete_1 = 0;
+        }
+        $message->is_single_delete_2 = 0;
+        $message->temp_id = 0;
+        $message->sys_notice = $sys_notice;
+        if($message->save()) {
+            if($message->client_id??null ) {
+                Message::where('parent_client_id',$message->client_id)
+                    ->update(['parent_msg'=>$message->id]);
+            }
+            
+            if(!($message->parent_msg??null) && ($message->parent_client_id??null)){
+                $parent_entry = Message::where('client_id',$message->parent_client_id)->first();
+                if($parent_entry->id??null) {
+                    $message->parent_msg = $parent_entry->id;
+                    Message::where('parent_client_id',$message->parent_client_id)->update(['parent_msg'=>$parent_entry->id]);
+                    Log::info('Message Updated');
+                }  
+            }            
+            
+            if(($message->parent_msg??null) && ($message->parent_client_id??null)){
+                $parent_entryList = Message::where('parent_msg',$message->parent_msg)->get();
+                $parent_client_entryList = Message::where('parent_client_id',$message->parent_client_id)->get();
+                if(count($parent_entryList)!=count($parent_client_entryList)) {
+                    Message::where('parent_client_id',$message->parent_client_id)->update(['parent_msg'=>$message->parent_msg]);
+                }  
+            }        
+        }
+        $curUser = User::findById($message->to_id);
+        if (($curUser->user_meta->notifmessage??null) !== '不通知')
+        {
+        // $curUser->notify(new MessageEmail($from_id, $to_id, $msg));
+        }
+
+        return $message;
+    }    
 
     public static function cutLargeString($string) {
         //dd($string);

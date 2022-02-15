@@ -6,8 +6,8 @@
 {{--		<a href="{{ route('stats/date_file_log') }}">異動檔上傳/檢查記錄</a>--}}
 		<a href="{{ route('stats/set_autoBan') }}">自動封鎖警示設定</a>
 {{--		<a href="{{ route('stats/cron_log') }}">VIP 排程檢查記錄</a>--}}
-		<a href="{{ route('stats/vip') }}">VIP 會員統計資料</a>
-		<a href="{{ route('stats/vip/paid') }}">付費 VIP 會員訂單資料</a>
+		{{-- <a href="{{ route('stats/vip') }}">VIP 會員統計資料</a> --}}
+		{{-- <a href="{{ route('stats/vip/paid') }}">付費 VIP 會員訂單資料</a> --}}
 		<a href="{{ route('stats/vip/other/GET') }}">其他 VIP 相關統計資料</a>
 		<a href="{{ route('users/VIP/ECCancellations') }}">綠界 VIP 付費取消資料</a>
 {{--		<a href="{{ route('users/VVIP') }}">VVIP申請管理</a>--}}
@@ -43,8 +43,8 @@
 		<a href="{{ route('users/changePassword/GET') }}">修改會員密碼</a>
 		<a href="{{ route('users/switch') }}">切換會員身份</a>
 		<a href="{{ route('users/closeAccountReasonList') }}">關閉會員帳號原因統計</a>
-		<a href="{{ route('inactive/GET') }}">未啟動會員</a>
-		<a href="{{ route('admin/showSendUserMessage') }}">指定會員發訊息</a>
+		{{-- <a href="{{ route('inactive/GET') }}">未啟動會員</a> --}}
+		{{-- <a href="{{ route('admin/showSendUserMessage') }}">指定會員發訊息</a> --}}
 		<a href="{{ route('admin/announcement') }}">站長公告</a>
 		<a href="{{ route('admin/masterwords') }}">站長的話</a>
 		<a href="{{ route('admin/web/announcement') }}">網站公告本月封鎖名單</a>

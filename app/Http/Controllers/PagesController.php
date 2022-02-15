@@ -88,8 +88,8 @@ class PagesController extends BaseController
         $this->service = $userService;
         $this->logService = $logService;
         $this->suspiciousRepo = $suspiciousRepo;
-        $this->middleware('throttle:180,1');
-        $this->middleware('pseudoThrottle:140,1');
+        $this->middleware('throttle:140,1');
+        $this->middleware('pseudoThrottle:100,1');
     }
 
     public function error() {
@@ -1913,7 +1913,6 @@ class PagesController extends BaseController
 
     public function viewuser2(Request $request, $uid = -1) {
         $user = $request->user();
-        $bannedUsers = \App\Services\UserService::getBannedId();
 
         $vipDays=0;
         if($user->isVip()) {
@@ -2084,6 +2083,9 @@ class PagesController extends BaseController
                 }
             }
 
+            //判斷自己是否封鎖該用戶
+            $isBlocked = \App\Models\Blocked::isBlocked($user->id, $uid);
+
             // die();
             return view('new.dashboard.viewuser', $data ?? [])
                     ->with('user', $user)
@@ -2111,7 +2113,8 @@ class PagesController extends BaseController
                     ->with('isReadIntro',$isReadIntro)
                     ->with('auth_check',$auth_check)
                     ->with('is_banned',User::isBanned($user->id))
-                    ->with('pr', $pr);
+                    ->with('pr', $pr)
+                    ->with('isBlocked',$isBlocked);
             }
 
     }
@@ -2684,7 +2687,7 @@ class PagesController extends BaseController
                     } else {
                         $onerror="this.src='/new/images/female.png'";
                     }
-                $ssrData .='<a href="/dashboard/viewuser/'.$visitor->id.'?time='.\Carbon\Carbon::now()->timestamp.'">';
+                $ssrData .='<a href="/dashboard/viewuser/' . $visitor->id . '">';
                 $ssrData .='<div class="nt_photo '.$ssr_var.'"><img class="lazy" src="'.$ssr_var2.'" data-original="'.$ssr_var2.'" onerror="'.$onerror.'"/></div>'; // need to check again
 
                 $ssrData .='<div class="nt_bot nt_bgco">';
@@ -3870,8 +3873,14 @@ class PagesController extends BaseController
     }
 
     //本月封鎖 + 警示名單
+    //$type 0為封鎖名單 1為警示名單
     public function banned_warned_list(Request $request)
     {
+        $type = 0;
+        if($request->has('type'))
+        {
+            $type = $request->input('type');
+        }
         $user = $request->user();
 
         // $time = \Carbon\Carbon::now();
@@ -3918,7 +3927,8 @@ class PagesController extends BaseController
             ->with('warned_users', $warned_users)
             ->with('user', $user)
             ->with('banned_count', $banned_count)
-            ->with('warned_count', $warned_count);
+            ->with('warned_count', $warned_count)
+            ->with('type',$type);
     }
 
     function substr_cut($user_name){
@@ -6103,8 +6113,8 @@ class PagesController extends BaseController
         }
         
         $vasStatus = '';
-        if(false) { //測試站錯誤暫時修改略過
-        //if($user->valueAddedServiceStatus('hideOnline') == 1) {
+
+        if($user->valueAddedServiceStatus('hideOnline') == 1) {
             $vasStatus = '您已購買隱藏付費功能';
             $vas = $user->vas->where('service_name','hideOnline')->first();
             if($vas->payment){
@@ -6201,6 +6211,14 @@ class PagesController extends BaseController
             'w.adv_auth as warned_adv_auth')
             ->from('users as u')
             ->leftJoin('user_meta as m','u.id','m.user_id')
+            // ->leftJoin('banned_users as b', function ($join) {
+            //     $join->on('u.id', '=', 'b.member_id')
+            //          ->on('b.deleted_at', \DB::raw("NULL"));
+            // })
+            // ->leftJoin('warned_users as w', function ($join) {
+            //     $join->on('u.id', '=', 'w.member_id')
+            //          ->on('w.deleted_at', \DB::raw("NULL"));
+            // })
             ->leftJoin('banned_users as b','u.id','b.member_id')
             ->leftJoin('warned_users as w','u.id','w.member_id')
             ->where('u.id',$user->id)
@@ -6356,7 +6374,7 @@ class PagesController extends BaseController
         $reportedStatus = array();
             foreach ($report_all as $row) {
                 if (isset($row->rid) && !empty($row->rid)) {
-                    $content_1 = '您於 ' . substr($row->reporter_time, 0, 10) . ' 檢舉了 <a href=../dashboard/viewuser/' . $row->rid . '?time=' . \Carbon\Carbon::now()->timestamp . '>' . $row->name . '</a>，檢舉緣由是 ' . $row->reason;
+                    $content_1 = '您於 ' . substr($row->reporter_time, 0, 10) . ' 檢舉了 <a href=../dashboard/viewuser/' . $row->rid . '>' . $row->name . '</a>，檢舉緣由是 ' . $row->reason;
                     $content_2 = '';
 
                     //封鎖

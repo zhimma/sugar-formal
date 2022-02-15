@@ -55,6 +55,7 @@ use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\File;
 use Intervention\Image\Facades\Image;
+use Illuminate\Support\Facades\Log;
 use Session;
 use App\Http\Controller\PagesController;
 use App\Models\ValueAddedService;
@@ -1066,7 +1067,8 @@ class UserController extends \App\Http\Controllers\BaseController
         $reported_message = $reported_message->where('message.to_id',$user->id)->where('message.isReported',1)->get();
 
         $collections = collect([$reported, $reported_pic, $reported_avatar, $reported_message]);
-        $report_all_personal = $collections->collapse()->unique('rid')->sortByDesc('reporter_time');
+        $report_all_personal = $collections->collapse()->sortByDesc('reporter_time')->groupBy('rid')->collapse();
+        //Log::notice(print_r($report_all_personal,true));
 
         $reportBySelf = array();
         foreach ($report_all_personal as $row) {
