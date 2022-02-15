@@ -503,7 +503,7 @@ class Kernel extends ConsoleKernel
 
     public function send_registed_users_statistics_by_LineNotify(){
 
-        $LineToken = 'ZLk8dW0ZyLm4HXVMoJwqkcwx4LA8uOMeSnbU3uKHXFa';
+        $LineToken = 'fb4KiuX5WJE9Nodq8Xo5xALrNCQE7buHta0ukQ4lgv4';
 
         // 昨日男會員數
         $date_yesterday = Carbon::yesterday()->toDateString();
