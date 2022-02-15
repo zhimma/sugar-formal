@@ -57,15 +57,15 @@ class AnonymousChatSubmit extends Component
             $pic_content = json_encode($pic_array);
         }
         //anonymous
-        $anonymous= '';
         $check_anonymous = AnonymousChat::select('anonymous')->where('user_id',auth()->user()->id)->orderBy('created_at', 'desc')->first();
         if($check_anonymous && $check_anonymous->anonymous != ''){
             $anonymous = $check_anonymous->anonymous;
         }else{
             //產生anonymous
-            $check_anonymous = AnonymousChat::select('anonymous')->orderBy('created_at', 'desc')->first();
+            $check_anonymous = AnonymousChat::select('anonymous')->max('anonymous');
+//            dd($check_anonymous);
             if($check_anonymous){
-                $anonymous = str_pad($check_anonymous->anonymous + 1,4,"0",STR_PAD_LEFT);
+                $anonymous = str_pad($check_anonymous + 1,4,"0",STR_PAD_LEFT);
             }else{
                 $anonymous = '0001';
             }
