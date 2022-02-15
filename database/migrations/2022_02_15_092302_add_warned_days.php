@@ -13,7 +13,11 @@ class AddWarnedDays extends Migration
      */
     public function up()
     {
-        //
+        //新增天數欄位
+        Schema::table('set_auto_ban', function (Blueprint $table) {
+            //加入expired_days欄位到expiry欄位後方
+            $table->integer('expired_days')->after('expiry');
+        });
     }
 
     /**
@@ -23,6 +27,8 @@ class AddWarnedDays extends Migration
      */
     public function down()
     {
-        //
+        Schema::table('set_auto_ban', function (Blueprint $table) {
+            $table->dropColumn('expired_days');
+        });
     }
 }
