@@ -40,7 +40,7 @@ class SetAutoBan extends Model
         catch (\Exception $e){
 
         }
-        $auto_ban = SetAutoBan::select('type', 'set_ban', 'id', 'content')->orderBy('id', 'desc')->get();
+        $auto_ban = SetAutoBan::select('type', 'set_ban', 'id', 'content', 'expired_days')->orderBy('id', 'desc')->get();
         foreach ($auto_ban as $ban_set) {
             $content = $ban_set->content;
             $violation = false;
@@ -125,6 +125,10 @@ class SetAutoBan extends Model
                     $userWarned = new warned_users;
                     $userWarned->member_id = $uid;
                     $userWarned->reason = "系統原因($ban_set->id)";
+                    if($ban_set->expired_days !=0)
+                    {
+                        $userWarned->expire_date = Carbon::now()->addDays($ban_set->expired_days);
+                    }
                     $userWarned->save();
                     //寫入log
                     DB::table('is_warned_log')->insert(['user_id' => $uid, 'reason' => "系統原因($ban_set->id)"]);
@@ -152,7 +156,7 @@ class SetAutoBan extends Model
         catch (\Exception $e){
 
         }
-        $auto_ban = SetAutoBan::select('type', 'set_ban', 'id', 'content')->where('type', 'msg')->orwhere('type', 'allcheck')->orderBy('id', 'desc')->get();
+        $auto_ban = SetAutoBan::select('type', 'set_ban', 'id', 'content', 'expired_days')->where('type', 'msg')->orwhere('type', 'allcheck')->orderBy('id', 'desc')->get();
         foreach ($auto_ban as $ban_set) {
             $violation = false;
             if (Message::where('from_id', $uid)->where('to_id', $toid)->where('content', $msg)->where('content', 'like', '%' . $ban_set->content . '%')->first() != null) {
@@ -177,6 +181,12 @@ class SetAutoBan extends Model
                     $userWarned = new warned_users;
                     $userWarned->member_id = $uid;
                     $userWarned->reason = "系統原因($ban_set->id)";
+
+                    if($ban_set->expired_days !=0)
+                    {
+                        $userWarned->expire_date = Carbon::now()->addDays($ban_set->expired_days);
+                    }
+
                     $userWarned->save();
                     //寫入log
                     DB::table('is_warned_log')->insert(['user_id' => $uid, 'reason' => "系統原因($ban_set->id)"]);
@@ -203,7 +213,7 @@ class SetAutoBan extends Model
             logger('SetAutoBan logout_warned() user not set, referer: ' . \Request::server('HTTP_REFERER'));
             return;
         }
-        $auto_ban = SetAutoBan::select('type', 'set_ban', 'id', 'content','expiry')->orderBy('id', 'desc')->get();
+        $auto_ban = SetAutoBan::select('type', 'set_ban', 'id', 'content','expiry', 'expired_days')->orderBy('id', 'desc')->get();
         foreach ($auto_ban as $ban_set) {
             $content = $ban_set->content;
             $violation = false;
@@ -280,6 +290,10 @@ class SetAutoBan extends Model
                     $userWarned = new warned_users;
                     $userWarned->member_id = $uid;
                     $userWarned->reason = "系統原因($ban_set->id)";
+                    if($ban_set->expired_days !=0)
+                    {
+                        $userWarned->expire_date = Carbon::now()->addDays($ban_set->expired_days);
+                    }
                     $userWarned->save();
                     //寫入log
                     DB::table('is_warned_log')->insert(['user_id' => $uid, 'reason' => "系統原因($ban_set->id)"]);
