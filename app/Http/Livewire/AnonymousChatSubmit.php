@@ -78,9 +78,9 @@ class AnonymousChatSubmit extends Component
                 'pic' => $pic_content,
                 'anonymous' => $anonymous
             ]);
-            $this->reset('content');
-            $this->reset('pic');
         }
+        $this->reset('content');
+        $this->reset('pic');
     }
 
     public function removeMe($index)

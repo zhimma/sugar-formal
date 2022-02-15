@@ -7210,7 +7210,8 @@ class PagesController extends BaseController
             return redirect('/dashboard/personalPage')->with('message', '目前僅提供給完成手機驗證的VIP會員使用');
         }
 
-        $checkReport = AnonymousChatReport::where('reported_user_id', $user->id)->distinct('user_id')->orderBy('created_at', 'desc')->get();
+        $checkReport = AnonymousChatReport::select('user_id', 'created_at')->where('reported_user_id', $user->id)->groupBy('user_id')->orderBy('created_at', 'desc')->get();
+        //dd($checkReport);
         //dd($checkReport[0]->created_at);
         if(count($checkReport) >= 5 && Carbon::parse($checkReport[0]->created_at)->diffInDays(Carbon::now())<3){
             return redirect('/dashboard/personalPage')->with('message', '因被檢舉次數過多，目前已限制使用匿名聊天室');
@@ -7251,7 +7252,7 @@ class PagesController extends BaseController
         $msg = '檢舉成功';
 
         //判斷檢舉人數超過五人時刪除訊息
-        $checkReport = AnonymousChatReport::where('reported_user_id', $reported_user_id->user_id)->distinct('user_id')->get();
+        $checkReport = AnonymousChatReport::where('reported_user_id', $reported_user_id->user_id)->groupBy('user_id')->get();
         if(count($checkReport) >= 5){
             AnonymousChat::where('user_id', $reported_user_id->user_id)->delete();
         }
@@ -7285,9 +7286,9 @@ class PagesController extends BaseController
 //        dd($to_user->name);
         if(isset($to_user)) {
 
-            $sys_message = $to_user->name . ' 您好，您在 ' . substr(Carbon::now(), 0, 10) . ' 有一封來自匿名聊天室的訪客 ' . $user_chat_anonymous->anonymous . ' 來信，<a href="/dashboard/chat2/chatShow/' . $user->id . '">前往查看</a>';
+            $sys_message = $to_user->name . ' 您好，您在 ' . substr(Carbon::now(), 0, 10) . ' 有一封來自匿名聊天室的訪客 ' . $user_chat_anonymous->anonymous . ' 來信。<a class="zs_buttonn1 right" href="/dashboard/chat2/chatShow/' . $user->id . '">前往查看</a>';
 //            dd($sys_message);
-            Message::post(1049, $to_user_id->user_id, $sys_message, true, 1);
+            Message::post(1049, $to_user_id->user_id, $sys_message, true, 0);
             Message::post($user->id, $to_user_id->user_id, $request->content);
         }
 

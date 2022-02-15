@@ -36,21 +36,15 @@
                         @if(!empty($row->content))
                             <br>
                         @endif
-                        <span id="page" @if($row->user_id != auth()->user()->id) class="marl5" @endif>
-                            <span class="justify-content-center">
-                                <span class="gutters-10" data-pswp>
-                                    @foreach(json_decode($row->pic,true) as $key => $pic)
-                                        @if(isset($pic['file_path']))
-                                            <span style="width: 150px;">
-                                                <a href="{{$pic['file_path'] }}" data-fancybox="gallery" target="_blank">
-                                                    <img src="{{ $pic['file_path'] }}" style="object-fit: cover;" class="n_pic_lt">
-                                                </a>
-                                            </span>
-                                        @endif
-                                    @endforeach
+                        @foreach(json_decode($row->pic,true) as $key => $pic)
+                            @if(isset($pic['file_path']))
+                                <span style="width: 150px;">
+                                    <a href="{{$pic['file_path'] }}" data-fancybox="gallery" target="_blank">
+                                        <img src="{{ $pic['file_path'] }}" style="object-fit: cover; height: 150px;" class="n_pic_lt">
+                                    </a>
                                 </span>
-                            </span>
-                        </span>
+                            @endif
+                        @endforeach
                     @endif
 
                     @if($row->user_id != auth()->user()->id)
