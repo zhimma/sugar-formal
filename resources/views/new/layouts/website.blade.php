@@ -348,13 +348,10 @@
     <script>
         $(document).ready(function() {
             @if(Session::has('message'))
-            let messageText = '{!! Session::get('message') !!}';
-            c5(messageText);
-            $('.bltext').html(messageText);
+            c5('{{Session::get('message')}}');
             <?php session()->forget('message');?>
             @endif
         });
-
     </script>
     <!-- livewire -->
     <livewire:scripts />

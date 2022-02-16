@@ -14,8 +14,8 @@
         $now = \Carbon\Carbon::parse(now());
         //echo $now->dayOfWeek;
         if($now->dayOfWeek==0){
-            echo '<div class="red">今日晚上23:59 即將重置聊天室</div>';
-        }
+
+        }echo '<div class="red">今日晚上23:59 即將重置聊天室</div>';
     @endphp
     @foreach($anonymousChat as $row)
         <div class="@if($row->user_id == auth()->user()->id) show @else send @endif">
@@ -36,15 +36,21 @@
                         @if(!empty($row->content))
                             <br>
                         @endif
-                        @foreach(json_decode($row->pic,true) as $key => $pic)
-                            @if(isset($pic['file_path']))
-                                <span style="width: 150px;">
-                                    <a href="{{$pic['file_path'] }}" data-fancybox="gallery" target="_blank">
-                                        <img src="{{ $pic['file_path'] }}" style="object-fit: cover; height: 150px;" class="n_pic_lt">
-                                    </a>
+                        <span id="page" @if($row->user_id != auth()->user()->id) class="marl5" @endif>
+                            <span class="justify-content-center">
+                                <span class="gutters-10" data-pswp>
+                                    @foreach(json_decode($row->pic,true) as $key => $pic)
+                                        @if(isset($pic['file_path']))
+                                            <span style="width: 150px;">
+                                                <a href="{{$pic['file_path'] }}" data-fancybox="gallery" target="_blank">
+                                                    <img src="{{ $pic['file_path'] }}" style="object-fit: cover;" class="n_pic_lt">
+                                                </a>
+                                            </span>
+                                        @endif
+                                    @endforeach
                                 </span>
-                            @endif
-                        @endforeach
+                            </span>
+                        </span>
                     @endif
 
                     @if($row->user_id != auth()->user()->id)
