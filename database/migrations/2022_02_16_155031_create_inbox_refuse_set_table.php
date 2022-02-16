@@ -16,9 +16,9 @@ class CreateInboxRefuseSetTable extends Migration
         Schema::create('inbox_refuse_set', function (Blueprint $table) {
             $table->id();
             $table->integer('user_id');
-            $table->boolean('refuse_vip')->default(0);
-            $table->boolean('refuse_common')->default(0);
-            $table->boolean('refuse_warned')->default(0);
+            $table->boolean('isRefused_vip_user')->default(0);
+            $table->boolean('isRefused_common_user')->default(0);
+            $table->boolean('isRefused_warned_user')->default(0);
             $table->integer('refuse_PR')->default(0);
             $table->integer('refuse_canned_message_PR')->default(0);
             $table->integer('refuse_register_days')->default(0);
