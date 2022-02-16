@@ -30,7 +30,7 @@
 			</div>
 			<div class="two_tg">
 				<div class="tow_input">
-					<form action="/MessageBoard/doPosts" id="posts" method="POST" enctype="multipart/form-data">
+					<form action="/MessageBoard/doPosts?{{ csrf_token() }}={{ \Carbon\Carbon::now()->timestamp }}" id="posts" method="POST" enctype="multipart/form-data">
 						<input type="hidden" name="_token" value="{{ csrf_token() }}">
 						<input type="hidden" name="action" value="edit">
 						<input type="hidden" name="mid" value="{{ $editInfo->mid }}">

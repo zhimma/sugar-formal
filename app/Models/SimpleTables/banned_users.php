@@ -7,7 +7,7 @@ use Illuminate\Database\Eloquent\SoftDeletes;
 
 class banned_users extends Model
 {
-    use SoftDeletes;
+    // use SoftDeletes;
 
     //
     protected $table = 'banned_users';

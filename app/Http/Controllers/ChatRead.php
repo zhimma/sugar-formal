@@ -15,6 +15,11 @@ class ChatRead extends BaseController
     public function __invoke(Request $request)
     {
         //
-        \App\Models\Message::find($request->messageId)->compactRead();
+        if($request->messageId??null)
+            \App\Models\Message::findOrNew($request->messageId)->compactRead();
+    
+        if($request->messageClientId??null)
+            \App\Models\Message::where('client_id',$request->messageClientId)->firstOrNew()->compactRead();
+    
     }
 }

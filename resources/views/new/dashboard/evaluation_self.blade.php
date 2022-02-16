@@ -87,7 +87,7 @@
                                         @endif
                                     @endfor
                                 </span>--}}
-                                <a href="/dashboard/viewuser/{{$to_user->id}}?time={{ \Carbon\Carbon::now()->timestamp }}">{{$to_user->name}}</a>
+                                <a href="/dashboard/viewuser/{{$to_user->id}}">{{$to_user->name}}</a>
                                 @if(  \App\Models\Blocked::where('member_id',$user->id)->where('blocked_id',$row->to_id)->first() )
                                     <img src="/new/images/kul02.png" class="sxyh">
                                 @endif
@@ -190,7 +190,7 @@
                                                             @endfor
                                                         @endif
                                                     </span>--}}
-                                            <a href="/dashboard/viewuser/{{$row->to_id}}?time={{ \Carbon\Carbon::now()->timestamp }}">{{$to_user->name}}</a>
+                                            <a href="/dashboard/viewuser/{{$row->to_id}}">{{$to_user->name}}</a>
                                             @if(isset($warned_users) || isset($hadWarned))
                                                 <img src="/new/images/kul.png" class="sxyh">
                                             @else

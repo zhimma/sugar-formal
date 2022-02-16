@@ -26,6 +26,8 @@
             let response = parseInt(e.currentTarget.response, 10);
             $('#unreadCount').text(response);
             $('#unreadCount2').text(response);
+            unread = parseInt($('#unreadCount').text(), 10) || 0;
+            unread2 = parseInt($('#unreadCount2').text(), 10) || 0;            
 		}
 		xhr.send(formData);  /* Send to server */
 	});

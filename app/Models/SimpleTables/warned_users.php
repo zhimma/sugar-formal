@@ -7,7 +7,7 @@ use Illuminate\Database\Eloquent\SoftDeletes;
 
 class warned_users extends Model
 {
-    use SoftDeletes;
+    // use SoftDeletes;
 
     //
     protected $table = 'warned_users';
