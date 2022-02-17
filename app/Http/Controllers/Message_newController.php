@@ -29,6 +29,7 @@ use Illuminate\Support\Facades\File;
 use Intervention\Image\Facades\Image;
 use App\Services\AdminService;
 use Session;
+use App\Models\InboxRefuseSet;
 //use Shivella\Bitly\Facade\Bitly;
 
 class Message_newController extends BaseController {
@@ -151,6 +152,36 @@ class Message_newController extends BaseController {
             }
         }
         //line notify end
+
+        //拒收站內信start
+        $inbox_refuse_set = InboxRefuseSet::where('user_id', $user->id);
+        if(!$inbox_refuse_set)
+        {
+            InboxRefuseSet::insert(
+                [
+                    'user_id' => $user->id,
+                    'isRefused_vip_user' => $request->isRefused_vip_user,
+                    'isRefused_common_user' => $request->isRefused_common_user,
+                    'isRefused_warned_user' => $request->isRefused_warned_user,
+                    'refuse_PR' => $request->refuse_PR,
+                    'refuse_canned_message_PR' => $request->refuse_canned_message_PR,
+                    'refuse_register_days' => $request->refuse_register_days,
+                    'created_at' => Carbon::now()
+                ]
+            );
+        }
+        else
+        {
+            $inbox_refuse_set->isRefused_vip_user = $request->isRefused_vip_user;
+            $inbox_refuse_set->isRefused_common_user = $request->isRefused_common_user;
+            $inbox_refuse_set->isRefused_warned_user = $request->isRefused_warned_user;
+            $inbox_refuse_set->refuse_PR = $request->refuse_PR;
+            $inbox_refuse_set->refuse_canned_message_PR = $request->refuse_canned_message_PR;
+            $inbox_refuse_set->refuse_register_days = $request->refuse_register_days;
+            $inbox_refuse_set->updated_at = Carbon::now();
+            $inbox_refuse_set->save();
+        }
+        //拒收站內信end
 
         return back()->with('message','設定已更新');
     }

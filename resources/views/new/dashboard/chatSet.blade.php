@@ -49,30 +49,53 @@
                             </div>
                         </dd>
 
-                        <dt class="n_gg_mm"><span><i></i>拒收站內來信設定</span></dt>
+                        <dt class="n_gg_mm">
+                            <span><i></i>拒收站內來信設定</span>
+                        </dt>
                         <dd>  
                             <div class="ngg_a_tab">
-                                <div class="ti_ktx"><span class="na_nb">a.身分選擇(勾選的不收)</span></div>
+                                <div class="ti_ktx">
+                                    <span class="na_nb">
+                                        a.身分選擇(勾選的不收)
+                                    </span>
+                                </div>
                                 <div class="ti_xcheck naa_dd">
-                                    <span><input type="checkbox" name="1" id="q4" class="ti_ceckys">vip</span>
-                                    <span><input type="checkbox" name="1" id="q4" class="ti_ceckys">普通會員</span>
-                                    <span><input type="checkbox" name="1" id="q4" class="ti_ceckys">警示會員</span>
+                                    <span><input type="checkbox" name="isRefused_vip_user" id="q4" class="ti_ceckys">vip</span>
+                                    <span><input type="checkbox" name="isRefused_common_user" id="q4" class="ti_ceckys">普通會員</span>
+                                    <span><input type="checkbox" name="isRefused_warned_user" id="q4" class="ti_ceckys">警示會員</span>
                                 </div>
                                 <div class="ti_ktx na_top25"><span class="na_nb">b.PR分數多少以下的不收</span></div>
                                 <div class="ti_xcheck naa_dd">
-                                    <select class="na_selct na_top"><option>請選擇</option><option>0(無)</option><option>25</option><option>75</option><option>100</option></select>
+                                    <select name="refuse_PR" class="na_selct na_top">
+                                        <option>請選擇</option>
+                                        <option value=0>0(無)</option>
+                                        <option value=25>25</option>
+                                        <option value=50>50</option>
+                                        <option value=75>75</option>
+                                        <option value=100>100</option>
+                                    </select>
                                 </div>
                                 <div class="ti_ktx na_top25"><span class="na_nb">c.七天內罐頭訊息數量超過多少不收</span></div>
                                 <div class="ti_xcheck naa_dd">
-                                    <select class="na_selct na_top"><option>請選擇</option><option>25%</option><option>50%</option><option>75%</option></select>
+                                    <select name="refuse_canned_message_PR" class="na_selct na_top">
+                                        <option value=0>請選擇</option>
+                                        <option value=25>25%</option>
+                                        <option value=50>50%</option>
+                                        <option value=75>75%</option>
+                                    </select>
                                 </div>
                                 <div class="ti_ktx na_top25"><span class="na_nb">d.拒收幾天內註冊的新會員</span></div>
                                 <div class="ti_xcheck naa_dd">
-                                    <select class="na_selct na_top"><option>請選擇</option><option>三天</option><option>五天</option><option>七天</option></select>
+                                    <select name="refuse_register_days" class="na_selct na_top">
+                                        <option value=0>請選擇</option>
+                                        <option value=3>三天</option>
+                                        <option value=5>五天</option>
+                                        <option value=7>七天</option>
+                                    </select>
                                 </div>
                             </div>	
                         </dd>
-                        <a class="dlbut matop10 mabot_30 form_submit">更新資料</a>
+                        <a type="submit" class="dlbut matop10 mabot_30 form_submit">更新資料</a>
                     </form>
                 </div>
 
