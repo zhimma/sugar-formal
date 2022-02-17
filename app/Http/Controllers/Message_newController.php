@@ -31,6 +31,7 @@ use App\Services\AdminService;
 use Session;
 use App\Models\InboxRefuseSet;
 //use Shivella\Bitly\Facade\Bitly;
+use Illuminate\Support\Facades\Log;
 
 class Message_newController extends BaseController {
     public function __construct(UserService $userService) {
@@ -119,7 +120,6 @@ class Message_newController extends BaseController {
         foreach ($line_notify_chat_set_data as $row){
             array_push($user_line_notify_chat_set, $row->line_notify_chat_id);
         }
-
         return view('new.dashboard.chatSet')
             ->with('line_notify_chat', $line_notify_chat)
             ->with('user_line_notify_chat_set', $user_line_notify_chat_set);
@@ -129,56 +129,47 @@ class Message_newController extends BaseController {
         $user = \View::shared('user');
 
         //line notify start
-        $group_name = $request->input('group_name');
-        if(empty($group_name)){
-            //全刪除
-            lineNotifyChatSet::where('user_id', $user->id)->delete();
-        }else {
-            //先刪後增
-            lineNotifyChatSet::where('user_id', $user->id)->whereNotIn('line_notify_chat_id', $group_name)->delete();
-            $line_notify_chat_set_data = lineNotifyChatSet::select('line_notify_chat_set.*')
-                ->leftJoin('line_notify_chat', 'line_notify_chat.id', 'line_notify_chat_set.line_notify_chat_id')
-                ->where('line_notify_chat.active', 1)
-                ->where('line_notify_chat_set.user_id', $user->id)->where('line_notify_chat_set.deleted_at', null)->get();
-            $user_line_notify_chat_set = array();
-            foreach ($line_notify_chat_set_data as $row) {
-                array_push($user_line_notify_chat_set, $row->line_notify_chat_id);
-            }
-            foreach ($group_name as $v) {
-                if (!in_array($v, $user_line_notify_chat_set)) {
-                    //不存在則新增
-                    lineNotifyChatSet::insert(['user_id' => $user->id, 'line_notify_chat_id' => $v, 'created_at' => \Carbon\Carbon::now()]);
+        if($user->line_notify_token!=null){
+            $group_name = $request->input('group_name');
+            if(empty($group_name)){
+                //全刪除
+                lineNotifyChatSet::where('user_id', $user->id)->delete();
+            }else {
+                //先刪後增
+                lineNotifyChatSet::where('user_id', $user->id)->whereNotIn('line_notify_chat_id', $group_name)->delete();
+                $line_notify_chat_set_data = lineNotifyChatSet::select('line_notify_chat_set.*')
+                    ->leftJoin('line_notify_chat', 'line_notify_chat.id', 'line_notify_chat_set.line_notify_chat_id')
+                    ->where('line_notify_chat.active', 1)
+                    ->where('line_notify_chat_set.user_id', $user->id)->where('line_notify_chat_set.deleted_at', null)->get();
+                $user_line_notify_chat_set = array();
+                foreach ($line_notify_chat_set_data as $row) {
+                    array_push($user_line_notify_chat_set, $row->line_notify_chat_id);
+                }
+                foreach ($group_name as $v) {
+                    if (!in_array($v, $user_line_notify_chat_set)) {
+                        //不存在則新增
+                        lineNotifyChatSet::insert(['user_id' => $user->id, 'line_notify_chat_id' => $v, 'created_at' => \Carbon\Carbon::now()]);
+                    }
                 }
             }
         }
         //line notify end
-
+        
         //拒收站內信start
-        $inbox_refuse_set = InboxRefuseSet::where('user_id', $user->id);
-        if(!$inbox_refuse_set)
+        if($user->engroup==2)
         {
-            InboxRefuseSet::insert(
-                [
-                    'user_id' => $user->id,
-                    'isRefused_vip_user' => $request->isRefused_vip_user,
-                    'isRefused_common_user' => $request->isRefused_common_user,
-                    'isRefused_warned_user' => $request->isRefused_warned_user,
-                    'refuse_PR' => $request->refuse_PR,
-                    'refuse_canned_message_PR' => $request->refuse_canned_message_PR,
-                    'refuse_register_days' => $request->refuse_register_days,
-                    'created_at' => Carbon::now()
-                ]
-            );
-        }
-        else
-        {
-            $inbox_refuse_set->isRefused_vip_user = $request->isRefused_vip_user;
-            $inbox_refuse_set->isRefused_common_user = $request->isRefused_common_user;
-            $inbox_refuse_set->isRefused_warned_user = $request->isRefused_warned_user;
-            $inbox_refuse_set->refuse_PR = $request->refuse_PR;
-            $inbox_refuse_set->refuse_canned_message_PR = $request->refuse_canned_message_PR;
-            $inbox_refuse_set->refuse_register_days = $request->refuse_register_days;
-            $inbox_refuse_set->updated_at = Carbon::now();
+            $inbox_refuse_set = InboxRefuseSet::where('user_id', $user->id)->first();
+            if(!$inbox_refuse_set)
+            {
+                $inbox_refuse_set = new InboxRefuseSet;
+                $inbox_refuse_set->user_id = $user->id;
+            }
+            //$inbox_refuse_set->isRefused_vip_user = 0;//$request->isRefused_vip_user;
+            //$inbox_refuse_set->isRefused_common_user = 0;//$request->isRefused_common_user;
+            //$inbox_refuse_set->isRefused_warned_user = 0;//$request->isRefused_warned_user;
+            //$inbox_refuse_set->refuse_PR = 0;//$request->refuse_PR;
+            //$inbox_refuse_set->refuse_canned_message_PR = 0;//$request->refuse_canned_message_PR;
+            //$inbox_refuse_set->refuse_register_days = 0;//$request->refuse_register_days;
             $inbox_refuse_set->save();
         }
         //拒收站內信end

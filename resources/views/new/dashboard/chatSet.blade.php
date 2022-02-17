@@ -32,70 +32,75 @@
                         <dd style="display: block;">
                             <div class="tuba">當您開啟LINE通知後，可設定不同會員等級或收藏的會員 來訊通知與否。</div>     
                             <div class="tu_bd">狀態：@if($user->line_notify_token==null)尚未綁定<a href="javascript:void(0);" class="tuk_bdbutton right line_notify">立即绑定</a>@else 已綁定<a href="javascript:void(0);" class="qux_bdbutton right line_notify_cancel">取消綁定</a>@endif</div>
-                            <div class="ti_ktx"><span>來訊通知</span></div>
-                            {{ csrf_field() }}
-                            <div class="ti_xcheck">
-                                @foreach($line_notify_chat as $row)
-                                    @if($row->name == '收藏會員' || $row->name == '誰來看我' || $row->name == '收藏我的會員')
-                                        @if($user->isVip())
-                                            <span><input type="checkbox" name="group_name[]" id="q4" class="ti_ceckys" value="{{$row->id}}" @if(in_array($row->id, $user_line_notify_chat_set)) checked @endif>{{$row->name}}</span>
+                            @if($user->line_notify_token!=null)
+                                <div class="ti_ktx"><span>來訊通知</span></div>
+                                {{ csrf_field() }}
+                                <div class="ti_xcheck">
+                                    @foreach($line_notify_chat as $row)
+                                        @if($row->name == '收藏會員' || $row->name == '誰來看我' || $row->name == '收藏我的會員')
+                                            @if($user->isVip())
+                                                <span><input type="checkbox" name="group_name[]" id="q4" class="ti_ceckys" value="{{$row->id}}" @if(in_array($row->id, $user_line_notify_chat_set)) checked @endif>{{$row->name}}</span>
+                                            @else
+                                                @continue
+                                            @endif
                                         @else
-                                            @continue
+                                            <span><input type="checkbox" name="group_name[]" id="q4" class="ti_ceckys" value="{{$row->id}}" @if(in_array($row->id, $user_line_notify_chat_set)) checked @endif>{{$row->name}}</span>
                                         @endif
-                                    @else
-                                        <span><input type="checkbox" name="group_name[]" id="q4" class="ti_ceckys" value="{{$row->id}}" @if(in_array($row->id, $user_line_notify_chat_set)) checked @endif>{{$row->name}}</span>
-                                    @endif
-                                @endforeach
-                            </div>
+                                    @endforeach
+                                </div>
+                            
+                            @endif
                         </dd>
 
-                        <dt class="n_gg_mm">
-                            <span><i></i>拒收站內來信設定</span>
-                        </dt>
-                        <dd>  
-                            <div class="ngg_a_tab">
-                                <div class="ti_ktx">
-                                    <span class="na_nb">
-                                        a.身分選擇(勾選的不收)
-                                    </span>
-                                </div>
-                                <div class="ti_xcheck naa_dd">
-                                    <span><input type="checkbox" name="isRefused_vip_user" id="q4" class="ti_ceckys">vip</span>
-                                    <span><input type="checkbox" name="isRefused_common_user" id="q4" class="ti_ceckys">普通會員</span>
-                                    <span><input type="checkbox" name="isRefused_warned_user" id="q4" class="ti_ceckys">警示會員</span>
-                                </div>
-                                <div class="ti_ktx na_top25"><span class="na_nb">b.PR分數多少以下的不收</span></div>
-                                <div class="ti_xcheck naa_dd">
-                                    <select name="refuse_PR" class="na_selct na_top">
-                                        <option>請選擇</option>
-                                        <option value=0>0(無)</option>
-                                        <option value=25>25</option>
-                                        <option value=50>50</option>
-                                        <option value=75>75</option>
-                                        <option value=100>100</option>
-                                    </select>
-                                </div>
-                                <div class="ti_ktx na_top25"><span class="na_nb">c.七天內罐頭訊息數量超過多少不收</span></div>
-                                <div class="ti_xcheck naa_dd">
-                                    <select name="refuse_canned_message_PR" class="na_selct na_top">
-                                        <option value=0>請選擇</option>
-                                        <option value=25>25%</option>
-                                        <option value=50>50%</option>
-                                        <option value=75>75%</option>
-                                    </select>
-                                </div>
-                                <div class="ti_ktx na_top25"><span class="na_nb">d.拒收幾天內註冊的新會員</span></div>
-                                <div class="ti_xcheck naa_dd">
-                                    <select name="refuse_register_days" class="na_selct na_top">
-                                        <option value=0>請選擇</option>
-                                        <option value=3>三天</option>
-                                        <option value=5>五天</option>
-                                        <option value=7>七天</option>
-                                    </select>
-                                </div>
-                            </div>	
-                        </dd>
-                        <a type="submit" class="dlbut matop10 mabot_30 form_submit">更新資料</a>
+                        @if($user->engroup==2)
+                            <dt class="n_gg_mm">
+                                <span><i></i>拒收站內來信設定</span>
+                            </dt>
+                            <dd>  
+                                <div class="ngg_a_tab">
+                                    <div class="ti_ktx">
+                                        <span class="na_nb">
+                                            a.身分選擇(勾選的不收)
+                                        </span>
+                                    </div>
+                                    <div class="ti_xcheck naa_dd">
+                                        <span><input type="checkbox" name="isRefused_vip_user" id="q4" class="ti_ceckys">vip</span>
+                                        <span><input type="checkbox" name="isRefused_common_user" id="q4" class="ti_ceckys">普通會員</span>
+                                        <span><input type="checkbox" name="isRefused_warned_user" id="q4" class="ti_ceckys">警示會員</span>
+                                    </div>
+                                    <div class="ti_ktx na_top25"><span class="na_nb">b.PR分數多少以下的不收</span></div>
+                                    <div class="ti_xcheck naa_dd">
+                                        <select name="refuse_PR" class="na_selct na_top">
+                                            <option>請選擇</option>
+                                            <option value=0>0(無)</option>
+                                            <option value=25>25</option>
+                                            <option value=50>50</option>
+                                            <option value=75>75</option>
+                                            <option value=100>100</option>
+                                        </select>
+                                    </div>
+                                    <div class="ti_ktx na_top25"><span class="na_nb">c.七天內罐頭訊息數量超過多少不收</span></div>
+                                    <div class="ti_xcheck naa_dd">
+                                        <select name="refuse_canned_message_PR" class="na_selct na_top">
+                                            <option value=0>請選擇</option>
+                                            <option value=25>25%</option>
+                                            <option value=50>50%</option>
+                                            <option value=75>75%</option>
+                                        </select>
+                                    </div>
+                                    <div class="ti_ktx na_top25"><span class="na_nb">d.拒收幾天內註冊的新會員</span></div>
+                                    <div class="ti_xcheck naa_dd">
+                                        <select name="refuse_register_days" class="na_selct na_top">
+                                            <option value=0>請選擇</option>
+                                            <option value=3>三天</option>
+                                            <option value=5>五天</option>
+                                            <option value=7>七天</option>
+                                        </select>
+                                    </div>
+                                </div>	
+                            </dd>
+                        @endif
+                        <a class="dlbut matop10 mabot_30 form_submit">更新資料</a>
                     </form>
                 </div>
 
@@ -212,13 +217,14 @@
         });
 
         $('.form_submit').on('click', function() {
-            var user_line_token = '{{$user->line_notify_token}}';
+            /*var user_line_token = '{{$user->line_notify_token}}';
             if(user_line_token.length==0){
                 $('input:checkbox').prop('checked', false);
                 c5('請先綁定Line');
             }else {
                 $('#chatSetForm').submit();
-            }
+            }*/
+            $('#chatSetForm').submit();
         });
 
         $(function() {
