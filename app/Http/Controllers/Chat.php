@@ -3,6 +3,7 @@
 namespace App\Http\Controllers;
 
 use Illuminate\Http\Request;
+use App\Services\UserService;
 
 class Chat extends BaseController
 {
@@ -21,6 +22,7 @@ class Chat extends BaseController
         if(is_array($m)) return $m;
         $m->load('parent_message');
         if($m->parent_message) {
+            $m->parent_msg_sender_id = $m->parent_message->sender->id;
             
             if(file_exists(public_path().$m->parent_msg_sender_pic) && $m->parent_msg_sender_pic!='') {
                 $m->parent_msg_sender_pic = $m->parent_message->sender->meta->pic;
@@ -39,7 +41,7 @@ class Chat extends BaseController
             }
             else {
                 $m->parent_msg_sender_isAvatarHidden = $m->parent_message->sender->meta->isAvatarHidden;
-                $m->parent_msg_sender_blurryAvatar = $m->parent_message->sender->meta->blurryAvatar;                
+                $m->parent_msg_sender_blurryAvatar = UserService::isBlurAvatar($m->parent_message->sender,$user);                
             }
             
             if($m->parent_msg_sender_isAvatarHidden??null) {
@@ -49,6 +51,10 @@ class Chat extends BaseController
                 else {
                     $m->parent_msg_sender_pic='/new/images/male.png';
                 }                
+            }
+            
+            if(!$m->parent_client_id??null) {
+                $m->parent_client_id = $m->parent_message->client_id??null; 
             }
         }
         if(!isset($m['error'])){

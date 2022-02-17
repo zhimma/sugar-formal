@@ -46,7 +46,7 @@
             <li><a href="{!! url('/dashboard/password') !!}"><img src="/new/images/mm_07.png"><span>更改密碼</span></a></li>
             <li><a href="{!! url('/dashboard/vip') !!}"><img src="/new/images/mm_09.png"><span>VIP</span></a></li>
           </div>
-          <form action="/dashboard/doPosts" method="POST">
+          <form action="/dashboard/doPosts?{{ csrf_token() }}={{ \Carbon\Carbon::now()->timestamp }}" method="POST">
           <input type="hidden" name="_token" value="<?php echo csrf_token(); ?>">
           <h1>投稿</h1>
           <input type="text" name="title">

@@ -8,6 +8,9 @@ use App\Models\AccountStatusLog;
 use App\Models\AdminAnnounce;
 use App\Models\AdminCommonText;
 use App\Models\AnnouncementRead;
+use App\Models\AnonymousChat;
+use App\Models\AnonymousChatMessage;
+use App\Models\AnonymousChatReport;
 use App\Models\BannedUsersImplicitly;
 use App\Models\CustomFingerPrint;
 use App\Models\Evaluation;
@@ -1910,7 +1913,6 @@ class PagesController extends BaseController
 
     public function viewuser2(Request $request, $uid = -1) {
         $user = $request->user();
-        $bannedUsers = \App\Services\UserService::getBannedId();
 
         $vipDays=0;
         if($user->isVip()) {
@@ -2081,6 +2083,9 @@ class PagesController extends BaseController
                 }
             }
 
+            //判斷自己是否封鎖該用戶
+            $isBlocked = \App\Models\Blocked::isBlocked($user->id, $uid);
+
             // die();
             return view('new.dashboard.viewuser', $data ?? [])
                     ->with('user', $user)
@@ -2108,7 +2113,8 @@ class PagesController extends BaseController
                     ->with('isReadIntro',$isReadIntro)
                     ->with('auth_check',$auth_check)
                     ->with('is_banned',User::isBanned($user->id))
-                    ->with('pr', $pr);
+                    ->with('pr', $pr)
+                    ->with('isBlocked',$isBlocked);
             }
 
     }
@@ -2681,7 +2687,7 @@ class PagesController extends BaseController
                     } else {
                         $onerror="this.src='/new/images/female.png'";
                     }
-                $ssrData .='<a href="/dashboard/viewuser/'.$visitor->id.'?time='.\Carbon\Carbon::now()->timestamp.'">';
+                $ssrData .='<a href="/dashboard/viewuser/' . $visitor->id . '">';
                 $ssrData .='<div class="nt_photo '.$ssr_var.'"><img class="lazy" src="'.$ssr_var2.'" data-original="'.$ssr_var2.'" onerror="'.$onerror.'"/></div>'; // need to check again
 
                 $ssrData .='<div class="nt_bot nt_bgco">';
@@ -3867,8 +3873,14 @@ class PagesController extends BaseController
     }
 
     //本月封鎖 + 警示名單
+    //$type 0為封鎖名單 1為警示名單
     public function banned_warned_list(Request $request)
     {
+        $type = 0;
+        if($request->has('type'))
+        {
+            $type = $request->input('type');
+        }
         $user = $request->user();
 
         // $time = \Carbon\Carbon::now();
@@ -3915,7 +3927,8 @@ class PagesController extends BaseController
             ->with('warned_users', $warned_users)
             ->with('user', $user)
             ->with('banned_count', $banned_count)
-            ->with('warned_count', $warned_count);
+            ->with('warned_count', $warned_count)
+            ->with('type',$type);
     }
 
     function substr_cut($user_name){
@@ -6198,8 +6211,18 @@ class PagesController extends BaseController
             'w.adv_auth as warned_adv_auth')
             ->from('users as u')
             ->leftJoin('user_meta as m','u.id','m.user_id')
+            // ->leftJoin('banned_users as b', function ($join) {
+            //     $join->on('u.id', '=', 'b.member_id')
+            //          ->on('b.deleted_at', \DB::raw("NULL"));
+            // })
+            // ->leftJoin('warned_users as w', function ($join) {
+            //     $join->on('u.id', '=', 'w.member_id')
+            //          ->on('w.deleted_at', \DB::raw("NULL"));
+            // })
             ->leftJoin('banned_users as b','u.id','b.member_id')
+            ->orderBy('b.id', 'desc')
             ->leftJoin('warned_users as w','u.id','w.member_id')
+            ->orderBy('w.id', 'desc')
             ->where('u.id',$user->id)
             ->get()->first();
         //封鎖
@@ -6353,7 +6376,7 @@ class PagesController extends BaseController
         $reportedStatus = array();
             foreach ($report_all as $row) {
                 if (isset($row->rid) && !empty($row->rid)) {
-                    $content_1 = '您於 ' . substr($row->reporter_time, 0, 10) . ' 檢舉了 <a href=../dashboard/viewuser/' . $row->rid . '?time=' . \Carbon\Carbon::now()->timestamp . '>' . $row->name . '</a>，檢舉緣由是 ' . $row->reason;
+                    $content_1 = '您於 ' . substr($row->reporter_time, 0, 10) . ' 檢舉了 <a href=../dashboard/viewuser/' . $row->rid . '>' . $row->name . '</a>，檢舉緣由是 ' . $row->reason;
                     $content_2 = '';
 
                     //封鎖
@@ -7195,6 +7218,101 @@ class PagesController extends BaseController
     public function delSearchIgnore(Request $request,SearchIgnoreService $service) {
         if(!$request->target??null) return $service->delMemberAll()?1:0;
         return $service->delByIgnoreId($request->target)?1:0;
+    }
+
+    public function anonymousChat(Request $request) {
+        $user = auth()->user();
+
+        if($user->engroup==1 && !$user->isVip()){
+            $message = '目前僅提供給VIP會員使用，若欲前往使用，<a href="/dashboard/new_vip" class="red">請點此立即升級VIP！</a>';
+            return redirect('/dashboard/personalPage')->with('message', $message);
+        }else if($user->engroup==2 && (!$user->isVip() || !$user->isPhoneAuth())){
+            return redirect('/dashboard/personalPage')->with('message', '目前僅提供給完成手機驗證的VIP會員使用');
+        }
+
+        $checkReport = AnonymousChatReport::select('user_id', 'created_at')->where('reported_user_id', $user->id)->groupBy('user_id')->orderBy('created_at', 'desc')->get();
+        //dd($checkReport);
+        //dd($checkReport[0]->created_at);
+        if(count($checkReport) >= 5 && Carbon::parse($checkReport[0]->created_at)->diffInDays(Carbon::now())<3){
+            return redirect('/dashboard/personalPage')->with('message', '因被檢舉次數過多，目前已限制使用匿名聊天室');
+        }
+
+        $anonymous_chat_announcement = AdminCommonText::where('category_alias', 'anonymous_chat')->where('alias', 'announcement')->first();
+        if($anonymous_chat_announcement) {
+            $anonymous_chat_announcement = $anonymous_chat_announcement->content;
+        }else{
+            $anonymous_chat_announcement = '';
+        }
+
+        //可發訊時間計算 一周發訊一人
+        $checkMessage = AnonymousChatMessage::where('user_id', $user->id)->orderBy('created_at', 'desc')->first();
+        $canNotMessage = false;
+        if( isset($checkMessage) && Carbon::parse($checkMessage->created_at)->diffInDays(Carbon::now())<7){
+            $canNotMessage = true;
+        }
+
+        return view('/new/dashboard/anonymous_chat')
+            ->with('user', $user)
+            ->with('anonymous_chat_announcement', $anonymous_chat_announcement)
+            ->with('canNotMessage', $canNotMessage);
+    }
+
+    public function anonymous_chat_report(Request $request) {
+
+        $user = auth()->user();
+        $reported_user_id = AnonymousChat::where('id', $request->anonymous_chat_id)->first();
+
+        AnonymousChatReport::Create([
+            'anonymous_chat_id' => $request->anonymous_chat_id,
+            'user_id' => $user->id,
+            'reported_user_id' => $reported_user_id->user_id,
+            'content' => $request->content
+        ]);
+
+        $msg = '檢舉成功';
+
+        //判斷檢舉人數超過五人時刪除訊息
+        $checkReport = AnonymousChatReport::where('reported_user_id', $reported_user_id->user_id)->groupBy('user_id')->get();
+        if(count($checkReport) >= 5){
+            AnonymousChat::where('user_id', $reported_user_id->user_id)->delete();
+        }
+
+        return back()->with('message', $msg);
+    }
+
+    public function anonymous_chat_message(Request $request) {
+
+        $user = auth()->user();
+
+        //可發訊時間計算 一周發訊一人
+        $checkMessage = AnonymousChatMessage::where('user_id', $user->id)->orderBy('created_at', 'desc')->first();
+        if( isset($checkMessage) && Carbon::parse($checkMessage->created_at)->diffInDays(Carbon::now())<7){
+            return back()->with('message', '您好，一週僅限發一則私訊！');
+        }
+        $user_chat_anonymous = AnonymousChat::where('user_id', $user->id)->orderBy('created_at', 'desc')->first();
+        if(!isset($user_chat_anonymous)){
+            return back()->with('message', '您好，您尚未在匿名聊天室發言過，無法使用私訊功能喔！');
+        }
+        $to_user_id = AnonymousChat::where('id', $request->anonymous_chat_message_id)->first();
+        AnonymousChatMessage::Create([
+            'anonymous_chat_id' => $request->anonymous_chat_message_id,
+            'user_id' => $user->id,
+            'to_user_id' => $to_user_id->user_id,
+            'content' => $request->content
+        ]);
+        $msg = '發訊成功';
+        //站長系統訊息
+        $to_user = User::findById($to_user_id->user_id);
+//        dd($to_user->name);
+        if(isset($to_user)) {
+
+            $sys_message = $to_user->name . ' 您好，您在 ' . substr(Carbon::now(), 0, 10) . ' 有一封來自匿名聊天室的訪客 ' . $user_chat_anonymous->anonymous . ' 來信。<a class="zs_buttonn1 right" href="/dashboard/chat2/chatShow/' . $user->id . '">前往查看</a>';
+//            dd($sys_message);
+            Message::post(1049, $to_user_id->user_id, $sys_message, true, 0);
+            Message::post($user->id, $to_user_id->user_id, $request->content);
+        }
+
+        return back()->with('message', $msg);
     }
 }
 

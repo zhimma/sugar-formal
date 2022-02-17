@@ -11,6 +11,7 @@ use Closure;
 use Illuminate\Contracts\Auth\Guard;
 use App\Models\UserMeta;
 use Carbon\Carbon;
+use App\Models\SetAutoBan;
 
 class CheckIsWarned
 {
@@ -128,6 +129,7 @@ class CheckIsWarned
 
             }
             if(count($isWarned)==0){
+                
                 //if ever banned by vip_pass then reBanned
                 $logWarned = IsWarnedLog::where('user_id', $user->id)->where('vip_pass', 1)->orderBy('created_at', 'desc')->first();
 
@@ -154,6 +156,11 @@ class CheckIsWarned
             warned_users::where('member_id',$user->id)->where('vip_pass', 1)->delete();
         }
 
+        if(count($isWarned)==0){
+            //刪除自動警示設定名單
+            SetAutoBan::where('cuz_user_set',$user->id)->where('set_ban','3')->delete();
+        }
+
         if($user->meta->isWarned == 1){
             if($auth_status==1 && !$user->isAdminWarned()){
                 //取消警示
@@ -172,7 +179,6 @@ class CheckIsWarned
 
 //            return $next($request);
         }
-
 
         return $next($request);
     }

@@ -708,7 +708,11 @@
                                     @if($to->id==$user->id)
                                         <a onclick="show_chat()"><img src="/new/images/icon_06.png" class="tubiao_i"><span>發信</span></a>
                                     @else
-                                        <a href="/dashboard/chat2/chatShow/{{ $to->id }}"><img src="/new/images/icon_06.png" class="tubiao_i"><span>發信</span></a>
+                                        @if($isBlocked)
+                                            <a onclick="messenge_show_block()"><img src="/new/images/icon_06.png" class="tubiao_i"><span>發信</span></a>
+                                        @else
+                                            <a href="/dashboard/chat2/chatShow/{{ $to->id }}"><img src="/new/images/icon_06.png" class="tubiao_i"><span>發信</span></a>
+                                        @endif
                                     @endif
                                 </li>
 {{--                            @endif--}}
@@ -1238,7 +1242,7 @@
                                                             @endif
                                                         @endfor
                                                     </span>--}}
-                                                    <a href="/dashboard/viewuser/{{ $row_user->id }}?time={{ \Carbon\Carbon::now()->timestamp }}">{{ $row->user->name }}</a>
+                                                    <a href="/dashboard/viewuser/{{ $row_user->id }}">{{ $row->user->name }}</a>
                                                     {{--                                <font>{{ substr($row->created_at,0,10)}}</font>--}}
                                                     @if($row_user->id == $user->id)
                                                         <font class="sc content_delete" data-id="{{ $row->id }}" style="padding: 0px 3px;"><img src="/new/images/del_03.png" style="padding: 0px 0px 1px 5px;">刪除</font>
@@ -1353,7 +1357,7 @@
                                                             @endfor
                                                         @endif
                                                     </span>--}}
-                                                    <a href="/dashboard/viewuser/{{$row_user->id}}?time={{ \Carbon\Carbon::now()->timestamp }}">{{$row_user->name}}</a>
+                                                    <a href="/dashboard/viewuser/{{$row_user->id}}">{{$row_user->name}}</a>
                                                     @if(isset($warned_users) || isset($hadWarned))
                                                         <img src="/new/images/kul.png" class="sxyh">
                                                     @else
@@ -1916,7 +1920,11 @@
         }else{
             c5('不可發信給自己');
         }
-    }    
+    }   
+    
+    function messenge_show_block(){
+        c5('封鎖中無法發信');
+    }
     
 	$(document).ready(function () {
     // $( document ).ready(function() {

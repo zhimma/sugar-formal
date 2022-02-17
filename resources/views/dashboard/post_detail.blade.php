@@ -21,6 +21,9 @@
 		.toug_back:hover{ color:white !important; text-decoration:none !important}
 		.commonMenu{z-index: 10001;}
 		.blbg_new{width:100%; height:100%;width: 100%;height: 100%;position: fixed;top: 0px;left: 0;background: rgba(0,0,0,0.5);z-index: 9;display:none;}
+		.adminReply{
+			background-color:#ddf3ff;
+		}
 	</style>
 @endsection
 
@@ -80,7 +83,7 @@
 						@if(count($replyDetail)>0)
 							<div class="tgxq_nr bot_tgbot70">
 								@foreach($replyDetail as $reply)
-									<li>
+									<li class="{{ $loop->iteration >5 ? 'moreReplyHide' :''}} {{ $reply->uid==1049 ?'adminReply':'' }}"  style="{{ $loop->iteration >5? 'display:none' : '' }}">
 										<a href="/dashboard/viewuser/{{$reply->uid}}">
 											<div class="tg_imgtx"><img src="@if(file_exists( public_path().$reply->umpic ) && $reply->umpic != ""){{$reply->umpic}} @elseif($reply->engroup==2)/new/images/female.png @else/new/images/male.png @endif" class="hycov"></div>
 										</a>
@@ -111,10 +114,15 @@
 														->where('posts.reply_id', $reply->pid)->get();
 										@endphp
 										@if(count($subDetails)>0)
-											<div class="tw_bgxx">
+											<div class="tw_bgxx" style="padding: unset;">
 												@foreach($subDetails as $key => $subReply)
 													@if($key==0)
-														<div class="{{count($subDetails)>1 ? 'two_hf' : 'xxxxno_'. count($subDetails) .'_'.$reply->pid}}">
+														@if($subReply->uid==1049 && count($subDetails)==1)
+															<script>
+																$('.tw_bgxx').css('background-color','#ddf3ff');
+															</script>
+														@endif
+														<div class="{{count($subDetails)>1 ? 'two_hf' : 'xxxxno_'. count($subDetails) .'_'.$reply->pid}} {{ $subReply->uid==1049 ?'adminReply':'' }}" style="margin-top: 0px; padding:5px 10px; padding-top:10px; ">
 															<a href="/dashboard/viewuser/{{$subReply->uid}}"><div class="two_tetx"><img src="@if(file_exists( public_path().$subReply->umpic ) && $subReply->umpic != ""){{$subReply->umpic}} @elseif($subReply->engroup==2)/new/images/female.png @else/new/images/male.png @endif" class="hycov"></div></a>
 															<div class="two_ta_rightnr">
 																<div class="two_ta_nr">
@@ -153,7 +161,7 @@
 													<div id="more_{{ $reply->pid }}" class="more" style="display: none;">
 														@foreach($subDetails as $key => $subReply)
 															@if($key>=1)
-																<div class="two_hf">
+																<div class="two_hf {{ $subReply->uid==1049 ?'adminReply':'' }}" style="margin-top: 0px; padding:5px 10px; padding-top:10px; ">
 																	<a href="/dashboard/viewuser/{{$subReply->uid}}"><div class="two_tetx"><img src="@if(file_exists( public_path().$subReply->umpic ) && $subReply->umpic != ""){{$subReply->umpic}} @elseif($subReply->engroup==2)/new/images/female.png @else/new/images/male.png @endif" class="hycov"></div></a>
 																	<div class="two_ta_rightnr">
 																		<div class="two_ta_nr">
@@ -189,13 +197,28 @@
 															@endif
 														@endforeach
 													</div>
-													<a href="javascript:show({{ $reply->pid }});" id="btn_{{ $reply->pid }}" class="left but_m" style="width: 100%;">展開更多></a>
+													<a href="javascript:show({{ $reply->pid }});" id="btn_{{ $reply->pid }}" class="left but_m" style="width: 100%;padding: 6px 10px;">展開更多></a>
 												@endif
 											</div>
 										@endif
 										<!--  -->
 									</li>
 								@endforeach
+								<div class="title_dk" onclick="f()"><span class="triangle triangle-top"><i class="tr_l">顯示更早的留言</i></span></div>
+
+								<script>
+									function f() {
+										document.getElementsByClassName('triangle')[0].classList.toggle('triangle-top');
+										document.getElementsByClassName('triangle')[0].classList.toggle('triangle-bottom');
+										if($(".moreReplyHide").css('display') =='table'){
+											$(".moreReplyHide").css('display','none');
+											$(".tr_l").text('顯示更早的留言');
+										}else{
+											$(".moreReplyHide").css('display','table');
+											$(".tr_l").text('顯示較少的留言');
+										}
+									}
+								</script>
 							</div>
 						@else
 							<div class="wtl bot_tgbot70">
@@ -264,6 +287,7 @@
 					textAreaHeight=50;
 				}
 				$(".bot_nnew").css('height',textAreaHeight + 'px');
+				$("#response_send").css('margin-top',(textAreaHeight-34) + 'px');
 			})
 		}
 

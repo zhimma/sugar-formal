@@ -227,7 +227,7 @@ header("Expires: Fri, 01 Jan 1990 00:00:00 GMT");
 {{--                                        @endif--}}
 {{--                                    @endfor--}}
 {{--                                </span>--}}
-                                <a href="/dashboard/viewuser/{{$row_user->id}}?time={{ \Carbon\Carbon::now()->timestamp }}">{{$row_user->name}}</a>
+                                <a href="/dashboard/viewuser/{{$row_user->id}}">{{$row_user->name}}</a>
 {{--                                <font>{{ substr($row->created_at,0,10)}}</font>--}}
                                 @if($row_user->id==$user->id)
                                 <font class="sc content_delete" data-id="{{$row->id}}"><img src="/new/images/del_03.png">刪除</font>
