@@ -37,7 +37,7 @@
 						</a>
 					</div>
 					<div class="t_xqheight">
-						<div class="toug_xq" style="position: relative; {{ $postDetail->uid==697 ? 'background:#ddf3ff;' : ''}}">
+						<div class="toug_xq" style="position: relative; {{ $postDetail->uid==1049 ? 'background:#ddf3ff;' : ''}}">
 							<div class="tougao_xnew">
 								<a href="/dashboard/viewuser/{{$postDetail->uid}}">
 									<div class="tou_img_1">
