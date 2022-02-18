@@ -79,11 +79,15 @@
 								right: 0;
 								top: 0;
 							}
+							.tgxq_nr li{
+								padding: unset;
+							}
 						</style>
 						@if(count($replyDetail)>0)
 							<div class="tgxq_nr bot_tgbot70">
 								@foreach($replyDetail as $reply)
-									<li class="{{ $loop->iteration >5 ? 'moreReplyHide' :''}} {{ $reply->uid==1049 ?'adminReply':'' }}"  style="{{ $loop->iteration >5? 'display:none' : '' }}">
+									<li class="{{ $loop->iteration >5 ? 'moreReplyHide' :''}}"   style="{{ $loop->iteration >5? 'display:none' : '' }}">
+										<div class="{{ $reply->uid==1049 ?'adminReply':'' }}" style="width: 100%;float: right; padding-top: 18px;">
 										<a href="/dashboard/viewuser/{{$reply->uid}}">
 											<div class="tg_imgtx"><img src="@if(file_exists( public_path().$reply->umpic ) && $reply->umpic != ""){{$reply->umpic}} @elseif($reply->engroup==2)/new/images/female.png @else/new/images/male.png @endif" class="hycov"></div>
 										</a>
@@ -106,6 +110,7 @@
 											</div>
 
 										</div>
+										</div>
 										<!--  -->
 										@php
 											$subDetails = \App\Models\Posts::selectraw('users.id as uid, users.name as uname, users.engroup as uengroup, posts.tag_user_id as tagid, posts.is_anonymous as panonymous, posts.views as uviews, user_meta.pic as umpic, posts.id as pid, posts.title as ptitle, posts.contents as pcontents, posts.updated_at as pupdated_at,  posts.created_at as pcreated_at')
@@ -114,7 +119,7 @@
 														->where('posts.reply_id', $reply->pid)->get();
 										@endphp
 										@if(count($subDetails)>0)
-											<div class="tw_bgxx" @if(count($subDetails)>1) style="padding: unset;" @endif>
+											<div class="tw_bgxx" @if(count($subDetails)>1) style="padding: unset;margin-bottom: 18px;" @else  style="margin-bottom: 18px;" @endif>
 												@foreach($subDetails as $key => $subReply)
 													<div @if($subReply->uid==1049) style="background-color: #ddf3ff" @endif  class="{{ count($subDetails)>1 && $key>0 ? 'needToHide_'.$reply->pid :'' }}" @if(count($subDetails)>1 && $key>0) hidden @endif>
 														<div id="more_{{ $reply->pid }}_{{$key}}" class="more_{{ $reply->pid }} {{ count($subDetails)>1 ? 'two_hf':'' }}" @if(count($subDetails)>1) style="margin-top: 0px; padding:5px 10px; padding-top:10px;" @endif>
