@@ -322,7 +322,8 @@ class SetAutoBan extends Model
             return;
         }
 
-        set_time_limit(0);
+        //執行時間預設是30秒改為無上限
+        set_time_limit(-1);
 
         $set_auto_ban = SetAutoBan::select('type', 'set_ban', 'id', 'content','expiry', 'expired_days')->orderBy('id', 'desc');
         $auto_ban = $set_auto_ban->get();
