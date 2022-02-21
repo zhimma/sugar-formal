@@ -150,7 +150,7 @@
 																			$tag_username=$reply->uname;
 																		}
 																	@endphp
-																	<p><a href="/dashboard/viewuser/{{$tag_userid}}"><span class="blue">{{ $tag_username }}</span></a> {!! \App\Models\Posts::showContent($subReply->pcontents) !!}</p>
+																	<p style="word-break: break-all;"><a href="/dashboard/viewuser/{{$tag_userid}}"><span class="blue">{{ $tag_username }}</span></a> {!! \App\Models\Posts::showContent($subReply->pcontents) !!}</p>
 																</div>
 															</div>
 														</div>
