@@ -321,6 +321,9 @@ class SetAutoBan extends Model
             logger('SetAutoBan logout_warned() user not set, referer: ' . \Request::server('HTTP_REFERER'));
             return;
         }
+
+        set_time_limit(0);
+
         $set_auto_ban = SetAutoBan::select('type', 'set_ban', 'id', 'content','expiry', 'expired_days')->orderBy('id', 'desc');
         $auto_ban = $set_auto_ban->get();
         foreach ($auto_ban as $ban_set) {
@@ -415,7 +418,7 @@ class SetAutoBan extends Model
             }
         }
         $msg_auto_ban = $set_auto_ban->where('type', 'msg')->orwhere('type', 'allcheck')->orderBy('id', 'desc')->get();
-        $content_days = Carbon::now()->subDays(3);
+        $content_days = Carbon::now()->subDays(1);
         $msg = Message::select('updated_at', 'from_id', 'content')->where('from_id', $uid)->where('updated_at', '>', $content_days)->get();
         foreach ($msg_auto_ban as $ban_set)
         {
