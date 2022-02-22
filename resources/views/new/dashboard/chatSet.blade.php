@@ -28,13 +28,13 @@
                 
                 <div class="gg_zh">
                     <form id="chatSetForm" action="{{ route('chatNoticeSet') }}" method="post">
+                        {{ csrf_field() }}
                         <dt class="n_gg_mm"><span><i></i>Line通知設定</span><!--<img src="/new/images/shed_icon.png">--></dt>
                         <dd style="display: block;">
                             <div class="tuba">當您開啟LINE通知後，可設定不同會員等級或收藏的會員 來訊通知與否。</div>     
                             <div class="tu_bd">狀態：@if($user->line_notify_token==null)尚未綁定<a href="javascript:void(0);" class="tuk_bdbutton right line_notify">立即绑定</a>@else 已綁定<a href="javascript:void(0);" class="qux_bdbutton right line_notify_cancel">取消綁定</a>@endif</div>
                             @if($user->line_notify_token!=null)
                                 <div class="ti_ktx"><span>來訊通知</span></div>
-                                {{ csrf_field() }}
                                 <div class="ti_xcheck">
                                     @foreach($line_notify_chat as $row)
                                         @if($row->name == '收藏會員' || $row->name == '誰來看我' || $row->name == '收藏我的會員')
@@ -64,9 +64,10 @@
                                         </span>
                                     </div>
                                     <div class="ti_xcheck naa_dd">
-                                        <span><input type="checkbox" name="isRefused_vip_user" id="q4" class="ti_ceckys">vip</span>
-                                        <span><input type="checkbox" name="isRefused_common_user" id="q4" class="ti_ceckys">普通會員</span>
-                                        <span><input type="checkbox" name="isRefused_warned_user" id="q4" class="ti_ceckys">警示會員</span>
+                                        <input type="hidden" name="isHideWeight" value="0">
+                                        <span><input type="checkbox" name="isRefused_vip_user" id="q4" class="ti_ceckys" value="1">vip</span>
+                                        <span><input type="checkbox" name="isRefused_common_user" id="q4" class="ti_ceckys" value="1">普通會員</span>
+                                        <span><input type="checkbox" name="isRefused_warned_user" id="q4" class="ti_ceckys" value="1">警示會員</span>
                                     </div>
                                     <div class="ti_ktx na_top25"><span class="na_nb">b.PR分數多少以下的不收</span></div>
                                     <div class="ti_xcheck naa_dd">
