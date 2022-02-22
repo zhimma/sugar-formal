@@ -418,7 +418,7 @@
     @foreach ($colIdxOfIp[$g] as $i=>$c)
 		{{-- bug 臨時處理 --}}
 		{{-- https://sentry.io/share/issue/fa307ae4f3ed47fe9994debfd05829d0/ --}}
-		@if(floor((20-strlen($columnSet[$g][$c]))/2)*2) >= 0)
+		@if(floor((20-strlen($columnSet[$g][$c]))/2)*2 >= 0)
             <th class="{{$columnTypeSet[$g][$c] ?? ''}}_th {{$i?'':'col_ip_first'}}">
 				{!!str_repeat('&nbsp;',floor((20-strlen($columnSet[$g][$c]))/2)*2)!!}			
 				<a target="_blank" href="{{route('getUsersLog')}}?ip={{$columnSet[$g][$c]}}">
