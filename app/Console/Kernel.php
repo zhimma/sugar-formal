@@ -2,7 +2,6 @@
 
 namespace App\Console;
 
-use App\Models\AnonymousChat;
 use App\Models\MemberPic;
 use Carbon\Carbon;
 use Illuminate\Console\Scheduling\Schedule;
@@ -51,10 +50,6 @@ class Kernel extends ConsoleKernel
             $schedule->call(function (){
                 $this->checkEmailVailUser();
             })->timezone('Asia/Taipei')->dailyAt('5:00');
-            $schedule->call(function (){
-                $this->deleteAnonymousChat();
-            })->timezone('Asia/Taipei')->weeklyOn(0, '23:59');
-
         }
         if(app()->environment('CFP')){
             $schedule->call('\App\Http\Controllers\Admin\FindPuppetController@entrance')->timezone('Asia/Taipei')->dailyAt('03:00');
@@ -573,9 +568,5 @@ class Kernel extends ConsoleKernel
         Http::withToken($LineToken)->asForm()->post('https://notify-api.line.me/api/notify', [
             'message' => $message
         ]);
-    }
-
-    protected function deleteAnonymousChat(){
-        AnonymousChat::select('*')->delete();
     }
 }

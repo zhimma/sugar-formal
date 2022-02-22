@@ -132,7 +132,11 @@
                     <div class="sys_aa" id="vip_state_block">
                         <div class="tabbox_new_dt"><span>VIP狀態</span>
                             @if(!$user->isVip())
-                                <a class="zs_buttonn" href="{{url('/dashboard/new_vip')}}">立即成為VIP</a>
+                                @if($user->engroup==2)
+                                    <a class="zs_buttonn" href="{{url('/dashboard_img')}}">立即上傳照片</a>
+                                @else
+                                    <a class="zs_buttonn" href="{{url('/dashboard/new_vip')}}">立即成為VIP</a>
+                                @endif
                             @endif
                         </div>
                         <div class="tabbox_new_dd">
@@ -144,12 +148,18 @@
                         </div>
                     </div>
                    <div class="sys_aa" id="vip_state_block">
-                        <div class="tabbox_new_dt"><span>隱藏狀態</span></div>
+                        <div class="tabbox_new_dt"><span>隱藏狀態</span>
+                            @if($user->valueAddedServiceStatus('hideOnline') == 1)
+                                <a class="zs_buttonn right" href="/dashboard/account_hide_online">變更隱藏狀態</a>
+                            @else
+                                <a class="zs_buttonn" href="{{url('/dashboard/valueAddedHideOnline')}}" style="font-size: 12px;">立即購買隱藏功能</a>
+                            @endif
+                        </div>
                         <div class="tabbox_new_dd">
                             @if($user->valueAddedServiceStatus('hideOnline') == 1)
                                 <h2 class="tabbox_h2">{!! $vasStatus !!}</h2>
                             @else
-                            <h2 class="tabbox_h2"><span class="tu_dfont">您尚未購買隱藏付費功能</span></h2>
+                                <h2 class="tabbox_h2"><span class="tu_dfont">您尚未購買隱藏付費功能</span></h2>
                             @endif
                         </div>
                     </div>                    
@@ -301,7 +311,7 @@
                             @endif
                             @if((isset($admin_msgs_sys) && count($admin_msgs_sys)) || $reportedStatus )
                             <div class="tabbox_h3 sys_remind">
-                                <div class="tabbox_new_dt tabbox_new_ss"><span>系統來訊通知</span>
+                                <div class="tabbox_new_dt tabbox_new_ss"><span>其他</span>
                                 @if(isset($admin_msgs_sys) && count($admin_msgs_sys))
                                 <div class="right btn01 btn_admin_msgs"><span class="zixu_cs"></span></div>
                                 <div class="btn02 sx_ment fr_nbj">

@@ -528,6 +528,7 @@
                 @if(!empty($messages))
                 @foreach ($messages as $message)
                 @php
+                $parentMsg = null;
                 $msgUser = \App\Models\User::findById($message->from_id);
                 \App\Models\Message::read($message, $user->id);
                 if($message->parent_msg??null) $parentMsg = \App\Models\Message::find($message->parent_msg);
