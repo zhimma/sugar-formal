@@ -1354,10 +1354,18 @@ class User extends Authenticatable
     public function isForbidAdvAuth() {
         return $this->log_adv_auth_api()->where(
             function ($query) {
-                $query->where('forbid_user',1)->orWhere('is_duplicate',1);
+                $query->where('forbid_user',1);
             }
         )->count() > 0;
     }
+    
+    public function isDuplicateAdvAuth() {
+        return $this->log_adv_auth_api()->where(
+            function ($query) {
+                $query->where('is_duplicate',1);
+            }
+        )->count() > 0;
+    }    
     
     public function getPassAdvAuthApiQuery() {
         return $this->log_adv_auth_api()->where('return_code','0000')->where('user_fault',0);
