@@ -149,7 +149,7 @@ class PagesController extends BaseController
             if ($this->service->update(auth()->id(), $request->all())) {
 
                 //更新完後判斷是否需備自動封鎖
-                SetAutoBan::auto_ban(auth()->id());
+                //SetAutoBan::auto_ban(auth()->id());
                 
                 return redirect('/dashboard')->with('message', '資料更新成功');
             }
@@ -192,7 +192,7 @@ class PagesController extends BaseController
             if ($this->service->update(auth()->id(), $request->all())) {
 
                 //更新完後判斷是否需備自動封鎖
-                SetAutoBan::auto_ban(auth()->id());
+                //SetAutoBan::auto_ban(auth()->id());
 
                 $status_data =[
                     'status' => true,
