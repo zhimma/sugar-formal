@@ -9,6 +9,7 @@ use Illuminate\Foundation\Bus\Dispatchable;
 use Illuminate\Queue\InteractsWithQueue;
 use Illuminate\Queue\SerializesModels;
 use App\Models\SetAutoBan;
+use Illuminate\Queue\Middleware\WithoutOverlapping;
 
 class LogoutAutoBan implements ShouldQueue
 {
@@ -24,6 +25,11 @@ class LogoutAutoBan implements ShouldQueue
     public function __construct($uid)
     {
         $this->uid = $uid;
+    }
+
+    public function middleware()
+    {
+        return [new WithoutOverlapping($this->uid)];
     }
 
     /**
