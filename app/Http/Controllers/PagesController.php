@@ -5998,7 +5998,6 @@ class PagesController extends BaseController
                     }
                     $last_vip_log = null;
 
-                    $vipStatus='';
                     switch ($vip->payment){
                         case 'cc_monthly_payment':
                             if(!$vip->isPaidCanceled() && ($nextProcessDate??null)){
