@@ -90,6 +90,9 @@ class Kernel extends HttpKernel
         'CheckAccountStatus' => \App\Http\Middleware\CheckAccountStatus::class,
         'CheckDiscussPermissions' => \App\Http\Middleware\CheckDiscussPermissions::class,
 
+        //一段時間未動作就自動登出
+        'SessionExpired'=> \App\Http\Middleware\SessionExpired::class,
+
         //檢查是否是連結訪問
         "HasReferer"=>HasReferer::class
     ];

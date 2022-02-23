@@ -67,6 +67,9 @@
                 text-align: left;
             }
             
+            #tab_confirm .bltext .bolder.red ol,#tab_confirm .bltext .bolder.red ol li ,.new_wyz .bolder.red ol,.new_wyz .bolder.red ol li {list-style: inside decimal;}
+            
+            #tab_confirm .bltext .bolder.red ol li {text-align:left;}
             .margin_top_one_line {margin-top:1em;}
             .xy_input {border-radius:5px;}
             .xy_input.only_show {width:60% !important;color:#666666;}
@@ -127,10 +130,14 @@
                             
                             @else
                             <div>您好，這是花園網的進階認證，將驗證您的以下資料，必須全部正確才能通過驗證。</div>
-                            <div class="bolder red">請注意必須填門號申請人的資料，預付卡無法驗證</div>
-                            @if(substr(trim($user->email),-6)!='edu.tw')
+                            <div class="bolder red">
+                                <ol>
+                                <li>輸入資料必須符合該門號的登記資料,否則驗證會失敗</li>
+                                <li>預付卡無法驗證</li>
+                                <li>身分證字號則只用在本次驗證後刪除，本站不會留存</li>
+                                </ol>
+                            </div>
                             <div class="i_am_student"><a href="{{url('goto_advance_auth_email')}}">我是學生未滿20歲，沒有辦個人門號，請點我</a></div>
-                            @endif
                             @endif
                             </h3>
 						</div>
@@ -178,11 +185,6 @@
     <div class="bltitle">提示</div>
     <div class="n_blnr01">
         <div class="blnr bltext">
-        本站會將您的門號以及生日同步更新到會員基本資料，
-        <span class="bolder red">身分證字號則只用在本次驗證並不會紀錄</span>
-		<div>此驗證依照以下條款進行</div>
-		<div><a target="_blank" href="{{url('advance_auth_midclause')}}">{{url('advance_auth_midclause')}}</a></div>
-		<div>請詳細閱讀後選擇</div>
         </div>
         <div class="n_bbutton">
             <span><a class="n_left" href="#" onclick="" >同意</a></span>

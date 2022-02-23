@@ -149,7 +149,7 @@ class PagesController extends BaseController
             if ($this->service->update(auth()->id(), $request->all())) {
 
                 //更新完後判斷是否需備自動封鎖
-                SetAutoBan::auto_ban(auth()->id());
+                //SetAutoBan::auto_ban(auth()->id());
                 
                 return redirect('/dashboard')->with('message', '資料更新成功');
             }
@@ -192,7 +192,7 @@ class PagesController extends BaseController
             if ($this->service->update(auth()->id(), $request->all())) {
 
                 //更新完後判斷是否需備自動封鎖
-                SetAutoBan::auto_ban(auth()->id());
+                //SetAutoBan::auto_ban(auth()->id());
 
                 $status_data =[
                     'status' => true,
@@ -4395,7 +4395,7 @@ class PagesController extends BaseController
                 ->with('user',$user)
                 ->with('cur', $user)
                 ->with('init_check_msg',$init_check_msg??null)
-                ->with('user_pause_during_msg',$this->advance_auth_get_msg('user_pause'))
+                ->with('user_pause_during_msg',$this->advance_auth_get_msg('user_pause2'))
                 ;
     }
     
@@ -4439,11 +4439,22 @@ class PagesController extends BaseController
     public function advance_auth_get_msg($type=null) {
         $msg = null;
         switch($type) {
+            case 'have_wrong':
+                $msg='您的進階驗證功能有誤，請加站長 line 與站長聯絡<a href="https://lin.ee/rLqcCns" target="_blank"> <img src="https://scdn.line-apps.com/n/line_add_friends/btn/zh-Hant.png" alt="加入好友" height="26" border="0" style="height: 26px; float: unset;"></a>';
+            break;
+            case 'user_forbid':
+                $msg='您的驗證次數已滿三次，請加站長 line 與站長聯絡<a href="https://lin.ee/rLqcCns" target="_blank"> <img src="https://scdn.line-apps.com/n/line_add_friends/btn/zh-Hant.png" alt="加入好友" height="26" border="0" style="height: 26px; float: unset;"></a> ';
+            break;
             case 'user_pause':
                 $chinese_num_arr = ['一','二','三','四','五','六','七','八','九'];
                 $user_pause_during = config('memadvauth.user.pause_during');
                 $msg = '驗證失敗需'.(($user_pause_during%1440 || $user_pause_during/1440>=10)?$user_pause_during.'分鐘':$chinese_num_arr[$user_pause_during/1440-1].'天').'後才能重新申請。';               
             break;
+            case 'user_pause2':
+                $chinese_num_arr = ['一','二','三','四','五','六','七','八','九'];
+                $user_pause_during = config('memadvauth.user.pause_during');
+                $msg = '失敗後要等'.(($user_pause_during%1440 || $user_pause_during/1440>=10)?$user_pause_during.'分鐘':$chinese_num_arr[$user_pause_during/1440-1].'天').'才能重新申請。';               
+            break;            
             case 'api_pause':
                 $api_pause_during = config('memadvauth.api.pause_during');            
                 $msg = '本日進階驗證功能維修，請 '.(intval($api_pause_during/60)?intval($api_pause_during/60).'hr':'').(($api_pause_during%60)?($api_pause_during%60).'分鐘':'').' 後再試。';
@@ -4465,12 +4476,14 @@ class PagesController extends BaseController
             if(!$is_edu_mode && (!$user->isPhoneAuth() || !$user->getAuthMobile() || $user->getAuthMobile()=='0922222222') ) {
                 $user->short_message()->delete();
                 $init_check_msg = '請先通過 <a href="'.url('goto_member_auth').'">手機驗證(<span class="obvious">點此前往</span>)</a>' ;
-                if(substr($user->email,-6)!='edu.tw')
-                    $init_check_msg.= '<div class="i_am_student"><a href="'.url('goto_advance_auth_email').'">我是學生未滿20歲，沒有辦個人門號，請點我</a></div>'; 
+                $init_check_msg.= '<div class="i_am_student"><a href="'.url('goto_advance_auth_email').'">我是學生未滿20歲，沒有辦個人門號，請點我</a></div>'; 
             } 
-            else if($user->isForbidAdvAuth()) {
-                $init_check_msg = '您的進階驗證功能有誤，請<a href="https://lin.ee/rLqcCns" target="_blank">點此 <img src="https://scdn.line-apps.com/n/line_add_friends/btn/zh-Hant.png" alt="加入好友" height="26" border="0" style="height: 26px; float: unset;"></a> 或點右下聯絡我們加站長 line 與站長聯絡。';
+            else if($user->isDuplicateAdvAuth()) {
+                $init_check_msg = $this->advance_auth_get_msg('have_wrong');
             }
+            else if($user->isForbidAdvAuth()) {
+                $init_check_msg = $this->advance_auth_get_msg('user_forbid');
+            }            
             else if($user->isPauseAdvAuth()) {
                 $init_check_msg = $this->advance_auth_get_msg('user_pause') ;
             }
@@ -4554,7 +4567,7 @@ class PagesController extends BaseController
         $api_check_cfg = config('memadvauth.api.check');
         $user =Auth::user();
         $init_check_msg = $this->advance_auth_prechase();
-        $user_pause_during_msg = $this->advance_auth_get_msg('user_pause');
+
         if($init_check_msg) {
             return back();
         }           
@@ -4583,7 +4596,7 @@ class PagesController extends BaseController
                     ,'identity_encode'=>$encode_id_serial
                     ,'is_duplicate'=>1
                 ]);
-            return back()->with('message', ['您的進階驗證功能有誤，<a href="https://lin.ee/rLqcCns" target="_blank">請點此 <img src="https://scdn.line-apps.com/n/line_add_friends/btn/zh-Hant.png" alt="加入好友" height="26" border="0" style="height: 26px; float: unset;"></a> 或點右下聯絡我們加站長 line 與站長聯絡。']);
+            return back()->with('message', [$this->advance_auth_get_msg('have_wrong')]);
         }        
 
         $data['api_base'] = 'https://'.config('memadvauth.service.host').(config('memadvauth.service.port')?':'.config('memadvauth.service.port'):'').'/';
@@ -4681,12 +4694,18 @@ class PagesController extends BaseController
             ]);              
         }          
         //驗證成功
-        if($MIDOutputParams["code"]=="0000"){
+        $test_auth_fail_mode = false;
+        if($MIDOutputParams["code"]=="0000" 
+            && strrpos(config('memadvauth.service.host'),'test')!==false 
+            && ($id_serial=='A123456789' || $id_serial=='A234567893')
+            )  $test_auth_fail_mode = true;
+        
+        if($MIDOutputParams["code"]=="0000" && !$test_auth_fail_mode){
             
             if(User::where('advance_auth_identity_encode',$encode_id_serial)->where('advance_auth_status',1)->count()) {
                 $logAdvAuthApi->is_duplicate=1;
                 $logAdvAuthApi->save();
-                return back()->with('message', ['您的進階驗證功能有誤，<a href="https://lin.ee/rLqcCns" target="_blank">請點此 <img src="https://scdn.line-apps.com/n/line_add_friends/btn/zh-Hant.png" alt="加入好友" height="26" border="0" style="height: 26px; float: unset;"></a> 或點右下聯絡我們加站長 line 與站長聯絡。']);
+                return back()->with('message', [$this->advance_auth_get_msg('have_wrong')]);
             }
             $auth_date = date('Y-m-d H:i:s');
             $user->advance_auth_status = 1;
@@ -4744,6 +4763,7 @@ class PagesController extends BaseController
                                     ']);
         }else{
             $fullcode = $MIDOutputParams["fullcode"];
+            if($test_auth_fail_mode) $fullcode = 3645024;
             if($fullcode<=3644100 || $fullcode>=3645031
                 || $fullcode==3645000 || $fullcode==3645001
                 || $fullcode==3645000 || $fullcode==3645001    
@@ -4753,14 +4773,23 @@ class PagesController extends BaseController
                 return back()->with('message', ['系統目前無法進行驗證']);
             }
             else {
-                if(!$user->isForbidAdvAuth() &&  $user->getEffectFaultAdvAuthApiQuery()->count()+1>=config('memadvauth.user.allow_fault')) {
+                if(!$user->isForbidAdvAuth() &&  ($user->getEffectFaultAdvAuthApiQuery()->count()+1)>=config('memadvauth.user.allow_fault')) {
+                    $logAdvAuthApi->forbid_user = 1;
+                } 
+
+                if(!$user->isForbidAdvAuth() 
+                    && $test_auth_fail_mode
+                    &&  ($user->log_adv_auth_api()->where('user_fault',1)->count()+1)>=config('memadvauth.user.allow_fault')
+                ) 
+                {
                     $logAdvAuthApi->forbid_user = 1;
                 }                
+                
                 $logAdvAuthApi->user_fault = 1;
                 $logAdvAuthApi->save();
 
                 if(($logAdvAuthApi->forbid_user??null)==1 ) {
-                    return back()->with('message', ['您的進階驗證功能有誤，<a href="https://lin.ee/rLqcCns" target="_blank">請點此 <img src="https://scdn.line-apps.com/n/line_add_friends/btn/zh-Hant.png" alt="加入好友" height="26" border="0" style="height: 26px; float: unset;"></a> 或點右下聯絡我們加站長 line 與站長聯絡。']);
+                    return back()->with('message', [$this->advance_auth_get_msg('user_forbid')]);
                 }
               
                 return back()->with('message', [
