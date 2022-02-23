@@ -121,6 +121,10 @@ class Message_newController extends BaseController {
             array_push($user_line_notify_chat_set, $row->line_notify_chat_id);
         }
         $inbox_refuse_set = InboxRefuseSet::where('user_id', $user->id)->first();
+        if(!$inbox_refuse_set)
+        {
+            $inbox_refuse_set = new InboxRefuseSet;
+        }
         return view('new.dashboard.chatSet')
             ->with('line_notify_chat', $line_notify_chat)
             ->with('user_line_notify_chat_set', $user_line_notify_chat_set)
@@ -128,7 +132,6 @@ class Message_newController extends BaseController {
     }
 
     public function chatNoticeSet(Request $request) {
-        Log::Info("enter_chat_notice_set");
         $user = \View::shared('user');
 
         //line notify start
@@ -167,11 +170,20 @@ class Message_newController extends BaseController {
                 $inbox_refuse_set = new InboxRefuseSet;
                 $inbox_refuse_set->user_id = $user->id;
             }
-            $inbox_refuse_set->isRefused_vip_user = $request->input('isRefused_vip_user');
-            $inbox_refuse_set->isRefused_common_user = $request->isRefused_common_user;
-            $inbox_refuse_set->isRefused_warned_user = $request->isRefused_warned_user;
-            $inbox_refuse_set->refuse_PR = $request->refuse_PR;
-            $inbox_refuse_set->refuse_canned_message_PR = $request->refuse_canned_message_PR;
+            if($request->isRefused_vip_user)
+                $inbox_refuse_set->isrefused_vip_user = $request->isRefused_vip_user;
+            else
+                $inbox_refuse_set->isrefused_vip_user = 0;
+            if($request->isRefused_common_user)
+                $inbox_refuse_set->isrefused_common_user = $request->isRefused_common_user;
+            else
+                $inbox_refuse_set->isrefused_common_user = 0;
+            if($request->isRefused_warned_user)
+                $inbox_refuse_set->isrefused_warned_user = $request->isRefused_warned_user;
+            else
+                $inbox_refuse_set->isrefused_warned_user = 0;
+            $inbox_refuse_set->refuse_pr = $request->refuse_PR;
+            $inbox_refuse_set->refuse_canned_message_pr = $request->refuse_canned_message_PR;
             $inbox_refuse_set->refuse_register_days = $request->refuse_register_days;
             $inbox_refuse_set->save();
         }

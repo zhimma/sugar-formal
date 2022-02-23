@@ -12,11 +12,11 @@ class InboxRefuseSet extends Model
 
     protected $fillable = [
         'user_id',
-        'isRefused_vip_user',
-        'isRefused_common_user',
-        'isRefused_warned_user',
-        'refuse_PR',
-        'refuse_canned_message_PR',
+        'isrefused_vip_user',
+        'isrefused_common_user',
+        'isrefused_warned_user',
+        'refuse_pr',
+        'refuse_canned_message_pr',
         'refuse_register_days',
         'updated_at',
     ];
