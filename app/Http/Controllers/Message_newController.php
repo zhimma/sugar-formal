@@ -120,9 +120,11 @@ class Message_newController extends BaseController {
         foreach ($line_notify_chat_set_data as $row){
             array_push($user_line_notify_chat_set, $row->line_notify_chat_id);
         }
+        $inbox_refuse_set = InboxRefuseSet::where('user_id', $user->id)->first();
         return view('new.dashboard.chatSet')
             ->with('line_notify_chat', $line_notify_chat)
-            ->with('user_line_notify_chat_set', $user_line_notify_chat_set);
+            ->with('user_line_notify_chat_set', $user_line_notify_chat_set)
+            ->with('inbox_refuse_set', $inbox_refuse_set);
     }
 
     public function chatNoticeSet(Request $request) {

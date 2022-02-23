@@ -65,37 +65,37 @@
                                     </div>
                                     <div class="ti_xcheck naa_dd">
                                         <input type="hidden" name="isHideWeight" value="0">
-                                        <span><input type="checkbox" name="isRefused_vip_user" id="q4" class="ti_ceckys" value="1">vip</span>
-                                        <span><input type="checkbox" name="isRefused_common_user" id="q4" class="ti_ceckys" value="1">普通會員</span>
-                                        <span><input type="checkbox" name="isRefused_warned_user" id="q4" class="ti_ceckys" value="1">警示會員</span>
+                                        <span><input type="checkbox" name="isRefused_vip_user" id="q4" class="ti_ceckys" value="1" @if($inbox_refuse_set->isRefused_vip_user == true) checked @endif>vip</span>
+                                        <span><input type="checkbox" name="isRefused_common_user" id="q4" class="ti_ceckys" value="1" @if($inbox_refuse_set->isRefused_common_user == true) checked @endif>普通會員</span>
+                                        <span><input type="checkbox" name="isRefused_warned_user" id="q4" class="ti_ceckys" value="1" @if($inbox_refuse_set->isRefused_warned_user == true) checked @endif>警示會員</span>
                                     </div>
                                     <div class="ti_ktx na_top25"><span class="na_nb">b.PR分數多少以下的不收</span></div>
                                     <div class="ti_xcheck naa_dd">
                                         <select name="refuse_PR" class="na_selct na_top">
                                             <option>請選擇</option>
-                                            <option value=0>0(無)</option>
-                                            <option value=25>25</option>
-                                            <option value=50>50</option>
-                                            <option value=75>75</option>
-                                            <option value=100>100</option>
+                                            <option value=0 @if($inbox_refuse_set->refuse_PR == 0) selected @endif>0(無)</option>
+                                            <option value=25 @if($inbox_refuse_set->refuse_PR == 25) selected @endif>25</option>
+                                            <option value=50 @if($inbox_refuse_set->refuse_PR == 50) selected @endif>50</option>
+                                            <option value=75 @if($inbox_refuse_set->refuse_PR == 75) selected @endif>75</option>
+                                            <option value=100 @if($inbox_refuse_set->refuse_PR == 100) selected @endif>100</option>
                                         </select>
                                     </div>
                                     <div class="ti_ktx na_top25"><span class="na_nb">c.七天內罐頭訊息數量超過多少不收</span></div>
                                     <div class="ti_xcheck naa_dd">
                                         <select name="refuse_canned_message_PR" class="na_selct na_top">
-                                            <option value=0>請選擇</option>
-                                            <option value=25>25%</option>
-                                            <option value=50>50%</option>
-                                            <option value=75>75%</option>
+                                            <option value=0 @if($inbox_refuse_set->refuse_canned_message_PR == 0) selected @endif>請選擇</option>
+                                            <option value=25 @if($inbox_refuse_set->refuse_canned_message_PR == 25) selected @endif>25%</option>
+                                            <option value=50 @if($inbox_refuse_set->refuse_canned_message_PR == 50) selected @endif>50%</option>
+                                            <option value=75 @if($inbox_refuse_set->refuse_canned_message_PR == 75) selected @endif>75%</option>
                                         </select>
                                     </div>
                                     <div class="ti_ktx na_top25"><span class="na_nb">d.拒收幾天內註冊的新會員</span></div>
                                     <div class="ti_xcheck naa_dd">
                                         <select name="refuse_register_days" class="na_selct na_top">
-                                            <option value=0>請選擇</option>
-                                            <option value=3>三天</option>
-                                            <option value=5>五天</option>
-                                            <option value=7>七天</option>
+                                            <option value=0 @if($inbox_refuse_set->refuse_register_days == 0) selected @endif>請選擇</option>
+                                            <option value=3 @if($inbox_refuse_set->refuse_register_days == 3) selected @endif>三天</option>
+                                            <option value=5 @if($inbox_refuse_set->refuse_register_days == 5) selected @endif>五天</option>
+                                            <option value=7 @if($inbox_refuse_set->refuse_register_days == 7) selected @endif>七天</option>
                                         </select>
                                     </div>
                                 </div>	
