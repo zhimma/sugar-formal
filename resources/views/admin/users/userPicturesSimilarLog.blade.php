@@ -284,11 +284,8 @@
                                         </td>
                                         <td class="images_comparation_cell"> 
                                             @if ($Log->pic && ($Log->act == '刪除生活照' || $Log->act == '刪除頭像'))
-                                                @if(!$Log->isPicNeedCompare())
-                                                <b>不需比對的照片</b>      
-                                                @else
                                                     @php 
-                                                        $Log->compareImages('picturesSimilarLog');
+                                                        if($Log->isPicNeedCompare()) $Log->compareImages('picturesSimilarLog');
                                                         $compareStatus = $Log->getCompareStatus();
                                                         $compareRsImgs = $Log->getCompareRsImg(); 
                                                     @endphp

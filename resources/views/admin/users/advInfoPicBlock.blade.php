@@ -29,7 +29,36 @@
     
     .gender1 a,.gender1 a:visited,.gender1 a:active,.gender1 a:hover {color:blue;}
     .gender2 a,.gender2 a:visited,.gender2 a:active,.gender2 a:hover {color:red;}   
+    #img_job_btn_tb td {padding: .75rem;}
 </style>
+<script>
+$(document).ready(function () {
+    var width_base_elt = $('#user_all_avatar_list tbody tr');
+    if(width_base_elt.length>0) {
+        width_base_elt = $('#user_all_avatar_list tbody tr').eq(0).find('td');
+    }
+    else width_base_elt = $('#user_all_avatar_list thead th');
+    
+    $('#img_job_btn_tb tr td').each(function(index){
+        //console.log('index='+index+' width_base_elt.eq(index).text()='+width_base_elt.eq(index).text()+"(width_base_elt.eq(index).text().length*13)+'px'="+(width_base_elt.eq(index).text().length*13)+'px');
+        var now_wb_elt = width_base_elt.eq(index);
+        var now_widthing = (now_wb_elt.text().trim().length*13)+'px';
+        var default_wb_elt = $('#user_all_avatar_list thead th').eq(index);
+        switch (index) {
+            case 0:
+            case 1:
+            case 2:      
+                    now_widthing = default_wb_elt.width();
+            break;
+            default:
+                now_widthing='';
+            break;
+        }
+        console.log('now_widthing='+now_widthing);
+        if(now_widthing!='') $(this).find('div').css('width',now_widthing);
+    });
+}); 
+</script>
 <h4>現有證件照</h4>
 <?php $pics = \App\Models\MemberPic::getSelfIDPhoto($user->id); ?>
 <table class="table table-hover table-bordered" style="width: 50%;">
@@ -47,10 +76,26 @@
 		此會員目前沒有證件照
 	@endforelse
 </table>
-
-<div>
-    <a class="btn btn-primary text-white mb-2" href="/admin/users/picturesSimilar/job:create?type=userAll&targetUser={{ $user->id }}" target="_blank">照片全部送檢</a>
-</div>
+@if($user->engroup==2)
+<table id="img_job_btn_tb" >
+    <tr>
+        <td style="width: 120px;"><div style="width:39px;"></div></td>
+        <td style="width: 170px;"><div style="width:52px;"></div></td>
+        <td style="width: 170px;"><div style="width:52px;"></div></td>
+        <td style="width: 15%;"><div style="width:39px;"></div></td>
+        <td style="width: 35%;">
+            <div>
+                <a class="btn btn-primary text-white mb-2" href="/admin/users/picturesSimilar/job:create?type=userAll&targetUser={{ $user->id }}" target="_blank">以圖找圖：照片全部送檢</a>
+            </div>        
+        </td>
+        <td style="width: 35%;">
+            <div>
+                <a class="btn btn-primary text-white mb-2" href="/admin/users/picturesCompare/job:create?type=userAll&targetUser={{ $user->id }}" target="_blank">站內搜圖：照片全部送檢</a>
+            </div>         
+        </td>
+    </tr>
+</table>
+@endif
 <table id="user_all_avatar_list" class="table table-bordered" style="width: 70%;">
     <thead>
         <th style="width: 120px;">頭像照</th>
@@ -136,11 +181,9 @@
                 @endif
             </td>
             <td class="images_comparation_cell">
-                @if(!$user->meta->isPicNeedCompare())
-                <b>不需比對的照片</b>      
-                @else
                     @php 
-                        $user->meta->compareImages('advInfo');
+                        if($user->meta->isPicNeedCompare())
+                            $user->meta->compareImages('advInfo');                
                         $compareStatus = $user->meta->getCompareStatus();
                         $compareRsImgs = $user->meta->getCompareRsImg(); 
                     @endphp
@@ -212,7 +255,6 @@
                             <p>尚未開始比對</p>
                         @endif                    
                     @endif
-                @endif
             </td>                
         </tr>
         @endif
@@ -296,11 +338,8 @@
                 @endif
             </td>
             <td class="images_comparation_cell">
-                @if(!$pic->isPicNeedCompare())
-                    <b>不需比對的照片</b>      
-                @else              
                     @php 
-                        $pic->compareImages('advInfo');  
+                        if($pic->isPicNeedCompare()) $pic->compareImages('advInfo');  
                         $compareStatus = $pic->getCompareStatus();
                         $compareRsImgs = $pic->getCompareRsImg();
                     @endphp                            
@@ -373,7 +412,6 @@
                             <p>尚未開始比對</p>
                         @endif                    
                     @endif
-                @endif
             </td>                
         </tr>
         @empty
@@ -466,11 +504,8 @@
                 @endif
             </td>
             <td class="images_comparation_cell">
-                @if(!$pic->isPicNeedCompare())
-                    <b>不需比對的照片</b>      
-                @else              
                     @php 
-                        $pic->compareImages('advInfo');  
+                        if($pic->isPicNeedCompare()) $pic->compareImages('advInfo');  
                         $compareStatus = $pic->getCompareStatus();
                         $compareRsImgs = $pic->getCompareRsImg();
                     @endphp                
@@ -541,7 +576,6 @@
                             <p>尚未開始比對</p>
                         @endif                    
                     @endif
-                @endif
             </td>
         </tr>
         @empty
@@ -633,11 +667,8 @@
                 @endif
             </td>
             <td class="images_comparation_cell">
-                @if(!$pic->isPicNeedCompare())
-                    <b>不需比對的照片</b>      
-                @else            
                     @php
-                        $pic->compareImages('advInfo');                
+                        if($pic->isPicNeedCompare()) $pic->compareImages('advInfo');                
                         $compareStatus = $pic->getCompareStatus();
                         $compareRsImgs = $pic->getCompareRsImg();
                     @endphp
@@ -708,7 +739,6 @@
                             <p>尚未開始比對</p>
                         @endif                    
                     @endif
-                @endif
             </td>            
         </tr>
         @empty

@@ -4822,7 +4822,8 @@ class UserController extends \App\Http\Controllers\BaseController
     }
 
     public function UserPicturesSimilarJobCreate(Request $request){
-
+        $job_show_name='以圖找圖';
+        
         if ($request->type == 'date'){
             $validated = $request->validate([
                 'date_start' => ['required', 'date'],
@@ -4839,7 +4840,7 @@ class UserController extends \App\Http\Controllers\BaseController
                 }
             }
 
-            return '成功將 ' . $imgs_count . ' 筆資料列入送檢佇列';
+            return '成功將 ' . $imgs_count . ' 筆資料列入'.$job_show_name.'送檢佇列';
         }
 
         if ($request->type == 'all') {
@@ -4854,13 +4855,14 @@ class UserController extends \App\Http\Controllers\BaseController
                 \App\Jobs\SimilarImagesSearcher::dispatch($img->pic);
             }
 
-            return '成功將 ' . $Imgs_count . ' 筆資料列入送檢佇列';
+            return '成功將 ' . $Imgs_count . ' 筆資料列入'.$job_show_name.'送檢佇列';
         }
 
         if ($request->type == 'userAll') {
 
             $user_id = $request->targetUser;
-
+            $checkUser = User::find($user_id);
+            if($checkUser->engroup!=2) return $job_show_name.'送檢失敗！只有女會員的資料才能列入'.$job_show_name.'送檢佇列';
             $UserMetaPics      = \App\Models\UserMeta::select('pic')->whereNotNull('pic')->where('user_id', $user_id);
             $AvatarDeletedPics = \App\Models\AvatarDeleted::select('pic')->where('user_id', $user_id);
             $MemberPics        = \App\Models\MemberPic::withTrashed()->select('pic')->where('member_id', $user_id);
@@ -4872,11 +4874,71 @@ class UserController extends \App\Http\Controllers\BaseController
                 \App\Jobs\SimilarImagesSearcher::dispatchSync($img->pic);
             }
 
-            return back()->with('message', '成功將 ' . $Imgs_count . ' 筆資料列入送檢佇列');
+            return back()->with('message', '成功將 ' . $Imgs_count . ' 筆資料列入'.$job_show_name.'送檢佇列');
         }
 
-        return '沒有指定的方法';
+        return $job_show_name.'沒有指定的方法';
     }
+    
+    public function UserImagesCompareJobCreate(Request $request){
+        $job_show_name='站內搜圖';
+        
+        if ($request->type == 'date'){
+            $validated = $request->validate([
+                'date_start' => ['required', 'date'],
+                'date_end' => ['required', 'date'],
+            ]);
+    
+            if ($validated) {
+                $images = MemberPic::withTrashed()->whereBetween('created_at', [ $request->date_start , $request->date_end . ' 23:59:59'])->get();
+                $imgs_count = $images->count();
+                if ($imgs_count > 0){
+                    foreach ($images as $img){
+                        $img->compareImages('UserController@UserImagesCompareJobCreate');
+                    }
+                }
+            }
+
+            return '成功將 ' . $imgs_count . ' 筆資料列入'.$job_show_name.'送檢佇列';
+        }
+
+        if ($request->type == 'all') {
+            $UserMetaPics      = \App\Models\UserMeta::select('pic')->whereNotNull('pic');
+            $AvatarDeletedPics = \App\Models\AvatarDeleted::select('pic');
+            $MemberPics        = \App\Models\MemberPic::withTrashed()->select('pic');
+    
+            $Imgs = $UserMetaPics->union($AvatarDeletedPics)->union($MemberPics)->get();
+            $Imgs_count = $Imgs->count();
+    
+            foreach ($Imgs as $img) {
+                $img->compareImages('UserController@UserImagesCompareJobCreate');
+            }
+
+            return '成功將 ' . $Imgs_count . ' 筆資料列入'.$job_show_name.'送檢佇列';
+        }
+
+        if ($request->type == 'userAll') {
+
+            $user_id = $request->targetUser;
+            $checkUser = User::find($user_id);
+            if($checkUser->engroup!=2) return $job_show_name.'送檢失敗！只有女會員的資料才能列入'.$job_show_name.'送檢佇列';
+            $UserMetaPics      = \App\Models\UserMeta::select('pic')->whereNotNull('pic')->where('user_id', $user_id);
+            $AvatarDeletedPics = \App\Models\AvatarDeleted::select('pic')->where('user_id', $user_id);
+            $MemberPics        = \App\Models\MemberPic::withTrashed()->select('pic')->where('member_id', $user_id);
+
+            $Imgs = $UserMetaPics->union($AvatarDeletedPics)->union($MemberPics)->get();
+            $Imgs_count = $Imgs->count();
+    
+            foreach ($Imgs as $img) {
+                $img->compareImages('UserController@UserImagesCompareJobCreate');
+            }
+
+            return back()->with('message', '成功將 ' . $Imgs_count . ' 筆資料列入'.$job_show_name.'送檢佇列');
+        }
+
+        return $job_show_name.'沒有指定的方法';
+    }
+    
 
     public function admin_user_suspicious_toggle(Request $request){
 

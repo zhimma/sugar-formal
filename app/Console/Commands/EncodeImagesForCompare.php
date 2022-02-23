@@ -54,6 +54,12 @@ class EncodeImagesForCompare extends Command
         try {
             $stime = time();
             $specific_pic  = $this->argument('pic');
+            if($specific_pic) {
+                if(ImagesCompareEncode::select('pic')->where('pic',$specific_pic)->first()) 
+                {
+                    return;
+                }    
+            }
             $encode_by  = $this->argument('encode_by')??'cron';
             $encodedPicArr = ImagesCompareEncode::select('pic')->orderBy('id')->get()->pluck('pic')->all();
             $encodedMemPic = ImagesCompareEncode::select('pic')->where('pic_cat','member_pic')->where('encode_by','cron')->orderByDesc('id')->first();

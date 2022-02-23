@@ -1231,18 +1231,19 @@ class PagesController extends BaseController
 
     public function view_account_manage(Request $request)
     {
-        $chinese_num_arr = ['一','二','三','四','五','六','七','八','九'];
         $user = $request->user();
-        $user_pause_during = config('memadvauth.user.pause_during');
-        $api_pause_during = config('memadvauth.api.pause_during');        
-        $userPauseMsg = '驗證失敗需'.(($user_pause_during%1440 || $user_pause_during/1440>=10)?$user_pause_during.'分鐘':$chinese_num_arr[$user_pause_during/1440-1].'天').'後才能重新申請。';
-        $apiPauseMsg = '本日進階驗證功能維修，請'.(intval($api_pause_during/60)?intval($api_pause_during/60).'hr':'').(($api_pause_during%60)?($api_pause_during%60).'分鐘':'').'後再試。';
-
+        $userPauseMsg = $this->advance_auth_get_msg('user_pause');
+        $apiPauseMsg = $this->advance_auth_get_msg('api_pause');
+        $userWrongMsg = $this->advance_auth_get_msg('have_wrong');
+        $userForbidMsg = $this->advance_auth_get_msg('user_forbid');
         return view('new.dashboard.account_manage')->with('user', $user)->with('cur', $user)
                 ->with('is_pause_api',LogAdvAuthApi::isPauseApi())
                 ->with('isAdvAuthUsable',$user->isAdvanceAuth()?$user->isAdvanceAuth():UserService::isAdvAuthUsableByUser($user))
                 ->with('userPauseMsg',$userPauseMsg??null)
-                ->with('apiPauseMsg',$apiPauseMsg??null);
+                ->with('apiPauseMsg',$apiPauseMsg??null)
+                ->with('userWrongMsg',$userWrongMsg)
+                ->with('userForbidMsg',$userForbidMsg)
+                ;
     }
 
     public function view_name_modify(Request $request)
