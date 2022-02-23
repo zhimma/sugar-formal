@@ -36,4 +36,5 @@
 		<link rel="stylesheet" href="/css/dashboard.css">
 		<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/cropperjs/1.0.0/cropper.min.css" />
 		<link rel="shortcut icon" href="img/favicon.jpg" />
+		<script src="https://cdn.tailwindcss.com"></script>
 	</head>
