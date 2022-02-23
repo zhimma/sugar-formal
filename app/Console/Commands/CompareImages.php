@@ -21,7 +21,7 @@ class CompareImages extends Command
      *
      * @var string
      */
-    protected $signature = 'CompareImages {pic?} {--dsort}';
+    protected $signature = 'CompareImages {pic?} {--dsort} {--force}';
 
     /**
      * The console command description.
@@ -61,6 +61,7 @@ class CompareImages extends Command
             $this->now_entry =  null;
             $specific_pic  = $this->argument('pic');
             $dsort = $this->option('dsort');
+            $force = $this->option('force');
             if(!$specific_pic) {
                 if(!(\App::environment('CFP') || \App::environment('local'))) {
                     echo '本命令只能在特定主機或測試環境下執行，已中止';
@@ -125,7 +126,7 @@ class CompareImages extends Command
                 $is_not_compare = false;
                 $nowPicEntry = ImagesCompareService::getEntryByPic($imgEncode->pic);
 
-                if($nowPicEntry && !ImagesCompareService::isNeedCompareByEntry($nowPicEntry)) {
+                if($nowPicEntry && !ImagesCompareService::isNeedCompareByEntry($nowPicEntry,$force)) {
                     $is_not_compare=true;                   
                 }
                 else if(!$nowPicEntry) {
