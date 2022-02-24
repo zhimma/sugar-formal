@@ -72,7 +72,7 @@
                 <div class="message xxi">
 
                     <div class="bangui matopj10">
-                        <span><img src="/new/images/bgui.png"></span>
+                        <span><img src="/images/bgui.png"></span>
                         <font>{!! $anonymous_chat_announcement !!}</font>
                     </div>
                 <div style="overflow: auto; position: relative; max-height: 580px; min-height: 580px;">
