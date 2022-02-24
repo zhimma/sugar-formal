@@ -3,6 +3,7 @@
 namespace App\Http\Livewire;
 
 use App\Models\AnonymousChat;
+use App\Models\AnonymousChatReport;
 use Livewire\Component;
 use Carbon\Carbon;
 use Illuminate\Support\Facades\File;
@@ -22,7 +23,12 @@ class AnonymousChatSubmit extends Component
 
     public function save()
     {
-//        dd($this->color);
+
+        $checkReport = AnonymousChatReport::select('user_id', 'created_at')->where('reported_user_id', auth()->user()->id)->groupBy('user_id')->orderBy('created_at', 'desc')->get();
+        if(count($checkReport) >= 5 && Carbon::parse($checkReport[0]->created_at)->diffInDays(Carbon::now())<3){
+            return redirect('/dashboard/personalPage')->with('message', '因被檢舉次數過多，目前已限制使用匿名聊天室');
+        }
+
         $this->isUploaded=true;
 
         $this->validate([
@@ -71,7 +77,7 @@ class AnonymousChatSubmit extends Component
             }
         }
 
-        if((!empty($this->pic) || !empty($this->content))){
+        if( !empty($this->pic) || isset($this->content) ){
             AnonymousChat::Create([
                 'user_id' => auth()->user()->id,
                 'content' => $this->content,

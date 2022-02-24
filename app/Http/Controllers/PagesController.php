@@ -7288,17 +7288,10 @@ class PagesController extends BaseController
             $anonymous_chat_announcement = '';
         }
 
-        //可發訊時間計算 一周發訊一人
-        $checkMessage = AnonymousChatMessage::where('user_id', $user->id)->orderBy('created_at', 'desc')->first();
-        $canNotMessage = false;
-        if( isset($checkMessage) && Carbon::parse($checkMessage->created_at)->diffInDays(Carbon::now())<7){
-            $canNotMessage = true;
-        }
 
         return view('/new/dashboard/anonymous_chat')
             ->with('user', $user)
-            ->with('anonymous_chat_announcement', $anonymous_chat_announcement)
-            ->with('canNotMessage', $canNotMessage);
+            ->with('anonymous_chat_announcement', $anonymous_chat_announcement);
     }
 
     public function anonymous_chat_report(Request $request) {

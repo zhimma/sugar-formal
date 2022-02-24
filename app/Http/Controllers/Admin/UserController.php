@@ -4,6 +4,8 @@ namespace App\Http\Controllers\Admin;
 
 use App\Models\AccountStatusLog;
 use App\Models\AdminActionLog;
+use App\Models\AnonymousChat;
+use App\Models\AnonymousChatReport;
 use App\Models\Board;
 use App\Models\Evaluation;
 use App\Models\EvaluationPic;
@@ -5124,6 +5126,69 @@ class UserController extends \App\Http\Controllers\BaseController
         if($checkData){
             Forum::where('user_id', $uid)->update(['status' => $status, 'updated_at' => Carbon::now()]);
         }
+        echo json_encode(['ok']);
+    }
+
+    public function showAnonymousChatPage()
+    {
+        $admin = $this->admin->checkAdmin();
+        if ($admin) {
+            return view('admin.users.searchAnonymousChat');
+        } else {
+            return view('admin.users.searchMessage')->withErrors(['找不到暱稱含有「站長」的使用者！請先新增再執行此步驟']);
+        }
+    }
+
+    public function searchAnonymousChatPage(Request $request)
+    {
+
+        $msg = isset($request->msg) ? $request->msg : '';
+        $date_start = $request->date_start ? $request->date_start : '0000-00-00';
+        $date_end = $request->date_end ? $request->date_end : date('Y-m-d');
+        $results = AnonymousChat::select('anonymous_chat.*', 'users.name', 'users.engroup')
+            ->leftJoin('users', 'users.id', 'anonymous_chat.user_id')
+            ->where('anonymous_chat.content', 'like', '%' . $msg . '%')
+            ->whereBetween('anonymous_chat.created_at', array($date_start . ' 00:00', $date_end . ' 23:59'))
+            ->orderBy('anonymous_chat.created_at', 'desc')
+            ->withTrashed()
+            ->paginate(100)
+        ;
+        //dd($results);
+        return view('admin.users.searchAnonymousChat')->with('results', $results);
+    }
+
+    public function searchAnonymousChatReport(Request $request)
+    {
+        $msg = isset($request->msg) ? $request->msg : '';
+        $date_start = $request->date_start ? $request->date_start : '0000-00-00';
+        $date_end = $request->date_end ? $request->date_end : date('Y-m-d');
+        $resultsReport = AnonymousChatReport::select(
+            'anonymous_chat.*',
+            'users.name',
+            'users.engroup',
+            'anonymous_chat_report.content as report_content',
+            'anonymous_chat_report.user_id as report_user',
+            'anonymous_chat_report.created_at as report_time',
+            'report_user.name as report_name'
+        )
+            ->leftJoin('users', 'users.id', 'anonymous_chat_report.reported_user_id')
+            ->leftJoin('anonymous_chat', 'anonymous_chat.id', 'anonymous_chat_report.anonymous_chat_id')
+            ->leftJoin('users as report_user', 'report_user.id', 'anonymous_chat_report.user_id')
+            ->where('anonymous_chat.content', 'like', '%' . $msg . '%')
+            ->whereBetween('anonymous_chat.created_at', array($date_start . ' 00:00', $date_end . ' 23:59'))
+            ->orderBy('anonymous_chat.created_at', 'desc')
+            ->withTrashed()
+            ->paginate(100)
+        ;
+
+//        dd($resultsReport[0]);
+        return view('admin.users.searchAnonymousChat')->with('resultsReport', $resultsReport);
+    }
+
+    public function deleteAnonymousChatRow(Request $request)
+    {
+        $id = $request->id;
+        AnonymousChat::where('id', $id)->delete();
         echo json_encode(['ok']);
     }
 }
