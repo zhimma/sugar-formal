@@ -453,6 +453,7 @@ class Message_newController extends BaseController {
 
     public function chatviewMore(Request $request)
     {
+        $user = Auth::user();
         $user_id = $request->uid;
         /**
          * function Message_new::allSendersAJAX(){
@@ -470,6 +471,40 @@ class Message_newController extends BaseController {
          *  }
          */
         $data = Message_new::allSendersAJAX($user_id, $request->isVip,$request->date);
+        
+        //過濾篩選條件
+        $inbox_refuse_set = InboxRefuseSet::where('user_id', $user->id)->first();
+        Log::Info($data);
+        if($inbox_refuse_set)
+        {
+            if($inbox_refuse_set->isrefused_vip_user)
+            {
+                $data = $data;
+            }
+            if($inbox_refuse_set->isrefused_common_user)
+            {
+                $data = $data;
+            }
+            if($inbox_refuse_set->isrefused_warned_user)
+            {
+                $data = $data;
+            }
+            if($inbox_refuse_set->refuse_pr != 0)
+            {
+                $data = $data;
+            }
+            if($inbox_refuse_set->refuse_canned_message_pr != 0)
+            {
+                $data = $data;
+            }
+            if($inbox_refuse_set->refuse_register_days != 0)
+            {
+                $rtime = Carbon::now()->subDays($inbox_refuse_set->refuse_register_days);
+                $data = $data;
+            }
+        }
+        //過濾篩選條件
+
         if (isset($data)) {
             if(!empty($data['date'])){
                //$date = $data['date'];
