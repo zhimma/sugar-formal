@@ -343,8 +343,8 @@ class ImageController extends BaseController
                 $path = substr($avatar[0]['file'], strlen(public_path()));                 
                 $path[0] = '/';
                 UserMeta::where('user_id', $userId)->update(['pic' => $path, 'pic_original_name'=>$avatar[0]['old_name']]);
-                
-                \App\Jobs\SimilarImagesSearcher::dispatch($path);                
+                if($user->engroup==2)
+                    \App\Jobs\SimilarImagesSearcher::dispatch($path);                
             }
             $msg="上傳成功";
 
@@ -606,8 +606,8 @@ class ImageController extends BaseController
 
                 // 新增生活照時,刪除AdminDeleteImageLog紀錄
                 AdminDeleteImageLog::where('member_id', $userId)->orderBy('id')->take(1)->delete();
-
-                \App\Jobs\SimilarImagesSearcher::dispatch($path);
+                if($user->engroup==2)
+                    \App\Jobs\SimilarImagesSearcher::dispatch($path);
                 $addPicture->compareImages('ImageController@uploadPictures');
             }
         }

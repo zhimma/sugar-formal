@@ -317,9 +317,11 @@ class ImagesCompareService {
     public static function compareImagesByPic($pic,$encode_by=null) {
         if(!$pic) return;
         if(!ImagesCompareService::isFileExistsByPic($pic)) return;
+        $force_compare = ImagesCompareService::isForceViaEncodeBy($encode_by);
         $status = ImagesCompareStatus::firstOrNew(['pic'=>$pic]);
+
         if($status->id ) {
-            if($status->isQueueTooLong())
+            if($status->isQueueTooLong() || $force_compare)
                 $status->queue=2;
             else  return;
         }
@@ -338,14 +340,20 @@ class ImagesCompareService {
         $stime = Carbon::parse($now->format('Y-m-d').' 18:00:00');
         $etime = Carbon::parse($next->format('Y-m-d').' 01:00:00');
         if($now->gt($stime) && $now->lt($etime)) $delay=25200;
-        
-        CompareImagesCaller::dispatch($pic,$encode_by);
-        CompareImagesCaller::dispatch($pic)->onQueue('compare_images')->delay($delay+10);
+        if($force_compare) {
+            CompareImagesCaller::dispatch($pic,$encode_by,true);
+        }
+        else {
+            CompareImagesCaller::dispatch($pic,$encode_by);
+            CompareImagesCaller::dispatch($pic)->onQueue('compare_images')->delay($delay+10);
+        }
     }
     
-    public static function isNeedCompareByEntry($picEntry) {
+    public static function isNeedCompareByEntry($picEntry,$force = false) {
         if(!($picEntry->pic??null)) return false;
-
+        if($force)  return true;
+        if($picEntry->user->engroup!=2) return false;
+        
         if(!($picEntry->created_at??null) && !($picEntry->updated_at??null)) return true;
         
         if(!in_array($picEntry->pic,ImagesCompareService::$sys_pic_arr)) {
@@ -382,5 +390,9 @@ class ImagesCompareService {
         $diff_days = $last_login_time->diffInDays($now);
 
         return $diff_days;
-    }    
+    }  
+
+    public static function isForceViaEncodeBy($encode_by) {
+        return $encode_by=='UserController@UserImagesCompareJobCreate';
+    }
 }

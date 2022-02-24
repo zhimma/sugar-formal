@@ -9,6 +9,7 @@ use Illuminate\Foundation\Bus\Dispatchable;
 use Illuminate\Queue\InteractsWithQueue;
 use Illuminate\Queue\SerializesModels;
 use Illuminate\Support\Facades\Artisan;
+use App\Services\ImagesCompareService;
 
 class CompareImagesCaller implements ShouldQueue
 {
@@ -44,9 +45,14 @@ class CompareImagesCaller implements ShouldQueue
         }
         $encode_by = $this->encode_by;
         $force_all = $this->force_all;        
-        if($encode_by) {
+        if($encode_by) {        
             Artisan::call("EncodeImagesForCompare",['pic'=>$pic,'encode_by'=>$encode_by]); 
-            if($force_all) Artisan::call("CompareImages",['pic'=>$pic]);            
+            if($force_all) {
+               $force_compare = ImagesCompareService::isForceViaEncodeBy($encode_by); 
+               $call_argv = ['pic'=>$pic];
+               if($force_compare) $call_argv['--force']=true;
+               Artisan::call("CompareImages",$call_argv);             
+            }
         }
         else {
             Artisan::call("CompareImages",['pic'=>$pic]);            
