@@ -17,6 +17,7 @@ use App\Models\User;
 use App\Models\UserMeta;
 use App\Models\SetAutoBan;
 use App\Models\AdminCommonText;
+use App\Models\hideOnlineData;
 use App\Models\Visited;
 use App\Services\UserService;
 use App\Services\VipLogService;
@@ -30,6 +31,7 @@ use Intervention\Image\Facades\Image;
 use App\Services\AdminService;
 use Session;
 use App\Models\InboxRefuseSet;
+use App\Models\Pr_log;
 //use Shivella\Bitly\Facade\Bitly;
 use Illuminate\Support\Facades\Log;
 
@@ -474,33 +476,95 @@ class Message_newController extends BaseController {
         
         //過濾篩選條件
         $inbox_refuse_set = InboxRefuseSet::where('user_id', $user->id)->first();
-        Log::Info($data);
         if($inbox_refuse_set)
         {
             if($inbox_refuse_set->isrefused_vip_user)
             {
-                $data = $data;
+                $count = 0;
+                foreach ($data as $d)
+                {
+                    if($d['isVip'])
+                    {
+                        unset($data[$count]);
+                    }
+                    $count = $count+1;
+                }
             }
             if($inbox_refuse_set->isrefused_common_user)
             {
-                $data = $data;
+                $count = 0;
+                foreach ($data as $d)
+                {
+                    if((!$d['isVip']) && (!$d['isWarned']) && (!$d['isBanned']))
+                    {
+                        unset($data[$count]);
+                    }
+                    $count = $count+1;
+                }
             }
             if($inbox_refuse_set->isrefused_warned_user)
             {
-                $data = $data;
+                $count = 0;
+                foreach ($data as $d)
+                {
+                    if($d['isWarned'])
+                    {
+                        unset($data[$count]);
+                    }
+                    $count = $count+1;
+                }
             }
             if($inbox_refuse_set->refuse_pr != 0)
             {
-                $data = $data;
+                $count = 0;
+                foreach ($data as $d)
+                {
+                    $pr = Pr_log::where('user_id',$d['user_id'])->first()->pr;
+                    if(!is_null($pr))
+                    {
+                        if($pr == '無')
+                        {
+                            unset($data[$count]);
+                        }
+                        if($pr < $inbox_refuse_set->refuse_pr)
+                        {
+                            unset($data[$count]);
+                        }
+                    }
+                    else
+                    {
+                        unset($data[$count]);
+                    }
+                    $count = $count+1;
+                }
             }
             if($inbox_refuse_set->refuse_canned_message_pr != 0)
             {
-                $data = $data;
+                $count = 0;
+                foreach ($data as $d)
+                {
+                    $can_pr = UserService::computeCanMessagePercent_7($d['user_id']);
+                    $can_pr = trim($can_pr,'%');
+                    if($can_pr > $inbox_refuse_set->refuse_canned_message_pr)
+                    {
+                        unset($data[$count]);
+                    }
+                    $count = $count+1;
+                }
             }
             if($inbox_refuse_set->refuse_register_days != 0)
             {
                 $rtime = Carbon::now()->subDays($inbox_refuse_set->refuse_register_days);
-                $data = $data;
+                $count = 0;
+                foreach ($data as $d)
+                {
+                    $registdate = User::where('id',$d['user_id'])->first()->created_at;
+                    if($registdate > $rtime)
+                    {
+                        unset($data[$count]);
+                    }
+                    $count = $count+1;
+                }
             }
         }
         //過濾篩選條件
