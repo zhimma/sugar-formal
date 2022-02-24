@@ -101,6 +101,7 @@
             
             .i_am_student {margin-top:5%;}
             .i_am_student a:active,.i_am_student a:visited,.i_am_student a:focus {text-decoration:none;}
+            .i_am_student .remind-regular {color:blue;font-weight:bolder;font-size:16px;width:initial;float:initial}
         </style>   	
         </head>
 
@@ -137,7 +138,7 @@
                                 <li>身分證字號則只用在本次驗證後刪除，本站不會留存</li>
                                 </ol>
                             </div>
-                            <div class="i_am_student"><a href="{{url('goto_advance_auth_email')}}">我是學生未滿20歲，沒有辦個人門號，請點我</a></div>
+                            <div class="i_am_student"><a href="{{url('goto_advance_auth_email')}}">我是學生未滿20歲，沒有辦個人門號，<span class="remind-regular">請點我</span></a></div>
                             @endif
                             </h3>
 						</div>
