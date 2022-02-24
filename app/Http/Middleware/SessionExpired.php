@@ -18,7 +18,7 @@ class SessionExpired
      * @return \Illuminate\Http\Response|\Illuminate\Http\RedirectResponse
      */
 
-    protected $timeout = config('session.lifetime');
+    protected $timeout = 1800;
 
     public function __construct() {
         $this->timeout = config('session.lifetime') * 60;   //單位要是秒
