@@ -482,7 +482,15 @@ class UserController extends \App\Http\Controllers\BaseController
             foreach ($request->addautoban as $value) {
                 if (!empty($value)) {
                     if (SetAutoBan::where([['type', 'allcheck'], ['content', $value], ['set_ban', '3']])->first() == null) {
-                        SetAutoBan::insert(['type' => 'allcheck', 'content' => $value, 'set_ban' => '3', 'cuz_user_set' => $request->user_id, 'created_at' => now(), 'updated_at' => now()]);
+
+                        //如果選項不是永久時新增天數
+                        if ($request->days != 'X') {
+                            SetAutoBan::insert(['type' => 'allcheck', 'content' => $value, 'set_ban' => '3', 'cuz_user_set' => $request->user_id, 'expired_days' => $request->days, 'created_at' => now(), 'updated_at' => now()]);
+                        }
+                        else {
+                            SetAutoBan::insert(['type' => 'allcheck', 'content' => $value, 'set_ban' => '3', 'cuz_user_set' => $request->user_id, 'created_at' => now(), 'updated_at' => now()]);
+                        }
+
                     }
                 }
             }
