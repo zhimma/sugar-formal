@@ -4462,7 +4462,10 @@ class PagesController extends BaseController
             case 'api_pause':
                 $api_pause_during = config('memadvauth.api.pause_during');            
                 $msg = '本日進階驗證功能維修，請 '.(intval($api_pause_during/60)?intval($api_pause_during/60).'hr':'').(($api_pause_during%60)?($api_pause_during%60).'分鐘':'').' 後再試。';
-            break;           
+            break; 
+            case 'api_fault':
+                $msg=' 驗證主機目前維修中，請八個小時後再驗證，如果還是不行，請點此聯絡站長 <a href="https://lin.ee/rLqcCns" target="_blank"> <img src="https://scdn.line-apps.com/n/line_add_friends/btn/zh-Hant.png" alt="加入好友" height="26" border="0" style="height: 26px; float: unset;"></a> ';
+            break;
         }
         
         return $msg;
@@ -4480,7 +4483,7 @@ class PagesController extends BaseController
             if(!$is_edu_mode && (!$user->isPhoneAuth() || !$user->getAuthMobile() || $user->getAuthMobile()=='0922222222') ) {
                 $user->short_message()->delete();
                 $init_check_msg = '請先通過 <a href="'.url('goto_member_auth').'">手機驗證(<span class="obvious">點此前往</span>)</a>' ;
-                $init_check_msg.= '<div class="i_am_student"><a href="'.url('goto_advance_auth_email').'">我是學生未滿20歲，沒有辦個人門號，請點我</a></div>'; 
+                $init_check_msg.= '<div class="i_am_student"><a href="'.url('goto_advance_auth_email').'">我是學生未滿20歲，沒有辦個人門號，<span class="remind-regular">請點我</span></a></div>'; 
             } 
             else if($user->isDuplicateAdvAuth()) {
                 $init_check_msg = $this->advance_auth_get_msg('have_wrong');
@@ -4645,7 +4648,9 @@ class PagesController extends BaseController
         if(!$output) {
             $logArr['api_fault']=1;
             $user->log_adv_auth_api()->create($logArr);   
-            return back()->with('message', ['系統目前無法進行驗證']);
+            return back()//->with('message', ['系統目前無法進行驗證'])
+            ->with('message', [$this->advance_auth_get_msg('api_fault')])
+            ;
         }                    
         
         $MIDOutputParams = json_decode($OutputParams["MIDOutputParams"]["MIDResp"]??'', JSON_UNESCAPED_UNICODE);
@@ -4774,7 +4779,9 @@ class PagesController extends BaseController
             ) {
                 $logAdvAuthApi->api_fault = 1;
                 $logAdvAuthApi->save();
-                return back()->with('message', ['系統目前無法進行驗證']);
+                return back()//->with('message', ['系統目前無法進行驗證'])
+                ->with('message', [$this->advance_auth_get_msg('api_fault')])
+                ;
             }
             else {
                 if(!$user->isForbidAdvAuth() &&  ($user->getEffectFaultAdvAuthApiQuery()->count()+1)>=config('memadvauth.user.allow_fault')) {
