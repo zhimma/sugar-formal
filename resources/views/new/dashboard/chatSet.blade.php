@@ -86,7 +86,7 @@
                                         <select name="refuse_canned_message_PR" class="na_selct na_top">
                                             <option value=0 @if($inbox_refuse_set->refuse_canned_message_pr == 0) selected @endif>請選擇</option>
                                             <option value=25 @if($inbox_refuse_set->refuse_canned_message_pr == 25) selected @endif>25%</option>
-                                            <option value=50 @if($inbox_refuse_set->refuse_canned_message_pr == 50) selected @endif>50%</option>
+                                            <option value=50 @if(!$inbox_refuse_set->refuse_canned_message_pr) selected @endif @if($inbox_refuse_set->refuse_canned_message_pr == 50) selected @endif>50%</option>
                                             <option value=75 @if($inbox_refuse_set->refuse_canned_message_pr == 75) selected @endif>75%</option>
                                         </select>
                                     </div>
@@ -102,7 +102,6 @@
                                 </div>	
                             </dd>
                         @endif
-                        
                     </div>
                     <a class="dengl_but matop10 mabot_30 form_submit">更新資料</a>
                 </form>
