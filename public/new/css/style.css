@@ -62,7 +62,7 @@ a:hover{ color:#e44e71; text-decoration:none}
 .marl5{ margin-left:5px;}
 .marlr10{ margin-right:10px;}
 .matop20{ margin-top:20px;}
-.matop10{ margin-top:10px;}
+.matop10{ margin-top:10px !important;}
 .matop30{ margin-top:30px;}
 
 .matop80{ margin-top:90px;}

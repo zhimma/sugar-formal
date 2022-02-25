@@ -26,9 +26,10 @@
                     <a href="" class="shou_but">返回</a>
                 </div> -->
                 
-                <div class="gg_zh">
-                    <form id="chatSetForm" action="{{ route('chatNoticeSet') }}" method="post">
-                        {{ csrf_field() }}
+                
+                <form id="chatSetForm" action="{{ route('chatNoticeSet') }}" method="post">
+                    {{ csrf_field() }}
+                    <div class="gg_zh">
                         <dt class="n_gg_mm"><span><i></i>Line通知設定</span><!--<img src="/new/images/shed_icon.png">--></dt>
                         <dd style="display: block;">
                             <div class="tuba">當您開啟LINE通知後，可設定不同會員等級或收藏的會員 來訊通知與否。</div>     
@@ -101,9 +102,11 @@
                                 </div>	
                             </dd>
                         @endif
-                        <a class="dlbut matop10 mabot_30 form_submit">更新資料</a>
-                    </form>
-                </div>
+                        
+                    </div>
+                    <a class="dengl_but matop10 mabot_30 form_submit">更新資料</a>
+                </form>
+                
 
     {{--          <form id="chatSetForm" action="{{ route('chatNoticeSet') }}" method="post">--}}
     {{--              {!! csrf_field() !!}--}}
