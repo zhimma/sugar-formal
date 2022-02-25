@@ -65,15 +65,14 @@
             <div class="col-sm-12 col-xs-12 col-md-10">
                 <div class="fbuttop"></div>
                 <div class="shouxq te_ce">
-                    <a class="fa_adbut left"><img src="/new/images/back_icon.png" class="fa_backicon">返回</a><!-- <img src="images/gg2.png" class="xlimg"> -->
+                    <a href="{{url()->previous()}}" class="fa_adbut left"><img src="/new/images/back_icon.png" class="fa_backicon">返回</a><!-- <img src="images/gg2.png" class="xlimg"> -->
                     <span class="se_rea">匿名聊天室</span>
-                    <a class="fa_adbut right" style="background: none;"></a>
                 </div>
 
                 <div class="message xxi">
 
                     <div class="bangui matopj10">
-                        <span><img src="/new/images/bgui.png"></span>
+                        <span><img src="/images/bgui.png"></span>
                         <font>{!! $anonymous_chat_announcement !!}</font>
                     </div>
                 <div style="overflow: auto; position: relative; max-height: 580px; min-height: 580px;">
@@ -130,60 +129,33 @@
                     </form>
                 </div>
             </div>
-            <a onclick="show_banned_close()" class="bl_gb"><img src="/new/images/gb_icon.png"></a>
+            <a onclick="show_chat_message_close()" class="bl_gb"><img src="/new/images/gb_icon.png"></a>
         </div>
     </div>
 
 @stop
 
 @section('javascript')
+<script>
 
-    <script>
-    function padLeft(str, len) {
-        str = '' + str;
-        if (str.length >= len) {
-            return str;
-        } else {
-            return padLeft("0" + str, len);
-        }
-    }
-
-    function show_banned(id, name) {
-        $('#anonymous_chat_id').val(id);
-        $('#anonymous_chat_name').html('檢舉' + padLeft(name,4));
-        $(".announce_bg").show();
-        $("#show_banned_ele").show();
-    }
 
     function show_banned_close(){
         $(".announce_bg").hide();
         $("#show_banned_ele").hide();
     }
 
-    function chat_message(id, engroup, name){
-        let self_engroup = '{{$user->engroup}}';
-        if(self_engroup == engroup){
-            c5('您好，本站僅限與異性互動！');
-            return false;
-        }
-
-        let canNotMessage = '{{$canNotMessage}}';
-        if(canNotMessage == 1){
-            c5('您好，一週僅限發一則私訊！');
-            return false;
-        }
-
-        $('#anonymous_chat_message_id').val(id);
-        $('#anonymous_chat_message_name').html('發訊息給 ' + padLeft(name,4));
-        $(".announce_bg").show();
-        $("#show_chat_message").show();
-
-    }
 
     function show_chat_message_close(){
         $(".announce_bg").hide();
         $("#show_chat_message").hide();
     }
-    </script>
-    <script src="https://cdn.jsdelivr.net/npm/@fancyapps/ui@4.0/dist/fancybox.umd.js"></script>
+
+    $('.announce_bg').on('click', function() {
+        $("#show_chat_message").hide();
+        $("#show_banned_ele").hide();
+    });
+
+</script>
+@stack('scripts')
+<script src="https://cdn.jsdelivr.net/npm/@fancyapps/ui@4.0/dist/fancybox.umd.js"></script>
 @endsection
