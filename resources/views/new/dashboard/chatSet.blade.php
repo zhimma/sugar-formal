@@ -33,7 +33,20 @@
                         <dt class="n_gg_mm"><span><i></i>Line通知設定</span><!--<img src="/new/images/shed_icon.png">--></dt>
                         <dd style="display: block;">
                             <div class="tuba">當您開啟LINE通知後，可設定不同會員等級或收藏的會員 來訊通知與否。</div>     
-                            <div class="tu_bd">狀態：@if($user->line_notify_token==null)尚未綁定<a href="javascript:void(0);" class="tuk_bdbutton right line_notify">立即绑定</a>@else 已綁定<a href="javascript:void(0);" class="qux_bdbutton right line_notify_cancel">取消綁定</a>@endif</div>
+                            <div class="tu_bd">
+                                狀態：
+                                @if($user->line_notify_token==null)
+                                    尚未綁定
+                                    <a @if($user->isVip()) href="javascript:void(0);" @else onclick="show_onlyForVipPleaseUpgrade()"  @endif class="tuk_bdbutton right line_notify">
+                                        立即绑定
+                                    </a>
+                                @else 
+                                    已綁定
+                                    <a href="javascript:void(0);" class="qux_bdbutton right line_notify_cancel">
+                                        取消綁定
+                                    </a>
+                                @endif
+                            </div>
                             @if($user->line_notify_token!=null)
                                 <div class="ti_ktx"><span>來訊通知</span></div>
                                 <div class="ti_xcheck">
