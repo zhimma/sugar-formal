@@ -669,6 +669,38 @@ class Message_new extends Model
         $query->where([['is_row_delete_1','<>',$uid],['is_single_delete_1', '<>' ,$uid], ['all_delete_count', '<>' ,$uid],['is_row_delete_2', '<>' ,$uid],['is_single_delete_2', '<>' ,$uid]]);
 
         $query->where('created_at','>=',Carbon::parse("180 days ago")->toDateTimeString());
+
+        //過濾篩選條件
+        $inbox_refuse_set = InboxRefuseSet::where('user_id', $uid)->first();
+        if($inbox_refuse_set)
+        {
+            if($inbox_refuse_set->isrefused_vip_user)
+            {
+                
+            }
+            if($inbox_refuse_set->isrefused_common_user)
+            {
+               
+            }
+            if($inbox_refuse_set->isrefused_warned_user)
+            {
+               
+            }
+            if($inbox_refuse_set->refuse_pr != 0)
+            {
+               
+            }
+            if($inbox_refuse_set->refuse_canned_message_pr != 0)
+            {
+               
+            }
+            if($inbox_refuse_set->refuse_register_days != 0)
+            {
+               
+            }
+        }
+        
+
 //        $all_msg = Message::where('read', 'N')
 //            ->where([['to_id', $uid],['from_id', '!=', $uid], ['is_row_delete_1', '<>' ,$uid],['is_single_delete_1', '<>' ,$uid], ['all_delete_count', '<>' ,$uid],['is_row_delete_2', '<>' ,$uid],['is_single_delete_2', '<>' ,$uid],['temp_id', 0]])
 //            if($banned_users) {
