@@ -103,7 +103,7 @@ Route::get('/refresh-csrf', function(){
 */
 Route::get('/login', 'Auth\LoginController@showLoginForm2')->name('login');
 Route::get('/loginIOS', function (){ return view('new.auth.loginIOS'); })->name('loginIOS');
-Route::get('/login3ik3pIKe', 'Auth\LoginController@showLoginForm')->name('login2');
+Route::get('/login3ik3pIKe', 'Auth\LoginController@showLoginForm2')->name('login2');
 Route::post('/login', 'Auth\LoginController@login');
 Route::get('/logout', 'Auth\LoginController@logout')->name('logout');
 
