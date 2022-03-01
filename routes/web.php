@@ -124,9 +124,7 @@ Route::get('/register2', 'Auth\RegisterController@showRegistrationForm')->name('
 Route::post('/register', 'Auth\RegisterController@register');
 
 Route::get('/activate/token/{token}', 'Auth\ActivateController@activate');
-Route::post('/admin/api/aws-sns/ses', function(Request $request){
-    info($request->getContent());
-});
+Route::post('/admin/api/aws-sns/ses', 'Api\MailController@mailLog');
 Route::group(['middleware' => ['auth', 'global','SessionExpired']], function () {
     Route::get('/activate', 'Auth\ActivateController@showActivate');
     Route::get('/activate/send-token', 'Auth\ActivateController@sendToken');
