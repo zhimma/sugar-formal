@@ -257,11 +257,12 @@
         .new_pot,.new_pot001, .new_po000 {max-height:500px;}
         .new_pot001, .new_po000 {overflow-y:scroll;}
         .new_pot {overflow-y:hidden;}
-        media (max-width:824px){
+        @media (max-width:824px){
             .new_pot1{height:195px;overflow-y: scroll; padding-bottom:15px; }
         }
         @media (max-width:450px){
-            .new_pot1{height:280px;}
+            .reportPic_aa, .reportPic_new {height:365px !important;;}
+
         }
         @media (max-width:320px){
             .new_pot1{height:280px;}
@@ -1522,12 +1523,12 @@
         </div>
     </div>
 
-    <div class="bl_tab_aa" id="show_reportPic" style="display: none;">
+    <div class="bl_tab_aa reportPic_aa" id="show_reportPic" style="display: none;">
         <div class="bl_tab_bb">
             <div class="bltitle"><span>檢舉{{$to->name}}</span></div>
-            <div class="new_pot new_poptk_nn new_pot001">
-                <div class="fpt_pic new_po000">
-                    <form id="reportPicNextNewForm"  method="POST" action="{{ route('reportPicNextNew') }}" enctype="multipart/form-data">
+            <div class="new_pot new_poptk_nn new_pot001 reportPic_new">
+                <div class="fpt_pic new_po000 reportPic_new">
+                    <form id="reportPicNextNewForm"  method="POST" action="{{ route('reportPicNextNew') }}" enctype="multipart/form-data" style="margin-bottom:20px;">
                         {!! csrf_field() !!}
                         <input type="hidden" name="aid" value="{{$user->id}}">
                         <input type="hidden" name="uid" value="{{$to->id}}">
