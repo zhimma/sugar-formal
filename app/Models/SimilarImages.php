@@ -93,4 +93,21 @@ class SimilarImages extends Model
 
         // dd($response->json());
     }
+    
+    public static function countSearchedByEntrysArr($entrysArr) {
+        $entrys = collect([]);
+        foreach($entrysArr  as $entrysElt) {
+            $entrys = $entrys->merge($entrysElt); 
+        }
+        
+        return SimilarImages::countSearchedByEntrys($entrys);
+    }
+    
+    public static function countSearchedByEntrys($entrys) {
+        $picArr = $entrys->pluck('pic')->all();
+        return SimilarImages::select('pic')->whereIn('pic', $picArr)->where('status','success')->distinct()->count();
+        
+    }    
+    
+    
 }

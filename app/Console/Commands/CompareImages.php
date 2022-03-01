@@ -108,7 +108,7 @@ class CompareImages extends Command
             $statusAllPicArr = $statusAllEntry->groupBy('pic')->all();
             
             $compareAllEntry = ImagesCompare::get();
-            $compareAllPicArr = $compareAllEntry->groupBy('ecode_id')->all();
+            $compareAllPicArr = $compareAllEntry->groupBy('encode_id')->all();
             
             $memPicAllEntry = MemberPic::withTrashed()->select('member_id','pic','created_at','updated_at')->where('pic','<>','')->whereNotNull('pic')->orderByDesc('id')->get();
             $avatarAllEntry = UserMeta::select('user_id','pic','created_at','updated_at','is_active')->where('pic','<>','')->whereNotNull('pic')->orderByDesc('id')->get();
@@ -127,7 +127,9 @@ class CompareImages extends Command
                 $nowPicEntry = ImagesCompareService::getEntryByPic($imgEncode->pic);
 
                 if($nowPicEntry && !ImagesCompareService::isNeedCompareByEntry($nowPicEntry,$force)) {
-                    $is_not_compare=true;                   
+                    $is_not_compare=true;
+                    echo '不比對 from isNeedCompareByEntry specific_pic='.$specific_pic;
+                    Log::info('isNeedCompareByEntry return false 不比對  specific_pic='.$specific_pic);                 
                 }
                 else if(!$nowPicEntry) {
                     $is_not_compare=true; 
@@ -298,6 +300,9 @@ class CompareImages extends Command
                         $compare=$targetPercent=$srcPercent=$targetDiffSum=$srcDiffSum=$srcDiff=$targetDiff=null;
                         unset($compare,$targetPercent,$srcPercent,$targetDiffSum,$srcDiffSum,$srcDiff,$targetDiff);
                     }
+                    
+                    $nowCompareFoundArr = $compareAllPicArr[$imgEncode->id] = $targetArr = null;
+                    
                 }
                 elseif($specific_pic) {
                     Log::info('不比對  specific_pic='.$specific_pic); 

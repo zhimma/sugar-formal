@@ -61,6 +61,8 @@ use Illuminate\Support\Facades\Log;
 use Session;
 use App\Http\Controller\PagesController;
 use App\Models\ValueAddedService;
+use App\Services\ImagesCompareService;
+use App\Models\SimilarImages;
 class UserController extends \App\Http\Controllers\BaseController
 {
     public function __construct(UserService $userService, AdminService $adminService)
@@ -3719,7 +3721,7 @@ class UserController extends \App\Http\Controllers\BaseController
     public function memberList()
     {
         return view('admin.users.memberList');
-    }
+    }  
 
     public function searchMemberList(Request $request)
     {
@@ -3751,6 +3753,156 @@ class UserController extends \App\Http\Controllers\BaseController
         $results = $query->take($request->users_counts)->get();
 
         return view('admin.users.memberList')->with('results',$results);
+    }
+
+    
+    public function picMemberList(Request $request)
+    {
+        $req = null;
+
+        if(!$request->query()) 
+        {
+            if(session()->has('request')) $req=session()->get('request');
+            else if(session()->has('request_renew')) $req=session()->get('request_renew');
+        }
+
+        Session::forget('request');  
+        Session::forget('request_renew'); 
+
+        if($req && !$request->query()) session()->put('request_renew',$req);
+
+        $data['request']=$req;
+        $data['default_apply_time'] = Carbon::now()->addMinutes(10)->format('H:i');
+        if($req) {
+            $newReq = new Request($req);
+            return $this->searchPicMemberList($newReq);
+        }
+        return view('admin.users.picMemberList',$data);
+    } 
+
+    private function _getPicMemberListQuery($request) {
+        $date_start = $request->date_start ? $request->date_start : '0000-00-00';
+        $date_end = $request->date_end ? $request->date_end : date('Y-m-d');
+
+        $query = User::with('meta')
+            ->where(function($query)use($date_start,$date_end)
+            {
+                $query->where('id','<>',1049)
+                      ->whereBetween('created_at', array($date_start . ' 00:00', $date_end . ' 23:59'));
+            });
+
+        if(isset($request->gender)){
+            if($request->gender!=0){
+                $query->where('engroup',$request->gender);
+            }
+        }
+
+        if(isset($request->time) && $request->time=='created_at'){
+            $query->orderBy('created_at','desc');
+        }
+
+        if(isset($request->time) && $request->time=='last_login'){
+            $query->orderBy('last_login','desc');
+        }
+
+        $query->take($request->users_counts);
+
+        return $query;
+    }
+    
+    public function searchPicMemberList(Request $request)
+    {
+        $data['default_apply_time'] = Carbon::now()->addMinutes(10)->format('H:i');
+        $data['request'] = $request;
+        $query = $this->_getPicMemberListQuery($request);
+
+        $results = $query->get();
+        
+        return view('admin.users.picMemberList',$data)->with('results',$results)
+        ->with('comparison',new ImagesCompareService)
+        ->with('similarity',new SimilarImages)
+        ;
+    } 
+
+    public function applyPicMemberList(Request $request) {
+        $now = Carbon::now();
+        $req = $request->all();
+        $job_show_name = '';
+        $s_job_show_name = '以圖找圖';
+        $c_job_show_name = '站內搜圖';
+        $apply_date = $request->apply_date_start??date('Y-m-d');
+        $apply_time = $request->apply_time_start??date('H:i');
+        $apply_type = $request->apply_type??[];
+        if(!$apply_type) {
+            return back()->with('request',$req)->withErrors(['設定失敗！未勾選任何一個照片送檢類型。']);
+        }
+        $apy_datetime = Carbon::parse($apply_date.' '.$apply_time);
+        $delay=0;
+        if($apy_datetime<$now) {
+            return back()->with('request',$req)->withErrors(['設定失敗！所設定的開始佇列時間早於目前的時間。']);
+        }
+        else {
+            $delay = $apy_datetime->diffInSeconds($now);
+        }
+        $query = $this->_getPicMemberListQuery($request);
+        $apy_user_entrys = $query->with('pic_withTrashed','avatar_deleted')->get();
+        
+        $pic_num=0;
+        $pic_s_num=0;
+        $pic_c_num=0;
+        $pic_entrys =  $apy_user_entrys->pluck('meta')
+                        ->merge($apy_user_entrys->pluck('pic_withTrashed')->flatten())
+                        ->merge($apy_user_entrys->pluck('avatar_deleted')->flatten())                   
+                        ;
+        foreach($pic_entrys as $item) {
+            if(!$item->pic??null) continue;
+            $pic_num++;
+
+            if(in_array('s',$apply_type)) {
+                if(SimilarImages::where('pic',$item->pic)->where('status','success')->count()==0) {
+                    \App\Jobs\SimilarImagesSearcher::dispatch($item->pic)->delay($delay);;                
+                    $pic_s_num++;
+                }
+                
+            }
+            
+            if(in_array('c',$apply_type)) {
+                if($item->compareImages('UserController@applyPicMemberList',$delay))
+                $pic_c_num++;
+            }    
+        }                
+                        
+        if(count($apply_type)>1) {
+            $job_show_name = '以圖找圖和站內搜圖';
+        }
+        else if(count($apply_type)==1) {
+            switch($apply_type[0]) {
+                case 's':
+                    $job_show_name = '以圖找圖';
+                break;
+                case 'c':
+                    $job_show_name = '站內搜圖';
+                break;               
+            }
+        }
+        $result_msg = '';
+        if($pic_s_num) {
+            $result_msg.=$pic_s_num.'張照片列入'.$s_job_show_name;
+        }
+        
+        if($pic_c_num) {
+            if($result_msg) $result_msg.='、';
+            $result_msg.=$pic_c_num.'張照片列入'.$c_job_show_name;
+        }
+        
+        if($result_msg) {
+            return back()->with('request',$req)->with('message',' 成功將 ' .$result_msg . ' 送檢佇列');    
+        }
+        else {
+            if($pic_num)
+                return back()->with('request',$req)->with('message', '未做任何處理。'.$pic_num . ' 張照片都已曾做過'.$job_show_name);    
+            else return back()->with('request',$req);
+        }
     }
 
     public function showSendUserMessage()
@@ -4885,6 +5037,7 @@ class UserController extends \App\Http\Controllers\BaseController
             }
 
             return back()->with('message', '成功將 ' . $Imgs_count . ' 筆資料列入'.$job_show_name.'送檢佇列');
+
         }
 
         return $job_show_name.'沒有指定的方法';
@@ -4892,7 +5045,7 @@ class UserController extends \App\Http\Controllers\BaseController
     
     public function UserImagesCompareJobCreate(Request $request){
         $job_show_name='站內搜圖';
-        
+
         if ($request->type == 'date'){
             $validated = $request->validate([
                 'date_start' => ['required', 'date'],
@@ -4948,7 +5101,7 @@ class UserController extends \App\Http\Controllers\BaseController
 
         return $job_show_name.'沒有指定的方法';
     }
-    
+
 
     public function admin_user_suspicious_toggle(Request $request){
 

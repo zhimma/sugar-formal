@@ -18,17 +18,19 @@ class CompareImagesCaller implements ShouldQueue
     protected $targetImg_path;
     protected $encode_by;
     protected $force_all;
+    protected $force_compare;
 
     /**
      * Create a new job instance.
      *
      * @return void
      */
-    public function __construct($targetImg_path,$encode_by=null,$force_all=null)
+    public function __construct($targetImg_path,$encode_by=null,$force_compare=false,$force_all=null)
     {
         $this->targetImg_path = $targetImg_path;
         $this->encode_by = $encode_by;
         $this->force_all = $force_all;
+        $this->force_compare = $force_compare;
     }
 
     /**
@@ -37,7 +39,8 @@ class CompareImagesCaller implements ShouldQueue
      * @return void
      */
     public function handle()
-    {
+    {   
+        $force_compare = $this->force_compare;
         $pic = $this->targetImg_path??'';
         if(!$pic) {
             \Sentry\captureMessage('CompareImagesCaller 異常');     
@@ -48,14 +51,15 @@ class CompareImagesCaller implements ShouldQueue
         if($encode_by) {        
             Artisan::call("EncodeImagesForCompare",['pic'=>$pic,'encode_by'=>$encode_by]); 
             if($force_all) {
-               $force_compare = ImagesCompareService::isForceViaEncodeBy($encode_by); 
                $call_argv = ['pic'=>$pic];
                if($force_compare) $call_argv['--force']=true;
                Artisan::call("CompareImages",$call_argv);             
             }
         }
         else {
-            Artisan::call("CompareImages",['pic'=>$pic]);            
+           $call_argv = ['pic'=>$pic];
+           if($force_compare) $call_argv['--force']=true;            
+            Artisan::call("CompareImages",$call_argv);            
         }
     }
 }
