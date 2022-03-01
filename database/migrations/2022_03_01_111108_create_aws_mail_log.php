@@ -16,8 +16,8 @@ class CreateAwsMailLog extends Migration
         Schema::create('aws_ses_mail_log', function (Blueprint $table) {
             $table->id();
             $table->string('notificationtype');
-            $table->json('mail');
-            $table->json('content');
+            $table->text('mail');
+            $table->text('content');
             $table->timestamps();
         });
     }
