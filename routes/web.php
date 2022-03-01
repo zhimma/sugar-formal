@@ -840,6 +840,12 @@ Route::group(['middleware' => ['auth', 'global', 'active', 'femaleActive', 'vipC
         Route::resource('roles', 'RoleController', ['except' => ['show']]);
         Route::post('roles/search', 'RoleController@search');
         Route::get('roles/search', 'RoleController@index');
+
+        
+    });
+    Route::group(['prefix' => 'admin', 'middleware' => 'Admin'], function () {
+        //寄退信Log查詢
+        Route::get('maillog', 'Api\MailController@viewMailLog')->name('maillog');
     });
 
 

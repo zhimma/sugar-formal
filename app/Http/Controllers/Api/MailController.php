@@ -34,4 +34,8 @@ class MailController extends Controller
         $aws_ses_mail_log->save();
 
     }
+    public function viewMailLog(Request $request)
+    {
+        return view('admin.stats.mailLog');
+    }
 }
