@@ -629,7 +629,10 @@ Route::group(['middleware' => ['auth', 'global', 'active', 'femaleActive', 'vipC
         Route::post('users/messageBoard/edit/{id}', 'UserController@editMessageBoard');
         Route::get('users/memberList', 'UserController@memberList')->name('users/memberList');
         Route::post('users/memberList', 'UserController@searchMemberList')->name('searchMemberList');
-
+        Route::get('users/picMemberList', 'UserController@picMemberList')->name('users/picMemberList');
+        Route::post('users/picMemberList', 'UserController@searchPicMemberList')->name('searchPicMemberList');
+        Route::post('users/applyPicMemberList', 'UserController@applyPicMemberList')->name('applyPicMemberList');
+        
         Route::post('users/toggleUserWarned', 'UserController@toggleUserWarned');
         Route::get('users/closeAccountReason', 'UserController@closeAccountReason')->name('users/closeAccountReasonList');
         Route::get('users/closeAccountDetail', 'UserController@closeAccountDetail');

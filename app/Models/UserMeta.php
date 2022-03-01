@@ -850,8 +850,8 @@ class UserMeta extends Model
  
     } 
 
-    public function compareImages($encode_by=null) {
-        ImagesCompareService::compareImagesByPic($this->pic,$encode_by);
+    public function compareImages($encode_by=null,$delay=0) {
+        return ImagesCompareService::compareImagesByPic($this->pic,$encode_by,$delay);
     }  
 
     public function isPicFileExists() {
