@@ -37,7 +37,7 @@
 		<a href="{{ route('users/message/search') }}">會員訊息管理</a>
 		<a href="{{ route('statistics') }}">會員訊息統計</a>
 		<a href="{{ route('searchSpamTextMessage') }}">罐頭訊息查詢</a>
-		<a href="{{ route('users/showAnonymousChatPage') }}">匿名聊天室</a>
+		<!--<a href="{{ route('users/showAnonymousChatPage') }}">匿名聊天室</a>-->
 		<a href="{{ route('users/reported/GET') }}">被檢舉會員清單</a>
 		<a href="{{ route('users/pics/reported/GET') }}">被檢舉照片清單</a>
 		<a href="{{ route('users/basic_setting') }}">基本設定</a>
