@@ -488,7 +488,7 @@ function resize_pic_loading_close(cur_uploader_option,listEl,parentEl, newInputE
         var cur_api = $.fileuploader.getInstance(inputEl.get(0));
         if(rbupld_container_initial_visible[cur_api.rbupld_uploader_index]!='none') {
             //$(".blbg").hide();
-            $(".announce_bg").hide();
+            // $(".announce_bg").hide();
         }
 
 		$("#tab_loading").hide();  

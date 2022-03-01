@@ -1878,7 +1878,10 @@
 <style>
     @media (max-width:450px) {
         .fpt_pic {
-            height: 230px !important;
+            height: 345px !important;
+        }
+        .new_pot001{
+            height: 365px !important;
         }
     }
 
