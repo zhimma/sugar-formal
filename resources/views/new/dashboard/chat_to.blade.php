@@ -161,7 +161,8 @@
                 '</div>' +
             '</div>'+
         '</div>';
-        if($(".sebg.matopj10").length == 0){
+        
+        if($(".sebg.matopj10").length == 0  || $(".sebg.matopj10").first().text().trim()!=dateString){
             
             $(".message.pad_bot").prepend('<div class="sebg matopj10">' + dateString+ '</div>');
         }

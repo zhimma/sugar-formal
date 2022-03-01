@@ -266,11 +266,9 @@
                                 @if(!($user->meta->pic??null))
                                 <b>無</b>
                                 @endif
-                                @if(($user->meta->pic??null) && !$user->meta->isPicNeedCompare())
-                                <b>不需比對的照片</b>      
-                                @elseif($user->meta->pic??null)
+                                @if($user->meta->pic??null)
                                     @php 
-                                        $user->meta->compareImages('picturesSimilar');
+                                        if($user->meta->isPicNeedCompare()) $user->meta->compareImages('picturesSimilar');
                                         $compareStatus = $user->meta->getCompareStatus();
                                         $compareRsImgs = $user->meta->getCompareRsImg(); 
                                     @endphp
@@ -438,11 +436,9 @@
                                     @if(!($pic->pic??null))
                                     <b>無</b>
                                     @endif
-                                    @if(($pic->pic??null) && !$pic->isPicNeedCompare())
-                                        <b>不需比對的照片</b>      
-                                    @elseif($pic->pic??null)            
+                                    @if($pic->pic??null)
                                         @php
-                                            $pic->compareImages('picturesSimilar');                
+                                            if($pic->isPicNeedCompare()) $pic->compareImages('picturesSimilar');                
                                             $compareStatus = $pic->getCompareStatus();
                                             $compareRsImgs = $pic->getCompareRsImg();
                                         @endphp

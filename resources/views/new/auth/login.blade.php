@@ -1,9 +1,3 @@
-<?php
-header("Cache-Control: no-cache, no-store, must-revalidate, post-check=0, pre-check=0", false);
-header("Pragma: no-cache");
-header("Last-Modified: " . gmdate("D, d M Y H:i:s") . " GMT");
-header("Expires: Fri, 01 Jan 1990 00:00:00 GMT");
-?>
 @extends('new.layouts.website')
 @section('app-content')
 
@@ -26,7 +20,7 @@ header("Expires: Fri, 01 Jan 1990 00:00:00 GMT");
                     <input type="hidden" name="cfp_hash" id="cfp_hash">
                     <input type="hidden" name="debug" id="debug">
                     <div class="dengl_h" id="login">登入</div>
-                    <div id="notice" class="de_input">如果看不到輸入框請開啟 JavaScript 後重新嘗試。若有問題請按下方 <a href="{!! url('contact') !!}" style="color: #33B2FF; text-decoration: underline;">聯絡我們</a> 加站長 line 回報。</div>
+                    <div id="notice" class="de_input">如果看不到輸入框請開啟 JavaScript 後重新嘗試；若已開啟 JavaScript 卻還是看不到，<a href="{{ route('login2') }}?{{ csrf_token() }}={{ time() }}" style="color: #ee5472;">請點擊這裡嘗試</a>。若有問題請按下方 <a href="{!! url('contact') !!}" style="color: #33B2FF; text-decoration: underline;">聯絡我們</a> 加站長 line 回報。</div>
                 </form>
                 <iframe id="childFrame" src="https://www.sugar-garden.org/cfp" style="border:none; height: 0;" ></iframe>
             </div>

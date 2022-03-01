@@ -152,7 +152,7 @@ class PagesController extends BaseController
             if ($this->service->update(auth()->id(), $request->all())) {
 
                 //更新完後判斷是否需備自動封鎖
-                SetAutoBan::auto_ban(auth()->id());
+                //SetAutoBan::auto_ban(auth()->id());
                 
                 return redirect('/dashboard')->with('message', '資料更新成功');
             }
@@ -195,7 +195,7 @@ class PagesController extends BaseController
             if ($this->service->update(auth()->id(), $request->all())) {
 
                 //更新完後判斷是否需備自動封鎖
-                SetAutoBan::auto_ban(auth()->id());
+                //SetAutoBan::auto_ban(auth()->id());
 
                 $status_data =[
                     'status' => true,
@@ -1234,18 +1234,19 @@ class PagesController extends BaseController
 
     public function view_account_manage(Request $request)
     {
-        $chinese_num_arr = ['一','二','三','四','五','六','七','八','九'];
         $user = $request->user();
-        $user_pause_during = config('memadvauth.user.pause_during');
-        $api_pause_during = config('memadvauth.api.pause_during');        
-        $userPauseMsg = '驗證失敗需'.(($user_pause_during%1440 || $user_pause_during/1440>=10)?$user_pause_during.'分鐘':$chinese_num_arr[$user_pause_during/1440-1].'天').'後才能重新申請。';
-        $apiPauseMsg = '本日進階驗證功能維修，請'.(intval($api_pause_during/60)?intval($api_pause_during/60).'hr':'').(($api_pause_during%60)?($api_pause_during%60).'分鐘':'').'後再試。';
-
+        $userPauseMsg = $this->advance_auth_get_msg('user_pause');
+        $apiPauseMsg = $this->advance_auth_get_msg('api_pause');
+        $userWrongMsg = $this->advance_auth_get_msg('have_wrong');
+        $userForbidMsg = $this->advance_auth_get_msg('user_forbid');
         return view('new.dashboard.account_manage')->with('user', $user)->with('cur', $user)
                 ->with('is_pause_api',LogAdvAuthApi::isPauseApi())
                 ->with('isAdvAuthUsable',$user->isAdvanceAuth()?$user->isAdvanceAuth():UserService::isAdvAuthUsableByUser($user))
                 ->with('userPauseMsg',$userPauseMsg??null)
-                ->with('apiPauseMsg',$apiPauseMsg??null);
+                ->with('apiPauseMsg',$apiPauseMsg??null)
+                ->with('userWrongMsg',$userWrongMsg)
+                ->with('userForbidMsg',$userForbidMsg)
+                ;
     }
 
     public function view_name_modify(Request $request)
@@ -1645,7 +1646,7 @@ class PagesController extends BaseController
         if($isHideOnline == 0){
 
             User::where('id', $user_id)->update(['is_hide_online' => 0]);
-            $status_msg = '搜索排序設定已開啟。';
+            $status_msg = '搜索排序設定已變更。';
 
         }else if($isHideOnline == 1){
             //check current is_hide_online
@@ -1659,7 +1660,7 @@ class PagesController extends BaseController
 
             User::where('id', $user_id)->update(['is_hide_online' => 1, 'hide_online_time' => $checkHideOnlineData->login_time]);
 
-            $status_msg = '搜索排序設定已關閉。';
+            $status_msg = '搜索排序設定已變更。';
 
         }else if($isHideOnline == 2){
             //check current is_hide_online
@@ -1673,7 +1674,7 @@ class PagesController extends BaseController
 
             User::where('id', $user_id)->update(['is_hide_online' => 2, 'hide_online_time' => $checkHideOnlineData->login_time, 'hide_online_hide_time' => Carbon::now()]);
 
-            $status_msg = '搜索排序設定已隱藏。';
+            $status_msg = '搜索排序設定已變更。';
         }
 
 //        if($insertData == true) {
@@ -4398,7 +4399,7 @@ class PagesController extends BaseController
                 ->with('user',$user)
                 ->with('cur', $user)
                 ->with('init_check_msg',$init_check_msg??null)
-                ->with('user_pause_during_msg',$this->advance_auth_get_msg('user_pause'))
+                ->with('user_pause_during_msg',$this->advance_auth_get_msg('user_pause2'))
                 ;
     }
     
@@ -4442,15 +4443,29 @@ class PagesController extends BaseController
     public function advance_auth_get_msg($type=null) {
         $msg = null;
         switch($type) {
+            case 'have_wrong':
+                $msg='您的進階驗證功能有誤，請加站長 line 與站長聯絡<a href="https://lin.ee/rLqcCns" target="_blank"> <img src="https://scdn.line-apps.com/n/line_add_friends/btn/zh-Hant.png" alt="加入好友" height="26" border="0" style="height: 26px; float: unset;"></a>';
+            break;
+            case 'user_forbid':
+                $msg='您的驗證次數已滿三次，請加站長 line 與站長聯絡<a href="https://lin.ee/rLqcCns" target="_blank"> <img src="https://scdn.line-apps.com/n/line_add_friends/btn/zh-Hant.png" alt="加入好友" height="26" border="0" style="height: 26px; float: unset;"></a> ';
+            break;
             case 'user_pause':
                 $chinese_num_arr = ['一','二','三','四','五','六','七','八','九'];
                 $user_pause_during = config('memadvauth.user.pause_during');
                 $msg = '驗證失敗需'.(($user_pause_during%1440 || $user_pause_during/1440>=10)?$user_pause_during.'分鐘':$chinese_num_arr[$user_pause_during/1440-1].'天').'後才能重新申請。';               
             break;
+            case 'user_pause2':
+                $chinese_num_arr = ['一','二','三','四','五','六','七','八','九'];
+                $user_pause_during = config('memadvauth.user.pause_during');
+                $msg = '失敗後要等'.(($user_pause_during%1440 || $user_pause_during/1440>=10)?$user_pause_during.'分鐘':$chinese_num_arr[$user_pause_during/1440-1].'天').'才能重新申請。';               
+            break;            
             case 'api_pause':
                 $api_pause_during = config('memadvauth.api.pause_during');            
                 $msg = '本日進階驗證功能維修，請 '.(intval($api_pause_during/60)?intval($api_pause_during/60).'hr':'').(($api_pause_during%60)?($api_pause_during%60).'分鐘':'').' 後再試。';
-            break;           
+            break; 
+            case 'api_fault':
+                $msg=' 驗證主機目前維修中，請八個小時後再驗證，如果還是不行，請點此聯絡站長 <a href="https://lin.ee/rLqcCns" target="_blank"> <img src="https://scdn.line-apps.com/n/line_add_friends/btn/zh-Hant.png" alt="加入好友" height="26" border="0" style="height: 26px; float: unset;"></a> ';
+            break;
         }
         
         return $msg;
@@ -4468,12 +4483,14 @@ class PagesController extends BaseController
             if(!$is_edu_mode && (!$user->isPhoneAuth() || !$user->getAuthMobile() || $user->getAuthMobile()=='0922222222') ) {
                 $user->short_message()->delete();
                 $init_check_msg = '請先通過 <a href="'.url('goto_member_auth').'">手機驗證(<span class="obvious">點此前往</span>)</a>' ;
-                if(substr($user->email,-6)!='edu.tw')
-                    $init_check_msg.= '<div class="i_am_student"><a href="'.url('goto_advance_auth_email').'">我是學生未滿20歲，沒有辦個人門號，請點我</a></div>'; 
+                $init_check_msg.= '<div class="i_am_student"><a href="'.url('goto_advance_auth_email').'">我是學生未滿20歲，沒有辦個人門號，<span class="remind-regular">請點我</span></a></div>'; 
             } 
-            else if($user->isForbidAdvAuth()) {
-                $init_check_msg = '您的進階驗證功能有誤，請<a href="https://lin.ee/rLqcCns" target="_blank">點此 <img src="https://scdn.line-apps.com/n/line_add_friends/btn/zh-Hant.png" alt="加入好友" height="26" border="0" style="height: 26px; float: unset;"></a> 或點右下聯絡我們加站長 line 與站長聯絡。';
+            else if($user->isDuplicateAdvAuth()) {
+                $init_check_msg = $this->advance_auth_get_msg('have_wrong');
             }
+            else if($user->isForbidAdvAuth()) {
+                $init_check_msg = $this->advance_auth_get_msg('user_forbid');
+            }            
             else if($user->isPauseAdvAuth()) {
                 $init_check_msg = $this->advance_auth_get_msg('user_pause') ;
             }
@@ -4557,7 +4574,7 @@ class PagesController extends BaseController
         $api_check_cfg = config('memadvauth.api.check');
         $user =Auth::user();
         $init_check_msg = $this->advance_auth_prechase();
-        $user_pause_during_msg = $this->advance_auth_get_msg('user_pause');
+
         if($init_check_msg) {
             return back();
         }           
@@ -4586,7 +4603,7 @@ class PagesController extends BaseController
                     ,'identity_encode'=>$encode_id_serial
                     ,'is_duplicate'=>1
                 ]);
-            return back()->with('message', ['您的進階驗證功能有誤，<a href="https://lin.ee/rLqcCns" target="_blank">請點此 <img src="https://scdn.line-apps.com/n/line_add_friends/btn/zh-Hant.png" alt="加入好友" height="26" border="0" style="height: 26px; float: unset;"></a> 或點右下聯絡我們加站長 line 與站長聯絡。']);
+            return back()->with('message', [$this->advance_auth_get_msg('have_wrong')]);
         }        
 
         $data['api_base'] = 'https://'.config('memadvauth.service.host').(config('memadvauth.service.port')?':'.config('memadvauth.service.port'):'').'/';
@@ -4631,7 +4648,9 @@ class PagesController extends BaseController
         if(!$output) {
             $logArr['api_fault']=1;
             $user->log_adv_auth_api()->create($logArr);   
-            return back()->with('message', ['系統目前無法進行驗證']);
+            return back()//->with('message', ['系統目前無法進行驗證'])
+            ->with('message', [$this->advance_auth_get_msg('api_fault')])
+            ;
         }                    
         
         $MIDOutputParams = json_decode($OutputParams["MIDOutputParams"]["MIDResp"]??'', JSON_UNESCAPED_UNICODE);
@@ -4684,12 +4703,18 @@ class PagesController extends BaseController
             ]);              
         }          
         //驗證成功
-        if($MIDOutputParams["code"]=="0000"){
+        $test_auth_fail_mode = false;
+        if($MIDOutputParams["code"]=="0000" 
+            && strrpos(config('memadvauth.service.host'),'test')!==false 
+            && ($id_serial=='A123456789' || $id_serial=='A234567893')
+            )  $test_auth_fail_mode = true;
+        
+        if($MIDOutputParams["code"]=="0000" && !$test_auth_fail_mode){
             
             if(User::where('advance_auth_identity_encode',$encode_id_serial)->where('advance_auth_status',1)->count()) {
                 $logAdvAuthApi->is_duplicate=1;
                 $logAdvAuthApi->save();
-                return back()->with('message', ['您的進階驗證功能有誤，<a href="https://lin.ee/rLqcCns" target="_blank">請點此 <img src="https://scdn.line-apps.com/n/line_add_friends/btn/zh-Hant.png" alt="加入好友" height="26" border="0" style="height: 26px; float: unset;"></a> 或點右下聯絡我們加站長 line 與站長聯絡。']);
+                return back()->with('message', [$this->advance_auth_get_msg('have_wrong')]);
             }
             $auth_date = date('Y-m-d H:i:s');
             $user->advance_auth_status = 1;
@@ -4747,23 +4772,35 @@ class PagesController extends BaseController
                                     ']);
         }else{
             $fullcode = $MIDOutputParams["fullcode"];
+            if($test_auth_fail_mode) $fullcode = 3645024;
             if($fullcode<=3644100 || $fullcode>=3645031
                 || $fullcode==3645000 || $fullcode==3645001
                 || $fullcode==3645000 || $fullcode==3645001    
             ) {
                 $logAdvAuthApi->api_fault = 1;
                 $logAdvAuthApi->save();
-                return back()->with('message', ['系統目前無法進行驗證']);
+                return back()//->with('message', ['系統目前無法進行驗證'])
+                ->with('message', [$this->advance_auth_get_msg('api_fault')])
+                ;
             }
             else {
-                if(!$user->isForbidAdvAuth() &&  $user->getEffectFaultAdvAuthApiQuery()->count()+1>=config('memadvauth.user.allow_fault')) {
+                if(!$user->isForbidAdvAuth() &&  ($user->getEffectFaultAdvAuthApiQuery()->count()+1)>=config('memadvauth.user.allow_fault')) {
+                    $logAdvAuthApi->forbid_user = 1;
+                } 
+
+                if(!$user->isForbidAdvAuth() 
+                    && $test_auth_fail_mode
+                    &&  ($user->log_adv_auth_api()->where('user_fault',1)->count()+1)>=config('memadvauth.user.allow_fault')
+                ) 
+                {
                     $logAdvAuthApi->forbid_user = 1;
                 }                
+                
                 $logAdvAuthApi->user_fault = 1;
                 $logAdvAuthApi->save();
 
                 if(($logAdvAuthApi->forbid_user??null)==1 ) {
-                    return back()->with('message', ['您的進階驗證功能有誤，<a href="https://lin.ee/rLqcCns" target="_blank">請點此 <img src="https://scdn.line-apps.com/n/line_add_friends/btn/zh-Hant.png" alt="加入好友" height="26" border="0" style="height: 26px; float: unset;"></a> 或點右下聯絡我們加站長 line 與站長聯絡。']);
+                    return back()->with('message', [$this->advance_auth_get_msg('user_forbid')]);
                 }
               
                 return back()->with('message', [
@@ -5079,10 +5116,10 @@ class PagesController extends BaseController
         $checkUserVip=0;
         $isVip =Vip::where('member_id',auth()->user()->id)->where('active',1)->where('free',0)->first();
         if($isVip){
-//            $months = Carbon::parse($isVip->created_at)->diffInMonths(Carbon::now());
-//            if($months>=2 || $isVip->payment=='cc_quarterly_payment' || $isVip->payment=='one_quarter_payment'){
+            $months = Carbon::parse($isVip->created_at)->diffInMonths(Carbon::now());
+            if($months>=2 || $isVip->payment=='cc_quarterly_payment' || $isVip->payment=='one_quarter_payment'){
                 $checkUserVip=1;
-//            }
+            }
         }
 
         return view('/dashboard/posts_list', $data)
@@ -5120,10 +5157,10 @@ class PagesController extends BaseController
         $checkUserVip=0;
         $isVip =Vip::where('member_id',auth()->user()->id)->where('active',1)->where('free',0)->first();
         if($isVip){
-//            $months = Carbon::parse($isVip->created_at)->diffInMonths(Carbon::now());
-//            if($months>=2 || $isVip->payment=='cc_quarterly_payment' || $isVip->payment=='one_quarter_payment'){
+            $months = Carbon::parse($isVip->created_at)->diffInMonths(Carbon::now());
+            if($months>=2 || $isVip->payment=='cc_quarterly_payment' || $isVip->payment=='one_quarter_payment'){
                 $checkUserVip=1;
-//            }
+            }
         }
         return view('/dashboard/post_detail', compact('postDetail','replyDetail', 'checkUserVip'))->with('user', $user);
     }
@@ -5540,8 +5577,11 @@ class PagesController extends BaseController
         $posts_manage_users = ForumManage::select('forum_manage.user_id','users.name','forum_manage.status','forum_manage.forum_status','forum_manage.chat_status')
             ->leftJoin('users', 'users.id','=','forum_manage.user_id')
             ->where('forum_manage.apply_user_id', $user->id)
-            ->whereNotIn('status',[2,3])
-            ->paginate(15);
+            ->whereNotIn('status',[2,3]);
+        if($request->order == 1) {
+            $posts_manage_users = $posts_manage_users->orderBy('status', 'asc');
+        }
+            $posts_manage_users= $posts_manage_users->paginate(15);
         //檢查是否為連續兩個月以上的VIP會員
         $checkUserVip=0;
         $isVip =Vip::where('member_id',auth()->user()->id)->where('active',1)->where('free',0)->first();
@@ -5581,7 +5621,7 @@ class PagesController extends BaseController
 
         }else if($status==1){
             if(isset($checkData)){
-                ForumManage::where('user_id', $uid)->where('apply_user_id', $auid)->update(['status' => $status, 'updated_at' => Carbon::now()]);
+                ForumManage::where('user_id', $uid)->where('apply_user_id', $auid)->update(['status' => $status, 'forum_status' => 1, 'chat_status' => 1,'updated_at' => Carbon::now()]);
                 $msg = '該會員已通過';
             }else{
                 $msg = 'error';
@@ -5999,42 +6039,40 @@ class PagesController extends BaseController
                         }
                         $nextProcessDate = substr($lastProcessDate->addDays($periodRemained),0,10);
                     }
-                    $last_vip_log = null;                   
+                    $last_vip_log = null;
 
                     switch ($vip->payment){
                         case 'cc_monthly_payment':
                             if(!$vip->isPaidCanceled() && ($nextProcessDate??null)){
-                                $nextProcessDate = '預計下次扣款日為 '.$nextProcessDate.' 扣款金額：'.$vip->amount;
-                                $vipStatus='您目前的 VIP 是每月定期 '.$payment.'。'.$nextProcessDate;
+                                $vipStatus='您目前是每月持續付費的VIP，下次付費時間是'.$nextProcessDate.'。';
                             }else if($vip->isPaidCanceled()){
                                 $cancel_str = '';
                                 $latest_vip_log = $user->getLatestVipLog();
                                 if($latest_vip_log->isCancel()) {
-                                    $cancel_str='您已經在 '.substr($latest_vip_log->created_at,0,10).' 取消續約，';
+                                    $cancel_str='已於 '.substr($latest_vip_log->created_at,0,10).' 申請取消。';
                                 }
                                 
-                                $vipStatus='您是本站VIP。'.$cancel_str.'VIP到期日為 '. substr($vip->expiry,0,10).'。';
+                                $vipStatus='您目前是每月持續付費的VIP，'.$cancel_str.'VIP到期時間為 '. substr($vip->expiry,0,10).'。';
                             }
                             break;
                         case 'cc_quarterly_payment':
                             if(!$vip->isPaidCanceled() && ($nextProcessDate??null)){
-                                $nextProcessDate = '預計下次扣款日為 '.$nextProcessDate.' 扣款金額：'.$vip->amount;
-                                $vipStatus='您目前的 VIP 是每季定期 '.$payment.'。'.$nextProcessDate;
+                                $vipStatus='您目前是每月持續付費的VIP，下次付費時間是'.$nextProcessDate.'。';
                             }else if($vip->isPaidCanceled()){
                                 $cancel_str = '';
                                 $latest_vip_log = $user->getLatestVipLog();
                                 if($latest_vip_log->isCancel()) {
-                                    $cancel_str='您已經在 '.substr($latest_vip_log->created_at,0,10).' 取消續約，';
+                                    $cancel_str='已於 '.substr($latest_vip_log->created_at,0,10).' 申請取消，';
                                 }
                                 
-                                $vipStatus='您是本站VIP。'.$cancel_str.'VIP到期日為 '. substr($vip->expiry,0,10).'。';                                
+                                $vipStatus='您目前是每季持續付費的VIP，'.$cancel_str.'VIP到期日為 '. substr($vip->expiry,0,10).'。';
                             }
                             break;
                         case 'one_month_payment':
-                            $vipStatus='您目前的 VIP 是單次支付本月費用 '.$payment.'，到期日為'. substr($vip->expiry,0,10);
+                            $vipStatus='您目前是單次付費的VIP，VIP到期時間為'. substr($vip->expiry,0,10);
                             break;
                         case 'one_quarter_payment':
-                            $vipStatus='您目前的 vip 是單次支付本季費用 '.$payment.'，到期日為'. substr($vip->expiry,0,10);
+                            $vipStatus='您目前是單次付費的VIP，VIP到期時間為'. substr($vip->expiry,0,10);
                             break;
                     }
                 }
@@ -6071,7 +6109,8 @@ class PagesController extends BaseController
             $mempicLogOp = 
             $mempicLogId = 
             $mempicLogTime = null;
-            
+            $vipStatus = '您目前不是VIP。女會員只要上傳頭像照+三張生活照即可取得免費的vip，強烈建議您上傳照片升級，<a class="red" href="/dashboard_img">點此上傳照片升級!</a>';
+
             if($vipStatusMsgType) {
                  switch($vipStatusMsgType) {
                      case 'reminding':
@@ -6115,7 +6154,7 @@ class PagesController extends BaseController
         $vasStatus = '';
 
         if($user->valueAddedServiceStatus('hideOnline') == 1) {
-            $vasStatus = '您已購買隱藏付費功能';
+            $vasStatus = '您目前已購買隱藏功能。';
             $vas = $user->vas->where('service_name','hideOnline')->first();
             if($vas->payment){
                 if(\App::environment('local')){
@@ -6150,41 +6189,49 @@ class PagesController extends BaseController
                     
                 }
                 $payment = '信用卡繳費';
+                $vas_status='隱藏功能設定：';
+                if($user->is_hide_online==1){
+                    $vas_status.='隱藏(您的上線狀態凍結於'.substr($user->hide_online_time, 0, 11).')';
+                }
+                if($user->is_hide_online==2){
+                      $vas_status.='消失(其他會員無法查詢到您的資料)';
+                }
+                if($user->is_hide_online==0){
+                    $vas_status='關閉(您目前沒有啟動隱藏功能)';
+                }
                 switch ($vas->payment){
                     case 'cc_monthly_payment':
                          if(!$vas->isPaidCanceled() && $nextProcessDate??null){
-                            $nextProcessDate = '預計下次扣款日為 '.$nextProcessDate.' 扣款金額：'.$vas->amount;
-                            $vasStatus='您目前的隱藏付費是每月定期 '.$payment.'。'.$nextProcessDate;
+                            $vasStatus.='是每月持續付費，下次付費時間是'.$nextProcessDate.'。'.$vas_status;
                         }else if($vas->isPaidCanceled()){
                             $cancel_str = '';
                             $latest_vas_log = $user->getLatestVasLog();
                             if($latest_vas_log->isCancel()) {
-                                $cancel_str='您已經在 '.substr($latest_vas_log->created_at,0,10).' 取消續約，';
+                                $cancel_str='已於 '.substr($latest_vas_log->created_at,0,10).' 申請取消。';
                             }
                             
-                            $vasStatus='您目前為隱藏付費者。'.$cancel_str.'隱藏付費到期日為 '. substr($vas->expiry,0,10).'。';                              
+                            $vasStatus.='是每月持續付費，'.$cancel_str.'隱藏功能到期時間為 '. substr($vas->expiry,0,10).'。'.$vas_status;
                         }
                         break;
                     case 'cc_quarterly_payment':
                          if(!$vas->isPaidCanceled() && $nextProcessDate??null){
-                            $nextProcessDate = '預計下次扣款日為 '.$nextProcessDate.' 扣款金額：'.$vas->amount;
-                            $vasStatus='您目前的隱藏付費功能是每季定期 '.$payment.'。'.$nextProcessDate;
-                        }else if($vas->isPaidCanceled()){
+                             $vasStatus.='是每季持續付費，下次付費時間是'.$nextProcessDate.'。'.$vas_status;
+                         }else if($vas->isPaidCanceled()){
                             //$nextProcessDate = '已停止扣款，隱藏付費功能到期日為' . substr($vas->expiry,0,10);
                             $cancel_str = '';
                             $latest_vas_log = $user->getLatestVasLog();
                             if($latest_vas_log->isCancel()) {
-                                $cancel_str='您已經在 '.substr($latest_vas_log->created_at,0,10).' 取消續約，';
+                                $cancel_str='已於 '.substr($latest_vas_log->created_at,0,10).' 申請取消。';
                             }
                             
-                            $vasStatus='您目前為隱藏付費者。'.$cancel_str.'隱藏付費到期日為 '. substr($vas->expiry,0,10).'。';                                   
+                            $vasStatus.='是每季持續付費。'.$cancel_str.'隱藏功能到期時間為 '. substr($vas->expiry,0,10).'。'.$vas_status;
                         }
                         break;
                     case 'one_month_payment':
-                        $vasStatus='您目前的隱藏付費功能是單次支付本月費用 '.$payment.'，到期日為'. substr($vas->expiry,0,10);
+                        $vasStatus.='是單次付費，到期時間為 '. substr($vas->expiry,0,10).$vas_status;
                         break;
                     case 'one_quarter_payment':
-                        $vasStatus='您目前的隱藏付費功能是單次支付本季費用 '.$payment.'，到期日為'. substr($vas->expiry,0,10);
+                        $vasStatus.='是單次付費，到期時間為 '. substr($vas->expiry,0,10).$vas_status;
                         break;
                 }
             }
@@ -6220,7 +6267,9 @@ class PagesController extends BaseController
             //          ->on('w.deleted_at', \DB::raw("NULL"));
             // })
             ->leftJoin('banned_users as b','u.id','b.member_id')
+            ->orderBy('b.id', 'desc')
             ->leftJoin('warned_users as w','u.id','w.member_id')
+            ->orderBy('w.id', 'desc')
             ->where('u.id',$user->id)
             ->get()->first();
         //封鎖
@@ -7242,17 +7291,10 @@ class PagesController extends BaseController
             $anonymous_chat_announcement = '';
         }
 
-        //可發訊時間計算 一周發訊一人
-        $checkMessage = AnonymousChatMessage::where('user_id', $user->id)->orderBy('created_at', 'desc')->first();
-        $canNotMessage = false;
-        if( isset($checkMessage) && Carbon::parse($checkMessage->created_at)->diffInDays(Carbon::now())<7){
-            $canNotMessage = true;
-        }
 
         return view('/new/dashboard/anonymous_chat')
             ->with('user', $user)
-            ->with('anonymous_chat_announcement', $anonymous_chat_announcement)
-            ->with('canNotMessage', $canNotMessage);
+            ->with('anonymous_chat_announcement', $anonymous_chat_announcement);
     }
 
     public function anonymous_chat_report(Request $request) {

@@ -1223,7 +1223,10 @@ class UserService
 	}
     
     public static function isAdvAuthUsableByUser($user) {
-        return !($user->isForbidAdvAuth() || $user->isPauseAdvAuth() || LogAdvAuthApi::isPauseApi());
+        return !($user->isForbidAdvAuth() 
+                || $user->isPauseAdvAuth()
+                || $user->isDuplicateAdvAuth()
+                || LogAdvAuthApi::isPauseApi());
 
     }
 

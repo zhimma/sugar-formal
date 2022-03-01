@@ -400,7 +400,7 @@ class Message_newController extends BaseController {
 
         //發送訊息後後判斷是否需備自動封鎖
         // SetAutoBan::auto_ban(auth()->id());
-        SetAutoBan::msg_auto_ban($user->id, $payload['to'], $payload['msg']);
+        //SetAutoBan::msg_auto_ban($user->id, $payload['to'], $payload['msg']);
         if($isCalledByEvent && gettype($isCalledByEvent) == "boolean") {
             return $messagePosted;
         }

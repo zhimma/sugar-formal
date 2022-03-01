@@ -248,6 +248,8 @@ class FindPuppetController extends \App\Http\Controllers\Controller
                                 ->where('ip','NOT LIKE','104.28.47.%') 
                                 ->where('ip','NOT LIKE','104.28.46.%') 
                                 ->where('ip','NOT LIKE','104.28.46.87')
+                                ->where('ip','NOT LIKE','108.162.19%.%')
+                                ->where('ip','NOT LIKE','108.162.2%.%')
                                 ;
                     
                         if($whereArr) $loginDataQuery->where($whereArr);
