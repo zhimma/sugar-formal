@@ -5,6 +5,7 @@ namespace App\Http\Controllers\Api;
 use App\Http\Controllers\Controller;
 use Illuminate\Http\Request;
 use App\Models\AwsSesMailLog;
+use Carbon\Carbon;
 
 
 class MailController extends Controller
@@ -36,6 +37,9 @@ class MailController extends Controller
     }
     public function viewMailLog(Request $request)
     {
-        return view('admin.stats.mailLog');
+        $mail_log = AwsSesMailLog::where('updated_at','>',Carbon::now()->subDays(1))->get();
+        
+        return view('admin.stats.mailLog')
+        ->with('mail_log', $mail_log);
     }
 }
