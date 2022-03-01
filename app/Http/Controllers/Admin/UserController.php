@@ -4,6 +4,8 @@ namespace App\Http\Controllers\Admin;
 
 use App\Models\AccountStatusLog;
 use App\Models\AdminActionLog;
+use App\Models\AnonymousChat;
+use App\Models\AnonymousChatReport;
 use App\Models\Board;
 use App\Models\Evaluation;
 use App\Models\EvaluationPic;
@@ -4830,7 +4832,8 @@ class UserController extends \App\Http\Controllers\BaseController
     }
 
     public function UserPicturesSimilarJobCreate(Request $request){
-
+        $job_show_name='以圖找圖';
+        
         if ($request->type == 'date'){
             $validated = $request->validate([
                 'date_start' => ['required', 'date'],
@@ -4847,7 +4850,7 @@ class UserController extends \App\Http\Controllers\BaseController
                 }
             }
 
-            return '成功將 ' . $imgs_count . ' 筆資料列入送檢佇列';
+            return '成功將 ' . $imgs_count . ' 筆資料列入'.$job_show_name.'送檢佇列';
         }
 
         if ($request->type == 'all') {
@@ -4862,13 +4865,14 @@ class UserController extends \App\Http\Controllers\BaseController
                 \App\Jobs\SimilarImagesSearcher::dispatch($img->pic);
             }
 
-            return '成功將 ' . $Imgs_count . ' 筆資料列入送檢佇列';
+            return '成功將 ' . $Imgs_count . ' 筆資料列入'.$job_show_name.'送檢佇列';
         }
 
         if ($request->type == 'userAll') {
 
             $user_id = $request->targetUser;
-
+            $checkUser = User::find($user_id);
+            if($checkUser->engroup!=2) return $job_show_name.'送檢失敗！只有女會員的資料才能列入'.$job_show_name.'送檢佇列';
             $UserMetaPics      = \App\Models\UserMeta::select('pic')->whereNotNull('pic')->where('user_id', $user_id);
             $AvatarDeletedPics = \App\Models\AvatarDeleted::select('pic')->where('user_id', $user_id);
             $MemberPics        = \App\Models\MemberPic::withTrashed()->select('pic')->where('member_id', $user_id);
@@ -4880,11 +4884,71 @@ class UserController extends \App\Http\Controllers\BaseController
                 \App\Jobs\SimilarImagesSearcher::dispatchSync($img->pic);
             }
 
-            return back()->with('message', '成功將 ' . $Imgs_count . ' 筆資料列入送檢佇列');
+            return back()->with('message', '成功將 ' . $Imgs_count . ' 筆資料列入'.$job_show_name.'送檢佇列');
         }
 
-        return '沒有指定的方法';
+        return $job_show_name.'沒有指定的方法';
     }
+    
+    public function UserImagesCompareJobCreate(Request $request){
+        $job_show_name='站內搜圖';
+        
+        if ($request->type == 'date'){
+            $validated = $request->validate([
+                'date_start' => ['required', 'date'],
+                'date_end' => ['required', 'date'],
+            ]);
+    
+            if ($validated) {
+                $images = MemberPic::withTrashed()->whereBetween('created_at', [ $request->date_start , $request->date_end . ' 23:59:59'])->get();
+                $imgs_count = $images->count();
+                if ($imgs_count > 0){
+                    foreach ($images as $img){
+                        $img->compareImages('UserController@UserImagesCompareJobCreate');
+                    }
+                }
+            }
+
+            return '成功將 ' . $imgs_count . ' 筆資料列入'.$job_show_name.'送檢佇列';
+        }
+
+        if ($request->type == 'all') {
+            $UserMetaPics      = \App\Models\UserMeta::select('pic')->whereNotNull('pic');
+            $AvatarDeletedPics = \App\Models\AvatarDeleted::select('pic');
+            $MemberPics        = \App\Models\MemberPic::withTrashed()->select('pic');
+    
+            $Imgs = $UserMetaPics->union($AvatarDeletedPics)->union($MemberPics)->get();
+            $Imgs_count = $Imgs->count();
+    
+            foreach ($Imgs as $img) {
+                $img->compareImages('UserController@UserImagesCompareJobCreate');
+            }
+
+            return '成功將 ' . $Imgs_count . ' 筆資料列入'.$job_show_name.'送檢佇列';
+        }
+
+        if ($request->type == 'userAll') {
+
+            $user_id = $request->targetUser;
+            $checkUser = User::find($user_id);
+            if($checkUser->engroup!=2) return $job_show_name.'送檢失敗！只有女會員的資料才能列入'.$job_show_name.'送檢佇列';
+            $UserMetaPics      = \App\Models\UserMeta::select('pic')->whereNotNull('pic')->where('user_id', $user_id);
+            $AvatarDeletedPics = \App\Models\AvatarDeleted::select('pic')->where('user_id', $user_id);
+            $MemberPics        = \App\Models\MemberPic::withTrashed()->select('pic')->where('member_id', $user_id);
+
+            $Imgs = $UserMetaPics->union($AvatarDeletedPics)->union($MemberPics)->get();
+            $Imgs_count = $Imgs->count();
+    
+            foreach ($Imgs as $img) {
+                $img->compareImages('UserController@UserImagesCompareJobCreate');
+            }
+
+            return back()->with('message', '成功將 ' . $Imgs_count . ' 筆資料列入'.$job_show_name.'送檢佇列');
+        }
+
+        return $job_show_name.'沒有指定的方法';
+    }
+    
 
     public function admin_user_suspicious_toggle(Request $request){
 
@@ -5062,6 +5126,69 @@ class UserController extends \App\Http\Controllers\BaseController
         if($checkData){
             Forum::where('user_id', $uid)->update(['status' => $status, 'updated_at' => Carbon::now()]);
         }
+        echo json_encode(['ok']);
+    }
+
+    public function showAnonymousChatPage()
+    {
+        $admin = $this->admin->checkAdmin();
+        if ($admin) {
+            return view('admin.users.searchAnonymousChat');
+        } else {
+            return view('admin.users.searchMessage')->withErrors(['找不到暱稱含有「站長」的使用者！請先新增再執行此步驟']);
+        }
+    }
+
+    public function searchAnonymousChatPage(Request $request)
+    {
+
+        $msg = isset($request->msg) ? $request->msg : '';
+        $date_start = $request->date_start ? $request->date_start : '0000-00-00';
+        $date_end = $request->date_end ? $request->date_end : date('Y-m-d');
+        $results = AnonymousChat::select('anonymous_chat.*', 'users.name', 'users.engroup')
+            ->leftJoin('users', 'users.id', 'anonymous_chat.user_id')
+            ->where('anonymous_chat.content', 'like', '%' . $msg . '%')
+            ->whereBetween('anonymous_chat.created_at', array($date_start . ' 00:00', $date_end . ' 23:59'))
+            ->orderBy('anonymous_chat.created_at', 'desc')
+            ->withTrashed()
+            ->paginate(100)
+        ;
+        //dd($results);
+        return view('admin.users.searchAnonymousChat')->with('results', $results);
+    }
+
+    public function searchAnonymousChatReport(Request $request)
+    {
+        $msg = isset($request->msg) ? $request->msg : '';
+        $date_start = $request->date_start ? $request->date_start : '0000-00-00';
+        $date_end = $request->date_end ? $request->date_end : date('Y-m-d');
+        $resultsReport = AnonymousChatReport::select(
+            'anonymous_chat.*',
+            'users.name',
+            'users.engroup',
+            'anonymous_chat_report.content as report_content',
+            'anonymous_chat_report.user_id as report_user',
+            'anonymous_chat_report.created_at as report_time',
+            'report_user.name as report_name'
+        )
+            ->leftJoin('users', 'users.id', 'anonymous_chat_report.reported_user_id')
+            ->leftJoin('anonymous_chat', 'anonymous_chat.id', 'anonymous_chat_report.anonymous_chat_id')
+            ->leftJoin('users as report_user', 'report_user.id', 'anonymous_chat_report.user_id')
+            ->where('anonymous_chat.content', 'like', '%' . $msg . '%')
+            ->whereBetween('anonymous_chat.created_at', array($date_start . ' 00:00', $date_end . ' 23:59'))
+            ->orderBy('anonymous_chat.created_at', 'desc')
+            ->withTrashed()
+            ->paginate(100)
+        ;
+
+//        dd($resultsReport[0]);
+        return view('admin.users.searchAnonymousChat')->with('resultsReport', $resultsReport);
+    }
+
+    public function deleteAnonymousChatRow(Request $request)
+    {
+        $id = $request->id;
+        AnonymousChat::where('id', $id)->delete();
         echo json_encode(['ok']);
     }
 }

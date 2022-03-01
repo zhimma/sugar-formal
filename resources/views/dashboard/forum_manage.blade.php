@@ -73,6 +73,7 @@
 						<div class="fabiao showslide" style="text-align: center;">
 							<a onclick="checkUserVip();">我要發表</a>
 							<a href="/dashboard/forum_manage">會員管理</a>
+							<a onclick="orderStatus();">⇅待審核</a>
 						</div>
 						@endif
 					</div>
@@ -232,6 +233,10 @@
 		} else{
 			window.location.href = "/dashboard/forum_posts/{{$forum->id}}";
 		}
+	}
+
+	function orderStatus() {
+		window.location.href = "/dashboard/forum_manage?order=1";
 	}
 
 	function shenhe() {

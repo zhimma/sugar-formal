@@ -79,11 +79,15 @@
 								right: 0;
 								top: 0;
 							}
+							.tgxq_nr li{
+								padding: unset;
+							}
 						</style>
 						@if(count($replyDetail)>0)
 							<div class="tgxq_nr bot_tgbot70">
 								@foreach($replyDetail as $reply)
-									<li class="{{ $loop->iteration >5 ? 'moreReplyHide' :''}} {{ $reply->uid==1049 ?'adminReply':'' }}"  style="{{ $loop->iteration >5? 'display:none' : '' }}">
+									<li class="{{ $loop->iteration >5 ? 'moreReplyHide' :''}}"   style="{{ $loop->iteration >5? 'display:none' : '' }}">
+										<div class="{{ $reply->uid==1049 ?'adminReply':'' }}" style="width: 100%;float: right; padding-top: 18px;">
 										<a href="/dashboard/viewuser/{{$reply->uid}}">
 											<div class="tg_imgtx"><img src="@if(file_exists( public_path().$reply->umpic ) && $reply->umpic != ""){{$reply->umpic}} @elseif($reply->engroup==2)/new/images/female.png @else/new/images/male.png @endif" class="hycov"></div>
 										</a>
@@ -106,6 +110,7 @@
 											</div>
 
 										</div>
+										</div>
 										<!--  -->
 										@php
 											$subDetails = \App\Models\Posts::selectraw('users.id as uid, users.name as uname, users.engroup as uengroup, posts.tag_user_id as tagid, posts.is_anonymous as panonymous, posts.views as uviews, user_meta.pic as umpic, posts.id as pid, posts.title as ptitle, posts.contents as pcontents, posts.updated_at as pupdated_at,  posts.created_at as pcreated_at')
@@ -114,15 +119,10 @@
 														->where('posts.reply_id', $reply->pid)->get();
 										@endphp
 										@if(count($subDetails)>0)
-											<div class="tw_bgxx" style="padding: unset;">
+											<div class="tw_bgxx" @if(count($subDetails)>1) style="padding: unset;margin-bottom: 18px;" @else  style="margin-bottom: 18px;" @endif>
 												@foreach($subDetails as $key => $subReply)
-													@if($key==0)
-														@if($subReply->uid==1049 && count($subDetails)==1)
-															<script>
-																$('.tw_bgxx').css('background-color','#ddf3ff');
-															</script>
-														@endif
-														<div class="{{count($subDetails)>1 ? 'two_hf' : 'xxxxno_'. count($subDetails) .'_'.$reply->pid}} {{ $subReply->uid==1049 ?'adminReply':'' }}" style="margin-top: 0px; padding:5px 10px; padding-top:10px; ">
+													<div @if($subReply->uid==1049) style="background-color: #ddf3ff" @endif  class="{{ count($subDetails)>1 && $key>0 ? 'needToHide_'.$reply->pid :'' }}" @if(count($subDetails)>1 && $key>0) hidden @endif>
+														<div id="more_{{ $reply->pid }}_{{$key}}" class="more_{{ $reply->pid }} {{ count($subDetails)>1 ? 'two_hf':'' }}" @if(count($subDetails)>1) style="margin-top: 0px; padding:5px 10px; padding-top:10px;" @endif>
 															<a href="/dashboard/viewuser/{{$subReply->uid}}"><div class="two_tetx"><img src="@if(file_exists( public_path().$subReply->umpic ) && $subReply->umpic != ""){{$subReply->umpic}} @elseif($subReply->engroup==2)/new/images/female.png @else/new/images/male.png @endif" class="hycov"></div></a>
 															<div class="two_ta_rightnr">
 																<div class="two_ta_nr">
@@ -141,70 +141,37 @@
 																	</div>
 																	@php
 																		if($subReply->tagid){
-                                                                            $tagUser=\App\Models\User::find($subReply->tagid);
-                                                                            $tag_userid=$tagUser->id;
-                                                                            $tag_username=$tagUser->name;
-                                                                        }
-                                                                        else{
-                                                                            $tag_userid=$reply->uid;
-                                                                            $tag_username=$reply->uname;
-                                                                        }
+																			$tagUser=\App\Models\User::find($subReply->tagid);
+																			$tag_userid=$tagUser->id;
+																			$tag_username=$tagUser->name;
+																		}
+																		else{
+																			$tag_userid=$reply->uid;
+																			$tag_username=$reply->uname;
+																		}
 																	@endphp
-																	<p><a href="/dashboard/viewuser/{{$tag_userid}}"><span class="blue">{{ $tag_username }}</span></a> {!! \App\Models\Posts::showContent($subReply->pcontents) !!}</p>
+																	<p style="word-break: break-all;"><a href="/dashboard/viewuser/{{$tag_userid}}"><span class="blue">{{ $tag_username }}</span></a> {!! \App\Models\Posts::showContent($subReply->pcontents) !!}</p>
 																</div>
 															</div>
 														</div>
+													</div>
+													@if(count($subDetails)==1 && $subReply->uid==1049)
+														<script>
+															$('#more_'+'{{ $reply->pid }}_' +'{{ $key }}').parent().parent().css('background-color','#ddf3ff');
+														</script>
 													@endif
 												@endforeach
-
 												@if(count($subDetails)>1)
-													<div id="more_{{ $reply->pid }}" class="more" style="display: none;">
-														@foreach($subDetails as $key => $subReply)
-															@if($key>=1)
-																<div class="two_hf {{ $subReply->uid==1049 ?'adminReply':'' }}" style="margin-top: 0px; padding:5px 10px; padding-top:10px; ">
-																	<a href="/dashboard/viewuser/{{$subReply->uid}}"><div class="two_tetx"><img src="@if(file_exists( public_path().$subReply->umpic ) && $subReply->umpic != ""){{$subReply->umpic}} @elseif($subReply->engroup==2)/new/images/female.png @else/new/images/male.png @endif" class="hycov"></div></a>
-																	<div class="two_ta_rightnr">
-																		<div class="two_ta_nr">
-																			<h2><a href="/dashboard/viewuser/{{$subReply->uid}}">{{ $subReply->uname }}</a><font>{{ date('Y-m-d H:i',strtotime($subReply->pcreated_at)) }}</font></h2>
-																			<div class="dropdown">
-																				<div class="dropdown-toggle pd_dd01" id="dropdownMenu2" data-toggle="dropdown" aria-haspopup="true">
-																					<span class="iconfont icon-sandian"></span>
-																				</div>
-																				<div class="dropdown-menu dp_hxx" aria-labelledby="dropdownMenuButton">
-																					<a class="dropdown-item" onclick="postReply('{{ $reply->pid }}','{{ $subReply->uname }}','{{ $subReply->uid }}');">@ 回覆</a>
-																					@if($subReply->uid == auth()->user()->id)
-																						<a class="dropdown-item" href="/dashboard/postsEdit/{{ $subReply->pid }}/contents"><span class="iconfont icon-xiugai_nn"></span>修改</a>
-																						<a class="dropdown-item" onclick="postDelete({{ $subReply->pid }});"><span class="iconfont icon-lajitong"></span>刪除</a>
-																					@endif
-																				</div>
-																			</div>
-																			@php
-																				if($subReply->tagid){
-    																				$tagUser=\App\Models\User::find($subReply->tagid);
-    																				$tag_userid=$tagUser->id;
-    																				$tag_username=$tagUser->name;
-																				}
-																				else{
-																				    $tag_userid=$reply->uid;
-    																				$tag_username=$reply->uname;
-																				}
-
-																			@endphp
-																			<p><a href="/dashboard/viewuser/{{$tag_userid}}"><span class="blue">{{ $tag_username }}</span></a> {!! \App\Models\Posts::showContent($subReply->pcontents) !!}</p>
-																		</div>
-																	</div>
-																</div>
-															@endif
-														@endforeach
-													</div>
-													<a href="javascript:show({{ $reply->pid }});" id="btn_{{ $reply->pid }}" class="left but_m" style="width: 100%;padding: 6px 10px;">展開更多></a>
+													<a href="javascript:show({{ $reply->pid }});" id="btn_{{ $reply->pid }}" class="left but_m" style="width: 100%;padding: 6px 10px; {{ $key>0 ? 'hidden':'' }}">展開更多></a>
 												@endif
 											</div>
 										@endif
 										<!--  -->
 									</li>
 								@endforeach
-								<div class="title_dk" onclick="f()"><span class="triangle triangle-top"><i class="tr_l">顯示更早的留言</i></span></div>
+								@if(count($replyDetail)>5)
+									<div class="title_dk" onclick="f()"><span class="triangle triangle-top"><i class="tr_l">顯示更早的留言</i></span></div>
+								@endif
 
 								<script>
 									function f() {
@@ -299,13 +266,13 @@
 		}
 
 		function show(index) {
-			document.getElementById("more_"+index).style.display = "block";
+			$('.needToHide_'+index).show();
 			document.getElementById('btn_'+index).innerHTML = "收起更多>";
 			document.getElementById('btn_'+index).href = "javascript:hide("+index+");";
 		}
 
 		function hide(index) {
-			document.getElementById('more_'+index).style.display = 'none';
+			$('.needToHide_'+index).hide();
 			document.getElementById('btn_'+index).innerHTML = "展開更多>";
 			document.getElementById('btn_'+index).href = "javascript:show("+index+");";
 		}

@@ -7,7 +7,7 @@
             +'<div>身分證字號：'+$('#id_serial').val()+'</div>'
             +'<div>手機號碼：'+$('#phone_number').val()+'</div>'
             +'<div>生日：'+$('#year').val()+'/'+$('#month').val()+'/'+$('#day').val()+'</div>'
-            +'<div>{{$user_pause_during_msg}}所以請務必確定資料正確！</div>'
+            +'<div class="bloder red">每個人只能申請3次驗證，這次您第{{$user->getEffectFaultAdvAuthApiQuery()->count()+1}}次申請驗證，請確認資料正確！</div>'
         ).parent().find('.n_left').blur().html('確定送出').attr('onclick','document.advance_auth_form.submit();this.setAttribute("onclick", "return false;");return false;')
         .parent().parent().find('.n_right').html('返回修改');        
     }
@@ -17,11 +17,14 @@
         clear_error_appear();
         if(check_val()) {
             $("#tab_confirm").removeClass('left').show().find('.bltext').html(
-                    '本站會將您的門號以及生日同步更新到會員基本資料，'+
-                    '<span class="bolder red">身分證字號則只用在本次驗證並不會紀錄</span>'+
-                    '<div class="margin_top_one_line">此驗證依照以下條款進行</div>'+
-                    '<div><a target="_blank" href="{{url('advance_auth_midclause')}}">{{url('advance_auth_midclause')}}</a></div>'+
-                    '<div class="margin_top_one_line">請詳細閱讀後選擇</div>'
+                    '本站會將您的門號以及生日同步更新到會員基本資料'+
+                    '<div class="bolder red">'+
+                    '<ol>'+
+                    '<li>輸入資料必須符合該門號的登記資料,否則驗證會失敗</li>'+
+                    '<li>{{$user_pause_during_msg}}</li>'+
+                    '<li>一個人只能申請三次驗證機會 </li>'+
+                    '</ol>'+
+                    '</div>'
                 )
                 .parent().find('.n_left').html('同意').attr('onclick','tab_confirm_send();return false;')
                 .parent().parent().find('.n_right').html('不同意');

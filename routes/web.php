@@ -103,7 +103,7 @@ Route::get('/refresh-csrf', function(){
 */
 Route::get('/login', 'Auth\LoginController@showLoginForm2')->name('login');
 Route::get('/loginIOS', function (){ return view('new.auth.loginIOS'); })->name('loginIOS');
-Route::get('/login3ik3pIKe', 'Auth\LoginController@showLoginForm')->name('login2');
+Route::get('/login3ik3pIKe', 'Auth\LoginController@showLoginForm2')->name('login2');
 Route::post('/login', 'Auth\LoginController@login');
 Route::get('/logout', 'Auth\LoginController@logout')->name('logout');
 
@@ -127,7 +127,7 @@ Route::get('/activate/token/{token}', 'Auth\ActivateController@activate');
 Route::post('/admin/api/aws-sns/ses', function(Request $request){
     info($request->getContent());
 });
-Route::group(['middleware' => ['auth', 'global']], function () {
+Route::group(['middleware' => ['auth', 'global','SessionExpired']], function () {
     Route::get('/activate', 'Auth\ActivateController@showActivate');
     Route::get('/activate/send-token', 'Auth\ActivateController@sendToken');
 });
@@ -155,7 +155,7 @@ Route::group(['middleware' => ['auth', 'global']], function () {
 |--------------------------------------------------------------------------
 */
 Route::get('/unread/{user_id}', 'Message_newController@getUnread')->middleware('auth')->name('getUnread');
-Route::group(['middleware' => ['auth', 'global']], function () {
+Route::group(['middleware' => ['auth', 'global','SessionExpired']], function () {
     //新手教學
     Route::get('/dashboard/newer_manual', 'PagesController@newer_manual');
     Route::get('/dashboard/web_manual', 'PagesController@web_manual');
@@ -171,7 +171,7 @@ Route::group(['middleware' => ['auth', 'global']], function () {
 
 Route::get('/advance_auth_activate/token/{token}', 'PagesController@advance_auth_email_activate')->name('advance_auth_email_activate');
 
-Route::group(['middleware' => ['auth', 'global', 'active', 'femaleActive', 'vipCheck', 'newerManual','CheckIsWarned','CheckAccountStatus']], function () {
+Route::group(['middleware' => ['auth', 'global', 'active', 'femaleActive', 'vipCheck', 'newerManual','CheckIsWarned','CheckAccountStatus','SessionExpired']], function () {
 
     Route::get('/dashboard/browse', 'PagesController@browse');
     /*
@@ -636,6 +636,11 @@ Route::group(['middleware' => ['auth', 'global', 'active', 'femaleActive', 'vipC
 
         Route::post('users/forum_toggle', 'UserController@forum_toggle')->name('forum_toggle');
 
+        Route::get('users/anonymousChat', 'UserController@showAnonymousChatPage')->name('users/showAnonymousChatPage');
+        Route::get('users/searchAnonymousChat', 'UserController@searchAnonymousChatPage')->name('users/searchAnonymousChatPage');
+        Route::get('users/searchAnonymousChatReport', 'UserController@searchAnonymousChatReport')->name('users/searchAnonymousChatReport');
+        Route::post('users/deleteAnonymousChatRow', 'UserController@deleteAnonymousChatRow')->name('users/deleteAnonymousChatRow');
+
         Route::get('users/ip/{ip}', 'UserController@getIpUsers')->name('getIpUsers');
 		Route::get('users/getLog', 'UserController@getUsersLog')->name('getUsersLog');
         Route::group(['prefix'=>'users/message'], function(){
@@ -822,6 +827,7 @@ Route::group(['middleware' => ['auth', 'global', 'active', 'femaleActive', 'vipC
         Route::get('users/picturesSimilar', 'UserController@UserPicturesSimilar')->name('users/picturesSimilar');
         Route::get('users/picturesSimilarLog', 'UserController@UserPicturesSimilarLog')->name('users/picturesSimilarLog');
         Route::get('users/picturesSimilar/job:create', 'UserController@UserPicturesSimilarJobCreate');
+        Route::get('users/picturesCompare/job:create', 'UserController@UserImagesCompareJobCreate');
         Route::post('users/picturesSimilar/block:toggle', 'UserController@admin_user_block_toggle')->withoutMiddleware('Admin');
         Route::post('users/picturesSimilar/suspicious:toggle', 'UserController@admin_user_suspicious_toggle')->withoutMiddleware('Admin');
         Route::post('users/picturesSimilar/image:delete', [\App\Http\Controllers\ImageController::class, 'admin_user_image_delete'])->withoutMiddleware('Admin');
