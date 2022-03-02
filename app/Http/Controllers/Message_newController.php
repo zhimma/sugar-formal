@@ -526,7 +526,7 @@ class Message_newController extends BaseController {
                         {
                             unset($data[$count]);
                         }
-                        if($pr <= $inbox_refuse_set->refuse_pr)
+                        if($pr < $inbox_refuse_set->refuse_pr)
                         {
                             unset($data[$count]);
                         }

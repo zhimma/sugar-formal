@@ -83,7 +83,7 @@
                                         <span><input type="checkbox" name="isRefused_common_user" id="q4" class="ti_ceckys" value="1" @if($inbox_refuse_set->isrefused_common_user == true) checked @endif>普通會員</span>
                                         <span><input type="checkbox" name="isRefused_warned_user" id="q4" class="ti_ceckys" value="1" @if($inbox_refuse_set->isrefused_warned_user == true) checked @endif>警示會員</span>
                                     </div>
-                                    <div class="ti_ktx na_top25"><span class="na_nb">b.PR分數多少以下的不收</span></div>
+                                    <div class="ti_ktx na_top25"><span class="na_nb">b.PR分數低於多少不收</span></div>
                                     <div class="ti_xcheck naa_dd">
                                         <select name="refuse_PR" class="na_selct na_top">
                                             <option value=-1 @if($inbox_refuse_set->refuse_pr == -1) selected @endif>請選擇</option>
