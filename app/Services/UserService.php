@@ -1300,13 +1300,6 @@ class UserService
                 }
             }
             $message_percent_7 = count($user_similar_msg) > 0 ? round( (count($user_similar_msg) / count($messages))*100 )  : 0;
-            $userHideOnlinePayStatus = ValueAddedService::status($uid,'hideOnline');
-            if($userHideOnlinePayStatus == 1){
-                $hideOnlineData = hideOnlineData::where('user_id',$uid)->where('deleted_at',null)->get()->first();
-                if(isset($hideOnlineData)){
-                    $message_percent_7 = $hideOnlineData->message_percent_7;
-                    }
-            }
             return $message_percent_7;
     }
 }
