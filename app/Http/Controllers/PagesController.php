@@ -6057,7 +6057,7 @@ class PagesController extends BaseController
                             break;
                         case 'cc_quarterly_payment':
                             if(!$vip->isPaidCanceled() && ($nextProcessDate??null)){
-                                $vipStatus='您目前是每月持續付費的VIP，下次付費時間是'.$nextProcessDate.'。';
+                                $vipStatus='您目前是每季持續付費的VIP，下次付費時間是'.$nextProcessDate.'。';
                             }else if($vip->isPaidCanceled()){
                                 $cancel_str = '';
                                 $latest_vip_log = $user->getLatestVipLog();
