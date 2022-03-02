@@ -86,7 +86,7 @@
                                     <div class="ti_ktx na_top25"><span class="na_nb">b.PR分數多少以下的不收</span></div>
                                     <div class="ti_xcheck naa_dd">
                                         <select name="refuse_PR" class="na_selct na_top">
-                                            <option>請選擇</option>
+                                            <option value=-1 @if($inbox_refuse_set->refuse_pr == -1) selected @endif>請選擇</option>
                                             <option value=0 @if($inbox_refuse_set->refuse_pr == 0) selected @endif>0(無)</option>
                                             <option value=25 @if($inbox_refuse_set->refuse_pr == 25) selected @endif>25</option>
                                             <option value=50 @if($inbox_refuse_set->refuse_pr == 50) selected @endif>50</option>

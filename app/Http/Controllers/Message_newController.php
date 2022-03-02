@@ -514,7 +514,7 @@ class Message_newController extends BaseController {
                     $count = $count+1;
                 }
             }
-            if($inbox_refuse_set->refuse_pr != 0)
+            if($inbox_refuse_set->refuse_pr != -1)
             {
                 $count = 0;
                 foreach ($data as $d)
@@ -526,7 +526,7 @@ class Message_newController extends BaseController {
                         {
                             unset($data[$count]);
                         }
-                        if($pr < $inbox_refuse_set->refuse_pr)
+                        if($pr <= $inbox_refuse_set->refuse_pr)
                         {
                             unset($data[$count]);
                         }
