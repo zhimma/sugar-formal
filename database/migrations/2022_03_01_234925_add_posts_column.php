@@ -14,7 +14,9 @@ class AddPostsColumn extends Migration
     public function up()
     {
         Schema::table('posts', function (Blueprint $table) {
-            $table->integer('article_id')->after('user_id');
+            if(!Schema::hasColumn('posts', 'article_id')) {
+                $table->integer('article_id')->after('user_id');
+            }
         });
     }
 
