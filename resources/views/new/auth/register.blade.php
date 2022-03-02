@@ -137,7 +137,11 @@ header("Expires: Fri, 01 Jan 1990 00:00:00 GMT");
 }
 
 
-div.new_poptk{color:#6783c7;overflow-y:scroll;} 
+div.new_poptk{color:#6783c7;overflow-y:scroll;}
+
+.n_heighnn {width:95%;margin: 0 auto;color: #666666;height:100px; display: table;margin-top: 15px; margin-bottom:15px; position: relative; overflow: hidden;}
+.n_gd{width:5px; height: 100%; position: absolute; background: #fff; top: 0; right: 0; border-radius: 100px;}
+.n_gd_t{width: 100%; height: 50%; background: #8a9fef;border-radius: 100px;}
 </style>
 	<div class="container matop120">
         <div class="row">
@@ -218,7 +222,7 @@ div.new_poptk{color:#6783c7;overflow-y:scroll;}
         $(document).ready(function() {
 			@if(\Session::get('is_remind_puppet')=='1')
             $('body').css('position','fixed');
-			c4('您好，本站禁止註冊多重帳號。'
+			c9('您好，本站禁止註冊多重帳號。'
                 +'[br]除非特殊情況，否則一個人只能擁有一個帳號。'
                 +'[br]不能關閉舊帳號，然後不斷的申請並更換。'
                 +'[br]多開帳號者將受到警示或者封鎖的懲處。'
