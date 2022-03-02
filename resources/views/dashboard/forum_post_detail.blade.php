@@ -273,7 +273,7 @@
 			c4('確定要刪除嗎?');
 			$(".n_left").on('click', function() {
 				$.ajax({
-					url: '/dashboard/forum_posts_delete',
+					url: '/dashboard/forum_posts_delete?{{ csrf_token() }}={{now()->timestamp}} ',
 					method: 'POST',
 					data: {
 						_token: "{{ csrf_token() }}",
