@@ -5258,6 +5258,7 @@ class PagesController extends BaseController
             $posts->type = $request->get('type','main');
             $posts->contents=$request->get('contents');
             $posts->save();
+            DB::table('posts')->where('id',$posts->id)->update(['article_id'=>$posts->id]);
             return redirect('/dashboard/posts_list')->with('message','發表成功');
         }
     }
@@ -5265,6 +5266,7 @@ class PagesController extends BaseController
     public function posts_reply(Request $request)
     {
         $posts = new Posts;
+        $posts->article_id = $request->get('article_id');
         $posts->reply_id = $request->get('reply_id');
         $posts->user_id = $request->get('user_id');
         $posts->type = $request->get('type','sub');
@@ -5373,14 +5375,15 @@ class PagesController extends BaseController
          posts.id as pid,
          users.id as uid,
          users.engroup,
-         user_meta.pic as umpic
+         user_meta.pic as umpic,
+         posts.id as pid
          ')->selectRaw('
             (select count(*) from posts left join users on users.id = posts.user_id where (posts.type="main")) as posts_num, 
             (select count(*) from posts where (type="sub" and reply_id in (select id from posts where (type="main") ) )) as posts_reply_num
             ')
             ->LeftJoin('users', 'users.id','=','posts.user_id')
             ->join('user_meta', 'users.id','=','user_meta.user_id')
-            ->groupBy('users.id')
+            // ->groupBy('users.id')
             ->take(6)->get();
 
         $forum = Forum::where('user_id', $user->id)->first();
