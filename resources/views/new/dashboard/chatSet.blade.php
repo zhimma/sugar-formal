@@ -30,7 +30,7 @@
                 <form id="chatSetForm" action="{{ route('chatNoticeSet') }}" method="post">
                     {{ csrf_field() }}
                     <div class="gg_zh">
-                        <dt class="n_gg_mm"><span><i></i>Line通知設定</span><!--<img src="/new/images/shed_icon.png">--></dt>
+                        <dt id="line_notify_expand" class="n_gg_mm"><span><i></i>Line通知設定</span><!--<img src="/new/images/shed_icon.png">--></dt>
                         <dd style="display: block;">
                             <div class="tuba">當您開啟LINE通知後，可設定不同會員等級或收藏的會員 來訊通知與否。</div>     
                             <div class="tu_bd">
@@ -67,7 +67,7 @@
                         </dd>
 
                         @if($user->engroup==2)
-                            <dt class="n_gg_mm">
+                            <dt id="refuse_inbox_expand" class="n_gg_mm">
                                 <span><i></i>拒收站內來信設定</span>
                             </dt>
                             <dd>  
@@ -245,11 +245,40 @@
 
         $(function() {
             $(".gg_zh dd").hide();
-            $(".gg_zh dt").click(function(){
-            });
+            if(window.sessionStorage.getItem('line_notify_expand'))
+            {
+                $('#line_notify_expand').toggleClass('on');
+                $('#line_notify_expand').next('dd').slideToggle();
+            }
+            if(window.sessionStorage.getItem('refuse_inbox_expand'))
+            {
+                $('#refuse_inbox_expand').toggleClass('on');
+                $('#refuse_inbox_expand').next('dd').slideToggle();
+            }
         })
             
-        $('.gg_zh dt').click(function(e) {
+        $('#line_notify_expand').click(function(e) {
+            if(window.sessionStorage.getItem('line_notify_expand'))
+            {
+                window.sessionStorage.removeItem('line_notify_expand');
+            }
+            else
+            {
+                window.sessionStorage.setItem('line_notify_expand',true);
+            }
+            $(this).toggleClass('on');
+            $(this).next('dd').slideToggle();
+        });
+
+        $('#refuse_inbox_expand').click(function(e) {
+            if(window.sessionStorage.getItem('refuse_inbox_expand'))
+            {
+                window.sessionStorage.removeItem('refuse_inbox_expand');
+            }
+            else
+            {
+                window.sessionStorage.setItem('refuse_inbox_expand',true);
+            }
             $(this).toggleClass('on');
             $(this).next('dd').slideToggle();
         });
