@@ -208,6 +208,14 @@
 		$("#tab08 .bltext").text(str);
 	}
 
+	function c9(str) {
+    	//popup長訊息用
+		$(".announce_bg").show();
+		$("#tab09").show();
+		$("#tab09 .bltext").text(str);
+		$('body').css("overflow","hidden");
+	}
+
 	function show_pop_message(str) {
 		$(".blbg").show();
 		$("#tabPopM").show();
@@ -241,6 +249,7 @@
 		$(".blbg").hide();
 		$(".bl").hide();
 		$(".gg_tab").hide();
+		$('body').css("overflow","auto");
 	}
 	function ccc(str) {
 		$(".blbg").show();

@@ -164,6 +164,19 @@
     <a id="" onclick="gmBtnNoReload()" class="bl_gb"><img src="/new/images/gb_icon.png"></a>
 </div>
 
+<div class="bl bl_tab" id="tab09">
+    <div class="bltitle">提示</div>
+    <div class="n_heighnn">
+        <div class="n_gd"><div class="n_gd_t"></div></div>
+        <div class="blnr bltext yidy_tk" style="text-align: center; color: #8a9fef; font-size: 16px; font-weight: bold; margin-top: 10px; height:120px; overflow-y: scroll; display: block;"></div>
+        <div class="n_bbutton">
+            <span><a class="n_left" href="javascript:" >確認</a></span>
+            <span><a onclick="gmBtnNoReload()" class="n_right" href="javascript:">返回</a></span>
+        </div>
+    </div>
+    <a id="" onclick="gmBtnNoReload()" class="bl_gb"><img src="/new/images/gb_icon.png"></a>
+</div>
+
 <div class="bl bl_tab" id="popSus">
     <div class="bltitle">重要聲明</div>
     <div class="n_blnr01">
@@ -203,7 +216,6 @@
     <a id="" onclick="gmBtnNoReload()" class="bl_gb"><img src="/new/images/gb_icon.png"></a>
 </div>
 
-<div class="announce_bg" id="announce_bg" onclick="gmBtnNoReload()" style="display:none;"></div>
 <div class="bl bl_tab tab_postsForumAlert" id="tab_postsForumAlert">
     <div class="bltitle">討論區重要規定</div>
     <div class="n_blnr01 matop10">
