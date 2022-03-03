@@ -21,8 +21,8 @@ class PostsList extends Component
             ->orderBy('posts.deleted_at', 'asc')
             ->orderBy('posts.top', 'desc')
             ->orderBy('adminFlag', 'desc')
-            ->orderBy('pcreated_at', 'desc')
             ->orderBy('currentReplyTime', 'desc')
+            ->orderBy('pcreated_at', 'desc')
             ->withTrashed()
             ->paginate(10);
 
