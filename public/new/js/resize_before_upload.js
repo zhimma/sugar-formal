@@ -488,7 +488,42 @@ function resize_pic_loading_close(cur_uploader_option,listEl,parentEl, newInputE
         var cur_api = $.fileuploader.getInstance(inputEl.get(0));
         if(rbupld_container_initial_visible[cur_api.rbupld_uploader_index]!='none') {
             //$(".blbg").hide();
-            // $(".announce_bg").hide();
+            
+            
+            /*
+            這裡是選取檔案後會立刻縮圖、縮圖結束後要關閉loading的動作。
+            關閉loading時，.announce_bg遮罩的處理方式有兩種:
+            
+            第一種是照片管理
+            =>uploader一開始有顯示，這種一開始就顯示uploader的方式，
+            縮圖結束後就要hide .announce_bg遮罩，因為在選取檔案的時候本來就沒有.announce_bg遮罩
+            
+            第二種是檢舉訊息
+            =>uploader是以popup而遮罩用.announce_bg的方式，所以一開始uploader是沒顯示的，
+            這種情形在縮圖結束後就不能hide .announce_bg遮罩，因為檢舉訊息的popup需要用到.announce_bg遮罩，
+            因為在選取檔案的時候有.announce_bg遮罩(for popup)，所以縮圖完也要留著.announce_bg遮罩，不能hide
+            
+            這裡已經根據一開始uploader是否有顯示，來自動判斷縮圖結束時要不要hide .announce_bg，
+            因此建議如果頁面引用此js檔而發生遮罩衝突時，請先從頁面自己的js來排除衝突，
+            如果真的無法從頁面自己的js排除，也可以寫在頁面uploader的afterResize事件，
+            這裡的resize_pic_loading_close function在最後就會透過cur_uploader_option抓取並執行afterResize事件。
+
+            請盡量避免在這裡修改.announce_bg遮罩的動作。
+            如果以上都無法解決衝突問題，真的要改這裡的.announce_bg遮罩動作，
+            請在修改時注意上述提到的兩種遮罩動作完全相反的情形：
+            
+            第一種：(例如照片管理)縮圖結束 .announce_bg遮罩需消失
+            第二種：(例如檢舉訊息)縮圖結束 .announce_bg遮罩需留著
+            
+            附帶一提
+            第三種：(例如檢舉大頭照、檢舉會員) popup採用.blbg遮罩，
+            則這裡的.announce_bg遮罩動作不會影響這個第三種情形的功能，如果一定要做修改，
+            請一樣先從頁面的js處理或寫在uploader的afterResize事件。
+            如果最後還是一定要改這裡的.announce_bg遮罩動作，
+            也請注意修改的時候，要同時考慮第一種和第二種的.announce_bg遮罩使用情形。
+            
+            */            
+            $(".announce_bg").hide();//請看上方說明
         }
 
 		$("#tab_loading").hide();  
