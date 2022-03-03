@@ -124,9 +124,7 @@ Route::get('/register2', 'Auth\RegisterController@showRegistrationForm')->name('
 Route::post('/register', 'Auth\RegisterController@register');
 
 Route::get('/activate/token/{token}', 'Auth\ActivateController@activate');
-Route::post('/admin/api/aws-sns/ses', function(Request $request){
-    info($request->getContent());
-});
+Route::post('/admin/api/aws-sns/ses', 'Api\MailController@mailLog');
 Route::group(['middleware' => ['auth', 'global','SessionExpired']], function () {
     Route::get('/activate', 'Auth\ActivateController@showActivate');
     Route::get('/activate/send-token', 'Auth\ActivateController@sendToken');
@@ -629,7 +627,10 @@ Route::group(['middleware' => ['auth', 'global', 'active', 'femaleActive', 'vipC
         Route::post('users/messageBoard/edit/{id}', 'UserController@editMessageBoard');
         Route::get('users/memberList', 'UserController@memberList')->name('users/memberList');
         Route::post('users/memberList', 'UserController@searchMemberList')->name('searchMemberList');
-
+        Route::get('users/picMemberList', 'UserController@picMemberList')->name('users/picMemberList');
+        Route::post('users/picMemberList', 'UserController@searchPicMemberList')->name('searchPicMemberList');
+        Route::post('users/applyPicMemberList', 'UserController@applyPicMemberList')->name('applyPicMemberList');
+        
         Route::post('users/toggleUserWarned', 'UserController@toggleUserWarned');
         Route::get('users/closeAccountReason', 'UserController@closeAccountReason')->name('users/closeAccountReasonList');
         Route::get('users/closeAccountDetail', 'UserController@closeAccountDetail');
@@ -842,6 +843,12 @@ Route::group(['middleware' => ['auth', 'global', 'active', 'femaleActive', 'vipC
         Route::resource('roles', 'RoleController', ['except' => ['show']]);
         Route::post('roles/search', 'RoleController@search');
         Route::get('roles/search', 'RoleController@index');
+
+        
+    });
+    Route::group(['prefix' => 'admin', 'middleware' => 'Admin'], function () {
+        //寄退信Log查詢
+        Route::get('maillog', 'Api\MailController@viewMailLog')->name('maillog');
     });
 
 

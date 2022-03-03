@@ -207,6 +207,7 @@
 								<form action="/dashboard/posts_reply" id="posts" method="POST">
 									<input type="hidden" name="_token" value="{{ csrf_token() }}">
 									<input type="hidden" name="user_id" value="{{ auth()->user()->id }}">
+									<input type="hidden" name="article_id" value="{{ $postDetail->pid }}">
 									<input type="hidden" name="reply_id" id ="reply_id" value="{{ $postDetail->pid }}">
 									<input type="hidden" name="tag_user_id" id ="tag_user_id" value="">
 									<div class="bot_nnew">
@@ -287,7 +288,7 @@
 			c4('確定要刪除嗎?');
 			$(".n_left").on('click', function() {
 				$.ajax({
-					url: '/dashboard/posts_delete',
+					url: '/dashboard/posts_delete?{{ csrf_token() }}={{now()->timestamp}} ',
 					method: 'POST',
 					data: {
 						_token: "{{ csrf_token() }}",

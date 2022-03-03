@@ -10,7 +10,7 @@ textarea::-webkit-input-placeholder {color:#999999; }
 
 
 
-::-webkit-scrollbar{display:-webkit-box;overflow-y: scroll;overflow-x: hidden;-webkit-overflow-scrolling: touch;width: 8px;}
+/*::-webkit-scrollbar{display:-webkit-box;overflow-y: scroll;overflow-x: hidden;-webkit-overflow-scrolling: touch;width: 8px;}*/
 ::-webkit-scrollbar-thumb {border-radius: 4px;background-color: rgba(0,0,0,.5);box-shadow: 0 0 1px rgba(255,255,255,.5);}
 
 .onlineStatus {
@@ -85,7 +85,7 @@ a:hover{ color:#e44e71; text-decoration:none}
 .red{ color:#e44e71;}
 .org{ color:#ffa500 !important;}
 /*====================================================*/
-.head{background-image: linear-gradient(to right, #f5c2c0 0%, #ffe4e7 100%);width: 100%;position: fixed;top: 0;z-index: 9;height:70px;}
+.head{background-image: linear-gradient(to right, #f5c2c0 0%, #ffe4e7 100%);width: 100%;position: absolute;top: 0;z-index: 9;height:70px;}
 .logo{height:40px; margin-top:20px;}
 
 .head_2{background-image: linear-gradient(to right, #f5c2c0 0%, #ffe4e7 100%);width: 100%;height:70px;}
@@ -135,7 +135,7 @@ a:hover{ color:#e44e71; text-decoration:none}
 .helist ul li img{ margin-right:10px;}
 .helist ul li span{ position:absolute; right:10px; top:8px; background:#F00; border-radius:100px; color:#ffffff; height:20px; width:20px; line-height:20px; font-size:12px;text-align:center}
 
-.marg30{ margin-right:18px !important;}
+.marg30{ margin-right:-11px !important;}
 
 }
 
@@ -191,7 +191,7 @@ background: transparent;
 .tcbut:hover{ background:#fd5678; color:#ffffff}
 
 /* 菜单 */
-.commonMenu {width:100%;position: fixed;top: 0;z-index: 9;}
+.commonMenu {width:100%;position: absolute;top: 0;z-index: 9;}
 .comt{height: 15px;margin-left: 95px;}
 .commonMenu .menuTop {width: 100%;position:relative; height:70px;}
 .back{height:20px;position:absolute; top:16px; left:10px;}
@@ -199,7 +199,7 @@ background: transparent;
 
 .commonMenu .menuTop span { position:absolute; right:53px; top:15px;}
 .commonMenu .menuTop span img {float: right;width: auto;}
-.commonMenu ul {width:130px;float: right;height: 0;overflow: hidden;z-index:10;margin-right:34px;margin-top:-24px;}
+.commonMenu ul {width:130px;float: right;height: 0;overflow: hidden;z-index:10;/*margin-right:34px;*/margin-top:-24px;}
 .coheight{background:#ffffff;border-radius:10px;width:100%;box-shadow: 0 0 10px #cccccc; padding-bottom:10px;}
 .commonMenu .ulHeight {height:auto; padding-bottom:10px}
 
@@ -983,7 +983,7 @@ background: transparent;
 
 
 
-.head_3{background-image: linear-gradient(to right, #f5c2c0 0%, #ffe4e7 100%);width: 100%;height:70px; position:fixed; top:0; z-index:7}
+.head_3{background-image: linear-gradient(to right, #f5c2c0 0%, #ffe4e7 100%);width: 100%;height:70px; position:absolute; top:0; z-index:7}
 .ndlrfont{position: absolute;right:23px;top:25px;}
 .ndlrfont a{ padding:0 5px;}
 
@@ -4722,3 +4722,11 @@ line-height:26px; box-shadow: 0 5px 5px #ffc1cd; cursor: pointer;}
     font-size: 14px; box-shadow:#ffe3e6 0 5px 6px;}
 .bangui img{ height:18px; margin-top: -2px; margin-left: 3px;}
 .bangui font{width:calc(100% - 26px); float: right;}
+#menuButton{
+    right: 0px !important;
+}
+
+
+.n_heighnn {width:95%;margin: 0 auto;color: #666666;height:100px; display: table;margin-top: 15px; margin-bottom:15px; position: relative; overflow: hidden;}
+.n_gd{width:5px; height: 100%; position: absolute; background: #fff; top: 0; right: 0; border-radius: 100px;}
+.n_gd_t{width: 100%; height: 50%; background: #8a9fef;border-radius: 100px;}

@@ -263,7 +263,11 @@ class User extends Authenticatable
     
     public function blockedInBlocked() {
         return $this->hasMany(Blocked::class, 'blocked_id', 'id');
-    }    
+    } 
+
+    public function tip() {
+        return $this->hasMany(Tip::class, 'member_id', 'id');
+    }
 
     /**
      * Check if user has role
@@ -508,6 +512,14 @@ class User extends Authenticatable
         $vip = Vip::where('member_id', $this->id)->where('active', 1)->orderBy('created_at', 'desc')->count();
         return  $vip > 0 ? true : false ;
     }
+    
+    public function getVipDiamond() {
+        return Vip::vip_diamond($this->id);
+    }  
+
+    public function getVipMonths() {
+        return Vip::vipMonths($this->id);
+    }     
 
     public function existHeaderImage() {
         $pics = MemberPic::where('member_id', $this->id)->count();
@@ -915,6 +927,10 @@ class User extends Authenticatable
     {
         return Tip::where('member_id', $this->id)->count();
     }
+    
+    public function getTipCountChangeGood() {
+        Tip::TipCount_ChangeGood($this->id);
+    }    
 
     public function visitCount()
     {
@@ -997,6 +1013,10 @@ class User extends Authenticatable
             $data['auth_status'] = null;
         }
         return $data;
+    }
+    
+    public function getWarnedIconData() {
+        return User::warned_icondata($this->id);
     }
 
     public static function userAdvInfo($user_id,$wantIndexArr=[]){

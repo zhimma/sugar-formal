@@ -137,7 +137,11 @@ header("Expires: Fri, 01 Jan 1990 00:00:00 GMT");
 }
 
 
-div.new_poptk{color:#6783c7;overflow-y:scroll;} 
+div.new_poptk{color:#6783c7;overflow-y:scroll;}
+
+.n_heighnn {width:95%;margin: 0 auto;color: #666666;height:100px; display: table;margin-top: 15px; margin-bottom:15px; position: relative; overflow: hidden;}
+.n_gd{width:5px; height: 100%; position: absolute; background: #fff; top: 0; right: 0; border-radius: 100px;}
+.n_gd_t{width: 100%; height: 50%; background: #8a9fef;border-radius: 100px;}
 </style>
 	<div class="container matop120">
         <div class="row">
@@ -200,6 +204,7 @@ div.new_poptk{color:#6783c7;overflow-y:scroll;}
             </div>
         </div>
     </div>
+    <script src="{{asset('/alert/js/common.js')}}" type="text/javascript"></script>
     <script src="https://www.google.com/recaptcha/api.js?render={{ config('recaptcha.RECAPTCHA_SITE_KEY') }}"></script>
     <script>
 
@@ -217,7 +222,7 @@ div.new_poptk{color:#6783c7;overflow-y:scroll;}
         $(document).ready(function() {
 			@if(\Session::get('is_remind_puppet')=='1')
             $('body').css('position','fixed');
-			c4('您好，本站禁止註冊多重帳號。'
+			c9('您好，本站禁止註冊多重帳號。'
                 +'[br]除非特殊情況，否則一個人只能擁有一個帳號。'
                 +'[br]不能關閉舊帳號，然後不斷的申請並更換。'
                 +'[br]多開帳號者將受到警示或者封鎖的懲處。'
@@ -236,12 +241,12 @@ div.new_poptk{color:#6783c7;overflow-y:scroll;}
                 @endif
                 +'[br][br]若您有特殊需求請加站長<a href="https://lin.ee/rLqcCns" target="_blank">@giv4956r</a><a href="https://lin.ee/rLqcCns" target="_blank">&nbsp;<img src="https://scdn.line-apps.com/n/line_add_friends/btn/zh-Hant.png" alt="加入好友" height="26" border="0" style="height: 26px; float: unset;"></a>&nbsp;提出申請'
                 +'[br][br]是否繼續註冊？');
-            $('#tab04 .n_blnr01').addClass('new_poptk');
-            $('#tab04 .n_blnr01').removeClass('n_blnr01');
-			$("#tab04 .bltext").html($("#tab04 .bltext").text().replace(/\[br\]/gi,'<br>'));
-            $('#tab04 .bl_gb img').hide();
-			$('#tab04 .n_bbutton .n_left').html('是');
-			$('#tab04 .n_bbutton .n_right').html('否');
+            $('#tab09 .n_blnr01').addClass('new_poptk');
+            $('#tab09 .n_blnr01').removeClass('n_blnr01');
+			$("#tab09 .bltext").html($("#tab09 .bltext").text().replace(/\[br\]/gi,'<br>'));
+            $('#tab09 .bl_gb img').hide();
+			$('#tab09 .n_bbutton .n_left').html('是');
+			$('#tab09 .n_bbutton .n_right').html('否');
 			
             var winDirect1 = window.orientation;
             var winDirect2 = null;
@@ -381,14 +386,14 @@ div.new_poptk{color:#6783c7;overflow-y:scroll;}
             });            
             
             $(document).off('click','.blbg',closeAndReload);
-			$(document).on('click','#tab04 .n_bbutton .n_left',rebuildForm);
+			$(document).on('click','#tab09 .n_bbutton .n_left',rebuildForm);
 			
-			$(document).on('click','#tab04 .n_bbutton .n_right',function() {
+			$(document).on('click','#tab09 .n_bbutton .n_right',function() {
 				location.href='{!! url('') !!}';
 			});
 			
 			function rebuildForm() {
-				$(document).off('click','#tab04 .n_bbutton .n_left',rebuildForm);
+				$(document).off('click','#tab09 .n_bbutton .n_left',rebuildForm);
 				var rebuild_form = document.createElement('form');
 				rebuild_form.method = $('.de_input').attr('method');
 				rebuild_form.action =$('.de_input').attr('action');	
@@ -405,7 +410,8 @@ div.new_poptk{color:#6783c7;overflow-y:scroll;}
 				document.body.appendChild(rebuild_form);				
 				rebuild_form.submit();
 				rebuild_elt = null;
-			}	
+                $('body').css("overflow","auto");
+            }
 			@endif
             $("input[name='engroup']").change(function(){
                 if ($(this).val() === '1') {
