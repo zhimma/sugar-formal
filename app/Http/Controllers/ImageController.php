@@ -609,6 +609,7 @@ class ImageController extends BaseController
                 if($user->engroup==2)
                     \App\Jobs\SimilarImagesSearcher::dispatch($path);
                 $addPicture->compareImages('ImageController@uploadPictures');
+                $addPicture = null;
             }
         }
         $msg="上傳成功";
