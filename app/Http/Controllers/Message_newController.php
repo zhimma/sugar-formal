@@ -524,15 +524,18 @@ class Message_newController extends BaseController {
                     {
                         if($pr == '無')
                         {
+                            Log::Info('D無');
                             unset($data[$count]);
                         }
                         if($pr < $inbox_refuse_set->refuse_pr)
                         {
+                            Log::Info('D<');
                             unset($data[$count]);
                         }
                     }
                     else
                     {
+                        Log::Info('DN');
                         unset($data[$count]);
                     }
                     $count = $count+1;

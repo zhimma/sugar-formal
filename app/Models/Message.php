@@ -816,7 +816,6 @@ class Message extends Model
                 $count = 0;
                 foreach ($all_msg as $msg)
                 {
-                    Log::Info($msg);
                     $can_pr = UserService::computeCanMessagePercent_7($msg['from_id']);
                     $can_pr = trim($can_pr,'%');
                     if($can_pr > $inbox_refuse_set->refuse_canned_message_pr)
