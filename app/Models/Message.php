@@ -778,7 +778,9 @@ class Message extends Model
             }
             if($inbox_refuse_set->isrefused_common_user)
             {
-                $all_msg = $all_msg->whereNotNull('vip.id')->orWhereNotNull('w.id');
+                $all_msg = $all_msg->where(function($query){
+                    $query->whereNotNull('vip.id')->orWhereNotNull('w.id');
+                });
             }
             if($inbox_refuse_set->isrefused_warned_user)
             {
