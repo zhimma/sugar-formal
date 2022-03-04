@@ -337,8 +337,8 @@
         $('.last30days').click(
             function() {
                 var start_date = new Date(new Date().setDate(date.getDate() - 30));
-                $('#datepicker_1').val(start_date.getFullYear() + '-' + str_pad(parseInt(start_date.getMonth()+1)) + '-' + start_date.getDate());
-                $('.datepicker_1').val(start_date.getFullYear() + '-' + str_pad(parseInt(start_date.getMonth()+1)) + '-' + start_date.getDate());
+                $('#datepicker_1').val(start_date.getFullYear() + '-' + str_pad(parseInt(start_date.getMonth()+1)) + '-' + str_pad(start_date.getDate()));
+                $('.datepicker_1').val(start_date.getFullYear() + '-' + str_pad(parseInt(start_date.getMonth()+1)) + '-' + str_pad(start_date.getDate()));
                 set_end_date();
             });
 
