@@ -74,7 +74,7 @@
             </ul>
         </div>
     </div>
-    <script>
+    <script type="application/javascript">
         if(!scriptText){
             let scriptText = '<a href="https://lin.ee/rLqcCns"><img src="https://scdn.line-apps.com/n/line_add_friends/btn/zh-Hant.png" alt="加入好友" height="26" border="0"></a>';
             let vipScriptText = '<a href="/dashboard/new_vip"><span style="color: red;">請點此升級</span></a>';
