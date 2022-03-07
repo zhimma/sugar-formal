@@ -826,7 +826,6 @@ class Message extends Model
                     }
                     $count = $count+1;
                 }
-                $all_msg = array_values($all_msg);
             }
         }
 
