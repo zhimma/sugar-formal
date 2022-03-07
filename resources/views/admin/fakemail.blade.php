@@ -1,7 +1,7 @@
 @extends('admin.main')
 @section('app-content')
     <body style="padding: 15px;">
-        <h1>測試郵件發送功能</h1>
+        <h1>寄送統計沖洗郵件</h1>
         <br>
         <form id='form' method='post' action="{{route('sendFakeMail')}}">
             {!! csrf_field() !!}
