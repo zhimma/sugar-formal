@@ -6,6 +6,7 @@ use App\Http\Controllers\Controller;
 use Illuminate\Http\Request;
 use App\Models\AwsSesMailLog;
 use Carbon\Carbon;
+use Illuminate\Support\Facades\Log;
 
 
 class MailController extends Controller
@@ -38,7 +39,22 @@ class MailController extends Controller
     }
     public function viewMailLog(Request $request)
     {
-        $mail_log = AwsSesMailLog::where('updated_at','>',Carbon::now()->subDays(1))->get();
+        $start_date = Carbon::now()->subDays(1)->startOfDay();
+        if($request->start_date)
+        {
+            $start_date = Carbon::createFromFormat('m/d/Y', $request->start_date)->startOfDay();
+        }
+
+        $end_date = Carbon::now();
+        if($request->end_date)
+        {
+            $end_date = Carbon::createFromFormat('m/d/Y', $request->end_date)->endOfDay();
+        }
+
+        Log::Info($start_date);
+        Log::Info($end_date);
+
+        $mail_log = AwsSesMailLog::where('updated_at','>',$start_date)->where('updated_at','<',$end_date)->get();
         
         return view('admin.stats.mailLog')
         ->with('mail_log', $mail_log);

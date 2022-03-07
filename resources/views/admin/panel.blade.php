@@ -12,7 +12,7 @@
 		<a href="{{ route('users/VIP/ECCancellations') }}">綠界 VIP 付費取消資料</a>
 {{--		<a href="{{ route('users/VVIP') }}">VVIP申請管理</a>--}}
 {{--		<a href="{{ route('users/customize_migration_files') }}">異動檔手動修改</a>--}}
-		<a href="{{ route('users/picMemberList') }}">照片會員列表</a>
+		<a href="{{ route('users/picMemberList') }}?reset=1">照片會員列表</a>
 		<a href="{{ route('users/memberList') }}">會員列表</a>
 		<a href="{{ route('users/manager/GET') }}">會員搜尋(變更男女、VIP資料)</a>
 		<a href="{{ route('users/advSearch') }}">進階會員搜尋</a>

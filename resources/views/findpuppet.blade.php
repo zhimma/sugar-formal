@@ -64,7 +64,7 @@
 	.download_file a,.download_file a:visited,.download_file a:hover,.download_file a:active {text-decoration: underline;}
 	.group_last_time {font-weight:normal;font-size:12px;}
 	.ignore_switch_on,.ignore_switch_off,.ignore_cell_on,.ignore_cell_off {height:15px;cursor: pointer;}
-	body table tr td.ignore_cell,body table tr td.ignore_cell a,body table tr td.ignore_cell a:visited,body table tr td.ignore_cell a:hover {color:#D0D0D0 !important;}
+	body table tr td.ignore_cell,body table tr td.ignore_cell a,body table tr td.ignore_cell a:visited,body table tr td.ignore_cell a:hover {color:#B0B0B0 !important;}
 	body table tr th .btn {width:60px;padding:4px;border-radius:5px;font-size:5px;}
 	body table tr th .btn:visited {color:#fff;}
 	body table tr th .btn.handling {background-color:#BEBEBE;color:block;cursor:default;}
@@ -195,19 +195,22 @@
 			$(this).parent().find('.ignore_cell_on').show();
 			var nowelt = $(this);
 			var id = $(this).attr('id');
-			var userid_ip_string = id.replace('ignore_cell_off_','');
-			var userid_ip_arr = userid_ip_string.split('_');
-			var user_id = userid_ip_arr[0];
-			var ip = userid_ip_arr[1];
+			var userid_cat_string = id.replace('ignore_cell_off_','');
+			var userid_cat_arr = userid_cat_string.split('_');
+			var user_id = userid_cat_arr[0];
+			var cat = userid_cat_arr[1];
 			$.ajax({
 				type: 'GET',
 				url: '{{ route('ignoreDuplicate') }}',
-				data: { value : user_id,op:0,ip:ip},
+				data: { value : user_id,op:0,cat:cat},
 				success: function(xhr, status, error){
 					nowelt.parent().removeClass('ignore_cell');
 				},
 				error: function(xhr, status, error){
-					alert('User Id：'+user_id+' Ip：'+ip+'取消加入略過清單失敗，請重新操作\n錯誤訊息：'+status+' '+error);
+                    var cat_type='';
+                    if(cat.indexOf('.')>=0 ) cat_type='IP';
+                    else cat_type='Cfp_Id';
+					alert('User Id：'+user_id+' '+cat_type+'：'+cat+'取消加入略過清單失敗，請重新操作\n錯誤訊息：'+status+' '+error);
 					nowelt.show();
 					$(this).parent().find('.ignore_cell_on').hide();					
 				}
@@ -219,19 +222,22 @@
 			$(this).hide();
 			$(this).parent().find('.ignore_cell_off').show();
 			var id = $(this).attr('id');
-			var userid_ip_string = id.replace('ignore_cell_on_','');
-			var userid_ip_arr = userid_ip_string.split('_');
-			var user_id = userid_ip_arr[0];
-			var ip = userid_ip_arr[1];
+			var userid_cat_string = id.replace('ignore_cell_on_','');
+			var userid_cat_arr = userid_cat_string.split('_');
+			var user_id = userid_cat_arr[0];
+			var cat = userid_cat_arr[1];
 			$.ajax({
 				type: 'GET',
 				url: '{{ route('ignoreDuplicate') }}',
-				data: { value : user_id,op:1,ip:ip},
+				data: { value : user_id,op:1,cat:cat},
 				success: function(xhr, status, error){
 					nowelt.parent().addClass('ignore_cell');
 				},
 				error: function(xhr, status, error){
-					alert('User Id：'+user_id+' Ip：'+ip+'加入略過清單失敗，請重新操作\n錯誤訊息：'+status+' '+error);
+                    var cat_type='';
+                    if(cat.indexOf('.')>=0 ) cat_type='IP';
+                    else cat_type='Cfp_Id';					
+                    alert('User Id：'+user_id+' '+cat_type+'：'+cat+'加入略過清單失敗，請重新操作\n錯誤訊息：'+status+' '+error);
 					nowelt.show();
 					nowelt.parent().find('.ignore_cell_off').hide();
 					console.log(xhr);
@@ -496,12 +502,14 @@
 			@endif
 			@foreach ($colIdxOfCfpId[$g] as $n)
 			{{-- @for ($n=0;$n<count($columnSet[$g]);$n++) --}}
-				<td @if($user) style="color: {{ $user->engroup == 1 ? 'blue' : 'red' }}; @if($bgColor) background-color: {{ $bgColor }} @endif" @endif class=" @if($groupInfo[$g]['last_time']===$cellValue[$g][$r][$n]->time) group_last_time @endif col-most">
+				<td @if($user) style="color: {{ $user->engroup == 1 ? 'blue' : 'red' }}; @if($bgColor) background-color: {{ $bgColor }} @endif" @endif class=" @if($groupInfo[$g]['last_time']===$cellValue[$g][$r][$n]->time) group_last_time @endif @if($cellValue[$g][$r][$n]->ignoreEntry) ignore_cell  @endif  col-most">
 					@if(isset($cellValue[$g][$r][$n]))
 					{{$cellValue[$g][$r][$n]->time ? date('m/d-H:i',strtotime($cellValue[$g][$r][$n]->time)): ''}}
 	{{--			(<a target="_blank" href="showLog?user_id={{$user->id}}&{{$columnTypeSet[$g][$n]}}={{$columnSet[$g][$n]}}{{request()->mon?'&mon='.request()->mon:''}}">{{$cellValue[$g][$r][$n]->num ?? ''}}次</a>)  --}}
 					(<a target="_blank" href="{{route('getUsersLog')}}?user_id={{$user->id}}&{{$columnTypeSet[$g][$n]}}={{$columnSet[$g][$n]}}">{{$cellValue[$g][$r][$n]->num ?? ''}}次</a>)
-					@else
+					<img src="{{asset('new/images/menu.png')}}" id="ignore_cell_on_{{$user->id}}_{{$columnSet[$g][$n]}}" class="ignore_cell_on" style=" {{$cellValue[$g][$r][$n]->ignoreEntry?'display:none;':''}}"/>
+					<img src="{{asset('new/images/ticon_01.png')}}" id="ignore_cell_off_{{$user->id}}_{{$columnSet[$g][$n]}}"  class="ignore_cell_off" style=" {{!$cellValue[$g][$r][$n]->ignoreEntry?'display:none;':''}}"//>					
+                    @else
 						無
 					@endif
 				</td>

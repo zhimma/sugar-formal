@@ -172,7 +172,14 @@ class FindPuppetController extends \App\Http\Controllers\Controller
                                 ,'type'=>''
                                 ,'created_at'=>$edate
                                 ,'updated_at'=>date('Y-m-d H:i:s')]);                     
-                    $ignoreUserIdEntrys = $this->ignore->whereNull('ip')->orwhere('ip','')->get();                    
+                    $ignoreUserIdEntrys = $this->ignore
+                                            ->where(function($q){
+                                                $q->whereNull('ip')->orwhere('ip','');
+                                            })
+                                            ->where(function($q){
+                                                $q->whereNull('cfp_id')->orwhere('cfp_id','');
+                                            })                    
+                                            ->get();                    
                     foreach($ignoreUserIdEntrys  as $ignoreUserIdEntry) {
                         $ignoreUserIdArr[$ignoreUserIdEntry->item] = $ignoreUserIdEntry;
                     }  
@@ -205,7 +212,13 @@ class FindPuppetController extends \App\Http\Controllers\Controller
                         $ignoreUserIdIpArr = [];
                         foreach($ignoreUserIdIpCollect  as $userIdIpEntry) {
                             $ignoreUserIdIpArr[$userIdIpEntry->item][$userIdIpEntry->ip] = $userIdIpEntry;
-                        }                   
+                        }
+
+                        $ignoreUserIdCfpIdCollect = $this->ignore->whereNotNull('cfp_id')->where('cfp_id','<>','')->get();         
+                        $ignoreUserIdCfpIdArr = [];
+                        foreach($ignoreUserIdCfpIdCollect  as $userIdCfpIdEntry) {
+                            $ignoreUserIdCfpIdArr[$userIdCfpIdEntry->item][$userIdCfpIdEntry->cfp_id] = $userIdCfpIdEntry;
+                        }                          
 
                         Log::info('findPuppet排程'.$cat.'：開始以IP讀取登入紀錄');
                         $this->column->insert( ['column_index'=>-1
@@ -396,6 +409,15 @@ class FindPuppetController extends \App\Http\Controllers\Controller
                                     unset($ignoreUserIdArr[$loginDataCfpIdEntry->user_id]);                                    
                                 }                                
                             }                            
+
+                            if(isset($ignoreUserIdCfpIdArr[$loginDataCfpIdEntry->user_id][$loginDataCfpIdEntry->cfp_id])) {
+                                $nowIgnoreUserIdCfpId = $ignoreUserIdCfpIdArr[$loginDataCfpIdEntry->user_id][$loginDataCfpIdEntry->cfp_id];
+                                if($nowIgnoreUserIdCfpId->created_at> $loginDataCfpIdEntry->time)  
+                                    continue;
+                                else {
+                                    $nowIgnoreUserIdCfpId->delete();
+                                }
+                            }
                             
                             $this->loginDataByCfpId[$loginDataCfpIdEntry->cfp_id][$loginDataCfpIdEntry->user_id] = $loginDataCfpIdEntry;
                             //if(!in_array($loginDataCfpIdEntry->cfp_id,$this->_cpfidOfOverLimitUserId) && count($this->loginDataByCfpId[$loginDataCfpIdEntry->cfp_id]??[])>50) $this->_cpfidOfOverLimitUserId[]=$loginDataCfpIdEntry->cfp_id;
@@ -416,8 +438,16 @@ class FindPuppetController extends \App\Http\Controllers\Controller
                             ,'created_at'=>$edate
                             ,'updated_at'=>date('Y-m-d H:i:s')]);                         
                     }
-                    
-                    $ignoreUserId = array_pluck($this->ignore->whereNull('ip')->orwhere('ip','')->get()->toArray(),'item');                                        
+                                                           
+                    $ignoreUserId = array_pluck($this->ignore
+                                                ->where(function($q) {
+                                                    $q->whereNull('ip')->orwhere('ip','');
+                                                })
+                                                ->where(function($q) {
+                                                    $q->whereNull('cfp_id')->orwhere('cfp_id','');
+                                                })                                                
+                                                ->get()->toArray()
+                                    ,'item');                                        
                         
 
                     $puppetFromUsers = null;
@@ -1026,7 +1056,11 @@ class FindPuppetController extends \App\Http\Controllers\Controller
                     $cur_user->ignoreEntry = $this->ignore->where('item',(string)$cur_user->id)
                         ->where(function($q){
                             $q->whereNull('ip')->orwhere('ip','');
-                        })->first();
+                        })
+                        ->where(function($q){
+                            $q->whereNull('cfp_id')->orwhere('cfp_id','');
+                        })                        
+                        ->first();
 
                     if($cur_user->banned)  {
                         $cur_user->tag_class.= 'banned ';
@@ -1109,9 +1143,8 @@ class FindPuppetController extends \App\Http\Controllers\Controller
             $cellEntrys = $cellQuery->get();
             foreach($cellEntrys as $cellEntry) {
                 if(isset($groupInfo[$cellEntry->group_index]['cutData']) && $groupInfo[$cellEntry->group_index]['cutData'] && ($cellEntry->row_index>$data['rowLimit'] || $cellEntry->column_index>$data['colLimit'])) continue;
-                if($this->_columnType[$cellEntry->group_index][$cellEntry->column_index]=='ip')
-                    $cellEntry->ignoreEntry = $this->ignore->where('item',$this->_rowUserId[$cellEntry->group_index][$cellEntry->row_index]->id)
-                            ->where('ip',$this->_columnIp[$cellEntry->group_index][$cellEntry->column_index])->first();
+                $cellEntry->ignoreEntry = $this->ignore->where('item',$this->_rowUserId[$cellEntry->group_index][$cellEntry->row_index]->id)
+                        ->where($this->_columnType[$cellEntry->group_index][$cellEntry->column_index],(string)$this->_columnIp[$cellEntry->group_index][$cellEntry->column_index])->first();               
                $this->_cellVal[$cellEntry->group_index][$cellEntry->row_index][$cellEntry->column_index] = $cellEntry;
             }  
             
@@ -1184,7 +1217,7 @@ class FindPuppetController extends \App\Http\Controllers\Controller
     $data['colIdxOfIp'] = $colIdxOfIp;  
     $data['new_exec_log'] = $new_exec_log;  
     //$data['group_segment'] = $group_segment;
-    
+
     return view('findpuppet',$data)
             ->with('columnSet', $this->_columnIp)
             ->with('columnTypeSet',$this->_columnType)
@@ -1276,28 +1309,35 @@ class FindPuppetController extends \App\Http\Controllers\Controller
     
     public function switchIgnore(Request $request) {
         $value = $request->value;
-        $ip = $request->ip ?? '';
         if(!$value) return;
+        $cat_type = '';
+        $cat = $request->cat ?? '';
+        if(strrpos($cat,'.')>0) $cat_type='ip';
+        else $cat_type='cfp_id';
         $op = $request->op;
         $ignore = $this->ignore;
         
         switch($op) {
             case '1':
-                $ignore_entry = $ignore->firstOrNew(['item'=>$value,'ip'=>$ip]);
-                $ignore_entry->ip = $ip;
+                $ignore_entry = $ignore->firstOrNew(['item'=>$value,$cat_type=>$ip]);
+                if($cat_type=='ip')
+                    $ignore_entry->ip = $cat;
+                else if($cat_type=='cfp_id') $ignore_entry->cfp_id = $cat;
                 $ignore_entry->item = $value;
                 $ignore_entry->save() ;
             break;
             case '0':
-                $ignore->where('item',$value)->where('ip',$ip)->delete();
+                $ignore->where('item',$value)->where($cat_type,$cat)->delete();
             break;
             default:
-                $ignore_entry = $ignore->firstOrNew(['item'=>$value,'ip'=>$ip]);
+                $ignore_entry = $ignore->firstOrNew(['item'=>$value,$cat_type=>$cat]);
 
                 if($ignore_entry->id) $ignore_entry->delete();
                 else {
                     $ignore_entry->item = $value;
-                    $ignore_entry->ip = $ip;
+                    if($cat_type=='ip')
+                        $ignore_entry->ip = $cat;
+                    else if($cat_type=='cfp_id') $ignore_entry->cfp_id = $cat;
                     $ignore_entry->save();                  
                 }
             break;
