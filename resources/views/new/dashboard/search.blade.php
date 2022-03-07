@@ -103,6 +103,13 @@ header("Expires: Fri, 01 Jan 1990 00:00:00 GMT");
                 <div class="col-sm-12 col-xs-12 col-md-10">
                     <div class="shou shou02 sh_line"><span>搜索</span>
                         <font>Search</font>
+                        <div class="se_button" onClick="button_aa()">
+                            <a class="se_button01">
+                                <div class="se_button02">
+                                    <img src="/new/images/dsearch.png">
+                                </div>
+                            </a>
+                        </div>
                     </div>
 
                     <form action="{!! url('dashboard/search') !!}" method="post" id="form">
@@ -805,6 +812,12 @@ header("Expires: Fri, 01 Jan 1990 00:00:00 GMT");
     <script src="/js/jquery.twzipcode.min.js" type="text/javascript"></script>
     <script src="//cdnjs.cloudflare.com/ajax/libs/cropperjs/1.0.0/cropper.min.js" type="text/javascript"></script>
     <script type="text/javascript">
+
+        $('.n_search').hide();
+        function button_aa() {
+            $(".n_search").show()
+        }
+
         $(document).ready(function(){
 
             $('.se_nvd').hide();
