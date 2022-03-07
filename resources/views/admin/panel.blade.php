@@ -12,6 +12,7 @@
 		<a href="{{ route('users/VIP/ECCancellations') }}">綠界 VIP 付費取消資料</a>
 {{--		<a href="{{ route('users/VVIP') }}">VVIP申請管理</a>--}}
 {{--		<a href="{{ route('users/customize_migration_files') }}">異動檔手動修改</a>--}}
+		<a href="{{ route('users/picMemberList') }}?reset=1">照片會員列表</a>
 		<a href="{{ route('users/memberList') }}">會員列表</a>
 		<a href="{{ route('users/manager/GET') }}">會員搜尋(變更男女、VIP資料)</a>
 		<a href="{{ route('users/advSearch') }}">進階會員搜尋</a>
@@ -54,6 +55,7 @@
 		<a href="{{ route('admin/check') }}">站長審核</a>
 		<a href="{{ route('admin/getAdminActionLog') }}">Admin後台操作記錄</a>
 		<a href="{{ route('users/filterByInfo') }}">發信_檢舉_封鎖異常查詢</a>
+		<a href="{{ route('maillog') }}">寄退信Log紀錄查詢</a>
 
 	@elseif (Auth::user()->can('readonly'))
 		<a href="javascript:void(0)" class="closebtn" onclick="closeNav()">&times;</a>

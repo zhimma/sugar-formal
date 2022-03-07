@@ -3,7 +3,6 @@ rbupld_image_handled_numSet={};
 rbupld_not_support_file_numSet={};
 rbupld_add_not_support_file_numSet={};
 rbupld_uploader_index = 0;
-rbupld_container_initial_visible={};
 resize_before_upload_fileReaderSet = {};
 function resize_before_upload(uploader,checkWidth
                                 ,checkHeight
@@ -24,7 +23,6 @@ function resize_before_upload(uploader,checkWidth
 
         cur_uploader_api.rbupld_uploader_index = rbupld_uploader_index++;
         var index = cur_uploader_api.rbupld_uploader_index;
-        rbupld_container_initial_visible[index] = cur_uploader_api.getParentEl().css('display');
         cur_uploader_api.setOption('afterSelect',function(listEl,parentEl, newInputEl, inputEl){
             if(resize_before_upload_fileReaderSet[index]==undefined)  resize_before_upload_fileReaderSet[index]={};
             rbupld_not_support_file_numSet[index] =0;
@@ -33,7 +31,11 @@ function resize_before_upload(uploader,checkWidth
             var fileSelected = cur_uploader_api.getChoosedFiles();
 
             if(fileSelected.length>0) {
-                loading();
+                    cur_uploader_api.getParentEl()
+                    .append('<div class="announce_bg"></div>');
+                    cur_uploader_api.getParentEl().find(".announce_bg").show();
+
+                $("#tab_loading").show();                
             }
             else return false;            
             if(cur_uploader_option.beforeResize!=undefined){
@@ -42,9 +44,6 @@ function resize_before_upload(uploader,checkWidth
 
             rbupld_image_handling_numSet[index]=0;
             rbupld_image_handled_numSet[index]=0;    
-            
-            org_announce_bg_onclick_value = $(".announce_bg").attr('onclick');
-            $(".announce_bg").attr('onclick','');
             
             var nowEltName = cur_uploader_api.getInputEl().attr('name');
             var hasHeicType = false;
@@ -480,21 +479,22 @@ function convert_format_msg(){
     
     return false;
 }
-
+/*
+resize_pic_loading_close是縮圖結束後要關閉loading的動作，
+如果這個動作造成某頁面的衝突或要針對某頁面增加其他處理，
+可寫在該頁面uploader的afterResize事件
+*/
 function resize_pic_loading_close(cur_uploader_option,listEl,parentEl, newInputEl, inputEl) {
         $(document).off('click','#tabPopM .n_bllbut,.blbg,#tabPopM .bl_gb',convert_format_msg);
         $(document).on('click','.blbg',closeAndReload); 
-        $(".announce_bg").attr('onclick',org_announce_bg_onclick_value);
+        
         var cur_api = $.fileuploader.getInstance(inputEl.get(0));
-        if(rbupld_container_initial_visible[cur_api.rbupld_uploader_index]!='none') {
-            //$(".blbg").hide();
-            $(".announce_bg").hide();
-        }
+        parentEl.find(".announce_bg").remove();
 
 		$("#tab_loading").hide();  
         $('#tabPopM').hide();   
         $('#tab05').hide();
-        //$('.announce_bg').hide();
+
         if(cur_uploader_option.afterResize!=undefined) {
            cur_uploader_option.afterResize(listEl,parentEl, newInputEl, inputEl);            
         }                         

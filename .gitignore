@@ -43,3 +43,9 @@ bootstrap/cache/
 _ide_helper.php
 
 _ide_helper_models.php
+
+public/vendor/livewire/livewire.js
+
+public/vendor/livewire/livewire.js.map
+
+public/vendor/livewire/manifest.json

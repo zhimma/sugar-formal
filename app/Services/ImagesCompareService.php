@@ -221,6 +221,10 @@ class ImagesCompareService {
         return ImagesCompareService::getQueryOfCompareEncodeByPic($pic)->orderBy('id')->first();
     }
     
+    public static  function getFileMd5ArrByPicArr($picArr) {
+        return ImagesCompareEncode::whereIn('pic',$picArr)->pluck('file_md5')->all();
+    }    
+    
     public static  function getCompareStatusByPic($pic) {
         return ImagesCompareService::getQueryOfCompareStatusByPic($pic)->orderBy('id')->first();
     }        
@@ -314,13 +318,18 @@ class ImagesCompareService {
         return file_exists($pic_path);        
     }
     
-    public static function compareImagesByPic($pic,$encode_by=null) {
+    public static function compareImagesByPic($pic,$encode_by=null,$delay=0) {
         if(!$pic) return;
-        if(!ImagesCompareService::isFileExistsByPic($pic)) return;
+        if(!ImagesCompareService::isFileExistsByPic($pic)) {
+            if(!ImagesCompareEncode::select('pic')->where('pic',$pic)->first())
+                return;
+        }
         $force_compare = ImagesCompareService::isForceViaEncodeBy($encode_by);
+        $skip_compared = ImagesCompareService::isSkipComparedViaEncodeBy($encode_by);
         $status = ImagesCompareStatus::firstOrNew(['pic'=>$pic]);
 
         if($status->id ) {
+            if($skip_compared && $status->queue==0 && $status->status==0) return; 
             if($status->isQueueTooLong() || $force_compare)
                 $status->queue=2;
             else  return;
@@ -334,26 +343,22 @@ class ImagesCompareService {
         $status->is_error=0;
         $status->save();
        
-        $delay = 0;
         $now=Carbon::now();
         $next = $now->addDay();
         $stime = Carbon::parse($now->format('Y-m-d').' 18:00:00');
         $etime = Carbon::parse($next->format('Y-m-d').' 01:00:00');
-        if($now->gt($stime) && $now->lt($etime)) $delay=25200;
-        if($force_compare) {
-            CompareImagesCaller::dispatch($pic,$encode_by,true);
-        }
-        else {
-            CompareImagesCaller::dispatch($pic,$encode_by);
-            CompareImagesCaller::dispatch($pic)->onQueue('compare_images')->delay($delay+10);
-        }
+        if($now->gt($stime) && $now->lt($etime)) $delay=25200+$delay;
+        CompareImagesCaller::dispatch($pic,$encode_by);
+        CompareImagesCaller::dispatch($pic,null,$force_compare)->onQueue('compare_images')->delay($delay+10);
+        
+        return true;
     }
     
     public static function isNeedCompareByEntry($picEntry,$force = false) {
-        if(!($picEntry->pic??null)) return false;
+        if(!($picEntry->pic??null)) return false;     
         if($force)  return true;
-        if($picEntry->user->engroup!=2) return false;
-        
+        if($picEntry->user->engroup!=2) return false;        
+
         if(!($picEntry->created_at??null) && !($picEntry->updated_at??null)) return true;
         
         if(!in_array($picEntry->pic,ImagesCompareService::$sys_pic_arr)) {
@@ -393,6 +398,29 @@ class ImagesCompareService {
     }  
 
     public static function isForceViaEncodeBy($encode_by) {
-        return $encode_by=='UserController@UserImagesCompareJobCreate';
+        return $encode_by=='UserController@UserImagesCompareJobCreate'
+            || $encode_by=='UserController@applyPicMemberList'
+        ;
     }
+    
+    public static function isSkipComparedViaEncodeBy($encode_by) {
+        return $encode_by=='UserController@applyPicMemberList'
+        ;
+    }    
+    
+    public static function countComparedByEntrysArr($entrysArr) {
+        $entrys = collect([]);
+        
+        foreach($entrysArr  as $entrysElt) {
+            $entrys = $entrys->merge($entrysElt); 
+        }
+        return ImagesCompareService::countComparedByEntrys($entrys);
+    }
+    
+    public static function countComparedByEntrys($entrys) {
+        $picArr = $entrys->pluck('pic')->all();
+        
+        return ImagesCompareStatus::select('pic')->whereIn('pic', $picArr)->where('status',0)->where('queue',0)->count();
+        
+    }    
 }

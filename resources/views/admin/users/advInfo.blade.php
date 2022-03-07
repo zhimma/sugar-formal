@@ -36,7 +36,15 @@
         font-weight: bold;
         top: 80px;
         color: #f14a6c;
-    }    
+    } 
+
+    #blockade .form-group {clear:both;}
+    #autoban_pic_gather .autoban_pic_unit {float:left;margin:10px;}
+    #autoban_pic_gather .autoban_pic_unit img {width:80px;min-width:80px;}
+    #autoban_pic_gather input {display:none;}
+    #autoban_pic_gather .autoban_pic_unit label {padding:0 10px 10px 10px;} 
+    #autoban_pic_gather .autoban_pic_unit label span {display:block;text-align:center;font-size:4px;}
+    #autoban_pic_gather .autoban_pic_unit input:checked+label {background:#1E90FF;}
 </style>
 
 <body style="padding: 15px;">
@@ -1598,6 +1606,26 @@
 								@endforeach
 							</select>
 						</div>
+						<div class="form-group">
+							<label>照片</label>
+                            <div id="autoban_pic_gather">
+                            @foreach ( \App\Models\MemberPic::getSelfIDPhoto($user->id) as $pic)
+                            @include('admin.users.advInfo_autoban_pic_tpl')
+                            @endforeach
+                            @foreach (collect([$user->meta]) as $pic)
+                            @include('admin.users.advInfo_autoban_pic_tpl')
+                            @endforeach
+                            @foreach ($user->pic_orderByDecs as $pic)
+                            @include('admin.users.advInfo_autoban_pic_tpl')
+                            @endforeach
+                            @foreach ($user->avatar_deleted as $pic)
+                            @include('admin.users.advInfo_autoban_pic_tpl')
+                            @endforeach                            
+                            @foreach ($user->pic_onlyTrashed as $pic)
+                            @include('admin.users.advInfo_autoban_pic_tpl')
+                            @endforeach
+                            </div>
+						</div>                        
 						<div class="form-group">
 							<label for="ip">IP</label>
 							<table id="table_userLogin_log" class="table table-hover table-bordered">

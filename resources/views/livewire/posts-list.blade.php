@@ -1,4 +1,4 @@
-<div wire:poll.visible>
+<div>
     {{-- Care about people's approval and you will be their prisoner. --}}
     @if(!isset($posts) || count($posts)==0)
         <div class="sjlist">

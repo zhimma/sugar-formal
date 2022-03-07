@@ -119,36 +119,39 @@
 												@elseif($post->uid != $user->id && !isset($getStatus) && $post->f_status==1)
 													<a onclick="forum_manage_toggle({{$post->uid}}, 0, {{$post->f_id}})" class="seqr">申請加入</a>
 												@endif
-
-												@php
-												$getApplyUsers = \App\Models\ForumManage::select('user_meta.pic', 'users.engroup')
+												<div class="wt_txb">
+													@php 
+													$getApplyUsers = \App\Models\ForumManage::select('user_meta.pic', 'users.engroup')
 																						   ->LeftJoin('users', 'users.id','=','forum_manage.user_id')
 																						   ->join('user_meta', 'user_meta.user_id','=','forum_manage.user_id')
 																						   ->where('forum_manage.apply_user_id', $post->uid)
 																						   ->where('forum_manage.status', 1)
-																						   ->get();
-												@endphp
-												<div class="wt_txb">
-													@foreach($getApplyUsers as $key=>$row)
+																						   ->chunk(800, function($users) {
+																								foreach ($users->lazy() as $key=>$user) {
+																								
+																									if(file_exists( public_path().$user->pic ) && $user->pic != ""){
+																										$pic = $user->pic ;
+																									}else if($user->engroup==2){
+																										$pic= '/new/images/female.png' ;
+																									}else{ 
+																										$pic = '/new/images/male.png' ;
+																									}
 
-														@if(count($getApplyUsers)>5)
-															@once
-																<span class="ta_toxmr" style="position: relative; left: -10px; z-index: -1;">
-																<img src="/posts/images/imor.png" class="hycov">
-															</span>
-															@endonce
-														@endif
-
-														@if($key==0)
-															<span class="ta_toxmr">
-																<img src="@if(file_exists( public_path().$row->pic ) && $row->pic != ""){{$row->pic}} @elseif($row->engroup==2)/new/images/female.png @else/new/images/male.png @endif" class="hycov hycov_down">
-															</span>
-														@elseif($key>0 && $key<5)
-															<span class="ta_toxmr xa_rig10">
-																<img src="@if(file_exists( public_path().$row->pic ) && $row->pic != ""){{$row->pic}} @elseif($row->engroup==2)/new/images/female.png @else/new/images/male.png @endif" class="hycov hycov_down">
-															</span>
-														@endif
-													@endforeach
+																									if($key==0){
+																											echo '<span class="ta_toxmr" style="position: relative; left: -10px; z-index: -1;">';
+																											echo '<img src="/posts/images/imor.png" class="hycov">';
+																											echo '</span>';
+																									}
+																									
+																									if($key<5){
+																										echo '<span class="ta_toxmr xa_rig10">';
+																										echo '<img src="'.$pic.'" class="hycov hycov_down">';
+																										echo '</span>';
+																									}
+																									
+																								}
+																							});
+													@endphp
 												</div>
 											</div>
 										</div>
@@ -169,7 +172,6 @@
 						{{ $posts->links('pagination::sg-pages2') }}
 {{--						<a href="">上一頁</a><span class="new_page">1/5</span><a href="">下一頁</a>--}}
 					</div>
-					<!--  -->
 				</div>
 			</div>
 		</div>
