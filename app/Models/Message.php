@@ -822,10 +822,11 @@ class Message extends Model
                     $can_pr = UserService::computeCanMessagePercent_7($msg['from_id']);
                     $can_pr = trim($can_pr,'%');
                     Log::Info('number '.$msg['from_id']);
-                    Log::Info('number pr '.$can_pr);
+                    Log::Info('number can% '.$can_pr);
                     if($can_pr > $inbox_refuse_set->refuse_canned_message_pr)
                     {
                         Log::Info('number unset '.$msg['from_id']);
+                        Log::Info('number unset '.$all_msg[$count]['from_id']);
                         unset($all_msg[$count]);
                     }
                     $count = $count+1;

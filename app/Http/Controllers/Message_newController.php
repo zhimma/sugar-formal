@@ -547,10 +547,11 @@ class Message_newController extends BaseController {
                     $can_pr = UserService::computeCanMessagePercent_7($d['user_id']);
                     $can_pr = trim($can_pr,'%');
                     Log::Info('message '.$d['user_id']);
-                    Log::Info('message pr '.$can_pr);
+                    Log::Info('message can% '.$can_pr);
                     if($can_pr > $inbox_refuse_set->refuse_canned_message_pr)
                     {
                         Log::Info('message unset '.$d['user_id']);
+                        Log::Info('message unset '.$data[$count]['user_id']);
                         unset($data[$count]);
                         
                     }
