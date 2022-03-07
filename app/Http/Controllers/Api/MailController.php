@@ -61,16 +61,33 @@ class MailController extends Controller
         ->with('mail_log', $mail_log);
     }
 
+    public function fakeMail(Request $request)
+    {
+        return view('admin.fakemail');
+    }
+
     public function sendFakeMail(Request $request)
     {
         $str = "";
-        $repeat = request()->repeat ?? 1;
-        $content = request()->str ?? "123";
-        for ($i = 0; $i < $repeat; $i++){
-            $address = 'lzong.tw+'. $i .'@gmail.com';
+        $account = $request->account;
+        $net = $request->net;
+        $repeat = $request->repeat;
+        $content = $request->content;
+        if($repeat == "")
+        {
+            $address = $account.'@'.$net;
             \App\Jobs\SendFakeMail::dispatch($address, $content);
-            $str .= $address . '<br>';
+            $str .= $address;
         }
-        return $str;
+        else
+        {
+            for ($i = 0; $i <= $repeat; $i++){
+                $address =$account .'+'. $i .'@'.$net;
+                \App\Jobs\SendFakeMail::dispatch($address, $content);
+                $str .= $address . ' , ';
+            }
+        }
+        return back()
+                ->with('message','寄送成功 '.$str);
     }
 }
