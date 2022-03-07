@@ -489,6 +489,7 @@ class Message_newController extends BaseController {
                     }
                     $count = $count+1;
                 }
+                $data = array_values($data);
             }
             if($inbox_refuse_set->isrefused_common_user)
             {
@@ -501,6 +502,7 @@ class Message_newController extends BaseController {
                     }
                     $count = $count+1;
                 }
+                $data = array_values($data);
             }
             if($inbox_refuse_set->isrefused_warned_user)
             {
@@ -513,6 +515,7 @@ class Message_newController extends BaseController {
                     }
                     $count = $count+1;
                 }
+                $data = array_values($data);
             }
             if($inbox_refuse_set->refuse_pr != -1)
             {
@@ -537,6 +540,7 @@ class Message_newController extends BaseController {
                     }
                     $count = $count+1;
                 }
+                $data = array_values($data);
             }
             if($inbox_refuse_set->refuse_canned_message_pr != 0)
             {
@@ -546,17 +550,13 @@ class Message_newController extends BaseController {
                     
                     $can_pr = UserService::computeCanMessagePercent_7($d['user_id']);
                     $can_pr = trim($can_pr,'%');
-                    Log::Info('message '.$d['user_id']);
-                    Log::Info('message can% '.$can_pr);
                     if($can_pr > $inbox_refuse_set->refuse_canned_message_pr)
                     {
-                        Log::Info('message unset '.$d['user_id']);
-                        Log::Info('message unset '.$data[$count]['user_id']);
                         unset($data[$count]);
-                        
                     }
                     $count = $count+1;
                 }
+                $data = array_values($data);
             }
             if($inbox_refuse_set->refuse_register_days != 0)
             {
@@ -571,6 +571,7 @@ class Message_newController extends BaseController {
                     }
                     $count = $count+1;
                 }
+                $data = array_values($data);
             }
         }
         //過濾篩選條件
