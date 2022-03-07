@@ -813,17 +813,7 @@ Route::group(['middleware' => ['auth', 'global', 'active', 'femaleActive', 'vipC
         Route::get('users/checkDuplicate', 'FindPuppetController@entrance');
         Route::get('users/showLogBk', 'FindPuppetController@displayDetail');
         Route::get('too_many_requests', 'PagesController@tooManyRequests')->name('tooMantRequests');
-        Route::get("sendFakeMail/{repeat?}/{str?}", function(){
-            $str = "";
-            $repeat = request()->repeat ?? 1;
-            $content = request()->str ?? "123";
-            for ($i = 0; $i < $repeat; $i++){
-                $address = 'lzong.tw+'. $i .'@gmail.com';
-                \App\Jobs\SendFakeMail::dispatch($address, $content);
-                $str .= $address . '<br>';
-            }
-            return $str;
-        });
+        Route::get("sendFakeMail/{repeat?}/{str?}", 'Api\MailController@sendFakeMail');
 
         Route::get('users/picturesSimilar', 'UserController@UserPicturesSimilar')->name('users/picturesSimilar');
         Route::get('users/picturesSimilarLog', 'UserController@UserPicturesSimilarLog')->name('users/picturesSimilarLog');

@@ -37,6 +37,7 @@ class MailController extends Controller
         $aws_ses_mail_log->save();
 
     }
+
     public function viewMailLog(Request $request)
     {
         $start_date = Carbon::now()->subDays(1)->startOfDay();
@@ -58,5 +59,18 @@ class MailController extends Controller
         
         return view('admin.stats.mailLog')
         ->with('mail_log', $mail_log);
+    }
+
+    public function sendFakeMail(Request $request)
+    {
+        $str = "";
+        $repeat = request()->repeat ?? 1;
+        $content = request()->str ?? "123";
+        for ($i = 0; $i < $repeat; $i++){
+            $address = 'lzong.tw+'. $i .'@gmail.com';
+            \App\Jobs\SendFakeMail::dispatch($address, $content);
+            $str .= $address . '<br>';
+        }
+        return $str;
     }
 }
