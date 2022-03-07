@@ -543,12 +543,14 @@ class Message_newController extends BaseController {
                 $count = 0;
                 foreach ($data as $d)
                 {
+                    Log::Info('message '.$d['user_id']);
                     $can_pr = UserService::computeCanMessagePercent_7($d['user_id']);
                     $can_pr = trim($can_pr,'%');
                     if($can_pr > $inbox_refuse_set->refuse_canned_message_pr)
                     {
+                        Log::Info('message unset '.$d['user_id']);
                         unset($data[$count]);
-                        Log::Info('message unset'.$d['user_id']);
+                        
                     }
                     $count = $count+1;
                 }
