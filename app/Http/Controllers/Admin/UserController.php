@@ -381,6 +381,17 @@ class UserController extends \App\Http\Controllers\BaseController
                 }
             }
         }
+        
+        //pic
+        if (!empty($request->pic)) {
+            foreach ($request->pic as $value) {
+                if (!empty($value)) {
+                    if (SetAutoBan::where([['type', 'pic'], ['content', $value], ['set_ban', '1']])->first() == null) {
+                        SetAutoBan::insert(['type' => 'pic', 'content' => $value, 'set_ban' => '1', 'cuz_user_set' => $request->user_id, 'created_at' => now(), 'updated_at' => now()]);
+                    }
+                }
+            }
+        }        
 
         if ($userBanned) {
             $checkLog = DB::table('is_banned_log')->where('user_id', $userBanned->member_id)->where('created_at', $userBanned->created_at)->first();

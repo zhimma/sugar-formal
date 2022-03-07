@@ -15,6 +15,7 @@ use Illuminate\Database\Eloquent\SoftDeletes;
 use App\Jobs\AutoBanCaller;
 use App\Jobs\LogoutAutoBan;
 use Carbon\Carbon;
+use App\Services\ImagesCompareService;
 
 class SetAutoBan extends Model
 {
@@ -74,6 +75,26 @@ class SetAutoBan extends Model
                         $violation = true;
                     }
                     break;
+                case 'pic':
+                    $ban_encode_entry = ImagesCompareService::getCompareEncodeByPic($content);
+                    if($ban_encode_entry??null) {
+                        if(($user->meta->pic??null) && $ban_encode_entry->file_md5==ImagesCompareService::getCompareEncodeByPic($user->meta->pic)->file_md5) {
+                            $violation = true;
+                        }
+                        
+                        if(!$violation) {
+                            $memPics = $user->pic_withTrashed()->pluck('pic')->all();
+                            $memPicMd5s =  ImagesCompareService::getFileMd5ArrByPicArr($memPics); 
+                            if(in_array($memPics,$memPicMd5s)) $violation = true;
+                        }
+                        
+                        if(!$violation) {
+                            $delAvatars = $user->avatar_deleted()->pluck('pic')->all();
+                            $delAvatarMd5s =  ImagesCompareService::getFileMd5ArrByPicArr($delAvatars); 
+                            if(in_array($delAvatars,$delAvatarMd5s)) $violation = true;
+                        }
+                    }
+                break;                       
                 default:
                     break;
             }
@@ -253,6 +274,28 @@ class SetAutoBan extends Model
                 case 'userAgent':
                     if(LogUserLogin::where('user_id',$uid)->where('userAgent', 'like','%'.$content.'%')->first() != null) $violation = true;
                     break;
+                case 'pic':
+                    $ban_encode_entry = ImagesCompareService::getCompareEncodeByPic($content);
+                    Log::info('SetAutoBan::logoutWarned $ban_encode_entry=');
+                    Log::info($ban_encode_entry);
+                    if(($ban_encode_entry??null) && $ban_encode_entry->file_md5??'') {
+                        if(($user->meta->pic??null) && $ban_encode_entry->file_md5==(ImagesCompareService::getCompareEncodeByPic($user->meta->pic)->file_md5??null)) {
+                            $violation = true;
+                        }
+                        
+                        if(!$violation) {
+                            $memPics = $user->pic_withTrashed()->pluck('pic')->all();
+                            $memPicMd5s =  ImagesCompareService::getFileMd5ArrByPicArr($memPics); 
+                            if(in_array($ban_encode_entry->file_md5,$memPicMd5s)) $violation = true;                         
+                        }                                           
+                        
+                        if(!$violation) {
+                            $delAvatars = $user->avatar_deleted()->pluck('pic')->all();
+                            $delAvatarMd5s =  ImagesCompareService::getFileMd5ArrByPicArr($delAvatars); 
+                            if(in_array($ban_encode_entry->file_md5,$delAvatarMd5s)) $violation = true;
+                        }
+                    }
+                break;
                 default:
                     break;
             }

@@ -221,6 +221,10 @@ class ImagesCompareService {
         return ImagesCompareService::getQueryOfCompareEncodeByPic($pic)->orderBy('id')->first();
     }
     
+    public static  function getFileMd5ArrByPicArr($picArr) {
+        return ImagesCompareEncode::whereIn('pic',$picArr)->pluck('file_md5')->all();
+    }    
+    
     public static  function getCompareStatusByPic($pic) {
         return ImagesCompareService::getQueryOfCompareStatusByPic($pic)->orderBy('id')->first();
     }        
