@@ -548,6 +548,7 @@ class Message_newController extends BaseController {
                     if($can_pr > $inbox_refuse_set->refuse_canned_message_pr)
                     {
                         unset($data[$count]);
+                        Log::Info('message unset'.$d['from_id']);
                     }
                     $count = $count+1;
                 }

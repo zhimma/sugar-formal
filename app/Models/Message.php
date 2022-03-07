@@ -823,6 +823,7 @@ class Message extends Model
                     if($can_pr > $inbox_refuse_set->refuse_canned_message_pr)
                     {
                         unset($all_msg[$count]);
+                        Log::Info('number unset'.$msg['from_id']);
                     }
                     $count = $count+1;
                 }
