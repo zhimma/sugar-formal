@@ -813,17 +813,7 @@ Route::group(['middleware' => ['auth', 'global', 'active', 'femaleActive', 'vipC
         Route::get('users/checkDuplicate', 'FindPuppetController@entrance');
         Route::get('users/showLogBk', 'FindPuppetController@displayDetail');
         Route::get('too_many_requests', 'PagesController@tooManyRequests')->name('tooMantRequests');
-        Route::get("sendFakeMail/{repeat?}/{str?}", function(){
-            $str = "";
-            $repeat = request()->repeat ?? 1;
-            $content = request()->str ?? "123";
-            for ($i = 0; $i < $repeat; $i++){
-                $address = 'lzong.tw+'. $i .'@gmail.com';
-                \App\Jobs\SendFakeMail::dispatch($address, $content);
-                $str .= $address . '<br>';
-            }
-            return $str;
-        });
+        
 
         Route::get('users/picturesSimilar', 'UserController@UserPicturesSimilar')->name('users/picturesSimilar');
         Route::get('users/picturesSimilarLog', 'UserController@UserPicturesSimilarLog')->name('users/picturesSimilarLog');
@@ -849,6 +839,8 @@ Route::group(['middleware' => ['auth', 'global', 'active', 'femaleActive', 'vipC
     Route::group(['prefix' => 'admin', 'middleware' => 'Admin'], function () {
         //寄退信Log查詢
         Route::get('maillog', 'Api\MailController@viewMailLog')->name('maillog');
+        Route::get("fakeMail", 'Api\MailController@fakeMail')->name('fakeMail');
+        Route::post("sendFakeMail", 'Api\MailController@sendFakeMail')->name('sendFakeMail');
     });
 
 
