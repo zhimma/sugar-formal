@@ -85,11 +85,11 @@
 						}
 					</script>
 					<div style="width: 100%; display: table;" id="eml">
-						<div class="liuyan_nlist">
-							<ul>
+						{{-- <div class="liuyan_nlist">
+							<ul> --}}
 								<div v-html="listOther"></div>
-							</ul>
-						</div>
+							{{-- </ul>
+						</div> --}}
 						<div class="fenye mabot30" v-html="other_pagination">
 							<div class="fenye">
 								<a href="">上一頁</a>
@@ -100,11 +100,11 @@
 					</div>
 					
 					<div style="width: 100%; display: table;" id="eml2" style="display:none">
-						<div class="liuyan_nlist">
-							<ul>
+						{{-- <div class="liuyan_nlist">
+							<ul> --}}
 								<div v-html="listMyself"></div>
-							</ul>
-						</div>
+							{{-- </ul>
+						</div> --}}
 						<div class="fenye mabot30" v-html="myself_pagination">
 							<div class="fenye">
 								<a href="">上一頁</a>
@@ -226,7 +226,12 @@
 					let all_count = response.data.count;
 					let other_last_page = response.data.other_last_page;
 					let other_next_page = response.data.other_next_page;
-					this.other_pagination = '<div class="fenye"><a href="/MessageBoard/showList?myself_now_page='+myself_now_page+'&other_now_page='+other_last_page+'">上一頁</a><span class="new_page">第 '+other_now_page+' 頁</span><a href="/MessageBoard/showList?myself_now_page='+myself_now_page+'&other_now_page='+other_next_page+'">下一頁</a></div>'
+					if(all_count>0){
+						this.other_pagination = '<div class="fenye"><a href="/MessageBoard/showList?myself_now_page='+myself_now_page+'&other_now_page='+other_last_page+'">上一頁</a><span class="new_page">第 '+other_now_page+' 頁</span><a href="/MessageBoard/showList?myself_now_page='+myself_now_page+'&other_now_page='+other_next_page+'">下一頁</a></div>'
+					}else{
+						this.other_pagination = '';
+					}
+					
 				})
                 .catch(function (error) { // 请求失败处理
                     console.log(error);
@@ -242,7 +247,12 @@
 					let all_count = response.data.count;
 					let myself_last_page = response.data.myself_last_page;
 					let myself_next_page = response.data.myself_next_page;
-					this.myself_pagination = '<div class="fenye"><a href="/MessageBoard/showList?myself_now_page='+myself_last_page+'&other_now_page='+other_now_page+'">上一頁</a><span class="new_page">第 '+myself_now_page+' 頁</span><a href="/MessageBoard/showList?myself_now_page='+myself_next_page+'&other_now_page='+other_now_page+'">下一頁</a></div>'
+					if(all_count>0){
+						this.myself_pagination = '<div class="fenye"><a href="/MessageBoard/showList?myself_now_page='+myself_last_page+'&other_now_page='+other_now_page+'">上一頁</a><span class="new_page">第 '+myself_now_page+' 頁</span><a href="/MessageBoard/showList?myself_now_page='+myself_next_page+'&other_now_page='+other_now_page+'">下一頁</a></div>'
+					}else{
+						this.myself_pagination = '';
+					}
+					
                 })
                 .catch(function (error) { // 请求失败处理
                     console.log(error);

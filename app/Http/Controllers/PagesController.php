@@ -6944,7 +6944,62 @@ class PagesController extends BaseController
 
     public function messageBoard_showList(Request $request)
     {
-        return view('/dashboard/messageBoard_list');
+        $user = $this->user;
+        $entrance=true;
+        if($user->engroup==2 && ( !$user->isVip() || !$user->isPhoneAuth() )){
+            $entrance=false;
+        }elseif($user->engroup==1 && !$user->isVip()){
+            $entrance=false;
+        }
+
+        if($entrance==false){
+            return redirect('/dashboard')->with('messageBoard_enter_limit', $entrance);
+        }
+
+        $data['isAdminWarned']=$user->isAdminWarned();
+        $data['isBanned']= User::isBanned($user->id);
+        $record_pre=MessageBoard::where('user_id', $user->id)->orderBy('created_at','desc')->first();
+        if($record_pre && (date("Y-m-d H:i:s") <= date("Y-m-d H:i:s",strtotime("+3 hours", strtotime($record_pre->created_at)))) ){
+            $data['post_too_frequently']= true;
+        }
+
+        $userMeta=UserMeta::findByMemberId($user->id);
+        $type='';
+        if($data['isAdminWarned'] || $data['isBanned'] || $userMeta->isWarned==1){
+            if($data['isAdminWarned'] && $data['isBanned'])
+                $type='警示/封鎖';
+            elseif ($data['isAdminWarned'] || $userMeta->isWarned==1)
+                $type='警示';
+            elseif ($data['isBanned'])
+                $type='封鎖';
+            return redirect('/dashboard')->with('messageBoard_msg', '您目前為'.$type.'狀態，無法使用留言板功能');
+        }
+
+        // $userBlockList = \App\Models\Blocked::select('blocked_id')->where('member_id', $user->id)->get();
+        // $bannedUsers = \App\Services\UserService::getBannedId();
+        // $getLists_others = MessageBoard::selectRaw('users.id as uid, users.name as uname, users.engroup as uengroup, user_meta.pic as umpic, user_meta.city, user_meta.area')
+        //     ->selectRaw('message_board.id as mid, message_board.title as mtitle, message_board.contents as mcontents, message_board.updated_at as mupdated_at, message_board.created_at as mcreated_at')
+        //     ->LeftJoin('users', 'users.id','=','message_board.user_id')
+        //     ->LeftJoin('user_meta', 'users.id','=','user_meta.user_id')
+        //     ->where('users.engroup',$user->engroup==1 ? 2 :1)
+        //     ->whereNotIn('message_board.user_id',$userBlockList)
+        //     ->whereNotIn('message_board.user_id',$bannedUsers)
+        //     ->orderBy('message_board.created_at','desc')
+        //     ->paginate(10, ['*'], 'othersDataPage')
+        //     ->appends(array_merge(request()->except(['othersDataPage','msgBoardType']),['msgBoardType'=>'others_page']));
+
+        // $getLists_myself = MessageBoard::selectRaw('users.id as uid, users.name as uname, users.engroup as uengroup, user_meta.pic as umpic, user_meta.city, user_meta.area')
+        //     ->selectRaw('message_board.id as mid, message_board.title as mtitle, message_board.contents as mcontents, message_board.updated_at as mupdated_at, message_board.created_at as mcreated_at')
+        //     ->LeftJoin('users', 'users.id','=','message_board.user_id')
+        //     ->LeftJoin('user_meta', 'users.id','=','user_meta.user_id')
+        //     ->where('users.id',$user->id)
+        //     ->orderBy('message_board.created_at','desc')
+        //     ->paginate(10, ['*'], 'myselfDataPage')
+        //     ->appends(array_merge(request()->except(['myselfDataPage','msgBoardType']),['msgBoardType'=>'my_page']));
+
+        return view('/dashboard/messageBoard_list', compact('data'))
+            ->with('user', $user);
+
     }
 
     public function messageBoard_showList_myself(Request $request)
@@ -7005,50 +7060,59 @@ class PagesController extends BaseController
 
         $ssrData = '';
 
-        foreach($data as $list){
+        if(count($data)>0){
+            foreach($data as $list){
             
-            $userMeta=\App\Models\UserMeta::findByMemberId($list->uid);
-            $msgUser=\App\Models\User::findById($list->uid);
-            $isBlurAvatar = \App\Services\UserService::isBlurAvatar($msgUser, $user);
-
-            $cityList=explode(',',$list->city);
-            $areaList=explode(',',$list->area);
-            $cityAndArea='';
-            foreach ($cityList as $key => $city){
-                $cityAndArea.= $cityList[$key].$areaList[$key] . ((count($cityList)-1)==$key ? '':', ');
+                $userMeta=\App\Models\UserMeta::findByMemberId($list->uid);
+                $msgUser=\App\Models\User::findById($list->uid);
+                $isBlurAvatar = \App\Services\UserService::isBlurAvatar($msgUser, $user);
+    
+                $cityList=explode(',',$list->city);
+                $areaList=explode(',',$list->area);
+                $cityAndArea='';
+                foreach ($cityList as $key => $city){
+                    $cityAndArea.= $cityList[$key].$areaList[$key] . ((count($cityList)-1)==$key ? '':', ');
+                }
+                if($isBlurAvatar){
+                    $is_blur = 'blur_img';  
+                }else{
+                    $is_blur = '';
+                }
+    
+                if(file_exists( public_path().$list->umpic ) && $list->umpic != ""){
+                    $umpic = $list->umpic;
+                }else if($list->uengroup==2){
+                    $umpic = '/new/images/female.png';
+                }else{
+                    $umpic = '/new/images/male.png';
+                }
+                $age = $userMeta ? $userMeta->age() : '';
+                $ssrData .='<div class="liuyan_nlist">';
+                $ssrData .='<ul>';
+                $ssrData .='<li>';
+                $ssrData .='<a href="/dashboard/viewuser/'.$list->uid.'">';
+                $ssrData .='<div class="liuyan_img"><img class="hycov '.$is_blur.'" src="'.$umpic.'"></div>';
+                $ssrData .='</a>';
+                $ssrData .='<a href="/MessageBoard/post_detail/'. $list->mid.'">';
+                $ssrData .='<div class="liuyan_prilist">';
+                $ssrData .='<div class="liuyfont">';
+                $ssrData .='<div class="liu_name">'.$list->uname.' , '. $age .'<span>'. substr($list->mcreated_at,0,10) .'</span></div>';
+                $ssrData .='<div class="liu_dq">'. $cityAndArea .'</div>';
+                $ssrData .='</div>';
+                $ssrData .='<div class="liu_text">';
+                $ssrData .='<div class="liu_text_1">'. $list->mtitle .'</div>';
+                $ssrData .='<div class="liu_text_2">'. $list->mcontents .'</div>';
+                $ssrData .='</div>';
+                $ssrData .='</div>';
+                $ssrData .='</a>';
+                $ssrData .='</li>';
+                $ssrData .='</ul>';
+                $ssrData .='</div>';
             }
-            if($isBlurAvatar){
-                $is_blur = 'blur_img';  
-            }else{
-                $is_blur = '';
-            }
-
-            if(file_exists( public_path().$list->umpic ) && $list->umpic != ""){
-                $umpic = $list->umpic;
-            }else if($list->uengroup==2){
-                $umpic = '/new/images/female.png';
-            }else{
-                $umpic = '/new/images/male.png';
-            }
-            $age = $userMeta ? $userMeta->age() : '';
-            $ssrData .='<li>';
-            $ssrData .='<a href="/dashboard/viewuser/'.$list->uid.'">';
-            $ssrData .='<div class="liuyan_img"><img class="hycov '.$is_blur.'" src="'.$umpic.'"></div>';
-            $ssrData .='</a>';
-            $ssrData .='<a href="/MessageBoard/post_detail/'. $list->mid.'">';
-            $ssrData .='<div class="liuyan_prilist">';
-            $ssrData .='<div class="liuyfont">';
-            $ssrData .='<div class="liu_name">'.$list->uname.' , '. $age .'<span>'. substr($list->mcreated_at,0,10) .'</span></div>';
-            $ssrData .='<div class="liu_dq">'. $cityAndArea .'</div>';
-            $ssrData .='</div>';
-            $ssrData .='<div class="liu_text">';
-            $ssrData .='<div class="liu_text_1">'. $list->mtitle .'</div>';
-            $ssrData .='<div class="liu_text_2">'. $list->mcontents .'</div>';
-            $ssrData .='</div>';
-            $ssrData .='</div>';
-            $ssrData .='</a>';
-            $ssrData .='</li>';
+        }else{
+            $ssrData .= '<div class="ddt_list matop5"><div class="zap_ullist matop5" ><div class="n_dtwu_nr"><img src="/new/images/liuyan_no.png"><p>目前無紀錄</p></div></div></div>';
         }
+        
         $output = array(
             'ssrData'=>$ssrData,
             'count'=>$count,
@@ -7119,51 +7183,59 @@ class PagesController extends BaseController
         $data = $getLists_others->take($per_page_count)->skip($skip)->get();
 
         $ssrData = '';
-        
-        foreach($data as $list){
+        if(count($data)>0){
+            foreach($data as $list){
             
-            $userMeta=\App\Models\UserMeta::findByMemberId($list->uid);
-            $msgUser=\App\Models\User::findById($list->uid);
-            $isBlurAvatar = \App\Services\UserService::isBlurAvatar($msgUser, $user);
-
-            $cityList=explode(',',$list->city);
-            $areaList=explode(',',$list->area);
-            $cityAndArea='';
-            foreach ($cityList as $key => $city){
-                $cityAndArea.= $cityList[$key].$areaList[$key] . ((count($cityList)-1)==$key ? '':', ');
+                $userMeta=\App\Models\UserMeta::findByMemberId($list->uid);
+                $msgUser=\App\Models\User::findById($list->uid);
+                $isBlurAvatar = \App\Services\UserService::isBlurAvatar($msgUser, $user);
+    
+                $cityList=explode(',',$list->city);
+                $areaList=explode(',',$list->area);
+                $cityAndArea='';
+                foreach ($cityList as $key => $city){
+                    $cityAndArea.= $cityList[$key].$areaList[$key] . ((count($cityList)-1)==$key ? '':', ');
+                }
+                if($isBlurAvatar){
+                    $is_blur = 'blur_img';  
+                }else{
+                    $is_blur = '';
+                }
+    
+                if(file_exists( public_path().$list->umpic ) && $list->umpic != ""){
+                    $umpic = $list->umpic;
+                }else if($list->uengroup==2){
+                    $umpic = '/new/images/female.png';
+                }else{
+                    $umpic = '/new/images/male.png';
+                }
+                $age = $userMeta ? $userMeta->age() : '';
+                $ssrData .='<div class="liuyan_nlist">';
+                $ssrData .='<ul>';
+                $ssrData .='<li>';
+                $ssrData .='<a href="/dashboard/viewuser/'.$list->uid.'">';
+                $ssrData .='<div class="liuyan_img"><img class="hycov '.$is_blur.'" src="'.$umpic.'"></div>';
+                $ssrData .='</a>';
+                $ssrData .='<a href="/MessageBoard/post_detail/'. $list->mid.'">';
+                $ssrData .='<div class="liuyan_prilist">';
+                $ssrData .='<div class="liuyfont">';
+                $ssrData .='<div class="liu_name">'.$list->uname.' , '.$age .'<span>'. substr($list->mcreated_at,0,10) .'</span></div>';
+                $ssrData .='<div class="liu_dq">'. $cityAndArea .'</div>';
+                $ssrData .='</div>';
+                $ssrData .='<div class="liu_text">';
+                $ssrData .='<div class="liu_text_1">'. $list->mtitle .'</div>';
+                $ssrData .='<div class="liu_text_2">'. $list->mcontents .'</div>';
+                $ssrData .='</div>';
+                $ssrData .='</div>';
+                $ssrData .='</a>';
+                $ssrData .='</li>';
+                $ssrData .='</ul>';
+                $ssrData .='</div>';
             }
-            if($isBlurAvatar){
-                $is_blur = 'blur_img';  
-            }else{
-                $is_blur = '';
-            }
-
-            if(file_exists( public_path().$list->umpic ) && $list->umpic != ""){
-                $umpic = $list->umpic;
-            }else if($list->uengroup==2){
-                $umpic = '/new/images/female.png';
-            }else{
-                $umpic = '/new/images/male.png';
-            }
-            $age = $userMeta ? $userMeta->age() : '';
-            $ssrData .='<li>';
-            $ssrData .='<a href="/dashboard/viewuser/'.$list->uid.'">';
-            $ssrData .='<div class="liuyan_img"><img class="hycov '.$is_blur.'" src="'.$umpic.'"></div>';
-            $ssrData .='</a>';
-            $ssrData .='<a href="/MessageBoard/post_detail/'. $list->mid.'">';
-            $ssrData .='<div class="liuyan_prilist">';
-            $ssrData .='<div class="liuyfont">';
-            $ssrData .='<div class="liu_name">'.$list->uname.' , '.$age .'<span>'. substr($list->mcreated_at,0,10) .'</span></div>';
-            $ssrData .='<div class="liu_dq">'. $cityAndArea .'</div>';
-            $ssrData .='</div>';
-            $ssrData .='<div class="liu_text">';
-            $ssrData .='<div class="liu_text_1">'. $list->mtitle .'</div>';
-            $ssrData .='<div class="liu_text_2">'. $list->mcontents .'</div>';
-            $ssrData .='</div>';
-            $ssrData .='</div>';
-            $ssrData .='</a>';
-            $ssrData .='</li>';
+        }else{
+            $ssrData .= '<div class="ddt_list matop5"><div class="zap_ullist matop5" ><div class="n_dtwu_nr"><img src="/new/images/liuyan_no.png"><p>目前無紀錄</p></div></div></div>';
         }
+        
         $output = array(
             'ssrData'=>$ssrData,
             'count'=>$count,
@@ -7280,7 +7352,7 @@ class PagesController extends BaseController
                     }else{
                         $ssrData.='<div class="right">';
                         $ssrData.='<a onclick="block_user();"class="sc_cc"><img src="/new/images/ncion_09.png">封鎖</a>';
-                        // $ssrData.='<a onclick="messageBoard_reported('{{ $postDetail->mid }}');" class="sc_cc" style="margin-right: 5px;"><img src="/new/images/jianju_aa.png">檢舉</a>';
+                        $ssrData.='<a onclick="messageBoard_reported('. $postDetail->mid .');" class="sc_cc" style="margin-right: 5px;"><img src="/new/images/jianju_aa.png">檢舉</a>';
                         $ssrData.='</div>';
                     }
         $ssrData .= '</div>';
