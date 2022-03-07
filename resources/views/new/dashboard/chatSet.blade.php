@@ -240,21 +240,31 @@
             }else {
                 $('#chatSetForm').submit();
             }*/
+            window.sessionStorage.setItem('isUpdated',true);
             $('#chatSetForm').submit();
         });
 
         $(function() {
             $(".gg_zh dd").hide();
-            if(window.sessionStorage.getItem('line_notify_expand'))
-            {
-                $('#line_notify_expand').toggleClass('on');
-                $('#line_notify_expand').next('dd').slideToggle();
+            if(window.sessionStorage.getItem('isUpdated')){
+                if(window.sessionStorage.getItem('line_notify_expand'))
+                {
+                    $('#line_notify_expand').toggleClass('on');
+                    $('#line_notify_expand').next('dd').slideToggle();
+                }
+                if(window.sessionStorage.getItem('refuse_inbox_expand'))
+                {
+                    $('#refuse_inbox_expand').toggleClass('on');
+                    $('#refuse_inbox_expand').next('dd').slideToggle();
+                }
             }
-            if(window.sessionStorage.getItem('refuse_inbox_expand'))
-            {
-                $('#refuse_inbox_expand').toggleClass('on');
-                $('#refuse_inbox_expand').next('dd').slideToggle();
+            else{
+                
+                window.sessionStorage.removeItem('line_notify_expand');
+                window.sessionStorage.removeItem('refuse_inbox_expand');
             }
+            window.sessionStorage.removeItem('isUpdated');
+            
         })
             
         $('#line_notify_expand').click(function(e) {
