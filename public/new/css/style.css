@@ -4334,12 +4334,12 @@ padding:0 5px; height: 20px; line-height: 20px !important; float: right;box-shad
 .search_new{width: 500px; height:50px; border-radius: 15px; box-shadow: 0 0 15px #eee; margin: 0 auto; display: table; margin-top: 20px; cursor: pointer;}
 .se_input_eg{width:calc(100% - 60px); float: left ; border: none; line-height: 50px; background: none; outline: none; padding: 0 10px; font-size: 15px; color: #999;}
 
-.se_button{width: 40px; height: 40px; background: #fff; box-shadow:6px 8px 20px #ffc7d4;border-radius: 15px; float: right; margin-top:7px;}
-.se_button01{width: 40px; height: 40px; background: #fff; box-shadow: inset 10px 5px 10px #ffc7d4;border-radius: 15px; display: table; cursor: pointer;}
-.se_button01:active{background:linear-gradient(to bottom,#ffb3c3,#fd7c96);}
-.se_button02{width:27px; height:27px;background:linear-gradient(to bottom,#fff,#f9d5dd);; box-shadow: 5px 5px 10px #fc8da4;border-radius:10px; margin: 0 auto; display: table; margin-top:7px;}
-.se_button02 img{ height:17px; margin: 0 auto; display: table; margin-top:6px;}
- /* .se_button02:hover{background:linear-gradient(to bottom,#fff,#f9d5dd);} */
+.se_button{width: 50px; height: 50px; background: #fff; box-shadow:6px 8px 20px #ffc7d4;border-radius: 15px; float: right;}
+.se_button01{width: 50px; height: 50px; background: #fff; box-shadow: inset 10px 5px 10px #ffc7d4;border-radius: 15px; display: table; cursor: pointer;}
+.se_button01:hover{background:linear-gradient(to bottom,#ffb3c3,#fd7c96);}
+.se_button02{width:35px; height:35px; background: #fff; box-shadow: 5px 5px 10px #fc8da4;border-radius: 15px; margin: 0 auto; display: table; margin-top:8px;}
+.se_button02 img{ height:20px; margin: 0 auto; display: table; margin-top:6px;}
+ .se_button02:hover{background:linear-gradient(to bottom,#fff,#f9d5dd);}
 
 
 
@@ -4722,6 +4722,7 @@ line-height:26px; box-shadow: 0 5px 5px #ffc1cd; cursor: pointer;}
     font-size: 14px; box-shadow:#ffe3e6 0 5px 6px;}
 .bangui img{ height:18px; margin-top: -2px; margin-left: 3px;}
 .bangui font{width:calc(100% - 26px); float: right;}
+<<<<<<< HEAD
 
 .ngg_a_tab{border-radius:10px;box-shadow: 0 0 10px #ffeff6;width: 100%; overflow: hidden;display: block; padding-bottom: 30px;}
 .naa_dd{ padding: 0 10px;}
@@ -4737,4 +4738,14 @@ margin-bottom: 15px; margin-top:20px;background-position:right center;background
 
 .n_gg_mm span{ float: left; margin-left: 15px; color: #ee6484; font-size: 18px; font-weight: bold; line-height: 20px; margin-top: 12.5px;}	
 .n_gg_mm span i{width:4px; height:20px; background: #ee6484; margin-right: 10px; display: table; float: left;}	
-.n_gg_mm img{ height: 40px; float: right; margin-right: 10px; margin-top: 5px;;}	
+.n_gg_mm img{ height: 40px; float: right; margin-right: 10px; margin-top: 5px;;}
+=======
+#menuButton{
+    right: 0px !important;
+}
+
+
+.n_heighnn {width:95%;margin: 0 auto;color: #666666;height:100px; display: table;margin-top: 15px; margin-bottom:15px; position: relative; overflow: hidden;}
+.n_gd{width:5px; height: 100%; position: absolute; background: #fff; top: 0; right: 0; border-radius: 100px;}
+.n_gd_t{width: 100%; height: 50%; background: #8a9fef;border-radius: 100px;}
+>>>>>>> simon-develop
