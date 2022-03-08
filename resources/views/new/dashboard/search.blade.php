@@ -815,7 +815,15 @@ header("Expires: Fri, 01 Jan 1990 00:00:00 GMT");
 
         $('.n_search').hide();
         function button_aa() {
-            $(".n_search").show()
+            var display =$('.n_search').css('display');
+            if(display =='none')
+            {
+                $(".n_search").show();
+            }
+            else
+            {
+                $('.n_search').hide();
+            }
         }
 
         $(document).ready(function(){
