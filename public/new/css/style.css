@@ -4723,11 +4723,18 @@ line-height:26px; box-shadow: 0 5px 5px #ffc1cd; cursor: pointer;}
 .bangui img{ height:18px; margin-top: -2px; margin-left: 3px;}
 .bangui font{width:calc(100% - 26px); float: right;}
 
+.ngg_a_tab{border-radius:10px;box-shadow: 0 0 10px #ffeff6;width: 100%; overflow: hidden;display: block; padding-bottom: 30px;}
+.naa_dd{ padding: 0 10px;}
+.na_selct{width: 100%; border: #eee 1px solid; padding:5px 10px; border-radius:6px;}
+.na_top{ margin-top: 12px;}
+.na_top25{ margin-top:20px;}
+.na_nb{ font-weight: normal !important;}
+
 .n_gg_mm{width:100%; height: 50px; border: #fcd9da 1px solid;background: url(../images/zs_jtup-a.png) no-repeat #fff6f8;border-radius:5px;box-shadow: 0 0 10px #ffeff6; 
-    margin-bottom: 15px; margin-top:20px;background-position:right center;background-size: 26px; cursor: pointer;}
-    .gg_zh .on{width:100%; height: 50px; border: #fcd9da 1px solid;background:url(../images/zs_jtdown-a.png) no-repeat #fff6f8;border-radius:5px;box-shadow: 0 0 10px #ffeff6;
-    margin-bottom: 15px; margin-top:20px;background-position:right center;background-size: 26px}
-    
-    .n_gg_mm span{ float: left; margin-left: 15px; color: #ee6484; font-size: 18px; font-weight: bold; line-height: 20px; margin-top: 12.5px;}	
-    .n_gg_mm span i{width:4px; height:20px; background: #ee6484; margin-right: 10px; display: table; float: left;}	
-    .n_gg_mm img{ height: 40px; float: right; margin-right: 10px; margin-top: 5px;;}
+margin-bottom: 15px; margin-top:20px;background-position:right center;background-size: 26px; cursor: pointer;}
+.gg_zh .on{width:100%; height: 50px; border: #fcd9da 1px solid;background:url(../images/zs_jtdown-a.png) no-repeat #fff6f8;border-radius:5px;box-shadow: 0 0 10px #ffeff6;
+margin-bottom: 15px; margin-top:20px;background-position:right center;background-size: 26px}
+
+.n_gg_mm span{ float: left; margin-left: 15px; color: #ee6484; font-size: 18px; font-weight: bold; line-height: 20px; margin-top: 12.5px;}	
+.n_gg_mm span i{width:4px; height:20px; background: #ee6484; margin-right: 10px; display: table; float: left;}	
+.n_gg_mm img{ height: 40px; float: right; margin-right: 10px; margin-top: 5px;;}	
