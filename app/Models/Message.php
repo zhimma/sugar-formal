@@ -736,7 +736,7 @@ class Message extends Model
                                     $join->on('vip.member_id', '=', 'message.from_id')
                                         ->where('vip.active', 1); })
                                 ->leftJoin('warned_users as w', 'w.member_id', '=', 'message.from_id')
-                                ->leftJoin('warning_users w_ing', 'w_ing.target', '=', 'message.from_id');
+                                ->leftJoin('warning_users as w_ing', 'w_ing.target', '=', 'message.from_id');
             }
             if($inbox_refuse_set->refuse_pr != -1)
             {
