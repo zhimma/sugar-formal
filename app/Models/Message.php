@@ -735,7 +735,7 @@ class Message extends Model
                 $query = $query->leftJoin('member_vip as vip', function($join) {
                                     $join->on('vip.member_id', '=', 'message.from_id')
                                         ->where('vip.active', 1); })
-                                ->leftJoin('warned_users as w', 'w.member_id', '=', 'message.from_id');
+                                ->leftJoin('user_meta as um', 'um.user_id', '=', 'message.from_id');
             }
             if($inbox_refuse_set->refuse_pr != -1)
             {
@@ -775,12 +775,12 @@ class Message extends Model
             if($inbox_refuse_set->isrefused_common_user)
             {
                 $all_msg = $all_msg->where(function($query){
-                    $query->whereNotNull('vip.id')->orWhereNotNull('w.id');
+                    $query->whereNotNull('vip.id')->orWhere('um.isWarned','=',1);
                 });
             }
             if($inbox_refuse_set->isrefused_warned_user)
             {
-                $all_msg = $all_msg->whereNull('w.id');
+                $all_msg = $all_msg->where('um.isWarned','=',0);
             }
             if($inbox_refuse_set->refuse_pr != -1)
             {
