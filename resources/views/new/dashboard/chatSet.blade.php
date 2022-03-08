@@ -97,7 +97,7 @@
                                     <div class="ti_ktx na_top25"><span class="na_nb">c.七天內罐頭訊息數量超過多少不收</span></div>
                                     <div class="ti_xcheck naa_dd">
                                         <select name="refuse_canned_message_PR" class="na_selct na_top">
-                                            <option value=0 @if($inbox_refuse_set->refuse_canned_message_pr == 0) selected @endif>請選擇</option>
+                                            <option value=-1 @if($inbox_refuse_set->refuse_canned_message_pr == -1) selected @endif>請選擇</option>
                                             <option value=25 @if($inbox_refuse_set->refuse_canned_message_pr == 25) selected @endif>25%</option>
                                             <option value=50 @if(!$inbox_refuse_set->refuse_canned_message_pr) selected @endif @if($inbox_refuse_set->refuse_canned_message_pr == 50) selected @endif>50%</option>
                                             <option value=75 @if($inbox_refuse_set->refuse_canned_message_pr == 75) selected @endif>75%</option>

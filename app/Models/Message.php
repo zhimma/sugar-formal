@@ -741,10 +741,6 @@ class Message extends Model
             {
                 $query = $query->leftJoin('pr_log as pr', 'pr.user_id', '=', 'message.from_id');
             }
-            if($inbox_refuse_set->refuse_canned_message_pr != 0)
-            {
-                
-            }
         }
         
         $all_msg = $query->whereNotNull('u1.id')
@@ -813,7 +809,7 @@ class Message extends Model
         //增加篩選過濾條件
         if($inbox_refuse_set)
         {
-            if($inbox_refuse_set->refuse_canned_message_pr != 0)
+            if($inbox_refuse_set->refuse_canned_message_pr != -1)
             {
                 $count = 0;
                 foreach ($all_msg as $msg)
