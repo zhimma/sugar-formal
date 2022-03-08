@@ -126,7 +126,7 @@
 			var user_id = nowElt.parent().find('a.user_id').text().replace(' ','');
 			$.ajax({
 				type: 'POST',
-				url: '/admin/users/accountStatus_admin',
+				url: '/admin/users/accountStatus_admin?{{csrf_token()}}={{now()->timestamp}}',
 				data: { uid : user_id,account_status:account_status,_token: '{{csrf_token()}}'},
 				success: function(xhr, status, error){
 					nowElt.text(next_text);				
@@ -157,7 +157,7 @@
 			var user_id = $(this).parent().find('a.user_id').text().replace(' ','');
 			$.ajax({
 				type: 'GET',
-				url: '{{ route('ignoreDuplicate') }}',
+				url: '{{ route('ignoreDuplicate') }}?{{csrf_token()}}={{now()->timestamp}}',
 				data: { value : user_id,op:0},
 				success: function(xhr, status, error){
 
@@ -174,7 +174,7 @@
 			var user_id = $(this).parent().find('a.user_id').text().replace(' ','');
 			$.ajax({
 				type: 'GET',
-				url: '{{ route('ignoreDuplicate') }}',
+				url: '{{ route('ignoreDuplicate') }}?{{csrf_token()}}={{now()->timestamp}}',
 				data: { value : user_id,op:1},
 				success: function(xhr, status, error){
 
@@ -201,7 +201,7 @@
 			var cat = userid_cat_arr[1];
 			$.ajax({
 				type: 'GET',
-				url: '{{ route('ignoreDuplicate') }}',
+				url: '{{ route('ignoreDuplicate') }}?{{csrf_token()}}={{now()->timestamp}}',
 				data: { value : user_id,op:0,cat:cat},
 				success: function(xhr, status, error){
 					nowelt.parent().removeClass('ignore_cell');
@@ -228,7 +228,7 @@
 			var cat = userid_cat_arr[1];
 			$.ajax({
 				type: 'GET',
-				url: '{{ route('ignoreDuplicate') }}',
+				url: '{{ route('ignoreDuplicate') }}?{{csrf_token()}}={{now()->timestamp}}',
 				data: { value : user_id,op:1,cat:cat},
 				success: function(xhr, status, error){
 					nowelt.parent().addClass('ignore_cell');

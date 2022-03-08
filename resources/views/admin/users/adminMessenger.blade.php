@@ -226,7 +226,7 @@
         $(".savebtn").click(function(){
             $.ajax({
                 type: 'POST',
-                url: "/admin/users/updatemsglib",
+                url: "/admin/users/updatemsglib?{{csrf_token()}}={{now()->timestamp}}",
                 data:{
                     _token: '{{csrf_token()}}',
                     formdata: $("#idForm").serialize(),
@@ -253,7 +253,7 @@
             {
                 $.ajax({
                     type: 'POST',
-                    url: "/admin/users/delmsglib",
+                    url: "/admin/users/delmsglib?{{csrf_token()}}={{now()->timestamp}}",
                     data:{
                         _token: '{{csrf_token()}}',
                         id    : $(this).attr('id'),
@@ -303,7 +303,7 @@
             if (r==true){
                 $.ajax({
                     type: 'POST',
-                    url: "/admin/users/delmsglib",
+                    url: "/admin/users/delmsglib?{{csrf_token()}}={{now()->timestamp}}",
                     data:{
                         _token: '{{csrf_token()}}',
                         id    : $(this).attr('id'),

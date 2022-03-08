@@ -28,7 +28,7 @@
 
         $.ajax({
             type: 'POST',
-            url: '{{ route('showMoreMessages') }}/{{ \Carbon\Carbon::now()->timestamp }}',
+            url: '{{ route('showMoreMessages') }}/{{ \Carbon\Carbon::now()->timestamp }}?{{csrf_token()}}={{now()->timestamp}}',
             data: {
                 _token:"{{ csrf_token() }}",
                 date : date,
@@ -89,7 +89,7 @@
         }, 100);
         $.ajax({
             type: 'POST',
-            url: '{{ route('showAllMessages') }}/{{ \Carbon\Carbon::now()->timestamp }}',
+            url: '{{ route('showAllMessages') }}/{{ \Carbon\Carbon::now()->timestamp }}?{{csrf_token()}}={{now()->timestamp}}',
             data: {
                 _token:"{{ csrf_token() }}",
                 uid : '{{ $user->id }}',

@@ -308,7 +308,7 @@
     function WarnedToggler(user_id,isWarned){
         $.ajax({
             type: 'POST',
-            url: "/admin/users/isWarned_user",
+            url: "/admin/users/isWarned_user?{{csrf_token()}}={{now()->timestamp}}",
             data:{
                 _token: '{{csrf_token()}}',
                 id: user_id,

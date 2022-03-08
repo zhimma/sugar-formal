@@ -2065,7 +2065,7 @@ function RecommendedToggler(user_id,Recommended){
 function WarnedToggler(user_id,isWarned){
 	$.ajax({
 		type: 'POST',
-		url: "/admin/users/isWarned_user",
+		url: "/admin/users/isWarned_user?{{csrf_token()}}={{now()->timestamp}}",
 		data:{
 			_token: '{{csrf_token()}}',
 			id: user_id,
@@ -2102,7 +2102,7 @@ $("#unblock_user").click(function(){
 	if(confirm('確定解除封鎖此會員?')){
 		$.ajax({
 			type: 'POST',
-			url: "/admin/users/unblock_user",
+			url: "/admin/users/unblock_user?{{csrf_token()}}={{now()->timestamp}}",
 			data:{
 				_token: '{{csrf_token()}}',
 				data: data,
@@ -2123,7 +2123,7 @@ $("#unwarned_user").click(function(){
 	if(confirm('確定解除此會員站方警示?')){
 		$.ajax({
 			type: 'POST',
-			url: "/admin/users/unwarned_user",
+			url: "/admin/users/unwarned_user?{{csrf_token()}}={{now()->timestamp}}",
 			data:{
 				_token: '{{csrf_token()}}',
 				data: data,
@@ -2193,7 +2193,7 @@ function evaluationCheck(eid,userid,is_check) {
 	if (confirm(showMsg)) {
 		$.ajax({
 			type: 'POST',
-			url: "/admin/users/evaluation/check",
+			url: "/admin/users/evaluation/check?{{csrf_token()}}={{now()->timestamp}}",
 			data: {
 				_token: '{{csrf_token()}}',
 				id: eid,
@@ -2231,7 +2231,7 @@ $('.delete_phone_submit').on('click',function(e){
 $("input[name='phone']").keyup(function(){
 	$.ajax({
 		type: 'POST',
-		url: "/admin/users/phone/search",
+		url: "/admin/users/phone/search?{{csrf_token()}}={{now()->timestamp}}",
 		data: {
 			_token: '{{csrf_token()}}',
 			phone: $(this).val(),
@@ -2332,7 +2332,7 @@ $("input[name='phone']").keyup(function(){
         
         $.ajax({
             type: 'GET',
-            url: location.pathname+'?block=pic',
+            url: location.pathname+'?block=pic&{{csrf_token()}}={{now()->timestamp}}',
             success: function(res){
                 $('#pic_block').html(res);
             }});        

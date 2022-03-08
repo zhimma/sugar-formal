@@ -183,7 +183,7 @@ document.getElementById(id+"_a").className="n_viphover";
 		{
 			$.ajax({
 			type: 'POST',
-			url: "/cancelVip",
+			url: "/cancelVip?{{csrf_token()}}={{now()->timestamp}}",
 			data:{
 				_token: '{{csrf_token()}}',
 				acc   : $("#acc").val(),

@@ -161,7 +161,7 @@ $code = Config::get('social.payment.code');
         let data = $(form).serialize();
         $.ajax({
             type: 'POST',
-            url: '{{ route('upgradepayLog') }}',
+            url: '{{ route('upgradepayLog') }}?{{csrf_token()}}={{now()->timestamp}}',
             data: {
                 _token:"{{ csrf_token() }}",
                 data : data

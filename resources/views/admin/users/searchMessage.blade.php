@@ -884,7 +884,7 @@
             if(confirm('確定解除封鎖此會員?')){
                 $.ajax({
                     type: 'POST',
-                    url: "/admin/users/unblock_user",
+                    url: "/admin/users/unblock_user?{{csrf_token()}}={{now()->timestamp}}",
                     data:{
                         _token: '{{csrf_token()}}',
                         data: data,
@@ -923,7 +923,7 @@
             }
             $.ajax({
                 type: 'POST',
-                url: "/admin/users/toggleUserBlock",
+                url: "/admin/users/toggleUserBlock?{{csrf_token()}}={{now()->timestamp}}",
                 data:{
                     _token: '{{csrf_token()}}',
                     user_id: $("#blockUserID").val(),
@@ -950,7 +950,7 @@
             if(confirm('確定解除此會員站方警示?')){
                 $.ajax({
                     type: 'POST',
-                    url: "/admin/users/unwarned_user",
+                    url: "/admin/users/unwarned_user?{{csrf_token()}}={{now()->timestamp}}",
                     data:{
                         _token: '{{csrf_token()}}',
                         data: data,
@@ -984,7 +984,7 @@
             }
             $.ajax({
                 type: 'POST',
-                url: "/admin/users/toggleUserWarned",
+                url: "/admin/users/toggleUserWarned?{{csrf_token()}}={{now()->timestamp}}",
                 data:{
                     _token: '{{csrf_token()}}',
                     user_id: $("#warnedUserID").val(),
@@ -1022,7 +1022,7 @@
             }
             $.ajax({
                 type: 'POST',
-                url: "/admin/users/bans_implicitly",
+                url: "/admin/users/bans_implicitly?{{csrf_token()}}={{now()->timestamp}}",
                 data:{
                     _token: '{{csrf_token()}}',
                     user_id: $("#implicitlyUserID").val(),
@@ -1101,7 +1101,7 @@
     function WarnedToggler(user_id,isWarned){
         $.ajax({
             type: 'POST',
-            url: "/admin/users/isWarned_user",
+            url: "/admin/users/isWarned_user?{{csrf_token()}}={{now()->timestamp}}",
             data:{
                 _token: '{{csrf_token()}}',
                 id: user_id,

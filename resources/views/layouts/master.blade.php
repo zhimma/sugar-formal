@@ -138,7 +138,7 @@
     function disableAnnounce(aid){
         $.ajax({
             type: 'POST',
-            url: '{{ route('announceRead') }}',
+            url: '{{ route('announceRead') }}?{{csrf_token()}}={{now()->timestamp}}',
             data: { uid: "{{ $user->id }}", aid: aid, _token: "{{ csrf_token() }}"},
             success: function(xhr, status, error){
                 console.log(xhr);
