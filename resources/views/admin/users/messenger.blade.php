@@ -488,10 +488,12 @@
                     $('.msg3').each(function (k, v) {
                         name = $('.name3').eq(k).val();
                         time = $('.time3').eq(k).val();
-                        time = time?time:'';
+                        time = time ? time : '';
+                        let now_time_php = "{{ now() }}";
                         msg2 = msg;
                         msg2 = msg2.replace(/NAME/g, name);
                         msg2 = msg2.replace(/\|$report\|/g, name);
+                        msg2 = msg2.replace(/NOW_TIME/g, now_time_php);
                         msg2 = msg2.replace(/TIME/g, time);
                         msg2 = msg2.replace(/\|$responseTime\|/g, time);
                         msg2 = msg2.replace(/\|$reportTime\|/g, time);
