@@ -4722,7 +4722,6 @@ line-height:26px; box-shadow: 0 5px 5px #ffc1cd; cursor: pointer;}
     font-size: 14px; box-shadow:#ffe3e6 0 5px 6px;}
 .bangui img{ height:18px; margin-top: -2px; margin-left: 3px;}
 .bangui font{width:calc(100% - 26px); float: right;}
-<<<<<<< HEAD
 
 .ngg_a_tab{border-radius:10px;box-shadow: 0 0 10px #ffeff6;width: 100%; overflow: hidden;display: block; padding-bottom: 30px;}
 .naa_dd{ padding: 0 10px;}
@@ -4739,13 +4738,12 @@ margin-bottom: 15px; margin-top:20px;background-position:right center;background
 .n_gg_mm span{ float: left; margin-left: 15px; color: #ee6484; font-size: 18px; font-weight: bold; line-height: 20px; margin-top: 12.5px;}	
 .n_gg_mm span i{width:4px; height:20px; background: #ee6484; margin-right: 10px; display: table; float: left;}	
 .n_gg_mm img{ height: 40px; float: right; margin-right: 10px; margin-top: 5px;;}
-=======
+
 #menuButton{
     right: 0px !important;
 }
 
-
 .n_heighnn {width:95%;margin: 0 auto;color: #666666;height:100px; display: table;margin-top: 15px; margin-bottom:15px; position: relative; overflow: hidden;}
 .n_gd{width:5px; height: 100%; position: absolute; background: #fff; top: 0; right: 0; border-radius: 100px;}
 .n_gd_t{width: 100%; height: 50%; background: #8a9fef;border-radius: 100px;}
->>>>>>> simon-develop
+
