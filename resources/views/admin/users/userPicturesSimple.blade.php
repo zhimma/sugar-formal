@@ -10,7 +10,7 @@
 }
 </style>
 <body style="padding: 15px;">
-<h1>會員照片管理簡化版</h1>
+<h1>會員檢查 step 1</h1>
 <form action="@if(Auth::user()->can('readonly')){{ route('users/pictures/readOnly') }}@else{{ route('users/picturesSimpleSearch') }}@endif"
       @if(Auth::user()->can('readonly')) method="POST" @else method="get" @endif>
     {!! csrf_field() !!}

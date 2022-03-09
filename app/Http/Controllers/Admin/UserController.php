@@ -4098,7 +4098,7 @@ class UserController extends \App\Http\Controllers\BaseController
             $pics = $pics->orderBy('member_pic.updated_at','desc');
         }
 
-        $pics = $pics->paginate(20);
+        $pics = $pics->paginate(15);
 
         $account = array();
         foreach ($pics as $key => $pic) {
