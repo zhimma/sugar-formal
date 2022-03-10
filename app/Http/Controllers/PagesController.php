@@ -78,6 +78,7 @@ use App\Models\SimpleTables\short_message;
 use App\Models\LogAdvAuthApi;
 use Illuminate\Support\Facades\Http;
 use App\Services\SearchIgnoreService;
+use \FileUploader;
 
 class PagesController extends BaseController
 {
@@ -7273,6 +7274,16 @@ class PagesController extends BaseController
     public function anonymousChat(Request $request) {
         $user = auth()->user();
 
+        if (User::isBanned($user->id)) {
+            return redirect('/dashboard/personalPage')->with('message', '您已被站方封鎖，禁止使用聊天室。');
+        }
+        $isWarned = warned_users::where('member_id', $user->id)
+            ->where('expire_date', null)->orWhere('expire_date','>',Carbon::now() )
+            ->where('member_id', $user->id)
+            ->orderBy('created_at','desc')->first();
+        if($isWarned){
+            return redirect('/dashboard/personalPage')->with('message', '您已被站方警示，禁止使用聊天室。');
+        }
         if($user->engroup==1 && !$user->isVip()){
             $message = '目前僅提供給VIP會員使用，若欲前往使用，<a href="/dashboard/new_vip" class="red">請點此立即升級VIP！</a>';
             return redirect('/dashboard/personalPage')->with('message', $message);
@@ -7287,17 +7298,8 @@ class PagesController extends BaseController
             return redirect('/dashboard/personalPage')->with('message', '因被檢舉次數過多，目前已限制使用匿名聊天室');
         }
 
-        $anonymous_chat_announcement = AdminCommonText::where('category_alias', 'anonymous_chat')->where('alias', 'announcement')->first();
-        if($anonymous_chat_announcement) {
-            $anonymous_chat_announcement = $anonymous_chat_announcement->content;
-        }else{
-            $anonymous_chat_announcement = '';
-        }
-
-
         return view('/new/dashboard/anonymous_chat')
-            ->with('user', $user)
-            ->with('anonymous_chat_announcement', $anonymous_chat_announcement);
+            ->with('user', $user);
     }
 
     public function anonymous_chat_report(Request $request) {
@@ -7356,6 +7358,83 @@ class PagesController extends BaseController
         }
 
         return back()->with('message', $msg);
+    }
+
+    public function anonymous_chat_save(Request $request) {
+
+
+        $content = $request->content;
+        if($content==''){
+            $content=null;
+        }
+
+//        return response()->json(['msg' => $request->reply_id]);
+        if( !$request->file('files') && !isset($content) ){
+            return response()->json(['msg' => '請輸入內容']);
+        }
+
+            $rootPath = public_path('/img/anonymous_chat');
+            $tempPath = $rootPath . '/' . Carbon::now()->format('Ymd') . '/';
+
+            if (!is_dir($tempPath)) {
+                File::makeDirectory($tempPath, 0777, true);
+            }
+
+            $fileUploader = new FileUploader('files', array(
+                'extensions' => null,
+                'required' => false,
+                'uploadDir' => $tempPath,
+                'title' => '{random}',
+                'replace' => false,
+                'editor' => true,
+                'listInput' => true
+            ));
+            $upload = $fileUploader->upload();
+            $pic_content = null;
+            if($upload){
+                $pic_array = array();
+
+                foreach($fileUploader->getUploadedFiles() as  $key => $pic)
+                {
+                    $path = substr($pic['file'], strlen($rootPath));
+                    $pic_array[$key]['origin_name'] = $pic['old_name'];
+                    $pic_array[$key]['file_path'] = '/img/anonymous_chat'.$path;
+                }
+                if(count($pic_array)>0) {
+                    $pic_content = json_encode($pic_array);
+                }
+            }
+
+        //anonymous
+        $check_anonymous = AnonymousChat::select('anonymous')->where('user_id',auth()->user()->id)->orderBy('created_at', 'desc')->first();
+        if (Auth::user()->isAdmin()) {
+            $anonymous = Auth::user()->name;
+        }elseif($check_anonymous && $check_anonymous->anonymous != ''){
+            $anonymous = $check_anonymous->anonymous;
+        }else{
+            //產生anonymous
+            $check_anonymous = AnonymousChat::select('anonymous')->where('anonymous','<>','站長')->max('anonymous');
+            if($check_anonymous){
+                $anonymous = str_pad($check_anonymous + 1,4,"0",STR_PAD_LEFT);
+            }else{
+                $anonymous = '0001';
+            }
+        }
+
+        if( !empty($pic_content) || isset($content) ){
+            AnonymousChat::Create([
+                'user_id' => auth()->user()->id,
+                'reply_id' => $request->reply_id,
+                'content' => $content,
+                'pic' => $pic_content,
+                'anonymous' => $anonymous
+            ]);
+        return response()->json(['msg' => 'OK']);
+
+        }
+
+        return response()->json(['msg' => 'error']);
+
     }
 }
 
