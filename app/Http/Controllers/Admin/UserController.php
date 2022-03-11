@@ -4062,9 +4062,16 @@ class UserController extends \App\Http\Controllers\BaseController
             ->with('check_point_user')
         ;
 
+        //以更新時間排序(暫時有問題)
+        /*
+        if(isset($request->order_by) && $request->order_by=='updated_at'){
+            $data = $data->with(['user_meta' => function($query){$query->orderBy('updated_at','DESC');}]);
+        }
+        */
+
         if($request->hidden)
         {
-            $data = $data->with(['pic_orderByDecs' => function($query){$query->where('isHidden',true);}]);
+            $data = $data->with('pic_orderByDecs');
         }
         else
         {
@@ -4075,7 +4082,7 @@ class UserController extends \App\Http\Controllers\BaseController
                     ->whereDoesntHave('banned')
                     ->whereDoesntHave('implicitlyBanned')
                     ->whereDoesntHave('aw_relation')
-                    ->whereHas('user_meta',function($query){$query->where('isWarned', true);})
+                    ->whereDoesntHave('user_meta',function($query){$query->where('isWarned', true);})
                     ->whereDoesntHave('check_point_user',function($query){$query->where('check_point_id','>=', 1);})
                     
         ;
@@ -4104,6 +4111,15 @@ class UserController extends \App\Http\Controllers\BaseController
             $data = $data->whereHas('user_meta',function($query) use($area){$query->where('area', $area);});
         }
 
+        if(isset($request->order_by) && $request->order_by=='last_login'){
+            $data = $data->orderBy('users.last_login','desc');
+        }
+
+        //預設排序
+        if($request->order_by==''){
+            $data = $data->orderBy('users.last_login','desc');
+        }
+
         $data = $data->paginate(15);
 
         $account = array();
@@ -4113,22 +4129,7 @@ class UserController extends \App\Http\Controllers\BaseController
             $account[$key]['tipcount']= \App\Models\Tip::TipCount_ChangeGood($d->id);
         }
         
-        
-        /*
-        if(isset($request->order_by) && $request->order_by=='updated_at'){
-            $data = $data->orderBy('member_pic.updated_at','desc');
-        }
-        if(isset($request->order_by) && $request->order_by=='last_login'){
-            $data = $data->orderBy('users.last_login','desc');
-        }
-        //預設排序
-        if($request->order_by==''){
-            $data = $data->orderBy('member_pic.updated_at','desc');
-        }
-        $data = $data->paginate(15);
-        */
-        
-
+        //原始程式碼(大爆改...)
         /*
         $pics = MemberPic::select('member_pic.*')->from('member_pic')
             ->leftJoin('users', 'users.id', '=', 'member_pic.member_id')

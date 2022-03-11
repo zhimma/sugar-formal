@@ -14,6 +14,7 @@ use App\Models\User;
 use App\Models\MemberPic;
 use App\Models\UserMeta;
 use App\Models\LogFreeVipPicAct;
+use App\Models\CheckPointUser;
 use Image;
 use File;
 use Storage;
@@ -298,6 +299,11 @@ class ImageController extends BaseController
         $user = $request->user();
         $preloadedFiles = $this->getAvatar($request)->content();        
         $preloadedFiles = json_decode($preloadedFiles, true);
+
+        CheckPointUser::where('user_id', auth()->id())->delete();
+        $user_meta = UserMeta::where('user_id', auth()->id())->first();
+        $user_meta->updated_at = Carbon::now();
+        $user_meta->save();
             
         $fileUploader = new FileUploader('avatar', array(
             'fileMaxSize' => 8,
@@ -548,6 +554,11 @@ class ImageController extends BaseController
         $preloadedFiles = $this->getPictures($request)->content();
         $preloadedFiles = json_decode($preloadedFiles, true);
         $before_uploaded_existHeaderImage = $user->existHeaderImage();
+
+        CheckPointUser::where('user_id', auth()->id())->delete();
+        $user_meta = UserMeta::where('user_id', auth()->id())->first();
+        $user_meta->updated_at = Carbon::now();
+        $user_meta->save();
 
         $fileUploader = new FileUploader('pictures', array(
             'fileMaxSize' => 8,

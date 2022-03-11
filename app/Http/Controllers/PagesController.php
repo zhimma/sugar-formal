@@ -74,6 +74,7 @@ use App\Services\AdminService;
 use App\Models\LogFreeVipPicAct;
 use App\Models\UserTinySetting;
 use App\Http\Controllers\Admin\UserController;
+use App\Models\CheckPointUser;
 use App\Models\SimpleTables\short_message;
 use App\Models\LogAdvAuthApi;
 use Illuminate\Support\Facades\Http;
@@ -214,6 +215,9 @@ class PagesController extends BaseController
                     'status' => true,
                     'msg' => '無法更新',
             ];
+
+        CheckPointUser::where('user_id', auth()->id())->delete();
+
         return response()->json($status_data, 200)
                 ->header("Cache-Control", "no-cache, no-store, must-revalidate")
                 ->header("Pragma", "no-cache")

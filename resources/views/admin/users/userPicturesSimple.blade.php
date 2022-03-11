@@ -55,10 +55,12 @@
         <tr>
             <th>排序方式</th>
             <td>
+                {{--
                 <div class="form-check form-check-inline">
                     <input type="radio" class="form-check-input" name="order_by" value="updated_at" @if((isset($_GET['order_by']) && $_GET['order_by']=='updated_at')) checked @endif style="margin-left: unset;">
                     <label class="form-check-label" for="inlineRadio4">更新時間</label>
                 </div>
+                --}}
                 <div class="form-check form-check-inline">
                     <input type="radio" class="form-check-input" name="order_by" value="last_login" @if((isset($_GET['order_by']) && $_GET['order_by']=='last_login') ) checked @endif style="margin-left: unset;">
                     <label class="form-check-label" for="inlineRadio5">上線時間</label>
@@ -68,7 +70,7 @@
         <tr>
             <td colspan="2">
                 <button type="submit" class="btn btn-primary">查詢</button> 或
-                <button type="submit" class="btn btn-info" name="hidden" value="1">顯示隱藏的照片</button>
+                <button type="submit" class="btn btn-info" name="hidden" value="1">查詢並顯示隱藏的照片</button>
                 <button type="reset" class="btn btn-default reset_btn" value="Reset">清除重選</button>
             </td>
         </tr>
@@ -113,7 +115,10 @@
                         </a>
                     </td>
                     <td>
-                        {{--<img src="{{ url($pic->pic) }}" width="150px">--}}
+                        <img src="{{ url($d->user_meta->pic) }}" width="150px">
+                        @foreach($d->pic_orderByDecs as $pic)
+                            <img src="{{ url($pic->pic) }}" width="150px">
+                        @endforeach
                     </td>
                     <td>{{ strstr($d->email, '@', true) }}</td>
                     <td>{{ $d->title }}</td>
@@ -121,8 +126,8 @@
                     <td>{{ $d->user_meta->style }}</td>
                     <td>{{ $d->last_login }}</td>
                     <td>
-                        <button class="btn_sid btn btn-primary" data-uid="{{$d->id}}">列為可疑</button>
                         <input class="reason" placeholder="請輸入可疑原因">
+                        <button class="btn_sid btn btn-primary" data-sid='' data-uid="{{$d->id}}">列為可疑</button>
                     </td>
                 </tr>
             @endforeach
