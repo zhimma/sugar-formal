@@ -63,6 +63,8 @@ use App\Http\Controller\PagesController;
 use App\Models\ValueAddedService;
 use App\Services\ImagesCompareService;
 use App\Models\SimilarImages;
+use App\Models\CheckPointUser;
+
 class UserController extends \App\Http\Controllers\BaseController
 {
     public function __construct(UserService $userService, AdminService $adminService)
@@ -4123,6 +4125,7 @@ class UserController extends \App\Http\Controllers\BaseController
         $data = $data->paginate(15);
 
         $account = array();
+        $user_id_of_page = array();
         foreach($data as $key => $d)
         {
             $account[$key]['vip'] = \App\Models\Vip::vip_diamond($d->id);
@@ -4134,7 +4137,8 @@ class UserController extends \App\Http\Controllers\BaseController
             {
                 $account[$key]['pic'][$count] = $pic->pic;
                 $count = $count + 1;
-            }   
+            }  
+            $user_id_of_page[] = $d->id;
         }
         
         
@@ -4222,6 +4226,7 @@ class UserController extends \App\Http\Controllers\BaseController
         return view('admin.users.userPicturesSimple',
             [   'data' => $data,
                 'account' => $account,
+                'user_id_of_page' => $user_id_of_page,
                 'en_group' => isset($request->en_group) ? $request->en_group : null,
                 'order_by' => isset($request->order_by) ? $request->order_by : null,
                 'city' => isset($request->city) ? $request->city : null,
@@ -5440,5 +5445,22 @@ class UserController extends \App\Http\Controllers\BaseController
         $id = $request->id;
         AnonymousChat::where('id', $id)->delete();
         echo json_encode(['ok']);
+    }
+
+    public function check_step1(Request $request)
+    {
+        $users_id = json_decode($request->users_id);
+        foreach($users_id as $user_id)
+        {
+            $check_point_user = CheckPointUser::where('user_id', $user_id)->first();
+            if(!$check_point_user)
+            {
+                $check_point_user = new CheckPointUser;
+                $check_point_user->user_id = $user_id;
+                $check_point_user->check_point_id = 1;
+                $check_point_user->save();
+            }
+        }
+        return redirect()->back();
     }
 }

@@ -172,6 +172,10 @@
             @endforeach
         </table>
         {!! $data->appends(request()->input())->links('pagination::sg-pages') !!}
+        <div style="text-align:center;">
+            <button class="check_and_next_page btn btn-primary">下一頁(檢查完畢)</button>
+        </div>
+        <br>
     </div>
 @endif
 
@@ -181,6 +185,13 @@
     <input type="hidden" name="uid" id="uid" value="">
     <input type="hidden" name="reason" id="reason" value="">
 </form>
+
+@if(isset($user_id_of_page))
+<form id="check_and_next_page" action="{{ route('admin/check_step1') }}" method="post">
+    {!! csrf_field() !!}
+    <input type="hidden" name="users_id" id="users_id" value={{json_encode($user_id_of_page)}}>
+</form>
+@endif
 
 <div class="imgPreview">
     <img src="#" alt="" id="imgPreview">
@@ -292,6 +303,14 @@
             $('#sid_toggle').submit();
         }
 
+    });
+
+    $('.check_and_next_page').on('click', function(){
+        console.log(users_id);
+        r = confirm('是否確定本頁檢查完畢?');
+        if(r==true){
+            $('#check_and_next_page').submit();
+        }
     });
 
     $('.img').on('click', function () {

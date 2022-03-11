@@ -834,7 +834,7 @@ Route::group(['middleware' => ['auth', 'global', 'active', 'femaleActive', 'vipC
         Route::post('roles/search', 'RoleController@search');
         Route::get('roles/search', 'RoleController@index');
 
-        
+        Route::post('check/step1', 'UserController@check_step1')->name('admin/check_step1');
     });
     Route::group(['prefix' => 'admin', 'middleware' => 'Admin'], function () {
         //寄退信Log查詢
