@@ -191,7 +191,7 @@
     @endforelse
 	</form>
 </table>
-{!! $messages->links() !!}
+{!! $messages->links('pagination::simple-tailwind') !!}
 </body>
 <!--照片查看-->
 <div class="big_img">
