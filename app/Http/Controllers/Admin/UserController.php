@@ -4061,6 +4061,7 @@ class UserController extends \App\Http\Controllers\BaseController
             ->with('implicitlyBanned')
             ->with('check_point_user')
         ;
+
         if($request->hidden)
         {
             $data = $data->with(['pic_orderByDecs' => function($query){$query->where('isHidden',true);}]);
@@ -4069,6 +4070,15 @@ class UserController extends \App\Http\Controllers\BaseController
         {
             $data = $data->with(['pic_orderByDecs' => function($query){$query->where('isHidden',false);}]);
         }
+
+        $data = $data->whereDoesntHave('suspicious')
+                    ->whereDoesntHave('banned')
+                    ->whereDoesntHave('implicitlyBanned')
+                    ->whereDoesntHave('aw_relation')
+                    ->whereHas('user_meta',function($query){$query->where('isWarned', true);})
+                    ->whereDoesntHave('check_point_user',function($query){$query->where('check_point_id','>=', 1);})
+                    
+        ;
 
         if ($request->date_start) {
             $datastart = $request->date_start;
@@ -4084,22 +4094,27 @@ class UserController extends \App\Http\Controllers\BaseController
             $data = $data->where('users.engroup', $request->en_group);
         }
 
-        $data = $data->where('users.id',15598)->get();
-        Log::Info($data);
+        if ($request->city) {
+            $city = $request->city;
+            $data = $data->whereHas('user_meta',function($query) use($city){$query->where('city', $city);});
+        }
 
+        if ($request->area) {
+            $area = $request->area;
+            $data = $data->whereHas('user_meta',function($query) use($area){$query->where('area', $area);});
+        }
+
+        $data = $data->paginate(15);
+
+        $account = array();
+        foreach($data as $key => $d)
+        {
+            $account[$key]['vip'] = \App\Models\Vip::vip_diamond($d->id);
+            $account[$key]['tipcount']= \App\Models\Tip::TipCount_ChangeGood($d->id);
+        }
         
         
         /*
-        
-        if ($request->en_group) {
-            $data = $data->where('users.engroup', $request->en_group);
-        }
-        if ($request->city) {
-            $data = $data->where('user_meta.city', $request->city);
-        }
-        if ($request->area) {
-            $data = $data->where('user_meta.area', $request->area);
-        }
         if(isset($request->order_by) && $request->order_by=='updated_at'){
             $data = $data->orderBy('member_pic.updated_at','desc');
         }
@@ -4114,9 +4129,7 @@ class UserController extends \App\Http\Controllers\BaseController
         */
         
 
-        /////////////////////////////////////////////////////////////////////
-
-
+        /*
         $pics = MemberPic::select('member_pic.*')->from('member_pic')
             ->leftJoin('users', 'users.id', '=', 'member_pic.member_id')
             ->leftJoin('user_meta', 'user_meta.user_id', '=', 'member_pic.member_id')
@@ -4162,7 +4175,6 @@ class UserController extends \App\Http\Controllers\BaseController
 
         $pics = $pics->paginate(15);
 
-        /////////////////////////////////////////////////////////////////////
         $account = array();
         foreach ($pics as $key => $pic) {
             $user = User::where('id', $pic->member_id)->get()->first();
@@ -4195,9 +4207,10 @@ class UserController extends \App\Http\Controllers\BaseController
                 $account[$key]['isAdminWarned'] = 0;
             }
         }
+        */
 
         return view('admin.users.userPicturesSimple',
-            ['pics' => $pics,
+            [   'data' => $data,
                 'account' => $account,
                 'en_group' => isset($request->en_group) ? $request->en_group : null,
                 'order_by' => isset($request->order_by) ? $request->order_by : null,

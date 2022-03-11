@@ -75,28 +75,28 @@
     </table>
 </form>
 
-@if(isset($pics))
-<div>
-    <table class="table-hover table table-bordered">
-        <tr>
-            <td width="12%">會員名稱</td>
-            <td width="12%">照片</td>
-            <td width="12%">更新時間</td>
-            <td width="12%">標題(一句話形容自己）</td>
-            <td width="14%">關於我</td>
-            <td width="12%">期待的約會模式</td>
-            <td width="12%">上線時間</td>
-            <td width="5%">可疑名單</td>
-        </tr>
-            @foreach ($pics as $key =>$pic)
+@if(isset($data))
+    <div>
+        <table class="table-hover table table-bordered">
+            <tr>
+                <td width="12%">會員名稱</td>
+                <td width="12%">照片</td>
+                <td width="12%">email 前半段</td>
+                <td width="12%">標題(一句話形容自己）</td>
+                <td width="14%">關於我</td>
+                <td width="12%">期待的約會模式</td>
+                <td width="12%">上線時間</td>
+                <td width="5%">操作</td>
+            </tr>
+            @foreach ($data as $key =>$d)
                 <tr>
-                    <td @if( $account[$key]['isBlocked']) style="background-color:#FFFF00" @endif>
+                    <td>
                         @if (Auth::user()->can('readonly'))
-                        <a href="{{ route('users/pictures/editPic_sendMsg/readOnly', $pic->member_id) }}">
+                        <a href="{{ route('users/pictures/editPic_sendMsg/readOnly', $d->id) }}">
                         @else
-                        <a href="advInfo/editPic_sendMsg/{{ $pic->member_id }}">
+                        <a href="advInfo/editPic_sendMsg/{{ $d->id }}">
                         @endif
-                            <p @if($account[$key]['engroup']== '2') style="color: #F00;" @else  style="color: #5867DD;"  @endif>{{ $pic->name }}
+                            <p @if($d->engroup== '2') style="color: #F00;" @else  style="color: #5867DD;"  @endif>{{ $d->name }}
                                 @if($account[$key]['vip'])
                                     @if($account[$key]['vip']=='diamond_black')
                                         <img src="/img/diamond_black.png" style="height: 16px;width: 16px;">
@@ -109,50 +109,26 @@
                                 @for($i = 0; $i < $account[$key]['tipcount']; $i++)
                                     👍
                                 @endfor
-                                @if(!is_null($account[$key]['isBlocked']))
-                                    @if(!is_null($account[$key]['isBlocked']->expire_date))
-                                        @if(round((strtotime($account[$key]['isBlocked']->expire_date) - getdate()[0])/3600/24)>0)
-                                            {{ round((strtotime($account[$key]['isBlocked']->expire_date) - getdate()[0])/3600/24 ) }}天
-                                        @else
-                                            此會員登入後將自動解除封鎖
-                                        @endif
-                                    @elseif(isset($account[$key]['isBlocked_implicitly']))
-                                        (隱性)
-                                    @else
-                                        (永久)
-                                    @endif
-                                @endif
-                                @if($account[$key]['isAdminWarned']==1 OR $account[$key]['userMeta']->isWarned==1)
-                                    <img src="/img/warned_red.png" style="height: 16px;width: 16px;">
-                                @endif
-                                @if($account[$key]['userMeta']->isWarned==0 AND $account[$key]['user']->WarnedScore() >= 10 AND $account[$key]['auth_status']==1)
-                                    <img src="/img/warned_black.png" style="height: 16px;width: 16px;">
-                                @endif
                             </p>
                         </a>
                     </td>
-                    <td><img src="{{ url($pic->pic) }}" width="150px"></td>
-                    <td>{{ $pic->updated_at }}</td>
-                    <td>{{ $pic->title }}</td>
-                    <td>{{ $pic->about }}</td>
-                    <td>{{ $pic->style }}</td>
-                    <td>{{ $pic->last_login }}</td>
                     <td>
-                        <button class="btn_sid btn @if($pic->sid !='')btn-danger @else btn-primary @endif" data-sid="{{$pic->sid}}" data-uid="{{$pic->member_id}}">@if($pic->sid !='') 否 @else 是 @endif</button>
-                        @php
-                            $suspicious=\App\Models\SuspiciousUser::where('user_id',$pic->member_id)->first();
-                        @endphp
-                        @if(!is_null($suspicious))
-                            <div>可疑原因：{{ !is_null($suspicious) ? $suspicious->reason : '' }}</div>
-                        @else
-                            <input class="reason" placeholder="請輸入可疑原因" value="{{ !is_null($suspicious) ? $suspicious->reason : '' }}">
-                        @endif
+                        {{--<img src="{{ url($pic->pic) }}" width="150px">--}}
+                    </td>
+                    <td>{{ strstr($d->email, '@', true) }}</td>
+                    <td>{{ $d->title }}</td>
+                    <td>{{ $d->user_meta->about }}</td>
+                    <td>{{ $d->user_meta->style }}</td>
+                    <td>{{ $d->last_login }}</td>
+                    <td>
+                        <button class="btn_sid btn btn-primary" data-uid="{{$d->id}}">列為可疑</button>
+                        <input class="reason" placeholder="請輸入可疑原因">
                     </td>
                 </tr>
             @endforeach
-    </table>
-    {!! $pics->appends(request()->input())->links('pagination::sg-pages') !!}
-</div>
+        </table>
+        {!! $data->appends(request()->input())->links('pagination::sg-pages') !!}
+    </div>
 @endif
 <form id="sid_toggle" action="{{ route('users/suspicious_user_toggle') }}" method="post">
     {!! csrf_field() !!}
