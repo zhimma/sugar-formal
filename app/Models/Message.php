@@ -17,7 +17,6 @@ use Illuminate\Support\Facades\Log;
 use App\Services\AdminService;
 use Intervention\Image\Facades\Image;
 use App\Models\SimpleTables\banned_users;
-use App\Services\UserService;
 
 use function Clue\StreamFilter\fun;
 
@@ -707,10 +706,6 @@ class Message extends Model
          *
          * @author LZong <lzong.tw@gmail.com>
          */
-
-        //增加篩選過濾條件
-        $inbox_refuse_set = InboxRefuseSet::where('user_id', $uid)->first();
-
         $query = Message::leftJoin('users as u1', 'u1.id', '=', 'message.from_id')
                         ->leftJoin('users as u2', 'u2.id', '=', 'message.to_id')
                         ->leftJoin('banned_users as b1', 'b1.member_id', '=', 'message.from_id')
@@ -726,23 +721,6 @@ class Message extends Model
                         ->leftJoin('blocked as b7', function($join) use($uid) {
                             $join->on('b7.member_id', '=', 'message.from_id')
                                 ->where('b7.blocked_id', $uid); });
-        
-        //增加篩選過濾條件
-        if($inbox_refuse_set)
-        {
-            if($inbox_refuse_set->isrefused_vip_user || $inbox_refuse_set->isrefused_warned_user || $inbox_refuse_set->isrefused_common_user)
-            {
-                $query = $query->leftJoin('member_vip as vip', function($join) {
-                                    $join->on('vip.member_id', '=', 'message.from_id')
-                                        ->where('vip.active', 1); })
-                                ->leftJoin('warned_users as w', 'w.member_id', '=', 'message.from_id');
-            }
-            if($inbox_refuse_set->refuse_pr != -1)
-            {
-                $query = $query->leftJoin('pr_log as pr', 'pr.user_id', '=', 'message.from_id');
-            }
-        }
-        
         $all_msg = $query->whereNotNull('u1.id')
                         ->whereNotNull('u2.id')
                         ->whereNull('b1.member_id')
@@ -765,34 +743,6 @@ class Message extends Model
                         ->whereRaw('message.created_at < IFNULL(b3.created_at,"2999-12-31 23:59:59")')
                         ->whereRaw('message.created_at < IFNULL(b4.created_at,"2999-12-31 23:59:59")');
 
-        //增加篩選過濾條件
-        if($inbox_refuse_set)
-        {
-            if($inbox_refuse_set->isrefused_vip_user)
-            {
-                $all_msg = $all_msg->whereNull('vip.id');
-            }
-            if($inbox_refuse_set->isrefused_common_user)
-            {
-                $all_msg = $all_msg->where(function($query){
-                    $query->whereNotNull('vip.id')->orWhereNotNull('w.id');
-                });
-            }
-            if($inbox_refuse_set->isrefused_warned_user)
-            {
-                $all_msg = $all_msg->whereNull('w.id');
-            }
-            if($inbox_refuse_set->refuse_pr != -1)
-            {
-                $all_msg = $all_msg->whereNotNull('pr.pr')->where('pr.pr','!=','無')->where('pr.pr','>=',$inbox_refuse_set->refuse_pr);
-            }
-            if($inbox_refuse_set->refuse_register_days != 0)
-            {
-                $rtime = Carbon::now()->subDays($inbox_refuse_set->refuse_register_days);
-                $all_msg = $all_msg->where('u1.created_at', '<=', $rtime);
-            }
-        }
-
         if($user->id != 1049){
             $all_msg = $all_msg->where(function($query){
                 $query->where(DB::raw('(u1.engroup + u2.engroup)'), '<>', '2');
@@ -805,25 +755,6 @@ class Message extends Model
         if($tinker){
             dd($all_msg);
         } 
-
-        //增加篩選過濾條件
-        if($inbox_refuse_set)
-        {
-            if($inbox_refuse_set->refuse_canned_message_pr != -1)
-            {
-                $count = 0;
-                foreach ($all_msg as $msg)
-                {
-                    $can_pr = UserService::computeCanMessagePercent_7($msg['from_id']);
-                    $can_pr = trim($can_pr,'%');
-                    if($can_pr > $inbox_refuse_set->refuse_canned_message_pr)
-                    {
-                        unset($all_msg[$count]);
-                    }
-                    $count = $count+1;
-                }
-            }
-        }
 
         $unreadCount = $all_msg->count();
 
