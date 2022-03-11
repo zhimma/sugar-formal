@@ -522,7 +522,14 @@ class Message_newController extends BaseController {
                 $count = 0;
                 foreach ($data as $d)
                 {
-                    $pr = Pr_log::where('user_id',$d['user_id'])->first()->pr;
+                    if($d['from_id'] == $user_id) {
+                        continue;
+                    }      
+                    $target = Pr_log::where('user_id', $d['user_id'])->first();
+                    if(!$target) {
+                        continue;
+                    }
+                    $pr = $target->pr;
                     if(!is_null($pr))
                     {
                         if($pr == '無')
