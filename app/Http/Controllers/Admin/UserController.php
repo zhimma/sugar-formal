@@ -178,6 +178,19 @@ class UserController extends \App\Http\Controllers\BaseController
         }
     }
 
+    public function TogglerIsReal(Request $request)
+    {
+        $user = User::where('id', $request->user_id)->first();
+        if ($request->is_real == 1) {
+            $user->is_real = 0;
+        } else {
+            $user->is_real = 1;
+        }
+        $user->save();
+
+        return redirect('admin/users/advInfo/' . $request->user_id);
+    }
+
     /**
      * Toggle the gender of a specific member.
      *
