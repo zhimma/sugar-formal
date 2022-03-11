@@ -4055,6 +4055,68 @@ class UserController extends \App\Http\Controllers\BaseController
 
     public function searchUserPicturesSimple(Request $request)
     {
+        $data = User::with('suspicious')
+            ->with('aw_relation')
+            ->with('banned')
+            ->with('implicitlyBanned')
+            ->with('check_point_user')
+        ;
+        if($request->hidden)
+        {
+            $data = $data->with(['pic_orderByDecs' => function($query){$query->where('isHidden',true);}]);
+        }
+        else
+        {
+            $data = $data->with(['pic_orderByDecs' => function($query){$query->where('isHidden',false);}]);
+        }
+
+        if ($request->date_start) {
+            $datastart = $request->date_start;
+            $data = $data->whereHas('user_meta',function($query) use($datastart){$query->where('updated_at', '>=', $datastart);});
+        }
+
+        if ($request->date_end) {
+            $dataend = $request->date_end;
+            $data = $data->whereHas('user_meta',function($query) use($dataend){$query->where('updated_at', '<=', $dataend . ' 23:59:59');});
+        }
+
+        if ($request->en_group) {
+            $data = $data->where('users.engroup', $request->en_group);
+        }
+
+        $data = $data->where('users.id',15598)->get();
+        Log::Info($data);
+
+        
+        
+        /*
+        
+        if ($request->en_group) {
+            $data = $data->where('users.engroup', $request->en_group);
+        }
+        if ($request->city) {
+            $data = $data->where('user_meta.city', $request->city);
+        }
+        if ($request->area) {
+            $data = $data->where('user_meta.area', $request->area);
+        }
+        if(isset($request->order_by) && $request->order_by=='updated_at'){
+            $data = $data->orderBy('member_pic.updated_at','desc');
+        }
+        if(isset($request->order_by) && $request->order_by=='last_login'){
+            $data = $data->orderBy('users.last_login','desc');
+        }
+        //預設排序
+        if($request->order_by==''){
+            $data = $data->orderBy('member_pic.updated_at','desc');
+        }
+        $data = $data->paginate(15);
+        */
+        
+
+        /////////////////////////////////////////////////////////////////////
+
+
         $pics = MemberPic::select('member_pic.*')->from('member_pic')
             ->leftJoin('users', 'users.id', '=', 'member_pic.member_id')
             ->leftJoin('user_meta', 'user_meta.user_id', '=', 'member_pic.member_id')
@@ -4100,6 +4162,7 @@ class UserController extends \App\Http\Controllers\BaseController
 
         $pics = $pics->paginate(15);
 
+        /////////////////////////////////////////////////////////////////////
         $account = array();
         foreach ($pics as $key => $pic) {
             $user = User::where('id', $pic->member_id)->get()->first();
