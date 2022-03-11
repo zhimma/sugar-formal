@@ -1435,9 +1435,9 @@
 {{--							</script>--}}
 {{--						@endif--}}
 						<tr>
-							<td @if($item->engroup == '2') style="color: #F00;" @else  style="color: #5867DD;"  @endif>
+							<td>
 								<a href="{{ route('admin/showMessagesBetween', [$user->id, $Log->to_id]) }}" target="_blank">
-									{{$item->name}}
+									<p @if($item->engroup == '2') style="color: #F00;" @else  style="color: #5867DD;"  @endif>{{$item->name}}</p>
 									@php
 										$to_id_tipcount = \App\Models\Tip::TipCount_ChangeGood($item->to_id);
 										$to_id_vip = \App\Models\Vip::vip_diamond($item->to_id);

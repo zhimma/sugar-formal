@@ -967,8 +967,8 @@ class UserController extends \App\Http\Controllers\BaseController
                 //->from('message as m')
                 ->leftJoin('users as u','u.id','message.to_id')
                 ->leftJoin('banned_users as b','message.to_id','b.member_id')
-                ->where('message.from_id', $id)
-                ->where('message.to_id', $value->to_id)
+                ->where([['message.to_id', $id],['message.from_id', $value->to_id]])
+                ->orWhere([['message.from_id', $id],['message.to_id', $value->to_id]])
                 ->where('message.created_at','>=', \Carbon\Carbon::parse("180 days ago")->toDateTimeString())
                 ->orderBy('message.created_at', 'desc')
                 ->take(10)->get();
