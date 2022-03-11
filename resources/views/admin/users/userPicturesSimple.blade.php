@@ -2,13 +2,38 @@
 @section('app-content')
 <script src="/js/jquery.twzipcode.min.js" type="text/javascript"></script>
 <style>
+
 .table > tbody > tr > td, .table > tbody > tr > th{
     vertical-align: middle;
 }
+
 .table > tbody > tr > th{
     text-align: center;
 }
+
+.imgPreview {
+    display: none;
+    top: 0;
+    left: 0;
+    position: fixed;
+    background: rgba(0, 0, 0, 0.5);
+}
+
+.imgPreview img {
+    z-index: 100;
+    position: fixed;
+    top: 50%;
+    left: 50%;
+    transform: translate(-50%,-50%);
+}
+
+/*新增滑鼠移入圖片效果*/
+.img {
+    cursor: url("ico/放大鏡.png"), auto;
+}
+
 </style>
+
 <body style="padding: 15px;">
 <h1>會員檢查 step 1</h1>
 <form action="@if(Auth::user()->can('readonly')){{ route('users/pictures/readOnly') }}@else{{ route('users/picturesSimpleSearch') }}@endif"
@@ -115,10 +140,24 @@
                         </a>
                     </td>
                     <td>
-                        <img src={{ $d->user_meta->pic }} width="150px">
-                        @foreach($d->pic_orderByDecs as $pic)
-                            <img src={{ $pic->pic }} width="150px">
-                        @endforeach
+                        <table>
+                            <tr>
+                                <td>
+                                    <img src={{ $d->user_meta->pic }} width="150px" class="img">
+                                </td>
+                                <td>
+                                    <img src={{ $account[$key]['pic'][0] }} width="150px" class="img">
+                                </td>
+                            </tr>
+                            <tr>
+                                <td>
+                                    <img src={{ $account[$key]['pic'][1] }} width="150px" class="img">
+                                </td>
+                                <td>
+                                    <img src={{ $account[$key]['pic'][2] }} width="150px" class="img">
+                                </td>
+                            </tr>
+                        </table>
                     </td>
                     <td>{{ strstr($d->email, '@', true) }}</td>
                     <td>{{ $d->title }}</td>
@@ -135,12 +174,18 @@
         {!! $data->appends(request()->input())->links('pagination::sg-pages') !!}
     </div>
 @endif
+
 <form id="sid_toggle" action="{{ route('users/suspicious_user_toggle') }}" method="post">
     {!! csrf_field() !!}
     <input type="hidden" name="sid" id="sid" value="">
     <input type="hidden" name="uid" id="uid" value="">
     <input type="hidden" name="reason" id="reason" value="">
 </form>
+
+<div class="imgPreview">
+    <img src="#" alt="" id="imgPreview">
+</div>
+
 </body>
 
 <script>
@@ -248,5 +293,16 @@
         }
 
     });
+
+    $('.img').on('click', function () {
+        var src = $(this).attr('src');
+        $('.imgPreview img').attr('src', src);
+        $('.imgPreview').show()
+    });
+    
+    $('.imgPreview').on('click', function () {
+        $('.imgPreview').hide()
+    });
+
 </script>
 @stop

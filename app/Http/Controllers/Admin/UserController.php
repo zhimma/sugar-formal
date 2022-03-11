@@ -4126,8 +4126,17 @@ class UserController extends \App\Http\Controllers\BaseController
         foreach($data as $key => $d)
         {
             $account[$key]['vip'] = \App\Models\Vip::vip_diamond($d->id);
-            $account[$key]['tipcount']= \App\Models\Tip::TipCount_ChangeGood($d->id);
+            $account[$key]['tipcount'] = \App\Models\Tip::TipCount_ChangeGood($d->id);
+
+            $account[$key]['pic'] = array('','','');
+            $count = 0;
+            foreach($d->pic_orderByDecs as $pic)
+            {
+                $account[$key]['pic'][$count] = $pic->pic;
+                $count = $count + 1;
+            }   
         }
+        
         
         //原始程式碼(大爆改...)
         /*
