@@ -11,7 +11,7 @@ use Illuminate\Queue\SerializesModels;
 use Illuminate\Support\Facades\Artisan;
 use App\Services\ImagesCompareService;
 
-class CompareImagesCaller implements ShouldQueue
+class CompareImagesJob implements ShouldQueue
 {
     use Dispatchable, InteractsWithQueue, Queueable, SerializesModels;
 
@@ -42,10 +42,7 @@ class CompareImagesCaller implements ShouldQueue
     {   
         $force_compare = $this->force_compare;
         $pic = $this->targetImg_path??'';
-        if(!$pic) {
-            \Sentry\captureMessage('CompareImagesCaller 異常');     
-            return;
-        }
+
         $encode_by = $this->encode_by;
         $force_all = $this->force_all;        
         if($encode_by) {        

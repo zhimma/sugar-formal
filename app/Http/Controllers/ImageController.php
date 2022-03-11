@@ -26,7 +26,6 @@ use App\Models\AdminCommonText;
 use Illuminate\Support\Facades\Log;
 use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\DB;
-use App\Jobs\CompareImagesCaller;
 
 
 class ImageController extends BaseController

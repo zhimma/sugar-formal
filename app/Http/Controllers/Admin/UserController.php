@@ -5120,7 +5120,7 @@ class UserController extends \App\Http\Controllers\BaseController
                 $img->compareImages('UserController@UserImagesCompareJobCreate');
             }
 
-            return back()->with('message', '成功將 ' . $Imgs_count . ' 筆資料列入'.$job_show_name.'送檢佇列');
+            return back()->with('message', '已立即執行 ' . $Imgs_count . ' 筆資料的'.$job_show_name);
         }
 
         return $job_show_name.'沒有指定的方法';
