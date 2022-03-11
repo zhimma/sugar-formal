@@ -109,6 +109,11 @@
         }
         .specific_msg{
             margin: 5px;
+            white-space: nowrap;
+            text-overflow: ellipsis;
+            width: 300px;
+            word-break: break-word;
+            overflow: hidden;
         }
         .specific_msg img {
             height: 20px;
