@@ -41,9 +41,9 @@
                     @php
                         $reply_data = \App\Models\AnonymousChat::where('id', $row->reply_id)->first();
                     @endphp
-                <p @if(isset($row->reply_id) && !empty($reply_data->content)) class="msg_has_parent" @endif @if($row->anonymous=='站長' && $row->user_id != auth()->user()->id)style="background: #ddf3ff;"@endif>
+                <p @if(isset($row->reply_id) && isset($reply_data) && !empty($reply_data->content)) class="msg_has_parent" @endif @if($row->anonymous=='站長' && $row->user_id != auth()->user()->id)style="background: #ddf3ff;"@endif>
                     <span class="nickname @if($row->user_id != auth()->user()->id) left @endif" @if($row->user_id == auth()->user()->id) style="float: right; left: unset; right: 10px;" @endif>{{$row->anonymous}}</span>
-                    @if(isset($row->reply_id) && !empty($reply_data->content))
+                    @if(isset($row->reply_id) && isset($reply_data) && !empty($reply_data->content))
 
                         <a class="parent_msg_box" href="#row_{{$row->reply_id}}">
 
