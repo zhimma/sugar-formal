@@ -41,17 +41,22 @@
                     @php
                         $reply_data = \App\Models\AnonymousChat::where('id', $row->reply_id)->first();
                     @endphp
-                <p @if(isset($row->reply_id) && isset($reply_data) && !empty($reply_data->content)) class="msg_has_parent" @endif @if($row->anonymous=='站長' && $row->user_id != auth()->user()->id)style="background: #ddf3ff;"@endif>
+                <p @if(isset($row->reply_id)) class="msg_has_parent" @endif @if($row->anonymous=='站長' && $row->user_id != auth()->user()->id)style="background: #ddf3ff;"@endif>
                     <span class="nickname @if($row->user_id != auth()->user()->id) left @endif" @if($row->user_id == auth()->user()->id) style="float: right; left: unset; right: 10px;" @endif>{{$row->anonymous}}</span>
-                    @if(isset($row->reply_id) && isset($reply_data) && !empty($reply_data->content))
+                    @if(isset($row->reply_id))
 
                         <a class="parent_msg_box" href="#row_{{$row->reply_id}}">
+                            @if(!isset($reply_data))
+                                此訊息已刪除
+                            @elseif(isset($reply_data))
 
-                            @if(!empty($reply_data->content))
-                                {!! nl2br($reply_data->content) !!}<br>@endif
-                            @if(!is_null(json_decode($reply_data['pic'],true)))
-                                <img src="{{ json_decode($reply_data['pic'],true)[0]['file_path'] }}"
-                                     class="n_pic_lt">
+                                @if(isset($reply_data->content))
+                                {!! nl2br($reply_data->content) !!}<br>
+                                @endif
+                                @if(!is_null(json_decode($reply_data['pic'],true)))
+                                    <img src="{{ json_decode($reply_data['pic'],true)[0]['file_path'] }}"
+                                         class="n_pic_lt">
+                                @endif
                             @endif
                         </a>
                     @endif
