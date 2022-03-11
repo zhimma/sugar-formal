@@ -1233,6 +1233,11 @@ class UserService
     public static function computeCanMessagePercent_7($uid)
     {
         $targetUser = User::where('id', $uid)->where('accountStatus',1)->where('account_status_admin',1)->get()->first();
+
+        if(!$targetUser) { 
+            return 100; 
+        }
+
         $date_start = date("Y-m-d",strtotime("-6 days", strtotime(date('Y-m-d'))));
             $date_end = date('Y-m-d');
             $query = Message::select('users.email','users.name','users.title','users.engroup','users.created_at','users.last_login','message.id','message.from_id','message.content','user_meta.about')
