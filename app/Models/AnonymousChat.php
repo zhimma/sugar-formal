@@ -12,6 +12,7 @@ class AnonymousChat extends Model
     protected $fillable = [
         'id',
         'user_id',
+        'reply_id',
         'content',
         'pic',
         'anonymous'
