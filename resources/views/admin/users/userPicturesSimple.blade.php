@@ -115,9 +115,9 @@
                         </a>
                     </td>
                     <td>
-                        <img src="{{ url($d->user_meta->pic) }}" width="150px">
+                        <img src={{ $d->user_meta->pic }} width="150px">
                         @foreach($d->pic_orderByDecs as $pic)
-                            <img src="{{ url($pic->pic) }}" width="150px">
+                            <img src={{ $pic->pic }} width="150px">
                         @endforeach
                     </td>
                     <td>{{ strstr($d->email, '@', true) }}</td>

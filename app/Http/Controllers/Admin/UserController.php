@@ -4071,11 +4071,11 @@ class UserController extends \App\Http\Controllers\BaseController
 
         if($request->hidden)
         {
-            $data = $data->with('pic_orderByDecs');
+            $data = $data->with(['pic_orderByDecs' => function($query){$query->take(3);}]);
         }
         else
         {
-            $data = $data->with(['pic_orderByDecs' => function($query){$query->where('isHidden',false);}]);
+            $data = $data->with(['pic_orderByDecs' => function($query){$query->where('isHidden',false)->take(3);}]);
         }
 
         $data = $data->whereDoesntHave('suspicious')
