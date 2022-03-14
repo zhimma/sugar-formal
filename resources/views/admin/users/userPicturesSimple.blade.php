@@ -80,12 +80,10 @@
         <tr>
             <th>排序方式</th>
             <td>
-                {{--
                 <div class="form-check form-check-inline">
                     <input type="radio" class="form-check-input" name="order_by" value="updated_at" @if((isset($_GET['order_by']) && $_GET['order_by']=='updated_at')) checked @endif style="margin-left: unset;">
                     <label class="form-check-label" for="inlineRadio4">更新時間</label>
                 </div>
-                --}}
                 <div class="form-check form-check-inline">
                     <input type="radio" class="form-check-input" name="order_by" value="last_login" @if((isset($_GET['order_by']) && $_GET['order_by']=='last_login') ) checked @endif style="margin-left: unset;">
                     <label class="form-check-label" for="inlineRadio5">上線時間</label>
@@ -165,8 +163,14 @@
                     <td>{{ $d->user_meta->style }}</td>
                     <td>{{ $d->last_login }}</td>
                     <td>
-                        <input class="reason" placeholder="請輸入可疑原因">
                         <button class="btn_sid btn btn-primary" data-sid='' data-uid="{{$d->id}}">列為可疑</button>
+                        <input class="reason" placeholder="請輸入可疑原因">
+                        @if($d->engroup== '1')
+                            <button class="btn btn-danger ban_user" data-uid="{{$d->id}}">封鎖</button>
+                        @endif
+                        @if($d->engroup== '2')
+                            <button class="btn btn-danger advance_auth_ban_user" data-uid="{{$d->id}}">驗證封鎖</button>
+                        @endif
                     </td>
                 </tr>
             @endforeach

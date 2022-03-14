@@ -4064,13 +4064,6 @@ class UserController extends \App\Http\Controllers\BaseController
             ->with('check_point_user')
         ;
 
-        //以更新時間排序(暫時有問題)
-        /*
-        if(isset($request->order_by) && $request->order_by=='updated_at'){
-            $data = $data->with(['user_meta' => function($query){$query->orderBy('updated_at','DESC');}]);
-        }
-        */
-
         if($request->hidden)
         {
             $data = $data->with(['pic_orderByDecs' => function($query){$query->take(3);}]);
@@ -4122,6 +4115,11 @@ class UserController extends \App\Http\Controllers\BaseController
             $data = $data->orderBy('users.last_login','desc');
         }
 
+        //以更新時間排序
+        if(isset($request->order_by) && $request->order_by=='updated_at'){
+            $data = $data->orderBy(UserMeta::select('updated_at')->whereColumn('user_meta.user_id','users.id'),'DESC');
+        }
+        
         $data = $data->paginate(15);
 
         $account = array();
