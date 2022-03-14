@@ -13,6 +13,7 @@ use App\Services\ImagesCompareService;
 use Illuminate\Console\Command;
 use Illuminate\Support\Carbon;
 use Illuminate\Support\Facades\Log;
+use App\Jobs\CompareSingleImageJob;
 
 class CompareImagesSingle extends Command
 {
@@ -69,10 +70,17 @@ class CompareImagesSingle extends Command
             if($specific_pic) {
                 $encodeEntry = ImagesCompareEncode::where('pic',$specific_pic)->get();    
                 $this->now_entry = $encodeEntry->first();
+                if(!$this->now_entry??null) {
+                    CompareSingleImageJob::dispatch($specific_pic,'CompareImagesSingle Command');
+                    echo '照片尚未編碼，無法比對，中斷執行 $specific_pic='.$specific_pic;
+                    Log::info('照片尚未編碼，無法比對，中斷執行 $specific_pic='.$specific_pic);                 
+                    return;
+                }
             }
             else {
                 echo '未指定照片路徑，無法比對，中斷執行';
-                Log::info('CompareImagesSingle:未指定照片路徑，無法比對，中斷執行 $specific_pic='.$specific_pic);    
+                Log::info('CompareImagesSingle:未指定照片路徑，無法比對，中斷執行 $specific_pic='.$specific_pic);  
+                return;
             }
 
             $is_not_compare = false;
@@ -81,8 +89,7 @@ class CompareImagesSingle extends Command
 
             if($nowPicEntry && !ImagesCompareService::isNeedCompareByEntry($nowPicEntry,$force)) {
                 $is_not_compare=true;
-                echo '不比對 from isNeedCompareByEntry specific_pic='.$specific_pic;
-                Log::info('isNeedCompareByEntry return false 不比對  specific_pic='.$specific_pic);                 
+                echo '不比對 from isNeedCompareByEntry specific_pic='.$specific_pic;                 
             }
             else if(!$nowPicEntry) {
                 $is_not_compare=true; 
@@ -164,11 +171,7 @@ class CompareImagesSingle extends Command
                     
                     $srcEncode =  json_decode($imgEncode->encode,true);                    
                     
-                    $compareAllEntry = ImagesCompare::get();
-                    $compareAllPicArr = $compareAllEntry->groupBy('encode_id')->all();
-                    $compareAllEntry = null;
-                    $nowCompareFoundArr = collect($compareAllPicArr[$imgEncode->id])->groupBy('found_encode_id')->all();
-                    
+                    $nowCompareFoundArr = ImagesCompare::where('encode_id',$imgEncode->id)->pluck('found_encode_id')->all();
                     foreach($targetArr as $k=>$target) {
                         $interval = 5000;
                         if($k%$interval==0 && intval($k/$interval)>0) {
@@ -177,17 +180,7 @@ class CompareImagesSingle extends Command
                         }
                         $last_target = null;
                         
-                        $compareEntry = $nowCompareFoundArr[$target->id]??[];
-
-                        if(!is_countable($compareEntry)) {
-                            \Sentry\captureMessage('照片比對程序異常');                            
-                            Log::info('CompareImages:照片比對程序異常，強制結束比對圖片 pic='.$statusEntry->pic);            
-                            $is_not_compare = true;
-                            break;
-                        }
-                        elseif(count($compareEntry)) {
-                            continue;                            
-                        }
+                        if(in_array($target->id,$nowCompareFoundArr??[])) continue;
 
 
                         $targetEncode =  json_decode($target->encode,true);
@@ -258,8 +251,8 @@ class CompareImagesSingle extends Command
                         $compare=$targetPercent=$srcPercent=$targetDiffSum=$srcDiffSum=$srcDiff=$targetDiff=null;
                         unset($compare,$targetPercent,$srcPercent,$targetDiffSum,$srcDiffSum,$srcDiff,$targetDiff);
                     }
-                    
-                    $nowCompareFoundArr = $compareAllPicArr[$imgEncode->id] = $targetArr = null;
+                
+                    $nowCompareFoundArr = $statusEntrys = null;
                 }
             }
 

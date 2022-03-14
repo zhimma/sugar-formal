@@ -1603,9 +1603,9 @@
                             <sapn style="vertical-align:middle;">加入常用封鎖原因</sapn>
                         </label>
 					    <hr>
-					    新增自動封鎖條件
+					    新增自動封鎖條件 @if($user->engroup==2) ( 驗證封鎖 ) @endif
 						<div class="form-group">
-							<label for="cfp_id">CFP_ID</label>
+							<label for="cfp_id">CFP_ID @if($user->engroup==2) ( 驗證封鎖 ) @endif</label>
 							<select multiple class="form-control" id="cfp_id" name="cfp_id[]">
 								@foreach( $cfp_id as $row)
 								<option value="{{$row->cfp_id}}">{{$row->cfp_id}}</option>
@@ -1613,7 +1613,7 @@
 							</select>
 						</div>
 						<div class="form-group">
-							<label>照片</label>
+							<label>照片 @if($user->engroup==2) ( 驗證封鎖 ) @endif</label>
                             <div id="autoban_pic_gather">
                             @foreach ( \App\Models\MemberPic::getSelfIDPhoto($user->id) as $pic)
                             @include('admin.users.advInfo_autoban_pic_tpl')
@@ -1690,7 +1690,7 @@
 {{--							<input type="checkbox" name="ip[]" id="ip" value="" class="form-check-input">Check me out--}}
 {{--						</div>--}}
                         <hr>
-                        新增自動封鎖關鍵字(永久封鎖)
+                        新增自動封鎖關鍵字 ( @if($user->engroup==2) 驗證封鎖 @else 永久封鎖  @endif )
                         <input placeholder="1.請輸入封鎖關鍵字" onfocus="this.placeholder=''" onblur="this.placeholder='1.請輸入封鎖關鍵字'" class="form-control" type="text" name="addautoban[]" rows="1">
                         <input placeholder="2.請輸入封鎖關鍵字" onfocus="this.placeholder=''" onblur="this.placeholder='2.請輸入封鎖關鍵字'" class="form-control" type="text" name="addautoban[]" rows="1">
                         <input placeholder="3.請輸入封鎖關鍵字" onfocus="this.placeholder=''" onblur="this.placeholder='3.請輸入封鎖關鍵字'" class="form-control" type="text" name="addautoban[]" rows="1">

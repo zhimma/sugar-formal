@@ -100,16 +100,23 @@ class SetAutoBan extends Model
             }
 
             if($violation){
-                Log::info('ban_set type='.$ban_set->set_ban.' id='.$ban_set->id);
                 if($ban_set->set_ban == 1 && banned_users::where('member_id', $uid)->first() == null){
                     //直接封鎖
                     $userBanned = new banned_users;
-                    if($user->engroup==2 && !($user->advance_auth_status??null)) $userBanned->adv_auth=1;
-                    $userBanned->member_id = $uid;
-                    $userBanned->reason = "系統原因($ban_set->id)";
-                    $userBanned->save();
-                    //寫入log
-                    DB::table('is_banned_log')->insert(['user_id' => $uid, 'reason' => "系統原因($ban_set->id)"]);
+                    if($user->engroup==2 ) {
+                       if(!($user->advance_auth_status??null)) {
+                           $userBanned->adv_auth=1;
+                       }
+                       else $userBanned=null;
+                    } 
+                    
+                    if($userBanned) {
+                        $userBanned->member_id = $uid;
+                        $userBanned->reason = "系統原因($ban_set->id)";
+                        $userBanned->save();
+                        //寫入log
+                        DB::table('is_banned_log')->insert(['user_id' => $uid, 'reason' => "系統原因($ban_set->id)"]);
+                    }
                 }
                 elseif($ban_set->set_ban == 2 && BannedUsersImplicitly::where('target', $uid)->first() == null){
                     //隱性封鎖
@@ -301,16 +308,22 @@ class SetAutoBan extends Model
             }
 
             if ($violation) {
-                // Log::info('ban_set->set_ban ' . $ban_set->set_ban);
                 if($ban_set->set_ban == 1 && banned_users::where('member_id', $uid)->first() == null) {
                     //直接封鎖
                     $userBanned = new banned_users;
-                    if($user->engroup==2 && !($user->advance_auth_status??null)) $userBanned->adv_auth=1;
-                    $userBanned->member_id = $uid;
-                    $userBanned->reason = "系統原因($ban_set->id)";
-                    $userBanned->save();
-                    //寫入log
-                    DB::table('is_banned_log')->insert(['user_id' => $uid, 'reason' => "系統原因($ban_set->id)"]);
+                    if($user->engroup==2 ) {
+                       if(!($user->advance_auth_status??null)) {
+                           $userBanned->adv_auth=1;
+                       }
+                       else $userBanned=null;
+                    } 
+                    if($userBanned) {
+                        $userBanned->member_id = $uid;
+                        $userBanned->reason = "系統原因($ban_set->id)";
+                        $userBanned->save();
+                        //寫入log
+                        DB::table('is_banned_log')->insert(['user_id' => $uid, 'reason' => "系統原因($ban_set->id)"]);
+                    }
                 }
                 elseif($ban_set->set_ban == 2 && BannedUsersImplicitly::where('target', $uid)->first() == null){
                     //隱性封鎖

@@ -82,7 +82,7 @@
 		<td>{{$result->host}}</td>
 		<td>{{$result->created_at}}</td>
 		@if($result->set_ban==1)
-			<td style="color:red">封鎖</td>
+			<td style="color:red">@if(isset($result->cuz_user_set) && ($result->host =='' || $result->host == request()->getHttpHost() )) @if(($user??null) && $user->engroup==2)驗證封鎖@else 封鎖 @endif @else 封鎖 @endif</div></td>
 		@elseif($result->set_ban==2)
 			<td style="color:blue">隱性封鎖</td>
 		@elseif($result->set_ban==3)
