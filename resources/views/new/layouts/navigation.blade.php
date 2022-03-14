@@ -71,7 +71,8 @@
 										<a href="{!! url('dashboard/chat2/') !!}"><img src="/new/images/icon_45.png">收件夾</a><span id="unreadCount2">0</span>
 									</li>
 									<li>
-										<a href="{!! url('dashboard/anonymousChat') !!}"><img src="/new/images/icon_nn45.png">匿名聊天室</a>
+{{--										<a href="{!! url('dashboard/anonymousChat') !!}"><img src="/new/images/icon_nn45.png">匿名聊天室</a>--}}
+										<a href="javascript:void(0);" onclick="showAnonymousAlert()"><img src="/new/images/icon_nn45.png">匿名聊天室</a>
 									</li>
 									@if($user->engroup == 1)
 										@php
@@ -155,6 +156,21 @@
 		});
 		@elseif(str_contains(url()->current(), 'dashboard/forum'))
 				window.location.href = "/dashboard/forum";
+		@endif
+	}
+
+	function showAnonymousAlert() {
+		@if(!str_contains(url()->current(), 'dashboard/anonymousChat'))
+		/*版規提示*/
+		$(".announce_bg").show();
+		$('.tab_anonymousChatAlert').show();
+		$('.n_bllbut').on('click', function() {
+			$(".announce_bg").hide();
+			$('.tab_anonymousChatAlert').hide();
+			window.location.href = "/dashboard/anonymousChat";
+		});
+		@elseif(str_contains(url()->current(), 'dashboard/anonymousChat'))
+				window.location.href = "/dashboard/anonymousChat";
 		@endif
 	}
 </script>

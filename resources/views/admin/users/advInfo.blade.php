@@ -171,6 +171,12 @@
 		<input type="hidden" name="page" value="advInfo" >
 		<button type="submit" class="btn btn-warning">變更性別</button>
 	</form>
+	<form method="POST" action="{{ route('isRealToggler') }}" style="margin:0px;display:inline;">
+		{!! csrf_field() !!}
+		<input type="hidden" name='user_id' value="{{ $user->id }}">
+		<input type="hidden" name='is_real' value="{{ $user->is_real }}">
+		<button type="submit" class="btn {{ $user->is_real? 'btn-warning' : 'btn-danger' }}">{{ $user->is_real ? '是本人' : '非本人' }}</button>
+	</form>
 	
 	@if($user->engroup==2)
 	<form method="POST" id="form_exchange_period" action="{{ route('changeExchangePeriod') }}" style="margin:0px;display:inline;">
@@ -1435,9 +1441,9 @@
 {{--							</script>--}}
 {{--						@endif--}}
 						<tr>
-							<td @if($item->engroup == '2') style="color: #F00;" @else  style="color: #5867DD;"  @endif>
+							<td>
 								<a href="{{ route('admin/showMessagesBetween', [$user->id, $Log->to_id]) }}" target="_blank">
-									{{$item->name}}
+									<p @if($item->engroup == '2') style="color: #F00;" @else  style="color: #5867DD;"  @endif>{{$item->name}}</p>
 									@php
 										$to_id_tipcount = \App\Models\Tip::TipCount_ChangeGood($item->to_id);
 										$to_id_vip = \App\Models\Vip::vip_diamond($item->to_id);

@@ -681,7 +681,7 @@ class Message extends Model
 
         $query = $query->where('created_at','>=',self::$date)
             ->orderBy('created_at', 'asc')
-            ->paginate(10);
+            ->paginate(100);
         return $query;
     }
 
