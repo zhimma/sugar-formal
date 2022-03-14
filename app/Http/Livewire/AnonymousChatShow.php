@@ -17,8 +17,10 @@ class AnonymousChatShow extends Component
     {
         $anonymousChat = AnonymousChat::select('anonymous_chat.*', 'users.engroup')
             ->LeftJoin('users', 'users.id','=','anonymous_chat.user_id')
+            ->where('anonymous_chat.created_at', '>', \DB::raw('DATE_SUB(DATE(NOW()), INTERVAL DAYOFWEEK(NOW())-1 DAY)'))
             ->orderBy('anonymous_chat.created_at', 'asc')
-            ->take(1000)->get();
+            // ->take(1000)
+            ->get();
 //            ->paginate(10);
 
         return view('livewire.anonymous-chat-show', compact('anonymousChat'));
