@@ -82,7 +82,7 @@
 		<td>{{$result->host}}</td>
 		<td>{{$result->created_at}}</td>
 		@if($result->set_ban==1)
-			<td style="color:red">永久封鎖</td>
+			<td style="color:red">封鎖</td>
 		@elseif($result->set_ban==2)
 			<td style="color:blue">隱性封鎖</td>
 		@elseif($result->set_ban==3)

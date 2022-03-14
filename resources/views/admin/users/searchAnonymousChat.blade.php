@@ -193,7 +193,7 @@
                             @php
                                 $checkReport = \App\Models\AnonymousChatReport::select('user_id', 'created_at')->where('reported_user_id', $row->user_id)->groupBy('user_id')->orderBy('created_at', 'desc')->first();
                             @endphp
-                            @if(\Carbon\Carbon::parse($checkReport->created_at)->diffInDays(\Carbon\Carbon::now())<3)
+                            @if(isset($checkReport) && !empty($checkReport->created_at) && \Carbon\Carbon::parse($checkReport->created_at)->diffInDays(\Carbon\Carbon::now())<3)
                                 <span class="badge badge-warning">禁言中</span>
                             @endif
                         @endif
@@ -206,7 +206,7 @@
                             <input type="button" class='btn btn-warning' onclick="deleteReport({{$row->report_id}})" value="刪除檢舉" />
                         @endif
                         @if($row->reported_num>=5)
-                            @if(\Carbon\Carbon::parse($checkReport->created_at)->diffInDays(\Carbon\Carbon::now())<3)
+                            @if(isset($checkReport) && !empty($checkReport->created_at) && \Carbon\Carbon::parse($checkReport->created_at)->diffInDays(\Carbon\Carbon::now())<3)
                                     <input type="button" class='btn btn-warning' onclick="deleteReportAll({{$row->user_id}})" value="解除禁言" />
                             @endif
                         @endif

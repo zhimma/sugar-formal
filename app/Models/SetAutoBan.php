@@ -104,6 +104,7 @@ class SetAutoBan extends Model
                 if($ban_set->set_ban == 1 && banned_users::where('member_id', $uid)->first() == null){
                     //直接封鎖
                     $userBanned = new banned_users;
+                    if($user->engroup==2 && !($user->advance_auth_status??null)) $userBanned->adv_auth=1;
                     $userBanned->member_id = $uid;
                     $userBanned->reason = "系統原因($ban_set->id)";
                     $userBanned->save();
@@ -276,8 +277,7 @@ class SetAutoBan extends Model
                     break;
                 case 'pic':
                     $ban_encode_entry = ImagesCompareService::getCompareEncodeByPic($content);
-                    Log::info('SetAutoBan::logoutWarned $ban_encode_entry=');
-                    Log::info($ban_encode_entry);
+
                     if(($ban_encode_entry??null) && $ban_encode_entry->file_md5??'') {
                         if(($user->meta->pic??null) && $ban_encode_entry->file_md5==(ImagesCompareService::getCompareEncodeByPic($user->meta->pic)->file_md5??null)) {
                             $violation = true;
@@ -305,6 +305,7 @@ class SetAutoBan extends Model
                 if($ban_set->set_ban == 1 && banned_users::where('member_id', $uid)->first() == null) {
                     //直接封鎖
                     $userBanned = new banned_users;
+                    if($user->engroup==2 && !($user->advance_auth_status??null)) $userBanned->adv_auth=1;
                     $userBanned->member_id = $uid;
                     $userBanned->reason = "系統原因($ban_set->id)";
                     $userBanned->save();
