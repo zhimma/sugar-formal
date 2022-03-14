@@ -327,5 +327,13 @@
         $('.imgPreview').hide()
     });
 
+    $('.ban_user').on('click', function () {
+
+    });
+
+    $('.advance_auth_ban_user').on('click', function () {
+        
+    });
+
 </script>
 @stop
