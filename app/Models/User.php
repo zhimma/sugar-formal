@@ -346,7 +346,7 @@ class User extends Authenticatable
         //dd(Config::get('social.admin.email'));
         //dd(Config::get('social.vip.free-days'));
 
-        if($user->email == Config::get('social.admin.email')) {
+        if($user->email == Config::get('social.admin.user-email')) {
             return true;
         }
         return false;

@@ -36,7 +36,8 @@ return [
         'tip-amount' => 1788
     ],
     'admin' => [
-        'email' => 'mmmaya111@gmail.com',
+        'notice-email' => 'mmmaya111@gmail.com',
+        'user-email' => 'sugarden99@gmail.com',
         'showMessageCount' => 50,
         'mobile' => '0911020102',
         'mobile2' => '0972531383'

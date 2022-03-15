@@ -107,7 +107,7 @@ class CheckECpayForValueAddedService implements ShouldQueue
                     Log::info('付費失敗');
                     Log::info($paymentData);
 
-                    $admin = User::findByEmail(Config::get('social.admin.email'));
+                    $admin = User::findByEmail(Config::get('social.admin.user-email'));
                     $user = User::findById($this->valueAddedServiceData->member_id);
                     \App\Models\ValueAddedService::removeValueAddedService($user->id, $this->valueAddedServiceData->service_name);
 
@@ -133,7 +133,7 @@ class CheckECpayForValueAddedService implements ShouldQueue
                     Log::info('付費失敗');
                     Log::info($paymentData);
 
-                    $admin = User::findByEmail(Config::get('social.admin.email'));
+                    $admin = User::findByEmail(Config::get('social.admin.user-email'));
                     $user = User::findById($this->valueAddedServiceData->member_id);
                     \App\Models\ValueAddedService::removeValueAddedService($user->id, $this->valueAddedServiceData->service_name);
 

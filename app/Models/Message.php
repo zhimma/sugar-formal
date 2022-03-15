@@ -327,7 +327,7 @@ class Message extends Model
         "));
 
         if(!\Schema::hasTable('temp_m')){
-            $admin = User::select('id')->where('email', Config::get('social.admin.email'))->get()->first();
+            $admin = User::select('id')->where('email', Config::get('social.admin.user-email'))->get()->first();
             if(isset($admin)) {
                 $createTempTables = DB::unprepared(DB::raw("
                     SET TRANSACTION ISOLATION LEVEL READ UNCOMMITTED;
@@ -353,7 +353,7 @@ class Message extends Model
         }
 
         if($createTempTables){
-            $admin = User::select('id')->where('email', Config::get('social.admin.email'))->get()->first();
+            $admin = User::select('id')->where('email', Config::get('social.admin.user-email'))->get()->first();
             if(isset($admin)) {
                 $messages = DB::select(DB::raw("
                     select * from `temp_m`

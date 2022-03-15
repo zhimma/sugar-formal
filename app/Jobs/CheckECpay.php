@@ -120,7 +120,7 @@ class CheckECpay implements ShouldQueue
                     Log::info('付費失敗');
                     Log::info($paymentData);
 
-                    $admin = User::findByEmail(Config::get('social.admin.email'));
+                    $admin = User::findByEmail(Config::get('social.admin.user-email'));
                     $user = User::findById($this->vipData->member_id);
                     if(!$user){
                         logger("Null user found, vip data id: " . $this->vipData->id);
@@ -154,7 +154,7 @@ class CheckECpay implements ShouldQueue
                     Log::info('VIP 回復');
                     Log::info($paymentData);
 
-                    $admin = User::findByEmail(Config::get('social.admin.email'));
+                    $admin = User::findByEmail(Config::get('social.admin.user-email'));
                     $user = User::findById($this->vipData->member_id);
                     \App\Models\Vip::select('member_id', 'active')
                         ->where('member_id', $this->vipData->member_id)
@@ -183,7 +183,7 @@ class CheckECpay implements ShouldQueue
                     Log::info('付費失敗');
                     Log::info($paymentData);
 
-                    $admin = User::findByEmail(Config::get('social.admin.email'));
+                    $admin = User::findByEmail(Config::get('social.admin.user-email'));
                     $user = User::findById($this->vipData->member_id);
                     $user->getVipData(true)->removeVIP();
 
