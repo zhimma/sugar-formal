@@ -32,6 +32,14 @@
     cursor: url("ico/放大鏡.png"), auto;
 }
 
+#blockade .form-group {clear:both;}
+#autoban_pic_gather .autoban_pic_unit {float:left;margin:10px;}
+#autoban_pic_gather .autoban_pic_unit img {width:80px;min-width:80px;}
+#autoban_pic_gather input {display:none;}
+#autoban_pic_gather .autoban_pic_unit label {padding:0 10px 10px 10px;} 
+#autoban_pic_gather .autoban_pic_unit label span {display:block;text-align:center;font-size:4px;}
+#autoban_pic_gather .autoban_pic_unit input:checked+label {background:#1E90FF;}
+
 </style>
 
 <body style="padding: 15px;">
@@ -163,13 +171,13 @@
                     <td>{{ $d->user_meta->style }}</td>
                     <td>{{ $d->last_login }}</td>
                     <td>
-                        <button class="btn_sid btn btn-primary" data-sid='' data-uid="{{$d->id}}">列為可疑</button>
+                        <button class="btn_sid btn btn-primary" data-sid='' data-uid="{{$d->id}}" >列為可疑</button>
                         <input class="reason" placeholder="請輸入可疑原因">
                         @if($d->engroup== '1')
-                            <button class="btn btn-danger ban_user" data-uid="{{$d->id}}">封鎖</button>
+                            <button type="button" class="btn btn-danger ban_user" data-uid="{{$d->id}}" data-toggle="modal" data-target="#banModal">封鎖</button>
                         @endif
                         @if($d->engroup== '2')
-                            <button class="btn btn-danger advance_auth_ban_user" data-uid="{{$d->id}}">驗證封鎖</button>
+                            <button type="button" class="btn btn-danger advance_auth_ban_user" data-uid="{{$d->id}}" data-toggle="modal" data-target="#banModal" data-advance_auth_status="{{$d->advance_auth_status}}">驗證封鎖</button>
                         @endif
                     </td>
                 </tr>
@@ -202,6 +210,72 @@
 </div>
 
 </body>
+
+<!-- Modal -->
+<div class="modal fade" id="banModal" tabindex="-1" role="dialog" aria-labelledby="banModal" aria-hidden="true">
+    <div class="modal-dialog" role="document" style="max-width: 60%;">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h5 class="modal-title" id="banModal">封鎖</h5>
+                <button type="button" class="close" data-dismiss="modal" aria-label="Close">
+                    <span aria-hidden="true">&times;</span>
+                </button>
+            </div>
+            <form action="/admin/users/toggleUserBlock" method="POST" id="clickToggleUserBlock">
+                {!! csrf_field() !!}
+                <input type="hidden" value="" name="user_id" id="blockUserID">
+				<input type="hidden" value="member_check_step1" name="page">
+				<input type="hidden" name="vip_pass" value="">
+                <input type="hidden" name="adv_auth" value="">
+                <div class="modal-body">
+                    封鎖時間
+                    <select name="days" class="days">
+                        <option value="3">三天</option>
+                        <option value="7">七天</option>
+                        <option value="15">十五天</option>
+                        <option value="30">三十天</option>
+                        <option value="X" selected>永久</option>
+                    </select>
+                    <hr>
+                    封鎖原因
+                    <div id='banReason'>
+                    </div>
+                    <br><br>
+                    <textarea class="form-control m-reason" name="reason" id="msg" rows="4" maxlength="200">廣告</textarea>
+                    <label style="margin:10px 0px;">
+                        <input type="checkbox" name="addreason" style="vertical-align:middle;width:20px;height:20px;"/>
+                        <sapn style="vertical-align:middle;">加入常用封鎖原因</sapn>
+                    </label>
+                    <hr>
+                    新增自動封鎖條件
+                    <div class="form-group">
+                        <label for="cfp_id">CFP_ID</label>
+                        <select multiple class="form-control" id="cfpid" name="cfp_id[]">
+                        </select>
+                    </div>
+                    <div class="form-group">
+                        <label>照片</label>
+                        <div id="autoban_pic_gather">
+                        </div>
+                    </div> 
+                    <div class="form-group">
+                        <label for="ip">IP</label>
+                        <table id="table_userLogin_log" class="table table-hover table-bordered">
+                        </table>
+                    </div>
+                    <hr>
+                    新增自動封鎖關鍵字(永久封鎖)
+                    <input placeholder="1.請輸入封鎖關鍵字" onfocus="this.placeholder=''" onblur="this.placeholder='1.請輸入封鎖關鍵字'" class="form-control" type="text" name="addautoban[]" rows="1">
+                    <input placeholder="2.請輸入封鎖關鍵字" onfocus="this.placeholder=''" onblur="this.placeholder='2.請輸入封鎖關鍵字'" class="form-control" type="text" name="addautoban[]" rows="1">
+                    <input placeholder="3.請輸入封鎖關鍵字" onfocus="this.placeholder=''" onblur="this.placeholder='3.請輸入封鎖關鍵字'" class="form-control" type="text" name="addautoban[]" rows="1">       
+                </div>
+                <div class="modal-footer" id="modal-footer">
+                    <button type="button" class="btn btn-outline-danger" data-dismiss="modal">取消</button>
+                </div>
+            </form>
+        </div>
+    </div>
+</div>
 
 <script>
     $('.twzipcode').twzipcode({
@@ -328,12 +402,121 @@
     });
 
     $('.ban_user').on('click', function () {
-
+        uid = $(this).attr('data-uid');
+        ban_form();
     });
 
     $('.advance_auth_ban_user').on('click', function () {
-        
+        uid = $(this).attr('data-uid');
+        advance_auth_status = $(this).attr('data-advance_auth_status');
+        if(advance_auth_status == 1)
+        {
+            return false;
+        }
+        else
+        {
+            $("#clickToggleUserBlock input[name='adv_auth']").val(1);
+            $("#clickToggleUserBlock input[name='vip_pass']").val(0);
+            ban_form();
+            
+        }
     });
+
+    function ban_form()
+    {
+        $.ajax({
+            type : 'GET',
+            url : '/admin/ban_information',
+            data : {uid : uid},
+            success : function(response){
+
+                $('#blockUserID').val(uid);
+                $('#banReason').empty();
+                response.banReason.forEach(function(value){
+                    $('#banReason').append('<a class="text-white btn btn-success banReason">' + value.content + '</a>');
+                });
+
+                $('#cfpid').empty();
+                response.cfp_id.forEach(function(value){
+                    $('#cfpid').append('<option value=' + value.cfp_id + '>' + value.cfp_id + '</option>');
+                });
+
+
+                $('#autoban_pic_gather').empty();
+
+                hstr = pic_tpl(response.meta);
+                $('#autoban_pic_gather').append(hstr);
+
+                response.member_pic.forEach(function(value){
+                    console.log(value);
+                    hstr = pic_tpl(value);
+                    $('#autoban_pic_gather').append(hstr);
+                });
+                
+
+                $('#table_userLogin_log').empty();
+                response.userLogin_log.forEach(function(value){
+                    htmlstr = '';
+                    htmlstr = htmlstr + '<tr class="loginItem" id="showloginTimeIP' + value.loginMonth + '" data-sectionName="loginTimeIP' + value.loginMonth + '">';
+                    htmlstr = htmlstr + '<td>';
+                    htmlstr = htmlstr + '<span>' + value.loginMonth + ' [' + value.Ip.Ip_group.length + ']' + '</span>';
+                    htmlstr = htmlstr + '</td>';
+                    htmlstr = htmlstr + '</tr>';
+                    htmlstr = htmlstr + '<tr class="showLog" id="loginTimeIP' + value.loginMonth + '">';
+                    htmlstr = htmlstr + '<td>';
+                    htmlstr = htmlstr + '<select multiple class="form-control" name="ip[]">';
+                    
+                    for(let i = 0; i < value.Ip.Ip_group.length; i++)
+                    {
+                        htmlstr = htmlstr + '<option value="' + value.Ip.Ip_group[i].ip + '">' + '[' + value.Ip.Ip_group[i].loginTime + ']  ' + value.Ip.Ip_group[i].ip  + '</option>';
+                    }
+
+                    htmlstr = htmlstr + '</select>';
+                    htmlstr = htmlstr + '</td>';
+                    htmlstr = htmlstr + '</tr>';
+                    $('#table_userLogin_log').append(htmlstr);
+                });
+
+                $('#modal-footer').prepend('<button type="submit" class="btn btn-outline-success ban-user">送出</button>');
+
+                $('.showLog').hide();
+                $('.loginItem').click(function(){
+                    var sectionName =$(this).attr('data-sectionName');
+                    $('.showLog').hide();
+                    $('#'+sectionName).show();
+                });
+                
+
+            }
+        });
+    }
+
+    function pic_tpl(picture){
+        html_str = '';
+        if(picture??false)
+        {
+            html_str = html_str + '<div class="autoban_pic_unit">';
+            html_str = html_str + '<input type="checkbox" id="' + picture.pic.replace('/','',) + '" name="pic[]" value="' + picture.pic + '" />';
+            html_str = html_str + '<label for="' + picture.pic.replace('/','',) + '">';
+            html_str = html_str + '<span>';
+
+            if((picture.operator??false) || ((picture.deleted_at??false) && picture.deleted_at != '0000-00-00 00:00:00'))
+            {
+                html_str = html_str + '已刪';
+            }
+            else
+            {
+                html_str = html_str + '&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;';
+            }
+
+            html_str = html_str + '</span>';
+            html_str = html_str + '<img src="' + picture.pic + '" onerror="this.src=' + 'img/filenotexist.png' + '" />';
+            html_str = html_str + '</label>';
+            html_str = html_str + '</div>';
+        }
+        return html_str;
+    }
+	
 
 </script>
 @stop

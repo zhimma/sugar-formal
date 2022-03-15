@@ -328,6 +328,7 @@ class UserController extends \App\Http\Controllers\BaseController
      */
     public function toggleUserBlock(Request $request)
     {
+        Log::Info($request->user_id);
         $userBanned = banned_users::where('member_id', $request->user_id)
             ->orderBy('created_at', 'desc')
             ->get()->first();
@@ -443,6 +444,9 @@ class UserController extends \App\Http\Controllers\BaseController
                         return redirect('admin/users/advInfo/' . $request->user_id);
                     case 'noRedirect':
                         echo json_encode(array('code' => '200', 'status' => 'success'));
+                        break;
+                    case 'member_check_step1':
+                        return redirect()->back();
                         break;
                     default:
                         return redirect($request->page);
@@ -5461,4 +5465,44 @@ class UserController extends \App\Http\Controllers\BaseController
         }
         return redirect()->back();
     }
+
+    public function ban_information(Request $request)
+    {
+        $uid = $request->uid;
+        $banReason = DB::table('reason_list')->select('content')->where('type', 'ban')->get();
+        $cfp_id = LogUserLogin::select('cfp_id')->selectRaw('MAX(created_at) AS last_tiime')->orderByDesc('last_tiime')->where('user_id',$uid)->groupBy('cfp_id')->get();
+        $userLogin_log = LogUserLogin::selectRaw('LEFT(created_at,7) as loginMonth, DATE(created_at) as loginDate, user_id as userID, ip, count(*) as dataCount')
+            ->where('user_id', $uid)
+            ->groupBy(DB::raw("LEFT(created_at,7)"))
+            ->orderBy('created_at','DESC')->get();
+        foreach ($userLogin_log as $key => $value) {
+            $dataLog=LogUserLogin::where('user_id', $uid)->where('created_at', 'like', '%' . $value->loginMonth . '%')->orderBy('created_at','DESC');
+            $userLogin_log[$key]['items'] = $dataLog->get();
+
+            //ip
+            $Ip_group= LogUserLogin::where('user_id', $uid)->where('created_at', 'like', '%' . $value->loginMonth . '%')
+                ->from('log_user_login as log')
+                ->selectRaw('ip, count(*) as dataCount, (select created_at from log_user_login as s where s.user_id=log.user_id and s.ip=log.ip and s.created_at like "%'.$value->loginMonth.'%" order by created_at desc LIMIT 1 ) as loginTime')
+                ->groupBy(DB::raw("ip"))->orderBy('loginTime','desc')->get();
+            $Ip=array();
+            foreach ($Ip_group as $Ip_key => $group){
+                $Ip['Ip_group'][$Ip_key]=$group;
+                $Ip['Ip_group_items'][$Ip_key] = LogUserLogin::where('user_id', $uid)->where('created_at', 'like', '%' . $value->loginMonth . '%')->where('ip',$group->ip)->orderBy('created_at','DESC')->get();
+            }
+            $userLogin_log[$key]['Ip']=$Ip;
+        }
+
+        $meta = UserMeta::where('user_id', $uid)->first();
+        $member_pic = MemberPic::where('member_id',$uid)->get();
+
+        return response()->json([
+            'message' => 'success ...',
+            'banReason' => $banReason,
+            'cfp_id' => $cfp_id,
+            'userLogin_log' => $userLogin_log,
+            'meta' => $meta,
+            'member_pic' => $member_pic
+        ]);
+    }
+
 }
