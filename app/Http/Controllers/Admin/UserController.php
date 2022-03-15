@@ -4061,7 +4061,7 @@ class UserController extends \App\Http\Controllers\BaseController
 
     public function searchUserPicturesSimple(Request $request)
     {
-        ini_set('max_execution_time', -1);
+        Log::INfo(Carbon::now());
         $data = User::with('suspicious')
             ->with('aw_relation')
             ->with('banned')
@@ -4126,7 +4126,7 @@ class UserController extends \App\Http\Controllers\BaseController
         }
         
         $data = $data->paginate(15);
-
+        Log::INfo(Carbon::now());
         $account = array();
         $user_id_of_page = array();
         foreach($data as $key => $d)
@@ -4143,7 +4143,7 @@ class UserController extends \App\Http\Controllers\BaseController
             }  
             $user_id_of_page[] = $d->id;
         }
-        
+        Log::INfo(Carbon::now());
         
         //原始程式碼(大爆改...)
         /*
