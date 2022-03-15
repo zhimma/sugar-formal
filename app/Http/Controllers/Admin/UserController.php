@@ -4124,9 +4124,9 @@ class UserController extends \App\Http\Controllers\BaseController
         if(isset($request->order_by) && $request->order_by=='updated_at'){
             $data = $data->orderBy(UserMeta::select('updated_at')->whereColumn('user_meta.user_id','users.id'),'DESC');
         }
-        
-        $data = $data->paginate(15);
         Log::INfo(Carbon::now());
+        $data = $data->paginate(15);
+        
         $account = array();
         $user_id_of_page = array();
         foreach($data as $key => $d)
