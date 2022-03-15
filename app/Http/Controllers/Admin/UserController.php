@@ -4061,6 +4061,7 @@ class UserController extends \App\Http\Controllers\BaseController
 
     public function searchUserPicturesSimple(Request $request)
     {
+        ini_set('max_execution_time', -1);
         $data = User::with('suspicious')
             ->with('aw_relation')
             ->with('banned')
