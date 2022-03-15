@@ -978,7 +978,7 @@ class UserController extends \App\Http\Controllers\BaseController
         foreach ($userMessage_log as $key => $value) {
             $userMessage_log[$key]['items'] = Message::withTrashed()->select('message.*','message.id as mid','message.created_at as m_time','u.*','b.id as banned_id','b.expire_date as banned_expire_date')
                 //->from('message as m')
-                ->leftJoin('users as u','u.id','message.to_id')
+                ->leftJoin('users as u','u.id','message.from_id')
                 ->leftJoin('banned_users as b','message.to_id','b.member_id')
                 ->where([['message.to_id', $id],['message.from_id', $value->to_id]])
                 ->orWhere([['message.from_id', $id],['message.to_id', $value->to_id]])
