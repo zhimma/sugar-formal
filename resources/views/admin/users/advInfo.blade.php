@@ -1443,21 +1443,21 @@
 						<tr>
 							<td>
 								<a href="{{ route('admin/showMessagesBetween', [$user->id, $Log->to_id]) }}" target="_blank">
-									<p @if($item->engroup == '2') style="color: #F00;" @else  style="color: #5867DD;"  @endif>{{$item->name}}</p>
+									<p @if($item->engroup == '2') style="color: #F00;" @else  style="color: #5867DD;"  @endif>{{$item->name}}
 									@php
-										$to_id_tipcount = \App\Models\Tip::TipCount_ChangeGood($item->to_id);
-										$to_id_vip = \App\Models\Vip::vip_diamond($item->to_id);
+										$from_id_tipcount = \App\Models\Tip::TipCount_ChangeGood($item->from_id);
+										$from_id_vip = \App\Models\Vip::vip_diamond($item->from_id);
 									@endphp
-									@if($to_id_vip)
-										@if($to_id_vip=='diamond_black')
+									@if($from_id_vip)
+										@if($from_id_vip=='diamond_black')
 											<img src="/img/diamond_black.png" style="height: 16px;width: 16px;">
 										@else
-											@for($z = 0; $z < $to_id_vip; $z++)
+											@for($z = 0; $z < $from_id_vip; $z++)
 												<img src="/img/diamond.png" style="height: 16px;width: 16px;">
 											@endfor
 										@endif
 									@endif
-									@for($i = 0; $i < $to_id_tipcount; $i++)
+									@for($i = 0; $i < $from_id_tipcount; $i++)
 										👍
 									@endfor
 									@if(!is_null($item->banned_id))
@@ -1467,6 +1467,7 @@
 											(永久)
 										@endif
 									@endif
+									</p>
 								</a>
 							</td>
 							<td>{{ $item->content }}</td>
