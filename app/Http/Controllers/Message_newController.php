@@ -474,115 +474,117 @@ class Message_newController extends BaseController {
          */
         $data = Message_new::allSendersAJAX($user_id, $request->isVip,$request->date);
         
-        //過濾篩選條件
-        $inbox_refuse_set = InboxRefuseSet::where('user_id', $user->id)->first();
-        if($inbox_refuse_set)
+        if($data != ['No data'])
         {
-            if($inbox_refuse_set->isrefused_vip_user)
+            //過濾篩選條件
+            $inbox_refuse_set = InboxRefuseSet::where('user_id', $user->id)->first();
+            if($inbox_refuse_set)
             {
-                $count = 0;
-                foreach ($data as $d)
+                if($inbox_refuse_set->isrefused_vip_user)
                 {
-                    if($d['isVip'])
+                    $count = 0;
+                    foreach ($data as $d)
                     {
-                        unset($data[$count]);
-                    }
-                    $count = $count+1;
-                }
-                $data = array_values($data);
-            }
-            if($inbox_refuse_set->isrefused_common_user)
-            {
-                $count = 0;
-                foreach ($data as $d)
-                {
-                    if((!$d['isVip']) && (!$d['isWarned']) && (!$d['isBanned']))
-                    {
-                        unset($data[$count]);
-                    }
-                    $count = $count+1;
-                }
-                $data = array_values($data);
-            }
-            if($inbox_refuse_set->isrefused_warned_user)
-            {
-                $count = 0;
-                foreach ($data as $d)
-                {
-                    if($d['isWarned'])
-                    {
-                        unset($data[$count]);
-                    }
-                    $count = $count+1;
-                }
-                $data = array_values($data);
-            }
-            if($inbox_refuse_set->refuse_pr != -1)
-            {
-                $count = 0;
-                foreach ($data as $d)
-                {
-                    if($d['from_id'] == $user_id) {
-                        continue;
-                    }      
-                    $target = Pr_log::where('user_id', $d['user_id'])->first();
-                    if(!$target) {
-                        continue;
-                    }
-                    $pr = $target->pr;
-                    if(!is_null($pr))
-                    {
-                        if($pr == '無')
+                        if($d['isVip'])
                         {
                             unset($data[$count]);
                         }
-                        if($pr < $inbox_refuse_set->refuse_pr)
+                        $count = $count+1;
+                    }
+                    $data = array_values($data);
+                }
+                if($inbox_refuse_set->isrefused_common_user)
+                {
+                    $count = 0;
+                    foreach ($data as $d)
+                    {
+                        if((!$d['isVip']) && (!$d['isWarned']) && (!$d['isBanned']))
                         {
                             unset($data[$count]);
                         }
+                        $count = $count+1;
                     }
-                    else
-                    {
-                        unset($data[$count]);
-                    }
-                    $count = $count+1;
+                    $data = array_values($data);
                 }
-                $data = array_values($data);
-            }
-            if($inbox_refuse_set->refuse_canned_message_pr != -1)
-            {
-                $count = 0;
-                foreach ($data as $d)
+                if($inbox_refuse_set->isrefused_warned_user)
                 {
-                    
-                    $can_pr = UserService::computeCanMessagePercent_7($d['user_id']);
-                    $can_pr = trim($can_pr,'%');
-                    if($can_pr > $inbox_refuse_set->refuse_canned_message_pr)
+                    $count = 0;
+                    foreach ($data as $d)
                     {
-                        unset($data[$count]);
+                        if($d['isWarned'])
+                        {
+                            unset($data[$count]);
+                        }
+                        $count = $count+1;
                     }
-                    $count = $count+1;
+                    $data = array_values($data);
                 }
-                $data = array_values($data);
-            }
-            if($inbox_refuse_set->refuse_register_days != 0)
-            {
-                $rtime = Carbon::now()->subDays($inbox_refuse_set->refuse_register_days);
-                $count = 0;
-                foreach ($data as $d)
+                if($inbox_refuse_set->refuse_pr != -1)
                 {
-                    $registdate = User::where('id',$d['user_id'])->first()->created_at;
-                    if($registdate > $rtime)
+                    $count = 0;
+                    foreach ($data as $d)
                     {
-                        unset($data[$count]);
+                        if($d['from_id'] == $user_id) {
+                            continue;
+                        }      
+                        $target = Pr_log::where('user_id', $d['user_id'])->first();
+                        if(!$target) {
+                            continue;
+                        }
+                        $pr = $target->pr;
+                        if(!is_null($pr))
+                        {
+                            if($pr == '無')
+                            {
+                                unset($data[$count]);
+                            }
+                            if($pr < $inbox_refuse_set->refuse_pr)
+                            {
+                                unset($data[$count]);
+                            }
+                        }
+                        else
+                        {
+                            unset($data[$count]);
+                        }
+                        $count = $count+1;
                     }
-                    $count = $count+1;
+                    $data = array_values($data);
                 }
-                $data = array_values($data);
+                if($inbox_refuse_set->refuse_canned_message_pr != -1)
+                {
+                    $count = 0;
+                    foreach ($data as $d)
+                    {
+                        
+                        $can_pr = UserService::computeCanMessagePercent_7($d['user_id']);
+                        $can_pr = trim($can_pr,'%');
+                        if($can_pr > $inbox_refuse_set->refuse_canned_message_pr)
+                        {
+                            unset($data[$count]);
+                        }
+                        $count = $count+1;
+                    }
+                    $data = array_values($data);
+                }
+                if($inbox_refuse_set->refuse_register_days != 0)
+                {
+                    $rtime = Carbon::now()->subDays($inbox_refuse_set->refuse_register_days);
+                    $count = 0;
+                    foreach ($data as $d)
+                    {
+                        $registdate = User::where('id',$d['user_id'])->first()->created_at;
+                        if($registdate > $rtime)
+                        {
+                            unset($data[$count]);
+                        }
+                        $count = $count+1;
+                    }
+                    $data = array_values($data);
+                }
             }
+            //過濾篩選條件
         }
-        //過濾篩選條件
-
         if (isset($data)) {
             if(!empty($data['date'])){
                //$date = $data['date'];
