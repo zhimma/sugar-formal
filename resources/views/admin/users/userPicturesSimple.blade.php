@@ -1,6 +1,11 @@
 @extends('admin.main')
 @section('app-content')
 <script src="/js/jquery.twzipcode.min.js" type="text/javascript"></script>
+<!--照片查看-->
+<link type="text/css" rel="stylesheet" href="/new/css/app.css">
+<link rel="stylesheet" type="text/css" href="/new/css/swiper2.min.css"/>
+<script type="text/javascript" src="/new/js/swiper.min.js"></script>
+<!--照片查看-->
 <style>
 
 .table > tbody > tr > td, .table > tbody > tr > th{
@@ -9,27 +14,6 @@
 
 .table > tbody > tr > th{
     text-align: center;
-}
-
-.imgPreview {
-    display: none;
-    top: 0;
-    left: 0;
-    position: fixed;
-    background: rgba(0, 0, 0, 0.5);
-}
-
-.imgPreview img {
-    z-index: 100;
-    position: fixed;
-    top: 50%;
-    left: 50%;
-    transform: translate(-50%,-50%);
-}
-
-/*新增滑鼠移入圖片效果*/
-.img {
-    cursor: url("ico/放大鏡.png"), auto;
 }
 
 #blockade .form-group {clear:both;}
@@ -148,19 +132,27 @@
                     <td>
                         <table>
                             <tr>
-                                <td>
-                                    <img src={{ $d->user_meta->pic }} width="150px" class="img">
+                                <td class="evaluation_zoomIn">
+                                    <li>
+                                        <img src={{ $d->user_meta->pic }} width="150px" class="img">
+                                    </li>
                                 </td>
-                                <td>
-                                    <img src={{ $account[$key]['pic'][0] }} width="150px" class="img">
+                                <td class="evaluation_zoomIn">
+                                    <li>
+                                        <img src={{ $account[$key]['pic'][0] }} width="150px" class="img">
+                                    </li>
                                 </td>
                             </tr>
                             <tr>
-                                <td>
-                                    <img src={{ $account[$key]['pic'][1] }} width="150px" class="img">
+                                <td class="evaluation_zoomIn">
+                                    <li>
+                                        <img src={{ $account[$key]['pic'][1] }} width="150px" class="img">
+                                    </li>
                                 </td>
-                                <td>
-                                    <img src={{ $account[$key]['pic'][2] }} width="150px" class="img">
+                                <td class="evaluation_zoomIn">
+                                    <li>
+                                        <img src={{ $account[$key]['pic'][2] }} width="150px" class="img">
+                                    </li>
                                 </td>
                             </tr>
                         </table>
@@ -204,10 +196,6 @@
     <input type="hidden" name="users_id" id="users_id" value={{json_encode($user_id_of_page)}}>
 </form>
 @endif
-
-<div class="imgPreview">
-    <img src="#" alt="" id="imgPreview">
-</div>
 
 </body>
 
@@ -277,6 +265,22 @@
         </div>
     </div>
 </div>
+
+<!--照片查看-->
+<div class="big_img">
+	<!-- 自定義分頁器 -->
+	<div class="swiper-num">
+		<span class="active"></span>
+        /
+		<span class="total"></span>
+	</div>
+	<div class="swiper-container2">
+		<div class="swiper-wrapper">
+		</div>
+	</div>
+	<div class="swiper-pagination2"></div>
+</div>
+<!--照片查看-->
 
 <script>
     $('.twzipcode').twzipcode({
@@ -391,15 +395,52 @@
         }
     });
 
-    $('.img').on('click', function () {
-        var src = $(this).attr('src');
-        $('.imgPreview img').attr('src', src);
-        $('.imgPreview').show()
+    //照片查看
+    $(function(){
+		var mySwiper = new Swiper('.swiper-container2',{
+			pagination : '.swiper-pagination2',
+			paginationClickable:true,
+			onInit: function(swiper){
+				var active =swiper.activeIndex;
+				$(".swiper-num .active").text(active);
+			},
+			onSlideChangeEnd: function(swiper){
+				var active =swiper.realIndex +1;
+				$(".swiper-num .active").text(active);
+			}
+		});
+
+        $(".evaluation_zoomIn li").on("click",function () {
+            var imgBox = $(this).parent(".evaluation_zoomIn").find("li");
+            var i = $(imgBox).index(this);
+            $(".big_img .swiper-wrapper").html("")
+
+            for (var j = 0, c = imgBox.length; j < c ; j++) {
+                $(".big_img .swiper-wrapper").append('<div class="swiper-slide"><div class="cell"><img src="' + imgBox.eq(j).find("img").attr("src") + '" / ></div></div>');
+            }
+            mySwiper.updateSlidesSize();
+            mySwiper.updatePagination();
+            $(".big_img").css({
+                "z-index": 1001,
+                "opacity": "1"
+            });
+            //分页器
+            var num = $(".swiper-pagination2 span").length;
+            $(".swiper-num .total").text(num);
+            $(".swiper-num .active").text(i + 1);
+
+            mySwiper.slideTo(i, 0, false);
+            return false;
+        });
+
+        $(".swiper-container2").click(function(){
+            $(this).parent(".big_img").css({
+                "z-index": "-1",
+                "opacity": "0"
+            });
+        });
     });
-    
-    $('.imgPreview').on('click', function () {
-        $('.imgPreview').hide()
-    });
+    //照片查看
 
     $('.ban_user').on('click', function () {
         uid = $(this).attr('data-uid');
