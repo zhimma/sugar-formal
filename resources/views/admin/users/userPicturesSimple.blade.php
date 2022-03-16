@@ -130,27 +130,27 @@
                         </a>
                     </td>
                     <td>
-                        <table>
+                        <table class="evaluation_zoomIn">
                             <tr>
-                                <td class="evaluation_zoomIn">
-                                    <li>
+                                <td >
+                                    <li class="img_select">
                                         <img src={{ $d->user_meta->pic }} width="150px" class="img">
                                     </li>
                                 </td>
-                                <td class="evaluation_zoomIn">
-                                    <li>
+                                <td>
+                                    <li class="img_select">
                                         <img src={{ $account[$key]['pic'][0] }} width="150px" class="img">
                                     </li>
                                 </td>
                             </tr>
                             <tr>
-                                <td class="evaluation_zoomIn">
-                                    <li>
+                                <td>
+                                    <li class="img_select">
                                         <img src={{ $account[$key]['pic'][1] }} width="150px" class="img">
                                     </li>
                                 </td>
-                                <td class="evaluation_zoomIn">
-                                    <li>
+                                <td>
+                                    <li class="img_select">
                                         <img src={{ $account[$key]['pic'][2] }} width="150px" class="img">
                                     </li>
                                 </td>
@@ -410,8 +410,8 @@
 			}
 		});
 
-        $(".evaluation_zoomIn li").on("click",function () {
-            var imgBox = $(this).parent(".evaluation_zoomIn").find("li");
+        $(".img_select").on("click",function () {
+            var imgBox = $(this).closest(".evaluation_zoomIn").find("li");
             var i = $(imgBox).index(this);
             $(".big_img .swiper-wrapper").html("")
 
