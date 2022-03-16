@@ -328,7 +328,6 @@ class UserController extends \App\Http\Controllers\BaseController
      */
     public function toggleUserBlock(Request $request)
     {
-        Log::Info($request->user_id);
         $userBanned = banned_users::where('member_id', $request->user_id)
             ->orderBy('created_at', 'desc')
             ->get()->first();
@@ -4061,7 +4060,6 @@ class UserController extends \App\Http\Controllers\BaseController
 
     public function searchUserPicturesSimple(Request $request)
     {
-        Log::INfo('start'.Carbon::now());
         $data = User::with('suspicious')
             ->with('aw_relation')
             ->with('banned')
@@ -4124,9 +4122,8 @@ class UserController extends \App\Http\Controllers\BaseController
         if(isset($request->order_by) && $request->order_by=='updated_at'){
             $data = $data->orderBy(UserMeta::select('updated_at')->whereColumn('user_meta.user_id','users.id'),'DESC');
         }
-        Log::INfo('m1'.Carbon::now());
+
         $data = $data->paginate(15);
-        Log::INfo('m2'.Carbon::now());
         
         $account = array();
         $user_id_of_page = array();
@@ -4144,7 +4141,6 @@ class UserController extends \App\Http\Controllers\BaseController
             }  
             $user_id_of_page[] = $d->id;
         }
-        Log::INfo('end'.Carbon::now());
         
         //原始程式碼(大爆改...)
         /*
