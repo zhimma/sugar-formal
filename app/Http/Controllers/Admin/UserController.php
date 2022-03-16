@@ -968,20 +968,20 @@ class UserController extends \App\Http\Controllers\BaseController
         }
 
         //groupby $userMessage
-        $userMessage_log = Message::withTrashed()->selectRaw('message.to_id, count(*) as toCount, u.name, max(message.created_at) as date, message.content, message.pic, message.created_at')//->from('message as m')
-            ->leftJoin('users as u','u.id','message.to_id')
+        $userMessage_log = Message::withTrashed()->selectRaw("IF(message.to_id='". $id ."', message.from_id, message.to_id) as ref_user_id, message.to_id, message.from_id, count(*) as toCount")//->from('message as m')
             ->where('message.from_id', $id)
+            ->orWhere('message.to_id', $id)
             ->where(DB::raw("message.created_at"),'>=', \Carbon\Carbon::parse("180 days ago")->toDateTimeString())
-            ->groupBy(DB::raw("message.to_id"))
-            ->orderBy('date','DESC')
-            ->paginate(20);
+            ->groupBy(DB::raw("ref_user_id"))
+            ->orderBy('message.created_at','DESC')->paginate(20);
+
         foreach ($userMessage_log as $key => $value) {
             $userMessage_log[$key]['items'] = Message::withTrashed()->select('message.*','message.id as mid','message.created_at as m_time','u.*','b.id as banned_id','b.expire_date as banned_expire_date')
                 //->from('message as m')
-                ->leftJoin('users as u','u.id','message.to_id')
+                ->leftJoin('users as u','u.id','message.from_id')
                 ->leftJoin('banned_users as b','message.to_id','b.member_id')
-                ->where([['message.to_id', $id],['message.from_id', $value->to_id]])
-                ->orWhere([['message.from_id', $id],['message.to_id', $value->to_id]])
+                ->where([['message.to_id', $id],['message.from_id', $value->ref_user_id]])
+                ->orWhere([['message.from_id', $id],['message.to_id', $value->ref_user_id]])
                 ->where('message.created_at','>=', \Carbon\Carbon::parse("180 days ago")->toDateTimeString())
                 ->orderBy('message.created_at', 'desc')
                 ->take(10)->get();

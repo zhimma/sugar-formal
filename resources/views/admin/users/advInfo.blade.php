@@ -1396,12 +1396,20 @@
 	</tr>
 	@foreach($userMessage_log as $Log)
 		<tr>
-			<td style="text-align: center;"><button data-toggle="collapse" data-target="#msgLog{{$Log->to_id}}" class="accordion-toggle btn btn-primary message_toggle">+</button></td>
-			<td>@if(!empty($Log->name))<a href="{{ route('admin/showMessagesBetween', [$user->id, $Log->to_id]) }}" target="_blank">{{ $Log->name }}</a>@else 會員資料已刪除@endif</td>
-			<td id="new{{$Log->to_id}}">{{$Log->content}}</td>
+			@php
+				$ref_user=\App\Models\User::findById($Log->ref_user_id);
+				$ref_user_id=$Log->ref_user_id;
+				$message_log=\App\Models\Message::withTrashed()
+					->where([['message.to_id', $user->id],['message.from_id', $ref_user_id]])
+					->orWhere([['message.from_id', $user->id],['message.to_id', $ref_user_id]])
+					->orderByDesc('created_at')->first();
+			@endphp
+			<td style="text-align: center;"><button data-toggle="collapse" data-target="#msgLog{{$ref_user_id}}" class="accordion-toggle btn btn-primary message_toggle">+</button></td>
+			<td>@if(!empty($ref_user->name))<a href="{{ route('admin/showMessagesBetween', [$user->id, $ref_user_id]) }}" target="_blank">{{ $ref_user->name }}</a>@else 會員資料已刪除@endif</td>
+			<td id="new{{$Log->to_id}}">{{$message_log->content}}</td>
 			<td class="evaluation_zoomIn">
 				@php
-					$messagePics=is_null($Log->pic) ? [] : json_decode($Log->pic,true);
+					$messagePics=is_null($message_log->pic) ? [] : json_decode($message_log->pic,true);
 				@endphp
 				@if(isset($messagePics))
 					@foreach( $messagePics as $messagePic)
@@ -1417,10 +1425,10 @@
 					@endforeach
 				@endif
 			</td>
-			<td id="new_time{{$Log->to_id}}">@if(!empty($Log->name)){{$Log->created_at}}@else 會員資料已刪除@endif</td>
-			<td>@if(!empty($Log->name)){{$Log->toCount}}@else 會員資料已刪除@endif</td>
+			<td id="new_time{{$ref_user_id}}">@if(!empty($ref_user->name)){{$message_log->created_at}}@else 會員資料已刪除@endif</td>
+			<td>@if(!empty($ref_user->name)){{$Log->toCount}}@else 會員資料已刪除@endif</td>
 		</tr>
-		<tr class="accordian-body collapse" id="msgLog{{$Log->to_id}}">
+		<tr class="accordian-body collapse" id="msgLog{{$ref_user_id}}">
 			<td class="hiddenRow" colspan="5">
 				<table class="table table-bordered">
 					<thead>
@@ -1445,8 +1453,8 @@
 								@php
 									$from_id_user=\App\Models\User::findById($item->from_id);
 								@endphp
-								<a href="{{ route('admin/showMessagesBetween', [$user->id, $Log->to_id]) }}" target="_blank">
-									<p @if($from_id_user->engroup == '2') style="color: #F00;" @else  style="color: #5867DD;"  @endif>{{$from_id_user? $from_id_user->name :''}}
+								<a href="{{ route('admin/showMessagesBetween', [$user->id, $ref_user_id]) }}" target="_blank">
+									<p @if($item->engroup == '2') style="color: #F00;" @else  style="color: #5867DD;"  @endif>{{$item->name }}
 									@php
 										$to_id_tipcount = \App\Models\Tip::TipCount_ChangeGood($item->to_id);
 										$to_id_vip = \App\Models\Vip::vip_diamond($item->to_id);
