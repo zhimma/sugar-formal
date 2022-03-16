@@ -225,8 +225,8 @@
                 {!! csrf_field() !!}
                 <input type="hidden" value="" name="user_id" id="blockUserID">
 				<input type="hidden" value="member_check_step1" name="page">
-				<input type="hidden" name="vip_pass" value="">
-                <input type="hidden" name="adv_auth" value="">
+				<input type="hidden" name="vip_pass" value=0>
+                <input type="hidden" name="adv_auth" value=0>
                 <div class="modal-body">
                     封鎖時間
                     <select name="days" class="days">
@@ -270,8 +270,7 @@
                     <input placeholder="3.請輸入封鎖關鍵字" onfocus="this.placeholder=''" onblur="this.placeholder='3.請輸入封鎖關鍵字'" class="form-control" type="text" name="addautoban[]" rows="1">       
                 </div>
                 <div class="modal-footer" id="modal-footer">
-                    <div id='submit_btn'>
-                    </div>
+                    <button type="submit" class="btn btn-outline-success ban-user">送出</button>
                     <button type="button" class="btn btn-outline-danger" data-dismiss="modal">取消</button>
                 </div>
             </form>
@@ -403,10 +402,9 @@
     });
 
     $('.ban_user').on('click', function () {
-        init_ban_modal();
         uid = $(this).attr('data-uid');
+        init_ban_modal();
         ban_form(uid);
-        $('#submit_btn').prepend('<button type="submit" class="btn btn-outline-success ban-user">送出</button>');
     });
 
     $('.advance_auth_ban_user').on('click', function () {
@@ -420,10 +418,7 @@
         {
             init_ban_modal();
             $("#clickToggleUserBlock input[name='adv_auth']").val(1);
-            $("#clickToggleUserBlock input[name='vip_pass']").val(0);
             ban_form(uid);
-            $('#submit_btn').prepend('<button type="submit" class="btn btn-outline-success ban-user">送出</button>');
-            
         }
     });
 
@@ -433,7 +428,6 @@
         $('#cfpid').empty();
         $('#autoban_pic_gather').empty();
         $('#table_userLogin_log').empty();
-        $('#submit_btn').empty();
     }
 
     function ban_form(id)
