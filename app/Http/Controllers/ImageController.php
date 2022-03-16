@@ -457,6 +457,7 @@ class ImageController extends BaseController
 
             $meta->pic = NULL;
             $meta->save();
+            CheckPointUser::where('user_id', auth()->id())->delete();
             $msg="刪除成功";
            // if($user->log_free_vip_pic_acts->count()>0) {
             if($user->engroup==2 ){
@@ -761,6 +762,11 @@ class ImageController extends BaseController
             $picture->self_deleted = 1;
             $picture->save();
         }
+
+        CheckPointUser::where('user_id', auth()->id())->delete();
+        $user_meta = UserMeta::where('user_id', auth()->id())->first();
+        $user_meta->updated_at = Carbon::now();
+        $user_meta->save();
         
         $msg="刪除成功";
 

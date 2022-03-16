@@ -270,6 +270,8 @@
                     <input placeholder="3.請輸入封鎖關鍵字" onfocus="this.placeholder=''" onblur="this.placeholder='3.請輸入封鎖關鍵字'" class="form-control" type="text" name="addautoban[]" rows="1">       
                 </div>
                 <div class="modal-footer" id="modal-footer">
+                    <div id='submit_btn'>
+                    </div>
                     <button type="button" class="btn btn-outline-danger" data-dismiss="modal">取消</button>
                 </div>
             </form>
@@ -384,7 +386,6 @@
     });
 
     $('.check_and_next_page').on('click', function(){
-        console.log(users_id);
         r = confirm('是否確定本頁檢查完畢?');
         if(r==true){
             $('#check_and_next_page').submit();
@@ -402,8 +403,10 @@
     });
 
     $('.ban_user').on('click', function () {
+        init_ban_modal();
         uid = $(this).attr('data-uid');
-        ban_form();
+        ban_form(uid);
+        $('#submit_btn').prepend('<button type="submit" class="btn btn-outline-success ban-user">送出</button>');
     });
 
     $('.advance_auth_ban_user').on('click', function () {
@@ -415,46 +418,52 @@
         }
         else
         {
+            init_ban_modal();
             $("#clickToggleUserBlock input[name='adv_auth']").val(1);
             $("#clickToggleUserBlock input[name='vip_pass']").val(0);
-            ban_form();
+            ban_form(uid);
+            $('#submit_btn').prepend('<button type="submit" class="btn btn-outline-success ban-user">送出</button>');
             
         }
     });
 
-    function ban_form()
+    function init_ban_modal()
     {
+        $('#banReason').empty();
+        $('#cfpid').empty();
+        $('#autoban_pic_gather').empty();
+        $('#table_userLogin_log').empty();
+        $('#submit_btn').empty();
+    }
+
+    function ban_form(id)
+    {
+        this.uid = id;
+        console.log(this.uid);
         $.ajax({
             type : 'GET',
             url : '/admin/ban_information',
-            data : {uid : uid},
+            data : {uid : this.uid},
             success : function(response){
 
                 $('#blockUserID').val(uid);
-                $('#banReason').empty();
+                
                 response.banReason.forEach(function(value){
                     $('#banReason').append('<a class="text-white btn btn-success banReason">' + value.content + '</a>');
                 });
 
-                $('#cfpid').empty();
                 response.cfp_id.forEach(function(value){
                     $('#cfpid').append('<option value=' + value.cfp_id + '>' + value.cfp_id + '</option>');
                 });
-
-
-                $('#autoban_pic_gather').empty();
 
                 hstr = pic_tpl(response.meta);
                 $('#autoban_pic_gather').append(hstr);
 
                 response.member_pic.forEach(function(value){
-                    console.log(value);
                     hstr = pic_tpl(value);
                     $('#autoban_pic_gather').append(hstr);
                 });
                 
-
-                $('#table_userLogin_log').empty();
                 response.userLogin_log.forEach(function(value){
                     htmlstr = '';
                     htmlstr = htmlstr + '<tr class="loginItem" id="showloginTimeIP' + value.loginMonth + '" data-sectionName="loginTimeIP' + value.loginMonth + '">';
@@ -477,8 +486,6 @@
                     $('#table_userLogin_log').append(htmlstr);
                 });
 
-                $('#modal-footer').prepend('<button type="submit" class="btn btn-outline-success ban-user">送出</button>');
-
                 $('.showLog').hide();
                 $('.loginItem').click(function(){
                     var sectionName =$(this).attr('data-sectionName');
@@ -486,7 +493,10 @@
                     $('#'+sectionName).show();
                 });
                 
-
+            },
+            error : function(response)
+            {
+                alert('取得資料失敗');
             }
         });
     }
