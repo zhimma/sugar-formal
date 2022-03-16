@@ -134,24 +134,24 @@
                             <tr>
                                 <td >
                                     <li class="img_select">
-                                        <img src={{ $d->user_meta->pic }} width="150px" class="img">
+                                        <img src={{ $d->user_meta->pic ?? '/images/no_picture_add.gif' }} width="150px" class="img">
                                     </li>
                                 </td>
                                 <td>
                                     <li class="img_select">
-                                        <img src={{ $account[$key]['pic'][0] }} width="150px" class="img">
+                                        <img src={{ $account[$key]['pic'][0] ?? '/images/no_picture_add.gif' }} width="150px" class="img">
                                     </li>
                                 </td>
                             </tr>
                             <tr>
                                 <td>
                                     <li class="img_select">
-                                        <img src={{ $account[$key]['pic'][1] }} width="150px" class="img">
+                                        <img src={{ $account[$key]['pic'][1] ?? '/images/no_picture_add.gif' }} width="150px" class="img">
                                     </li>
                                 </td>
                                 <td>
                                     <li class="img_select">
-                                        <img src={{ $account[$key]['pic'][2] }} width="150px" class="img">
+                                        <img src={{ $account[$key]['pic'][2] ?? '/images/no_picture_add.gif' }} width="150px" class="img">
                                     </li>
                                 </td>
                             </tr>

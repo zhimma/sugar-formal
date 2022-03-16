@@ -4132,11 +4132,11 @@ class UserController extends \App\Http\Controllers\BaseController
             $account[$key]['vip'] = \App\Models\Vip::vip_diamond($d->id);
             $account[$key]['tipcount'] = \App\Models\Tip::TipCount_ChangeGood($d->id);
 
-            $account[$key]['pic'] = array('','','');
+            $account[$key]['pic'] = array();
             $count = 0;
             foreach($d->pic_orderByDecs as $pic)
             {
-                $account[$key]['pic'][$count] = $pic->pic;
+                $account[$key]['pic'][] = $pic->pic;
                 $count = $count + 1;
             }  
             $user_id_of_page[] = $d->id;
