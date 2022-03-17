@@ -105,7 +105,7 @@
                     <tr>
                         <td colspan="2">
                             <button type="submit" class="btn btn-primary">查詢</button> 或
-                            <button type="submit" class="btn btn-info" name="hidden" value="1">隱藏的照片</button>
+                            <button type="submit" class="btn btn-info" name="hidden" value="1">查詢並顯示隱藏的照片</button>
                             <button type="reset" class="btn btn-default reset_btn" value="Reset">清除重選</button>
                         </td>
                     </tr>
