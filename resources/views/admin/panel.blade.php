@@ -82,6 +82,6 @@
 		<a href="{{ route('users/reported') }}">被檢舉會員清單</a>
 		<a href="{{ route('users/pics/reported') }}">被檢舉照片清單</a>
 		<a href="{{ route('admin/check') }}">站長審核</a>
-		<a href="{{ route('users/picturesSimple') }}">會員照片管理簡化版</a>--}}
+		<a href="{{ route('users/picturesSimple') }}">會員檢查 step 1</a>--}}
 	@endif
 </div>

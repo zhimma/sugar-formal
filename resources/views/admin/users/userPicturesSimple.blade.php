@@ -204,7 +204,7 @@
     <div class="modal-dialog" role="document" style="max-width: 60%;">
         <div class="modal-content">
             <div class="modal-header">
-                <h5 class="modal-title" id="banModal">封鎖</h5>
+                <h5 class="modal-title" id="banModal_title">封鎖</h5>
                 <button type="button" class="close" data-dismiss="modal" aria-label="Close">
                     <span aria-hidden="true">&times;</span>
                 </button>
@@ -235,14 +235,16 @@
                         <sapn style="vertical-align:middle;">加入常用封鎖原因</sapn>
                     </label>
                     <hr>
-                    新增自動封鎖條件
+                        <div id="auto_ban_title">
+                            新增自動封鎖條件
+                        </div>
                     <div class="form-group">
-                        <label for="cfp_id">CFP_ID</label>
+                        <label for="cfp_id" id='cfp_id_title'>CFP_ID</label>
                         <select multiple class="form-control" id="cfpid" name="cfp_id[]">
                         </select>
                     </div>
                     <div class="form-group">
-                        <label>照片</label>
+                        <label id='pic_title'>照片</label>
                         <div id="autoban_pic_gather">
                         </div>
                     </div> 
@@ -252,7 +254,9 @@
                         </table>
                     </div>
                     <hr>
-                    新增自動封鎖關鍵字(永久封鎖)
+                        <div id="add_auto_ban_title">
+                            新增自動封鎖關鍵字(永久封鎖)
+                        </div>
                     <input placeholder="1.請輸入封鎖關鍵字" onfocus="this.placeholder=''" onblur="this.placeholder='1.請輸入封鎖關鍵字'" class="form-control" type="text" name="addautoban[]" rows="1">
                     <input placeholder="2.請輸入封鎖關鍵字" onfocus="this.placeholder=''" onblur="this.placeholder='2.請輸入封鎖關鍵字'" class="form-control" type="text" name="addautoban[]" rows="1">
                     <input placeholder="3.請輸入封鎖關鍵字" onfocus="this.placeholder=''" onblur="this.placeholder='3.請輸入封鎖關鍵字'" class="form-control" type="text" name="addautoban[]" rows="1">       
@@ -445,6 +449,12 @@
     $('.ban_user').on('click', function () {
         uid = $(this).attr('data-uid');
         init_ban_modal();
+        $('#banModal_title').append('封鎖');
+        $('#auto_ban_title').append('新增自動封鎖條件');
+        $('#cfp_id_title').append('CFP_ID');
+        $('#pic_title').append('照片');
+        $('#add_auto_ban_title').append('新增自動封鎖關鍵字 ( 永久封鎖 )');
+
         ban_form(uid);
     });
 
@@ -458,6 +468,12 @@
         else
         {
             init_ban_modal();
+            $('#banModal_title').append('封鎖 ( 驗證封鎖 )');
+            $('#auto_ban_title').append('新增自動封鎖條件 ( 驗證封鎖 )');
+            $('#cfp_id_title').append('CFP_ID ( 驗證封鎖 )');
+            $('#pic_title').append('照片 ( 驗證封鎖 )');
+            $('#add_auto_ban_title').append('新增自動封鎖關鍵字 ( 驗證封鎖 )');
+
             $("#clickToggleUserBlock input[name='adv_auth']").val(1);
             ban_form(uid);
         }
@@ -465,6 +481,12 @@
 
     function init_ban_modal()
     {
+        $('#banModal_title').empty();
+        $('#auto_ban_title').empty();
+        $('#cfp_id_title').empty();
+        $('#pic_title').empty();
+        $('#add_auto_ban_title').empty();
+
         $('#banReason').empty();
         $('#cfpid').empty();
         $('#autoban_pic_gather').empty();
