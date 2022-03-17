@@ -28,7 +28,7 @@
 		{{--<a href="{{ route('suspectedMultiLogin') }}">疑似多重登入名單</a>--}}
 		<a href="{{ route('users/suspiciousUser') }}">可疑名單列表</a>
 		<a href="{{ route('users/pictures') }}">會員照片管理</a>
-		<a href="{{ route('users/picturesSimple') }}">會員照片管理簡化版</a>
+		<a href="{{ route('users/picturesSimple') }}">會員檢查 step 1</a>
 		<a href="{{ route('users/picturesSimilar') }}">會員照片管理-以圖搜圖</a>
 		<a href="{{ route('users/picturesSimilarLog') }}">會員照片管理結果列表圖</a>
 		<a href="{{ route('users/reported/count/GET') }}">會員被檢舉次數</a>

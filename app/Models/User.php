@@ -306,6 +306,10 @@ class User extends Authenticatable
         return \Cache::has('user-is-online-' . $this->id);
     }
 
+    public function check_point_user(){
+        return $this->hasOne(CheckPointUser::class, 'user_id', 'id');
+    }
+
     /**
      * Find by Email
      *
