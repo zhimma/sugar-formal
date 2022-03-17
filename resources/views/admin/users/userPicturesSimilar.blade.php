@@ -51,7 +51,7 @@
     </style>
 
     <body style="padding: 15px;">
-        <h1>會員照片管理-以圖搜圖</h1>
+        <h1>會員檢查 step 2</h1>
 
         @if (Auth::user()->can('admin') || Auth::user()->can('juniorAdmin'))
 
