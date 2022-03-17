@@ -24,6 +24,7 @@ class Kernel extends ConsoleKernel
         \App\Console\Commands\SendSMS::class,
         \App\Console\Commands\BlockAreaUpdate::class,
         \App\Console\Commands\InsertPR::class,
+        \App\Console\Commands\checkwarned::class,
     ];
 
     /**
@@ -96,6 +97,8 @@ class Kernel extends ConsoleKernel
             $schedule->call(function (){
                 $this->resetUserPicsSwitches();
             })->timezone('Asia/Taipei')->dailyAt('6:30');
+
+            $schedule->command('command:checkwarned')->timezone('Asia/Taipei')->dailyAt('07:00');
         }
         if(app()->isProduction()) {
             $schedule->call(function (){
