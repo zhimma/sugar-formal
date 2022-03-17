@@ -4950,12 +4950,26 @@ class UserController extends \App\Http\Controllers\BaseController
 
     public function UserPicturesSimilar(Request $request){
         
-        $users = User::selectRaw(
+        $users = User::with('suspicious')
+            ->with('aw_relation')
+            ->with('banned')
+            ->with('implicitlyBanned')
+            ->with('check_point_user')
+        ;
+
+        $users = $users->selectRaw(
             '*,
             @meta_update := (SELECT `updated_at` FROM `user_meta` WHERE `user_meta`.`user_id` = `users`.`id`) AS `meta_update`,
             @pic_update  := (SELECT max(`updated_at`) FROM `member_pic` WHERE `member_pic`.`member_id` = `users`.`id` AND `member_pic`.`deleted_at` IS NULL) AS `pic_update`,
             @last_update := IF(@meta_update > @pic_update, @meta_update, @pic_update) AS `last_update`'
         );
+
+        $users = $users->whereDoesntHave('suspicious')
+                    ->whereDoesntHave('banned')
+                    ->whereDoesntHave('implicitlyBanned')
+                    ->whereDoesntHave('aw_relation')
+                    ->whereDoesntHave('user_meta',function($query){$query->where('isWarned', true);})
+        ;
 
         // 開始日期
         if ($request->date_start) {
@@ -5033,6 +5047,13 @@ class UserController extends \App\Http\Controllers\BaseController
         }
 
         $users = $users->paginate(15);
+
+        $user_id_of_page = array();
+        
+        foreach($users as $user)
+        {
+            $user_id_of_page[] = $user->id;
+        }
 
         return view('admin.users.userPicturesSimilar',[
             'users' => $users
