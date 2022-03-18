@@ -182,6 +182,8 @@
                                         <input type="hidden" name='page' value="userPicturesSimilar">
                                         <button type="submit" class="btn btn-sm btn-warning">變更性別</button>
                                     </form>
+                                    <br>
+                                    <a href="/admin/users/advInfo/editPic_sendMsg/{{ $user->id }}" class='text-white btn btn-sm btn-primary'>照片&發訊息</a>
                                 </p>
                                 <p>
                                 <form class="form-inline" action="/admin/users/picturesSimilar/suspicious:toggle" method="post">
