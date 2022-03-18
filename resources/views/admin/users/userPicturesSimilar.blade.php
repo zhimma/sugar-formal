@@ -961,7 +961,7 @@
 
         function pic_tpl(picture){
             html_str = '';
-            if(picture??false)
+            if(picture.pic??false)
             {
                 html_str = html_str + '<div class="autoban_pic_unit">';
                 html_str = html_str + '<input type="checkbox" id="' + picture.pic.replace('/','',) + '" name="pic[]" value="' + picture.pic + '" />';
