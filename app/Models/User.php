@@ -307,7 +307,11 @@ class User extends Authenticatable
     }
 
     public function check_point_user(){
-        return $this->hasOne(CheckPointUser::class, 'user_id', 'id');
+        return $this->hasMany(CheckPointUser::class, 'user_id', 'id');
+    }
+
+    public function check_point_name(){
+        return $this->hasManyThrough(CheckPoints::class, CheckPointUser::class, 'user_id', 'id','id','check_point_id');
     }
 
     /**

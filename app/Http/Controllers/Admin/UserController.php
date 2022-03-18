@@ -4094,7 +4094,7 @@ class UserController extends \App\Http\Controllers\BaseController
                     ->whereDoesntHave('implicitlyBanned')
                     ->whereDoesntHave('aw_relation')
                     ->whereDoesntHave('user_meta',function($query){$query->where('isWarned', true);})
-                    ->whereDoesntHave('check_point_user',function($query){$query->where('check_point_id', 1);})
+                    ->whereDoesntHave('check_point_name',function($query){$query->where('name', 'step_1_ischecked');});
                     
         ;
 
@@ -4969,7 +4969,7 @@ class UserController extends \App\Http\Controllers\BaseController
                     ->whereDoesntHave('implicitlyBanned')
                     ->whereDoesntHave('aw_relation')
                     ->whereDoesntHave('user_meta',function($query){$query->where('isWarned', true);})
-                    ->whereDoesntHave('check_point_user',function($query){$query->where('check_point_id', 2);})
+                    ->whereDoesntHave('check_point_name',function($query){$query->where('name', 'step_2_ischecked');})
                     ->whereHas('user_meta',function($query){$query->where('is_active', true);})
         ;
 
