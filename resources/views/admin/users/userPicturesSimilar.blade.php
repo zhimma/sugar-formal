@@ -1,6 +1,13 @@
 @extends('admin.main')
 @section('app-content')
     <script src="/js/jquery.twzipcode.min.js" type="text/javascript"></script>
+
+    <!--照片查看-->
+    <link type="text/css" rel="stylesheet" href="/new/css/app.css">
+    <link rel="stylesheet" type="text/css" href="/new/css/swiper2.min.css"/>
+    <script type="text/javascript" src="/new/js/swiper.min.js"></script>
+    <!--照片查看-->
+
     <style>
         .table>tbody>tr>td,
         .table>tbody>tr>th {
@@ -174,7 +181,13 @@
                             <td>
                                 <p>
                                     @if ($user->meta->pic)
-                                        <p><img src="{{ url($user->meta->pic) }}" width="120px"><br><span>新增時間: {{ $user->meta->created_at }}</span></p>
+                                        <p class='evaluation_zoomIn'>
+                                                <img class='img_select' src="{{ $user->meta->pic }}" width="120px">
+                                            <br>
+                                            <span>
+                                                新增時間: {{ $user->meta->created_at }}
+                                            </span>
+                                        </p>
                                     @else
                                         無
                                     @endif
@@ -353,7 +366,12 @@
                             @foreach ($user->pic as $pic)
                                 <tr>
                                     <td>
-                                        <p><img src="{{ url($pic->pic) }}" width="120px"><br><span>新增時間: {{ $pic->created_at }}</span>
+                                        <p class='evaluation_zoomIn'>
+                                            <img class='img_select' src="{{ url($pic->pic) }}" width="120px">
+                                            <br>
+                                            <span>
+                                                新增時間: {{ $pic->created_at }}
+                                            </span>
                                         </p>
                                     </td>
                                     {{--<td>
@@ -630,6 +648,22 @@
         @endif
     </body>
 
+    <!--照片查看-->
+    <div class="big_img">
+        <!-- 自定義分頁器 -->
+        <div class="swiper-num">
+            <span class="active"></span>
+            /
+            <span class="total"></span>
+        </div>
+        <div class="swiper-container2">
+            <div class="swiper-wrapper">
+            </div>
+        </div>
+        <div class="swiper-pagination2"></div>
+    </div>
+    <!--照片查看-->
+
     <script>
         function blockModal(e) {
             let user_id = $(e).data('uid');
@@ -760,5 +794,53 @@
             }
 
         });
+    </script>
+    <script>
+        //照片查看
+        $(function(){
+            var mySwiper = new Swiper('.swiper-container2',{
+                pagination : '.swiper-pagination2',
+                paginationClickable:true,
+                onInit: function(swiper){
+                    var active =swiper.activeIndex;
+                    $(".swiper-num .active").text(active);
+                },
+                onSlideChangeEnd: function(swiper){
+                    var active =swiper.realIndex +1;
+                    $(".swiper-num .active").text(active);
+                }
+            });
+
+            $(".img_select").on("click",function () {
+                var imgBox = $(this).closest(".evaluation_zoomIn").find(".img_select");
+                var i = $(imgBox).index(this);
+                $(".big_img .swiper-wrapper").html("")
+
+                for (var j = 0, c = imgBox.length; j < c ; j++) {
+                    $(".big_img .swiper-wrapper").append('<div class="swiper-slide"><div class="cell"><img src="' + imgBox.eq(j).attr("src") + '" / ></div></div>');
+                }
+                mySwiper.updateSlidesSize();
+                mySwiper.updatePagination();
+                $(".big_img").css({
+                    "z-index": 1001,
+                    "opacity": "1"
+                });
+                //分页器
+                var num = $(".swiper-pagination2 span").length;
+                $(".swiper-num .total").text(num);
+                $(".swiper-num .active").text(i + 1);
+
+                mySwiper.slideTo(i, 0, false);
+                return false;
+            });
+
+            $(".swiper-container2").click(function(){
+                $(this).parent(".big_img").css({
+                    "z-index": "-1",
+                    "opacity": "0"
+                });
+            });
+        });
+        //照片查看
     </script>
 @stop
