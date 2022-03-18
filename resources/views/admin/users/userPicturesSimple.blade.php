@@ -548,9 +548,14 @@
 
                 $('.showLog').hide();
                 $('.loginItem').click(function(){
-                    var sectionName =$(this).attr('data-sectionName');
+                    var sectionName = $(this).attr('data-sectionName');
                     $('.showLog').hide();
                     $('#'+sectionName).show();
+                });
+
+                $('.banReason').click(function(){
+                    $('#msg').empty();
+                    $('#msg').append($(this).text());
                 });
                 
             },
