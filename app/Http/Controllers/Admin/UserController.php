@@ -5058,7 +5058,8 @@ class UserController extends \App\Http\Controllers\BaseController
         }
 
         return view('admin.users.userPicturesSimilar',[
-            'users' => $users
+            'users' => $users,
+            'user_id_of_page' => $user_id_of_page
         ])->with('last_images_compare_encode',ImagesCompareEncode::orderByDesc('id')->firstOrNew());
     }
 
@@ -5500,14 +5501,10 @@ class UserController extends \App\Http\Controllers\BaseController
         $users_id = json_decode($request->users_id);
         foreach($users_id as $user_id)
         {
-            $check_point_user = CheckPointUser::where('user_id', $user_id)->first();
-            if(!$check_point_user)
-            {
-                $check_point_user = new CheckPointUser;
-                $check_point_user->user_id = $user_id;
-                $check_point_user->check_point_id = 1;
-                $check_point_user->save();
-            }
+            $check_point_user = new CheckPointUser;
+            $check_point_user->user_id = $user_id;
+            $check_point_user->check_point_id = $request->check_point_id;
+            $check_point_user->save();
         }
         return redirect()->back();
     }

@@ -194,6 +194,7 @@
 <form id="check_and_next_page" action="{{ route('admin/check_step1') }}" method="post">
     {!! csrf_field() !!}
     <input type="hidden" name="users_id" id="users_id" value={{json_encode($user_id_of_page)}}>
+    <input type="hidden" name="check_point_id" id="check_point_id" value=1>
 </form>
 @endif
 

@@ -538,6 +538,10 @@
                 </table>
 
                 {!! $users->appends(request()->input())->links('pagination::sg-pages') !!}
+                <div style="text-align:center;">
+                    <button class="check_and_next_page btn btn-primary">下一頁(檢查完畢)</button>
+                </div>
+                <br>
 
                 <!-- blockModal -->
                 <div class="modal fade" id="blockModal" tabindex="-1">
@@ -647,6 +651,14 @@
             <p>沒有本頁面權限</p>
         @endif
     </body>
+
+    @if(isset($user_id_of_page))
+    <form id="check_and_next_page" action="{{ route('admin/check_step1') }}" method="post">
+        {!! csrf_field() !!}
+        <input type="hidden" name="users_id" id="users_id" value={{json_encode($user_id_of_page)}}>
+        <input type="hidden" name="check_point_id" id="check_point_id" value=2>
+    </form>
+    @endif
 
     <!--照片查看-->
     <div class="big_img">
@@ -842,5 +854,12 @@
             });
         });
         //照片查看
+
+        $('.check_and_next_page').on('click', function(){
+            r = confirm('是否確定本頁檢查完畢?');
+            if(r==true){
+                $('#check_and_next_page').submit();
+            }
+        });
     </script>
 @stop
