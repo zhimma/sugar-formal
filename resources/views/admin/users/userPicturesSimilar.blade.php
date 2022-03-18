@@ -27,8 +27,8 @@
         .btn-secondary {
             cursor: default;
             color: #fff;
-            background-color: #C0C0C0;
-            border-color: #C0C0C0;   
+            background-color: #5a5a5a;
+            border-color: #5a5a5a;   
             opacity: .65;        
             
         }
