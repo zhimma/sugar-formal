@@ -169,7 +169,7 @@ Route::group(['middleware' => ['auth', 'global','SessionExpired']], function () 
 
 Route::get('/advance_auth_activate/token/{token}', 'PagesController@advance_auth_email_activate')->name('advance_auth_email_activate');
 
-Route::group(['middleware' => ['auth', 'global', 'active', 'femaleActive', 'vipCheck', 'newerManual','CheckIsWarned','CheckAccountStatus','SessionExpired']], function () {
+Route::group(['middleware' => ['auth', 'global', 'active', 'femaleActive', 'vipCheck', 'newerManual','CheckAccountStatus','SessionExpired']], function () {
 
     Route::get('/dashboard/browse', 'PagesController@browse');
     /*
