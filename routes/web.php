@@ -838,8 +838,9 @@ Route::group(['middleware' => ['auth', 'global', 'active', 'femaleActive', 'vipC
         Route::post('roles/search', 'RoleController@search');
         Route::get('roles/search', 'RoleController@index');
 
-        Route::post('check/step1', 'UserController@check_step1')->name('admin/check_step1');
+        Route::post('check/step1', 'UserController@member_profile_check_over')->name('admin/member_profile_check_over');
         Route::get('ban_information', 'UserController@ban_information');
+        Route::post('users/little_update_profile', 'UserController@little_update_profile');
     });
     Route::group(['prefix' => 'admin', 'middleware' => 'Admin'], function () {
         //寄退信Log查詢

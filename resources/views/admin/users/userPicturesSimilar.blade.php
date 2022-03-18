@@ -53,7 +53,15 @@
         float:left;
     }
     .gender1 a,.gender1 a:visited,.gender1 a:active,.gender1 a:hover {color:blue;}
-    .gender2 a,.gender2 a:visited,.gender2 a:active,.gender2 a:hover {color:red;}        
+    .gender2 a,.gender2 a:visited,.gender2 a:active,.gender2 a:hover {color:red;}   
+    
+    #blockade .form-group {clear:both;}
+    #autoban_pic_gather .autoban_pic_unit {float:left;margin:10px;}
+    #autoban_pic_gather .autoban_pic_unit img {width:80px;min-width:80px;}
+    #autoban_pic_gather input {display:none;}
+    #autoban_pic_gather .autoban_pic_unit label {padding:0 10px 10px 10px;} 
+    #autoban_pic_gather .autoban_pic_unit label span {display:block;text-align:center;font-size:4px;}
+    #autoban_pic_gather .autoban_pic_unit input:checked+label {background:#1E90FF;}
     
     </style>
 
@@ -139,17 +147,34 @@
                                 <p>
                                     <span>會員名稱: <a href="/admin/users/advInfo/editPic_sendMsg/{{ $user->id }}" target="_blank"><span class="{{ $user->engroup == 2 ? 'text-danger' : 'text-primary' }}">{{ $user->name }}</span></a></span><br>
                                     <span>電子郵件: {{ str_replace(strchr($user->email,'@'), '', $user->email) }}</span><br>
-                                    <span>會員標題: {{ $user->title }}</span><br>
-                                    <span>關於我: {{ $user->meta_()->about }}</span><br>
-                                    <span>期待的約會模式: {{ $user->meta_()->style }}</span><br>
+                                    <form method="POST" action='/admin/users/little_update_profile'>
+                                        {!! csrf_field() !!}
+                                        <input type="hidden" value={{ $user->id }} name="user_id">
+                                        <span>
+                                            會員標題: 
+                                            <input type="text" class="form-control form-control-sm form-control-plaintext mr-sm-2" value={{ $user->title }} name="title">
+                                        </span>
+                                        <span>
+                                            關於我: 
+                                            <input type="text" class="form-control form-control-sm form-control-plaintext mr-sm-2" value={{ $user->meta_()->about }} name="about">
+                                        </span>
+                                        <span>
+                                            期待的約會模式: 
+                                            <input type="text" class="form-control form-control-sm form-control-plaintext mr-sm-2" value={{ $user->meta_()->style }} name="style">
+                                        </span>
+                                        <br>
+                                        <button type="submit" class="btn btn-sm btn-primary">修改資料</button>
+                                    </form>
+                                    <br>
                                     <span>上線時間: {{ $user->last_login }}</span><br>
                                     <span>更新時間: {{ $user->last_update }}</span><br>
                                 </p>
                                 <p>
-                                    @if ($user->isBanned($user->id))
-                                        <button class="btn btn-sm btn-success" type="button" onclick="unblockModal(this)" data-toggle="modal" data-target="#unblockModal" data-uid="{{ $user->id }}" data-reason="{{ $user->banned->reason }}" data-expire="{{ $user->banned->expire_date }}">解除封鎖</button>
-                                    @else
-                                        <button class="btn btn-sm btn-danger" type="button" onclick="blockModal(this)" data-toggle="modal" data-target="#blockModal" data-uid="{{ $user->id }}">封鎖</button>
+                                    @if($user->engroup== '1')
+                                        <button type="button" class="btn btn-sm btn-danger ban_user" data-uid="{{$user->id}}" data-toggle="modal" data-target="#banModal">封鎖</button>
+                                    @endif
+                                    @if($user->engroup== '2')
+                                        <button type="button" class="btn btn-sm btn-danger advance_auth_ban_user" data-uid="{{$user->id}}" data-toggle="modal" data-target="#banModal" data-advance_auth_status="{{$user->advance_auth_status}}">驗證封鎖</button>
                                     @endif
                                     <form method="POST" action="genderToggler" class="user_profile">{!! csrf_field() !!}
                                         <input type="hidden" name='user_id' value="{{ $user->id }}">
@@ -543,107 +568,6 @@
                 </div>
                 <br>
 
-                <!-- blockModal -->
-                <div class="modal fade" id="blockModal" tabindex="-1">
-                    <div class="modal-dialog modal-dialog-centered">
-                        <div class="modal-content">
-                            <div class="modal-header">
-                                <h5 class="modal-title">會員封鎖</h5>
-                                <button class="close" type="button" data-dismiss="modal">
-                                    <span>&times;</span>
-                                </button>
-                            </div>
-                            <div class="modal-body">
-                                <form id="BlockUser" action="/admin/users/picturesSimilar/block:toggle" method="post">
-                                    {!! csrf_field() !!}
-                                    <input type="hidden" name="toggle" value="1">
-                                    <input type="hidden" name="user_id" value="">
-                                    <input type="hidden" name="page" value="{{ url()->full() }}">
-                                    <input type="hidden" name="vip_pass" value="0">
-                                    <div class="form-group">
-                                        <label class="form-label">封鎖時間</label>
-                                        <select class="form-control" name="days">
-                                            <option value="X" selected>永久</option>
-                                            <option value="3">三天</option>
-                                            <option value="7">七天</option>
-                                            <option value="15">十五天</option>
-                                            <option value="30">三十天</option>
-                                        </select>
-                                    </div>
-                                    <div class="form-group">
-                                        <label class="form-label">封鎖原因</label>
-                                        <div>
-                                            <button class="btn btn-sm btn-success text-white mb-1 mr-1 banReason" type="button">廣告</button>
-                                            <button class="btn btn-sm btn-success text-white mb-1 mr-1 banReason" type="button">非徵求包養行為</button>
-                                            <button class="btn btn-sm btn-success text-white mb-1 mr-1 banReason" type="button">用詞不當</button>
-                                            <button class="btn btn-sm btn-success text-white mb-1 mr-1 banReason" type="button">照片不當</button>
-                                            <button class="btn btn-sm btn-success text-white mb-1 mr-1 banReason" type="button">多重帳號</button>
-                                            <button class="btn btn-sm btn-success text-white mb-1 mr-1 banReason" type="button">性別錯誤</button>
-                                            <button class="btn btn-sm btn-success text-white mb-1 mr-1 banReason" type="button">要求裸照</button>
-                                            <button class="btn btn-sm btn-success text-white mb-1 mr-1 banReason" type="button">罐頭訊息+主動給line</button>
-                                            <button class="btn btn-sm btn-success text-white mb-1 mr-1 banReason" type="button">基本資料錯誤</button>
-                                            <button class="btn btn-sm btn-success text-white mb-1 mr-1 banReason" type="button">站規8</button>
-                                            <button class="btn btn-sm btn-success text-white mb-1 mr-1 banReason" type="button">未成年</button>
-                                            <button class="btn btn-sm btn-success text-white mb-1 mr-1 banReason" type="button">拒往</button>
-                                            <button class="btn btn-sm btn-success text-white mb-1 mr-1 banReason" type="button">多重帳號,情節嚴重</button>
-                                            <button class="btn btn-sm btn-success text-white mb-1 mr-1 banReason" type="button">未依要求與站方聯絡，已按使用天數刷退VIP費用。並停止帳號使用。</button>
-                                        </div>
-                                    </div>
-                                    <div class="form-group">
-                                        <textarea class="form-control" name="reason" rows="4" maxlength="200">廣告</textarea>
-                                    </div>
-                                </form>
-                                <script>
-                                    $('#BlockUser .banReason').click(function(e) {
-                                        e.preventDefault();
-
-                                        $('#BlockUser textarea[name=reason]').val($(this).html());
-                                    });
-                                </script>
-                            </div>
-                            <div class="modal-footer">
-                                <button class="btn btn-outline-danger" type="submit" form="BlockUser">送出</button>
-                                <button class="btn btn-outline-dark" type="button" data-dismiss="modal">取消</button>
-                            </div>
-                        </div>
-                    </div>
-                </div>
-
-                <!-- unblockModal -->
-                <div class="modal fade" id="unblockModal" tabindex="-1">
-                    <div class="modal-dialog modal-dialog-centered">
-                        <div class="modal-content">
-                            <div class="modal-header">
-                                <h5 class="modal-title">會員封鎖</h5>
-                                <button class="close" type="button" data-dismiss="modal">
-                                    <span>&times;</span>
-                                </button>
-                            </div>
-                            <div class="modal-body">
-                                <form id="unBlockUser" action="/admin/users/picturesSimilar/block:toggle" method="post">
-                                    {!! csrf_field() !!}
-                                    <input type="hidden" name="toggle" value="0">
-                                    <input type="hidden" name="user_id" value="">
-                                    <input type="hidden" name="page" value="{{ url()->full() }}">
-                                    <input type="hidden" name="vip_pass" value="0">
-                                    <div class="form-group">
-                                        <label class="form-label">封鎖時間</label>
-                                        <input class="form-control" id="expire_date" type="text" value="" readonly>
-                                    </div>
-                                    <div class="form-group">
-                                        <label class="form-label">封鎖原因</label>
-                                        <textarea class="form-control" name="reason" rows="4" maxlength="200" readonly>廣告</textarea>
-                                    </div>
-                                </form>
-                            </div>
-                            <div class="modal-footer">
-                                <button class="btn btn-outline-danger" type="submit" form="unBlockUser">解除</button>
-                                <button class="btn btn-outline-dark" type="button" data-dismiss="modal">取消</button>
-                            </div>
-                        </div>
-                    </div>
-                </div>
-
             @endif
 
         @else
@@ -653,12 +577,84 @@
     </body>
 
     @if(isset($user_id_of_page))
-    <form id="check_and_next_page" action="{{ route('admin/check_step1') }}" method="post">
+    <form id="check_and_next_page" action="{{ route('admin/member_profile_check_over') }}" method="post">
         {!! csrf_field() !!}
         <input type="hidden" name="users_id" id="users_id" value={{json_encode($user_id_of_page)}}>
         <input type="hidden" name="check_point_id" id="check_point_id" value=2>
     </form>
     @endif
+
+    <!-- Modal -->
+    <div class="modal fade" id="banModal" tabindex="-1" role="dialog" aria-labelledby="banModal" aria-hidden="true">
+        <div class="modal-dialog" role="document" style="max-width: 60%;">
+            <div class="modal-content">
+                <div class="modal-header">
+                    <h5 class="modal-title" id="banModal_title">封鎖</h5>
+                    <button type="button" class="close" data-dismiss="modal" aria-label="Close">
+                        <span aria-hidden="true">&times;</span>
+                    </button>
+                </div>
+                <form action="/admin/users/toggleUserBlock" method="POST" id="clickToggleUserBlock">
+                    {!! csrf_field() !!}
+                    <input type="hidden" value="" name="user_id" id="blockUserID">
+                    <input type="hidden" value="member_check_step1" name="page">
+                    <input type="hidden" name="vip_pass" value=0>
+                    <input type="hidden" name="adv_auth" value=0>
+                    <div class="modal-body">
+                        封鎖時間
+                        <select name="days" class="days">
+                            <option value="3">三天</option>
+                            <option value="7">七天</option>
+                            <option value="15">十五天</option>
+                            <option value="30">三十天</option>
+                            <option value="X" selected>永久</option>
+                        </select>
+                        <hr>
+                        封鎖原因
+                        <div id='banReason'>
+                        </div>
+                        <br><br>
+                        <textarea class="form-control m-reason" name="reason" id="msg" rows="4" maxlength="200">廣告</textarea>
+                        <label style="margin:10px 0px;">
+                            <input type="checkbox" name="addreason" style="vertical-align:middle;width:20px;height:20px;"/>
+                            <sapn style="vertical-align:middle;">加入常用封鎖原因</sapn>
+                        </label>
+                        <hr>
+                            <div id="auto_ban_title">
+                                新增自動封鎖條件
+                            </div>
+                        <div class="form-group">
+                            <label for="cfp_id" id='cfp_id_title'>CFP_ID</label>
+                            <select multiple class="form-control" id="cfpid" name="cfp_id[]">
+                            </select>
+                        </div>
+                        <div class="form-group">
+                            <label id='pic_title'>照片</label>
+                            <div id="autoban_pic_gather">
+                            </div>
+                        </div> 
+                        <div class="form-group">
+                            <label for="ip">IP</label>
+                            <table id="table_userLogin_log" class="table table-hover table-bordered">
+                            </table>
+                        </div>
+                        <hr>
+                            <div id="add_auto_ban_title">
+                                新增自動封鎖關鍵字(永久封鎖)
+                            </div>
+                        <input placeholder="1.請輸入封鎖關鍵字" onfocus="this.placeholder=''" onblur="this.placeholder='1.請輸入封鎖關鍵字'" class="form-control" type="text" name="addautoban[]" rows="1">
+                        <input placeholder="2.請輸入封鎖關鍵字" onfocus="this.placeholder=''" onblur="this.placeholder='2.請輸入封鎖關鍵字'" class="form-control" type="text" name="addautoban[]" rows="1">
+                        <input placeholder="3.請輸入封鎖關鍵字" onfocus="this.placeholder=''" onblur="this.placeholder='3.請輸入封鎖關鍵字'" class="form-control" type="text" name="addautoban[]" rows="1">       
+                    </div>
+                    <div class="modal-footer" id="modal-footer">
+                        <button type="submit" class="btn btn-outline-success ban-user">送出</button>
+                        <button type="button" class="btn btn-outline-danger" data-dismiss="modal">取消</button>
+                    </div>
+                </form>
+            </div>
+        </div>
+    </div>
+    <!-- Modal -->
 
     <!--照片查看-->
     <div class="big_img">
@@ -676,27 +672,6 @@
     </div>
     <!--照片查看-->
 
-    <script>
-        function blockModal(e) {
-            let user_id = $(e).data('uid');
-            $('#BlockUser input[name=user_id]').val(user_id);
-        }
-
-        function unblockModal(e) {
-
-            let user_id = $(e).data('uid');
-            let expire = $(e).data('expire');
-            let reason = $(e).data('reason');
-
-            $('#unBlockUser input[name=user_id]').val(user_id);
-            if (expire) {
-                $('#expire_date').val(expire);
-            } else {
-                $('#expire_date').val('永久');
-            }
-            $('#unBlockUser textarea[name=reason]').val(reason);
-        }
-    </script>
     <script>
         $('.twzipcode').twzipcode({
             'detect': true,
@@ -854,6 +829,146 @@
             });
         });
         //照片查看
+
+        //封鎖相關
+        $('.ban_user').on('click', function () {
+            uid = $(this).attr('data-uid');
+            init_ban_modal();
+            $('#banModal_title').append('封鎖');
+            $('#auto_ban_title').append('新增自動封鎖條件');
+            $('#cfp_id_title').append('CFP_ID');
+            $('#pic_title').append('照片');
+            $('#add_auto_ban_title').append('新增自動封鎖關鍵字 ( 永久封鎖 )');
+
+            ban_form(uid);
+        });
+
+        $('.advance_auth_ban_user').on('click', function () {
+            uid = $(this).attr('data-uid');
+            advance_auth_status = $(this).attr('data-advance_auth_status');
+            if(advance_auth_status == 1)
+            {
+                return false;
+            }
+            else
+            {
+                init_ban_modal();
+                $('#banModal_title').append('封鎖 ( 驗證封鎖 )');
+                $('#auto_ban_title').append('新增自動封鎖條件 ( 驗證封鎖 )');
+                $('#cfp_id_title').append('CFP_ID ( 驗證封鎖 )');
+                $('#pic_title').append('照片 ( 驗證封鎖 )');
+                $('#add_auto_ban_title').append('新增自動封鎖關鍵字 ( 驗證封鎖 )');
+
+                $("#clickToggleUserBlock input[name='adv_auth']").val(1);
+                ban_form(uid);
+            }
+        });
+
+        function init_ban_modal()
+        {
+            $('#banModal_title').empty();
+            $('#auto_ban_title').empty();
+            $('#cfp_id_title').empty();
+            $('#pic_title').empty();
+            $('#add_auto_ban_title').empty();
+
+            $('#banReason').empty();
+            $('#cfpid').empty();
+            $('#autoban_pic_gather').empty();
+            $('#table_userLogin_log').empty();
+        }
+
+        function ban_form(id)
+        {
+            this.uid = id;
+            console.log(this.uid);
+            $.ajax({
+                type : 'GET',
+                url : '/admin/ban_information',
+                data : {uid : this.uid},
+                success : function(response){
+
+                    $('#blockUserID').val(uid);
+                    
+                    response.banReason.forEach(function(value){
+                        $('#banReason').append('<a class="text-white btn btn-success banReason">' + value.content + '</a>');
+                    });
+
+                    response.cfp_id.forEach(function(value){
+                        $('#cfpid').append('<option value=' + value.cfp_id + '>' + value.cfp_id + '</option>');
+                    });
+
+                    hstr = pic_tpl(response.meta);
+                    $('#autoban_pic_gather').append(hstr);
+
+                    response.member_pic.forEach(function(value){
+                        hstr = pic_tpl(value);
+                        $('#autoban_pic_gather').append(hstr);
+                    });
+                    
+                    response.userLogin_log.forEach(function(value){
+                        htmlstr = '';
+                        htmlstr = htmlstr + '<tr class="loginItem" id="showloginTimeIP' + value.loginMonth + '" data-sectionName="loginTimeIP' + value.loginMonth + '">';
+                        htmlstr = htmlstr + '<td>';
+                        htmlstr = htmlstr + '<span>' + value.loginMonth + ' [' + value.Ip.Ip_group.length + ']' + '</span>';
+                        htmlstr = htmlstr + '</td>';
+                        htmlstr = htmlstr + '</tr>';
+                        htmlstr = htmlstr + '<tr class="showLog" id="loginTimeIP' + value.loginMonth + '">';
+                        htmlstr = htmlstr + '<td>';
+                        htmlstr = htmlstr + '<select multiple class="form-control" name="ip[]">';
+                        
+                        for(let i = 0; i < value.Ip.Ip_group.length; i++)
+                        {
+                            htmlstr = htmlstr + '<option value="' + value.Ip.Ip_group[i].ip + '">' + '[' + value.Ip.Ip_group[i].loginTime + ']  ' + value.Ip.Ip_group[i].ip  + '</option>';
+                        }
+
+                        htmlstr = htmlstr + '</select>';
+                        htmlstr = htmlstr + '</td>';
+                        htmlstr = htmlstr + '</tr>';
+                        $('#table_userLogin_log').append(htmlstr);
+                    });
+
+                    $('.showLog').hide();
+                    $('.loginItem').click(function(){
+                        var sectionName =$(this).attr('data-sectionName');
+                        $('.showLog').hide();
+                        $('#'+sectionName).show();
+                    });
+                    
+                },
+                error : function(response)
+                {
+                    alert('取得資料失敗');
+                }
+            });
+        }
+
+        function pic_tpl(picture){
+            html_str = '';
+            if(picture??false)
+            {
+                html_str = html_str + '<div class="autoban_pic_unit">';
+                html_str = html_str + '<input type="checkbox" id="' + picture.pic.replace('/','',) + '" name="pic[]" value="' + picture.pic + '" />';
+                html_str = html_str + '<label for="' + picture.pic.replace('/','',) + '">';
+                html_str = html_str + '<span>';
+
+                if((picture.operator??false) || ((picture.deleted_at??false) && picture.deleted_at != '0000-00-00 00:00:00'))
+                {
+                    html_str = html_str + '已刪';
+                }
+                else
+                {
+                    html_str = html_str + '&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;';
+                }
+
+                html_str = html_str + '</span>';
+                html_str = html_str + '<img src="' + picture.pic + '" onerror="this.src=' + 'img/filenotexist.png' + '" />';
+                html_str = html_str + '</label>';
+                html_str = html_str + '</div>';
+            }
+            return html_str;
+        }
+        //封鎖相關
 
         $('.check_and_next_page').on('click', function(){
             r = confirm('是否確定本頁檢查完畢?');

@@ -5496,7 +5496,7 @@ class UserController extends \App\Http\Controllers\BaseController
         echo json_encode(['ok']);
     }
 
-    public function check_step1(Request $request)
+    public function member_profile_check_over(Request $request)
     {
         $users_id = json_decode($request->users_id);
         foreach($users_id as $user_id)
@@ -5548,5 +5548,18 @@ class UserController extends \App\Http\Controllers\BaseController
         ]);
     }
 
+    public function little_update_profile(Request $request)
+    {
+        $user = User::where('id',$request->user_id)->first();
+        $user->title = $request->title;
+        $user->save();
+
+        $user_meta = UserMeta::where('user_id',$request->user_id)->first();
+        $user_meta->about = $request->about;
+        $user_meta->style = $request->style;
+        $user_meta->save();
+
+        return redirect()->back();
+    }
 
 }
