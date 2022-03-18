@@ -270,6 +270,7 @@
         </div>
     </div>
 </div>
+<!-- Modal -->
 
 <!--照片查看-->
 <div class="big_img">
@@ -447,6 +448,7 @@
     });
     //照片查看
 
+    //封鎖相關
     $('.ban_user').on('click', function () {
         uid = $(this).attr('data-uid');
         init_ban_modal();
@@ -584,6 +586,7 @@
         }
         return html_str;
     }
+    //封鎖相關
 	
 
 </script>
