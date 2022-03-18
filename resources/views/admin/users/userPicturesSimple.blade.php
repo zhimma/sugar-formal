@@ -16,7 +16,7 @@
     text-align: center;
 }
 
-.btn-secondary {
+.btn-gray {
     cursor: default;
     color: #fff;
     background-color: #5a5a5a;
@@ -178,7 +178,7 @@
                             <button type="button" class="btn btn-danger ban_user" data-uid="{{$d->id}}" data-toggle="modal" data-target="#banModal">封鎖</button>
                         @endif
                         @if($d->engroup== '2')
-                            <button type="button" class="btn @if($d->advance_auth_status==1) btn-secondary @else btn-danger @endif advance_auth_ban_user" data-uid="{{$d->id}}" data-toggle="modal" data-target="#banModal" data-advance_auth_status="{{$d->advance_auth_status}}">驗證封鎖</button>
+                            <button type="button" class="btn @if($d->advance_auth_status==1) btn-gray @else btn-danger @endif advance_auth_ban_user" data-uid="{{$d->id}}" data-toggle="modal" data-target="#banModal" data-advance_auth_status="{{$d->advance_auth_status}}">驗證封鎖</button>
                         @endif
                     </td>
                 </tr>

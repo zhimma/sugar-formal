@@ -24,7 +24,7 @@
         
         .images_comparation_cell img {width:120px;}
     
-        .btn-secondary {
+        .btn-gray {
             cursor: default;
             color: #fff;
             background-color: #5a5a5a;
@@ -183,7 +183,7 @@
                                         <button type="button" class="btn btn-sm btn-danger ban_user" data-uid="{{$user->id}}" data-toggle="modal" data-target="#banModal">封鎖</button>
                                     @endif
                                     @if($user->engroup== '2')
-                                        <button type="button" class="btn btn-sm @if($user->advance_auth_status==1) btn-secondary @else btn-danger @endif advance_auth_ban_user" data-uid="{{$user->id}}" data-toggle="modal" data-target="#banModal" data-advance_auth_status="{{$user->advance_auth_status}}">驗證封鎖</button>
+                                        <button type="button" class="btn btn-sm @if($user->advance_auth_status==1) btn-gray @else btn-danger @endif advance_auth_ban_user" data-uid="{{$user->id}}" data-toggle="modal" data-target="#banModal" data-advance_auth_status="{{$user->advance_auth_status}}">驗證封鎖</button>
                                     @endif
                                     <form method="POST" action="genderToggler" class="user_profile">{!! csrf_field() !!}
                                         <input type="hidden" name='user_id' value="{{ $user->id }}">
