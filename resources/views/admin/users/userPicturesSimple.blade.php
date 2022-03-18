@@ -16,6 +16,15 @@
     text-align: center;
 }
 
+.btn-secondary {
+    cursor: default;
+    color: #fff;
+    background-color: #C0C0C0;
+    border-color: #C0C0C0;   
+    opacity: .65;        
+    
+}
+
 #blockade .form-group {clear:both;}
 #autoban_pic_gather .autoban_pic_unit {float:left;margin:10px;}
 #autoban_pic_gather .autoban_pic_unit img {width:80px;min-width:80px;}

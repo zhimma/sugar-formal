@@ -23,45 +23,54 @@
         }
         
         .images_comparation_cell img {width:120px;}
-        
-    div.block_line {float:left;}
-    div.block_line > div {overflow:auto;}
-    div.block_line:last-child {float:left;margin-bottom:1rem;}
-    .images_comparation_cell b{clear:both;display:block;}
-    #user_all_mem_pic_list,#user_all_avatar_list {width:100% !important;}    
-    #user_all_mem_pic_list th,#user_all_avatar_list th {white-space:nowrap;}
-    td.images_comparation_cell div img {border:1px solid #ccc;} 
-    td.images_comparation_cell  div.block_line,td.images_comparation_cell  div.block_line img {max-width:120px; margin-right:10px;}        
+    
+        .btn-secondary {
+            cursor: default;
+            color: #fff;
+            background-color: #C0C0C0;
+            border-color: #C0C0C0;   
+            opacity: .65;        
+            
+        }
 
-    .rs_user_banned {background-color:#FDFF8C;}
-    .rs_user_warned {background-color:#B0FFB1;} 
-    .rs_user_closed {background-color:#C9C9C9;}
-    .rs_user_aclosed {background-color:#969696;}
-    
-    .lli_holder {text-align:right;margin-left:2px;float:right;}
-    .block_line div > a {
-        width: calc(100% - 35px);
-        line-height: 20px;
-        overflow: hidden;
-        text-overflow: ellipsis;
-        display: -webkit-box;
-        -webkit-line-clamp: 1;
-        line-clamp: 1;
-        -webkit-box-orient: vertical;
-        word-wrap: break-word;
-        word-break: break-all;
-        float:left;
-    }
-    .gender1 a,.gender1 a:visited,.gender1 a:active,.gender1 a:hover {color:blue;}
-    .gender2 a,.gender2 a:visited,.gender2 a:active,.gender2 a:hover {color:red;}   
-    
-    #blockade .form-group {clear:both;}
-    #autoban_pic_gather .autoban_pic_unit {float:left;margin:10px;}
-    #autoban_pic_gather .autoban_pic_unit img {width:80px;min-width:80px;}
-    #autoban_pic_gather input {display:none;}
-    #autoban_pic_gather .autoban_pic_unit label {padding:0 10px 10px 10px;} 
-    #autoban_pic_gather .autoban_pic_unit label span {display:block;text-align:center;font-size:4px;}
-    #autoban_pic_gather .autoban_pic_unit input:checked+label {background:#1E90FF;}
+        div.block_line {float:left;}
+        div.block_line > div {overflow:auto;}
+        div.block_line:last-child {float:left;margin-bottom:1rem;}
+        .images_comparation_cell b{clear:both;display:block;}
+        #user_all_mem_pic_list,#user_all_avatar_list {width:100% !important;}    
+        #user_all_mem_pic_list th,#user_all_avatar_list th {white-space:nowrap;}
+        td.images_comparation_cell div img {border:1px solid #ccc;} 
+        td.images_comparation_cell  div.block_line,td.images_comparation_cell  div.block_line img {max-width:120px; margin-right:10px;}        
+
+        .rs_user_banned {background-color:#FDFF8C;}
+        .rs_user_warned {background-color:#B0FFB1;} 
+        .rs_user_closed {background-color:#C9C9C9;}
+        .rs_user_aclosed {background-color:#969696;}
+        
+        .lli_holder {text-align:right;margin-left:2px;float:right;}
+        .block_line div > a {
+            width: calc(100% - 35px);
+            line-height: 20px;
+            overflow: hidden;
+            text-overflow: ellipsis;
+            display: -webkit-box;
+            -webkit-line-clamp: 1;
+            line-clamp: 1;
+            -webkit-box-orient: vertical;
+            word-wrap: break-word;
+            word-break: break-all;
+            float:left;
+        }
+        .gender1 a,.gender1 a:visited,.gender1 a:active,.gender1 a:hover {color:blue;}
+        .gender2 a,.gender2 a:visited,.gender2 a:active,.gender2 a:hover {color:red;}   
+        
+        #blockade .form-group {clear:both;}
+        #autoban_pic_gather .autoban_pic_unit {float:left;margin:10px;}
+        #autoban_pic_gather .autoban_pic_unit img {width:80px;min-width:80px;}
+        #autoban_pic_gather input {display:none;}
+        #autoban_pic_gather .autoban_pic_unit label {padding:0 10px 10px 10px;} 
+        #autoban_pic_gather .autoban_pic_unit label span {display:block;text-align:center;font-size:4px;}
+        #autoban_pic_gather .autoban_pic_unit input:checked+label {background:#1E90FF;}
     
     </style>
 
