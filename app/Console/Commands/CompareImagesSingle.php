@@ -159,7 +159,7 @@ class CompareImagesSingle extends Command
                         $notCheckPicArr = MemberPic::withTrashed()->select('pic')->where('member_id',$nowUserId)->whereNotNull('pic')->where('pic','<>','')->pluck('pic')->all();                        
                         $nowUserAvatar = UserMeta::select('pic')->where('user_id',$nowUserId)->whereNotNull('pic')->where('pic','<>','')->pluck('pic')->all(); 
                         $delAvatarArr = AvatarDeleted::select('pic')->where('user_id',$nowUserId)->where('pic','<>','')->whereNotNull('pic')->pluck('pic')->all(); 
-                        if($nowUserAvatar) $notCheckPicArr[]=$nowUserAvatar->pic;
+                        if($nowUserAvatar) $notCheckPicArr= array_merge($notCheckPicArr,$nowUserAvatar);
                         if($delAvatarArr) $notCheckPicArr = array_merge($notCheckPicArr,$delAvatarArr);
                     }                    
                     
@@ -171,7 +171,7 @@ class CompareImagesSingle extends Command
                     
                     $srcEncode =  json_decode($imgEncode->encode,true);                    
                     
-                    $nowCompareFoundArr = ImagesCompare::where('encode_id',$imgEncode->id)->pluck('found_encode_id')->all();
+                    $nowCompareFoundArr = ImagesCompare::where('pic',$imgEncode->pic)->pluck('found_pic')->all();
                     foreach($targetArr as $k=>$target) {
                         $interval = 5000;
                         if($k%$interval==0 && intval($k/$interval)>0) {
@@ -180,7 +180,7 @@ class CompareImagesSingle extends Command
                         }
                         $last_target = null;
                         
-                        if(in_array($target->id,$nowCompareFoundArr??[])) continue;
+                        if(in_array($target->pic,$nowCompareFoundArr??[])) continue;
 
 
                         $targetEncode =  json_decode($target->encode,true);
