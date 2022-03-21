@@ -161,15 +161,15 @@
                                         <input type="hidden" value={{ $user->id }} name="user_id">
                                         <span>
                                             會員標題: 
-                                            <input type="text" class="form-control form-control-sm form-control-plaintext mr-sm-2" value={{ $user->title }} name="title">
+                                            <textarea type="text" class="form-control form-control-sm form-control-plaintext mr-sm-2" name="title">{{ $user->title }}</textarea>
                                         </span>
                                         <span>
                                             關於我: 
-                                            <input type="text" class="form-control form-control-sm form-control-plaintext mr-sm-2" value={{ $user->meta_()->about }} name="about">
+                                            <textarea type="text" class="form-control form-control-sm form-control-plaintext mr-sm-2" name="about">{{ $user->meta_()->about }}</textarea>
                                         </span>
                                         <span>
                                             期待的約會模式: 
-                                            <input type="text" class="form-control form-control-sm form-control-plaintext mr-sm-2" value={{ $user->meta_()->style }} name="style">
+                                            <textarea type="text" class="form-control form-control-sm form-control-plaintext mr-sm-2" name="style">{{ $user->meta_()->style }}</textarea>
                                         </span>
                                         <br>
                                         <button type="submit" class="btn btn-sm btn-primary">修改資料</button>
@@ -992,5 +992,10 @@
                 $('#check_and_next_page').submit();
             }
         });
+
+        $(document).ready(function(){
+            autosize($('textarea'));
+        });
+
     </script>
 @stop
