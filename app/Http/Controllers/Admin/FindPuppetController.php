@@ -212,13 +212,7 @@ class FindPuppetController extends \App\Http\Controllers\Controller
                         $ignoreUserIdIpArr = [];
                         foreach($ignoreUserIdIpCollect  as $userIdIpEntry) {
                             $ignoreUserIdIpArr[$userIdIpEntry->item][$userIdIpEntry->ip] = $userIdIpEntry;
-                        }
-
-                        $ignoreUserIdCfpIdCollect = $this->ignore->whereNotNull('cfp_id')->where('cfp_id','<>','')->get();         
-                        $ignoreUserIdCfpIdArr = [];
-                        foreach($ignoreUserIdCfpIdCollect  as $userIdCfpIdEntry) {
-                            $ignoreUserIdCfpIdArr[$userIdCfpIdEntry->item][$userIdCfpIdEntry->cfp_id] = $userIdCfpIdEntry;
-                        }                          
+                        }                        
 
                         Log::info('findPuppet排程'.$cat.'：開始以IP讀取登入紀錄');
                         $this->column->insert( ['column_index'=>-1
@@ -355,7 +349,7 @@ class FindPuppetController extends \App\Http\Controllers\Controller
                     
                     $loginDataEntrys = null;
                     
-                    if(!$only || $only=='cfpid') {
+                    if(!$only || $only=='cfpid') {            
                         Log::info('findPuppet排程'.$cat.'：開始產生CfpId的Login資料');
                         $this->column->insert( ['column_index'=>-1
                             ,'name'=>'開始產生CfpId的Login資料'
@@ -363,7 +357,13 @@ class FindPuppetController extends \App\Http\Controllers\Controller
                             ,'cat'=>$cat
                             ,'type'=>''
                             ,'created_at'=>$edate
-                            ,'updated_at'=>date('Y-m-d H:i:s')]);  
+                            ,'updated_at'=>date('Y-m-d H:i:s')]); 
+
+                        $ignoreUserIdCfpIdCollect = $this->ignore->whereNotNull('cfp_id')->where('cfp_id','<>','')->get();         
+                        $ignoreUserIdCfpIdArr = [];
+                        foreach($ignoreUserIdCfpIdCollect  as $userIdCfpIdEntry) {
+                            $ignoreUserIdCfpIdArr[$userIdCfpIdEntry->item][$userIdCfpIdEntry->cfp_id] = $userIdCfpIdEntry;
+                        }                              
 
                         Log::info('findPuppet排程'.$cat.'：開始以cfp_id讀取登入紀錄');
                         $this->column->insert( ['column_index'=>-1
