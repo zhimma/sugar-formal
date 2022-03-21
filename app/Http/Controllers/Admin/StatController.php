@@ -102,12 +102,12 @@ class StatController extends \App\Http\Controllers\BaseController
     {
         $results = VipLog::where('member_id', $id)->get();
         $name = User::where('id', $id)->get()->first()->name;
-        $expiry = Vip::where('member_id', $id)->orderBy('created_at', 'asc')->get()->first()->expiry;
+        $expiry = Vip::where('member_id', $id)->orderBy('created_at', 'asc')->get()->first();
         $order = order::where('user_id', $id)->orderBy('order_date','desc')->get();
         return view('admin.stats.vipLog', [
             'results' => $results,
             'name' => $name,
-            'expiry' => substr($expiry, 0, 10),
+            'expiry' => isset($expiry)?substr($expiry->expiry, 0, 10):'',
             'order' => $order
         ]);
     }

@@ -306,6 +306,14 @@ class User extends Authenticatable
         return \Cache::has('user-is-online-' . $this->id);
     }
 
+    public function check_point_user(){
+        return $this->hasMany(CheckPointUser::class, 'user_id', 'id');
+    }
+
+    public function check_point_name(){
+        return $this->hasManyThrough(CheckPoints::class, CheckPointUser::class, 'user_id', 'id','id','check_point_id');
+    }
+
     /**
      * Find by Email
      *
@@ -346,7 +354,7 @@ class User extends Authenticatable
         //dd(Config::get('social.admin.email'));
         //dd(Config::get('social.vip.free-days'));
 
-        if($user->email == Config::get('social.admin.email')) {
+        if($user->email == Config::get('social.admin.user-email')) {
             return true;
         }
         return false;

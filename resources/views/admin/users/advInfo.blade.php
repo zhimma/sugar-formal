@@ -171,6 +171,12 @@
 		<input type="hidden" name="page" value="advInfo" >
 		<button type="submit" class="btn btn-warning">變更性別</button>
 	</form>
+	<form method="POST" action="{{ route('isRealToggler') }}" style="margin:0px;display:inline;">
+		{!! csrf_field() !!}
+		<input type="hidden" name='user_id' value="{{ $user->id }}">
+		<input type="hidden" name='is_real' value="{{ $user->is_real }}">
+		<button type="submit" class="btn {{ $user->is_real? 'btn-warning' : 'btn-danger' }}">{{ $user->is_real ? '是本人' : '非本人' }}</button>
+	</form>
 	
 	@if($user->engroup==2)
 	<form method="POST" id="form_exchange_period" action="{{ route('changeExchangePeriod') }}" style="margin:0px;display:inline;">
@@ -1390,12 +1396,20 @@
 	</tr>
 	@foreach($userMessage_log as $Log)
 		<tr>
-			<td style="text-align: center;"><button data-toggle="collapse" data-target="#msgLog{{$Log->to_id}}" class="accordion-toggle btn btn-primary message_toggle">+</button></td>
-			<td>@if(!empty($Log->name))<a href="{{ route('admin/showMessagesBetween', [$user->id, $Log->to_id]) }}" target="_blank">{{ $Log->name }}</a>@else 會員資料已刪除@endif</td>
-			<td id="new{{$Log->to_id}}">{{$Log->content}}</td>
+			@php
+				$ref_user=\App\Models\User::findById($Log->ref_user_id);
+				$ref_user_id=$Log->ref_user_id;
+				$message_log=\App\Models\Message::withTrashed()
+					->where([['message.to_id', $user->id],['message.from_id', $ref_user_id]])
+					->orWhere([['message.from_id', $user->id],['message.to_id', $ref_user_id]])
+					->orderByDesc('created_at')->first();
+			@endphp
+			<td style="text-align: center;"><button data-toggle="collapse" data-target="#msgLog{{$ref_user_id}}" class="accordion-toggle btn btn-primary message_toggle">+</button></td>
+			<td>@if(!empty($ref_user->name))<a href="{{ route('admin/showMessagesBetween', [$user->id, $ref_user_id]) }}" target="_blank">{{ $ref_user->name }}</a>@else 會員資料已刪除@endif</td>
+			<td id="new{{$Log->to_id}}">{{$message_log->content}}</td>
 			<td class="evaluation_zoomIn">
 				@php
-					$messagePics=is_null($Log->pic) ? [] : json_decode($Log->pic,true);
+					$messagePics=is_null($message_log->pic) ? [] : json_decode($message_log->pic,true);
 				@endphp
 				@if(isset($messagePics))
 					@foreach( $messagePics as $messagePic)
@@ -1411,10 +1425,10 @@
 					@endforeach
 				@endif
 			</td>
-			<td id="new_time{{$Log->to_id}}">@if(!empty($Log->name)){{$Log->created_at}}@else 會員資料已刪除@endif</td>
-			<td>@if(!empty($Log->name)){{$Log->toCount}}@else 會員資料已刪除@endif</td>
+			<td id="new_time{{$ref_user_id}}">@if(!empty($ref_user->name)){{$message_log->created_at}}@else 會員資料已刪除@endif</td>
+			<td>@if(!empty($ref_user->name)){{$Log->toCount}}@else 會員資料已刪除@endif</td>
 		</tr>
-		<tr class="accordian-body collapse" id="msgLog{{$Log->to_id}}">
+		<tr class="accordian-body collapse" id="msgLog{{$ref_user_id}}">
 			<td class="hiddenRow" colspan="5">
 				<table class="table table-bordered">
 					<thead>
@@ -1435,9 +1449,12 @@
 {{--							</script>--}}
 {{--						@endif--}}
 						<tr>
-							<td @if($item->engroup == '2') style="color: #F00;" @else  style="color: #5867DD;"  @endif>
-								<a href="{{ route('admin/showMessagesBetween', [$user->id, $Log->to_id]) }}" target="_blank">
-									{{$item->name}}
+							<td>
+								@php
+									$from_id_user=\App\Models\User::findById($item->from_id);
+								@endphp
+								<a href="{{ route('admin/showMessagesBetween', [$user->id, $ref_user_id]) }}" target="_blank">
+									<p @if($item->engroup == '2') style="color: #F00;" @else  style="color: #5867DD;"  @endif>{{$item->name }}
 									@php
 										$to_id_tipcount = \App\Models\Tip::TipCount_ChangeGood($item->to_id);
 										$to_id_vip = \App\Models\Vip::vip_diamond($item->to_id);
@@ -1461,6 +1478,7 @@
 											(永久)
 										@endif
 									@endif
+									</p>
 								</a>
 							</td>
 							<td>{{ $item->content }}</td>
@@ -1597,9 +1615,9 @@
                             <sapn style="vertical-align:middle;">加入常用封鎖原因</sapn>
                         </label>
 					    <hr>
-					    新增自動封鎖條件
+					    新增自動封鎖條件 @if($user->engroup==2) ( 驗證封鎖 ) @endif
 						<div class="form-group">
-							<label for="cfp_id">CFP_ID</label>
+							<label for="cfp_id">CFP_ID @if($user->engroup==2) ( 驗證封鎖 ) @endif</label>
 							<select multiple class="form-control" id="cfp_id" name="cfp_id[]">
 								@foreach( $cfp_id as $row)
 								<option value="{{$row->cfp_id}}">{{$row->cfp_id}}</option>
@@ -1607,7 +1625,7 @@
 							</select>
 						</div>
 						<div class="form-group">
-							<label>照片</label>
+							<label>照片 @if($user->engroup==2) ( 驗證封鎖 ) @endif</label>
                             <div id="autoban_pic_gather">
                             @foreach ( \App\Models\MemberPic::getSelfIDPhoto($user->id) as $pic)
                             @include('admin.users.advInfo_autoban_pic_tpl')
@@ -1684,7 +1702,7 @@
 {{--							<input type="checkbox" name="ip[]" id="ip" value="" class="form-check-input">Check me out--}}
 {{--						</div>--}}
                         <hr>
-                        新增自動封鎖關鍵字(永久封鎖)
+                        新增自動封鎖關鍵字 ( @if($user->engroup==2) 驗證封鎖 @else 永久封鎖  @endif )
                         <input placeholder="1.請輸入封鎖關鍵字" onfocus="this.placeholder=''" onblur="this.placeholder='1.請輸入封鎖關鍵字'" class="form-control" type="text" name="addautoban[]" rows="1">
                         <input placeholder="2.請輸入封鎖關鍵字" onfocus="this.placeholder=''" onblur="this.placeholder='2.請輸入封鎖關鍵字'" class="form-control" type="text" name="addautoban[]" rows="1">
                         <input placeholder="3.請輸入封鎖關鍵字" onfocus="this.placeholder=''" onblur="this.placeholder='3.請輸入封鎖關鍵字'" class="form-control" type="text" name="addautoban[]" rows="1">

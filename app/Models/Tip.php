@@ -64,7 +64,7 @@ class Tip extends Model
         $tip->save();
         $curUser = User::findById($member_id);
         $toUser = User::findById($to_id);
-        $admin = User::findByEmail(Config::get('social.admin.email'));
+        $admin = User::findByEmail(Config::get('social.admin.notice-email'));
 
         if ($curUser != null && $toUser != null)
         {

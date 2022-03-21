@@ -17,9 +17,19 @@ class AnonymousChatShow extends Component
     {
         $anonymousChat = AnonymousChat::select('anonymous_chat.*', 'users.engroup')
             ->LeftJoin('users', 'users.id','=','anonymous_chat.user_id')
-            ->orderBy('anonymous_chat.created_at', 'desc')->paginate(10);
+            ->where('anonymous_chat.created_at', '>', \DB::raw('DATE_SUB(DATE(NOW()), INTERVAL DAYOFWEEK(NOW())-1 DAY)'))
+            ->orderBy('anonymous_chat.created_at', 'desc')
+            ->take(1000)
+            ->get();
+//            ->paginate(10);
+        $anonymousChat = $anonymousChat->reverse();
 
         return view('livewire.anonymous-chat-show', compact('anonymousChat'));
+    }
+
+    public function reply_message($content, $id, $pic)
+    {
+        $this->dispatchBrowserEvent('reply_message', ['content' => $content, 'id' => $id, 'pic' => $pic]);
     }
 
     public function show_banned($name, $id)

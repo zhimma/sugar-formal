@@ -28,8 +28,8 @@
 		{{--<a href="{{ route('suspectedMultiLogin') }}">疑似多重登入名單</a>--}}
 		<a href="{{ route('users/suspiciousUser') }}">可疑名單列表</a>
 		<a href="{{ route('users/pictures') }}">會員照片管理</a>
-		<a href="{{ route('users/picturesSimple') }}">會員照片管理簡化版</a>
-		<a href="{{ route('users/picturesSimilar') }}">會員照片管理-以圖搜圖</a>
+		<a href="{{ route('users/picturesSimple') }}">會員檢查 step 1</a>
+		<a href="{{ route('users/picturesSimilar') }}">會員檢查 step 2</a>
 		<a href="{{ route('users/picturesSimilarLog') }}">會員照片管理結果列表圖</a>
 		<a href="{{ route('users/reported/count/GET') }}">會員被檢舉次數</a>
 		<a href="{{ route('users/posts') }}">討論區管理</a>
@@ -56,6 +56,7 @@
 		<a href="{{ route('admin/getAdminActionLog') }}">Admin後台操作記錄</a>
 		<a href="{{ route('users/filterByInfo') }}">發信_檢舉_封鎖異常查詢</a>
 		<a href="{{ route('maillog') }}">寄退信Log紀錄查詢</a>
+		<a href="{{ route('fakeMail') }}">寄送統計沖洗郵件</a>
 
 	@elseif (Auth::user()->can('readonly'))
 		<a href="javascript:void(0)" class="closebtn" onclick="closeNav()">&times;</a>
@@ -81,6 +82,6 @@
 		<a href="{{ route('users/reported') }}">被檢舉會員清單</a>
 		<a href="{{ route('users/pics/reported') }}">被檢舉照片清單</a>
 		<a href="{{ route('admin/check') }}">站長審核</a>
-		<a href="{{ route('users/picturesSimple') }}">會員照片管理簡化版</a>--}}
+		<a href="{{ route('users/picturesSimple') }}">會員檢查 step 1</a>--}}
 	@endif
 </div>

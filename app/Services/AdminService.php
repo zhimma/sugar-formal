@@ -773,7 +773,7 @@ class AdminService
                 \App\Models\AvatarDeleted::insert([
                     'user_id'     => $user_id,
                     'operator'    => Auth::user()->id,
-                    'pic'         => $u->pic,
+                    'pic'         => $u->pic ?? "",
                     'created_at'  => now(),
                     'updated_at'  => now(),
                     'uploaded_at' => $u->updated_at,

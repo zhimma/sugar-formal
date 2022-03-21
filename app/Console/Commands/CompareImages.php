@@ -13,6 +13,7 @@ use App\Services\ImagesCompareService;
 use Illuminate\Console\Command;
 use Illuminate\Support\Carbon;
 use Illuminate\Support\Facades\Log;
+use App\Jobs\CompareSingleImageJob;
 
 class CompareImages extends Command
 {
@@ -79,14 +80,18 @@ class CompareImages extends Command
             if($specific_pic) {
                 $encodeEntry = ImagesCompareEncode::where('pic',$specific_pic)->get();    
                 $this->now_entry = $encodeEntry->first();
-                $statusAllEntry = ImagesCompareStatus::where('pic',$specific_pic)->get();                
+                if(!$this->now_entry??null) {
+                    CompareSingleImageJob::dispatch($specific_pic,'CompareImagesSingle Command');
+                    echo '照片尚未編碼，無法比對，中斷執行 $specific_pic='.$specific_pic;
+                    Log::info('照片尚未編碼，無法比對，中斷執行 $specific_pic='.$specific_pic);                 
+                    return;
+                }                               
                 $dsort=0;
             }
             else if($dsort) {
         		$encodeEntry = $imgEncodeQuery->orderByDesc('id')->get();
         		$imgEncodeEntry = $encodeEntry->sortBy('id');
         		$lastEncodeEntry = $imgEncodeEntry->last();
-                $statusAllEntry = ImagesCompareStatus::get();
             }
             else {
         		$imgEncodeEntry = $imgEncodeQuery->orderBy('id')->get();
@@ -103,17 +108,11 @@ class CompareImages extends Command
                 }
                 else {
                     $encodeEntry = $imgEncodeEntry;
-                }
-                
-                $statusAllEntry = ImagesCompareStatus::get();                                
+                }                               
             }
 
             if(($encodeEntry??collect([])) && $encodeEntry->count()  ) {
-                $statusAllPicArr = $statusAllEntry->groupBy('pic')->all();
                 if(!$specific_pic) {            
-                    $compareAllEntry = ImagesCompare::get();
-                    $compareAllPicArr = $compareAllEntry->groupBy('encode_id')->all();
-                    
                     $memPicAllEntry = MemberPic::withTrashed()->select('member_id','pic','created_at','updated_at')->where('pic','<>','')->whereNotNull('pic')->orderByDesc('id')->get();
                     $avatarAllEntry = UserMeta::select('user_id','pic','created_at','updated_at','is_active')->where('pic','<>','')->whereNotNull('pic')->orderByDesc('id')->get();
                     $delAvatarAllEntry = AvatarDeleted::select('user_id','pic','created_at','updated_at','uploaded_at')->where('pic','<>','')->whereNotNull('pic')->orderByDesc('id')->get();
@@ -133,8 +132,7 @@ class CompareImages extends Command
 
                 if($nowPicEntry && !ImagesCompareService::isNeedCompareByEntry($nowPicEntry,$force)) {
                     $is_not_compare=true;
-                    echo '不比對 from isNeedCompareByEntry specific_pic='.$specific_pic;
-                    Log::info('isNeedCompareByEntry return false 不比對  specific_pic='.$specific_pic);                 
+                    echo '不比對 from isNeedCompareByEntry pic='.$imgEncode->pic;              
                 }
                 else if(!$nowPicEntry) {
                     $is_not_compare=true; 
@@ -143,7 +141,7 @@ class CompareImages extends Command
                 
                 $this->now_entry = $imgEncode;
                 $now_pic = $imgEncode->pic;
-                $statusEntrys = $statusAllPicArr[$now_pic];
+                $statusEntrys = ImagesCompareStatus::where('pic',$now_pic)->get();
                 $statusNum = count($statusEntrys);
                 if(!$statusNum) {            
                     $statusEntrys = ImagesCompareStatus::where('pic',$now_pic)->get();
@@ -197,14 +195,10 @@ class CompareImages extends Command
  
 
                 $target = null;
-                if(!$is_not_compare) {
+                if(!$is_not_compare) {                                    
                     if($specific_pic) {
                         $imgEncodeEntry = $imgEncodeQuery->orderBy('id')->get();
                         $lastEncodeEntry = $imgEncodeEntry->last();
-                    
-                        $compareAllEntry = ImagesCompare::get();
-                        $compareAllPicArr = $compareAllEntry->groupBy('encode_id')->all();
-
                         $memPicAllEntry = MemberPic::withTrashed()->select('member_id','pic','created_at','updated_at')->where('pic','<>','')->whereNotNull('pic')->orderByDesc('id')->get();
                         $avatarAllEntry = UserMeta::select('user_id','pic','created_at','updated_at','is_active')->where('pic','<>','')->whereNotNull('pic')->orderByDesc('id')->get();
                         $delAvatarAllEntry = AvatarDeleted::select('user_id','pic','created_at','updated_at','uploaded_at')->where('pic','<>','')->whereNotNull('pic')->orderByDesc('id')->get();
@@ -235,8 +229,8 @@ class CompareImages extends Command
                     }
                     $targetArr = $targetArr->all();
                     $srcEncode =  json_decode($imgEncode->encode,true);                    
-                    $nowCompareFoundArr = collect($compareAllPicArr[$imgEncode->id])->groupBy('found_encode_id')->all();
-                    
+                    $nowCompareFoundArr = ImagesCompare::where('encode_id',$imgEncode->id)->pluck('found_encode_id')->all();
+
                     foreach($targetArr as $k=>$target) {
                         $interval = 5000;
                         if($k%$interval==0 && intval($k/$interval)>0) {
@@ -245,17 +239,7 @@ class CompareImages extends Command
                         }
                         $last_target = null;
                         
-                        $compareEntry = $nowCompareFoundArr[$target->id]??[];
-
-                        if(!is_countable($compareEntry)) {
-                            \Sentry\captureMessage('照片比對程序異常');                            
-                            Log::info('CompareImages:照片比對程序異常，強制結束比對圖片 pic='.$statusEntry->pic);            
-                            return;
-                        }
-                        elseif(count($compareEntry)) {
-                            continue;                            
-                        }
-
+                        if(in_array($target->id,$nowCompareFoundArr??[])) continue;
 
                         $targetEncode =  json_decode($target->encode,true);
                         if(!$targetEncode || count($targetEncode)==0) continue;
@@ -325,9 +309,9 @@ class CompareImages extends Command
                         $compare=$targetPercent=$srcPercent=$targetDiffSum=$srcDiffSum=$srcDiff=$targetDiff=null;
                         unset($compare,$targetPercent,$srcPercent,$targetDiffSum,$srcDiffSum,$srcDiff,$targetDiff);
                     }
-                    
-                    $nowCompareFoundArr = $compareAllPicArr[$imgEncode->id] = $targetArr = null;
-                    
+                
+                    $nowCompareFoundArr = $statusEntrys = null;
+
                 }
                 elseif($specific_pic) {
                     Log::info('不比對  specific_pic='.$specific_pic); 

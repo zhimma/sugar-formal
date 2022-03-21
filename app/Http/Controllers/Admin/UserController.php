@@ -63,6 +63,8 @@ use App\Http\Controller\PagesController;
 use App\Models\ValueAddedService;
 use App\Services\ImagesCompareService;
 use App\Models\SimilarImages;
+use App\Models\CheckPointUser;
+
 class UserController extends \App\Http\Controllers\BaseController
 {
     public function __construct(UserService $userService, AdminService $adminService)
@@ -176,6 +178,19 @@ class UserController extends \App\Http\Controllers\BaseController
             return view('admin.users.success')
                 ->with('email', $user->email);
         }
+    }
+
+    public function TogglerIsReal(Request $request)
+    {
+        $user = User::where('id', $request->user_id)->first();
+        if ($request->is_real == 1) {
+            $user->is_real = 0;
+        } else {
+            $user->is_real = 1;
+        }
+        $user->save();
+
+        return redirect('admin/users/advInfo/' . $request->user_id);
     }
 
     /**
@@ -441,6 +456,9 @@ class UserController extends \App\Http\Controllers\BaseController
                         return redirect('admin/users/advInfo/' . $request->user_id);
                     case 'noRedirect':
                         echo json_encode(array('code' => '200', 'status' => 'success'));
+                        break;
+                    case 'member_check_step1':
+                        return redirect()->back();
                         break;
                     default:
                         return redirect($request->page);
@@ -955,20 +973,20 @@ class UserController extends \App\Http\Controllers\BaseController
         }
 
         //groupby $userMessage
-        $userMessage_log = Message::withTrashed()->selectRaw('message.to_id, count(*) as toCount, u.name, max(message.created_at) as date, message.content, message.pic, message.created_at')//->from('message as m')
-            ->leftJoin('users as u','u.id','message.to_id')
+        $userMessage_log = Message::withTrashed()->selectRaw("IF(message.to_id='". $id ."', message.from_id, message.to_id) as ref_user_id, message.to_id, message.from_id, count(*) as toCount")//->from('message as m')
             ->where('message.from_id', $id)
+            ->orWhere('message.to_id', $id)
             ->where(DB::raw("message.created_at"),'>=', \Carbon\Carbon::parse("180 days ago")->toDateTimeString())
-            ->groupBy(DB::raw("message.to_id"))
-            ->orderBy('date','DESC')
-            ->paginate(20);
+            ->groupBy(DB::raw("ref_user_id"))
+            ->orderBy('message.created_at','DESC')->paginate(20);
+
         foreach ($userMessage_log as $key => $value) {
             $userMessage_log[$key]['items'] = Message::withTrashed()->select('message.*','message.id as mid','message.created_at as m_time','u.*','b.id as banned_id','b.expire_date as banned_expire_date')
                 //->from('message as m')
-                ->leftJoin('users as u','u.id','message.to_id')
+                ->leftJoin('users as u','u.id','message.from_id')
                 ->leftJoin('banned_users as b','message.to_id','b.member_id')
-                ->where('message.from_id', $id)
-                ->where('message.to_id', $value->to_id)
+                ->where([['message.to_id', $id],['message.from_id', $value->ref_user_id]])
+                ->orWhere([['message.from_id', $id],['message.to_id', $value->ref_user_id]])
                 ->where('message.created_at','>=', \Carbon\Carbon::parse("180 days ago")->toDateTimeString())
                 ->orderBy('message.created_at', 'desc')
                 ->take(10)->get();
@@ -4055,6 +4073,90 @@ class UserController extends \App\Http\Controllers\BaseController
 
     public function searchUserPicturesSimple(Request $request)
     {
+        $data = User::with('suspicious')
+            ->with('aw_relation')
+            ->with('banned')
+            ->with('implicitlyBanned')
+            ->with('check_point_user')
+        ;
+
+        if($request->hidden)
+        {
+            $data = $data->with(['pic_orderByDecs' => function($query){$query->take(3);}]);
+        }
+        else
+        {
+            $data = $data->with(['pic_orderByDecs' => function($query){$query->where('isHidden',false)->take(3);}]);
+        }
+
+        $data = $data->whereDoesntHave('suspicious')
+                    ->whereDoesntHave('banned')
+                    ->whereDoesntHave('implicitlyBanned')
+                    ->whereDoesntHave('aw_relation')
+                    ->whereDoesntHave('user_meta',function($query){$query->where('isWarned', true);})
+                    ->whereDoesntHave('check_point_name',function($query){$query->where('name', 'step_1_ischecked');});
+                    
+        ;
+
+        if ($request->date_start) {
+            $datastart = $request->date_start;
+            $data = $data->whereHas('user_meta',function($query) use($datastart){$query->where('updated_at', '>=', $datastart);});
+        }
+
+        if ($request->date_end) {
+            $dataend = $request->date_end;
+            $data = $data->whereHas('user_meta',function($query) use($dataend){$query->where('updated_at', '<=', $dataend . ' 23:59:59');});
+        }
+
+        if ($request->en_group) {
+            $data = $data->where('users.engroup', $request->en_group);
+        }
+
+        if ($request->city) {
+            $city = $request->city;
+            $data = $data->whereHas('user_meta',function($query) use($city){$query->where('city', $city);});
+        }
+
+        if ($request->area) {
+            $area = $request->area;
+            $data = $data->whereHas('user_meta',function($query) use($area){$query->where('area', $area);});
+        }
+
+        if(isset($request->order_by) && $request->order_by=='last_login'){
+            $data = $data->orderBy('users.last_login','desc');
+        }
+
+        //預設排序
+        if($request->order_by==''){
+            $data = $data->orderBy('users.last_login','desc');
+        }
+
+        //以更新時間排序
+        if(isset($request->order_by) && $request->order_by=='updated_at'){
+            $data = $data->orderBy(UserMeta::select('updated_at')->whereColumn('user_meta.user_id','users.id'),'DESC');
+        }
+
+        $data = $data->paginate(15);
+        
+        $account = array();
+        $user_id_of_page = array();
+        foreach($data as $key => $d)
+        {
+            $account[$key]['vip'] = \App\Models\Vip::vip_diamond($d->id);
+            $account[$key]['tipcount'] = \App\Models\Tip::TipCount_ChangeGood($d->id);
+
+            $account[$key]['pic'] = array();
+            $count = 0;
+            foreach($d->pic_orderByDecs as $pic)
+            {
+                $account[$key]['pic'][] = $pic->pic;
+                $count = $count + 1;
+            }  
+            $user_id_of_page[] = $d->id;
+        }
+        
+        //原始程式碼(大爆改...)
+        /*
         $pics = MemberPic::select('member_pic.*')->from('member_pic')
             ->leftJoin('users', 'users.id', '=', 'member_pic.member_id')
             ->leftJoin('user_meta', 'user_meta.user_id', '=', 'member_pic.member_id')
@@ -4098,7 +4200,7 @@ class UserController extends \App\Http\Controllers\BaseController
             $pics = $pics->orderBy('member_pic.updated_at','desc');
         }
 
-        $pics = $pics->paginate(20);
+        $pics = $pics->paginate(15);
 
         $account = array();
         foreach ($pics as $key => $pic) {
@@ -4132,10 +4234,12 @@ class UserController extends \App\Http\Controllers\BaseController
                 $account[$key]['isAdminWarned'] = 0;
             }
         }
+        */
 
         return view('admin.users.userPicturesSimple',
-            ['pics' => $pics,
+            [   'data' => $data,
                 'account' => $account,
+                'user_id_of_page' => $user_id_of_page,
                 'en_group' => isset($request->en_group) ? $request->en_group : null,
                 'order_by' => isset($request->order_by) ? $request->order_by : null,
                 'city' => isset($request->city) ? $request->city : null,
@@ -4846,12 +4950,28 @@ class UserController extends \App\Http\Controllers\BaseController
 
     public function UserPicturesSimilar(Request $request){
         
-        $users = User::selectRaw(
+        $users = User::with('suspicious')
+            ->with('aw_relation')
+            ->with('banned')
+            ->with('implicitlyBanned')
+            ->with('check_point_user')
+        ;
+
+        $users = $users->selectRaw(
             '*,
             @meta_update := (SELECT `updated_at` FROM `user_meta` WHERE `user_meta`.`user_id` = `users`.`id`) AS `meta_update`,
             @pic_update  := (SELECT max(`updated_at`) FROM `member_pic` WHERE `member_pic`.`member_id` = `users`.`id` AND `member_pic`.`deleted_at` IS NULL) AS `pic_update`,
             @last_update := IF(@meta_update > @pic_update, @meta_update, @pic_update) AS `last_update`'
         );
+
+        $users = $users->whereDoesntHave('suspicious')
+                    ->whereDoesntHave('banned')
+                    ->whereDoesntHave('implicitlyBanned')
+                    ->whereDoesntHave('aw_relation')
+                    ->whereDoesntHave('user_meta',function($query){$query->where('isWarned', true);})
+                    ->whereDoesntHave('check_point_name',function($query){$query->where('name', 'step_2_ischecked');})
+                    ->whereHas('user_meta',function($query){$query->where('is_active', true);})
+        ;
 
         // 開始日期
         if ($request->date_start) {
@@ -4930,8 +5050,16 @@ class UserController extends \App\Http\Controllers\BaseController
 
         $users = $users->paginate(15);
 
+        $user_id_of_page = array();
+        
+        foreach($users as $user)
+        {
+            $user_id_of_page[] = $user->id;
+        }
+
         return view('admin.users.userPicturesSimilar',[
-            'users' => $users
+            'users' => $users,
+            'user_id_of_page' => $user_id_of_page
         ])->with('last_images_compare_encode',ImagesCompareEncode::orderByDesc('id')->firstOrNew());
     }
 
@@ -5107,7 +5235,7 @@ class UserController extends \App\Http\Controllers\BaseController
                 $img->compareImages('UserController@UserImagesCompareJobCreate');
             }
 
-            return back()->with('message', '成功將 ' . $Imgs_count . ' 筆資料列入'.$job_show_name.'送檢佇列');
+            return back()->with('message', '已立即執行 ' . $Imgs_count . ' 筆資料的'.$job_show_name);
         }
 
         return $job_show_name.'沒有指定的方法';
@@ -5323,9 +5451,7 @@ class UserController extends \App\Http\Controllers\BaseController
 
     public function searchAnonymousChatReport(Request $request)
     {
-        $msg = isset($request->msg) ? $request->msg : '';
-        $date_start = $request->date_start ? $request->date_start : '0000-00-00';
-        $date_end = $request->date_end ? $request->date_end : date('Y-m-d');
+
         $resultsReport = AnonymousChatReport::select(
             'anonymous_chat.*',
             'users.name',
@@ -5333,19 +5459,19 @@ class UserController extends \App\Http\Controllers\BaseController
             'anonymous_chat_report.content as report_content',
             'anonymous_chat_report.user_id as report_user',
             'anonymous_chat_report.created_at as report_time',
-            'report_user.name as report_name'
+            'report_user.name as report_name',
+            'anonymous_chat_report.deleted_at as report_deleted_at',
+            'anonymous_chat_report.id as report_id',
+            'report_user.engroup as report_engroup'
         )
-            ->leftJoin('users', 'users.id', 'anonymous_chat_report.reported_user_id')
+            ->selectRaw('(select count(DISTINCT aa.user_id) from anonymous_chat_report as aa where (aa.reported_user_id=users.id) ) as reported_num')
             ->leftJoin('anonymous_chat', 'anonymous_chat.id', 'anonymous_chat_report.anonymous_chat_id')
+            ->leftJoin('users', 'users.id', 'anonymous_chat_report.reported_user_id')
             ->leftJoin('users as report_user', 'report_user.id', 'anonymous_chat_report.user_id')
-            ->where('anonymous_chat.content', 'like', '%' . $msg . '%')
-            ->whereBetween('anonymous_chat.created_at', array($date_start . ' 00:00', $date_end . ' 23:59'))
-            ->orderBy('anonymous_chat.created_at', 'desc')
-            ->withTrashed()
-            ->paginate(100)
-        ;
+            ->orderBy('anonymous_chat.user_id', 'desc')
+            ->orderBy('report_time', 'desc')
+            ->withTrashed()->paginate(100);
 
-//        dd($resultsReport[0]);
         return view('admin.users.searchAnonymousChat')->with('resultsReport', $resultsReport);
     }
 
@@ -5355,4 +5481,85 @@ class UserController extends \App\Http\Controllers\BaseController
         AnonymousChat::where('id', $id)->delete();
         echo json_encode(['ok']);
     }
+
+    public function deleteAnonymousChatReportRow(Request $request)
+    {
+        $report_id = $request->report_id;
+        AnonymousChatReport::where('id', $report_id)->delete();
+        echo json_encode(['ok']);
+    }
+
+    public function deleteAnonymousChatReportAll(Request $request)
+    {
+        $user_id = $request->user_id;
+        AnonymousChatReport::where('reported_user_id', $user_id)->delete();
+        echo json_encode(['ok']);
+    }
+
+    public function member_profile_check_over(Request $request)
+    {
+        $users_id = json_decode($request->users_id);
+        foreach($users_id as $user_id)
+        {
+            $check_point_user = new CheckPointUser;
+            $check_point_user->user_id = $user_id;
+            $check_point_user->check_point_id = $request->check_point_id;
+            $check_point_user->save();
+        }
+        return redirect()->back();
+    }
+
+    public function ban_information(Request $request)
+    {
+        $uid = $request->uid;
+        $banReason = DB::table('reason_list')->select('content')->where('type', 'ban')->get();
+        $cfp_id = LogUserLogin::select('cfp_id')->selectRaw('MAX(created_at) AS last_tiime')->orderByDesc('last_tiime')->where('user_id',$uid)->groupBy('cfp_id')->get();
+        $userLogin_log = LogUserLogin::selectRaw('LEFT(created_at,7) as loginMonth, DATE(created_at) as loginDate, user_id as userID, ip, count(*) as dataCount')
+            ->where('user_id', $uid)
+            ->groupBy(DB::raw("LEFT(created_at,7)"))
+            ->orderBy('created_at','DESC')->get();
+        foreach ($userLogin_log as $key => $value) {
+            $dataLog=LogUserLogin::where('user_id', $uid)->where('created_at', 'like', '%' . $value->loginMonth . '%')->orderBy('created_at','DESC');
+            $userLogin_log[$key]['items'] = $dataLog->get();
+
+            //ip
+            $Ip_group= LogUserLogin::where('user_id', $uid)->where('created_at', 'like', '%' . $value->loginMonth . '%')
+                ->from('log_user_login as log')
+                ->selectRaw('ip, count(*) as dataCount, (select created_at from log_user_login as s where s.user_id=log.user_id and s.ip=log.ip and s.created_at like "%'.$value->loginMonth.'%" order by created_at desc LIMIT 1 ) as loginTime')
+                ->groupBy(DB::raw("ip"))->orderBy('loginTime','desc')->get();
+            $Ip=array();
+            foreach ($Ip_group as $Ip_key => $group){
+                $Ip['Ip_group'][$Ip_key]=$group;
+                $Ip['Ip_group_items'][$Ip_key] = LogUserLogin::where('user_id', $uid)->where('created_at', 'like', '%' . $value->loginMonth . '%')->where('ip',$group->ip)->orderBy('created_at','DESC')->get();
+            }
+            $userLogin_log[$key]['Ip']=$Ip;
+        }
+
+        $meta = UserMeta::where('user_id', $uid)->first();
+        $member_pic = MemberPic::where('member_id',$uid)->get();
+
+        return response()->json([
+            'message' => 'success ...',
+            'banReason' => $banReason,
+            'cfp_id' => $cfp_id,
+            'userLogin_log' => $userLogin_log,
+            'meta' => $meta,
+            'member_pic' => $member_pic
+        ]);
+    }
+
+    public function little_update_profile(Request $request)
+    {
+        $user = User::where('id',$request->user_id)->first();
+        $user->title = $request->title;
+        $user->save();
+
+        $user_meta = UserMeta::where('user_id',$request->user_id)->first();
+        $user_meta->about = $request->about;
+        $user_meta->style = $request->style;
+        $user_meta->save();
+
+        return redirect()->back();
+    }
+
 }

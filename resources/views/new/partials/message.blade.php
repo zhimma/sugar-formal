@@ -229,6 +229,25 @@
     <a id="" onclick="gmBtnNoReload()" class="bl_gb"><img src="/new/images/gb_icon.png"></a>
 </div>
 
+@php
+    $anonymous_chat_announcement = \App\Models\AdminCommonText::where('category_alias', 'anonymous_chat')->where('alias', 'announcement')->first();
+    if($anonymous_chat_announcement) {
+        $anonymous_chat_announcement = $anonymous_chat_announcement->content;
+    }else{
+        $anonymous_chat_announcement = '';
+    }
+@endphp
+<div class="bl bl_tab tab_anonymousChatAlert" id="tab_anonymousChatAlert">
+    <div class="bltitle">聊天室重要規定</div>
+    <div class="n_blnr01 matop10">
+        <div class="n_fengs">{!! isset($anonymous_chat_announcement)?$anonymous_chat_announcement:'' !!}
+        </div>
+        <a class="n_bllbut matop30">進入聊天室</a>
+    </div>
+    <a id="" onclick="gmBtnNoReload()" class="bl_gb"><img src="/new/images/gb_icon.png"></a>
+</div>
+
+
 {{--@if(str_contains(url()->current(), 'dashboard') && Session::has('banned_reason'))--}}
 {{--    <div class="blbg banned_bg" style="display:block"></div>--}}
 {{--    <div class="gg_tab" id="tab_banned_alert" style="display: block; z-index: 999;">--}}
