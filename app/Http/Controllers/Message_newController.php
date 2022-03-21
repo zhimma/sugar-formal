@@ -386,7 +386,95 @@ class Message_newController extends BaseController {
                 $line_notify_send = false;
             }
 
+            //對方的過濾篩選條件
+            $inbox_refuse_set = InboxRefuseSet::where('user_id', $to_user->id)->first();
+            if($inbox_refuse_set)
+            {
+                if($inbox_refuse_set->isrefused_vip_user)
+                {
+                    if($user->isVip())
+                    {
+                        $line_notify_send = false;
+                    }
+                }
+                if($inbox_refuse_set->isrefused_common_user)
+                {   
+                    $vip = $user->isVip();
+                    $w1 = UserMeta::where('user_id',$user->id)->first()->isWarned;
+                    $w2 = DB::table('warned_users')->where('member_id',$user->id)->first()??false;
+                    $b1 = DB::table('banned_users')->where('member_id',$user->id)->first()??false;
+                    $b2 = DB::table('banned_users_implicitly')->where('target',$user->id)->first()??false;
+                    if((!$vip) && (!$w1) && (!$w2) && (!$b1) && (!$b2))
+                    {
+                        $line_notify_send = false;
+                    }
+                }
+                if($inbox_refuse_set->isrefused_warned_user)
+                {
+                    $usermeta = UserMeta::where('user_id',$user->id)->first();
+                    if($usermeta->isWarned)
+                    {
+                        $line_notify_send = false;
+                    }
+                    $warneduser = DB::table('warned_users')->where('member_id',$user->id)->first();
+                    if($warneduser??false)
+                    {
+                        $line_notify_send = false;
+                    }
+                }
+                if($inbox_refuse_set->refuse_pr != -1)
+                {
+                    $pr = Pr_log::where('user_id',$user->id)->first();
+                    if(!$pr)
+                    {
+                        $line_notify_send = false;
+                    }
+                    else
+                    {
+                        if(!$pr->pr)
+                        {
+                            $line_notify_send = false;
+                        }
+                        elseif($pr->pr == '無')
+                        {
+                            $line_notify_send = false;
+                        }
+                        else
+                        {
+                            if($pr->pr < $inbox_refuse_set->refuse_pr)
+                            {
+                                $line_notify_send = false;
+                            }
+                        }
+                    }
+                }
+                if($inbox_refuse_set->refuse_canned_message_pr != -1)
+                {
+                    $can_pr = UserService::computeCanMessagePercent_7($user->id);
+                    $can_pr = trim($can_pr,'%');
+                    if($can_pr > $inbox_refuse_set->refuse_canned_message_pr)
+                    {
+                        $line_notify_send = false;
+                    }
+
+                }
+                if($inbox_refuse_set->refuse_register_days != 0)
+                {
+                    $rtime = Carbon::now()->subDays($inbox_refuse_set->refuse_register_days);
+                    if($user->created_at > $rtime)
+                    {
+                        $line_notify_send = false;
+                    }
+                }
+            }
+            //對方的過濾篩選條件
         }
+        //test
+        $test = 0;
+        
+        Log::Info('test');
+        Log::Info($test);
+        //test
 
         if($to_user->line_notify_token != null && $line_notify_send){
             $url = url('/dashboard/chat2/chatShow/'.$user->id);
@@ -556,7 +644,6 @@ class Message_newController extends BaseController {
                     $count = 0;
                     foreach ($data as $d)
                     {
-                        
                         $can_pr = UserService::computeCanMessagePercent_7($d['user_id']);
                         $can_pr = trim($can_pr,'%');
                         if($can_pr > $inbox_refuse_set->refuse_canned_message_pr)
