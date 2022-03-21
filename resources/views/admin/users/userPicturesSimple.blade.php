@@ -16,6 +16,15 @@
     text-align: center;
 }
 
+.btn-gray {
+    cursor: default;
+    color: #fff;
+    background-color: #5a5a5a;
+    border-color: #5a5a5a;   
+    opacity: .65;        
+    
+}
+
 #blockade .form-group {clear:both;}
 #autoban_pic_gather .autoban_pic_unit {float:left;margin:10px;}
 #autoban_pic_gather .autoban_pic_unit img {width:80px;min-width:80px;}
@@ -169,7 +178,7 @@
                             <button type="button" class="btn btn-danger ban_user" data-uid="{{$d->id}}" data-toggle="modal" data-target="#banModal">封鎖</button>
                         @endif
                         @if($d->engroup== '2')
-                            <button type="button" class="btn btn-danger advance_auth_ban_user" data-uid="{{$d->id}}" data-toggle="modal" data-target="#banModal" data-advance_auth_status="{{$d->advance_auth_status}}">驗證封鎖</button>
+                            <button type="button" class="btn @if($d->advance_auth_status==1) btn-gray @else btn-danger @endif advance_auth_ban_user" data-uid="{{$d->id}}" data-toggle="modal" data-target="#banModal" data-advance_auth_status="{{$d->advance_auth_status}}">驗證封鎖</button>
                         @endif
                     </td>
                 </tr>
@@ -512,6 +521,11 @@
                     $('#banReason').append('<a class="text-white btn btn-success banReason">' + value.content + '</a>');
                 });
 
+                $('.banReason').click(function(){
+                    $('#msg').empty();
+                    $('#msg').append($(this).text());
+                });
+
                 response.cfp_id.forEach(function(value){
                     $('#cfpid').append('<option value=' + value.cfp_id + '>' + value.cfp_id + '</option>');
                 });
@@ -548,7 +562,7 @@
 
                 $('.showLog').hide();
                 $('.loginItem').click(function(){
-                    var sectionName =$(this).attr('data-sectionName');
+                    var sectionName = $(this).attr('data-sectionName');
                     $('.showLog').hide();
                     $('#'+sectionName).show();
                 });
@@ -563,7 +577,7 @@
 
     function pic_tpl(picture){
         html_str = '';
-        if(picture??false)
+        if(picture.pic??false)
         {
             html_str = html_str + '<div class="autoban_pic_unit">';
             html_str = html_str + '<input type="checkbox" id="' + picture.pic.replace('/','',) + '" name="pic[]" value="' + picture.pic + '" />';
