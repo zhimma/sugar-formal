@@ -55,13 +55,13 @@ class checkwarned extends Command
     public function handle()
     {
         $time_start = microtime(true);
-        Log::info($time_start);
+        Log::info('checkwarned started, start time: '.$time_start);
         try{
 
             $users = User::where('last_login', '>',Carbon::now()->subDays(180))->get();
 
             foreach($users as $user){
-                Log::info($user->id);
+                Log::info('check user: ' . $user->id);
                 $auth_status = 0;
                 if($user->isPhoneAuth()==1){
                     $auth_status = 1;
@@ -206,8 +206,7 @@ class checkwarned extends Command
 
         $execution_time = ($time_end - $time_start)/60;
 
-        Log::info("execution_time");
-        Log::info($execution_time);
+        Log::info("checkwarned ended, execution time: " . $execution_time);
         
     }
 
