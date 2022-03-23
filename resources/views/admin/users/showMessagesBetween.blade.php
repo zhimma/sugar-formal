@@ -7,8 +7,8 @@
 	    {!! csrf_field() !!}
 {{--		<input type="hidden" name="delete" id="delete" value="1">--}}
 	<tr>
-		<th>發訊</th>
-		<th>收訊</th>
+		<th width="12%">發訊</th>
+		<th width="12%">收訊</th>
 		<th>內容</th>
 		<th>上傳照片</th>
 		<th>回覆收訊者</th>
@@ -158,7 +158,7 @@
 				@endif
 			</td>
 			<td>
-				{{ $message->content }}
+				<p style="word-break:break-all;">{{ $message->content }}</p>
 			</td>
 			<td class="evaluation_zoomIn">
 				@php
