@@ -13,6 +13,13 @@
 				width: 28px;
 				height: 28px;
 			}
+
+			.wt_txb{ position: relative; }
+
+			.ta_sz{ position: absolute;width:15px; height:15px; color: #fff; border-radius: 100px; text-align: center;right: 0; top:0px; background: #69b9ff; font-size: 12px;}
+			
+			.hycov{ border-radius: 100px;}
+
 		</style>
 @endsection
 		@section('app-content')
@@ -152,6 +159,7 @@
 																								}
 																							});
 													@endphp
+													<div class="ta_sz">{{$forum_member_count->get($post->f_id)->forum_member_count??0}}</div>
 												</div>
 											</div>
 										</div>

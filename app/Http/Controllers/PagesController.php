@@ -5432,9 +5432,19 @@ class PagesController extends BaseController
 //            }
         }
 
+        $forum_member_count = ForumManage::selectRaw('forum_id,count(*) as forum_member_count')
+                                        ->where('status',1)
+                                        ->where(function($query){
+                                            return $query->where('forum_status',1)
+                                                        ->orwhere('chat_status',1);
+                                        })
+                                        ->groupBy('forum_id')
+                                        ->get()->keyBy('forum_id');
+
         return view('/dashboard/forum', $data)
             ->with('checkUserVip', $checkUserVip)
-            ->with('user', $user);
+            ->with('user', $user)
+            ->with('forum_member_count', $forum_member_count);
     }
 
     public function ForumEdit($uid)
