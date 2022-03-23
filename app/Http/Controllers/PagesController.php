@@ -5372,6 +5372,7 @@ class PagesController extends BaseController
     public function forum(Request $request)
     {
         $user=$request->user();
+
         if ($user && $user->engroup == 2) {
             return back();
         }
@@ -5432,8 +5433,10 @@ class PagesController extends BaseController
 //            }
         }
 
+        //判斷個人討論區加入人數
         $forum_member_count = ForumManage::selectRaw('forum_id,count(*) as forum_member_count')
                                         ->where('status',1)
+                                        ->where('active',1)
                                         ->where(function($query){
                                             return $query->where('forum_status',1)
                                                         ->orwhere('chat_status',1);

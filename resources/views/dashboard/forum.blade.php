@@ -133,6 +133,11 @@
 																						   ->join('user_meta', 'user_meta.user_id','=','forum_manage.user_id')
 																						   ->where('forum_manage.apply_user_id', $post->uid)
 																						   ->where('forum_manage.status', 1)
+																						   ->where('forum_manage.active',1)
+																						   ->where(function($query){
+																								return $query->where('forum_manage.forum_status',1)
+																											->orwhere('forum_manage.chat_status',1);
+																							})
 																						   ->chunk(800, function($users) {
 																								foreach ($users->lazy() as $key=>$user) {
 																								
