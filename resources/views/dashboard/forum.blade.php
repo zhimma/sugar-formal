@@ -272,6 +272,8 @@
 			let text2 = '{{$text}}';
 			c5(text2);
 			$('.bltext').append(script);
+		@elseif(\App\Models\Forum::withTrashed()->where('user_id', $user->id)->first()->deleted_at > \Carbon\Carbon::now()->subYear())
+			c5('專屬討論區下架一年內不得再申請專屬討論區');
 		@else
 			window.location.href = "/dashboard/ForumEdit/{{$user->id}}";
 		@endif

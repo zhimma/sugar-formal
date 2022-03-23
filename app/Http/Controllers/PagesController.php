@@ -5371,6 +5371,7 @@ class PagesController extends BaseController
 
     public function forum(Request $request)
     {
+        Log::Info(\App\Models\Forum::withTrashed()->where('user_id', 12374)->first()->deleted_at);
         $user=$request->user();
 
         if ($user && $user->engroup == 2) {
