@@ -399,12 +399,7 @@ class Message_newController extends BaseController {
                 }
                 if($inbox_refuse_set->isrefused_common_user)
                 {   
-                    $vip = $user->isVip();
-                    $w1 = UserMeta::where('user_id',$user->id)->first()->isWarned;
-                    $w2 = DB::table('warned_users')->where('member_id',$user->id)->first()??false;
-                    $b1 = DB::table('banned_users')->where('member_id',$user->id)->first()??false;
-                    $b2 = DB::table('banned_users_implicitly')->where('target',$user->id)->first()??false;
-                    if((!$vip) && (!$w1) && (!$w2) && (!$b1) && (!$b2))
+                    if(!$user->isVip())
                     {
                         $line_notify_send = false;
                     }
@@ -469,12 +464,6 @@ class Message_newController extends BaseController {
             }
             //對方的過濾篩選條件
         }
-        //test
-        $test = 0;
-        
-        Log::Info('test');
-        Log::Info($test);
-        //test
 
         if($to_user->line_notify_token != null && $line_notify_send){
             $url = url('/dashboard/chat2/chatShow/'.$user->id);
@@ -586,7 +575,7 @@ class Message_newController extends BaseController {
                     $count = 0;
                     foreach ($data as $d)
                     {
-                        if((!$d['isVip']) && (!$d['isWarned']) && (!$d['isBanned']))
+                        if((!$d['isVip']))
                         {
                             unset($data[$count]);
                         }
