@@ -1221,52 +1221,49 @@
 {{--<span>被多少會員封鎖： {{ array_get($userAdvInfo,'be_blocked_other_count',0) }}</span>--}}
 
 <h4>進階資料</h4>
-<table class="table table-hover table-bordered" style="width: 60%;">
+<table class="table table-hover table-bordered" style="width: 70%;">
 	<tr>
-		<th width="20%">過去7天瀏覽其他會員次數： {{ array_get($userAdvInfo,'visit_other_count_7',0) }}</th>
-		<th width="20%">收藏會員次數： {{ array_get($userAdvInfo,'fav_count',0) }}</th>
+		<th width="25%">過去7天瀏覽其他會員次數： {{ array_get($userAdvInfo,'visit_other_count_7',0) }}</th>
+		<th width="20%">瀏覽其他會員次數： {{ array_get($userAdvInfo,'visit_other_count',0) }}</th>
 		<th width="20%">封鎖多少會員： {{ array_get($userAdvInfo,'blocked_other_count',0) }}</th>
 		<th width="20%">過去7天罐頭訊息比例： {{ array_get($userAdvInfo,'message_percent_7',0) }}</th>
-		@if($user->engroup==1)
-			<th width="20%">PR：{{$pr}}</th>
-		@else
-			<th></th>
-		@endif
-	</tr>
-	<tr>
-		<th>瀏覽其他會員次數： {{ array_get($userAdvInfo,'visit_other_count',0) }}</th>
-		<th></th>
-		<th>被多少會員封鎖： {{ array_get($userAdvInfo,'be_blocked_other_count',0) }}</th>
-		<th>每周平均上線次數： {{ array_get($userAdvInfo,'login_times_per_week',0) }}</th>
-		@if($user->engroup==1)
-			<th>時間：{{$pr_created_at}}</th>
-		@else
-			<th></th>
-		@endif
+		<th width="20%">PR：{{ $user->engroup==1 ?$pr :''}}</th>
 	</tr>
 	<tr>
 		<th>過去七天發訊人數： {{ array_get($userAdvInfo,'message_people_count_7',0) }}</th>
-		<th>過去七天發訊次數： {{ array_get($userAdvInfo,'message_count_7',0) }}</th>
-		<th>過去七天回訊人數： {{ array_get($userAdvInfo,'message_reply_people_count_7',0) }}</th>
-		<th>過去七天回訊次數： {{ array_get($userAdvInfo,'message_reply_count_7',0) }}</th>
-		<th>過去七天未回人數： {{ array_get($userAdvInfo,'message_no_reply_count_7',0) }}</th>
+		<th>發訊人數： {{ array_get($userAdvInfo,'message_people_count',0) }}</th>
+		<th>被多少會員封鎖： {{ array_get($userAdvInfo,'be_blocked_other_count',0) }}</th>
+		<th>每周平均上線次數： {{ array_get($userAdvInfo,'login_times_per_week',0) }}</th>
+		<th>時間：{{ $user->engroup==1 ? $pr_created_at :''}}</th>
 	</tr>
 	<tr>
-		<th>發訊人數： {{ array_get($userAdvInfo,'message_people_count',0) }}</th>
+		<th>過去七天發訊次數： {{ array_get($userAdvInfo,'message_count_7',0) }}</th>
 		<th>發訊次數： {{ array_get($userAdvInfo,'message_count',0) }}</th>
-		<th>回訊人數： {{ array_get($userAdvInfo,'message_reply_people_count',0) }}</th>
-		<th>回訊次數： {{ array_get($userAdvInfo,'message_reply_count',0) }}</th>
-		<th>總未回人數： {{ array_get($userAdvInfo,'message_no_reply_count',0) }}</th>
+		<th>收藏會員次數： {{ array_get($userAdvInfo,'fav_count',0) }}</th>
+		<th></th>
+		<th>VIP歷程： {{ $user->engroup==1 && $pr_log ? $pr_log:'暫無紀錄'}}</th>
 	</tr>
-	@if($user->engroup==1)
-		<tr>
-			<th></th>
-			<th></th>
-			<th></th>
-			<th></th>
-			<th>{{$pr_log}}</th>
-		</tr>
-	@endif
+	<tr>
+		<th>過去七天回訊人數： {{ array_get($userAdvInfo,'message_reply_people_count_7',0) }}</th>
+		<th>回訊人數： {{ array_get($userAdvInfo,'message_reply_people_count',0) }}</th>
+		<th></th>
+		<th></th>
+		<th></th>
+	</tr>
+	<tr>
+		<th>過去七天回訊次數： {{ array_get($userAdvInfo,'message_reply_count_7',0) }}</th>
+		<th>回訊次數： {{ array_get($userAdvInfo,'message_reply_count',0) }}</th>
+		<th></th>
+		<th></th>
+		<th></th>
+	</tr>
+	<tr>
+		<th>過去七天未回人數： {{ array_get($userAdvInfo,'message_no_reply_count_7',0) }}</th>
+		<th>總未回人數： {{ array_get($userAdvInfo,'message_no_reply_count',0) }}</th>
+		<th></th>
+		<th></th>
+		<th></th>
+	</tr>
 </table>
 
 
