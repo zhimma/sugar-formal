@@ -16,7 +16,7 @@
 
 			.wt_txb{ position: relative; }
 
-			.ta_sz{ position: absolute;width:15px; height:15px; color: #fff; border-radius: 100px; text-align: center;right: 0; top:0px; background: #69b9ff; font-size: 12px;}
+			.ta_sz{ position: absolute;width:25px; height:25px; color: #fff; border-radius: 100px; text-align: center;right: 0; top:0px; background: #69b9ff; font-size: 18px;}
 			
 			.hycov{ border-radius: 100px;}
 
@@ -164,7 +164,9 @@
 																								}
 																							});
 													@endphp
-													<div class="ta_sz">{{$forum_member_count->get($post->f_id)->forum_member_count??0}}</div>
+													@if($forum_member_count->get($post->f_id)->forum_member_count??false)
+														<div class="ta_sz">{{$forum_member_count->get($post->f_id)->forum_member_count}}</div>
+													@endif
 												</div>
 											</div>
 										</div>
@@ -275,6 +277,8 @@
 		@elseif(\App\Models\Forum::withTrashed()->where('user_id', $user->id)->first()->deleted_at ?? false)
 			@if(\App\Models\Forum::withTrashed()->where('user_id', $user->id)->first()->deleted_at > \Carbon\Carbon::now()->subYear())
 				c5('專屬討論區下架一年內不得再申請專屬討論區');
+			@else
+				window.location.href = "/dashboard/ForumEdit/{{$user->id}}";
 			@endif
 		@else
 			window.location.href = "/dashboard/ForumEdit/{{$user->id}}";
