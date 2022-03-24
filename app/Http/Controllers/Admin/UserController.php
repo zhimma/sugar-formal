@@ -2162,6 +2162,13 @@ class UserController extends \App\Http\Controllers\BaseController
                     $report = isset($a) ? $a : $b;
                 }
             }
+            if(is_null($report)){
+                $report = Reported::where('member_id', $id)->where('reported_id', $reported_id);
+                if($pic_id){
+                    $report->where('id', $pic_id);
+                }
+                $report= $report->first();
+            }
             /*檢舉者*/
             $user = $this->service->find($id);
             /*被檢舉者 */

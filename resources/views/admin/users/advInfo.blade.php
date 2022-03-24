@@ -621,10 +621,14 @@
 			@if(count($isBanned_show)>0 || count($isEverBanned_log)>0)
 				<td>{{ array_get($isBanned_show,'reason') }}</td>
 			@endif
-			@if($userMeta->isWarned==1)
-				<td>檢舉警示</td>
-			@elseif(count($isWarned_show)>0 || count($isEverWarned_log)>0)
-				<td>{{ array_get($isWarned_show,'reason') }}</td>
+			@if(isset($isWarned) && count($isWarned)>0)
+				@if($userMeta->isWarned==1)
+					<td>檢舉警示</td>
+				@elseif(count($isWarned_show)>0 || count($isEverWarned_log)>0)
+					<td>{{ array_get($isWarned_show,'reason') }}</td>
+				@endif
+			@else
+				<td></td>
 			@endif
 			@if(count($isEverBanned_log)>0)
 				<td>{{ array_get($isEverBanned_log,'0.reason') }}</td>
@@ -640,10 +644,14 @@
 			@if(count($isBanned_show)>0 || count($isEverBanned_log)>0)
 				<td>{{ !is_null(array_get($isBanned_show,'created_at')) && !is_null(array_get($isBanned_show,'expire_date')) ? array_get($isBanned_show,'expire_date') : (count($isBanned)>0 ? '永久' : '') }}</td>
 			@endif
-			@if($userMeta->isWarned==1)
-				<td>永久</td>
-			@elseif(count($isWarned_show)>0 || count($isEverWarned_log)>0)
-				<td>{{ !is_null(array_get($isWarned_show,'created_at')) && !is_null(array_get($isWarned_show,'expire_date')) ? array_get($isWarned_show,'expire_date') : (count($isWarned)>0 ? '永久' : '') }}</td>
+			@if(isset($isWarned) && count($isWarned)>0)
+				@if($userMeta->isWarned==1)
+					<td>永久</td>
+				@elseif(count($isWarned_show)>0 || count($isEverWarned_log)>0)
+					<td>{{ !is_null(array_get($isWarned_show,'created_at')) && !is_null(array_get($isWarned_show,'expire_date')) ? array_get($isWarned_show,'expire_date') : (count($isWarned)>0 ? '永久' : '') }}</td>
+				@endif
+			@else
+				<td></td>
 			@endif
 			@if(count($isEverBanned_log)>0)
 				@if(!is_null(array_get($isEverBanned_log,'0')))
