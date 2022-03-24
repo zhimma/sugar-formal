@@ -16,7 +16,9 @@
 
 			.wt_txb{ position: relative; }
 
-			.ta_sz{ position: absolute;width:24px; height:25px; color: #fff; border-radius: 100px; display: flex; text-align: center; justify-content: center; align-items: center; right: 0; top:0px; background: #69b9ff; font-size: 13px;}
+			.ta_sz{ position: absolute; width:15px; height:15px; color: #fff; border-radius: 100px; display: flex; text-align: center; justify-content: center; align-items: center; right: 0; top:0px; background: #69b9ff; font-size: 12px;}
+			.ta_sz_ten{ position: absolute; width:15px; height:15px; color: #fff; border-radius: 100px; display: flex; text-align: center; justify-content: center; align-items: center; right: 0; top:0px; background: #69b9ff; font-size: 12px;}
+			.ta_sz_hundred{ position: absolute; width:24px; height:24px; color: #fff; border-radius: 100px; display: flex; text-align: center; justify-content: center; align-items: center; right: 0; top:0px; background: #69b9ff; font-size: 13px;}
 			
 			.hycov{ border-radius: 100px;}
 
@@ -165,7 +167,13 @@
 																							});
 													@endphp
 													@if($forum_member_count->get($post->f_id)->forum_member_count??false)
+														@if($forum_member_count->get($post->f_id)->forum_member_count >= 100)
+														<div class="ta_sz_hundred">{{$forum_member_count->get($post->f_id)->forum_member_count}}</div>
+														@elseif($forum_member_count->get($post->f_id)->forum_member_count >= 10)
+														<div class="ta_sz_ten">{{$forum_member_count->get($post->f_id)->forum_member_count}}</div>
+														@else
 														<div class="ta_sz">{{$forum_member_count->get($post->f_id)->forum_member_count}}</div>
+														@endif
 													@endif
 												</div>
 											</div>
