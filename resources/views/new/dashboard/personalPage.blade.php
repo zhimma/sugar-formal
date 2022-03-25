@@ -455,7 +455,7 @@
                         </dd>
                     </div>
 
-                    @if($forum->deleted_at??false)
+                    @if($forum->deleted_at ?? false)
                         <div class="sys_aa">
                             <dt class="tabbox_new_ss"><span class="sys_log1 xs_wi90">專屬討論區</span></dt>
                             <dd class="tabbox_new_dd">
