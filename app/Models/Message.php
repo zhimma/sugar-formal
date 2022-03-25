@@ -328,7 +328,7 @@ class Message extends Model
         "));
 
         if(!\Schema::hasTable('temp_m')){
-            $admin = User::select('id')->where('email', Config::get('social.admin.email'))->get()->first();
+            $admin = User::select('id')->where('email', Config::get('social.admin.user-email'))->get()->first();
             if(isset($admin)) {
                 $createTempTables = DB::unprepared(DB::raw("
                     SET TRANSACTION ISOLATION LEVEL READ UNCOMMITTED;
@@ -354,7 +354,7 @@ class Message extends Model
         }
 
         if($createTempTables){
-            $admin = User::select('id')->where('email', Config::get('social.admin.email'))->get()->first();
+            $admin = User::select('id')->where('email', Config::get('social.admin.user-email'))->get()->first();
             if(isset($admin)) {
                 $messages = DB::select(DB::raw("
                     select * from `temp_m`
@@ -607,7 +607,7 @@ class Message extends Model
         return $theMessage;
     }
 
-    public static function allToFromSender($uid, $sid, $includeDeleted = false) {
+    public static function allToFromSender($uid, $sid, $includeDeleted = false, $sys_notice = NULL) {
         $user = \View::shared('user');
         if(!$user){
             $user = User::find($uid);
@@ -666,9 +666,17 @@ class Message extends Model
 			$query = $query->where('created_at', '<', $min_bad_date);
 		}
 
+        if($sys_notice != NULL){
+            if($sys_notice == 1){
+                $query = $query->where('sys_notice',1);
+            }else if($sys_notice == 0){
+                $query = $query->where('sys_notice',0)->orWhereNull('sys_notice');
+            }
+            return $query->orderBy('created_at', 'desc')->get();            
+        }
         $query = $query->where('created_at','>=',self::$date)
-            ->orderBy('created_at', 'desc')
-            ->paginate(10);//->get();
+                    ->orderBy('created_at', 'desc')
+                    ->paginate(10);
         return $query;
     }
 
@@ -682,7 +690,7 @@ class Message extends Model
 
         $query = $query->where('created_at','>=',self::$date)
             ->orderBy('created_at', 'asc')
-            ->paginate(10);
+            ->paginate(100);
         return $query;
     }
 
@@ -735,7 +743,8 @@ class Message extends Model
                 $query = $query->leftJoin('member_vip as vip', function($join) {
                                     $join->on('vip.member_id', '=', 'message.from_id')
                                         ->where('vip.active', 1); })
-                                ->leftJoin('user_meta as um', 'um.user_id', '=', 'message.from_id');
+                                ->leftJoin('user_meta as um', 'um.user_id', '=', 'message.from_id')
+                                ->leftJoin('warned_users as w', 'w.member_id', '=', 'message.from_id');
             }
             if($inbox_refuse_set->refuse_pr != -1)
             {
@@ -774,13 +783,12 @@ class Message extends Model
             }
             if($inbox_refuse_set->isrefused_common_user)
             {
-                $all_msg = $all_msg->where(function($query){
-                    $query->whereNotNull('vip.id')->orWhere('um.isWarned','=',1);
-                });
+                $all_msg = $all_msg->whereNotNull('vip.id');
             }
             if($inbox_refuse_set->isrefused_warned_user)
             {
                 $all_msg = $all_msg->where('um.isWarned','=',0);
+                $all_msg = $all_msg->whereNull('w.id');
             }
             if($inbox_refuse_set->refuse_pr != -1)
             {

@@ -6,7 +6,7 @@ use App\Models\MemberPic;
 use App\Models\ImagesCompare;
 use App\Models\ImagesCompareEncode;
 use App\Models\ImagesCompareStatus;
-use App\Jobs\CompareImagesCaller;
+use App\Jobs\CompareSingleImageJob;
 use Illuminate\Database\Eloquent\Collection;
 use Illuminate\Support\Carbon;
 use Illuminate\Support\Collection as SupportCollection;
@@ -324,13 +324,14 @@ class ImagesCompareService {
             if(!ImagesCompareEncode::select('pic')->where('pic',$pic)->first())
                 return;
         }
-        $force_compare = ImagesCompareService::isForceViaEncodeBy($encode_by);
+        $is_force = ImagesCompareService::isForceViaEncodeBy($encode_by);
         $skip_compared = ImagesCompareService::isSkipComparedViaEncodeBy($encode_by);
+        $is_instant = ImagesCompareService::isInstantViaEncodeBy($encode_by);
         $status = ImagesCompareStatus::firstOrNew(['pic'=>$pic]);
 
         if($status->id ) {
             if($skip_compared && $status->queue==0 && $status->status==0) return; 
-            if($status->isQueueTooLong() || $force_compare)
+            if($status->isQueueTooLong() || $is_force)
                 $status->queue=2;
             else  return;
         }
@@ -342,14 +343,20 @@ class ImagesCompareService {
         $status->is_specific=1;
         $status->is_error=0;
         $status->save();
-       
-        $now=Carbon::now();
-        $next = $now->addDay();
-        $stime = Carbon::parse($now->format('Y-m-d').' 18:00:00');
-        $etime = Carbon::parse($next->format('Y-m-d').' 01:00:00');
-        if($now->gt($stime) && $now->lt($etime)) $delay=25200+$delay;
-        CompareImagesCaller::dispatch($pic,$encode_by);
-        CompareImagesCaller::dispatch($pic,null,$force_compare)->onQueue('compare_images')->delay($delay+10);
+
+        if($is_instant) {          
+            CompareSingleImageJob::dispatchAfterResponse($pic,$encode_by);
+            CompareSingleImageJob::dispatchAfterResponse($pic,null,$is_force);            
+        }
+        else {
+            $now=Carbon::now();
+            $next = $now->addDay();
+            $stime = Carbon::parse($now->format('Y-m-d').' 18:00:00');
+            $etime = Carbon::parse($next->format('Y-m-d').' 01:00:00');
+            if($now->gt($stime) && $now->lt($etime)) $delay=25200+$delay;
+            CompareSingleImageJob::dispatch($pic,$encode_by);
+            CompareSingleImageJob::dispatch($pic,null,$is_force)->onQueue('compare_images')->delay($delay+10);            
+        }
         
         return true;
     }
@@ -406,7 +413,11 @@ class ImagesCompareService {
     public static function isSkipComparedViaEncodeBy($encode_by) {
         return $encode_by=='UserController@applyPicMemberList'
         ;
-    }    
+    } 
+
+    public static function isInstantViaEncodeBy($encode_by) {
+        return $encode_by=='UserController@UserImagesCompareJobCreate';
+    }
     
     public static function countComparedByEntrysArr($entrysArr) {
         $entrys = collect([]);

@@ -133,7 +133,7 @@ class Vip extends Model
             $vipData->save();
         }
 
-        $admin = User::findByEmail(Config::get('social.admin.email'));
+        $admin = User::findByEmail(Config::get('social.admin.notice-email'));
         $logStr = 'upgrade, order id: ' . $order_id . ', payment: ' . $payment . ', amount: ' . $amount . ', transactionType: ' . $transactionType;
         VipLog::addToLog($member_id, $logStr, $txn_id, 1, $free);
 
@@ -159,7 +159,7 @@ class Vip extends Model
     public static function cancel($member_id, $free)
     {
         $curUser = User::findById($member_id);
-        $admin = User::findByEmail(Config::get('social.admin.email'));
+        $admin = User::findByEmail(Config::get('social.admin.notice-email'));
         if ($curUser != null) {
             //$admin->notify(new CancelVipEmail($member_id, '761404', $member_id));
         }

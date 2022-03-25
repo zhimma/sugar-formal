@@ -23,7 +23,8 @@
                     <a href="{!! url('dashboard/chat2/') !!}"><img src="/new/images/icon_45.png">收件夾</a><span id="unreadCount">0</span>
                 </li>
                 <li>
-                    <a href="{!! url('dashboard/anonymousChat') !!}"><img src="/new/images/icon_nn45.png">匿名聊天室</a>
+{{--                    <a href="{!! url('dashboard/anonymousChat') !!}"><img src="/new/images/icon_nn45.png">匿名聊天室</a>--}}
+                    <a href="javascript:void(0);" onclick="showAnonymousAlert()"><img src="/new/images/icon_nn45.png">匿名聊天室</a>
                 </li>
                 @if(isset($user) && $user->engroup == 1)
                     @php

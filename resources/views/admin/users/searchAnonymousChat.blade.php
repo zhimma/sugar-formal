@@ -68,7 +68,7 @@
                 <tr>
                     <td>發送者</td>
                     <td>匿名</td>
-                    <td>性別</td>
+{{--                    <td>性別</td>--}}
                     <td>訊息內容</td>
                     <td>圖片</td>
                     <td>發訊時間</td>
@@ -81,11 +81,18 @@
             @if(count($results)>0)
             @foreach ($results as $row)
                 <tr>
-                    <td>
-                        <a href="{{ route('users/advInfo', $row->user_id) }}" target='_blank' >{{$row->name}}</a>
+                    @php
+                        $isWarned = \App\Models\SimpleTables\warned_users::where('member_id', $row->user_id)
+                                ->where('expire_date', null)->orWhere('expire_date','>',\Carbon\Carbon::now() )
+                                ->where('member_id', $row->user_id)
+                                ->orderBy('created_at','desc')->first();
+                    @endphp
+                    <td style="@if(\App\Models\User::isBanned($row->user_id))background-color:#FFFF00;@endif @if($isWarned)background-color:#B0FFB1;@endif">
+
+                        <a href="{{ route('users/advInfo', $row->user_id) }}" style="color:{{($row->engroup==1)?'blue':'red'}};" target='_blank' >{{$row->name}}</a>
                     </td>
                     <td>{{$row->anonymous}}</td>
-                    <td>{{($row->engroup==1)?'男':'女'}}</td>
+{{--                    <td>{{($row->engroup==1)?'男':'女'}}</td>--}}
                     <td>{{$row->content}}</td>
                     <td>
                         @if(!is_null(json_decode($row->pic,true)))
@@ -125,7 +132,7 @@
             <tr>
                 <td>發送者</td>
                 <td>匿名</td>
-                <td>性別</td>
+{{--                <td>性別</td>--}}
                 <td>訊息內容</td>
                 <td>圖片</td>
                 <td>發訊時間</td>
@@ -138,14 +145,25 @@
             </thead>
 
             <tbody>
+{{--            @php--}}
+{{--                dd($resultsReport);--}}
+{{--            @endphp--}}
             @if(count($resultsReport)>0)
+
             @foreach ($resultsReport as $row)
                 <tr>
-                    <td>
-                        <a href="{{ route('users/advInfo', $row->user_id) }}" target='_blank' >{{$row->name}}</a>
+                    @php
+                        $isWarned = \App\Models\SimpleTables\warned_users::where('member_id', $row->user_id)
+                                ->where('expire_date', null)->orWhere('expire_date','>',\Carbon\Carbon::now() )
+                                ->where('member_id', $row->user_id)
+                                ->orderBy('created_at','desc')->first();
+                    @endphp
+                    <td style="@if(\App\Models\User::isBanned($row->user_id))background-color:#FFFF00;@endif @if($isWarned)background-color:#B0FFB1;@endif">
+
+                        <a href="{{ route('users/advInfo', $row->user_id) }}" style="color:{{($row->engroup==1)?'blue':'red'}};" target='_blank' >{{$row->name}}</a>
                     </td>
                     <td>{{$row->anonymous}}</td>
-                    <td>{{($row->engroup==1)?'男':'女'}}</td>
+{{--                    <td>{{($row->engroup==1)?'男':'女'}}</td>--}}
                     <td>{{$row->content}}</td>
                     <td>
                         @if(!is_null(json_decode($row->pic,true)))
@@ -160,13 +178,38 @@
                     </td>
                     <td>{{$row->created_at}}</td>
                     <td>
-                        <a href="{{ route('users/advInfo', $row->report_user) }}" target='_blank' >{{$row->report_name}}</a>
+                        <a href="{{ route('users/advInfo', $row->report_user) }}" style="color:{{($row->report_engroup==1)?'blue':'red'}};" target='_blank' >{{$row->report_name}}</a>
                     </td>
                     <td>{{$row->report_content}}</td>
                     <td>{{$row->report_time}}</td>
-                    <td>@if($row->deleted_at)<span class="badge badge-danger">刪：{{$row->deleted_at}}</span>@endif</td>
                     <td>
-                        @if(!$row->deleted_at)<input type="button" class='btn btn-danger' onclick="deleteRow({{$row->id}})" value="刪除" />@endif
+                        @if($row->deleted_at)
+                            <span class="badge badge-danger">刪：{{$row->deleted_at}}</span>
+                        @endif
+                        @if($row->report_deleted_at)
+                            <span class="badge badge-warning">刪：{{$row->report_deleted_at}}</span>
+                        @endif
+                        @if($row->reported_num>=5)
+                            @php
+                                $checkReport = \App\Models\AnonymousChatReport::select('user_id', 'created_at')->where('reported_user_id', $row->user_id)->groupBy('user_id')->orderBy('created_at', 'desc')->first();
+                            @endphp
+                            @if(isset($checkReport) && !empty($checkReport->created_at) && \Carbon\Carbon::parse($checkReport->created_at)->diffInDays(\Carbon\Carbon::now())<3)
+                                <span class="badge badge-warning">禁言中</span>
+                            @endif
+                        @endif
+                    </td>
+                    <td>
+                        @if(!$row->deleted_at)
+                            <input type="button" class='btn btn-danger' onclick="deleteRow({{$row->id}})" value="刪除" />
+                        @endif
+                        @if(!$row->report_deleted_at)
+                            <input type="button" class='btn btn-warning' onclick="deleteReport({{$row->report_id}})" value="刪除檢舉" />
+                        @endif
+                        @if($row->reported_num>=5)
+                            @if(isset($checkReport) && !empty($checkReport->created_at) && \Carbon\Carbon::parse($checkReport->created_at)->diffInDays(\Carbon\Carbon::now())<3)
+                                    <input type="button" class='btn btn-warning' onclick="deleteReportAll({{$row->user_id}})" value="解除禁言" />
+                            @endif
+                        @endif
                     </td>
                 </tr>
             @endforeach
@@ -265,6 +308,32 @@
         // alert('pass');
         $.post('{{ route('users/deleteAnonymousChatRow') }}', {
             id: id,
+            _token: '{{ csrf_token() }}'
+        }, function (data) {
+            location.reload();
+        });
+    }
+
+    function deleteReport(report_id) {
+        if (!confirm('確定要刪除該筆檢舉紀錄?')) {
+            e.preventDefault();
+        }
+        // alert('pass');
+        $.post('{{ route('users/deleteAnonymousChatReportRow') }}', {
+            report_id: report_id,
+            _token: '{{ csrf_token() }}'
+        }, function (data) {
+            location.reload();
+        });
+    }
+
+    function deleteReportAll(user_id) {
+        if (!confirm('確定要刪除此人所有檢舉紀錄?')) {
+            e.preventDefault();
+        }
+        // alert('pass');
+        $.post('{{ route('users/deleteAnonymousChatReportAll') }}', {
+            user_id: user_id,
             _token: '{{ csrf_token() }}'
         }, function (data) {
             location.reload();

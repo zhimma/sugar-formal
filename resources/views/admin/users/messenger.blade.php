@@ -488,13 +488,17 @@
                     $('.msg3').each(function (k, v) {
                         name = $('.name3').eq(k).val();
                         time = $('.time3').eq(k).val();
-                        time = time?time:'';
+                        time = time ? time : '';
+                        let now_time_php = "{{ now() }}";
                         msg2 = msg;
                         msg2 = msg2.replace(/NAME/g, name);
                         msg2 = msg2.replace(/\|$report\|/g, name);
-                        msg2 = msg2.replace(/TIME/g, time);
-                        msg2 = msg2.replace(/\|$responseTime\|/g, time);
-                        msg2 = msg2.replace(/\|$reportTime\|/g, time);
+                        msg2 = msg2.replace(/NOW_TIME/g, now_time_php);
+                        if(time){
+                            msg2 = msg2.replace(/TIME/g, time);
+                            msg2 = msg2.replace(/\|$responseTime\|/g, time);
+                            msg2 = msg2.replace(/\|$reportTime\|/g, time);
+                        }                        
                         msg2 = msg2.replace(/LINE_ICON/g, '<a href="https://lin.ee/rLqcCns"><img src="https://scdn.line-apps.com/n/line_add_friends/btn/zh-Hant.png" alt="加入好友" height="26" border="0" style="height: 26px; float: unset;"></a>');
                         msg2 = msg2.replace(/\|$lineIcon\|/g, '<a href="https://lin.ee/rLqcCns"><img src="https://scdn.line-apps.com/n/line_add_friends/btn/zh-Hant.png" alt="加入好友" height="26" border="0" style="height: 26px; float: unset;"></a>');
                         $('.msg3').eq(k).val(msg2);

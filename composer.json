@@ -27,6 +27,7 @@
         "pusher/pusher-php-server": "~3.0",
         "sentry/sentry-laravel": "^2.10",
         "shivella/laravel-bitly": "^1.1",
+        "spatie/ray": "^1.34",
         "yajra/laravel-datatables-oracle": "~9.0"
     },
     "require-dev": {

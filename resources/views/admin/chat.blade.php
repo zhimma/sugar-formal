@@ -3,7 +3,7 @@
 
 <?php
 $block_people =  Config::get('social.block.block-people');
-$admin_email = Config::get('social.admin.email');
+$admin_email = Config::get('social.admin.user-email');
 ?>
 <body style="padding: 15px;">
 <h3 style="text-align:left;">
