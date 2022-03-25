@@ -6681,13 +6681,16 @@ class PagesController extends BaseController
                 //'showNewSugarForbidMsgNotify'=>$showNewSugarForbidMsgNotify,
             );
             $allMessage = \App\Models\Message::allMessage($user->id);
+            $forum = Forum::withTrashed()->where('user_id',$user->id)->orderby('id','desc')->first();
             return view('new.dashboard.personalPage', $data)
                 ->with('myFav', $myFav)
                 ->with('otherFav',$otherFav)
                 ->with('admin_msgs',$admin_msgs)
                 ->with('admin_msgs_sys',$admin_msgs_sys)
                 ->with('admin',$admin)
-                ->with('allMessage', $allMessage);
+                ->with('allMessage', $allMessage)
+                ->with('forum',$forum)
+                ;
         }
     }
 

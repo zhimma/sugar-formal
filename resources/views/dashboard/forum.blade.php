@@ -262,6 +262,9 @@
 
 	let script = '<a href="https://lin.ee/rLqcCns"><img src="https://scdn.line-apps.com/n/line_add_friends/btn/zh-Hant.png" alt="加入好友" height="26" border="0"></a>';
 	function ForumCheckEnterPop() {
+		@php
+		$forum_delete_time = \App\Models\Forum::withTrashed()->where('user_id', $user->id)->orderBy('id','desc')->first()->deleted_at;
+		@endphp
 		@if(!$user->isCanPosts_vip())
 			c5('您成為VIP未達滿三個月以上');
 		@elseif($user->isEverBanned())
@@ -282,9 +285,9 @@
 			let text2 = '{{$text}}';
 			c5(text2);
 			$('.bltext').append(script);
-		@elseif(\App\Models\Forum::withTrashed()->where('user_id', $user->id)->first()->deleted_at ?? false)
-			@if(\App\Models\Forum::withTrashed()->where('user_id', $user->id)->first()->deleted_at > \Carbon\Carbon::now()->subYear())
-				c5('專屬討論區下架一年內不得再申請專屬討論區');
+		@elseif($forum_delete_time ?? false)
+			@if($forum_delete_time > \Carbon\Carbon::now()->subYear())
+				c5('您的專屬討論區因沒有完成每週需求量（一個新的主題或三條以上的回覆），已於 {{$forum_delete_time->toDateString()}} 關閉，若要重新申請須至 {{$forum_delete_time->addYear()->toDateString()}} 提出。');
 			@else
 				window.location.href = "/dashboard/ForumEdit/{{$user->id}}";
 			@endif
