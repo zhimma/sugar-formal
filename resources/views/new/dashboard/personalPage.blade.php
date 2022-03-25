@@ -276,7 +276,7 @@
 
                     @if($forum->deleted_at ?? false)
                         <div class="sys_aa">
-                            <dt class="tabbox_new_ss"><span class="sys_log1 xs_wi90 open_reportedRecord">專屬討論區</span></dt>
+                            <dt class="tabbox_new_dt"><span>專屬討論區</span></dt>
                             <dd class="tabbox_new_dd">
                                 <div class="tabbox_h4">
                                     您的專屬討論區因沒有完成每週需求量（一個新的主題或三條以上的回覆），已於 {{$forum->deleted_at->toDateString()}} 關閉，若要重新申請須至 {{$forum->deleted_at->addYear()->toDateString()}} 提出
