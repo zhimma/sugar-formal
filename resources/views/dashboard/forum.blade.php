@@ -269,7 +269,7 @@
 		}
 		else
 		{
-			$forum_delete_time = false
+			$forum_delete_time = false;
 		}
 		@endphp
 		@if(!$user->isCanPosts_vip())
