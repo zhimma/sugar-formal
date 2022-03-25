@@ -158,6 +158,19 @@
 		<button class="btn btn-info" onclick="HiddenAction({{($user['isHidden'])?'1':'0' }},{{ $user['id'] }})"> 升級隱藏 </button>
 	@endif --}}
 <!---->
+
+	<form id="switch_from" style="display: inline;" method="post" action="{{ route('hideOnlineSwitch') }}">
+		<input type="hidden" name="_token" value="{{ csrf_token() }}" >
+		<input type="hidden" name="userId" value="{{$user->id}}">
+		@if($user['is_hide_online'] == 0)
+		<input type="hidden" name="isHideOnline" value="1">
+		<button type="submit" class="btn btn-info"> 隱藏付費 </button>
+		@else
+		<input type="hidden" name="isHideOnline" value="0">
+		<button type="submit" class="btn btn-info"> 取消隱藏付費 </button>
+		@endif
+	</form>
+
 	@if (Auth::user()->can('admin') || Auth::user()->can('juniorAdmin'))
 		<a href="{{ route('AdminMessage', $user['id']) }}" target="_blank" class='btn btn-dark'>撰寫站長訊息</a>
 	@elseif (Auth::user()->can('readonly'))
