@@ -74,6 +74,7 @@ use App\Services\AdminService;
 use App\Models\LogFreeVipPicAct;
 use App\Models\UserTinySetting;
 use App\Http\Controllers\Admin\UserController;
+use App\Models\CheckPointUser;
 use App\Models\SimpleTables\short_message;
 use App\Models\LogAdvAuthApi;
 use Illuminate\Support\Facades\Http;
@@ -215,6 +216,9 @@ class PagesController extends BaseController
                     'status' => true,
                     'msg' => '無法更新',
             ];
+
+        CheckPointUser::where('user_id', auth()->id())->delete();
+
         return response()->json($status_data, 200)
                 ->header("Cache-Control", "no-cache, no-store, must-revalidate")
                 ->header("Pragma", "no-cache")
@@ -6820,16 +6824,14 @@ class PagesController extends BaseController
 				foreach($messages  as $message) {
 					Message::deleteSingleMessage($message, $user_id, $admin_id, $message->created_at, $message->content, 0);
 				}
-				
-				$admin_msg_entrys = Message::allToFromSender($user_id,$admin_id);
+                $sys_notice = $sys_remind ? 1 : 0;
+				$admin_msg_entrys = Message::allToFromSender($user_id,$admin_id, false, $sys_notice);
 				$admin_msgs = [];
 				$i=0;
-                if($sys_remind) $admin_msg_entrys = $admin_msg_entrys->where('sys_notice',1);
-                else $admin_msg_entrys = $admin_msg_entrys->where('sys_notice',0)->orWhereNull('sys_notice');
 				foreach($admin_msg_entrys as $admin_msg_entry) {
 					$admin_msgs[] = $admin_msg_entry;
 					$i++;
-					if($i>=3) break;
+					if($i >= 3) { break; }
 				}	
 				return json_encode($admin_msgs);
 			break;

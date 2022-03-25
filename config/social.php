@@ -37,7 +37,7 @@ return [
     ],
     'admin' => [
         'notice-email' => 'mmmaya111@gmail.com',
-        'user-email' => 'sugarden99@gmail.com',
+        'user-email' => 'mmmaya111@gmail.com',
         'showMessageCount' => 50,
         'mobile' => '0911020102',
         'mobile2' => '0972531383'

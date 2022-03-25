@@ -306,6 +306,14 @@ class User extends Authenticatable
         return \Cache::has('user-is-online-' . $this->id);
     }
 
+    public function check_point_user(){
+        return $this->hasMany(CheckPointUser::class, 'user_id', 'id');
+    }
+
+    public function check_point_name(){
+        return $this->hasManyThrough(CheckPoints::class, CheckPointUser::class, 'user_id', 'id','id','check_point_id');
+    }
+
     /**
      * Find by Email
      *
@@ -1025,13 +1033,15 @@ class User extends Authenticatable
 		
         /*發信＆回信次數統計*/
 		$countInfo['message_count'] = 0;
-		$countInfo['message_reply_count'] = 0;
+		$countInfo['message_count_7'] = 0;
+        $countInfo['message_reply_count'] = 0;
 		$countInfo['message_reply_count_7'] = 0;
 		$send = [];
 		$receive = [];
-		
-		if(!$wantIndexArr 
-			|| in_array('message_count',$wantIndexArr) 
+        $reply_people = [];
+        $reply_people_7 = [];
+        if(!$wantIndexArr
+			|| in_array('message_count',$wantIndexArr)
 			|| in_array('message_reply_count',$wantIndexArr)
 			|| in_array('message_reply_count_7',$wantIndexArr)
 		) {
@@ -1047,15 +1057,41 @@ class User extends Authenticatable
 				}
 				if(!is_null(array_get($receive, $message->to_id))){
 					$countInfo['message_reply_count'] += 1;
+					if(!array_keys($reply_people,$message->to_id)){
+                        array_push($reply_people, $message->to_id);
+                    }
+
 					if($message->created_at >= $date){
 						//計算七天內回信次數
 						$countInfo['message_reply_count_7'] += 1;
-					}
+                        if(!array_keys($reply_people_7,$message->to_id)) {
+                            array_push($reply_people_7, $message->to_id);
+                        }
+                    }
 				}
 			}
-			$countInfo['message_count'] = count($send);
-		}
-		
+			$message_count=0;
+            foreach ($send as $to_id =>$val){
+                $m_id=Message::where('from_id',$to_id)->where('to_id',$user->id)->orderBy('id')->first();
+                $m_id=$m_id? $m_id->id :null;
+
+                $from_id_first=Message::where([['message.to_id', $user->id],['message.from_id', $to_id]])
+                    ->orWhere([['message.from_id', $user->id],['message.to_id', $to_id]])
+                    ->orderBy('created_at')->first()->from_id;
+
+                $message_temp=Message::where('from_id',$user->id)->where('to_id',$to_id)->orderBy('created_at');
+                if(!is_null($m_id)){
+                    $message_temp->where('id','<',$m_id);
+                }
+                $message_temp=$message_temp->get()->count();
+                if($message_temp && ($from_id_first == $user->id) ){
+                    $message_count+=$message_temp;
+                }else{
+                    unset($send[$to_id]);
+                }
+            }
+            $countInfo['message_count'] = count($send);
+        }
 		if(!$wantIndexArr || in_array('message_count_7',$wantIndexArr)) {
 			$messages_7days = Message::select('id','to_id','from_id','created_at')->whereRaw('(to_id ='. $user->id. ' OR from_id='.$user->id .')')->where('created_at','>=', $date)->orderBy('id')->get();
 			$countInfo['message_count_7'] = 0;
@@ -1066,16 +1102,52 @@ class User extends Authenticatable
 					$send[$message->to_id][]= $message->id;
 				}
 			}
-			$countInfo['message_count_7'] = count($send);
-		}
+            $message_count_7=0;
+            foreach ($send as $to_id =>$val){
+                $m_id=Message::where('from_id',$to_id)->where('to_id',$user->id)->where('created_at','>=', $date)->orderBy('id')->first();
+                $m_id=$m_id? $m_id->id :null;
+
+                $from_id_first=Message::where([['message.to_id', $user->id],['message.from_id', $to_id]])
+                    ->orWhere([['message.from_id', $user->id],['message.to_id', $to_id]])
+                    ->orderBy('created_at')->first()->from_id;
+
+                $message_temp=Message::where('from_id',$user->id)->where('to_id',$to_id)->where('created_at','>=', $date)->orderBy('created_at');
+                if(!is_null($m_id)){
+                    $message_temp->where('id','<',$m_id);
+                }
+                $message_temp=$message_temp->get()->count();
+                if($message_temp && ($from_id_first == $user->id) ){
+                    $message_count_7+=$message_temp;
+                }else{
+                    unset($send[$to_id]);
+                }
+            }
+            $countInfo['message_count_7'] = count($send);
+        }
+
+        /*發信人數*/
+        $advInfo['message_people_count'] = $countInfo['message_count'];
+        /*過去7天發信人數*/
+        $advInfo['message_people_count_7'] = $countInfo['message_count_7'];
         /*發信次數*/
-        $advInfo['message_count'] = $countInfo['message_count'];
+        $advInfo['message_count'] = $message_count;
         /*過去7天發信次數*/
-        $advInfo['message_count_7'] = $countInfo['message_count_7'];
+        $advInfo['message_count_7'] = $message_count_7;
+
+        /*回信人數*/
+        $advInfo['message_reply_people_count'] = count($reply_people);
+        /*過去7天回信人數*/
+        $advInfo['message_reply_people_count_7'] = count($reply_people_7);
         /*回信次數*/
         $advInfo['message_reply_count'] = $countInfo['message_reply_count'];
         /*過去7天回信次數*/
         $advInfo['message_reply_count_7'] = $countInfo['message_reply_count_7'];
+
+        /*過去七天未回人數*/
+        $advInfo['message_no_reply_count_7'] = Message::select('from_id')->where('to_id', $user->id)->where('created_at','>=', $date)->whereRaw('(select from_id from message as p where (p.from_id='.$user->id.' and  p.to_id=message.from_id) OR (p.from_id= message.from_id and  p.to_id='.$user->id.') order by id  desc limit 1 ) !='.$user_id)->groupBy('from_id')->get()->count();
+        /*未回人數*/
+        $advInfo['message_no_reply_count'] = Message::select('from_id')->where('to_id', $user->id)->whereRaw('(select from_id from message as p where (p.from_id='.$user->id.' and  p.to_id=message.from_id) OR (p.from_id= message.from_id and  p.to_id='.$user->id.') order by id  desc limit 1 ) !='.$user_id)->groupBy('from_id')->get()->count();
+
         /*過去7天罐頭訊息比例*/
         $date_start = date("Y-m-d",strtotime("-6 days", strtotime(date('Y-m-d'))));
         $date_end = date('Y-m-d');

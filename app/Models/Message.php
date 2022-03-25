@@ -607,7 +607,7 @@ class Message extends Model
         return $theMessage;
     }
 
-    public static function allToFromSender($uid, $sid, $includeDeleted = false) {
+    public static function allToFromSender($uid, $sid, $includeDeleted = false, $sys_notice = NULL) {
         $user = \View::shared('user');
         if(!$user){
             $user = User::find($uid);
@@ -666,9 +666,17 @@ class Message extends Model
 			$query = $query->where('created_at', '<', $min_bad_date);
 		}
 
+        if($sys_notice != NULL){
+            if($sys_notice == 1){
+                $query = $query->where('sys_notice',1);
+            }else if($sys_notice == 0){
+                $query = $query->where('sys_notice',0)->orWhereNull('sys_notice');
+            }
+            return $query->orderBy('created_at', 'desc')->get();            
+        }
         $query = $query->where('created_at','>=',self::$date)
-            ->orderBy('created_at', 'desc')
-            ->paginate(10);//->get();
+                    ->orderBy('created_at', 'desc')
+                    ->paginate(10);
         return $query;
     }
 

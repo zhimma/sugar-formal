@@ -169,7 +169,7 @@ Route::group(['middleware' => ['auth', 'global','SessionExpired']], function () 
 
 Route::get('/advance_auth_activate/token/{token}', 'PagesController@advance_auth_email_activate')->name('advance_auth_email_activate');
 
-Route::group(['middleware' => ['auth', 'global', 'active', 'femaleActive', 'vipCheck', 'newerManual','CheckIsWarned','CheckAccountStatus','SessionExpired']], function () {
+Route::group(['middleware' => ['auth', 'global', 'active', 'femaleActive', 'vipCheck', 'newerManual','CheckAccountStatus','SessionExpired']], function () {
 
     Route::get('/dashboard/browse', 'PagesController@browse');
     /*
@@ -838,7 +838,9 @@ Route::group(['middleware' => ['auth', 'global', 'active', 'femaleActive', 'vipC
         Route::post('roles/search', 'RoleController@search');
         Route::get('roles/search', 'RoleController@index');
 
-        
+        Route::post('check/step1', 'UserController@member_profile_check_over')->name('admin/member_profile_check_over');
+        Route::get('ban_information', 'UserController@ban_information');
+        Route::post('users/little_update_profile', 'UserController@little_update_profile');
     });
     Route::group(['prefix' => 'admin', 'middleware' => 'Admin'], function () {
         //寄退信Log查詢

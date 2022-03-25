@@ -24,6 +24,7 @@ class Kernel extends ConsoleKernel
         \App\Console\Commands\SendSMS::class,
         \App\Console\Commands\BlockAreaUpdate::class,
         \App\Console\Commands\InsertPR::class,
+        \App\Console\Commands\checkwarned::class,
     ];
 
     /**
@@ -57,12 +58,12 @@ class Kernel extends ConsoleKernel
 
         }
         if(app()->environment('CFP')){
-            $schedule->call('\App\Http\Controllers\Admin\FindPuppetController@entrance')->timezone('Asia/Taipei')->dailyAt('03:00');
-            $schedule->call('\App\Http\Controllers\Admin\FindPuppetController@entrance')->timezone('Asia/Taipei')->dailyAt('15:00');
+            $schedule->call('\App\Http\Controllers\Admin\FindPuppetController@entrance')->timezone('Asia/Taipei')->dailyAt('05:00');
+            $schedule->call('\App\Http\Controllers\Admin\FindPuppetController@entrance')->timezone('Asia/Taipei')->dailyAt('17:00');
             $puppetReq = new Request();
             $puppetReq->only = 'cfpid';
-            $schedule->call('\App\Http\Controllers\Admin\FindPuppetController@entrance',['request'=>$puppetReq])->timezone('Asia/Taipei')->dailyAt('05:00');
-            $schedule->call('\App\Http\Controllers\Admin\FindPuppetController@entrance',['request'=>$puppetReq])->timezone('Asia/Taipei')->dailyAt('17:00');
+            $schedule->call('\App\Http\Controllers\Admin\FindPuppetController@entrance',['request'=>$puppetReq])->timezone('Asia/Taipei')->dailyAt('03:00');
+            $schedule->call('\App\Http\Controllers\Admin\FindPuppetController@entrance',['request'=>$puppetReq])->timezone('Asia/Taipei')->dailyAt('15:00');
         
             //$schedule->command('EncodeImagesForCompare')->timezone('Asia/Taipei')->dailyAt('02:01');
             //$schedule->command('queue:work --queue=compare_images --daemon --sleep=3 --tries=3 --delay=3  --timeout=0')->timezone('Asia/Taipei')->everyFiveMinutes()->between('02:00', '12:00');
@@ -96,6 +97,8 @@ class Kernel extends ConsoleKernel
             $schedule->call(function (){
                 $this->resetUserPicsSwitches();
             })->timezone('Asia/Taipei')->dailyAt('6:30');
+
+            $schedule->command('command:checkwarned')->timezone('Asia/Taipei')->dailyAt('07:00');
         }
         if(app()->isProduction()) {
             $schedule->call(function (){

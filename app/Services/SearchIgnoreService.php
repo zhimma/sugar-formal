@@ -38,7 +38,7 @@ class SearchIgnoreService
     
     public function member_query() {
         if(!$this->member_query??null) {
-            $this->user->search_ignore();
+            $this->member_query = $this->user->search_ignore();
         }
         return $this->member_query;
     }
