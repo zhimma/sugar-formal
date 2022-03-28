@@ -295,11 +295,13 @@ class UserController extends \App\Http\Controllers\BaseController
                     ));
             } else {
                 //從來都沒隱藏資料的
-                $hideOnline_user = new hideOnlineData;
-                $hideOnline_user->member_id = $request->user_id;
-                $hideOnline_user->active = $sethideOnline;
-                $hideOnline_user->created_at = Carbon::now()->toDateTimeString();
-                $hideOnline_user->save();
+                $ValueAddedService = new ValueAddedService;
+                $ValueAddedService->member_id = $request->user_id;
+                $ValueAddedService->active = $sethideOnline;
+                $ValueAddedService->business_id = 'BackendFree';
+                $ValueAddedService->order_id = 'BackendFree';
+                $ValueAddedService->expiry = '0000-00-00 00:00:00';
+                $ValueAddedService->save();
             }
 
 
