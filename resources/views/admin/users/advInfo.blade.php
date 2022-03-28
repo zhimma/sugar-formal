@@ -151,25 +151,26 @@
 	@else 
 		<button class="btn btn-info" onclick="VipAction({{($user['isvip'])?'1':'0' }},{{ $user['id'] }})"> 升級VIP </button>
 	@endif
-<!--隱藏-->
-	{{-- @if($user['isHidden'])
-		<button class="btn btn-info" onclick="HiddenAction({{($user['isHidden'])?'1':'0' }},{{ $user['id'] }})"> 取消隱藏 </button>
-	@else 
-		<button class="btn btn-info" onclick="HiddenAction({{($user['isHidden'])?'1':'0' }},{{ $user['id'] }})"> 升級隱藏 </button>
-	@endif --}}
-<!---->
 
-	<form id="switch_from" style="display: inline;" method="post" action="{{ route('hideOnlineSwitch') }}">
+	@if($user['isHidden'])
+		<button class="btn btn-info" onclick="HiddenAction({{($user['isHidden'])?'1':'0' }},{{ $user['id'] }})"> 取消隱藏付費 </button>
+	@else 
+		<button class="btn btn-info" onclick="HiddenAction({{($user['isHidden'])?'1':'0' }},{{ $user['id'] }})"> 升級隱藏付費 </button>
+	@endif
+
+	<!--開啟使用者隱藏-->
+	<!--<form id="switch_from" style="display: inline;" method="post" action="{{ route('hideOnlineSwitch') }}">
 		<input type="hidden" name="_token" value="{{ csrf_token() }}" >
 		<input type="hidden" name="userId" value="{{$user->id}}">
 		@if($user['is_hide_online'] == 0)
 		<input type="hidden" name="isHideOnline" value="1">
-		<button type="submit" class="btn btn-info"> 隱藏付費 </button>
+		<button type="submit" class="btn btn-info"> 隱藏 </button>
 		@else
 		<input type="hidden" name="isHideOnline" value="0">
-		<button type="submit" class="btn btn-info"> 取消隱藏付費 </button>
+		<button type="submit" class="btn btn-info"> 取消隱藏 </button>
 		@endif
-	</form>
+	</form>-->
+	<!--開啟使用者隱藏-->
 
 	@if (Auth::user()->can('admin') || Auth::user()->can('juniorAdmin'))
 		<a href="{{ route('AdminMessage', $user['id']) }}" target="_blank" class='btn btn-dark'>撰寫站長訊息</a>
