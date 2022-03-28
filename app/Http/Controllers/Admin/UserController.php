@@ -297,6 +297,7 @@ class UserController extends \App\Http\Controllers\BaseController
                 //從來都沒隱藏資料的
                 $ValueAddedService = new ValueAddedService;
                 $ValueAddedService->member_id = $request->user_id;
+                $ValueAddedService->service_name = 'hideOnline';
                 $ValueAddedService->active = $sethideOnline;
                 $ValueAddedService->business_id = 'BackendFree';
                 $ValueAddedService->order_id = 'BackendFree';
