@@ -6841,16 +6841,14 @@ class PagesController extends BaseController
 				foreach($messages  as $message) {
 					Message::deleteSingleMessage($message, $user_id, $admin_id, $message->created_at, $message->content, 0);
 				}
-				
-				$admin_msg_entrys = Message::allToFromSender($user_id,$admin_id);
+                $sys_notice = $sys_remind ? 1 : 0;
+				$admin_msg_entrys = Message::allToFromSender($user_id,$admin_id, false, $sys_notice);
 				$admin_msgs = [];
 				$i=0;
-                if($sys_remind) $admin_msg_entrys = $admin_msg_entrys->where('sys_notice',1);
-                else $admin_msg_entrys = $admin_msg_entrys->where('sys_notice',0)->orWhereNull('sys_notice');
 				foreach($admin_msg_entrys as $admin_msg_entry) {
 					$admin_msgs[] = $admin_msg_entry;
 					$i++;
-					if($i>=3) break;
+					if($i >= 3) { break; }
 				}	
 				return json_encode($admin_msgs);
 			break;

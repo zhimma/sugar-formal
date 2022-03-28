@@ -978,7 +978,9 @@ class UserController extends \App\Http\Controllers\BaseController
             ->orWhere('message.to_id', $id)
             ->where(DB::raw("message.created_at"),'>=', \Carbon\Carbon::parse("180 days ago")->toDateTimeString())
             ->groupBy(DB::raw("ref_user_id"))
-            ->orderBy('message.created_at','DESC')->paginate(20);
+            ->orderByRaw("IF(ref_user_id=1049, 1, 0)  desc")
+            ->orderBy('message.created_at','DESC')
+            ->paginate(20);
 
         foreach ($userMessage_log as $key => $value) {
             $userMessage_log[$key]['items'] = Message::withTrashed()->select('message.*','message.id as mid','message.created_at as m_time','u.*','b.id as banned_id','b.expire_date as banned_expire_date')
@@ -988,8 +990,8 @@ class UserController extends \App\Http\Controllers\BaseController
                 ->where([['message.to_id', $id],['message.from_id', $value->ref_user_id]])
                 ->orWhere([['message.from_id', $id],['message.to_id', $value->ref_user_id]])
                 ->where('message.created_at','>=', \Carbon\Carbon::parse("180 days ago")->toDateTimeString())
-                ->orderBy('message.created_at', 'desc')
-                ->take(10)->get();
+                ->orderBy('message.created_at')
+                ->take(20)->get();
         }
 
         // 給予、取消優選
@@ -2159,6 +2161,13 @@ class UserController extends \App\Http\Controllers\BaseController
                 } else {
                     $report = isset($a) ? $a : $b;
                 }
+            }
+            if(is_null($report)){
+                $report = Reported::where('member_id', $id)->where('reported_id', $reported_id);
+                if($pic_id){
+                    $report->where('id', $pic_id);
+                }
+                $report= $report->first();
             }
             /*檢舉者*/
             $user = $this->service->find($id);
