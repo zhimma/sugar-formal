@@ -64,6 +64,7 @@ use App\Models\ValueAddedService;
 use App\Services\ImagesCompareService;
 use App\Models\SimilarImages;
 use App\Models\CheckPointUser;
+use App\Models\Order;
 
 class UserController extends \App\Http\Controllers\BaseController
 {
@@ -1434,6 +1435,9 @@ class UserController extends \App\Http\Controllers\BaseController
 
         //討論區狀態
         $posts_forum = Forum::where('user_id', $user->id)->first();
+        
+        //隱藏付費訂單Log
+        $hideonline_order = Order::where('user_id', $user->id)->where('service_name', 'hideOnline')->orderBy('order_date','desc')->get();
 
         if (str_contains(url()->current(), 'edit')) {
             $birthday = date('Y-m-d', strtotime($userMeta->birthdate));
@@ -1476,7 +1480,8 @@ class UserController extends \App\Http\Controllers\BaseController
                 ->with('userAgent',$userAgent)
 				->with('banned_advance_auth_status', $banned_advance_auth_status)
                 ->with('last_images_compare_encode',ImagesCompareEncode::orderByDesc('id')->firstOrNew())
-                ->with('posts_forum', $posts_forum);
+                ->with('posts_forum', $posts_forum)
+                ->with('hideonline_order', $hideonline_order);
         }
     }
 
