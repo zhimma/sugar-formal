@@ -5372,6 +5372,7 @@ class PagesController extends BaseController
     public function forum(Request $request)
     {
         $user=$request->user();
+
         if ($user && $user->engroup == 2) {
             return back();
         }
@@ -5402,14 +5403,15 @@ class PagesController extends BaseController
          forum.id as f_id,
          forum.status as f_status,
          forum.title as f_title,
-         forum.sub_title as f_sub_title
+         forum.sub_title as f_sub_title,
+         forum.is_warned as f_warned
          ')
             ->selectRaw('(select updated_at from forum_posts where (type="main" and id=pid and forum_id = f_id and deleted_at is null) or reply_id=pid or reply_id in ((select distinct(id) from forum_posts where type="sub" and reply_id=pid and forum_id = f_id and deleted_at is null) )  order by updated_at desc limit 1) as currentReplyTime')
-            ->selectRaw('(select count(*) from forum_posts where (type="main" and forum_id = f_id and deleted_at is null)) as posts_num, (select count(*) from forum_posts where (type="sub" and forum_id = f_id and deleted_at is null and reply_id in (select id from forum_posts where (type="main" and user_id = uid and forum_id = f_id and deleted_at is null)) )) as posts_reply_num')
+            ->selectRaw('(select count(*) from forum_posts where (type="main" and forum_id = f_id and deleted_at is null)) as posts_num, (select count(*) from forum_posts where (type="sub" and forum_id = f_id and deleted_at is null and tag_user_id is null)) as posts_reply_num')
             ->LeftJoin('users', 'users.id','=','forum.user_id')
             ->join('user_meta', 'users.id','=','user_meta.user_id')
             ->leftJoin('forum_posts', 'forum_posts.user_id','=', 'users.id')
-//            ->where('forum.status', 1)
+            ->where('forum.status', 1)
             ->orderBy('forum.status', 'desc')
             ->orderBy('currentReplyTime','desc')
             ->groupBy('forum.id')
@@ -5432,9 +5434,21 @@ class PagesController extends BaseController
 //            }
         }
 
+        //判斷個人討論區加入人數
+        $forum_member_count = ForumManage::selectRaw('forum_id,count(*) as forum_member_count')
+                                        ->where('status',1)
+                                        ->where('active',1)
+                                        ->where(function($query){
+                                            return $query->where('forum_status',1)
+                                                        ->orwhere('chat_status',1);
+                                        })
+                                        ->groupBy('forum_id')
+                                        ->get()->keyBy('forum_id');
+
         return view('/dashboard/forum', $data)
             ->with('checkUserVip', $checkUserVip)
-            ->with('user', $user);
+            ->with('user', $user)
+            ->with('forum_member_count', $forum_member_count);
     }
 
     public function ForumEdit($uid)
@@ -6667,13 +6681,16 @@ class PagesController extends BaseController
                 //'showNewSugarForbidMsgNotify'=>$showNewSugarForbidMsgNotify,
             );
             $allMessage = \App\Models\Message::allMessage($user->id);
+            $forum = Forum::withTrashed()->where('user_id',$user->id)->orderby('id','desc')->first();
             return view('new.dashboard.personalPage', $data)
                 ->with('myFav', $myFav)
                 ->with('otherFav',$otherFav)
                 ->with('admin_msgs',$admin_msgs)
                 ->with('admin_msgs_sys',$admin_msgs_sys)
                 ->with('admin',$admin)
-                ->with('allMessage', $allMessage);
+                ->with('allMessage', $allMessage)
+                ->with('forum',$forum)
+                ;
         }
     }
 
