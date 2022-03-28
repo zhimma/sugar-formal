@@ -56,6 +56,9 @@ class Kernel extends ConsoleKernel
                 $this->deleteAnonymousChat();
             })->timezone('Asia/Taipei')->weeklyOn(0, '23:59');
 
+            //每週檢查討論區
+            $schedule->command('ForumCheck')->timezone('Asia/Taipei')->weeklyOn(1, '1:00');
+
         }
         if(app()->environment('CFP')){
             $schedule->call('\App\Http\Controllers\Admin\FindPuppetController@entrance')->timezone('Asia/Taipei')->dailyAt('05:00');
