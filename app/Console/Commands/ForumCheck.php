@@ -48,7 +48,6 @@ class ForumCheck extends Command
         
         
         $forums = $forums->get();
-        Log::Info('start');
         foreach($forums as $form)
         {
             $is_warned = false;
