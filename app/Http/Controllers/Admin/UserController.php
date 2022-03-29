@@ -310,12 +310,14 @@ class UserController extends \App\Http\Controllers\BaseController
                 $ValueAddedService->order_id = 'BackendFree';
                 $ValueAddedService->expiry = '0000-00-00 00:00:00';
                 $ValueAddedService->save();
+            }
+            if(hideOnlineData::where('user_id',$request->user_id)->first() ?? false)
+            {
                 $hideOnlineData = new hideOnlineData;
                 $hideOnlineData->user_id = $request->user_id;
                 $hideOnlineData->register_time = User::where('id', $request->user_id)->first()->created_at;
                 $hideOnlineData->login_time = Carbon::now();
                 $request->user_id->save();
-
             }
             hideOnlineData::where('user_id',$request->user_id)->update(['login_time' => Carbon::now()]);
             $checkHideOnlineData = hideOnlineData::where('user_id',$request->user_id)->where('deleted_at', null)->get()->first();
