@@ -56,8 +56,8 @@
 	<script src="/posts/js/bootstrap.min.js"></script>
 
 	@section('app-content')
-	<div id="app">
-		<div class="container matop70">
+
+		<div class="container matop70" id="app">
 			<div class="row">
 				<div class="col-sm-2 col-xs-2 col-md-2 dinone">
 					@include('new.dashboard.panel')
@@ -117,7 +117,7 @@
 				</div>
 			</div>
 		</div>
-	</div>
+	
 
 	
 <script type="application/javascript">
