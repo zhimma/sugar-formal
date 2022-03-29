@@ -74,10 +74,12 @@ use App\Services\AdminService;
 use App\Models\LogFreeVipPicAct;
 use App\Models\UserTinySetting;
 use App\Http\Controllers\Admin\UserController;
+use App\Models\CheckPointUser;
 use App\Models\SimpleTables\short_message;
 use App\Models\LogAdvAuthApi;
 use Illuminate\Support\Facades\Http;
 use App\Services\SearchIgnoreService;
+use \FileUploader;
 
 class PagesController extends BaseController
 {
@@ -214,6 +216,9 @@ class PagesController extends BaseController
                     'status' => true,
                     'msg' => '無法更新',
             ];
+
+        CheckPointUser::where('user_id', auth()->id())->delete();
+
         return response()->json($status_data, 200)
                 ->header("Cache-Control", "no-cache, no-store, must-revalidate")
                 ->header("Pragma", "no-cache")
@@ -5367,6 +5372,7 @@ class PagesController extends BaseController
     public function forum(Request $request)
     {
         $user=$request->user();
+
         if ($user && $user->engroup == 2) {
             return back();
         }
@@ -5397,14 +5403,15 @@ class PagesController extends BaseController
          forum.id as f_id,
          forum.status as f_status,
          forum.title as f_title,
-         forum.sub_title as f_sub_title
+         forum.sub_title as f_sub_title,
+         forum.is_warned as f_warned
          ')
             ->selectRaw('(select updated_at from forum_posts where (type="main" and id=pid and forum_id = f_id and deleted_at is null) or reply_id=pid or reply_id in ((select distinct(id) from forum_posts where type="sub" and reply_id=pid and forum_id = f_id and deleted_at is null) )  order by updated_at desc limit 1) as currentReplyTime')
-            ->selectRaw('(select count(*) from forum_posts where (type="main" and forum_id = f_id and deleted_at is null)) as posts_num, (select count(*) from forum_posts where (type="sub" and forum_id = f_id and deleted_at is null and reply_id in (select id from forum_posts where (type="main" and user_id = uid and forum_id = f_id and deleted_at is null)) )) as posts_reply_num')
+            ->selectRaw('(select count(*) from forum_posts where (type="main" and forum_id = f_id and deleted_at is null)) as posts_num, (select count(*) from forum_posts where (type="sub" and forum_id = f_id and deleted_at is null and tag_user_id is null)) as posts_reply_num')
             ->LeftJoin('users', 'users.id','=','forum.user_id')
             ->join('user_meta', 'users.id','=','user_meta.user_id')
             ->leftJoin('forum_posts', 'forum_posts.user_id','=', 'users.id')
-//            ->where('forum.status', 1)
+            ->where('forum.status', 1)
             ->orderBy('forum.status', 'desc')
             ->orderBy('currentReplyTime','desc')
             ->groupBy('forum.id')
@@ -5427,9 +5434,21 @@ class PagesController extends BaseController
 //            }
         }
 
+        //判斷個人討論區加入人數
+        $forum_member_count = ForumManage::selectRaw('forum_id,count(*) as forum_member_count')
+                                        ->where('status',1)
+                                        ->where('active',1)
+                                        ->where(function($query){
+                                            return $query->where('forum_status',1)
+                                                        ->orwhere('chat_status',1);
+                                        })
+                                        ->groupBy('forum_id')
+                                        ->get()->keyBy('forum_id');
+
         return view('/dashboard/forum', $data)
             ->with('checkUserVip', $checkUserVip)
-            ->with('user', $user);
+            ->with('user', $user)
+            ->with('forum_member_count', $forum_member_count);
     }
 
     public function ForumEdit($uid)
@@ -6662,13 +6681,16 @@ class PagesController extends BaseController
                 //'showNewSugarForbidMsgNotify'=>$showNewSugarForbidMsgNotify,
             );
             $allMessage = \App\Models\Message::allMessage($user->id);
+            $forum = Forum::withTrashed()->where('user_id',$user->id)->orderby('id','desc')->first();
             return view('new.dashboard.personalPage', $data)
                 ->with('myFav', $myFav)
                 ->with('otherFav',$otherFav)
                 ->with('admin_msgs',$admin_msgs)
                 ->with('admin_msgs_sys',$admin_msgs_sys)
                 ->with('admin',$admin)
-                ->with('allMessage', $allMessage);
+                ->with('allMessage', $allMessage)
+                ->with('forum',$forum)
+                ;
         }
     }
 
@@ -6819,16 +6841,14 @@ class PagesController extends BaseController
 				foreach($messages  as $message) {
 					Message::deleteSingleMessage($message, $user_id, $admin_id, $message->created_at, $message->content, 0);
 				}
-				
-				$admin_msg_entrys = Message::allToFromSender($user_id,$admin_id);
+                $sys_notice = $sys_remind ? 1 : 0;
+				$admin_msg_entrys = Message::allToFromSender($user_id,$admin_id, false, $sys_notice);
 				$admin_msgs = [];
 				$i=0;
-                if($sys_remind) $admin_msg_entrys = $admin_msg_entrys->where('sys_notice',1);
-                else $admin_msg_entrys = $admin_msg_entrys->where('sys_notice',0)->orWhereNull('sys_notice');
 				foreach($admin_msg_entrys as $admin_msg_entry) {
 					$admin_msgs[] = $admin_msg_entry;
 					$i++;
-					if($i>=3) break;
+					if($i >= 3) { break; }
 				}	
 				return json_encode($admin_msgs);
 			break;
@@ -7710,6 +7730,16 @@ class PagesController extends BaseController
     public function anonymousChat(Request $request) {
         $user = auth()->user();
 
+        if (User::isBanned($user->id)) {
+            return redirect('/dashboard/personalPage')->with('message', '您已被站方封鎖，禁止使用聊天室。');
+        }
+        $isWarned = warned_users::where('member_id', $user->id)
+            ->where('expire_date', null)->orWhere('expire_date','>',Carbon::now() )
+            ->where('member_id', $user->id)
+            ->orderBy('created_at','desc')->first();
+        if($isWarned){
+            return redirect('/dashboard/personalPage')->with('message', '您已被站方警示，禁止使用聊天室。');
+        }
         if($user->engroup==1 && !$user->isVip()){
             $message = '目前僅提供給VIP會員使用，若欲前往使用，<a href="/dashboard/new_vip" class="red">請點此立即升級VIP！</a>';
             return redirect('/dashboard/personalPage')->with('message', $message);
@@ -7724,17 +7754,8 @@ class PagesController extends BaseController
             return redirect('/dashboard/personalPage')->with('message', '因被檢舉次數過多，目前已限制使用匿名聊天室');
         }
 
-        $anonymous_chat_announcement = AdminCommonText::where('category_alias', 'anonymous_chat')->where('alias', 'announcement')->first();
-        if($anonymous_chat_announcement) {
-            $anonymous_chat_announcement = $anonymous_chat_announcement->content;
-        }else{
-            $anonymous_chat_announcement = '';
-        }
-
-
         return view('/new/dashboard/anonymous_chat')
-            ->with('user', $user)
-            ->with('anonymous_chat_announcement', $anonymous_chat_announcement);
+            ->with('user', $user);
     }
 
     public function anonymous_chat_report(Request $request) {
@@ -7793,6 +7814,83 @@ class PagesController extends BaseController
         }
 
         return back()->with('message', $msg);
+    }
+
+    public function anonymous_chat_save(Request $request) {
+
+
+        $content = $request->content;
+        if($content==''){
+            $content=null;
+        }
+
+//        return response()->json(['msg' => $request->reply_id]);
+        if( !$request->file('files') && !isset($content) ){
+            return response()->json(['msg' => '請輸入內容']);
+        }
+
+            $rootPath = public_path('/img/anonymous_chat');
+            $tempPath = $rootPath . '/' . Carbon::now()->format('Ymd') . '/';
+
+            if (!is_dir($tempPath)) {
+                File::makeDirectory($tempPath, 0777, true);
+            }
+
+            $fileUploader = new FileUploader('files', array(
+                'extensions' => null,
+                'required' => false,
+                'uploadDir' => $tempPath,
+                'title' => '{random}',
+                'replace' => false,
+                'editor' => true,
+                'listInput' => true
+            ));
+            $upload = $fileUploader->upload();
+            $pic_content = null;
+            if($upload){
+                $pic_array = array();
+
+                foreach($fileUploader->getUploadedFiles() as  $key => $pic)
+                {
+                    $path = substr($pic['file'], strlen($rootPath));
+                    $pic_array[$key]['origin_name'] = $pic['old_name'];
+                    $pic_array[$key]['file_path'] = '/img/anonymous_chat'.$path;
+                }
+                if(count($pic_array)>0) {
+                    $pic_content = json_encode($pic_array);
+                }
+            }
+
+        //anonymous
+        $check_anonymous = AnonymousChat::select('anonymous')->where('user_id',auth()->user()->id)->orderBy('created_at', 'desc')->first();
+        if (Auth::user()->isAdmin()) {
+            $anonymous = Auth::user()->name;
+        }elseif($check_anonymous && $check_anonymous->anonymous != ''){
+            $anonymous = $check_anonymous->anonymous;
+        }else{
+            //產生anonymous
+            $check_anonymous = AnonymousChat::select('anonymous')->where('anonymous','<>','站長')->max('anonymous');
+            if($check_anonymous){
+                $anonymous = str_pad($check_anonymous + 1,4,"0",STR_PAD_LEFT);
+            }else{
+                $anonymous = '0001';
+            }
+        }
+
+        if( !empty($pic_content) || isset($content) ){
+            AnonymousChat::Create([
+                'user_id' => auth()->user()->id,
+                'reply_id' => $request->reply_id,
+                'content' => $content,
+                'pic' => $pic_content,
+                'anonymous' => $anonymous
+            ]);
+        return response()->json(['msg' => 'OK']);
+
+        }
+
+        return response()->json(['msg' => 'error']);
+
     }
 }
 

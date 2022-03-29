@@ -1,6 +1,9 @@
 @extends('admin.main')
 @section('app-content')
 <body style="padding: 15px;">
+<style>
+    .autoban_pic_show {width:50px;min-width:50px;}
+</style>
 <h1>自動封鎖警示設定</h1>
 <span></span>
 <table class='table table-bordered table-hover'>
@@ -53,7 +56,15 @@
 				@else {{$result->type}}
 			@endif
 		</td>
-		<td>{{ $result->content }}@if(($result->type ?? null)=='ip') (到{{$result->expiry}}止)@endif</td>
+		<td>
+            
+            @if($result->type=='pic')
+            <div>
+                <img src="{{ asset($result->content) }}" onerror="this.src='{{asset('img/filenotexist.png')}}'" class="autoban_pic_show"  /> 
+            </div>
+            @endif
+            {{ $result->content }}
+            @if(($result->type ?? null)=='ip') (到{{$result->expiry}}止)@endif</td>
 		<td>
 			@if(isset($result->cuz_user_set) && ($result->host =='' || $result->host == request()->getHttpHost() ))
 			<a href="{{ route('users/advInfo', $result->cuz_user_set) }}" target='_blank'>
@@ -71,7 +82,7 @@
 		<td>{{$result->host}}</td>
 		<td>{{$result->created_at}}</td>
 		@if($result->set_ban==1)
-			<td style="color:red">永久封鎖</td>
+			<td style="color:red">@if(isset($result->cuz_user_set) && ($result->host =='' || $result->host == request()->getHttpHost() )) @if(($user??null) && $user->engroup==2)驗證封鎖@else 封鎖 @endif @else 封鎖 @endif</div></td>
 		@elseif($result->set_ban==2)
 			<td style="color:blue">隱性封鎖</td>
 		@elseif($result->set_ban==3)

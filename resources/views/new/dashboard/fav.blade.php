@@ -127,7 +127,7 @@
         var nn=0;
         div = '';
         $.ajax({
-            url: '{{ route('showfav') }}',
+            url: '{{ route('showfav') }}?{{csrf_token()}}={{now()->timestamp}}',
             type: 'POST',
             dataType: 'json',
             // headers: {
@@ -249,7 +249,7 @@
         c4('確定移除?');
         $(".n_left").on('click', function() {
             $.ajax({
-                url: '{{ route('fav/remove_ajax') }}',
+                url: '{{ route('fav/remove_ajax') }}?{{csrf_token()}}={{now()->timestamp}}',
                 type: 'POST',
                 data: {
                     _token: "{{ csrf_token() }}",
@@ -307,7 +307,7 @@
         c4('確定移除全部?');
         $(".n_left").on('click', function() {
             $.ajax({
-                url: '{{ route('fav/remove_ajax') }}',
+                url: '{{ route('fav/remove_ajax') }}?{{csrf_token()}}={{now()->timestamp}}',
                 type: 'POST',
                 data: {
                     _token: "{{ csrf_token() }}",

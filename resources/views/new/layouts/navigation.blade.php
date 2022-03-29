@@ -71,7 +71,8 @@
 										<a href="{!! url('dashboard/chat2/') !!}"><img src="/new/images/icon_45.png">收件夾</a><span id="unreadCount2">0</span>
 									</li>
 									<li>
-										<a href="{!! url('dashboard/anonymousChat') !!}"><img src="/new/images/icon_nn45.png">匿名聊天室</a>
+{{--										<a href="{!! url('dashboard/anonymousChat') !!}"><img src="/new/images/icon_nn45.png">匿名聊天室</a>--}}
+										<a href="javascript:void(0);" onclick="showAnonymousAlert()"><img src="/new/images/icon_nn45.png">匿名聊天室</a>
 									</li>
 									@if($user->engroup == 1)
 										@php
@@ -83,33 +84,33 @@
 												<a href="javascript:void(0);" onclick="CheckEnterPopOK()" class="forum_pass"><img src="/new/images/tlq.png">討論區</a>
 											@elseif(!$user->isVip())
 												<a href="javascript:void(0);" onclick="CheckEnterPop2()"><img src="/new/images/tlq.png">討論區</a>
-{{--													@elseif($banImplicitly)--}}
-{{--														<a href="javascript:void(0);" onclick="CheckEnterPop()"><img src="/new/images/tlq.png">討論區</a>--}}
-{{--													@elseif($user->isEverBanned())--}}
-{{--														@php--}}
-{{--															//print_r($user->is_banned_log());--}}
-{{--                                                              $record = $user->isEverBanned();--}}
-{{--                                                              $reason = str_replace('(未續費)','', $record->reason);--}}
-{{--                                                              $text = '您於'.substr($record->created_at, 0, 10).'曾被站方因'.$reason.'封鎖，不符合進入討論區資格，若有意見反應，請洽站長Line@';--}}
-{{--														@endphp--}}
-{{--														<a href="javascript:void(0);" onclick="CheckEnterPopOther('{{$text}}')"><img src="/new/images/tlq.png">討論區</a>--}}
-{{--													@elseif($user->isEverWarned())--}}
-{{--														@php--}}
-{{--															//print_r($user->is_warned_log());--}}
-{{--                                                               $record = $user->isEverWarned();--}}
-{{--                                                               $reason = str_replace('(未續費)','', $record->reason);--}}
-{{--                                                               $text = '您於'.substr($record->created_at, 0, 10).'曾被站方因'.$reason.'警示，不符合進入討論區資格，若有意見反應，請洽站長Line@';--}}
-{{--														@endphp--}}
-{{--														<a href="javascript:void(0);" onclick="CheckEnterPopOther('{{$text}}')"><img src="/new/images/tlq.png">討論區</a>--}}
-{{--													@else--}}
-{{--														<a href="javascript:void(0);" onclick="CheckEnterPopOK()" class="forum_pass"><img src="/new/images/tlq.png">討論區</a>--}}
+											{{--@elseif($banImplicitly)--}}
+												{{--<a href="javascript:void(0);" onclick="CheckEnterPop()"><img src="/new/images/tlq.png">討論區</a>--}}
+											{{--@elseif($user->isEverBanned())--}}
+												{{--@php--}}
+													{{--//print_r($user->is_banned_log());--}}
+													{{--$record = $user->isEverBanned();--}}
+													{{--$reason = str_replace('(未續費)','', $record->reason);--}}
+													{{--$text = '您於'.substr($record->created_at, 0, 10).'曾被站方因'.$reason.'封鎖，不符合進入討論區資格，若有意見反應，請洽站長Line@';--}}
+												{{--@endphp--}}
+												{{--<a href="javascript:void(0);" onclick="CheckEnterPopOther('{{$text}}')"><img src="/new/images/tlq.png">討論區</a>--}}
+											{{--@elseif($user->isEverWarned())--}}
+												{{--@php--}}
+													{{--//print_r($user->is_warned_log());--}}
+													{{--$record = $user->isEverWarned();--}}
+													{{--$reason = str_replace('(未續費)','', $record->reason);--}}
+													{{--$text = '您於'.substr($record->created_at, 0, 10).'曾被站方因'.$reason.'警示，不符合進入討論區資格，若有意見反應，請洽站長Line@';--}}
+												{{--@endphp--}}
+												{{--<a href="javascript:void(0);" onclick="CheckEnterPopOther('{{$text}}')"><img src="/new/images/tlq.png">討論區</a>--}}
+											{{--@else--}}
+												{{--<a href="javascript:void(0);" onclick="CheckEnterPopOK()" class="forum_pass"><img src="/new/images/tlq.png">討論區</a>--}}
 											@endif
 										</li>
 									@endif
 									<li>
 										<a href="/MessageBoard/showList"><img src="/new/images/icon_new45.png">留言板</a>
 									</li>
-{{--									@endif--}}
+									{{--@endif--}}
 									<li>
 									   <a href="{!! url('dashboard/browse') !!}"><img src="/new/images/icon_46.png">瀏覽資料</a>
 									</li>
@@ -155,6 +156,21 @@
 		});
 		@elseif(str_contains(url()->current(), 'dashboard/forum'))
 				window.location.href = "/dashboard/forum";
+		@endif
+	}
+
+	function showAnonymousAlert() {
+		@if(!str_contains(url()->current(), 'dashboard/anonymousChat'))
+		/*版規提示*/
+		$(".announce_bg").show();
+		$('.tab_anonymousChatAlert').show();
+		$('.n_bllbut').on('click', function() {
+			$(".announce_bg").hide();
+			$('.tab_anonymousChatAlert').hide();
+			window.location.href = "/dashboard/anonymousChat";
+		});
+		@elseif(str_contains(url()->current(), 'dashboard/anonymousChat'))
+				window.location.href = "/dashboard/anonymousChat";
 		@endif
 	}
 </script>

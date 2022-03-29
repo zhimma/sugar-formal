@@ -50,7 +50,7 @@
 			$this.text('載入中');
 			$.ajax({
 				type: 'POST',
-				url: "{{ route('stats/vip/other') }}",
+				url: "{{ route('stats/vip/other') }}?{{csrf_token()}}={{now()->timestamp}}",
 				data:{
 					_token: '{{csrf_token()}}',
 					number: $(this).attr('id'),

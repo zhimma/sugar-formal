@@ -36,7 +36,15 @@
         font-weight: bold;
         top: 80px;
         color: #f14a6c;
-    }    
+    } 
+
+    #blockade .form-group {clear:both;}
+    #autoban_pic_gather .autoban_pic_unit {float:left;margin:10px;}
+    #autoban_pic_gather .autoban_pic_unit img {width:80px;min-width:80px;}
+    #autoban_pic_gather input {display:none;}
+    #autoban_pic_gather .autoban_pic_unit label {padding:0 10px 10px 10px;} 
+    #autoban_pic_gather .autoban_pic_unit label span {display:block;text-align:center;font-size:4px;}
+    #autoban_pic_gather .autoban_pic_unit input:checked+label {background:#1E90FF;}
 </style>
 
 <body style="padding: 15px;">
@@ -162,6 +170,12 @@
 		<input type="hidden" name='gender_now' value="{{ $user->engroup }}">
 		<input type="hidden" name="page" value="advInfo" >
 		<button type="submit" class="btn btn-warning">變更性別</button>
+	</form>
+	<form method="POST" action="{{ route('isRealToggler') }}" style="margin:0px;display:inline;">
+		{!! csrf_field() !!}
+		<input type="hidden" name='user_id' value="{{ $user->id }}">
+		<input type="hidden" name='is_real' value="{{ $user->is_real }}">
+		<button type="submit" class="btn {{ $user->is_real? 'btn-warning' : 'btn-danger' }}">{{ $user->is_real ? '是本人' : '非本人' }}</button>
 	</form>
 	
 	@if($user->engroup==2)
@@ -494,6 +508,9 @@
             $isEverWarned_log[$key]['reason']=$row->reason;
             $isEverWarned_log[$key]['vip_pass']=$row->vip_pass;
             $isEverWarned_log[$key]['adv_auth']=$row->adv_auth;
+            $isEverWarned_cancel=\App\Models\AdminActionLog::where('target_id', $user->id)->where('act','解除站方警示')->orderByDesc('created_at')->skip($key)->first();
+			$isEverWarned_log[$key]['cancal_admin']=$isEverWarned_cancel? \App\Models\User::findById($isEverWarned_cancel->operator):'';
+            $isEverWarned_log[$key]['cancal_time']=$isEverWarned_cancel?$isEverWarned_cancel->created_at:'';
         }
     }
     //曾被封鎖
@@ -505,10 +522,13 @@
             $isEverBanned_log[$key]['expire_date']=$row->expire_date;
             $isEverBanned_log[$key]['vip_pass']=$row->vip_pass;
             $isEverBanned_log[$key]['adv_auth']=$row->adv_auth;
+		    $isEverBanned_cancel=\App\Models\AdminActionLog::where('target_id', $user->id)->where('act','解除封鎖')->orderByDesc('created_at')->skip($key)->first();
+			$isEverBanned_log[$key]['cancal_admin']=$isEverBanned_cancel? \App\Models\User::findById($isEverBanned_cancel->operator) :'';
+            $isEverBanned_log[$key]['cancal_time']=$isEverBanned_cancel? $isEverBanned_cancel->created_at:'';
         }
     }
     //目前正被警示
-     $isWarned_show=array();
+    $isWarned_show=array();
     if(isset($isWarned) && count($isWarned)>0){
          foreach($isWarned as $row){
              $isWarned_show['created_at']=$row->created_at;
@@ -517,6 +537,12 @@
              $isWarned_show['vip_pass']=$row->vip_pass;
              $isWarned_show['adv_auth']=$row->adv_auth;
          }
+		$isWarned_show['cancal_admin']='';
+		$isWarned_show['cancal_time']='尚未解除';
+    }else{
+		$isWarned_cancel=\App\Models\AdminActionLog::where('target_id', $user->id)->where('act','解除站方警示')->orderByDesc('created_at')->first();
+        $isWarned_show['cancal_admin']=$isWarned_cancel? \App\Models\User::findById($isWarned_cancel->operator) : '';
+		$isWarned_show['cancal_time']=$isWarned_cancel? $isWarned_cancel->created_at : '';
     }
     //目前正被封鎖
     $isBanned_show=array();
@@ -528,6 +554,12 @@
              $isBanned_show['vip_pass']=$row->vip_pass;
              $isBanned_show['adv_auth']=$row->adv_auth;
          }
+         $isBanned_show['cancal_admin']='';
+		 $isBanned_show['cancal_time']='尚未解除';
+    }else{
+		 $isBanned_cancel=\App\Models\AdminActionLog::where('target_id', $user->id)->where('act','解除封鎖')->orderByDesc('created_at')->first();
+         $isBanned_show['cancal_admin']=$isBanned_cancel? \App\Models\User::findById($isBanned_cancel->operator) : '';
+		 $isBanned_show['cancal_time']=$isBanned_cancel? $isBanned_cancel->created_at : '';
     }
 
 @endphp
@@ -574,14 +606,29 @@
 			@endif
 		</tr>
 		<tr>
+			<th>後台解除封鎖時間</th>
+			<td>@if(count($isBanned)>0){{ array_get($isBanned_show,'cancal_time') }}@endif</td>
+			<td>@if(count($isWarned)>0){{ array_get($isWarned_show,'cancal_time') }}@endif</td>
+			@if(count($isEverBanned_log)>0)
+				<td>{{ array_get($isEverBanned_log,'0.cancal_time') }}</td>
+			@endif
+			@if(count($isEverWarned_log)>0)
+				<td>{{ array_get($isEverWarned_log,'0.cancal_time') }}</td>
+			@endif
+		</tr>
+		<tr>
 			<th>原因</th>
 			@if(count($isBanned_show)>0 || count($isEverBanned_log)>0)
 				<td>{{ array_get($isBanned_show,'reason') }}</td>
 			@endif
-			@if($userMeta->isWarned==1)
-				<td>檢舉警示</td>
-			@elseif(count($isWarned_show)>0 || count($isEverWarned_log)>0)
-				<td>{{ array_get($isWarned_show,'reason') }}</td>
+			@if(isset($isWarned) && count($isWarned)>0)
+				@if($userMeta->isWarned==1)
+					<td>檢舉警示</td>
+				@elseif(count($isWarned_show)>0 || count($isEverWarned_log)>0)
+					<td>{{ array_get($isWarned_show,'reason') }}</td>
+				@endif
+			@else
+				<td></td>
 			@endif
 			@if(count($isEverBanned_log)>0)
 				<td>{{ array_get($isEverBanned_log,'0.reason') }}</td>
@@ -595,12 +642,16 @@
 		<tr>
 			<th>到期日</th>
 			@if(count($isBanned_show)>0 || count($isEverBanned_log)>0)
-				<td>{{ !is_null(array_get($isBanned_show,'created_at')) && !is_null(array_get($isBanned_show,'expire_date')) ? array_get($isBanned_show,'expire_date') : (count($isBanned_show)>0 ? '永久' : '') }}</td>
+				<td>{{ !is_null(array_get($isBanned_show,'created_at')) && !is_null(array_get($isBanned_show,'expire_date')) ? array_get($isBanned_show,'expire_date') : (count($isBanned)>0 ? '永久' : '') }}</td>
 			@endif
-			@if($userMeta->isWarned==1)
-				<td>永久</td>
-			@elseif(count($isWarned_show)>0 || count($isEverWarned_log)>0)
-				<td>{{ !is_null(array_get($isWarned_show,'created_at')) && !is_null(array_get($isWarned_show,'expire_date')) ? array_get($isWarned_show,'expire_date') : (count($isWarned_show)>0 ? '永久' : '') }}</td>
+			@if(isset($isWarned) && count($isWarned)>0)
+				@if($userMeta->isWarned==1)
+					<td>永久</td>
+				@elseif(count($isWarned_show)>0 || count($isEverWarned_log)>0)
+					<td>{{ !is_null(array_get($isWarned_show,'created_at')) && !is_null(array_get($isWarned_show,'expire_date')) ? array_get($isWarned_show,'expire_date') : (count($isWarned)>0 ? '永久' : '') }}</td>
+				@endif
+			@else
+				<td></td>
 			@endif
 			@if(count($isEverBanned_log)>0)
 				@if(!is_null(array_get($isEverBanned_log,'0')))
@@ -644,6 +695,31 @@
 				@endif
 			@endif
 		</tr>
+		<tr>
+			<th>後台解除封鎖人員</th>
+			@php
+				$isBanned_admin=array_get($isBanned_show,'cancal_admin');
+				$isWarned_admin=array_get($isWarned_show,'cancal_admin');
+				$isEverBanned0_admin=array_get($isEverBanned_log,'0.cancal_admin');
+				$isEverWarned0_admin=array_get($isEverWarned_log,'0.cancal_admin');
+			@endphp
+			@if(count($isBanned)>0 && $isBanned_admin)
+				<td><a href="{{ route('users/advInfo', $isBanned_admin->id) }}" target='_blank' @if($isBanned_admin->engroup == '2') style="color: #F00;" @else  style="color: #5867DD;"  @endif>{{ $isBanned_admin->name }}</a></td>
+			@else
+				<td></td>
+			@endif
+			@if(count($isWarned)>0 &&$isWarned_admin)
+				<td><a href="{{ route('users/advInfo', $isWarned_admin->id) }}" target='_blank' @if($isWarned_admin->engroup == '2') style="color: #F00;" @else  style="color: #5867DD;"  @endif>{{ $isWarned_admin->name }}</a></td>
+			@else
+				<td></td>
+			@endif
+			@if($isEverBanned0_admin)
+				<td><a href="{{ route('users/advInfo', $isEverBanned0_admin->id) }}" target='_blank' @if($isEverBanned0_admin->engroup == '2') style="color: #F00;" @else  style="color: #5867DD;"  @endif>{{ $isEverBanned0_admin->name }}</a></td>
+			@endif
+			@if($isEverWarned0_admin)
+				<td><a href="{{ route('users/advInfo', $isEverWarned0_admin->id) }}" target='_blank' @if($isEverWarned0_admin->engroup == '2') style="color: #F00;" @else  style="color: #5867DD;"  @endif>{{ $isEverWarned0_admin->name }}</a></td>
+			@endif
+		</tr>
 	</table>
 
 	<div id="showMore_banned_log" class="mouseOverPop" style="width: 80%;display: none;">
@@ -656,6 +732,17 @@
 					@endif
 					@if(!is_null(array_get($isEverBanned_log,'2')))
 						<td>{{ array_get($isEverBanned_log,'2.created_at') }}</td>
+					@endif
+				@endif
+			</tr>
+			<tr>
+				<th>後台解除封鎖時間</th>
+				@if(count($isEverBanned_log)>0)
+					@if(!is_null(array_get($isEverBanned_log,'1')))
+						<td>{{ array_get($isEverBanned_log,'1.cancal_time') }}</td>
+					@endif
+					@if(!is_null(array_get($isEverBanned_log,'2')))
+						<td>{{ array_get($isEverBanned_log,'2.cancal_time') }}</td>
 					@endif
 				@endif
 			</tr>
@@ -697,7 +784,30 @@
                         </td>
 					@endif
 				@endif
-			</tr>            
+			</tr>
+			<tr>
+				<th>後台解除封鎖人員</th>
+				@php
+                    $isEverBanned1_admin=array_get($isEverBanned_log,'1.cancal_admin');
+                    $isEverBanned2_admin=array_get($isEverBanned_log,'2.cancal_admin');
+				@endphp
+				@if(count($isEverBanned_log)>0)
+					@if(!is_null(array_get($isEverBanned_log,'1')))
+						@if($isEverBanned1_admin)
+							<td><a href="{{ route('users/advInfo', $isEverBanned1_admin->id) }}" target='_blank' @if($isEverBanned1_admin->engroup == '2') style="color: #F00;" @else  style="color: #5867DD;"  @endif>{{ $isEverBanned1_admin->name }}</a></td>
+						@else
+							<td></td>
+						@endif
+					@endif
+					@if(!is_null(array_get($isEverBanned_log,'2')))
+						@if($isEverBanned2_admin)
+							<td><a href="{{ route('users/advInfo', $isEverBanned2_admin->id) }}" target='_blank' @if($isEverBanned2_admin->engroup == '2') style="color: #F00;" @else  style="color: #5867DD;"  @endif>{{ $isEverBanned2_admin->name }}</a></td>
+						@else
+							<td></td>
+						@endif
+					@endif
+				@endif
+			</tr>
 		</table>
 	</div>
 	<div id="showMore_warned_log" style="width: 80%;display: none;">
@@ -710,6 +820,17 @@
 					@endif
 					@if(!is_null(array_get($isEverWarned_log,'2')))
 						<td>{{ array_get($isEverWarned_log,'2.created_at') }}</td>
+					@endif
+				@endif
+			</tr>
+			<tr>
+				<th>後台解除封鎖時間</th>
+				@if(count($isEverWarned_log)>0)
+					@if(!is_null(array_get($isEverWarned_log,'1')))
+						<td>{{ array_get($isEverWarned_log,'1.cancal_time') }}</td>
+					@endif
+					@if(!is_null(array_get($isEverWarned_log,'2')))
+						<td>{{ array_get($isEverWarned_log,'2.cancal_time') }}</td>
 					@endif
 				@endif
 			</tr>
@@ -751,7 +872,30 @@
                         </td>
 					@endif
 				@endif
-			</tr>            
+			</tr>
+			<tr>
+				<th>後台解除封鎖人員</th>
+				@php
+					$isEverWarned1_admin=array_get($isEverWarned_log,'1.cancal_admin');
+                    $isEverWarned2_admin=array_get($isEverWarned_log,'2.cancal_admin');
+				@endphp
+				@if(count($isEverWarned_log)>0)
+					@if(!is_null(array_get($isEverWarned_log,'1')))
+						@if($isEverWarned1_admin)
+							<td><a href="{{ route('users/advInfo', $isEverWarned1_admin->id) }}" target='_blank' @if($isEverWarned1_admin->engroup == '2') style="color: #F00;" @else  style="color: #5867DD;"  @endif>{{ $isEverWarned1_admin->name }}</a></td>
+						@else
+							<td></td>
+						@endif
+					@endif
+					@if(!is_null(array_get($isEverWarned_log,'2')))
+						@if($isEverWarned2_admin)
+							<td><a href="{{ route('users/advInfo', $isEverWarned2_admin->id) }}" target='_blank' @if($isEverWarned2_admin->engroup == '2') style="color: #F00;" @else  style="color: #5867DD;"  @endif>{{ $isEverWarned2_admin->name }}</a></td>
+						@else
+							<td></td>
+						@endif
+					@endif
+				@endif
+			</tr>
 		</table>
 	</div>
 
@@ -1077,36 +1221,53 @@
 {{--<span>被多少會員封鎖： {{ array_get($userAdvInfo,'be_blocked_other_count',0) }}</span>--}}
 
 <h4>進階資料</h4>
-<table class="table table-hover table-bordered" style="width: 60%;">
+<table class="table table-hover table-bordered" style="width: 70%;">
 	<tr>
-		<th width="20%">過去7天瀏覽其他會員次數： {{ array_get($userAdvInfo,'visit_other_count_7',0) }}</th>
+		<th width="25%">過去7天瀏覽其他會員次數： {{ array_get($userAdvInfo,'visit_other_count_7',0) }}</th>
 		<th width="20%">瀏覽其他會員次數： {{ array_get($userAdvInfo,'visit_other_count',0) }}</th>
 		<th width="20%">封鎖多少會員： {{ array_get($userAdvInfo,'blocked_other_count',0) }}</th>
 		<th width="20%">過去7天罐頭訊息比例： {{ array_get($userAdvInfo,'message_percent_7',0) }}</th>
-		@if($user->engroup==1)
-			<th width="20%">PR：{{$pr}}</th>
-		@endif
 	</tr>
 	<tr>
-		<th>過去7天發信次數： {{ array_get($userAdvInfo,'message_count_7',0) }}</th>
-		<th>發信次數： {{ array_get($userAdvInfo,'message_count',0) }}</th>
+		<th>過去七天發訊人數： {{ array_get($userAdvInfo,'message_people_count_7',0) }}</th>
+		<th>發訊人數： {{ array_get($userAdvInfo,'message_people_count',0) }}</th>
 		<th>被多少會員封鎖： {{ array_get($userAdvInfo,'be_blocked_other_count',0) }}</th>
 		<th>每周平均上線次數： {{ array_get($userAdvInfo,'login_times_per_week',0) }}</th>
-		@if($user->engroup==1)
-			<th>時間：{{$pr_created_at}}</th>
-		@endif
 	</tr>
 	<tr>
-		<th></th>
-		<th></th>
-		<th></th>
+		<th>過去七天發訊次數： {{ array_get($userAdvInfo,'message_count_7',0) }}</th>
+		<th>發訊次數： {{ array_get($userAdvInfo,'message_count',0) }}</th>
 		<th>收藏會員次數： {{ array_get($userAdvInfo,'fav_count',0) }}</th>
-		@if($user->engroup==1)
-			<th>{{$pr_log}}</th>
-		@endif
+		<th></th>
+	</tr>
+	<tr>
+		<th>過去七天回訊人數： {{ array_get($userAdvInfo,'message_reply_people_count_7',0) }}</th>
+		<th>回訊人數： {{ array_get($userAdvInfo,'message_reply_people_count',0) }}</th>
+		<th></th>
+		<th></th>
+	</tr>
+	<tr>
+		<th>過去七天回訊次數： {{ array_get($userAdvInfo,'message_reply_count_7',0) }}</th>
+		<th>回訊次數： {{ array_get($userAdvInfo,'message_reply_count',0) }}</th>
+		<th></th>
+		<th></th>
+	</tr>
+	<tr>
+		<th>過去七天未回人數： {{ array_get($userAdvInfo,'message_no_reply_count_7',0) }}</th>
+		<th>總未回人數： {{ array_get($userAdvInfo,'message_no_reply_count',0) }}</th>
+		<th></th>
+		<th></th>
 	</tr>
 </table>
 
+<h4>VIP歷程</h4>
+<table class="table table-hover table-bordered" style="width: 70%;">
+	<tr>
+		<th width="15%">PR：{{ $user->engroup==1 ?$pr :''}}</th>
+		<th width="20%">時間：{{ $user->engroup==1 ? $pr_created_at :''}}</th>
+		<th>VIP歷程： {{ $user->engroup==1 && $pr_log ? $pr_log:'暫無紀錄'}}</th>
+	</tr>
+</table>
 
 <br>
 <h4>帳號登入紀錄</h4>
@@ -1369,7 +1530,17 @@
 {{--</form>--}}
 {{--</table>--}}
 {{--{!! $userMessage->links() !!}--}}
-
+<style>
+	#m_log td {
+		vertical-align: middle;
+		padding-top:0px;
+		padding-bottom: 0px;
+	}
+	#m_log p {
+		line-height:unset;
+		margin-bottom:0px;
+	}
+</style>
 <h4>所有訊息</h4>
 <table id="m_log" class="table table-hover table-bordered">
 	<tr>
@@ -1378,16 +1549,27 @@
 		<th>最新內容</th>
 		<th>上傳照片</th>
 		<th width="15%">發送時間</th>
-		<th width="5%">發送數</th>
+		<th width="8%">發送數 <br>本人/對方</th>
 	</tr>
 	@foreach($userMessage_log as $Log)
 		<tr>
-			<td style="text-align: center;"><button data-toggle="collapse" data-target="#msgLog{{$Log->to_id}}" class="accordion-toggle btn btn-primary message_toggle">+</button></td>
-			<td>@if(!empty($Log->name))<a href="{{ route('admin/showMessagesBetween', [$user->id, $Log->to_id]) }}" target="_blank">{{ $Log->name }}</a>@else 會員資料已刪除@endif</td>
-			<td id="new{{$Log->to_id}}">{{$Log->content}}</td>
+			@php
+				$ref_user=\App\Models\User::findById($Log->ref_user_id);
+				$ref_user_id=$Log->ref_user_id;
+				$message_log=\App\Models\Message::withTrashed()
+					->where([['message.to_id', $user->id],['message.from_id', $ref_user_id]])
+					->orWhere([['message.from_id', $user->id],['message.to_id', $ref_user_id]])
+					->orderBy('created_at')->first();
+
+				$toCount_user_id=\App\Models\Message::withTrashed()->where('from_id',$user->id)->where('to_id',$ref_user_id)->get()->count();
+				$toCount_ref_user_id=\App\Models\Message::withTrashed()->where('from_id',$ref_user_id)->where('to_id',$user->id)->get()->count();
+			@endphp
+			<td style="text-align: center;"><button data-toggle="collapse" data-target="#msgLog{{$ref_user_id}}" class="accordion-toggle btn btn-primary message_toggle">+</button></td>
+			<td>@if(!empty($ref_user->name))<a href="{{ route('admin/showMessagesBetween', [$user->id, $ref_user_id]) }}" target="_blank">{{ $ref_user->name }}</a>@else 會員資料已刪除@endif</td>
+			<td id="new{{$Log->to_id}}">{{($message_log->from_id==$user->id ? '(發)' :'(回)') .$message_log->content}}</td>
 			<td class="evaluation_zoomIn">
 				@php
-					$messagePics=is_null($Log->pic) ? [] : json_decode($Log->pic,true);
+					$messagePics=is_null($message_log->pic) ? [] : json_decode($message_log->pic,true);
 				@endphp
 				@if(isset($messagePics))
 					@foreach( $messagePics as $messagePic)
@@ -1403,10 +1585,10 @@
 					@endforeach
 				@endif
 			</td>
-			<td id="new_time{{$Log->to_id}}">@if(!empty($Log->name)){{$Log->created_at}}@else 會員資料已刪除@endif</td>
-			<td>@if(!empty($Log->name)){{$Log->toCount}}@else 會員資料已刪除@endif</td>
+			<td id="new_time{{$ref_user_id}}">@if(!empty($ref_user->name)){{$message_log->created_at}}@else 會員資料已刪除@endif</td>
+			<td>@if(!empty($ref_user->name)){{$toCount_user_id .'/'.$toCount_ref_user_id}}@else 會員資料已刪除@endif</td>
 		</tr>
-		<tr class="accordian-body collapse" id="msgLog{{$Log->to_id}}">
+		<tr class="accordian-body collapse" id="msgLog{{$ref_user_id}}">
 			<td class="hiddenRow" colspan="5">
 				<table class="table table-bordered">
 					<thead>
@@ -1427,9 +1609,12 @@
 {{--							</script>--}}
 {{--						@endif--}}
 						<tr>
-							<td @if($item->engroup == '2') style="color: #F00;" @else  style="color: #5867DD;"  @endif>
-								<a href="{{ route('admin/showMessagesBetween', [$user->id, $Log->to_id]) }}" target="_blank">
-									{{$item->name}}
+							<td>
+								@php
+									$from_id_user=\App\Models\User::findById($item->from_id);
+								@endphp
+								<a href="{{ route('admin/showMessagesBetween', [$user->id, $ref_user_id]) }}" target="_blank">
+									<p style="margin-bottom:0px; @if($item->engroup == '2') color: #F00; @else color: #5867DD; @endif">{{$item->name }}
 									@php
 										$to_id_tipcount = \App\Models\Tip::TipCount_ChangeGood($item->to_id);
 										$to_id_vip = \App\Models\Vip::vip_diamond($item->to_id);
@@ -1453,9 +1638,10 @@
 											(永久)
 										@endif
 									@endif
+									</p>
 								</a>
 							</td>
-							<td>{{ $item->content }}</td>
+							<td><p style="word-break:break-all;">{{ $item->content }}</p></td>
 							<td class="evaluation_zoomIn">
 								@php
 									$messagePics=is_null($item->pic) ? [] : json_decode($item->pic,true);
@@ -1589,15 +1775,35 @@
                             <sapn style="vertical-align:middle;">加入常用封鎖原因</sapn>
                         </label>
 					    <hr>
-					    新增自動封鎖條件
+					    新增自動封鎖條件 @if($user->engroup==2) ( 驗證封鎖 ) @endif
 						<div class="form-group">
-							<label for="cfp_id">CFP_ID</label>
+							<label for="cfp_id">CFP_ID @if($user->engroup==2) ( 驗證封鎖 ) @endif</label>
 							<select multiple class="form-control" id="cfp_id" name="cfp_id[]">
 								@foreach( $cfp_id as $row)
 								<option value="{{$row->cfp_id}}">{{$row->cfp_id}}</option>
 								@endforeach
 							</select>
 						</div>
+						<div class="form-group">
+							<label>照片 @if($user->engroup==2) ( 驗證封鎖 ) @endif</label>
+                            <div id="autoban_pic_gather">
+                            @foreach ( \App\Models\MemberPic::getSelfIDPhoto($user->id) as $pic)
+                            @include('admin.users.advInfo_autoban_pic_tpl')
+                            @endforeach
+                            @foreach (collect([$user->meta]) as $pic)
+                            @include('admin.users.advInfo_autoban_pic_tpl')
+                            @endforeach
+                            @foreach ($user->pic_orderByDecs as $pic)
+                            @include('admin.users.advInfo_autoban_pic_tpl')
+                            @endforeach
+                            @foreach ($user->avatar_deleted as $pic)
+                            @include('admin.users.advInfo_autoban_pic_tpl')
+                            @endforeach                            
+                            @foreach ($user->pic_onlyTrashed as $pic)
+                            @include('admin.users.advInfo_autoban_pic_tpl')
+                            @endforeach
+                            </div>
+						</div>                        
 						<div class="form-group">
 							<label for="ip">IP</label>
 							<table id="table_userLogin_log" class="table table-hover table-bordered">
@@ -1656,7 +1862,7 @@
 {{--							<input type="checkbox" name="ip[]" id="ip" value="" class="form-check-input">Check me out--}}
 {{--						</div>--}}
                         <hr>
-                        新增自動封鎖關鍵字(永久封鎖)
+                        新增自動封鎖關鍵字 ( @if($user->engroup==2) 驗證封鎖 @else 永久封鎖  @endif )
                         <input placeholder="1.請輸入封鎖關鍵字" onfocus="this.placeholder=''" onblur="this.placeholder='1.請輸入封鎖關鍵字'" class="form-control" type="text" name="addautoban[]" rows="1">
                         <input placeholder="2.請輸入封鎖關鍵字" onfocus="this.placeholder=''" onblur="this.placeholder='2.請輸入封鎖關鍵字'" class="form-control" type="text" name="addautoban[]" rows="1">
                         <input placeholder="3.請輸入封鎖關鍵字" onfocus="this.placeholder=''" onblur="this.placeholder='3.請輸入封鎖關鍵字'" class="form-control" type="text" name="addautoban[]" rows="1">
@@ -2037,7 +2243,7 @@ function RecommendedToggler(user_id,Recommended){
 function WarnedToggler(user_id,isWarned){
 	$.ajax({
 		type: 'POST',
-		url: "/admin/users/isWarned_user",
+		url: "/admin/users/isWarned_user?{{csrf_token()}}={{now()->timestamp}}",
 		data:{
 			_token: '{{csrf_token()}}',
 			id: user_id,
@@ -2074,7 +2280,7 @@ $("#unblock_user").click(function(){
 	if(confirm('確定解除封鎖此會員?')){
 		$.ajax({
 			type: 'POST',
-			url: "/admin/users/unblock_user",
+			url: "/admin/users/unblock_user?{{csrf_token()}}={{now()->timestamp}}",
 			data:{
 				_token: '{{csrf_token()}}',
 				data: data,
@@ -2095,7 +2301,7 @@ $("#unwarned_user").click(function(){
 	if(confirm('確定解除此會員站方警示?')){
 		$.ajax({
 			type: 'POST',
-			url: "/admin/users/unwarned_user",
+			url: "/admin/users/unwarned_user?{{csrf_token()}}={{now()->timestamp}}",
 			data:{
 				_token: '{{csrf_token()}}',
 				data: data,
@@ -2165,7 +2371,7 @@ function evaluationCheck(eid,userid,is_check) {
 	if (confirm(showMsg)) {
 		$.ajax({
 			type: 'POST',
-			url: "/admin/users/evaluation/check",
+			url: "/admin/users/evaluation/check?{{csrf_token()}}={{now()->timestamp}}",
 			data: {
 				_token: '{{csrf_token()}}',
 				id: eid,
@@ -2203,7 +2409,7 @@ $('.delete_phone_submit').on('click',function(e){
 $("input[name='phone']").keyup(function(){
 	$.ajax({
 		type: 'POST',
-		url: "/admin/users/phone/search",
+		url: "/admin/users/phone/search?{{csrf_token()}}={{now()->timestamp}}",
 		data: {
 			_token: '{{csrf_token()}}',
 			phone: $(this).val(),
@@ -2304,7 +2510,7 @@ $("input[name='phone']").keyup(function(){
         
         $.ajax({
             type: 'GET',
-            url: location.pathname+'?block=pic',
+            url: location.pathname+'?block=pic&{{csrf_token()}}={{now()->timestamp}}',
             success: function(res){
                 $('#pic_block').html(res);
             }});        

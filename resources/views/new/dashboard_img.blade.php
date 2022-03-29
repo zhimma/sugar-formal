@@ -52,7 +52,7 @@
 <script>
 function requestBlurryLifePhoto(ruserId,rvalues) {
     $.ajax({
-        url: '/dashboard/lifephoto/blurry/' + ruserId,
+        url: '/dashboard/lifephoto/blurry/' + ruserId + '?{{csrf_token()}}={{now()->timestamp}}',
         method: 'POST',
         data: {
             _token: "{{ csrf_token() }}",
@@ -71,7 +71,7 @@ function requestBlurryLifePhotoDefault() {
 
 function requestBlurryAvatar(userId,values) {
     $.ajax({
-        url: '/dashboard/avatar/blurry/' + userId,
+        url: '/dashboard/avatar/blurry/' + userId + '?{{csrf_token()}}={{now()->timestamp}}',
         method: 'POST',
         data: {
             _token: "{{ csrf_token() }}",
@@ -446,7 +446,7 @@ function requestBlurryAvatarDefault() {
 
     //preload avatar
     $.ajax({
-        url: '/dashboard/avatar/' + userId,
+        url: '/dashboard/avatar/' + userId + '?{{csrf_token()}}={{now()->timestamp}}',
         method: 'GET',
         dataType: 'json',
 
@@ -466,7 +466,7 @@ function requestBlurryAvatarDefault() {
                     var isRemovable = true;
                     if(item.data.isPreload === true){
                         $.ajax({
-                            url: "/dashboard/avatar/delete/" + $("input[name='userId']").val(),
+                            url: "/dashboard/avatar/delete/" + $("input[name='userId']").val() + '?{{csrf_token()}}={{now()->timestamp}}',
                             method: "POST",
                             data: {
                                 _token: "{{ csrf_token() }}"
@@ -525,7 +525,7 @@ function requestBlurryAvatarDefault() {
 
     //preload pictures
     $.ajax({
-        url: '/dashboard/pictures/' + userId,
+        url: '/dashboard/pictures/' + userId + '?{{csrf_token()}}={{now()->timestamp}}',
         method: "GET",
         dataType: 'json',
 
@@ -544,7 +544,7 @@ function requestBlurryAvatarDefault() {
                     var isRemovable = true;
                     if(item.data.isPreload === true){
                         $.ajax({
-                            url: "/dashboard/pictures/delete",
+                            url: "/dashboard/pictures/delete?{{csrf_token()}}={{now()->timestamp}}",
                             method: "POST",
                             data: {
                                 _token: "{{ csrf_token() }}",
@@ -612,7 +612,7 @@ function requestBlurryAvatarDefault() {
             }
         });
         $.ajax({
-            url: '/dashboard/avatar/blurry/' + userId,
+            url: '/dashboard/avatar/blurry/' + userId + '?{{csrf_token()}}={{now()->timestamp}}',
             method: 'POST',
             data: {
                 _token: "{{ csrf_token() }}",

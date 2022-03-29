@@ -226,7 +226,7 @@
         $(".savebtn").click(function(){
             $.ajax({
                 type: 'POST',
-                url: "/admin/users/updatemsglib",
+                url: "/admin/users/updatemsglib?{{csrf_token()}}={{now()->timestamp}}",
                 data:{
                     _token: '{{csrf_token()}}',
                     formdata: $("#idForm").serialize(),
@@ -253,7 +253,7 @@
             {
                 $.ajax({
                     type: 'POST',
-                    url: "/admin/users/delmsglib",
+                    url: "/admin/users/delmsglib?{{csrf_token()}}={{now()->timestamp}}",
                     data:{
                         _token: '{{csrf_token()}}',
                         id    : $(this).attr('id'),
@@ -283,10 +283,12 @@
                     $('.msg3').each(function (k, v) {
                         name = $('.name3').eq(k).val();
                         time = $('.time3').eq(k).val();
-                        time = time?time:'';
+                        time = time ? time : '';
+                        let now_time = "{{ now() }}";
                         msg2 = msg;
                         msg2 = msg2.replace(/NAME/g, name);
                         msg2 = msg2.replace(/\|$report\|/g, name);
+                        msg2 = msg2.replace(/NOW_TIME/g, now_time);
                         msg2 = msg2.replace(/TIME/g, time);
                         msg2 = msg2.replace(/\|$responseTime\|/g, time);
                         msg2 = msg2.replace(/\|$reportTime\|/g, time);
@@ -303,7 +305,7 @@
             if (r==true){
                 $.ajax({
                     type: 'POST',
-                    url: "/admin/users/delmsglib",
+                    url: "/admin/users/delmsglib?{{csrf_token()}}={{now()->timestamp}}",
                     data:{
                         _token: '{{csrf_token()}}',
                         id    : $(this).attr('id'),

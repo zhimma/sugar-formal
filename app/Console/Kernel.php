@@ -24,6 +24,7 @@ class Kernel extends ConsoleKernel
         \App\Console\Commands\SendSMS::class,
         \App\Console\Commands\BlockAreaUpdate::class,
         \App\Console\Commands\InsertPR::class,
+        \App\Console\Commands\checkwarned::class,
     ];
 
     /**
@@ -55,19 +56,22 @@ class Kernel extends ConsoleKernel
                 $this->deleteAnonymousChat();
             })->timezone('Asia/Taipei')->weeklyOn(0, '23:59');
 
+            //每週檢查討論區
+            $schedule->command('ForumCheck')->timezone('Asia/Taipei')->weeklyOn(1, '1:00');
+
         }
         if(app()->environment('CFP')){
-            $schedule->call('\App\Http\Controllers\Admin\FindPuppetController@entrance')->timezone('Asia/Taipei')->dailyAt('03:00');
-            $schedule->call('\App\Http\Controllers\Admin\FindPuppetController@entrance')->timezone('Asia/Taipei')->dailyAt('15:00');
+            $schedule->call('\App\Http\Controllers\Admin\FindPuppetController@entrance')->timezone('Asia/Taipei')->dailyAt('05:00');
+            $schedule->call('\App\Http\Controllers\Admin\FindPuppetController@entrance')->timezone('Asia/Taipei')->dailyAt('17:00');
             $puppetReq = new Request();
             $puppetReq->only = 'cfpid';
-            $schedule->call('\App\Http\Controllers\Admin\FindPuppetController@entrance',['request'=>$puppetReq])->timezone('Asia/Taipei')->dailyAt('05:00');
-            $schedule->call('\App\Http\Controllers\Admin\FindPuppetController@entrance',['request'=>$puppetReq])->timezone('Asia/Taipei')->dailyAt('17:00');
+            $schedule->call('\App\Http\Controllers\Admin\FindPuppetController@entrance',['request'=>$puppetReq])->timezone('Asia/Taipei')->dailyAt('03:00');
+            $schedule->call('\App\Http\Controllers\Admin\FindPuppetController@entrance',['request'=>$puppetReq])->timezone('Asia/Taipei')->dailyAt('15:00');
         
             //$schedule->command('EncodeImagesForCompare')->timezone('Asia/Taipei')->dailyAt('02:01');
             //$schedule->command('queue:work --queue=compare_images --daemon --sleep=3 --tries=3 --delay=3  --timeout=0')->timezone('Asia/Taipei')->everyFiveMinutes()->between('02:00', '12:00');
-            //$schedule->command('CompareImages')->timezone('Asia/Taipei')->dailyAt('06:00');       
-            //$schedule->command('CompareImages  --dsort')->timezone('Asia/Taipei')->everyTenMinutes()->between('02:00', '12:00');            
+            $schedule->command('CompareImages')->timezone('Asia/Taipei')->dailyAt('08:00');       
+            $schedule->command('CompareImages  --dsort')->timezone('Asia/Taipei')->everyTenMinutes();//->between('02:00', '12:00');            
         }
         if(app()->isProduction() || app()->isLocal()){
             $schedule->call(function (){
@@ -96,6 +100,8 @@ class Kernel extends ConsoleKernel
             $schedule->call(function (){
                 $this->resetUserPicsSwitches();
             })->timezone('Asia/Taipei')->dailyAt('6:30');
+
+            $schedule->command('command:checkwarned')->timezone('Asia/Taipei')->dailyAt('07:00');
         }
         if(app()->isProduction()) {
             $schedule->call(function (){
@@ -414,7 +420,7 @@ class Kernel extends ConsoleKernel
                      'remote_file' => $remoteFile,
                      'content' => "檔案比較失敗：本地與遠端的檔案內容不一致。"]
                 );
-                $admin = \App\Models\User::findByEmail(config('social.admin.email'));
+                $admin = \App\Models\User::findByEmail(config('social.admin.notice-email'));
                 $admin->notify(new \App\Notifications\AutoComparisonFailedEmail(\Carbon\Carbon::now()->toDateTimeString(), 'RP_761404_'.$localDate.'.dat', '本地與遠端的檔案內容不一致'));
                 return "File comparison failed, the contents of local and remote files are not the same.";
             }
@@ -426,7 +432,7 @@ class Kernel extends ConsoleKernel
                  'remote_file' => '',
                  'content' => "本地端沒有檔案，檢查程序沒有執行。"]
             );
-            $admin = \App\Models\User::findByEmail(config('social.admin.email'));
+            $admin = \App\Models\User::findByEmail(config('social.admin.notice-email'));
             $admin->notify(new \App\Notifications\AutoComparisonFailedEmail(\Carbon\Carbon::now()->toDateTimeString(), 'RP_761404_'.$localDate.'.dat', '本地端沒有檔案'));
             return "Local file not found, check process didn't initiate.";
         }

@@ -330,6 +330,8 @@ class AdminService
                 $user['engroup'] = -1;
                 $user['vip'] = false;
                 $user['last_login'] = "0000-00-00 00:00:00";
+                $user['tipcount'] = 0;
+                $user['exchange_period'] = "N/A";
             }
         }
         return ['results' => $results,
@@ -773,7 +775,7 @@ class AdminService
                 \App\Models\AvatarDeleted::insert([
                     'user_id'     => $user_id,
                     'operator'    => Auth::user()->id,
-                    'pic'         => $u->pic,
+                    'pic'         => $u->pic ?? "",
                     'created_at'  => now(),
                     'updated_at'  => now(),
                     'uploaded_at' => $u->updated_at,

@@ -13,6 +13,15 @@
 				width: 28px;
 				height: 28px;
 			}
+
+			.wt_txb{ position: relative; }
+
+			.ta_sz{ position: absolute; width:15px; height:15px; color: #fff; border-radius: 100px; display: flex; text-align: center; justify-content: center; align-items: center; right: 0; top:0px; background: #69b9ff; font-size: 12px;}
+			.ta_sz_ten{ position: absolute; width:20px; height:20px; color: #fff; border-radius: 100px; display: flex; text-align: center; justify-content: center; align-items: center; right: 0; top:0px; background: #69b9ff; font-size: 12px;}
+			.ta_sz_hundred{ position: absolute; width:25px; height:25px; color: #fff; border-radius: 100px; display: flex; text-align: center; justify-content: center; align-items: center; right: 0; top:0px; background: #69b9ff; font-size: 13px;}
+			
+			.hycov{ border-radius: 100px;}
+
 		</style>
 @endsection
 		@section('app-content')
@@ -68,7 +77,7 @@
 									$show_a = 0;
 									$getStatus = \App\Models\ForumManage::where('user_id', $user->id)->where('apply_user_id', $post->uid)->get()->first();
 								@endphp
-								<li @if($post->f_status==0) class="huis_01" @endif>
+								<li @if($post->f_warned==1) class="huis_01" @endif>
 									<div class="ta_lwid_left">
 										<a href="/dashboard/viewuser/{{$post->uid}}">
 										<img src="@if(file_exists( public_path().$post->umpic ) && $post->umpic != ""){{$post->umpic}} @elseif($post->uengroup==2)/new/images/female.png @else/new/images/male.png @endif" class="hycov">
@@ -126,6 +135,11 @@
 																						   ->join('user_meta', 'user_meta.user_id','=','forum_manage.user_id')
 																						   ->where('forum_manage.apply_user_id', $post->uid)
 																						   ->where('forum_manage.status', 1)
+																						   ->where('forum_manage.active',1)
+																						   ->where(function($query){
+																								return $query->where('forum_manage.forum_status',1)
+																											->orwhere('forum_manage.chat_status',1);
+																							})
 																						   ->chunk(800, function($users) {
 																								foreach ($users->lazy() as $key=>$user) {
 																								
@@ -152,6 +166,15 @@
 																								}
 																							});
 													@endphp
+													@if($forum_member_count->get($post->f_id)->forum_member_count??false)
+														@if($forum_member_count->get($post->f_id)->forum_member_count >= 100)
+														<div class="ta_sz_hundred">{{$forum_member_count->get($post->f_id)->forum_member_count}}</div>
+														@elseif($forum_member_count->get($post->f_id)->forum_member_count >= 10)
+														<div class="ta_sz_ten">{{$forum_member_count->get($post->f_id)->forum_member_count}}</div>
+														@else
+														<div class="ta_sz">{{$forum_member_count->get($post->f_id)->forum_member_count}}</div>
+														@endif
+													@endif
 												</div>
 											</div>
 										</div>
@@ -239,6 +262,16 @@
 
 	let script = '<a href="https://lin.ee/rLqcCns"><img src="https://scdn.line-apps.com/n/line_add_friends/btn/zh-Hant.png" alt="加入好友" height="26" border="0"></a>';
 	function ForumCheckEnterPop() {
+		@php
+		if(\App\Models\Forum::withTrashed()->where('user_id', $user->id)->orderBy('id','desc')->first() ?? false)
+		{
+			$forum_delete_time = \App\Models\Forum::withTrashed()->where('user_id', $user->id)->orderBy('id','desc')->first()->deleted_at;
+		}
+		else
+		{
+			$forum_delete_time = false;
+		}
+		@endphp
 		@if(!$user->isCanPosts_vip())
 			c5('您成為VIP未達滿三個月以上');
 		@elseif($user->isEverBanned())
@@ -259,10 +292,17 @@
 			let text2 = '{{$text}}';
 			c5(text2);
 			$('.bltext').append(script);
+		@elseif($forum_delete_time)
+			@if($forum_delete_time > \Carbon\Carbon::now()->subYear())
+				c5('您的專屬討論區因沒有完成每週需求量（一個新的主題或三條以上的回覆），已於 {{$forum_delete_time->toDateString()}} 關閉，若要重新申請須至 {{$forum_delete_time->addYear()->toDateString()}} 提出。');
+			@else
+				window.location.href = "/dashboard/ForumEdit/{{$user->id}}";
+			@endif
 		@else
 			window.location.href = "/dashboard/ForumEdit/{{$user->id}}";
 		@endif
 	}
+	
 
 </script>
 @endsection

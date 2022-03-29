@@ -84,7 +84,7 @@
         if(id==null || id==undefined || id=='') return;
         var url = '';
         var type='';
-        url = "{!!url('/dashboard/search_discard/del') !!}";
+        url = "{!!url('/dashboard/search_discard/del') !!}?{{csrf_token()}}={{now()->timestamp}}";
         type="get";
         qelt.hide();
         $(document).off('click','#tab08 .n_bbutton .n_left');   
@@ -120,7 +120,7 @@
             $(this).off('click');           
             var qelt = $('.sjlist ul');
             qelt.hide();
-            var url = "{!!url('/dashboard/search_discard/del') !!}";
+            var url = "{!!url('/dashboard/search_discard/del') !!}?{{csrf_token()}}={{now()->timestamp}}";
             var type="get";            
             $.ajax({
               type: type,

@@ -103,6 +103,13 @@ header("Expires: Fri, 01 Jan 1990 00:00:00 GMT");
                 <div class="col-sm-12 col-xs-12 col-md-10">
                     <div class="shou shou02 sh_line"><span>搜索</span>
                         <font>Search</font>
+                        <div class="se_button" onClick="button_aa()">
+                            <a class="se_button01">
+                                <div class="se_button02">
+                                    <img src="/new/images/dsearch.png">
+                                </div>
+                            </a>
+                        </div>
                     </div>
 
                     <form action="{!! url('dashboard/search') !!}" method="post" id="form">
@@ -600,7 +607,9 @@ header("Expires: Fri, 01 Jan 1990 00:00:00 GMT");
 
                     <?php $icc = 1;
                     $userIsVip = $user->isVIP();
-                    $userIsAdvanceAuth = isset($_POST['isAdvanceAuth'])?1:0;
+                    $userIsAdvanceAuth = $_POST["isAdvanceAuth"] ?? 
+                                         $_GET["isAdvanceAuth"]  ?? 
+                                         session()->get('search_page_key.isAdvanceAuth') ?? 0;
 
                     // vi vendor/laravel/framework/src/Illuminate/Database/Query/Builder.php
                     // addWhereExistsQuery() remove $operator
@@ -689,7 +698,7 @@ header("Expires: Fri, 01 Jan 1990 00:00:00 GMT");
         $('#search_reset').click(function(){
             $.ajax({
                 type: 'POST',
-                url: "/dashboard/search_key_reset",
+                url: "/dashboard/search_key_reset?{{csrf_token()}}={{now()->timestamp}}",
                 async:false,
                 data:{
                     _token: '{{csrf_token()}}'
@@ -803,6 +812,20 @@ header("Expires: Fri, 01 Jan 1990 00:00:00 GMT");
     <script src="/js/jquery.twzipcode.min.js" type="text/javascript"></script>
     <script src="//cdnjs.cloudflare.com/ajax/libs/cropperjs/1.0.0/cropper.min.js" type="text/javascript"></script>
     <script type="text/javascript">
+
+        $('.n_search').hide();
+        function button_aa() {
+            var display =$('.n_search').css('display');
+            if(display =='none')
+            {
+                $(".n_search").show();
+            }
+            else
+            {
+                $('.n_search').hide();
+            }
+        }
+
         $(document).ready(function(){
 
             $('.se_nvd').hide();
@@ -940,7 +963,8 @@ header("Expires: Fri, 01 Jan 1990 00:00:00 GMT");
                 isVip:isVip,
                 isWarned:isWarned,
                 isPhoneAuth:isPhoneAuth,
-                userIsAdvanceAuth:userIsAdvanceAuth,
+                isAdvanceAuth:userIsAdvanceAuth,
+                userIsAdvanceAuth:userIsAdvanceAuth,  
                 page:page,
                 tattoo:tattoo,
                 city2:county2,

@@ -19,7 +19,7 @@
 <table class="table table-bordered table-hover">
     <h1>{{$page_title}}</h1>
     @if(str_contains(url()->current(), 'delpic'))
-        <p>變數設定說明： 被刪除會員的名字 NAME ，照片創建時間 TIME (刪大頭照無照片時間)，line加入好友圖示 LINE_ICON</p>
+        <p>變數設定說明： 被刪除會員的名字 NAME，現在時間 NOW_TIME，照片創建時間 TIME (刪大頭照無照片時間)，line加入好友圖示 LINE_ICON</p>
         <p>範例:NAME您好，由於您在TIME上傳的照片不適合網站主旨，故已刪除。請重新上傳。如有疑慮請與站長聯絡：LINE_ICON。</p>
         <p>範例:NAME您好，由於您的大頭照不適合網站主旨，故已刪除。請重新上傳。如有疑慮請與站長聯絡：LINE_ICON。</p>
     @elseif(str_contains(url()->current(), 'editPic_sendMsg'))
@@ -52,7 +52,7 @@
     $(".savemsgbtn").click(function(){
     $.ajax({
         type: 'POST',
-        url: "/admin/users/addmsglib",
+        url: "/admin/users/addmsglib?{{csrf_token()}}={{now()->timestamp}}",
         data:{
             _token: '{{csrf_token()}}',
             'msg_id'   : $('#msg_id').val(),

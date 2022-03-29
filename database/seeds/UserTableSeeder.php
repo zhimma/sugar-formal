@@ -16,7 +16,7 @@ class UserTableSeeder extends Seeder
     public function run()
     {
         $service = app(UserService::class);
-        $email = Config::get('social.admin.email');
+        $email = Config::get('social.admin.user-email');
 
         $user = User::create([
             'name' => '站長',

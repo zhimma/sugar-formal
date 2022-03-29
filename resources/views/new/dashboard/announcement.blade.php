@@ -16,49 +16,65 @@
                         <li>
                             <div class="n_icongg"><img src="/new/images/ic_03.png" class="n_icongg_img"></div>
                             <div class="n_iconb"><img src="/new/images/ic_07.png"><span>1</span></div>
-                            <div class="n_iconfont">男女會員在約見前，禁止要求對方提供猥褻照片、文字。</div>
+                            <div class="n_iconfont">威脅。</div>
                         </li>
                         <li>
                             <div class="n_icongg"><img src="/new/images/ic_03.png" class="n_icongg_img"></div>
                             <div class="n_iconb"><img src="/new/images/ic_07.png"><span>2</span></div>
-                            <div class="n_iconfont">普通會員禁止註冊站務/站長/管理者等容易引起他人誤會之站務管理人員字眼做為帳號。</div>
+                            <div class="n_iconfont">肉搜。</div>
                         </li>
                         <li>
                             <div class="n_icongg"><img src="/new/images/ic_03.png" class="n_icongg_img"></div>
                             <div class="n_iconb"><img src="/new/images/ic_07.png"><span>3</span></div>
-                            <div class="n_iconfont">會員彼此來往訊息請勿口出惡言。</div>
+                            <div class="n_iconfont">未見面前要求對方拍攝清涼照。</div>
                         </li>
+
+                        <li>
+                            <div class="n_icongg"><img src="/new/images/ic_03.png" class="n_icongg_img"></div>
+                            <div class="n_iconb"><img src="/new/images/ic_07.png"><span>#</span></div>
+                            <div class="n_iconfont"><span style="color: red;background: yellow;">以上違反者直接永鎖帳號，沒有任何解釋空間。之後所有新開帳號也一律封鎖。</span></div>
+                        </li>
+
                         <li>
                             <div class="n_icongg"><img src="/new/images/ic_03.png" class="n_icongg_img"></div>
                             <div class="n_iconb"><img src="/new/images/ic_07.png"><span>4</span></div>
-                            <div class="n_iconfont">禁止多重帳號/不同性別註冊。</div>
+                            <div class="n_iconfont">多重帳號 (一個人只能開立一個帳號，禁止關閉後另開新號)</div>
                         </li>
                         <li>
                             <div class="n_icongg"><img src="/new/images/ic_03.png" class="n_icongg_img"></div>
                             <div class="n_iconb"><img src="/new/images/ic_07.png"><span>5</span></div>
-                            <div class="n_iconfont">禁止個人資料出現不雅文字/照片（站方主觀認定）</div>
+                            <div class="n_iconfont">用詞不當/人身攻擊</div>
                         </li>
                         <li>
                             <div class="n_icongg"><img src="/new/images/ic_03.png" class="n_icongg_img"></div>
                             <div class="n_iconb"><img src="/new/images/ic_07.png"><span>6</span></div>
-                            <div class="n_iconfont">禁止使用虛假資料註冊</div>
+                            <div class="n_iconfont">涉嫌性交易的文字</div>
                         </li>
                         <li>
                             <div class="n_icongg"><img src="/new/images/ic_03.png" class="n_icongg_img"></div>
                             <div class="n_iconb"><img src="/new/images/ic_07.png"><span>7</span></div>
-                            <div class="n_iconfont">禁止非包養的任何商業行為！</div>
+                            <div class="n_iconfont">個人基本資料虛假/錯誤性別</div>
                         </li>
                         <li>
                             <div class="n_icongg"><img src="/new/images/ic_03.png" class="n_icongg_img"></div>
                             <div class="n_iconb"><img src="/new/images/ic_07.png"><span>8</span></div>
-                            <div class="n_iconfont">禁止大量發送內含通訊軟體資訊的罐頭訊息！</div>
+                            <div class="n_iconfont">內含通訊資訊的罐頭訊息！</div>
                         </li>
                         <li>
                             <div class="n_icongg"><img src="/new/images/ic_03.png" class="n_icongg_img"></div>
                             <div class="n_iconb"><img src="/new/images/ic_07.png"><span>9</span></div>
-                            <div class="n_iconfont"><span style="color: red;background: yellow;">違反以上規定將會有3~30天的封鎖時間。嚴重者直接永久封鎖帳號。</span></div>
+                            <div class="n_iconfont">非包養的任何商業行為！</div>
                         </li>
-
+                        <li>
+                            <div class="n_icongg"><img src="/new/images/ic_03.png" class="n_icongg_img"></div>
+                            <div class="n_iconb"><img src="/new/images/ic_07.png"><span>10</span></div>
+                            <div class="n_iconfont">個人資料出現不雅文字/照片（站方主觀認定)</div>
+                        </li>
+                        <li>
+                            <div class="n_icongg"><img src="/new/images/ic_03.png" class="n_icongg_img"></div>
+                            <div class="n_iconb"><img src="/new/images/ic_07.png"><span>#</span></div>
+                            <div class="n_iconfont"><span style="color: red;background: yellow;">違反以上規定將會有3~30天的封鎖/警示時間。嚴重者永久封鎖帳號。</span></div>
+                        </li>
                         <?php //$num=1;?>
 {{--                        @foreach($announcement as $row)--}}
 {{--                        <li>--}}

@@ -291,7 +291,7 @@
         let page = $("#morePage").val();
         $.ajax({
             type:"POST",
-            url:"advSearchInfo",
+            url:"advSearchInfo?{{csrf_token()}}={{now()->timestamp}}",
             data:{
                 _token: '{{csrf_token()}}',
                 page : page,

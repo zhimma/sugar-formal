@@ -131,9 +131,10 @@ class Vip extends Model
             }
 
             $vipData->save();
+
         }
 
-        $admin = User::findByEmail(Config::get('social.admin.email'));
+        $admin = User::findByEmail(Config::get('social.admin.notice-email'));
         $logStr = 'upgrade, order id: ' . $order_id . ', payment: ' . $payment . ', amount: ' . $amount . ', transactionType: ' . $transactionType;
         VipLog::addToLog($member_id, $logStr, $txn_id, 1, $free);
 
@@ -142,6 +143,9 @@ class Vip extends Model
         {
             //$admin->notify(new NewVipEmail($member_id, $business_id, $member_id));
         }
+
+        //開啟討論區權限
+        ForumManage::open_forum_active($member_id);
     }
 
     public static function findById($member_id) {
@@ -159,7 +163,7 @@ class Vip extends Model
     public static function cancel($member_id, $free)
     {
         $curUser = User::findById($member_id);
-        $admin = User::findByEmail(Config::get('social.admin.email'));
+        $admin = User::findByEmail(Config::get('social.admin.notice-email'));
         if ($curUser != null) {
             //$admin->notify(new CancelVipEmail($member_id, '761404', $member_id));
         }
@@ -278,6 +282,10 @@ class Vip extends Model
             ->where('member_id', $this->member_id)
 //            ->where('order_id','!=','BackendFree')
             ->update(array('active' => 0, 'expiry' => null));
+
+        //關閉討論區權限
+        ForumManage::close_forum_active($this->member_id);
+
         return $user;
     }
 

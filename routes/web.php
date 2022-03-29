@@ -169,7 +169,7 @@ Route::group(['middleware' => ['auth', 'global','SessionExpired']], function () 
 
 Route::get('/advance_auth_activate/token/{token}', 'PagesController@advance_auth_email_activate')->name('advance_auth_email_activate');
 
-Route::group(['middleware' => ['auth', 'global', 'active', 'femaleActive', 'vipCheck', 'newerManual','CheckIsWarned','CheckAccountStatus','SessionExpired']], function () {
+Route::group(['middleware' => ['auth', 'global', 'active', 'femaleActive', 'vipCheck', 'newerManual','CheckAccountStatus','SessionExpired']], function () {
 
     Route::get('/dashboard/browse', 'PagesController@browse');
     /*
@@ -494,6 +494,7 @@ Route::group(['middleware' => ['auth', 'global', 'active', 'femaleActive', 'vipC
         Route::get('/dashboard/anonymousChat', 'PagesController@anonymousChat');
         Route::post('/dashboard/anonymousChatReport', 'PagesController@anonymous_chat_report')->name('anonymous_chat_report');
         Route::post('/dashboard/anonymousChatMessage', 'PagesController@anonymous_chat_message')->name('anonymous_chat_message');
+        Route::post('/dashboard/anonymousChatSave', 'PagesController@anonymous_chat_save')->name('anonymous_chat_save');
 
         /*
         |--------------------------------------------------------------------------
@@ -646,6 +647,8 @@ Route::group(['middleware' => ['auth', 'global', 'active', 'femaleActive', 'vipC
         Route::get('users/searchAnonymousChat', 'UserController@searchAnonymousChatPage')->name('users/searchAnonymousChatPage');
         Route::get('users/searchAnonymousChatReport', 'UserController@searchAnonymousChatReport')->name('users/searchAnonymousChatReport');
         Route::post('users/deleteAnonymousChatRow', 'UserController@deleteAnonymousChatRow')->name('users/deleteAnonymousChatRow');
+        Route::post('users/deleteAnonymousChatReportRow', 'UserController@deleteAnonymousChatReportRow')->name('users/deleteAnonymousChatReportRow');
+        Route::post('users/deleteAnonymousChatReportAll', 'UserController@deleteAnonymousChatReportAll')->name('users/deleteAnonymousChatReportAll');
 
         Route::get('users/ip/{ip}', 'UserController@getIpUsers')->name('getIpUsers');
 		Route::get('users/getLog', 'UserController@getUsersLog')->name('getUsersLog');
@@ -713,6 +716,7 @@ Route::group(['middleware' => ['auth', 'global', 'active', 'femaleActive', 'vipC
         Route::get('users/switch/{id}', 'UserController@switchToUser')->name('users/switch/to');
         Route::post('users/invite', 'UserController@postInvite');
         Route::post('users/genderToggler', 'UserController@toggleGender')->name('genderToggler');
+        Route::post('users/isRealToggler', 'UserController@TogglerIsReal')->name('isRealToggler');
         Route::post('users/VIPToggler', 'UserController@toggleVIP')->name('VIPToggler');
         Route::post('users/toggleHidden', 'UserController@toggleHidden')->name('toggleHidden');        
         Route::post('users/RecommendedToggler', 'UserController@toggleRecommendedUser');
@@ -818,17 +822,7 @@ Route::group(['middleware' => ['auth', 'global', 'active', 'femaleActive', 'vipC
         Route::get('users/checkDuplicate', 'FindPuppetController@entrance');
         Route::get('users/showLogBk', 'FindPuppetController@displayDetail');
         Route::get('too_many_requests', 'PagesController@tooManyRequests')->name('tooMantRequests');
-        Route::get("sendFakeMail/{repeat?}/{str?}", function(){
-            $str = "";
-            $repeat = request()->repeat ?? 1;
-            $content = request()->str ?? "123";
-            for ($i = 0; $i < $repeat; $i++){
-                $address = 'lzong.tw+'. $i .'@gmail.com';
-                \App\Jobs\SendFakeMail::dispatch($address, $content);
-                $str .= $address . '<br>';
-            }
-            return $str;
-        });
+        
 
         Route::get('users/picturesSimilar', 'UserController@UserPicturesSimilar')->name('users/picturesSimilar');
         Route::get('users/picturesSimilarLog', 'UserController@UserPicturesSimilarLog')->name('users/picturesSimilarLog');
@@ -849,11 +843,15 @@ Route::group(['middleware' => ['auth', 'global', 'active', 'femaleActive', 'vipC
         Route::post('roles/search', 'RoleController@search');
         Route::get('roles/search', 'RoleController@index');
 
-        
+        Route::post('check/step1', 'UserController@member_profile_check_over')->name('admin/member_profile_check_over');
+        Route::get('ban_information', 'UserController@ban_information');
+        Route::post('users/little_update_profile', 'UserController@little_update_profile');
     });
     Route::group(['prefix' => 'admin', 'middleware' => 'Admin'], function () {
         //寄退信Log查詢
         Route::get('maillog', 'Api\MailController@viewMailLog')->name('maillog');
+        Route::get("fakeMail", 'Api\MailController@fakeMail')->name('fakeMail');
+        Route::post("sendFakeMail", 'Api\MailController@sendFakeMail')->name('sendFakeMail');
     });
 
 
