@@ -311,7 +311,7 @@ class UserController extends \App\Http\Controllers\BaseController
                 $ValueAddedService->expiry = '0000-00-00 00:00:00';
                 $ValueAddedService->save();
             }
-            if(hideOnlineData::where('user_id',$request->user_id)->first() ?? false)
+            if(!(hideOnlineData::where('user_id',$request->user_id)->first() ?? false))
             {
                 $hideOnlineData = new hideOnlineData;
                 $hideOnlineData->user_id = $request->user_id;
