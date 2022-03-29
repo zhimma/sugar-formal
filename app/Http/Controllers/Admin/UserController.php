@@ -267,7 +267,8 @@ class UserController extends \App\Http\Controllers\BaseController
         // $user = \View::shared('user');   這句是錯，這句是抓當下登入的人，也就是你
         $user = User::find($request->user_id);        
         $isHidden = $user->valueAddedServiceStatus('hideOnline');
-        if ($isHidden == 1) {
+        if ($isHidden == 1) 
+        {
             //關閉隱藏權限
             $sethideOnline = 0;
             $user = ValueAddedService::select('member_id', 'active')
@@ -279,11 +280,14 @@ class UserController extends \App\Http\Controllers\BaseController
                     'order_id' => ''
                 ));
             
-        } else {
+        } 
+        else 
+        {
             //提供隱藏權限
             $sethideOnline = 1;
             $tmpsql = ValueAddedService::select('expiry')->where('member_id', $request->user_id)->get()->first();
-            if (isset($tmpsql)) {
+            if (isset($tmpsql)) 
+            {
                 $user = ValueAddedService::select('member_id', 'active')
                     ->where('member_id', $request->user_id)
                     ->update(array(
@@ -293,7 +297,9 @@ class UserController extends \App\Http\Controllers\BaseController
                         'expiry' => '0000-00-00 00:00:00'
                         //'free' => 0
                     ));
-            } else {
+            } 
+            else 
+            {
                 //從來都沒隱藏資料的
                 $ValueAddedService = new ValueAddedService;
                 $ValueAddedService->member_id = $request->user_id;
@@ -303,9 +309,15 @@ class UserController extends \App\Http\Controllers\BaseController
                 $ValueAddedService->order_id = 'BackendFree';
                 $ValueAddedService->expiry = '0000-00-00 00:00:00';
                 $ValueAddedService->save();
+                $hideOnlineData = new hideOnlineData;
+                $hideOnlineData->user_id = $request->user_id;
+                $hideOnlineData->register_time = User::where('id', $request->user_id)->first()->created_at;
+                $hideOnlineData->login_time = Carbon::now();
+                $request->user_id->save();
+
             }
-
-
+            $checkHideOnlineData = hideOnlineData::where('user_id',$request->user_id)->where('deleted_at', null)->get()->first();
+            User::where('id', $request->user_id)->update(['is_hide_online' => 1, 'hide_online_time' => $checkHideOnlineData->login_time]);
         }
         // return view('admin.users.advInfo')
         // ->with('isHidden',$isHidden);
