@@ -120,7 +120,7 @@
         function checkAction(id, status){
             $.ajax({
                 type: 'POST',
-                url: "/admin/checkGenderChange",
+                url: "/admin/checkGenderChange?{{csrf_token()}}={{now()->timestamp}}",
                 data:{
                     _token: '{{csrf_token()}}',
                     id: id,
@@ -151,7 +151,7 @@
             reject_content = $('#reject_content_'+ $(this).data('id')).val();
             $.ajax({
                 type: 'POST',
-                url: "/admin/checkGenderChange",
+                url: "/admin/checkGenderChange?{{csrf_token()}}={{now()->timestamp}}",
                 data:{
                     _token: '{{csrf_token()}}',
                     id: $(this).data('id'),

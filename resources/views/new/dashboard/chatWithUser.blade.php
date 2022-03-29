@@ -1107,7 +1107,7 @@
             $("#blbg").hide();
             $.ajax({
                 type: 'POST',
-                url: "/dashboard/chat2/deleteMsgByUser/"+msgID,
+                url: "/dashboard/chat2/deleteMsgByUser/"+msgID+"?{{csrf_token()}}={{now()->timestamp}}",
                 data:{
                     _token: '{{csrf_token()}}',
                 },

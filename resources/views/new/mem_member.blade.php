@@ -277,7 +277,7 @@ $(".report_avatar").on('click', function(){
 		};
 		$.ajax({
 			type: "POST",
-			url: "/addReportAvatar",
+			url: "/addReportAvatar?{{csrf_token()}}={{now()->timestamp}}",
 			data: data,
 			dataType: "json",
 			success: function(res){
@@ -299,7 +299,7 @@ $(".collection").on('click', function(){
 	};
 	$.ajax({
     type: "POST",
-    url: "/addCollection",
+    url: "/addCollection?{{csrf_token()}}={{now()->timestamp}}",
     data: data,
     dataType: "json",
     success: function(res){
@@ -318,7 +318,7 @@ $(".addmessage").on('click', function(){
 	};
 	$.ajax({
     type: "POST",
-    url: "/addMessage",
+    url: "/addMessage?{{csrf_token()}}={{now()->timestamp}}",
     data: data,
     dataType: "json",
     success: function(res){
@@ -337,7 +337,7 @@ $(".report").on('click', function(){
 	};
 	$.ajax({
     type: "POST",
-    url: "/addReport",
+    url: "/addReport?{{csrf_token()}}={{now()->timestamp}}",
     data: data,
     dataType: "json",
     success: function(res){
@@ -356,7 +356,7 @@ $(".addblock").on('click', function(){
 	};
 	$.ajax({
     type: "POST",
-    url: "/addBlock",
+    url: "/addBlock?{{csrf_token()}}={{now()->timestamp}}",
     data: data,
     dataType: "json",
     success: function(res){
@@ -376,7 +376,7 @@ $(".updatedata").click(function(){
 	console.log(data);
 	$.ajax({
     type: "POST",
-    url: "/updateMemberData",
+    url: "/updateMemberData?{{csrf_token()}}={{now()->timestamp}}",
     data: data,
     // dataType: "json",
     success: function(res){

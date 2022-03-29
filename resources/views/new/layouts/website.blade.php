@@ -168,7 +168,7 @@
             @endphp
             $.ajax({
                 type: 'POST',
-                url: '{{ route('announceClose') }}',
+                url: '{{ route('announceClose') }}?{{csrf_token()}}={{now()->timestamp}}',
                 data: { _token: "{{ csrf_token() }}"},
                 success: function(xhr, status, error){
                     console.log(xhr);
@@ -187,7 +187,7 @@
             function disableAnnounce(aid){
                 $.ajax({
                     type: 'POST',
-                    url: '{{ route('announceRead') }}',
+                    url: '{{ route('announceRead') }}?{{csrf_token()}}={{now()->timestamp}}',
                     data: { uid: "{{ $user->id }}", aid: aid, _token: "{{ csrf_token() }}"},
                     success: function(xhr, status, error){
                         console.log(xhr);
@@ -232,7 +232,7 @@
             $(document).on('click','#announcement .item .new_poptk div a[href="#new_sugar_chat_set"]',function(){              
                  $.ajax({
                     type: 'GET',
-                    url: '{{ route('getTinySetting') }}',
+                    url: '{{ route('getTinySetting') }}?{{csrf_token()}}={{now()->timestamp}}',
                     data: { catalog: "new_sugar_chat_with_notvip"},
                     success: function(data){
                         if(data!=undefined && data.length>0) {
@@ -255,7 +255,7 @@
                 event.preventDefault();
                  $.ajax({
                     type: 'GET',
-                    url: '{{ route('getTinySetting') }}',
+                    url: '{{ route('getTinySetting') }}?{{csrf_token()}}={{now()->timestamp}}',
                     data: { catalog: "new_sugar_chat_with_notvip"},
                     success: function(data){
                         if(data==1) {
@@ -296,7 +296,7 @@
             function new_sugar_chat_set_send(value) {
                  $.ajax({
                     type: 'GET',
-                    url: '{{ route('setTinySetting') }}',
+                    url: '{{ route('setTinySetting') }}?{{csrf_token()}}={{now()->timestamp}}',
                     data: { catalog: "new_sugar_chat_with_notvip", value: value},
                     dataType:'json',
                     success: function(data){
