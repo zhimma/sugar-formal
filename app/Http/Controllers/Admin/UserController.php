@@ -279,6 +279,7 @@ class UserController extends \App\Http\Controllers\BaseController
                     'business_id' => '',
                     'order_id' => ''
                 ));
+            User::where('id', $request->user_id)->update(['is_hide_online' => 0]);
             
         } 
         else 
