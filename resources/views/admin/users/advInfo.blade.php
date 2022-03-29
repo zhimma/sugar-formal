@@ -470,6 +470,7 @@
 				@endif
 			</form>
 		</td>
+		<!--
 		<td colspan='2'>
 			<h4>隱藏付費紀錄</h4>
 			<table class='table table-bordered table-hover'>
@@ -518,6 +519,7 @@
 				</tbody>
 			</table>
 		</td>
+		-->
 	</tr>
 	<tr>
 		<th>會員ID</th>
