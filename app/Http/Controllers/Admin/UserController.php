@@ -316,6 +316,7 @@ class UserController extends \App\Http\Controllers\BaseController
                 $request->user_id->save();
 
             }
+            hideOnlineData::where('user_id',$request->user_id)->update(['login_time' => Carbon::now()]);
             $checkHideOnlineData = hideOnlineData::where('user_id',$request->user_id)->where('deleted_at', null)->get()->first();
             User::where('id', $request->user_id)->update(['is_hide_online' => 1, 'hide_online_time' => $checkHideOnlineData->login_time]);
         }
