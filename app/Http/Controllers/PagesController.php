@@ -7191,7 +7191,7 @@ class PagesController extends BaseController
             ->where('users.engroup',$user->engroup==1 ? 2 :1)
             ->whereNotIn('message_board.user_id',$userBlockList)
             ->whereNotIn('message_board.user_id',$bannedUsers)
-            ->whereRaw('(message_board.message_expiry_time >="'.$nowTime.'" OR message_board.message_expiry_time is NULL)')
+            ->whereRaw('(message_board.message_expiry_time >="'.$nowTime.'" OR message_board.set_period is NULL)')
             ->where('message_board.hide_by_admin',0)
             ->orderBy('message_board.created_at','desc');
 
