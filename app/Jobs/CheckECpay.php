@@ -51,7 +51,7 @@ class CheckECpay implements ShouldQueue
         else{
             $envStr = '';
         }
-        if($this->vipData->business_id == Config::get('ecpay.payment'.$envStr.'.MerchantID')){
+        if($this->vipData->business_id == Config::get('ecpay.payment'.$envStr.'.MerchantID') && substr($this->vipData->order_id,0,2) == 'SG'){
             $ecpay = new \App\Services\ECPay_AllInOne();
             $ecpay->MerchantID = Config::get('ecpay.payment'.$envStr.'.MerchantID');
             $ecpay->ServiceURL = Config::get('ecpay.payment'.$envStr.'.ServiceURL');//定期定額查詢
@@ -66,7 +66,8 @@ class CheckECpay implements ShouldQueue
                     // $paymentData = $ecpay->QueryTradeInfo();
                     // 此函式會產生錯誤，經檢查應為無用函式
                 }else {
-                    $paymentData = $ecpay->QueryPeriodCreditCardTradeInfo(); //信用卡定期定額
+                    //信用卡定期定額
+                    $paymentData = $ecpay->QueryPeriodCreditCardTradeInfo();
                 }
             }
             catch (\Exception $exception){
@@ -179,7 +180,7 @@ class CheckECpay implements ShouldQueue
                     });
                 }
                 // 最後一次付款失敗
-                else if ($last['RtnCode'] != 1) {
+                else if ($this->userIsVip && $last['RtnCode'] != 1) {
                     Log::info('付費失敗');
                     Log::info($paymentData);
 
