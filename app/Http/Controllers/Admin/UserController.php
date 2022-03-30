@@ -311,15 +311,7 @@ class UserController extends \App\Http\Controllers\BaseController
                 $ValueAddedService->expiry = '0000-00-00 00:00:00';
                 $ValueAddedService->save();
             }
-            if(!(hideOnlineData::where('user_id',$request->user_id)->first() ?? false))
-            {
-                $hideOnlineData = new hideOnlineData;
-                $hideOnlineData->user_id = $request->user_id;
-                $hideOnlineData->register_time = User::where('id', $request->user_id)->first()->created_at;
-                $hideOnlineData->login_time = Carbon::now();
-                $hideOnlineData->save();
-            }
-            hideOnlineData::where('user_id',$request->user_id)->update(['login_time' => Carbon::now()]);
+            ValueAddedService::addHideOnlineData($request->user_id);
             $checkHideOnlineData = hideOnlineData::where('user_id',$request->user_id)->where('deleted_at', null)->get()->first();
             User::where('id', $request->user_id)->update(['is_hide_online' => 1, 'hide_online_time' => $checkHideOnlineData->login_time]);
         }
