@@ -355,7 +355,7 @@ class ImagesCompareService {
             $etime = Carbon::parse($next->format('Y-m-d').' 01:00:00');
             if($now->gt($stime) && $now->lt($etime)) $delay=25200+$delay;
             CompareSingleImageJob::dispatch($pic,$encode_by);
-            CompareSingleImageJob::dispatch($pic,null,$is_force)->onQueue('compare_images')->delay($delay+10);            
+            CompareSingleImageJob::dispatch($pic,null,$is_force)->onQueue('compare_images')->delay($delay+60);            
         }
         
         return true;
