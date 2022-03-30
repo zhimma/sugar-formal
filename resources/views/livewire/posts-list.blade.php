@@ -8,7 +8,9 @@
         <div class="tou_list">
             <ul>
                 @foreach($posts as $post)
-                    <li {{ $post->uid==1049 && $post->top==0 ? 'style=background:#ddf3ff;padding:10px' : ''}} @if($post->top==1) style="background:#ffcf869e;padding:10px;" @endif @if($post->deleted_by != null) class="huis_02" @endif>
+                    <li {{ $post->uid==1049 && $post->top==0 ? 'style=background:#ddf3ff;padding:10px' : ''}} 
+                        @if($post->top==1) style="background:#ffcf869e;padding:10px;" @endif @if($post->deleted_by != null) class="huis_02" @endif
+                        @if($post->uid==1049) class="huis_01" @endif>
                         <div class="tou_tx">
                             <a href="/dashboard/viewuser/{{$post->uid}}">
                                 <div class="tou_tx_img"><img src="@if(file_exists( public_path().$post->umpic ) && $post->umpic != ""){{$post->umpic}} @elseif($post->engroup==2)/new/images/female.png @else/new/images/male.png @endif" class="hycov"></div>
