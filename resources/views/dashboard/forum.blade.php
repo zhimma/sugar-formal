@@ -84,7 +84,7 @@
 										</a>
 									</div>
 									<div class="ta_lwid_right">
-										@if(($post->uid == $user->id || (isset($getStatus) && $getStatus->status==1 && $getStatus->forum_status ==1)) || (isset($getStatus) && $getStatus->status==1 && $getStatus->chat_status ==1) && $post->f_status==1)
+										@if($user->id == 1049 || ($post->uid == $user->id || (isset($getStatus) && $getStatus->status==1 && $getStatus->forum_status ==1)) || (isset($getStatus) && $getStatus->status==1 && $getStatus->chat_status ==1) && $post->f_status==1)
 											@php
 												$show_a = 1;
 											@endphp

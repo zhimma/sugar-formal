@@ -46,7 +46,7 @@
 									</div>
 								</a>
 							</div>
-							@if($postDetail->uid == auth()->user()->id || $forum->user_id == auth()->user()->id)
+							@if(auth()->user()->id == 1049 || $postDetail->uid == auth()->user()->id || $forum->user_id == auth()->user()->id)
 								<div class="ap_butnew" style="margin-top: 10px; margin-right:10px;">
 									<a onclick="postDelete({{ $postDetail->pid }})" class="sc_cc"><img src="/posts/images/del_03n.png">刪除</a>
 									<a id="repostLink" href="/dashboard/forumPostsEdit/{{ $postDetail->pid }}/all" class="sc_cc"><img src="/posts/images/xiugai.png">修改</a>
@@ -85,7 +85,7 @@
 													</div>
 													<div class="dropdown-menu dp_hxx" aria-labelledby="dropdownMenuButton">
 														<a class="dropdown-item" onclick="postReply('{{ $reply->pid }}','{{ $reply->uname }}','{{ $reply->uid }}');">@ 回覆</a>
-														@if($reply->uid == auth()->user()->id)
+														@if(auth()->user()->id == 1049 || $reply->uid == auth()->user()->id)
 															<a class="dropdown-item" href="/dashboard/forumPostsEdit/{{ $reply->pid }}/contents"><span class="iconfont icon-xiugai_nn"></span>修改</a>
 															<a class="dropdown-item" onclick="postDelete({{ $reply->pid }})"><span class="iconfont icon-lajitong"></span>刪除</a>
 														@endif
