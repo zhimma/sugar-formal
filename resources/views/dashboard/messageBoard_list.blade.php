@@ -226,7 +226,7 @@
 					let all_count = response.data.count;
 					let other_last_page = response.data.other_last_page;
 					let other_next_page = response.data.other_next_page;
-					if(all_count>0){
+					if(all_count>10){
 						this.other_pagination = '<div class="fenye"><a href="/MessageBoard/showList?myself_now_page='+myself_now_page+'&other_now_page='+other_last_page+'">上一頁</a><span class="new_page">第 '+other_now_page+' 頁</span><a href="/MessageBoard/showList?myself_now_page='+myself_now_page+'&other_now_page='+other_next_page+'">下一頁</a></div>'
 					}else{
 						this.other_pagination = '';
@@ -247,7 +247,7 @@
 					let all_count = response.data.count;
 					let myself_last_page = response.data.myself_last_page;
 					let myself_next_page = response.data.myself_next_page;
-					if(all_count>0){
+					if(all_count>10){
 						this.myself_pagination = '<div class="fenye"><a href="/MessageBoard/showList?myself_now_page='+myself_last_page+'&other_now_page='+other_now_page+'">上一頁</a><span class="new_page">第 '+myself_now_page+' 頁</span><a href="/MessageBoard/showList?myself_now_page='+myself_next_page+'&other_now_page='+other_now_page+'">下一頁</a></div>'
 					}else{
 						this.myself_pagination = '';
