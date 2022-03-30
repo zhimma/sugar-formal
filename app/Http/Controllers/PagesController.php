@@ -5872,6 +5872,18 @@ class PagesController extends BaseController
                 return response()->json(['msg'=>'留言刪除成功!','postType'=>'sub']);
         }
     }
+
+    public function forum_posts_recover(Request $request)
+    {
+        $posts = ForumPosts::withTrashed()->where('id',$request->get('pid'))->first();
+        $postsType = $posts->type;
+        ForumPosts::withTrashed()->where('id',$request->get('pid'))->update(['deleted_at'=> null, 'deleted_by' => null ]);
+        if($postsType=='main')
+            return response()->json(['msg'=>'回復成功!','postType'=>'main','redirectTo'=>'/dashboard/forum_personal/'.$request->get('fid')]);
+        else
+            return response()->json(['msg'=>'留言回復成功!','postType'=>'sub']);
+    }
+
     public function sms_add_view(Request $request){
         return view('/sms/sms_add_view');
     }

@@ -276,6 +276,7 @@ Route::group(['middleware' => ['auth', 'global', 'active', 'femaleActive', 'vipC
         Route::get('/dashboard/forumPostsEdit/{id}/{editType}', 'PagesController@forumPostsEdit');/*投稿修改功能*/
         Route::post('/dashboard/forum_posts_reply', 'PagesController@forum_posts_reply');/*討論區留言回覆*/
         Route::post('/dashboard/forum_posts_delete', 'PagesController@forum_posts_delete');/*討論區留言刪除*/
+        Route::post('/dashboard/forum_posts_recover', 'PagesController@forum_posts_recover');/*討論區留言恢復*/
 
         Route::post('/dashboard/postAcceptor', 'PagesController@postAcceptor');/*投稿列表功能*/
         Route::get('/dashboard/posts_list', 'PagesController@posts_list')->name('posts_list');/*投稿列表功能*/

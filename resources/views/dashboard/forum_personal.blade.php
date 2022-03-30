@@ -144,6 +144,11 @@
 											<div class="ta_tetime"><span class="iconfont icon-shijian"></span>{{ substr($row->pupdated_at,0,10)}}</div>
 										</div>
 									</a>
+									@if($row->deleted_by != null && $user->id == 1049)
+										<div>
+											<a onclick="recover_post({{ $row->pid }});" class="aid_but" style='margin-right:40px; text-align:center;'>回復文章</a>
+										</div>
+									@endif
 								</li>
 								@endforeach
 								@else
@@ -296,6 +301,30 @@
 
 
 	})
+
+	function recover_post(pid) {
+		c4('確定要回復嗎?');
+		$(".n_left").on('click', function() {
+			$.ajax({
+				url: '/dashboard/forum_posts_recover?{{ csrf_token() }}={{now()->timestamp}}',
+				method: 'POST',
+				data: {
+					_token: "{{ csrf_token() }}",
+					pid: pid,
+					fid: {{$forum->id}}
+				},
+				success: function(data) {
+					if(data.postType=='main'){
+						c5(data.msg);
+						window.location.href=data.redirectTo;
+					}
+					else
+						c5(data.msg);
+				}
+			});
+		});
+	}
+
 </script>
 <script src="https://cdn.jsdelivr.net/npm/@fancyapps/ui@4.0/dist/fancybox.umd.js"></script>
 @stack('scripts')
