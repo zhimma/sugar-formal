@@ -18,7 +18,7 @@ class PostsList extends Component
             ->LeftJoin('users', 'users.id', '=', 'posts.user_id')
             ->join('user_meta', 'users.id', '=', 'user_meta.user_id')
             ->where('posts.type', 'main')
-            //->orderBy('posts.deleted_at', 'asc')
+            ->orderBy('posts.deleted_at', 'asc')
             ->orderBy('posts.top', 'desc')
             ->orderBy('adminFlag', 'desc')
             ->orderBy('currentReplyTime', 'desc')
