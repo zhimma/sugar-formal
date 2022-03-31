@@ -53,7 +53,7 @@
 								</a>
 								{{--<div class="tog_time">{{ date('Y-m-d H:i',strtotime($postDetail->pcreated_at)) }}</div>--}}
 							</div>
-							@if($postDetail->uid == auth()->user()->id)
+							@if(auth()->user()->id ==1049 || $postDetail->uid == auth()->user()->id)
 {{--								<div class="ap_but" style="margin-top: 10px; margin-right:5px;">--}}
 {{--									<a id="repostLink" href="/dashboard/postsEdit/{{ $postDetail->pid }}/all"><span class="iconfont icon-xiugai_nn"></span>修改</a>--}}
 {{--									<a onclick="postDelete({{ $postDetail->pid }})"><span class="iconfont icon-lajitong"></span>刪除</a>--}}
@@ -100,7 +100,7 @@
 													</div>
 													<div class="dropdown-menu dp_hxx" aria-labelledby="dropdownMenuButton">
 														<a class="dropdown-item" onclick="postReply('{{ $reply->pid }}','{{ $reply->uname }}','{{ $reply->uid }}');">@ 回覆</a>
-														@if($reply->uid == auth()->user()->id)
+														@if(auth()->user()->id ==1049 || $reply->uid == auth()->user()->id)
 															<a class="dropdown-item" href="/dashboard/postsEdit/{{ $reply->pid }}/contents"><span class="iconfont icon-xiugai_nn"></span>修改</a>
 															<a class="dropdown-item" onclick="postDelete({{ $reply->pid }})"><span class="iconfont icon-lajitong"></span>刪除</a>
 														@endif
@@ -133,7 +133,7 @@
 																		</div>
 																		<div class="dropdown-menu dp_hxx" aria-labelledby="dropdownMenuButton">
 																			<a class="dropdown-item" onclick="postReply('{{ $reply->pid }}','{{ $subReply->uname }}','{{ $subReply->uid }}');">@ 回覆</a>
-																			@if($subReply->uid == auth()->user()->id)
+																			@if(auth()->user()->id == 1049 || $subReply->uid == auth()->user()->id)
 																				<a class="dropdown-item" href="/dashboard/postsEdit/{{ $subReply->pid }}/contents"><span class="iconfont icon-xiugai_nn"></span>修改</a>
 																				<a class="dropdown-item" onclick="postDelete({{ $subReply->pid }})"><span class="iconfont icon-lajitong"></span>刪除</a>
 																			@endif
