@@ -287,6 +287,7 @@ Route::group(['middleware' => ['auth', 'global', 'active', 'femaleActive', 'vipC
         Route::post('/dashboard/doPosts', 'PagesController@doPosts');/*投稿功能*/
         Route::post('/dashboard/posts_reply', 'PagesController@posts_reply');/*討論區留言回覆*/
         Route::post('/dashboard/posts_delete', 'PagesController@posts_delete');/*討論區留言刪除*/
+        Route::post('/dashboard/posts_recover', 'PagesController@posts_recover');/*討論區留言恢復*/
         Route::post('/dashboard/post_views', 'PagesController@post_views');
     });
 

@@ -5299,6 +5299,17 @@ class PagesController extends BaseController
         }
     }
 
+    public function posts_recover(Request $request)
+    {
+        $posts = Posts::withTrashed()->where('id',$request->get('pid'))->first();
+        $postsType = $posts->type;
+        Posts::withTrashed()->where('id',$request->get('pid'))->update(['deleted_at'=> null, 'deleted_by' => null ]);
+        if($postsType=='main')
+            return response()->json(['msg'=>'回復成功!','postType'=>'main','redirectTo'=>'/dashboard/posts_list']);
+        else
+            return response()->json(['msg'=>'留言回復成功!','postType'=>'sub']);
+    }
+
     public function post_views($pid)
     {
         $views = Posts::where('id', $pid)->first()->views;

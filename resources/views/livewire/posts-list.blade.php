@@ -24,6 +24,9 @@
                             <div class="tc_text_aa"><span>{{$post->ptitle}}</span></div>
                             <div class="tc_text_bb"><p>{!! \App\Models\Posts::showContent($post->pcontents) !!}</p></div>
                         </a>
+                        @if($post->deleted_by != null && $user->id == 1049)
+                            <button onclick="recover_post({{ $post->pid }});" style="right:0px;">回復文章</button>
+                        @endif
                     </li>
                 @endforeach
             </ul>
@@ -33,3 +36,27 @@
         </div>
     @endif
 </div>
+<script>
+    function recover_post(pid)
+    {
+		c4('確定要回復嗎?');
+		$(".n_left").on('click', function() {
+			$.ajax({
+				url: '/dashboard/posts_recover?{{ csrf_token() }}={{now()->timestamp}}',
+				method: 'POST',
+				data: {
+					_token: "{{ csrf_token() }}",
+					pid: pid
+				},
+				success: function(data) {
+					if(data.postType=='main'){
+						c5(data.msg);
+						window.location.href=data.redirectTo;
+					}
+					else
+						c5(data.msg);
+				}
+			});
+		});
+	}
+</script>
