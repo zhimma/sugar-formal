@@ -39,6 +39,8 @@
 	}
 </style>
 @extends('new.layouts.website')
+
+<script src="{{ mix('/js/app.js') }}"></script>
 	<meta charset="utf-8">
 	<meta http-equiv="X-UA-Compatible" content="IE=edge">
 	<meta name="format-detection" content="telephone=no" />
@@ -55,136 +57,98 @@
 	<script src="/posts/js/bootstrap.min.js"></script>
 
 	@section('app-content')
-	<div class="container matop70">
-		<div class="row">
-			<div class="col-sm-2 col-xs-2 col-md-2 dinone">
-				@include('new.dashboard.panel')
-			</div>
-			<div class="col-sm-12 col-xs-12 col-md-10">
-				<div class="shou">
-					<span>留言板詳情</span><font>Wishing Board</font>
-					<a href="/MessageBoard/showList" class="toug_back btn_img">
-						<div class="btn_back"></div>
-					</a>
+	<div id="app">
+		<div class="container matop70">
+			<div class="row">
+				<div class="col-sm-2 col-xs-2 col-md-2 dinone">
+					@include('new.dashboard.panel')
 				</div>
-				<div class="liuyan_xqlist">
-					@php
-						$userMeta=\App\Models\UserMeta::findByMemberId($postDetail->uid);
-						$msgUser=\App\Models\User::findById($postDetail->uid);
-						$isBlurAvatar = \App\Services\UserService::isBlurAvatar($msgUser, $user);
-
-					 	$cityList=explode(',',$postDetail->city);
-						$areaList=explode(',',$postDetail->area);
-						$cityAndArea='';
-						foreach ($cityList as $key => $city){
-							$cityAndArea.= $cityList[$key].$areaList[$key] . ((count($cityList)-1)==$key ? '':', ');
-						}
-					@endphp
-					<a href="/dashboard/viewuser/{{$postDetail->uid}}">
-						<div class="liuyan_img01">
-							<img class="hycov @if($isBlurAvatar) blur_img @endif" src="@if(file_exists( public_path().$postDetail->umpic ) && $postDetail->umpic != ""){{$postDetail->umpic}} @elseif($postDetail->uengroup==2)/new/images/female.png @else/new/images/male.png @endif">
-						</div>
-					</a>
-					<div class="liuyan_text"><a href="/dashboard/viewuser/{{$postDetail->uid}}">{{ $postDetail->uname }}</a> , {{ $userMeta ? $userMeta->age() : '' }}<span class="liu_dq">{{ $cityAndArea }}</span></div>
-					@if($postDetail->uid!==$user->id)
-						<a href="/dashboard/chat2/chatShow/{{ $postDetail->uid }}" class="liuyicon"></a>
-					@endif
-				</div>
-				<div class="liuy_nr">
-					<div class="liuy_font">
-						<div class="liuy_font_1">
-							<div class="liu_yf">{{ $postDetail->mtitle }}<h2>{{ substr($postDetail->mcreated_at,0,10) }}</h2></div>
-							@if($postDetail->uid== auth()->user()->id)
-								<div class="right">
-									<form action="/MessageBoard/delete/{{ $postDetail->mid }}" id="delete_form" method="POST" enctype="multipart/form-data">
-										<input type="hidden" name="_token" value="{{ csrf_token() }}">
-									</form>
-									<a class="sc_cc" onclick="send_delete_submit()"><img src="/new/images/del_03n.png">刪除</a>
-									<a href="/MessageBoard/edit/{{ $postDetail->mid }}" class="sc_cc"  style="margin-right: 5px;"><img src="/new/images/xiugai.png">修改</a>
-								</div>
-							@else
-								<div class="right">
-									<a onclick="block_user();"class="sc_cc"><img src="/new/images/ncion_09.png">封鎖</a>
-									<a onclick="messageBoard_reported('{{ $postDetail->mid }}');" class="sc_cc" style="margin-right: 5px;"><img src="/new/images/jianju_aa.png">檢舉</a>
-								</div>
-							@endif
-						</div>
-						<p>{!! \App\Models\Posts::showContent($postDetail->mcontents) !!}</p>
-						<div class="liu_iy"><img src="/new/images/photo_1.png"></div>
+				<div class="col-sm-12 col-xs-12 col-md-10">
+					<div class="shou">
+						<span>留言板詳情</span><font>Wishing Board</font>
+						<a href="/MessageBoard/showList" class="toug_back btn_img">
+							<div class="btn_back"></div>
+						</a>
 					</div>
-					<ul class="liuyan_photo">
-						@if(count($images)==1)
-							@foreach($images as $key => $image)
-								<li class="liuy_ph3-4">
-									<img src="{{ $image->pic }}" class="hycov">
-								</li>
-							@endforeach
-						@elseif(count($images)==2)
-							@foreach($images as $key => $image)
-								@if($key==0)
-									<li class="liuy_ph3-3">
+					<div v-html="itemHeader"></div>
+					
+					<div class="liuy_nr">
+							<div v-html="itemContent"></div>
+						<ul class="liuyan_photo">
+							@if(count($images)==1)
+								@foreach($images as $key => $image)
+									<li class="liuy_ph3-4">
 										<img src="{{ $image->pic }}" class="hycov">
 									</li>
-								@endif
-								@if($key==1)
-									<li class="liuy_ph3-3 right01">
-										<img src="{{ $image->pic }}" class="hycov">
-									</li>
-								@endif
-							@endforeach
-						@elseif(count($images)==3)
-							@foreach($images as $key => $image)
-								@if($key==0)
-									<li class="liuy_ph3-1">
-										<img src="{{ $image->pic }}" class="hycov">
-									</li>
-								@endif
-								@if($key==1)
-									<li class="liuy_ph3-2 liu_one">
-										<div class="liu_imt liu_one">
+								@endforeach
+							@elseif(count($images)==2)
+								@foreach($images as $key => $image)
+									@if($key==0)
+										<li class="liuy_ph3-3">
 											<img src="{{ $image->pic }}" class="hycov">
-										</div>
-									</li>
-								@endif
-								@if($key==2)
-									<li class="liuy_ph3-2 liu_bot01">
-										<div class="liu_imt">
+										</li>
+									@endif
+									@if($key==1)
+										<li class="liuy_ph3-3 right01">
 											<img src="{{ $image->pic }}" class="hycov">
-										</div>
-									</li>
-								@endif
-							@endforeach
-						@else
-							@foreach($images as $key => $image)
-								@if($key==0)
-									<li class="liuy_ph1">
-										<img src="{{ $image->pic }}" class="hycov">
-									</li>
-								@endif
-								@if($key==1)
-									<li class="liuy_ph2 liu_one">
-										<div class="liu_imt liu_one"><img src="{{ $image->pic }}" class="hycov"></div>
-									</li>
-								@endif
-								@if($key==2)
-									<li class="liuy_ph2 liu_bot01">
-										<div class="liu_imt"><img src="{{ $image->pic }}" class="hycov"></div>
-									</li>
-								@endif
-								@if($key==3)
-									<li class="liuy_ph3">
-										<img src="{{ $image->pic }}" class="hycov">
-										<div class="li_fontx">+{{ count($images)-3 }}</div>
-									</li>
-								@endif
-								@if($key>=4)
-									<li style="display: none;">
-										<img src="{{ $image->pic }}" class="hycov">
-									</li>
-								@endif
-							@endforeach
-						@endif
-					</ul>
+										</li>
+									@endif
+								@endforeach
+							@elseif(count($images)==3)
+								@foreach($images as $key => $image)
+									@if($key==0)
+										<li class="liuy_ph3-1">
+											<img src="{{ $image->pic }}" class="hycov">
+										</li>
+									@endif
+									@if($key==1)
+										<li class="liuy_ph3-2 liu_one">
+											<div class="liu_imt liu_one">
+												<img src="{{ $image->pic }}" class="hycov">
+											</div>
+										</li>
+									@endif
+									@if($key==2)
+										<li class="liuy_ph3-2 liu_bot01">
+											<div class="liu_imt">
+												<img src="{{ $image->pic }}" class="hycov">
+											</div>
+										</li>
+									@endif
+								@endforeach
+							@else
+								@foreach($images as $key => $image)
+									@if($key==0)
+										<li class="liuy_ph1">
+											<img src="{{ $image->pic }}" class="hycov">
+										</li>
+									@endif
+									@if($key==1)
+										<li class="liuy_ph2 liu_one">
+											<div class="liu_imt liu_one"><img src="{{ $image->pic }}" class="hycov"></div>
+										</li>
+									@endif
+									@if($key==2)
+										<li class="liuy_ph2 liu_bot01">
+											<div class="liu_imt"><img src="{{ $image->pic }}" class="hycov"></div>
+										</li>
+									@endif
+									@if($key==3)
+										<li class="liuy_ph3">
+											<img src="{{ $image->pic }}" class="hycov">
+											<div class="li_fontx">+{{ count($images)-3 }}</div>
+										</li>
+									@endif
+									@if($key>=4)
+										<li style="display: none;">
+											<img src="{{ $image->pic }}" class="hycov">
+										</li>
+									@endif
+								@endforeach
+							@endif
+						</ul>
+					</div>
+					
 				</div>
 			</div>
 		</div>
@@ -207,7 +171,7 @@
 	<link type="text/css" rel="stylesheet" href="/new/css/app.css">
 	<link rel="stylesheet" type="text/css" href="/new/css/swiper.min.css" />
 	<script type="text/javascript" src="/new/js/swiper.min.js"></script>
-	<script>
+	<script type="application/javascript">
 		$(document).ready(function () {
 			/*调起大图 S*/
 			var mySwiper = new Swiper('.swiper-container2',{
@@ -261,7 +225,7 @@
 		/*调起大图 E*/
 	</script>
 	<!--照片查看end-->
-	<script>
+	<script type="application/javascript">
 		$(document).ready(function () {
 
 			@if(Session::has('message'))
@@ -339,4 +303,42 @@
 		}
 		.blnr{padding-bottom: 14px;}
 	</style>
+
+	
+	<script>
+    const vm = new Vue({
+            el: '#app',
+            data () {
+                return {
+					"itemHeader":'<div class="liuyan_xqlist"><a href="#"><div class="liuyan_img01"><img class="hycov"></div></a><div class="liuyan_text"><a href="#"></a> , <span class="liu_dq"></span></div></div>',
+					'itemContent':'<div class="liuy_nr"><div class="liuy_font"><div class="liuy_font_1"><div class="liu_yf"><h2></h2></div></div><p></p><div class="liu_iy"><img src="/new/images/photo_1.png"></div></div><ul class="liuyan_photo"><li class="liuy_ph3-4"><img class="hycov"></li></ul></div>',
+					// "listOther":'loading...',
+					// 'listMyself':'loading...'
+				}
+            },
+        async mounted () {
+			let pid={{$pid}};
+                await axios
+                .post('/MessageBoard/getItemHeader', { pid:pid })
+                .then(response => {
+					console.log(response,'getItemHeader');
+                    this.itemHeader = response.data.ssrData;
+                })
+                .catch(function (error) { // 请求失败处理
+                    console.log(error);
+                });
+   
+                axios
+                .post('/MessageBoard/getItemContent',{ pid:pid })
+
+                .then(response => {
+					console.log(response);
+                    this.itemContent = response.data.ssrData;
+                })
+                .catch(function (error) { // 请求失败处理
+                    console.log(error);
+                });
+        }
+        });
+	</script>
 @stop

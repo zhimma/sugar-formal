@@ -200,7 +200,7 @@
     function disableNotice(){
         $.ajax({
             type: 'POST',
-            url: '{{ route('disableNotice') }}',
+            url: '{{ route('disableNotice') }}?{{csrf_token()}}={{now()->timestamp}}',
             data: { id : "{{ $user->id }}", _token:"{{ csrf_token() }}"},
             success: function(xhr, status, error){
                 $('.notice').toggle("slow");

@@ -297,6 +297,11 @@ Route::group(['middleware' => ['auth', 'global', 'active', 'femaleActive', 'vipC
         Route::get('/post_detail/{pid}', 'PagesController@messageBoard_post_detail');
         Route::post('/doPosts', 'PagesController@messageBoard_doPosts');
         Route::post('/delete/{mid}', 'PagesController@messageBoard_delete');
+
+        Route::post('/showListMyself', 'PagesController@messageBoard_showList_myself')->name('messageBoard_list_myself');
+        Route::post('/showListOther', 'PagesController@messageBoard_showList_other')->name('messageBoard_list_other');
+        Route::post('/getItemHeader', 'PagesController@messageBoard_itemHeader')->name('messageBoard_itemHeader');
+        Route::post('/getItemContent', 'PagesController@messageBoard_itemContent')->name('messageBoard_itemContent');
     });
 
     Route::post('/dashboard', 'PagesController@profileUpdate');

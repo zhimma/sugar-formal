@@ -195,8 +195,10 @@ div.new_poptk{color:#6783c7;overflow-y:scroll;}
                         <input type="hidden" name="{{ time() }}" value="{{ time() }}">
                         <input type="hidden" name="cfp_hash" id="cfp_hash">
                         {{-- <a href="javascript:void(0);" onclick="this.disabled = true" class="dlbut btn-register">註冊</a> --}}
-                        <button onclick="this.disabled = true" class="dlbut btn-register" style="border-style: none;">註冊</button>
-                        <a href="" class="zcbut matop20">取消</a>
+                        <div class="n_txbut">
+                            <button onclick="this.disabled = true" class="se_but1 btn-register" style="border-style: none;">註冊</button>
+                            <a href="" class="se_but2">取消</a>
+                        </div>
 
                     </form>
                     <iframe id="childFrame" src="https://www.sugar-garden.org/cfp" style="border:none;" ></iframe>

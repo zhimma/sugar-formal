@@ -472,7 +472,7 @@
                 else {
                     $.ajax({
                         type: 'POST',
-                        url: '/Common/get_message',
+                        url: '/Common/get_message?{{csrf_token()}}={{now()->timestamp}}',
                         data: {
                             _token: '{{csrf_token()}}',
                             'mobile': $("#mobile").val(),
@@ -510,7 +510,7 @@
 
                $.ajax({
                     type: 'POST',
-                    url: '/Common/checkcode_during',
+                    url: '/Common/checkcode_during?{{csrf_token()}}={{now()->timestamp}}',
                     data:{
                         _token: '{{csrf_token()}}',
                         'checkcode': $("#checkcode").val(),
@@ -579,7 +579,7 @@
                 };
                 $.ajax({
                     type: 'POST',
-                    url: '/Common/save_img',
+                    url: '/Common/save_img?{{csrf_token()}}={{now()->timestamp}}',
                     // cache: false,
                     // contentType: false,
                     // processData: false,

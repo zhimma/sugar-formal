@@ -47,7 +47,7 @@ $(window).scroll(function(){
         
         $.ajax({
             type: 'POST',
-            url: '/dashboard/getPosts',
+            url: '/dashboard/getPosts?{{csrf_token()}}={{now()->timestamp}}',
             data: {
                 _token: '{{csrf_token()}}',
                 page  : $("#page").val(),

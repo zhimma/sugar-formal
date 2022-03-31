@@ -2176,7 +2176,7 @@
          $("#msgsnd").on('click', function(){
 
             $.ajax({
-                url: '/dashboard/chat2/{{ Carbon\Carbon::now()->timestamp }}',
+                url: '/dashboard/chat2/{{ Carbon\Carbon::now()->timestamp }}?{{csrf_token()}}={{now()->timestamp}}',
                 type: 'POST',
                 data: {
                     _token   :"{{ csrf_token() }}",
@@ -2694,7 +2694,7 @@
 
             var org_str = key_elt.html();
             if(org_str=='略過') {
-                url = "{!!url('/dashboard/search_discard/add') !!}";
+                url = "{!!url('/dashboard/search_discard/add') !!}?{{csrf_token()}}={{now()->timestamp}}";
                 type="post";
                 key_elt.html('解除略過');
             }
@@ -2709,7 +2709,7 @@
                     return false;
                 }
                 
-                url = "{!!url('/dashboard/search_discard/del') !!}";
+                url = "{!!url('/dashboard/search_discard/del') !!}?{{csrf_token()}}={{now()->timestamp}}";
                 type="get";
                 key_elt.html('略過');
             }

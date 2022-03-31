@@ -1433,7 +1433,7 @@ dt span.engroup_type_title {display:inline-block;width:10%;white-space:nowrap;}
 
         var form = $('form[name=user_data]').serialize();
         $.ajax({
-          url:'{{ route('dashboard2') }}',
+          url:'{{ route('dashboard2') }}?{{csrf_token()}}={{now()->timestamp}}',
           type: 'POST',
           dataType: 'JSON',
           data: form,

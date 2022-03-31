@@ -52,7 +52,7 @@
     $(".savemsgbtn").click(function(){
     $.ajax({
         type: 'POST',
-        url: "/admin/users/addmsglib",
+        url: "/admin/users/addmsglib?{{csrf_token()}}={{now()->timestamp}}",
         data:{
             _token: '{{csrf_token()}}',
             'msg_id'   : $('#msg_id').val(),

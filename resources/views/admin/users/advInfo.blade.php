@@ -1616,19 +1616,19 @@
 								<a href="{{ route('admin/showMessagesBetween', [$user->id, $ref_user_id]) }}" target="_blank">
 									<p style="margin-bottom:0px; @if($item->engroup == '2') color: #F00; @else color: #5867DD; @endif">{{$item->name }}
 									@php
-										$to_id_tipcount = \App\Models\Tip::TipCount_ChangeGood($item->to_id);
-										$to_id_vip = \App\Models\Vip::vip_diamond($item->to_id);
+										$from_id_tipcount = \App\Models\Tip::TipCount_ChangeGood($item->from_id);
+										$from_id_vip = \App\Models\Vip::vip_diamond($item->from_id);
 									@endphp
-									@if($to_id_vip)
-										@if($to_id_vip=='diamond_black')
+									@if($from_id_vip)
+										@if($from_id_vip=='diamond_black')
 											<img src="/img/diamond_black.png" style="height: 16px;width: 16px;">
 										@else
-											@for($z = 0; $z < $to_id_vip; $z++)
+											@for($z = 0; $z < $from_id_vip; $z++)
 												<img src="/img/diamond.png" style="height: 16px;width: 16px;">
 											@endfor
 										@endif
 									@endif
-									@for($i = 0; $i < $to_id_tipcount; $i++)
+									@for($i = 0; $i < $from_id_tipcount; $i++)
 										👍
 									@endfor
 									@if(!is_null($item->banned_id))
@@ -2243,7 +2243,7 @@ function RecommendedToggler(user_id,Recommended){
 function WarnedToggler(user_id,isWarned){
 	$.ajax({
 		type: 'POST',
-		url: "/admin/users/isWarned_user",
+		url: "/admin/users/isWarned_user?{{csrf_token()}}={{now()->timestamp}}",
 		data:{
 			_token: '{{csrf_token()}}',
 			id: user_id,
@@ -2280,7 +2280,7 @@ $("#unblock_user").click(function(){
 	if(confirm('確定解除封鎖此會員?')){
 		$.ajax({
 			type: 'POST',
-			url: "/admin/users/unblock_user",
+			url: "/admin/users/unblock_user?{{csrf_token()}}={{now()->timestamp}}",
 			data:{
 				_token: '{{csrf_token()}}',
 				data: data,
@@ -2301,7 +2301,7 @@ $("#unwarned_user").click(function(){
 	if(confirm('確定解除此會員站方警示?')){
 		$.ajax({
 			type: 'POST',
-			url: "/admin/users/unwarned_user",
+			url: "/admin/users/unwarned_user?{{csrf_token()}}={{now()->timestamp}}",
 			data:{
 				_token: '{{csrf_token()}}',
 				data: data,
@@ -2371,7 +2371,7 @@ function evaluationCheck(eid,userid,is_check) {
 	if (confirm(showMsg)) {
 		$.ajax({
 			type: 'POST',
-			url: "/admin/users/evaluation/check",
+			url: "/admin/users/evaluation/check?{{csrf_token()}}={{now()->timestamp}}",
 			data: {
 				_token: '{{csrf_token()}}',
 				id: eid,
@@ -2409,7 +2409,7 @@ $('.delete_phone_submit').on('click',function(e){
 $("input[name='phone']").keyup(function(){
 	$.ajax({
 		type: 'POST',
-		url: "/admin/users/phone/search",
+		url: "/admin/users/phone/search?{{csrf_token()}}={{now()->timestamp}}",
 		data: {
 			_token: '{{csrf_token()}}',
 			phone: $(this).val(),
@@ -2510,7 +2510,7 @@ $("input[name='phone']").keyup(function(){
         
         $.ajax({
             type: 'GET',
-            url: location.pathname+'?block=pic',
+            url: location.pathname+'?block=pic&{{csrf_token()}}={{now()->timestamp}}',
             success: function(res){
                 $('#pic_block').html(res);
             }});        
