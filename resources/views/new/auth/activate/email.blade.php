@@ -87,6 +87,7 @@
         margin: 0 auto;
         margin: 0 5%;
         flex: 1;
+        box-shadow: 0 0 20px #ffb6c5;
     }
     .vipbut1_block {
         width: 50%;
