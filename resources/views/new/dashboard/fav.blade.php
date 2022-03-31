@@ -9,7 +9,7 @@
         <div class="col-sm-12 col-xs-12 col-md-10">
             <div class="shou"><span>收藏</span>
                 <font>Collection</font>
-                <a href="javascript:" class="shou_but" style="display: none;">全部移除</a>
+                <a href="javascript:void(0)" class="aa_shou_but"><img src="/new/images/ncion_071.png">全部移除</a>
             </div>
             <div class="sjlist">
                 <ul>
@@ -108,14 +108,14 @@
 
         li +=`
             <li  style="${ss}" class="${c}">
-                <div class="si_bg">
+                <div class="si_bg leftb5">
                     <div class="sjpic ${styBlur}"><a href="${url}"><img src="${e.pic}"></a></div>
                     <div class="sjleft">
                         <div class="sjtable"><span><a href="${url}">${e.name}<i class="cicd">●</i>${e.age}</a></span></div>
                         <font>${area_string}</font>
                     </div>
                     <div class="sjright">
-                        <h4 class="fengs"><a href="javascript:" class="remove" data-id="${e.member_fav_id}"><img src="/new/images/ncion_07.png">移除</a></h4>
+                        <a href="javascript:" class="remove sjright_aa" data-id="${e.member_fav_id}"><img src="/new/images/ncion_07.png">移除</a>
                     </div>
                 </div>
             </li>
@@ -185,7 +185,7 @@
                 $('.sjlist>ul').children().slice((Page.page-1)*Page.row, Page.page*Page.row).css('display', '');
                 total=res.msg.length;
                 if(total>0) {
-                    $('.shou_but').show();
+                    $('.aa_shou_but').show();
                 }
             }
         })
@@ -302,7 +302,7 @@
     {{--    });--}}
     {{--});--}}
 
-    $(document).on('click','.shou_but',function(){
+    $(document).on('click','.aa_shou_but',function(){
         var id =    $(this).data('id');
         c4('確定移除全部?');
         $(".n_left").on('click', function() {
