@@ -20,9 +20,9 @@
                             <h3>Email：<span>{{ $user->email }} (若Email填寫錯誤，請重新註冊)</span></h3>
                             </div>
                     </div>
-                    <div class="vipbut1_block">
-                        <a href="{{ url('activate/send-token') }}" class="vipbut1">重新發送</a>
-                        <a href="{{ url('logout') }}" class="vipbut1">關閉</a>
+                    <div class="vipbut1_block mabot_30">
+                        <a href="{{ url('activate/send-token') }}" class="n_embut">重新發送</a>
+                        <a href="{{ url('logout') }}" class="n_embut">關閉</a>
                     </div>
                     <div class="wxsy_title">站長的話</div>
                     <div class="wxsy_k">
@@ -93,7 +93,7 @@
         width: 50%;
         margin: 0 auto;
         display: flex; 
-        padding: 5% 0;
+        /*padding: 5% 0;*/
     }
     @media (max-width:736px) {
         .vipbut1_block{ 
