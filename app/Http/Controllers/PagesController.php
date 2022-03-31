@@ -5136,7 +5136,7 @@ class PagesController extends BaseController
 
     public function post_detail(Request $request)
     {
-//        return redirect(url('/dashboard/posts_list'));
+        //return redirect(url('/dashboard/posts_list'));
         $user = $request->user();
 
         $pid = $request->pid;
@@ -5806,7 +5806,7 @@ class PagesController extends BaseController
 
     public function forum_post_detail(Request $request)
     {
-        //        return redirect(url('/dashboard/posts_list'));
+        //return redirect(url('/dashboard/posts_list'));
         $user = $request->user();
 
         $pid = $request->pid;
@@ -5833,10 +5833,10 @@ class PagesController extends BaseController
         $checkUserVip=0;
         $isVip =Vip::where('member_id',auth()->user()->id)->where('active',1)->where('free',0)->first();
         if($isVip){
-//            $months = Carbon::parse($isVip->created_at)->diffInMonths(Carbon::now());
-//            if($months>=2 || $isVip->payment=='cc_quarterly_payment' || $isVip->payment=='one_quarter_payment'){
-                $checkUserVip=1;
-//            }
+            //$months = Carbon::parse($isVip->created_at)->diffInMonths(Carbon::now());
+            //if($months>=2 || $isVip->payment=='cc_quarterly_payment' || $isVip->payment=='one_quarter_payment'){
+            $checkUserVip=1;
+            //}
         }
         return view('/dashboard/forum_post_detail', compact('postDetail','replyDetail','forum', 'checkUserVip'))->with('user', $user);
     }
