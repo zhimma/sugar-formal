@@ -1061,7 +1061,7 @@ class UserService
     }
 
     public function dispatchCheckECPay($userIsVip, $userIsFreeVip, $vipData){
-        if($userIsVip && !$userIsFreeVip){
+        if(!$userIsFreeVip){
             if(is_object($vipData)){
                 \App\Jobs\CheckECpay::dispatch($vipData, $userIsVip);
             }

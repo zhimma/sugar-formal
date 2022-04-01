@@ -24,8 +24,10 @@
                         <div class="de_input01 dlmarbot"><input name="old_password" id="old_password" type="password" class="zcinput" placeholder="現在的密碼" data-parsley-required data-parsley-required-message="請輸入現在的密碼"></div>
                         <div class="de_input01 dlmarbot"><input name="password" id="password" type="password" class="zcinput" placeholder="新密碼" data-parsley-required data-parsley-required-message="請輸入新密碼" data-parsley-minlength="6" data-parsley-minlength-message="密碼欄位請輸入大於6個位元(含以上)"></div>
                         <div class="de_input01 dlmarbot"><input name="password_confirmation" id="password_confirmation" type="password" class="zcinput" placeholder="確認密碼" data-parsley-required data-parsley-required-message="請再次輸入新密碼（新密碼與再次輸入新密碼要檢查是否一致）" data-parsley-minlength="6" data-parsley-minlength-message="密碼欄位請輸入大於6個位元(含以上)" ></div>
-                        <button class="dlbut g_inputt40" type="submit" style="border-style: none;">更新資料</button>
-                        <button type="reset" class="zcbut matop20">取消</button>
+                        <div class="n_txbut g_inputt40" style="margin-top: 40px;">
+                            <button type="submit" class="se_but1" style="border-style: none;">更新資料</button>
+                            <button type="reset" class="se_but2">取消</button>
+                        </div>
                         </form>
                     </div>
                     </div>
