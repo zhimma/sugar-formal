@@ -2343,6 +2343,23 @@ class PagesController extends BaseController
                     // $message_count_7 = round((int)$message_count_7);
                     // $message_reply_count_7 = round((int)$message_reply_count_7);
                     // $visit_other_count_7 = round((int)$visit_other_count_7);
+
+
+                    //至目前為止離隱藏日期過了幾天
+                    $hideOnlineDays = now()->diffInDays($hideOnlineData->created_at);
+
+                    $message_count_7 = $message_count_7 - ($message_count_7 / 7) * $hideOnlineDays;
+                    $message_reply_count_7 = $message_reply_count_7 - ($message_reply_count_7 / 7) * $hideOnlineDays;
+                    $visit_other_count_7 = $visit_other_count_7 - ($visit_other_count_7 / 7) * $hideOnlineDays;
+
+                    if($message_count_7 < 0){$message_count_7 = 0;}
+                    if($message_reply_count_7 < 0){$message_reply_count_7 = 0;}
+                    if($visit_other_count_7 < 0){$visit_other_count_7 = 0;}
+
+                    $message_count_7 = round((int)$message_count_7);
+                    $message_reply_count_7 = round((int)$message_reply_count_7);
+                    $visit_other_count_7 = round((int)$visit_other_count_7);
+
                 }
             }
 
