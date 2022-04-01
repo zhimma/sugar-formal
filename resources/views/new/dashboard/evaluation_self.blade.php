@@ -50,8 +50,13 @@
                 <a href="" class="shou_but">全部刪除</a>
                 @endif
             </div>
-
-            @if(count($evaluation_data)>0)
+            @php
+            $w1 = \App\Models\UserMeta::where('user_id', $user->id)->where('isWarned', 1)->first() ?? false;
+            $w2 = DB::table('warned_users')->where('member_id', $user->id)->first() ?? false;
+            $b1 = DB::table('banned_users')->where('member_id', $user->id)->first() ?? false;
+            $b2 = \App\Models\BannedUsersImplicitly::where('target', $user->id)->first() ?? false;
+            @endphp
+            @if(count($evaluation_data)>0 && !$w1 && !$w2 && !$b1 && !$b2)
             <div class="pjliuyan02">
                 <ul>
                     @php
