@@ -77,14 +77,20 @@
 									$show_a = 0;
 									$getStatus = \App\Models\ForumManage::where('user_id', $user->id)->where('apply_user_id', $post->uid)->get()->first();
 								@endphp
-								<li @if($post->f_warned==1) class="huis_01" @endif>
+								<li @if($post->f_warned==1 || $post->f_status==0) class="huis_01" @endif>
 									<div class="ta_lwid_left">
 										<a href="/dashboard/viewuser/{{$post->uid}}">
 										<img src="@if(file_exists( public_path().$post->umpic ) && $post->umpic != ""){{$post->umpic}} @elseif($post->uengroup==2)/new/images/female.png @else/new/images/male.png @endif" class="hycov">
 										</a>
 									</div>
 									<div class="ta_lwid_right">
-										@if($user->id == 1049 || ($post->uid == $user->id || (isset($getStatus) && $getStatus->status==1 && $getStatus->forum_status ==1)) || (isset($getStatus) && $getStatus->status==1 && $getStatus->chat_status ==1) && $post->f_status==1)
+										@if($post->f_status==0 && $post->uid == $user->id)
+											@php
+												$show_a = 1;
+											@endphp
+											<a onclick="forumTip({{$user->id}})">
+										@elseif($user->id == 1049 || ($post->uid == $user->id || (isset($getStatus) && $getStatus->status==1 && $getStatus->forum_status ==1)) || (isset($getStatus) && $getStatus->status==1 && $getStatus->chat_status ==1) && $post->f_status==1)
+
 											@php
 												$show_a = 1;
 											@endphp
@@ -94,11 +100,6 @@
 												$show_a = 1;
 											@endphp
 											<a onclick="forumStatus({{$post->f_status}})">
-										@elseif($post->f_status==0 && $post->uid == $user->id)
-											@php
-												$show_a = 1;
-											@endphp
-											<a onclick="forumTip({{$user->id}})">
 										@elseif(isset($getStatus) && $getStatus->status==0)
 											@php
 												$show_a = 1;

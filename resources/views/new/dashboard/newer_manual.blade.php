@@ -325,7 +325,7 @@
         if(isRead == 0 ){
             $.ajax({
                 type: 'POST',
-                url: "/dashboard/newer_manual/isRead",
+                url: "/dashboard/newer_manual/isRead?{{csrf_token()}}={{now()->timestamp}}",
                 data:{
                     _token: '{{csrf_token()}}',
                     s{{ str_random() }}: '{{ str_random() }}'
@@ -349,7 +349,7 @@
     $('.finish').click(function() {
         $.ajax({
             type: 'POST',
-            url: "/dashboard/newer_manual/isRead",
+            url: "/dashboard/newer_manual/isRead?{{csrf_token()}}={{now()->timestamp}}",
             data:{
                 _token: '{{csrf_token()}}'
             },

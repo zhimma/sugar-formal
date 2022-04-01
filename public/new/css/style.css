@@ -829,7 +829,7 @@ background: transparent;
 .d_input{ border:none; background:none;width:80%; float:left; line-height:35px; margin-left:5px;outline:none}
 .dlmarbot{ margin-bottom:15px;}
 .dlpassword{width:100%; display:table; text-align:right;color:#999999; margin-bottom:15px;}
-.dlbut{width: 250px;height: 40px;background: #fe92a8;border-radius: 200px;color: #ffffff;text-align: center;line-height: 40px;display: table;margin: 0 auto;font-size:16px;}
+.dlbut{width: 250px;height: 40px;background: #fe92a8;border-radius: 200px;color: #ffffff;text-align: center;line-height: 40px;display: table;margin: 0 auto;font-size:16px;box-shadow: 0 0 20px #ffb6c5;}
 .dlbut:hover{color:#ffffff;box-shadow:inset 0px 15px 10px -10px #f83964,inset 0px -10px 10px -20px #f83964;}
 
 
@@ -984,7 +984,7 @@ background: transparent;
 
 
 .head_3{background-image: linear-gradient(to right, #f5c2c0 0%, #ffe4e7 100%);width: 100%;height:70px; position:absolute; top:0; z-index:7}
-.ndlrfont{position: absolute;right:23px;top:25px;}
+.ndlrfont{position: absolute;right:0px;top:25px;}
 .ndlrfont a{ padding:0 5px;}
 
 
@@ -996,7 +996,7 @@ background: transparent;
 
 
 @media (max-width:992px) {
-.ndlrfont{position: absolute;right:36px;top:25px;}
+.ndlrfont{position: absolute;right:0px;top:25px;}
 
 .logtop{margin-top:30vh}
 .lxtop{ margin-top:28vh}
@@ -1004,7 +1004,7 @@ background: transparent;
 
 }
 @media (max-width:767px) {
-.ndlrfont{position: absolute;right:23px;top:25px;}
+.ndlrfont{position: absolute;right:0px;top:25px;}
 
 .logtop{margin-top:24vh}
 .lxtop{ margin-top:23vh}
@@ -1124,10 +1124,10 @@ border-radius: 3px;
 .egbuic:hover{ color:#ffffff}
 .egbuic font{ font-size:18px;}
 .egbuic span{width:100%; display:table}
-.egbleft{background:#fe92a8; float:left}
+.egbleft{background:#fe92a8; float:left; box-shadow: 0 0 20px #ffb6c5;}
 .egbleft:hover{color:#ffffff;box-shadow:inset 0px 20px 12px -12px #f83964,inset 0px -12px 12px -20px #f83964;}
 
-.egbright{background:#89dff3; float:right}
+.egbright{background:#89dff3; float:right; box-shadow: 0 0 20px #89dff3;}
 .egbright:hover{color:#ffffff;box-shadow:inset 0px 20px 12px -12px #1fb6d9,inset 0px -12px 12px -20px #1fb6d9;}
 
 
@@ -1409,9 +1409,9 @@ background-position: 50% 50%;-webkit-background-size: cover;background-size: cov
 .shye{ display:none}
 
 .n_sybut{width:550px; margin:0 auto; display:table; margin-top:20px; margin-bottom:30px;}
-.n_sybut_left{width:45%; float:left; height:60px; line-height:60px;text-align:center;border-radius:100px; background:#fe92a8; color:#ffffff; font-size:18px;}
+.n_sybut_left{width:45%; float:left; height:60px; line-height:60px;text-align:center;border-radius:100px; background:#fe92a8; color:#ffffff; font-size:18px;box-shadow: 0 0 20px #ffb6c5;}
 .n_sybut_left:hover{color:#ffffff;box-shadow:inset 0px 13px 10px -10px #f83964,inset 0px -10px 10px -20px #f83964;}
-.n_sybut_right{width:45%; float:right; height:60px; line-height:60px; text-align:center;border-radius:100px; background:#ffffff; border:#fe92a8 2px solid; color:#fe92a8;font-size:18px;}
+.n_sybut_right{width:45%; float:right; height:60px; line-height:60px; text-align:center;border-radius:100px; background:#ffffff; border:#fe92a8 2px solid; color:#fe92a8;font-size:18px;box-shadow: 0 0 20px #ffb6c5;}
 .n_sybut_right:hover{color:#ffffff;box-shadow:inset 0px 15px 10px -10px #f83964,inset 0px -10px 10px -20px #f83964;background:#fe92a8; border:#fe92a8 1px solid}
 
 
@@ -2784,7 +2784,7 @@ border-radius:100px;margin-top:5px;font-weight:normal;font-size:18px;padding:15p
 }
 
 
-.new_gvip_input{margin: 0 auto; display:table;margin-top:15px;margin-bottom: 15px;}
+.new_gvip_input{margin: 0 auto; display:table;margin-top:15px;margin-bottom: 15px;box-shadow: 0 0 20px #ffb6c5;}
 .new_gvip_input{width:110px; height:40px; background:#fe92a8; border-radius:200px; color:#ffffff; text-align:center; line-height:40px; cursor: pointer;}
 .new_gvip_input:hover{color:#ffffff;box-shadow:inset 0px 15px 10px -10px #f83964,inset 0px -10px 10px -20px #f83964;}
 
@@ -2912,7 +2912,7 @@ border-radius:100px;margin-top:5px;font-weight:normal;font-size:18px;padding:15p
 .new_abg{width:90%; margin-left: 5%; display: table; margin-top: 15px;}
 .new_abg span{width:25%; float: left; margin-bottom: 10px;}
 .new_abg font{width:50%; float: left; margin-bottom: 10px;}
-.new_vpadd{width:94%; height:40px; background:#fe92a8; border-radius:200px; color:#ffffff; text-align:center; line-height:40px; cursor: pointer; margin-left:3%; display: table;}
+.new_vpadd{width:94%; height:40px; background:#fe92a8; border-radius:200px; color:#ffffff; text-align:center; line-height:40px; cursor: pointer; margin-left:3%; display: table;box-shadow: 0 0 20px #ffb6c5;}
 .new_vpadd:hover{color:#ffffff;box-shadow:inset 0px 15px 10px -10px #f83964,inset 0px -10px 10px -20px #f83964;}
 
 

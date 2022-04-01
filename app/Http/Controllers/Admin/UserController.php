@@ -986,7 +986,7 @@ class UserController extends \App\Http\Controllers\BaseController
             $userMessage_log[$key]['items'] = Message::withTrashed()->select('message.*','message.id as mid','message.created_at as m_time','u.*','b.id as banned_id','b.expire_date as banned_expire_date')
                 //->from('message as m')
                 ->leftJoin('users as u','u.id','message.from_id')
-                ->leftJoin('banned_users as b','message.to_id','b.member_id')
+                ->leftJoin('banned_users as b','message.from_id','b.member_id')
                 ->where([['message.to_id', $id],['message.from_id', $value->ref_user_id]])
                 ->orWhere([['message.from_id', $id],['message.to_id', $value->ref_user_id]])
                 ->where('message.created_at','>=', \Carbon\Carbon::parse("180 days ago")->toDateTimeString())

@@ -97,7 +97,7 @@
         {
             $.ajax({
             type: 'POST',
-            url: "/admin/users/delmsglib",
+            url: "/admin/users/delmsglib?{{csrf_token()}}={{now()->timestamp}}",
             data:{
                 _token: '{{csrf_token()}}',
                 id    : $(this).attr('id'),

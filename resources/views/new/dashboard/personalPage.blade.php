@@ -866,7 +866,7 @@
     function noticeAlert_close() {
         $.ajax({
             type: 'POST',
-            url: '{{ route('closeNoticeNewEvaluation') }}',
+            url: '{{ route('closeNoticeNewEvaluation') }}?{{csrf_token()}}={{now()->timestamp}}',
             data: { id : "{{ $user->id }}", _token:"{{ csrf_token() }}"},
             success: function(xhr, status, error){
                 console.log(xhr);

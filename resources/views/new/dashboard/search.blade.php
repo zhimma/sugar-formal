@@ -698,7 +698,7 @@ header("Expires: Fri, 01 Jan 1990 00:00:00 GMT");
         $('#search_reset').click(function(){
             $.ajax({
                 type: 'POST',
-                url: "/dashboard/search_key_reset",
+                url: "/dashboard/search_key_reset?{{csrf_token()}}={{now()->timestamp}}",
                 async:false,
                 data:{
                     _token: '{{csrf_token()}}'
