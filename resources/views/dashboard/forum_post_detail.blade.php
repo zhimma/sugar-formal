@@ -48,8 +48,13 @@
 							</div>
 							@if(auth()->user()->id == 1049 || $postDetail->uid == auth()->user()->id || $forum->user_id == auth()->user()->id)
 								<div class="ap_butnew" style="margin-top: 10px; margin-right:10px;">
-									<a onclick="postDelete({{ $postDetail->pid }})" class="sc_cc"><img src="/posts/images/del_03n.png">刪除</a>
-									<a id="repostLink" href="/dashboard/forumPostsEdit/{{ $postDetail->pid }}/all" class="sc_cc"><img src="/posts/images/xiugai.png">修改</a>
+									@if($postDetail->pdeleted_at == null)
+										<a onclick="postDelete({{ $postDetail->pid }})" class="sc_cc"><img src="/posts/images/del_03n.png">刪除</a>
+										<a id="repostLink" href="/dashboard/forumPostsEdit/{{ $postDetail->pid }}/all" class="sc_cc"><img src="/posts/images/xiugai.png">修改</a>
+									@endif
+									@if($postDetail->pdeleted_at != null && auth()->user()->id == 1049)
+										<a onclick="recover_post({{ $postDetail->pid }});" class="sc_cc">回復文章</a>
+									@endif
 								</div>
 							@endif
 							<div id="ptitle" class="xq_text">{{ $postDetail->ptitle }}</div>
@@ -353,5 +358,27 @@
 			$('#pcontents').hide();
 		}
 
+		function recover_post(pid) {
+			c4('確定要回復嗎?');
+			$(".n_left").on('click', function() {
+				$.ajax({
+					url: '/dashboard/forum_posts_recover?{{ csrf_token() }}={{now()->timestamp}}',
+					method: 'POST',
+					data: {
+						_token: "{{ csrf_token() }}",
+						pid: pid,
+						fid: {{$forum->id}}
+					},
+					success: function(data) {
+						if(data.postType=='main'){
+							c5(data.msg);
+							window.location.href=data.redirectTo;
+						}
+						else
+							c5(data.msg);
+					}
+				});
+			});
+		}
 	</script>
 @endsection

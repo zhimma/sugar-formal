@@ -131,7 +131,7 @@
 								@if(count($posts_personal_all)>0)
 								@foreach( $posts_personal_all as $row)
 								<li @if($row->top==1)style="background: oldlace;"@endif @if($row->deleted_by != null) class="huis_01" @elseif($row->forum_status==0) @endif>
-									<a @if($row->deleted_by == null)
+									<a @if($user->id == 1049 || $row->deleted_by == null)
 										   @if($forum->user_id != $user->id && $user->id != 1049 && $checkForumMangeStatus->forum_status==0) onclick="view_alert()"
 										   @else href="/dashboard/forum_post_detail/{{$row->pid}}"
 										   @endif
@@ -144,11 +144,6 @@
 											<div class="ta_tetime"><span class="iconfont icon-shijian"></span>{{ substr($row->pupdated_at,0,10)}}</div>
 										</div>
 									</a>
-									@if($row->deleted_by != null && $user->id == 1049)
-										<div>
-											<a onclick="recover_post({{ $row->pid }});" class="aid_but" style='margin-right:40px; text-align:center;'>回復文章</a>
-										</div>
-									@endif
 								</li>
 								@endforeach
 								@else
@@ -301,30 +296,6 @@
 
 
 	})
-
-	function recover_post(pid) {
-		c4('確定要回復嗎?');
-		$(".n_left").on('click', function() {
-			$.ajax({
-				url: '/dashboard/forum_posts_recover?{{ csrf_token() }}={{now()->timestamp}}',
-				method: 'POST',
-				data: {
-					_token: "{{ csrf_token() }}",
-					pid: pid,
-					fid: {{$forum->id}}
-				},
-				success: function(data) {
-					if(data.postType=='main'){
-						c5(data.msg);
-						window.location.href=data.redirectTo;
-					}
-					else
-						c5(data.msg);
-				}
-			});
-		});
-	}
-
 </script>
 <script src="https://cdn.jsdelivr.net/npm/@fancyapps/ui@4.0/dist/fancybox.umd.js"></script>
 @stack('scripts')

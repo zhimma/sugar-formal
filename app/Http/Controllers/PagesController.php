@@ -5822,7 +5822,7 @@ class PagesController extends BaseController
 
         $pid = $request->pid;
         //$this->post_views($pid);
-        $postDetail = ForumPosts::selectraw('forum_posts.forum_id, users.id as uid, users.name as uname, users.engroup as uengroup, forum_posts.is_anonymous as panonymous, forum_posts.views as uviews, user_meta.pic as umpic, forum_posts.id as pid, forum_posts.title as ptitle, forum_posts.contents as pcontents, forum_posts.updated_at as pupdated_at,  forum_posts.created_at as pcreated_at')
+        $postDetail = ForumPosts::withTrashed()->selectraw('forum_posts.forum_id, users.id as uid, users.name as uname, users.engroup as uengroup, forum_posts.is_anonymous as panonymous, forum_posts.views as uviews, user_meta.pic as umpic, forum_posts.id as pid, forum_posts.title as ptitle, forum_posts.contents as pcontents, forum_posts.updated_at as pupdated_at,  forum_posts.created_at as pcreated_at, forum_posts.deleted_at as pdeleted_at')
             ->LeftJoin('users', 'users.id','=','forum_posts.user_id')
             ->join('user_meta', 'users.id','=','user_meta.user_id')
             ->where('forum_posts.id', $pid)->first();
