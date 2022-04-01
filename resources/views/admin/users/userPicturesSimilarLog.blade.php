@@ -475,7 +475,6 @@
                                                     @endif
                                                 @endif
                                             @endif
-                                @endif
                                 </td>
                                 </tr>
                             @endforeach
