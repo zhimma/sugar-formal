@@ -145,7 +145,7 @@ class Vip extends Model
         }
 
         //開啟討論區權限
-        ForumManage::open_forum_active($member_id);
+        //ForumManage::open_forum_active($member_id);
     }
 
     public static function findById($member_id) {
@@ -284,7 +284,8 @@ class Vip extends Model
             ->update(array('active' => 0, 'expiry' => null));
 
         //關閉討論區權限
-        ForumManage::close_forum_active($this->member_id);
+        //ForumManage::close_forum_active($this->member_id);
+        ForumManage::delete_forum_user_join($this->member_id);
 
         return $user;
     }
