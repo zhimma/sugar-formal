@@ -84,7 +84,7 @@
 										</a>
 									</div>
 									<div class="ta_lwid_right">
-										@if(($post->uid == $user->id || (isset($getStatus) && $getStatus->status==1 && $getStatus->forum_status ==1)) || (isset($getStatus) && $getStatus->status==1 && $getStatus->chat_status ==1) && $post->f_status==1)
+										@if($user->id == 1049 || ($post->uid == $user->id || (isset($getStatus) && $getStatus->status==1 && $getStatus->forum_status ==1)) || (isset($getStatus) && $getStatus->status==1 && $getStatus->chat_status ==1) && $post->f_status==1)
 											@php
 												$show_a = 1;
 											@endphp
@@ -120,13 +120,14 @@
 										<div class="ta_wdka">
 											<div class="ta_wdka_text">主題數<span>{{$post->posts_num}}</span><i>丨</i>回覆數<span>{{$post->posts_reply_num}}</span></div>
 											<div class="ta_witx_rig">
-
-												@if(isset($getStatus) && $getStatus->status==0)
-													<a href="/dashboard/forum_manage_chat/{{$post->uid}}/{{$user->id}}" class="shenhe_z">審核中</a>
-												@elseif(isset($getStatus) && ($getStatus->status==2 || $getStatus->status==3))
-													<div class="wtg_z" onclick="forumStatus({{$getStatus->status}})">未通過</div>
-												@elseif($post->uid != $user->id && !isset($getStatus) && $post->f_status==1)
-													<a onclick="forum_manage_toggle({{$post->uid}}, 0, {{$post->f_id}})" class="seqr">申請加入</a>
+												@if($user->id != 1049)
+													@if(isset($getStatus) && $getStatus->status==0)
+														<a href="/dashboard/forum_manage_chat/{{$post->uid}}/{{$user->id}}" class="shenhe_z">審核中</a>
+													@elseif(isset($getStatus) && ($getStatus->status==2 || $getStatus->status==3))
+														<div class="wtg_z" onclick="forumStatus({{$getStatus->status}})">未通過</div>
+													@elseif($post->uid != $user->id && !isset($getStatus) && $post->f_status==1)
+														<a onclick="forum_manage_toggle({{$post->uid}}, 0, {{$post->f_id}})" class="seqr">申請加入</a>
+													@endif
 												@endif
 												<div class="wt_txb">
 													@php 

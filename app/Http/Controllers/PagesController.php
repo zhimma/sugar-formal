@@ -5177,12 +5177,12 @@ class PagesController extends BaseController
 
     public function post_detail(Request $request)
     {
-//        return redirect(url('/dashboard/posts_list'));
+        //return redirect(url('/dashboard/posts_list'));
         $user = $request->user();
 
         $pid = $request->pid;
         //$this->post_views($pid);
-        $postDetail = Posts::selectraw('posts.top, users.id as uid, users.name as uname, users.engroup as uengroup, posts.is_anonymous as panonymous, posts.views as uviews, user_meta.pic as umpic, posts.id as pid, posts.title as ptitle, posts.contents as pcontents, posts.updated_at as pupdated_at,  posts.created_at as pcreated_at')
+        $postDetail = Posts::withTrashed()->selectraw('posts.top, users.id as uid, users.name as uname, users.engroup as uengroup, posts.is_anonymous as panonymous, posts.views as uviews, user_meta.pic as umpic, posts.id as pid, posts.title as ptitle, posts.contents as pcontents, posts.updated_at as pupdated_at,  posts.created_at as pcreated_at, posts.deleted_at as pdeleted_at')
             ->LeftJoin('users', 'users.id','=','posts.user_id')
             ->join('user_meta', 'users.id','=','user_meta.user_id')
             ->where('posts.id', $pid)->first();
@@ -5338,6 +5338,17 @@ class PagesController extends BaseController
             else
                 return response()->json(['msg'=>'留言刪除成功!','postType'=>'sub']);
         }
+    }
+
+    public function posts_recover(Request $request)
+    {
+        $posts = Posts::withTrashed()->where('id',$request->get('pid'))->first();
+        $postsType = $posts->type;
+        Posts::withTrashed()->where('id',$request->get('pid'))->update(['deleted_at'=> null, 'deleted_by' => null ]);
+        if($postsType=='main')
+            return response()->json(['msg'=>'回復成功!','postType'=>'main','redirectTo'=>'/dashboard/posts_list']);
+        else
+            return response()->json(['msg'=>'留言回復成功!','postType'=>'sub']);
     }
 
     public function post_views($pid)
@@ -5563,8 +5574,18 @@ class PagesController extends BaseController
                 return back()->with('message', '您無法進入此討論區');
             }
         }
+        if($user->id == 1049)
+        {
+            $checkForumMangeStatus = new ForumManage;
+            $checkForumMangeStatus -> forum_id = $fid;
+            $checkForumMangeStatus -> user_id = 1049;
+            $checkForumMangeStatus -> apply_user_id = 1049;
+            $checkForumMangeStatus -> status = 1;
+            $checkForumMangeStatus -> forum_status = 1;
+            $checkForumMangeStatus -> chat_status = 1;
+            $checkForumMangeStatus -> active = 1;
 
-
+        }
 
         $posts_personal_all = ForumPosts::selectraw('
         users.id as uid, 
@@ -5837,12 +5858,12 @@ class PagesController extends BaseController
 
     public function forum_post_detail(Request $request)
     {
-        //        return redirect(url('/dashboard/posts_list'));
+        //return redirect(url('/dashboard/posts_list'));
         $user = $request->user();
 
         $pid = $request->pid;
         //$this->post_views($pid);
-        $postDetail = ForumPosts::selectraw('forum_posts.forum_id, users.id as uid, users.name as uname, users.engroup as uengroup, forum_posts.is_anonymous as panonymous, forum_posts.views as uviews, user_meta.pic as umpic, forum_posts.id as pid, forum_posts.title as ptitle, forum_posts.contents as pcontents, forum_posts.updated_at as pupdated_at,  forum_posts.created_at as pcreated_at')
+        $postDetail = ForumPosts::withTrashed()->selectraw('forum_posts.forum_id, users.id as uid, users.name as uname, users.engroup as uengroup, forum_posts.is_anonymous as panonymous, forum_posts.views as uviews, user_meta.pic as umpic, forum_posts.id as pid, forum_posts.title as ptitle, forum_posts.contents as pcontents, forum_posts.updated_at as pupdated_at,  forum_posts.created_at as pcreated_at, forum_posts.deleted_at as pdeleted_at')
             ->LeftJoin('users', 'users.id','=','forum_posts.user_id')
             ->join('user_meta', 'users.id','=','user_meta.user_id')
             ->where('forum_posts.id', $pid)->first();
@@ -5864,10 +5885,10 @@ class PagesController extends BaseController
         $checkUserVip=0;
         $isVip =Vip::where('member_id',auth()->user()->id)->where('active',1)->where('free',0)->first();
         if($isVip){
-//            $months = Carbon::parse($isVip->created_at)->diffInMonths(Carbon::now());
-//            if($months>=2 || $isVip->payment=='cc_quarterly_payment' || $isVip->payment=='one_quarter_payment'){
-                $checkUserVip=1;
-//            }
+            //$months = Carbon::parse($isVip->created_at)->diffInMonths(Carbon::now());
+            //if($months>=2 || $isVip->payment=='cc_quarterly_payment' || $isVip->payment=='one_quarter_payment'){
+            $checkUserVip=1;
+            //}
         }
         return view('/dashboard/forum_post_detail', compact('postDetail','replyDetail','forum', 'checkUserVip'))->with('user', $user);
     }
@@ -5890,7 +5911,7 @@ class PagesController extends BaseController
     {
         $posts = ForumPosts::where('id',$request->get('pid'))->first();
         $checkForumAdmin = Forum::where('id', $request->get('fid'))->where('user_id', auth()->user()->id)->first();
-        if($posts->user_id !== auth()->user()->id && !$checkForumAdmin){
+        if(auth()->user()->id !=1049 && $posts->user_id !== auth()->user()->id && !$checkForumAdmin){
             return response()->json(['msg'=>'留言刪除失敗 不可刪除別人的留言!']);
         }else{
             $postsType = $posts->type;
@@ -5903,6 +5924,18 @@ class PagesController extends BaseController
                 return response()->json(['msg'=>'留言刪除成功!','postType'=>'sub']);
         }
     }
+
+    public function forum_posts_recover(Request $request)
+    {
+        $posts = ForumPosts::withTrashed()->where('id',$request->get('pid'))->first();
+        $postsType = $posts->type;
+        ForumPosts::withTrashed()->where('id',$request->get('pid'))->update(['deleted_at'=> null, 'deleted_by' => null ]);
+        if($postsType=='main')
+            return response()->json(['msg'=>'回復成功!','postType'=>'main','redirectTo'=>'/dashboard/forum_personal/'.$request->get('fid')]);
+        else
+            return response()->json(['msg'=>'留言回復成功!','postType'=>'sub']);
+    }
+
     public function sms_add_view(Request $request){
         return view('/sms/sms_add_view');
     }
