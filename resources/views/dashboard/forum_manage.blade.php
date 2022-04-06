@@ -72,7 +72,7 @@
 						</a>
 						<div class="fabiao showslide" style="text-align: center;">
 							<a onclick="checkUserVip();">我要發表</a>
-							<a href="/dashboard/forum_manage">會員管理</a>
+							<a href="/dashboard/forum_manage/{{$forum->id}}">會員管理</a>
 							<a onclick="orderStatus();">⇅待審核</a>
 						</div>
 						@endif
@@ -118,7 +118,7 @@
 								<div class="h3_divtab1"><span>會員暱稱丨 </span><font><a href="/dashboard/viewuser/{{$row->user_id}}">{{$row->name}}</a></font></div>
 								<div class="hy_icobutton list1"  id="itemssxN">
 								@if($row->status == 0)
-								<a href="/dashboard/forum_manage_chat/{{$user->id}}/{{$row->user_id}}?fromUrl=/dashboard/forum_manage" class="hy_icon022 custom_s"><span class="iconfont icon-fangdajing"></span>審核中，點此查看聊天記錄</a>
+								<a href="/dashboard/forum_manage_chat/{{$user->id}}/{{$row->user_id}}?fromUrl=/dashboard/forum_manage/{{$forum->id}}" class="hy_icon022 custom_s"><span class="iconfont icon-fangdajing"></span>審核中，點此查看聊天記錄</a>
 								@elseif($row->status == 1)
 								<font class="hy_icon011 custom_s @if($row->forum_status==1) active @endif" onclick="forum_status_toggle({{$row->user_id}}, {{$row->forum_status == 1 ? 1 : 0}}, 'forum_status')"><span class="iconfont icon-liaotian1"></span>
 									討論區
@@ -236,7 +236,7 @@
 	}
 
 	function orderStatus() {
-		window.location.href = "/dashboard/forum_manage?order=1";
+		window.location.href = "/dashboard/forum_manage/{{$forum->id}}?order=1";
 	}
 
 	function shenhe() {

@@ -75,7 +75,7 @@
 							@foreach($posts as $post)
 								@php
 									$show_a = 0;
-									$getStatus = \App\Models\ForumManage::where('user_id', $user->id)->where('apply_user_id', $post->uid)->get()->first();
+									$getStatus = \App\Models\ForumManage::where('user_id', $user->id)->where('forum_id', $post->f_id)->get()->first();
 								@endphp
 								<li @if($post->f_warned==1) class="huis_01" @endif>
 									<div class="ta_lwid_left">
@@ -134,7 +134,7 @@
 													$getApplyUsers = \App\Models\ForumManage::select('user_meta.pic', 'users.engroup')
 																						   ->LeftJoin('users', 'users.id','=','forum_manage.user_id')
 																						   ->join('user_meta', 'user_meta.user_id','=','forum_manage.user_id')
-																						   ->where('forum_manage.apply_user_id', $post->uid)
+																						   ->where('forum_manage.forum_id', $post->f_id)
 																						   ->where('forum_manage.status', 1)
 																						   ->where('forum_manage.active',1)
 																						   ->where(function($query){

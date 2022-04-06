@@ -5647,12 +5647,13 @@ class PagesController extends BaseController
         return view('/dashboard/forum_personal', compact('posts_personal_all','forum', 'checkUserVip', 'checkForumMangeStatus', 'lastest_color'))->with('user', $user);
     }
 
-    public function forum_manage(Request $request)
+    public function forum_manage(Request $request, $fid)
     {
 
+        $forum_id = $fid;
         $user = $request->user();
 
-        $forum = Forum::where('user_id', $user->id)->first();
+        $forum = Forum::where('id', $forum_id)->first();
 
         if(!$forum) {
             return back()->with('message', '您的討論區不存在。');
@@ -5660,7 +5661,7 @@ class PagesController extends BaseController
 
         $posts_manage_users = ForumManage::select('forum_manage.user_id','users.name','forum_manage.status','forum_manage.forum_status','forum_manage.chat_status')
             ->leftJoin('users', 'users.id','=','forum_manage.user_id')
-            ->where('forum_manage.apply_user_id', $user->id)
+            ->where('forum_id', $forum_id)
             ->whereNotIn('status',[2,3]);
         if($request->order == 1) {
             $posts_manage_users = $posts_manage_users->orderBy('status', 'asc');
