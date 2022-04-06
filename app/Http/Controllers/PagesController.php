@@ -1947,12 +1947,12 @@ class PagesController extends BaseController
 
             //check forum manage users
             //apply_user_id = manager
-            $canViewUsers = ForumManage::where('apply_user_id', $user->id)->where('user_id',$targetUser->id)->first();
+//            $canViewUsers = ForumManage::where('apply_user_id', $user->id)->where('user_id',$targetUser->id)->first();
             if ($user->id != $uid) {
 
                 if(
                     //檢查性別
-                    $user->engroup == $targetUser->engroup && !isset($canViewUsers)
+                    $user->engroup == $targetUser->engroup /*&& !isset($canViewUsers)*/
                     //檢查是否被封鎖
 //                    || User::isBanned($user->id)
                 ){
@@ -5127,22 +5127,23 @@ class PagesController extends BaseController
 //            return back();
 //        }
 
-//        $posts = Posts::selectraw('posts.top, users.id as uid, users.name as uname, users.engroup as uengroup, posts.is_anonymous as panonymous, user_meta.pic as umpic, posts.id as pid, posts.title as ptitle, posts.contents as pcontents, posts.updated_at as pupdated_at, posts.created_at as pcreated_at, posts.deleted_by')
-//            ->selectRaw('(select updated_at from posts where (type="main" and id=pid) or reply_id=pid or reply_id in ((select distinct(id) from posts where type="sub" and reply_id=pid) )  order by updated_at desc limit 1) as currentReplyTime')
-//            ->selectRaw('(case when users.id=1049 then 1 else 0 end) as adminFlag')
-//            ->LeftJoin('users', 'users.id','=','posts.user_id')
-//            ->join('user_meta', 'users.id','=','user_meta.user_id')
-//            ->where('posts.type','main')
-//            ->orderBy('posts.deleted_at','asc')
-//            ->orderBy('posts.top','desc')
-//            ->orderBy('adminFlag','desc')
-//            ->orderBy('currentReplyTime','desc')
-//            ->withTrashed()
-//            ->paginate(10);
+        $posts = Posts::selectraw('posts.top, users.id as uid, users.name as uname, users.engroup as uengroup, posts.is_anonymous as panonymous, user_meta.pic as umpic, posts.id as pid, posts.title as ptitle, posts.contents as pcontents, posts.updated_at as pupdated_at, posts.created_at as pcreated_at, posts.deleted_by, posts.deleted_at, posts.article_id as aid')
+            ->selectRaw('(select updated_at from posts where (id=aid or reply_id=aid ) order by updated_at desc limit 1) as currentReplyTime')
+            ->selectRaw('(case when users.id=1049 then 1 else 0 end) as adminFlag')
+            ->LeftJoin('users', 'users.id', '=', 'posts.user_id')
+            ->join('user_meta', 'users.id', '=', 'user_meta.user_id')
+            ->where('posts.type', 'main')
+            ->orderBy('posts.deleted_at', 'asc')
+            ->orderBy('posts.top', 'desc')
+            ->orderBy('adminFlag', 'desc')
+            ->orderBy('currentReplyTime', 'desc')
+            ->orderBy('pcreated_at', 'desc')
+            ->withTrashed()
+            ->paginate(10);
 
         $data = array(
-            'posts' => null
-//            'posts' => $posts
+//            'posts' => null
+            'posts' => $posts
         );
 
         if ($user)
@@ -5463,7 +5464,7 @@ class PagesController extends BaseController
             ->LeftJoin('users', 'users.id','=','forum.user_id')
             ->join('user_meta', 'users.id','=','user_meta.user_id')
             ->leftJoin('forum_posts', 'forum_posts.user_id','=', 'users.id')
-            ->where('forum.status', 1)
+//            ->where('forum.status', 1)
             ->orderBy('forum.status', 'desc')
             ->orderBy('currentReplyTime','desc')
             ->groupBy('forum.id')
