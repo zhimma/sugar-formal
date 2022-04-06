@@ -3423,6 +3423,8 @@ class PagesController extends BaseController
             }
         }
 
+        $last_send_messenge = Message::where('from_id', $user->id)->where('to_id', $cid)->orderBy('id','desc')->first();
+
         if (isset($user)) {
             $is_banned = User::isBanned($user->id);
             $toUserIsBanned = User::isBanned($cid);
@@ -3461,7 +3463,8 @@ class PagesController extends BaseController
                     ->with('isVip', $isVip)
                     ->with('tippopup', $tippopup)
                     ->with('messages', $messages)
-                    ->with('report_reason', $report_reason->content);
+                    ->with('report_reason', $report_reason->content)
+                    ->with('last_send_messenge', $last_send_messenge);
             }
             else {
                 return view('new.dashboard.chatWithUser')
@@ -3474,7 +3477,8 @@ class PagesController extends BaseController
                     ->with('isVip', $isVip)
                     ->with('tippopup', $tippopup)
                     ->with('messages', $messages)
-                    ->with('report_reason', $report_reason->content);
+                    ->with('report_reason', $report_reason->content)
+                    ->with('last_send_messenge', $last_send_messenge);
             }
         }
     }
