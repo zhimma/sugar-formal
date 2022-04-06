@@ -2027,6 +2027,8 @@ class PagesController extends BaseController
                 ->leftJoin('banned_users as b1', 'b1.member_id', '=', 'evaluation.from_id')
                 ->leftJoin('banned_users_implicitly as b3', 'b3.target', '=', 'evaluation.from_id')
                 ->leftJoin('users as u1', 'u1.id', '=', 'evaluation.from_id')
+                ->leftJoin('user_meta as um', 'um.user_id', '=', 'evaluation.from_id')
+                ->leftJoin('warned_users as w2', 'w2.member_id', '=', 'evaluation.from_id')
 //                ->leftJoin('users as u2', 'u2.id', '=', 'evaluation.from_id')
 //                ->leftJoin('user_meta as um', function($join) {
 //                    $join->on('um.user_id', '=', 'evaluation.from_id')
@@ -2038,6 +2040,8 @@ class PagesController extends BaseController
 //                                ->orWhere('wu.expire_date', null); }); })
                 ->whereNull('b1.member_id')
                 ->whereNull('b3.target')
+                ->where('um.isWarned',0)
+                ->whereNull('w2.id')
                 ->whereNotNull('u1.id')
 //                ->whereNotNull('u2.id')
                 ->where('u1.accountStatus', 1)
@@ -2340,6 +2344,23 @@ class PagesController extends BaseController
                     // $message_count_7 = round((int)$message_count_7);
                     // $message_reply_count_7 = round((int)$message_reply_count_7);
                     // $visit_other_count_7 = round((int)$visit_other_count_7);
+
+
+                    //至目前為止離隱藏日期過了幾天
+                    $hideOnlineDays = now()->diffInDays($hideOnlineData->created_at);
+
+                    $message_count_7 = $message_count_7 - ($message_count_7 / 7) * $hideOnlineDays;
+                    $message_reply_count_7 = $message_reply_count_7 - ($message_reply_count_7 / 7) * $hideOnlineDays;
+                    $visit_other_count_7 = $visit_other_count_7 - ($visit_other_count_7 / 7) * $hideOnlineDays;
+
+                    if($message_count_7 < 0){$message_count_7 = 0;}
+                    if($message_reply_count_7 < 0){$message_reply_count_7 = 0;}
+                    if($visit_other_count_7 < 0){$visit_other_count_7 = 0;}
+
+                    $message_count_7 = round((int)$message_count_7);
+                    $message_reply_count_7 = round((int)$message_reply_count_7);
+                    $visit_other_count_7 = round((int)$visit_other_count_7);
+
                 }
             }
 
@@ -2425,6 +2446,10 @@ class PagesController extends BaseController
                 /*此會員封鎖多少其他會員*/
                 $blocked_other_count = Blocked::with(['blocked_user'])
                 ->join('users', 'users.id', '=', 'blocked.blocked_id')
+                ->leftJoin('user_meta as um', 'um.user_id', '=', 'blocked.blocked_id')
+                ->leftJoin('warned_users as w2', 'w2.member_id', '=', 'blocked.blocked_id')
+                ->where('um.isWarned',0)
+                ->whereNull('w2.id')
                 ->where('blocked.member_id', $uid)
                 ->whereNotIn('blocked.blocked_id',$bannedUsers)
                 ->whereNotNull('users.id')
@@ -2435,6 +2460,10 @@ class PagesController extends BaseController
                 /*此會員被多少會員封鎖*/
                 $be_blocked_other_count = Blocked::with(['blocked_user'])
                     ->join('users', 'users.id', '=', 'blocked.member_id')
+                    ->leftJoin('user_meta as um', 'um.user_id', '=', 'blocked.member_id')
+                    ->leftJoin('warned_users as w2', 'w2.member_id', '=', 'blocked.member_id')
+                    ->where('um.isWarned',0)
+                    ->whereNull('w2.id')
                     ->where('blocked.blocked_id', $uid)
                     ->whereNotIn('blocked.member_id',$bannedUsers)
                     ->whereNotNull('users.id')
@@ -2475,6 +2504,10 @@ class PagesController extends BaseController
                 /*收藏會員次數*/
                 $fav_count = MemberFav::select('member_fav.*')
                 ->join('users', 'users.id', '=', 'member_fav.member_fav_id')
+                ->leftJoin('user_meta as um', 'um.user_id', '=', 'member_fav.member_fav_id')
+                ->leftJoin('warned_users as w2', 'w2.member_id', '=', 'member_fav.member_fav_id')
+                ->where('um.isWarned',0)
+                ->whereNull('w2.id')
                 ->whereNotNull('users.id')
                 ->where('users.accountStatus', 1)
                 ->where('users.account_status_admin', 1)
@@ -2485,6 +2518,10 @@ class PagesController extends BaseController
                 /*被收藏次數*/
                 $be_fav_count = MemberFav::select('member_fav.*')
                     ->join('users', 'users.id', '=', 'member_fav.member_id')
+                    ->leftJoin('user_meta as um', 'um.user_id', '=', 'member_fav.member_id')
+                    ->leftJoin('warned_users as w2', 'w2.member_id', '=', 'member_fav.member_id')
+                    ->where('um.isWarned',0)
+                    ->whereNull('w2.id')
                     ->whereNotNull('users.id')
                     ->where('users.accountStatus', 1)
                     ->where('users.account_status_admin', 1)
@@ -2784,6 +2821,10 @@ class PagesController extends BaseController
             ->leftJoin('banned_users as b1', 'b1.member_id', '=', 'evaluation.to_id')
             ->leftJoin('banned_users_implicitly as b3', 'b3.target', '=', 'evaluation.to_id')
             ->leftJoin('users as u', 'u.id', '=', 'evaluation.to_id')
+            ->leftJoin('user_meta as um', 'um.user_id', '=', 'evaluation.to_id')
+            ->leftJoin('warned_users as w2', 'w2.member_id', '=', 'evaluation.to_id')
+            ->where('um.isWarned',0)
+            ->whereNull('w2.id')
             ->whereNull('b1.member_id')
             ->whereNull('b3.target')
             ->where('u.accountStatus', 1)
@@ -5373,6 +5414,7 @@ class PagesController extends BaseController
     public function forum(Request $request)
     {
         $user=$request->user();
+
         if ($user && $user->engroup == 2) {
             return back();
         }
@@ -5403,14 +5445,15 @@ class PagesController extends BaseController
          forum.id as f_id,
          forum.status as f_status,
          forum.title as f_title,
-         forum.sub_title as f_sub_title
+         forum.sub_title as f_sub_title,
+         forum.is_warned as f_warned
          ')
             ->selectRaw('(select updated_at from forum_posts where (type="main" and id=pid and forum_id = f_id and deleted_at is null) or reply_id=pid or reply_id in ((select distinct(id) from forum_posts where type="sub" and reply_id=pid and forum_id = f_id and deleted_at is null) )  order by updated_at desc limit 1) as currentReplyTime')
-            ->selectRaw('(select count(*) from forum_posts where (type="main" and forum_id = f_id and deleted_at is null)) as posts_num, (select count(*) from forum_posts where (type="sub" and forum_id = f_id and deleted_at is null and reply_id in (select id from forum_posts where (type="main" and user_id = uid and forum_id = f_id and deleted_at is null)) )) as posts_reply_num')
+            ->selectRaw('(select count(*) from forum_posts where (type="main" and forum_id = f_id and deleted_at is null)) as posts_num, (select count(*) from forum_posts where (type="sub" and forum_id = f_id and deleted_at is null and tag_user_id is null)) as posts_reply_num')
             ->LeftJoin('users', 'users.id','=','forum.user_id')
             ->join('user_meta', 'users.id','=','user_meta.user_id')
             ->leftJoin('forum_posts', 'forum_posts.user_id','=', 'users.id')
-//            ->where('forum.status', 1)
+            ->where('forum.status', 1)
             ->orderBy('forum.status', 'desc')
             ->orderBy('currentReplyTime','desc')
             ->groupBy('forum.id')
@@ -5433,9 +5476,21 @@ class PagesController extends BaseController
 //            }
         }
 
+        //判斷個人討論區加入人數
+        $forum_member_count = ForumManage::selectRaw('forum_id,count(*) as forum_member_count')
+                                        ->where('status',1)
+                                        ->where('active',1)
+                                        ->where(function($query){
+                                            return $query->where('forum_status',1)
+                                                        ->orwhere('chat_status',1);
+                                        })
+                                        ->groupBy('forum_id')
+                                        ->get()->keyBy('forum_id');
+
         return view('/dashboard/forum', $data)
             ->with('checkUserVip', $checkUserVip)
-            ->with('user', $user);
+            ->with('user', $user)
+            ->with('forum_member_count', $forum_member_count);
     }
 
     public function ForumEdit($uid)
@@ -6668,13 +6723,16 @@ class PagesController extends BaseController
                 //'showNewSugarForbidMsgNotify'=>$showNewSugarForbidMsgNotify,
             );
             $allMessage = \App\Models\Message::allMessage($user->id);
+            $forum = Forum::withTrashed()->where('user_id',$user->id)->orderby('id','desc')->first();
             return view('new.dashboard.personalPage', $data)
                 ->with('myFav', $myFav)
                 ->with('otherFav',$otherFav)
                 ->with('admin_msgs',$admin_msgs)
                 ->with('admin_msgs_sys',$admin_msgs_sys)
                 ->with('admin',$admin)
-                ->with('allMessage', $allMessage);
+                ->with('allMessage', $allMessage)
+                ->with('forum',$forum)
+                ;
         }
     }
 
@@ -6979,6 +7037,191 @@ class PagesController extends BaseController
             return redirect('/dashboard')->with('messageBoard_msg', '您目前為'.$type.'狀態，無法使用留言板功能');
         }
 
+        // $userBlockList = \App\Models\Blocked::select('blocked_id')->where('member_id', $user->id)->get();
+        // $bannedUsers = \App\Services\UserService::getBannedId();
+        // $getLists_others = MessageBoard::selectRaw('users.id as uid, users.name as uname, users.engroup as uengroup, user_meta.pic as umpic, user_meta.city, user_meta.area')
+        //     ->selectRaw('message_board.id as mid, message_board.title as mtitle, message_board.contents as mcontents, message_board.updated_at as mupdated_at, message_board.created_at as mcreated_at')
+        //     ->LeftJoin('users', 'users.id','=','message_board.user_id')
+        //     ->LeftJoin('user_meta', 'users.id','=','user_meta.user_id')
+        //     ->where('users.engroup',$user->engroup==1 ? 2 :1)
+        //     ->whereNotIn('message_board.user_id',$userBlockList)
+        //     ->whereNotIn('message_board.user_id',$bannedUsers)
+        //     ->orderBy('message_board.created_at','desc')
+        //     ->paginate(10, ['*'], 'othersDataPage')
+        //     ->appends(array_merge(request()->except(['othersDataPage','msgBoardType']),['msgBoardType'=>'others_page']));
+
+        // $getLists_myself = MessageBoard::selectRaw('users.id as uid, users.name as uname, users.engroup as uengroup, user_meta.pic as umpic, user_meta.city, user_meta.area')
+        //     ->selectRaw('message_board.id as mid, message_board.title as mtitle, message_board.contents as mcontents, message_board.updated_at as mupdated_at, message_board.created_at as mcreated_at')
+        //     ->LeftJoin('users', 'users.id','=','message_board.user_id')
+        //     ->LeftJoin('user_meta', 'users.id','=','user_meta.user_id')
+        //     ->where('users.id',$user->id)
+        //     ->orderBy('message_board.created_at','desc')
+        //     ->paginate(10, ['*'], 'myselfDataPage')
+        //     ->appends(array_merge(request()->except(['myselfDataPage','msgBoardType']),['msgBoardType'=>'my_page']));
+
+        return view('/dashboard/messageBoard_list', compact('data'))
+            ->with('user', $user);
+
+    }
+
+    public function messageBoard_showList_myself(Request $request)
+    {
+        $per_page_count = $request->per_page_count ?? 10;
+        $other_now_page = $request->other_now_page;
+        $myself_now_page = $request->myself_now_page;
+
+        $user = $this->user;
+        $entrance=true;
+        if($user->engroup==2 && ( !$user->isVip() || !$user->isPhoneAuth() )){
+            $entrance=false;
+        }elseif($user->engroup==1 && !$user->isVip()){
+            $entrance=false;
+        }
+
+        if($entrance==false){
+            return redirect('/dashboard')->with('messageBoard_enter_limit', $entrance);
+        }
+
+        $data['isAdminWarned']=$user->isAdminWarned();
+        $data['isBanned']= User::isBanned($user->id);
+        $record_pre=MessageBoard::where('user_id', $user->id)->orderBy('created_at','desc')->first();
+        if($record_pre && (date("Y-m-d H:i:s") <= date("Y-m-d H:i:s",strtotime("+3 hours", strtotime($record_pre->created_at)))) ){
+            $data['post_too_frequently']= true;
+        }
+
+        $userMeta=UserMeta::findByMemberId($user->id);
+        $type='';
+        if($data['isAdminWarned'] || $data['isBanned'] || $userMeta->isWarned==1){
+            if($data['isAdminWarned'] && $data['isBanned'])
+                $type='警示/封鎖';
+            elseif ($data['isAdminWarned'] || $userMeta->isWarned==1)
+                $type='警示';
+            elseif ($data['isBanned'])
+                $type='封鎖';
+            return redirect('/dashboard')->with('messageBoard_msg', '您目前為'.$type.'狀態，無法使用留言板功能');
+        }
+
+        // $userBlockList = \App\Models\Blocked::select('blocked_id')->where('member_id', $user->id)->get();
+        // $bannedUsers = \App\Services\UserService::getBannedId();
+
+        // $nowTime= date("Y-m-d H:i:s");
+
+        $getLists_myself = MessageBoard::selectRaw('users.id as uid, users.name as uname, users.engroup as uengroup, user_meta.pic as umpic, user_meta.city, user_meta.area')
+            ->selectRaw('message_board.id as mid, message_board.title as mtitle, message_board.contents as mcontents, message_board.updated_at as mupdated_at, message_board.created_at as mcreated_at')
+            ->LeftJoin('users', 'users.id','=','message_board.user_id')
+            ->LeftJoin('user_meta', 'users.id','=','user_meta.user_id')
+            ->where('users.id',$user->id)
+            ->orderBy('message_board.created_at','desc');
+
+        $count = $getLists_myself->count();
+        $myself_last_page = $myself_now_page==1 || $myself_now_page == null? 1 : ($myself_now_page-1);
+        $myself_next_page = $myself_now_page==ceil($count/$per_page_count) ? $myself_now_page : $myself_now_page+1;
+        $skip = $per_page_count * ($other_now_page - 1);
+
+        $data = $getLists_myself->take($per_page_count)->skip($skip)->get();
+
+        $ssrData = '';
+
+        if(count($data)>0){
+            foreach($data as $list){
+            
+                $userMeta=\App\Models\UserMeta::findByMemberId($list->uid);
+                $msgUser=\App\Models\User::findById($list->uid);
+                $isBlurAvatar = \App\Services\UserService::isBlurAvatar($msgUser, $user);
+    
+                $cityList=explode(',',$list->city);
+                $areaList=explode(',',$list->area);
+                $cityAndArea='';
+                foreach ($cityList as $key => $city){
+                    $cityAndArea.= $cityList[$key].$areaList[$key] . ((count($cityList)-1)==$key ? '':', ');
+                }
+                if($isBlurAvatar){
+                    $is_blur = 'blur_img';  
+                }else{
+                    $is_blur = '';
+                }
+    
+                if(file_exists( public_path().$list->umpic ) && $list->umpic != ""){
+                    $umpic = $list->umpic;
+                }else if($list->uengroup==2){
+                    $umpic = '/new/images/female.png';
+                }else{
+                    $umpic = '/new/images/male.png';
+                }
+                $age = $userMeta ? $userMeta->age() : '';
+                $ssrData .='<div class="liuyan_nlist">';
+                $ssrData .='<ul>';
+                $ssrData .='<li>';
+                $ssrData .='<a href="/dashboard/viewuser/'.$list->uid.'">';
+                $ssrData .='<div class="liuyan_img"><img class="hycov '.$is_blur.'" src="'.$umpic.'"></div>';
+                $ssrData .='</a>';
+                $ssrData .='<a href="/MessageBoard/post_detail/'. $list->mid.'">';
+                $ssrData .='<div class="liuyan_prilist">';
+                $ssrData .='<div class="liuyfont">';
+                $ssrData .='<div class="liu_name">'.$list->uname.' , '. $age .'<span>'. substr($list->mcreated_at,0,10) .'</span></div>';
+                $ssrData .='<div class="liu_dq">'. $cityAndArea .'</div>';
+                $ssrData .='</div>';
+                $ssrData .='<div class="liu_text">';
+                $ssrData .='<div class="liu_text_1">'. $list->mtitle .'</div>';
+                $ssrData .='<div class="liu_text_2">'. $list->mcontents .'</div>';
+                $ssrData .='</div>';
+                $ssrData .='</div>';
+                $ssrData .='</a>';
+                $ssrData .='</li>';
+                $ssrData .='</ul>';
+                $ssrData .='</div>';
+            }
+        }else{
+            $ssrData .= '<div class="ddt_list matop5"><div class="zap_ullist matop5" ><div class="n_dtwu_nr"><img src="/new/images/liuyan_no.png"><p>目前無紀錄</p></div></div></div>';
+        }
+        
+        $output = array(
+            'ssrData'=>$ssrData,
+            'count'=>$count,
+            'myself_last_page'=>$myself_last_page,
+            'myself_next_page'=>$myself_next_page
+        );
+        return json_encode($output);
+    }
+
+    public function messageBoard_showList_other(Request $request)
+    {
+        $per_page_count = $request->per_page_count ?? 10;
+        $other_now_page = $request->other_now_page;
+        $myself_now_page = $request->myself_now_page;
+        
+
+        $user = $this->user;
+        $entrance=true;
+        if($user->engroup==2 && ( !$user->isVip() || !$user->isPhoneAuth() )){
+            $entrance=false;
+        }elseif($user->engroup==1 && !$user->isVip()){
+            $entrance=false;
+        }
+
+        if($entrance==false){
+            return redirect('/dashboard')->with('messageBoard_enter_limit', $entrance);
+        }
+
+        $data['isAdminWarned']=$user->isAdminWarned();
+        $data['isBanned']= User::isBanned($user->id);
+        $record_pre=MessageBoard::where('user_id', $user->id)->orderBy('created_at','desc')->first();
+        if($record_pre && (date("Y-m-d H:i:s") <= date("Y-m-d H:i:s",strtotime("+3 hours", strtotime($record_pre->created_at)))) ){
+            $data['post_too_frequently']= true;
+        }
+
+        $userMeta=UserMeta::findByMemberId($user->id);
+        $type='';
+        if($data['isAdminWarned'] || $data['isBanned'] || $userMeta->isWarned==1){
+            if($data['isAdminWarned'] && $data['isBanned'])
+                $type='警示/封鎖';
+            elseif ($data['isAdminWarned'] || $userMeta->isWarned==1)
+                $type='警示';
+            elseif ($data['isBanned'])
+                $type='封鎖';
+            return redirect('/dashboard')->with('messageBoard_msg', '您目前為'.$type.'狀態，無法使用留言板功能');
+        }
+
         $userBlockList = \App\Models\Blocked::select('blocked_id')->where('member_id', $user->id)->get();
         $bannedUsers = \App\Services\UserService::getBannedId();
 
@@ -6990,23 +7233,274 @@ class PagesController extends BaseController
             ->where('users.engroup',$user->engroup==1 ? 2 :1)
             ->whereNotIn('message_board.user_id',$userBlockList)
             ->whereNotIn('message_board.user_id',$bannedUsers)
-            ->whereRaw('(message_board.message_expiry_time >="'.$nowTime.'" OR message_board.message_expiry_time is NULL)')
+            ->whereRaw('(message_board.message_expiry_time >="'.$nowTime.'" OR message_board.set_period is NULL)')
             ->where('message_board.hide_by_admin',0)
-            ->orderBy('message_board.created_at','desc')
-            ->paginate(10, ['*'], 'othersDataPage')
-            ->appends(array_merge(request()->except(['othersDataPage','msgBoardType']),['msgBoardType'=>'others_page']));
+            ->orderBy('message_board.created_at','desc');
 
-        $getLists_myself = MessageBoard::selectRaw('users.id as uid, users.name as uname, users.engroup as uengroup, user_meta.pic as umpic, user_meta.city, user_meta.area')
+        $count = $getLists_others->count();
+        $other_last_page = $other_now_page==1 || $other_now_page==null? 1 : ($other_now_page-1);
+        $other_next_page = $other_now_page==ceil($count/$per_page_count) ? $other_now_page : $other_now_page+1;
+        $skip = $per_page_count * ($other_now_page - 1);
+
+        $data = $getLists_others->take($per_page_count)->skip($skip)->get();
+
+        $ssrData = '';
+        if(count($data)>0){
+            foreach($data as $list){
+            
+                $userMeta=\App\Models\UserMeta::findByMemberId($list->uid);
+                $msgUser=\App\Models\User::findById($list->uid);
+                $isBlurAvatar = \App\Services\UserService::isBlurAvatar($msgUser, $user);
+    
+                $cityList=explode(',',$list->city);
+                $areaList=explode(',',$list->area);
+                $cityAndArea='';
+                foreach ($cityList as $key => $city){
+                    $cityAndArea.= $cityList[$key].$areaList[$key] . ((count($cityList)-1)==$key ? '':', ');
+                }
+                if($isBlurAvatar){
+                    $is_blur = 'blur_img';  
+                }else{
+                    $is_blur = '';
+                }
+    
+                if(file_exists( public_path().$list->umpic ) && $list->umpic != ""){
+                    $umpic = $list->umpic;
+                }else if($list->uengroup==2){
+                    $umpic = '/new/images/female.png';
+                }else{
+                    $umpic = '/new/images/male.png';
+                }
+                $age = $userMeta ? $userMeta->age() : '';
+                $ssrData .='<div class="liuyan_nlist">';
+                $ssrData .='<ul>';
+                $ssrData .='<li>';
+                $ssrData .='<a href="/dashboard/viewuser/'.$list->uid.'">';
+                $ssrData .='<div class="liuyan_img"><img class="hycov '.$is_blur.'" src="'.$umpic.'"></div>';
+                $ssrData .='</a>';
+                $ssrData .='<a href="/MessageBoard/post_detail/'. $list->mid.'">';
+                $ssrData .='<div class="liuyan_prilist">';
+                $ssrData .='<div class="liuyfont">';
+                $ssrData .='<div class="liu_name">'.$list->uname.' , '.$age .'<span>'. substr($list->mcreated_at,0,10) .'</span></div>';
+                $ssrData .='<div class="liu_dq">'. $cityAndArea .'</div>';
+                $ssrData .='</div>';
+                $ssrData .='<div class="liu_text">';
+                $ssrData .='<div class="liu_text_1">'. $list->mtitle .'</div>';
+                $ssrData .='<div class="liu_text_2">'. $list->mcontents .'</div>';
+                $ssrData .='</div>';
+                $ssrData .='</div>';
+                $ssrData .='</a>';
+                $ssrData .='</li>';
+                $ssrData .='</ul>';
+                $ssrData .='</div>';
+            }
+        }else{
+            $ssrData .= '<div class="ddt_list matop5"><div class="zap_ullist matop5" ><div class="n_dtwu_nr"><img src="/new/images/liuyan_no.png"><p>目前無紀錄</p></div></div></div>';
+        }
+        
+        $output = array(
+            'ssrData'=>$ssrData,
+            'count'=>$count,
+            'other_last_page'=>$other_last_page,
+            'other_next_page'=>$other_next_page
+        );
+
+        return json_encode($output);
+    }
+
+    public function messageBoard_itemHeader(Request $request){
+
+        $user = $request->user();
+        $pid = $request->pid;
+
+        $postDetail =MessageBoard::selectRaw('users.id as uid, users.name as uname, users.engroup as uengroup, user_meta.pic as umpic, user_meta.city, user_meta.area')
             ->selectRaw('message_board.id as mid, message_board.title as mtitle, message_board.contents as mcontents, message_board.updated_at as mupdated_at, message_board.created_at as mcreated_at')
             ->LeftJoin('users', 'users.id','=','message_board.user_id')
             ->LeftJoin('user_meta', 'users.id','=','user_meta.user_id')
-            ->where('users.id',$user->id)
-            ->orderBy('message_board.created_at','desc')
-            ->paginate(10, ['*'], 'myselfDataPage')
-            ->appends(array_merge(request()->except(['myselfDataPage','msgBoardType']),['msgBoardType'=>'my_page']));
+            ->where('message_board.id', $pid)->first();
 
-        return view('/dashboard/messageBoard_list', compact('getLists_others', 'getLists_myself', 'data'))
-            ->with('user', $user);
+        $images=MessageBoardPic::where('msg_board_id',$pid)->get();
+
+        if(!$postDetail) {
+            $request->session()->flash('message', '找不到該留言：' . $pid);
+            $request->session()->reflash();
+            return  redirect('/MessageBoard/showList');
+        }
+
+       
+
+
+        $userMeta=\App\Models\UserMeta::findByMemberId($postDetail->uid);
+        $msgUser=\App\Models\User::findById($postDetail->uid);
+        $isBlurAvatar = \App\Services\UserService::isBlurAvatar($msgUser, $user);
+
+        $cityList=explode(',',$postDetail->city);
+        $areaList=explode(',',$postDetail->area);
+        $cityAndArea='';
+        foreach ($cityList as $key => $city){
+            $cityAndArea.= $cityList[$key].$areaList[$key] . ((count($cityList)-1)==$key ? '':', ');
+        }
+            
+        if($isBlurAvatar){
+            $is_blur = 'blur_img';  
+        }else{
+            $is_blur = '';
+        }
+
+        if(file_exists( public_path().$postDetail->umpic ) && $postDetail->umpic != ""){
+            $umpic = $postDetail->umpic;
+        }elseif($postDetail->uengroup==2){
+            $umpic = '/new/images/female.png'; 
+        }else{
+            $umpic = '/new/images/male.png'; 
+        }
+        $age = $userMeta ? $userMeta->age() : '';
+
+        
+        $ssrData = '';
+        $ssrData .='<div class="liuyan_xqlist">';
+            
+        $ssrData .='<a href="/dashboard/viewuser/'.$postDetail->uid.'">';
+        $ssrData .='<div class="liuyan_img01">';
+        $ssrData .='<img class="hycov '.$is_blur.'" src="'.$umpic.'">';
+        $ssrData .='</div>';
+        $ssrData .='</a>';
+        $ssrData .='<div class="liuyan_text"><a href="/dashboard/viewuser/'.$postDetail->uid.'">'. $postDetail->uname .'</a> , '.$age .'<span class="liu_dq">'. $cityAndArea .'</span></div>';
+					
+                // $ssrData .= $postDetail->uid. $postDetail->uname .  $userMeta->age(). $cityAndArea ;
+        if($postDetail->uid!==$user->id){
+            $ssrData .='<a href="/dashboard/chat2/chatShow/'.$postDetail->uid.'" class="liuyicon"></a>';
+        }
+        $ssrData .='</div>';
+
+        $output = array(
+            'ssrData'=>$ssrData
+        );
+
+        return json_encode($output);
+    }
+
+    public function messageBoard_itemContent(Request $request){
+        $user = $request->user();
+        $pid = $request->pid;
+
+        $postDetail =MessageBoard::selectRaw('users.id as uid, users.name as uname, users.engroup as uengroup, user_meta.pic as umpic, user_meta.city, user_meta.area')
+            ->selectRaw('message_board.id as mid, message_board.title as mtitle, message_board.contents as mcontents, message_board.updated_at as mupdated_at, message_board.created_at as mcreated_at')
+            ->LeftJoin('users', 'users.id','=','message_board.user_id')
+            ->LeftJoin('user_meta', 'users.id','=','user_meta.user_id')
+            ->where('message_board.id', $pid)->first();
+
+        $images=MessageBoardPic::where('msg_board_id',$pid)->get();
+
+        if(!$postDetail) {
+            $request->session()->flash('message', '找不到該留言：' . $pid);
+            $request->session()->reflash();
+            return  redirect('/MessageBoard/showList');
+        }
+
+        $ssrData = '';
+        // $ssrData .= '<div class="liuy_nr">';
+        $ssrData .= '<div class="liuy_font">';
+        $ssrData .= '<div class="liuy_font_1">';
+        $ssrData .= '<div class="liu_yf">'. $postDetail->mtitle .'<h2>'. substr($postDetail->mcreated_at,0,10) .'</h2></div>';
+                    if($postDetail->uid== auth()->user()->id){
+                        $ssrData.='<div class="right">';
+                        $ssrData.='<form action="/MessageBoard/delete/'. $postDetail->mid .'" id="delete_form" method="POST" enctype="multipart/form-data">';
+                        $ssrData.='<input type="hidden" name="_token" value="'. csrf_token() .'">';
+                        $ssrData.='</form>';
+                        $ssrData.='<a class="sc_cc" onclick="send_delete_submit()"><img src="/new/images/del_03n.png">刪除</a>';
+                        $ssrData.='<a href="/MessageBoard/edit/'. $postDetail->mid .'" class="sc_cc"  style="margin-right: 5px;"><img src="/new/images/xiugai.png">修改</a>';
+                        $ssrData.='</div>';
+                    }else{
+                        $ssrData.='<div class="right">';
+                        $ssrData.='<a onclick="block_user();"class="sc_cc"><img src="/new/images/ncion_09.png">封鎖</a>';
+                        $ssrData.='<a onclick="messageBoard_reported('. $postDetail->mid .');" class="sc_cc" style="margin-right: 5px;"><img src="/new/images/jianju_aa.png">檢舉</a>';
+                        $ssrData.='</div>';
+                    }
+        $ssrData .= '</div>';
+        $ssrData .= '<p>'.\App\Models\Posts::showContent($postDetail->mcontents) .'</p>';
+        $ssrData .= '<div class="liu_iy"><img src="/new/images/photo_1.png"></div>';
+        // $ssrData .= '</div>';
+        // $ssrData .= '<ul class="liuyan_photo">';
+        //         if(count($images)==1){
+        //             foreach($images as $key => $image){
+        //                 $ssrData.='<li class="liuy_ph3-4">';
+        //                     $ssrData.='<img src="'. $image->pic .'" class="hycov">';
+        //                 $ssrData.='</li>';
+        //             }
+        //         }elseif(count($images)==2){
+        //             foreach($images as $key => $image){
+        //                 if($key==0){
+        //                     $ssrData.='<li class="liuy_ph3-3">';
+        //                     $ssrData.='<img src="'. $image->pic .'" class="hycov">';
+        //                     $ssrData.='</li>';
+        //                 }
+        //                 if($key==1){
+        //                     $ssrData.='<li class="liuy_ph3-3 right01">';
+        //                         $ssrData.='<img src="'. $image->pic .'" class="hycov">';
+        //                     $ssrData.='</li>';
+        //                 }
+        //             }
+        //         }elseif(count($images)==3){
+        //             foreach($images as $key => $image){
+        //                 if($key==0){
+        //                     $ssrData.='<li class="liuy_ph3-1">';
+        //                     $ssrData.='<img src="'. $image->pic .'" class="hycov">';
+        //                     $ssrData.='</li>';
+        //                 }
+        //                 if($key==1){
+        //                     $ssrData.='<li class="liuy_ph3-2 liu_one">';
+        //                     $ssrData.='<div class="liu_imt liu_one">';
+        //                     $ssrData.='<img src="'. $image->pic .'" class="hycov">';
+        //                     $ssrData.='</div>';
+        //                     $ssrData.='</li>';
+        //                 }
+        //                 if($key==2){
+        //                     $ssrData.='<li class="liuy_ph3-2 liu_bot01">';
+        //                     $ssrData.='<div class="liu_imt">';
+        //                     $ssrData.='<img src="'. $image->pic .'" class="hycov">';
+        //                     $ssrData.='</div>';
+        //                     $ssrData.='</li>';
+        //                 }
+        //             }
+        //         }else{
+        //             foreach($images as $key => $image){
+        //                 if($key==0){
+        //                     $ssrData.='<li class="liuy_ph1">';
+        //                     $ssrData.='<img src="'. $image->pic .'" class="hycov">';
+        //                     $ssrData.='</li>';
+        //                 }
+        //                 if($key==1){
+        //                     $ssrData.='<li class="liuy_ph2 liu_one">';
+        //                     $ssrData.='<div class="liu_imt liu_one"><img src="'. $image->pic .'" class="hycov"></div>';
+        //                     $ssrData.='</li>';
+        //                 }
+        //                 if($key==2){
+        //                     $ssrData.='<li class="liuy_ph2 liu_bot01">';
+        //                     $ssrData.='<div class="liu_imt"><img src="'. $image->pic .'" class="hycov"></div>';
+        //                     $ssrData.='</li>';
+        //                 }
+        //                 if($key==3){
+        //                     $ssrData.='<li class="liuy_ph3">';
+        //                     $ssrData.='<img src="'. $image->pic .'" class="hycov">';
+        //                     $ssrData.='<div class="li_fontx">+'. count($images)-3 .'</div>';
+        //                     $ssrData.='</li>';
+        //                 }
+        //                 if($key>=4){
+        //                     $ssrData.='<li style="display: none;">';
+        //                     $ssrData.='<img src="'. $image->pic .'" class="hycov">';
+        //                     $ssrData.='</li>';
+        //                 }
+        //             }
+        //         }
+        //     $ssrData.='</ul>';
+        $ssrData.='</div>';
+
+        $output = array(
+            'ssrData'=>$ssrData
+        );
+
+        return json_encode($output);
     }
 
     public function messageBoard_post_detail(Request $request)
@@ -7028,8 +7522,9 @@ class PagesController extends BaseController
             return  redirect('/MessageBoard/showList');
         }
 
-        return view('/dashboard/messageBoard_detail', compact('postDetail', 'images'))->with('user', $user);
+        return view('/dashboard/messageBoard_detail', compact('postDetail', 'images','pid'))->with('user', $user);
     }
+
 
     public function messageBoard_posts(Request $request)
     {

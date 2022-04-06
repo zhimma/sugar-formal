@@ -11,7 +11,7 @@
             <div class="shou"><span>封鎖</span>
                 <font>The blockade</font>
                 @if(count($blocks)>0)
-                <a href="" class="shou_but">全部解除</a>
+                <a href="javascript:void(0)" class="aa_shou_but"><img src="/new/images/zs_jsdel.png">全部解除</a>
                 @endif
             </div>
             @if(count($blocks)>0)
@@ -39,7 +39,7 @@
                             $isBlurAvatar = \App\Services\UserService::isBlurAvatar($blockedUser, $user);
                         @endphp
                     <li>
-                        <div class="si_bg">
+                        <div class="si_bg leftb5">
                             <div class="sjpic @if($isBlurAvatar) blur_img @endif"><a href="/dashboard/viewuser/{{$blockedUser->id}}"><img src="@if($blockedUser->meta_()->isAvatarHidden) {{ 'makesomeerror' }} @else {{$blockedUser->meta_()->pic}} @endif" @if ($blockedUser->engroup == 1) onerror="this.src='/new/images/male.png'" @else onerror="this.src='/new/images/female.png'" @endif></a></div>
                             <div class="sjleft">
                                 <div class="sjtable"><a href="/dashboard/viewuser/{{$blockedUser->id}}"><span>{{$blockedUser->name}}<!-- <i class="cicd">●</i>{{ $blockedUser->meta->age() }}--></span></a></div>
@@ -57,7 +57,7 @@
                                 </font>
                             </div>
                             <div class="sjright">
-                                <h4 class="fengs"><a href="javascript:void(0);" class="unblock" data-uid="{{$user->id}}" data-to="{{$block->blocked_id}}"><img src="/new/images/ncion_11.png">解除封鎖</a></h4>
+                                <a href="javascript:void(0);" class="unblock sjright_aa" data-uid="{{$user->id}}" data-to="{{$block->blocked_id}}"><img src="/new/images/ncion_11.png">解除封鎖</a>
                             </div>
                         </div>
                     </li>
@@ -111,7 +111,7 @@
         });
     });
 
-    $('.shou_but').on('click', function() {
+    $('.aa_shou_but').on('click', function() {
         c4('確定要全部解除封鎖嗎?');
         $(".n_left").on('click', function() {
             $.post('{{ route('unblockAll') }}', {

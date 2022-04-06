@@ -25,7 +25,7 @@ function addFingerprint(){
     }
     Fingerprint2.getV18(options, function (result, components) {
         $.ajax({
-            url: "/Fingerprint2/addFingerprint", data:{"_token": "{{ csrf_token() }}", "result":result, "components":components, "batterylevel":batterylevel, "orientation":orientation, "network":network}, type:"POST", success: function(result){
+            url: "/Fingerprint2/addFingerprint?{{csrf_token()}}={{now()->timestamp}}", data:{"_token": "{{ csrf_token() }}", "result":result, "components":components, "batterylevel":batterylevel, "orientation":orientation, "network":network}, type:"POST", success: function(result){
 
             console.log('code:'+result.code+';msg:'+result.msg);
         }});

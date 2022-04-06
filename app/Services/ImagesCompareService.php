@@ -355,7 +355,7 @@ class ImagesCompareService {
             $etime = Carbon::parse($next->format('Y-m-d').' 01:00:00');
             if($now->gt($stime) && $now->lt($etime)) $delay=25200+$delay;
             CompareSingleImageJob::dispatch($pic,$encode_by);
-            CompareSingleImageJob::dispatch($pic,null,$is_force)->onQueue('compare_images')->delay($delay+10);            
+            CompareSingleImageJob::dispatch($pic,null,$is_force)->onQueue('compare_images')->delay($delay+60);            
         }
         
         return true;
@@ -364,6 +364,7 @@ class ImagesCompareService {
     public static function isNeedCompareByEntry($picEntry,$force = false) {
         if(!($picEntry->pic??null)) return false;     
         if($force)  return true;
+        if(!$picEntry->user) { ray($picEntry); return false; }
         if($picEntry->user->engroup!=2) return false;        
 
         if(!($picEntry->created_at??null) && !($picEntry->updated_at??null)) return true;

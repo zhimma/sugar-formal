@@ -279,7 +279,7 @@ $(".n_dlbut").click(function(){
       };
     $.ajax({
     type: "POST",
-    url: "/searchData",
+    url: "/searchData?{{csrf_token()}}={{now()->timestamp}}",
     data: data,
     dataType: "json",
     success: function(res){
@@ -320,7 +320,7 @@ $(".n_dlbut").click(function(){
       };
 			$.ajax({
 				type: "POST",
-				url: '/town_ajax',
+				url: '/town_ajax?{{csrf_token()}}={{now()->timestamp}}',
 				cache: false,
 				data:data,
 				error: function(){

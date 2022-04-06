@@ -37,6 +37,10 @@
             .zap_photo{padding-left: 0;}
             .pjliuyan02 .zap_photo>li{width:30.33%;margin:12px 1.5% 0 1.5%;height: 100px;}
         }
+
+        @media (min-width:992px){
+            .sc_cc{margin-right:-14px;}
+        }
     </style>
 <div class="container matop70">
     <div class="row">
@@ -47,11 +51,16 @@
             <div class="shou"><span>評價</span>
                 <font>Evaluation</font>
                 @if(count($evaluation_data)>0)
-                <a href="" class="shou_but">全部刪除</a>
+                <a href="" class="aa_shou_but"><img src="/new/images/zs_jsdel.png">全部刪除</a>
                 @endif
             </div>
-
-            @if(count($evaluation_data)>0)
+            @php
+            $w1 = \App\Models\UserMeta::where('user_id', $user->id)->where('isWarned', 1)->first() ?? false;
+            $w2 = DB::table('warned_users')->where('member_id', $user->id)->first() ?? false;
+            $b1 = DB::table('banned_users')->where('member_id', $user->id)->first() ?? false;
+            $b2 = \App\Models\BannedUsersImplicitly::where('target', $user->id)->first() ?? false;
+            @endphp
+            @if(count($evaluation_data)>0 && !$w1 && !$w2 && !$b1 && !$b2)
             <div class="pjliuyan02">
                 <ul>
                     @php
@@ -92,7 +101,7 @@
                                     <img src="/new/images/kul02.png" class="sxyh">
                                 @endif
                                 @if($row->from_id==$user->id)
-                                    <font class="sc content_delete" data-id="{{$row->id}}"><img src="/new/images/del_03.png">刪除</font>
+                                    <font class="sc sc_cc content_delete" data-id="{{$row->id}}"><img src="/new/images/del_03.png">刪除</font>
                                 @endif
                             </div>
                             <div class="con">
@@ -134,7 +143,7 @@
                                     <div class="he_b">
                                         <span class="left"><img src="@if(file_exists( public_path().$to_user->meta_()->pic ) && $to_user->meta_()->pic != ""){{$to_user->meta_()->pic}} @elseif($to_user->engroup==2)/new/images/female.png @else/new/images/male.png @endif" class="he_zp">{{$to_user->name}}</span>
                                         @if($row->to_id==$user->id)
-                                            <font class="sc re_content_delete" data-id="{{$row->id}}"><img src="/new/images/del_03.png">刪除</font>
+                                            <font class="sc sc_cc re_content_delete" data-id="{{$row->id}}"><img src="/new/images/del_03.png">刪除</font>
                                         @endif
                                     </div>
                                     <div class="he_two">
@@ -197,7 +206,7 @@
                                                 <img src="/new/images/kul02.png" class="sxyh">
                                             @endif
                                             @if($row->from_id==$user->id)
-                                                <font class="sc content_delete" data-id="{{$row->id}}"><img src="/new/images/del_03.png">刪除</font>
+                                                <font class="sc sc_cc content_delete" data-id="{{$row->id}}"><img src="/new/images/del_03.png">刪除</font>
                                             @endif
                                         </div>
                                         <div class="con">
@@ -226,7 +235,7 @@
                                             <div class="he_b">
                                                 <span class="left"><img src="@if(file_exists( public_path().$row_user->meta_()->pic ) && $row_user->meta_()->pic != ""){{$row_user->meta_()->pic}} @elseif($row_user->engroup==2)/new/images/female.png @else/new/images/male.png @endif" class="he_zp">{{$row_user->name}}</span>
                                                 @if($row->to_id==$user->id)
-                                                    <font class="sc re_content_delete" data-id="{{$row->id}}"><img src="/new/images/del_03.png">刪除</font>
+                                                    <font class="sc sc_cc re_content_delete" data-id="{{$row->id}}"><img src="/new/images/del_03.png">刪除</font>
                                                 @endif
                                             </div>
                                             <div class="he_two">
@@ -277,7 +286,7 @@
     function isEllipsisActive(e) {
         return (Math.ceil($(e).innerHeight()) < $(e)[0].scrollHeight);
     }
-    $('.shou_but').on('click', function() {
+    $('.aa_shou_but').on('click', function() {
         c4('確定要全部刪除嗎?');
         $(".n_left").on('click', function() {
             $.post('{{ route('evaDeleteAll') }}', {

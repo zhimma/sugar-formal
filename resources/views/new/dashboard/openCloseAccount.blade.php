@@ -170,8 +170,10 @@
                                     </div>
                                     <br>
                                     <div class="blxg">註：普通會員每個月僅可變更一次，VIP則沒有限制，並請填答關閉原因。</div>
-                                    <button type="submit" class="dlbut g_inputt40" style="border-style: none;">關閉帳號</button>
-                                    <button type="reset" class="zcbut">取消</button>
+                                    <div class="n_txbut g_inputt40" style="margin-top: 40px;">
+                                        <button type="submit" class="se_but1" style="border-style: none;">關閉帳號</button>
+                                        <button type="reset" class="se_but2">取消</button>
+                                    </div>
                                 </div>
                             </form>
                         @endif

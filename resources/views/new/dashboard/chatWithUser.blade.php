@@ -966,6 +966,9 @@
                 return false;
             }
             if(msg_str.length>0){
+            @if($to_forbid_msg_data??null)
+                return;
+            @endif                
                 $('#chatForm').submit();
             }else{
                 $('.xin_input').css('height', '38px');
@@ -1024,6 +1027,9 @@
     // });
 
     function chatForm_submit() {
+        @if($to_forbid_msg_data??null)
+            return;
+        @endif
         $('#msg').focus();
         let content = $('#msg').val(), msgsnd = $('.msgsnd');
         var msg_str = $("#msg").val().replace(/\r\n|\n/g,"").replace(/\s+/g, "");
@@ -1107,7 +1113,7 @@
             $("#blbg").hide();
             $.ajax({
                 type: 'POST',
-                url: "/dashboard/chat2/deleteMsgByUser/"+msgID,
+                url: "/dashboard/chat2/deleteMsgByUser/"+msgID+"?{{csrf_token()}}={{now()->timestamp}}",
                 data:{
                     _token: '{{csrf_token()}}',
                 },
@@ -1201,7 +1207,9 @@
     $('.message').css('max-height',message_max_height-40);
 
     $(document).ready(function () {
+        @if(!($to_forbid_msg_data??null))
         $('#msg').focus();
+        @endif
         $(window).resize(function() {
             // alert($('.tab_payAlert').width());
             var message_max_height,bl_gb_fixed_top,bl_gb_fixed_right;
@@ -1342,6 +1350,9 @@
         $('body').css("overflow", "auto").css("fixed", "");
     }
     function form_uploadPic_submit(){
+        @if($to_forbid_msg_data??null)
+            return false;
+        @endif        
         if(rbupld_image_handling_numSet[1]>0) {
             alert('請等照片選取完畢再送出');
             return false;
@@ -1683,7 +1694,9 @@
         }
         
         function submit(){
-            
+        @if($to_forbid_msg_data??null)
+            return false;
+        @endif            
             var msg_data =getClientMsgData();
             if(msg_data.content!='' && msg_data.content!=undefined) 
             {
@@ -1778,11 +1791,12 @@
         }
       
         @if($to_forbid_msg_data??null)
-            $(document).on('click','#chatForm button[type=submit],#chatForm .xin_nleft',function(){
+            $(document).on('click change keydown keypress','#chatForm #msg,#chatForm button[type=submit],#chatForm .xin_nleft,#chatForm .xin_right',function(){
                 if($('.send').length==0) {
                     event.preventDefault();                    
                     tab_uploadPic_close();                                   
                     show_pop_message('新進甜心只接收 vip 信件，{{$to_forbid_msg_data["user_type_str"]}}會員要於 {{$to_forbid_msg_data["end_date"]}}後方可發信給這位女會員');
+                    $('#chatForm #msg').html('');
                     return false;
                 }
             });

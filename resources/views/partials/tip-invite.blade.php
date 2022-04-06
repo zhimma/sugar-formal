@@ -37,7 +37,7 @@
     $('#form1').submit(function() {
         $.ajax({
             type: 'POST',
-            url: '{{ route('chatpayLog') }}',
+            url: '{{ route('chatpayLog') }}?{{csrf_token()}}={{now()->timestamp}}',
             data: { user_id : "{{ $user->id }}", to_id : '@if(isset($cur)){{ $cur->id }}@endif', _token:"{{ csrf_token() }}"},
             success: function(xhr, status, error){
                 console.log(xhr);

@@ -56,6 +56,9 @@ class Kernel extends ConsoleKernel
                 $this->deleteAnonymousChat();
             })->timezone('Asia/Taipei')->weeklyOn(0, '23:59');
 
+            //每週檢查討論區
+            $schedule->command('ForumCheck')->timezone('Asia/Taipei')->weeklyOn(1, '1:00');
+
         }
         if(app()->environment('CFP')){
             $schedule->call('\App\Http\Controllers\Admin\FindPuppetController@entrance')->timezone('Asia/Taipei')->dailyAt('05:00');
@@ -133,7 +136,8 @@ class Kernel extends ConsoleKernel
     }
 
     protected function checkECPayVip(){
-        $vipDatas = \App\Models\Vip::where(['business_id' => '3137610', 'active' => 1])->get();
+//        $vipDatas = \App\Models\Vip::where(['business_id' => '3137610', 'active' => 1])->get();
+        $vipDatas = \App\Models\Vip::where('business_id','3137610')->where('order_id','like','SG%')->get();
         foreach ($vipDatas as $vipData){
             \App\Jobs\CheckECpay::dispatch($vipData);
         }

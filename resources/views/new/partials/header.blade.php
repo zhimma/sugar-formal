@@ -71,7 +71,7 @@
                     {{-- 若無 CFP，則儲存 CFP，並於資料庫記錄 --}}
                     $.ajax({
                         type: 'POST',
-                        url: '{{ route('savecfp') }}',
+                        url: '{{ route('savecfp') }}?{{csrf_token()}}={{now()->timestamp}}',
                         data: {
                             _token:"{{ csrf_token() }}",
                             hash : cfp.hash,
@@ -88,7 +88,7 @@
                     cfpLocal = JSON.parse(cfpLocal);
                     $.ajax({
                         type: 'POST',
-                        url: '{{ route('checkcfp') }}',
+                        url: '{{ route('checkcfp') }}?{{csrf_token()}}={{now()->timestamp}}',
                         data: {
                             _token:"{{ csrf_token() }}",
                             hash : cfpLocal.hash,
@@ -113,7 +113,7 @@
                     if(userLocal.id !== user.id){
                         $.ajax({
                             type: 'POST',
-                            url: '{{ route('multipleLogin') }}',
+                            url: '{{ route('multipleLogin') }}?{{csrf_token()}}={{now()->timestamp}}',
                             data: {
                                 _token:"{{ csrf_token() }}",
                                 original_id : userLocal.id,

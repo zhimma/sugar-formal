@@ -286,7 +286,7 @@
         var msgID = $(this).attr('data-MsgId');
         $.ajax({
             type: 'POST',
-            url: "/dashboard/adminMsgRead/"+msgID,
+            url: "/dashboard/adminMsgRead/"+msgID+"?{{csrf_token()}}={{now()->timestamp}}",
             data:{
                 _token: '{{ csrf_token() }}'
             },
