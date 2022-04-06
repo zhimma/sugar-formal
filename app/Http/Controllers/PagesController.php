@@ -3423,8 +3423,12 @@ class PagesController extends BaseController
             }
         }
 
-        $last_send_messenge = Message::where('from_id', $user->id)->where('to_id', $cid)->orderBy('id','desc')->first();
-
+        $last_send_messenge = false;
+        if($request->from_viewuser_page??false)
+        {
+            $last_send_messenge = Message::where('from_id', $user->id)->where('to_id', $cid)->orderBy('id','desc')->first();
+        }
+        
         if (isset($user)) {
             $is_banned = User::isBanned($user->id);
             $toUserIsBanned = User::isBanned($cid);
