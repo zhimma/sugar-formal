@@ -1948,7 +1948,11 @@ class PagesController extends BaseController
             //check forum manage users
             //apply_user_id = manager
             $forum = Forum::where('user_id', $user->id)->orderBy('id','desc')->first();
-            $canViewUsers = ForumManage::where('forum_id', $forum->id)->where('user_id',$targetUser->id)->first();
+            if($forum??false)
+            {
+                $canViewUsers = ForumManage::where('forum_id', $forum->id)->where('user_id',$targetUser->id)->first();
+            }
+            
             if ($user->id != $uid) {
 
                 if(
