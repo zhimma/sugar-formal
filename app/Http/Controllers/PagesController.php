@@ -1947,12 +1947,12 @@ class PagesController extends BaseController
 
             //check forum manage users
             //apply_user_id = manager
-//            $canViewUsers = ForumManage::where('apply_user_id', $user->id)->where('user_id',$targetUser->id)->first();
+            $canViewUsers = ForumManage::where('apply_user_id', $user->id)->where('user_id',$targetUser->id)->first();
             if ($user->id != $uid) {
 
                 if(
                     //檢查性別
-                    $user->engroup == $targetUser->engroup /*&& !isset($canViewUsers)*/
+                    $user->engroup == $targetUser->engroup && !isset($canViewUsers)
                     //檢查是否被封鎖
 //                    || User::isBanned($user->id)
                 ){
@@ -2026,6 +2026,8 @@ class PagesController extends BaseController
                 ->leftJoin('banned_users as b1', 'b1.member_id', '=', 'evaluation.from_id')
                 ->leftJoin('banned_users_implicitly as b3', 'b3.target', '=', 'evaluation.from_id')
                 ->leftJoin('users as u1', 'u1.id', '=', 'evaluation.from_id')
+                ->leftJoin('user_meta as um', 'um.user_id', '=', 'evaluation.from_id')
+                ->leftJoin('warned_users as w2', 'w2.member_id', '=', 'evaluation.from_id')
 //                ->leftJoin('users as u2', 'u2.id', '=', 'evaluation.from_id')
 //                ->leftJoin('user_meta as um', function($join) {
 //                    $join->on('um.user_id', '=', 'evaluation.from_id')
@@ -2037,6 +2039,8 @@ class PagesController extends BaseController
 //                                ->orWhere('wu.expire_date', null); }); })
                 ->whereNull('b1.member_id')
                 ->whereNull('b3.target')
+                ->where('um.isWarned',0)
+                ->whereNull('w2.id')
                 ->whereNotNull('u1.id')
 //                ->whereNotNull('u2.id')
                 ->where('u1.accountStatus', 1)
@@ -2339,6 +2343,23 @@ class PagesController extends BaseController
                     // $message_count_7 = round((int)$message_count_7);
                     // $message_reply_count_7 = round((int)$message_reply_count_7);
                     // $visit_other_count_7 = round((int)$visit_other_count_7);
+
+
+                    //至目前為止離隱藏日期過了幾天
+                    $hideOnlineDays = now()->diffInDays($hideOnlineData->created_at);
+
+                    $message_count_7 = $message_count_7 - ($message_count_7 / 7) * $hideOnlineDays;
+                    $message_reply_count_7 = $message_reply_count_7 - ($message_reply_count_7 / 7) * $hideOnlineDays;
+                    $visit_other_count_7 = $visit_other_count_7 - ($visit_other_count_7 / 7) * $hideOnlineDays;
+
+                    if($message_count_7 < 0){$message_count_7 = 0;}
+                    if($message_reply_count_7 < 0){$message_reply_count_7 = 0;}
+                    if($visit_other_count_7 < 0){$visit_other_count_7 = 0;}
+
+                    $message_count_7 = round((int)$message_count_7);
+                    $message_reply_count_7 = round((int)$message_reply_count_7);
+                    $visit_other_count_7 = round((int)$visit_other_count_7);
+
                 }
             }
 
@@ -2424,6 +2445,10 @@ class PagesController extends BaseController
                 /*此會員封鎖多少其他會員*/
                 $blocked_other_count = Blocked::with(['blocked_user'])
                 ->join('users', 'users.id', '=', 'blocked.blocked_id')
+                ->leftJoin('user_meta as um', 'um.user_id', '=', 'blocked.blocked_id')
+                ->leftJoin('warned_users as w2', 'w2.member_id', '=', 'blocked.blocked_id')
+                ->where('um.isWarned',0)
+                ->whereNull('w2.id')
                 ->where('blocked.member_id', $uid)
                 ->whereNotIn('blocked.blocked_id',$bannedUsers)
                 ->whereNotNull('users.id')
@@ -2434,6 +2459,10 @@ class PagesController extends BaseController
                 /*此會員被多少會員封鎖*/
                 $be_blocked_other_count = Blocked::with(['blocked_user'])
                     ->join('users', 'users.id', '=', 'blocked.member_id')
+                    ->leftJoin('user_meta as um', 'um.user_id', '=', 'blocked.member_id')
+                    ->leftJoin('warned_users as w2', 'w2.member_id', '=', 'blocked.member_id')
+                    ->where('um.isWarned',0)
+                    ->whereNull('w2.id')
                     ->where('blocked.blocked_id', $uid)
                     ->whereNotIn('blocked.member_id',$bannedUsers)
                     ->whereNotNull('users.id')
@@ -2474,6 +2503,10 @@ class PagesController extends BaseController
                 /*收藏會員次數*/
                 $fav_count = MemberFav::select('member_fav.*')
                 ->join('users', 'users.id', '=', 'member_fav.member_fav_id')
+                ->leftJoin('user_meta as um', 'um.user_id', '=', 'member_fav.member_fav_id')
+                ->leftJoin('warned_users as w2', 'w2.member_id', '=', 'member_fav.member_fav_id')
+                ->where('um.isWarned',0)
+                ->whereNull('w2.id')
                 ->whereNotNull('users.id')
                 ->where('users.accountStatus', 1)
                 ->where('users.account_status_admin', 1)
@@ -2484,6 +2517,10 @@ class PagesController extends BaseController
                 /*被收藏次數*/
                 $be_fav_count = MemberFav::select('member_fav.*')
                     ->join('users', 'users.id', '=', 'member_fav.member_id')
+                    ->leftJoin('user_meta as um', 'um.user_id', '=', 'member_fav.member_id')
+                    ->leftJoin('warned_users as w2', 'w2.member_id', '=', 'member_fav.member_id')
+                    ->where('um.isWarned',0)
+                    ->whereNull('w2.id')
                     ->whereNotNull('users.id')
                     ->where('users.accountStatus', 1)
                     ->where('users.account_status_admin', 1)
@@ -2783,6 +2820,10 @@ class PagesController extends BaseController
             ->leftJoin('banned_users as b1', 'b1.member_id', '=', 'evaluation.to_id')
             ->leftJoin('banned_users_implicitly as b3', 'b3.target', '=', 'evaluation.to_id')
             ->leftJoin('users as u', 'u.id', '=', 'evaluation.to_id')
+            ->leftJoin('user_meta as um', 'um.user_id', '=', 'evaluation.to_id')
+            ->leftJoin('warned_users as w2', 'w2.member_id', '=', 'evaluation.to_id')
+            ->where('um.isWarned',0)
+            ->whereNull('w2.id')
             ->whereNull('b1.member_id')
             ->whereNull('b3.target')
             ->where('u.accountStatus', 1)
@@ -5086,23 +5127,22 @@ class PagesController extends BaseController
 //            return back();
 //        }
 
-        $posts = Posts::selectraw('posts.top, users.id as uid, users.name as uname, users.engroup as uengroup, posts.is_anonymous as panonymous, user_meta.pic as umpic, posts.id as pid, posts.title as ptitle, posts.contents as pcontents, posts.updated_at as pupdated_at, posts.created_at as pcreated_at, posts.deleted_by, posts.deleted_at, posts.article_id as aid')
-            ->selectRaw('(select updated_at from posts where (id=aid or reply_id=aid ) order by updated_at desc limit 1) as currentReplyTime')
-            ->selectRaw('(case when users.id=1049 then 1 else 0 end) as adminFlag')
-            ->LeftJoin('users', 'users.id', '=', 'posts.user_id')
-            ->join('user_meta', 'users.id', '=', 'user_meta.user_id')
-            ->where('posts.type', 'main')
-            ->orderBy('posts.deleted_at', 'asc')
-            ->orderBy('posts.top', 'desc')
-            ->orderBy('adminFlag', 'desc')
-            ->orderBy('currentReplyTime', 'desc')
-            ->orderBy('pcreated_at', 'desc')
-            ->withTrashed()
-            ->paginate(10);
+//        $posts = Posts::selectraw('posts.top, users.id as uid, users.name as uname, users.engroup as uengroup, posts.is_anonymous as panonymous, user_meta.pic as umpic, posts.id as pid, posts.title as ptitle, posts.contents as pcontents, posts.updated_at as pupdated_at, posts.created_at as pcreated_at, posts.deleted_by')
+//            ->selectRaw('(select updated_at from posts where (type="main" and id=pid) or reply_id=pid or reply_id in ((select distinct(id) from posts where type="sub" and reply_id=pid) )  order by updated_at desc limit 1) as currentReplyTime')
+//            ->selectRaw('(case when users.id=1049 then 1 else 0 end) as adminFlag')
+//            ->LeftJoin('users', 'users.id','=','posts.user_id')
+//            ->join('user_meta', 'users.id','=','user_meta.user_id')
+//            ->where('posts.type','main')
+//            ->orderBy('posts.deleted_at','asc')
+//            ->orderBy('posts.top','desc')
+//            ->orderBy('adminFlag','desc')
+//            ->orderBy('currentReplyTime','desc')
+//            ->withTrashed()
+//            ->paginate(10);
 
         $data = array(
-//            'posts' => null
-            'posts' => $posts
+            'posts' => null
+//            'posts' => $posts
         );
 
         if ($user)
@@ -5423,7 +5463,7 @@ class PagesController extends BaseController
             ->LeftJoin('users', 'users.id','=','forum.user_id')
             ->join('user_meta', 'users.id','=','user_meta.user_id')
             ->leftJoin('forum_posts', 'forum_posts.user_id','=', 'users.id')
-//            ->where('forum.status', 1)
+            ->where('forum.status', 1)
             ->orderBy('forum.status', 'desc')
             ->orderBy('currentReplyTime','desc')
             ->groupBy('forum.id')

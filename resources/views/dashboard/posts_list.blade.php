@@ -65,8 +65,8 @@
 						<a onclick="checkUserVip();" class="aid_but"><img src="/posts/images/tg_03.png">我要發表</a>
 					</div>
 
-{{--					<livewire:posts-list/>--}}
-					@if(!isset($posts) || count($posts)==0)
+					<livewire:posts-list/>
+					{{-- @if(!isset($posts) || count($posts)==0)
 						<div class="sjlist">
 							<div class="fengsicon"><img src="/posts/images/bianji.png" class="feng_img"><span>尚無資料</span></div>
 						</div>
@@ -97,7 +97,8 @@
 						<div class="fenye mabot30">
 							{{ $posts->links('pagination::sg-pages2') }}
 						</div>
-					@endif
+					@endif --}}
+					
 				</div>
 			</div>
 		</div>

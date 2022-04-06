@@ -1466,8 +1466,7 @@
                         placement: 'bottom',
                         trigger: 'hover',
                         html: true,
-                        // content: function () { return '<h4' + $(this).data('content') + '</h4>'; }
-                        content: function () { return $(this).data('content'); }
+                        content: function () { return '<h4' + $(this).data('content') + '</h4>'; }
                     });
 
                     @if($user->checkTourRead('chat',6) == 0)

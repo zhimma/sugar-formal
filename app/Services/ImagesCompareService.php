@@ -364,6 +364,7 @@ class ImagesCompareService {
     public static function isNeedCompareByEntry($picEntry,$force = false) {
         if(!($picEntry->pic??null)) return false;     
         if($force)  return true;
+        if(!$picEntry->user) { ray($picEntry); return false; }
         if($picEntry->user->engroup!=2) return false;        
 
         if(!($picEntry->created_at??null) && !($picEntry->updated_at??null)) return true;
