@@ -1947,7 +1947,12 @@ class PagesController extends BaseController
 
             //check forum manage users
             //apply_user_id = manager
-            $canViewUsers = ForumManage::where('apply_user_id', $user->id)->where('user_id',$targetUser->id)->first();
+            $forum = Forum::where('user_id', $user->id)->orderBy('id','desc')->first();
+            if($forum??false)
+            {
+                $canViewUsers = ForumManage::where('forum_id', $forum->id)->where('user_id',$targetUser->id)->first();
+            }
+            
             if ($user->id != $uid) {
 
                 if(
@@ -5647,12 +5652,13 @@ class PagesController extends BaseController
         return view('/dashboard/forum_personal', compact('posts_personal_all','forum', 'checkUserVip', 'checkForumMangeStatus', 'lastest_color'))->with('user', $user);
     }
 
-    public function forum_manage(Request $request)
+    public function forum_manage(Request $request, $fid)
     {
 
+        $forum_id = $fid;
         $user = $request->user();
 
-        $forum = Forum::where('user_id', $user->id)->first();
+        $forum = Forum::where('id', $forum_id)->first();
 
         if(!$forum) {
             return back()->with('message', '您的討論區不存在。');
@@ -5660,7 +5666,7 @@ class PagesController extends BaseController
 
         $posts_manage_users = ForumManage::select('forum_manage.user_id','users.name','forum_manage.status','forum_manage.forum_status','forum_manage.chat_status')
             ->leftJoin('users', 'users.id','=','forum_manage.user_id')
-            ->where('forum_manage.apply_user_id', $user->id)
+            ->where('forum_id', $forum_id)
             ->whereNotIn('status',[2,3]);
         if($request->order == 1) {
             $posts_manage_users = $posts_manage_users->orderBy('status', 'asc');
@@ -5705,7 +5711,7 @@ class PagesController extends BaseController
 
         }else if($status==1){
             if(isset($checkData)){
-                ForumManage::where('user_id', $uid)->where('apply_user_id', $auid)->update(['status' => $status, 'forum_status' => 1, 'chat_status' => 1,'updated_at' => Carbon::now()]);
+                ForumManage::where('user_id', $uid)->where('forum_id', $fid->id)->update(['status' => $status, 'forum_status' => 1, 'chat_status' => 1,'updated_at' => Carbon::now()]);
                 $msg = '該會員已通過';
             }else{
                 $msg = 'error';
@@ -5713,7 +5719,7 @@ class PagesController extends BaseController
 
         }else if($status==2){
             if(isset($checkData)){
-                ForumManage::where('user_id', $uid)->where('apply_user_id', $auid)->update(['status' => $status, 'updated_at' => Carbon::now()]);
+                ForumManage::where('user_id', $uid)->where('forum_id', $fid->id)->update(['status' => $status, 'updated_at' => Carbon::now()]);
                 $msg = '已拒絕該會員申請';
             }else{
                 $msg = 'error';
@@ -5722,8 +5728,8 @@ class PagesController extends BaseController
         }
         else if($status==3){
             if(isset($checkData)){
-//                ForumManage::where('user_id', $uid)->where('apply_user_id', $auid)->delete();
-                ForumManage::where('user_id', $uid)->where('apply_user_id', $auid)->update(['status' => $status, 'updated_at' => Carbon::now()]);
+//                ForumManage::where('user_id', $uid)->where('forum_id', $fid->id)->delete();
+                ForumManage::where('user_id', $uid)->where('forum_id', $fid->id)->update(['status' => $status, 'updated_at' => Carbon::now()]);
                 if($auid = $user->id){
                     $msg = '已移除該會員';
                 }else {
@@ -5735,9 +5741,9 @@ class PagesController extends BaseController
         }
         else if($status==4){
             if(isset($checkData)){
-//                ForumManage::where('user_id', $uid)->where('apply_user_id', $auid)->delete();
-                ForumManage::where('user_id', $uid)->where('apply_user_id', $auid)->update(['status' => $status]);
-                ForumManage::where('user_id', $uid)->where('apply_user_id', $auid)->delete();
+//                ForumManage::where('user_id', $uid)->where('forum_id', $fid->id)->delete();
+                ForumManage::where('user_id', $uid)->where('forum_id', $fid->id)->update(['status' => $status]);
+                ForumManage::where('user_id', $uid)->where('forum_id', $fid->id)->delete();
                 if($auid = $user->id){
                     $msg = '已取消申請';
                 }else {
