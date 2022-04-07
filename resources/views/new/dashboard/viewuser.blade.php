@@ -1673,6 +1673,7 @@
 
 <script type="application/javascript">
     let is_banned = {{ $is_banned ? 1 : 0 }};
+    let is_warned = {{ $isAdminWarned ? 1 :0 }};
     function jidutiao() {
         c5('此會員使用紀錄不足，無法判斷');
     }
@@ -1707,6 +1708,10 @@
         if(is_banned){
             return  c5('您目前被站方封鎖，無檢舉權限');
         }
+       if(is_warned){
+           return  c5('您目前被站方警示，無檢舉權限');
+       }
+
 
         $(".blbg").show();
         $("#show_reportPic").show();
