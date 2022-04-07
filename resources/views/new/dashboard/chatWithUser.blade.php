@@ -346,6 +346,19 @@
     .msg_content {
         display: block;
     }
+
+    .atkbut{width: 88px;padding:5px 5px; background: #fff6f7;border-radius: 10px;box-shadow: 0 5px 5px #ffc1cd; display:none ;}
+    .at_left{position: absolute;left: 0;bottom:-80px; z-index: 99;}
+    .at_right{position: absolute;right: 0;bottom:-80px; z-index: 99;}
+
+    .atkbut a{width: 94%;padding:5px 0px;margin: 0 auto; display: table; display: table; font-size: 14px; border-bottom: #ffccd2 1px solid; position: relative;}
+    .atkbut a:hover{background: #fff; border-radius: 5px;}
+    .atkbut a:last-child{ border-bottom: 0;}
+
+    .he_yuan{width:30px; height:30px; border-radius: 100px; box-shadow:0 10px 10px rgba(255,203,203,0.8); background: #fff; display: table; float: left; margin-right: 4px;}
+    .he_left_img{ height:30px;width: 30px;}
+    .he_li30{ line-height: 30px; font-style: normal;}
+    .img_vip{ position: absolute; left:10px;width:55px; top: -0px;}
 </style>
 <script>
 
@@ -526,7 +539,7 @@
                 $isBlurAvatar = \App\Services\UserService::isBlurAvatar($to, $user);
                 @endphp
                 @if(!empty($messages))
-                @foreach ($messages as $message)
+                @foreach ($messages as $m_key =>$message)
                 @php
                 $parentMsg = null;
                 $msgUser = \App\Models\User::findById($message->from_id);
@@ -582,7 +595,7 @@
                                         src="@if(file_exists( public_path().$msgUser->meta->pic ) && $msgUser->meta->pic != ""){{$msgUser->meta->pic}} @elseif($msgUser->engroup==2)/new/images/female.png @else/new/images/male.png  @endif">
                                 </a>
                             @endif
-                            <p class="@if($parentMsg??null) msg_has_parent @endif">
+                            <p class="@if($parentMsg??null) msg_has_parent @endif  userlogo_{{ $message['id'] }}  userlogo_{{ $message['client_id'] }} ">
                                 @if($parentMsg??null)
                                 <span class="parent_msg_box">
                                     @if(($parentMsg['from_id']??null) == $user->id)
@@ -603,18 +616,30 @@
                                 <i class="msg_input"></i>
                                 <span id="page" class="marl5">
                                     <span class="justify-content-center">
-                                        <span class="gutters-10 pswp--loaded" data-pswp="">
+                                        <span class="zoomInPhoto_{{ $message['client_id'] }} gutters-10 pswp--loaded" data-pswp="" style="display: none;">
                                             <span style="width: 150px;">
                                                 @foreach(json_decode($message['pic'],true) as $key => $pic)
                                                 @if(isset($pic['file_path']))
-                                                <a href="{{$pic['file_path'] }}" target="_blank"
-                                                    data-pswp-index="{{ $key }}" class="pswp--item">
-                                                    <img src="{{ $pic['file_path'] }}" class="n_pic_lt">
+                                                <a class="pswp--item" href="{{$pic['file_path'] }}" target="_blank"
+                                                    data-pswp-index="{{ $key }}">
+                                                    <img src="{{ $pic['file_path'] }}" class="n_pic_lt @if($key==0) n_pic_lt_{{ $message['client_id'] }} @endif">
                                                 </a>
                                                 @else
                                                 {{ logger("Message pic failed, user id: " . $user->id) }}
                                                 {{ logger("to id: " . $to->id) }}
                                                 @endif
+                                                @endforeach
+                                            </span>
+                                        </span>
+                                        <span class="photoOrigin_{{ $message['client_id'] }} gutters-10">
+                                            <span style="width: 150px;">
+                                                @foreach(json_decode($message['pic'],true) as $key => $pic)
+                                                    @if(isset($pic['file_path']))
+                                                        <a  class="pswp--item" ><img class="n_pic_lt" src="{{ $pic['file_path'] }}"></a>
+                                                    @else
+                                                        {{ logger("Message pic failed, user id: " . $user->id) }}
+                                                        {{ logger("to id: " . $to->id) }}
+                                                    @endif
                                                 @endforeach
                                             </span>
                                         </span>
@@ -633,53 +658,52 @@
                                         @endif
                                     </font>
                                 </span>
-                                @if($message['from_id'] != $user->id)
-                                <a href="javascript:void(0)" class=""
-                                    onclick="banned('{{$message['id']}}','{{$msgUser->id}}','{{$msgUser->name}}');"
-                                    title="檢舉">
-                                    <span class="shdel"
-                                        style="border: #fd5678 1px solid; width: auto;"><span>檢舉</span></span>
-                                </a>
-                                @endif
-                                @if((!isset($admin) || $to->id != $admin->id) && !isset($to->banned )&&
-                                !isset($to->implicitlyBanned))
-                                <a href="javascript:void(0)" class="specific_reply_doer" onclick="return false;"
-                                    title="回覆" data-id="{{$message['id']}}" data-client_id="{{$message['client_id']}}">
-                                    <span class="shdel specific_reply"><span>回覆</span></span>
-                                </a>
-                                @if($message['from_id'] == $user->id)
-
-                                <a href="javascript:void(0)" class="unsend_a" data-id="{{$message['id']}}"
-                                      data-client_id="{{$message['client_id']}}"  onclick="chatUnsend(this);return false;" title="收回">
-                                    <span class="shdel unsend"><span>收回</span></span>
-                                </a>
-                                @endif
-                                @endif
+                                <font class="atkbut {{ $message['from_id'] == $user->id ? 'at_right':'at_left' }} showslide_{{ $message['id'] }}">
+                                    @if($message['from_id'] != $user->id)
+                                        <a href="javascript:void(0)" onclick="banned('{{$message['id']}}','{{$msgUser->id}}','{{$msgUser->name}}');">
+                                            <span class="he_yuan"><img src="/new/images/ba_09.png" class="he_left_img"></span><i class="he_li30">檢舉</i>
+                                        </a>
+                                    @endif
+                                    @if((!isset($admin) || $to->id != $admin->id) && !isset($to->banned )&&!isset($to->implicitlyBanned))
+                                            <a href="javascript:void(0)" class="specific_reply_doer" onclick="specific_reply_doer(this);return false;" data-id="{{$message['id']}}" data-client_id="{{$message['client_id']}}">
+                                            <span class="he_yuan"><img src="/new/images/ba_03.png" class="he_left_img"></span><i class="he_li30">回覆</i>
+                                        </a>
+                                        @if($message['from_id'] == $user->id)
+                                            <a href="javascript:void(0)" onclick="chatUnsend(this);return false;" data-id="{{$message['id']}}" data-client_id="{{$message['client_id']}}">
+                                                <span class="he_yuan"><img src="/new/images/ba_05.png" class="he_left_img"></span><i class="he_li30">收回</i>
+                                                @if(!$isVip)
+                                                    <img src="/new/images/icon_36.png" class="img_vip"
+                                                >@endif
+                                            </a>
+                                        @endif
+                                        <a href="javascript:void(0)" onclick="zoomInPic('{{$message['client_id']  }}');">
+                                            <span class="he_yuan"><img src="/new/images/ba_010.png" class="he_left_img"></span><i class="he_li30">放大</i>
+                                        </a>
+                                    @endif
+                                </font>
                                 @else
                                 <i class="msg_input"></i>
                                 <span class="msg_content">{!! nl2br($message['content']) !!}</span>
-
-                                @if($message['from_id'] != $user->id)
-                                <a href="javascript:void(0)" class=""
-                                    onclick="banned('{{$message['id']}}','{{$msgUser->id}}','{{$msgUser->name}}');"
-                                    title="檢舉">
-                                    <span class="shdel_word"><span>檢舉</span></span>
-                                </a>
-
-                                @endif
-                                @if((!isset($admin) || $to->id != $admin->id) && !isset($to->banned )&&
-                                !isset($to->implicitlyBanned))
-                                @if($message['from_id'] == $user->id)
-                                <a href="javascript:void(0)" onclick="chatUnsend(this);return false;" class="unsend_a"
-                                    data-id="{{$message['id']}}"  data-client_id="{{$message['client_id']}}" title="收回">
-                                    <span class="shdel_word unsend"><span>收回</span></span>
-                                </a>
-                                @endif
-                                <a href="javascript:void(0)" class="specific_reply_doer" onclick=" return false;"
-                                    title="回覆" data-id="{{$message['id']}}"  data-client_id="{{$message['client_id']}}">
-                                    <span class="shdel_word specific_reply"><span>回覆</span></span>
-                                </a>
-                                @endif
+                                <font class="atkbut {{ $message['from_id'] == $user->id ? 'at_right':'at_left' }} showslide_{{ $message['id'] }}">
+                                    @if($message['from_id'] != $user->id)
+                                        <a href="javascript:void(0)" onclick="banned('{{$message['id']}}','{{$msgUser->id}}','{{$msgUser->name}}');">
+                                            <span class="he_yuan"><img src="/new/images/ba_09.png" class="he_left_img"></span><i class="he_li30">檢舉</i>
+                                        </a>
+                                    @endif
+                                    @if((!isset($admin) || $to->id != $admin->id) && !isset($to->banned )&&!isset($to->implicitlyBanned))
+                                        <a href="javascript:void(0)" class="specific_reply_doer" onclick="specific_reply_doer(this);return false;"  data-id="{{$message['id']}}" data-client_id="{{$message['client_id']}}">
+                                            <span class="he_yuan"><img src="/new/images/ba_03.png" class="he_left_img"></span><i class="he_li30">回覆</i>
+                                        </a>
+                                        @if($message['from_id'] == $user->id)
+                                            <a href="javascript:void(0)" onclick="chatUnsend(this);return false;" data-id="{{$message['id']}}" data-client_id="{{$message['client_id']}}">
+                                                <span class="he_yuan"><img src="/new/images/ba_05.png" class="he_left_img"></span><i class="he_li30">收回</i>
+                                                @if(!$isVip)
+                                                    <img src="/new/images/icon_36.png" class="img_vip">
+                                                @endif
+                                            </a>
+                                        @endif
+                                    @endif
+                                </font>
                                 <font
                                     class="sent_ri @if($message['from_id'] == $user->id)dr_l @if(!$isVip) novip @endif @else dr_r @endif">
                                     <span>{{ ($message['created_at']??null)?substr($message['created_at'],11,5):'&nbsp;' }}</span>
@@ -696,6 +720,21 @@
                                 @endif
 
                             </p>
+                            <script>
+                                $('.userlogo_'+'{{ $message['id'] }}').click(function() {
+                                    event.stopPropagation()
+                                    if($(this).hasClass('on1')) {
+                                        $(this).removeClass('on1')
+                                        $('.showslide_'+'{{ $message['id'] }}').fadeOut()
+
+                                    } else {
+
+                                        $(this).addClass('on1')
+                                        $('.fadeinboxs').fadeIn()
+                                        $('.showslide_'+'{{ $message['id'] }}').fadeIn()
+                                    }
+                                });
+                            </script>
                         </div>
                     </div>
                     @if($isVip && $message['from_id'] == $user->id)
@@ -900,6 +939,33 @@
         history: false,
         focus: false,
     });
+</script>
+<script>
+    var msg_totalCount='{{ $messages->count() }}';
+    $('body').click(function(e) {
+        if ($('.atkbut:visible').length>0) {
+            $('.atkbut').hide();
+            for (var index=0; index < msg_totalCount; index++) {
+                $('.userlogo_'+index).removeClass('on1');
+                $('.showslide_'+index).fadeOut();
+            }
+        }
+    });
+    let zoonIn_m_client='';
+    function zoomInPic(m_client) {
+        event.stopPropagation()
+        $('.zoomInPhoto_'+m_client).show();
+        $('.photoOrigin_'+m_client).hide();
+        $('.n_pic_lt_'+m_client).click();
+        zoonIn_m_client=m_client;
+    }
+    document.querySelector('.pswp').addEventListener('pswpTap', function (e)
+    {
+        //event.stopPropagation()
+        $('.zoomInPhoto_'+zoonIn_m_client).hide();
+        $('.photoOrigin_'+zoonIn_m_client).show();
+        $('.atkbut').hide();
+    }, true);
 </script>
 <script>
     @if (($to->engroup) === ($user->engroup))
@@ -1802,11 +1868,25 @@
             });
         @endif
 
-            $(document).on('click','.specific_reply_doer',function() {
+        function specific_reply_doer(elt){
+            var now_elt = $(elt);
+            var now_id = now_elt.attr('data-id');
+            var now_client_id = now_elt.attr('data-client_id');
+            var now_elt_parent = now_elt.parent().parent();
+            var now_msg_pic_elt =  now_elt_parent.find('.marl5 .justify-content-center .pswp--loaded span a');
+            var now_msg_html = '';
+            if(now_msg_pic_elt.length>0) now_msg_html=now_msg_pic_elt.html();
+            var now_msg_sender_img = now_elt_parent.parent().find('img').first().clone();
+            $('#specific_msg_box').show().find('.specific_msg').html(now_elt_parent.find('.msg_content').text()+now_msg_html).prepend(now_msg_sender_img);
+            $('.message_parent').val(now_id);
+            $('.message_parent_client').val(now_client_id);
+            $('#msg').focus();
+        }
+    $(document).on('click','.specific_reply_doer',function() {
                 var now_elt = $(this);
                 var now_id = now_elt.attr('data-id');
                 var now_client_id = now_elt.attr('data-client_id');
-                var now_elt_parent = now_elt.parent();
+                var now_elt_parent = now_elt.parent().parent();
                 var now_msg_pic_elt =  now_elt_parent.find('.marl5 .justify-content-center .pswp--loaded span a');
                 var now_msg_html = '';
                 if(now_msg_pic_elt.length>0) now_msg_html=now_msg_pic_elt.html();

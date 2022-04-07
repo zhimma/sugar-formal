@@ -20,9 +20,11 @@
         var msg_speak_mark_elt = msg_elt.find('.msg_input');
         var msg_time_elt = null;
         var msg_pic_elt = null;
+        var msg_pic_elt_origin = null;
         if(msg_elt.length) {
             msg_time_elt = msg_elt.find('.sent_ri span').first();
             msg_pic_elt = msg_elt.find('.marl5 .justify-content-center .pswp--loaded span');
+            msg_pic_elt_origin = msg_elt.find('.marl5 .justify-content-center .photoOrigin span');
         }
 
         if(!!msg_time_elt && msg_time_elt.length) {
@@ -33,22 +35,46 @@
             if(!msg_pic_elt || !msg_pic_elt.length) {
                 msg_speak_mark_elt.after(
                     '<span id="page" class="marl5">' +
-                                '<span class="justify-content-center">' +
-                                    '<span class="gutters-10 pswp--loaded" data-pswp="">' +
-                                        '<span style="width: 150px;"></span></span></span></span>'
+                        '<span class="justify-content-center">' +
+                            '<span class="zoomInPhoto_'+m['client_id'] +'pswp--loaded" data-pswp="">' +
+                                '<span style="width: 150px;"></span>' +
+                            '</span>'+
+                            '<span class="photoOrigin_'+m['client_id']+'> photoOrigin"' +
+                                '<span style="width: 150px;"></span>' +
+                            '</span>'+
+                        '</span>' +
+                    '</span>'
                 );
                 
                 msg_pic_elt = msg_elt.find('.marl5 .justify-content-center .pswp--loaded span');
+                msg_pic_elt_origin = msg_elt.find('.marl5 .justify-content-center .photoOrigin span');
             }
             
             let pics = JSON.parse(m['pic']);            
             msg_pic_elt.html('');
             pics.forEach( function (pic, key, pics)  {
-                msg_pic_elt.html(msg_pic_elt.html() + '<a href="' + pic['file_path'] + '" target="_blank" data-pswp-index="' + key +'" class="pswp--item">' +
-                '<img src="' + pic['file_path'] + '" class="n_pic_lt"></a>'
+                if(key==0){
+                    msg_pic_elt.html(msg_pic_elt.html() + '<a href="' + pic['file_path'] + '" target="_blank" data-pswp-index="' + key +'" class="pswp--item">' +
+                        '<img src="' + pic['file_path'] + '" class="n_pic_lt n_pic_lt_'+m['client_id']+'"></a>'
+                    );
+                }else{
+                    msg_pic_elt.html(msg_pic_elt.html() + '<a href="' + pic['file_path'] + '" target="_blank" data-pswp-index="' + key +'" class="pswp--item">' +
+                        '<img src="' + pic['file_path'] + '" class="n_pic_lt"></a>'
+                    );
+                }
+            });
+
+            msg_pic_elt_origin.html('');
+            pics.forEach( function (pic, key, pics)  {
+                msg_pic_elt_origin.html(msg_pic_elt_origin.html() + '<a class="pswp--item">' +
+                    '<img src="' + pic['file_path'] + '" class="n_pic_lt"></a>'
                 )
                 ;
-            });              
+            });
+            photoswipeSimplify.init({
+                history: false,
+                focus: false,
+            });
         } 
     }
     
@@ -80,7 +106,7 @@
             '<div class="show">' +
                 '<div class="msg msg1">' +
                     '<img src="@if(file_exists( public_path().$user->meta->pic ) && $user->meta->pic != ""){{$user->meta->pic}} @elseif($user->engroup==2)/new/images/female.png @else/new/images/male.png @endif">' +
-                    '<p class="'+(m['parent_message']?'msg_has_parent':'')+'">';                   
+                    '<p onclick="msg_click_event('+ "'"+m['client_id']+"'"+')" class="'+(m['parent_message']?'msg_has_parent':'')+' userlogo_'+ m['client_id'] +'">';
                     if(m['parent_message']) {
                         ele = ele
                         + '<span class="parent_msg_box">'
@@ -105,7 +131,7 @@
                             ele = ele + '<i class="msg_input"></i>' +
                             '<span id="page" class="marl5">' +
                                 '<span class="justify-content-center">' +
-                                    '<span class="gutters-10 pswp--loaded" data-pswp="">' +
+                                    '<span class="gutters-10 pswp--loaded" data-pswp="" style="display: none;">' +
                                         '<span style="width: 150px;">' ;
                                         if(Number.isInteger(m['pic'])) {
                                             ele = ele + '<img src="{{asset("new/owlcarousel/assets/ajax-loader.gif")}}" >';
@@ -114,6 +140,20 @@
                                             pics.forEach( function (pic, key, pics)  {
                                                 ele = ele + '<a href="' + pic['file_path'] + '" target="_blank" data-pswp-index="' + key +'" class="pswp--item">' +
                                                 '<img src="' + pic['file_path'] + '" class="n_pic_lt"></a>'
+                                                ;
+                                            });
+                                        }
+                                        ele = ele + '</span>' +
+                                    '</span>' +
+                                    '<span class="gutters-10 photoOrigin" data-pswp="">' +
+                                        '<span style="width: 150px;">' ;
+                                        if(Number.isInteger(m['pic'])) {
+                                            ele = ele + '<img src="{{asset("new/owlcarousel/assets/ajax-loader.gif")}}" >';
+                                        }
+                                        else {
+                                            pics.forEach( function (pic, key, pics)  {
+                                                ele = ele + '<a class="pswp--item">' +
+                                                    '<img src="' + pic['file_path'] + '" class="n_pic_lt"></a>'
                                                 ;
                                             });
                                         }
@@ -130,13 +170,18 @@
                                     @endif
                                 '</font>' +
                             '</span>'+
-                            '<a href="javascript:void(0)" class="unsend_a" data-id="'+m['id']+'"  data-client_id="'+m['client_id']+'"  onclick="chatUnsend(this);return false;"  title="收回">'+
-                                '<span class="shdel unsend"><span>收回</span></span>'+
-                            '</a>' +
-                            '<a href="javascript:void(0)" class="specific_reply_doer" onclick="return false;" title="回覆" data-id="' + m['id'] + '"  data-client_id="'+m['client_id']+'" >'+
-                                '<span class="shdel specific_reply"><span>回覆</span></span>'+
-                            '</a>'                       
-                            ;
+                            '<font class="atkbut at_right showslide_'+ m['client_id']+'">'+
+                                '<a href="javascript:void(0)" class="specific_reply_doer" onclick="specific_reply_doer(this);return false;" data-id="'+ m['id']+'" data-client_id="'+m['client_id']+'">'+
+                                    '<span class="he_yuan"><img src="/new/images/ba_03.png" class="he_left_img"></span><i class="he_li30">回覆</i>'+
+                                '</a>'+
+                                '<a href="javascript:void(0)" onclick="chatUnsend(this);return false;" data-id="'+m['id']+'" data-client_id="'+m['client_id']+'">'+
+                                    '<span class="he_yuan"><img src="/new/images/ba_05.png" class="he_left_img"></span><i class="he_li30">收回</i>'+
+                                    '@if(!$isVip)<img src="/new/images/icon_36.png" class="img_vip">@endif'+
+                                '</a>'+
+                                '<a href="javascript:void(0)" onclick="zoomInPic('+ "'"+m['client_id']+"'"+');">'+
+                                    '<span class="he_yuan"><img src="/new/images/ba_010.png" class="he_left_img"></span><i class="he_li30">放大</i>'+
+                                '</a>'+
+                            '</font>';
                         }
                         else{
                             ele = ele + '<i class="msg_input"></i><span class="msg_content">' + m['content'] +
@@ -149,13 +194,15 @@
                                     '<span id="is_read" class="is_read ' + m['id'] +(m['client_id']?'client_'+m['client_id']:'') + '">未讀</span>' +
                                 @endif
                             '</font>'+
-                            '<a href="javascript:void(0)"  class="unsend_a" data-id="'+m['id']+'"  data-client_id="'+m['client_id']+'"   onclick="chatUnsend(this);return false;"  title="收回">'+
-                                '<span class="shdel_word unsend"><span>收回</span></span>'+
-                            '</a>'   +
-                            '<a href="javascript:void(0)" class="specific_reply_doer" onclick="return false;" title="回覆" data-id="' + m['id'] + '"  data-client_id="'+m['client_id']+'" >'+
-                                '<span class="shdel_word specific_reply"><span>回覆</span></span>'+
-                            '</a>'                      
-                            ;
+                            '<font class="atkbut at_right showslide_'+ m['client_id']+'">'+
+                                '<a href="javascript:void(0)" class="specific_reply_doer" onclick="specific_reply_doer(this);return false;" data-id="'+ m['id']+'" data-client_id="'+m['client_id']+'">'+
+                                    '<span class="he_yuan"><img src="/new/images/ba_03.png" class="he_left_img"></span><i class="he_li30">回覆</i>'+
+                                '</a>'+
+                                '<a href="javascript:void(0)" onclick="chatUnsend(this);return false;" data-id="'+m['id']+'" data-client_id="'+m['client_id']+'">'+
+                                    '<span class="he_yuan"><img src="/new/images/ba_05.png" class="he_left_img"></span><i class="he_li30">收回</i>'+
+                                    '@if(!$isVip)<img src="/new/images/icon_36.png" class="img_vip">@endif'+
+                                '</a>'+
+                            '</font>';
                         }
                     ele = ele + '</p>' +
                 '</div>' +
@@ -168,5 +215,14 @@
         }
         $(ele).insertAfter($(".matopj10")[0]);
         $('div.message').scrollTop(0);
+    }
+
+    function msg_click_event(client_id){
+        event.stopPropagation();
+        if( $('.showslide_'+client_id).css('display')=='block'){
+            $('.showslide_'+client_id).hide();
+        }else{
+            $('.showslide_'+client_id).show();
+        }
     }
 </script>

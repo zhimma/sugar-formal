@@ -96,7 +96,7 @@
             '<a class="chatWith" href="{{ url('/dashboard/viewuser/' . $to->id ) }}">' +
                 '<img class="@if($isBlurAvatar) blur_img @endif" src="@if(file_exists( public_path().$to->meta->pic ) && $to->meta->pic != ""){{$to->meta->pic}} @elseif($to->engroup==2)/new/images/female.png @else/new/images/male.png  @endif">' +
             '</a>' +
-            '<p class="'+(m['parent_message']?'msg_has_parent':'')+'">';
+            '<p onclick="msg_click_event('+ "'"+m['client_id']+"'"+')" class="'+(m['parent_message']?'msg_has_parent':'')+' userlogo_'+ m['client_id'] +'">';
             if(m['parent_message']) {
                 ele = ele
                 + '<span class="parent_msg_box">'
@@ -137,22 +137,40 @@
                     '<span>' + timeString+ '</span>' +
                             '</font>' +
                     '</span>' +
-                    '<a href="javascript:void(0)" class="report_doer" onclick="banned(\'' + m['id'] + '\',\'{{ $to->id }}\',\'{{ $to->name }}\');" title="檢舉" style="visibility:hidden;">' +
-                        '<span class="shdel" style="border: #fd5678 1px solid; width: auto;"><span>檢舉</span></span>' +
-                    '</a>'+
-                    '<a href="javascript:void(0)" class="specific_reply_doer" onclick=" return false;" title="回覆" data-id="'+m['id']+'">'+
-                        '<span class="shdel specific_reply"><span>回覆</span></span>'+
-                    '</a>'                    
-                    ;
+                    '<font class="atkbut at_left showslide_'+ m['client_id']+'">'+
+                        '<a href="javascript:void(0)" onclick="banned(\'' + m['id'] + '\',\'{{ $to->id }}\',\'{{ $to->name }}\');">'+
+                            '<span class="he_yuan"><img src="/new/images/ba_09.png" class="he_left_img"></span><i class="he_li30">檢舉</i>'+
+                        '</a>'+
+                        '<a href="javascript:void(0)" class="specific_reply_doer" onclick="specific_reply_doer(this);return false;" data-id="'+ m['id']+'" data-client_id="'+m['client_id']+'">'+
+                            '<span class="he_yuan"><img src="/new/images/ba_03.png" class="he_left_img"></span><i class="he_li30">回覆</i>'+
+                        '</a>'+
+                    '</font>';
+
+                    {{--'<a href="javascript:void(0)" class="report_doer" onclick="banned(\'' + m['id'] + '\',\'{{ $to->id }}\',\'{{ $to->name }}\');" title="檢舉" style="visibility:hidden;">' +--}}
+                    {{--    '<span class="shdel" style="border: #fd5678 1px solid; width: auto;"><span>檢舉</span></span>' +--}}
+                    {{--'</a>'+--}}
+                    {{--'<a href="javascript:void(0)" class="specific_reply_doer" onclick=" return false;" title="回覆" data-id="'+m['id']+'">'+--}}
+                    {{--    '<span class="shdel specific_reply"><span>回覆</span></span>'+--}}
+                    {{--'</a>'                    --}}
+                    {{--;--}}
             }
             else{
                 ele = ele + '<i class="msg_input"></i><span class="msg_content">' + m['content'] +
-                    '</span><a href="javascript:void(0)" class="report_doer" onclick="banned(\'' + m['id'] + '\',\'{{ $to->id }}\',\'{{ $to->name }}\');" title="檢舉" style="visibility:hidden;">' +
-                    '<span class="shdel_word"><span>檢舉</span></span>' +
-                    '</a>' +
-                    '<a href="javascript:void(0)" class="specific_reply_doer" onclick=" return false;" title="回覆" data-id="'+m['id']+'">'+
-                        '<span class="shdel_word specific_reply"><span>回覆</span></span>'+
-                    '</a>' +                    
+                    '</span>' +
+                    '<font class="atkbut at_left showslide_'+ m['client_id']+'">'+
+                        '<a href="javascript:void(0)" onclick="banned(\'' + m['id'] + '\',\'{{ $to->id }}\',\'{{ $to->name }}\');">'+
+                            '<span class="he_yuan"><img src="/new/images/ba_09.png" class="he_left_img"></span><i class="he_li30">檢舉</i>'+
+                        '</a>'+
+                        '<a href="javascript:void(0)" class="specific_reply_doer" onclick="specific_reply_doer(this);return false;" data-id="'+ m['id']+'" data-client_id="'+m['client_id']+'">'+
+                            '<span class="he_yuan"><img src="/new/images/ba_03.png" class="he_left_img"></span><i class="he_li30">回覆</i>'+
+                        '</a>'+
+                    '</font>'+
+                    {{--'<a href="javascript:void(0)" class="report_doer" onclick="banned(\'' + m['id'] + '\',\'{{ $to->id }}\',\'{{ $to->name }}\');" title="檢舉" style="visibility:hidden;">' +--}}
+                    {{--'<span class="shdel_word"><span>檢舉</span></span>' +--}}
+                    {{--'</a>' +--}}
+                    {{--'<a href="javascript:void(0)" class="specific_reply_doer" onclick=" return false;" title="回覆" data-id="'+m['id']+'">'+--}}
+                    {{--    '<span class="shdel_word specific_reply"><span>回覆</span></span>'+--}}
+                    {{--'</a>' +                    --}}
                     '<font class="sent_ri dr_r">' +
                         '<span>' + timeString + '</span>' +
                     '</font>';
@@ -165,5 +183,14 @@
             $(".message.pad_bot").prepend('<div class="sebg matopj10">' + dateString+ '</div>');
         }
         $(ele).insertAfter($(".matopj10")[0]);
+    }
+
+    function msg_click_event(client_id){
+        event.stopPropagation();
+        if( $('.showslide_'+client_id).css('display')=='block'){
+            $('.showslide_'+client_id).hide();
+        }else{
+            $('.showslide_'+client_id).show();
+        }
     }
 </script>
