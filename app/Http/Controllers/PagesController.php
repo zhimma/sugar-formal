@@ -3430,6 +3430,7 @@ class PagesController extends BaseController
 
         if (isset($user)) {
             $is_banned = User::isBanned($user->id);
+            $is_warned = warned_users::where('member_id', $user->id)->first();
             $toUserIsBanned = User::isBanned($cid);
             $isVip = $user->isVip();
             $tippopup = AdminCommonText::getCommonText(3);//id3車馬費popup說明
@@ -3458,6 +3459,7 @@ class PagesController extends BaseController
                     ->with('user', $user)
                     ->with('admin', $admin)
                     ->with('is_banned', $is_banned)
+                    ->with('is_warned', $is_warned)
                     ->with('toUserIsBanned', $toUserIsBanned)
                     ->with('cmeta', $c_user_meta)
                     ->with('to', $cid_user)
@@ -3473,6 +3475,7 @@ class PagesController extends BaseController
                     ->with('user', $user)
                     ->with('admin', $admin)
                     ->with('is_banned', $is_banned)
+                    ->with('is_warned', $is_warned)
                     ->with('toUserIsBanned', $toUserIsBanned)
                     ->with('cmeta', $c_user_meta)
                     ->with('m_time', $m_time)

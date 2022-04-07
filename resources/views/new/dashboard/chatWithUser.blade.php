@@ -364,9 +364,13 @@
 
     function banned(id,sid,name){
         let is_banned = {{ $is_banned ? 1 : 0 }};
+        let is_warned = {{ $is_warned ? 1 :0 }};
 
         if(is_banned){
             return  c5('您目前被站方封鎖，無檢舉權限');
+        }
+        if(is_warned){
+            return  c5('您目前被站方警示，無檢舉權限');
         }
 
         $("input[name='uid']").val(sid);
