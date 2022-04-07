@@ -176,6 +176,9 @@ class OrderController extends \App\Http\Controllers\BaseController
 
     public function orderEcPayCheck(Request $request){
         $order_id = $request->input('order_id');
+        if(str_contains($order_id, 'TIP')){
+            return back()->with('message', '車馬費訂單不適用此查詢系統');
+        }
         //正式綠界訂單查詢
         $ecpay = new \App\Services\ECPay_AllInOne();
         $ecpay->MerchantID = '3137610';
