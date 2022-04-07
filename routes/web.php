@@ -848,6 +848,9 @@ Route::group(['middleware' => ['auth', 'global', 'active', 'femaleActive', 'vipC
         Route::post('check/step1', 'UserController@member_profile_check_over')->name('admin/member_profile_check_over');
         Route::get('ban_information', 'UserController@ban_information');
         Route::post('users/little_update_profile', 'UserController@little_update_profile');
+
+        //進階資訊統計工具
+        Route::get('users/informationStatistics', 'UserController@informationStatistics')->name('users/informationStatistics');
     });
     Route::group(['prefix' => 'admin', 'middleware' => 'Admin'], function () {
         //寄退信Log查詢

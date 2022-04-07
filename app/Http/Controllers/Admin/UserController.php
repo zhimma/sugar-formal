@@ -5571,4 +5571,14 @@ class UserController extends \App\Http\Controllers\BaseController
         return redirect()->back();
     }
 
+    public function informationStatistics(Request $request)
+    {
+        $form_condition['days'] = $request->days ?? 30;
+        $form_condition['percentage'] = $request->percentage ?? 10;
+        $form_condition['sex'] = $request->sex ?? 0;
+        $form_condition['include_banned_user'] = $request->include_banned_user ?? 0;
+        $form_condition['include_closed_user'] = $request->include_closed_user ?? 0;
+        return view('admin.users.informationStatistics')->with('form_condition', $form_condition);
+    }
+
 }
