@@ -3428,7 +3428,7 @@ class PagesController extends BaseController
         {
             if(!($request->page??false))
             {
-                $last_send_messenge = Message::where('from_id', $user->id)->where('to_id', $cid)->orderBy('id','desc')->first();
+                $last_send_messenge = Message::where('from_id', $user->id)->where('to_id', $cid)->orderBy('id')->first();
             }
         }
         
