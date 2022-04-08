@@ -151,13 +151,27 @@
 	@else 
 		<button class="btn btn-info" onclick="VipAction({{($user['isvip'])?'1':'0' }},{{ $user['id'] }})"> 升級VIP </button>
 	@endif
-<!--隱藏-->
-	{{-- @if($user['isHidden'])
-		<button class="btn btn-info" onclick="HiddenAction({{($user['isHidden'])?'1':'0' }},{{ $user['id'] }})"> 取消隱藏 </button>
+
+	@if($user['isHidden'])
+		<button class="btn btn-info" onclick="HiddenAction({{($user['isHidden'])?'1':'0' }},{{ $user['id'] }})"> 取消隱藏付費 </button>
 	@else 
-		<button class="btn btn-info" onclick="HiddenAction({{($user['isHidden'])?'1':'0' }},{{ $user['id'] }})"> 升級隱藏 </button>
-	@endif --}}
-<!---->
+		<button class="btn btn-info" onclick="HiddenAction({{($user['isHidden'])?'1':'0' }},{{ $user['id'] }})"> 升級隱藏付費 </button>
+	@endif
+
+	<!--開啟使用者隱藏-->
+	<!--<form id="switch_from" style="display: inline;" method="post" action="{{ route('hideOnlineSwitch') }}">
+		<input type="hidden" name="_token" value="{{ csrf_token() }}" >
+		<input type="hidden" name="userId" value="{{$user->id}}">
+		@if($user['is_hide_online'] == 0)
+		<input type="hidden" name="isHideOnline" value="1">
+		<button type="submit" class="btn btn-info"> 隱藏 </button>
+		@else
+		<input type="hidden" name="isHideOnline" value="0">
+		<button type="submit" class="btn btn-info"> 取消隱藏 </button>
+		@endif
+	</form>-->
+	<!--開啟使用者隱藏-->
+
 	@if (Auth::user()->can('admin') || Auth::user()->can('juniorAdmin'))
 		<a href="{{ route('AdminMessage', $user['id']) }}" target="_blank" class='btn btn-dark'>撰寫站長訊息</a>
 	@elseif (Auth::user()->can('readonly'))
@@ -456,6 +470,56 @@
 				@endif
 			</form>
 		</td>
+		<!--
+		<td colspan='2'>
+			<h4>隱藏付費紀錄</h4>
+			<table class='table table-bordered table-hover'>
+				<thead>
+					<tr>
+						<th>訂單編號</th>
+						<th>訂購日期</th>
+						<th>到期日</th>
+						<th>購買項目</th>
+						<th>付費週期</th>
+						<th>付費方式</th>
+						<th>扣款日期</th>
+						<th>金額</th>
+						<th>金流平台</th>
+					</tr>
+				</thead>
+				<tbody>
+				@forelse ($hideonline_order as $row)
+					<tr>
+						<td>{{$row->order_id}}</td>
+						<td>{{ substr($row->order_date, 0, 10) }}</td>
+						<td>{{ substr($row->order_expire_date, 0, 10) }}</td>
+						<td>{{$row->service_name}}</td>
+						<td>{{$row->payment}}</td>
+						<td>{{$row->payment_type}}</td>
+						<td>
+							@php
+							$payDate = json_decode($row->pay_date, true);
+							@endphp
+							@foreach($payDate as $key => $value)
+								<span class="badge badge-info">{!! substr($value[0], 0, 10) !!}</span>
+							@endforeach
+			
+						</td>
+						<td>{{$row->amount}}</td>
+						<td>{{$row->payment_flow}}</td>
+			
+			
+					</tr>
+				@empty
+					<tr>
+						<td colspan="9">找不到資料</td>
+			
+					</tr>
+				@endforelse
+				</tbody>
+			</table>
+		</td>
+		-->
 	</tr>
 	<tr>
 		<th>會員ID</th>
