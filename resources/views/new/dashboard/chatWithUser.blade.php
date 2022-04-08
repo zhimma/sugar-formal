@@ -727,6 +727,7 @@
                             <script>
                                 $('.userlogo_'+'{{ $message['id'] }}').click(function() {
                                     event.stopPropagation()
+                                    $('.atkbut').hide();
                                     if($(this).hasClass('on1')) {
                                         $(this).removeClass('on1')
                                         $('.showslide_'+'{{ $message['id'] }}').fadeOut()
