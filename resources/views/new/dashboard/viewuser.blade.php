@@ -496,7 +496,6 @@
                             <div class="swiper-button-next"></div>
                             <div class="swiper-button-prev"></div>
                         </div>
-                        <div class="n_jianj"><a onclick="show_reportPic()">檢舉大頭照</a></div>
                         <!--新改-->
                         @php
                             $isBlocked = \App\Models\Blocked::isBlocked($user->id, $to->id);
@@ -766,10 +765,11 @@
                                         @endif
                                     </a>
                                 @if($isAdminWarned)
-                                    <a onclick="show_Warned()"><img src="/new/images/icon_10.png" class="tubiao_i he_tkcn_img"><span>檢舉</span></a>
+                                    <a onclick="show_Warned()"><img src="/new/images/icon_10.png" class="tubiao_i he_tkcn_img"><span>檢舉會員</span></a>
                                 @else
-                                    <a onclick="show_banned()"><img src="/new/images/icon_10.png" class="tubiao_i he_tkcn_img"><span>檢舉</span></a>
-                                @endif                                    
+                                    <a onclick="show_banned()"><img src="/new/images/icon_10.png" class="tubiao_i he_tkcn_img"><span>檢舉會員</span></a>
+                                @endif
+                                    <a onclick="show_reportPic()"><img src="/new/images/icon_008.png" class="he_tkcn_img">檢舉照片</a>
                                     </ul>
                                 </div>						
 							</li>                            
