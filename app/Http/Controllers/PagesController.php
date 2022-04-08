@@ -3433,17 +3433,23 @@ class PagesController extends BaseController
         }
 
         $first_send_messenge = false;
+        $first_receive_messenge = false;
+        //判斷是否從viewuser的發信按鈕進入
         if($request->from_viewuser_page??false)
         {
+            //第一次進入時page為NULL 判斷是否第一次進入
             if(!($request->page??false))
             {
                 $first_send_messenge = Message::where('from_id', $user->id)->where('to_id', $cid)->orderBy('id')->first();
                 $first_receive_messenge = Message::where('from_id', $cid)->where('to_id', $user->id)->orderBy('id')->first();
-                if($first_receive_messenge??false)
+                if($first_send_messenge??false)
                 {
-                    if($first_receive_messenge->created_at < $first_send_messenge->created_at)
+                    if($first_receive_messenge??false)
                     {
-                        $first_send_messenge = false;
+                        if($first_receive_messenge->created_at < $first_send_messenge->created_at)
+                        {
+                            $first_send_messenge = false;
+                        }
                     }
                 }
             }
