@@ -1980,7 +1980,7 @@
             }
     @if($first_send_messenge??false)
         $(document).ready(function() {
-            c5('溫馨提示 : 您曾在 {{$first_send_messenge->created_at->toDateString()}} 發訊給這位女會員哦');
+            c5('溫馨提示 : 您曾在 {{$first_send_messenge->created_at->toDateString()}} 發訊給這位會員哦');
         });
     @endif
 </script>
