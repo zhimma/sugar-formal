@@ -1742,8 +1742,7 @@
             placement: 'bottom',
             trigger: 'hover',
             html: true,
-            // content: function () { return '<div' + $(this).data('content') + '</div>'; }
-            content: function () { return $(this).data('content'); }
+            content: function () { return '<div>' + $(this).data('content') + '</div>'; }
         // })
         //     .click(function(e) {
         //     e.preventDefault();

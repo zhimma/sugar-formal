@@ -56,7 +56,7 @@
                 <tr>
                     <td colspan="2">
                         <a href="/admin/users/posts" class='text-white btn btn-dark submit'>清除條件</a>
-                        <input type="submit" class='text-white btn btn-primary submit' value="查詢">
+                        <input type="submit" class='btn btn-outline-primary submit' value="查詢">
                     </td>
                 </tr>
             </table>
@@ -80,7 +80,11 @@
                 <td>{{ $list->contents }}</td>
                 <td>{{ $list->created_at }}</td>
                 <td style="display:flex;">
+                    @if($list->deleted_at==null)
                     <a href="/admin/users/posts/delete/{{ $list->id }}" class='text-white btn btn-danger'>刪除</a>
+                    @else
+                        <button type="button" class="btn btn-secondary" disabled style="cursor: unset;">已刪除</button>
+                    @endif
                     <form method="POST" action="/admin/users/posts/prohibit">
                         {!! csrf_field() !!}
                         <input type="hidden" name='uid' value="{{ $list->user_id}}">
@@ -172,4 +176,5 @@
             return String("00" + n).slice(-2);
         }
     </script>
+    <script src="https://cdn.tailwindcss.com"></script>
 @stop

@@ -120,7 +120,7 @@
 										<div class="ta_wdka">
 											<div class="ta_wdka_text">主題數<span>{{$post->posts_num}}</span><i>丨</i>回覆數<span>{{$post->posts_reply_num}}</span></div>
 											<div class="ta_witx_rig">
-												@if($user->id != 1049)
+												@if($user->id != 1049 && $post->f_status != 0 && $post->f_warned != 1)
 													@if(isset($getStatus) && $getStatus->status==0)
 														<a href="/dashboard/forum_manage_chat/{{$post->uid}}/{{$user->id}}" class="shenhe_z">審核中</a>
 													@elseif(isset($getStatus) && ($getStatus->status==2 || $getStatus->status==3))
