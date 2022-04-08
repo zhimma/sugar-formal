@@ -72,6 +72,11 @@
                         </li>
                         <li>
                             <div class="n_icongg"><img src="/new/images/ic_03.png" class="n_icongg_img"></div>
+                            <div class="n_iconb"><img src="/new/images/ic_07.png"><span>11</span></div>
+                            <div class="n_iconfont">禁止向"長期為主"的女會員主動發送罐頭短約訊息。</div>
+                        </li>
+                        <li>
+                            <div class="n_icongg"><img src="/new/images/ic_03.png" class="n_icongg_img"></div>
                             <div class="n_iconb"><img src="/new/images/ic_07.png"><span>#</span></div>
                             <div class="n_iconfont"><span style="color: red;background: yellow;">違反以上規定將會有3~30天的封鎖/警示時間。嚴重者永久封鎖帳號。</span></div>
                         </li>
