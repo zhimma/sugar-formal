@@ -3432,12 +3432,20 @@ class PagesController extends BaseController
             }
         }
 
-        $last_send_messenge = false;
+        $first_send_messenge = false;
         if($request->from_viewuser_page??false)
         {
             if(!($request->page??false))
             {
-                $last_send_messenge = Message::where('from_id', $user->id)->where('to_id', $cid)->orderBy('id')->first();
+                $first_send_messenge = Message::where('from_id', $user->id)->where('to_id', $cid)->orderBy('id')->first();
+                $first_receive_messenge = Message::where('from_id', $cid)->where('to_id', $user->id)->orderBy('id')->first();
+                if($first_receive_messenge??false)
+                {
+                    if($first_receive_messenge->created_at < $first_send_messenge->created_at)
+                    {
+                        $first_send_messenge = false;
+                    }
+                }
             }
         }
         
@@ -3482,7 +3490,7 @@ class PagesController extends BaseController
                     ->with('tippopup', $tippopup)
                     ->with('messages', $messages)
                     ->with('report_reason', $report_reason->content)
-                    ->with('last_send_messenge', $last_send_messenge);
+                    ->with('first_send_messenge', $first_send_messenge);
             }
             else {
                 return view('new.dashboard.chatWithUser')
@@ -3497,7 +3505,7 @@ class PagesController extends BaseController
                     ->with('tippopup', $tippopup)
                     ->with('messages', $messages)
                     ->with('report_reason', $report_reason->content)
-                    ->with('last_send_messenge', $last_send_messenge);
+                    ->with('first_send_messenge', $first_send_messenge);
             }
         }
     }
