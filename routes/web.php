@@ -267,7 +267,7 @@ Route::group(['middleware' => ['auth', 'global', 'active', 'femaleActive', 'vipC
 
         Route::post('/dashboard/doForumPosts', 'PagesController@doForumPosts');
         Route::get('/dashboard/forum_personal/{fid}', 'PagesController@forum_personal');
-        Route::get('/dashboard/forum_manage/{fid}', 'PagesController@forum_manage')->name('forum_manage');
+        Route::get('/dashboard/forum_manage/{fid}', 'PagesController@forum_manage');
         Route::post('/dashboard/forum_manage_toggle', 'PagesController@forum_manage_toggle')->name('forum_manage_toggle');
         Route::post('/dashboard/forum_status_toggle', 'PagesController@forum_status_toggle')->name('forum_status_toggle');
         Route::get('/dashboard/forum_manage_chat/{auid}/{uid}', 'PagesController@forum_manage_chat');
