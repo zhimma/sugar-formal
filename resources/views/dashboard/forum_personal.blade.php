@@ -86,7 +86,7 @@
 							</a>
 							<div class="fabiao showslide" style="text-align: center;">
 								<a onclick="checkUserVip();">我要發表</a>
-								<a href="/dashboard/forum_manage">會員管理</a>
+								<a href="/dashboard/forum_manage/{{$forum->id}}">會員管理</a>
 							</div>
 						@else
 							<a onclick="checkUserVip();" class="aid_but"><img style="margin-left: 10px;" src="/posts/images/tg_03.png">我要發表</a>

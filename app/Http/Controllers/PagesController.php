@@ -1947,12 +1947,21 @@ class PagesController extends BaseController
 
             //check forum manage users
             //apply_user_id = manager
-            $canViewUsers = ForumManage::where('apply_user_id', $user->id)->where('user_id',$targetUser->id)->first();
+
+//            $canViewUsers = ForumManage::where('apply_user_id', $user->id)->where('user_id',$targetUser->id)->first();
+
+//            $forum = Forum::where('user_id', $user->id)->orderBy('id','desc')->first();
+//            if($forum??false)
+//            {
+//                $canViewUsers = ForumManage::where('forum_id', $forum->id)->where('user_id',$targetUser->id)->first();
+//            }
+            
+
             if ($user->id != $uid) {
 
                 if(
                     //檢查性別
-                    $user->engroup == $targetUser->engroup && !isset($canViewUsers)
+                    $user->engroup == $targetUser->engroup /*&& !isset($canViewUsers)*/
                     //檢查是否被封鎖
 //                    || User::isBanned($user->id)
                 ){
@@ -3434,6 +3443,7 @@ class PagesController extends BaseController
         
         if (isset($user)) {
             $is_banned = User::isBanned($user->id);
+            $is_warned = warned_users::where('member_id', $user->id)->first();
             $toUserIsBanned = User::isBanned($cid);
             $isVip = $user->isVip();
             $tippopup = AdminCommonText::getCommonText(3);//id3車馬費popup說明
@@ -3462,6 +3472,7 @@ class PagesController extends BaseController
                     ->with('user', $user)
                     ->with('admin', $admin)
                     ->with('is_banned', $is_banned)
+                    ->with('is_warned', $is_warned)
                     ->with('toUserIsBanned', $toUserIsBanned)
                     ->with('cmeta', $c_user_meta)
                     ->with('to', $cid_user)
@@ -3478,6 +3489,7 @@ class PagesController extends BaseController
                     ->with('user', $user)
                     ->with('admin', $admin)
                     ->with('is_banned', $is_banned)
+                    ->with('is_warned', $is_warned)
                     ->with('toUserIsBanned', $toUserIsBanned)
                     ->with('cmeta', $c_user_meta)
                     ->with('m_time', $m_time)
@@ -5138,22 +5150,23 @@ class PagesController extends BaseController
 //            return back();
 //        }
 
-//        $posts = Posts::selectraw('posts.top, users.id as uid, users.name as uname, users.engroup as uengroup, posts.is_anonymous as panonymous, user_meta.pic as umpic, posts.id as pid, posts.title as ptitle, posts.contents as pcontents, posts.updated_at as pupdated_at, posts.created_at as pcreated_at, posts.deleted_by')
-//            ->selectRaw('(select updated_at from posts where (type="main" and id=pid) or reply_id=pid or reply_id in ((select distinct(id) from posts where type="sub" and reply_id=pid) )  order by updated_at desc limit 1) as currentReplyTime')
-//            ->selectRaw('(case when users.id=1049 then 1 else 0 end) as adminFlag')
-//            ->LeftJoin('users', 'users.id','=','posts.user_id')
-//            ->join('user_meta', 'users.id','=','user_meta.user_id')
-//            ->where('posts.type','main')
-//            ->orderBy('posts.deleted_at','asc')
-//            ->orderBy('posts.top','desc')
-//            ->orderBy('adminFlag','desc')
-//            ->orderBy('currentReplyTime','desc')
-//            ->withTrashed()
-//            ->paginate(10);
+        $posts = Posts::selectraw('posts.top, users.id as uid, users.name as uname, users.engroup as uengroup, posts.is_anonymous as panonymous, user_meta.pic as umpic, posts.id as pid, posts.title as ptitle, posts.contents as pcontents, posts.updated_at as pupdated_at, posts.created_at as pcreated_at, posts.deleted_by, posts.deleted_at, posts.article_id as aid')
+            ->selectRaw('(select updated_at from posts where (id=aid or reply_id=aid ) order by updated_at desc limit 1) as currentReplyTime')
+            ->selectRaw('(case when users.id=1049 then 1 else 0 end) as adminFlag')
+            ->LeftJoin('users', 'users.id', '=', 'posts.user_id')
+            ->join('user_meta', 'users.id', '=', 'user_meta.user_id')
+            ->where('posts.type', 'main')
+            ->orderBy('posts.deleted_at', 'asc')
+            ->orderBy('posts.top', 'desc')
+            ->orderBy('adminFlag', 'desc')
+            ->orderBy('currentReplyTime', 'desc')
+            ->orderBy('pcreated_at', 'desc')
+            ->withTrashed()
+            ->paginate(10);
 
         $data = array(
-            'posts' => null
-//            'posts' => $posts
+//            'posts' => null
+            'posts' => $posts
         );
 
         if ($user)
@@ -5474,7 +5487,7 @@ class PagesController extends BaseController
             ->LeftJoin('users', 'users.id','=','forum.user_id')
             ->join('user_meta', 'users.id','=','user_meta.user_id')
             ->leftJoin('forum_posts', 'forum_posts.user_id','=', 'users.id')
-            ->where('forum.status', 1)
+//            ->where('forum.status', 1)
             ->orderBy('forum.status', 'desc')
             ->orderBy('currentReplyTime','desc')
             ->groupBy('forum.id')
@@ -5658,12 +5671,13 @@ class PagesController extends BaseController
         return view('/dashboard/forum_personal', compact('posts_personal_all','forum', 'checkUserVip', 'checkForumMangeStatus', 'lastest_color'))->with('user', $user);
     }
 
-    public function forum_manage(Request $request)
+    public function forum_manage(Request $request, $fid)
     {
 
+        $forum_id = $fid;
         $user = $request->user();
 
-        $forum = Forum::where('user_id', $user->id)->first();
+        $forum = Forum::where('id', $forum_id)->first();
 
         if(!$forum) {
             return back()->with('message', '您的討論區不存在。');
@@ -5671,7 +5685,7 @@ class PagesController extends BaseController
 
         $posts_manage_users = ForumManage::select('forum_manage.user_id','users.name','forum_manage.status','forum_manage.forum_status','forum_manage.chat_status')
             ->leftJoin('users', 'users.id','=','forum_manage.user_id')
-            ->where('forum_manage.apply_user_id', $user->id)
+            ->where('forum_id', $forum_id)
             ->whereNotIn('status',[2,3]);
         if($request->order == 1) {
             $posts_manage_users = $posts_manage_users->orderBy('status', 'asc');
@@ -5716,7 +5730,7 @@ class PagesController extends BaseController
 
         }else if($status==1){
             if(isset($checkData)){
-                ForumManage::where('user_id', $uid)->where('apply_user_id', $auid)->update(['status' => $status, 'forum_status' => 1, 'chat_status' => 1,'updated_at' => Carbon::now()]);
+                ForumManage::where('user_id', $uid)->where('forum_id', $fid->id)->update(['status' => $status, 'forum_status' => 1, 'chat_status' => 1,'updated_at' => Carbon::now()]);
                 $msg = '該會員已通過';
             }else{
                 $msg = 'error';
@@ -5724,7 +5738,7 @@ class PagesController extends BaseController
 
         }else if($status==2){
             if(isset($checkData)){
-                ForumManage::where('user_id', $uid)->where('apply_user_id', $auid)->update(['status' => $status, 'updated_at' => Carbon::now()]);
+                ForumManage::where('user_id', $uid)->where('forum_id', $fid->id)->update(['status' => $status, 'updated_at' => Carbon::now()]);
                 $msg = '已拒絕該會員申請';
             }else{
                 $msg = 'error';
@@ -5733,8 +5747,8 @@ class PagesController extends BaseController
         }
         else if($status==3){
             if(isset($checkData)){
-//                ForumManage::where('user_id', $uid)->where('apply_user_id', $auid)->delete();
-                ForumManage::where('user_id', $uid)->where('apply_user_id', $auid)->update(['status' => $status, 'updated_at' => Carbon::now()]);
+//                ForumManage::where('user_id', $uid)->where('forum_id', $fid->id)->delete();
+                ForumManage::where('user_id', $uid)->where('forum_id', $fid->id)->update(['status' => $status, 'updated_at' => Carbon::now()]);
                 if($auid = $user->id){
                     $msg = '已移除該會員';
                 }else {
@@ -5746,9 +5760,9 @@ class PagesController extends BaseController
         }
         else if($status==4){
             if(isset($checkData)){
-//                ForumManage::where('user_id', $uid)->where('apply_user_id', $auid)->delete();
-                ForumManage::where('user_id', $uid)->where('apply_user_id', $auid)->update(['status' => $status]);
-                ForumManage::where('user_id', $uid)->where('apply_user_id', $auid)->delete();
+//                ForumManage::where('user_id', $uid)->where('forum_id', $fid->id)->delete();
+                ForumManage::where('user_id', $uid)->where('forum_id', $fid->id)->update(['status' => $status]);
+                ForumManage::where('user_id', $uid)->where('forum_id', $fid->id)->delete();
                 if($auid = $user->id){
                     $msg = '已取消申請';
                 }else {

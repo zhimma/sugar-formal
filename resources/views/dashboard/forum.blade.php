@@ -75,16 +75,21 @@
 							@foreach($posts as $post)
 								@php
 									$show_a = 0;
-									$getStatus = \App\Models\ForumManage::where('user_id', $user->id)->where('apply_user_id', $post->uid)->get()->first();
+									$getStatus = \App\Models\ForumManage::where('user_id', $user->id)->where('forum_id', $post->f_id)->get()->first();
 								@endphp
-								<li @if($post->f_warned==1) class="huis_01" @endif>
+								<li @if($post->f_warned==1 || $post->f_status==0) class="huis_01" @endif>
 									<div class="ta_lwid_left">
 										<a href="/dashboard/viewuser/{{$post->uid}}">
 										<img src="@if(file_exists( public_path().$post->umpic ) && $post->umpic != ""){{$post->umpic}} @elseif($post->uengroup==2)/new/images/female.png @else/new/images/male.png @endif" class="hycov">
 										</a>
 									</div>
 									<div class="ta_lwid_right">
-										@if($user->id == 1049 || ($post->uid == $user->id || (isset($getStatus) && $getStatus->status==1 && $getStatus->forum_status ==1)) || (isset($getStatus) && $getStatus->status==1 && $getStatus->chat_status ==1) && $post->f_status==1)
+										@if($post->f_status==0 && $post->uid == $user->id)
+											@php
+												$show_a = 1;
+											@endphp
+											<a onclick="forumTip({{$user->id}})">
+										@elseif($user->id == 1049 || ($post->uid == $user->id || (isset($getStatus) && $getStatus->status==1 && $getStatus->forum_status ==1)) || (isset($getStatus) && $getStatus->status==1 && $getStatus->chat_status ==1) && $post->f_status==1)
 											@php
 												$show_a = 1;
 											@endphp
@@ -94,11 +99,6 @@
 												$show_a = 1;
 											@endphp
 											<a onclick="forumStatus({{$post->f_status}})">
-										@elseif($post->f_status==0 && $post->uid == $user->id)
-											@php
-												$show_a = 1;
-											@endphp
-											<a onclick="forumTip({{$user->id}})">
 										@elseif(isset($getStatus) && $getStatus->status==0)
 											@php
 												$show_a = 1;
@@ -120,7 +120,7 @@
 										<div class="ta_wdka">
 											<div class="ta_wdka_text">主題數<span>{{$post->posts_num}}</span><i>丨</i>回覆數<span>{{$post->posts_reply_num}}</span></div>
 											<div class="ta_witx_rig">
-												@if($user->id != 1049)
+												@if($user->id != 1049 && $post->f_status != 0 && $post->f_warned != 1)
 													@if(isset($getStatus) && $getStatus->status==0)
 														<a href="/dashboard/forum_manage_chat/{{$post->uid}}/{{$user->id}}" class="shenhe_z">審核中</a>
 													@elseif(isset($getStatus) && ($getStatus->status==2 || $getStatus->status==3))
@@ -134,7 +134,7 @@
 													$getApplyUsers = \App\Models\ForumManage::select('user_meta.pic', 'users.engroup')
 																						   ->LeftJoin('users', 'users.id','=','forum_manage.user_id')
 																						   ->join('user_meta', 'user_meta.user_id','=','forum_manage.user_id')
-																						   ->where('forum_manage.apply_user_id', $post->uid)
+																						   ->where('forum_manage.forum_id', $post->f_id)
 																						   ->where('forum_manage.status', 1)
 																						   ->where('forum_manage.active',1)
 																						   ->where(function($query){
