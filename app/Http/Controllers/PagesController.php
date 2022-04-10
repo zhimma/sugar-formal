@@ -1470,7 +1470,8 @@ class PagesController extends BaseController
     public function view_account_hide_online(Request $request)
     {
         $user = $request->user();
-        return view('new.dashboard.account_hide_online')->with('user', $user)->with('cur', $user);
+        $hide_online_data = hideOnlineData::where('user_id', $user->id)->first();
+        return view('new.dashboard.account_hide_online')->with('user', $user)->with('cur', $user)->with('hide_online_data', $hide_online_data);
     }
 
     public function viewVipForNewebPay(Request $request)
