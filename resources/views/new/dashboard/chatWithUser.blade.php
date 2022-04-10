@@ -1979,6 +1979,11 @@
                 var str2 = parseInt(init_str.substr(Math.floor(init_str.length/2), init_str.length),10).toString(36);
                 return rcode1+str1+str2+rcode2;
             }
+    @if($first_send_messenge??false)
+        $(document).ready(function() {
+            c5('溫馨提示 : 您曾在 {{$first_send_messenge->created_at->toDateString()}} 發訊給這位會員哦');
+        });
+    @endif
 </script>
 @endif
 <style>

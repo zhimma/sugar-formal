@@ -4520,7 +4520,7 @@ class UserController extends \App\Http\Controllers\BaseController
         }
 
 
-        $postsList = $postsList->get();
+        $postsList = $postsList->withTrashed()->get();
 
         $page = $request->get('page',1);
         $perPage = 20;

@@ -1948,17 +1948,21 @@ class PagesController extends BaseController
 
             //check forum manage users
             //apply_user_id = manager
-            $forum = Forum::where('user_id', $user->id)->orderBy('id','desc')->first();
-            if($forum??false)
-            {
-                $canViewUsers = ForumManage::where('forum_id', $forum->id)->where('user_id',$targetUser->id)->first();
-            }
+
+//            $canViewUsers = ForumManage::where('apply_user_id', $user->id)->where('user_id',$targetUser->id)->first();
+
+//            $forum = Forum::where('user_id', $user->id)->orderBy('id','desc')->first();
+//            if($forum??false)
+//            {
+//                $canViewUsers = ForumManage::where('forum_id', $forum->id)->where('user_id',$targetUser->id)->first();
+//            }
             
+
             if ($user->id != $uid) {
 
                 if(
                     //檢查性別
-                    $user->engroup == $targetUser->engroup && !isset($canViewUsers)
+                    $user->engroup == $targetUser->engroup /*&& !isset($canViewUsers)*/
                     //檢查是否被封鎖
 //                    || User::isBanned($user->id)
                 ){
@@ -3429,6 +3433,29 @@ class PagesController extends BaseController
             }
         }
 
+        $first_send_messenge = false;
+        $first_receive_messenge = false;
+        //判斷是否從viewuser的發信按鈕進入
+        if($request->from_viewuser_page??false)
+        {
+            //第一次進入時page為NULL 判斷是否第一次進入
+            if(!($request->page??false))
+            {
+                $first_send_messenge = Message::where('from_id', $user->id)->where('to_id', $cid)->orderBy('id')->first();
+                $first_receive_messenge = Message::where('from_id', $cid)->where('to_id', $user->id)->orderBy('id')->first();
+                if($first_send_messenge??false)
+                {
+                    if($first_receive_messenge??false)
+                    {
+                        if($first_receive_messenge->created_at < $first_send_messenge->created_at)
+                        {
+                            $first_send_messenge = false;
+                        }
+                    }
+                }
+            }
+        }
+        
         if (isset($user)) {
             $is_banned = User::isBanned($user->id);
             $is_warned = warned_users::where('member_id', $user->id)->first();
@@ -3469,7 +3496,8 @@ class PagesController extends BaseController
                     ->with('isVip', $isVip)
                     ->with('tippopup', $tippopup)
                     ->with('messages', $messages)
-                    ->with('report_reason', $report_reason->content);
+                    ->with('report_reason', $report_reason->content)
+                    ->with('first_send_messenge', $first_send_messenge);
             }
             else {
                 return view('new.dashboard.chatWithUser')
@@ -3483,7 +3511,8 @@ class PagesController extends BaseController
                     ->with('isVip', $isVip)
                     ->with('tippopup', $tippopup)
                     ->with('messages', $messages)
-                    ->with('report_reason', $report_reason->content);
+                    ->with('report_reason', $report_reason->content)
+                    ->with('first_send_messenge', $first_send_messenge);
             }
         }
     }
@@ -5136,22 +5165,23 @@ class PagesController extends BaseController
 //            return back();
 //        }
 
-//        $posts = Posts::selectraw('posts.top, users.id as uid, users.name as uname, users.engroup as uengroup, posts.is_anonymous as panonymous, user_meta.pic as umpic, posts.id as pid, posts.title as ptitle, posts.contents as pcontents, posts.updated_at as pupdated_at, posts.created_at as pcreated_at, posts.deleted_by')
-//            ->selectRaw('(select updated_at from posts where (type="main" and id=pid) or reply_id=pid or reply_id in ((select distinct(id) from posts where type="sub" and reply_id=pid) )  order by updated_at desc limit 1) as currentReplyTime')
-//            ->selectRaw('(case when users.id=1049 then 1 else 0 end) as adminFlag')
-//            ->LeftJoin('users', 'users.id','=','posts.user_id')
-//            ->join('user_meta', 'users.id','=','user_meta.user_id')
-//            ->where('posts.type','main')
-//            ->orderBy('posts.deleted_at','asc')
-//            ->orderBy('posts.top','desc')
-//            ->orderBy('adminFlag','desc')
-//            ->orderBy('currentReplyTime','desc')
-//            ->withTrashed()
-//            ->paginate(10);
+        $posts = Posts::selectraw('posts.top, users.id as uid, users.name as uname, users.engroup as uengroup, posts.is_anonymous as panonymous, user_meta.pic as umpic, posts.id as pid, posts.title as ptitle, posts.contents as pcontents, posts.updated_at as pupdated_at, posts.created_at as pcreated_at, posts.deleted_by, posts.deleted_at, posts.article_id as aid')
+            ->selectRaw('(select updated_at from posts where (id=aid or reply_id=aid ) order by updated_at desc limit 1) as currentReplyTime')
+            ->selectRaw('(case when users.id=1049 then 1 else 0 end) as adminFlag')
+            ->LeftJoin('users', 'users.id', '=', 'posts.user_id')
+            ->join('user_meta', 'users.id', '=', 'user_meta.user_id')
+            ->where('posts.type', 'main')
+            ->orderBy('posts.deleted_at', 'asc')
+            ->orderBy('posts.top', 'desc')
+            ->orderBy('adminFlag', 'desc')
+            ->orderBy('currentReplyTime', 'desc')
+            ->orderBy('pcreated_at', 'desc')
+            ->withTrashed()
+            ->paginate(10);
 
         $data = array(
-            'posts' => null
-//            'posts' => $posts
+//            'posts' => null
+            'posts' => $posts
         );
 
         if ($user)
@@ -5472,7 +5502,7 @@ class PagesController extends BaseController
             ->LeftJoin('users', 'users.id','=','forum.user_id')
             ->join('user_meta', 'users.id','=','user_meta.user_id')
             ->leftJoin('forum_posts', 'forum_posts.user_id','=', 'users.id')
-            ->where('forum.status', 1)
+//            ->where('forum.status', 1)
             ->orderBy('forum.status', 'desc')
             ->orderBy('currentReplyTime','desc')
             ->groupBy('forum.id')
