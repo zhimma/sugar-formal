@@ -1177,10 +1177,10 @@ class UserService
                 $cfp->host = request()->getHttpHost();
                 $cfp->save();
             }
-            $exists = \App\Models\VisitorIDUser::where('cfp_id', $cfp->id)->where('user_id', $user_id)->count();
+            $exists = \App\Models\VisitorIDUser::where('visitor_id', $cfp->id)->where('user_id', $user_id)->count();
             if($exists == 0){
                 $cfp_user = new \App\Models\VisitorIDUser;
-                $cfp_user->cfp_id = $cfp->id;
+                $cfp_user->visitor_id = $cfp->id;
                 $cfp_user->user_id = $user_id;
                 $cfp_user->save();
             }
