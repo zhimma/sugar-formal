@@ -18,6 +18,7 @@
                     <input type="hidden" name="_token" id="token" value="{{ csrf_token() }}">
                     <input type="hidden" name="{{ time() }}" value="{{ time() }}">
                     <input type="hidden" name="cfp_hash" id="cfp_hash">
+                    <input type="hidden" name="visitor_id_hash" id="visitor_id_hash">
                     <input type="hidden" name="debug" id="debug">
                     <div class="dengl_h" id="login">登入</div>
                     <div id="notice" class="de_input">如果看不到輸入框請開啟 JavaScript 後重新嘗試；若已開啟 JavaScript 卻還是看不到，<a href="{{ route('login2') }}?{{ csrf_token() }}={{ time() }}" style="color: #ee5472;">請點擊這裡嘗試</a>。若有問題請按下方 <a href="{!! url('contact') !!}" style="color: #33B2FF; text-decoration: underline;">聯絡我們</a> 加站長 line 回報。</div>
@@ -30,6 +31,67 @@
         window.onmessage = function (e) {
             $('#cfp_hash').attr('value', e.data);
             $('#debug').attr('value', JSON.stringify(e.data));
+
+            // const fpPromise = import('https://fpcdn.io/v3/fNibEASAcoUCkR3kDSsd')
+            //                 .then(FingerprintJS => FingerprintJS.load())
+
+            // fpPromise
+            //     .then(fp => fp.get())
+            //     .then(result => {
+            //     // This is the visitor identifier:
+            //     const visitorId = result.visitorId
+            //     // const visitorID = { hash: visitorId };
+            //     $('#visitor_id_hash').attr('value', visitorId);
+            // })
+            let visitorIDLocal = window.localStorage.getItem('visitorID');
+                if(!visitorIDLocal){
+                      // Initialize the agent at application startup.
+                        const fpPromise = import('https://fpcdn.io/v3/fNibEASAcoUCkR3kDSsd')
+                            .then(FingerprintJS => FingerprintJS.load())
+
+                        // Get the visitor identifier when you need it.
+                        fpPromise
+                            .then(fp => fp.get())
+                            .then(result => {
+                            // This is the visitor identifier:
+                            const visitorId = result.visitorId
+                            const visitorID = { hash: visitorId };
+                            {{-- 若無 visitorID，則儲存 visitorID，並於資料庫記錄 --}}
+                            // $.ajax({
+                            //     type: 'POST',
+                            //     url: '{{ route('saveVisitorID') }}?{{csrf_token()}}={{now()->timestamp}}',
+                            //     data: {
+                            //         _token:"{{ csrf_token() }}",
+                            //         hash : visitorID.hash,
+                            //     },
+                            //     dataType: 'json',
+                            //     success: function(xhr){
+                            //         window.localStorage.setItem('visitorID', JSON.stringify(visitorID));
+                            //         console.log(xhr.msg);
+                            //         $('#visitor_id_hash').attr('value', visitorId);
+                            //     }
+                            // });
+                            $('#visitor_id_hash').attr('value', visitorId);
+                            })
+                }
+                else{
+                    {{-- 若有 CFP，則於背景檢查會員是否有 CFP，若無則於資料庫記錄 --}}
+                    visitorIDLocal = JSON.parse(visitorIDLocal);
+                    // $.ajax({
+                    //     type: 'POST',
+                    //     url: '{{ route('checkVisitorID') }}?{{csrf_token()}}={{now()->timestamp}}',
+                    //     data: {
+                    //         _token:"{{ csrf_token() }}",
+                    //         hash : visitorIDLocal.hash,
+                    //     },
+                    //     dataType: 'json',
+                    //     success: function(xhr){
+                    //         console.log(xhr.msg);
+                    //         $('#visitor_id_hash').attr('value', visitorIDLocal.hash);
+                    //     }
+                    // });
+                    $('#visitor_id_hash').attr('value', visitorIDLocal.hash);
+                }
         };
     </script>
     <script type="text/javascript">

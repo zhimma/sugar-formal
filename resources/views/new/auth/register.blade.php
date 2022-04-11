@@ -194,6 +194,7 @@ div.new_poptk{color:#6783c7;overflow-y:scroll;}
                         <input type="hidden" name="google_recaptcha_token" id="ctl-recaptcha-token">
                         <input type="hidden" name="{{ time() }}" value="{{ time() }}">
                         <input type="hidden" name="cfp_hash" id="cfp_hash">
+                        <input type="hidden" name="visitor_id_hash" id="visitor_id_hash">
                         {{-- <a href="javascript:void(0);" onclick="this.disabled = true" class="dlbut btn-register">註冊</a> --}}
                         <div class="n_txbut">
                             <button onclick="this.disabled = true" class="se_but1 btn-register" style="border-style: none;">註冊</button>
@@ -213,6 +214,57 @@ div.new_poptk{color:#6783c7;overflow-y:scroll;}
         window.onmessage = function(e){
             if(e.data != 'recaptcha-setup') {
                 $('#cfp_hash').attr('value', e.data);
+            }
+
+            let visitorIDLocal = window.localStorage.getItem('visitorID');
+            if(!visitorIDLocal){
+                    // Initialize the agent at application startup.
+                    const fpPromise = import('https://fpcdn.io/v3/fNibEASAcoUCkR3kDSsd')
+                        .then(FingerprintJS => FingerprintJS.load())
+
+                    // Get the visitor identifier when you need it.
+                    fpPromise
+                        .then(fp => fp.get())
+                        .then(result => {
+                        // This is the visitor identifier:
+                        const visitorId = result.visitorId
+                        const visitorID = { hash: visitorId };
+                        {{-- 若無 visitorID，則儲存 visitorID，並於資料庫記錄 --}}
+                        // $.ajax({
+                        //     type: 'POST',
+                        //     url: '{{ route('saveVisitorID') }}?{{csrf_token()}}={{now()->timestamp}}',
+                        //     data: {
+                        //         _token:"{{ csrf_token() }}",
+                        //         hash : visitorID.hash,
+                        //     },
+                        //     dataType: 'json',
+                        //     success: function(xhr){
+                        //         window.localStorage.setItem('visitorID', JSON.stringify(visitorID));
+                        //         console.log(xhr.msg);
+                        //         $('#visitor_id_hash').attr('value', visitorId);
+                        //     }
+                        // });
+                        $('#visitor_id_hash').attr('value', visitorId);
+                        })
+            }
+            else{
+                {{-- 若有 CFP，則於背景檢查會員是否有 CFP，若無則於資料庫記錄 --}}
+                visitorIDLocal = JSON.parse(visitorIDLocal);
+                // $.ajax({
+                //     type: 'POST',
+                //     url: '{{ route('checkVisitorID') }}?{{csrf_token()}}={{now()->timestamp}}',
+                //     data: {
+                //         _token:"{{ csrf_token() }}",
+                //         hash : visitorIDLocal.hash,
+                //     },
+                //     dataType: 'json',
+                //     success: function(xhr){
+                //         console.log(xhr.msg);
+                //         $('#visitor_id_hash').attr('value', visitorIDLocal.hash);
+                //     }
+                // });
+                console.log(visitorIDLocal, 'visitorIDLocal');
+                $('#visitor_id_hash').attr('value', visitorIDLocal.hash);
             }
         };
 

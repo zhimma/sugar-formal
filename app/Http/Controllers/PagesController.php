@@ -6773,6 +6773,31 @@ class PagesController extends BaseController
         ), 200);
     }
 
+    public function saveVisitorID(Request $request){
+        $cfp = new \App\Models\VisitorID;
+        $cfp->hash = $request->hash;
+        $cfp->host = request()->getHttpHost();
+        $cfp->save();
+        $cfp_user = new \App\Models\VisitorIDUser;
+        $cfp_user->visitor_id = $cfp->id;
+        $cfp_user->user_id = $request->user()->id;
+        $cfp_user->save();
+
+        return response()->json(array(
+            'status' => 1,
+            'msg' => 'success'
+        ), 200);
+    }
+
+    public function checkVisitorID(Request $request){
+        $this->service->checkvisitorid($request->hash, $request->user()->id);
+        
+        return response()->json(array(
+            'status' => 1,
+            'msg' => 'success',
+        ), 200);
+    }
+
     public function search_key_reset(){
         $search_page_key=session()->get('search_page_key',[]);
         foreach ($search_page_key as $key =>$value){
