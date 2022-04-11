@@ -5664,7 +5664,7 @@ class UserController extends \App\Http\Controllers\BaseController
         $temp_id = 0;
         $temp_month = 0;
         $statistics_data['max_pay_vip_month'] = 0;
-        foreach($statistics_data['pay_vip_count']->select('users.id', 'order.payment')->orderby('users.id')->get() as $pay_vip)
+        foreach($statistics_data['pay_vip_count']->clone()->select('users.id', 'order.payment')->orderby('users.id')->get() as $pay_vip)
         {
             if($pay_vip->id != $temp_id)
             {
@@ -5686,13 +5686,13 @@ class UserController extends \App\Http\Controllers\BaseController
         }
 
         //最高被封鎖次數
-        $statistics_data['max_be_blocked_count'] = $statistics_data['be_blocked_count']->selectRaw('users.id, count(*) as total')->groupBy('users.id')->orderby('total','desc')->first()->total ?? 0;
+        $statistics_data['max_be_blocked_count'] = $statistics_data['be_blocked_count']->clone()->selectRaw('users.id, count(*) as total')->groupBy('users.id')->orderby('total','desc')->first()->total ?? 0;
         //最高封鎖次數
-        $statistics_data['max_block_other_count'] = $statistics_data['block_other_count']->selectRaw('users.id, count(*) as total')->groupBy('users.id')->orderby('total','desc')->first()->total ?? 0;
+        $statistics_data['max_block_other_count'] = $statistics_data['block_other_count']->clone()->selectRaw('users.id, count(*) as total')->groupBy('users.id')->orderby('total','desc')->first()->total ?? 0;
         //最高付出車馬費次數
-        $statistics_data['max_pay_tip_count'] = $statistics_data['pay_tip_count']->selectRaw('users.id, count(*) as total')->groupBy('users.id')->orderby('total','desc')->first()->total ?? 0;
+        $statistics_data['max_pay_tip_count'] = $statistics_data['pay_tip_count']->clone()->selectRaw('users.id, count(*) as total')->groupBy('users.id')->orderby('total','desc')->first()->total ?? 0;
         //最高接收車馬費次數
-        $statistics_data['max_receive_tip_count'] = $statistics_data['receive_tip_count']->selectRaw('users.id, count(*) as total')->groupBy('users.id')->orderby('total','desc')->first()->total ?? 0;
+        $statistics_data['max_receive_tip_count'] = $statistics_data['receive_tip_count']->clone()->selectRaw('users.id, count(*) as total')->groupBy('users.id')->orderby('total','desc')->first()->total ?? 0;
         
 
 
