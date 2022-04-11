@@ -49,6 +49,7 @@ use App\Models\BannedUsersImplicitly;
 use App\Models\DataForFilterByInfo;
 use App\Models\DataForFilterByInfoIgnores;
 use App\Models\ImagesCompareEncode;
+use App\Models\Order;
 use App\Notifications\BannedNotification;
 use App\Observer\BadUserCommon;
 use Carbon\Carbon;
@@ -60,6 +61,7 @@ use Intervention\Image\Facades\Image;
 use Illuminate\Support\Facades\Log;
 use Session;
 use App\Http\Controller\PagesController;
+use App\Models\Blocked;
 use App\Models\ValueAddedService;
 use App\Services\ImagesCompareService;
 use App\Models\SimilarImages;
@@ -5573,12 +5575,143 @@ class UserController extends \App\Http\Controllers\BaseController
 
     public function informationStatistics(Request $request)
     {
+        //選項
         $form_condition['days'] = $request->days ?? 30;
         $form_condition['percentage'] = $request->percentage ?? 10;
         $form_condition['sex'] = $request->sex ?? 0;
         $form_condition['include_banned_user'] = $request->include_banned_user ?? 0;
         $form_condition['include_closed_user'] = $request->include_closed_user ?? 0;
-        return view('admin.users.informationStatistics')->with('form_condition', $form_condition);
+
+
+
+        //最後登入時間
+        $login_date = Carbon::now()->subDays($form_condition['days']);
+        //上線總人數
+        $statistics_data['login_member_count'] = User::where('last_login', '>', $login_date)->count();
+        //付費VIP總人數
+        $statistics_data['all_pay_vip_count'] = Order::leftJoin('users','user_id','=','users.id')->where('users.last_login', '>', $login_date)->where('service_name', 'VIP')->groupby('users.id')->get()->count();
+        //被封鎖總人數
+        $statistics_data['all_be_blocked_count'] = Blocked::leftJoin('users','blocked_id','=','users.id')->where('users.last_login', '>', $login_date)->groupby('users.id')->get()->count();
+        //封鎖他人總人數
+        $statistics_data['all_block_other_count'] = Blocked::leftJoin('users','member_id','=','users.id')->where('users.last_login', '>', $login_date)->groupby('users.id')->get()->count();
+        //付出車馬費總人數
+        $statistics_data['all_pay_tip_count'] = Tip::leftJoin('users','member_id','=','users.id')->where('users.last_login', '>', $login_date)->groupby('users.id')->get()->count();
+        //接收車馬費總人數
+        $statistics_data['all_receive_tip_count'] = Tip::leftJoin('users','to_id','=','users.id')->where('users.last_login', '>', $login_date)->groupby('users.id')->get()->count();
+
+
+
+        //付費VIP統計
+        $statistics_data['pay_vip_count'] = Order::leftJoin('users','user_id','=','users.id')->where('last_login', '>', $login_date)->where('service_name', 'VIP');
+        //被其他使用者封鎖統計
+        $statistics_data['be_blocked_count'] = Blocked::leftJoin('users','blocked.blocked_id','=','users.id')->where('users.last_login', '>', $login_date);
+        //封鎖其他使用者統計
+        $statistics_data['block_other_count'] = Blocked::leftJoin('users','blocked.member_id','=','users.id')->where('users.last_login', '>', $login_date);
+        //付出車馬費統計
+        $statistics_data['pay_tip_count'] = Tip::leftJoin('users','member_id','=','users.id')->where('users.last_login', '>', $login_date);
+        //接收車馬費統計
+        $statistics_data['receive_tip_count'] = Tip::leftJoin('users','to_id','=','users.id')->where('users.last_login', '>', $login_date);
+
+        //性別
+        if($form_condition['sex'] == 1 || $form_condition['sex'] == 2)
+        {
+            $statistics_data['pay_vip_count'] = $statistics_data['pay_vip_count']->where('users.engroup', $form_condition['sex']);
+            $statistics_data['be_blocked_count'] = $statistics_data['be_blocked_count']->where('users.engroup', $form_condition['sex']);
+            $statistics_data['block_other_count'] = $statistics_data['block_other_count']->where('users.engroup', $form_condition['sex']);
+            $statistics_data['pay_tip_count'] = $statistics_data['pay_tip_count']->where('users.engroup', $form_condition['sex']);
+            $statistics_data['receive_tip_count'] = $statistics_data['receive_tip_count']->where('users.engroup', $form_condition['sex']);
+        }
+
+        //是否包含封鎖帳戶使用者
+        if(!($form_condition['include_banned_user']??false))
+        {
+            $statistics_data['pay_vip_count'] = $statistics_data['pay_vip_count']->leftJoin('banned_users','users.id','=','banned_users.member_id')
+                                                                                ->leftJoin('banned_users_implicitly','users.id','=','banned_users_implicitly.target')
+                                                                                ->whereNull('banned_users.id')
+                                                                                ->whereNull('banned_users_implicitly.id');
+            $statistics_data['be_blocked_count'] = $statistics_data['be_blocked_count']->leftJoin('banned_users','users.id','=','banned_users.member_id')
+                                                                                        ->leftJoin('banned_users_implicitly','users.id','=','banned_users_implicitly.target')
+                                                                                        ->whereNull('banned_users.id')
+                                                                                        ->whereNull('banned_users_implicitly.id');
+            $statistics_data['block_other_count'] = $statistics_data['block_other_count']->leftJoin('banned_users','users.id','=','banned_users.member_id')
+                                                                                        ->leftJoin('banned_users_implicitly','users.id','=','banned_users_implicitly.target')
+                                                                                        ->whereNull('banned_users.id')
+                                                                                        ->whereNull('banned_users_implicitly.id');
+            $statistics_data['pay_tip_count'] = $statistics_data['pay_tip_count']->leftJoin('banned_users','users.id','=','banned_users.member_id')
+                                                                                ->leftJoin('banned_users_implicitly','users.id','=','banned_users_implicitly.target')
+                                                                                ->whereNull('banned_users.id')
+                                                                                ->whereNull('banned_users_implicitly.id');
+            $statistics_data['receive_tip_count'] = $statistics_data['receive_tip_count']->leftJoin('banned_users','users.id','=','banned_users.member_id')
+                                                                                        ->leftJoin('banned_users_implicitly','users.id','=','banned_users_implicitly.target')
+                                                                                        ->whereNull('banned_users.id')
+                                                                                        ->whereNull('banned_users_implicitly.id');
+        }
+
+        //是否包含關閉帳戶使用者
+        if(!($form_condition['include_closed_user']??false))
+        {
+            $statistics_data['pay_vip_count'] = $statistics_data['pay_vip_count']->where('users.accountStatus', 1);
+            $statistics_data['be_blocked_count'] = $statistics_data['be_blocked_count']->where('users.accountStatus', 1);
+            $statistics_data['block_other_count'] = $statistics_data['block_other_count']->where('users.accountStatus', 1);
+            $statistics_data['pay_tip_count'] = $statistics_data['pay_tip_count']->where('users.accountStatus', 1);
+            $statistics_data['receive_tip_count'] = $statistics_data['receive_tip_count']->where('users.accountStatus', 1);
+        }
+
+
+
+        //其他結果
+        //最高VIP月份數
+        $temp_id = 0;
+        $temp_month = 0;
+        $statistics_data['max_pay_vip_month'] = 0;
+        foreach($statistics_data['pay_vip_count']->select('users.id', 'order.payment')->orderby('users.id')->get() as $pay_vip)
+        {
+            if($pay_vip->id != $temp_id)
+            {
+                $temp_id = $pay_vip->id;
+                $temp_month = 0;
+            }
+            if($pay_vip->payment == 'cc_monthly_payment')
+            {
+                $temp_month = $temp_month + 1;
+            }
+            if($pay_vip->payment == 'cc_quarterly_payment')
+            {
+                $temp_month = $temp_month + 3;
+            }
+            if($temp_month > $statistics_data['max_pay_vip_month'])
+            {
+                $statistics_data['max_pay_vip_month'] = $temp_month;
+            }
+        }
+
+        //最高被封鎖次數
+        $statistics_data['max_be_blocked_count'] = $statistics_data['be_blocked_count']->selectRaw('users.id, count(*) as total')->groupBy('users.id')->orderby('total','desc')->first()->total ?? 0;
+        //最高封鎖次數
+        $statistics_data['max_block_other_count'] = $statistics_data['block_other_count']->selectRaw('users.id, count(*) as total')->groupBy('users.id')->orderby('total','desc')->first()->total ?? 0;
+        //最高付出車馬費次數
+        $statistics_data['max_pay_tip_count'] = $statistics_data['pay_tip_count']->selectRaw('users.id, count(*) as total')->groupBy('users.id')->orderby('total','desc')->first()->total ?? 0;
+        //最高接收車馬費次數
+        $statistics_data['max_receive_tip_count'] = $statistics_data['receive_tip_count']->selectRaw('users.id, count(*) as total')->groupBy('users.id')->orderby('total','desc')->first()->total ?? 0;
+        
+
+
+        //符合人數
+        $statistics_data['pay_vip_count'] = round($statistics_data['pay_vip_count']->groupby('users.id')->get()->count() * $form_condition['percentage'] / 100);
+        $statistics_data['be_blocked_count'] = round($statistics_data['be_blocked_count']->groupby('users.id')->get()->count() * $form_condition['percentage'] / 100);
+        $statistics_data['block_other_count'] = round($statistics_data['block_other_count']->groupby('users.id')->get()->count() * $form_condition['percentage'] / 100);
+        $statistics_data['pay_tip_count'] = round($statistics_data['pay_tip_count']->groupby('users.id')->get()->count() * $form_condition['percentage'] / 100);
+        $statistics_data['receive_tip_count'] = round($statistics_data['receive_tip_count']->groupby('users.id')->get()->count() * $form_condition['percentage'] / 100);
+        //佔總人數比例
+        $statistics_data['pay_vip_percentage'] = round($statistics_data['pay_vip_count'] / $statistics_data['login_member_count'] * 100, 2);
+        $statistics_data['be_blocked_percentage'] = round($statistics_data['be_blocked_count'] / $statistics_data['login_member_count'] * 100, 2);
+        $statistics_data['block_other_percentage'] = round($statistics_data['block_other_count'] / $statistics_data['login_member_count'] * 100, 2);
+        $statistics_data['pay_tip_percentage'] = round($statistics_data['pay_tip_count'] / $statistics_data['login_member_count'] * 100, 2);
+        $statistics_data['receive_tip_percentage'] = round($statistics_data['receive_tip_count'] / $statistics_data['login_member_count'] * 100, 2);
+        
+        return view('admin.users.informationStatistics')
+                ->with('form_condition', $form_condition)
+                ->with('statistics_data', $statistics_data);
     }
 
 }
