@@ -80,11 +80,11 @@
 												<div class="tou_tx_img"><img src="@if(file_exists( public_path().$post->umpic ) && $post->umpic != ""){{$post->umpic}} @elseif($post->engroup==2)/new/images/female.png @else/new/images/male.png @endif" class="hycov"></div>
 											</a>
 											<a href="/dashboard/viewuser/{{$post->uid}}"><span>{{ $post->uname }}<i>{{ date('Y-m-d', strtotime($post->pcreated_at)) }}</i></span></a>
-											<a @if($post->uid==1049 || ($post->deleted_by == null)) href="/dashboard/post_detail/{{$post->pid}}" @else onclick="delete_alert()" @endif>
+											<a @if($post->uid==1049) href="/dashboard/post_detail/{{$post->pid}}" @else onclick="delete_alert()" @endif>
 												<font><i class="ne_talicon"><img src="/posts/images/tl_icon.png">{{ \App\Models\Posts::where('reply_id',$post->pid)->get()->count() }}</i></font>
 											</a>
 										</div>
-										<a @if($post->uid==1049 || ($post->deleted_by == null)) href="/dashboard/post_detail/{{$post->pid}}" @else onclick="delete_alert()" @endif>
+										<a @if($post->uid==1049) href="/dashboard/post_detail/{{$post->pid}}" @else onclick="delete_alert()" @endif>
 											<div class="tc_text_aa"><span>{{$post->ptitle}}</span></div>
 											<div class="tc_text_bb"><p>{!! \App\Models\Posts::showContent($post->pcontents) !!}</p></div>
 										</a>
