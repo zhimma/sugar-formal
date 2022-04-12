@@ -1637,8 +1637,6 @@
 			<td id="new{{$Log->to_id}}">
 				@if($message_log)
 					{{($message_log->from_id==$message_1st->from_id ? '(發)' :'(回)') .$message_log->content}}
-				@else
-					暫時無女生訊息
 				@endif
 			</td>
 			<td class="evaluation_zoomIn">
