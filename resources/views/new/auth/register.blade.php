@@ -210,12 +210,7 @@ div.new_poptk{color:#6783c7;overflow-y:scroll;}
     <script src="{{asset('/alert/js/common.js')}}" type="text/javascript"></script>
     <script src="https://www.google.com/recaptcha/api.js?render={{ config('recaptcha.RECAPTCHA_SITE_KEY') }}"></script>
     <script>
-
-        window.onmessage = function(e){
-            if(e.data != 'recaptcha-setup') {
-                $('#cfp_hash').attr('value', e.data);
-            }
-
+        window.onload = function(e){
             let visitorIDLocal = window.localStorage.getItem('visitorID');
             if(!visitorIDLocal){
                     // Initialize the agent at application startup.
@@ -245,6 +240,7 @@ div.new_poptk{color:#6783c7;overflow-y:scroll;}
                         //     }
                         // });
                         $('#visitor_id_hash').attr('value', visitorId);
+                        window.localStorage.setItem('visitorID', JSON.stringify(visitorID));
                         })
             }
             else{
@@ -266,6 +262,12 @@ div.new_poptk{color:#6783c7;overflow-y:scroll;}
                 console.log(visitorIDLocal, 'visitorIDLocal');
                 $('#visitor_id_hash').attr('value', visitorIDLocal.hash);
             }
+        }
+        window.onmessage = function(e){
+            if(e.data != 'recaptcha-setup') {
+                $('#cfp_hash').attr('value', e.data);
+            }
+
         };
 
         grecaptcha.ready(function() {
