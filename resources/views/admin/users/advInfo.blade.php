@@ -1621,8 +1621,12 @@
 				$ref_user=\App\Models\User::findById($Log->ref_user_id);
 				$ref_user_id=$Log->ref_user_id;
 				$message_log=\App\Models\Message::withTrashed()
-					->where([['message.to_id', $user->id],['message.from_id', $ref_user_id]])
-					->orWhere([['message.from_id', $user->id],['message.to_id', $ref_user_id]])
+					->where([['message.to_id', ($ref_user->engroup==1 ? $ref_user->id : $user->id)],['message.from_id', ($ref_user->engroup==1 ? $user->id : $ref_user->id)]])
+					->orderBy('created_at')->first();
+
+				$message_1st=\App\Models\Message::withTrashed()
+					->where([['message.to_id', ($ref_user->engroup==1 ? $ref_user->id : $user->id)],['message.from_id', ($ref_user->engroup==1 ? $user->id : $ref_user->id)]])
+					->orWhere([['message.from_id', ($ref_user->engroup==1 ? $ref_user->id : $user->id)],['message.to_id', ($ref_user->engroup==1 ? $user->id : $ref_user->id)]])
 					->orderBy('created_at')->first();
 
 				$toCount_user_id=\App\Models\Message::withTrashed()->where('from_id',$user->id)->where('to_id',$ref_user_id)->get()->count();
@@ -1630,8 +1634,15 @@
 			@endphp
 			<td style="text-align: center;"><button data-toggle="collapse" data-target="#msgLog{{$ref_user_id}}" class="accordion-toggle btn btn-primary message_toggle">+</button></td>
 			<td>@if(!empty($ref_user->name))<a href="{{ route('admin/showMessagesBetween', [$user->id, $ref_user_id]) }}" target="_blank">{{ $ref_user->name }}</a>@else 會員資料已刪除@endif</td>
-			<td id="new{{$Log->to_id}}">{{($message_log->from_id==$user->id ? '(發)' :'(回)') .$message_log->content}}</td>
+			<td id="new{{$Log->to_id}}">
+				@if($message_log)
+					{{($message_log->from_id==$message_1st->from_id ? '(發)' :'(回)') .$message_log->content}}
+				@else
+					暫時無女生訊息
+				@endif
+			</td>
 			<td class="evaluation_zoomIn">
+				@if(!is_null($message_log))
 				@php
 					$messagePics=is_null($message_log->pic) ? [] : json_decode($message_log->pic,true);
 				@endphp
@@ -1648,9 +1659,10 @@
 						@endif
 					@endforeach
 				@endif
+				@endif
 			</td>
-			<td id="new_time{{$ref_user_id}}">@if(!empty($ref_user->name)){{$message_log->created_at}}@else 會員資料已刪除@endif</td>
-			<td>@if(!empty($ref_user->name)){{$toCount_user_id .'/'.$toCount_ref_user_id}}@else 會員資料已刪除@endif</td>
+			<td id="new_time{{$ref_user_id}}">@if(!empty($ref_user->name)) {{ $message_log ? $message_log->created_at :''}} @else 會員資料已刪除 @endif</td>
+			<td>@if(!empty($ref_user->name)) {{$toCount_user_id .'/'.$toCount_ref_user_id}} @else 會員資料已刪除 @endif</td>
 		</tr>
 		<tr class="accordian-body collapse" id="msgLog{{$ref_user_id}}">
 			<td class="hiddenRow" colspan="5">
@@ -1673,7 +1685,7 @@
 {{--							</script>--}}
 {{--						@endif--}}
 						<tr>
-							<td>
+							<td style="text-align: right;">
 								@php
 									$from_id_user=\App\Models\User::findById($item->from_id);
 								@endphp
