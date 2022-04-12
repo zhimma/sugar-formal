@@ -711,7 +711,7 @@
                                         @if($isBlocked)
                                             <a onclick="messenge_show_block()"><img src="/new/images/icon_06.png" class="tubiao_i"><span>發信</span></a>
                                         @else
-                                            <a href="/dashboard/chat2/chatShow/{{ $to->id }}"><img src="/new/images/icon_06.png" class="tubiao_i"><span>發信</span></a>
+                                            <a href="/dashboard/chat2/chatShow/{{ $to->id }}?from_viewuser_page=1"><img src="/new/images/icon_06.png" class="tubiao_i"><span>發信</span></a>
                                         @endif
                                     @endif
                                 </li>
