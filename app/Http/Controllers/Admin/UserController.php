@@ -5650,11 +5650,11 @@ class UserController extends \App\Http\Controllers\BaseController
         //是否包含關閉帳戶使用者
         if(!($form_condition['include_closed_user']??false))
         {
-            $statistics_data['pay_vip_count'] = $statistics_data['pay_vip_count']->where('users.accountStatus', 1);
-            $statistics_data['be_blocked_count'] = $statistics_data['be_blocked_count']->where('users.accountStatus', 1);
-            $statistics_data['block_other_count'] = $statistics_data['block_other_count']->where('users.accountStatus', 1);
-            $statistics_data['pay_tip_count'] = $statistics_data['pay_tip_count']->where('users.accountStatus', 1);
-            $statistics_data['receive_tip_count'] = $statistics_data['receive_tip_count']->where('users.accountStatus', 1);
+            $statistics_data['pay_vip_count'] = $statistics_data['pay_vip_count']->where('users.accountStatus', 1)->where('account_status_admin', 1);
+            $statistics_data['be_blocked_count'] = $statistics_data['be_blocked_count']->where('users.accountStatus', 1)->where('account_status_admin', 1);
+            $statistics_data['block_other_count'] = $statistics_data['block_other_count']->where('users.accountStatus', 1)->where('account_status_admin', 1);
+            $statistics_data['pay_tip_count'] = $statistics_data['pay_tip_count']->where('users.accountStatus', 1)->where('account_status_admin', 1);
+            $statistics_data['receive_tip_count'] = $statistics_data['receive_tip_count']->where('users.accountStatus', 1)->where('account_status_admin', 1);
         }
 
 
