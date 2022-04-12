@@ -1470,7 +1470,8 @@ class PagesController extends BaseController
     public function view_account_hide_online(Request $request)
     {
         $user = $request->user();
-        return view('new.dashboard.account_hide_online')->with('user', $user)->with('cur', $user);
+        $hide_online_data = hideOnlineData::where('user_id', $user->id)->first();
+        return view('new.dashboard.account_hide_online')->with('user', $user)->with('cur', $user)->with('hide_online_data', $hide_online_data);
     }
 
     public function viewVipForNewebPay(Request $request)
@@ -3432,8 +3433,32 @@ class PagesController extends BaseController
             }
         }
 
+        $first_send_messenge = false;
+        $first_receive_messenge = false;
+        //判斷是否從viewuser的發信按鈕進入
+        if($request->from_viewuser_page??false)
+        {
+            //第一次進入時page為NULL 判斷是否第一次進入
+            if(!($request->page??false))
+            {
+                $first_send_messenge = Message::where('from_id', $user->id)->where('to_id', $cid)->orderBy('id')->first();
+                $first_receive_messenge = Message::where('from_id', $cid)->where('to_id', $user->id)->orderBy('id')->first();
+                if($first_send_messenge??false)
+                {
+                    if($first_receive_messenge??false)
+                    {
+                        if($first_receive_messenge->created_at < $first_send_messenge->created_at)
+                        {
+                            $first_send_messenge = false;
+                        }
+                    }
+                }
+            }
+        }
+        
         if (isset($user)) {
             $is_banned = User::isBanned($user->id);
+            $is_warned = warned_users::where('member_id', $user->id)->first();
             $toUserIsBanned = User::isBanned($cid);
             $isVip = $user->isVip();
             $tippopup = AdminCommonText::getCommonText(3);//id3車馬費popup說明
@@ -3462,6 +3487,7 @@ class PagesController extends BaseController
                     ->with('user', $user)
                     ->with('admin', $admin)
                     ->with('is_banned', $is_banned)
+                    ->with('is_warned', $is_warned)
                     ->with('toUserIsBanned', $toUserIsBanned)
                     ->with('cmeta', $c_user_meta)
                     ->with('to', $cid_user)
@@ -3470,20 +3496,23 @@ class PagesController extends BaseController
                     ->with('isVip', $isVip)
                     ->with('tippopup', $tippopup)
                     ->with('messages', $messages)
-                    ->with('report_reason', $report_reason->content);
+                    ->with('report_reason', $report_reason->content)
+                    ->with('first_send_messenge', $first_send_messenge);
             }
             else {
                 return view('new.dashboard.chatWithUser')
                     ->with('user', $user)
                     ->with('admin', $admin)
                     ->with('is_banned', $is_banned)
+                    ->with('is_warned', $is_warned)
                     ->with('toUserIsBanned', $toUserIsBanned)
                     ->with('cmeta', $c_user_meta)
                     ->with('m_time', $m_time)
                     ->with('isVip', $isVip)
                     ->with('tippopup', $tippopup)
                     ->with('messages', $messages)
-                    ->with('report_reason', $report_reason->content);
+                    ->with('report_reason', $report_reason->content)
+                    ->with('first_send_messenge', $first_send_messenge);
             }
         }
     }

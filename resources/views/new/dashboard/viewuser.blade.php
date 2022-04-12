@@ -496,7 +496,6 @@
                             <div class="swiper-button-next"></div>
                             <div class="swiper-button-prev"></div>
                         </div>
-                        <div class="n_jianj"><a onclick="show_reportPic()">檢舉大頭照</a></div>
                         <!--新改-->
                         @php
                             $isBlocked = \App\Models\Blocked::isBlocked($user->id, $to->id);
@@ -712,7 +711,7 @@
                                         @if($isBlocked)
                                             <a onclick="messenge_show_block()"><img src="/new/images/icon_06.png" class="tubiao_i"><span>發信</span></a>
                                         @else
-                                            <a href="/dashboard/chat2/chatShow/{{ $to->id }}"><img src="/new/images/icon_06.png" class="tubiao_i"><span>發信</span></a>
+                                            <a href="/dashboard/chat2/chatShow/{{ $to->id }}?from_viewuser_page=1"><img src="/new/images/icon_06.png" class="tubiao_i"><span>發信</span></a>
                                         @endif
                                     @endif
                                 </li>
@@ -766,10 +765,11 @@
                                         @endif
                                     </a>
                                 @if($isAdminWarned)
-                                    <a onclick="show_Warned()"><img src="/new/images/icon_10.png" class="tubiao_i he_tkcn_img"><span>檢舉</span></a>
+                                    <a onclick="show_Warned()"><img src="/new/images/icon_10.png" class="tubiao_i he_tkcn_img"><span>檢舉會員</span></a>
                                 @else
-                                    <a onclick="show_banned()"><img src="/new/images/icon_10.png" class="tubiao_i he_tkcn_img"><span>檢舉</span></a>
-                                @endif                                    
+                                    <a onclick="show_banned()"><img src="/new/images/icon_10.png" class="tubiao_i he_tkcn_img"><span>檢舉會員</span></a>
+                                @endif
+                                    <a onclick="show_reportPic()"><img src="/new/images/icon_008.png" class="he_tkcn_img">檢舉照片</a>
                                     </ul>
                                 </div>						
 							</li>                            
@@ -1673,6 +1673,7 @@
 
 <script type="application/javascript">
     let is_banned = {{ $is_banned ? 1 : 0 }};
+    let is_warned = {{ $isAdminWarned ? 1 :0 }};
     function jidutiao() {
         c5('此會員使用紀錄不足，無法判斷');
     }
@@ -1707,6 +1708,10 @@
         if(is_banned){
             return  c5('您目前被站方封鎖，無檢舉權限');
         }
+       if(is_warned){
+           return  c5('您目前被站方警示，無檢舉權限');
+       }
+
 
         $(".blbg").show();
         $("#show_reportPic").show();

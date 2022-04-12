@@ -858,13 +858,13 @@ header("Expires: Fri, 01 Jan 1990 00:00:00 GMT");
             });            
             $('input[name="zipcode"]').remove();
             
-            $('[data-toggle="popover"]').popover({
-                animated: 'fade',
-                placement: 'bottom',
-                trigger: 'hover',
-                html: true,
-                content: function () { return '<h4' + $(this).data('content') + '</h4>'; }
-            });
+            // $('[data-toggle="popover"]').popover({
+            //     animated: 'fade',
+            //     placement: 'bottom',
+            //     trigger: 'hover',
+            //     html: true,
+            //     content: function () { return '<h4' + $(this).data('content') + '</h4>'; }
+            // });
         });
         $("img.lazy").lazyload({
             effect : "fadeIn"
@@ -986,6 +986,15 @@ header("Expires: Fri, 01 Jan 1990 00:00:00 GMT");
                             this.page_next = (Math.floor( this.ssrCount / 12 ) + 1);
                         }
                     }
+                    $(document).ready(function(){
+                        $('[data-toggle="popover"]').popover({
+                            animated: 'fade',
+                            placement: 'bottom',
+                            trigger: 'hover',
+                            html: true,
+                            content: function () { return '<h4>' + $(this).data('content') + '</h4>'; }
+                        });
+                    });
                 })
             .catch(function (error) { // 请求失败处理
                 console.log(error);
