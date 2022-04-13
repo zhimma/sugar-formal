@@ -238,7 +238,6 @@
 
         $('.compute_button').on('click',function(){
             list = JSON.parse($(this).next('input').val());
-            console.log(list);
             input_object = $(this).closest('tr').next('tr');
             for(i = 0; i < {{$search_count}}; i++)
             {
@@ -283,7 +282,6 @@
 
         $('#vip_button').on('click',function(){
             list = JSON.parse($(this).next('input').val());
-            console.log(list);
             input_object = $(this).closest('tr').next('tr');
             for(i = 0; i < {{$search_count}}; i++)
             {

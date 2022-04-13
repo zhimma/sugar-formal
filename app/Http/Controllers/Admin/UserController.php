@@ -5694,8 +5694,8 @@ class UserController extends \App\Http\Controllers\BaseController
                 $statistics_data['max_pay_vip_month'] = $temp_month;
             }
             $statistics_data['pay_vip_count_list'][$count-1] = $temp_month;
-            rsort($statistics_data['pay_vip_count_list']);
         }
+        rsort($statistics_data['pay_vip_count_list']);
         
 
         //被封鎖次數列表
