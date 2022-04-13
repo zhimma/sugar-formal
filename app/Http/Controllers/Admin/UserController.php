@@ -5664,12 +5664,14 @@ class UserController extends \App\Http\Controllers\BaseController
         $temp_id = 0;
         $temp_month = 0;
         $statistics_data['max_pay_vip_month'] = 0;
+        $count = 0;
         foreach($statistics_data['pay_vip_count']->clone()->select('users.id', 'order.payment', 'pay_date')->orderby('users.id')->get() as $pay_vip)
         {
             if($pay_vip->id != $temp_id)
             {
                 $temp_id = $pay_vip->id;
                 $temp_month = 0;
+                $count = $count + 1;
             }
             switch($pay_vip->payment)
             {
@@ -5691,9 +5693,10 @@ class UserController extends \App\Http\Controllers\BaseController
             {
                 $statistics_data['max_pay_vip_month'] = $temp_month;
             }
-            $statistics_data['pay_vip_count_list'][$pay_vip->id] = $temp_month;
+            $statistics_data['pay_vip_count_list'][$count-1] = $temp_month;
+            rsort($statistics_data['pay_vip_count_list']);
         }
-        arsort($statistics_data['pay_vip_count_list']);
+        
 
         //被封鎖次數列表
         $statistics_data['be_blocked_count_list'] = $statistics_data['be_blocked_count']->clone()->selectRaw('users.id, count(*) as total')->groupBy('users.id')->orderby('total','desc');
