@@ -151,13 +151,27 @@
 	@else 
 		<button class="btn btn-info" onclick="VipAction({{($user['isvip'])?'1':'0' }},{{ $user['id'] }})"> 升級VIP </button>
 	@endif
-<!--隱藏-->
-	{{-- @if($user['isHidden'])
-		<button class="btn btn-info" onclick="HiddenAction({{($user['isHidden'])?'1':'0' }},{{ $user['id'] }})"> 取消隱藏 </button>
+
+	@if($user['isHidden'])
+		<button class="btn btn-info" onclick="HiddenAction({{($user['isHidden'])?'1':'0' }},{{ $user['id'] }})"> 取消隱藏付費 </button>
 	@else 
-		<button class="btn btn-info" onclick="HiddenAction({{($user['isHidden'])?'1':'0' }},{{ $user['id'] }})"> 升級隱藏 </button>
-	@endif --}}
-<!---->
+		<button class="btn btn-info" onclick="HiddenAction({{($user['isHidden'])?'1':'0' }},{{ $user['id'] }})"> 升級隱藏付費 </button>
+	@endif
+
+	<!--開啟使用者隱藏-->
+	<!--<form id="switch_from" style="display: inline;" method="post" action="{{ route('hideOnlineSwitch') }}">
+		<input type="hidden" name="_token" value="{{ csrf_token() }}" >
+		<input type="hidden" name="userId" value="{{$user->id}}">
+		@if($user['is_hide_online'] == 0)
+		<input type="hidden" name="isHideOnline" value="1">
+		<button type="submit" class="btn btn-info"> 隱藏 </button>
+		@else
+		<input type="hidden" name="isHideOnline" value="0">
+		<button type="submit" class="btn btn-info"> 取消隱藏 </button>
+		@endif
+	</form>-->
+	<!--開啟使用者隱藏-->
+
 	@if (Auth::user()->can('admin') || Auth::user()->can('juniorAdmin'))
 		<a href="{{ route('AdminMessage', $user['id']) }}" target="_blank" class='btn btn-dark'>撰寫站長訊息</a>
 	@elseif (Auth::user()->can('readonly'))
@@ -456,6 +470,56 @@
 				@endif
 			</form>
 		</td>
+		<!--
+		<td colspan='2'>
+			<h4>隱藏付費紀錄</h4>
+			<table class='table table-bordered table-hover'>
+				<thead>
+					<tr>
+						<th>訂單編號</th>
+						<th>訂購日期</th>
+						<th>到期日</th>
+						<th>購買項目</th>
+						<th>付費週期</th>
+						<th>付費方式</th>
+						<th>扣款日期</th>
+						<th>金額</th>
+						<th>金流平台</th>
+					</tr>
+				</thead>
+				<tbody>
+				@forelse ($hideonline_order as $row)
+					<tr>
+						<td>{{$row->order_id}}</td>
+						<td>{{ substr($row->order_date, 0, 10) }}</td>
+						<td>{{ substr($row->order_expire_date, 0, 10) }}</td>
+						<td>{{$row->service_name}}</td>
+						<td>{{$row->payment}}</td>
+						<td>{{$row->payment_type}}</td>
+						<td>
+							@php
+							$payDate = json_decode($row->pay_date, true);
+							@endphp
+							@foreach($payDate as $key => $value)
+								<span class="badge badge-info">{!! substr($value[0], 0, 10) !!}</span>
+							@endforeach
+			
+						</td>
+						<td>{{$row->amount}}</td>
+						<td>{{$row->payment_flow}}</td>
+			
+			
+					</tr>
+				@empty
+					<tr>
+						<td colspan="9">找不到資料</td>
+			
+					</tr>
+				@endforelse
+				</tbody>
+			</table>
+		</td>
+		-->
 	</tr>
 	<tr>
 		<th>會員ID</th>
@@ -1557,8 +1621,12 @@
 				$ref_user=\App\Models\User::findById($Log->ref_user_id);
 				$ref_user_id=$Log->ref_user_id;
 				$message_log=\App\Models\Message::withTrashed()
-					->where([['message.to_id', $user->id],['message.from_id', $ref_user_id]])
-					->orWhere([['message.from_id', $user->id],['message.to_id', $ref_user_id]])
+					->where([['message.to_id', ($ref_user->engroup==1 ? $ref_user->id : $user->id)],['message.from_id', ($ref_user->engroup==1 ? $user->id : $ref_user->id)]])
+					->orderBy('created_at')->first();
+
+				$message_1st=\App\Models\Message::withTrashed()
+					->where([['message.to_id', ($ref_user->engroup==1 ? $ref_user->id : $user->id)],['message.from_id', ($ref_user->engroup==1 ? $user->id : $ref_user->id)]])
+					->orWhere([['message.from_id', ($ref_user->engroup==1 ? $ref_user->id : $user->id)],['message.to_id', ($ref_user->engroup==1 ? $user->id : $ref_user->id)]])
 					->orderBy('created_at')->first();
 
 				$toCount_user_id=\App\Models\Message::withTrashed()->where('from_id',$user->id)->where('to_id',$ref_user_id)->get()->count();
@@ -1566,8 +1634,13 @@
 			@endphp
 			<td style="text-align: center;"><button data-toggle="collapse" data-target="#msgLog{{$ref_user_id}}" class="accordion-toggle btn btn-primary message_toggle">+</button></td>
 			<td>@if(!empty($ref_user->name))<a href="{{ route('admin/showMessagesBetween', [$user->id, $ref_user_id]) }}" target="_blank">{{ $ref_user->name }}</a>@else 會員資料已刪除@endif</td>
-			<td id="new{{$Log->to_id}}">{{($message_log->from_id==$user->id ? '(發)' :'(回)') .$message_log->content}}</td>
+			<td id="new{{$Log->to_id}}">
+				@if($message_log)
+					{{($message_log->from_id==$message_1st->from_id ? '(發)' :'(回)') .$message_log->content}}
+				@endif
+			</td>
 			<td class="evaluation_zoomIn">
+				@if(!is_null($message_log))
 				@php
 					$messagePics=is_null($message_log->pic) ? [] : json_decode($message_log->pic,true);
 				@endphp
@@ -1584,9 +1657,10 @@
 						@endif
 					@endforeach
 				@endif
+				@endif
 			</td>
-			<td id="new_time{{$ref_user_id}}">@if(!empty($ref_user->name)){{$message_log->created_at}}@else 會員資料已刪除@endif</td>
-			<td>@if(!empty($ref_user->name)){{$toCount_user_id .'/'.$toCount_ref_user_id}}@else 會員資料已刪除@endif</td>
+			<td id="new_time{{$ref_user_id}}">@if(!empty($ref_user->name)) {{ $message_log ? $message_log->created_at :''}} @else 會員資料已刪除 @endif</td>
+			<td>@if(!empty($ref_user->name)) {{$toCount_user_id .'/'.$toCount_ref_user_id}} @else 會員資料已刪除 @endif</td>
 		</tr>
 		<tr class="accordian-body collapse" id="msgLog{{$ref_user_id}}">
 			<td class="hiddenRow" colspan="5">
@@ -1609,7 +1683,7 @@
 {{--							</script>--}}
 {{--						@endif--}}
 						<tr>
-							<td>
+							<td style="text-align: right;">
 								@php
 									$from_id_user=\App\Models\User::findById($item->from_id);
 								@endphp

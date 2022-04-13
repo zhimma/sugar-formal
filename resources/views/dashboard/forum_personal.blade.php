@@ -86,7 +86,7 @@
 							</a>
 							<div class="fabiao showslide" style="text-align: center;">
 								<a onclick="checkUserVip();">我要發表</a>
-								<a href="/dashboard/forum_manage">會員管理</a>
+								<a href="/dashboard/forum_manage/{{$forum->id}}">會員管理</a>
 							</div>
 						@else
 							<a onclick="checkUserVip();" class="aid_but"><img style="margin-left: 10px;" src="/posts/images/tg_03.png">我要發表</a>
@@ -131,7 +131,7 @@
 								@if(count($posts_personal_all)>0)
 								@foreach( $posts_personal_all as $row)
 								<li @if($row->top==1)style="background: oldlace;"@endif @if($row->deleted_by != null) class="huis_01" @elseif($row->forum_status==0) @endif>
-									<a @if($row->deleted_by == null)
+									<a @if($user->id == 1049 || $row->deleted_by == null)
 										   @if($forum->user_id != $user->id && $user->id != 1049 && $checkForumMangeStatus->forum_status==0) onclick="view_alert()"
 										   @else href="/dashboard/forum_post_detail/{{$row->pid}}"
 										   @endif

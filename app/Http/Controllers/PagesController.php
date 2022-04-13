@@ -1470,7 +1470,8 @@ class PagesController extends BaseController
     public function view_account_hide_online(Request $request)
     {
         $user = $request->user();
-        return view('new.dashboard.account_hide_online')->with('user', $user)->with('cur', $user);
+        $hide_online_data = hideOnlineData::where('user_id', $user->id)->first();
+        return view('new.dashboard.account_hide_online')->with('user', $user)->with('cur', $user)->with('hide_online_data', $hide_online_data);
     }
 
     public function viewVipForNewebPay(Request $request)
@@ -1947,7 +1948,16 @@ class PagesController extends BaseController
 
             //check forum manage users
             //apply_user_id = manager
+
 //            $canViewUsers = ForumManage::where('apply_user_id', $user->id)->where('user_id',$targetUser->id)->first();
+
+//            $forum = Forum::where('user_id', $user->id)->orderBy('id','desc')->first();
+//            if($forum??false)
+//            {
+//                $canViewUsers = ForumManage::where('forum_id', $forum->id)->where('user_id',$targetUser->id)->first();
+//            }
+            
+
             if ($user->id != $uid) {
 
                 if(
@@ -2026,6 +2036,8 @@ class PagesController extends BaseController
                 ->leftJoin('banned_users as b1', 'b1.member_id', '=', 'evaluation.from_id')
                 ->leftJoin('banned_users_implicitly as b3', 'b3.target', '=', 'evaluation.from_id')
                 ->leftJoin('users as u1', 'u1.id', '=', 'evaluation.from_id')
+                ->leftJoin('user_meta as um', 'um.user_id', '=', 'evaluation.from_id')
+                ->leftJoin('warned_users as w2', 'w2.member_id', '=', 'evaluation.from_id')
 //                ->leftJoin('users as u2', 'u2.id', '=', 'evaluation.from_id')
 //                ->leftJoin('user_meta as um', function($join) {
 //                    $join->on('um.user_id', '=', 'evaluation.from_id')
@@ -2037,6 +2049,8 @@ class PagesController extends BaseController
 //                                ->orWhere('wu.expire_date', null); }); })
                 ->whereNull('b1.member_id')
                 ->whereNull('b3.target')
+                ->where('um.isWarned',0)
+                ->whereNull('w2.id')
                 ->whereNotNull('u1.id')
 //                ->whereNotNull('u2.id')
                 ->where('u1.accountStatus', 1)
@@ -2339,6 +2353,23 @@ class PagesController extends BaseController
                     // $message_count_7 = round((int)$message_count_7);
                     // $message_reply_count_7 = round((int)$message_reply_count_7);
                     // $visit_other_count_7 = round((int)$visit_other_count_7);
+
+
+                    //至目前為止離隱藏日期過了幾天
+                    $hideOnlineDays = now()->diffInDays($hideOnlineData->created_at);
+
+                    $message_count_7 = $message_count_7 - ($message_count_7 / 7) * $hideOnlineDays;
+                    $message_reply_count_7 = $message_reply_count_7 - ($message_reply_count_7 / 7) * $hideOnlineDays;
+                    $visit_other_count_7 = $visit_other_count_7 - ($visit_other_count_7 / 7) * $hideOnlineDays;
+
+                    if($message_count_7 < 0){$message_count_7 = 0;}
+                    if($message_reply_count_7 < 0){$message_reply_count_7 = 0;}
+                    if($visit_other_count_7 < 0){$visit_other_count_7 = 0;}
+
+                    $message_count_7 = round((int)$message_count_7);
+                    $message_reply_count_7 = round((int)$message_reply_count_7);
+                    $visit_other_count_7 = round((int)$visit_other_count_7);
+
                 }
             }
 
@@ -2424,6 +2455,10 @@ class PagesController extends BaseController
                 /*此會員封鎖多少其他會員*/
                 $blocked_other_count = Blocked::with(['blocked_user'])
                 ->join('users', 'users.id', '=', 'blocked.blocked_id')
+                ->leftJoin('user_meta as um', 'um.user_id', '=', 'blocked.blocked_id')
+                ->leftJoin('warned_users as w2', 'w2.member_id', '=', 'blocked.blocked_id')
+                ->where('um.isWarned',0)
+                ->whereNull('w2.id')
                 ->where('blocked.member_id', $uid)
                 ->whereNotIn('blocked.blocked_id',$bannedUsers)
                 ->whereNotNull('users.id')
@@ -2434,6 +2469,10 @@ class PagesController extends BaseController
                 /*此會員被多少會員封鎖*/
                 $be_blocked_other_count = Blocked::with(['blocked_user'])
                     ->join('users', 'users.id', '=', 'blocked.member_id')
+                    ->leftJoin('user_meta as um', 'um.user_id', '=', 'blocked.member_id')
+                    ->leftJoin('warned_users as w2', 'w2.member_id', '=', 'blocked.member_id')
+                    ->where('um.isWarned',0)
+                    ->whereNull('w2.id')
                     ->where('blocked.blocked_id', $uid)
                     ->whereNotIn('blocked.member_id',$bannedUsers)
                     ->whereNotNull('users.id')
@@ -2474,6 +2513,10 @@ class PagesController extends BaseController
                 /*收藏會員次數*/
                 $fav_count = MemberFav::select('member_fav.*')
                 ->join('users', 'users.id', '=', 'member_fav.member_fav_id')
+                ->leftJoin('user_meta as um', 'um.user_id', '=', 'member_fav.member_fav_id')
+                ->leftJoin('warned_users as w2', 'w2.member_id', '=', 'member_fav.member_fav_id')
+                ->where('um.isWarned',0)
+                ->whereNull('w2.id')
                 ->whereNotNull('users.id')
                 ->where('users.accountStatus', 1)
                 ->where('users.account_status_admin', 1)
@@ -2484,6 +2527,10 @@ class PagesController extends BaseController
                 /*被收藏次數*/
                 $be_fav_count = MemberFav::select('member_fav.*')
                     ->join('users', 'users.id', '=', 'member_fav.member_id')
+                    ->leftJoin('user_meta as um', 'um.user_id', '=', 'member_fav.member_id')
+                    ->leftJoin('warned_users as w2', 'w2.member_id', '=', 'member_fav.member_id')
+                    ->where('um.isWarned',0)
+                    ->whereNull('w2.id')
                     ->whereNotNull('users.id')
                     ->where('users.accountStatus', 1)
                     ->where('users.account_status_admin', 1)
@@ -2783,6 +2830,10 @@ class PagesController extends BaseController
             ->leftJoin('banned_users as b1', 'b1.member_id', '=', 'evaluation.to_id')
             ->leftJoin('banned_users_implicitly as b3', 'b3.target', '=', 'evaluation.to_id')
             ->leftJoin('users as u', 'u.id', '=', 'evaluation.to_id')
+            ->leftJoin('user_meta as um', 'um.user_id', '=', 'evaluation.to_id')
+            ->leftJoin('warned_users as w2', 'w2.member_id', '=', 'evaluation.to_id')
+            ->where('um.isWarned',0)
+            ->whereNull('w2.id')
             ->whereNull('b1.member_id')
             ->whereNull('b3.target')
             ->where('u.accountStatus', 1)
@@ -3382,8 +3433,32 @@ class PagesController extends BaseController
             }
         }
 
+        $first_send_messenge = false;
+        $first_receive_messenge = false;
+        //判斷是否從viewuser的發信按鈕進入
+        if($request->from_viewuser_page??false)
+        {
+            //第一次進入時page為NULL 判斷是否第一次進入
+            if(!($request->page??false))
+            {
+                $first_send_messenge = Message::where('from_id', $user->id)->where('to_id', $cid)->orderBy('id')->first();
+                $first_receive_messenge = Message::where('from_id', $cid)->where('to_id', $user->id)->orderBy('id')->first();
+                if($first_send_messenge??false)
+                {
+                    if($first_receive_messenge??false)
+                    {
+                        if($first_receive_messenge->created_at < $first_send_messenge->created_at)
+                        {
+                            $first_send_messenge = false;
+                        }
+                    }
+                }
+            }
+        }
+        
         if (isset($user)) {
             $is_banned = User::isBanned($user->id);
+            $is_warned = warned_users::where('member_id', $user->id)->first();
             $toUserIsBanned = User::isBanned($cid);
             $isVip = $user->isVip();
             $tippopup = AdminCommonText::getCommonText(3);//id3車馬費popup說明
@@ -3412,6 +3487,7 @@ class PagesController extends BaseController
                     ->with('user', $user)
                     ->with('admin', $admin)
                     ->with('is_banned', $is_banned)
+                    ->with('is_warned', $is_warned)
                     ->with('toUserIsBanned', $toUserIsBanned)
                     ->with('cmeta', $c_user_meta)
                     ->with('to', $cid_user)
@@ -3420,20 +3496,23 @@ class PagesController extends BaseController
                     ->with('isVip', $isVip)
                     ->with('tippopup', $tippopup)
                     ->with('messages', $messages)
-                    ->with('report_reason', $report_reason->content);
+                    ->with('report_reason', $report_reason->content)
+                    ->with('first_send_messenge', $first_send_messenge);
             }
             else {
                 return view('new.dashboard.chatWithUser')
                     ->with('user', $user)
                     ->with('admin', $admin)
                     ->with('is_banned', $is_banned)
+                    ->with('is_warned', $is_warned)
                     ->with('toUserIsBanned', $toUserIsBanned)
                     ->with('cmeta', $c_user_meta)
                     ->with('m_time', $m_time)
                     ->with('isVip', $isVip)
                     ->with('tippopup', $tippopup)
                     ->with('messages', $messages)
-                    ->with('report_reason', $report_reason->content);
+                    ->with('report_reason', $report_reason->content)
+                    ->with('first_send_messenge', $first_send_messenge);
             }
         }
     }
@@ -5137,12 +5216,12 @@ class PagesController extends BaseController
 
     public function post_detail(Request $request)
     {
-//        return redirect(url('/dashboard/posts_list'));
+        //return redirect(url('/dashboard/posts_list'));
         $user = $request->user();
 
         $pid = $request->pid;
         //$this->post_views($pid);
-        $postDetail = Posts::selectraw('posts.top, users.id as uid, users.name as uname, users.engroup as uengroup, posts.is_anonymous as panonymous, posts.views as uviews, user_meta.pic as umpic, posts.id as pid, posts.title as ptitle, posts.contents as pcontents, posts.updated_at as pupdated_at,  posts.created_at as pcreated_at')
+        $postDetail = Posts::withTrashed()->selectraw('posts.top, users.id as uid, users.name as uname, users.engroup as uengroup, posts.is_anonymous as panonymous, posts.views as uviews, user_meta.pic as umpic, posts.id as pid, posts.title as ptitle, posts.contents as pcontents, posts.updated_at as pupdated_at,  posts.created_at as pcreated_at, posts.deleted_at as pdeleted_at')
             ->LeftJoin('users', 'users.id','=','posts.user_id')
             ->join('user_meta', 'users.id','=','user_meta.user_id')
             ->where('posts.id', $pid)->first();
@@ -5298,6 +5377,17 @@ class PagesController extends BaseController
             else
                 return response()->json(['msg'=>'留言刪除成功!','postType'=>'sub']);
         }
+    }
+
+    public function posts_recover(Request $request)
+    {
+        $posts = Posts::withTrashed()->where('id',$request->get('pid'))->first();
+        $postsType = $posts->type;
+        Posts::withTrashed()->where('id',$request->get('pid'))->update(['deleted_at'=> null, 'deleted_by' => null ]);
+        if($postsType=='main')
+            return response()->json(['msg'=>'回復成功!','postType'=>'main','redirectTo'=>'/dashboard/posts_list']);
+        else
+            return response()->json(['msg'=>'留言回復成功!','postType'=>'sub']);
     }
 
     public function post_views($pid)
@@ -5523,8 +5613,18 @@ class PagesController extends BaseController
                 return back()->with('message', '您無法進入此討論區');
             }
         }
+        if($user->id == 1049)
+        {
+            $checkForumMangeStatus = new ForumManage;
+            $checkForumMangeStatus -> forum_id = $fid;
+            $checkForumMangeStatus -> user_id = 1049;
+            $checkForumMangeStatus -> apply_user_id = 1049;
+            $checkForumMangeStatus -> status = 1;
+            $checkForumMangeStatus -> forum_status = 1;
+            $checkForumMangeStatus -> chat_status = 1;
+            $checkForumMangeStatus -> active = 1;
 
-
+        }
 
         $posts_personal_all = ForumPosts::selectraw('
         users.id as uid, 
@@ -5586,12 +5686,13 @@ class PagesController extends BaseController
         return view('/dashboard/forum_personal', compact('posts_personal_all','forum', 'checkUserVip', 'checkForumMangeStatus', 'lastest_color'))->with('user', $user);
     }
 
-    public function forum_manage(Request $request)
+    public function forum_manage(Request $request, $fid)
     {
 
+        $forum_id = $fid;
         $user = $request->user();
 
-        $forum = Forum::where('user_id', $user->id)->first();
+        $forum = Forum::where('id', $forum_id)->first();
 
         if(!$forum) {
             return back()->with('message', '您的討論區不存在。');
@@ -5599,7 +5700,7 @@ class PagesController extends BaseController
 
         $posts_manage_users = ForumManage::select('forum_manage.user_id','users.name','forum_manage.status','forum_manage.forum_status','forum_manage.chat_status')
             ->leftJoin('users', 'users.id','=','forum_manage.user_id')
-            ->where('forum_manage.apply_user_id', $user->id)
+            ->where('forum_id', $forum_id)
             ->whereNotIn('status',[2,3]);
         if($request->order == 1) {
             $posts_manage_users = $posts_manage_users->orderBy('status', 'asc');
@@ -5644,7 +5745,7 @@ class PagesController extends BaseController
 
         }else if($status==1){
             if(isset($checkData)){
-                ForumManage::where('user_id', $uid)->where('apply_user_id', $auid)->update(['status' => $status, 'forum_status' => 1, 'chat_status' => 1,'updated_at' => Carbon::now()]);
+                ForumManage::where('user_id', $uid)->where('forum_id', $fid->id)->update(['status' => $status, 'forum_status' => 1, 'chat_status' => 1,'updated_at' => Carbon::now()]);
                 $msg = '該會員已通過';
             }else{
                 $msg = 'error';
@@ -5652,7 +5753,7 @@ class PagesController extends BaseController
 
         }else if($status==2){
             if(isset($checkData)){
-                ForumManage::where('user_id', $uid)->where('apply_user_id', $auid)->update(['status' => $status, 'updated_at' => Carbon::now()]);
+                ForumManage::where('user_id', $uid)->where('forum_id', $fid->id)->update(['status' => $status, 'updated_at' => Carbon::now()]);
                 $msg = '已拒絕該會員申請';
             }else{
                 $msg = 'error';
@@ -5661,8 +5762,8 @@ class PagesController extends BaseController
         }
         else if($status==3){
             if(isset($checkData)){
-//                ForumManage::where('user_id', $uid)->where('apply_user_id', $auid)->delete();
-                ForumManage::where('user_id', $uid)->where('apply_user_id', $auid)->update(['status' => $status, 'updated_at' => Carbon::now()]);
+//                ForumManage::where('user_id', $uid)->where('forum_id', $fid->id)->delete();
+                ForumManage::where('user_id', $uid)->where('forum_id', $fid->id)->update(['status' => $status, 'updated_at' => Carbon::now()]);
                 if($auid = $user->id){
                     $msg = '已移除該會員';
                 }else {
@@ -5674,9 +5775,9 @@ class PagesController extends BaseController
         }
         else if($status==4){
             if(isset($checkData)){
-//                ForumManage::where('user_id', $uid)->where('apply_user_id', $auid)->delete();
-                ForumManage::where('user_id', $uid)->where('apply_user_id', $auid)->update(['status' => $status]);
-                ForumManage::where('user_id', $uid)->where('apply_user_id', $auid)->delete();
+//                ForumManage::where('user_id', $uid)->where('forum_id', $fid->id)->delete();
+                ForumManage::where('user_id', $uid)->where('forum_id', $fid->id)->update(['status' => $status]);
+                ForumManage::where('user_id', $uid)->where('forum_id', $fid->id)->delete();
                 if($auid = $user->id){
                     $msg = '已取消申請';
                 }else {
@@ -5797,12 +5898,12 @@ class PagesController extends BaseController
 
     public function forum_post_detail(Request $request)
     {
-        //        return redirect(url('/dashboard/posts_list'));
+        //return redirect(url('/dashboard/posts_list'));
         $user = $request->user();
 
         $pid = $request->pid;
         //$this->post_views($pid);
-        $postDetail = ForumPosts::selectraw('forum_posts.forum_id, users.id as uid, users.name as uname, users.engroup as uengroup, forum_posts.is_anonymous as panonymous, forum_posts.views as uviews, user_meta.pic as umpic, forum_posts.id as pid, forum_posts.title as ptitle, forum_posts.contents as pcontents, forum_posts.updated_at as pupdated_at,  forum_posts.created_at as pcreated_at')
+        $postDetail = ForumPosts::withTrashed()->selectraw('forum_posts.forum_id, users.id as uid, users.name as uname, users.engroup as uengroup, forum_posts.is_anonymous as panonymous, forum_posts.views as uviews, user_meta.pic as umpic, forum_posts.id as pid, forum_posts.title as ptitle, forum_posts.contents as pcontents, forum_posts.updated_at as pupdated_at,  forum_posts.created_at as pcreated_at, forum_posts.deleted_at as pdeleted_at')
             ->LeftJoin('users', 'users.id','=','forum_posts.user_id')
             ->join('user_meta', 'users.id','=','user_meta.user_id')
             ->where('forum_posts.id', $pid)->first();
@@ -5824,10 +5925,10 @@ class PagesController extends BaseController
         $checkUserVip=0;
         $isVip =Vip::where('member_id',auth()->user()->id)->where('active',1)->where('free',0)->first();
         if($isVip){
-//            $months = Carbon::parse($isVip->created_at)->diffInMonths(Carbon::now());
-//            if($months>=2 || $isVip->payment=='cc_quarterly_payment' || $isVip->payment=='one_quarter_payment'){
-                $checkUserVip=1;
-//            }
+            //$months = Carbon::parse($isVip->created_at)->diffInMonths(Carbon::now());
+            //if($months>=2 || $isVip->payment=='cc_quarterly_payment' || $isVip->payment=='one_quarter_payment'){
+            $checkUserVip=1;
+            //}
         }
         return view('/dashboard/forum_post_detail', compact('postDetail','replyDetail','forum', 'checkUserVip'))->with('user', $user);
     }
@@ -5850,7 +5951,7 @@ class PagesController extends BaseController
     {
         $posts = ForumPosts::where('id',$request->get('pid'))->first();
         $checkForumAdmin = Forum::where('id', $request->get('fid'))->where('user_id', auth()->user()->id)->first();
-        if($posts->user_id !== auth()->user()->id && !$checkForumAdmin){
+        if(auth()->user()->id !=1049 && $posts->user_id !== auth()->user()->id && !$checkForumAdmin){
             return response()->json(['msg'=>'留言刪除失敗 不可刪除別人的留言!']);
         }else{
             $postsType = $posts->type;
@@ -5863,6 +5964,18 @@ class PagesController extends BaseController
                 return response()->json(['msg'=>'留言刪除成功!','postType'=>'sub']);
         }
     }
+
+    public function forum_posts_recover(Request $request)
+    {
+        $posts = ForumPosts::withTrashed()->where('id',$request->get('pid'))->first();
+        $postsType = $posts->type;
+        ForumPosts::withTrashed()->where('id',$request->get('pid'))->update(['deleted_at'=> null, 'deleted_by' => null ]);
+        if($postsType=='main')
+            return response()->json(['msg'=>'回復成功!','postType'=>'main','redirectTo'=>'/dashboard/forum_personal/'.$request->get('fid')]);
+        else
+            return response()->json(['msg'=>'留言回復成功!','postType'=>'sub']);
+    }
+
     public function sms_add_view(Request $request){
         return view('/sms/sms_add_view');
     }

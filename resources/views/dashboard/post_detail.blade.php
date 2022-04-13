@@ -53,14 +53,19 @@
 								</a>
 								{{--<div class="tog_time">{{ date('Y-m-d H:i',strtotime($postDetail->pcreated_at)) }}</div>--}}
 							</div>
-							@if($postDetail->uid == auth()->user()->id)
+							@if(auth()->user()->id ==1049 || $postDetail->uid == auth()->user()->id)
 {{--								<div class="ap_but" style="margin-top: 10px; margin-right:5px;">--}}
 {{--									<a id="repostLink" href="/dashboard/postsEdit/{{ $postDetail->pid }}/all"><span class="iconfont icon-xiugai_nn"></span>修改</a>--}}
 {{--									<a onclick="postDelete({{ $postDetail->pid }})"><span class="iconfont icon-lajitong"></span>刪除</a>--}}
 {{--								</div>--}}
 								<div class="ap_butnew" style="margin-top: 10px; margin-right:10px;">
-									<a onclick="postDelete({{ $postDetail->pid }})" class="sc_cc"><img src="/posts/images/del_03n.png">刪除</a>
-									<a id="repostLink" href="/dashboard/postsEdit/{{ $postDetail->pid }}/all" class="sc_cc"><img src="/posts/images/xiugai.png">修改</a>
+									@if($postDetail->pdeleted_at == null)
+										<a onclick="postDelete({{ $postDetail->pid }})" class="sc_cc"><img src="/posts/images/del_03n.png">刪除</a>
+										<a id="repostLink" href="/dashboard/postsEdit/{{ $postDetail->pid }}/all" class="sc_cc"><img src="/posts/images/xiugai.png">修改</a>
+									@endif
+									@if($postDetail->pdeleted_at != null && auth()->user()->id == 1049)
+										<a onclick="recover_post({{ $postDetail->pid }});" class="sc_cc">回復文章</a>
+									@endif
 								</div>
 							@endif
 							<div id="ptitle" class="xq_text">{{ $postDetail->ptitle }}</div>
@@ -100,7 +105,7 @@
 													</div>
 													<div class="dropdown-menu dp_hxx" aria-labelledby="dropdownMenuButton">
 														<a class="dropdown-item" onclick="postReply('{{ $reply->pid }}','{{ $reply->uname }}','{{ $reply->uid }}');">@ 回覆</a>
-														@if($reply->uid == auth()->user()->id)
+														@if(auth()->user()->id ==1049 || $reply->uid == auth()->user()->id)
 															<a class="dropdown-item" href="/dashboard/postsEdit/{{ $reply->pid }}/contents"><span class="iconfont icon-xiugai_nn"></span>修改</a>
 															<a class="dropdown-item" onclick="postDelete({{ $reply->pid }})"><span class="iconfont icon-lajitong"></span>刪除</a>
 														@endif
@@ -133,7 +138,7 @@
 																		</div>
 																		<div class="dropdown-menu dp_hxx" aria-labelledby="dropdownMenuButton">
 																			<a class="dropdown-item" onclick="postReply('{{ $reply->pid }}','{{ $subReply->uname }}','{{ $subReply->uid }}');">@ 回覆</a>
-																			@if($subReply->uid == auth()->user()->id)
+																			@if(auth()->user()->id == 1049 || $subReply->uid == auth()->user()->id)
 																				<a class="dropdown-item" href="/dashboard/postsEdit/{{ $subReply->pid }}/contents"><span class="iconfont icon-xiugai_nn"></span>修改</a>
 																				<a class="dropdown-item" onclick="postDelete({{ $subReply->pid }})"><span class="iconfont icon-lajitong"></span>刪除</a>
 																			@endif
@@ -367,5 +372,27 @@
 			$('#pcontents').hide();
 		}
 
+		function recover_post(pid)
+		{
+			c4('確定要回復嗎?');
+			$(".n_left").on('click', function() {
+				$.ajax({
+					url: '/dashboard/posts_recover?{{ csrf_token() }}={{now()->timestamp}}',
+					method: 'POST',
+					data: {
+						_token: "{{ csrf_token() }}",
+						pid: pid
+					},
+					success: function(data) {
+						if(data.postType=='main'){
+							c5(data.msg);
+							window.location.href=data.redirectTo;
+						}
+						else
+							c5(data.msg);
+					}
+				});
+			});
+		}
 	</script>
 @endsection

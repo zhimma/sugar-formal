@@ -38,9 +38,9 @@
                                     <span><input name="isHideOnline" type="radio" value="2" @if($user->is_hide_online==2)checked @endif><i>消失</i></span>
                                     <span><input name="isHideOnline" type="radio" value="0" @if($user->is_hide_online==0)checked @endif><i>關閉</i></span>
                                     @if($user->is_hide_online == 1)
-                                        <br><span>您的上線狀態凍結於{{ substr($user->hide_online_time, 0, 11) }}</span>
+                                        <br><span>您的上線狀態凍結於{{ substr($hide_online_data->login_time, 0, 11) }}</span>
                                     @elseif($user->is_hide_online == 2)
-                                        <br><span>您的上線狀態凍結於{{ substr($user->hide_online_time, 0, 11) }}，且其他會員無法查詢到您的資料</span>
+                                        <br><span>您的上線狀態凍結於{{ substr($hide_online_data->login_time, 0, 11) }}，且其他會員無法查詢到您的資料</span>
                                     @elseif($user->is_hide_online == 0)
                                         <br><span>您目前沒有啟動隱藏功能</span>
                                     @endif

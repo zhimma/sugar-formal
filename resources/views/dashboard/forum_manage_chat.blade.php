@@ -67,7 +67,7 @@
 						</a>
 						<div class="fabiao showslide" style="text-align: center;">
 							<a onclick="checkUserVip();">我要發表</a>
-							<a href="/dashboard/forum_manage">會員管理</a>
+							<a href="/dashboard/forum_manage/{{$forumInfo->id}}">會員管理</a>
 						</div>
 						@endif
 					</div>
@@ -194,7 +194,7 @@
 					c5(obj.message);
 					$(".n_bllbut").on('click', function() {
                         if(obj.message == '該會員已通過' || obj.message == '已拒絕該會員申請'){
-							window.location.href = "/dashboard/forum_manage";
+							window.location.href = "/dashboard/forum_manage/" + fid;
 						}else if(obj.message == '已取消申請'){
 							window.location.href = "/dashboard/forum";
 						}else {

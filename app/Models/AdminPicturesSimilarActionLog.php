@@ -16,6 +16,11 @@ class AdminPicturesSimilarActionLog extends Model
         return $this->belongsTo(User::class, 'target_id', 'id');
     }
 
+    public function user()
+    {
+        return $this->target_user();
+    }
+
     public function operator_user()
     {
         return $this->belongsTo(User::class, 'operator_id', 'id');
