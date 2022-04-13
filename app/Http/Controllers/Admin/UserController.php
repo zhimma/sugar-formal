@@ -5664,21 +5664,29 @@ class UserController extends \App\Http\Controllers\BaseController
         $temp_id = 0;
         $temp_month = 0;
         $statistics_data['max_pay_vip_month'] = 0;
-        foreach($statistics_data['pay_vip_count']->clone()->select('users.id', 'order.payment')->orderby('users.id')->get() as $pay_vip)
+        foreach($statistics_data['pay_vip_count']->clone()->select('users.id', 'order.payment', 'pay_date')->orderby('users.id')->get() as $pay_vip)
         {
             if($pay_vip->id != $temp_id)
             {
                 $temp_id = $pay_vip->id;
                 $temp_month = 0;
             }
-            if($pay_vip->payment == 'cc_monthly_payment')
+            switch($pay_vip->payment)
             {
-                $temp_month = $temp_month + 1;
+                case 'one_month_payment':
+                    $temp_month = $temp_month + 1;
+                    break;
+                case 'one_quarter_payment':
+                    $temp_month = $temp_month + 3;
+                    break;
+                case 'cc_monthly_payment':
+                    $temp_month = $temp_month + (count(json_decode($pay_vip->pay_date)) * 1);
+                    break;
+                case 'cc_quarterly_payment':
+                    $temp_month = $temp_month + (count(json_decode($pay_vip->pay_date)) * 3);
+                    break;
             }
-            if($pay_vip->payment == 'cc_quarterly_payment')
-            {
-                $temp_month = $temp_month + 3;
-            }
+
             if($temp_month > $statistics_data['max_pay_vip_month'])
             {
                 $statistics_data['max_pay_vip_month'] = $temp_month;
