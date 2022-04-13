@@ -273,6 +273,10 @@
                     }
                     input_object.find('td').first().next('td').text(' ' + result + ' % ');
                 }
+                else
+                {
+                    input_object.find('td').first().next('td').empty();
+                }
             }
         });
 
@@ -312,6 +316,10 @@
                         result = 100;
                     }
                     input_object.find('td').first().next('td').text(' ' + result + ' % ');
+                }
+                else
+                {
+                    input_object.find('td').first().next('td').empty();
                 }
             }
         });
