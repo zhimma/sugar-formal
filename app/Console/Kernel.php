@@ -136,8 +136,8 @@ class Kernel extends ConsoleKernel
     }
 
     protected function checkECPayVip(){
-//        $vipDatas = \App\Models\Vip::where(['business_id' => '3137610', 'active' => 1])->get();
-        $vipDatas = \App\Models\Vip::where('business_id','3137610')->where('order_id','like','SG%')->get();
+       $vipDatas = \App\Models\Vip::where(['business_id' => '3137610', 'active' => 1])->get();
+        // $vipDatas = \App\Models\Vip::where('business_id','3137610')->where('order_id','like','SG%')->get();
         foreach ($vipDatas as $vipData){
             \App\Jobs\CheckECpay::dispatch($vipData);
         }
@@ -443,15 +443,15 @@ class Kernel extends ConsoleKernel
         DB::table("queue_global_variables")
             ->where("name", "sent_today_200")->update(["value" => 0, "updated_at" => Carbon::now()]);
         DB::table("queue_global_variables")
-            ->where("name", "sent_today_400")->update(["value" => 0, "updated_at" => Carbon::now()]);
+            ->where("name", "sent_today_600")->update(["value" => 0, "updated_at" => Carbon::now()]);
         DB::table("queue_global_variables")
             ->where("name", "sent_today_4500")->update(["value" => 0, "updated_at" => Carbon::now()]);
     }
 
     public function checkUserPics() {
         // 每天超過 250 張發警告信
-        // 每天超過 500 發警告信並停止
-        // 每個月超過 6000 張停止
+        // 每天超過 600 發警告信並停止
+        // 每個月超過 4500 張停止
         $picCount = MemberPic::withTrashed()->where('created_at', '>', Carbon::today()->format('Y-m-d'))->count();
         $picCountMonth = MemberPic::withTrashed()->whereBetween('created_at', [Carbon::today()->subMonth()->format('Y-m-d'), Carbon::today()->format('Y-m-d')])->count();
         $str = null;
@@ -459,21 +459,21 @@ class Kernel extends ConsoleKernel
                     ->where("name", "similar_images_search")->first()->value;
         $todayHasSent200 = DB::table("queue_global_variables")
             ->where("name", "sent_today_200")->first();
-        $todayHasSent400 = DB::table("queue_global_variables")
-            ->where("name", "sent_today_400")->first();
+        $todayHasSent600 = DB::table("queue_global_variables")
+            ->where("name", "sent_today_600")->first();
         $todayHasSent4500 = DB::table("queue_global_variables")
             ->where("name", "sent_today_4500")->first();
-        if ($picCount > 400) {
-            if($isOn && $todayHasSent400->value == 0) {
+        if ($picCount > 600) {
+            if($isOn && $todayHasSent600->value == 0) {
                 DB::table("queue_global_variables")
                     ->where("name", "similar_images_search")
                     ->update([
                         "value" => 0,
                         'updated_at' => Carbon::now(),
                     ]);
-                $str = "本日會員照片數已超過 400 張，比對程序已暫停。";
+                $str = "本日會員照片數已超過 600 張，比對程序已暫停。";
                 DB::table("queue_global_variables")
-                    ->where("name", "sent_today_400")
+                    ->where("name", "sent_today_600")
                     ->update(["value" => 1, "updated_at" => Carbon::now()]);
             }
         }
