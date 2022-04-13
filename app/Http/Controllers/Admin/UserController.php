@@ -5683,16 +5683,30 @@ class UserController extends \App\Http\Controllers\BaseController
             {
                 $statistics_data['max_pay_vip_month'] = $temp_month;
             }
+            $statistics_data['pay_vip_count_list'][$pay_vip->id] = $temp_month;
         }
+        arsort($statistics_data['pay_vip_count_list']);
 
+        //被封鎖次數列表
+        $statistics_data['be_blocked_count_list'] = $statistics_data['be_blocked_count']->clone()->selectRaw('users.id, count(*) as total')->groupBy('users.id')->orderby('total','desc');
         //最高被封鎖次數
-        $statistics_data['max_be_blocked_count'] = $statistics_data['be_blocked_count']->clone()->selectRaw('users.id, count(*) as total')->groupBy('users.id')->orderby('total','desc')->first()->total ?? 0;
+        $statistics_data['max_be_blocked_count'] = $statistics_data['be_blocked_count_list']->clone()->first()->total ?? 0;
+        $statistics_data['be_blocked_count_list'] = $statistics_data['be_blocked_count_list']->get()->toArray();
+        //封鎖次數列表
+        $statistics_data['block_other_count_list'] = $statistics_data['block_other_count']->clone()->selectRaw('users.id, count(*) as total')->groupBy('users.id')->orderby('total','desc');
         //最高封鎖次數
-        $statistics_data['max_block_other_count'] = $statistics_data['block_other_count']->clone()->selectRaw('users.id, count(*) as total')->groupBy('users.id')->orderby('total','desc')->first()->total ?? 0;
+        $statistics_data['max_block_other_count'] = $statistics_data['block_other_count_list']->clone()->first()->total ?? 0;
+        $statistics_data['block_other_count_list'] = $statistics_data['block_other_count_list']->get()->toArray();
+        //付出車馬費次數列表
+        $statistics_data['pay_tip_count_list'] = $statistics_data['pay_tip_count']->clone()->selectRaw('users.id, count(*) as total')->groupBy('users.id')->orderby('total','desc');
         //最高付出車馬費次數
-        $statistics_data['max_pay_tip_count'] = $statistics_data['pay_tip_count']->clone()->selectRaw('users.id, count(*) as total')->groupBy('users.id')->orderby('total','desc')->first()->total ?? 0;
+        $statistics_data['max_pay_tip_count'] = $statistics_data['pay_tip_count_list']->clone()->first()->total ?? 0;
+        $statistics_data['pay_tip_count_list'] = $statistics_data['pay_tip_count_list']->get()->toArray();
+        //接收車馬費次數列表
+        $statistics_data['receive_tip_count_list'] = $statistics_data['receive_tip_count']->clone()->selectRaw('users.id, count(*) as total')->groupBy('users.id')->orderby('total','desc');
         //最高接收車馬費次數
-        $statistics_data['max_receive_tip_count'] = $statistics_data['receive_tip_count']->clone()->selectRaw('users.id, count(*) as total')->groupBy('users.id')->orderby('total','desc')->first()->total ?? 0;
+        $statistics_data['max_receive_tip_count'] = $statistics_data['receive_tip_count_list']->clone()->first()->total ?? 0;
+        $statistics_data['receive_tip_count_list'] = $statistics_data['receive_tip_count_list']->get()->toArray();
         
 
 
@@ -5709,6 +5723,26 @@ class UserController extends \App\Http\Controllers\BaseController
         $statistics_data['pay_tip_percentage'] = round($statistics_data['pay_tip_count'] / $statistics_data['login_member_count'] * 100, 2);
         $statistics_data['receive_tip_percentage'] = round($statistics_data['receive_tip_count'] / $statistics_data['login_member_count'] * 100, 2);
         
+
+
+        //百分比線結果
+        $statistics_data['pay_vip_count_result'] = 0;
+        $num = 0;
+        foreach($statistics_data['pay_vip_count_list'] as $data)
+        {
+            $num = $num + 1;
+            if($num >= $statistics_data['pay_vip_count'])
+            {
+                $statistics_data['pay_vip_count_result'] = $data;
+                break;
+            }
+        }
+        $statistics_data['be_blocked_count_result'] = $statistics_data['be_blocked_count_list'][$statistics_data['be_blocked_count']-1]['total'] ?? 0;
+        $statistics_data['block_other_count_result'] = $statistics_data['block_other_count_list'][$statistics_data['block_other_count']-1]['total'] ?? 0;
+        $statistics_data['pay_tip_count_result'] = $statistics_data['pay_tip_count_list'][$statistics_data['pay_tip_count']-1]['total'] ?? 0;
+        $statistics_data['receive_tip_count_result'] = $statistics_data['receive_tip_count_list'][$statistics_data['receive_tip_count']-1]['total'] ?? 0;
+
+
         return view('admin.users.informationStatistics')
                 ->with('form_condition', $form_condition)
                 ->with('statistics_data', $statistics_data);
