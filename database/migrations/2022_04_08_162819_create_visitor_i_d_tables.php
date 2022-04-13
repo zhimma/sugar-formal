@@ -13,23 +13,27 @@ class CreateVisitorIDTables extends Migration
      */
     public function up()
     {
-        Schema::create('visitor_id', function (Blueprint $table) {
-            $table->id();
-            $table->string('hash', 255);
-            $table->string('host', 255)->nullable()->default(NULL);
-            $table->timestamps();
-        });
+        if(!Schema::hasTable('visitor_id')) {
+            Schema::create('visitor_id', function (Blueprint $table) {
+                $table->id();
+                $table->string('hash', 255);
+                $table->string('host', 255)->nullable()->default(NULL);
+                $table->timestamps();
+            });
+        }
 
-        Schema::create('visitor_id_user', function (Blueprint $table) {
-            $table->id();
-            $table->integer('visitor_id')->nullable()->default(NULL);
-            $table->integer('user_id');
-            $table->timestamps();
-        });
+        if(!Schema::hasTable('visitor_id_user')) {
+            Schema::create('visitor_id_user', function (Blueprint $table) {
+                $table->id();
+                $table->integer('visitor_id')->nullable()->default(NULL);
+                $table->integer('user_id');
+                $table->timestamps();
+            });
+        }
 
-        Schema::table('log_user_login', function($table) {
-            $table->integer('visitor_id')->after('cfp_id')->nullable()->default(NULL);
-        });
+        if(!Schema::hasColumn('log_user_login', 'visitor_id')) {
+            DB::statement('ALTER TABLE `log_user_login` ADD `visitor_id` int(11) unsigned DEFAULT NULL AFTER `cfp_id`, ALGORITHM = INPLACE, LOCK=NONE;');
+        }
     }
 
     /**
