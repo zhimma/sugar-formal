@@ -1605,8 +1605,13 @@
 		margin-bottom:0px;
 	}
 </style>
-<h4>所有訊息</h4>
-<table id="m_log" class="table table-hover table-bordered">
+<h4>
+	所有訊息
+	@if($userMessage_log->isEmpty()) 
+		<button id='message_show_btn' class='btn btn-primary' style="width:80px;">顯示</button>
+	@endif
+</h4>
+<table id="m_log" class="table table-hover table-bordered" @if($userMessage_log->isEmpty()) style="display:none" @endif>
 	<tr>
 		<th width="5%"></th>
 		<th width="10%">發送給</th>
@@ -2602,6 +2607,10 @@ $("input[name='phone']").keyup(function(){
 			location.reload();
 		});
 	}
+
+	$('#message_show_btn').on('click', function(){
+		$('#m_log').show();
+	});
 </script>
 <!--照片查看end-->
 </html>
