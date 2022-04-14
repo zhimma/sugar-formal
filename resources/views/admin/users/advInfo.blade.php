@@ -1610,6 +1610,13 @@
 	<button id='message_show_btn' class='btn btn-primary' style="width:80px;">顯示</button>
 </h4>
 <table id="m_log" class="table table-hover table-bordered">
+	<!--一次顯示50個 臨時搭建用-->
+	@php
+		//顯示數量
+		$display = 50;
+		$count = 0;
+	@endphp
+	<!--一次顯示50個 臨時搭建用-->
 	<tr>
 		<th width="5%"></th>
 		<th width="10%">發送給</th>
@@ -1634,7 +1641,19 @@
 			$toCount_user_id=\App\Models\Message::withTrashed()->where('from_id',$user->id)->where('to_id',$ref_user_id)->get()->count();
 			$toCount_ref_user_id=\App\Models\Message::withTrashed()->where('from_id',$ref_user_id)->where('to_id',$user->id)->get()->count();
 		@endphp
-		<tr @if(!($message_log??false)) class='message_no_interactive' style="display:none" @endif>
+		<tr 
+			{{--一次顯示50個 臨時搭建用--}}
+			@if(!($message_log??false)) 
+				class='message_no_interactive' style="display:none" 
+			@else
+				@php 
+					$count = $count + 1; 
+				@endphp
+				@if($count > $display)
+					style="display:none" 
+				@endif
+			@endif>
+			{{--一次顯示50個 臨時搭建用--}}
 			<td style="text-align: center;"><button data-toggle="collapse" data-target="#msgLog{{$ref_user_id}}" class="accordion-toggle btn btn-primary message_toggle">+</button></td>
 			<td>@if(!empty($ref_user->name))<a href="{{ route('admin/showMessagesBetween', [$user->id, $ref_user_id]) }}" target="_blank">{{ $ref_user->name }}</a>@else 會員資料已刪除@endif</td>
 			<td id="new{{$Log->to_id}}">
