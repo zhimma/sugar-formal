@@ -959,8 +959,12 @@ class UserController extends \App\Http\Controllers\BaseController
                 ->with('user', $user)
                 ->with('userMeta', $userMeta)
                 ->with('last_images_compare_encode',ImagesCompareEncode::orderByDesc('id')->firstOrNew());
-        }        
-        
+        }
+        if($block=='userAdvInfo') {
+            $userAdvInfo=\App\Models\User::userAdvInfo($user->id);
+            return view('admin.users.advInfo_UserAdvInfo')
+                ->with('userAdvInfo', $userAdvInfo);
+        }
         $userMessage = Message::where('from_id', $id)->orderBy('created_at', 'desc')->paginate(config('social.admin.showMessageCount'));
         if(!empty($request->get('page'))){
             //新增Admin操作log
