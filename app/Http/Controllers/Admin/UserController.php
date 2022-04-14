@@ -66,7 +66,6 @@ use App\Models\ValueAddedService;
 use App\Services\ImagesCompareService;
 use App\Models\SimilarImages;
 use App\Models\CheckPointUser;
-use App\Models\Order;
 
 class UserController extends \App\Http\Controllers\BaseController
 {
