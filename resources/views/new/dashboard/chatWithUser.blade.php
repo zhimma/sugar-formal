@@ -817,6 +817,13 @@
                 </form>
                 @endif
             </div>
+                @if($to->exchange_period == 1 && !($messages->first()??false))
+                    <div class="se_text_bot" style="padding-right: 3%; padding-left:3%;">
+                        此會員包養模式是 "長期為主"，站規規定禁止向該女會員主動發送罐頭/短約訊息。如有違反將會警示/封鎖的懲處。 
+                        <br>
+                        <input type="checkbox" id="i_know_it"> 我知道了 ( 請勾選後才可發出訊息 ) </input>
+                    </div>
+                @endif
             @endif
             @else
             <div class="se_text_bot">
@@ -1104,6 +1111,16 @@
         $('#msg').focus();
         let content = $('#msg').val(), msgsnd = $('.msgsnd');
         var msg_str = $("#msg").val().replace(/\r\n|\n/g,"").replace(/\s+/g, "");
+
+        @if($to->exchange_period == 1 && !($messages->first()??false))
+            i_know_it=document.querySelector("#i_know_it")
+            if(!i_know_it.checked)
+            {
+                c5('請勾選我知道了');
+                return false;
+            }
+        @endif
+
         if(msg_str.length>400) {
             c5('訊息輸入至多400個字');
             return false;
