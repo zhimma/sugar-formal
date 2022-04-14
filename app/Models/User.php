@@ -1045,7 +1045,7 @@ class User extends Authenticatable
 			|| in_array('message_reply_count',$wantIndexArr)
 			|| in_array('message_reply_count_7',$wantIndexArr)
 		) {
-			$messages_all = Message::select('id','to_id','from_id','created_at')->where('to_id', $user->id)->orwhere('from_id', $user->id)->orderBy('id')->get();
+			$messages_all = Message::select('id','to_id','from_id','created_at')->where('to_id', $user->id)->orwhere('from_id', $user->id)->where('from_id','!=',1049)->orderBy('id')->get();
 			foreach ($messages_all as $message) {
 				//uid主動第一次發信
 				if($message->from_id == $user->id && array_get($send, $message->to_id) < $message->id){
@@ -1070,6 +1070,28 @@ class User extends Authenticatable
                     }
 				}
 			}
+
+			foreach ($reply_people as $reply_people_user_id){
+                $message_1st=\App\Models\Message::where([['message.to_id', $reply_people_user_id],['message.from_id', $user_id]])
+                    ->orWhere([['message.from_id', $reply_people_user_id],['message.to_id', $user_id]])
+                    ->orderBy('created_at')->first();
+                if($message_1st->from_id==$user_id){
+                    if (($key = array_search($reply_people_user_id, $reply_people)) !== false) {
+                        unset($reply_people[$key]);
+                    }
+                }
+            }
+            foreach ($reply_people_7 as $reply_people_7_user_id){
+                $message_1st=\App\Models\Message::where([['message.to_id', $reply_people_7_user_id],['message.from_id', $user_id]])
+                    ->orWhere([['message.from_id', $reply_people_7_user_id],['message.to_id', $user_id]])
+                    ->orderBy('created_at')->first();
+                if($message_1st->from_id==$user_id){
+                    if (($key = array_search($reply_people_7_user_id, $reply_people_7)) !== false) {
+                        unset($reply_people_7[$key]);
+                    }
+                }
+            }
+
 			$message_count=0;
             foreach ($send as $to_id =>$val){
                 $m_id=Message::where('from_id',$to_id)->where('to_id',$user->id)->orderBy('id')->first();
@@ -1093,7 +1115,7 @@ class User extends Authenticatable
             $countInfo['message_count'] = count($send);
         }
 		if(!$wantIndexArr || in_array('message_count_7',$wantIndexArr)) {
-			$messages_7days = Message::select('id','to_id','from_id','created_at')->whereRaw('(to_id ='. $user->id. ' OR from_id='.$user->id .')')->where('created_at','>=', $date)->orderBy('id')->get();
+			$messages_7days = Message::select('id','to_id','from_id','created_at')->whereRaw('(to_id ='. $user->id. ' OR from_id='.$user->id .')')->where('created_at','>=', $date)->where('from_id','!=',1049)->orderBy('id')->get();
 			$countInfo['message_count_7'] = 0;
 			$send = [];
 			foreach ($messages_7days as $message) {
@@ -1115,9 +1137,12 @@ class User extends Authenticatable
                 if(!is_null($m_id)){
                     $message_temp->where('id','<',$m_id);
                 }
-                $message_temp=$message_temp->get()->count();
-                if($message_temp && ($from_id_first == $user->id) ){
-                    $message_count_7+=$message_temp;
+                $message_temp=$message_temp->get();
+                if($message_temp && ($from_id_first == $user->id)){
+                    $test=Message::where([['message.to_id', $user->id],['message.from_id', $to_id]])
+                        ->where('id','<',$send[$to_id])
+                        ->orderBy('created_at','desc')->first();
+                    $message_count_7+=is_null($test) ? $message_temp->count() : 0;
                 }else{
                     unset($send[$to_id]);
                 }
@@ -1125,6 +1150,10 @@ class User extends Authenticatable
             $countInfo['message_count_7'] = count($send);
         }
 
+        /*總通訊人數=發訊人數+回訊人數*/
+        $advInfo['message_people_total'] = $countInfo['message_count']+count($reply_people);
+         /*過去7天總通訊人數=發訊人數+回訊人數*/
+        $advInfo['message_people_total_7'] = $countInfo['message_count_7']+count($reply_people_7);
         /*發信人數*/
         $advInfo['message_people_count'] = $countInfo['message_count'];
         /*過去7天發信人數*/
@@ -1144,9 +1173,17 @@ class User extends Authenticatable
         $advInfo['message_reply_count_7'] = $countInfo['message_reply_count_7'];
 
         /*過去七天未回人數*/
-        $advInfo['message_no_reply_count_7'] = Message::select('from_id')->where('to_id', $user->id)->where('created_at','>=', $date)->whereRaw('(select from_id from message as p where (p.from_id='.$user->id.' and  p.to_id=message.from_id) OR (p.from_id= message.from_id and  p.to_id='.$user->id.') order by id  desc limit 1 ) !='.$user_id)->groupBy('from_id')->get()->count();
+        $no_reply_7_ary=Message::where('to_id', $user->id)->where('from_id','!=',1049)->where('created_at','>=', $date)
+            ->selectRaw('(select id from message as p where (p.from_id='.$user->id.' and  p.to_id=message.from_id) OR (p.from_id= message.from_id and  p.to_id='.$user->id.') order by id  desc limit 1 ) as msg_id')
+            ->whereRaw('(select from_id from message as p where (p.from_id='.$user->id.' and  p.to_id=message.from_id) OR (p.from_id= message.from_id and  p.to_id='.$user->id.') order by id  desc limit 1 ) !='.$user_id)
+            ->groupBy('from_id')->get()->pluck('msg_id');
+        $advInfo['message_no_reply_count_7'] =Message::whereIn('id',$no_reply_7_ary)->where('read','Y')->get()->count();
         /*未回人數*/
-        $advInfo['message_no_reply_count'] = Message::select('from_id')->where('to_id', $user->id)->whereRaw('(select from_id from message as p where (p.from_id='.$user->id.' and  p.to_id=message.from_id) OR (p.from_id= message.from_id and  p.to_id='.$user->id.') order by id  desc limit 1 ) !='.$user_id)->groupBy('from_id')->get()->count();
+        $no_reply_ary=Message::where('to_id', $user->id)->where('from_id','!=',1049)
+            ->selectRaw('(select id from message as p where (p.from_id='.$user->id.' and  p.to_id=message.from_id) OR (p.from_id= message.from_id and  p.to_id='.$user->id.') order by id  desc limit 1 ) as msg_id')
+            ->whereRaw('(select from_id from message as p where (p.from_id='.$user->id.' and  p.to_id=message.from_id) OR (p.from_id= message.from_id and  p.to_id='.$user->id.') order by id  desc limit 1 ) !='.$user_id)
+            ->groupBy('from_id')->get()->pluck('msg_id');
+        $advInfo['message_no_reply_count'] =Message::whereIn('id',$no_reply_ary)->where('read','Y')->get()->count();
 
         /*過去7天罐頭訊息比例*/
         $date_start = date("Y-m-d",strtotime("-6 days", strtotime(date('Y-m-d'))));
