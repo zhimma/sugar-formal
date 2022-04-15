@@ -1556,8 +1556,18 @@
 		margin-bottom:0px;
 	}
 </style>
-<h4>所有訊息</h4>
+<h4>
+	所有訊息
+	<button id='message_show_btn' class='btn btn-primary' style="width:80px;">顯示</button>
+</h4>
 <table id="m_log" class="table table-hover table-bordered">
+	<!--一次顯示50個 臨時搭建用-->
+	@php
+		//顯示數量
+		$display = 50;
+		$count = 0;
+	@endphp
+	<!--一次顯示50個 臨時搭建用-->
 	<tr>
 		<th width="5%"></th>
 		<th width="10%">發送給</th>
@@ -1567,22 +1577,34 @@
 		<th width="8%">發送數 <br>本人/對方</th>
 	</tr>
 	@foreach($userMessage_log as $Log)
-		<tr>
-			@php
-				$ref_user=\App\Models\User::findById($Log->ref_user_id);
-				$ref_user_id=$Log->ref_user_id;
-				$message_log=\App\Models\Message::withTrashed()
-					->where([['message.to_id', ($ref_user->engroup==1 ? $ref_user->id : $user->id)],['message.from_id', ($ref_user->engroup==1 ? $user->id : $ref_user->id)]])
-					->orderBy('created_at')->first();
+		@php
+			$ref_user=\App\Models\User::findById($Log->ref_user_id);
+			$ref_user_id=$Log->ref_user_id;
+			$message_log=\App\Models\Message::withTrashed()
+				->where([['message.to_id', ($ref_user->engroup==1 ? $ref_user->id : $user->id)],['message.from_id', ($ref_user->engroup==1 ? $user->id : $ref_user->id)]])
+				->orderBy('created_at')->first();
 
-				$message_1st=\App\Models\Message::withTrashed()
-					->where([['message.to_id', ($ref_user->engroup==1 ? $ref_user->id : $user->id)],['message.from_id', ($ref_user->engroup==1 ? $user->id : $ref_user->id)]])
-					->orWhere([['message.from_id', ($ref_user->engroup==1 ? $ref_user->id : $user->id)],['message.to_id', ($ref_user->engroup==1 ? $user->id : $ref_user->id)]])
-					->orderBy('created_at')->first();
+			$message_1st=\App\Models\Message::withTrashed()
+				->where([['message.to_id', ($ref_user->engroup==1 ? $ref_user->id : $user->id)],['message.from_id', ($ref_user->engroup==1 ? $user->id : $ref_user->id)]])
+				->orWhere([['message.from_id', ($ref_user->engroup==1 ? $ref_user->id : $user->id)],['message.to_id', ($ref_user->engroup==1 ? $user->id : $ref_user->id)]])
+				->orderBy('created_at')->first();
 
-				$toCount_user_id=\App\Models\Message::withTrashed()->where('from_id',$user->id)->where('to_id',$ref_user_id)->get()->count();
-				$toCount_ref_user_id=\App\Models\Message::withTrashed()->where('from_id',$ref_user_id)->where('to_id',$user->id)->get()->count();
-			@endphp
+			$toCount_user_id=\App\Models\Message::withTrashed()->where('from_id',$user->id)->where('to_id',$ref_user_id)->get()->count();
+			$toCount_ref_user_id=\App\Models\Message::withTrashed()->where('from_id',$ref_user_id)->where('to_id',$user->id)->get()->count();
+		@endphp
+		<tr 
+			{{--一次顯示50個 臨時搭建用--}}
+			@if($toCount_user_id == 0 || $toCount_ref_user_id == 0) 
+				class='message_no_interactive' style="display:none" 
+			@else
+				@php 
+					$count = $count + 1; 
+				@endphp
+				@if($count > $display)
+					style="display:none" 
+				@endif
+			@endif>
+			{{--一次顯示50個 臨時搭建用--}}
 			<td style="text-align: center;"><button data-toggle="collapse" data-target="#msgLog{{$ref_user_id}}" class="accordion-toggle btn btn-primary message_toggle">+</button></td>
 			<td>@if(!empty($ref_user->name))<a href="{{ route('admin/showMessagesBetween', [$user->id, $ref_user_id]) }}" target="_blank">{{ $ref_user->name }}</a>@else 會員資料已刪除@endif</td>
 			<td id="new{{$Log->to_id}}">
@@ -1627,12 +1649,12 @@
 					</thead>
 					<tbody>
 					@foreach ($Log->items as $key => $item)
-{{--						@if($key==0)--}}
-{{--							<script>--}}
-{{--								$('#new' + {{$Log->to_id}}).text('{{ $item->content }}');--}}
-{{--								$('#new_time' + {{$Log->to_id}}).text('{{ $item->m_time }}');--}}
-{{--							</script>--}}
-{{--						@endif--}}
+						{{--@if($key==0)--}}
+							{{--<script>--}}
+								{{--$('#new' + {{$Log->to_id}}).text('{{ $item->content }}');--}}
+								{{--$('#new_time' + {{$Log->to_id}}).text('{{ $item->m_time }}');--}}
+							{{--</script>--}}
+						{{--@endif--}}
 						<tr>
 							<td style="text-align: right;">
 								@php
@@ -2560,6 +2582,19 @@ $("input[name='phone']").keyup(function(){
 			location.reload();
 		});
 	}
+
+	$('#message_show_btn').on('click', function(){
+		$('.message_no_interactive').toggle();
+		if($(this).text() == '顯示')
+		{
+			$(this).text('隱藏');
+		}
+		else if($(this).text() == '隱藏')
+		{
+			$(this).text('顯示');
+		}
+
+	});
 </script>
 <!--照片查看end-->
 </html>

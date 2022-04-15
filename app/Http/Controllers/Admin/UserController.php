@@ -996,7 +996,8 @@ class UserController extends \App\Http\Controllers\BaseController
             ->groupBy(DB::raw("ref_user_id"))
             ->orderByRaw("IF(ref_user_id=1049, 1, 0)  desc")
             ->orderBy('message.created_at','DESC')
-            ->paginate(20);
+            ->paginate(1000)
+            ;
 
         foreach ($userMessage_log as $key => $value) {
             $userMessage_log[$key]['items'] = Message::withTrashed()->select('message.*','message.id as mid','message.created_at as m_time','u.*','b.id as banned_id','b.expire_date as banned_expire_date')
@@ -1007,7 +1008,8 @@ class UserController extends \App\Http\Controllers\BaseController
                 ->orWhere([['message.from_id', $id],['message.to_id', $value->ref_user_id]])
                 ->where('message.created_at','>=', \Carbon\Carbon::parse("180 days ago")->toDateTimeString())
                 ->orderBy('message.created_at')
-                ->take(20)->get();
+                ->take(1000)
+                ->get();
         }
 
         // 給予、取消優選
