@@ -266,7 +266,7 @@
                             temp_data = list[data]['total'];
                         }
                     }
-                    //result = roundDecimal(num / {{$statistics_data['login_member_count']}} * 100, 2);
+                    result = roundDecimal(num / {{$statistics_data['login_member_count']}} * 100, 2);
                     if(input == 0)
                     {
                         result = 100;
