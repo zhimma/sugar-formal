@@ -169,10 +169,10 @@ Route::group(['middleware' => ['auth', 'global','SessionExpired']], function () 
     Route::post('/save-visitor-id', 'PagesController@saveVisitorID')->name('saveVisitorID');
     Route::post('/check-visitor-id', 'PagesController@checkVisitorID')->name('checkVisitorID');
 });
-
+Route::post('/dashboard/faq_reply', 'PagesController@checkFaqAnswer')->middleware('auth')->name('checkFaqAnswer');
 Route::get('/advance_auth_activate/token/{token}', 'PagesController@advance_auth_email_activate')->name('advance_auth_email_activate');
 
-Route::group(['middleware' => ['auth', 'global', 'active', 'femaleActive', 'vipCheck', 'newerManual','CheckAccountStatus','SessionExpired']], function () {
+Route::group(['middleware' => ['auth', 'global', 'active', 'femaleActive', 'vipCheck', 'newerManual','CheckAccountStatus','SessionExpired','FaqCheck']], function () {
 
     Route::get('/dashboard/browse', 'PagesController@browse');
     /*
@@ -749,6 +749,30 @@ Route::group(['middleware' => ['auth', 'global', 'active', 'femaleActive', 'vipC
         Route::post('announcement/new', 'UserController@newAdminAnnouncement')->name('admin/announcement/new');
         Route::get('announcement/read/{id}', 'UserController@showReadAnnouncementUser')->name('admin/announcement/read');
 
+        Route::get('faq', 'UserController@showFaq')->name('admin/faq');
+         Route::get('faq/edit/{id}', 'UserController@showFaqEdit')->name('admin/faq/edit');
+         Route::post('faq/save', 'UserController@saveFaq')->name('admin/faq/save');
+         Route::post('faq/answer/save', 'UserController@saveAnsFromFaq')->name('admin/faq/answer/save');
+         Route::post('faq/setting/save', 'UserController@saveSettingFromFaq')->name('admin/faq/setting/save');
+         Route::get('faq/delete/{id?}', 'UserController@deleteFaq')->name('admin/faq/delete');
+         Route::get('faq/new', 'UserController@showNewFaq')->name('admin/faq/new/GET');
+         Route::post('faq/new', 'UserController@newFaq')->name('admin/faq/new');
+
+        Route::get('faq_group', 'UserController@showFaqGroup')->name('admin/faq_group');
+        Route::get('faq_group/edit/{id}', 'UserController@showFaqGroupEdit')->name('admin/faq_group/edit');
+        Route::post('faq_group/save', 'UserController@saveFaqGroup')->name('admin/faq_group/save');
+        Route::get('faq_group/delete/{id?}', 'UserController@deleteFaqGroup')->name('admin/faq_group/delete');
+        Route::get('faq_group/new', 'UserController@showNewFaqGroup')->name('admin/faq_group/new/GET');
+        Route::post('faq_group/new', 'UserController@newFaqGroup')->name('admin/faq_group/new');
+        Route::post('faq_group/save_act', 'UserController@saveFaqGroupAct')->name('admin/faq_group/save_act');
+
+        Route::get('faq_choice/{id}', 'UserController@showFaqChoice')->name('admin/faq_choice');
+        Route::get('faq_choice/edit/{id}', 'UserController@showFaqChoiceEdit')->name('admin/faq_choice/edit');
+        Route::post('faq_choice/save/{id}', 'UserController@saveFaqChoice')->name('admin/faq_choice/save');
+        Route::get('faq_choice/delete/{id?}', 'UserController@deleteFaqChoice')->name('admin/faq_choice/delete');
+        Route::get('faq_choice/new/{id}', 'UserController@showNewFaqChoice')->name('admin/faq_choice/new/GET');
+        Route::post('faq_choice/new/{id}', 'UserController@newFaqChoice')->name('admin/faq_choice/new');
+
         Route::get('masterwords', 'UserController@showMasterwords')->name('admin/masterwords');
         Route::get('masterwords/edit/{id}', 'UserController@showAdminMasterWordsEdit')->name('admin/masterwords/edit');
         Route::post('masterwords/save', 'UserController@saveAdminMasterWords')->name('admin/masterwords/save');
@@ -827,7 +851,7 @@ Route::group(['middleware' => ['auth', 'global', 'active', 'femaleActive', 'vipC
         Route::get('users/checkDuplicate', 'FindPuppetController@entrance');
         Route::get('users/showLogBk', 'FindPuppetController@displayDetail');
         Route::get('too_many_requests', 'PagesController@tooManyRequests')->name('tooMantRequests');
-        
+
 
         Route::get('users/picturesSimilar', 'UserController@UserPicturesSimilar')->name('users/picturesSimilar');
         Route::get('users/picturesSimilarLog', 'UserController@UserPicturesSimilarLog')->name('users/picturesSimilarLog');

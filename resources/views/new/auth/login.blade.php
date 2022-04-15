@@ -98,6 +98,7 @@
         };
     </script>
     <script type="text/javascript">
+        sessionStorage.removeItem('fag_error_state');
         function getCookie(name) {
             var value = "; " + document.cookie;
             var parts = value.split("; " + name + "=");

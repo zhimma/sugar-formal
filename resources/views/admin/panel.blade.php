@@ -58,7 +58,7 @@
 		<a href="{{ route('maillog') }}">寄退信Log紀錄查詢</a>
 		<a href="{{ route('fakeMail') }}">寄送統計沖洗郵件</a>
 		<a href="{{ route('users/informationStatistics') }}">進階資訊統計工具</a>
-		
+        <a href="{{ route('admin/faq') }}">FAQ機制</a>
 
 	@elseif (Auth::user()->can('readonly'))
 		<a href="javascript:void(0)" class="closebtn" onclick="closeNav()">&times;</a>

@@ -1363,4 +1363,10 @@ class UserService
             $message_percent_7 = count($user_similar_msg) > 0 ? round( (count($user_similar_msg) / count($messages))*100 )  : 0;
             return $message_percent_7;
     }
+    
+    public function riseByUserEntry($userEntry) {
+        $this->model = $userEntry;
+        $this->userMeta = $userEntry->meta;
+        return $this;
+    }
 }
