@@ -18,7 +18,7 @@ class QueueGlobalVariablesAdd extends Migration
             DB::table('queue_global_variables')->updateOrInsert([
                 'name' => 'sent_today_600',
                 'type' => 'bool',
-                'value' => '1',
+                'value' => '0',
                 'created_at' => \Carbon\Carbon::now(),
                 'updated_at' => \Carbon\Carbon::now(),
             ]);
