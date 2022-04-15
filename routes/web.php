@@ -165,6 +165,9 @@ Route::group(['middleware' => ['auth', 'global','SessionExpired']], function () 
     Route::post('/multiple-login', 'PagesController@multipleLogin')->name('multipleLogin');
     Route::post('/save-cfp', 'PagesController@savecfp')->name('savecfp');
     Route::post('/check-cfp', 'PagesController@checkcfp')->name('checkcfp');
+
+    Route::post('/save-visitor-id', 'PagesController@saveVisitorID')->name('saveVisitorID');
+    Route::post('/check-visitor-id', 'PagesController@checkVisitorID')->name('checkVisitorID');
 });
 
 Route::get('/advance_auth_activate/token/{token}', 'PagesController@advance_auth_email_activate')->name('advance_auth_email_activate');
@@ -267,7 +270,7 @@ Route::group(['middleware' => ['auth', 'global', 'active', 'femaleActive', 'vipC
 
         Route::post('/dashboard/doForumPosts', 'PagesController@doForumPosts');
         Route::get('/dashboard/forum_personal/{fid}', 'PagesController@forum_personal');
-        Route::get('/dashboard/forum_manage/{fid}', 'PagesController@forum_manage')->name('forum_manage');
+        Route::get('/dashboard/forum_manage/{fid}', 'PagesController@forum_manage');
         Route::post('/dashboard/forum_manage_toggle', 'PagesController@forum_manage_toggle')->name('forum_manage_toggle');
         Route::post('/dashboard/forum_status_toggle', 'PagesController@forum_status_toggle')->name('forum_status_toggle');
         Route::get('/dashboard/forum_manage_chat/{auid}/{uid}', 'PagesController@forum_manage_chat');

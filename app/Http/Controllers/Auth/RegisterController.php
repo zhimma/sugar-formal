@@ -4,6 +4,7 @@ namespace App\Http\Controllers\Auth;
 
 use App\Models\LogUserLogin;
 use App\Models\CustomFingerPrint;
+use App\Models\VisitorID;
 use DB;
 use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\Validator;
@@ -141,7 +142,7 @@ class RegisterController extends \App\Http\Controllers\BaseController
     public function register(\Illuminate\Http\Request $request) {
 		if(\Session::get('is_remind_puppet')!='1') {
 			$this->validator($request->all())->validate();
-			if(UserService::isShowMultiUserForbidHintUserId((CustomFingerPrint::where('hash', $request->cfp_hash)->first())->id ?? '','cfp_id') 
+			if( UserService::isShowMultiUserForbidHintUserId((VisitorID::where('hash', $request->visitor_id_hash)->first())->id ?? '','visitor_id') && UserService::isShowMultiUserForbidHintUserId((CustomFingerPrint::where('hash', $request->cfp_hash)->first())->id ?? '','cfp_id') 
 				&& UserService::isShowMultiUserForbidHintUserId($request->ip(),'ip')
 			) {
                 \Session::put('is_remind_puppet', '1');
@@ -162,17 +163,38 @@ class RegisterController extends \App\Http\Controllers\BaseController
 
         event(new \Illuminate\Auth\Events\Registered($user = $this->create($request->all())));
 		$this->guard()->login($user);
-        if($request->cfp_hash){
+        if($request->cfp_hash && strlen($request->cfp_hash) == 50){
             $cfp = \App\Services\UserService::checkcfp($request->cfp_hash, $user->id);
-            $logUserLogin = LogUserLogin::create([
+            //新增登入紀錄
+            if($request->visitor_id_hash && strlen($request->visitor_id_hash) == 20){
+                $visitor = \App\Services\UserService::checkvisitorid($request->visitor_id_hash, $user->id);
+                // if($visitor){
+                    $logUserLogin = LogUserLogin::create([
+                        'user_id' => $user->id,
+                        'cfp_id' => $cfp->id,
+                        'visitor_id'=>$visitor->id,
+                        'userAgent' => $_SERVER['HTTP_USER_AGENT'],
+                        'ip' => $request->ip(),
+                        'created_date' =>  date('Y-m-d'),
+                        'created_at' =>  date('Y-m-d H:i:s')]
+                    );
+                // }else{
+                //     throw new \Exception("Visitor ID is not correspond");
+                // }
+            }
+            else{
+                $logUserLogin = LogUserLogin::create([
                     'user_id' => $user->id,
                     'cfp_id' => $cfp->id,
                     'userAgent' => $_SERVER['HTTP_USER_AGENT'],
                     'ip' => $request->ip(),
                     'created_date' =>  date('Y-m-d'),
                     'created_at' =>  date('Y-m-d H:i:s')]
-            );
-        }else{
+                );
+            }
+        }
+        else{
+            logger("CFP debug data: " . $request->debug);
             $logUserLogin = LogUserLogin::create([
                     'user_id' => $user->id,
                     'userAgent' => $_SERVER['HTTP_USER_AGENT'],

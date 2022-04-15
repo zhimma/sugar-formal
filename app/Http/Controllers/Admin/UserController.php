@@ -66,6 +66,7 @@ use App\Models\ValueAddedService;
 use App\Services\ImagesCompareService;
 use App\Models\SimilarImages;
 use App\Models\CheckPointUser;
+use App\Models\Order;
 
 class UserController extends \App\Http\Controllers\BaseController
 {
@@ -268,7 +269,8 @@ class UserController extends \App\Http\Controllers\BaseController
         // $user = \View::shared('user');   這句是錯，這句是抓當下登入的人，也就是你
         $user = User::find($request->user_id);        
         $isHidden = $user->valueAddedServiceStatus('hideOnline');
-        if ($isHidden == 1) {
+        if ($isHidden == 1) 
+        {
             //關閉隱藏權限
             $sethideOnline = 0;
             $user = ValueAddedService::select('member_id', 'active')
@@ -279,12 +281,16 @@ class UserController extends \App\Http\Controllers\BaseController
                     'business_id' => '',
                     'order_id' => ''
                 ));
+            User::where('id', $request->user_id)->update(['is_hide_online' => 0]);
             
-        } else {
+        } 
+        else 
+        {
             //提供隱藏權限
             $sethideOnline = 1;
             $tmpsql = ValueAddedService::select('expiry')->where('member_id', $request->user_id)->get()->first();
-            if (isset($tmpsql)) {
+            if (isset($tmpsql)) 
+            {
                 $user = ValueAddedService::select('member_id', 'active')
                     ->where('member_id', $request->user_id)
                     ->update(array(
@@ -294,16 +300,22 @@ class UserController extends \App\Http\Controllers\BaseController
                         'expiry' => '0000-00-00 00:00:00'
                         //'free' => 0
                     ));
-            } else {
+            } 
+            else 
+            {
                 //從來都沒隱藏資料的
-                $hideOnline_user = new hideOnlineData;
-                $hideOnline_user->member_id = $request->user_id;
-                $hideOnline_user->active = $sethideOnline;
-                $hideOnline_user->created_at = Carbon::now()->toDateTimeString();
-                $hideOnline_user->save();
+                $ValueAddedService = new ValueAddedService;
+                $ValueAddedService->member_id = $request->user_id;
+                $ValueAddedService->service_name = 'hideOnline';
+                $ValueAddedService->active = $sethideOnline;
+                $ValueAddedService->business_id = 'BackendFree';
+                $ValueAddedService->order_id = 'BackendFree';
+                $ValueAddedService->expiry = '0000-00-00 00:00:00';
+                $ValueAddedService->save();
             }
-
-
+            ValueAddedService::addHideOnlineData($request->user_id);
+            $checkHideOnlineData = hideOnlineData::where('user_id',$request->user_id)->where('deleted_at', null)->get()->first();
+            User::where('id', $request->user_id)->update(['is_hide_online' => 1, 'hide_online_time' => $checkHideOnlineData->login_time]);
         }
         // return view('admin.users.advInfo')
         // ->with('isHidden',$isHidden);
@@ -949,8 +961,12 @@ class UserController extends \App\Http\Controllers\BaseController
                 ->with('user', $user)
                 ->with('userMeta', $userMeta)
                 ->with('last_images_compare_encode',ImagesCompareEncode::orderByDesc('id')->firstOrNew());
-        }        
-        
+        }
+        if($block=='userAdvInfo') {
+            $userAdvInfo=\App\Models\User::userAdvInfo($user->id);
+            return view('admin.users.advInfo_UserAdvInfo')
+                ->with('userAdvInfo', $userAdvInfo);
+        }
         $userMessage = Message::where('from_id', $id)->orderBy('created_at', 'desc')->paginate(config('social.admin.showMessageCount'));
         if(!empty($request->get('page'))){
             //新增Admin操作log
@@ -982,7 +998,8 @@ class UserController extends \App\Http\Controllers\BaseController
             ->groupBy(DB::raw("ref_user_id"))
             ->orderByRaw("IF(ref_user_id=1049, 1, 0)  desc")
             ->orderBy('message.created_at','DESC')
-            ->paginate(20);
+            ->paginate(1000)
+            ;
 
         foreach ($userMessage_log as $key => $value) {
             $userMessage_log[$key]['items'] = Message::withTrashed()->select('message.*','message.id as mid','message.created_at as m_time','u.*','b.id as banned_id','b.expire_date as banned_expire_date')
@@ -993,7 +1010,8 @@ class UserController extends \App\Http\Controllers\BaseController
                 ->orWhere([['message.from_id', $id],['message.to_id', $value->ref_user_id]])
                 ->where('message.created_at','>=', \Carbon\Carbon::parse("180 days ago")->toDateTimeString())
                 ->orderBy('message.created_at')
-                ->take(20)->get();
+                ->take(1000)
+                ->get();
         }
 
         // 給予、取消優選
@@ -1436,6 +1454,9 @@ class UserController extends \App\Http\Controllers\BaseController
 
         //討論區狀態
         $posts_forum = Forum::where('user_id', $user->id)->first();
+        
+        //隱藏付費訂單Log
+        $hideonline_order = Order::where('user_id', $user->id)->where('service_name', 'hideOnline')->orderBy('order_date','desc')->get();
 
         if (str_contains(url()->current(), 'edit')) {
             $birthday = date('Y-m-d', strtotime($userMeta->birthdate));
@@ -1478,7 +1499,8 @@ class UserController extends \App\Http\Controllers\BaseController
                 ->with('userAgent',$userAgent)
 				->with('banned_advance_auth_status', $banned_advance_auth_status)
                 ->with('last_images_compare_encode',ImagesCompareEncode::orderByDesc('id')->firstOrNew())
-                ->with('posts_forum', $posts_forum);
+                ->with('posts_forum', $posts_forum)
+                ->with('hideonline_order', $hideonline_order);
         }
     }
 
@@ -4506,7 +4528,7 @@ class UserController extends \App\Http\Controllers\BaseController
         }
 
 
-        $postsList = $postsList->get();
+        $postsList = $postsList->withTrashed()->get();
 
         $page = $request->get('page',1);
         $perPage = 20;
