@@ -33,6 +33,8 @@ use Carbon\Carbon;
 use Illuminate\Http\Request;
 use App\Services\UserService;
 use App\Services\VipLogService;
+use App\Services\FaqUserService;
+use App\Services\FaqService;
 use App\Models\Fingerprint;
 use App\Models\Visited;
 use App\Models\Board;
@@ -6772,7 +6774,15 @@ class PagesController extends BaseController
             $showNewSugarForbidMsgNotify = true;
         }
         */
-
+        $faqUserService = new FaqUserService($this->service->riseByUserEntry($user),new FaqService);
+        $faqPopupQuestionList = $faqUserService->getPopupQuestionList();
+        $faqReplyedRecord = $faqUserService->getReplyedRecord();
+        $faqCountDownStartTime = $faqUserService->getCountDownStartTime();
+        $faqCountDownTime = $faqUserService->getCountDownTime();
+        $faqCountDownSeconds = $faqUserService->getCountDownSeconds();
+        $isFaqDuringCountDown = $faqUserService->isDuringCountDown();
+        $isForceShowFaqPopup = $faqUserService->isForceShowFaqPopup();
+        
         if (isset($user)) {
             $data = array(
                 'vipStatus' => $vipStatus,
@@ -6793,6 +6803,14 @@ class PagesController extends BaseController
                 'showLineNotifyPop'=>$showLineNotifyPop,
                 'announcePopUp'=>$announcePopUp,
                 //'showNewSugarForbidMsgNotify'=>$showNewSugarForbidMsgNotify,
+                'faqPopupQuestionList'=>$faqPopupQuestionList,
+                'faqUserService'=>$faqUserService,
+                'faqReplyedRecord'=>$faqReplyedRecord,
+                'faqCountDownStartTime'=>$faqCountDownStartTime,
+                'isFaqDuringCountDown'=>$isFaqDuringCountDown,
+                'isForceShowFaqPopup'=>$isForceShowFaqPopup,
+                'faqCountDownTime'=>$faqCountDownTime,
+                'faqCountDownSeconds'=>$faqCountDownSeconds
             );
             $allMessage = \App\Models\Message::allMessage($user->id);
             $forum = Forum::withTrashed()->where('user_id',$user->id)->orderby('id','desc')->first();
@@ -8031,6 +8049,17 @@ class PagesController extends BaseController
         return response()->json(['msg' => 'error']);
 
     }
+    
+    public function checkFaqAnswer(Request $request,FaqUserService $fuService) {        
+
+        $fuService->riseByUserService(
+                                $this->service->riseByUserEntry(
+                                    auth()->user()
+                                )
+                            );
+        return response()->json($fuService->checkAnswer($request));
+
+    }    
 }
 
 

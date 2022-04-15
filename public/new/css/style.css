@@ -4747,3 +4747,30 @@ margin-bottom: 15px; margin-top:20px;background-position:right center;background
 .n_gd{width:5px; height: 100%; position: absolute; background: #fff; top: 0; right: 0; border-radius: 100px;}
 .n_gd_t{width: 100%; height: 50%; background: #8a9fef;border-radius: 100px;}
 
+.dati{background:url(../images/cc_01.png) no-repeat #fefefe bottom;background-size: 100%;border:none; border-radius: 10px; padding:20px 10px;}
+.dati_tit{ margin: 0 auto;font-size:30px; color: #fd4f77; text-align: center; border-bottom: #fd4f77 3px solid; display: table; font-weight: bold;}
+.dati_text{width:95%; margin: 0 auto; border-bottom: #333 1px dashed; border-top: #333 1px dashed; padding:8px 0; margin-top: 20px;}
+.dati_text img{ height: 20px; margin-right: 5px;}
+.dati_font{width:95%; margin: 0 auto; display: table; margin-top: 10px;}
+.dati_font h2{ font-size: 16px; font-weight: bold; margin-bottom: 15px; text-align: left;}
+
+.dati_font h3{ font-size: 14px;background: rgba(255,117,145,0.4);width: 100%; display: table; padding:10px 10px; border-radius: 10px; color: #fff; margin-bottom: 10px; text-align: left;}
+.dati_font_span{width: calc(100% - 40px); float: left;}
+.dati_hover{ background:url(../images/cc_06.png) #ff7591 no-repeat right !important ;background-size:30px;}
+
+.gub_cld{position: absolute; right: 10px; top: 10px; cursor: pointer; background: #fff; border-radius: 100px;width:30px; height: 30px; box-shadow:0 5px 10px rgba(255,117,145,0.7);}
+.gub_cld img{ height:20px; margin: 0 auto; display: table; margin-top: 5px;}
+
+
+.gub_table{width: 50%; margin: 0 auto; display: table; height: 40px; position: relative; margin-top:10px;}
+
+.gudont{ height: auto;width: 100%; position: relative;}
+.ga_d{width: 5px; height:100%; background:rgba(255,168,186,0.3); position: absolute; right: 0; top: 0; border-radius: 100px;}
+.ga_d span{width: 100%; height: 50%;background:rgba(253,79,119,0.3); display: table;border-radius: 100px;}
+
+
+.ga_tit{ margin-top: 10px;}
+.ga_ti_ft{ line-height: 22px; padding:5px 10px;}
+.ga_i{ width: calc(100% - 15px); float: right; font-style: normal;}
+.gabb_i{ width: calc(100% - 20px); float: right; font-style: normal; line-height: 25px;}
+.ga_w100{width: 100%;}

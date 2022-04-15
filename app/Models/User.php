@@ -12,6 +12,8 @@ use App\Models\UserMeta;
 use App\Models\MemberPic;
 use App\Models\SimpleTables\banned_users;
 use App\Models\SimpleTables\warned_users;
+use App\Models\FaqUserGroup;
+use App\Models\FaqUserReply;
 use App\Notifications\ResetPassword;
 use Illuminate\Notifications\Notifiable;
 use Illuminate\Foundation\Auth\User as Authenticatable;
@@ -268,6 +270,15 @@ class User extends Authenticatable
     public function tip() {
         return $this->hasMany(Tip::class, 'member_id', 'id');
     }
+    
+    //faq
+    public function faq_user_group() {
+        return $this->hasMany(FaqUserGroup::class);
+    }
+    
+    public function faq_user_reply() {
+        return $this->hasMany(FaqUserReply::class);
+    }         
 
     /**
      * Check if user has role
