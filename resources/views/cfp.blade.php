@@ -30,6 +30,34 @@ header("Access-Control-Allow-Origin: *");
     }
 
     parent.postMessage(cfp_hash, '*');
+
+    /* fingerprintJS (visitorID) */
+    // let visitorIDLocal = window.localStorage.getItem('visitorID');
+    // let visitorID_hash = null;
+    // if(!visitorIDLocal){
+    //     const fpPromise = import('https://fpcdn.io/v3/fNibEASAcoUCkR3kDSsd')
+    //         .then(FingerprintJS => FingerprintJS.load())
+
+    //     // Get the visitor identifier when you need it.
+    //     fpPromise
+    //         .then(fp => fp.get())
+    //         .then(result => {
+    //             // This is the visitor identifier:
+    //             const visitorId = result.visitorId
+    //             const visitorID = { hash: visitorId };
+    //             visitorID_hash = visitorID.hash;
+    //             {{-- 若無 visitorID，則建立 visitorID --}}
+    //             window.localStorage.setItem('visitorID', JSON.stringify(visitorID));
+    //             visitorIDLocal = window.localStorage.getItem('visitorID');
+    //         })
+    // }
+    // else{
+    //     {{-- 若有 CFP，則記錄 CFP --}}
+    //     visitorIDLocal = JSON.parse(visitorIDLocal);
+    //     visitorID_hash = visitorIDLocal.hash;
+    // }
+
+    // parent.postMessage(visitorID_hash, '*');
 </script>
 </body>
 </html>
