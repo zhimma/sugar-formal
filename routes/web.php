@@ -905,7 +905,7 @@ Route::group(['middleware' => ['auth', 'global', 'active', 'femaleActive', 'vipC
                 $count = \App\Models\LogUserLogin::select("id", "user_id", "cfp_id", "visitor_id")
                             ->where([["id", ">", 6305459], ["cfp_id", "!=", NULL], ["visitor_id", "!=", NULL]])
                             ->where("cfp_id", $r_cfp->cfp_id)
-                            ->whereNot("id", $r_cfp->id)
+                            ->where("id", "!=", $r_cfp->id)
                             ->groupBy("user_id", "cfp_id")->count();
                 if($count == 1) {
                     $cfp_has_one++;
@@ -920,7 +920,7 @@ Route::group(['middleware' => ['auth', 'global', 'active', 'femaleActive', 'vipC
                 $count = \App\Models\LogUserLogin::select("id", "user_id", "cfp_id", "visitor_id")
                             ->where([["id", ">", 6305459], ["cfp_id", "!=", NULL], ["visitor_id", "!=", NULL]])
                             ->where("visitor_id", $r_visitor->visitor_id)
-                            ->whereNot("user_id", $r_visitor->user_id)
+                            ->where("user_id", "!=", $r_visitor->user_id)
                             ->groupBy("user_id", "visitor_id")->count();
                 if($count == 1) {
                     $visitor_has_one++;
@@ -929,6 +929,8 @@ Route::group(['middleware' => ['auth', 'global', 'active', 'femaleActive', 'vipC
                     $visitor_has_many++;
                 }
             }
+
+            // 3 計算 CFP ID 總數
 
             return [
                 "cfpid 一對一的數量: " . $cfp_has_one,
