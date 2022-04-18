@@ -862,12 +862,13 @@ Route::group(['middleware' => ['auth', 'global', 'active', 'femaleActive', 'vipC
         Route::post("sendFakeMail", 'Api\MailController@sendFakeMail')->name('sendFakeMail');
 
         Route::get("jsfp_pro_validation", function() {
-            $results_cfp = \App\Models\LogUserLogin::select("user_id", "cfp_id", "visitor_id")
-                        ->where(["id", ">", 6305459], ["cfp_id", "IS NOT", NULL], ["visitor_id", "IS NOT", NULL])
+            ini_set("max_execution_time",'0');
+            $results_cfp = \App\Models\LogUserLogin::select("id", "user_id", "cfp_id", "visitor_id")
+                        ->where([["id", ">", 6305459], ["cfp_id", "!=", NULL], ["visitor_id", "!=", NULL]])
                         ->groupBy("user_id", "cfp_id")
                         ->get();
-            $results_visitor = \App\Models\LogUserLogin::select("user_id", "cfp_id", "visitor_id")
-                        ->where(["id", ">", 6305459], ["cfp_id", "IS NOT", NULL], ["visitor_id", "IS NOT", NULL])
+            $results_visitor = \App\Models\LogUserLogin::select("id", "user_id", "cfp_id", "visitor_id")
+                        ->where([["id", ">", 6305459], ["cfp_id", "!=", NULL], ["visitor_id", "!=", NULL]])
                         ->groupBy("user_id", "visitor_id")
                         ->get();
             $cfp_has_one = 0;
@@ -877,7 +878,11 @@ Route::group(['middleware' => ['auth', 'global', 'active', 'femaleActive', 'vipC
             // 1-1 計算 cfpid 一對一的數量
             // 1-2 計算 cfpid 一對多的數量
             foreach ($results_cfp as $r_cfp) {
-                $count = $results_cfp->where("cfp_id", $r_cfp->cfp_id)->count();
+                $count = \App\Models\LogUserLogin::select("id", "user_id", "cfp_id", "visitor_id")
+                            ->where([["id", ">", 6305459], ["cfp_id", "!=", NULL], ["visitor_id", "!=", NULL]])
+                            ->where("cfp_id", $r_cfp->cfp_id)
+                            ->whereNot("id", $r_cfp->id)
+                            ->groupBy("user_id", "cfp_id")->count();
                 if($count == 1) {
                     $cfp_has_one++;
                 }
@@ -888,7 +893,11 @@ Route::group(['middleware' => ['auth', 'global', 'active', 'femaleActive', 'vipC
             // 2-1 計算 custom id 一對一的數量
             // 2-2 計算 custom id 一對多的數量
             foreach ($results_visitor as $r_visitor) {
-                $count = $results_visitor->where("visitor_id", $r_visitor->visitor_id)->count();
+                $count = \App\Models\LogUserLogin::select("id", "user_id", "cfp_id", "visitor_id")
+                            ->where([["id", ">", 6305459], ["cfp_id", "!=", NULL], ["visitor_id", "!=", NULL]])
+                            ->where("visitor_id", $r_visitor->visitor_id)
+                            ->whereNot("user_id", $r_visitor->user_id)
+                            ->groupBy("user_id", "visitor_id")->count();
                 if($count == 1) {
                     $visitor_has_one++;
                 }
