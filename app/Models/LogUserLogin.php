@@ -30,6 +30,10 @@ class LogUserLogin extends Model
         return $this->belongsTo(User::class, 'user_id', 'id');
     }
 
+	public function visitor(){
+		return $this->belongsTo(Visitor::class, 'visitor_id', 'id');
+	}
+
 	public function cfp(){
         return $this->hasMany(CustomFingerPrint::class, 'id', 'cfp_id');
     }

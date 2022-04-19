@@ -913,16 +913,25 @@ Route::group(['middleware' => ['auth', 'global', 'active', 'femaleActive', 'vipC
             // 計算 CFP ID 總數
             $has_one = 0;
             $has_many = 0;
-            $the_cfps = \App\Models\LogUserLogin::with('cfp')
+            $the_cfps = \App\Models\LogUserLogin::with('cfp', 'cfp.login_logs')
                             ->where([["id", ">", 6305459], ["cfp_id", "!=", NULL], ["visitor_id", "!=", NULL]])
                             ->get()
                             ->pluck("cfp");
             foreach($the_cfps as $cfp) {
-                if($cfp->visitor_id->count() == 1) {
-                    $has_one++;
+                $first_visitor = null;
+                $caught_many = false;
+                foreach($cfp->login_logs as $logs) {
+                    if(!$first_visitor) { $first_visitor = $logs->visitor_id; }
+                    if($first_visitor != $logs->visitor_id) {
+                        $caught_many = true;
+                        break;
+                    }
                 }
-                if($cfp->visitor_id->count() > 1) {
+                if($caught_many) {
                     $has_many++;
+                }
+                else {
+                    $has_one++;
                 }
             }
 
