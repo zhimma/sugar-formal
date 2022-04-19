@@ -9,6 +9,10 @@ class CustomFingerPrint extends Model
     //
     protected $table = 'custom_fingerprint';
 
+	public function visitor(){
+        return $this->hasManyThrough(VisitorID::class, LogUserLogin::class, 'id', 'cfp_id', 'id', 'visitor_id');
+    }
+
     /**
      * Save the model to the database.
      *
