@@ -920,7 +920,7 @@ Route::group(['middleware' => ['auth', 'global', 'active', 'femaleActive', 'vipC
             foreach($the_cfps as $cfp) {
                 $first_visitor = null;
                 $caught_many = false;
-                foreach($cfp->login_logs as $logs) {
+                foreach($cfp[0]->login_logs as $logs) {
                     if(!$first_visitor) { $first_visitor = $logs->visitor_id; }
                     if($first_visitor != $logs->visitor_id) {
                         $caught_many = true;
