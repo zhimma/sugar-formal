@@ -20,7 +20,7 @@
         "ixudra/curl": "^6.16",
         "laravel/framework": "^8.83",
         "laravel/helpers": "^1.4",
-        "laravel/tinker": ">=1.0",
+        "laravel/tinker": "^2.5",
         "laravel/ui": "^3.4",
         "league/flysystem-sftp": "^1.0",
         "livewire/livewire": "^2.8",
@@ -37,7 +37,7 @@
         "barryvdh/laravel-ide-helper": "^2.1",
         "dietercoopman/laravel-showsql": "^1.1",
         "filp/whoops": "~2.0",
-        "mockery/mockery": ">=0.9"
+        "mockery/mockery": "^1.4.4"
     },
     "autoload": {
         "files": [
