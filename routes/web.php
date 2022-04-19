@@ -863,81 +863,42 @@ Route::group(['middleware' => ['auth', 'global', 'active', 'femaleActive', 'vipC
 
         Route::get("jsfp_pro_validation", function() {
             ini_set("max_execution_time",'0');
-            // $results_cfp = \App\Models\LogUserLogin::select("id", "user_id", "cfp_id", "visitor_id")
-            //             ->where([["id", ">", 6305459], ["cfp_id", "!=", NULL], ["visitor_id", "!=", NULL]])
-            //             ->groupBy("user_id", "cfp_id")
-            //             ->get();
-            // $results_visitor = \App\Models\LogUserLogin::select("id", "user_id", "cfp_id", "visitor_id")
-            //             ->where([["id", ">", 6305459], ["cfp_id", "!=", NULL], ["visitor_id", "!=", NULL]])
-            //             ->groupBy("user_id", "visitor_id")
-            //             ->get();
-            // $cfp_has_one = 0;
-            // $cfp_has_many = 0;
-            // $visitor_has_one = 0;
-            // $visitor_has_many = 0;
-            // 1-1 計算 cfpid 一對一的數量
-            // 1-2 計算 cfpid 一對多的數量
-            // foreach ($results_cfp as $r_cfp) {
-            //     $count = \App\Models\LogUserLogin::select("id", "user_id", "cfp_id", "visitor_id")
-            //                 ->where([["id", ">", 6305459], ["cfp_id", "!=", NULL], ["visitor_id", "!=", NULL]])
-            //                 ->where("cfp_id", $r_cfp->cfp_id)
-            //                 ->where("id", "!=", $r_cfp->id)
-            //                 ->groupBy("user_id", "cfp_id")->count();
-            //     if($count == 1) {
-            //         $cfp_has_one++;
-            //     }
-            //     if($count > 1) {
-            //         $cfp_has_many++;
-            //     }
-            // }
-            // 2-1 計算 custom id 一對一的數量
-            // 2-2 計算 custom id 一對多的數量
-            // foreach ($results_visitor as $r_visitor) {
-            //     $count = \App\Models\LogUserLogin::select("id", "user_id", "cfp_id", "visitor_id")
-            //                 ->where([["id", ">", 6305459], ["cfp_id", "!=", NULL], ["visitor_id", "!=", NULL]])
-            //                 ->where("visitor_id", $r_visitor->visitor_id)
-            //                 ->where("user_id", "!=", $r_visitor->user_id)
-            //                 ->groupBy("user_id", "visitor_id")->count();
-            //     if($count == 1) {
-            //         $visitor_has_one++;
-            //     }
-            //     if($count > 1) {
-            //         $visitor_has_many++;
-            //     }
-            // }
-
-            // 3 計算 CFP ID 總數
-
-
             // 計算 CFP 和 Visitor 的對應關係：一對一及一對多
             // 計算 CFP ID 總數
-            $has_one = 0;
-            $has_many = 0;
-            $the_cfps = \App\Models\LogUserLogin::with('cfp', 'cfp.login_logs')
-                            ->where([["id", ">", 6305459], ["cfp_id", "!=", NULL], ["visitor_id", "!=", NULL]])
-                            ->get()
-                            ->pluck("cfp");
-            foreach($the_cfps as $cfp) {
-                $first_visitor = null;
-                $caught_many = false;
-                foreach($cfp[0]->login_logs as $logs) {
-                    if(!$first_visitor) { $first_visitor = $logs->visitor_id; }
-                    if($first_visitor != $logs->visitor_id) {
-                        $caught_many = true;
-                        break;
+            $cfp_has_one = 0;
+            $cfp_has_many = 0;
+            $cfp_user_has_one = 0;
+            $cfp_user_has_many = 0;
+            $base = \App\Models\LogUserLogin::with('cfp', 'cfp.login_logs')
+                        ->where([["id", ">", 6305459], ["cfp_id", "!=", NULL], ["visitor_id", "!=", NULL]]);
+            $the_cfps = clone $base->groupBy("cfp_id")->get()->pluck("cfp");
+            $the_cfp_users = clone $base->groupBy("cfp_id", "user_id")->get()->pluck("cfp");
+            foreach(["cfp" => $the_cfps, "cfp_user" => $the_cfp_users] as $type => $data_sets) { 
+                foreach($data_sets as $data_set) {
+                    $first_visitor = null;
+                    $caught_many = false;
+                    foreach($data_set[0]->login_logs as $logs) {
+                        if(!$first_visitor) { $first_visitor = $logs->visitor_id; }
+                        if($first_visitor != $logs->visitor_id) {
+                            $caught_many = true;
+                            break;
+                        }
                     }
-                }
-                if($caught_many) {
-                    $has_many++;
-                }
-                else {
-                    $has_one++;
+                    if($caught_many) {
+                        ${$type . "_has_many"}++;
+                    }
+                    else {
+                        ${$type . "_has_one"}++;
+                    }
                 }
             }
 
             return [
-                "cfpid <-> custom id 一對一的數量: " . $has_one,
-                "cfpid <-> custom id 一對多的數量: " . $has_many
+                "cfpid 總數: " . $the_cfps->count(),
+                "cfpid <-> custom id 一對一的數量: " . $cfp_has_one,
+                "cfpid <-> custom id 一對多的數量: " . $cfp_has_many,
+                "cfpid_userid <-> custom id 一對一的數量: " . $cfp_user_has_one,
+                "cfpid_userid <-> custom id 一對多的數量: " . $cfp_user_has_many,
             ];
         });
     });
