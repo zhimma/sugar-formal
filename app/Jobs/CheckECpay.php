@@ -69,6 +69,8 @@ class CheckECpay implements ShouldQueue
                     //單次付費
                     $ecpay->ServiceURL = Config::get('ecpay.payment'.$envStr.'.OrderQueryURL');//訂單查詢
                     $paymentQueryData = $ecpay->QueryTradeInfo();
+                    $ecpay->ServiceURL = Config::get('ecpay.payment'.$envStr.'.ServiceURL');//定期定額查詢
+                    $paymentData = $ecpay->QueryPeriodCreditCardTradeInfo();
                     // 此函式會產生錯誤，經檢查應為無用函式
                 }else {
                     //信用卡定期定額
@@ -85,33 +87,46 @@ class CheckECpay implements ShouldQueue
             $now = \Carbon\Carbon::now();
 
             if(substr($this->vipData->payment,0,4) == 'one_'){
-                //保留用
                 //單次付款檢查
-                //有賦予VIP者再檢查
-                if($this->userIsVip) {
                     if (str_contains($paymentQueryData['PaymentType'], 'CVS') ||
                         str_contains($paymentQueryData['PaymentType'], 'ATM') ||
                         str_contains($paymentQueryData['PaymentType'], 'BARCODE')) {
 
-                        //未完成交易時檢查
-                        if ($paymentData['RtnCode'] != 1) {
-                            //check取號資料表
-                            $checkData = PaymentGetQrcodeLog::where('order_id', $this->vipData->order_id)->first();
-                            if(isset($checkData)){
-                                if($now > $checkData->ExpireDate){
-                                    //超過期限未完成交易
-                                    //取消VIP
-                                    $user = User::findById($this->vipData->member_id);
-                                    $vipData = $user->getVipData(true);
-                                    if($vipData){
-                                        $vipData->removeVIP();
+                        if($this->userIsVip) {
+                            //有賦予VIP者再檢查
+                            //未完成交易時檢查
+                            if ($paymentData['RtnCode'] != 10200047 && $paymentQueryData['TradeStatus'] != 1) {
+                                //check取號資料表
+                                $checkData = PaymentGetQrcodeLog::where('order_id', $this->vipData->order_id)->first();
+                                if(isset($checkData)){
+                                    if($now > $checkData->ExpireDate){
+                                        //超過期限未完成交易
+                                        //取消VIP
+                                        $user = User::findById($this->vipData->member_id);
+                                        $vipData = $user->getVipData(true);
+                                        if($vipData){
+                                            $vipData->removeVIP();
+                                        }
+                                        \App\Models\VipLog::addToLog($user->id, 'order_id: '.$this->vipData->order_id.'; 期限內('.$checkData->ExpireDate.')未完成付款：' . $paymentQueryData['PaymentType'], '自動取消', 0, 0);
                                     }
-                                    \App\Models\VipLog::addToLog($user->id, 'order_id: '.$this->vipData->order_id.'; 期限內('.$checkData->ExpireDate.')未完成付款：' . $paymentQueryData['PaymentType'], '自動取消', 0, 0);
                                 }
+                            }
+
+                        }else{
+                            if ($paymentData['RtnCode'] == 10200047 && $paymentQueryData['TradeStatus'] == 1) {
+
+                                $getOrderDate = Order::where('order_id', $this->vipData->order_id)->first();
+                                if(isset($getOrderDate)) {
+                                    \App\Models\Vip::select('member_id', 'active')
+                                        ->where('member_id', $this->vipData->member_id)
+                                        ->update(array('active' => 1, 'expiry' => $getOrderDate->order_expire_date));
+                                    \App\Models\VipLog::addToLog($user->id, 'order_id: ' . $this->vipData->order_id . '; 繳款檢查正常回復VIP：' . $paymentQueryData['PaymentType'], '自動回復', 0, 0);
+                                }
+
                             }
                         }
                     }
-                }
+
 
             }else { //定期定額流程
                 try{
