@@ -65,9 +65,17 @@ class Vip extends Model
     public static function upgrade($member_id, $business_id, $order_id, $amount, $txn_id, $active, $free, $payment = null, $transactionType = null, $remain_days=0)
     {
         $vipData = Vip::findByIdWithDateDesc($member_id);
+        $logStrQrcode = '';
 
         if(!isset($vipData)){
 
+            if(str_contains($transactionType, 'CVS') || str_contains($transactionType, 'ATM') || str_contains($transactionType, 'BARCODE')) {
+                //check取號資料表
+                $checkData = PaymentGetQrcodeLog::where('order_id', $order_id)->first();
+                if(isset($checkData)){
+                    $logStrQrcode = '(預先給予權限)';
+                }
+            }
             //新建資料從當前計算
             if($payment=='one_quarter_payment'){
                 $expiry = Carbon::now()->addMonthsNoOverflow(3);
@@ -98,18 +106,35 @@ class Vip extends Model
         }
         else{
 
-            //舊資料更新 從原expiry計算
-            if($payment=='one_quarter_payment'){
-                if($vipData->expiry < Carbon::now()) {
-                    $expiry = Carbon::now()->addMonthsNoOverflow(3);
-                }else{
-                    $expiry = Carbon::createFromFormat('Y-m-d H:i:s', $vipData->expiry)->addMonthsNoOverflow(3);
+            if(str_contains($transactionType, 'CVS') || str_contains($transactionType, 'ATM') || str_contains($transactionType, 'BARCODE')){
+                //check取號資料表
+                $checkData = PaymentGetQrcodeLog::where('order_id', $order_id)->first();
+                $checkDataByUser = PaymentGetQrcodeLog::where('member_id', $member_id)->first();
+                if(isset($checkData) && ($vipData->updated_at > $checkData->TradeDate && $vipData->updated_at < $checkData->ExpireDate) && $vipData->active==1 && $vipData->order_id == $order_id){
+                    //自動流程判斷
+                    //暫時性發放VIP者到期日不變更
+                    $expiry = $vipData->expiry;
+                    $logStrQrcode = '(期限內完成付款升級)';
+                }elseif(isset($checkDataByUser) && ($vipData->updated_at > $checkData->TradeDate && $vipData->updated_at < $checkData->ExpireDate) && $vipData->active==1){
+                    //手動給VIP時的判斷 ATM除外
+                    //原先只手動到期日者可能會抓不到
+                    $expiry = $vipData->expiry;
+                    $logStrQrcode = '(期限內完成付款升級/原手動升級者)';
                 }
-            }else if($payment=='one_month_payment'){
-                if($vipData->expiry < Carbon::now()) {
-                    $expiry = Carbon::now()->addMonths(1);
-                }else{
-                    $expiry = Carbon::createFromFormat('Y-m-d H:i:s', $vipData->expiry)->addMonthsNoOverflow(1);
+            }elseif($vipData->order_id != $order_id) {
+                //舊資料更新 從原expiry計算
+                if ($payment == 'one_quarter_payment') {
+                    if ($vipData->expiry < Carbon::now()) {
+                        $expiry = Carbon::now()->addMonthsNoOverflow(3);
+                    } else {
+                        $expiry = Carbon::createFromFormat('Y-m-d H:i:s', $vipData->expiry)->addMonthsNoOverflow(3);
+                    }
+                } else if ($payment == 'one_month_payment') {
+                    if ($vipData->expiry < Carbon::now()) {
+                        $expiry = Carbon::now()->addMonths(1);
+                    } else {
+                        $expiry = Carbon::createFromFormat('Y-m-d H:i:s', $vipData->expiry)->addMonthsNoOverflow(1);
+                    }
                 }
             }
 
@@ -134,15 +159,15 @@ class Vip extends Model
 
         }
 
-        $admin = User::findByEmail(Config::get('social.admin.notice-email'));
+        //$admin = User::findByEmail(Config::get('social.admin.notice-email'));
         $logStr = 'upgrade, order id: ' . $order_id . ', payment: ' . $payment . ', amount: ' . $amount . ', transactionType: ' . $transactionType;
-        VipLog::addToLog($member_id, $logStr, $txn_id, 1, $free);
+        VipLog::addToLog($member_id, $logStr.$logStrQrcode, $txn_id, 1, $free);
 
-        $curUser = User::findById($member_id);
-        if ($curUser != null)
-        {
+//        $curUser = User::findById($member_id);
+//        if ($curUser != null)
+//        {
             //$admin->notify(new NewVipEmail($member_id, $business_id, $member_id));
-        }
+//        }
 
         //開啟討論區權限
         //ForumManage::open_forum_active($member_id);

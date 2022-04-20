@@ -1,6 +1,7 @@
 <?php
 namespace App\Http\Middleware;
 use App\Models\Order;
+use App\Models\PaymentGetQrcodeLog;
 use App\Models\SimpleTables\banned_users;
 use App\Models\SimpleTables\warned_users;
 use App\Models\Vip;
@@ -142,15 +143,39 @@ class ApiDataLogger{
                     return '0|Error';
                 }
 
-                //存入超商條碼取號紀錄
-                if(isset($payload['RtnCode']) && $payload['RtnCode'] == '10100073' && ($payload['PaymentType'] == 'BARCODE_BARCODE' || $payload['PaymentType'] == 'CVS_CVS')) {
+                //存入超商條碼取號紀錄 + ATM
+                if( isset($payload['RtnCode']) &&
+                    (
+                        ($payload['RtnCode'] == '10100073' && ($payload['PaymentType'] == 'BARCODE_BARCODE' || $payload['PaymentType'] == 'CVS_CVS')) ||
+                        ($payload['RtnCode'] == '2' && str_contains($payload['PaymentType'], 'ATM') )
+                    )
+                  ){
 
-                    DB::table('payment_get_barcode_log')->insert([
+                    PaymentGetQrcodeLog::insert([
                         'user_id' => $payload['CustomField1'],
                         'ExpireDate' => $payload['ExpireDate'],
                         'order_id' => $payload['MerchantTradeNo'],
                         'TradeDate' => $payload['TradeDate'],
+                        'payment_type' => $payload['PaymentType']
                         ]);
+
+                    //暫時自動發放VIP權限
+                    $transactionType='';
+                    if($payload['PaymentType'] == 'Credit_CreditCard')
+                        $transactionType='CREDIT'; //信用卡
+                    elseif(str_contains($payload['PaymentType'], 'ATM'))
+                        $transactionType='ATM'; //ATM
+                    elseif($payload['PaymentType'] == 'BARCODE_BARCODE')
+                        $transactionType='BARCODE'; //超商條碼
+                    elseif ($payload['PaymentType'] == 'CVS_CVS')
+                        $transactionType='CVS'; //超商代號
+                    else
+                        $transactionType=$payload['PaymentType']; //寫入回傳的PaymentType
+
+                    logger('Middleware ApiDataLogger=> userID:'.$user->id.', 種類:' .$payload['CustomField3'].', 付款方式:' .$transactionType. '(預先給予權限)');
+
+                    $remain_days = $payload['CustomField2'];
+                    Vip::upgrade($user->id, $payload['MerchantID'], $payload['MerchantTradeNo'], $payload['TradeAmt'], '', 1, 0,$payload['CustomField3'],$transactionType,$remain_days);
 
                 }
 
