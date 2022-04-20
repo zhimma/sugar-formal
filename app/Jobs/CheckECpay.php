@@ -92,6 +92,8 @@ class CheckECpay implements ShouldQueue
                         str_contains($paymentQueryData['PaymentType'], 'ATM') ||
                         str_contains($paymentQueryData['PaymentType'], 'BARCODE')) {
 
+                        $user = User::findById($this->vipData->member_id);
+                        
                         if($this->userIsVip) {
                             //有賦予VIP者再檢查
                             //未完成交易時檢查
@@ -102,7 +104,6 @@ class CheckECpay implements ShouldQueue
                                     if($now > $checkData->ExpireDate){
                                         //超過期限未完成交易
                                         //取消VIP
-                                        $user = User::findById($this->vipData->member_id);
                                         $vipData = $user->getVipData(true);
                                         if($vipData){
                                             $vipData->removeVIP();
