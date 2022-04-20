@@ -27,6 +27,7 @@ return [
         'postValueAddServiceReturnURL' => "https://www.sugar-garden.org/dashboard/postValueAddedService",  //背景傳送加值服務付款結果的網址
         'postMobileVerifyReturnURL' => "https://www.sugar-garden.org/dashboard/postMobileVerifyPayEC",  //背景傳送手機驗證通過付款結果的網址
         'ClientMobileVerifyBackURL' => "https:///www.sugar-garden.org/member_auth", //返回商店的網址
+        'OrderQueryURL' => 'https://payment.ecpay.com.tw/Cashier/QueryTradeInfo/V5',
     ],
     'payment_test' => [
         'MerchantID' => "2000132",
@@ -45,5 +46,6 @@ return [
         'postValueAddServiceReturnURL' => "https://sg.test-tw.icu/dashboard/postValueAddedService",  //背景傳送加值服務付款結果的網址
         'postMobileVerifyReturnURL' => "https://sg.test-tw.icu/dashboard/postMobileVerifyPayEC",  //背景傳送手機驗證通過付款結果的網址
         'ClientMobileVerifyBackURL' => "https://sg.test-tw.icu/member_auth", //返回商店的網址
+        'OrderQueryURL' => 'https://payment-stage.ecpay.com.tw/Cashier/QueryTradeInfo/V5',
     ],
 ];
