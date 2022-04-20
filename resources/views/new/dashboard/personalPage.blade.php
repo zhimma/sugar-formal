@@ -519,7 +519,73 @@
         </div>
     </div>
     @php session()->put('alreadyPopUp_lineNotify', $user->line_notify_alert.'_Y') @endphp
+    
+    @if($isForceShowFaqPopup)
+    <div class="faq_announce_bg" id="faq_announce_bg" onclick="leave_faq_msg()"></div>
+    <div class="bl bl_tab" id="faq_msg_tab">
+        <div class="bltitle">提示</div>
+        <div class="n_blnr01 matop10">
+        <div class="blnr bltext">恭喜答對！</div>
+        <a class="n_bllbut matop30" onclick="leave_faq_msg()">確定</a>
+        </div>
+        <a id="" onclick="gmBtnNoReload()" class="bl_gb"><img src="/new/images/gb_icon.png"></a>
+    </div>    
+    <div class="faq_blbg"></div>
+    <div class="bl_tab dati" id="faq_tab" style=" display: block;">
+        <div class="dati_tit">常見問題</div>
+        <a id="" class="gub_cld"><img src="{{asset('new/images/cc_02.png')}}"></a>
+        <div id="faq_count_down_block">
+        <span></span>
+        秒後自動離開常見問題
+        </div>
+        <div class="dati_text"><img src="{{asset('new/images/cc_03.png')}}">
+        該部分共{{count($faqPopupQuestionList)}}題
 
+        </div>
+
+        <div class="gudont">
+            <div class="ga_d"><span>&nbsp;</span></div>
+            <div class="swiper-container">
+                <div class="swiper-wrapper">
+                    @foreach($faqPopupQuestionList as $question_entry)
+                    <div class="swiper-slide">
+
+                             <div class="dati_font">
+                                <h2>{{$question_entry->question??null}}{{$faqUserService->faq_service()->isCustomChoiceByQuEntry($question_entry)?'('.$question_entry->type.')':''}}</h2>
+                                <div>
+                                @if($faqUserService->isWrongReplyedQuByEntry($question_entry))
+                                    <p>
+                                        答錯了。答案是【{{$faqUserService->getAnsFillerByWrongReQuEntry($question_entry)}}】
+                                    </p>
+                                @else
+                                    <form>
+                                        @if($faqUserService->questionTypeToKey($question_entry->type)==2)
+                                        <div><input type="text" class="faq_replace_required_elt" required oninvalid="this.setCustomValidity('請選取選項')"  oninput="this.setCustomValidity('')"></div>
+                                        @endif
+                                        <input type="hidden" name="question_id" value="{{$question_entry->id}}" />                               
+                                        <ul class="dowebok answer_item">        
+                                         @include('new.dashboard.faq_question_tpl_'.$faqUserService->questionTypeToKey($question_entry->type))
+                                        </ul>
+                                    </form>
+                                    <img src="{{asset('new/owlcarousel/assets/ajax-loader.gif')}}" class="loading-in-slide" >
+                                @endif
+                                </div>
+                            </div>
+                         
+                     </div>
+                    @endforeach
+                </div>         
+            </div>
+             @if(count($faqPopupQuestionList)>1 || (count($faqPopupQuestionList)==1 && !$faqCountDownStartTime))
+             <div class="gub_table">
+                 <div class="swiper-button-next" ></div>
+                 <div class="swiper-button-prev"></div>
+                 <div class="swiper-pagination"></div>
+             </div>
+             @endif
+         </div>
+    </div>
+    @endif
 @stop
 
 @section('javascript')
@@ -890,5 +956,382 @@
 	});
 
 </script>
+@if($isForceShowFaqPopup) 
+<link rel="stylesheet" href="{{asset('new/css/jquery-labelauty.css')}}">
+<style>
+@media (max-width:823px){
+#faq_tab { width:60%; left: 20%;}
+}	
+@media (max-width:568px){
+#faq_tab { top:2%;}
+}
+@media (max-width:450px){
+#faq_tab { width:90%; left:5%; top:15%;}
+}
+</style>
+<style>
+.swiper-button-next, .swiper-button-prev{position: inherit;top: inherit;bottom: inherit; width:40px;height: 40px;background-size: 40px 40px;margin-top: 0;}
+.swiper-button-next, .swiper-container-rtl .swiper-button-prev {background-image: url({{asset('new/images/cc_04.png')}}); right: inherit;left: inherit; outline: none;float: right; cursor: pointer; display: table;}
+.swiper-button-prev, .swiper-container-rtl .swiper-button-next {background-image: url({{asset('new/images/cc_05.png')}}); right: inherit;left: inherit; outline: none;;right: auto;float: left; cursor: pointer;display: table;}
+.swiper-pagination { z-index: -7;}
+.swiper-pagination-current{color: #ff7591;}
+.swiper-container {width: 100%;height: auto;margin: 0 auto;}
+.swiper-slide {text-align: center;font-size: 18px;background:transparent;display: -webkit-box;display: -ms-flexbox;display: -webkit-flex;
+display: flex;-webkit-box-pack: center;-ms-flex-pack: center;-webkit-justify-content: center;justify-content: center;-webkit-box-align: center;
+-ms-flex-align: center;-webkit-align-items: center;align-items: center;}
+</style>
+  <style>
+    #faq_tab {z-index:20;}
+    #faq_tab *::-webkit-scrollbar {width: 0;height: 0;}
+    #faq_tab .swiper-button-next,#faq_tab .swiper-button-prev,#faq_tab .swiper-pagination {display:table-cell;} 
+    .faq_blbg,.faq_announce_bg {width:100% !important; height:100% !important;width: 100%;height: 100%;position: fixed;top: 0px;left: 0;background: rgba(0,0,0,0.5);z-index: 19;display:none;}
+    #faq_tab .dati_font div form {display:none;}
+    #faq_tab .dati_font > div > p {font-size:16px;}
+    #faq_count_down_block {display:none;text-align:right;margin-top:10px;}
+    #faq_tab .force_show {display:inline !important;}
+    .faq_replace_required_elt {width:0;height:0;position:relative;top:45px;color:transparent;border:0px transparent;background-color:transparent;}    
+    #faq_tab ul li input[type=radio]:focus, #faq_tab ul li input[type=radio]:focus-visible,.faq_replace_required_elt:focus,.faq_replace_required_elt:focus-visible {outline:none;}
+    #faq_announce_bg,#faq_msg_tab {z-index:19;display:none;}
+  </style>
+<script src="{{asset('new/js/swiper.min.js')}}"></script>
+<script src="{{asset('new/js/jquery-labelauty.js')}}"></script>
+<script src="{{asset('new/js/is_logout_respose.js')}}"></script>
+<script>
+    @if(!$faqCountDownStartTime)    
+        $('#faq_tab .swiper-wrapper .swiper-slide').last().after('<div class="swiper-slide"><div class="dati_font"><img src="{{asset('new/owlcarousel/assets/ajax-loader.gif')}}"></div></div>');
+    @elseif($isFaqDuringCountDown)     
+        faq_count_down({{$faqCountDownSeconds}});
+    @endif
+    if(get_faq_error_state()==1) {
+        wdt();
+    }  
+    else {
+        $('body').css("overflow", "hidden");
+        $(".faq_blbg").show();      
+        $(':input').labelauty();        
+    }
+    
+    faq_add_checking_flag($('#faq_tab .swiper-wrapper .swiper-slide').first());
+    
+    function show_active_slide_form() {
+        var faq_tab_elt = $('#faq_tab');
+        var now_slide_elt = faq_tab_elt.find('.swiper-container .swiper-slide-active');
+        var now_slide_form_elt = now_slide_elt.find('form');
+        if(now_slide_form_elt.length>0) {
+            now_slide_form_elt.show();
+
+            if(now_slide_form_elt.find(':disabled').length==0) faq_add_checking_flag(now_slide_elt);
+
+            now_slide_form_elt.next().hide();
+        }
+        
+    }
+    
+    function faq_prev_step() {
+        var now_slide = getFaqActiveSlide();
+        var now_slide_form = now_slide.find('form');
+        if(now_slide_form.length>0 ) {
+            now_slide_form.show().next().hide();
+        }
+    }
+    
+    function faq_next_step() {
+        @if($faqCountDownStartTime)
+            return ;
+        @endif
+        var nowBlock = getFaqActBlock();
+        var nowFormElt = nowBlock.find('form');
+        var nextBlock = nowBlock.next();
+        var nextFormElt = nextBlock.find('form');
+
+        if(!check_empty()) return;
+        
+        if(nowBlock.find(':disabled').length>0) {
+            faq_show_slide_form(nextFormElt);
+            return;
+        }        
+
+        if(nowFormElt.length==0 || nowFormElt.find(':disabled').length>0) {
+            if(nextBlock.length>0 ) {
+                
+                if(nextFormElt.length>0) {
+                    faq_add_checking_flag(nextBlock);
+                    faq_show_slide_form(nextFormElt);
+                }
+                    
+            }
+        }
+
+        if(!nowBlock.hasClass('checking')) return;
+
+        if(!nowFormElt.length) {
+            return;                    
+        }
+        
+        faq_hide_slide_form(nowFormElt);
+        swiper.slidePrev();
+        var fdata = new FormData();
+
+        $.each(nowFormElt.serializeArray(), function( index, value ) {
+            fdata.append(value.name, value.value);
+        });
+        fdata.append('_token', '{{ csrf_token() }}');
+
+        $.ajax({
+            type: 'POST',
+            url: '{{ route("checkFaqAnswer") }}',
+            data: fdata,
+            dataType:'json',
+            contentType: false, 
+            processData: false,            
+            success: function(data, status, xhr){
+
+                var error_msg = '';
+                if(data.error!=undefined || data.exception=='Error') {
+                    switch (data.error) {
+                        case 'no_question_id':
+                            error_msg = '未傳送任何題目資訊，無法處理';
+                        break;
+                        case 'not_user_question':
+                            error_msg = '此題目設定錯誤，無法處理';
+                        break;
+                        case 'no_answer_setting':
+                            error_msg = '此題目尚未設定正解，無法處理';
+                        break;
+                        default:
+                            error_msg = '出現無法處理的未知錯誤，';
+                        break;
+                            
+                    }    
+                    error_msg+='<br>點按網頁任一處可離開常見問題';
+                    save_faq_error_state();
+
+                     $(".faq_blbg").attr('onclick','wdt()');
+                     $("#faq_tab").attr('onclick','wdt()');                
+                }
+                else if(data.wrong!=undefined) {
+                    var answer = data.wrong;
+                    error_msg = '答錯了。答案是【'+answer+'】';
+                }
+                else if(data.text_wrong!=undefined) {
+                    var answer = data.text_wrong;
+                    error_msg = '答錯了。答案是【'+answer+'】';
+                }                
+                
+                if(error_msg!='') {
+                    showFaqReplyErrorMsg(error_msg,nowBlock);   
+                }
+                else if(data.success!=undefined && data.success==1) {
+                    nowFormElt.find('input,textarea').attr('disabled',true);
+                    faq_add_checking_flag(nextBlock);
+                    faq_remove_checking_flag(nowBlock);
+                    faq_show_slide_form(nextFormElt);
+                    faq_show_slide_form(nowFormElt);
+
+                    if((data.all_pass!=undefined && data.all_pass==1) 
+                        || (data.all_finished!=undefined && data.all_finished==1)) {
+                        show_faq_msg();
+                        wdt();
+                    }
+                    else swiper.slideNext();
+                }
+                
+                if(data.all_finished!=undefined && data.all_finished==1) {
+                    faq_remove_next_slide(nowBlock);
+                    faq_count_down({{$faqCountDownTime}});
+                    @if(count($faqPopupQuestionList)==1)
+                    $(swiper.navigation.nextEl).hide();
+                    $(swiper.navigation.prevEl).hide();
+                    $(swiper.pagination.el).hide();
+                    @endif                    
+                }
+                
+            },
+            error: function(xhr, status, error){
+                if(error=='Unauthorized') {
+                    wdt();
+                    $('.bl_tab,.evaluation_bg').hide();
+                    $('#tabPopM,#blbg').css('z-index',99);
+                    show_pop_message('您已登出或基於帳號安全由系統自動登出，請重新登入');
+                    return;                    
+                } 
+                else if(error=='Internal Server Error')
+                    error_msg = '系統出現錯誤，暫時無法處理常見問題';               
+                else
+                    error_msg = '系統出現問題，暫時無法處理常見問題'; 
+                
+                error_msg+='<br>點按網頁任一處可離開常見問題';
+                    
+                save_faq_error_state();
+                
+                showFaqReplyErrorMsg(error_msg,nowBlock);                
+
+                 $(".faq_blbg").attr('onclick','wdt()');
+                 $("#faq_tab").attr('onclick','wdt()');                
+            }
+        }); 
+        return false;
+    }
+    
+    function wdt() {
+		 $(".faq_blbg").hide();
+         $("#faq_tab").hide();
+         $('body').css("overflow", "auto");
+    }
+    
+    function getFaqActiveSlide() {
+        return $('#faq_tab .swiper-container .swiper-slide-active');
+    }
+    
+    function getFaqActBlock() {
+        return getFaqActiveSlide().prev();
+    }
+    
+    function showFaqReplyErrorMsg(error_msg,nowBlock) {
+        var nowFormElt = nowBlock.find('form');        
+        
+        nowFormElt.parent().html('<p>'+error_msg+'</p>');     
+    }
+    
+    $(function(){   
+        $('#faq_tab .gub_cld').on('click',function(){
+            return check_empty(true);
+        });         
+    });
+    if(get_faq_error_state()==1) {
+        wdt();
+    } else {
+        swiper = swiper_initial({{$faqUserService->getReplyedBreakIndex()}});
+    }
+   
+    function swiper_initial(realindex=0) {
+        var swiper_init = new Swiper('.swiper-container', {
+          slidesPerView:1,
+          centeredSlides: true,
+          spaceBetween: 30,
+          initialSlide:realindex,
+          pagination: {
+            el: '.swiper-pagination',
+            type: "custom",
+            renderCustom: function (swiper_elt,current, total) {
+                                  if(total>current)  total=total-1;                            
+                              return '<span class="swiper-pagination-current">'
+                              +current + '</span> / <span class="swiper-pagination-total">' 
+                              + total+'</span>';
+                            }
+          },
+          navigation: {
+            nextEl: '.swiper-button-next',
+            prevEl: '.swiper-button-prev',
+          },
+          on:{init:show_active_slide_form
+            ,slidePrevTransitionEnd:faq_prev_step
+            ,slideNextTransitionStart:faq_next_step
+          }
+        }); 
+        return swiper_init;
+    }
+
+    function faq_count_down(sec) {
+        var count_down_block = $('#faq_count_down_block');
+        count_down_block.show();
+        var count_down_elt = count_down_block.find('span');
+        var sec_text = sec;
+        count_down_elt.html(sec_text);
+        var countInterval = setInterval(function () {
+            sec_text = sec_text - 1;
+            count_down_elt.html(sec_text); 
+
+            
+            if (sec_text < 0) { 
+                wdt();
+                clearInterval(countInterval);
+            };
+
+        }, 1000);
+    }
+    
+    function faq_remove_next_slide(nowBlock) {
+          var nowIndex = swiper.realIndex;
+          nowBlock.next().remove(); 
+          swiper.destroy();
+          swiper = swiper_initial(nowIndex);        
+    }
+    
+    function faq_show_slide_form(form_elt) {
+        if(form_elt.length>0)
+            form_elt.show().next().hide();
+    }
+    
+    function faq_hide_slide_form(form_elt) {
+        if(form_elt.length>0)
+            form_elt.hide().next().show();
+    }    
+    
+    function faq_add_checking_flag(blockElt) {
+        if(blockElt.length==0) return;
+        formElt = blockElt.find('form');
+        if(formElt.length==0)  return;
+        if(formElt.find(':disabled').length>0) return;
+        blockElt.addClass('checking');
+    }
+    
+    function faq_remove_checking_flag(blockElt) {
+        if(blockElt.length>0) blockElt.removeClass('checking');
+    }  
+
+    function save_faq_error_state() {
+        sessionStorage.setItem( 'fag_error_state',1);
+    }
+    
+    function get_faq_error_state() {
+        return sessionStorage.getItem('fag_error_state');
+    }
+
+    function show_faq_msg() {
+        $('#faq_announce_bg,#faq_msg_tab').show();
+    }
+    
+    function leave_faq_msg() {
+        $('#faq_announce_bg,#faq_msg_tab').hide();
+    }
+    
+    function check_empty(from_close_btn=null) {
+        var nowBlock = null;
+        if(!from_close_btn)
+            nowBlock = getFaqActBlock();
+        else
+            nowBlock= getFaqActiveSlide();
+        var nowFormElt = nowBlock.find('form');
+        var nextBlock = nowBlock.next();
+        var nextFormElt = nextBlock.find('form');
+        
+        if(nowFormElt.length) {
+            nowFormElt.find('input[type=radio],input[type=checkbox]').css({"width":'1px',"height":'1px','position':'relative','top':'45px'}).addClass('force_show');           
+            var chk_elt = nowFormElt.find('input[type=checkbox]:checked');
+            var replace_elt = nowFormElt.find('.faq_replace_required_elt');
+            if(chk_elt.length>0) {
+                replace_elt.get(0).setCustomValidity('');
+                chk_elt.each(function() {
+                    var old_val = replace_elt.val();
+                    replace_elt.val(old_val+this.value);
+                    old_val = null;
+                });
+            }
+            
+            
+            if(!nowFormElt.get(0).checkValidity()) {
+                if(!from_close_btn) swiper.slidePrev();
+                nowFormElt.get(0).reportValidity();
+                return false;
+            }
+        } 
+
+        return true;
+    }
+
+</script>
+@endif
+
 
 @stop
