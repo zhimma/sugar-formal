@@ -43,7 +43,7 @@ class FaqCheck
             $this->service->riseByUserEntry($this->auth->user());
             $url_arr = explode('/',url()->current());
             $last_url_seq = array_pop($url_arr);
-            \Log::info('$last_url_seq='.$last_url_seq);
+
             if( $this->service->isForceShowFaqPopup() &&
                 $last_url_seq!='dashboard' &&
                 $last_url_seq!='logout' &&
@@ -53,7 +53,6 @@ class FaqCheck
                 !Gate::allows('juniorAdmin', $this->auth->user())
                 
                 ){
-                    \Log::info('url()->current()='.url()->current());
                 return Redirect::to('/dashboard/personalPage');
             }
         }
