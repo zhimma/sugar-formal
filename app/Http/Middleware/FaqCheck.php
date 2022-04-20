@@ -41,14 +41,19 @@ class FaqCheck
     {
         if (!is_null($this->auth->user())){
             $this->service->riseByUserEntry($this->auth->user());
-
+            $url_arr = explode('/',url()->current());
+            $last_url_seq = array_pop($url_arr);
+            \Log::info('$last_url_seq='.$last_url_seq);
             if( $this->service->isForceShowFaqPopup() &&
+                $last_url_seq!='dashboard' &&
+                $last_url_seq!='logout' &&
                 !str_contains(url()->current(), 'dashboard/personalPage') &&
                 !str_contains(url()->current(), 'users/switch-back') &&
                 !Gate::allows('admin', $this->auth->user()) &&
                 !Gate::allows('juniorAdmin', $this->auth->user())
                 
                 ){
+                    \Log::info('url()->current()='.url()->current());
                 return Redirect::to('/dashboard/personalPage');
             }
         }
