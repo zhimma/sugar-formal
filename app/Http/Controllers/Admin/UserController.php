@@ -6088,4 +6088,8 @@ class UserController extends \App\Http\Controllers\BaseController
                 ->with('user_online_record', $user_online_record);
     }
 
+    public function video_chat_verify(Request $request)
+    {
+        return view('admin.users.video_chat_verify');
+    }
 }
