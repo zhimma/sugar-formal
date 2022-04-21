@@ -93,11 +93,10 @@ class CheckECpay implements ShouldQueue
                         str_contains($paymentQueryData['PaymentType'], 'BARCODE')) {
 
                         $user = User::findById($this->vipData->member_id);
-                        
-                        if($this->userIsVip) {
+
+                        if($this->userIsVip && $paymentQueryData['TradeStatus'] != 1) {
                             //有賦予VIP者再檢查
                             //未完成交易時檢查
-                            if ($paymentData['RtnCode'] != 10200047 && $paymentQueryData['TradeStatus'] != 1) {
                                 //check取號資料表
                                 $checkData = PaymentGetQrcodeLog::where('order_id', $this->vipData->order_id)->first();
                                 if(isset($checkData)){
@@ -111,10 +110,8 @@ class CheckECpay implements ShouldQueue
                                         \App\Models\VipLog::addToLog($user->id, 'order_id: '.$this->vipData->order_id.'; 期限內('.$checkData->ExpireDate.')未完成付款：' . $paymentQueryData['PaymentType'], '自動取消', 0, 0);
                                     }
                                 }
-                            }
 
-                        }else{
-                            if ($paymentData['RtnCode'] == 10200047 && $paymentQueryData['TradeStatus'] == 1) {
+                        }elseif(!$this->userIsVip && $paymentQueryData['TradeStatus'] == 1){
 
                                 $getOrderDate = Order::where('order_id', $this->vipData->order_id)->first();
                                 if(isset($getOrderDate)) {
@@ -124,7 +121,6 @@ class CheckECpay implements ShouldQueue
                                     \App\Models\VipLog::addToLog($user->id, 'order_id: ' . $this->vipData->order_id . '; 繳款檢查正常回復VIP：' . $paymentQueryData['PaymentType'], '自動回復', 0, 0);
                                 }
 
-                            }
                         }
                     }
 
