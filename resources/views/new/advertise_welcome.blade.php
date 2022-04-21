@@ -20,10 +20,18 @@
         }
     </style>
 
-    <!--設置廣告ID-->
     <script>
-        window.sessionStorage.setItem('advertise_id', {{$advertise_id}})
-        console.log();
+        //設置廣告ID
+        if(!window.sessionStorage.getItem('advertise_id'))
+        {
+            $.ajax({
+                type:'GET',
+                url:'{{ route('advertise_record') }}',
+                success:function(data){
+                    window.sessionStorage.setItem('advertise_id', data['advertise_id']);
+                }
+            });
+        }
     </script>
 
 	<div class="container matop70 swbot30">

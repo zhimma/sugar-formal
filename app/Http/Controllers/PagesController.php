@@ -8079,7 +8079,39 @@ class PagesController extends BaseController
                             );
         return response()->json($fuService->checkAnswer($request));
 
+    }
+
+    public function advertise_record(Request $request)
+    {
+        $user = \Auth::user();
+        Log::Info($user??'false');
+        $advertise_record = new ComeFromAdvertise;
+        if($user??false)
+        {
+            $advertise_record->user_id = $user->id;
+            $advertise_record->action = 'login';
+        }
+        $advertise_record->save();
+        $advertise_id = $advertise_record->id;
+        return response()->json(['advertise_id' => $advertise_id]);
+    }  
+
+    public function advertise_record_change(Request $request)
+    {
+        $user = \Auth::user();
+        $advertise_record = ComeFromAdvertise::where('id', $request->advertise_id)->first();
+        if($user??false)
+        {
+            $advertise_record->user_id = $user->id;
+        }
+        if($advertise_record->action == 'explore')
+        {
+            $advertise_record->action = $request->type;
+        }
+        $advertise_record->save();
+        return response()->json([]);
     }    
+    
 }
 
 

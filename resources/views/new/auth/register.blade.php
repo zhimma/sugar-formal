@@ -534,6 +534,23 @@ div.new_poptk{color:#6783c7;overflow-y:scroll;}
             }
             // t.submit();
         });
+
+        $( document ).ready(function() {
+            //廣告頁面進入註冊
+            if(window.sessionStorage.getItem('advertise_id'))
+            {
+                $.ajax({
+                    type:'GET',
+                    url:'{{ route('advertise_record_change') }}',
+                    data:{
+                        advertise_id:window.sessionStorage.getItem('advertise_id'),
+                        type:'regist'
+                    },
+                    success:function(){}
+                });
+            }
+        });
+
     </script>
     <!-- <script src="/js/login.js" type="text/javascript"></script> -->
 @stop
