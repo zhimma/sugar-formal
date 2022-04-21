@@ -199,10 +199,11 @@
 			var userid_cat_arr = userid_cat_string.split('_');
 			var user_id = userid_cat_arr[0];
 			var cat = userid_cat_arr[1];
-			$.ajax({
+			var cat_type = nowelt.data('cat_type');
+            $.ajax({
 				type: 'GET',
 				url: '{{ route('ignoreDuplicate') }}?{{csrf_token()}}={{now()->timestamp}}',
-				data: { value : user_id,op:0,cat:cat},
+				data: { value : user_id,op:0,cat:cat,cat_type:cat_type},
 				success: function(xhr, status, error){
 					nowelt.parent().removeClass('ignore_cell');
 				},
@@ -226,10 +227,11 @@
 			var userid_cat_arr = userid_cat_string.split('_');
 			var user_id = userid_cat_arr[0];
 			var cat = userid_cat_arr[1];
-			$.ajax({
+			var cat_type = nowelt.data('cat_type');
+            $.ajax({
 				type: 'GET',
 				url: '{{ route('ignoreDuplicate') }}?{{csrf_token()}}={{now()->timestamp}}',
-				data: { value : user_id,op:1,cat:cat},
+				data: { value : user_id,op:1,cat:cat,cat_type:cat_type},
 				success: function(xhr, status, error){
 					nowelt.parent().addClass('ignore_cell');
 				},
@@ -261,7 +263,7 @@
 @if($new_exec_log->count()) <span class="title_info">(新排程正在執行中)</span> @endif
 @if(isset($columnSet) && $columnSet)
 <span class="dateInfo">
-	@if (request()->only!='cfpid')	
+	@if (!request()->only)	
 	@if($sdateOfIp)
 	{{$sdateOfIp}} ～ 
 	@else
@@ -274,19 +276,30 @@
 	的IP
 	@endif
 	@if (!request()->only)以及@endif
-	@if (request()->only!='ip')	
-	@if($sdateOfCfpId)
-	{{$sdateOfCfpId}} ～ 
-	@else
-	全部直到
+	@if (request()->only=='cfpid' || !request()->only)	
+        @if($sdateOfCfpId)
+        {{$sdateOfCfpId}} ～ 
+        @else
+        全部直到
+        @endif
+        {{$end_date}}
+        @if(!$sdateOfCfpId)
+        為止
+        @endif	
+        的Cfp Id
 	@endif
-	{{$end_date}}
-	@if(!$sdateOfCfpId)
-	為止
-	@endif
-	
-	的Cfp Id
-	@endif
+	@if (request()->only=='vid')	
+        @if($sdateOfVid)
+        {{$sdateOfVid}} ～ 
+        @else
+        全部直到
+        @endif
+        {{$end_date}}
+        @if(!$sdateOfVid)
+        為止
+        @endif	
+        的Visitor Id
+	@endif    
 </span>
 @endif 
 </h2>
@@ -410,6 +423,15 @@
 			<th>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;關於我&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;</th>
 			<th>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;約會模式&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;</th>
 			<th>最後上線時間</th>
+    @foreach ($colIdxOfVid[$g] as $c)
+            <th class="{{$columnTypeSet[$g][$c] ?? ''}}_th">
+				{!!str_repeat('&nbsp;',floor((20-strlen($columnSet[$g][$c]))/2)*2)!!}			
+					<a target="_blank" href="{{route('getUsersLog')}}?{{$columnTypeSet[$g][$c]}}={{$columnSet[$g][$c]}}"> 
+				{{$columnSet[$g][$c]}}
+				</a>
+				{!!str_repeat('&nbsp;',floor((20-strlen($columnSet[$g][$c]))/2)*2)!!}		
+			</th>
+    @endforeach            
     @foreach ($colIdxOfCfpId[$g] as $c)
 	{{--  @foreach ($columnSet[$g] as $c=> $colName) --}}
             <th class="{{$columnTypeSet[$g][$c] ?? ''}}_th">
@@ -500,6 +522,18 @@
 				<td class="col-most" ></td>
 				<td class="col-most" td>
 			@endif
+			@foreach ($colIdxOfVid[$g] as $n)
+				<td @if($user) style="color: {{ $user->engroup == 1 ? 'blue' : 'red' }}; @if($bgColor) background-color: {{ $bgColor }} @endif" @endif class=" @if($groupInfo[$g]['last_time']===$cellValue[$g][$r][$n]->time) group_last_time @endif @if($cellValue[$g][$r][$n]->ignoreEntry) ignore_cell  @endif  col-most">
+					@if(isset($cellValue[$g][$r][$n]))
+					{{$cellValue[$g][$r][$n]->time ? date('m/d-H:i',strtotime($cellValue[$g][$r][$n]->time)): ''}}
+					(<a target="_blank" href="{{route('getUsersLog')}}?user_id={{$user->id}}&{{$columnTypeSet[$g][$n]}}={{$columnSet[$g][$n]}}">{{$cellValue[$g][$r][$n]->num ?? ''}}次</a>)
+					<img src="{{asset('new/images/menu.png')}}" data-cat_type="visitor_id" id="ignore_cell_on_{{$user->id}}_{{$columnSet[$g][$n]}}" class="ignore_cell_on" style=" {{$cellValue[$g][$r][$n]->ignoreEntry?'display:none;':''}}"/>
+					<img src="{{asset('new/images/ticon_01.png')}}" data-cat_type="visitor_id" id="ignore_cell_off_{{$user->id}}_{{$columnSet[$g][$n]}}"  class="ignore_cell_off" style=" {{!$cellValue[$g][$r][$n]->ignoreEntry?'display:none;':''}}"//>					
+                    @else
+						無
+					@endif
+				</td>
+			@endforeach            
 			@foreach ($colIdxOfCfpId[$g] as $n)
 			{{-- @for ($n=0;$n<count($columnSet[$g]);$n++) --}}
 				<td @if($user) style="color: {{ $user->engroup == 1 ? 'blue' : 'red' }}; @if($bgColor) background-color: {{ $bgColor }} @endif" @endif class=" @if($groupInfo[$g]['last_time']===$cellValue[$g][$r][$n]->time) group_last_time @endif @if($cellValue[$g][$r][$n]->ignoreEntry) ignore_cell  @endif  col-most">
