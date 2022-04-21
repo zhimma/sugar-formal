@@ -17,5 +17,12 @@
                 <td> {{$login_count}} 人 </td>
             <tr>
         </table>
+        <br>
+        <div>
+            <h5 style="text-align:left;">從連結進入是已登入的狀態時為登入</h5>
+            <h5 style="text-align:left;">進入註冊頁時為註冊</h5>
+            <h5 style="text-align:left;">進入登入頁面登入完成進到個人專屬頁為登入</h5>
+            <h5 style="text-align:left;">其餘皆為瀏覽</h5>
+        </div>
     </body>
 @stop
