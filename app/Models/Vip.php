@@ -109,7 +109,7 @@ class Vip extends Model
             if(str_contains($transactionType, 'CVS') || str_contains($transactionType, 'ATM') || str_contains($transactionType, 'BARCODE')){
                 //check取號資料表
                 $checkData = PaymentGetQrcodeLog::where('order_id', $order_id)->first();
-                $checkDataByUser = PaymentGetQrcodeLog::where('member_id', $member_id)->first();
+                $checkDataByUser = PaymentGetQrcodeLog::where('user_id', $member_id)->first();
                 if(isset($checkData) && ($vipData->updated_at > $checkData->TradeDate && $vipData->updated_at < $checkData->ExpireDate) && $vipData->active==1 && $vipData->order_id == $order_id){
                     //自動流程判斷
                     //暫時性發放VIP者到期日不變更
