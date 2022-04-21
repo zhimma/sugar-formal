@@ -789,7 +789,7 @@
             </div>--}}
 
             @if((!isset($admin) || $to->id != $admin->id) && !isset($to->banned )&& !isset($to->implicitlyBanned))
-                <div class="se_text_bot" id="message_input" style="padding-right: 3%; padding-left:3%; @if($to->exchange_period == 1 && !($messages->first()??false)) display:none; @endif">
+                <div class="se_text_bot" id="message_input" style="padding-right: 3%; padding-left:3%;">
                     @if(($to->engroup) === ($user->engroup))
                     @else
                     <form style="margin: 0 auto;" method="POST"
@@ -1998,6 +1998,11 @@
     @endif
 
     @if($to->exchange_period == 1 && !($messages->first()??false))
+
+        $(document).ready(function () {
+            $('#message_input').hide();
+        });
+
         $('#i_know_it').change(function(){
             if(this.checked)
             {
@@ -2005,6 +2010,7 @@
                 $('#long_time_notice').hide();
             }
         });
+
     @endif
 
 </script>
