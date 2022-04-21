@@ -567,11 +567,7 @@ class PagesController extends BaseController
         //判斷是否進入廣告用首頁
         if($come_from_advertise)
         {
-            $advertise_record = new ComeFromAdvertise;
-            $advertise_record->save();
-            $advertise_id = $advertise_record->id;
             return view('new.advertise_welcome')
-            ->with('advertise_id', $advertise_id)
             ->with('cur', view()->shared('user'))
             ->with('imgUserM', $imgUserM)
             ->with('imgUserF', $imgUserF);

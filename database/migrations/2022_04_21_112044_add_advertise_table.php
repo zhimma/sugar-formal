@@ -17,6 +17,7 @@ class AddAdvertiseTable extends Migration
             $table->id();
             $table->integer('user_id')->nullable();
             $table->string('action')->default('explore');
+            $table->timestamps();
         });
     }
 

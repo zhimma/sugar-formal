@@ -20,6 +20,12 @@
         }
     </style>
 
+    <!--設置廣告ID-->
+    <script>
+        window.sessionStorage.setItem('advertise_id', {{$advertise_id}})
+        console.log();
+    </script>
+
 	<div class="container matop70 swbot30">
         <div class="col-sm-12 col-xs-12 col-md-12">
             <div class="shye"><img src="/new/images/sy_10.png"></div>
