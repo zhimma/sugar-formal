@@ -527,6 +527,7 @@ class PagesController extends BaseController
         {
             $come_from_advertise = 1;
         }
+        Log::Info('come_from_advertise : '.$come_from_advertise);
 
         \Session::forget('is_remind_puppet');
         \Session::forget('filled_data');        

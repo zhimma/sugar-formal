@@ -39,7 +39,7 @@
         <div class="col-sm-12 col-xs-12 col-md-12">
             <div class="shye"><img src="/new/images/sy_10.png"></div>
             <div class="shyepc"><img src="/new/images/sypc.png"></div>
-            <div class="n_sybut"><a href="{!! url('dashboard/search') !!}" class="n_sybut_left">0甜心爹地0</a><a href="{!! url('dashboard/search') !!}" class="n_sybut_right">0甜心寶貝0</a></div>
+            <div class="n_sybut"><a href="{!! url('dashboard/search') !!}" class="n_sybut_left">甜心爹地</a><a href="{!! url('dashboard/search') !!}" class="n_sybut_right">甜心寶貝</a></div>
             <div class="n_tbox">
                <div class="col-sm-12 col-xs-12 col-md-4">
                        <div class="n_tbox01 n_tbox02">
