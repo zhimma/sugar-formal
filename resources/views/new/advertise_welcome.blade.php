@@ -21,6 +21,7 @@
     </style>
 
     <script>
+        console.log('廣告連結進入');
         //設置廣告ID
         if(!window.sessionStorage.getItem('advertise_id'))
         {
