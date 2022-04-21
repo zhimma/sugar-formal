@@ -67,6 +67,7 @@ use App\Models\ValueAddedService;
 use App\Services\ImagesCompareService;
 use App\Models\SimilarImages;
 use App\Models\CheckPointUser;
+use App\Models\ComeFromAdvertise;
 
 class UserController extends \App\Http\Controllers\BaseController
 {
@@ -6035,4 +6036,16 @@ class UserController extends \App\Http\Controllers\BaseController
                 ->with('statistics_data', $statistics_data);
     }
 
+    public function advertiseStatistics(Request $request)
+    {
+        $login_count = ComeFromAdvertise::where('action', 'login')->get()->count();
+        $explore_count = ComeFromAdvertise::where('action', 'explore')->get()->count();
+        $regist_count = ComeFromAdvertise::where('action', 'regist')->get()->count();
+
+        return view('admin.users.advertiseStatistics')
+                ->with('login_count', $login_count)
+                ->with('explore_count', $explore_count)
+                ->with('regist_count', $regist_count);
+    }
+    
 }
