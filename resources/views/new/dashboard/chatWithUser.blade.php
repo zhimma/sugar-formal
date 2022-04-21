@@ -789,39 +789,43 @@
             </div>--}}
 
             @if((!isset($admin) || $to->id != $admin->id) && !isset($to->banned )&& !isset($to->implicitlyBanned))
-            <div class="se_text_bot" id="message_input" style="padding-right: 3%; padding-left:3%;">
-                @if(($to->engroup) === ($user->engroup))
-                @else
-                <form style="margin: 0 auto;" method="POST"
-                    action="/dashboard/chat2/{{ \Carbon\Carbon::now()->timestamp }}" id="chatForm" name="chatForm">
-                    <input type="hidden" name="_token" value="{{ csrf_token() }}">
-                    <input type="hidden" name="userId" value="{{$user->id}}">
-                    <input type="hidden" name="to" value="{{$to->id}}">
-                    <input type="hidden" name="m_time" @if(isset($m_time)) value="{{ $m_time }}" @else value="" @endif>
-                    <input type="hidden" name="{{ \Carbon\Carbon::now()->timestamp }}"
-                        value="{{ \Carbon\Carbon::now()->timestamp }}">
-                    <input type="hidden" name="parent" id="message_parent" class="message_parent" value="">
-                                <input type="hidden" name="parent_client" id="message_parent_client"  class="message_parent_client"  value="" >
-                                <input type="hidden" name="client_id" id="chatFormClientId"   class="client_id"  value="" >
-                    <div class="xin_left specific_msg_box" id="specific_msg_box">
-                        <div class="specific_msg"></div>
-                        <div class="specific_msg_close"><a href="javascript:void(0)"
-                                onclick="resetSpecificMsgElt();return false;">Ｘ</a></div>
-                    </div>
-                    <div class="xin_left">
-                        <a class="xin_nleft" onclick="tab_uploadPic();"><img src="/new/images/moren_pic.png"></a>
-                        <textarea id="msg" name="msg" rows="1" class="xin_input" placeholder="請輸入"></textarea>
-                    </div>
-                    <a onclick="chatForm_submit();" class="xin_right" style="border: none;"><img
-                            src="/new/images/fasong.png" style="margin-top:6px;"></a>
-                </form>
-                @endif
-            </div>
+                <div class="se_text_bot" id="message_input" style="padding-right: 3%; padding-left:3%; @if($to->exchange_period == 1 && !($messages->first()??false)) display:none; @endif">
+                    @if(($to->engroup) === ($user->engroup))
+                    @else
+                    <form style="margin: 0 auto;" method="POST"
+                        action="/dashboard/chat2/{{ \Carbon\Carbon::now()->timestamp }}" id="chatForm" name="chatForm">
+                        <input type="hidden" name="_token" value="{{ csrf_token() }}">
+                        <input type="hidden" name="userId" value="{{$user->id}}">
+                        <input type="hidden" name="to" value="{{$to->id}}">
+                        <input type="hidden" name="m_time" @if(isset($m_time)) value="{{ $m_time }}" @else value="" @endif>
+                        <input type="hidden" name="{{ \Carbon\Carbon::now()->timestamp }}"
+                            value="{{ \Carbon\Carbon::now()->timestamp }}">
+                        <input type="hidden" name="parent" id="message_parent" class="message_parent" value="">
+                                    <input type="hidden" name="parent_client" id="message_parent_client"  class="message_parent_client"  value="" >
+                                    <input type="hidden" name="client_id" id="chatFormClientId"   class="client_id"  value="" >
+                        <div class="xin_left specific_msg_box" id="specific_msg_box">
+                            <div class="specific_msg"></div>
+                            <div class="specific_msg_close"><a href="javascript:void(0)"
+                                    onclick="resetSpecificMsgElt();return false;">Ｘ</a></div>
+                        </div>
+                        <div class="xin_left">
+                            <a class="xin_nleft" onclick="tab_uploadPic();"><img src="/new/images/moren_pic.png"></a>
+                            <textarea id="msg" name="msg" rows="1" class="xin_input" placeholder="請輸入"></textarea>
+                        </div>
+                        <a onclick="chatForm_submit();" class="xin_right" style="border: none;"><img
+                                src="/new/images/fasong.png" style="margin-top:6px;"></a>
+                    </form>
+                    @endif
+                </div>
                 @if($to->exchange_period == 1 && !($messages->first()??false))
-                    <div class="se_text_bot" style="padding-right: 3%; padding-left:3%;">
-                        此會員包養模式是 "長期為主"，站規規定禁止向該女會員主動發送罐頭/短約訊息。如有違反將會警示/封鎖的懲處。 
-                        <br>
-                        <input type="checkbox" id="i_know_it"> 我知道了 ( 請勾選後才可發出訊息 ) </input>
+                    <div class="ditext" id='long_time_notice'>
+                        <h2>此會員包養模式是"長期為主"，站規規定禁止向該女會員主動發送罐頭/短約訊息。如有違反將會警示/封鎖的懲處。</h2>
+                        <h3>
+                            <label class="beautify-check">
+                                <input type="checkbox" id="i_know_it">
+                                <i></i>我知道了（請勾選才可發送訊息）
+                            </label>
+                        </h3>
                     </div>
                 @endif
             @endif
@@ -1111,15 +1115,6 @@
         $('#msg').focus();
         let content = $('#msg').val(), msgsnd = $('.msgsnd');
         var msg_str = $("#msg").val().replace(/\r\n|\n/g,"").replace(/\s+/g, "");
-
-        @if($to->exchange_period == 1 && !($messages->first()??false))
-            i_know_it=document.querySelector("#i_know_it")
-            if(!i_know_it.checked)
-            {
-                c5('請勾選我知道了');
-                return false;
-            }
-        @endif
 
         if(msg_str.length>400) {
             c5('訊息輸入至多400個字');
@@ -2001,6 +1996,17 @@
             c5('溫馨提示 : 您曾在 {{$first_send_messenge->created_at->toDateString()}} 發訊給這位會員哦');
         });
     @endif
+
+    @if($to->exchange_period == 1 && !($messages->first()??false))
+        $('#i_know_it').change(function(){
+            if(this.checked)
+            {
+                $('#message_input').show();
+                $('#long_time_notice').hide();
+            }
+        });
+    @endif
+
 </script>
 @endif
 <style>
