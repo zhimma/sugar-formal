@@ -118,6 +118,23 @@
         div.sys_remind > div.tabbox_new_dt.tabbox_new_ss {background:#fff5f6;}
         div.sys_remind > div.tabbox_new_dt.tabbox_new_ss > span {color:#fe5476;}
     </style>
+
+    <script>
+        //廣告頁面登入
+        if(window.sessionStorage.getItem('advertise_id'))
+        {
+            $.ajax({
+                type:'GET',
+                url:'{{ route('advertise_record_change') }}',
+                data:{
+                    advertise_id:window.sessionStorage.getItem('advertise_id'),
+                    type:'login'
+                },
+                success:function(){}
+            });
+        }
+    </script>
+
     <div class="container matop70">
         <div class="row">
             <div class="col-sm-2 col-xs-2 col-md-2 dinone">
@@ -1332,6 +1349,5 @@ display: flex;-webkit-box-pack: center;-ms-flex-pack: center;-webkit-justify-con
 
 </script>
 @endif
-
 
 @stop

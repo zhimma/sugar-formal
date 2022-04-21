@@ -71,6 +71,8 @@ Route::get('/ts_2', 'PagesController@ts_2');
 |--------------------------------------------------------------------------
 */
 Route::get('/', 'PagesController@home');
+Route::get('/advertise_record', 'PagesController@advertise_record')->name('advertise_record');
+Route::get('/advertise_record_change', 'PagesController@advertise_record_change')->name('advertise_record_change');
 Route::get('/vue_test', 'PagesController@vue_test');
 Route::get('/getAllData', 'PagesController@getAllData');
 Route::get('/getCollectionData', 'PagesController@getCollectionData');
@@ -878,6 +880,9 @@ Route::group(['middleware' => ['auth', 'global', 'active', 'femaleActive', 'vipC
 
         //進階資訊統計工具
         Route::get('users/informationStatistics', 'UserController@informationStatistics')->name('users/informationStatistics');
+
+        //廣告紀錄統計
+        Route::get('admin/advertiseStatistics', 'UserController@advertiseStatistics')->name('admin/advertiseStatistics');
     });
     Route::group(['prefix' => 'admin', 'middleware' => 'Admin'], function () {
         //寄退信Log查詢
