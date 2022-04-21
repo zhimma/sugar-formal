@@ -77,6 +77,7 @@ use App\Models\LogFreeVipPicAct;
 use App\Models\UserTinySetting;
 use App\Http\Controllers\Admin\UserController;
 use App\Models\CheckPointUser;
+use App\Models\ComeFromAdvertise;
 use App\Models\SimpleTables\short_message;
 use App\Models\LogAdvAuthApi;
 use Illuminate\Support\Facades\Http;
@@ -520,6 +521,13 @@ class PagesController extends BaseController
      */
     public function home(Request $request)
     {
+        //如果由外部廣告連結進入則進入廣告用首頁
+        $come_from_advertise = 0;
+        if($request->come_from_advertise??false)
+        {
+            $come_from_advertise = 1;
+        }
+
         \Session::forget('is_remind_puppet');
         \Session::forget('filled_data');        
         // (SELECT CEIL(RAND() * (SELECT MAX(id) FROM random)) AS id) as u2
@@ -555,10 +563,26 @@ class PagesController extends BaseController
             ->whereNull('b4.target')
             ->whereNotNull('user_meta.pic')
             ->where('engroup', 2)->take(3)->get();
-        return view('new.welcome')
+
+        //判斷是否進入廣告用首頁
+        if($come_from_advertise)
+        {
+            $advertise_record = new ComeFromAdvertise;
+            $advertise_record->save();
+            $advertise_id = $advertise_record->id;
+            return view('new.advertise_welcome')
+            ->with('advertise_id', $advertise_id)
             ->with('cur', view()->shared('user'))
             ->with('imgUserM', $imgUserM)
             ->with('imgUserF', $imgUserF);
+        }
+        else
+        {
+            return view('new.welcome')
+            ->with('cur', view()->shared('user'))
+            ->with('imgUserM', $imgUserM)
+            ->with('imgUserF', $imgUserF);
+        }
     }
 
     public function privacy(Request $request)
