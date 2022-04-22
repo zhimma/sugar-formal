@@ -1010,7 +1010,7 @@ display: flex;-webkit-box-pack: center;-ms-flex-pack: center;-webkit-justify-con
     #faq_tab ul li input[type=radio]:focus, #faq_tab ul li input[type=radio]:focus-visible,.faq_replace_required_elt:focus,.faq_replace_required_elt:focus-visible {outline:none;}
     #faq_announce_bg,#faq_msg_tab {z-index:19;display:none;}
   </style>
-<script src="{{asset('new/js/swiper.min.js')}}"></script>
+<script src="{{asset('new/js/swiper.min.4.4.6.js')}}"></script>
 <script src="{{asset('new/js/jquery-labelauty.js')}}"></script>
 <script src="{{asset('new/js/is_logout_respose.js')}}"></script>
 <script>
