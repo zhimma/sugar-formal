@@ -1124,7 +1124,7 @@ dt span.engroup_type_title {display:inline-block;width:10%;white-space:nowrap;}
         }
 
         @php
-            $ckBarCodeLog = DB::table('payment_get_barcode_log')->where('user_id',$user->id)->where('ExpireDate','>=',now())->where('isRead',0)->count();
+            $ckBarCodeLog = \App\Models\PaymentGetQrcodeLog::where('user_id',$user->id)->where('ExpireDate','>=',now())->where('isRead',0)->count();
         @endphp
 
         @if(!$user->isAdmin())
@@ -1153,7 +1153,7 @@ dt span.engroup_type_title {display:inline-block;width:10%;white-space:nowrap;}
                 $('#isGetBarCodeNotVIP').show();
                 $('#announce_bg').show();
                 @php
-                    DB::table('payment_get_barcode_log')->where('user_id',$user->id)->where('ExpireDate','>=',now())->where('isRead',0)->update(['isRead' => 1]);
+                    \App\Models\PaymentGetQrcodeLog::where('user_id',$user->id)->where('ExpireDate','>=',now())->where('isRead',0)->update(['isRead' => 1]);
                 @endphp
             @endif
             @if (!$umeta->isAllSet( $user->engroup ))

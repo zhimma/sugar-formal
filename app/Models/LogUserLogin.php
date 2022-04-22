@@ -20,7 +20,7 @@ class LogUserLogin extends Model
      *
      * @var array
      */
-    protected $fillable = ['user_id', 'cfp_id', 'userAgent', 'ip', 'created_date', 'created_at'];
+    protected $fillable = ['user_id', 'cfp_id', 'visitor_id', 'userAgent', 'ip', 'created_date', 'created_at'];
 
     public function setReadOnly() {
         $this->guarded =  ['*'];
@@ -28,6 +28,14 @@ class LogUserLogin extends Model
 	
     public function user(){
         return $this->belongsTo(User::class, 'user_id', 'id');
+    }
+
+	public function visitor(){
+		return $this->belongsTo(Visitor::class, 'visitor_id', 'id');
+	}
+
+	public function cfp(){
+        return $this->hasMany(CustomFingerPrint::class, 'id', 'cfp_id');
     }
 	
 	public static function queryOfIpUsedByOtherUserId($ip,$user_id=null,$d=3) {
@@ -50,6 +58,13 @@ class LogUserLogin extends Model
 	public static function queryOfCfpIdUsedByOtherUserId($cfp_id,$user_id=null) {
 		if(!$cfp_id) return null;
 		$query = LogUserLogin::where('cfp_id',$cfp_id);
+		if($user_id) $query->where('user_id','<>',$user_id);
+		return $query;
+	}
+
+	public static function queryOfVisitorIdUsedByOtherUserId($cfp_id,$user_id=null) {
+		if(!$cfp_id) return null;
+		$query = LogUserLogin::where('visitor_id',$cfp_id);
 		if($user_id) $query->where('user_id','<>',$user_id);
 		return $query;
 	}

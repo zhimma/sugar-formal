@@ -74,6 +74,12 @@ class Kernel extends ConsoleKernel
             $schedule->command('CompareImages  --dsort')->timezone('Asia/Taipei')->everyTenMinutes();//->between('02:00', '12:00');            
         }
         if(app()->isProduction() || app()->isLocal()){
+            
+            $puppetReq = new Request();
+            $puppetReq->only = 'vid';
+            $schedule->call('\App\Http\Controllers\Admin\FindPuppetController@entrance',['request'=>$puppetReq])->timezone('Asia/Taipei')->dailyAt('01:00');
+            $schedule->call('\App\Http\Controllers\Admin\FindPuppetController@entrance',['request'=>$puppetReq])->timezone('Asia/Taipei')->dailyAt('13:00');            
+            
             $schedule->call(function (){
                 $this->checkEmailVailUser();
             })->timezone('Asia/Taipei')->dailyAt('8:00');
@@ -451,7 +457,7 @@ class Kernel extends ConsoleKernel
     public function checkUserPics() {
         // 每天超過 250 張發警告信
         // 每天超過 600 發警告信並停止
-        // 每個月超過 6000 張停止
+        // 每個月超過 4500 張停止
         $picCount = MemberPic::withTrashed()->where('created_at', '>', Carbon::today()->format('Y-m-d'))->count();
         $picCountMonth = MemberPic::withTrashed()->whereBetween('created_at', [Carbon::today()->subMonth()->format('Y-m-d'), Carbon::today()->format('Y-m-d')])->count();
         $str = null;

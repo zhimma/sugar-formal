@@ -3,6 +3,8 @@
 namespace App\Jobs;
 
 use App\Models\Order;
+use App\Models\PaymentGetQrcodeLog;
+use Carbon\Carbon;
 use Illuminate\Bus\Queueable;
 use Illuminate\Queue\SerializesModels;
 use Illuminate\Queue\InteractsWithQueue;
@@ -54,7 +56,8 @@ class CheckECpay implements ShouldQueue
         if($this->vipData->business_id == Config::get('ecpay.payment'.$envStr.'.MerchantID') && substr($this->vipData->order_id,0,2) == 'SG'){
             $ecpay = new \App\Services\ECPay_AllInOne();
             $ecpay->MerchantID = Config::get('ecpay.payment'.$envStr.'.MerchantID');
-            $ecpay->ServiceURL = Config::get('ecpay.payment'.$envStr.'.ServiceURL');//定期定額查詢
+//            $ecpay->ServiceURL = Config::get('ecpay.payment'.$envStr.'.ServiceURL');//定期定額查詢
+            $ecpay->ServiceURL = Config::get('ecpay.payment'.$envStr.'.OrderQueryURL');//訂單查詢
             $ecpay->HashIV = Config::get('ecpay.payment'.$envStr.'.HashIV');
             $ecpay->HashKey = Config::get('ecpay.payment'.$envStr.'.HashKey');
             $ecpay->Query = [
@@ -63,10 +66,15 @@ class CheckECpay implements ShouldQueue
             ];
             try{
                 if(substr($this->vipData->payment,0,4) == 'one_'){ //保留用
-                    // $paymentData = $ecpay->QueryTradeInfo();
+                    //單次付費
+                    $ecpay->ServiceURL = Config::get('ecpay.payment'.$envStr.'.OrderQueryURL');//訂單查詢
+                    $paymentQueryData = $ecpay->QueryTradeInfo();
+                    $ecpay->ServiceURL = Config::get('ecpay.payment'.$envStr.'.ServiceURL');//定期定額查詢
+                    $paymentData = $ecpay->QueryPeriodCreditCardTradeInfo();
                     // 此函式會產生錯誤，經檢查應為無用函式
                 }else {
                     //信用卡定期定額
+                    $ecpay->ServiceURL = Config::get('ecpay.payment'.$envStr.'.ServiceURL');//定期定額查詢
                     $paymentData = $ecpay->QueryPeriodCreditCardTradeInfo();
                 }
             }
@@ -76,8 +84,43 @@ class CheckECpay implements ShouldQueue
                 Log::error($exception);
             }
 
+            $now = \Carbon\Carbon::now();
+
             if(substr($this->vipData->payment,0,4) == 'one_'){
-                //保留用
+                //單次付款檢查
+                if (str_contains($paymentQueryData['PaymentType'], 'CVS') ||
+                    str_contains($paymentQueryData['PaymentType'], 'ATM') ||
+                    str_contains($paymentQueryData['PaymentType'], 'BARCODE')) {
+                    $user = User::findById($this->vipData->member_id);
+
+                    if($this->userIsVip && $paymentQueryData['TradeStatus'] != 1) {
+                        logger("CheckECpay line 98, user id: " . $user->id);
+                        //有賦予VIP者再檢查
+                        //未完成交易時檢查
+                        //check取號資料表
+                        $checkData = PaymentGetQrcodeLog::where('order_id', $this->vipData->order_id)->first();
+                        if(isset($checkData)){
+                            if($now > $checkData->ExpireDate){
+                                //超過期限未完成交易
+                                //取消VIP
+                                $vipData = $user->getVipData(true);
+                                if($vipData){
+                                    $vipData->removeVIP();
+                                }
+                                \App\Models\VipLog::addToLog($user->id, 'order_id: '.$this->vipData->order_id.'; 期限內('.$checkData->ExpireDate.')未完成付款：' . $paymentQueryData['PaymentType'], '自動取消', 0, 0);
+                            }
+                        }
+                    }elseif(!$this->userIsVip && $paymentQueryData['TradeStatus'] == 1){
+                        logger("CheckECpay line 115, user id: " . $user->id);
+                        $getOrderDate = Order::where('order_id', $this->vipData->order_id)->first();
+                        if(isset($getOrderDate)) {
+                            \App\Models\Vip::select('member_id', 'active')
+                                ->where('member_id', $this->vipData->member_id)
+                                ->update(array('active' => 1, 'expiry' => $getOrderDate->order_expire_date));
+                            \App\Models\VipLog::addToLog($user->id, 'order_id: ' . $this->vipData->order_id . '; 繳款檢查正常回復VIP：' . $paymentQueryData['PaymentType'], '自動回復', 0, 0);
+                        }
+                    }
+                }
             }else { //定期定額流程
                 try{
                     $last = last($paymentData['ExecLog']);
@@ -101,7 +144,6 @@ class CheckECpay implements ShouldQueue
                     logger("CheckECpay null payment, user id: " . $this->vipData->member_id);
                     $days = 31;
                 }
-                $now = \Carbon\Carbon::now();
 
                 //付款日期有差異時更新訂單
                 $currentOrder = Order::where('order_id', $this->vipData->order_id)->first();
@@ -117,7 +159,7 @@ class CheckECpay implements ShouldQueue
                 }
 
                 // 最後一次付款成功，但已過期
-                if ($last['RtnCode'] == 1 && $lastProcessDate->diffInDays($now) > $days) {
+                if ($last['RtnCode'] == 1 && $lastProcessDate->diffInDays($now) > $days && $this->userIsVip) {
                     Log::info('付費失敗');
                     Log::info($paymentData);
 

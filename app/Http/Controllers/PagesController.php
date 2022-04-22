@@ -33,6 +33,8 @@ use Carbon\Carbon;
 use Illuminate\Http\Request;
 use App\Services\UserService;
 use App\Services\VipLogService;
+use App\Services\FaqUserService;
+use App\Services\FaqService;
 use App\Models\Fingerprint;
 use App\Models\Visited;
 use App\Models\Board;
@@ -75,6 +77,7 @@ use App\Models\LogFreeVipPicAct;
 use App\Models\UserTinySetting;
 use App\Http\Controllers\Admin\UserController;
 use App\Models\CheckPointUser;
+use App\Models\ComeFromAdvertise;
 use App\Models\SimpleTables\short_message;
 use App\Models\LogAdvAuthApi;
 use Illuminate\Support\Facades\Http;
@@ -518,6 +521,14 @@ class PagesController extends BaseController
      */
     public function home(Request $request)
     {
+        //如果由外部廣告連結進入則進入廣告用首頁
+        $come_from_advertise = 0;
+        if($request->come_from_advertise??false)
+        {
+            $come_from_advertise = 1;
+        }
+        Log::Info('come_from_advertise : '.$come_from_advertise);
+
         \Session::forget('is_remind_puppet');
         \Session::forget('filled_data');        
         // (SELECT CEIL(RAND() * (SELECT MAX(id) FROM random)) AS id) as u2
@@ -553,10 +564,22 @@ class PagesController extends BaseController
             ->whereNull('b4.target')
             ->whereNotNull('user_meta.pic')
             ->where('engroup', 2)->take(3)->get();
-        return view('new.welcome')
+
+        //判斷是否進入廣告用首頁
+        if($come_from_advertise)
+        {
+            return view('new.advertise_welcome')
             ->with('cur', view()->shared('user'))
             ->with('imgUserM', $imgUserM)
             ->with('imgUserF', $imgUserF);
+        }
+        else
+        {
+            return view('new.welcome')
+            ->with('cur', view()->shared('user'))
+            ->with('imgUserM', $imgUserM)
+            ->with('imgUserF', $imgUserF);
+        }
     }
 
     public function privacy(Request $request)
@@ -5502,7 +5525,7 @@ class PagesController extends BaseController
             ->LeftJoin('users', 'users.id','=','forum.user_id')
             ->join('user_meta', 'users.id','=','user_meta.user_id')
             ->leftJoin('forum_posts', 'forum_posts.user_id','=', 'users.id')
-//            ->where('forum.status', 1)
+            ->where('forum.status', 1)
             ->orderBy('forum.status', 'desc')
             ->orderBy('currentReplyTime','desc')
             ->groupBy('forum.id')
@@ -6772,7 +6795,15 @@ class PagesController extends BaseController
             $showNewSugarForbidMsgNotify = true;
         }
         */
-
+        $faqUserService = new FaqUserService($this->service->riseByUserEntry($user),new FaqService);
+        $faqPopupQuestionList = $faqUserService->getPopupQuestionList();
+        $faqReplyedRecord = $faqUserService->getReplyedRecord();
+        $faqCountDownStartTime = $faqUserService->getCountDownStartTime();
+        $faqCountDownTime = $faqUserService->getCountDownTime();
+        $faqCountDownSeconds = $faqUserService->getCountDownSeconds();
+        $isFaqDuringCountDown = $faqUserService->isDuringCountDown();
+        $isForceShowFaqPopup = $faqUserService->isForceShowFaqPopup();
+        
         if (isset($user)) {
             $data = array(
                 'vipStatus' => $vipStatus,
@@ -6793,6 +6824,14 @@ class PagesController extends BaseController
                 'showLineNotifyPop'=>$showLineNotifyPop,
                 'announcePopUp'=>$announcePopUp,
                 //'showNewSugarForbidMsgNotify'=>$showNewSugarForbidMsgNotify,
+                'faqPopupQuestionList'=>$faqPopupQuestionList,
+                'faqUserService'=>$faqUserService,
+                'faqReplyedRecord'=>$faqReplyedRecord,
+                'faqCountDownStartTime'=>$faqCountDownStartTime,
+                'isFaqDuringCountDown'=>$isFaqDuringCountDown,
+                'isForceShowFaqPopup'=>$isForceShowFaqPopup,
+                'faqCountDownTime'=>$faqCountDownTime,
+                'faqCountDownSeconds'=>$faqCountDownSeconds
             );
             $allMessage = \App\Models\Message::allMessage($user->id);
             $forum = Forum::withTrashed()->where('user_id',$user->id)->orderby('id','desc')->first();
@@ -6880,6 +6919,31 @@ class PagesController extends BaseController
     public function checkcfp(Request $request){
         $this->service->checkcfp($request->hash, $request->user()->id);
 
+        return response()->json(array(
+            'status' => 1,
+            'msg' => 'success',
+        ), 200);
+    }
+
+    public function saveVisitorID(Request $request){
+        $cfp = new \App\Models\VisitorID;
+        $cfp->hash = $request->hash;
+        $cfp->host = request()->getHttpHost();
+        $cfp->save();
+        $cfp_user = new \App\Models\VisitorIDUser;
+        $cfp_user->visitor_id = $cfp->id;
+        $cfp_user->user_id = $request->user()->id;
+        $cfp_user->save();
+
+        return response()->json(array(
+            'status' => 1,
+            'msg' => 'success'
+        ), 200);
+    }
+
+    public function checkVisitorID(Request $request){
+        $this->service->checkvisitorid($request->hash, $request->user()->id);
+        
         return response()->json(array(
             'status' => 1,
             'msg' => 'success',
@@ -8006,6 +8070,49 @@ class PagesController extends BaseController
         return response()->json(['msg' => 'error']);
 
     }
+    
+    public function checkFaqAnswer(Request $request,FaqUserService $fuService) {        
+
+        $fuService->riseByUserService(
+                                $this->service->riseByUserEntry(
+                                    auth()->user()
+                                )
+                            );
+        return response()->json($fuService->checkAnswer($request));
+
+    }
+
+    public function advertise_record(Request $request)
+    {
+        $user = \Auth::user();
+        Log::Info($user??'false');
+        $advertise_record = new ComeFromAdvertise;
+        if($user??false)
+        {
+            $advertise_record->user_id = $user->id;
+            $advertise_record->action = 'login';
+        }
+        $advertise_record->save();
+        $advertise_id = $advertise_record->id;
+        return response()->json(['advertise_id' => $advertise_id]);
+    }  
+
+    public function advertise_record_change(Request $request)
+    {
+        $user = \Auth::user();
+        $advertise_record = ComeFromAdvertise::where('id', $request->advertise_id)->first();
+        if($user??false)
+        {
+            $advertise_record->user_id = $user->id;
+        }
+        if($advertise_record->action == 'explore')
+        {
+            $advertise_record->action = $request->type;
+        }
+        $advertise_record->save();
+        return response()->json([]);
+    }    
+    
 }
 
 

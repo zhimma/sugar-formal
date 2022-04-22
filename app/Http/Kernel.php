@@ -94,6 +94,8 @@ class Kernel extends HttpKernel
         'SessionExpired'=> \App\Http\Middleware\SessionExpired::class,
 
         //檢查是否是連結訪問
-        "HasReferer"=>HasReferer::class
+        "HasReferer"=>HasReferer::class,
+        //檢查是否要作答FAQ
+        "FaqCheck"=>\App\Http\Middleware\FaqCheck::class,
     ];
 }

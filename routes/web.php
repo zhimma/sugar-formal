@@ -71,6 +71,8 @@ Route::get('/ts_2', 'PagesController@ts_2');
 |--------------------------------------------------------------------------
 */
 Route::get('/', 'PagesController@home');
+Route::get('/advertise_record', 'PagesController@advertise_record')->name('advertise_record');
+Route::get('/advertise_record_change', 'PagesController@advertise_record_change')->name('advertise_record_change');
 Route::get('/vue_test', 'PagesController@vue_test');
 Route::get('/getAllData', 'PagesController@getAllData');
 Route::get('/getCollectionData', 'PagesController@getCollectionData');
@@ -165,11 +167,14 @@ Route::group(['middleware' => ['auth', 'global','SessionExpired']], function () 
     Route::post('/multiple-login', 'PagesController@multipleLogin')->name('multipleLogin');
     Route::post('/save-cfp', 'PagesController@savecfp')->name('savecfp');
     Route::post('/check-cfp', 'PagesController@checkcfp')->name('checkcfp');
-});
 
+    Route::post('/save-visitor-id', 'PagesController@saveVisitorID')->name('saveVisitorID');
+    Route::post('/check-visitor-id', 'PagesController@checkVisitorID')->name('checkVisitorID');
+});
+Route::post('/dashboard/faq_reply', 'PagesController@checkFaqAnswer')->middleware('auth')->name('checkFaqAnswer');
 Route::get('/advance_auth_activate/token/{token}', 'PagesController@advance_auth_email_activate')->name('advance_auth_email_activate');
 
-Route::group(['middleware' => ['auth', 'global', 'active', 'femaleActive', 'vipCheck', 'newerManual','CheckAccountStatus','SessionExpired']], function () {
+Route::group(['middleware' => ['auth', 'global', 'active', 'femaleActive', 'vipCheck', 'newerManual','CheckAccountStatus','SessionExpired','FaqCheck']], function () {
 
     Route::get('/dashboard/browse', 'PagesController@browse');
     /*
@@ -746,6 +751,30 @@ Route::group(['middleware' => ['auth', 'global', 'active', 'femaleActive', 'vipC
         Route::post('announcement/new', 'UserController@newAdminAnnouncement')->name('admin/announcement/new');
         Route::get('announcement/read/{id}', 'UserController@showReadAnnouncementUser')->name('admin/announcement/read');
 
+        Route::get('faq', 'UserController@showFaq')->name('admin/faq');
+         Route::get('faq/edit/{id}', 'UserController@showFaqEdit')->name('admin/faq/edit');
+         Route::post('faq/save', 'UserController@saveFaq')->name('admin/faq/save');
+         Route::post('faq/answer/save', 'UserController@saveAnsFromFaq')->name('admin/faq/answer/save');
+         Route::post('faq/setting/save', 'UserController@saveSettingFromFaq')->name('admin/faq/setting/save');
+         Route::get('faq/delete/{id?}', 'UserController@deleteFaq')->name('admin/faq/delete');
+         Route::get('faq/new', 'UserController@showNewFaq')->name('admin/faq/new/GET');
+         Route::post('faq/new', 'UserController@newFaq')->name('admin/faq/new');
+
+        Route::get('faq_group', 'UserController@showFaqGroup')->name('admin/faq_group');
+        Route::get('faq_group/edit/{id}', 'UserController@showFaqGroupEdit')->name('admin/faq_group/edit');
+        Route::post('faq_group/save', 'UserController@saveFaqGroup')->name('admin/faq_group/save');
+        Route::get('faq_group/delete/{id?}', 'UserController@deleteFaqGroup')->name('admin/faq_group/delete');
+        Route::get('faq_group/new', 'UserController@showNewFaqGroup')->name('admin/faq_group/new/GET');
+        Route::post('faq_group/new', 'UserController@newFaqGroup')->name('admin/faq_group/new');
+        Route::post('faq_group/save_act', 'UserController@saveFaqGroupAct')->name('admin/faq_group/save_act');
+
+        Route::get('faq_choice/{id}', 'UserController@showFaqChoice')->name('admin/faq_choice');
+        Route::get('faq_choice/edit/{id}', 'UserController@showFaqChoiceEdit')->name('admin/faq_choice/edit');
+        Route::post('faq_choice/save/{id}', 'UserController@saveFaqChoice')->name('admin/faq_choice/save');
+        Route::get('faq_choice/delete/{id?}', 'UserController@deleteFaqChoice')->name('admin/faq_choice/delete');
+        Route::get('faq_choice/new/{id}', 'UserController@showNewFaqChoice')->name('admin/faq_choice/new/GET');
+        Route::post('faq_choice/new/{id}', 'UserController@newFaqChoice')->name('admin/faq_choice/new');
+
         Route::get('masterwords', 'UserController@showMasterwords')->name('admin/masterwords');
         Route::get('masterwords/edit/{id}', 'UserController@showAdminMasterWordsEdit')->name('admin/masterwords/edit');
         Route::post('masterwords/save', 'UserController@saveAdminMasterWords')->name('admin/masterwords/save');
@@ -824,7 +853,7 @@ Route::group(['middleware' => ['auth', 'global', 'active', 'femaleActive', 'vipC
         Route::get('users/checkDuplicate', 'FindPuppetController@entrance');
         Route::get('users/showLogBk', 'FindPuppetController@displayDetail');
         Route::get('too_many_requests', 'PagesController@tooManyRequests')->name('tooMantRequests');
-        
+
 
         Route::get('users/picturesSimilar', 'UserController@UserPicturesSimilar')->name('users/picturesSimilar');
         Route::get('users/picturesSimilarLog', 'UserController@UserPicturesSimilarLog')->name('users/picturesSimilarLog');
@@ -848,12 +877,59 @@ Route::group(['middleware' => ['auth', 'global', 'active', 'femaleActive', 'vipC
         Route::post('check/step1', 'UserController@member_profile_check_over')->name('admin/member_profile_check_over');
         Route::get('ban_information', 'UserController@ban_information');
         Route::post('users/little_update_profile', 'UserController@little_update_profile');
+
+        //進階資訊統計工具
+        Route::get('users/informationStatistics', 'UserController@informationStatistics')->name('users/informationStatistics');
+
+        //廣告紀錄統計
+        Route::get('admin/advertiseStatistics', 'UserController@advertiseStatistics')->name('admin/advertiseStatistics');
     });
     Route::group(['prefix' => 'admin', 'middleware' => 'Admin'], function () {
         //寄退信Log查詢
         Route::get('maillog', 'Api\MailController@viewMailLog')->name('maillog');
         Route::get("fakeMail", 'Api\MailController@fakeMail')->name('fakeMail');
         Route::post("sendFakeMail", 'Api\MailController@sendFakeMail')->name('sendFakeMail');
+
+        Route::get("jsfp_pro_validation", function() {
+            ini_set("max_execution_time",'0');
+            // 計算 CFP 和 Visitor 的對應關係：一對一及一對多
+            // 計算 CFP ID 總數
+            $cfp_has_one = 0;
+            $cfp_has_many = 0;
+            $cfp_user_has_one = 0;
+            $cfp_user_has_many = 0;
+            $base = \App\Models\LogUserLogin::with('cfp', 'cfp.login_logs')
+                        ->where([["id", ">", 6305459], ["cfp_id", "!=", NULL], ["visitor_id", "!=", NULL]]);
+            $the_cfps = clone $base->groupBy("cfp_id")->get()->pluck("cfp");
+            $the_cfp_users = clone $base->groupBy("cfp_id", "user_id")->get()->pluck("cfp");
+            foreach(["cfp" => $the_cfps, "cfp_user" => $the_cfp_users] as $type => $data_sets) { 
+                foreach($data_sets as $data_set) {
+                    $first_visitor = null;
+                    $caught_many = false;
+                    foreach($data_set[0]->login_logs as $logs) {
+                        if(!$first_visitor) { $first_visitor = $logs->visitor_id; }
+                        if($first_visitor != $logs->visitor_id) {
+                            $caught_many = true;
+                            break;
+                        }
+                    }
+                    if($caught_many) {
+                        ${$type . "_has_many"}++;
+                    }
+                    else {
+                        ${$type . "_has_one"}++;
+                    }
+                }
+            }
+
+            return [
+                "cfpid 總數: " . $the_cfps->count(),
+                "cfpid <-> custom id 一對一的數量: " . $cfp_has_one,
+                "cfpid <-> custom id 一對多的數量: " . $cfp_has_many,
+                "cfpid_userid <-> custom id 一對一的數量: " . $cfp_user_has_one,
+                "cfpid_userid <-> custom id 一對多的數量: " . $cfp_user_has_many,
+            ];
+        });
     });
 
 

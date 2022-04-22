@@ -273,12 +273,14 @@ class Message_new extends Model
         return $saveMessages;
     }
 
-    public static function newChatArrayAJAX($uid, $messages) {
+    public static function newChatArrayAJAX($uid, $messages) 
+    {
         $saveMessages = [];
         $tempMessages = [];
         $isAllDelete = true;
         //$msgShow = User::findById($uid)->meta_()->notifhistory;
-        foreach($messages as $key => $message) {
+        foreach($messages as $key => $message) 
+        {
             //            if($isVip == 0 && $noVipCount >0 &&$noVipCount >= Config::get('social.limit.show-chat')) {
             //                break;
             //            }
@@ -492,7 +494,8 @@ class Message_new extends Model
     }
 
 
-    public static function sortMessages($messages, $userBlockList = null, $mm = [], $mCount = 10,$uid=null){
+    public static function sortMessages($messages, $userBlockList = null, $mm = [], $mCount = 10,$uid=null)
+    {
         if ($messages instanceof Illuminate\Database\Eloquent\Collection) {
             $messages = $messages->toArray();
         }
@@ -567,7 +570,7 @@ class Message_new extends Model
                 }
                 $messages[$key]['read_n'] = $mm[$msgUser->id] ?? 0;
                 $messages[$key]['isVip'] = $msgUser->isVip();
-//                $messages[$key]['isWarned']=$msgUser->meta_()->isWarned;
+                //$messages[$key]['isWarned']=$msgUser->meta_()->isWarned;
                 if(($msgUser->user_meta->isWarned==1 || $msgUser->aw_relation ) && $msgUser->id != 1049){
                     $messages[$key]['isWarned']=1;
                 }else{
@@ -594,7 +597,7 @@ class Message_new extends Model
             }
         }
         //$messages['date'] = self::$date;
-//        array_multisort($messages[1]['created_at'],SORT_DESC, SORT_STRING);
+        //array_multisort($messages[1]['created_at'],SORT_DESC, SORT_STRING);
         return $messages;
     }
 

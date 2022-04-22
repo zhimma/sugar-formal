@@ -9,6 +9,14 @@ class CustomFingerPrint extends Model
     //
     protected $table = 'custom_fingerprint';
 
+    public function visitor(){
+        return $this->login_log->visitor;
+    }
+
+    public function login_logs(){
+        return $this->hasMany(LogUserLogin::class, 'cfp_id', 'id');
+    }
+
     /**
      * Save the model to the database.
      *

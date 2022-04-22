@@ -30,6 +30,7 @@ use Illuminate\Database\Eloquent\Collection;
 use Illuminate\Http\Request;
 use App\Services\UserService;
 use App\Services\AdminService;
+use App\Services\FaqService;
 use App\Http\Controllers\Controller;
 use App\Http\Requests\UserInviteRequest;
 use App\Models\User;
@@ -49,6 +50,7 @@ use App\Models\BannedUsersImplicitly;
 use App\Models\DataForFilterByInfo;
 use App\Models\DataForFilterByInfoIgnores;
 use App\Models\ImagesCompareEncode;
+use App\Models\Order;
 use App\Notifications\BannedNotification;
 use App\Observer\BadUserCommon;
 use Carbon\Carbon;
@@ -60,11 +62,12 @@ use Intervention\Image\Facades\Image;
 use Illuminate\Support\Facades\Log;
 use Session;
 use App\Http\Controller\PagesController;
+use App\Models\Blocked;
 use App\Models\ValueAddedService;
 use App\Services\ImagesCompareService;
 use App\Models\SimilarImages;
 use App\Models\CheckPointUser;
-use App\Models\Order;
+use App\Models\ComeFromAdvertise;
 
 class UserController extends \App\Http\Controllers\BaseController
 {
@@ -959,8 +962,12 @@ class UserController extends \App\Http\Controllers\BaseController
                 ->with('user', $user)
                 ->with('userMeta', $userMeta)
                 ->with('last_images_compare_encode',ImagesCompareEncode::orderByDesc('id')->firstOrNew());
-        }        
-        
+        }
+        if($block=='userAdvInfo') {
+            $userAdvInfo=\App\Models\User::userAdvInfo($user->id);
+            return view('admin.users.advInfo_UserAdvInfo')
+                ->with('userAdvInfo', $userAdvInfo);
+        }
         $userMessage = Message::where('from_id', $id)->orderBy('created_at', 'desc')->paginate(config('social.admin.showMessageCount'));
         if(!empty($request->get('page'))){
             //新增Admin操作log
@@ -992,7 +999,8 @@ class UserController extends \App\Http\Controllers\BaseController
             ->groupBy(DB::raw("ref_user_id"))
             ->orderByRaw("IF(ref_user_id=1049, 1, 0)  desc")
             ->orderBy('message.created_at','DESC')
-            ->paginate(20);
+            ->paginate(1000)
+            ;
 
         foreach ($userMessage_log as $key => $value) {
             $userMessage_log[$key]['items'] = Message::withTrashed()->select('message.*','message.id as mid','message.created_at as m_time','u.*','b.id as banned_id','b.expire_date as banned_expire_date')
@@ -1003,7 +1011,8 @@ class UserController extends \App\Http\Controllers\BaseController
                 ->orWhere([['message.from_id', $id],['message.to_id', $value->ref_user_id]])
                 ->where('message.created_at','>=', \Carbon\Carbon::parse("180 days ago")->toDateTimeString())
                 ->orderBy('message.created_at')
-                ->take(20)->get();
+                ->take(1000)
+                ->get();
         }
 
         // 給予、取消優選
@@ -2447,6 +2456,260 @@ class UserController extends \App\Http\Controllers\BaseController
         $a = AdminAnnounce::orderBy('sequence', 'asc')->get()->all();
         return view('admin.adminannouncement')->with('announce', $a);
     }
+    
+    public function showFaq(Request $request, FaqService $service)
+    {
+        $data['service'] = $service->fillQuestionList();
+        $data['entry_list'] = $data['service']->question_list;
+        $data['count_down_time'] = $data['service']->getCountDownTime();
+        return view('admin.faq',$data);
+    } 
+
+    public function showNewFaq(Request $request,FaqService $service)
+    {   
+        $data['service'] = $service->fillGroupList();
+        $data['group_list_set']['1_1'] = $data['service']->getGroupListByEngroupVip('1_1');
+        $data['group_list_set']['1_0'] = $data['service']->getGroupListByEngroupVip('1_0');
+        $data['group_list_set']['2_-1'] = $data['service']->getGroupListByEngroupVip('2_-1');
+        $data['engroup_vip_words'] = $data['service']->getEngroupVipWord();
+        $data['group_target_code_list'] = $data['service']->group_target_code_list();
+        $data['question_type_list'] = $data['service']->question_type_list();
+        return view('admin.faq_new',$data);
+    }  
+
+    public function newFaq(Request $request, FaqService $service)
+    {       
+        if ($service->addQuestion($request)) {
+            $theGroupEntry = $service->question_entry()->faq_group;
+            return redirect('admin/faq?engroupvip='.($theGroupEntry->engroup).'_'.$theGroupEntry->is_vip)
+                ->with('message', '成功新增FAQ');
+        } else {
+            return redirect('admin/faq?engroupvip='.($service->riseByGroupId($request->group_id)->group_entry()->engroup).'_'.$service->group_entry()->is_vip)
+                ->withErrors(['出現不明錯誤，無法新增FAQ']);
+        }
+    } 
+
+    public function showFaqEdit(FaqService $service,$id)
+    {
+        $data['service'] = $service->riseByQuestionId($id)->fillGroupList();
+        $data['entry'] =  $data['service']->question_entry();
+        $data['group_target_code_list'] = $data['service']->group_target_code_list();
+        $data['group_list_set']['1_1'] = $data['service']->getGroupListByEngroupVip('1_1');
+        $data['group_list_set']['1_0'] = $data['service']->getGroupListByEngroupVip('1_0');
+        $data['group_list_set']['2_-1'] = $data['service']->getGroupListByEngroupVip('2_-1');        
+        $data['engroup_vip_words'] = $data['service']->getEngroupVipWord();
+        return view('admin.faq_edit',$data);
+    } 
+
+    public function saveFaq(Request $request,FaqService $service)
+    {
+        if ($service->saveQuestion($request)) {
+            $theGroupEntry = $service->question_entry()->faq_group;
+            return redirect('admin/faq?engroupvip='.($theGroupEntry->engroup).'_'.$theGroupEntry->is_vip)
+                ->with('message', '成功修改FAQ');
+        } else {
+            return redirect('admin/faq?engroupvip='.($service->riseByGroupId($request->group_id)->group_entry()->engroup).'_'.$service->group_entry()->is_vip)
+                ->withErrors(['出現不明錯誤，無法修改FAQ']);
+        }
+    } 
+    
+    public function saveAnsFromFaq(Request $request,FaqService $service) {
+        if ($service->riseByQuestionId($request->question_id)->saveRegularAns($request)) {
+            $theGroupEntry = $service->question_entry()->faq_group;
+            return redirect('admin/faq?engroupvip='.($theGroupEntry->engroup).'_'.$theGroupEntry->is_vip)
+                ->with('message', '成功修改FAQ');
+        } else {
+            return redirect('admin/faq?engroupvip='.($service->riseByGroupId($request->group_id)->group_entry()->engroup).'_'.$service->group_entry()->is_vip)
+                ->withErrors(['出現不明錯誤，無法修改FAQ']);
+        }            
+    }
+    
+    public function saveSettingFromFaq(Request $request,FaqService $service) {
+        $rs = $service->saveSetting($request);
+        if ($rs) {
+            $theGroupEntry = $service->question_entry()->faq_group;
+            return back()->with('message', '成功修改FAQ設定');
+        } else if($rs===false) {
+            return back()->withErrors(['出現不明錯誤，無法修改FAQ設定']);
+        }  
+        else {
+            return back();
+        }
+    }    
+
+    public function deleteFaq(Request $request,FaqService $service)
+    {      
+        if ($service->riseByQuestionId($request->id)->delQuestion()) {
+            return redirect('admin/faq?engroupvip='.($service->group_entry()->engroup??'1').'_'.$service->group_entry()->is_vip??'1')
+                ->with('message', '成功刪除FAQ');
+        } else {
+            return redirect('admin/faq?engroupvip='.($service->group_entry()->engroup??'1').'_'.$service->group_entry()->is_vip??'1')
+                ->withErrors(['出現不明錯誤，無法刪除FAQ']);
+        }
+    }   
+
+    public function showFaqGroup(Request $request, FaqService $service)
+    {   
+        if(!$request->engroupvip) {
+            return redirect('admin/faq_group?engroupvip=1_1');
+        }
+        $data['service'] = $service->fillGroupList($request);
+        $data['entry_list'] = $data['service']->group_list;
+        $data['default_qstring'] = $data['service']->getEngroupVipQueryString('?',request());
+        $data['engroup_vip_words'] = $data['service']->getEngroupVipWord();
+        $data['group_target_code_list'] = $data['service']->group_target_code_list();        
+        return view('admin.faq_group',$data);
+    } 
+
+    public function showNewFaqGroup(Request $request,FaqService $service)
+    {     
+        $data['service'] = $service;
+        $data['default_qstring'] = $data['service']->getEngroupVipQueryString('?',request());
+        return view('admin.faq_group_new',$data);
+    }  
+
+    public function newFaqGroup(Request $request, FaqService $service)
+    {
+        if ($service->addGroup($request)) {
+            return redirect('admin/faq_group'.$service->getEngroupVipQueryString('?',$service->group_entry()))
+                ->with('message', '成功新增FAQ組別');
+        } else {
+            return redirect('admin/faq_group'.$service->getEngroupVipQueryString('?',$service->group_entry()))
+                ->withErrors(['出現不明錯誤，無法新增FAQ組別']);
+        }
+    } 
+
+    public function saveFaqGroupAct(Request $request, FaqService $service) {
+        $rs = false;
+        $act = $request->act??[];
+        $old_act = $request->old_act??[];
+        $list_group_id = $request->list_group_id??[];
+        $to_act = array_diff($act,$old_act);
+        $allow_to_act = [];
+        $forbid_to_act = [];
+        foreach($to_act as $k=>$v) {
+            $now_check_group = $service->slotByGroupId($v)->group_entry();
+            if(!($now_check_group??null)) continue;
+            $now_check_group->renewHasAnswer();
+            if($now_check_group->isRealHasAnswer()) {
+                $allow_to_act[] = $v;
+            }
+            else {
+                $forbid_to_act[] = $v;
+            }
+        }
+        $not_act = array_diff($list_group_id,$act);
+        $to_not_act = array_intersect($not_act,$old_act);
+
+        $rs = $service->group_entry()->whereIn('id',$allow_to_act )->where('act',0)->update(['act'=>1,'act_at'=>Carbon::now()]);
+        $service->logGroupAct(1,$to_act);
+        if(count($to_not_act)) {
+            $rs = $service->group_entry()->whereIn('id',$to_not_act )->where('act',1)->update(['act'=>0,'act_at'=>null]);
+            $service->logGroupAct(0,$to_not_act);
+        }
+        if($rs) {
+            if(!$forbid_to_act) {
+                return back()
+                    ->with('message', '成功改變FAQ組別的啟用狀態');            
+            }
+            else {
+                return back()
+                    ->with('message', '成功改變'.count($allow_to_act).'組FAQ組別的啟用狀態，另有'.count($forbid_to_act).'組無法啟用');                  
+            }
+        }
+        else {
+            return back()
+                ->withErrors(['出現不明錯誤，無法改變FAQ組別的啟用狀態']);            
+        }
+    }
+
+    public function showFaqGroupEdit(FaqService $service,$id)
+    {
+        $data['service'] = $service->riseByGroupId($id);
+        $data['entry'] =  $data['service']->group_entry();
+        return view('admin.faq_group_edit',$data);
+    } 
+
+    public function saveFaqGroup(Request $request, FaqService $service)
+    {        
+        if ($service->saveGroup($request)) {
+            return redirect('admin/faq_group'.$service->getEngroupVipQueryString('?',$service->group_entry()))
+                ->with('message', '成功修改FAQ組別');
+        } else {
+            return redirect('admin/faq_group'.$service->getEngroupVipQueryString('?',$service->group_entry()))
+                ->withErrors(['出現不明錯誤，無法修改FAQ組別']);
+        }        
+    }
+
+    public function deleteFaqGroup(Request $request,FaqService $service)
+    {      
+        if ($service->riseByGroupId($request->id)->delGroup()) {
+            return redirect('admin/faq_group'.$service->getEngroupVipQueryString('?',$service->group_entry()))
+                ->with('message', '成功刪除FAQ組別');
+        } else {
+            return redirect('admin/faq_group'.$service->getEngroupVipQueryString('?',$service->group_entry()))
+                ->withErrors(['出現不明錯誤，無法刪除FAQ組別']);
+        }
+    } 
+
+
+    public function showFaqChoice(Request $request, FaqService $service,$id)
+    {
+        $data['service'] = $service->riseByQuestionId($id)->fillChoiceList();
+        $data['entry_list'] = $data['service']->choice_list;
+        return view('admin.faq_choice',$data);
+    } 
+
+    public function showNewFaqChoice(Request $request,FaqService $service,$id)
+    {   
+        $data['service'] = $service->riseByQuestionId($id);
+        return view('admin.faq_choice_new',$data);
+    }  
+
+    public function newFaqChoice(Request $request, FaqService $service,$id)
+    {
+        if ($service->riseByQuestionId($id)->addChoice($request)) {
+            return redirect()->route('admin/faq_choice', $id)
+                ->with('message', '成功新增FAQ選項');
+        } else {
+            if($service->error_msg()=='duplicate_name') $error_msg = '選項名稱重複，無法修改FAQ選項';
+            else $error_msg='出現不明錯誤，無法修改FAQ選項';            
+            
+            return redirect()->route('admin/faq_choice', $id)
+                ->withErrors([$error_msg]);
+        }
+    }  
+
+    public function showFaqChoiceEdit(FaqService $service,$id)
+    {
+        $data['service'] = $service->riseByChoiceId($id);
+        $data['entry'] =  $data['service']->choice_entry();
+        return view('admin.faq_choice_edit',$data);
+    } 
+
+    public function saveFaqChoice(Request $request, FaqService $service,$id)
+    {        
+        if ($service->riseByQuestionId($id)->saveChoice($request)) {
+            return redirect()->route('admin/faq_choice', $id)
+                ->with('message', '成功修改FAQ選項');
+        } else {
+            if($service->error_msg()=='duplicate_name') $error_msg = '選項名稱重複，無法修改FAQ選項';
+            else $error_msg='出現不明錯誤，無法修改FAQ選項';
+            return redirect()->route('admin/faq_choice', $id)
+                ->withErrors([$error_msg]);
+        }        
+    }
+
+    public function deleteFaqChoice(Request $request,FaqService $service)
+    {      
+        if ($service->riseByChoiceId($request->id)->delChoice()) {
+            return redirect()->route('admin/faq_choice',$service->question_entry()->id)
+                ->with('message', '成功刪除FAQ選項');
+        } else {
+            return redirect()->route('admin/faq_choice',$service->question_entry()->id)
+                ->withErrors(['出現不明錯誤，無法刪除FAQ選項']);
+        }
+    }      
 
     public function showAdminCommonText()
     {
@@ -5587,4 +5850,202 @@ class UserController extends \App\Http\Controllers\BaseController
         return redirect()->back();
     }
 
+    public function informationStatistics(Request $request)
+    {
+        //選項
+        $form_condition['days'] = $request->days ?? 30;
+        $form_condition['percentage'] = $request->percentage ?? 10;
+        $form_condition['sex'] = $request->sex ?? 0;
+        $form_condition['include_banned_user'] = $request->include_banned_user ?? 0;
+        $form_condition['include_closed_user'] = $request->include_closed_user ?? 0;
+
+
+
+        //最後登入時間
+        $login_date = Carbon::now()->subDays($form_condition['days']);
+        //上線總人數
+        $statistics_data['login_member_count'] = User::where('last_login', '>', $login_date)->count();
+        //付費VIP總人數
+        $statistics_data['all_pay_vip_count'] = Order::leftJoin('users','user_id','=','users.id')->where('users.last_login', '>', $login_date)->where('service_name', 'VIP')->groupby('users.id')->get()->count();
+        //被封鎖總人數
+        $statistics_data['all_be_blocked_count'] = Blocked::leftJoin('users','blocked_id','=','users.id')->where('users.last_login', '>', $login_date)->groupby('users.id')->get()->count();
+        //封鎖他人總人數
+        $statistics_data['all_block_other_count'] = Blocked::leftJoin('users','member_id','=','users.id')->where('users.last_login', '>', $login_date)->groupby('users.id')->get()->count();
+        //付出車馬費總人數
+        $statistics_data['all_pay_tip_count'] = Tip::leftJoin('users','member_id','=','users.id')->where('users.last_login', '>', $login_date)->groupby('users.id')->get()->count();
+        //接收車馬費總人數
+        $statistics_data['all_receive_tip_count'] = Tip::leftJoin('users','to_id','=','users.id')->where('users.last_login', '>', $login_date)->groupby('users.id')->get()->count();
+
+
+
+        //付費VIP統計
+        $statistics_data['pay_vip_count'] = Order::leftJoin('users','user_id','=','users.id')->where('last_login', '>', $login_date)->where('service_name', 'VIP');
+        //被其他使用者封鎖統計
+        $statistics_data['be_blocked_count'] = Blocked::leftJoin('users','blocked.blocked_id','=','users.id')->where('users.last_login', '>', $login_date);
+        //封鎖其他使用者統計
+        $statistics_data['block_other_count'] = Blocked::leftJoin('users','blocked.member_id','=','users.id')->where('users.last_login', '>', $login_date);
+        //付出車馬費統計
+        $statistics_data['pay_tip_count'] = Tip::leftJoin('users','member_id','=','users.id')->where('users.last_login', '>', $login_date);
+        //接收車馬費統計
+        $statistics_data['receive_tip_count'] = Tip::leftJoin('users','to_id','=','users.id')->where('users.last_login', '>', $login_date);
+
+        //性別
+        if($form_condition['sex'] == 1 || $form_condition['sex'] == 2)
+        {
+            $statistics_data['pay_vip_count'] = $statistics_data['pay_vip_count']->where('users.engroup', $form_condition['sex']);
+            $statistics_data['be_blocked_count'] = $statistics_data['be_blocked_count']->where('users.engroup', $form_condition['sex']);
+            $statistics_data['block_other_count'] = $statistics_data['block_other_count']->where('users.engroup', $form_condition['sex']);
+            $statistics_data['pay_tip_count'] = $statistics_data['pay_tip_count']->where('users.engroup', $form_condition['sex']);
+            $statistics_data['receive_tip_count'] = $statistics_data['receive_tip_count']->where('users.engroup', $form_condition['sex']);
+        }
+
+        //是否包含封鎖帳戶使用者
+        if(!($form_condition['include_banned_user']??false))
+        {
+            $statistics_data['pay_vip_count'] = $statistics_data['pay_vip_count']->leftJoin('banned_users','users.id','=','banned_users.member_id')
+                                                                                ->leftJoin('banned_users_implicitly','users.id','=','banned_users_implicitly.target')
+                                                                                ->whereNull('banned_users.id')
+                                                                                ->whereNull('banned_users_implicitly.id');
+            $statistics_data['be_blocked_count'] = $statistics_data['be_blocked_count']->leftJoin('banned_users','users.id','=','banned_users.member_id')
+                                                                                        ->leftJoin('banned_users_implicitly','users.id','=','banned_users_implicitly.target')
+                                                                                        ->whereNull('banned_users.id')
+                                                                                        ->whereNull('banned_users_implicitly.id');
+            $statistics_data['block_other_count'] = $statistics_data['block_other_count']->leftJoin('banned_users','users.id','=','banned_users.member_id')
+                                                                                        ->leftJoin('banned_users_implicitly','users.id','=','banned_users_implicitly.target')
+                                                                                        ->whereNull('banned_users.id')
+                                                                                        ->whereNull('banned_users_implicitly.id');
+            $statistics_data['pay_tip_count'] = $statistics_data['pay_tip_count']->leftJoin('banned_users','users.id','=','banned_users.member_id')
+                                                                                ->leftJoin('banned_users_implicitly','users.id','=','banned_users_implicitly.target')
+                                                                                ->whereNull('banned_users.id')
+                                                                                ->whereNull('banned_users_implicitly.id');
+            $statistics_data['receive_tip_count'] = $statistics_data['receive_tip_count']->leftJoin('banned_users','users.id','=','banned_users.member_id')
+                                                                                        ->leftJoin('banned_users_implicitly','users.id','=','banned_users_implicitly.target')
+                                                                                        ->whereNull('banned_users.id')
+                                                                                        ->whereNull('banned_users_implicitly.id');
+        }
+
+        //是否包含關閉帳戶使用者
+        if(!($form_condition['include_closed_user']??false))
+        {
+            $statistics_data['pay_vip_count'] = $statistics_data['pay_vip_count']->where('users.accountStatus', 1)->where('account_status_admin', 1);
+            $statistics_data['be_blocked_count'] = $statistics_data['be_blocked_count']->where('users.accountStatus', 1)->where('account_status_admin', 1);
+            $statistics_data['block_other_count'] = $statistics_data['block_other_count']->where('users.accountStatus', 1)->where('account_status_admin', 1);
+            $statistics_data['pay_tip_count'] = $statistics_data['pay_tip_count']->where('users.accountStatus', 1)->where('account_status_admin', 1);
+            $statistics_data['receive_tip_count'] = $statistics_data['receive_tip_count']->where('users.accountStatus', 1)->where('account_status_admin', 1);
+        }
+
+
+
+        //其他結果
+        //最高VIP月份數
+        $temp_id = 0;
+        $temp_month = 0;
+        $statistics_data['max_pay_vip_month'] = 0;
+        $count = 0;
+        foreach($statistics_data['pay_vip_count']->clone()->select('users.id', 'order.payment', 'pay_date')->orderby('users.id')->get() as $pay_vip)
+        {
+            if($pay_vip->id != $temp_id)
+            {
+                $temp_id = $pay_vip->id;
+                $temp_month = 0;
+                $count = $count + 1;
+            }
+            switch($pay_vip->payment)
+            {
+                case 'one_month_payment':
+                    $temp_month = $temp_month + 1;
+                    break;
+                case 'one_quarter_payment':
+                    $temp_month = $temp_month + 3;
+                    break;
+                case 'cc_monthly_payment':
+                    $temp_month = $temp_month + (count(json_decode($pay_vip->pay_date)) * 1);
+                    break;
+                case 'cc_quarterly_payment':
+                    $temp_month = $temp_month + (count(json_decode($pay_vip->pay_date)) * 3);
+                    break;
+            }
+
+            if($temp_month > $statistics_data['max_pay_vip_month'])
+            {
+                $statistics_data['max_pay_vip_month'] = $temp_month;
+            }
+            $statistics_data['pay_vip_count_list'][$count-1] = $temp_month;
+        }
+        rsort($statistics_data['pay_vip_count_list']);
+        
+
+        //被封鎖次數列表
+        $statistics_data['be_blocked_count_list'] = $statistics_data['be_blocked_count']->clone()->selectRaw('users.id, count(*) as total')->groupBy('users.id')->orderby('total','desc');
+        //最高被封鎖次數
+        $statistics_data['max_be_blocked_count'] = $statistics_data['be_blocked_count_list']->clone()->first()->total ?? 0;
+        $statistics_data['be_blocked_count_list'] = $statistics_data['be_blocked_count_list']->get()->toArray();
+        //封鎖次數列表
+        $statistics_data['block_other_count_list'] = $statistics_data['block_other_count']->clone()->selectRaw('users.id, count(*) as total')->groupBy('users.id')->orderby('total','desc');
+        //最高封鎖次數
+        $statistics_data['max_block_other_count'] = $statistics_data['block_other_count_list']->clone()->first()->total ?? 0;
+        $statistics_data['block_other_count_list'] = $statistics_data['block_other_count_list']->get()->toArray();
+        //付出車馬費次數列表
+        $statistics_data['pay_tip_count_list'] = $statistics_data['pay_tip_count']->clone()->selectRaw('users.id, count(*) as total')->groupBy('users.id')->orderby('total','desc');
+        //最高付出車馬費次數
+        $statistics_data['max_pay_tip_count'] = $statistics_data['pay_tip_count_list']->clone()->first()->total ?? 0;
+        $statistics_data['pay_tip_count_list'] = $statistics_data['pay_tip_count_list']->get()->toArray();
+        //接收車馬費次數列表
+        $statistics_data['receive_tip_count_list'] = $statistics_data['receive_tip_count']->clone()->selectRaw('users.id, count(*) as total')->groupBy('users.id')->orderby('total','desc');
+        //最高接收車馬費次數
+        $statistics_data['max_receive_tip_count'] = $statistics_data['receive_tip_count_list']->clone()->first()->total ?? 0;
+        $statistics_data['receive_tip_count_list'] = $statistics_data['receive_tip_count_list']->get()->toArray();
+        
+
+
+        //符合人數
+        $statistics_data['pay_vip_count'] = round($statistics_data['pay_vip_count']->groupby('users.id')->get()->count() * $form_condition['percentage'] / 100);
+        $statistics_data['be_blocked_count'] = round($statistics_data['be_blocked_count']->groupby('users.id')->get()->count() * $form_condition['percentage'] / 100);
+        $statistics_data['block_other_count'] = round($statistics_data['block_other_count']->groupby('users.id')->get()->count() * $form_condition['percentage'] / 100);
+        $statistics_data['pay_tip_count'] = round($statistics_data['pay_tip_count']->groupby('users.id')->get()->count() * $form_condition['percentage'] / 100);
+        $statistics_data['receive_tip_count'] = round($statistics_data['receive_tip_count']->groupby('users.id')->get()->count() * $form_condition['percentage'] / 100);
+        //佔總人數比例
+        $statistics_data['pay_vip_percentage'] = round($statistics_data['pay_vip_count'] / $statistics_data['login_member_count'] * 100, 2);
+        $statistics_data['be_blocked_percentage'] = round($statistics_data['be_blocked_count'] / $statistics_data['login_member_count'] * 100, 2);
+        $statistics_data['block_other_percentage'] = round($statistics_data['block_other_count'] / $statistics_data['login_member_count'] * 100, 2);
+        $statistics_data['pay_tip_percentage'] = round($statistics_data['pay_tip_count'] / $statistics_data['login_member_count'] * 100, 2);
+        $statistics_data['receive_tip_percentage'] = round($statistics_data['receive_tip_count'] / $statistics_data['login_member_count'] * 100, 2);
+        
+
+
+        //百分比線結果
+        $statistics_data['pay_vip_count_result'] = 0;
+        $num = 0;
+        foreach($statistics_data['pay_vip_count_list'] as $data)
+        {
+            $num = $num + 1;
+            if($num >= $statistics_data['pay_vip_count'])
+            {
+                $statistics_data['pay_vip_count_result'] = $data;
+                break;
+            }
+        }
+        $statistics_data['be_blocked_count_result'] = $statistics_data['be_blocked_count_list'][$statistics_data['be_blocked_count']-1]['total'] ?? 0;
+        $statistics_data['block_other_count_result'] = $statistics_data['block_other_count_list'][$statistics_data['block_other_count']-1]['total'] ?? 0;
+        $statistics_data['pay_tip_count_result'] = $statistics_data['pay_tip_count_list'][$statistics_data['pay_tip_count']-1]['total'] ?? 0;
+        $statistics_data['receive_tip_count_result'] = $statistics_data['receive_tip_count_list'][$statistics_data['receive_tip_count']-1]['total'] ?? 0;
+
+
+        return view('admin.users.informationStatistics')
+                ->with('form_condition', $form_condition)
+                ->with('statistics_data', $statistics_data);
+    }
+
+    public function advertiseStatistics(Request $request)
+    {
+        $login_count = ComeFromAdvertise::where('action', 'login')->get()->count();
+        $explore_count = ComeFromAdvertise::where('action', 'explore')->get()->count();
+        $regist_count = ComeFromAdvertise::where('action', 'regist')->get()->count();
+
+        return view('admin.users.advertiseStatistics')
+                ->with('login_count', $login_count)
+                ->with('explore_count', $explore_count)
+                ->with('regist_count', $regist_count);
+    }
+    
 }

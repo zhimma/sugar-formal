@@ -41,10 +41,12 @@ class FindPuppetController extends \App\Http\Controllers\Controller
         $this->_cellVal = array();
         $this->_columnType = array();
         $this->_cpfidOfOverLimitUserId = [];
+        $this->_vidOfOverLimitUserId = [];
         $this->_groupIdx = 0; 
         $this->monarr = [];    
         $this->defaultSdateOfIp = \Carbon\Carbon::now()->subDays(10)->format('Y/m/d');
-        $this->defaultSdateOfCfpId = null;   
+        $this->defaultSdateOfCfpId = null; 
+        $this->defaultSdateOfVid = null;              
     }    
     
     public function entrance(Request $request) {          
@@ -57,6 +59,7 @@ class FindPuppetController extends \App\Http\Controllers\Controller
         $whereArr = [];
         $whereArrOfIp = [];
         $whereArrOfCfpId = [];
+        $whereArrOfVid = [];
         $have_mon_limit = false;
         $only= $request->only;
 		$cat = $only?'only_'.$only:'';
@@ -87,6 +90,9 @@ class FindPuppetController extends \App\Http\Controllers\Controller
             $sdateOfCfpId = $request->sdate?$request->sdate.'/01':$this->defaultSdateOfCfpId;
             $edateOfCfpId = $request->edate?date('Y/m/d',strtotime($request->edate.'/01+1 month - 1 day')):$curdate;
 
+            $sdateOfVid = $request->sdate?$request->sdate.'/01':$this->defaultSdateOfVid;
+            $edateOfVid = $request->edate?date('Y/m/d',strtotime($request->edate.'/01+1 month - 1 day')):$curdate;
+
             if($sdateOfIp) $sdateOfIpArr = explode('/',$sdateOfIp);
             else $sdateOfIpArr  = null;
             if($edateOfIp) $edateOfIpArr = explode('/',$edateOfIp);   
@@ -109,7 +115,19 @@ class FindPuppetController extends \App\Http\Controllers\Controller
             }
             else if($edateOfCfpId<$sdateOfCfpId) {
                 $error_msg = '錯誤!CfpId結束日期小於開始日期';
-            }           
+            } 
+
+            if($sdateOfVid) $sdateOfVidArr = explode('/',$sdateOfVid);
+            else $sdateOfVidArr  = null;
+            if($edateOfCfpId) $edateOfVidArr = explode('/',$edateOfVid);   
+            else $edateOfVidArr  = null;
+            
+            if(($sdateOfVidArr && !checkdate($sdateOfVidArr[1],$sdateOfVidArr[2],$sdateOfVidArr[0])) || ($edateOfVidArr && !checkdate($edateOfVidArr[1],$edateOfVidArr[2],$edateOfVidArr[0]))) {
+                $error_msg = 'CfpId日期格式錯誤或非正確日期';
+            }
+            else if($edateOfVid<$sdateOfVid) {
+                $error_msg = '錯誤!CfpId結束日期小於開始日期';
+            }               
 
             echo $error_msg;
 
@@ -127,6 +145,15 @@ class FindPuppetController extends \App\Http\Controllers\Controller
                     }
                     
                     if(isset($sdateOfCfpId)) $whereArrOfCfpId[] = ['created_at','>=',$sdateOfCfpId];                    
+
+
+                    if(isset($edateOfVid)) {
+                        if($edateOfVid) $edateOfVid.=$curtime;
+                        $whereArrOfVid[] = ['created_at','<',$edateOfVid];
+                    }
+                    
+                    if(isset($sdateOfVid)) $whereArrOfVid[] = ['created_at','>=',$sdateOfVid]; 
+
                     
                     if($have_mon_limit) {
                         if(isset($mon) && $mon) {
@@ -178,7 +205,10 @@ class FindPuppetController extends \App\Http\Controllers\Controller
                                             })
                                             ->where(function($q){
                                                 $q->whereNull('cfp_id')->orwhere('cfp_id','');
-                                            })                    
+                                            }) 
+                                            ->where(function($q){
+                                                $q->whereNull('visitor_id')->orwhere('visitor_id','');
+                                            })                                             
                                             ->get();                    
                     foreach($ignoreUserIdEntrys  as $ignoreUserIdEntry) {
                         $ignoreUserIdArr[$ignoreUserIdEntry->item] = $ignoreUserIdEntry;
@@ -438,6 +468,99 @@ class FindPuppetController extends \App\Http\Controllers\Controller
                             ,'created_at'=>$edate
                             ,'updated_at'=>date('Y-m-d H:i:s')]);                         
                     }
+
+
+                    if($only=='vid') {            
+                        Log::info('findPuppet排程'.$cat.'：開始產生VisitorId的Login資料');
+                        $this->column->insert( ['column_index'=>-1
+                            ,'name'=>'開始產生VisitorId的Login資料'
+                            ,'group_index'=>-1
+                            ,'cat'=>$cat
+                            ,'type'=>''
+                            ,'created_at'=>$edate
+                            ,'updated_at'=>date('Y-m-d H:i:s')]); 
+
+                        $ignoreUserIdVidCollect = $this->ignore->whereNotNull('visitor_id')->where('visitor_id','<>','')->get();         
+                        $ignoreUserIdVidArr = [];
+                        foreach($ignoreUserIdVidCollect  as $userIdVidEntry) {
+                            $ignoreUserIdVidArr[$userIdVidEntry->item][$userIdVidEntry->visitor_id] = $userIdVidEntry;
+                        }                              
+
+                        Log::info('findPuppet排程'.$cat.'：開始以visitor_id讀取登入紀錄');
+                        $this->column->insert( ['column_index'=>-1
+                            ,'name'=>'開始以visitor_id讀取登入紀錄'
+                            ,'group_index'=>-1
+                            ,'cat'=>$cat
+                            ,'type'=>''
+                            ,'created_at'=>$edate
+                            ,'updated_at'=>date('Y-m-d H:i:s')]);
+
+                            
+                        $loginDataVidQuery = $model->has('user')->groupBy('visitor_id','user_id')
+                                ->select('visitor_id','user_id')->selectRaw('MAX(`created_at`) AS time,COUNT(*) AS num,MIN(`created_at`) AS stime')->whereNotNull('visitor_id')->where('visitor_id','<>','');
+                        
+                        if($whereArr) $loginDataVidQuery->where($whereArr);
+                        if($whereArrOfVid) $loginDataVidQuery->where($whereArrOfVid);                  
+                        if($excludeUserId) $loginDataVidQuery=$loginDataVidQuery->whereNotIn('user_id',$excludeUserId);                            
+
+                        $loginDataEntrys = $loginDataVidQuery->orderBy('time','desc')->get();
+                        
+                        Log::info('findPuppet排程'.$cat.'：完成以visitor_id讀取登入紀錄共'.$loginDataEntrys->count().'筆資料');
+                        $this->column->insert( ['column_index'=>-1
+                            ,'name'=>'完成以visitor_id讀取登入紀錄共'.$loginDataEntrys->count().'筆資料'
+                            ,'group_index'=>-1
+                            ,'cat'=>$cat
+                            ,'type'=>''
+                            ,'created_at'=>$edate
+                            ,'updated_at'=>date('Y-m-d H:i:s')]);                        
+                        
+                        $this->loginDataByVid = [];
+                        $this->loginDataByUserIdVid = [];
+                        $vidOfOverLimitUserId = [];
+
+                        foreach($loginDataEntrys  as $loginDataVidEntry) {
+                            
+                            if(isset($ignoreUserIdArr[$loginDataVidEntry->user_id])) {
+                                $nowIgnoreUserId = $ignoreUserIdArr[$loginDataVidEntry->user_id];
+                                if($nowIgnoreUserId->created_at> $loginDataVidEntry->time)  
+                                    continue;
+                                else {
+                                    $nowIgnoreUserId->delete();
+                                    $ignoreUserIdArr[$loginDataVidEntry->user_id] = null;
+                                    unset($ignoreUserIdArr[$loginDataVidEntry->user_id]);                                    
+                                }                                
+                            }                            
+
+                            if(isset($ignoreUserIdVidArr[$loginDataVidEntry->user_id][$loginDataVidEntry->visitor_id])) {
+                                $nowIgnoreUserIdVid = $ignoreUserIdVidArr[$loginDataVidEntry->user_id][$loginDataVidEntry->visitor_id];
+                                if($nowIgnoreUserIdVid->created_at> $loginDataVidEntry->time)  
+                                    continue;
+                                else {
+                                    $nowIgnoreUserIdVid->delete();
+                                }
+                            }
+                            
+                            $this->loginDataByVid[$loginDataVidEntry->visitor_id][$loginDataVidEntry->user_id] = $loginDataVidEntry;
+                            //if(!in_array($loginDataCfpIdEntry->cfp_id,$this->_cpfidOfOverLimitUserId) && count($this->loginDataByCfpId[$loginDataCfpIdEntry->cfp_id]??[])>50) $this->_cpfidOfOverLimitUserId[]=$loginDataCfpIdEntry->cfp_id;
+                            $this->loginDataByUserIdVid[$loginDataVidEntry->user_id][$loginDataVidEntry->visitor_id] = $loginDataVidEntry;
+                        }
+
+                        foreach($this->_vidOfOverLimitUserId as $cv) {
+                            $this->loginDataByVid[$cv] = null;
+                            unset($this->loginDataByVid[$cv] );
+                        }
+                        
+                        Log::info('findPuppet排程'.$cat.'：完成產生Vid的Login資料');   
+                        $this->column->insert( ['column_index'=>-1
+                            ,'name'=>'完成產生Vid的Login資料'
+                            ,'group_index'=>-1
+                            ,'cat'=>$cat
+                            ,'type'=>''
+                            ,'created_at'=>$edate
+                            ,'updated_at'=>date('Y-m-d H:i:s')]);                         
+                    }
+                  
+
                                                            
                     $ignoreUserId = array_pluck($this->ignore
                                                 ->where(function($q) {
@@ -448,6 +571,52 @@ class FindPuppetController extends \App\Http\Controllers\Controller
                                                 })                                                
                                                 ->get()->toArray()
                                     ,'item');                                        
+
+
+                    $puppetFromUsers = null;
+                  
+                    if($only=='vid') {
+                        Log::info('findPuppet排程'.$cat.'：開始比對Vid');
+                        $this->column->insert( ['column_index'=>-1
+                            ,'name'=>'開始比對Vid'
+                            ,'group_index'=>-1
+                            ,'cat'=>$cat
+                            ,'type'=>''
+                            ,'created_at'=>$edate
+                            ,'updated_at'=>date('Y-m-d H:i:s')]);                         
+                        $vidPuppetFromUserQuery = $model->has('user')->groupBy('visitor_id')
+                                ->select('visitor_id')->selectRaw('COUNT(DISTINCT `user_id`) AS num')
+                                ->whereNotNull('visitor_id')->where('visitor_id','<>','')
+                                ->orderByDesc('num');
+                        
+                        if($whereArr)  $vidPuppetFromUserQuery->where($whereArr);
+                        if($whereArrOfVid) $vidPuppetFromUserQuery->where($whereArrOfVid);                        
+                        if($excludeUserId) $vidPuppetFromUserQuery=$vidPuppetFromUserQuery->whereNotIn('user_id',$excludeUserId);                            
+                        if($ignoreUserId) $vidPuppetFromUserQuery=$vidPuppetFromUserQuery->whereNotIn('user_id',$ignoreUserId);
+
+                        $puppetFromUsers = $vidPuppetFromUserQuery->get();
+
+                        foreach($puppetFromUsers as $vidPuppet) {
+                            
+                            if($vidPuppet->num<2 || $this->_isColumnChecked($vidPuppet->visitor_id))
+                                continue;
+                            else {
+                                if($this->_findMultiUserIdFromIp($vidPuppet->visitor_id,'visitor_id')===true) continue;
+
+                                $this->_groupIdx++;  
+                            }
+                        } 
+                        Log::info('findPuppet排程'.$cat.'：完成比對Vid，組別達到'.$this->_groupIdx.'組');     
+                        $this->column->insert( ['column_index'=>-1
+                            ,'name'=>'完成比對CfpId，組別達到'.$this->_groupIdx.'組'
+                            ,'group_index'=>-1
+                            ,'cat'=>$cat
+                            ,'type'=>''
+                            ,'created_at'=>$edate
+                            ,'updated_at'=>date('Y-m-d H:i:s')]);                          
+                    }
+
+
                         
 
                     $puppetFromUsers = null;
@@ -768,6 +937,9 @@ class FindPuppetController extends \App\Http\Controllers\Controller
             case 'cfp_id':
                 $loginData = $this->loginDataByCfpId;
             break;
+            case 'visitor_id':
+                $loginData = $this->loginDataByVid;
+            break;            
         }
         
 
@@ -865,7 +1037,33 @@ class FindPuppetController extends \App\Http\Controllers\Controller
                 foreach($multiCfpIds_keys  as $multiCfpId) {
                      if(!$multiCfpId) continue;
                      if($this->_findMultiUserIdFromIp($multiCfpId,'cfp_id')===true) continue;
-                 }             
+                } 
+
+            //比對visitor id
+            $multiVids = isset($this->loginDataByUserIdVid[$multiUserId->user_id])?$this->loginDataByUserIdVid[$multiUserId->user_id]:[];
+
+            $new_check_column = null;
+            $multiVids_keys = array_keys($multiVids);
+            if($this->_vidOfOverLimitUserId) {
+                $multiVids_keys = array_diff($multiVids_keys,$this->_vidOfOverLimitUserId);
+            }  
+
+            if(isset($this->_columnIp[$groupIdx])) {        
+                $new_check_column = array_diff($multiVids_keys,$this->_columnIp[$groupIdx]);
+            }
+            else {$new_check_column = $multiVids_keys;}
+
+            if(isset($new_check_column) && $new_check_column)
+                foreach($new_check_column as $new_check_value) {
+                        if($this->_havePuppetUserId($new_check_value,$this->loginDataByVid)) 
+                            $this->_columnIp[$groupIdx][] = $new_check_value;
+                }             
+               
+            if(isset($multiVids_keys) && $multiVids_keys)                 
+                foreach($multiVids_keys  as $multiVid) {
+                     if(!$multiVid) continue;
+                     if($this->_findMultiUserIdFromIp($multiVid,'visitor_id')===true) continue;
+                }                   
              
         }   
     }
@@ -967,6 +1165,20 @@ class FindPuppetController extends \App\Http\Controllers\Controller
                     }
                 }  
 
+                if($this->defaultSdateOfVid)  {
+                    $sdate_from_model = null;
+                    $sdate_from_model = $this->model->whereNotNull('visitor_id')->min('created_at');
+
+                    if($this->defaultSdateOfVid>=$sdate_from_model) {
+                        $data['sdateOfVid'] = $this->defaultSdateOfVid;
+                    }
+                    else {
+                        
+                        $data['sdateOfVid'] = $sdate_from_model;
+                    }
+                }  
+
+
 				$groupChecksQuery = $this->cell->select('group_index');
 				
 				$groupChecksQuery->where($whereArr);
@@ -1059,7 +1271,10 @@ class FindPuppetController extends \App\Http\Controllers\Controller
                         })
                         ->where(function($q){
                             $q->whereNull('cfp_id')->orwhere('cfp_id','');
-                        })                        
+                        }) 
+                        ->where(function($q){
+                            $q->whereNull('visitor_id')->orwhere('visitor_id','');
+                        })                          
                         ->first();
 
                     if($cur_user->banned)  {
@@ -1119,6 +1334,7 @@ class FindPuppetController extends \App\Http\Controllers\Controller
             $colEntrys = $colQuery->get();
             $colIdxOfIp = [];
             $colIdxOfCfpId = [];
+            $colIdxOfVid = [];
             foreach($colEntrys as $colEntry) {
                 if(isset($groupInfo[$colEntry->group_index]['cutData']) && $groupInfo[$colEntry->group_index]['cutData'] && $colEntry->column_index>$data['colLimit']) continue;
                 
@@ -1131,6 +1347,9 @@ class FindPuppetController extends \App\Http\Controllers\Controller
                 else if($colEntry->type=='cfp_id'){
                     $colIdxOfCfpId[$colEntry->group_index][] = $colEntry->column_index;
                 }
+                else if($colEntry->type=='visitor_id'){
+                    $colIdxOfVid[$colEntry->group_index][] = $colEntry->column_index;
+                }                
             }
             
 
@@ -1193,7 +1412,7 @@ class FindPuppetController extends \App\Http\Controllers\Controller
                     }                        
                 }
                 
-                $colnames = ['ip或cfp_id','user_id','last_login_time','login_count'];
+                $colnames = ['ip或cfp_id或....','user_id','last_login_time','login_count'];
 
                 $text = '<table>'.$this->_getSimpleTableHead($colnames).$text.'</table>';
                 $text = $this->_getSimpleStyle().$text;
@@ -1215,6 +1434,7 @@ class FindPuppetController extends \App\Http\Controllers\Controller
     $data['rowLastLoginArr'] = $rowLastLoginArr;
     $data['colIdxOfCfpId'] = $colIdxOfCfpId;
     $data['colIdxOfIp'] = $colIdxOfIp;  
+    $data['colIdxOfVid'] = $colIdxOfVid;  
     $data['new_exec_log'] = $new_exec_log;  
     //$data['group_segment'] = $group_segment;
 
@@ -1232,6 +1452,7 @@ class FindPuppetController extends \App\Http\Controllers\Controller
         $user_id = $request->user_id;
         $ip = $request->ip;
         $cfp_id = $request->cfp_id;
+        $visitor_id = $request->visitor_id;
         $time = $request->logtime;
         $query = $this->model;
         $html = null;
@@ -1239,7 +1460,7 @@ class FindPuppetController extends \App\Http\Controllers\Controller
         $title='';
         $showLogQuery = [];
         
-        $colnames = ['user_id','ip','cfp_id','created_at','userAgent'];
+        $colnames = ['user_id','ip','cfp_id','visitor_id','created_at','userAgent'];
         
         if($time) {
             $usuery = $this->model->where('created_at','<',$time)->take(10)->orderByDesc('created_at');
@@ -1272,7 +1493,17 @@ class FindPuppetController extends \App\Http\Controllers\Controller
                 $killColNameIdx =  array_search('cfp_id',$colnames);
                 $colnames[$killColNameIdx] = null;
                 unset($colnames[$killColNameIdx]);                
-            }            
+            } 
+
+            if($visitor_id) {
+                if($title) $title.='、';
+                $title.='visitor_id ：<a target="_blank" href="showLog?visitor_id='.$visitor_id.($mon?'&mon='.$mon:'').'">'.$visitor_id.'</a>';    
+                $query = $query->where('visitor_id',$visitor_id);
+                $killColNameIdx =  array_search('visitor_id',$colnames);
+                $colnames[$killColNameIdx] = null;
+                unset($colnames[$killColNameIdx]);                
+            } 
+            
 
             if($mon) {
                 if($showLogQuery) $showLogQuery.='&';
@@ -1309,11 +1540,14 @@ class FindPuppetController extends \App\Http\Controllers\Controller
     
     public function switchIgnore(Request $request) {
         $value = $request->value;
+        $cat_type = $request->cat_type;
         if(!$value) return;
-        $cat_type = '';
         $cat = $request->cat ?? '';
-        if(strrpos($cat,'.')>0) $cat_type='ip';
-        else $cat_type='cfp_id';
+        if(!$cat_type) {
+            if(strrpos($cat,'.')>0) $cat_type='ip';
+            else $cat_type='cfp_id';
+        }
+        
         $op = $request->op;
         $ignore = $this->ignore;
         
@@ -1323,6 +1557,7 @@ class FindPuppetController extends \App\Http\Controllers\Controller
                 if($cat_type=='ip')
                     $ignore_entry->ip = $cat;
                 else if($cat_type=='cfp_id') $ignore_entry->cfp_id = $cat;
+                else if($cat_type=='visitor_id') $ignore_entry->visitor_id = $cat;
                 $ignore_entry->item = $value;
                 $ignore_entry->save() ;
             break;
@@ -1338,6 +1573,7 @@ class FindPuppetController extends \App\Http\Controllers\Controller
                     if($cat_type=='ip')
                         $ignore_entry->ip = $cat;
                     else if($cat_type=='cfp_id') $ignore_entry->cfp_id = $cat;
+                    else if($cat_type=='visitor_id') $ignore_entry->visitor_id = $cat;
                     $ignore_entry->save();                  
                 }
             break;
