@@ -25,9 +25,11 @@
         var report_doer_elt = null;
         var msg_time_elt = null;
         var msg_pic_elt = null;
+        var msg_pic_elt_origin = null;
         if(msg_elt.length) {
             msg_time_elt = msg_elt.find('.sent_ri span').first();
             msg_pic_elt = msg_elt.find('.marl5 .justify-content-center .pswp--loaded span');
+            msg_pic_elt_origin = msg_elt.find('.marl5 .justify-content-center .photoOrigin span');
             report_doer_elt = msg_elt.find('.report_doer');
         }
         
@@ -45,22 +47,46 @@
             if(!msg_pic_elt || !msg_pic_elt.length) {
                 msg_speak_mark_elt.after(
                     '<span id="page" class="marl5">' +
-                    '<span class="justify-content-center">' +
-                    '<span class="gutters-10 pswp--loaded" data-pswp="">' +
-                    '<span style="width: 150px;"></span></span></span></span>'
+                        '<span class="justify-content-center">' +
+                            '<span class="zoomInPhoto_'+m['client_id'] +'pswp--loaded" data-pswp="">' +
+                                '<span style="width: 150px;"></span>' +
+                            '</span>' +
+                            '<span class="photoOrigin_'+m['client_id']+'> photoOrigin"' +
+                                '<span style="width: 150px;"></span>' +
+                            '</span>'+
+                        '</span>' +
+                    '</span>'
                 );
                 
                 msg_pic_elt = msg_elt.find('.marl5 .justify-content-center .pswp--loaded span');
+                msg_pic_elt_origin = msg_elt.find('.marl5 .justify-content-center .photoOrigin span');
             }
             
             let pics = JSON.parse(m['pic']);            
             msg_pic_elt.html('');
             pics.forEach( function (pic, key, pics)  {
-                msg_pic_elt.html(msg_pic_elt.html() + '<a href="' + pic['file_path'] + '" target="_blank" data-pswp-index="' + key +'" class="pswp--item">' +
-                '<img src="' + pic['file_path'] + '" class="n_pic_lt"></a>'
+                if(key==0){
+                    msg_pic_elt.html(msg_pic_elt.html() + '<a href="' + pic['file_path'] + '" target="_blank" data-pswp-index="' + key +'" class="pswp--item">' +
+                        '<img src="' + pic['file_path'] + '" class="n_pic_lt n_pic_lt_'+m['client_id']+'"></a>'
+                    );
+                }else{
+                    msg_pic_elt.html(msg_pic_elt.html() + '<a href="' + pic['file_path'] + '" target="_blank" data-pswp-index="' + key +'" class="pswp--item">' +
+                        '<img src="' + pic['file_path'] + '" class="n_pic_lt"></a>'
+                    );
+                }
+            });
+
+            msg_pic_elt_origin.html('');
+            pics.forEach( function (pic, key, pics)  {
+                msg_pic_elt_origin.html(msg_pic_elt_origin.html() + '<a class="pswp--item">' +
+                    '<img src="' + pic['file_path'] + '" class="n_pic_lt"></a>'
                 )
                 ;
-            }); 
+            });
+            photoswipeSimplify.init({
+                history: false,
+                focus: false,
+            });
 
             msg_elt.attr('style','');
         }         
@@ -90,8 +116,7 @@
         }        
         
         let ele = 
-        '<div class="send" id="chat_msg_'+(m['id']?'':'client_')+(m['id']?m['id']:m['client_id'])+'" '+
-        (m['pic']?'style="width:0;height:0;display:none;"':'') +'>' +
+        '<div class="send" id="chat_msg_'+(m['id']?'':'client_')+(m['id']?m['id']:m['client_id'])+'" '+'>' +
             '<div class="msg">' +
             '<a class="chatWith" href="{{ url('/dashboard/viewuser/' . $to->id ) }}">' +
                 '<img class="@if($isBlurAvatar) blur_img @endif" src="@if(file_exists( public_path().$to->meta->pic ) && $to->meta->pic != ""){{$to->meta->pic}} @elseif($to->engroup==2)/new/images/female.png @else/new/images/male.png  @endif">' +
@@ -115,28 +140,43 @@
             if(m['pic']){
                 
                 ele = ele + '<i class="msg_input"></i>' +
-                    '<span id="page" class="marl5">' +
+                '<span id="page" class="marl5">' +
                     '<span class="justify-content-center">' +
-                    '<span class="gutters-10 pswp--loaded" data-pswp="">' +
-                    '<span style="width: 150px;">';
-                if(Number.isInteger(m['pic'])) {
-                    ele = ele + '<img src="{{asset("new/owlcarousel/assets/ajax-loader.gif")}}" >';
-                }
-                else {
-                    pics = JSON.parse(m['pic']);
-                    pics.forEach( function (pic, key, pics)  {
-                        ele = ele + '<a href="' + pic['file_path'] + '" target="_blank" data-pswp-index="' + key +'" class="pswp--item">' +
-                            '<img src="' + pic['file_path'] + '" class="n_pic_lt">'
-                            ;
-                    });
-                }
-                ele = ele + '</span>' +
-                    '</span>' +
+                        '<span class="gutters-10 pswp--loaded" data-pswp="" style="display: none;">' +
+                            '<span style="width: 150px;">';
+                            if(Number.isInteger(m['pic'])) {
+                                ele = ele + '<img src="{{asset("new/owlcarousel/assets/ajax-loader.gif")}}" >';
+                            }
+                            else {
+                                pics = JSON.parse(m['pic']);
+                                pics.forEach( function (pic, key, pics)  {
+                                    ele = ele + '<a href="' + pic['file_path'] + '" target="_blank" data-pswp-index="' + key +'" class="pswp--item">' +
+                                        '<img src="' + pic['file_path'] + '" class="n_pic_lt">'
+                                        ;
+                                });
+                            }
+                            ele = ele + '</span>' +
+                        '</span>' +
+                        '<span class="gutters-10 photoOrigin" data-pswp="">' +
+                            '<span style="width: 150px;">';
+                            if(Number.isInteger(m['pic'])) {
+                                ele = ele + '<img src="{{asset("new/owlcarousel/assets/ajax-loader.gif")}}" >';
+                            }
+                            else {
+                                pics = JSON.parse(m['pic']);
+                                pics.forEach( function (pic, key, pics)  {
+                                    ele = ele + '<a class="pswp--item">' +
+                                        '<img src="' + pic['file_path'] + '" class="n_pic_lt"></a>'
+                                    ;
+                                });
+                            }
+                            ele = ele + '</span>' +
+                        '</span>' +
                     '</span>' +
                     '<font class="sent_ri dr_r">' +
-                    '<span>' + timeString+ '</span>' +
-                            '</font>' +
-                    '</span>' +
+                        '<span>' + timeString+ '</span>' +
+                    '</font>' +
+                '</span>' +
                     '<font class="atkbut at_left showslide_'+ m['client_id']+'">'+
                         '<a href="javascript:void(0)" onclick="banned(\'' + m['id'] + '\',\'{{ $to->id }}\',\'{{ $to->name }}\');">'+
                             '<span class="he_yuan"><img src="/new/images/ba_09.png" class="he_left_img"></span><i class="he_li30">檢舉</i>'+
@@ -144,15 +184,10 @@
                         '<a href="javascript:void(0)" class="specific_reply_doer" onclick="specific_reply_doer(this);return false;" data-id="'+ m['id']+'" data-client_id="'+m['client_id']+'">'+
                             '<span class="he_yuan"><img src="/new/images/ba_03.png" class="he_left_img"></span><i class="he_li30">回覆</i>'+
                         '</a>'+
+                        '<a href="javascript:void(0)" onclick="zoomInPic('+ "'"+m['client_id']+"'"+');">'+
+                            '<span class="he_yuan"><img src="/new/images/ba_010.png" class="he_left_img"></span><i class="he_li30">放大</i>'+
+                        '</a>'+
                     '</font>';
-
-                    {{--'<a href="javascript:void(0)" class="report_doer" onclick="banned(\'' + m['id'] + '\',\'{{ $to->id }}\',\'{{ $to->name }}\');" title="檢舉" style="visibility:hidden;">' +--}}
-                    {{--    '<span class="shdel" style="border: #fd5678 1px solid; width: auto;"><span>檢舉</span></span>' +--}}
-                    {{--'</a>'+--}}
-                    {{--'<a href="javascript:void(0)" class="specific_reply_doer" onclick=" return false;" title="回覆" data-id="'+m['id']+'">'+--}}
-                    {{--    '<span class="shdel specific_reply"><span>回覆</span></span>'+--}}
-                    {{--'</a>'                    --}}
-                    {{--;--}}
             }
             else{
                 ele = ele + '<i class="msg_input"></i><span class="msg_content">' + m['content'] +
@@ -165,12 +200,6 @@
                             '<span class="he_yuan"><img src="/new/images/ba_03.png" class="he_left_img"></span><i class="he_li30">回覆</i>'+
                         '</a>'+
                     '</font>'+
-                    {{--'<a href="javascript:void(0)" class="report_doer" onclick="banned(\'' + m['id'] + '\',\'{{ $to->id }}\',\'{{ $to->name }}\');" title="檢舉" style="visibility:hidden;">' +--}}
-                    {{--'<span class="shdel_word"><span>檢舉</span></span>' +--}}
-                    {{--'</a>' +--}}
-                    {{--'<a href="javascript:void(0)" class="specific_reply_doer" onclick=" return false;" title="回覆" data-id="'+m['id']+'">'+--}}
-                    {{--    '<span class="shdel_word specific_reply"><span>回覆</span></span>'+--}}
-                    {{--'</a>' +                    --}}
                     '<font class="sent_ri dr_r">' +
                         '<span>' + timeString + '</span>' +
                     '</font>';
