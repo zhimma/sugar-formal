@@ -186,7 +186,7 @@ div.new_poptk{color:#6783c7;overflow-y:scroll;}
                         <div class="de_input02 exchange_period" style="{{old('exchange_period') == ''? 'display: none;' : ''}}">
                             <h2>包養關係</h2>
                             @foreach($exchange_period_name as $row)
-                            <h3><input type="radio" name="exchange_period" value="{{$row->id}}" {{old('exchange_period') == $row->id? 'checked' : '' }}><span>{{$row->name}}</span></h3>
+                            <h3><input type="radio" class='period_choice' name="exchange_period" value="{{$row->id}}" {{old('exchange_period') == $row->id? 'checked' : '' }}><span>{{$row->name}}</span></h3>
                             @endforeach
                         </div>
 
@@ -533,6 +533,16 @@ div.new_poptk{color:#6783c7;overflow-y:scroll;}
                 t.submit();
             }
             // t.submit();
+        });
+
+
+        period_choice_popup = false;
+        $('.period_choice').on('click', function(){
+            if(!period_choice_popup)
+            {
+                c5('本站為保護長期為主的女會員，凡是包養類型選擇長期為主的女會員，將禁止男會員發送罐頭訊息以及短期約會訊息給您。其餘兩種將不限制。');
+                period_choice_popup = true;
+            }
         });
 
         $( document ).ready(function() {

@@ -4747,6 +4747,28 @@ margin-bottom: 15px; margin-top:20px;background-position:right center;background
 .n_gd{width:5px; height: 100%; position: absolute; background: #fff; top: 0; right: 0; border-radius: 100px;}
 .n_gd_t{width: 100%; height: 50%; background: #8a9fef;border-radius: 100px;}
 
+.se_text_bot{ margin-bottom:10px;}
+.ditext{width:92%; margin: 0 auto; display: table;background:linear-gradient(to right, rgba(253,86,120,0.4) 0%, rgba(253,86,120,0.2) 100%); padding: 10px 10px 0 10px; color: #fff;position: relative; 
+margin-bottom: 50px; border-radius: 10PX 10PX 10PX 10PX;}
+.ditext h2{ line-height: 20px; border-bottom:rgba(255,255,255,0.3) 1px solid; padding-bottom: 6px;}
+.ditext h3{ line-height: 25px; padding-top: 6px;}
+
+@media (max-width:824px) {
+    .ditext{width:100%;position: fixed; bottom:0;background:linear-gradient(to right, rgba(253,86,120,0.4) 0%, rgba(253,86,120,0.2) 100%); padding: 10px 10px 0 10px; color: #fff;margin-bottom:0px;
+    border-radius: 10PX 10PX 0 0;display: table;}
+    .se_text_bot{ margin-bottom:120px;}
+}
+
+.beautify-check { padding-left: 20px !important;cursor: pointer; }
+.beautify-check input {position: absolute;margin-left: -20px;opacity: 0;}
+.beautify-check>i {position: relative;display: inline-block;width: 16px;height: 16px;margin-top: -2px;margin-right: 4px;margin-left: -16px;line-height: 1;vertical-align: middle;background-color: #fff;
+    border: 1px solid #fff;}
+.beautify-check input:checked+i {border-color: #fd5678 !important;}
+.beautify-check input:checked+i:before { top: 2px;left: 2px;width: 10px;height: 10px; background-color: #fd5678 !important; background: url(../images/dh.png) no-repeat; background-size: 100%;}
+.beautify-check input[type="radio"]+i,
+.beautify-check input[type="radio"]+i:before {border-radius: 50%;}
+.beautify-check>i:before { position: absolute;top: 50%;left: 50%;width: 0;height: 0;background-color: transparent; content: "";-webkit-transition: all 0.2s;transition: all 0.2s;}
+
 .dati{background:url(../images/cc_01.png) no-repeat #fefefe bottom;background-size: 100%;border:none; border-radius: 10px; padding:20px 10px;}
 .dati_tit{ margin: 0 auto;font-size:30px; color: #fd4f77; text-align: center; border-bottom: #fd4f77 3px solid; display: table; font-weight: bold;}
 .dati_text{width:95%; margin: 0 auto; border-bottom: #333 1px dashed; border-top: #333 1px dashed; padding:8px 0; margin-top: 20px;}
