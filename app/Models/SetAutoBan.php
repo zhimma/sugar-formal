@@ -28,7 +28,7 @@ class SetAutoBan extends Model
     //自動封鎖 用後台設定的關鍵字查詢
     public static function auto_ban($uid)
     {
-        AutoBanCaller::dispatch($uid)->delay(SetAutoBan::_getDelayTime());
+        AutoBanCaller::dispatch($uid)->onConnection('database-long')->onQueue('long-jobs')->delay(SetAutoBan::_getDelayTime());
     }
     
     public static function autoBan($uid)
@@ -144,7 +144,7 @@ class SetAutoBan extends Model
     //發訊後的自動封鎖
     public static function msg_auto_ban($uid, $toid, $msg)
     {                   
-        AutoBanCaller::dispatch($uid, $toid, $msg)->delay(SetAutoBan::_getDelayTime());                   
+        AutoBanCaller::dispatch($uid, $toid, $msg)->onConnection('database-long')->onQueue('long-jobs')->delay(SetAutoBan::_getDelayTime());                   
     }
     
     public static function autoBanMsg($uid, $toid, $msg)
@@ -202,7 +202,7 @@ class SetAutoBan extends Model
     //登出後的警示
     public static function logout_warned($uid)
     {
-        LogoutAutoBan::dispatch($uid)->delay(SetAutoBan::_getDelayTime());
+        LogoutAutoBan::dispatch($uid)->onConnection('database-long')->onQueue('long-jobs')->delay(SetAutoBan::_getDelayTime());
     }
 
     public static function logoutWarned($uid)
