@@ -58,4 +58,14 @@ class AutoBanCaller implements ShouldQueue
         
         return;
     }
+
+    /**
+     * Determine the time at which the job should timeout.
+     *
+     * @return \DateTime
+     */
+    public function retryUntil()
+    {
+        return now()->addDay(1);
+    }
 }
