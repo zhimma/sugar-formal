@@ -49,6 +49,6 @@ class LogoutAutoBan implements ShouldQueue
      */
     public function retryUntil()
     {
-        return now()->addDay(1);
+        return now()->addMinutes(30);
     }
 }

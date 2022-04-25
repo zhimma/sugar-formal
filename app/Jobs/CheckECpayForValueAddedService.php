@@ -11,6 +11,7 @@ use Illuminate\Foundation\Bus\Dispatchable;
 use Illuminate\Support\Facades\Config;
 use Illuminate\Support\Facades\Log;
 use App\Models\User;
+use Illuminate\Queue\Middleware\WithoutOverlapping;
 
 class CheckECpayForValueAddedService implements ShouldQueue
 {
@@ -158,5 +159,20 @@ class CheckECpayForValueAddedService implements ShouldQueue
                 }
             }
         }
+    }
+
+    public function middleware()
+    {
+        return [(new WithoutOverlapping($this->uid))->dontRelease()];
+    }
+
+    /**
+     * Determine the time at which the job should timeout.
+     *
+     * @return \DateTime
+     */
+    public function retryUntil()
+    {
+        return now()->addMinutes(30);
     }
 }
