@@ -1595,7 +1595,7 @@
         @endphp
         <tr 
             {{--一次顯示50個 臨時搭建用--}}
-            @if($toCount_user_id == 0 || $toCount_ref_user_id == 0) 
+            @if($toCount_user_id == 0 )
                 class='message_no_interactive' style="display:none" 
             @else
                 @php 
