@@ -21,7 +21,7 @@ class CheckECpay implements ShouldQueue
 
     public $timeout = 60;
 
-    protected $vipData, $userIsVip;
+    protected $vipData, $userIsVip, $job_user;
 
     /**
      * Create a new job instance.
@@ -54,6 +54,7 @@ class CheckECpay implements ShouldQueue
         else{
             $envStr = '';
         }
+        $user = null;
         if($this->vipData->business_id == Config::get('ecpay.payment'.$envStr.'.MerchantID') && substr($this->vipData->order_id,0,2) == 'SG'){
             $ecpay = new \App\Services\ECPay_AllInOne();
             $ecpay->MerchantID = Config::get('ecpay.payment'.$envStr.'.MerchantID');
@@ -251,11 +252,16 @@ class CheckECpay implements ShouldQueue
                 }
             }
         }
+        if($user) {            
+            $this->job_user = $user;
+        }
     }
 
     public function middleware()
     {
-        return [(new WithoutOverlapping($this->uid))->dontRelease()];
+        if($this->job_user) {
+            return [(new WithoutOverlapping($this->job_user->id))->dontRelease()];
+        }
     }
 
     /**

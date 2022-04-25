@@ -19,7 +19,7 @@ class CheckECpayForValueAddedService implements ShouldQueue
 
     public $timeout = 60;
 
-    protected $valueAddedServiceData;
+    protected $valueAddedServiceData, $job_user;
 
     /**
      * Create a new job instance.
@@ -69,6 +69,8 @@ class CheckECpayForValueAddedService implements ShouldQueue
                 Log::info("valueAddedService payment: " . $this->valueAddedServiceData->payment);
                 Log::error($exception);
             }
+
+            $user = null;
 
             if(substr($this->valueAddedServiceData->payment,0,4) == 'one_'){
                 //保留用
@@ -158,12 +160,18 @@ class CheckECpayForValueAddedService implements ShouldQueue
                     });
                 }
             }
+
+            if($user) {                
+                $this->job_user = $user;
+            }
         }
     }
 
     public function middleware()
     {
-        return [(new WithoutOverlapping($this->uid))->dontRelease()];
+        if($this->job_user) {
+            return [(new WithoutOverlapping($this->job_user->id))->dontRelease()];
+        }
     }
 
     /**
