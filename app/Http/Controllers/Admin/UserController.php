@@ -3307,7 +3307,7 @@ class UserController extends \App\Http\Controllers\BaseController
                 //清除認證資料
                 //            DB::table('auth_img')->where('user_id',$id)->delete();
                 DB::table('short_message')->where('member_id', $id)->delete();
-    //            DB::table('short_message')->where('member_id', $id)->update(['active' =>0]);
+                //DB::table('short_message')->where('member_id', $id)->update(['active' =>0]);
             } else if ($status == 0) {
                 
                 //取消警示流程
