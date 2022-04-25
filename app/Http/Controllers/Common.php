@@ -144,6 +144,7 @@ class Common extends BaseController {
             if($now_time-300<strtotime($info->createdate)){
                 /*驗鄭成功更新資料庫*/
                 DB::table('short_message')->where('checkcode', $checkcode)->where('member_id',$user->id)->update(['active'=>1]);
+                event(new \App\Events\CheckWarnedOfReport($user->id));
                 $data = array(
                     'code'=>'200',
                     'msg' =>'此驗證碼可用',
