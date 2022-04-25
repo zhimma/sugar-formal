@@ -507,7 +507,7 @@
                         <a href="/dashboard/viewuser/{{$to->id}}" style="color: #fd5678;">
                             <span class="se_rea">{{$to->name}}
                                 @if($isVip)
-                                    @if($to->isOnline())
+                                    @if($to->isOnline() && $to->valueAddedServiceStatus('hideOnline') != 1)
                                         <div class="onlineStatus"></div>
                                     @endif
                                 @else
