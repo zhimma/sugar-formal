@@ -4376,6 +4376,7 @@ class PagesController extends BaseController
             'code'=>'200',
             'msg' =>'檢舉成功',
         );
+        event(new \App\Events\CheckWarnedOfReport($id));
         return json_encode($data);
     }
 
@@ -4407,6 +4408,7 @@ class PagesController extends BaseController
             'code'=>'200',
             'msg' =>'檢舉大頭貼成功',
         );
+        event(new \App\Events\CheckWarnedOfReport($id));
         return json_encode($data);
     }
 
@@ -6880,6 +6882,8 @@ class PagesController extends BaseController
         $data = array(
             'save' => $status
         );
+
+        event(new \App\Events\CheckWarnedOfReport($rid));
 
         return json_encode($data);
     }

@@ -190,6 +190,7 @@ class Message extends Model
             $message->reportContentPic = json_encode($images_ary);
         }
         $message->save();
+        event(new \App\Events\CheckWarnedOfReport($message->from_id));
     }
 
     public static function isAdminMessage($content) {

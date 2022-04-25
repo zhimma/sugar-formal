@@ -1568,7 +1568,7 @@ class UserController extends \App\Http\Controllers\BaseController
 
             Message::where('from_id', $request->reported_id)->where('to_id', $request->reporter_id)->update(array('cancel' => 0));
         }
-
+        event(new \App\Events\CheckWarnedOfReport($request->reported_id));
         return back();
     }
 
