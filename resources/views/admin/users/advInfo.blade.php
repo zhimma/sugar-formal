@@ -1596,14 +1596,7 @@
         <tr 
             {{--一次顯示50個 臨時搭建用--}}
             @if($toCount_user_id == 0 )
-                class='message_no_interactive' style="display:none" 
-            @else
-                @php 
-                    $count = $count + 1; 
-                @endphp
-                @if($count > $display)
-                    style="display:none" 
-                @endif
+                class='message_no_interactive' style="display:none"
             @endif>
             {{--一次顯示50個 臨時搭建用--}}
             <td style="text-align: center;"><button data-toggle="collapse" data-target="#msgLog{{$ref_user_id}}" class="accordion-toggle btn btn-primary message_toggle">+</button></td>
