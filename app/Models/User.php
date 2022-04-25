@@ -1087,20 +1087,21 @@ class User extends Authenticatable
                 $m_id=Message::where('from_id',$to_id)->where('to_id',$user->id)->orderBy('id')->first();
                 $m_id=$m_id? $m_id->id :null;
 
-                $from_id_first=Message::withTrashed()->where([['message.to_id', $user->id],['message.from_id', $to_id]])
+                $retreived_data = Message::withTrashed()->where([['message.to_id', $user->id],['message.from_id', $to_id]])
                     ->orWhere([['message.from_id', $user->id],['message.to_id', $to_id]])
                     ->orderBy('created_at')
                     ->where(function ($q) {
                         $q->where(function ($q1) {
-                            $q1->where('unsend', 0)->whereNull('deleted_at');
+                            $q1->where('unsend', 0);
                         })
                         ->orWhere(function ($q2) {
                             $q2->where('unsend', 1);
                         });
                     })
-                    ->first()->from_id;
+                    ->first();
+                $from_id_first = $retreived_data ? $retreived_data->from_id : null;
 
-                $message_temp=Message::where('from_id',$user->id)->where('to_id',$to_id)->orderBy('created_at');
+                $message_temp = Message::where('from_id',$user->id)->where('to_id',$to_id)->orderBy('created_at');
                 if(!is_null($m_id)){
                     $message_temp->where('id','<',$m_id);
                 }
