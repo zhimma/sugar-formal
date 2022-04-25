@@ -263,14 +263,4 @@ class CheckECpay implements ShouldQueue
             return [(new WithoutOverlapping($this->job_user->id))->dontRelease()];
         }
     }
-
-    /**
-     * Determine the time at which the job should timeout.
-     *
-     * @return \DateTime
-     */
-    public function retryUntil()
-    {
-        return now()->addMinutes(30);
-    }
 }
