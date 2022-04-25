@@ -256,11 +256,4 @@ class CheckECpay implements ShouldQueue
             $this->job_user = $user;
         }
     }
-
-    public function middleware()
-    {
-        if($this->job_user) {
-            return [(new WithoutOverlapping($this->job_user->id))->dontRelease()];
-        }
-    }
 }

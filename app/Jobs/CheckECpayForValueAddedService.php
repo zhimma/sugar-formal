@@ -166,11 +166,4 @@ class CheckECpayForValueAddedService implements ShouldQueue
             }
         }
     }
-
-    public function middleware()
-    {
-        if($this->job_user) {
-            return [(new WithoutOverlapping($this->job_user->id))->dontRelease()];
-        }
-    }
 }
