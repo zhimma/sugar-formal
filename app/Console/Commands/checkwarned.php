@@ -62,10 +62,12 @@ class checkwarned extends Command
 
             foreach($users as $user){
                 Log::info('check user: ' . $user->id);
+                /*
                 $auth_status = 0;
                 if($user->isPhoneAuth()==1){
                     $auth_status = 1;
                 }
+                */
                 //正被封鎖
                 $isBanned = banned_users::where('member_id',$user->id)
                                 ->where('expire_date', null)
@@ -176,6 +178,7 @@ class checkwarned extends Command
                     SetAutoBan::where('cuz_user_set',$user->id)->where('set_ban','3')->delete();
                 }
 
+                /*
                 if($user->meta->isWarned == 1){
                     if($auth_status==1 && !$user->isAdminWarned()){
                         //取消警示
@@ -184,16 +187,18 @@ class checkwarned extends Command
                             $q->orwhere('isWarnedType','<>','adv_auth');
                         })->update(['isWarned'=>0, 'isWarnedRead'=>0, 'isWarnedTime' => null]);
                     }
-            //            dd($user->meta_()->isWarned);
+                    //dd($user->meta_()->isWarned);
                     // return $next($request);
                 }
+                */
 
+                /*
                 if($user->meta->isWarned == 0 && $user->WarnedScore() >= 10 && $auth_status == 0 && $user->id != 1049){
                     //加入警示
                     UserMeta::where('user_id',$user->id)->update(['isWarned'=>1, 'isWarnedRead'=>0, 'isWarnedTime' => Carbon::now()]);
-
-            //            return $next($request);
+                    //return $next($request);
                 }
+                */
 
                 // return $next($request);
                 
