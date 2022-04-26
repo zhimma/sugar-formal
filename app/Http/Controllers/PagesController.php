@@ -686,7 +686,7 @@ class PagesController extends BaseController
 
     public function dashboard(Request $request)
     {
-        // todo: 驗證 VIP 是否成功付款
+        // 驗證 VIP 是否成功付款
         //      1. 綠界：連 API 檢查，使用 Laravel Queue 執行檢查
         //      2. 藍新：後台手動
         
