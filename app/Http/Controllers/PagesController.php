@@ -1957,22 +1957,30 @@ class PagesController extends BaseController
 //                $canViewUsers = ForumManage::where('forum_id', $forum->id)->where('user_id',$targetUser->id)->first();
 //            }
 
+
             $forum = Forum::where('user_id', $user->id)->where('status', 1)->orderBy('id','desc')->first();
             if(isset($forum)) {
-                $canViewUsers = ForumManage::where('forum_id', $forum->id)->where('user_id', $targetUser->id)->first();
+                $canViewUsers = ForumManage::where('forum_id', $forum->id)
+                    ->where('user_id', $targetUser->id)
+                    ->where('apply_user_id', $user->id)
+                    ->where('status', '<>', 3)
+                    ->first();
             }
 
             if ($user->id != $uid) {
-
-                if(
+                if(isset($canViewUsers)){
+                    Visited::visit($user->id, $targetUser);
+                }
+                elseif(
                     //檢查性別
-                    $user->engroup == $targetUser->engroup && !isset($canViewUsers)
+                    $user->engroup == $targetUser->engroup
                     //檢查是否被封鎖
 //                    || User::isBanned($user->id)
                 ){
                     return redirect()->route('listSeatch2');
+                }else{
+                    Visited::visit($user->id, $targetUser);
                 }
-                Visited::visit($user->id, $targetUser);
             }
 
 
@@ -2751,7 +2759,7 @@ class PagesController extends BaseController
                 $ssrData .='<h2>';
                 $ssrData .='<font class="left">'.$visitor->name.'<span>'.$visitor->age().'歲</span></font>';
                             if($user->isVip()){
-                                if($visitor->isOnline() && $visitor->valueAddedServiceStatus('hideOnline') != 1){
+                                if($visitor->isOnline() && $visitor->is_hide_online==0){
                                     $ssrData .='<span class="onlineStatusSearch"></span>';
                                 }
                             }else{
