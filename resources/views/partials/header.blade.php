@@ -18,6 +18,17 @@
             }
           }); */
 		</script>
+		<script
+			src="https://browser.sentry-cdn.com/6.17.4/bundle.min.js"
+			integrity="sha384-b8AsyZZuCfveCM8XQGBncVPihJcaG//cLVfziPjfE1RLhc++ZJ8x3BIS0Izv9Iey"
+			crossorigin="anonymous"
+		></script>
+		<script
+			src="https://browser.sentry-cdn.com/6.17.4/bundle.tracing.min.js"
+			integrity="sha384-eIliztiJMgTUGzEQjjcCty1MN9hIqsz8GtzP/UTAHo6yxQgA6ZogOH2YNSlJRYWO"
+			crossorigin="anonymous"
+		></script>
+		{!! \Sentry\Laravel\Integration::sentryTracingMeta() !!}
 		<!-- Global site tag (gtag.js) - Google Analytics -->
 		<script async src="https://www.googletagmanager.com/gtag/js?id=UA-151409328-1"></script>
 		<script>
