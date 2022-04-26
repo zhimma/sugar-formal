@@ -359,9 +359,12 @@
     .he_left_img{ height:30px;width: 30px;}
     .he_li30{ line-height: 30px; font-style: normal;}
     .img_vip{ position: absolute; left:10px;width:55px; top: -0px;}
+    .uplaod_pic_restrict_left,.uplaod_pic_restrict_right {width:50%;}
+    .uplaod_pic_restrict_left {float:left;text-align:left;padding-left:3%;}
+    .uplaod_pic_restrict_right {float:right;text-align:right;padding-right:3%;}
 </style>
 <script>
-
+    receive_pic_views_count_gather = {};
     function banned(id,sid,name){
         let is_banned = {{ $is_banned ? 1 : 0 }};
         let is_warned = {{ $is_warned ? 1 :0 }};
@@ -414,8 +417,12 @@
            })
             .listenForWhisper('sendMsg', (e) => {
                 realtime_to_msg(e);
-            });    
-
+            })
+            .listenForWhisper('destroyMsg', (e) => {
+                var msg_id=e.message_id;
+                var msg_client_id=e.message_client_id;
+                destroy_msg(msg_id,msg_client_id);
+            }); 
         Echo.private('ChatRead.{{ auth()->user()->id }}.{{ $to->id }}')
             .listen('ChatRead', (e) => {
                 $('#is_read.' + e.message_id).html("已讀");
@@ -578,12 +585,14 @@
                 @elseif( ($message['sys_notice']==0 || $message['sys_notice']== null) && $message['unsend']==0)
                 @if($isVip && $message['from_id'] == $user->id)
                 @if((!isset($admin) || $to->id != $admin->id) && !isset($to->banned )&& !isset($to->implicitlyBanned))
-                <form method="post" class="unsend_form" id="unsend_form_{{$message['id']}}"
+                <form method="post" 
+                    class="unsend_form @if($message['id']) unsend_form_{{$message['id']}} @endif @if($message['client_id']) unsend_form_client_{{$message['client_id']}} @endif" 
+                    id="unsend_form_{{$message['id']}}"
                     action="{{route('unsendChat')}}">
                     @endif
                     @endif
 
-                    <div class="@if($message['from_id'] == $user->id) show @else send @endif" @if($message['from_id']
+                    <div class="{{($message['from_id'] == $user->id)?'show':'send' }} @if($message['id']) chat_msg_{{$message['id']}} @endif @if($message['client_id']) chat_msg_client_{{$message['client_id']}} @endif" @if($message['from_id']
                         !=$user->id) id="chat_msg_{{$message['id']}}" @endif>
                         <div class="msg @if($message['from_id'] == $user->id) msg1 @endif">
                             @if($message['from_id'] == $user->id)
@@ -617,16 +626,23 @@
                                 </span>
                                 @endif
                                 @if(!is_null(json_decode($message['pic'],true)))
+                                    <script>
+                                    @if($message['created_at']->addSeconds($message['show_time_limit'])->diffInSeconds(\Carbon\Carbon::now(),false)<=0)
+                                      window.setTimeout(function() {
+                                        destroy_msg('{{$message['id']}}','{{$message['client_id']}}');
+                                      }, {{$message['created_at']->addSeconds($message['show_time_limit'])->diffInSeconds(\Carbon\Carbon::now())*1000}});                       
+                                    @endif  
+                                    </script>
                                 <i class="msg_input"></i>
                                 <span id="page" class="marl5">
                                     <span class="justify-content-center">
-                                        <span class="zoomInPhoto_{{ $message['client_id'] }} gutters-10 pswp--loaded" data-pswp="" style="display: none;">
+                                        <span class="zoomInPhoto_{{ $message['client_id'] }} zoomInPhoto_official_{{ $message['id'] }}  gutters-10 pswp--loaded" data-pswp="" style="display: none;">
                                             <span style="width: 150px;">
                                                 @foreach(json_decode($message['pic'],true) as $key => $pic)
                                                 @if(isset($pic['file_path']))
                                                 <a class="pswp--item" href="{{$pic['file_path'] }}" target="_blank"
                                                     data-pswp-index="{{ $key }}">
-                                                    <img src="{{ $pic['file_path'] }}" class="n_pic_lt @if($key==0) n_pic_lt_{{ $message['client_id'] }} @endif">
+                                                    <img src="{{ $pic['file_path'] }}" class="n_pic_lt @if($key==0) n_pic_lt_{{ $message['client_id'] }} n_pic_lt_official_{{ $message['id'] }}  @endif">
                                                 </a>
                                                 @else
                                                 {{ logger("Message pic failed, user id: " . $user->id) }}
@@ -635,7 +651,7 @@
                                                 @endforeach
                                             </span>
                                         </span>
-                                        <span class="photoOrigin_{{ $message['client_id'] }} gutters-10">
+                                        <span class="photoOrigin_{{ $message['client_id'] }} photoOrigin_official_{{ $message['id'] }}  gutters-10">
                                             <span style="width: 150px;">
                                                 @foreach(json_decode($message['pic'],true) as $key => $pic)
                                                     @if(isset($pic['file_path']))
@@ -680,7 +696,11 @@
                                                 >@endif
                                             </a>
                                         @endif
-                                        <a href="javascript:void(0)" onclick="zoomInPic('{{$message['client_id']  }}');">
+                                        <a href="javascript:void(0)" data-id="{{$message['id']}}" data-client_id="{{$message['client_id']}}" 
+                                        @if($message['from_id'] != $user->id)
+                                         data-views_count="{{$message['views_count']}}"  data-views_count_quota="{{$message['views_count_quota']}}" data-is_received_msg="{{$message['from_id'] != $user->id}}"                          
+                                        @endif
+                                        onclick="zoomInPic(this);">
                                             <span class="he_yuan"><img src="/new/images/ba_010.png" class="he_left_img"></span><i class="he_li30">放大</i>
                                         </a>
                                     @endif
@@ -927,6 +947,43 @@
             <div class="new_pot1 new_poptk_nn new_height_mobile ">
                 <div class="fpt_pic">
                     <input id="images" type="file" name="images">
+                    @if($user->engroup==2 && $user->isPhoneAuth() || ($user->engroup==1 && $isVip))
+                    <div class="n_blnr01">
+                        <div class="new_tkfont uplaod_pic_restrict_left">
+                            <span>閱讀次數</span>
+                            <span>
+                                <select name="views_count_quota" id="upload_pic_views_count_quota">
+                                    <option value="0">0 (不限)</option>
+                                    <option value="1">1</option>
+                                    <option value="2">2</option>
+                                    <option value="3">3</option>
+                                    <option value="4">4</option>
+                                    <option value="5">5</option>
+                                </select>
+                            </span>
+                            <span>次</span>
+                        </div>
+                        <div class="new_tkfont uplaod_pic_restrict_right">                       
+                            <span>銷毀時間</span>
+                            <span>
+                                <select name="show_time_limit" id="upload_pic_show_time_limit">
+                                    <option value="0">0 (不限)</option>
+                                    <option value="1">1</option>
+                                    <option value="2">2</option>
+                                    <option value="3">3</option>
+                                    <option value="4">4</option>
+                                    <option value="5">5</option>
+                                    <option value="6">6</option>
+                                    <option value="7">7</option>
+                                    <option value="8">8</option>
+                                    <option value="9">9</option>
+                                    <option value="10">10</option>                                
+                                </select>
+                            </span>
+                            <span>秒</span>
+                        </div>
+                    </div>
+                    @endif
                     <div class="n_bbutton" style="margin-top:0px;">
                         <a class="n_bllbut" onclick="form_uploadPic_submit()">送出</a>
                     </div>
@@ -968,18 +1025,95 @@
         }
     });
     let zoonIn_m_client='';
-    function zoomInPic(m_client) {
+    let zoonIn_m_official='';
+    function zoomInPic(dom) {
+        var m_client = m_official 
+        =  m_views_count_quota 
+        = m_views_count
+        = m_is_received_msg = null;
+        
+        if(dom.dataset!=undefined) {
+            if(dom.dataset.client_id!=undefined) m_client = dom.dataset.client_id;
+            if(dom.dataset.id!=undefined) m_official = dom.dataset.id;
+            if(dom.dataset.views_count_quota!=undefined) m_views_count_quota = dom.dataset.views_count_quota;
+            if(dom.dataset.views_count!=undefined) m_views_count = dom.dataset.views_count;
+            if(dom.dataset.is_received_msg!=undefined) m_is_received_msg = dom.dataset.is_received_msg;
+        }
         event.stopPropagation()
-        $('.zoomInPhoto_'+m_client).show();
-        $('.photoOrigin_'+m_client).hide();
-        $('.n_pic_lt_'+m_client).click();
-        zoonIn_m_client=m_client;
+        if(m_client) {
+            $('.zoomInPhoto_'+m_client).show();
+            $('.photoOrigin_'+m_client).hide();
+            $('.n_pic_lt_'+m_client).click();
+            zoonIn_m_client=m_client;
+        }
+        else if(m_official) {
+            $('.zoomInPhoto_official_'+m_official).show();
+            $('.photoOrigin_official_'+m_official).hide();
+            $('.n_pic_lt_official_'+m_official).click();
+            zoonIn_m_official=m_official;            
+        }
+        console.log('m_is_received_msg='+m_is_received_msg);
+        console.log('m_client='+m_client);
+        console.log('m_official='+m_official);
+        console.log('m_views_count_quota='+m_views_count_quota);
+        console.log('receive_pic_views_count_gather[m_client]='+receive_pic_views_count_gather[m_client]);
+        console.log('receive_pic_views_count_gather=');
+        console.log(receive_pic_views_count_gather);
+        console.log('!m_is_received_msg=');
+        console.log(!m_is_received_msg);
+        console.log('(m_is_received_msg==undefined || m_is_received_msg==0)=');
+        console.log(m_is_received_msg==undefined || m_is_received_msg==0);
+        if(m_is_received_msg==undefined || m_is_received_msg==0) return;
+        if(m_client) {
+            if(receive_pic_views_count_gather[m_client]==undefined) {
+                receive_pic_views_count_gather[m_client] = m_views_count;
+            }
+
+            receive_pic_views_count_gather[m_client]++;
+            if(m_views_count_quota!=undefined && m_views_count_quota>0 && receive_pic_views_count_gather[m_client] >= m_views_count_quota) {
+                $('.chat_msg_client_'+m_client).remove();
+                
+                Echo.private('Chat.{{ $to->id }}.{{ auth()->user()->id }}')
+                    .whisper('destroyMsg', {message_client_id:m_client});                    
+            }
+            
+        }
+        else if(m_official) {
+            if(receive_pic_views_count_gather[m_official]==undefined) {
+                receive_pic_views_count_gather[m_official] = m_views_count;
+            }
+
+            receive_pic_views_count_gather[m_official]++;
+            if(receive_pic_views_count_gather[m_client] >= m_views_count_quota) {
+                $('.chat_msg_'+m_official).remove();
+                
+                Echo.private('Chat.{{ $to->id }}.{{ auth()->user()->id }}')
+                    .whisper('destroyMsg', {message_id:m_official});                     
+            }            
+         
+        }
+        console.log('zoom ajax start');
+        var zoomFormData = new FormData();
+        var zoomXhr = new XMLHttpRequest();
+        zoomFormData.append("id", m_official);
+        zoomFormData.append("client_id", m_client);
+        zoomFormData.append("_token", "{{ csrf_token() }}");
+        zoomXhr.open("post", "{{ route('increase_views') }}", true);         
+        zoomXhr.setRequestHeader('X-Requested-With', 'XMLHttpRequest');
+        zoomXhr.send(zoomFormData);    
     }
     document.querySelector('.pswp').addEventListener('pswpTap', function (e)
     {
         //event.stopPropagation()
-        $('.zoomInPhoto_'+zoonIn_m_client).hide();
-        $('.photoOrigin_'+zoonIn_m_client).show();
+        if(zoonIn_m_client) {
+            $('.zoomInPhoto_'+zoonIn_m_client).hide();
+            $('.photoOrigin_'+zoonIn_m_client).show();            
+        }
+        else if(zoonIn_m_official) {
+            $('.zoomInPhoto_official_'+zoonIn_m_official).hide();
+            $('.photoOrigin_official_'+zoonIn_m_official).show();             
+        }
+
         $('.atkbut').hide();
     }, true);
 </script>
@@ -1594,6 +1728,8 @@
                     });  
 
                     msg_data.pic = pic_num;
+                    msg_data.views_count_quota = $('#upload_pic_views_count_quota').val();
+                    msg_data.show_time_limit = $('#upload_pic_show_time_limit').val();
 
                     var msg_carrier = {
                         message:msg_data
@@ -1632,9 +1768,11 @@
                 
             },
             afterSubmitedSuccess: function(data,status,xhr,ajaxObj,cur_uploader_api) {
+                var curUploaderFormElt = cur_uploader_api.getParentEl().closest('form');
                 var target_client_id=null;
                 var rtn_msg = '';
                 var rtn_error = 0;
+                var target_show_time_limit = 0;
                 if(data.content!=undefined) rtn_msg=data.content;
                 if(data.error!=undefined) rtn_error=data.error;
 
@@ -1644,6 +1782,11 @@
                 else  {
                     target_client_id = ajaxObj.data.client_id;
                 }
+
+                if(ajaxObj.data.show_time_limit==undefined) {
+                    target_show_time_limit = ajaxObj.data.get('show_time_limit');
+                }
+                else target_show_time_limit = ajaxObj.data.show_time_limit;
                 
                 var target_elt = $('#unsend_form_client_' + target_client_id);
                 var error_msg = '';
@@ -1680,7 +1823,15 @@
                             realtime_unsend_self(msg_carrier);                            
                         }
                     }
+                    else if(target_show_time_limit>0) {
+                        window.setTimeout(function() {
+                            console.log('window.setTimeout destroy msg after '+target_show_time_limit*1000+'ms');
+                            destroy_msg(null,target_client_id);
+                          }, target_show_time_limit*1000);                        
+                    }
                 }
+                
+                if(curUploaderFormElt.length>0) curUploaderFormElt[0].reset();
             },          
             afterRender: function(listEl, parentEl, newInputEl, inputEl) {
                 var plusInput = listEl.find('.fileuploader-thumbnails-input'),
@@ -1990,6 +2141,23 @@
                 var str1 = parseInt(init_str.substr(0, Math.floor(init_str.length/2)),10).toString(36);
                 var str2 = parseInt(init_str.substr(Math.floor(init_str.length/2), init_str.length),10).toString(36);
                 return rcode1+str1+str2+rcode2;
+            }
+            
+            function destroy_msg(msg_id,msg_client_id) {
+                if(msg_id!=undefined && msg_id) {
+                    var msg_form_elt = $('.unsend_form_' + msg_id);
+                    var msg_elt = $('.chat_msg_' + msg_id);
+                    if(msg_form_elt.length) msg_form_elt.remove();
+                    if(msg_elt.length) msg_elt.remove();
+                }
+                
+                if(msg_client_id!=undefined && msg_client_id) { 
+                    var msg_form_client_elt = $('.unsend_form_client_' + msg_client_id);
+                    var msg_client_elt = $('.chat_msg_client_' + msg_client_id);
+                    if(msg_form_client_elt.length) msg_form_client_elt.remove();
+                    if(msg_client_elt.length) msg_client_elt.remove();                
+                }
+                
             }
     @if($first_send_messenge??false)
         $(document).ready(function() {
