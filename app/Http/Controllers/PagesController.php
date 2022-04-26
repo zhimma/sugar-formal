@@ -7097,6 +7097,7 @@ class PagesController extends BaseController
                 'active'=>1,
                 'createdate'=>date('Y-m-d H:i:s'),               
             ]);  
+            event(new \App\Events\CheckWarnedOfReport($toEngroup));
             DB::table('banned_users')->insert([
                 'member_id'=>$toEngroup,
                 'created_at'=>date('Y-m-d H:i:s'),

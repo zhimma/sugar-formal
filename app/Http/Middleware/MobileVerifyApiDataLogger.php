@@ -153,6 +153,7 @@ class MobileVerifyApiDataLogger{
                         $data = ['active' =>1, 'credit_card' =>$credit_card];
                         DB::table('short_message')->updateOrInsert([
                             'member_id'=>$payload['CustomField1']], $data);
+                            event(new \App\Events\CheckWarnedOfReport($payload['CustomField1']));
 
                         return response('1|OK', 200);
                     }
