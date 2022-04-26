@@ -96,7 +96,6 @@ class CheckECpay implements ShouldQueue
                     $user = User::findById($this->vipData->member_id);
 
                     if($this->userIsVip && $paymentQueryData['TradeStatus'] != 1) {
-                        \Sentry\captureMessage("CheckECpay line 98, user id: " . $user->id);
                         //有賦予VIP者再檢查
                         //未完成交易時檢查
                         //check取號資料表
@@ -113,7 +112,6 @@ class CheckECpay implements ShouldQueue
                             }
                         }
                     }elseif(!$this->userIsVip && $paymentQueryData['TradeStatus'] == 1){
-                        logger("CheckECpay line 115, user id: " . $user->id);
                         $getOrderDate = Order::where('order_id', $this->vipData->order_id)->first();
                         if(isset($getOrderDate)) {
                             \App\Models\Vip::select('member_id', 'active')
