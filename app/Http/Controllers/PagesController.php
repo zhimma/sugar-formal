@@ -693,7 +693,7 @@ class PagesController extends BaseController
         $user = $this->user;
         $url = $request->fullUrl();
 
-        $this->service->dispatchCheckECPay($this->userIsVip, $this->userIsFreeVip, $this->userVipData);
+        $this->service->dispatchCheckECPay($this->userIsVip, $this->userIsFreeVip, $user->vip_any->first());
         //valueAddedService
         if($this->valueAddedServices['hideOnline'] == 1){
             //如未來service有多個以上則此段需設計並再改寫成ALL in one的方式
@@ -3438,7 +3438,7 @@ class PagesController extends BaseController
         $admin = AdminService::checkAdmin();
         $m_time = '';
         $report_reason = AdminCommonText::where('alias', 'report_reason')->get()->first();
-        $this->service->dispatchCheckECPay($this->userIsVip, $this->userIsFreeVip, $this->userVipData);
+        $this->service->dispatchCheckECPay($this->userIsVip, $this->userIsFreeVip, $user->vip_any->first());
         //valueAddedService
         if($this->valueAddedServices['hideOnline'] == 1){
             //如未來service有多個以上則此段需設計並再改寫成ALL in one的方式
@@ -3626,7 +3626,7 @@ class PagesController extends BaseController
         }
 
         $user = $request->user();
-        $this->service->dispatchCheckECPay($this->userIsVip, $this->userIsFreeVip, $this->userVipData);
+        $this->service->dispatchCheckECPay($this->userIsVip, $this->userIsFreeVip, $user->vip_any->first());
         //valueAddedService
         if($this->valueAddedServices['hideOnline'] == 1){
             //如未來service有多個以上則此段需設計並再改寫成ALL in one的方式
