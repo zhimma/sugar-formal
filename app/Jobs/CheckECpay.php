@@ -96,7 +96,7 @@ class CheckECpay implements ShouldQueue
                     $user = User::findById($this->vipData->member_id);
 
                     if($this->userIsVip && $paymentQueryData['TradeStatus'] != 1) {
-                        logger("CheckECpay line 98, user id: " . $user->id);
+                        \Sentry\captureMessage("CheckECpay line 98, user id: " . $user->id);
                         //有賦予VIP者再檢查
                         //未完成交易時檢查
                         //check取號資料表

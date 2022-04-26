@@ -497,7 +497,9 @@ class Message_newController extends BaseController {
         $user = $request->user();
         $m_time = '';
         if (isset($user)) {
-            $this->service->dispatchCheckECPay($this->userIsVip, $this->userIsFreeVip, $user->vip_any->first());
+            if($user->vip_any) {
+                $this->service->dispatchCheckECPay($this->userIsVip, $this->userIsFreeVip, $user->vip_any->first());
+            }
             $isVip = $user->isVip();
             /*編輯文案-檢舉大頭照-START*/
             $vip_member = AdminCommonText::where('alias','vip_member')->get()->first();
