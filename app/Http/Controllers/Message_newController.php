@@ -300,7 +300,9 @@ class Message_newController extends BaseController {
                 'to_id'=>$payload['to'],
                 'client_id'=>$payload['client_id'],
                 'parent_msg'=>($payload['parent']??null),
-                'parent_client_id'=>($payload['parent_client']??null)
+                'parent_client_id'=>($payload['parent_client']??null),
+                'views_count_quota'=>($payload['views_count_quota']??0),
+                'show_time_limit'=>($payload['show_time_limit']??0),
             ]);
 
             $messagePosted = $this->message_pic_save($messageInfo->id, $request->file('images'));
@@ -877,5 +879,23 @@ class Message_newController extends BaseController {
             return back()->withErrors(['非VIP無法收回訊息。']);       
         }
         
+    }
+    
+    public function increaseViewsCount(Request $request) {
+        $req_id = $request->id;
+        $req_client_id = $request->client_id;
+        
+        if($req_id) {
+            $msg = Message::find($req_id);
+        }
+        else if($req_client_id) {
+            $msg = Message::where('client_id',$req_client_id)->first();
+        }
+        else {
+            return;
+        }
+        
+        $msg->views_count = $msg->views_count+1;
+        return $msg->save();
     }
 }

@@ -48,10 +48,13 @@
                 msg_speak_mark_elt.after(
                     '<span id="page" class="marl5">' +
                         '<span class="justify-content-center">' +
-                            '<span class="zoomInPhoto_'+m['client_id'] +'pswp--loaded" data-pswp="">' +
+                            '<span class="'
+                            +((m['client_id']==undefined)?'':('zoomInPhoto_'+m['client_id'])) 
+                            +((m['id']==undefined)?'':(' zoomInPhoto_official_'+m['id'])) 
+                            +' gutters-10 pswp--loaded" data-pswp="">' +
                                 '<span style="width: 150px;"></span>' +
                             '</span>' +
-                            '<span class="photoOrigin_'+m['client_id']+'> photoOrigin"' +
+                            '<span class="photoOrigin_'+m['client_id']+'>' +
                                 '<span style="width: 150px;"></span>' +
                             '</span>'+
                         '</span>' +
@@ -83,13 +86,33 @@
                 )
                 ;
             });
-            photoswipeSimplify.init({
-                history: false,
-                focus: false,
-            });
 
             msg_elt.attr('style','');
-        }         
+        } 
+
+        if(msg_elt.length && m['show_time_limit']!=undefined && m['show_time_limit']>0) {
+            setTimeout(function(){
+                msg_elt.remove();
+                
+                Echo.private('Chat.{{ $to->id }}.{{ auth()->user()->id }}')
+                    .whisper('destroyMsg', {
+                        message_id: m['id']
+                    }) ;                
+            },m['show_time_limit']*1000);
+        }
+
+            var a_item = $('a.pswp--item');
+            for (var i = 0; i < a_item.length; i++) {
+                var now_a_item = a_item.eq(i);
+                var now_a_item_parent = now_a_item.parent();
+                var now_a_item_html = now_a_item.get(0).outerHTML;
+                now_a_item.clone().appendTo(now_a_item_parent[0]);
+                now_a_item.remove();
+            }        
+        photoswipeSimplify.init({
+            history: false,
+            focus: false,
+        });         
     }
 
     function realtime_from_msg(e){
@@ -113,10 +136,13 @@
         {
             if(m['parent_msg_sender_blurryAvatar']) m['parent_msg_sender_blurryAvatar']=0;
             if(m['parent_msg_sender_isAvatarHidden']) m['parent_msg_sender_isAvatarHidden']=0;
-        }        
-        
+        }  
+
+        var official_id_class = (m['id']!=undefined && m['id'])?'chat_msg_'+m['id']:'';
+        var client_id_class = (m['client_id']!=undefined && m['client_id'])?'chat_msg_client_'+m['client_id']:'';
         let ele = 
-        '<div class="send" id="chat_msg_'+(m['id']?'':'client_')+(m['id']?m['id']:m['client_id'])+'" '+'>' +
+        '<div class="send '+official_id_class+' '+client_id_class+'" id="chat_msg_'+(m['id']?'':'client_')+(m['id']?m['id']:m['client_id'])+'" '+
+        (m['pic']?'style="width:0;height:0;display:none;"':'') +'>' +
             '<div class="msg">' +
             '<a class="chatWith" href="{{ url('/dashboard/viewuser/' . $to->id ) }}">' +
                 '<img class="@if($isBlurAvatar) blur_img @endif" src="@if(file_exists( public_path().$to->meta->pic ) && $to->meta->pic != ""){{$to->meta->pic}} @elseif($to->engroup==2)/new/images/female.png @else/new/images/male.png  @endif">' +
@@ -142,7 +168,7 @@
                 ele = ele + '<i class="msg_input"></i>' +
                 '<span id="page" class="marl5">' +
                     '<span class="justify-content-center">' +
-                        '<span class="gutters-10 pswp--loaded" data-pswp="" style="display: none;">' +
+                        '<span class="zoomInPhoto_'+m['client_id']+' gutters-10 pswp--loaded" data-pswp="" style="display: none;">' +
                             '<span style="width: 150px;">';
                             if(Number.isInteger(m['pic'])) {
                                 ele = ele + '<img src="{{asset("new/owlcarousel/assets/ajax-loader.gif")}}" >';
@@ -157,7 +183,7 @@
                             }
                             ele = ele + '</span>' +
                         '</span>' +
-                        '<span class="gutters-10 photoOrigin" data-pswp="">' +
+                        '<span class="gutters-10 photoOrigin photoOrigin_'+m['client_id']+'">' +
                             '<span style="width: 150px;">';
                             if(Number.isInteger(m['pic'])) {
                                 ele = ele + '<img src="{{asset("new/owlcarousel/assets/ajax-loader.gif")}}" >';
@@ -184,7 +210,13 @@
                         '<a href="javascript:void(0)" class="specific_reply_doer" onclick="specific_reply_doer(this);return false;" data-id="'+ m['id']+'" data-client_id="'+m['client_id']+'">'+
                             '<span class="he_yuan"><img src="/new/images/ba_03.png" class="he_left_img"></span><i class="he_li30">回覆</i>'+
                         '</a>'+
-                        '<a href="javascript:void(0)" onclick="zoomInPic('+ "'"+m['client_id']+"'"+');">'+
+                        '<a href="javascript:void(0)"';
+                        if(m['id']!=undefined) ele = ele +' data-id="'+m['id']+'"';
+                        if(m['client_id']!=undefined) ele = ele +'  data-client_id="'+m['client_id']+'"';
+                        if(m['views_count']!=undefined) ele = ele + ' data-views_count="'+m['views_count']+'"';
+                        if(m['views_count_quota']!=undefined) ele = ele + ' data-views_count_quota="'+m['views_count_quota']+'"';
+                        if(m['from_id']!=undefined) ele = ele+' data-is_received_msg="'+((m['from_id']!= {{$user->id}})?1:0)+'"';
+                        ele = ele +'" onclick="zoomInPic(this);">'+
                             '<span class="he_yuan"><img src="/new/images/ba_010.png" class="he_left_img"></span><i class="he_li30">放大</i>'+
                         '</a>'+
                     '</font>';
@@ -217,8 +249,11 @@
     function msg_click_event(client_id){
         event.stopPropagation();
         if( $('.showslide_'+client_id).css('display')=='block'){
+            $('.userlogo_'+client_id).removeClass('on1')
             $('.showslide_'+client_id).hide();
         }else{
+            $('.userlogo_'+client_id).addClass('on1')
+            $('.fadeinboxs').fadeIn()            
             $('.showslide_'+client_id).show();
         }
     }
