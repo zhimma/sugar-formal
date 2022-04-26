@@ -142,6 +142,7 @@ class Message_new extends Model
         $message->isReported = 1;
         $message->reportContent = $content;
         $message->save();
+        event(new \App\Events\CheckWarnedOfReport($message->from_id));
     }
 
     public static function isAdminMessage($content) {

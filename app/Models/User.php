@@ -614,8 +614,8 @@ class User extends Authenticatable
         // Log::info('ReportedPic'.$pic_report2);
 
         //大頭照與照片合併計算
-//        $collection = collect([$pic_report1, $pic_report2]);
-//        $pic_all_report = $collection->collapse()->unique('uid');
+        //$collection = collect([$pic_report1, $pic_report2]);
+        //$pic_all_report = $collection->collapse()->unique('uid');
         // $pic_all_report->unique()->all();
 
         //訊息檢舉

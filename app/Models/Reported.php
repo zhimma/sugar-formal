@@ -81,6 +81,7 @@ class Reported extends Model
             $reported->pic = json_encode($images_ary);
         }
         $reported->save();
+        event(new \App\Events\CheckWarnedOfReport($reported_id));
     }
 
     public static function findMember($member_id, $reported_id){

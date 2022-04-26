@@ -1568,7 +1568,7 @@ class UserController extends \App\Http\Controllers\BaseController
 
             Message::where('from_id', $request->reported_id)->where('to_id', $request->reporter_id)->update(array('cancel' => 0));
         }
-
+        event(new \App\Events\CheckWarnedOfReport($request->reported_id));
         return back();
     }
 
@@ -3307,7 +3307,7 @@ class UserController extends \App\Http\Controllers\BaseController
                 //清除認證資料
                 //            DB::table('auth_img')->where('user_id',$id)->delete();
                 DB::table('short_message')->where('member_id', $id)->delete();
-    //            DB::table('short_message')->where('member_id', $id)->update(['active' =>0]);
+                //DB::table('short_message')->where('member_id', $id)->update(['active' =>0]);
             } else if ($status == 0) {
                 
                 //取消警示流程
@@ -3326,6 +3326,7 @@ class UserController extends \App\Http\Controllers\BaseController
                 }
 
             }
+            event(new \App\Events\CheckWarnedOfReport($id));
         }
         //新增Admin操作log
         $this->insertAdminActionLog($id, $status==1 ? '警示用戶'  : '取消警示用戶');
@@ -4631,6 +4632,7 @@ class UserController extends \App\Http\Controllers\BaseController
         DB::table('short_message')->insert(['member_id' =>  $request->user_id, 'mobile' => $request->phone, 'active' =>1]);
 
         UserMeta::where('user_id', $request->user_id)->update(['phone' => $request->phone]);
+        event(new \App\Events\CheckWarnedOfReport($request->user_id));
 
         return back()->with('message', $request->pass ? '已通過手機驗證':'手機已更新');
     }
@@ -4641,7 +4643,7 @@ class UserController extends \App\Http\Controllers\BaseController
         DB::table('short_message')->where('member_id', $request->user_id)->delete();
 //        DB::table('short_message')->where('member_id', $request->user_id)->update(['active' =>0, ]);
         UserMeta::where('user_id', $request->user_id)->update(['phone' => '']);
-
+        event(new \App\Events\CheckWarnedOfReport($request->user_id));
         return back()->with('message', '手機已刪除');
     }
 

@@ -25,6 +25,9 @@ class EventServiceProvider extends ServiceProvider
         // 'Illuminate\Mail\Events\MessageSending' => [
         //     'App\Listeners\LogEmail',
         // ],
+        'App\Events\CheckWarnedOfReport' => [
+            'App\Listeners\CheckWarnedOfReportListener'
+        ],
     ];
 
     /**

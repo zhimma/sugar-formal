@@ -1973,19 +1973,23 @@ class PagesController extends BaseController
             //apply_user_id = manager
 
 //            $canViewUsers = ForumManage::where('apply_user_id', $user->id)->where('user_id',$targetUser->id)->first();
-
+//
 //            $forum = Forum::where('user_id', $user->id)->orderBy('id','desc')->first();
 //            if($forum??false)
 //            {
 //                $canViewUsers = ForumManage::where('forum_id', $forum->id)->where('user_id',$targetUser->id)->first();
 //            }
-            
+
+            $forum = Forum::where('user_id', $user->id)->where('status', 1)->orderBy('id','desc')->first();
+            if(isset($forum)) {
+                $canViewUsers = ForumManage::where('forum_id', $forum->id)->where('user_id', $targetUser->id)->first();
+            }
 
             if ($user->id != $uid) {
 
                 if(
                     //檢查性別
-                    $user->engroup == $targetUser->engroup /*&& !isset($canViewUsers)*/
+                    $user->engroup == $targetUser->engroup && !isset($canViewUsers)
                     //檢查是否被封鎖
 //                    || User::isBanned($user->id)
                 ){
@@ -2770,7 +2774,7 @@ class PagesController extends BaseController
                 $ssrData .='<h2>';
                 $ssrData .='<font class="left">'.$visitor->name.'<span>'.$visitor->age().'歲</span></font>';
                             if($user->isVip()){
-                                if($visitor->isOnline()){
+                                if($visitor->isOnline() && $visitor->valueAddedServiceStatus('hideOnline') != 1){
                                     $ssrData .='<span class="onlineStatusSearch"></span>';
                                 }
                             }else{
@@ -4372,6 +4376,7 @@ class PagesController extends BaseController
             'code'=>'200',
             'msg' =>'檢舉成功',
         );
+        event(new \App\Events\CheckWarnedOfReport($id));
         return json_encode($data);
     }
 
@@ -4403,6 +4408,7 @@ class PagesController extends BaseController
             'code'=>'200',
             'msg' =>'檢舉大頭貼成功',
         );
+        event(new \App\Events\CheckWarnedOfReport($id));
         return json_encode($data);
     }
 
@@ -6877,6 +6883,8 @@ class PagesController extends BaseController
             'save' => $status
         );
 
+        event(new \App\Events\CheckWarnedOfReport($rid));
+
         return json_encode($data);
     }
 
@@ -7089,6 +7097,7 @@ class PagesController extends BaseController
                 'active'=>1,
                 'createdate'=>date('Y-m-d H:i:s'),               
             ]);  
+            event(new \App\Events\CheckWarnedOfReport($toEngroup));
             DB::table('banned_users')->insert([
                 'member_id'=>$toEngroup,
                 'created_at'=>date('Y-m-d H:i:s'),
