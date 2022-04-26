@@ -514,6 +514,7 @@ class UserController extends \App\Http\Controllers\BaseController
 
     public function toggleUserWarned(Request $request)
     {
+        ini_set('max_execution_time', -1);
         $userWarned = warned_users::where('member_id', $request->user_id)
             ->orderBy('created_at', 'desc')
             ->get()->first();
