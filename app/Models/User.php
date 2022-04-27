@@ -93,6 +93,11 @@ class User extends Authenticatable
     {
         return $this->hasMany(Vip::class, 'member_id', 'id')->where('active', 1)->orderBy('created_at', 'desc');
     }
+
+    public function vip_any()
+    {
+        return $this->hasMany(Vip::class, 'member_id', 'id')->orderBy('created_at', 'desc');
+    }
     
     public function vip_log()
     {
