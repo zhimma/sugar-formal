@@ -113,7 +113,7 @@ class CheckECpay implements ShouldQueue
                         }
                     }elseif(!$this->userIsVip && $paymentQueryData['TradeStatus'] == 1){
                         $getOrderDate = Order::where('order_id', $this->vipData->order_id)->first();
-                        if(isset($getOrderDate)) {
+                        if(isset($getOrderDate) && $getOrderDate->order_expire_date > $now) {
                             \App\Models\Vip::select('member_id', 'active')
                                 ->where('member_id', $this->vipData->member_id)
                                 ->update(array('active' => 1, 'expiry' => $getOrderDate->order_expire_date));
