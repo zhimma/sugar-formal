@@ -33,6 +33,8 @@ use Carbon\Carbon;
 use Illuminate\Http\Request;
 use App\Services\UserService;
 use App\Services\VipLogService;
+use App\Services\FaqUserService;
+use App\Services\FaqService;
 use App\Models\Fingerprint;
 use App\Models\Visited;
 use App\Models\Board;
@@ -75,6 +77,7 @@ use App\Models\LogFreeVipPicAct;
 use App\Models\UserTinySetting;
 use App\Http\Controllers\Admin\UserController;
 use App\Models\CheckPointUser;
+use App\Models\ComeFromAdvertise;
 use App\Models\SimpleTables\short_message;
 use App\Models\LogAdvAuthApi;
 use Illuminate\Support\Facades\Http;
@@ -518,6 +521,14 @@ class PagesController extends BaseController
      */
     public function home(Request $request)
     {
+        //如果由外部廣告連結進入則進入廣告用首頁
+        $come_from_advertise = 0;
+        if($request->come_from_advertise??false)
+        {
+            $come_from_advertise = 1;
+        }
+        Log::Info('come_from_advertise : '.$come_from_advertise);
+
         \Session::forget('is_remind_puppet');
         \Session::forget('filled_data');        
         // (SELECT CEIL(RAND() * (SELECT MAX(id) FROM random)) AS id) as u2
@@ -553,10 +564,22 @@ class PagesController extends BaseController
             ->whereNull('b4.target')
             ->whereNotNull('user_meta.pic')
             ->where('engroup', 2)->take(3)->get();
-        return view('new.welcome')
+
+        //判斷是否進入廣告用首頁
+        if($come_from_advertise)
+        {
+            return view('new.advertise_welcome')
             ->with('cur', view()->shared('user'))
             ->with('imgUserM', $imgUserM)
             ->with('imgUserF', $imgUserF);
+        }
+        else
+        {
+            return view('new.welcome')
+            ->with('cur', view()->shared('user'))
+            ->with('imgUserM', $imgUserM)
+            ->with('imgUserF', $imgUserF);
+        }
     }
 
     public function privacy(Request $request)
@@ -663,14 +686,16 @@ class PagesController extends BaseController
 
     public function dashboard(Request $request)
     {
-        // todo: 驗證 VIP 是否成功付款
+        // 驗證 VIP 是否成功付款
         //      1. 綠界：連 API 檢查，使用 Laravel Queue 執行檢查
         //      2. 藍新：後台手動
         
         $user = $this->user;
         $url = $request->fullUrl();
 
-        $this->service->dispatchCheckECPay($this->userIsVip, $this->userIsFreeVip, $this->userVipData);
+        if($user->vip_any) {
+            $this->service->dispatchCheckECPay($this->userIsVip, $this->userIsFreeVip, $user->vip_any->first());
+        }
         //valueAddedService
         if($this->valueAddedServices['hideOnline'] == 1){
             //如未來service有多個以上則此段需設計並再改寫成ALL in one的方式
@@ -3423,7 +3448,9 @@ class PagesController extends BaseController
         $admin = AdminService::checkAdmin();
         $m_time = '';
         $report_reason = AdminCommonText::where('alias', 'report_reason')->get()->first();
-        $this->service->dispatchCheckECPay($this->userIsVip, $this->userIsFreeVip, $this->userVipData);
+        if($user->vip_any) {
+            $this->service->dispatchCheckECPay($this->userIsVip, $this->userIsFreeVip, $user->vip_any->first());
+        }
         //valueAddedService
         if($this->valueAddedServices['hideOnline'] == 1){
             //如未來service有多個以上則此段需設計並再改寫成ALL in one的方式
@@ -3611,7 +3638,9 @@ class PagesController extends BaseController
         }
 
         $user = $request->user();
-        $this->service->dispatchCheckECPay($this->userIsVip, $this->userIsFreeVip, $this->userVipData);
+        if($user->vip_any) {
+            $this->service->dispatchCheckECPay($this->userIsVip, $this->userIsFreeVip, $user->vip_any->first());
+        }
         //valueAddedService
         if($this->valueAddedServices['hideOnline'] == 1){
             //如未來service有多個以上則此段需設計並再改寫成ALL in one的方式
@@ -4361,6 +4390,7 @@ class PagesController extends BaseController
             'code'=>'200',
             'msg' =>'檢舉成功',
         );
+        event(new \App\Events\CheckWarnedOfReport($id));
         return json_encode($data);
     }
 
@@ -4392,6 +4422,7 @@ class PagesController extends BaseController
             'code'=>'200',
             'msg' =>'檢舉大頭貼成功',
         );
+        event(new \App\Events\CheckWarnedOfReport($id));
         return json_encode($data);
     }
 
@@ -6784,7 +6815,15 @@ class PagesController extends BaseController
             $showNewSugarForbidMsgNotify = true;
         }
         */
-
+        $faqUserService = new FaqUserService($this->service->riseByUserEntry($user),new FaqService);
+        $faqPopupQuestionList = $faqUserService->getPopupQuestionList();
+        $faqReplyedRecord = $faqUserService->getReplyedRecord();
+        $faqCountDownStartTime = $faqUserService->getCountDownStartTime();
+        $faqCountDownTime = $faqUserService->getCountDownTime();
+        $faqCountDownSeconds = $faqUserService->getCountDownSeconds();
+        $isFaqDuringCountDown = $faqUserService->isDuringCountDown();
+        $isForceShowFaqPopup = $faqUserService->isForceShowFaqPopup();
+        
         if (isset($user)) {
             $data = array(
                 'vipStatus' => $vipStatus,
@@ -6805,6 +6844,14 @@ class PagesController extends BaseController
                 'showLineNotifyPop'=>$showLineNotifyPop,
                 'announcePopUp'=>$announcePopUp,
                 //'showNewSugarForbidMsgNotify'=>$showNewSugarForbidMsgNotify,
+                'faqPopupQuestionList'=>$faqPopupQuestionList,
+                'faqUserService'=>$faqUserService,
+                'faqReplyedRecord'=>$faqReplyedRecord,
+                'faqCountDownStartTime'=>$faqCountDownStartTime,
+                'isFaqDuringCountDown'=>$isFaqDuringCountDown,
+                'isForceShowFaqPopup'=>$isForceShowFaqPopup,
+                'faqCountDownTime'=>$faqCountDownTime,
+                'faqCountDownSeconds'=>$faqCountDownSeconds
             );
             $allMessage = \App\Models\Message::allMessage($user->id);
             $forum = Forum::withTrashed()->where('user_id',$user->id)->orderby('id','desc')->first();
@@ -6849,6 +6896,8 @@ class PagesController extends BaseController
         $data = array(
             'save' => $status
         );
+
+        event(new \App\Events\CheckWarnedOfReport($rid));
 
         return json_encode($data);
     }
@@ -7062,6 +7111,7 @@ class PagesController extends BaseController
                 'active'=>1,
                 'createdate'=>date('Y-m-d H:i:s'),               
             ]);  
+            event(new \App\Events\CheckWarnedOfReport($toEngroup));
             DB::table('banned_users')->insert([
                 'member_id'=>$toEngroup,
                 'created_at'=>date('Y-m-d H:i:s'),
@@ -8043,6 +8093,49 @@ class PagesController extends BaseController
         return response()->json(['msg' => 'error']);
 
     }
+    
+    public function checkFaqAnswer(Request $request,FaqUserService $fuService) {        
+
+        $fuService->riseByUserService(
+                                $this->service->riseByUserEntry(
+                                    auth()->user()
+                                )
+                            );
+        return response()->json($fuService->checkAnswer($request));
+
+    }
+
+    public function advertise_record(Request $request)
+    {
+        $user = \Auth::user();
+        Log::Info($user??'false');
+        $advertise_record = new ComeFromAdvertise;
+        if($user??false)
+        {
+            $advertise_record->user_id = $user->id;
+            $advertise_record->action = 'login';
+        }
+        $advertise_record->save();
+        $advertise_id = $advertise_record->id;
+        return response()->json(['advertise_id' => $advertise_id]);
+    }  
+
+    public function advertise_record_change(Request $request)
+    {
+        $user = \Auth::user();
+        $advertise_record = ComeFromAdvertise::where('id', $request->advertise_id)->first();
+        if($user??false)
+        {
+            $advertise_record->user_id = $user->id;
+        }
+        if($advertise_record->action == 'explore')
+        {
+            $advertise_record->action = $request->type;
+        }
+        $advertise_record->save();
+        return response()->json([]);
+    }    
+    
 }
 
 

@@ -1582,12 +1582,12 @@
             if(!$ref_user) { continue; }
             $ref_user_id = $Log->ref_user_id;
             $message_log = \App\Models\Message::withTrashed()
-                                ->where([['message.to_id', ($ref_user->engroup==1 ? $ref_user->id : $user->id)],['message.from_id', ($ref_user->engroup==1 ? $user->id : $ref_user->id)]])
+                                ->where([['message.to_id', $ref_user->id ],['message.from_id', $user->id ]])
                                 ->orderBy('created_at')->first();
 
             $message_1st = \App\Models\Message::withTrashed()
-                                ->where([['message.to_id', ($ref_user->engroup==1 ? $ref_user->id : $user->id)],['message.from_id', ($ref_user->engroup==1 ? $user->id : $ref_user->id)]])
-                                ->orWhere([['message.from_id', ($ref_user->engroup==1 ? $ref_user->id : $user->id)],['message.to_id', ($ref_user->engroup==1 ? $user->id : $ref_user->id)]])
+                                ->where([['message.to_id', $ref_user->id ],['message.from_id', $user->id ]])
+                                ->orWhere([['message.from_id', $ref_user->id ],['message.to_id', $user->id ]])
                                 ->orderBy('created_at')->first();
 
             $toCount_user_id=\App\Models\Message::withTrashed()->where('from_id',$user->id)->where('to_id',$ref_user_id)->get()->count();
@@ -1595,15 +1595,8 @@
         @endphp
         <tr 
             {{--一次顯示50個 臨時搭建用--}}
-            @if($toCount_user_id == 0 || $toCount_ref_user_id == 0) 
-                class='message_no_interactive' style="display:none" 
-            @else
-                @php 
-                    $count = $count + 1; 
-                @endphp
-                @if($count > $display)
-                    style="display:none" 
-                @endif
+            @if($toCount_user_id == 0 )
+                class='message_no_interactive' style="display:none"
             @endif>
             {{--一次顯示50個 臨時搭建用--}}
             <td style="text-align: center;"><button data-toggle="collapse" data-target="#msgLog{{$ref_user_id}}" class="accordion-toggle btn btn-primary message_toggle">+</button></td>

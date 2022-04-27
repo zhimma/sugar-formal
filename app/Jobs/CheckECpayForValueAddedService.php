@@ -11,6 +11,7 @@ use Illuminate\Foundation\Bus\Dispatchable;
 use Illuminate\Support\Facades\Config;
 use Illuminate\Support\Facades\Log;
 use App\Models\User;
+use Illuminate\Queue\Middleware\WithoutOverlapping;
 
 class CheckECpayForValueAddedService implements ShouldQueue
 {
@@ -18,7 +19,7 @@ class CheckECpayForValueAddedService implements ShouldQueue
 
     public $timeout = 60;
 
-    protected $valueAddedServiceData;
+    protected $valueAddedServiceData, $job_user;
 
     /**
      * Create a new job instance.
@@ -68,6 +69,8 @@ class CheckECpayForValueAddedService implements ShouldQueue
                 Log::info("valueAddedService payment: " . $this->valueAddedServiceData->payment);
                 Log::error($exception);
             }
+
+            $user = null;
 
             if(substr($this->valueAddedServiceData->payment,0,4) == 'one_'){
                 //保留用
@@ -156,6 +159,10 @@ class CheckECpayForValueAddedService implements ShouldQueue
                         $message->subject('綠界扣款失敗通知');
                     });
                 }
+            }
+
+            if($user) {                
+                $this->job_user = $user;
             }
         }
     }

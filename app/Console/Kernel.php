@@ -74,6 +74,12 @@ class Kernel extends ConsoleKernel
             $schedule->command('CompareImages  --dsort')->timezone('Asia/Taipei')->everyTenMinutes();//->between('02:00', '12:00');            
         }
         if(app()->isProduction() || app()->isLocal()){
+            
+            $puppetReq = new Request();
+            $puppetReq->only = 'vid';
+            $schedule->call('\App\Http\Controllers\Admin\FindPuppetController@entrance',['request'=>$puppetReq])->timezone('Asia/Taipei')->dailyAt('01:00');
+            $schedule->call('\App\Http\Controllers\Admin\FindPuppetController@entrance',['request'=>$puppetReq])->timezone('Asia/Taipei')->dailyAt('13:00');            
+            
             $schedule->call(function (){
                 $this->checkEmailVailUser();
             })->timezone('Asia/Taipei')->dailyAt('8:00');

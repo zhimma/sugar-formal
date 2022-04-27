@@ -30,6 +30,7 @@ use Illuminate\Database\Eloquent\Collection;
 use Illuminate\Http\Request;
 use App\Services\UserService;
 use App\Services\AdminService;
+use App\Services\FaqService;
 use App\Http\Controllers\Controller;
 use App\Http\Requests\UserInviteRequest;
 use App\Models\User;
@@ -66,6 +67,7 @@ use App\Models\ValueAddedService;
 use App\Services\ImagesCompareService;
 use App\Models\SimilarImages;
 use App\Models\CheckPointUser;
+use App\Models\ComeFromAdvertise;
 
 class UserController extends \App\Http\Controllers\BaseController
 {
@@ -354,6 +356,7 @@ class UserController extends \App\Http\Controllers\BaseController
      */
     public function toggleUserBlock(Request $request)
     {
+        ini_set('max_execution_time', -1);
         $userBanned = banned_users::where('member_id', $request->user_id)
             ->orderBy('created_at', 'desc')
             ->get()->first();
@@ -512,6 +515,7 @@ class UserController extends \App\Http\Controllers\BaseController
 
     public function toggleUserWarned(Request $request)
     {
+        ini_set('max_execution_time', -1);
         $userWarned = warned_users::where('member_id', $request->user_id)
             ->orderBy('created_at', 'desc')
             ->get()->first();
@@ -1566,7 +1570,7 @@ class UserController extends \App\Http\Controllers\BaseController
 
             Message::where('from_id', $request->reported_id)->where('to_id', $request->reporter_id)->update(array('cancel' => 0));
         }
-
+        event(new \App\Events\CheckWarnedOfReport($request->reported_id));
         return back();
     }
 
@@ -2454,6 +2458,260 @@ class UserController extends \App\Http\Controllers\BaseController
         $a = AdminAnnounce::orderBy('sequence', 'asc')->get()->all();
         return view('admin.adminannouncement')->with('announce', $a);
     }
+    
+    public function showFaq(Request $request, FaqService $service)
+    {
+        $data['service'] = $service->fillQuestionList();
+        $data['entry_list'] = $data['service']->question_list;
+        $data['count_down_time'] = $data['service']->getCountDownTime();
+        return view('admin.faq',$data);
+    } 
+
+    public function showNewFaq(Request $request,FaqService $service)
+    {   
+        $data['service'] = $service->fillGroupList();
+        $data['group_list_set']['1_1'] = $data['service']->getGroupListByEngroupVip('1_1');
+        $data['group_list_set']['1_0'] = $data['service']->getGroupListByEngroupVip('1_0');
+        $data['group_list_set']['2_-1'] = $data['service']->getGroupListByEngroupVip('2_-1');
+        $data['engroup_vip_words'] = $data['service']->getEngroupVipWord();
+        $data['group_target_code_list'] = $data['service']->group_target_code_list();
+        $data['question_type_list'] = $data['service']->question_type_list();
+        return view('admin.faq_new',$data);
+    }  
+
+    public function newFaq(Request $request, FaqService $service)
+    {       
+        if ($service->addQuestion($request)) {
+            $theGroupEntry = $service->question_entry()->faq_group;
+            return redirect('admin/faq?engroupvip='.($theGroupEntry->engroup).'_'.$theGroupEntry->is_vip)
+                ->with('message', '成功新增FAQ');
+        } else {
+            return redirect('admin/faq?engroupvip='.($service->riseByGroupId($request->group_id)->group_entry()->engroup).'_'.$service->group_entry()->is_vip)
+                ->withErrors(['出現不明錯誤，無法新增FAQ']);
+        }
+    } 
+
+    public function showFaqEdit(FaqService $service,$id)
+    {
+        $data['service'] = $service->riseByQuestionId($id)->fillGroupList();
+        $data['entry'] =  $data['service']->question_entry();
+        $data['group_target_code_list'] = $data['service']->group_target_code_list();
+        $data['group_list_set']['1_1'] = $data['service']->getGroupListByEngroupVip('1_1');
+        $data['group_list_set']['1_0'] = $data['service']->getGroupListByEngroupVip('1_0');
+        $data['group_list_set']['2_-1'] = $data['service']->getGroupListByEngroupVip('2_-1');        
+        $data['engroup_vip_words'] = $data['service']->getEngroupVipWord();
+        return view('admin.faq_edit',$data);
+    } 
+
+    public function saveFaq(Request $request,FaqService $service)
+    {
+        if ($service->saveQuestion($request)) {
+            $theGroupEntry = $service->question_entry()->faq_group;
+            return redirect('admin/faq?engroupvip='.($theGroupEntry->engroup).'_'.$theGroupEntry->is_vip)
+                ->with('message', '成功修改FAQ');
+        } else {
+            return redirect('admin/faq?engroupvip='.($service->riseByGroupId($request->group_id)->group_entry()->engroup).'_'.$service->group_entry()->is_vip)
+                ->withErrors(['出現不明錯誤，無法修改FAQ']);
+        }
+    } 
+    
+    public function saveAnsFromFaq(Request $request,FaqService $service) {
+        if ($service->riseByQuestionId($request->question_id)->saveRegularAns($request)) {
+            $theGroupEntry = $service->question_entry()->faq_group;
+            return redirect('admin/faq?engroupvip='.($theGroupEntry->engroup).'_'.$theGroupEntry->is_vip)
+                ->with('message', '成功修改FAQ');
+        } else {
+            return redirect('admin/faq?engroupvip='.($service->riseByGroupId($request->group_id)->group_entry()->engroup).'_'.$service->group_entry()->is_vip)
+                ->withErrors(['出現不明錯誤，無法修改FAQ']);
+        }            
+    }
+    
+    public function saveSettingFromFaq(Request $request,FaqService $service) {
+        $rs = $service->saveSetting($request);
+        if ($rs) {
+            $theGroupEntry = $service->question_entry()->faq_group;
+            return back()->with('message', '成功修改FAQ設定');
+        } else if($rs===false) {
+            return back()->withErrors(['出現不明錯誤，無法修改FAQ設定']);
+        }  
+        else {
+            return back();
+        }
+    }    
+
+    public function deleteFaq(Request $request,FaqService $service)
+    {      
+        if ($service->riseByQuestionId($request->id)->delQuestion()) {
+            return redirect('admin/faq?engroupvip='.($service->group_entry()->engroup??'1').'_'.$service->group_entry()->is_vip??'1')
+                ->with('message', '成功刪除FAQ');
+        } else {
+            return redirect('admin/faq?engroupvip='.($service->group_entry()->engroup??'1').'_'.$service->group_entry()->is_vip??'1')
+                ->withErrors(['出現不明錯誤，無法刪除FAQ']);
+        }
+    }   
+
+    public function showFaqGroup(Request $request, FaqService $service)
+    {   
+        if(!$request->engroupvip) {
+            return redirect('admin/faq_group?engroupvip=1_1');
+        }
+        $data['service'] = $service->fillGroupList($request);
+        $data['entry_list'] = $data['service']->group_list;
+        $data['default_qstring'] = $data['service']->getEngroupVipQueryString('?',request());
+        $data['engroup_vip_words'] = $data['service']->getEngroupVipWord();
+        $data['group_target_code_list'] = $data['service']->group_target_code_list();        
+        return view('admin.faq_group',$data);
+    } 
+
+    public function showNewFaqGroup(Request $request,FaqService $service)
+    {     
+        $data['service'] = $service;
+        $data['default_qstring'] = $data['service']->getEngroupVipQueryString('?',request());
+        return view('admin.faq_group_new',$data);
+    }  
+
+    public function newFaqGroup(Request $request, FaqService $service)
+    {
+        if ($service->addGroup($request)) {
+            return redirect('admin/faq_group'.$service->getEngroupVipQueryString('?',$service->group_entry()))
+                ->with('message', '成功新增FAQ組別');
+        } else {
+            return redirect('admin/faq_group'.$service->getEngroupVipQueryString('?',$service->group_entry()))
+                ->withErrors(['出現不明錯誤，無法新增FAQ組別']);
+        }
+    } 
+
+    public function saveFaqGroupAct(Request $request, FaqService $service) {
+        $rs = false;
+        $act = $request->act??[];
+        $old_act = $request->old_act??[];
+        $list_group_id = $request->list_group_id??[];
+        $to_act = array_diff($act,$old_act);
+        $allow_to_act = [];
+        $forbid_to_act = [];
+        foreach($to_act as $k=>$v) {
+            $now_check_group = $service->slotByGroupId($v)->group_entry();
+            if(!($now_check_group??null)) continue;
+            $now_check_group->renewHasAnswer();
+            if($now_check_group->isRealHasAnswer()) {
+                $allow_to_act[] = $v;
+            }
+            else {
+                $forbid_to_act[] = $v;
+            }
+        }
+        $not_act = array_diff($list_group_id,$act);
+        $to_not_act = array_intersect($not_act,$old_act);
+
+        $rs = $service->group_entry()->whereIn('id',$allow_to_act )->where('act',0)->update(['act'=>1,'act_at'=>Carbon::now()]);
+        $service->logGroupAct(1,$to_act);
+        if(count($to_not_act)) {
+            $rs = $service->group_entry()->whereIn('id',$to_not_act )->where('act',1)->update(['act'=>0,'act_at'=>null]);
+            $service->logGroupAct(0,$to_not_act);
+        }
+        if($rs) {
+            if(!$forbid_to_act) {
+                return back()
+                    ->with('message', '成功改變FAQ組別的啟用狀態');            
+            }
+            else {
+                return back()
+                    ->with('message', '成功改變'.count($allow_to_act).'組FAQ組別的啟用狀態，另有'.count($forbid_to_act).'組無法啟用');                  
+            }
+        }
+        else {
+            return back()
+                ->withErrors(['出現不明錯誤，無法改變FAQ組別的啟用狀態']);            
+        }
+    }
+
+    public function showFaqGroupEdit(FaqService $service,$id)
+    {
+        $data['service'] = $service->riseByGroupId($id);
+        $data['entry'] =  $data['service']->group_entry();
+        return view('admin.faq_group_edit',$data);
+    } 
+
+    public function saveFaqGroup(Request $request, FaqService $service)
+    {        
+        if ($service->saveGroup($request)) {
+            return redirect('admin/faq_group'.$service->getEngroupVipQueryString('?',$service->group_entry()))
+                ->with('message', '成功修改FAQ組別');
+        } else {
+            return redirect('admin/faq_group'.$service->getEngroupVipQueryString('?',$service->group_entry()))
+                ->withErrors(['出現不明錯誤，無法修改FAQ組別']);
+        }        
+    }
+
+    public function deleteFaqGroup(Request $request,FaqService $service)
+    {      
+        if ($service->riseByGroupId($request->id)->delGroup()) {
+            return redirect('admin/faq_group'.$service->getEngroupVipQueryString('?',$service->group_entry()))
+                ->with('message', '成功刪除FAQ組別');
+        } else {
+            return redirect('admin/faq_group'.$service->getEngroupVipQueryString('?',$service->group_entry()))
+                ->withErrors(['出現不明錯誤，無法刪除FAQ組別']);
+        }
+    } 
+
+
+    public function showFaqChoice(Request $request, FaqService $service,$id)
+    {
+        $data['service'] = $service->riseByQuestionId($id)->fillChoiceList();
+        $data['entry_list'] = $data['service']->choice_list;
+        return view('admin.faq_choice',$data);
+    } 
+
+    public function showNewFaqChoice(Request $request,FaqService $service,$id)
+    {   
+        $data['service'] = $service->riseByQuestionId($id);
+        return view('admin.faq_choice_new',$data);
+    }  
+
+    public function newFaqChoice(Request $request, FaqService $service,$id)
+    {
+        if ($service->riseByQuestionId($id)->addChoice($request)) {
+            return redirect()->route('admin/faq_choice', $id)
+                ->with('message', '成功新增FAQ選項');
+        } else {
+            if($service->error_msg()=='duplicate_name') $error_msg = '選項名稱重複，無法修改FAQ選項';
+            else $error_msg='出現不明錯誤，無法修改FAQ選項';            
+            
+            return redirect()->route('admin/faq_choice', $id)
+                ->withErrors([$error_msg]);
+        }
+    }  
+
+    public function showFaqChoiceEdit(FaqService $service,$id)
+    {
+        $data['service'] = $service->riseByChoiceId($id);
+        $data['entry'] =  $data['service']->choice_entry();
+        return view('admin.faq_choice_edit',$data);
+    } 
+
+    public function saveFaqChoice(Request $request, FaqService $service,$id)
+    {        
+        if ($service->riseByQuestionId($id)->saveChoice($request)) {
+            return redirect()->route('admin/faq_choice', $id)
+                ->with('message', '成功修改FAQ選項');
+        } else {
+            if($service->error_msg()=='duplicate_name') $error_msg = '選項名稱重複，無法修改FAQ選項';
+            else $error_msg='出現不明錯誤，無法修改FAQ選項';
+            return redirect()->route('admin/faq_choice', $id)
+                ->withErrors([$error_msg]);
+        }        
+    }
+
+    public function deleteFaqChoice(Request $request,FaqService $service)
+    {      
+        if ($service->riseByChoiceId($request->id)->delChoice()) {
+            return redirect()->route('admin/faq_choice',$service->question_entry()->id)
+                ->with('message', '成功刪除FAQ選項');
+        } else {
+            return redirect()->route('admin/faq_choice',$service->question_entry()->id)
+                ->withErrors(['出現不明錯誤，無法刪除FAQ選項']);
+        }
+    }      
 
     public function showAdminCommonText()
     {
@@ -3051,7 +3309,7 @@ class UserController extends \App\Http\Controllers\BaseController
                 //清除認證資料
                 //            DB::table('auth_img')->where('user_id',$id)->delete();
                 DB::table('short_message')->where('member_id', $id)->delete();
-    //            DB::table('short_message')->where('member_id', $id)->update(['active' =>0]);
+                //DB::table('short_message')->where('member_id', $id)->update(['active' =>0]);
             } else if ($status == 0) {
                 
                 //取消警示流程
@@ -3070,6 +3328,7 @@ class UserController extends \App\Http\Controllers\BaseController
                 }
 
             }
+            event(new \App\Events\CheckWarnedOfReport($id));
         }
         //新增Admin操作log
         $this->insertAdminActionLog($id, $status==1 ? '警示用戶'  : '取消警示用戶');
@@ -4375,6 +4634,7 @@ class UserController extends \App\Http\Controllers\BaseController
         DB::table('short_message')->insert(['member_id' =>  $request->user_id, 'mobile' => $request->phone, 'active' =>1]);
 
         UserMeta::where('user_id', $request->user_id)->update(['phone' => $request->phone]);
+        event(new \App\Events\CheckWarnedOfReport($request->user_id));
 
         return back()->with('message', $request->pass ? '已通過手機驗證':'手機已更新');
     }
@@ -4385,7 +4645,7 @@ class UserController extends \App\Http\Controllers\BaseController
         DB::table('short_message')->where('member_id', $request->user_id)->delete();
 //        DB::table('short_message')->where('member_id', $request->user_id)->update(['active' =>0, ]);
         UserMeta::where('user_id', $request->user_id)->update(['phone' => '']);
-
+        event(new \App\Events\CheckWarnedOfReport($request->user_id));
         return back()->with('message', '手機已刪除');
     }
 
@@ -5780,4 +6040,16 @@ class UserController extends \App\Http\Controllers\BaseController
                 ->with('statistics_data', $statistics_data);
     }
 
+    public function advertiseStatistics(Request $request)
+    {
+        $login_count = ComeFromAdvertise::where('action', 'login')->get()->count();
+        $explore_count = ComeFromAdvertise::where('action', 'explore')->get()->count();
+        $regist_count = ComeFromAdvertise::where('action', 'regist')->get()->count();
+
+        return view('admin.users.advertiseStatistics')
+                ->with('login_count', $login_count)
+                ->with('explore_count', $explore_count)
+                ->with('regist_count', $regist_count);
+    }
+    
 }

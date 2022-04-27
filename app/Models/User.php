@@ -12,6 +12,8 @@ use App\Models\UserMeta;
 use App\Models\MemberPic;
 use App\Models\SimpleTables\banned_users;
 use App\Models\SimpleTables\warned_users;
+use App\Models\FaqUserGroup;
+use App\Models\FaqUserReply;
 use App\Notifications\ResetPassword;
 use Illuminate\Notifications\Notifiable;
 use Illuminate\Foundation\Auth\User as Authenticatable;
@@ -90,6 +92,11 @@ class User extends Authenticatable
     public function vip()
     {
         return $this->hasMany(Vip::class, 'member_id', 'id')->where('active', 1)->orderBy('created_at', 'desc');
+    }
+
+    public function vip_any()
+    {
+        return $this->hasMany(Vip::class, 'member_id', 'id')->orderBy('created_at', 'desc');
     }
     
     public function vip_log()
@@ -268,6 +275,15 @@ class User extends Authenticatable
     public function tip() {
         return $this->hasMany(Tip::class, 'member_id', 'id');
     }
+    
+    //faq
+    public function faq_user_group() {
+        return $this->hasMany(FaqUserGroup::class);
+    }
+    
+    public function faq_user_reply() {
+        return $this->hasMany(FaqUserReply::class);
+    }         
 
     /**
      * Check if user has role
@@ -603,8 +619,8 @@ class User extends Authenticatable
         // Log::info('ReportedPic'.$pic_report2);
 
         //大頭照與照片合併計算
-//        $collection = collect([$pic_report1, $pic_report2]);
-//        $pic_all_report = $collection->collapse()->unique('uid');
+        //$collection = collect([$pic_report1, $pic_report2]);
+        //$pic_all_report = $collection->collapse()->unique('uid');
         // $pic_all_report->unique()->all();
 
         //訊息檢舉
@@ -1045,7 +1061,7 @@ class User extends Authenticatable
 			|| in_array('message_reply_count',$wantIndexArr)
 			|| in_array('message_reply_count_7',$wantIndexArr)
 		) {
-			$messages_all = Message::select('id','to_id','from_id','created_at')->where('to_id', $user->id)->orwhere('from_id', $user->id)->where('from_id','!=',1049)->orderBy('id')->get();
+			$messages_all = Message::withTrashed()->select('id','to_id','from_id','created_at')->where('to_id', $user->id)->orwhere('from_id', $user->id)->where('from_id','!=',1049)->orderBy('id')->get();
 			foreach ($messages_all as $message) {
 				//uid主動第一次發信
 				if($message->from_id == $user->id && array_get($send, $message->to_id) < $message->id){
@@ -1071,37 +1087,26 @@ class User extends Authenticatable
 				}
 			}
 
-			foreach ($reply_people as $reply_people_user_id){
-                $message_1st=\App\Models\Message::where([['message.to_id', $reply_people_user_id],['message.from_id', $user_id]])
-                    ->orWhere([['message.from_id', $reply_people_user_id],['message.to_id', $user_id]])
-                    ->orderBy('created_at')->first();
-                if($message_1st->from_id==$user_id){
-                    if (($key = array_search($reply_people_user_id, $reply_people)) !== false) {
-                        unset($reply_people[$key]);
-                    }
-                }
-            }
-            foreach ($reply_people_7 as $reply_people_7_user_id){
-                $message_1st=\App\Models\Message::where([['message.to_id', $reply_people_7_user_id],['message.from_id', $user_id]])
-                    ->orWhere([['message.from_id', $reply_people_7_user_id],['message.to_id', $user_id]])
-                    ->orderBy('created_at')->first();
-                if($message_1st->from_id==$user_id){
-                    if (($key = array_search($reply_people_7_user_id, $reply_people_7)) !== false) {
-                        unset($reply_people_7[$key]);
-                    }
-                }
-            }
-
 			$message_count=0;
             foreach ($send as $to_id =>$val){
                 $m_id=Message::where('from_id',$to_id)->where('to_id',$user->id)->orderBy('id')->first();
                 $m_id=$m_id? $m_id->id :null;
 
-                $from_id_first=Message::where([['message.to_id', $user->id],['message.from_id', $to_id]])
+                $retreived_data = Message::withTrashed()->where([['message.to_id', $user->id],['message.from_id', $to_id]])
                     ->orWhere([['message.from_id', $user->id],['message.to_id', $to_id]])
-                    ->orderBy('created_at')->first()->from_id;
+                    ->orderBy('created_at')
+                    ->where(function ($q) {
+                        $q->where(function ($q1) {
+                            $q1->where('unsend', 0);
+                        })
+                        ->orWhere(function ($q2) {
+                            $q2->where('unsend', 1);
+                        });
+                    })
+                    ->first();
+                $from_id_first = $retreived_data ? $retreived_data->from_id : null;
 
-                $message_temp=Message::where('from_id',$user->id)->where('to_id',$to_id)->orderBy('created_at');
+                $message_temp = Message::where('from_id',$user->id)->where('to_id',$to_id)->orderBy('created_at');
                 if(!is_null($m_id)){
                     $message_temp->where('id','<',$m_id);
                 }

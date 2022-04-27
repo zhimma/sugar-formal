@@ -29,7 +29,7 @@ class LogoutAutoBan implements ShouldQueue
 
     public function middleware()
     {
-        return [new WithoutOverlapping($this->uid)];
+        return [(new WithoutOverlapping($this->uid))->dontRelease()];
     }
 
     /**
@@ -40,5 +40,15 @@ class LogoutAutoBan implements ShouldQueue
     public function handle()
     {
         SetAutoBan::logoutWarned($this->uid);
+    }
+
+    /**
+     * Determine the time at which the job should timeout.
+     *
+     * @return \DateTime
+     */
+    public function retryUntil()
+    {
+        return now()->addMinutes(30);
     }
 }

@@ -63,6 +63,7 @@ class ReportedAvatar extends Model
             $reported->pic = json_encode($images_ary);
         }
         $reported->save();
+        event(new \App\Events\CheckWarnedOfReport($reported_user_id));
     }
 
     public static function findMember($reporter_id, $reported_user_id){

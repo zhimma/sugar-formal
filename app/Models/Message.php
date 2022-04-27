@@ -45,7 +45,10 @@ class Message extends Model
         'read',
         'parent_msg',
         'client_id',
-        'parent_client_id'        
+        'parent_client_id',
+        'views_count',
+        'views_count_quota',
+        'show_time_limit'
     ];
 
     static $date = null;
@@ -190,6 +193,7 @@ class Message extends Model
             $message->reportContentPic = json_encode($images_ary);
         }
         $message->save();
+        event(new \App\Events\CheckWarnedOfReport($message->from_id));
     }
 
     public static function isAdminMessage($content) {
@@ -622,7 +626,22 @@ class Message extends Model
                 self::$date = \Carbon\Carbon::parse("30 days ago")->toDateTimeString();
             }   
            
-            $query = Message::where('created_at','>=',self::$date);
+            $query = Message::where('created_at','>=',self::$date)
+                        ->Where(function($q){
+                            $q->where('views_count_quota','>',0)
+                                ->whereRaw('views_count < views_count_quota')
+                                ->orWhere('views_count_quota',0)
+                                ->orWhereNull('views_count_quota')
+                                ;   
+                        }) 
+                        ->where(function($q){
+                            $q->where('show_time_limit','>',0)
+                                ->whereRaw('ADDTIME(created_at,show_time_limit) > now()')
+                                ->orWhere('show_time_limit',0)
+                                ->orWhereNull('show_time_limit')
+                                ;                             
+                        })
+                        ;
             
             if($includeUnsend) { 
                 $query->withTrashed()->where(function ($q) {

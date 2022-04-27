@@ -300,7 +300,9 @@ class Message_newController extends BaseController {
                 'to_id'=>$payload['to'],
                 'client_id'=>$payload['client_id'],
                 'parent_msg'=>($payload['parent']??null),
-                'parent_client_id'=>($payload['parent_client']??null)
+                'parent_client_id'=>($payload['parent_client']??null),
+                'views_count_quota'=>($payload['views_count_quota']??0),
+                'show_time_limit'=>($payload['show_time_limit']??0),
             ]);
 
             $messagePosted = $this->message_pic_save($messageInfo->id, $request->file('images'));
@@ -497,7 +499,9 @@ class Message_newController extends BaseController {
         $user = $request->user();
         $m_time = '';
         if (isset($user)) {
-            $this->service->dispatchCheckECPay($this->userIsVip, $this->userIsFreeVip, $this->userVipData);
+            if($user->vip_any) {
+                $this->service->dispatchCheckECPay($this->userIsVip, $this->userIsFreeVip, $user->vip_any->first());
+            }
             $isVip = $user->isVip();
             /*編輯文案-檢舉大頭照-START*/
             $vip_member = AdminCommonText::where('alias','vip_member')->get()->first();
@@ -551,7 +555,7 @@ class Message_newController extends BaseController {
          */
         $data = Message_new::allSendersAJAX($user_id, $request->isVip,$request->date);
         
-        if($data != ['No data'])
+        if(is_array($data) && $data != ['No data'])
         {
             //過濾篩選條件
             $inbox_refuse_set = InboxRefuseSet::where('user_id', $user->id)->first();
@@ -875,5 +879,23 @@ class Message_newController extends BaseController {
             return back()->withErrors(['非VIP無法收回訊息。']);       
         }
         
+    }
+    
+    public function increaseViewsCount(Request $request) {
+        $req_id = $request->id;
+        $req_client_id = $request->client_id;
+        
+        if($req_id) {
+            $msg = Message::find($req_id);
+        }
+        else if($req_client_id) {
+            $msg = Message::where('client_id',$req_client_id)->first();
+        }
+        else {
+            return;
+        }
+        
+        $msg->views_count = $msg->views_count+1;
+        return $msg->save();
     }
 }

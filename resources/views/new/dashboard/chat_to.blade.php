@@ -36,10 +36,13 @@
                 msg_speak_mark_elt.after(
                     '<span id="page" class="marl5">' +
                         '<span class="justify-content-center">' +
-                            '<span class="zoomInPhoto_'+m['client_id'] +'pswp--loaded" data-pswp="">' +
+                            '<span class="'
+                            +((m['client_id']==undefined)?'':('zoomInPhoto_'+m['client_id'])) 
+                            +((m['id']==undefined)?'':(' zoomInPhoto_official_'+m['id'])) 
+                            +'  gutters-10 pswp--loaded" data-pswp="">' +
                                 '<span style="width: 150px;"></span>' +
                             '</span>'+
-                            '<span class="photoOrigin_'+m['client_id']+'> photoOrigin"' +
+                            '<span class="photoOrigin_'+m['client_id']+' gutters-10">' +
                                 '<span style="width: 150px;"></span>' +
                             '</span>'+
                         '</span>' +
@@ -71,10 +74,34 @@
                 )
                 ;
             });
+
+
+            var a_item = $('a.pswp--item');
+            for (var i = 0; i < a_item.length; i++) {
+                var now_a_item = a_item.eq(i);
+                var now_a_item_parent = now_a_item.parent();
+                var now_a_item_html = now_a_item.get(0).outerHTML;
+                now_a_item.clone().appendTo(now_a_item_parent[0]);
+                now_a_item.remove();
+            }
             photoswipeSimplify.init({
                 history: false,
                 focus: false,
-            });
+            });      
+  
+    document.querySelector('.pswp').addEventListener('pswpTap', function (e)
+    {
+        if(zoonIn_m_client) {
+            $('.zoomInPhoto_'+zoonIn_m_client).hide();
+            $('.photoOrigin_'+zoonIn_m_client).show();            
+        }
+        else if(zoonIn_m_official) {
+            $('.zoomInPhoto_official_'+zoonIn_m_official).hide();
+            $('.photoOrigin_official_'+zoonIn_m_official).show();             
+        }
+
+        $('.atkbut').hide();
+    }, true);  
         } 
     }
     
@@ -102,7 +129,7 @@
         }
 
         let ele = 
-        '<form method="post" class="unsend_form"  id="unsend_form_'+(m['id']?'':'client_')+(m['id']?m['id']:m['client_id'])+'" action="{{route('unsendChat')}}">'+           
+        '<form method="post" class="unsend_form unsend_form_'+m['id']+' unsend_form_client_'+m['client_id']+'"  id="unsend_form_'+(m['id']?'':'client_')+(m['id']?m['id']:m['client_id'])+'" action="{{route('unsendChat')}}">'+           
             '<div class="show">' +
                 '<div class="msg msg1">' +
                     '<img src="@if(file_exists( public_path().$user->meta->pic ) && $user->meta->pic != ""){{$user->meta->pic}} @elseif($user->engroup==2)/new/images/female.png @else/new/images/male.png @endif">' +
@@ -131,7 +158,7 @@
                             ele = ele + '<i class="msg_input"></i>' +
                             '<span id="page" class="marl5">' +
                                 '<span class="justify-content-center">' +
-                                    '<span class="gutters-10 pswp--loaded" data-pswp="" style="display: none;">' +
+                                    '<span class="zoomInPhoto_'+m['client_id']+' gutters-10 pswp--loaded" data-pswp="" style="display: none;">' +
                                         '<span style="width: 150px;">' ;
                                         if(Number.isInteger(m['pic'])) {
                                             ele = ele + '<img src="{{asset("new/owlcarousel/assets/ajax-loader.gif")}}" >';
@@ -139,13 +166,13 @@
                                         else {                       
                                             pics.forEach( function (pic, key, pics)  {
                                                 ele = ele + '<a href="' + pic['file_path'] + '" target="_blank" data-pswp-index="' + key +'" class="pswp--item">' +
-                                                '<img src="' + pic['file_path'] + '" class="n_pic_lt"></a>'
+                                                '<img src="' + pic['file_path'] + '" class="n_pic_lt '+(key==0?('n_pic_lt_'+m['client_id']):'')+'"></a>'
                                                 ;
                                             });
                                         }
                                         ele = ele + '</span>' +
                                     '</span>' +
-                                    '<span class="gutters-10 photoOrigin" data-pswp="">' +
+                                    '<span class="gutters-10 photoOrigin photoOrigin_'+m['client_id']+'">' +
                                         '<span style="width: 150px;">' ;
                                         if(Number.isInteger(m['pic'])) {
                                             ele = ele + '<img src="{{asset("new/owlcarousel/assets/ajax-loader.gif")}}" >';
@@ -178,7 +205,11 @@
                                     '<span class="he_yuan"><img src="/new/images/ba_05.png" class="he_left_img"></span><i class="he_li30">收回</i>'+
                                     '@if(!$isVip)<img src="/new/images/icon_36.png" class="img_vip">@endif'+
                                 '</a>'+
-                                '<a href="javascript:void(0)" onclick="zoomInPic('+ "'"+m['client_id']+"'"+');">'+
+                                '<a href="javascript:void(0)" ';
+                                if(m['id']!=undefined) ele = ele +' data-id="'+m['id']+'"';
+                                if(m['client_id']!=undefined) ele = ele +'  data-client_id="'+m['client_id']+'"';
+                                if(m['from_id']!=undefined) ele = ele+' data-is_received_msg="'+((m['from_id']!= {{$user->id}})?1:0)+'"';                                
+                                ele = ele +' onclick="zoomInPic(this);">'+
                                     '<span class="he_yuan"><img src="/new/images/ba_010.png" class="he_left_img"></span><i class="he_li30">放大</i>'+
                                 '</a>'+
                             '</font>';
@@ -215,14 +246,5 @@
         }
         $(ele).insertAfter($(".matopj10")[0]);
         $('div.message').scrollTop(0);
-    }
-
-    function msg_click_event(client_id){
-        event.stopPropagation();
-        if( $('.showslide_'+client_id).css('display')=='block'){
-            $('.showslide_'+client_id).hide();
-        }else{
-            $('.showslide_'+client_id).show();
-        }
     }
 </script>

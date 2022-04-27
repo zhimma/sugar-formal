@@ -260,6 +260,7 @@ class LoginController extends \App\Http\Controllers\BaseController
                 }
                 else{
                     $logUserLogin = LogUserLogin::create([
+
                         'user_id' => $user->id,
                         'cfp_id' => $cfp->id,
                         'userAgent' => $_SERVER['HTTP_USER_AGENT'],

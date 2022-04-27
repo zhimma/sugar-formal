@@ -13,6 +13,7 @@ use Illuminate\Foundation\Bus\Dispatchable;
 use Illuminate\Support\Facades\Config;
 use Illuminate\Support\Facades\Log;
 use App\Models\User;
+use Illuminate\Queue\Middleware\WithoutOverlapping;
 
 class CheckECpay implements ShouldQueue
 {
@@ -20,7 +21,7 @@ class CheckECpay implements ShouldQueue
 
     public $timeout = 60;
 
-    protected $vipData, $userIsVip;
+    protected $vipData, $userIsVip, $job_user;
 
     /**
      * Create a new job instance.
@@ -53,6 +54,7 @@ class CheckECpay implements ShouldQueue
         else{
             $envStr = '';
         }
+        $user = null;
         if($this->vipData->business_id == Config::get('ecpay.payment'.$envStr.'.MerchantID') && substr($this->vipData->order_id,0,2) == 'SG'){
             $ecpay = new \App\Services\ECPay_AllInOne();
             $ecpay->MerchantID = Config::get('ecpay.payment'.$envStr.'.MerchantID');
@@ -88,43 +90,37 @@ class CheckECpay implements ShouldQueue
 
             if(substr($this->vipData->payment,0,4) == 'one_'){
                 //單次付款檢查
-                    if (str_contains($paymentQueryData['PaymentType'], 'CVS') ||
-                        str_contains($paymentQueryData['PaymentType'], 'ATM') ||
-                        str_contains($paymentQueryData['PaymentType'], 'BARCODE')) {
+                if (str_contains($paymentQueryData['PaymentType'], 'CVS') ||
+                    str_contains($paymentQueryData['PaymentType'], 'ATM') ||
+                    str_contains($paymentQueryData['PaymentType'], 'BARCODE')) {
+                    $user = User::findById($this->vipData->member_id);
 
-                        $user = User::findById($this->vipData->member_id);
-
-                        if($this->userIsVip && $paymentQueryData['TradeStatus'] != 1) {
-                            //有賦予VIP者再檢查
-                            //未完成交易時檢查
-                                //check取號資料表
-                                $checkData = PaymentGetQrcodeLog::where('order_id', $this->vipData->order_id)->first();
-                                if(isset($checkData)){
-                                    if($now > $checkData->ExpireDate){
-                                        //超過期限未完成交易
-                                        //取消VIP
-                                        $vipData = $user->getVipData(true);
-                                        if($vipData){
-                                            $vipData->removeVIP();
-                                        }
-                                        \App\Models\VipLog::addToLog($user->id, 'order_id: '.$this->vipData->order_id.'; 期限內('.$checkData->ExpireDate.')未完成付款：' . $paymentQueryData['PaymentType'], '自動取消', 0, 0);
-                                    }
+                    if($this->userIsVip && $paymentQueryData['TradeStatus'] != 1) {
+                        //有賦予VIP者再檢查
+                        //未完成交易時檢查
+                        //check取號資料表
+                        $checkData = PaymentGetQrcodeLog::where('order_id', $this->vipData->order_id)->first();
+                        if(isset($checkData)){
+                            if($now > $checkData->ExpireDate){
+                                //超過期限未完成交易
+                                //取消VIP
+                                $vipData = $user->getVipData(true);
+                                if($vipData){
+                                    $vipData->removeVIP();
                                 }
-
-                        }elseif(!$this->userIsVip && $paymentQueryData['TradeStatus'] == 1){
-
-                                $getOrderDate = Order::where('order_id', $this->vipData->order_id)->first();
-                                if(isset($getOrderDate)) {
-                                    \App\Models\Vip::select('member_id', 'active')
-                                        ->where('member_id', $this->vipData->member_id)
-                                        ->update(array('active' => 1, 'expiry' => $getOrderDate->order_expire_date));
-                                    \App\Models\VipLog::addToLog($user->id, 'order_id: ' . $this->vipData->order_id . '; 繳款檢查正常回復VIP：' . $paymentQueryData['PaymentType'], '自動回復', 0, 0);
-                                }
-
+                                \App\Models\VipLog::addToLog($user->id, 'order_id: '.$this->vipData->order_id.'; 期限內('.$checkData->ExpireDate.')未完成付款：' . $paymentQueryData['PaymentType'], '自動取消', 0, 0);
+                            }
+                        }
+                    }elseif(!$this->userIsVip && $paymentQueryData['TradeStatus'] == 1){
+                        $getOrderDate = Order::where('order_id', $this->vipData->order_id)->first();
+                        if(isset($getOrderDate)) {
+                            \App\Models\Vip::select('member_id', 'active')
+                                ->where('member_id', $this->vipData->member_id)
+                                ->update(array('active' => 1, 'expiry' => $getOrderDate->order_expire_date));
+                            \App\Models\VipLog::addToLog($user->id, 'order_id: ' . $this->vipData->order_id . '; 繳款檢查正常回復VIP：' . $paymentQueryData['PaymentType'], '自動回復', 0, 0);
                         }
                     }
-
-
+                }
             }else { //定期定額流程
                 try{
                     $last = last($paymentData['ExecLog']);
@@ -253,6 +249,9 @@ class CheckECpay implements ShouldQueue
                     });
                 }
             }
+        }
+        if($user) {            
+            $this->job_user = $user;
         }
     }
 }
