@@ -728,7 +728,7 @@ class PagesController extends BaseController
         $add_avatar = AdminCommonText::getCommonText(41);//id 41
         /*編輯文案-add avatar-END*/
 
-//        $isWarnedReason = AdminCommonText::getCommonText(56);//id 56 警示用戶原因
+        //$isWarnedReason = AdminCommonText::getCommonText(56);//id 56 警示用戶原因
 
         $isAdminWarnedRead = warned_users::select('isAdminWarnedRead')->where('member_id',$user->id)->first();
 
@@ -771,7 +771,7 @@ class PagesController extends BaseController
                 ->with('isAdminWarnedRead',$isAdminWarnedRead)
                 ->with('no_avatar', isset($no_avatar)?$no_avatar->content:'')
                 ->with('pr', $pr);
-//                ->with('isWarnedReason',$isWarnedReason)
+                //->with('isWarnedReason',$isWarnedReason)
         }
     }
 
