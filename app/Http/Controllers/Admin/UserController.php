@@ -6055,7 +6055,7 @@ class UserController extends \App\Http\Controllers\BaseController
     
     public function user_record_view(Request $request)
     {
-        $user_record = UserRecord::orderBy('updated_at','desc')->get();
+        $user_record = UserRecord::leftJoin('users', 'users.id', '=', 'user_record.user_id')->orderBy('user_record.updated_at','desc')->get();
         return view('admin.users.user_record_view')
                 ->with('user_record', $user_record);
     }
