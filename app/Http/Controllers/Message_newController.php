@@ -17,6 +17,7 @@ use App\Models\User;
 use App\Models\UserMeta;
 use App\Models\SetAutoBan;
 use App\Models\AdminCommonText;
+use App\Models\MessageRoom;
 use App\Models\hideOnlineData;
 use App\Models\Visited;
 use App\Services\UserService;
@@ -295,14 +296,18 @@ class Message_newController extends BaseController {
 
         if(!is_null($request->file('images')) && count($request->file('images'))){
             //上傳訊息照片
+            $sort = array(
+                $user->id,
+                $payload['to']
+            );
+            sort($sort);
             $messageInfo = Message::create([
+                'room_id'=>implode('_',$sort),
                 'from_id'=>$user->id,
                 'to_id'=>$payload['to'],
                 'client_id'=>$payload['client_id'],
                 'parent_msg'=>($payload['parent']??null),
-                'parent_client_id'=>($payload['parent_client']??null),
-                'views_count_quota'=>($payload['views_count_quota']??0),
-                'show_time_limit'=>($payload['show_time_limit']??0),
+                'parent_client_id'=>($payload['parent_client']??null)
             ]);
 
             $messagePosted = $this->message_pic_save($messageInfo->id, $request->file('images'));
@@ -499,9 +504,7 @@ class Message_newController extends BaseController {
         $user = $request->user();
         $m_time = '';
         if (isset($user)) {
-            if($user->vip_any) {
-                $this->service->dispatchCheckECPay($this->userIsVip, $this->userIsFreeVip, $user->vip_any->first());
-            }
+            $this->service->dispatchCheckECPay($this->userIsVip, $this->userIsFreeVip, $this->userVipData);
             $isVip = $user->isVip();
             /*編輯文案-檢舉大頭照-START*/
             $vip_member = AdminCommonText::where('alias','vip_member')->get()->first();
@@ -554,8 +557,9 @@ class Message_newController extends BaseController {
          *  }
          */
         $data = Message_new::allSendersAJAX($user_id, $request->isVip,$request->date);
-        
-        if(is_array($data) && $data != ['No data'])
+        // $data = MessageRoom::getRooms($user_id, $request->isVip,$request->date);
+        // dd($data);
+        if($data != ['No data'])
         {
             //過濾篩選條件
             $inbox_refuse_set = InboxRefuseSet::where('user_id', $user->id)->first();
@@ -879,23 +883,5 @@ class Message_newController extends BaseController {
             return back()->withErrors(['非VIP無法收回訊息。']);       
         }
         
-    }
-    
-    public function increaseViewsCount(Request $request) {
-        $req_id = $request->id;
-        $req_client_id = $request->client_id;
-        
-        if($req_id) {
-            $msg = Message::find($req_id);
-        }
-        else if($req_client_id) {
-            $msg = Message::where('client_id',$req_client_id)->first();
-        }
-        else {
-            return;
-        }
-        
-        $msg->views_count = $msg->views_count+1;
-        return $msg->save();
     }
 }

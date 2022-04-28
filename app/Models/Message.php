@@ -45,10 +45,7 @@ class Message extends Model
         'read',
         'parent_msg',
         'client_id',
-        'parent_client_id',
-        'views_count',
-        'views_count_quota',
-        'show_time_limit'
+        'parent_client_id'        
     ];
 
     static $date = null;
@@ -73,6 +70,18 @@ class Message extends Model
         return $this->belongsTo(Message::class, 'parent_msg', 'id');
     }
 
+    public function latestMessage2() {
+        return $this->messages()??"";
+    }
+
+    public function roomMembers() {
+        return $this->belongsToMany(User::class, MessageRoomUserXref::class);
+    }
+
+    public function joinedMessageRooms() {
+        return $this->belongsTo(User::class, MessageRoomUserXref::class, 'user_id', 'id', 'id');
+    }
+    
     // handle delete Message
     public static function deleteBetween($uid, $sid) {
         $message = Message::where([['to_id', $uid], ['from_id', $sid]])->orWhere([['to_id', $sid], ['from_id', $uid]])->orderBy('created_at', 'desc')->first();
@@ -193,7 +202,6 @@ class Message extends Model
             $message->reportContentPic = json_encode($images_ary);
         }
         $message->save();
-        event(new \App\Events\CheckWarnedOfReport($message->from_id));
     }
 
     public static function isAdminMessage($content) {
@@ -626,22 +634,7 @@ class Message extends Model
                 self::$date = \Carbon\Carbon::parse("30 days ago")->toDateTimeString();
             }   
            
-            $query = Message::where('created_at','>=',self::$date)
-                        ->Where(function($q){
-                            $q->where('views_count_quota','>',0)
-                                ->whereRaw('views_count < views_count_quota')
-                                ->orWhere('views_count_quota',0)
-                                ->orWhereNull('views_count_quota')
-                                ;   
-                        }) 
-                        ->where(function($q){
-                            $q->where('show_time_limit','>',0)
-                                ->whereRaw('ADDTIME(created_at,show_time_limit) > now()')
-                                ->orWhere('show_time_limit',0)
-                                ->orWhereNull('show_time_limit')
-                                ;                             
-                        })
-                        ;
+            $query = Message::where('created_at','>=',self::$date);
             
             if($includeUnsend) { 
                 $query->withTrashed()->where(function ($q) {
@@ -1014,11 +1007,21 @@ class Message extends Model
 
     public static function postByArr($arr)
     {
+        
+
         $tip_action = array_key_exists('tip_action',$arr)?$arr['tip_action']:true;
         $sys_notice = array_key_exists('sys_notice',$arr)?$arr['sys_notice']:0;
         $message = new Message;
         $message->from_id = $arr['from_id']??null;
         $message->to_id = $arr['to']??null;
+        
+        $sort = array(
+            $message->from_id,
+            $message->to_id
+        );
+        sort($sort);
+        $message->room_id = implode("_",$sort);
+        
         $message->content = array_key_exists('msg',$arr)?$arr['msg']:'';
         $message->parent_msg = array_key_exists('parent',$arr)?$arr['parent']:'';
         $message->client_id = array_key_exists('client_id',$arr)?$arr['client_id']:'';
