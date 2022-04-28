@@ -8137,12 +8137,15 @@ class PagesController extends BaseController
         {
             $record = new UserRecord();
             $record->user_id = $user->id;
-            if(!($record->cost_time_of_registering??false))
-            {
-                $record->cost_time_of_registering = $request->cost_time;
-            }
-            $record->save();
         }
+        if(!($request->cost_time_of_first_dataprofile??false))
+        {
+            if(!($record->cost_time_of_first_dataprofile??false))
+            {
+                $record->cost_time_of_first_dataprofile = $request->cost_time_of_first_dataprofile;
+            }
+        }
+        $record->save();
     }
     
 }

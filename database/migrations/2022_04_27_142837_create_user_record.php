@@ -17,6 +17,7 @@ class CreateUserRecord extends Migration
             $table->id();
             $table->integer('user_id');
             $table->integer('cost_time_of_registering')->nullable();
+            $table->integer('cost_time_of_first_dataprofile')->nullable();
             $table->timestamps();
         });
     }

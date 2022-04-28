@@ -1181,11 +1181,11 @@ dt span.engroup_type_title {display:inline-block;width:10%;white-space:nowrap;}
         //計算註冊時間
         @if(!$umeta->isAllSet())
             regist_end_time = new Date();
-            regist_cost_time = Math.round((regist_end_time.getTime() - regist_start_time.getTime()) / 1000);
+            cost_time = Math.round((regist_end_time.getTime() - regist_start_time.getTime()) / 1000);
             $.ajax({
                 type:'get',
                 url:'{{route("regist_time")}}',
-                data:{cost_time:regist_cost_time}
+                data:{cost_time_of_first_dataprofile:cost_time}
             });
         @endif
         //計算註冊時間
