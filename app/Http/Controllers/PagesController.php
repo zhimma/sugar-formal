@@ -83,6 +83,7 @@ use App\Models\LogAdvAuthApi;
 use Illuminate\Support\Facades\Http;
 use App\Services\SearchIgnoreService;
 use \FileUploader;
+use App\Models\UserRecord;
 
 class PagesController extends BaseController
 {
@@ -8126,7 +8127,23 @@ class PagesController extends BaseController
         }
         $advertise_record->save();
         return response()->json([]);
-    }    
+    }   
+    
+    public function regist_time(Request $request)
+    {
+        $user = \Auth::user();
+        $record = UserRecord::where('user_id',$user->id)->first();
+        if(!($record??false))
+        {
+            $record = new UserRecord();
+            $record->user_id = $user->id;
+            if(!($record->cost_time_of_registering??false))
+            {
+                $record->cost_time_of_registering = $request->cost_time;
+            }
+            $record->save();
+        }
+    }
     
 }
 
