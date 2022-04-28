@@ -68,6 +68,7 @@ use App\Services\ImagesCompareService;
 use App\Models\SimilarImages;
 use App\Models\CheckPointUser;
 use App\Models\ComeFromAdvertise;
+use App\Models\UserRecord;
 
 class UserController extends \App\Http\Controllers\BaseController
 {
@@ -6052,4 +6053,11 @@ class UserController extends \App\Http\Controllers\BaseController
                 ->with('regist_count', $regist_count);
     }
     
+    public function user_record_view(Request $request)
+    {
+        $user_record = UserRecord::orderBy('updated_at','desc')->get();
+        return view('admin.users.user_record_view')
+                ->with('user_record', $user_record);
+    }
+
 }
