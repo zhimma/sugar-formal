@@ -343,6 +343,7 @@
             //還沒有成為過vip
             $showVipInfo =  '未曾加入 / 否 / 無 / 無';
         }
+
     @endphp
     <tr>
         <th>會員ID</th>
@@ -350,6 +351,7 @@
         <th>標題</th>
         <th>男/女</th>
         <th>Email</th>
+        <th>註冊時間(秒)</th>
         <th>建立時間</th>
         <th>更新時間</th>
 {{--        @if($nowStatus =='未持續')<th>VIP起始時間,總繳費月數,現狀</th> @else <th>VIP起始時間,付費方式,種類,現狀</th> @endif--}}
@@ -368,6 +370,7 @@
                 {{ $user->email }}
 {{--            </a>--}}
         </td>
+        <td>{{ $user_record->cost_time_of_registering ?? '未紀錄' }}</td>
         <td>{{ $user->created_at }}</td>
         <td>{{ $user->updated_at }}</td>
         <td><a href="{{ route('stats/vip_log', $user->id) }}" target="_blank">{{ $showVipInfo }}</a></td>
