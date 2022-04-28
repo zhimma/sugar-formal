@@ -1178,6 +1178,18 @@ dt span.engroup_type_title {display:inline-block;width:10%;white-space:nowrap;}
       //ajax_表單送出
       $('form[name=user_data]').submit(function(e){
 
+        //計算註冊時間
+        @if(!$umeta->isAllSet())
+            regist_end_time = new Date();
+            cost_time = Math.round((regist_end_time.getTime() - regist_start_time.getTime()) / 1000);
+            $.ajax({
+                type:'get',
+                url:'{{route("regist_time")}}',
+                data:{cost_time_of_first_dataprofile:cost_time}
+            });
+        @endif
+        //計算註冊時間
+
         e.preventDefault();
         if($(this).parsley().isValid()){
           let birth = $('select[name=year]').val()+'/'+$('select[name=month]').val()+'/'+$('input[name=day]').val();
@@ -1577,6 +1589,15 @@ dt span.engroup_type_title {display:inline-block;width:10%;white-space:nowrap;}
         });     
     }   
     @endif
+
+    //計算註冊時間
+    @if(!$umeta->isAllSet())
+        $(document).ready(function(){
+            regist_start_time = new Date();
+        });
+    @endif
+    //計算註冊時間
+
   </script>
 
 @stop

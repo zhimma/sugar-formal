@@ -18,6 +18,7 @@ use Session;
 use App\Models\IsBannedLog;
 use App\Models\BannedUsersImplicitly;
 use App\Models\IsWarnedLog;
+use App\Models\UserRecord;
 
 class RegisterController extends \App\Http\Controllers\BaseController
 {
@@ -237,7 +238,14 @@ class RegisterController extends \App\Http\Controllers\BaseController
             }
         }
 
-
+        $record = UserRecord::where('user_id',$user->id)->first();
+        if(!($record??false))
+        {
+            $record = new UserRecord();
+            $record->user_id = $user->id;
+        }
+        $record->cost_time_of_registering = $request->regist_cost_time;
+        $record->save();
 
         return $this->registered($request, $user) ? redirect($this->redirectPath()) : redirect($this->redirectPath());
     }

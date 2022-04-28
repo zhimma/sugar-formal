@@ -68,6 +68,7 @@ use App\Services\ImagesCompareService;
 use App\Models\SimilarImages;
 use App\Models\CheckPointUser;
 use App\Models\ComeFromAdvertise;
+use App\Models\UserRecord;
 
 class UserController extends \App\Http\Controllers\BaseController
 {
@@ -1461,6 +1462,9 @@ class UserController extends \App\Http\Controllers\BaseController
         //隱藏付費訂單Log
         $hideonline_order = Order::where('user_id', $user->id)->where('service_name', 'hideOnline')->orderBy('order_date','desc')->get();
 
+        //使用者紀錄
+        $user_record = UserRecord::where('user_id', $user->id)->first();
+
         if (str_contains(url()->current(), 'edit')) {
             $birthday = date('Y-m-d', strtotime($userMeta->birthdate));
             $birthday = explode('-', $birthday);
@@ -1503,7 +1507,8 @@ class UserController extends \App\Http\Controllers\BaseController
 				->with('banned_advance_auth_status', $banned_advance_auth_status)
                 ->with('last_images_compare_encode',ImagesCompareEncode::orderByDesc('id')->firstOrNew())
                 ->with('posts_forum', $posts_forum)
-                ->with('hideonline_order', $hideonline_order);
+                ->with('hideonline_order', $hideonline_order)
+                ->with('user_record', $user_record);
         }
     }
 
@@ -6052,4 +6057,11 @@ class UserController extends \App\Http\Controllers\BaseController
                 ->with('regist_count', $regist_count);
     }
     
+    public function user_record_view(Request $request)
+    {
+        $user_record = UserRecord::leftJoin('users', 'users.id', '=', 'user_record.user_id')->orderBy('user_record.updated_at','desc')->get();
+        return view('admin.users.user_record_view')
+                ->with('user_record', $user_record);
+    }
+
 }

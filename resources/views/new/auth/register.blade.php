@@ -200,7 +200,7 @@ div.new_poptk{color:#6783c7;overflow-y:scroll;}
                             <button onclick="this.disabled = true" class="se_but1 btn-register" style="border-style: none;">註冊</button>
                             <a href="" class="se_but2">取消</a>
                         </div>
-
+                        <input type="hidden" name="regist_cost_time" id="regist_cost_time">
                     </form>
                     <iframe id="childFrame" src="https://www.sugar-garden.org/cfp" style="border:none;" ></iframe>
                 </div>
@@ -519,6 +519,17 @@ div.new_poptk{color:#6783c7;overflow-y:scroll;}
         });
         $('.alert-danger').css('display','none');
         $(".btn-register").click(function(e){
+
+            //計算註冊時間
+            if(!hassubmit)
+            {
+                regist_end_time = new Date();
+                cost_time = Math.round((regist_end_time.getTime() - regist_start_time.getTime()) / 1000);
+                $('#regist_cost_time').val(cost_time);
+                hassubmit = true;
+            }
+            //計算註冊時間
+
             var t = $(this).closest("form");
 
             if($('.exchange_period').is(":visible")){
@@ -560,6 +571,13 @@ div.new_poptk{color:#6783c7;overflow-y:scroll;}
                 });
             }
         });
+
+        //計算註冊時間
+        $(document).ready(function(){
+            hassubmit = false;
+            regist_start_time = new Date();
+        });
+        //計算註冊時間
 
     </script>
     <!-- <script src="/js/login.js" type="text/javascript"></script> -->
