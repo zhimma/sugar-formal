@@ -888,7 +888,7 @@ Route::group(['middleware' => ['auth', 'global', 'active', 'femaleActive', 'vipC
         //廣告紀錄統計
         Route::get('admin/advertiseStatistics', 'UserController@advertiseStatistics')->name('admin/advertiseStatistics');
 
-        //使用者紀錄查看
+        //使用者停留時間查看
         Route::get('admin/user_record_view', 'UserController@user_record_view')->name('admin/user_record_view');
     });
     Route::group(['prefix' => 'admin', 'middleware' => 'Admin'], function () {
