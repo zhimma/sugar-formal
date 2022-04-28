@@ -828,7 +828,7 @@
                                             <div class="select_xx01 senhs hy_new">
                                                 <font class="left">{{$to->name}}</font>
                                                 @if($user->isVip())
-                                                    @if($to->isOnline() && $to->valueAddedServiceStatus('hideOnline') != 1)
+                                                    @if($to->isOnline() && $to->is_hide_online==0)
                                                         <font id="onlineStatus2" style="display: block;">上線中</font>
                                                     @endif
                                                 @else
