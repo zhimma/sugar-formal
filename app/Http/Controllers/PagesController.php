@@ -1988,7 +1988,7 @@ class PagesController extends BaseController
                 $canViewUsers = ForumManage::where('forum_id', $forum->id)
                     ->where('user_id', $targetUser->id)
                     ->where('apply_user_id', $user->id)
-                    ->where('status', '<>', 3)
+                    ->whereNotIn('status', [2, 3])
                     ->first();
             }
 
