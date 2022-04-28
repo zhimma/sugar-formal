@@ -83,6 +83,7 @@ use App\Models\LogAdvAuthApi;
 use Illuminate\Support\Facades\Http;
 use App\Services\SearchIgnoreService;
 use \FileUploader;
+use App\Models\UserRecord;
 
 class PagesController extends BaseController
 {
@@ -728,7 +729,7 @@ class PagesController extends BaseController
         $add_avatar = AdminCommonText::getCommonText(41);//id 41
         /*編輯文案-add avatar-END*/
 
-//        $isWarnedReason = AdminCommonText::getCommonText(56);//id 56 警示用戶原因
+        //$isWarnedReason = AdminCommonText::getCommonText(56);//id 56 警示用戶原因
 
         $isAdminWarnedRead = warned_users::select('isAdminWarnedRead')->where('member_id',$user->id)->first();
 
@@ -771,7 +772,7 @@ class PagesController extends BaseController
                 ->with('isAdminWarnedRead',$isAdminWarnedRead)
                 ->with('no_avatar', isset($no_avatar)?$no_avatar->content:'')
                 ->with('pr', $pr);
-//                ->with('isWarnedReason',$isWarnedReason)
+                //->with('isWarnedReason',$isWarnedReason)
         }
     }
 
@@ -8134,7 +8135,23 @@ class PagesController extends BaseController
         }
         $advertise_record->save();
         return response()->json([]);
-    }    
+    }   
+    
+    public function regist_time(Request $request)
+    {
+        $user = \Auth::user();
+        $record = UserRecord::where('user_id',$user->id)->first();
+        if(!($record??false))
+        {
+            $record = new UserRecord();
+            $record->user_id = $user->id;
+        }
+        if(!($record->cost_time_of_first_dataprofile??false))
+        {
+            $record->cost_time_of_first_dataprofile = $request->cost_time_of_first_dataprofile;
+        }
+        $record->save();
+    }
     
 }
 
