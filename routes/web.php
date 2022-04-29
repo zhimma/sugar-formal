@@ -459,6 +459,9 @@ Route::group(['middleware' => ['auth', 'global', 'active', 'femaleActive', 'vipC
         Route::get('/dashboard/banned_warned_list', 'PagesController@banned_warned_list');
         Route::get('/dashboard/visited', 'PagesController@visited');
 
+        //更新拜訪時間
+        Route::get('/dashboard/viewuser/update_visited_time', 'PagesController@update_visited_time')->name('update_visited_time');
+
         Route::middleware("HasReferer:listSeatch2")->group(function (){
             Route::get('/dashboard/viewuser/{uid?}', 'PagesController@viewuser2')->name('viewuser'); //new route
             Route::get('/dashboard/viewuser_re/{uid?}', 'PagesController@viewuser_re')->name('viewuser_re');

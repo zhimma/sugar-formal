@@ -8146,6 +8146,15 @@ class PagesController extends BaseController
         }
         $record->save();
     }
+
+    public function update_visited_time(Request $request)
+    {
+        $second = $request->stay_second;
+        $visited_id = $request->view_user_visited_id;
+        $visited_record = Visited::where('id', $visited_id)->first();
+        $visited_record->visited_time = ($visited_record->visited_time ?? 0) + $second;
+        $visited_record->save();
+    }
     
 }
 
