@@ -1179,7 +1179,7 @@ dt span.engroup_type_title {display:inline-block;width:10%;white-space:nowrap;}
       $('form[name=user_data]').submit(function(e){
 
         //計算註冊時間
-        @if(!$umeta->isAllSet())
+        @if(!$umeta->isAllSet( $user->engroup ))
             regist_end_time = new Date();
             cost_time = Math.round((regist_end_time.getTime() - regist_start_time.getTime()) / 1000);
             $.ajax({
@@ -1591,7 +1591,7 @@ dt span.engroup_type_title {display:inline-block;width:10%;white-space:nowrap;}
     @endif
 
     //計算註冊時間
-    @if(!$umeta->isAllSet())
+    @if(!$umeta->isAllSet( $user->engroup ))
         $(document).ready(function(){
             regist_start_time = new Date();
         });
