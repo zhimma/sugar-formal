@@ -45,7 +45,8 @@ class Message extends Model
         'read',
         'parent_msg',
         'client_id',
-        'parent_client_id'        
+        'parent_client_id',
+        'room_id'        
     ];
 
     static $date = null;
