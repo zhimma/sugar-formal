@@ -23,7 +23,7 @@
                                 <td>{{$record->user_id}}</td>
                                 <td>{{$record->name}}</td>
                                 <td>{{$record->email}}</td>
-                                <td>{{$record->cost_time_of_registering}} 秒</td>
+                                <td>{{$record->cost_time_of_first_dataprofile}} 秒</td>
                             </tr>
                         @endforeach
                     </table>
