@@ -1988,6 +1988,7 @@ class PagesController extends BaseController
                 $canViewUsers = ForumManage::where('forum_id', $forum->id)->where('user_id', $targetUser->id)->first();
             }
 
+            $visited_id = 0;
             if ($user->id != $uid) {
 
                 if(
@@ -1998,7 +1999,7 @@ class PagesController extends BaseController
                 ){
                     return redirect()->route('listSeatch2');
                 }
-                Visited::visit($user->id, $targetUser);
+                $visited_id = Visited::visit($user->id, $targetUser);
             }
 
 
@@ -2164,7 +2165,8 @@ class PagesController extends BaseController
                     ->with('auth_check',$auth_check)
                     ->with('is_banned',User::isBanned($user->id))
                     ->with('pr', $pr)
-                    ->with('isBlocked',$isBlocked);
+                    ->with('isBlocked',$isBlocked)
+                    ->with('visited_id', $visited_id);
             }
 
     }
