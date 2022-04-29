@@ -249,7 +249,7 @@
            .huiyoic{ height:118px;}
         }
         @if(!$user->isVip())
-        .tubiao ul li img {height:50px !important;}
+            .tubiao ul li img {height:50px !important;}
         @endif
     </style>
     <style>

@@ -500,7 +500,7 @@ Route::group(['middleware' => ['auth', 'global', 'active', 'femaleActive', 'vipC
         Route::get('/dashboard/chat/reportMessage/{id}/{sid}', 'MessageController@showReportMessagePage')->name('reportMessagePage');
         //Route::get('/dashboard/block', 'PagesController@block');
         Route::get('/dashboard/upgrade', 'PagesController@upgrade');
-   // Route::get('/dashboard/cancel', 'PagesController@cancel');
+        // Route::get('/dashboard/cancel', 'PagesController@cancel');
 
         Route::get('/dashboard/anonymousChat', 'PagesController@anonymousChat');
         Route::post('/dashboard/anonymousChatReport', 'PagesController@anonymous_chat_report')->name('anonymous_chat_report');
