@@ -317,7 +317,7 @@ Route::group(['middleware' => ['auth', 'global', 'active', 'femaleActive', 'vipC
     Route::get('/dashboard', 'PagesController@dashboard')->name('dashboard');
 
     //使用者註冊時間
-    Route::get('/dashboard/regist_time', 'PagesController@regist_time')->name('regist_time');
+    Route::post('/dashboard/regist_time', 'PagesController@regist_time')->name('regist_time');
 
     // 大頭照和生活照
     Route::get('/dashboard_img', 'PagesController@dashboard_img')->name('dashboard_img');

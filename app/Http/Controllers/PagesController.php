@@ -8131,7 +8131,6 @@ class PagesController extends BaseController
     
     public function regist_time(Request $request)
     {
-        Log::Info('save_regist_time');
         $user = \Auth::user();
         $record = UserRecord::where('user_id',$user->id)->first();
         if(!($record??false))
