@@ -460,7 +460,7 @@ Route::group(['middleware' => ['auth', 'global', 'active', 'femaleActive', 'vipC
         Route::get('/dashboard/visited', 'PagesController@visited');
 
         //更新拜訪時間
-        Route::get('/dashboard/viewuser/update_visited_time', 'PagesController@update_visited_time')->name('update_visited_time');
+        Route::post('/dashboard/viewuser/update_visited_time', 'PagesController@update_visited_time')->name('update_visited_time');
 
         Route::middleware("HasReferer:listSeatch2")->group(function (){
             Route::get('/dashboard/viewuser/{uid?}', 'PagesController@viewuser2')->name('viewuser'); //new route
