@@ -57,7 +57,7 @@ class Kernel extends ConsoleKernel
             })->timezone('Asia/Taipei')->weeklyOn(0, '23:59');
 
             //每週檢查討論區
-            $schedule->command('ForumCheck')->timezone('Asia/Taipei')->weeklyOn(1, '1:00');
+            $schedule->command('ForumCheck')->timezone('Asia/Taipei')->weeklyOn(1, '2:15');
 
         }
         if(app()->environment('CFP')){
@@ -112,7 +112,7 @@ class Kernel extends ConsoleKernel
         if(app()->isProduction()) {
             $schedule->call(function (){
                 $this->send_registed_users_statistics_by_LineNotify();
-            })->timezone('Asia/Taipei')->dailyAt('1:00');
+            })->timezone('Asia/Taipei')->dailyAt('2:00');
         }
     }
 

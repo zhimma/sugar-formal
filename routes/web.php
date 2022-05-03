@@ -316,6 +316,9 @@ Route::group(['middleware' => ['auth', 'global', 'active', 'femaleActive', 'vipC
     Route::post('dashboard/settings', 'PagesController@settingsUpdate');
     Route::get('/dashboard', 'PagesController@dashboard')->name('dashboard');
 
+    //使用者註冊時間
+    Route::post('/dashboard/regist_time', 'PagesController@regist_time')->name('regist_time');
+
     // 大頭照和生活照
     Route::get('/dashboard_img', 'PagesController@dashboard_img')->name('dashboard_img');
     Route::get('/dashboard/pictures/{userId?}', 'ImageController@getPictures');
@@ -456,6 +459,9 @@ Route::group(['middleware' => ['auth', 'global', 'active', 'femaleActive', 'vipC
         Route::get('/dashboard/banned_warned_list', 'PagesController@banned_warned_list');
         Route::get('/dashboard/visited', 'PagesController@visited');
 
+        //更新拜訪時間
+        Route::post('/dashboard/viewuser/update_visited_time', 'PagesController@update_visited_time')->name('update_visited_time');
+
         Route::middleware("HasReferer:listSeatch2")->group(function (){
             Route::get('/dashboard/viewuser/{uid?}', 'PagesController@viewuser2')->name('viewuser'); //new route
             Route::get('/dashboard/viewuser_re/{uid?}', 'PagesController@viewuser_re')->name('viewuser_re');
@@ -497,7 +503,7 @@ Route::group(['middleware' => ['auth', 'global', 'active', 'femaleActive', 'vipC
         Route::get('/dashboard/chat/reportMessage/{id}/{sid}', 'MessageController@showReportMessagePage')->name('reportMessagePage');
         //Route::get('/dashboard/block', 'PagesController@block');
         Route::get('/dashboard/upgrade', 'PagesController@upgrade');
-   // Route::get('/dashboard/cancel', 'PagesController@cancel');
+        // Route::get('/dashboard/cancel', 'PagesController@cancel');
 
         Route::get('/dashboard/anonymousChat', 'PagesController@anonymousChat');
         Route::post('/dashboard/anonymousChatReport', 'PagesController@anonymous_chat_report')->name('anonymous_chat_report');
@@ -884,6 +890,12 @@ Route::group(['middleware' => ['auth', 'global', 'active', 'femaleActive', 'vipC
 
         //廣告紀錄統計
         Route::get('admin/advertiseStatistics', 'UserController@advertiseStatistics')->name('admin/advertiseStatistics');
+
+        //使用者停留時間查看
+        Route::get('admin/user_record_view', 'UserController@user_record_view')->name('admin/user_record_view');
+        Route::get('admin/user_regist_time_view', 'UserController@user_regist_time_view')->name('admin/user_regist_time_view');
+        Route::get('admin/user_visited_time_view', 'UserController@user_visited_time_view')->name('admin/user_visited_time_view');
+        
     });
     Route::group(['prefix' => 'admin', 'middleware' => 'Admin'], function () {
         //寄退信Log查詢
