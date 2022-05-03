@@ -4,36 +4,20 @@
         <h1>停留時間</h1>
         <br>
         <table class='table table-bordered table-hover'>
-            <tr class='record_title'>
+            <tr>
                 <td>
-                    <h3>註冊停留時間</h3>
+                    <a href="{{route('admin/user_regist_time_view')}}">
+                        <h3>註冊停留時間</h3>
+                    </a>
                 </td>
             </tr>
-            <tr class='record_table' style='display:none'>
+            <tr>
                 <td>
-                    <table class='table table-bordered table-hover'>
-                        <tr>
-                            <td>使用者ID</td>
-                            <td>暱稱</td>
-                            <td>信箱</td>
-                            <td>註冊花費時間(秒)</td>
-                        </tr>
-                        @foreach($user_record as $record)
-                            <tr>
-                                <td>{{$record->user_id}}</td>
-                                <td>{{$record->name}}</td>
-                                <td>{{$record->email}}</td>
-                                <td>{{$record->cost_time_of_first_dataprofile}} 秒</td>
-                            </tr>
-                        @endforeach
-                    </table>
+                    <a href="{{route('admin/user_visited_time_view')}}">
+                        <h3>拜訪停留時間</h3>
+                    </a>
                 </td>
             </tr>
         </table>
     </body>
-    <script>
-        $('.record_title').on('click', function(){
-            $(this).next().toggle();
-        });
-    </script>
 @stop

@@ -69,6 +69,7 @@ use App\Models\SimilarImages;
 use App\Models\CheckPointUser;
 use App\Models\ComeFromAdvertise;
 use App\Models\UserRecord;
+use App\Models\Visited;
 
 class UserController extends \App\Http\Controllers\BaseController
 {
@@ -6059,9 +6060,22 @@ class UserController extends \App\Http\Controllers\BaseController
     
     public function user_record_view(Request $request)
     {
-        $user_record = UserRecord::leftJoin('users', 'users.id', '=', 'user_record.user_id')->whereNotNull('cost_time_of_first_dataprofile')->orderBy('user_record.updated_at','desc')->get();
-        return view('admin.users.user_record_view')
+
+        return view('admin.users.user_record_view');
+    }
+
+    public function user_regist_time_view(Request $request)
+    {
+        $user_record = UserRecord::leftJoin('users', 'users.id', '=', 'user_record.user_id')->whereNotNull('user_record.cost_time_of_first_dataprofile')->orderBy('user_record.updated_at','desc')->get();
+        return view('admin.users.user_regist_time_view')
                 ->with('user_record', $user_record);
+    }
+
+    public function user_visited_time_view(Request $request)
+    {
+        $user_visited_record = Visited::whereNotNull('visited_time')->orderBy('id','desc')->get();
+        return view('admin.users.user_visited_time_view')
+                ->with('user_visited_record', $user_visited_record);
     }
 
 }

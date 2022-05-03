@@ -1975,13 +1975,13 @@ class PagesController extends BaseController
             //check forum manage users
             //apply_user_id = manager
 
-//            $canViewUsers = ForumManage::where('apply_user_id', $user->id)->where('user_id',$targetUser->id)->first();
-//
-//            $forum = Forum::where('user_id', $user->id)->orderBy('id','desc')->first();
-//            if($forum??false)
-//            {
-//                $canViewUsers = ForumManage::where('forum_id', $forum->id)->where('user_id',$targetUser->id)->first();
-//            }
+            //$canViewUsers = ForumManage::where('apply_user_id', $user->id)->where('user_id',$targetUser->id)->first();
+            //
+            //$forum = Forum::where('user_id', $user->id)->orderBy('id','desc')->first();
+            //if($forum??false)
+            //{
+                //$canViewUsers = ForumManage::where('forum_id', $forum->id)->where('user_id',$targetUser->id)->first();
+            //}
 
 
             $forum = Forum::where('user_id', $user->id)->where('status', 1)->orderBy('id','desc')->first();
@@ -1993,19 +1993,20 @@ class PagesController extends BaseController
                     ->first();
             }
 
+            $visited_id = 0;
             if ($user->id != $uid) {
                 if(isset($canViewUsers)){
-                    Visited::visit($user->id, $targetUser);
+                    $visited_id = Visited::visit($user->id, $targetUser);
                 }
                 elseif(
                     //檢查性別
                     $user->engroup == $targetUser->engroup
                     //檢查是否被封鎖
-//                    || User::isBanned($user->id)
+                    //|| User::isBanned($user->id)
                 ){
                     return redirect()->route('listSeatch2');
                 }else{
-                    Visited::visit($user->id, $targetUser);
+                    $visited_id = Visited::visit($user->id, $targetUser);
                 }
             }
 
@@ -2076,27 +2077,27 @@ class PagesController extends BaseController
                 ->leftJoin('users as u1', 'u1.id', '=', 'evaluation.from_id')
                 ->leftJoin('user_meta as um', 'um.user_id', '=', 'evaluation.from_id')
                 ->leftJoin('warned_users as w2', 'w2.member_id', '=', 'evaluation.from_id')
-//                ->leftJoin('users as u2', 'u2.id', '=', 'evaluation.from_id')
-//                ->leftJoin('user_meta as um', function($join) {
-//                    $join->on('um.user_id', '=', 'evaluation.from_id')
-//                        ->where('isWarned', 1); })
-//                ->leftJoin('warned_users as wu', function($join) {
-//                    $join->on('wu.member_id', '=', 'evaluation.from_id')
-//                        ->where(function($query){
-//                            $query->where('wu.expire_date', '>=', Carbon::now())
-//                                ->orWhere('wu.expire_date', null); }); })
+                //->leftJoin('users as u2', 'u2.id', '=', 'evaluation.from_id')
+                //->leftJoin('user_meta as um', function($join) {
+                    //$join->on('um.user_id', '=', 'evaluation.from_id')
+                    //->where('isWarned', 1); })
+                //->leftJoin('warned_users as wu', function($join) {
+                    //$join->on('wu.member_id', '=', 'evaluation.from_id')
+                    //->where(function($query){
+                        //$query->where('wu.expire_date', '>=', Carbon::now())
+                        //->orWhere('wu.expire_date', null); }); })
                 ->whereNull('b1.member_id')
                 ->whereNull('b3.target')
                 ->where('um.isWarned',0)
                 ->whereNull('w2.id')
                 ->whereNotNull('u1.id')
-//                ->whereNotNull('u2.id')
+                //->whereNotNull('u2.id')
                 ->where('u1.accountStatus', 1)
                 ->where('u1.account_status_admin', 1)
-//                ->where('u2.accountStatus', 1)
-//                ->where('u2.account_status_admin', 1)
-//                ->whereNull('um.user_id')
-//                ->whereNull('wu.member_id')
+                //->where('u2.accountStatus', 1)
+                //->where('u2.account_status_admin', 1)
+                //->whereNull('um.user_id')
+                //->whereNull('wu.member_id')
                 ->orderBy('evaluation.created_at','desc')
                 ->where('evaluation.to_id', $uid);
 
@@ -2104,13 +2105,13 @@ class PagesController extends BaseController
 
             $evaluation_self = Evaluation::where('to_id',$uid)->where('from_id',$user->id)->first();
             /*編輯文案-被封鎖者看不到封鎖者的提示-START*/
-//            $user_closed = AdminCommonText::where('alias','user_closed')->get()->first();
+            //$user_closed = AdminCommonText::where('alias','user_closed')->get()->first();
             /*編輯文案-被封鎖者看不到封鎖者的提示-END*/
 
             // todo: 此處程式碼有誤，應檢查檢視者是否被被檢視者封鎖，若是，才存入變數
-//            if(User::isBanned($uid)){
-//                Session::flash('message', $user_closed->content);
-//            }
+            //if(User::isBanned($uid)){
+                //Session::flash('message', $user_closed->content);
+            //}
             if($uid == $user->id) {
                 \App\Models\Evaluation::where('to_id',$uid)->update(['read'=>0]);
             }
@@ -2164,7 +2165,7 @@ class PagesController extends BaseController
                     ->with('alert_account',$alert_account->content)
                     ->with('label_vip',$label_vip->content)
                     // ->with('rating_avg',$rating_avg)
-//                    ->with('user_closed',$user_closed->content)
+                    //->with('user_closed',$user_closed->content)
                     ->with('evaluation_self',$evaluation_self)
                     ->with('evaluation_data',$evaluation_data)
                     ->with('vipDays',$vipDays)
@@ -2172,7 +2173,8 @@ class PagesController extends BaseController
                     ->with('auth_check',$auth_check)
                     ->with('is_banned',User::isBanned($user->id))
                     ->with('pr', $pr)
-                    ->with('isBlocked',$isBlocked);
+                    ->with('isBlocked',$isBlocked)
+                    ->with('visited_id', $visited_id);
             }
 
     }
@@ -8151,6 +8153,15 @@ class PagesController extends BaseController
             $record->cost_time_of_first_dataprofile = $request->cost_time_of_first_dataprofile;
         }
         $record->save();
+    }
+
+    public function update_visited_time(Request $request)
+    {
+        $second = $request->stay_second;
+        $visited_id = $request->view_user_visited_id;
+        $visited_record = Visited::where('id', $visited_id)->first();
+        $visited_record->visited_time = ($visited_record->visited_time ?? 0) + $second;
+        $visited_record->save();
     }
     
 }
