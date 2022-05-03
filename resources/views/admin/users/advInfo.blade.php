@@ -370,7 +370,7 @@
                 {{ $user->email }}
 {{--            </a>--}}
         </td>
-        <td>{{ $user_record->cost_time_of_registering ?? '未紀錄' }}</td>
+        <td>{{ $user_record->cost_time_of_first_dataprofile ?? '未紀錄' }}</td>
         <td>{{ $user->created_at }}</td>
         <td>{{ $user->updated_at }}</td>
         <td><a href="{{ route('stats/vip_log', $user->id) }}" target="_blank">{{ $showVipInfo }}</a></td>
