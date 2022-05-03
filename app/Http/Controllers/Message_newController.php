@@ -35,6 +35,7 @@ use App\Models\InboxRefuseSet;
 use App\Models\Pr_log;
 //use Shivella\Bitly\Facade\Bitly;
 use Illuminate\Support\Facades\Log;
+use App\Models\MessageRoomUserXref;
 
 class Message_newController extends BaseController {
     public function __construct(UserService $userService) {
@@ -296,13 +297,31 @@ class Message_newController extends BaseController {
 
         if(!is_null($request->file('images')) && count($request->file('images'))){
             //上傳訊息照片
-            $sort = array(
+            $rows = array(
                 $user->id,
                 $payload['to']
             );
-            sort($sort);
+
+            $checkData = MessageRoomUserXref::whereIn('user_id',$rows)->groupBy('room_id')->havingRaw('count(user_id) = ?', [2]);
+
+            if($checkData->count()==0){
+                $messageRoom = new MessageRoom;
+                $messageRoom->save();
+                $room_id = $messageRoom->id;
+            
+
+                foreach($rows as $row){
+                    $messageRoomUserXref = new MessageRoomUserXref;
+                    $messageRoomUserXref->user_id = $row;
+                    $messageRoomUserXref->room_id = $room_id;
+                    $messageRoomUserXref->save();
+                }
+            }else{
+                $room_id = $checkData->first()['room_id'];
+            }
+
             $messageInfo = Message::create([
-                'room_id'=>implode('_',$sort),
+                'room_id'=>$room_id,
                 'from_id'=>$user->id,
                 'to_id'=>$payload['to'],
                 'client_id'=>$payload['client_id'],

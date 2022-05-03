@@ -10,11 +10,11 @@ use Carbon\Carbon;
 
 use function Clue\StreamFilter\fun;
 
-class MessageRoom extends Model
+class MessageRoomUserXref extends Model
 {
     use HasFactory;
 
-    protected $table = 'message_rooms';
+    protected $table = 'message_room_user_xrefs';
 
     static $date = null;
 

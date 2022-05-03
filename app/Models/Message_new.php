@@ -420,14 +420,14 @@ class Message_new extends Model
                                 'sender.aw_relation',      'receiver.aw_relation'])
             ->select("message.*")
             //->from('message as m')
-            ->leftJoin('message_rooms','message_rooms.room_id','=','message.room_id')
+            ->leftJoin('message_room_user_xrefs','message_room_user_xrefs.room_id','=','message.room_id')
             // ->leftJoin('users as u1', 'u1.id', '=', 'message.from_id')
             // ->leftJoin('users as u2', 'u2.id', '=', 'message.to_id')
-            ->leftJoin('users','users.id','=','message_rooms.user_id')
-            ->leftJoin('banned_users','banned_users.member_id','=','message_rooms.user_id')
+            ->leftJoin('users','users.id','=','message_room_user_xrefs.user_id')
+            ->leftJoin('banned_users','banned_users.member_id','=','message_room_user_xrefs.user_id')
             // ->leftJoin('banned_users as b1', 'b1.member_id', '=', 'message.from_id')
             // ->leftJoin('banned_users as b2', 'b2.member_id', '=', 'message.to_id')
-            ->leftJoin('banned_users_implicitly','banned_users_implicitly.target','=','message_rooms.user_id')
+            ->leftJoin('banned_users_implicitly','banned_users_implicitly.target','=','message_room_user_xrefs.user_id')
             // ->leftJoin('banned_users_implicitly as b3', 'b3.target', '=', 'message.from_id')
             // ->leftJoin('banned_users_implicitly as b4', 'b4.target', '=', 'message.to_id')
             // ->leftJoin('blocked','blocked.blocked_id','=','message_rooms.user_id')
@@ -491,6 +491,7 @@ class Message_new extends Model
         // $query->whereRaw('message.created_at < IFNULL(b3.created_at,"2999-12-31 23:59:59")');
         // $query->whereRaw('message.created_at < IFNULL(b4.created_at,"2999-12-31 23:59:59")');
         $query->where([['message.is_row_delete_1','<>',$uid],['message.is_single_delete_1', '<>' ,$uid], ['message.all_delete_count', '<>' ,$uid],['message.is_row_delete_2', '<>' ,$uid],['message.is_single_delete_2', '<>' ,$uid],['message.temp_id', '=', 0]]);
+        $query->groupBy('message.content');
         $query->orderBy('message.created_at', 'desc');
         // if($user->id != 1049){
         //     $query->where(function($query){

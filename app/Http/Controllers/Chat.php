@@ -5,6 +5,7 @@ namespace App\Http\Controllers;
 use Illuminate\Http\Request;
 use App\Services\UserService;
 use App\Models\MessageRoom;
+use App\Models\MessageRoomUserXref;
 class Chat extends BaseController
 {
     /**
@@ -59,19 +60,27 @@ class Chat extends BaseController
         }
 
         if(!isset($m['error'])){
-            // \App\Events\NewMessage::dispatch($m->id, $m->content, $m->from_id, $m->to_id);
-            $sort = array(
+            \App\Events\NewMessage::dispatch($m->id, $m->content, $m->from_id, $m->to_id);
+            
+            $rows = array(
                 $m->from_id,
                 $m->to_id
             );
-            sort($sort);
-            $count = MessageRoom::where('room_id',$sort[0].'_'.$sort[1])->count();
-            if($count<=0){
-                foreach($sort as $row){
-                    $messageRoom = new MessageRoom;
-                    $messageRoom->room_id = implode("_",$sort);
-                    $messageRoom->user_id = $row;
-                    $messageRoom->save();
+
+            $checkData = MessageRoomUserXref::whereIn('user_id',$rows)->groupBy('room_id')->havingRaw('count(user_id) = ?', [2]);
+            // $checkData = $checkData->get();
+  
+            if($checkData->count()==0){
+                $messageRoom = new MessageRoom;
+                $messageRoom->save();
+                $room_id = $messageRoom->id;
+              
+
+                foreach($rows as $row){
+                    $messageRoomUserXref = new MessageRoomUserXref;
+                    $messageRoomUserXref->user_id = $row;
+                    $messageRoomUserXref->room_id = $room_id;
+                    $messageRoomUserXref->save();
                 }
             }
         }

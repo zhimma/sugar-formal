@@ -1016,13 +1016,42 @@ class Message extends Model
         $message->from_id = $arr['from_id']??null;
         $message->to_id = $arr['to']??null;
         
-        $sort = array(
+
+        $rows = array(
             $message->from_id,
             $message->to_id
         );
-        sort($sort);
-        $message->room_id = implode("_",$sort);
-        
+
+        $checkData = MessageRoomUserXref::whereIn('user_id',$rows)->groupBy('room_id')->havingRaw('count(user_id) = ?', [2]);
+        // $checkData = $checkData->get();
+
+        if($checkData->count()==0){
+            $messageRoom = new MessageRoom;
+            $messageRoom->save();
+            $room_id = $messageRoom->id;
+          
+
+            foreach($rows as $row){
+                $messageRoomUserXref = new MessageRoomUserXref;
+                $messageRoomUserXref->user_id = $row;
+                $messageRoomUserXref->room_id = $room_id;
+                $messageRoomUserXref->save();
+            }
+            // dd('1');
+        }else{
+            $room_id = $checkData->first()['room_id'];
+            // dd($room_id);
+        }
+
+        // $rows = array(
+        //     $message->from_id,
+        //     $message->to_id
+        // );
+        // $checkData = MessageRoomUserXref::whereIn('user_id',$rows)->groupBy('room_id')->havingRaw('count(user_id) = ?', [2])->first();
+        // sort($sort);
+        // $message->room_id = implode("_",$sort);
+        // dd($checkData);
+        $message->room_id = $room_id;
         $message->content = array_key_exists('msg',$arr)?$arr['msg']:'';
         $message->parent_msg = array_key_exists('parent',$arr)?$arr['parent']:'';
         $message->client_id = array_key_exists('client_id',$arr)?$arr['client_id']:'';
