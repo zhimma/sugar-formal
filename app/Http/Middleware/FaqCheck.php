@@ -46,6 +46,7 @@ class FaqCheck
 
             if( $this->service->isForceShowFaqPopup() &&
                 $last_url_seq!='dashboard' &&
+                $last_url_seq!='dashboard2' &&                
                 $last_url_seq!='logout' &&
                 !str_contains(url()->current(), 'dashboard/personalPage') &&
                 !str_contains(url()->current(), 'users/switch-back') &&
