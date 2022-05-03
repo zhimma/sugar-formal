@@ -8162,6 +8162,7 @@ class PagesController extends BaseController
         $visited_record = Visited::where('id', $visited_id)->first();
         if(!$visited_record) {
             \Sentry\captureMessage("查不到到訪記錄，Visited ID: " . $visited_id);
+            return false;
         }
         $visited_record->visited_time = ($visited_record->visited_time ?? 0) + $second;
         $visited_record->save();
