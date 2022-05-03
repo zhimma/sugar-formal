@@ -86,7 +86,7 @@ class CheckECpay implements ShouldQueue
                 Log::error($exception);
             }
 
-            $now = \Carbon\Carbon::now();
+            $now = Carbon::now();
 
             if(substr($this->vipData->payment,0,4) == 'one_'){
                 //單次付款檢查
@@ -101,7 +101,7 @@ class CheckECpay implements ShouldQueue
                         //check取號資料表
                         $checkData = PaymentGetQrcodeLog::where('order_id', $this->vipData->order_id)->first();
                         if(isset($checkData)){
-                            if($now > $checkData->ExpireDate){
+                            if($now->gt($checkData->ExpireDate)){
                                 //超過期限未完成交易
                                 //取消VIP
                                 $vipData = $user->getVipData(true);
@@ -113,7 +113,7 @@ class CheckECpay implements ShouldQueue
                         }
                     }elseif(!$this->userIsVip && $paymentQueryData['TradeStatus'] == 1){
                         $getOrderDate = Order::where('order_id', $this->vipData->order_id)->first();
-                        if(isset($getOrderDate)) {
+                        if(isset($getOrderDate) && Carbon::parse($getOrderDate->order_expire_date)->gt($now)) {
                             \App\Models\Vip::select('member_id', 'active')
                                 ->where('member_id', $this->vipData->member_id)
                                 ->update(array('active' => 1, 'expiry' => $getOrderDate->order_expire_date));
@@ -130,7 +130,7 @@ class CheckECpay implements ShouldQueue
                     return;
                 }
                 $lastProcessDate = str_replace('%20', ' ', $last['process_date']);
-                $lastProcessDate = \Carbon\Carbon::createFromFormat('Y/m/d H:i:s', $lastProcessDate);
+                $lastProcessDate = Carbon::createFromFormat('Y/m/d H:i:s', $lastProcessDate);
                 // 三個月一期或一個月一期
                 try{
                     if(str_contains($this->vipData->payment, 'quarterly')){
