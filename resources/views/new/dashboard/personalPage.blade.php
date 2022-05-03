@@ -146,6 +146,7 @@
                 </div>
 
                 <div class="n_search tabbox_new g_pnr">
+                    @if($user->engroup==1)
                     <div class="sys_aa" id="vip_state_block">
                         <div class="tabbox_new_dt"><span>VIP狀態</span>
                             @if(!$user->isVip())
@@ -164,6 +165,37 @@
                             @endif
                         </div>
                     </div>
+                    @endif
+                    @if($user->engroup==2)
+                    <div class="sys_aa" id="vip_state_block">
+                        <div class="tabbox_new_dt"><span>進階驗證</span>
+                        @if(!$user->isAdvanceAuth())
+                            <a class="zs_buttonn" href="{{url('/advance_auth/')}}">立即驗證</a>
+                        @endif
+                        </div>
+                        <div class="tabbox_new_dd">
+                        @if($user->isAdvanceAuth())
+                            <h2 class="tabbox_h2">已通過</h2>
+                        @else
+                            <h2 class="tabbox_h2"><span class="tu_dfont">尚未通過</span></h2>
+                        @endif
+                        </div>
+                    </div> 
+                    <div class="sys_aa" id="vip_state_block">
+                        <div class="tabbox_new_dt"><span>本人認證</span>
+                        @if($user!=$user->meta)
+                            <a class="zs_buttonn" href="{{url('/advance_auth/')}}">立即認證</a>
+                        @endif
+                        </div>
+                        <div class="tabbox_new_dd">
+                        @if($user==$user->meta)
+                            <h2 class="tabbox_h2">已通過</h2>
+                        @else
+                            <h2 class="tabbox_h2"><span class="tu_dfont">尚未通過</span></h2>
+                        @endif
+                        </div>
+                    </div>         
+                    @endif
                    <div class="sys_aa" id="vip_state_block">
                         <div class="tabbox_new_dt"><span>隱藏狀態</span>
                             @if($user->valueAddedServiceStatus('hideOnline') == 1)
