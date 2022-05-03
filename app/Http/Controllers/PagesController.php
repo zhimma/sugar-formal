@@ -2702,41 +2702,42 @@ class PagesController extends BaseController
                         }else{
                             $ssr_var = '';
                         }
-                        if($visitor->isPhoneAuth()){
-                            $ssrData .='<div class="hoverTip '.$ssr_var.'">';                            
-                            if($user->isVip()){
-                                if($visitor->isAdvanceAuth() && $visitor->engroup==2){
-                                    $ssrData .='<div class="tagText"  data-toggle="popover" data-content="本站的進階認證會員，本會員通過本站的嚴格驗證，基本資料正確無誤。">';
-                                    $ssrData .='<img src="/new/images/c_03.png">';
-                                    $ssrData .='</div> ';
-                                    $ssrData .='<span>丨</span>';
-                                }else if(!$visitor->isAdvanceAuth() && $visitor->engroup==2){
-                                    $ssrData .='<div class="tagText"  data-toggle="popover" data-content="通過本站手機驗證的會員。">';
-                                    $ssrData .='<img src="/new/images/c_09.png">';
-                                    $ssrData .='</div>  ';
-                                    $ssrData .='<span>丨</span>';
-                                }
-                               
+                       // if($visitor->isPhoneAuth()){
+                        $ssrData .='<div class="hoverTip '.$ssr_var.'">';                            
+                        if($user->isVip()){
+                            if($visitor->isAdvanceAuth() && $visitor->engroup==2){
+                                $ssrData .='<div class="tagText"  data-toggle="popover" data-content="本站的進階認證會員，本會員通過本站的嚴格驗證，基本資料正確無誤。">';
+                                $ssrData .='<img src="/new/images/c_03.png">';
+                                $ssrData .='</div> ';
+                                $ssrData .='<span>丨</span>';
+                            }else if(!$visitor->isAdvanceAuth() && $visitor->engroup==2){
                                 $ssrData .='<div class="tagText"  data-toggle="popover" data-content="通過本站手機驗證的會員。">';
-                                $ssrData .='<img src="/new/images/c_10.png">';
-                                $ssrData .='</div>';
-                            }else{
-                                if($visitor->isAdvanceAuth() && $visitor->engroup==2){
-                                    $ssrData .='<div class="tagText"  data-toggle="popover" data-content="本站的進階認證會員，本會員通過本站的嚴格驗證，基本資料正確無誤。">';
-                                    $ssrData .='<img src="/new/images/b_8x.png">';
-                                    $ssrData .='</div> ';
-                                }else if(!$visitor->isAdvanceAuth() && $visitor->engroup==2){
-                                    $ssrData .='<div class="tagText"  data-toggle="popover" data-content="通過本站手機驗證的會員。">';
-                                    $ssrData .='<img src="/new/images/b_5x.png">';
-                                    $ssrData .='</div>  ';
-                                }else{
-                                    $ssrData .='<div class="tagText"  data-toggle="popover" data-content="通過本站手機驗證的會員。">';
-                                    $ssrData .='<img src="/new/images/b_6.png">';
-                                    $ssrData .='</div>  ';  
-                                } 
+                                $ssrData .='<img src="/new/images/c_09.png">';
+                                $ssrData .='</div>  ';
+                                $ssrData .='<span>丨</span>';
                             }
+                            /*
+                            $ssrData .='<div class="tagText"  data-toggle="popover" data-content="通過本站手機驗證的會員。">';
+                            $ssrData .='<img src="/new/images/c_10.png">';
                             $ssrData .='</div>';
+                            */
+                        }else{
+                            if($visitor->isAdvanceAuth() && $visitor->engroup==2){
+                                $ssrData .='<div class="tagText"  data-toggle="popover" data-content="本站的進階認證會員，本會員通過本站的嚴格驗證，基本資料正確無誤。">';
+                                $ssrData .='<img src="/new/images/b_8x.png">';
+                                $ssrData .='</div> ';
+                            }else if(!$visitor->isAdvanceAuth() && $visitor->engroup==2){
+                                $ssrData .='<div class="tagText"  data-toggle="popover" data-content="通過本站手機驗證的會員。">';
+                                $ssrData .='<img src="/new/images/b_5x.png">';
+                                $ssrData .='</div>  ';
+                            }/*else{
+                                $ssrData .='<div class="tagText"  data-toggle="popover" data-content="通過本站手機驗證的會員。">';
+                                $ssrData .='<img src="/new/images/b_6.png">';
+                                $ssrData .='</div>  ';  
+                            } */
                         }
+                        $ssrData .='</div>';
+                        //}
                      
                     }
           
