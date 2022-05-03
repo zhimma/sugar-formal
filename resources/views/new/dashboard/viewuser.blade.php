@@ -2888,16 +2888,19 @@
     //訪問時間紀錄
     function update_visited_time(second){
         view_user_visited_id = {{$visited_id}};
-        $.ajax({
-            type:'post',
-            url:'{{route("update_visited_time")}}',
-            data:
-            {
-                _token: '{{ csrf_token() }}',
-                view_user_visited_id:view_user_visited_id,
-                stay_second:second
-            }
-        });
+        if(view_user_visited_id != 0)
+        {
+            $.ajax({
+                type:'post',
+                url:'{{route("update_visited_time")}}',
+                data:
+                {
+                    _token: '{{ csrf_token() }}',
+                    view_user_visited_id:view_user_visited_id,
+                    stay_second:second
+                }
+            });
+        }
     }
     //訪問時間紀錄
 </script>
