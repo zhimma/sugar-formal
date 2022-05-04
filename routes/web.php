@@ -71,6 +71,8 @@ Route::get('/ts_2', 'PagesController@ts_2');
 |--------------------------------------------------------------------------
 */
 Route::get('/', 'PagesController@home');
+//紀錄上線時間
+Route::post('/stay_online_time', 'PagesController@stay_online_time')->name('stay_online_time');
 Route::get('/advertise_record', 'PagesController@advertise_record')->name('advertise_record');
 Route::get('/advertise_record_change', 'PagesController@advertise_record_change')->name('advertise_record_change');
 Route::get('/vue_test', 'PagesController@vue_test');
