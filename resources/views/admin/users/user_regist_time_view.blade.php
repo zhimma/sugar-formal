@@ -19,5 +19,6 @@
                 </tr>
             @endforeach
         </table>
+        {!! $user_record->appends(request()->input())->links('pagination::sg-pages') !!}
     </body>
 @stop
