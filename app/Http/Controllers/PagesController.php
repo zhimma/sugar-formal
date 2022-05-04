@@ -8169,7 +8169,7 @@ class PagesController extends BaseController
     {
         $second = $request->stay_second;
         $stay_online_record_id = $request->stay_online_record_id??0;
-        $user = \Auth::user();
+        $user = auth()->user();
         if($user??false)
         {
             $stay_online_record = StayOnlineRecord::where('id', $stay_online_record_id)->where('user_id', $user->id)->first();
@@ -8182,10 +8182,7 @@ class PagesController extends BaseController
             $stay_online_record->save();
             $stay_online_record_id = $stay_online_record->id;
         }
-        else
-        {
-            $stay_online_record_id = 0;
-        }
+        
         return response()->json(['stay_online_record_id' => $stay_online_record_id]);
     }
     
