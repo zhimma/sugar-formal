@@ -17,5 +17,6 @@
                 </tr>
             @endforeach
         </table>
+        {!! $user_visited_record->appends(request()->input())->links('pagination::sg-pages') !!}
     </body>
 @stop
