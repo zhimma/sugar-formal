@@ -430,27 +430,30 @@ class Message_new extends Model
             ->leftJoin('banned_users_implicitly','banned_users_implicitly.target','=','message_room_user_xrefs.user_id')
             // ->leftJoin('banned_users_implicitly as b3', 'b3.target', '=', 'message.from_id')
             // ->leftJoin('banned_users_implicitly as b4', 'b4.target', '=', 'message.to_id')
-            // ->leftJoin('blocked','blocked.blocked_id','=','message_rooms.user_id')
-            ->leftJoin('blocked as b5', function($join) use($uid) {
-                $join->on('b5.blocked_id', '=', 'message.from_id')
-                    ->where('b5.member_id', $uid); })
-            ->leftJoin('blocked as b6', function($join) use($uid) {
-                $join->on('b6.blocked_id', '=', 'message.to_id')
-                    ->where('b6.member_id', $uid); })
+            ->leftJoin('blocked as b','b.blocked_id','=','message_room_user_xrefs.user_id')
+            // ->leftJoin('blocked','blocked.blocked_id','=','message_room_user_xrefs.user_id')
+            // ->leftJoin('blocked as b5', function($join) use($uid) {
+            //     $join->on('b5.blocked_id', '=', 'message.from_id')
+            //         ->where('b5.member_id', $uid); })
+            // ->leftJoin('blocked as b6', function($join) use($uid) {
+            //     $join->on('b6.blocked_id', '=', 'message.to_id')
+            //         ->where('b6.member_id', $uid); })
             ->leftJoin('blocked as b7', function($join) use($uid) {
                 $join->on('b7.member_id', '=', 'message.from_id')
                     ->where('b7.blocked_id', $uid); });
         $query = $query
+                ->whereNotNull('users.id')
                 // ->whereNotNull('u1.id')
                 // ->whereNotNull('u2.id')
                 // ->whereNull('blocked.blocked_id')
                 // ->whereNull('b5.blocked_id')
-                // ->whereNull('b6.blocked_id')
+                ->whereNull('b.blocked_id')
                 ->whereNull('b7.member_id')
                 ->where(function ($query) use ($uid,$admin_id) {
                     $query->where([['message.to_id', $uid], ['message.from_id', '!=', $uid],['message.from_id','!=',$admin_id]])
                         ->orWhere([['message.from_id', $uid], ['message.to_id', '!=',$uid],['message.to_id','!=',$admin_id]]);
                 });
+            // dd($query)->get();
 		if($forEventSenders) 
 		{
 			self::$date = \Carbon\Carbon::parse(date("Y-m-01"))->toDateTimeString();
