@@ -176,7 +176,7 @@ Route::group(['middleware' => ['auth', 'global','SessionExpired']], function () 
 Route::post('/dashboard/faq_reply', 'PagesController@checkFaqAnswer')->middleware('auth')->name('checkFaqAnswer');
 Route::get('/advance_auth_activate/token/{token}', 'PagesController@advance_auth_email_activate')->name('advance_auth_email_activate');
 
-Route::group(['middleware' => ['auth', 'global', 'active', 'femaleActive', 'vipCheck', 'newerManual','CheckAccountStatus','SessionExpired','FaqCheck']], function () {
+Route::group(['middleware' => ['auth', 'global', 'active', 'femaleActive', 'vipCheck', 'newerManual', 'CheckAccountStatus', 'AdjustedPeriodCheck', 'SessionExpired','FaqCheck']], function () {
 
     Route::get('/dashboard/browse', 'PagesController@browse');
     /*
@@ -349,7 +349,7 @@ Route::group(['middleware' => ['auth', 'global', 'active', 'femaleActive', 'vipC
     Route::post('/dashboard/consignAdd', 'PagesController@consignAdd'); //new route
     Route::get('/dashboard/account_consign_cancel', 'PagesController@view_consign_cancel'); //new route
     Route::post('/dashboard/consignCancel', 'PagesController@consignCancel'); //new route
-    Route::get('/dashboard/account_exchange_period', 'PagesController@view_exchange_period'); //new route exchange_period_modify
+    Route::get('/dashboard/account_exchange_period', 'PagesController@view_exchange_period')->withoutMiddleware(['AdjustedPeriodCheck']); //new route exchange_period_modify
     Route::post('/dashboard/exchangePeriodModify', 'PagesController@exchangePeriodModify'); //new route
     Route::get('/dashboard/account_hide_online', 'PagesController@view_account_hide_online'); //new route
 
