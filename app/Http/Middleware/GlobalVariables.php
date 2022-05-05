@@ -29,7 +29,7 @@ class GlobalVariables
             $expiresAt = \Carbon\Carbon::now()->addMinutes(5);
             \Cache::put('user-is-online-' . \Auth::user()->id, true, $expiresAt);
             $valueAddedServices = array();
-//            $valueAddedServices['hideOnline'] = 0;
+            //$valueAddedServices['hideOnline'] = 0;
             $valueAddedServices['hideOnline'] = $user->valueAddedServiceStatus('hideOnline');
             $isFreeVip = false;
             if ($user->isVip()) {
@@ -58,7 +58,7 @@ class GlobalVariables
             \View::share('isFreeVip', $isFreeVip);
             \View::composer(['new.dashboard', 'new.dashboard.viewuser'], function($view) use ($user) {
                 $view->with('isAdminWarned', $user->isAdminWarned());
-             });
+            });
         }
         return $next($request);
     }
