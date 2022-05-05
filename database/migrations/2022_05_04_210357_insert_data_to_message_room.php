@@ -15,7 +15,7 @@ class InsertDataToMessageRoom extends Migration
      */
     public function up()
     {
-        $messagesList = DB::table('message')->orderBy('id','desc')->limit(10000)->chunk(1000, function($messages) {
+        $messagesList = DB::table('message')->orderBy('id','desc')->chunk(10000, function($messages) {
 
             foreach($messages->lazy() as $row){
 
@@ -44,7 +44,11 @@ class InsertDataToMessageRoom extends Migration
                 }    
 
                 //sometime it will happen error
-                DB::table('message')->where('id', $row->id)->update(['room_id'=>$room_id]);
+                if(isset($row->id)){
+                    dump($row->id);
+                    DB::table('message')->where('id', $row->id)->update(['room_id'=>$room_id]);
+                }
+                
             }
         });
         
