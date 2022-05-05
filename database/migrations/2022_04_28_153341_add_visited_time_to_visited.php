@@ -13,9 +13,7 @@ class AddVisitedTimeToVisited extends Migration
      */
     public function up()
     {
-        Schema::table('visited', function (Blueprint $table) {
-            $table->integer('visited_time')->after('visited_id')->nullable();
-        });
+        DB::statement('ALTER TABLE `visited` ADD `visited_time` int(11) unsigned DEFAULT NULL AFTER `visited_id`, ALGORITHM = INPLACE, LOCK=NONE;');
     }
 
     /**
