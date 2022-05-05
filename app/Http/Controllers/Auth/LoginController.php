@@ -15,6 +15,7 @@ use App\Models\Role;
 use App\Models\SetAutoBan;
 use Auth;
 use App\Models\SimpleTables\banned_users;
+use App\Models\UserProvisionalVariables;
 use Illuminate\Support\Facades\Config;
 use Illuminate\Support\Facades\DB;
 use Session;
@@ -326,6 +327,18 @@ class LoginController extends \App\Http\Controllers\BaseController
             }
             catch (\Exception $e){
                 logger($e);
+            }
+
+            if($user->engroup == 2)
+            {
+                $user_provisional_variables = UserProvisionalVariables::where('user_id',$user->id)->first();
+                if(!$user_provisional_variables)
+                {
+                    $user_provisional_variables = new UserProvisionalVariables();
+                    $user_provisional_variables->user_id = $user->id;
+                }
+                $user_provisional_variables->login_time_of_adjusted_period = $user_provisional_variables->login_time_of_adjusted_period + 1;
+                $user_provisional_variables->save();
             }
 
             return $this->sendLoginResponse($request);

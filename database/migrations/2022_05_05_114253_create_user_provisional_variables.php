@@ -17,6 +17,7 @@ class CreateUserProvisionalVariables extends Migration
             $table->id();
             $table->integer('user_id');
             $table->boolean('has_adjusted_period')->nullable();
+            $table->boolean('login_time_of_adjusted_period')->default(0);
             $table->timestamps();
         });
     }
