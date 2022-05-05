@@ -331,8 +331,8 @@ class LoginController extends \App\Http\Controllers\BaseController
 
             if($user->engroup == 2)
             {
-                $user_provisional_variables = UserProvisionalVariables::where('user_id',$user->id)->first();
-                if(!$user_provisional_variables)
+                $user_provisional_variables = UserProvisionalVariables::where('user_id', $user->id)->first();
+                if(!($user_provisional_variables ?? false))
                 {
                     $user_provisional_variables = new UserProvisionalVariables();
                     $user_provisional_variables->user_id = $user->id;

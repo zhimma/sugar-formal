@@ -8,4 +8,9 @@ use Illuminate\Database\Eloquent\Model;
 class UserProvisionalVariables extends Model
 {
     protected $table = 'user_provisional_variables';
+
+    protected $fillable = [
+        'has_adjusted_period',
+        'login_time_of_adjusted_period'
+    ];
 }
