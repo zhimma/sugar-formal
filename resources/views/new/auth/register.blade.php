@@ -186,7 +186,15 @@ div.new_poptk{color:#6783c7;overflow-y:scroll;}
                         <div class="de_input02 exchange_period" style="{{old('exchange_period') == ''? 'display: none;' : ''}}">
                             <h2>包養關係</h2>
                             @foreach($exchange_period_name as $row)
-                            <h3><input type="radio" class='period_choice' name="exchange_period" value="{{$row->id}}" {{old('exchange_period') == $row->id? 'checked' : '' }}><span>{{$row->name}}</span></h3>
+                            <h3>
+                                <input type="radio" class='period_choice' name="exchange_period" value="{{$row->id}}" {{old('exchange_period') == $row->id? 'checked' : '' }}>
+                                <span>
+                                    {{$row->name}}
+                                    <br>
+                                    {{$row->remark}}
+                                </span>
+                            </h3>
+                            <br>
                             @endforeach
                         </div>
 
