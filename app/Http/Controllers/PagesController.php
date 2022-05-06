@@ -2670,8 +2670,22 @@ class PagesController extends BaseController
             catch (\Exception $e){
                 \Illuminate\Support\Facades\Log::info('Search error, visitor: ' . $vi);
             }
-           
-            $ssrData .='<li class="nt_fg">';
+            
+            if($vi->engroup == 2)
+            {
+                if($vi->exchange_period == 2)
+                {
+                    $ssrData .='<li class="nt_fg vvip_bg1">';
+                }
+                else
+                {
+                    $ssrData .='<li class="nt_fg vvip_bg2">';
+                }
+            }
+            else
+            {
+                $ssrData .='<li class="nt_fg vvip_bg2">';
+            }
                 $ssrData .='<div class="n_seicon">';
                    
                         $data = \App\Services\UserService::checkRecommendedUser($visitor);
