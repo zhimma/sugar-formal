@@ -351,6 +351,8 @@ Route::group(['middleware' => ['auth', 'global', 'active', 'femaleActive', 'vipC
     Route::post('/dashboard/consignCancel', 'PagesController@consignCancel'); //new route
     Route::get('/dashboard/account_exchange_period', 'PagesController@view_exchange_period')->withoutMiddleware(['AdjustedPeriodCheck']); //new route exchange_period_modify
     Route::post('/dashboard/exchangePeriodModify', 'PagesController@exchangePeriodModify'); //new route
+    Route::post('/dashboard/first_exchange_period_modify', 'PagesController@first_exchange_period_modify')->withoutMiddleware(['AdjustedPeriodCheck']);
+    Route::get('/dashboard/first_exchange_period_modify_next_time', 'PagesController@first_exchange_period_modify_next_time')->withoutMiddleware(['AdjustedPeriodCheck']);
     Route::get('/dashboard/account_hide_online', 'PagesController@view_account_hide_online'); //new route
 
     Route::get('/dashboard/vip', 'PagesController@view_new_vip'); //new route

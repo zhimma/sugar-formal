@@ -4796,3 +4796,14 @@ margin-bottom: 50px; border-radius: 10PX 10PX 10PX 10PX;}
 .ga_i{ width: calc(100% - 15px); float: right; font-style: normal;}
 .gabb_i{ width: calc(100% - 20px); float: right; font-style: normal; line-height: 25px;}
 .ga_w100{width: 100%;}
+
+.ga_dtie{width:100%; margin: 0 auto; display: table; padding: 10px; border: #fe92a8 1px dashed;background-image: linear-gradient(to right,#fff8f9 ,#fffefe); color: #fe92a8; 
+    border-radius: 5px; margin-top: 10px;box-shadow: 0 0 10px #ffeff6;}
+
+.ewn_6{width: 600px;}
+@media (max-width:768px) {
+    .ewn_6{width: 100%; margin-bottom: 20px;}
+}
+.hdss_s{ background: #fff100; color: #f00;}
+
+.ew_font{  width:100%;font-size: 14px; line-height: 20px; color:#666; margin-bottom:8px; float: right;}

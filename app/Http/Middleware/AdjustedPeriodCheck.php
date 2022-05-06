@@ -31,7 +31,7 @@ class AdjustedPeriodCheck
             $user_provisional_variables = UserProvisionalVariables::where('user_id', $user->id)->first();
             if($user_provisional_variables)
             {
-                if($user_provisional_variables->login_time_of_adjusted_period >= 3 && $user_provisional_variables->has_adjusted_period == 0)
+                if($user_provisional_variables->login_time_of_adjusted_period >= 3 && $user_provisional_variables->has_adjusted_period == 0 && (!$request->session()->has('first_exchange_period_modify_next_time')))
                 {
                     return redirect('/dashboard/account_exchange_period');
                 }

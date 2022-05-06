@@ -81,6 +81,7 @@ use App\Models\ComeFromAdvertise;
 use App\Models\SimpleTables\short_message;
 use App\Models\LogAdvAuthApi;
 use App\Models\StayOnlineRecord;
+use App\Models\UserProvisionalVariables;
 use Illuminate\Support\Facades\Http;
 use App\Services\SearchIgnoreService;
 use \FileUploader;
@@ -1459,7 +1460,19 @@ class PagesController extends BaseController
     public function view_exchange_period(Request $request)
     {
         $user = $request->user();
-        return view('new.dashboard.account_exchange_period')->with('user', $user)->with('cur', $user);
+        $user_provisional_variables = UserProvisionalVariables::where('user_id', $user->id)->first();
+
+        if($user_provisional_variables->has_adjusted_period == 0)
+        {
+            return view('new.dashboard.first_account_exchange_period')
+                ->with('user', $user)
+                ->with('user_provisional_variables', $user_provisional_variables);
+        }
+        else
+        {
+            return view('new.dashboard.account_exchange_period')
+                ->with('user', $user);
+        }
     }
 
     public function exchangePeriodModify(Request $request){
@@ -8188,6 +8201,30 @@ class PagesController extends BaseController
         }
         
         return response()->json(['stay_online_record_id' => $stay_online_record_id]);
+    }
+
+    public function first_exchange_period_modify(Request $request)
+    {
+        $user = $request->user();
+        if( Hash::check($request->input('password'),$user->password)) 
+        {
+            $period = $request->input('exchange_period');
+            $reason = $request->input('reason');
+            UserProvisionalVariables::where('user_id',$user->id)->update(['has_adjusted_period' => 1]);
+            User::where('id', $user->id)->update(['exchange_period' => $period]);
+            DB::table('exchange_period_temp')->insert(['user_id' => $user->id, 'created_at' => \Carbon\Carbon::now()]);
+            return back()->with('message', '已完成首次設定，無需審核');
+        }
+        else
+        {
+            return back()->with('message', '密碼有誤，請重新操作');
+        }
+
+    }
+
+    public function first_exchange_period_modify_next_time(Request $request)
+    {
+        $request->session()->put('first_exchange_period_modify_next_time', true);
     }
     
 }
