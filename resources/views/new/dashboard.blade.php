@@ -1154,10 +1154,6 @@ dt span.engroup_type_title {display:inline-block;width:10%;white-space:nowrap;}
             @endif
         @endif
 
-        @php
-            $exchange_period_read = DB::table('exchange_period_temp')->where('user_id',$user->id)->count();
-        @endphp
-
       //ajax_表單送出
       $('form[name=user_data]').submit(function(e){
 
