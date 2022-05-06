@@ -2801,9 +2801,16 @@ class PagesController extends BaseController
                     }
                 $ssrData .='<a href="/dashboard/viewuser/' . $visitor->id . '">';
                 $ssrData .='<div class="nt_photo '.$ssr_var.'"><img class="lazy" src="'.$ssr_var2.'" data-original="'.$ssr_var2.'" onerror="'.$onerror.'"/></div>'; // need to check again
-                if($vi->exchange_period == 2)
+                if($vi->engroup == 2)
                 {
-                    $ssrData .='<div class="nt_bot vvip_bgco1">';
+                    if($vi->exchange_period == 2)
+                    {
+                        $ssrData .='<div class="nt_bot vvip_bgco1">';
+                    }
+                    else
+                    {
+                        $ssrData .='<div class="nt_bot vvip_bgco2">';
+                    }
                 }
                 else
                 {
