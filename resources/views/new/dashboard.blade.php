@@ -813,17 +813,6 @@ dt span.engroup_type_title {display:inline-block;width:10%;white-space:nowrap;}
       <a id="" onclick="gmBtnNoReload()" class="bl_gb"><img src="/new/images/gb_icon.png"></a>
   </div>
 
-  <div class="bl bl_tab" id="isExchangePeriod" style="display: none;">
-      <div class="bltitle">提示</div>
-      <div class="blnr bltext">
-
-              {{$user->name}} 您好，您尚未修改過基本資料-包養關係
-              提醒您前往<a href='/dashboard/account_exchange_period'>變更包養關係</a>
-      </div>
-
-      <a id="" onclick="gmBtnNoReload()" class="bl_gb"><img src="/new/images/gb_icon.png"></a>
-  </div>
-
   <div class="bl bl_tab" id="isGetBarCodeNotVIP" style="display: none;">
       <div class="bltitle">提示</div>
       <div class="blnr bltext">超商條碼或超商代碼付款，會在七天內待綠界回傳資料就<span id="vip_pass">直接給 VIP</span>
@@ -1168,12 +1157,6 @@ dt span.engroup_type_title {display:inline-block;width:10%;white-space:nowrap;}
         @php
             $exchange_period_read = DB::table('exchange_period_temp')->where('user_id',$user->id)->count();
         @endphp
-        @if($user->engroup==2 && ($exchange_period_read == 0 || $user_provisional_variables->has_adjusted_period == 0))
-            $('#isExchangePeriod').show();
-            $('#announce_bg').show();
-        @endif
-
-
 
       //ajax_表單送出
       $('form[name=user_data]').submit(function(e){
