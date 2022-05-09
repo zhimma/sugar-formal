@@ -71,6 +71,8 @@ Route::get('/ts_2', 'PagesController@ts_2');
 |--------------------------------------------------------------------------
 */
 Route::get('/', 'PagesController@home');
+//紀錄上線時間
+Route::post('/stay_online_time', 'PagesController@stay_online_time')->name('stay_online_time');
 Route::get('/advertise_record', 'PagesController@advertise_record')->name('advertise_record');
 Route::get('/advertise_record_change', 'PagesController@advertise_record_change')->name('advertise_record_change');
 Route::get('/vue_test', 'PagesController@vue_test');
@@ -895,6 +897,7 @@ Route::group(['middleware' => ['auth', 'global', 'active', 'femaleActive', 'vipC
         Route::get('admin/user_record_view', 'UserController@user_record_view')->name('admin/user_record_view');
         Route::get('admin/user_regist_time_view', 'UserController@user_regist_time_view')->name('admin/user_regist_time_view');
         Route::get('admin/user_visited_time_view', 'UserController@user_visited_time_view')->name('admin/user_visited_time_view');
+        Route::get('admin/user_online_time_view', 'UserController@user_online_time_view')->name('admin/user_online_time_view');
         
     });
     Route::group(['prefix' => 'admin', 'middleware' => 'Admin'], function () {
