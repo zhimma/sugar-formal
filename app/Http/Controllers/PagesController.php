@@ -1467,7 +1467,7 @@ class PagesController extends BaseController
         $user = $request->user();
         $user_provisional_variables = UserProvisionalVariables::where('user_id', $user->id)->first();
 
-        if($user_provisional_variables->has_adjusted_period == 0)
+        if($user_provisional_variables->has_adjusted_period_first_time == 0)
         {
             return view('new.dashboard.first_account_exchange_period')
                 ->with('user', $user)
@@ -8242,7 +8242,7 @@ class PagesController extends BaseController
         {
             $period = $request->input('exchange_period');
             $reason = $request->input('reason');
-            UserProvisionalVariables::where('user_id',$user->id)->update(['has_adjusted_period' => 1]);
+            UserProvisionalVariables::where('user_id',$user->id)->update(['has_adjusted_period_first_time' => 1]);
             User::where('id', $user->id)->update(['exchange_period' => $period]);
             DB::table('exchange_period_temp')->insert(['user_id' => $user->id, 'created_at' => \Carbon\Carbon::now()]);
             return back()->with('message', '已完成首次設定，無需審核');
