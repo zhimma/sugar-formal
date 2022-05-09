@@ -219,27 +219,56 @@
                         $exchange_period_name = DB::table('exchange_period_name')->get();
                         @endphp
                         <!--男性介面-->
-                        @foreach($exchange_period_name as $row)
                         @if($user->isVip())
-                        <span class="exchange_period_delete_{{$row->id}} shou_but">全部刪除</span>
+                            <span class="exchange_period_delete_{{$exchange_period_name[0]->id}} shou_but">全部刪除</span>
                         @endif
-                        <dt class="lebox{{$row->id}} lebox_exchange_period_{{$row->id}}" data-step="{{2+$row->id}}"
+                        <dt class="lebox1 lebox_exchange_period_{{$exchange_period_name[0]->id}}" data-step="{{2+$exchange_period_name[0]->id}}"
                             data-position="top" data-highlightClass="yd4a" data-tooltipClass="yd4"
                             data-intro="<p>
-                                        @if($row->id==1)此區會員找尋長期包養關係，如若發現短期或是直接外約+line的，請直接檢舉。
-                                        @elseif($row->id==2)此區會員可接受長期或短期的包養關係。如果有發現直接要 line的狀況，請向站方檢舉。
-                                        @elseif($row->id==3)本區會員主要希望單次約會為主。如果是找尋長期包養關係建議避開此區會員。@endif</p><em></em><em></em>">
-
-                            <span class="le_span">{{$row->name}}</span>
+                                        此區會員找尋長期包養關係，如若發現短期或是直接外約+line的，請直接檢舉。</p><em></em><em></em>">
+                            <span class="le_span">{{$exchange_period_name[0]->name}}</span>
                         </dt>
                         <dd>
-                            <div class="loading warning" id="sjlist_exchange_period_warning_{{$row->id}}"><span
+                            <div class="loading warning" id="sjlist_exchange_period_warning_{{$exchange_period_name[0]->id}}"><span
                                     class="loading_text">loading</span></div>
-                            <ul class="sjlist sjlist_exchange_period_{{$row->id}}">
+                            <ul class="sjlist sjlist_exchange_period_{{$exchange_period_name[0]->id}}">
                             </ul>
-                            <div class="page page_exchange_period_{{$row->id}} fenye" style="text-align: center;"></div>
+                            <div class="page page_exchange_period_{{$exchange_period_name[0]->id}} fenye" style="text-align: center;"></div>
                         </dd>
-                        @endforeach
+
+                        @if($user->isVip())
+                            <span class="exchange_period_delete_{{$exchange_period_name[2]->id}} shou_but">全部刪除</span>
+                        @endif
+                        <dt class="lebox2 lebox_exchange_period_{{$exchange_period_name[2]->id}}" data-step="{{2+$exchange_period_name[2]->id}}"
+                            data-position="top" data-highlightClass="yd4a" data-tooltipClass="yd4"
+                            data-intro="<p>
+                                        本區會員主要希望單次約會為主。如果是找尋長期包養關係建議避開此區會員。
+                            <span class="le_span">{{$exchange_period_name[2]->name}}</span>
+                        </dt>
+                        <dd>
+                            <div class="loading warning" id="sjlist_exchange_period_warning_{{$exchange_period_name[2]->id}}"><span
+                                    class="loading_text">loading</span></div>
+                            <ul class="sjlist sjlist_exchange_period_{{$exchange_period_name[2]->id}}">
+                            </ul>
+                            <div class="page page_exchange_period_{{$exchange_period_name[2]->id}} fenye" style="text-align: center;"></div>
+                        </dd>
+
+                        @if($user->isVip())
+                            <span class="exchange_period_delete_{{$exchange_period_name[1]->id}} shou_but">全部刪除</span>
+                        @endif
+                        <dt class="lebox3 lebox_exchange_period_{{$exchange_period_name[1]->id}}" data-step="{{2+$exchange_period_name[1]->id}}"
+                            data-position="top" data-highlightClass="yd4a" data-tooltipClass="yd4"
+                            data-intro="<p>
+                                        此區會員可接受長期或短期的包養關係。如果有發現直接要 line的狀況，請向站方檢舉。
+                            <span class="le_span">{{$exchange_period_name[1]->name}}</span>
+                        </dt>
+                        <dd>
+                            <div class="loading warning" id="sjlist_exchange_period_warning_{{$exchange_period_name[1]->id}}"><span
+                                    class="loading_text">loading</span></div>
+                            <ul class="sjlist sjlist_exchange_period_{{$exchange_period_name[1]->id}}">
+                            </ul>
+                            <div class="page page_exchange_period_{{$exchange_period_name[1]->id}} fenye" style="text-align: center;"></div>
+                        </dd>
                         <!--男性介面-->
 
                         {{-- @if(($user->isVip() && ($user->engroup==1 || $user->engroup==2)) || (!$user->isVip() &&
