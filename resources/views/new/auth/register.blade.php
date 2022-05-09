@@ -189,7 +189,7 @@ div.new_poptk{color:#6783c7;overflow-y:scroll;}
                             <h3>
                                 <input type="radio" class='period_choice' name="exchange_period" value="{{$row->id}}" {{old('exchange_period') == $row->id? 'checked' : '' }}>
                                 <span>
-                                    {{$row->name}}
+                                    <strong>{{$row->name}}</strong>
                                 </span>
                             </h3>
                             <h4>{{$row->remark}}</h4>
