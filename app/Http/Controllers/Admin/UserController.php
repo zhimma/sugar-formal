@@ -464,6 +464,7 @@ class UserController extends \App\Http\Controllers\BaseController
                 $userBanned->reason = $request->reason;
             }
             $userBanned->save();
+            BadUserCommon::addRemindMsgFromBadId($request->user_id);
             //寫入log
             DB::table('is_banned_log')->insert(['user_id' => $request->user_id, 'reason' => $userBanned->reason, 'expire_date' => $userBanned->expire_date, 'vip_pass' => $userBanned->vip_pass, 'adv_auth' => $userBanned->adv_auth, 'created_at' => Carbon::now()]);
             //新增Admin操作log
@@ -583,6 +584,7 @@ class UserController extends \App\Http\Controllers\BaseController
             $userWarned->reason = $request->reason;
         }
         $userWarned->save();
+        BadUserCommon::addRemindMsgFromBadId($request->user_id);
         //寫入log
         DB::table('is_warned_log')->insert(['user_id' => $request->user_id, 'reason' => $request->reason, 'vip_pass'=>$request->vip_pass, 'adv_auth'=>$request->adv_auth,'created_at' => Carbon::now()]);
         //新增Admin操作log
