@@ -337,7 +337,6 @@ class LoginController extends \App\Http\Controllers\BaseController
                     $user_provisional_variables = new UserProvisionalVariables();
                     $user_provisional_variables->user_id = $user->id;
                 }
-                $user_provisional_variables->login_time_of_adjusted_period = $user_provisional_variables->login_time_of_adjusted_period + 1;
                 $user_provisional_variables->save();
             }
 

@@ -33,7 +33,7 @@ header("Expires: Fri, 01 Jan 1990 00:00:00 GMT");
                         <div class="gg_mm"><span><i></i>包養關係</span><img src="/new/images/rzh06.png"></div>
                         <div class="gg_nr01">
                             <div class="ga_dtie ewn_6">
-                                {{$user->name}} 您好，自您 {{$user->created_at->toDateString()}} 註冊以來已經是第 {{$user_provisional_variables->login_time_of_adjusted_period}} 次光臨本站。本站包養關係有自行調整一次的機會，再麻煩您確認您的包養關係。
+                                {{$user->name}} 您好，自您 {{$user->created_at->toDateString()}} 註冊以來已經是第 {{$user_login_count}} 次光臨本站。本站包養關係有自行調整一次的機會，再麻煩您確認您的包養關係。
                                 <span class="hdss_s">包養關係經確認後，如果還要調整，需經站方審核，</span>故請慎重選擇”</span>
                             </div>
                             <form method="POST" id="exchange_period_modify" action="/dashboard/first_exchange_period_modify">
@@ -56,7 +56,7 @@ header("Expires: Fri, 01 Jan 1990 00:00:00 GMT");
                                     <div class="de_input01 matop10"><input name="password" id="password" type="password" class="zcinput" placeholder="請輸入您的密碼"></div>
                                 </div>
                             </form>
-                            @if($user_provisional_variables->login_time_of_adjusted_period <= 3)
+                            @if($user_login_count <= 3)
                                 <br>
                                 <div class="n_txbut">
                                     <a class="se_but1" onclick="submit()">送出</a>

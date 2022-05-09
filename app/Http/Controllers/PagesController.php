@@ -740,7 +740,6 @@ class PagesController extends BaseController
             $year=$month=$day='';
         }
 
-        $user_provisional_variables = UserProvisionalVariables::where('user_id', $user->id)->first();
         if ($user) {
 
             $pr = DB::table('pr_log')->where('user_id',$user->id)->where('active',1)->first();
@@ -776,8 +775,8 @@ class PagesController extends BaseController
                 ->with('isAdminWarnedRead',$isAdminWarnedRead)
                 ->with('no_avatar', isset($no_avatar)?$no_avatar->content:'')
                 ->with('pr', $pr)
-                ->with('user_provisional_variables', $user_provisional_variables);
                 //->with('isWarnedReason',$isWarnedReason)
+                ;
         }
     }
 
@@ -1275,7 +1274,6 @@ class PagesController extends BaseController
         $apiPauseMsg = $this->advance_auth_get_msg('api_pause');
         $userWrongMsg = $this->advance_auth_get_msg('have_wrong');
         $userForbidMsg = $this->advance_auth_get_msg('user_forbid');
-        $user_provisional_variables = UserProvisionalVariables::where('user_id', $user->id)->first();
         return view('new.dashboard.account_manage')->with('user', $user)->with('cur', $user)
                 ->with('is_pause_api',LogAdvAuthApi::isPauseApi())
                 ->with('isAdvAuthUsable',$user->isAdvanceAuth()?$user->isAdvanceAuth():UserService::isAdvAuthUsableByUser($user))
@@ -1283,7 +1281,6 @@ class PagesController extends BaseController
                 ->with('apiPauseMsg',$apiPauseMsg??null)
                 ->with('userWrongMsg',$userWrongMsg)
                 ->with('userForbidMsg',$userForbidMsg)
-                ->with('user_provisional_variables',$user_provisional_variables)
                 ;
     }
 
@@ -1466,12 +1463,13 @@ class PagesController extends BaseController
     {
         $user = $request->user();
         $user_provisional_variables = UserProvisionalVariables::where('user_id', $user->id)->first();
+        $user_login_count = LogUserLogin::where('user_id', $user->id)->count();
 
-        if($user_provisional_variables->has_adjusted_period_first_time == 0)
+        if($user_login_count <= 10 && $user_provisional_variables->has_adjusted_period_first_time == 0)
         {
             return view('new.dashboard.first_account_exchange_period')
                 ->with('user', $user)
-                ->with('user_provisional_variables', $user_provisional_variables);
+                ->with('user_login_count', $user_login_count);
         }
         else
         {

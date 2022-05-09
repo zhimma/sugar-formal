@@ -98,13 +98,10 @@
         }
 
         function checkExchangePeriod() {
-            @if($user_provisional_variables->has_adjusted_period_first_time == 1)
-                @if($user->meta_()->exchange_period_change >= 1)
+            @if($user->meta_()->exchange_period_change >= 1)
                 c5('您已申請過，無法再修改喔！');
                 return false;
-                @endif
             @endif
-
             window.location.replace("/dashboard/account_exchange_period");
             return true;
         }
