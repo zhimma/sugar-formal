@@ -230,7 +230,7 @@
                                         @elseif($row->id==2)此區會員可接受長期或短期的包養關係。如果有發現直接要 line的狀況，請向站方檢舉。
                                         @elseif($row->id==3)本區會員主要希望單次約會為主。如果是找尋長期包養關係建議避開此區會員。@endif</p><em></em><em></em>">
 
-                            {{$row->name}}
+                            <span class="le_span">{{$row->name}}</span>
                         </dt>
                         <dd>
                             <div class="loading warning" id="sjlist_exchange_period_warning_{{$row->id}}"><span
@@ -271,7 +271,7 @@
                                 VIP 會員互動。本區會員的素質最佳，投訴率低於 0.1%。</p>
                                         <em></em><em></em>">
 
-                            VIP會員
+                            <span class="le_span">VIP會員</span>
                         </dt>
                         <dd>
                             <div class="loading warning" id="sjlist_vip_warning"><span
@@ -287,7 +287,7 @@
                         <dt class="lebox2" data-position="top" data-highlightClass="yd4a" data-tooltipClass="yd4"
                             data-step="4" data-intro="未付費的會員賴帳機率高於VIP 50倍<em></em><em></em>">
 
-                            普通會員
+                            <span class="le_span">普通會員</span>
                         </dt>
                         <dd>
                             <div class="loading warning" id="sjlist_novip_warning"><span
@@ -326,7 +326,8 @@
                             data-step="6" @endif
                             data-intro="被多人或站方檢舉，互動過程請提高十二萬分警覺。<em></em><em></em>">
 
-                            警示會員</dt>
+                            <span class="le_span">警示會員</span>
+                        </dt>
                         <dd>
                             <div class="loading warning" id="sjlist_alert_warning"><span
                                     class="loading_text">loading</span></div>
@@ -337,7 +338,9 @@
                         $user->engroup==2))
                         <span class="banned_delete shou_but">全部刪除</span>
                         @endif
-                        <dt class="lebox5">已被站方封鎖會員</dt>
+                        <dt class="lebox5">
+                            <span class="le_span">已被站方封鎖會員</span>
+                        </dt>
                         <dd>
                             <div class="loading warning" id="sjlist_banned_warning"><span
                                     class="loading_text">loading</span></div>

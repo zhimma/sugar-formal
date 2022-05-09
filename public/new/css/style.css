@@ -4825,3 +4825,10 @@ margin-bottom: 50px; border-radius: 10PX 10PX 10PX 10PX;}
 .hdss_s{ background: #fff100; color: #f00;}
 
 .ew_font{  width:100%;font-size: 14px; line-height: 20px; color:#666; margin-bottom:8px; float: right;}
+
+@media (max-width:450px) {
+.le_span{text-align: left;padding-left:40px;}
+}
+@media (max-width:320px) {
+.le_span{text-align: left;padding-left:50px;}
+}
