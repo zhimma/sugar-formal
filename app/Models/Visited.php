@@ -110,6 +110,7 @@ class Visited extends Model
         {
         // $curUser->notify(new MessageEmail($member_id, $visited_id, "瀏覽你的資料"));
         }
+        return $visited->id;
     }
     
     protected static function booted()

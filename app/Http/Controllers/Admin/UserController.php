@@ -68,7 +68,9 @@ use App\Services\ImagesCompareService;
 use App\Models\SimilarImages;
 use App\Models\CheckPointUser;
 use App\Models\ComeFromAdvertise;
+use App\Models\StayOnlineRecord;
 use App\Models\UserRecord;
+use App\Models\Visited;
 
 class UserController extends \App\Http\Controllers\BaseController
 {
@@ -6059,9 +6061,29 @@ class UserController extends \App\Http\Controllers\BaseController
     
     public function user_record_view(Request $request)
     {
-        $user_record = UserRecord::leftJoin('users', 'users.id', '=', 'user_record.user_id')->orderBy('user_record.updated_at','desc')->get();
-        return view('admin.users.user_record_view')
+
+        return view('admin.users.user_record_view');
+    }
+
+    public function user_regist_time_view(Request $request)
+    {
+        $user_record = UserRecord::leftJoin('users', 'users.id', '=', 'user_record.user_id')->whereNotNull('user_record.cost_time_of_first_dataprofile')->orderBy('user_record.updated_at','desc')->paginate(200);
+        return view('admin.users.user_regist_time_view')
                 ->with('user_record', $user_record);
+    }
+
+    public function user_visited_time_view(Request $request)
+    {
+        $user_visited_record = Visited::whereNotNull('visited_time')->orderBy('id','desc')->paginate(200);
+        return view('admin.users.user_visited_time_view')
+                ->with('user_visited_record', $user_visited_record);
+    }
+
+    public function user_online_time_view(Request $request)
+    {
+        $user_online_record = StayOnlineRecord::leftJoin('users', 'users.id', '=', 'stay_online_record.user_id')->whereNotNull('stay_online_time')->orderBy('stay_online_record.id','desc')->paginate(200);
+        return view('admin.users.user_online_time_view')
+                ->with('user_online_record', $user_online_record);
     }
 
 }

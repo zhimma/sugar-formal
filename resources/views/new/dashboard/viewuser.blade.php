@@ -249,7 +249,7 @@
            .huiyoic{ height:118px;}
         }
         @if(!$user->isVip())
-        .tubiao ul li img {height:50px !important;}
+            .tubiao ul li img {height:50px !important;}
         @endif
     </style>
     <style>
@@ -1671,6 +1671,32 @@
 
 @section('javascript')
 
+<script>
+    //訪問時間紀錄
+    var hiddenProperty = 'hidden' in document ? 'hidden' :    
+        'webkitHidden' in document ? 'webkitHidden' :    
+        'mozHidden' in document ? 'mozHidden' :    
+        null;
+    if (!document[hiddenProperty])
+    {
+        visit_time_interval = setInterval("update_visited_time(5)","5000");
+    }
+    var visibilityChangeEvent = hiddenProperty.replace(/hidden/i, 'visibilitychange');
+    var onVisibilityChange = function()
+    {
+        if (!document[hiddenProperty]) 
+        {    
+            visit_time_interval = setInterval("update_visited_time(5)","5000");
+        }
+        else
+        {
+            clearInterval(visit_time_interval);
+        }
+    }
+    document.addEventListener(visibilityChangeEvent, onVisibilityChange);
+    //訪問時間紀錄
+</script>
+
 <script type="application/javascript">
     let is_banned = {{ $is_banned ? 1 : 0 }};
     let is_warned = {{ $isAdminWarned ? 1 :0 }};
@@ -2857,7 +2883,26 @@
         }
         });
 </script>
+
+<script>
+    //訪問時間紀錄
+    function update_visited_time(second){
+        view_user_visited_id = {{$visited_id}};
+        if(view_user_visited_id != 0)
+        {
+            $.ajax({
+                type:'post',
+                url:'{{route("update_visited_time")}}',
+                data:
+                {
+                    _token: '{{ csrf_token() }}',
+                    view_user_visited_id:view_user_visited_id,
+                    stay_second:second
+                }
+            });
+        }
+    }
+    //訪問時間紀錄
+</script>
+
 @stop
-
-
-

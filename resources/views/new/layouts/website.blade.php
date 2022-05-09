@@ -359,5 +359,47 @@
     <!-- livewire -->
     <livewire:scripts />
     <!-- livewire end-->
+
+    <script>
+        //上線時間紀錄
+        var hiddenProperty = 'hidden' in document ? 'hidden' :    
+            'webkitHidden' in document ? 'webkitHidden' :    
+            'mozHidden' in document ? 'mozHidden' :    
+            null;
+        if (!document[hiddenProperty])
+        {
+            online_time_interval = setInterval("update_online_time(5)","5000");
+        }
+        var visibilityChangeEvent = hiddenProperty.replace(/hidden/i, 'visibilitychange');
+        var onVisibilityChange = function()
+        {
+            if (!document[hiddenProperty]) 
+            {    
+                online_time_interval = setInterval("update_online_time(5)","5000");
+            }
+            else
+            {
+                clearInterval(online_time_interval);
+            }
+        }
+        document.addEventListener(visibilityChangeEvent, onVisibilityChange);
+        
+        function update_online_time(second){
+            $.ajax({
+                type:'post',
+                url:'{{route("stay_online_time")}}',
+                data:
+                {
+                    _token: '{{ csrf_token() }}',
+                    stay_second: second,
+                    stay_online_record_id: sessionStorage.getItem('stay_online_record_id')
+                },
+                success:function(data){
+                    sessionStorage.setItem('stay_online_record_id',data['stay_online_record_id'])
+                }
+            });
+        }
+        //上線時間紀錄
+    </script>
 </body>
 </html>
