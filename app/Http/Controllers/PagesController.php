@@ -8164,6 +8164,11 @@ class PagesController extends BaseController
         
         return response()->json(['stay_online_record_id' => $stay_online_record_id]);
     }
+
+    public function user_video_chat_verify(Request $request)
+    {
+        return view('auth.user_video_chat_verify');
+    }
     
 }
 

@@ -256,6 +256,9 @@ Route::group(['middleware' => ['auth', 'global', 'active', 'femaleActive', 'vipC
     Route::get('advance_auth_midclause', 'PagesController@advance_auth_midclause');
     /*進階驗證END*/
 
+    //視訊驗證
+    Route::get('user_video_chat_verify', 'PagesController@user_video_chat_verify');
+
     /*
     |--------------------------------------------------------------------------
     | Dashboard
