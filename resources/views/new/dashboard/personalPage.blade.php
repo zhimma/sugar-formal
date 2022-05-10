@@ -118,6 +118,14 @@
         div.sys_remind > div.tabbox_new_dt.tabbox_new_ss {background:#fff5f6;}
         div.sys_remind > div.tabbox_new_dt.tabbox_new_ss > span {color:#fe5476;}
     </style>
+    <style>
+        .wifontext{font-size: 16px;/* background: #fff100; */ background:rgba(253,79,119,0.5);  color: #fff; font-size: 20px; font-weight: bold; border-radius: 10px;padding: 10px 15px;
+            text-align: left;margin-top: 20px; }
+        .cjwt{ margin: 0 auto; display: table;margin-top: 20px; padding: 10px 15px;color: #000; margin-bottom: 15px;}
+        @media (min-width:916px){
+            .ga_d{display: none;}
+        }
+    </style>
 
     <script>
         //廣告頁面登入
@@ -551,10 +559,6 @@
     <div class="bl_tab dati" id="faq_tab" style=" display: block;">
         <div class="dati_tit">常見問題</div>
         <a id="" class="gub_cld"><img src="{{asset('new/images/cc_02.png')}}"></a>
-        <div id="faq_count_down_block">
-        <span></span>
-        秒後自動離開常見問題
-        </div>
         <div class="dati_text"><img src="{{asset('new/images/cc_03.png')}}">
         該部分共{{count($faqPopupQuestionList)}}題
 
@@ -571,9 +575,7 @@
                                 <h2>{{$question_entry->question??null}}{{$faqUserService->faq_service()->isCustomChoiceByQuEntry($question_entry)?'('.$question_entry->type.')':''}}</h2>
                                 <div>
                                 @if($faqUserService->isWrongReplyedQuByEntry($question_entry))
-                                    <p>
-                                        答錯了。答案是【{{$faqUserService->getAnsFillerByWrongReQuEntry($question_entry)}}】
-                                    </p>
+                                    <div class="wifontext">正確答案：<br>●{{$faqUserService->getAnsFillerByWrongReQuEntry($question_entry)}}</div>
                                 @else
                                     <form>
                                         @if($faqUserService->questionTypeToKey($question_entry->type)==2)
@@ -588,9 +590,13 @@
                                 @endif
                                 </div>
                             </div>
-                         
                      </div>
                     @endforeach
+
+                    <div id="faq_count_down_block" class="cjwt" style="font-size: 14px;color: #333333;text-align:center;">
+                        <span></span>
+                        秒後自動離開
+                    </div>
                 </div>         
             </div>
              @if(count($faqPopupQuestionList)>1 || (count($faqPopupQuestionList)==1 && !$faqCountDownStartTime))
@@ -1128,12 +1134,29 @@ display: flex;-webkit-box-pack: center;-ms-flex-pack: center;-webkit-justify-con
                 }
                 else if(data.wrong!=undefined) {
                     var answer = data.wrong;
-                    error_msg = '答錯了。答案是【'+answer+'】';
+                    ans_list=answer.split("，");
+                    error_msg = '<div class="wifontext">正確答案：<br>';
+                    for (let i=0; i<ans_list.length; i++) {
+                        error_msg += '●'+ans_list[i] + "<br>";
+                    }
+                    error_msg+='</div><div id="faq_count_down_block" class="cjwt" style="font-size: 14px;color: #333333;text-align:center;">\n' +
+                        '                            <span></span>\n' +
+                        '                            秒後自動離開\n' +
+                        '                        </div>';
+
                 }
                 else if(data.text_wrong!=undefined) {
                     var answer = data.text_wrong;
-                    error_msg = '答錯了。答案是【'+answer+'】';
-                }                
+                    ans_list=answer.split("，");
+                    error_msg = '<div class="wifontext">正確答案：<br>';
+                    for (let i=0; i<ans_list.length; i++) {
+                        error_msg += '●'+ans_list[i] + "<br>";
+                    }
+                    error_msg+='</div><div id="faq_count_down_block" class="cjwt" style="font-size: 14px;color: #333333;text-align:center;">\n' +
+                        '                            <span></span>\n' +
+                        '                            秒後自動離開\n' +
+                        '                        </div>';
+                }
                 
                 if(error_msg!='') {
                     showFaqReplyErrorMsg(error_msg,nowBlock);   
