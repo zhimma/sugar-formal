@@ -119,6 +119,17 @@ class CheckECpay implements ShouldQueue
                                 ->update(array('active' => 1, 'expiry' => $getOrderDate->order_expire_date));
                             \App\Models\VipLog::addToLog($user->id, 'order_id: ' . $this->vipData->order_id . '; 繳款檢查正常回復VIP：' . $paymentQueryData['PaymentType'], '自動回復', 0, 0);
                         }
+                    }elseif($this->userIsVip && $paymentQueryData['TradeStatus'] == 1){
+                        //正常訂單檢查到期日
+                        //20天內差異者不異動
+                        $getOrderDate = Order::where('order_id', $this->vipData->order_id)->first();
+                        if(isset($getOrderDate) && Carbon::parse($getOrderDate->order_expire_date) !=  Carbon::parse($this->vipData->expiry) && Carbon::parse($getOrderDate->order_expire_date)->diffInDays(Carbon::parse($this->vipData->expiry))>20) {
+                            \App\Models\Vip::select('member_id', 'active')
+                                ->where('member_id', $this->vipData->member_id)
+                                ->update(array('expiry' => $getOrderDate->order_expire_date));
+                            \App\Models\VipLog::addToLog($user->id, 'order_id: ' . $this->vipData->order_id . '; VIP訂單檢查：' . $paymentQueryData['PaymentType'], '到期日自動調整', 0, 0);
+                        }
+
                     }
                 }
             }else { //定期定額流程

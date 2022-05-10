@@ -80,6 +80,7 @@ use App\Models\CheckPointUser;
 use App\Models\ComeFromAdvertise;
 use App\Models\SimpleTables\short_message;
 use App\Models\LogAdvAuthApi;
+use App\Models\StayOnlineRecord;
 use Illuminate\Support\Facades\Http;
 use App\Services\SearchIgnoreService;
 use \FileUploader;
@@ -8166,6 +8167,27 @@ class PagesController extends BaseController
         }
         $visited_record->visited_time = ($visited_record->visited_time ?? 0) + $second;
         $visited_record->save();
+    }
+
+    public function stay_online_time(Request $request)
+    {
+        $second = $request->stay_second;
+        $stay_online_record_id = $request->stay_online_record_id??0;
+        $user = auth()->user();
+        if($user??false)
+        {
+            $stay_online_record = StayOnlineRecord::where('id', $stay_online_record_id)->where('user_id', $user->id)->first();
+            if(!$stay_online_record)
+            {
+                $stay_online_record = new StayOnlineRecord();
+                $stay_online_record->user_id = $user->id;
+            }
+            $stay_online_record->stay_online_time = ($stay_online_record->stay_online_time ?? 0) + $second;
+            $stay_online_record->save();
+            $stay_online_record_id = $stay_online_record->id;
+        }
+        
+        return response()->json(['stay_online_record_id' => $stay_online_record_id]);
     }
     
 }

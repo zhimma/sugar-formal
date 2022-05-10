@@ -57,7 +57,7 @@ class BadUserCommon
                     if($bannedIdNumOfRelateUser) $remindText.='有'.$bannedIdNumOfRelateUser.'人目前被站方封鎖';
                     if($bannedIdNumOfRelateUser && $warnedIdNumOfRelateUser) $remindText.= '，';
                     if($warnedIdNumOfRelateUser) $remindText.='有'.$warnedIdNumOfRelateUser.'人已經被警示';
-                    $remindText.='。對話記錄將移到封鎖信件夾，請您再去檢查，如果您們已經交換聯絡方式，請多加注意。';
+                    $remindText.='。對話記錄將移到封鎖信件夾，請您再去檢查，如果您們已經交換聯絡方式，請多加注意。PS: 如果封鎖信件夾沒有，可能是您已經先封鎖該會員或者已經被設定為拒收';
                     Message::post($admin_id, $relateUserId, $remindText,true,1);
                 }
             }

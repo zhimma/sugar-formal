@@ -68,6 +68,7 @@ use App\Services\ImagesCompareService;
 use App\Models\SimilarImages;
 use App\Models\CheckPointUser;
 use App\Models\ComeFromAdvertise;
+use App\Models\StayOnlineRecord;
 use App\Models\UserRecord;
 use App\Models\Visited;
 
@@ -463,6 +464,7 @@ class UserController extends \App\Http\Controllers\BaseController
                 $userBanned->reason = $request->reason;
             }
             $userBanned->save();
+            BadUserCommon::addRemindMsgFromBadId($request->user_id);
             //寫入log
             DB::table('is_banned_log')->insert(['user_id' => $request->user_id, 'reason' => $userBanned->reason, 'expire_date' => $userBanned->expire_date, 'vip_pass' => $userBanned->vip_pass, 'adv_auth' => $userBanned->adv_auth, 'created_at' => Carbon::now()]);
             //新增Admin操作log
@@ -582,6 +584,7 @@ class UserController extends \App\Http\Controllers\BaseController
             $userWarned->reason = $request->reason;
         }
         $userWarned->save();
+        BadUserCommon::addRemindMsgFromBadId($request->user_id);
         //寫入log
         DB::table('is_warned_log')->insert(['user_id' => $request->user_id, 'reason' => $request->reason, 'vip_pass'=>$request->vip_pass, 'adv_auth'=>$request->adv_auth,'created_at' => Carbon::now()]);
         //新增Admin操作log
@@ -6066,16 +6069,23 @@ class UserController extends \App\Http\Controllers\BaseController
 
     public function user_regist_time_view(Request $request)
     {
-        $user_record = UserRecord::leftJoin('users', 'users.id', '=', 'user_record.user_id')->whereNotNull('user_record.cost_time_of_first_dataprofile')->orderBy('user_record.updated_at','desc')->get();
+        $user_record = UserRecord::leftJoin('users', 'users.id', '=', 'user_record.user_id')->whereNotNull('user_record.cost_time_of_first_dataprofile')->orderBy('user_record.updated_at','desc')->paginate(200);
         return view('admin.users.user_regist_time_view')
                 ->with('user_record', $user_record);
     }
 
     public function user_visited_time_view(Request $request)
     {
-        $user_visited_record = Visited::whereNotNull('visited_time')->orderBy('id','desc')->get();
+        $user_visited_record = Visited::whereNotNull('visited_time')->orderBy('id','desc')->paginate(200);
         return view('admin.users.user_visited_time_view')
                 ->with('user_visited_record', $user_visited_record);
+    }
+
+    public function user_online_time_view(Request $request)
+    {
+        $user_online_record = StayOnlineRecord::leftJoin('users', 'users.id', '=', 'stay_online_record.user_id')->whereNotNull('stay_online_time')->orderBy('stay_online_record.id','desc')->paginate(200);
+        return view('admin.users.user_online_time_view')
+                ->with('user_online_record', $user_online_record);
     }
 
 }
