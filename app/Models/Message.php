@@ -818,7 +818,7 @@ class Message extends Model
                         // ->whereRaw('message.created_at < IFNULL(b4.created_at,"2999-12-31 23:59:59")');
                         ->whereRaw('message.created_at < IFNULL(banned_users.created_at,"2999-12-31 23:59:59")')
                         ->whereRaw('message.created_at < IFNULL(banned_users_implicitly.created_at,"2999-12-31 23:59:59")')
-                        ->groupBy('message.content');
+                        ->groupBy('message.client_id');
                         // dd($all_msg);
         //增加篩選過濾條件
         if($inbox_refuse_set)

@@ -494,7 +494,7 @@ class Message_new extends Model
         // $query->whereRaw('message.created_at < IFNULL(b3.created_at,"2999-12-31 23:59:59")');
         // $query->whereRaw('message.created_at < IFNULL(b4.created_at,"2999-12-31 23:59:59")');
         $query->where([['message.is_row_delete_1','<>',$uid],['message.is_single_delete_1', '<>' ,$uid], ['message.all_delete_count', '<>' ,$uid],['message.is_row_delete_2', '<>' ,$uid],['message.is_single_delete_2', '<>' ,$uid],['message.temp_id', '=', 0]]);
-        $query->groupBy('message.content');
+        $query->groupBy('message.client_id');
         $query->orderBy('message.created_at', 'desc');
         // if($user->id != 1049){
         //     $query->where(function($query){
@@ -716,7 +716,7 @@ class Message_new extends Model
 //            //$all_msg = $all_msg->whereIn('from_id', $allVip);
 //            $all_msg = $all_msg->join('member_vip', 'member_vip.member_id', '=', 'message.from_id');
 //        }
-        $unreadCount = 0;
+        // $unreadCount = 0;
 //        if($block->count() == 0) return $all_msg->count();
 //        //echo $block->count();
 //        //echo 'count = '. $block->count();
