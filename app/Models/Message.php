@@ -749,12 +749,17 @@ class Message extends Model
         //增加篩選過濾條件
         $inbox_refuse_set = InboxRefuseSet::where('user_id', $uid)->first();
 
-        $query = Message::leftJoin('users as u1', 'u1.id', '=', 'message.from_id')
-                        ->leftJoin('users as u2', 'u2.id', '=', 'message.to_id')
-                        ->leftJoin('banned_users as b1', 'b1.member_id', '=', 'message.from_id')
-                        ->leftJoin('banned_users as b2', 'b2.member_id', '=', 'message.to_id')
-                        ->leftJoin('banned_users_implicitly as b3', 'b3.target', '=', 'message.from_id')
-                        ->leftJoin('banned_users_implicitly as b4', 'b4.target', '=', 'message.to_id')
+        $query = Message::
+                        // leftJoin('users as u1', 'u1.id', '=', 'message.from_id')
+                        // ->leftJoin('users as u2', 'u2.id', '=', 'message.to_id')
+                        leftJoin('message_room_user_xrefs','message_room_user_xrefs.room_id','=','message.room_id')
+                        ->leftJoin('users','users.id','=','message_room_user_xrefs.user_id')
+                        ->leftJoin('banned_users','banned_users.member_id','=','message_room_user_xrefs.user_id')
+                        // ->leftJoin('banned_users as b1', 'b1.member_id', '=', 'message.from_id')
+                        // ->leftJoin('banned_users as b2', 'b2.member_id', '=', 'message.to_id')
+                        // ->leftJoin('banned_users_implicitly as b3', 'b3.target', '=', 'message.from_id')
+                        // ->leftJoin('banned_users_implicitly as b4', 'b4.target', '=', 'message.to_id')
+                        ->leftJoin('banned_users_implicitly','banned_users_implicitly.target','=','message_room_user_xrefs.user_id')
                         ->leftJoin('blocked as b5', function($join) use($uid) {
                             $join->on('b5.blocked_id', '=', 'message.from_id')
                                 ->where('b5.member_id', $uid); })
@@ -782,13 +787,21 @@ class Message extends Model
             }
         }
         
-        $all_msg = $query->whereNotNull('u1.id')
-                        ->whereNotNull('u2.id')
-                        ->whereNull('b1.member_id')
-                        ->whereNull('b3.target')
-                        ->whereNull('b5.blocked_id')
-                        ->whereNull('b6.blocked_id')
-                        ->whereNull('b7.member_id')
+        $all_msg = $query
+        ->whereNotNull('users.id')
+                // ->whereNotNull('u1.id')
+                // ->whereNotNull('u2.id')
+                // ->whereNull('blocked.blocked_id')
+                ->whereNull('b5.blocked_id')
+                ->whereNull('b6.blocked_id')
+                ->whereNull('b7.member_id')
+                        // ->whereNotNull('u1.id')
+                        // ->whereNotNull('u2.id')
+                        // ->whereNull('b1.member_id')
+                        // ->whereNull('b3.target')
+                        // ->whereNull('b5.blocked_id')
+                        // ->whereNull('b6.blocked_id')
+                        // ->whereNull('b7.member_id')
                         ->where(function($query)use($uid){
                             $query->where([
                                 ['message.to_id', $uid],
@@ -799,11 +812,14 @@ class Message extends Model
                         ->where([['message.is_row_delete_1','<>',$uid],['message.is_single_delete_1', '<>' ,$uid], ['message.all_delete_count', '<>' ,$uid],['message.is_row_delete_2', '<>' ,$uid],['message.is_single_delete_2', '<>' ,$uid],['message.temp_id', '=', 0]])
                         ->where('message.read', 'N')
                         ->where([['message.created_at','>=',self::$date]])
-                        ->whereRaw('message.created_at < IFNULL(b1.created_at,"2999-12-31 23:59:59")')
-                        ->whereRaw('message.created_at < IFNULL(b2.created_at,"2999-12-31 23:59:59")')
-                        ->whereRaw('message.created_at < IFNULL(b3.created_at,"2999-12-31 23:59:59")')
-                        ->whereRaw('message.created_at < IFNULL(b4.created_at,"2999-12-31 23:59:59")');
-
+                        // ->whereRaw('message.created_at < IFNULL(b1.created_at,"2999-12-31 23:59:59")')
+                        // ->whereRaw('message.created_at < IFNULL(b2.created_at,"2999-12-31 23:59:59")')
+                        // ->whereRaw('message.created_at < IFNULL(b3.created_at,"2999-12-31 23:59:59")')
+                        // ->whereRaw('message.created_at < IFNULL(b4.created_at,"2999-12-31 23:59:59")');
+                        ->whereRaw('message.created_at < IFNULL(banned_users.created_at,"2999-12-31 23:59:59")')
+                        ->whereRaw('message.created_at < IFNULL(banned_users_implicitly.created_at,"2999-12-31 23:59:59")')
+                        ->groupBy('message.content');
+                        // dd($all_msg);
         //增加篩選過濾條件
         if($inbox_refuse_set)
         {
@@ -831,12 +847,12 @@ class Message extends Model
             }
         }
 
-        if($user->id != 1049){
-            $all_msg = $all_msg->where(function($query){
-                $query->where(DB::raw('(u1.engroup + u2.engroup)'), '<>', '2');
-                $query->orWhere(DB::raw('(u1.engroup + u2.engroup)'), '<>', '4');
-            });
-        }
+        // if($user->id != 1049){
+        //     $all_msg = $all_msg->where(function($query){
+        //         $query->where(DB::raw('(u1.engroup + u2.engroup)'), '<>', '2');
+        //         $query->orWhere(DB::raw('(u1.engroup + u2.engroup)'), '<>', '4');
+        //     });
+        // }
 
 		$all_msg = $all_msg->get();
 
@@ -863,7 +879,7 @@ class Message extends Model
             }
         }
 
-        $unreadCount = $all_msg->count();
+        $unreadCount =$all_msg->count();
 
         return $unreadCount;
     }
