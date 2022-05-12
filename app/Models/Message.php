@@ -48,7 +48,8 @@ class Message extends Model
         'parent_client_id',
         'views_count',
         'views_count_quota',
-        'show_time_limit'
+        'show_time_limit',
+        'room_id'
     ];
 
     static $date = null;
