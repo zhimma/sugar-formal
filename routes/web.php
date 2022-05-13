@@ -169,9 +169,6 @@ Route::group(['middleware' => ['auth', 'global','SessionExpired']], function () 
     Route::post('/multiple-login', 'PagesController@multipleLogin')->name('multipleLogin');
     Route::post('/save-cfp', 'PagesController@savecfp')->name('savecfp');
     Route::post('/check-cfp', 'PagesController@checkcfp')->name('checkcfp');
-
-    Route::post('/save-visitor-id', 'PagesController@saveVisitorID')->name('saveVisitorID');
-    Route::post('/check-visitor-id', 'PagesController@checkVisitorID')->name('checkVisitorID');
 });
 Route::post('/dashboard/faq_reply', 'PagesController@checkFaqAnswer')->middleware('auth')->name('checkFaqAnswer');
 Route::get('/advance_auth_activate/token/{token}', 'PagesController@advance_auth_email_activate')->name('advance_auth_email_activate');

@@ -39,7 +39,6 @@
     "dependencies": {
         "@babel/polyfill": "^7.12.1",
         "@babel/preset-env": "^7.16.7",
-        "@fingerprintjs/fingerprintjs-pro": "^3.6.0",
         "autosize": "^5.0.1",
         "babel-loader": "^8.2.3",
         "form-data": "^4.0.0",
