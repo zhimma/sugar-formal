@@ -5,6 +5,7 @@ namespace App\Http\Controllers;
 use Illuminate\Support\Facades\Auth;
 use Illuminate\Http\Request;
 use App\Events\StartVideoChat;
+use App\Models\User;
 
 class VideoChatController extends Controller
 {
@@ -23,5 +24,11 @@ class VideoChatController extends Controller
         $data['to'] = $request->to;
         $data['type'] = 'callAccepted';
         broadcast(new StartVideoChat($data))->toOthers();
+    }
+
+    public function videoChatTest(Request $request)
+    {
+        $users = User::where('id', '15600')->get();
+        return view('video-chat', ['users' => $users]);
     }
 }

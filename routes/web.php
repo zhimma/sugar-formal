@@ -3,7 +3,6 @@
 use Illuminate\Support\Facades\Route;
 use Illuminate\Http\Request;
 use App\Http\Controllers\Api\CfpController;
-use App\Models\User;
 
 /*
 |--------------------------------------------------------------------------
@@ -261,15 +260,11 @@ Route::group(['middleware' => ['auth', 'global', 'active', 'femaleActive', 'vipC
     Route::get('user_video_chat_verify', 'PagesController@user_video_chat_verify');
 
     //視訊功能測試
-    Route::get('/video-chat', function () {
-        // fetch all users apart from the authenticated user
-        $users = User::where('id', '<>', Auth::id())->get();
-        return view('video-chat', ['users' => $users]);
-    });
+    Route::get('/video-chat-test', 'VideoChatController@videoChatTest');
 
     //視訊功能
-    Route::post('/video/call-user', 'App\Http\Controllers\VideoChatController@callUser');
-    Route::post('/video/accept-call', 'App\Http\Controllers\VideoChatController@acceptCall');
+    Route::post('/video/call-user', 'VideoChatController@callUser');
+    Route::post('/video/accept-call', 'VideoChatController@acceptCall');
 
     /*
     |--------------------------------------------------------------------------
