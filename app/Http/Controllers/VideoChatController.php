@@ -6,6 +6,7 @@ use Illuminate\Support\Facades\Auth;
 use Illuminate\Http\Request;
 use App\Events\StartVideoChat;
 use App\Models\User;
+use Carbon\Carbon;
 
 class VideoChatController extends Controller
 {
@@ -24,6 +25,18 @@ class VideoChatController extends Controller
         $data['to'] = $request->to;
         $data['type'] = 'callAccepted';
         broadcast(new StartVideoChat($data))->toOthers();
+    }
+
+    public function video_chat_verify(Request $request)
+    {
+        $users = User::where('id', '<>', Auth::id())->where('last_login', '>', Carbon::yesterday())->get();
+        return view('admin.users.video_chat_verify', ['users' => $users]);
+    }
+
+    public function user_video_chat_verify(Request $request)
+    {
+        $users = User::where('id', '<>', Auth::id())->where('last_login', '>', Carbon::yesterday())->get();
+        return view('auth.user_video_chat_verify', ['users' => $users]);
     }
 
     public function videoChatTest(Request $request)

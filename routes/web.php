@@ -257,7 +257,7 @@ Route::group(['middleware' => ['auth', 'global', 'active', 'femaleActive', 'vipC
     /*進階驗證END*/
 
     //視訊驗證頁面
-    Route::get('user_video_chat_verify', 'PagesController@user_video_chat_verify');
+    Route::get('user_video_chat_verify', 'VideoChatController@user_video_chat_verify');
 
     //視訊功能測試
     Route::get('/video-chat-test', 'VideoChatController@videoChatTest');
@@ -905,15 +905,15 @@ Route::group(['middleware' => ['auth', 'global', 'active', 'femaleActive', 'vipC
         Route::get('admin/user_regist_time_view', 'UserController@user_regist_time_view')->name('admin/user_regist_time_view');
         Route::get('admin/user_visited_time_view', 'UserController@user_visited_time_view')->name('admin/user_visited_time_view');
         Route::get('admin/user_online_time_view', 'UserController@user_online_time_view')->name('admin/user_online_time_view');
-        
-        //視訊驗證功能
-        Route::get('users/video_chat_verify', 'UserController@video_chat_verify')->name('users/video_chat_verify');
     });
     Route::group(['prefix' => 'admin', 'middleware' => 'Admin'], function () {
         //寄退信Log查詢
         Route::get('maillog', 'Api\MailController@viewMailLog')->name('maillog');
         Route::get("fakeMail", 'Api\MailController@fakeMail')->name('fakeMail');
         Route::post("sendFakeMail", 'Api\MailController@sendFakeMail')->name('sendFakeMail');
+
+        //視訊驗證功能
+        Route::get('users/video_chat_verify', 'VideoChatController@video_chat_verify')->name('users/video_chat_verify');
 
         Route::get("jsfp_pro_validation", function() {
             ini_set("max_execution_time",'0');

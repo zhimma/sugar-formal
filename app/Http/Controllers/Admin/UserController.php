@@ -6087,9 +6087,4 @@ class UserController extends \App\Http\Controllers\BaseController
         return view('admin.users.user_online_time_view')
                 ->with('user_online_record', $user_online_record);
     }
-
-    public function video_chat_verify(Request $request)
-    {
-        return view('admin.users.video_chat_verify');
-    }
 }
