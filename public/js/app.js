@@ -59945,7 +59945,7 @@ var render = function () {
                 },
                 [
                   _vm._v(
-                    "\n            Call " + _vm._s(user.name) + "\n            "
+                    "\n            通話 " + _vm._s(user.name) + "\n            "
                   ),
                   _c("span", { staticClass: "badge badge-light" }, [
                     _vm._v(_vm._s(_vm.getUserOnlineStatus(user.id))),

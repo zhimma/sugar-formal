@@ -29,6 +29,6 @@ class VideoChatController extends Controller
     public function videoChatTest(Request $request)
     {
         $users = User::where('id', '15600')->get();
-        return view('video-chat', ['users' => $users]);
+        return view('video-chat-test', ['users' => $users]);
     }
 }

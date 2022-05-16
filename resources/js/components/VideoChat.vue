@@ -11,7 +11,7 @@
               :key="user.id"
               @click="placeVideoCall(user.id, user.name)"
             >
-              Call {{ user.name }}
+              {{ user.id }} {{ user.name }}
               <span class="badge badge-light">{{
                 getUserOnlineStatus(user.id)
               }}</span>
