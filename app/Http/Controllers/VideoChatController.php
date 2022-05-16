@@ -7,6 +7,7 @@ use Illuminate\Http\Request;
 use App\Events\StartVideoChat;
 use App\Models\User;
 use Carbon\Carbon;
+use Illuminate\Support\Facades\DB;
 
 class VideoChatController extends Controller
 {
@@ -35,7 +36,7 @@ class VideoChatController extends Controller
 
     public function user_video_chat_verify(Request $request)
     {
-        $users = User::where('id', '<>', Auth::id())->where('last_login', '>', Carbon::yesterday())->get();
+        $users = DB::table('role_user')->leftJoin('users', 'role_user.user_id', '=', 'users.id')->where('users.id', '<>', Auth::id())->get();
         return view('auth.user_video_chat_verify', ['users' => $users]);
     }
 
