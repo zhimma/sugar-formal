@@ -5697,10 +5697,10 @@ function _defineProperty(obj, key, value) { if (key in obj) { Object.definePrope
       });
 
       if (onlineUserIndex < 0) {
-        return "Offline";
+        return false;
       }
 
-      return "Online";
+      return true;
     },
     declineCall: function declineCall() {
       this.videoCallParams.receivingCall = false;
@@ -5749,6 +5749,13 @@ function _defineProperty(obj, key, value) { if (key in obj) { Object.definePrope
       setTimeout(function () {
         _this6.callPlaced = false;
       }, 3000);
+    },
+    generateBtnClass: function generateBtnClass(onlinestatus) {
+      if (onlinestatus) {
+        return 'btn-success';
+      } else {
+        return 'btn-secondary disabled';
+      }
     }
   }
 });
@@ -59935,21 +59942,32 @@ var render = function () {
                 "button",
                 {
                   key: user.id,
-                  staticClass: "btn btn-primary mr-2",
+                  staticClass: "btn mr-2",
+                  class: _vm.generateBtnClass(_vm.getUserOnlineStatus(user.id)),
                   attrs: { type: "button" },
                   on: {
                     click: function ($event) {
-                      return _vm.placeVideoCall(user.id, user.name)
+                      _vm.getUserOnlineStatus(user.id)
+                        ? _vm.placeVideoCall(user.id, user.name)
+                        : null
                     },
                   },
                 },
                 [
                   _vm._v(
-                    "\n            通話 " + _vm._s(user.name) + "\n            "
+                    "\n            " +
+                      _vm._s(user.id) +
+                      " " +
+                      _vm._s(user.name) +
+                      "\n            "
                   ),
-                  _c("span", { staticClass: "badge badge-light" }, [
-                    _vm._v(_vm._s(_vm.getUserOnlineStatus(user.id))),
-                  ]),
+                  _vm.getUserOnlineStatus(user.id)
+                    ? _c("span", { staticClass: "badge badge-light" }, [
+                        _vm._v("上線中"),
+                      ])
+                    : _c("span", { staticClass: "badge badge-light" }, [
+                        _vm._v("下線"),
+                      ]),
                 ]
               )
             }),
@@ -59998,7 +60016,7 @@ var render = function () {
                                   ]),
                                 ]),
                                 _vm._v(" "),
-                                _c("p", [_vm._v("calling...")]),
+                                _c("p", [_vm._v("撥打中...")]),
                               ]
                             ),
                           ]
@@ -60017,7 +60035,7 @@ var render = function () {
                   [
                     _vm._v(
                       "\n            " +
-                        _vm._s(_vm.mutedAudio ? "Unmute" : "Mute") +
+                        _vm._s(_vm.mutedAudio ? "關閉靜音" : "開啟靜音") +
                         "\n          "
                     ),
                   ]
@@ -60033,7 +60051,7 @@ var render = function () {
                   [
                     _vm._v(
                       "\n            " +
-                        _vm._s(_vm.mutedVideo ? "ShowVideo" : "HideVideo") +
+                        _vm._s(_vm.mutedVideo ? "顯示畫面" : "隱藏畫面") +
                         "\n          "
                     ),
                   ]
@@ -60046,7 +60064,7 @@ var render = function () {
                     attrs: { type: "button" },
                     on: { click: _vm.endCall },
                   },
-                  [_vm._v("\n            EndCall\n          ")]
+                  [_vm._v("\n            結束視訊通話\n          ")]
                 ),
               ]),
             ])
@@ -60057,8 +60075,10 @@ var render = function () {
         ? _c("div", { staticClass: "row" }, [
             _c("div", { staticClass: "col" }, [
               _c("p", [
-                _vm._v("\n          Incoming Call From "),
-                _c("strong", [_vm._v(_vm._s(_vm.callerDetails.name))]),
+                _vm._v("\n          來自 "),
+                _c("strong", [
+                  _vm._v(_vm._s(_vm.callerDetails.name) + " 的通話要求"),
+                ]),
               ]),
               _vm._v(" "),
               _c(
@@ -60072,7 +60092,7 @@ var render = function () {
                       attrs: { type: "button", "data-dismiss": "modal" },
                       on: { click: _vm.declineCall },
                     },
-                    [_vm._v("\n            Decline\n          ")]
+                    [_vm._v("\n            拒絕\n          ")]
                   ),
                   _vm._v(" "),
                   _c(
@@ -60082,7 +60102,7 @@ var render = function () {
                       attrs: { type: "button" },
                       on: { click: _vm.acceptCall },
                     },
-                    [_vm._v("\n            Accept\n          ")]
+                    [_vm._v("\n            接受\n          ")]
                   ),
                 ]
               ),

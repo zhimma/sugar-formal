@@ -6,15 +6,15 @@
           <div class="btn-group" role="group">
             <button
               type="button"
-              class="btn btn-primary mr-2"
+              class="btn mr-2"
               v-for="user in allusers"
               :key="user.id"
-              @click="placeVideoCall(user.id, user.name)"
+              :class="generateBtnClass(getUserOnlineStatus(user.id))"
+              @click="getUserOnlineStatus(user.id) ? placeVideoCall(user.id, user.name) : null"
             >
               {{ user.id }} {{ user.name }}
-              <span class="badge badge-light">{{
-                getUserOnlineStatus(user.id)
-              }}</span>
+              <span v-if=getUserOnlineStatus(user.id) class="badge badge-light">上線中</span>
+              <span v-else class="badge badge-light">下線</span>
             </button>
           </div>
         </div>
@@ -46,23 +46,23 @@
                 <p class="q-pt-md">
                   <strong>{{ callPartner }}</strong>
                 </p>
-                <p>calling...</p>
+                <p>撥打中...</p>
               </div>
             </div>
           </div>
           <div class="action-btns">
             <button type="button" class="btn btn-info" @click="toggleMuteAudio">
-              {{ mutedAudio ? "Unmute" : "Mute" }}
+              {{ mutedAudio ? "關閉靜音" : "開啟靜音" }}
             </button>
             <button
               type="button"
               class="btn btn-primary mx-4"
               @click="toggleMuteVideo"
             >
-              {{ mutedVideo ? "ShowVideo" : "HideVideo" }}
+              {{ mutedVideo ? "顯示畫面" : "隱藏畫面" }}
             </button>
             <button type="button" class="btn btn-danger" @click="endCall">
-              EndCall
+              結束視訊通話
             </button>
           </div>
         </div>
@@ -73,7 +73,7 @@
       <div class="row" v-if="incomingCallDialog">
         <div class="col">
           <p>
-            Incoming Call From <strong>{{ callerDetails.name }}</strong>
+            來自 <strong>{{ callerDetails.name }} 的通話要求</strong>
           </p>
           <div class="btn-group" role="group">
             <button
@@ -82,14 +82,14 @@
               data-dismiss="modal"
               @click="declineCall"
             >
-              Decline
+              拒絕
             </button>
             <button
               type="button"
               class="btn btn-success ml-5"
               @click="acceptCall"
             >
-              Accept
+              接受
             </button>
           </div>
         </div>
@@ -347,9 +347,9 @@ export default {
         (data) => data.id === id
       );
       if (onlineUserIndex < 0) {
-        return "Offline";
+        return false;
       }
-      return "Online";
+      return true;
     },
     declineCall() {
       this.videoCallParams.receivingCall = false;
@@ -400,6 +400,14 @@ export default {
       setTimeout(() => {
         this.callPlaced = false;
       }, 3000);
+    },
+    generateBtnClass(onlinestatus) {
+      if(onlinestatus){
+        return 'btn-success'
+      }
+      else{
+        return 'btn-secondary disabled'
+      }
     },
   },
 };
