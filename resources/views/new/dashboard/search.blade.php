@@ -569,6 +569,10 @@ header("Expires: Fri, 01 Jan 1990 00:00:00 GMT");
                     </form>
 
                     <?php
+                        
+                    ?>
+@php
+
                         try{
                             $district = "";
                             $county = "";
@@ -610,10 +614,14 @@ header("Expires: Fri, 01 Jan 1990 00:00:00 GMT");
                         catch (\Exception $e){
                             \Illuminate\Support\Facades\Log::info('Search error, $user: ' . $user);
                         }
-                    ?>
 
-                    @if (isset($_POST['_token']) || isset($_GET['_token']) || count(session()->get('search_page_key',[])))
-                        <?php
+
+
+
+
+
+                    if (isset($_POST['_token']) || isset($_GET['_token']) || count(session()->get('search_page_key',[]))){
+                        
                         if (isset($_POST['district'])){ $district = $_POST['district'];}elseif(isset($_GET['district'])){$district = $_GET['district'];}elseif(!empty(session()->get('search_page_key.district'))){$district = session()->get('search_page_key.district');}
                         if (isset($_POST['county'])){ $county = $_POST['county'];}elseif(isset($_GET['county'])){$county = $_GET['county'];}elseif(!empty(session()->get('search_page_key.county'))){$county = session()->get('search_page_key.county');}
                         if (isset($_POST['cup'])){ $cup = $_POST['cup'];}elseif(isset($_GET['cup'])){$cup = $_GET['cup'];}elseif(!empty(session()->get('search_page_key.cup'))){$cup = session()->get('search_page_key.cup');}
@@ -647,10 +655,15 @@ header("Expires: Fri, 01 Jan 1990 00:00:00 GMT");
                         $county3 = request()->county3??session()->get('search_page_key.county3');
                         $district2 = request()->district2??session()->get('search_page_key.district2');
                         $district3 = request()->district3??session()->get('search_page_key.district3');
-                        ?>
-                    @endif
+                        
+                    }
 
-                    <?php $icc = 1;
+
+
+
+
+
+                    $icc = 1;
                     $userIsVip = $user->isVIP();
                     $userIsAdvanceAuth = $_POST["isAdvanceAuth"] ?? 
                                          $_GET["isAdvanceAuth"]  ?? 
@@ -659,7 +672,22 @@ header("Expires: Fri, 01 Jan 1990 00:00:00 GMT");
                     // vi vendor/laravel/framework/src/Illuminate/Database/Query/Builder.php
                     // addWhereExistsQuery() remove $operator
                     // https://learnku.com/articles/28283?order_by=vote_count&
-                    ?>
+
+
+
+
+                   
+                    if(isset($_GET['page'])){
+                        $page = $_GET['page'];
+                        $page_pre = $page-1>0 ?? 1;
+                        $page_next = $page+1;
+                    }else{
+                        $page = 1;
+                        $page_pre = 1;
+                        $page_next = 2;
+                    }
+@endphp
+                    
 
                     <div class="se_bgdy">
                         <!--<div class="n_searchtit"><div class="n_seline"><span>搜索结果</span></div></div>-->
@@ -677,18 +705,7 @@ header("Expires: Fri, 01 Jan 1990 00:00:00 GMT");
                             {!! $vis->appends(request()->input())->links('pagination::sg-pages2') !!}
                         </div> --}}
 
-                        <?php
-                        if(isset($_GET['page'])){
-                            $page = $_GET['page'];
-                            $page_pre = ($page-1 <=0)? 1: $page-1;
-                            $page_next = $page+1;
-                        }else{
-                            $page = 1;
-                            $page_pre = 1;
-                            $page_next = 2;
-                        }
 
-                        ?>
                         <div style="text-align: center;"><div class="fenye"><span v-if="isPrePageShow"><a :href="'/dashboard/search?page=' + page_pre">上一頁</a></span><span class="new_page" v-if="isNowPageShow">第 <?php echo $page;?> 頁</span> <span v-if="isNextPageShow"><a :href="'/dashboard/search?page=' + page_next">下一頁</a></span></div></div>
 
                     </div>
@@ -881,6 +898,7 @@ header("Expires: Fri, 01 Jan 1990 00:00:00 GMT");
         });
     </script>
     <script>
+    
     const vm = new Vue({
             el: '#app',
             data () {
