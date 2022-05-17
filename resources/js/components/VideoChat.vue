@@ -3,7 +3,7 @@
     <div class="container">
       <div class="row">
         <div class="col">
-          <div class="btn-group" role="group">
+          <div class="btn-group" role="group" style="flex-wrap:wrap">
             <button
               type="button"
               class="btn mr-2"

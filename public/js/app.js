@@ -59936,7 +59936,11 @@ var render = function () {
         _c("div", { staticClass: "col" }, [
           _c(
             "div",
-            { staticClass: "btn-group", attrs: { role: "group" } },
+            {
+              staticClass: "btn-group",
+              staticStyle: { "flex-wrap": "wrap" },
+              attrs: { role: "group" },
+            },
             _vm._l(_vm.allusers, function (user) {
               return _c(
                 "button",
