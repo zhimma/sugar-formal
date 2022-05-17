@@ -5,9 +5,149 @@ header("Last-Modified: " . gmdate("D, d M Y H:i:s") . " GMT");
 header("Expires: Fri, 01 Jan 1990 00:00:00 GMT");
 ?>
 @extends('new.layouts.website')
-@section('app-content')
-    
 
+@section('style')
+<style>
+
+.n_dlbut{width:150px;height: 40px;background: #fe92a8;/*border-radius:10px;*/color: #ffffff;text-align: center;line-height: 40px;display: table;
+    font-size:16px; float:left; cursor: pointer; box-shadow: 0 0 20px #ffb6c5;}
+.n_dlbut:hover{color:#ffffff;box-shadow:inset 0px 13px 10px -10px #f83964,inset 0px -10px 10px -20px #f83964;}
+
+.n_zcbut{width: 150px;height: 40px;background: #ffffff; border:#e44e71 1px solid;/*border-radius: 10px;*/color: #e44e71;text-align: center;line-height: 40px;
+    display: table; float:right;font-size:16px;box-shadow: 0 0 20px #ffb6c5;}
+.n_zcbut:hover{color:#ffffff;box-shadow:inset 0px 15px 10px -10px #f83964,inset 0px -10px 10px -20px #f83964;
+    background:#fe92a8; border:#fe92a8 1px solid;}
+
+
+
+
+
+
+    
+    .pagination > li > a:focus,
+    .pagination > li > a:hover,
+    .pagination > li > span:focus,
+    .pagination > li > span:hover{
+        z-index: 3;
+        /* color: #23527c !important; */
+        background-color: #FF8888 !important;
+        /* border-color: #ddd !important; */
+        /* border-color:#ee5472 !important; */
+        /* color:white !important; */
+    }
+        /* 
+        .pagination > .active > a,
+        .pagination > .active > span,
+        .pagination > .active > a:hover,
+        .pagination > .active > span:hover,
+        .pagination > .active > a:focus,
+        .pagination > .active > span:focus {
+            z-index: 3;
+        color: #23527c !important;
+        background-color: #f5c2c0 !important;
+        border-color:#ee5472 !important;
+        color:white !important;
+        } */
+        .hoverTip{
+            display: inline-flex;
+            width: auto;
+            /*position: absolute;*/
+        }
+        .popover{
+            position: fixed;
+        }    
+        @media (max-width: 768px) {
+            .popover{
+                max-width:60% !important;
+            }
+        }
+        .onineStatus{}
+        .onlineStatusNonVipSearch{
+            width: 15px;
+            height: 15px;
+            background: linear-gradient(to TOP,#ff9225,#ffb86e);
+            border-radius: 100px;
+            margin-top: 6px;
+            box-shadow: 2px 2px 0px #ff721d;
+            border-radius: 100px;
+            color: #fff;
+            float: left;
+            display: block;
+            margin-left: 5px;
+        }
+
+        .onlineStatusNonVipSearch img{
+            height: 7px;
+            margin: 0 auto;
+            display: table;
+            margin-top: 4px;
+        }
+
+        .onlineStatusSearch{
+            margin-left: 10px;
+            position: relative;
+            width: 10px;
+            height: 10px;
+            background: linear-gradient(to TOP,#8dd882,#abd4a5);
+            margin-top: 8px;
+            box-shadow: 2px 2px 2px #6aa763;
+            border-radius: 100px;
+            color: #fff;
+            float: left;
+            display: block;
+        }
+        
+        .n_search .n_input .twzipcode {margin-bottom:10px;} 
+        .n_search .n_input .twzipcode:last-child {margin-bottom:0;} 
+
+        .n_input>.btn_more{background:linear-gradient(to bottom,#ffedf1,#ffc5d3); height:36px; line-height:36px; border-radius:6px; box-shadow:0 5px 5px #fadce3; width:100%;float:left;
+        padding:0 10px;color:#ee5472;font-size:15px;margin:10px 0;cursor:pointer;}
+        .n_input>.btn_more>.right{width:23px; height:23px; margin:5px 0; background:#fff;border-radius:15px;box-shadow:0 5px 5px #f6a3b6;display: flex; align-items: center; justify-content: center;}
+        .n_input>.btn_more>.right>img{transform:rotate(-90deg); width:8px;-ms-transform:rotate(-90deg); -moz-transform:rotate(-90deg); -webkit-transform:rotate(-90deg); -o-transform:rotate(-90deg); }
+        .n_input .mb0{margin-bottom:0;}
+        .n_input>.btn_more.up>.right>img{transform:rotate(90deg);-ms-transform:rotate(90deg); -moz-transform:rotate(90deg); -webkit-transform:rotate(90deg); -o-transform:rotate(90deg);}
+
+
+
+        .blur_img {
+            filter: blur(3px);
+            -webkit-filter: blur(3px);
+        }
+        .select_xx07{
+            /* width: 425px; */
+            border-radius: 4px;
+            height: 40px;
+            color: #555;
+            background: #ffffff;
+            font-size: 15px;
+            width:90%;
+        }
+
+        .select_xx01 {
+            margin-right: 0%;
+        }
+
+        .select_xx08{
+        	width: 100%;
+		    height: 40px;
+		    border-radius: 4px;
+		    /*padding: 0 6px;*/
+		    color: #555;
+		    background: #ffffff;
+		    font-size: 15px;
+        }
+        select{
+            -webkit-appearance: none;
+            -moz-appearance: none;
+            appearance: none;
+            padding-left: 10px;
+
+        }
+    </style>
+
+@endsection
+@section('app-content')
+@php $user_engroup = $user->engroup; @endphp
     <div id="app">
         <div class="container matop70">
             <div class="row">
@@ -59,9 +199,9 @@ header("Expires: Fri, 01 Jan 1990 00:00:00 GMT");
                                             <img src="/new/images/fengs_icon.png">
                                         </div>
                                     </div>
-                                @endif
+                                {{-- @endif
 
-                                @if ($user->isVIP())
+                                @if ($user->isVIP()) --}}
                                     
                                     <dt>
                                         <div class="n_se left">
@@ -93,7 +233,7 @@ header("Expires: Fri, 01 Jan 1990 00:00:00 GMT");
                                         
                                     </dt>
 
-                                    @if($user->engroup==1)
+                                    @if($user_engroup==1)
                                         <dt>
                                             <span>包養關係</span>
                                             <span class="line20">
@@ -160,7 +300,7 @@ header("Expires: Fri, 01 Jan 1990 00:00:00 GMT");
                                                     @endfor
                                                 </select>
                                             </div>
-                                            @if ($user->engroup == 1)
+                                            @if ($user_engroup == 1)
                                                 <div class="n_se right">
                                                     <span>現況</span>
                                                     <select name="situation" class="select_xx01">
@@ -180,7 +320,7 @@ header("Expires: Fri, 01 Jan 1990 00:00:00 GMT");
                                                         <option value="已婚" @if( !empty( $_POST["marriage"] ) && $_POST["marriage"] == "已婚" ) selected @elseif(!empty( $_GET["marriage"] ) && $_GET["marriage"] == "已婚") selected @elseif(!empty( session()->get('search_page_key.marriage') ) && session()->get('search_page_key.marriage') == "已婚") selected @endif>已婚</option>
                                                         <option value="分居" @if( !empty( $_POST["marriage"] ) && $_POST["marriage"] == "分居" ) selected @elseif(!empty( $_GET["marriage"] ) && $_GET["marriage"] == "分居") selected @elseif(!empty( session()->get('search_page_key.marriage') ) && session()->get('search_page_key.marriage') == "分居") selected @endif>分居</option>
                                                         <option value="單身" @if( !empty( $_POST["marriage"] ) && $_POST["marriage"] == "單身" ) selected @elseif(!empty( $_GET["marriage"] ) && $_GET["marriage"] == "單身") selected @elseif(!empty( session()->get('search_page_key.marriage') ) && session()->get('search_page_key.marriage') == "單身") selected @endif>單身</option>
-                                                        @if( $user->engroup == 2)
+                                                        @if( $user_engroup == 2)
                                                             <option value="有女友" @if( !empty( $_POST["marriage"] ) && $_POST["marriage"] == "有女友" ) selected @elseif(!empty( $_GET["marriage"] ) && $_GET["marriage"] == "有女友") selected @elseif(!empty( session()->get('search_page_key.marriage') ) && session()->get('search_page_key.marriage') == "有女友") selected @endif>有女友</option>
                                                         @else
                                                             <option value="有男友" @if( !empty( $_POST["marriage"] ) && $_POST["marriage"] == "有男友" ) selected @elseif(!empty( $_GET["marriage"] ) && $_GET["marriage"] == "有男友") selected @elseif(!empty( session()->get('search_page_key.marriage') ) && session()->get('search_page_key.marriage') == "有男友") selected @endif>有男友</option>
@@ -226,7 +366,7 @@ header("Expires: Fri, 01 Jan 1990 00:00:00 GMT");
                                             {{--@endif--}}
                                         </dt>
 
-                                        @if ($user->engroup == 2)
+                                        @if ($user_engroup == 2)
                                             <dt>
                                                         {{--<div class="n_se left">--}}
                                                         {{--<span>抽菸</span>--}}
@@ -266,7 +406,7 @@ header("Expires: Fri, 01 Jan 1990 00:00:00 GMT");
                                                         <option value="已婚" @if( !empty( $_POST["marriage"] ) && $_POST["marriage"] == "已婚" ) selected @elseif(!empty( $_GET["marriage"] ) && $_GET["marriage"] == "已婚") selected @elseif(!empty( session()->get('search_page_key.marriage') ) && session()->get('search_page_key.marriage') == "已婚") selected @endif>已婚</option>
                                                         <option value="分居" @if( !empty( $_POST["marriage"] ) && $_POST["marriage"] == "分居" ) selected @elseif(!empty( $_GET["marriage"] ) && $_GET["marriage"] == "分居") selected @elseif(!empty( session()->get('search_page_key.marriage') ) && session()->get('search_page_key.marriage') == "分居") selected @endif>分居</option>
                                                         <option value="單身" @if( !empty( $_POST["marriage"] ) && $_POST["marriage"] == "單身" ) selected @elseif(!empty( $_GET["marriage"] ) && $_GET["marriage"] == "單身") selected @elseif(!empty( session()->get('search_page_key.marriage') ) && session()->get('search_page_key.marriage') == "單身") selected @endif>單身</option>
-                                                        @if( $user->engroup == 2)
+                                                        @if( $user_engroup == 2)
                                                             <option value="有女友" @if( !empty( $_POST["marriage"] ) && $_POST["marriage"] == "有女友" ) selected @elseif(!empty( $_GET["marriage"] ) && $_GET["marriage"] == "有女友") selected @elseif(!empty( session()->get('search_page_key.marriage') ) && session()->get('search_page_key.marriage') == "有女友") selected @endif>有女友</option>
                                                         @else
                                                             <option value="有男友" @if( !empty( $_POST["marriage"] ) && $_POST["marriage"] == "有男友" ) selected @elseif(!empty( $_GET["marriage"] ) && $_GET["marriage"] == "有男友") selected @elseif(!empty( session()->get('search_page_key.marriage') ) && session()->get('search_page_key.marriage') == "有男友") selected @endif>有男友</option>
@@ -340,7 +480,7 @@ header("Expires: Fri, 01 Jan 1990 00:00:00 GMT");
                                             </span>
                                         </dt>
 
-                                        @if ($user->engroup == 1)
+                                        @if ($user_engroup == 1)
                                             <dt class="matopj15">
                                                 <span>CUP<i class="ssrgf">(僅顯示有填寫者)</i></span>
                                                 <span class="line20">
@@ -365,7 +505,7 @@ header("Expires: Fri, 01 Jan 1990 00:00:00 GMT");
                                         <dt class="b_nsead matopjf10">
                                             <div class="b_nsead_tit"><i>身份選擇</i></div>
                                             <div class="b_nsba">
-                                                @if($user->engroup==2)
+                                                @if($user_engroup==2)
                                                 <li>
                                                     <span>是否為VIP</span>
                                                     <font>
@@ -394,7 +534,7 @@ header("Expires: Fri, 01 Jan 1990 00:00:00 GMT");
                                                         {{--<label class="ba_tx"><input type="radio" name="isWarned" value="1" id="isWarned1" @if( !empty( $_POST["isWarned"] ) && $_POST["isWarned"] == 1 ) checked @elseif(!empty( $_GET["isWarned"] ) && $_GET["isWarned"]== 1) checked @endif><i>否</i></label>--}}
                                                     </font>
                                                 </li>
-                                                @if($user->engroup==1)
+                                                @if($user_engroup==1)
                                                 <li>
                                                     <span>通過進階驗證</span>
                                                     <font>
@@ -402,7 +542,7 @@ header("Expires: Fri, 01 Jan 1990 00:00:00 GMT");
                                                     </font>
                                                 </li>
                                                 @endif
-                                                @if($user->engroup==2)
+                                                @if($user_engroup==2)
                                                 <li>
                                                     <span>通過手機驗證</span>
                                                     <font>
@@ -423,17 +563,7 @@ header("Expires: Fri, 01 Jan 1990 00:00:00 GMT");
                                 <button type="reset" class="se_but2 se_but2_hover" id="search_reset">取消</button>
                             </div>
 
-                            <style>
-                                .n_dlbut{width:150px;height: 40px;background: #fe92a8;/*border-radius:10px;*/color: #ffffff;text-align: center;line-height: 40px;display: table;
-                                    font-size:16px; float:left; cursor: pointer; box-shadow: 0 0 20px #ffb6c5;}
-                                .n_dlbut:hover{color:#ffffff;box-shadow:inset 0px 13px 10px -10px #f83964,inset 0px -10px 10px -20px #f83964;}
 
-                                .n_zcbut{width: 150px;height: 40px;background: #ffffff; border:#e44e71 1px solid;/*border-radius: 10px;*/color: #e44e71;text-align: center;line-height: 40px;
-                                    display: table; float:right;font-size:16px;box-shadow: 0 0 20px #ffb6c5;}
-                                .n_zcbut:hover{color:#ffffff;box-shadow:inset 0px 15px 10px -10px #f83964,inset 0px -10px 10px -20px #f83964;
-                                    background:#fe92a8; border:#fe92a8 1px solid;}
-
-                            </style>
 
                         </div>
                     </form>
@@ -570,130 +700,6 @@ header("Expires: Fri, 01 Jan 1990 00:00:00 GMT");
     </div>
 @stop
 
-@section('style')
-<style>
-    .pagination > li > a:focus,
-    .pagination > li > a:hover,
-    .pagination > li > span:focus,
-    .pagination > li > span:hover{
-        z-index: 3;
-        /* color: #23527c !important; */
-        background-color: #FF8888 !important;
-        /* border-color: #ddd !important; */
-        /* border-color:#ee5472 !important; */
-        /* color:white !important; */
-    }
-        /* 
-        .pagination > .active > a,
-        .pagination > .active > span,
-        .pagination > .active > a:hover,
-        .pagination > .active > span:hover,
-        .pagination > .active > a:focus,
-        .pagination > .active > span:focus {
-            z-index: 3;
-        color: #23527c !important;
-        background-color: #f5c2c0 !important;
-        border-color:#ee5472 !important;
-        color:white !important;
-        } */
-        .hoverTip{
-            display: inline-flex;
-            width: auto;
-            /*position: absolute;*/
-        }
-        .popover{
-            position: fixed;
-        }    
-        @media (max-width: 768px) {
-            .popover{
-                max-width:60% !important;
-            }
-        }
-        .onineStatus{}
-        .onlineStatusNonVipSearch{
-            width: 15px;
-            height: 15px;
-            background: linear-gradient(to TOP,#ff9225,#ffb86e);
-            border-radius: 100px;
-            margin-top: 6px;
-            box-shadow: 2px 2px 0px #ff721d;
-            border-radius: 100px;
-            color: #fff;
-            float: left;
-            display: block;
-            margin-left: 5px;
-        }
-
-        .onlineStatusNonVipSearch img{
-            height: 7px;
-            margin: 0 auto;
-            display: table;
-            margin-top: 4px;
-        }
-
-        .onlineStatusSearch{
-            margin-left: 10px;
-            position: relative;
-            width: 10px;
-            height: 10px;
-            background: linear-gradient(to TOP,#8dd882,#abd4a5);
-            margin-top: 8px;
-            box-shadow: 2px 2px 2px #6aa763;
-            border-radius: 100px;
-            color: #fff;
-            float: left;
-            display: block;
-        }
-        
-        .n_search .n_input .twzipcode {margin-bottom:10px;} 
-        .n_search .n_input .twzipcode:last-child {margin-bottom:0;} 
-
-        .n_input>.btn_more{background:linear-gradient(to bottom,#ffedf1,#ffc5d3); height:36px; line-height:36px; border-radius:6px; box-shadow:0 5px 5px #fadce3; width:100%;float:left;
-        padding:0 10px;color:#ee5472;font-size:15px;margin:10px 0;cursor:pointer;}
-        .n_input>.btn_more>.right{width:23px; height:23px; margin:5px 0; background:#fff;border-radius:15px;box-shadow:0 5px 5px #f6a3b6;display: flex; align-items: center; justify-content: center;}
-        .n_input>.btn_more>.right>img{transform:rotate(-90deg); width:8px;-ms-transform:rotate(-90deg); -moz-transform:rotate(-90deg); -webkit-transform:rotate(-90deg); -o-transform:rotate(-90deg); }
-        .n_input .mb0{margin-bottom:0;}
-        .n_input>.btn_more.up>.right>img{transform:rotate(90deg);-ms-transform:rotate(90deg); -moz-transform:rotate(90deg); -webkit-transform:rotate(90deg); -o-transform:rotate(90deg);}
-
-
-
-        .blur_img {
-            filter: blur(3px);
-            -webkit-filter: blur(3px);
-        }
-        .select_xx07{
-            /* width: 425px; */
-            border-radius: 4px;
-            height: 40px;
-            color: #555;
-            background: #ffffff;
-            font-size: 15px;
-            width:90%;
-        }
-
-        .select_xx01 {
-            margin-right: 0%;
-        }
-
-        .select_xx08{
-        	width: 100%;
-		    height: 40px;
-		    border-radius: 4px;
-		    /*padding: 0 6px;*/
-		    color: #555;
-		    background: #ffffff;
-		    font-size: 15px;
-        }
-        select{
-            -webkit-appearance: none;
-            -moz-appearance: none;
-            appearance: none;
-            padding-left: 10px;
-
-        }
-
-    </style>
-@stop
 
 
 @section('javascript')
@@ -1006,7 +1012,7 @@ header("Expires: Fri, 01 Jan 1990 00:00:00 GMT");
         }
         });
     </script>
-@stop
+@endsection
 
 
 
