@@ -3,6 +3,7 @@
     <head>
     </head>
     <body style="padding: 15px;">
+    <div class="container matop70">
         <h1>視訊驗證</h1>
         <br>
         <div class="row">
@@ -16,6 +17,7 @@
                 />
             </div>
         </div>
+    </div>
     </body>
 
     <script>
