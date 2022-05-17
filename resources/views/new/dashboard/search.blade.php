@@ -570,7 +570,7 @@ header("Expires: Fri, 01 Jan 1990 00:00:00 GMT");
     </div>
 @stop
 
-@section('javascript')
+@section('style')
 <style>
     .pagination > li > a:focus,
     .pagination > li > a:hover,
@@ -693,6 +693,10 @@ header("Expires: Fri, 01 Jan 1990 00:00:00 GMT");
         }
 
     </style>
+@stop
+
+
+@section('javascript')
     <script type="application/javascript">
 	 $(document).ready(function () {
         $('#search_reset').click(function(){
