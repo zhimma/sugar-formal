@@ -6,92 +6,7 @@ header("Expires: Fri, 01 Jan 1990 00:00:00 GMT");
 ?>
 @extends('new.layouts.website')
 @section('app-content')
-    <style>
-        .pagination > li > a:focus,
-        .pagination > li > a:hover,
-        .pagination > li > span:focus,
-        .pagination > li > span:hover{
-            z-index: 3;
-            /* color: #23527c !important; */
-            background-color: #FF8888 !important;
-            /* border-color: #ddd !important; */
-            /* border-color:#ee5472 !important; */
-            /* color:white !important; */
-        }
-            /* 
-            .pagination > .active > a,
-            .pagination > .active > span,
-            .pagination > .active > a:hover,
-            .pagination > .active > span:hover,
-            .pagination > .active > a:focus,
-            .pagination > .active > span:focus {
-                z-index: 3;
-            color: #23527c !important;
-            background-color: #f5c2c0 !important;
-            border-color:#ee5472 !important;
-            color:white !important;
-            } */
-            .hoverTip{
-                display: inline-flex;
-                width: auto;
-                /*position: absolute;*/
-            }
-            .popover{
-                position: fixed;
-            }    
-            @media (max-width: 768px) {
-                .popover{
-                    max-width:60% !important;
-                }
-            }
-            .onineStatus{}
-            .onlineStatusNonVipSearch{
-                width: 15px;
-                height: 15px;
-                background: linear-gradient(to TOP,#ff9225,#ffb86e);
-                border-radius: 100px;
-                margin-top: 6px;
-                box-shadow: 2px 2px 0px #ff721d;
-                border-radius: 100px;
-                color: #fff;
-                float: left;
-                display: block;
-                margin-left: 5px;
-            }
-
-            .onlineStatusNonVipSearch img{
-                height: 7px;
-                margin: 0 auto;
-                display: table;
-                margin-top: 4px;
-            }
-
-            .onlineStatusSearch{
-                margin-left: 10px;
-                position: relative;
-                width: 10px;
-                height: 10px;
-                background: linear-gradient(to TOP,#8dd882,#abd4a5);
-                margin-top: 8px;
-                box-shadow: 2px 2px 2px #6aa763;
-                border-radius: 100px;
-                color: #fff;
-                float: left;
-                display: block;
-            }
-            
-            .n_search .n_input .twzipcode {margin-bottom:10px;} 
-            .n_search .n_input .twzipcode:last-child {margin-bottom:0;} 
-
-            .n_input>.btn_more{background:linear-gradient(to bottom,#ffedf1,#ffc5d3); height:36px; line-height:36px; border-radius:6px; box-shadow:0 5px 5px #fadce3; width:100%;float:left;
-            padding:0 10px;color:#ee5472;font-size:15px;margin:10px 0;cursor:pointer;}
-            .n_input>.btn_more>.right{width:23px; height:23px; margin:5px 0; background:#fff;border-radius:15px;box-shadow:0 5px 5px #f6a3b6;display: flex; align-items: center; justify-content: center;}
-            .n_input>.btn_more>.right>img{transform:rotate(-90deg); width:8px;-ms-transform:rotate(-90deg); -moz-transform:rotate(-90deg); -webkit-transform:rotate(-90deg); -o-transform:rotate(-90deg); }
-            .n_input .mb0{margin-bottom:0;}
-            .n_input>.btn_more.up>.right>img{transform:rotate(90deg);-ms-transform:rotate(90deg); -moz-transform:rotate(90deg); -webkit-transform:rotate(90deg); -o-transform:rotate(90deg);}
-
-
-    </style>
+    
 
     <div id="app">
         <div class="container matop70">
@@ -656,7 +571,92 @@ header("Expires: Fri, 01 Jan 1990 00:00:00 GMT");
 @stop
 
 @section('javascript')
-    <style>
+<style>
+    .pagination > li > a:focus,
+    .pagination > li > a:hover,
+    .pagination > li > span:focus,
+    .pagination > li > span:hover{
+        z-index: 3;
+        /* color: #23527c !important; */
+        background-color: #FF8888 !important;
+        /* border-color: #ddd !important; */
+        /* border-color:#ee5472 !important; */
+        /* color:white !important; */
+    }
+        /* 
+        .pagination > .active > a,
+        .pagination > .active > span,
+        .pagination > .active > a:hover,
+        .pagination > .active > span:hover,
+        .pagination > .active > a:focus,
+        .pagination > .active > span:focus {
+            z-index: 3;
+        color: #23527c !important;
+        background-color: #f5c2c0 !important;
+        border-color:#ee5472 !important;
+        color:white !important;
+        } */
+        .hoverTip{
+            display: inline-flex;
+            width: auto;
+            /*position: absolute;*/
+        }
+        .popover{
+            position: fixed;
+        }    
+        @media (max-width: 768px) {
+            .popover{
+                max-width:60% !important;
+            }
+        }
+        .onineStatus{}
+        .onlineStatusNonVipSearch{
+            width: 15px;
+            height: 15px;
+            background: linear-gradient(to TOP,#ff9225,#ffb86e);
+            border-radius: 100px;
+            margin-top: 6px;
+            box-shadow: 2px 2px 0px #ff721d;
+            border-radius: 100px;
+            color: #fff;
+            float: left;
+            display: block;
+            margin-left: 5px;
+        }
+
+        .onlineStatusNonVipSearch img{
+            height: 7px;
+            margin: 0 auto;
+            display: table;
+            margin-top: 4px;
+        }
+
+        .onlineStatusSearch{
+            margin-left: 10px;
+            position: relative;
+            width: 10px;
+            height: 10px;
+            background: linear-gradient(to TOP,#8dd882,#abd4a5);
+            margin-top: 8px;
+            box-shadow: 2px 2px 2px #6aa763;
+            border-radius: 100px;
+            color: #fff;
+            float: left;
+            display: block;
+        }
+        
+        .n_search .n_input .twzipcode {margin-bottom:10px;} 
+        .n_search .n_input .twzipcode:last-child {margin-bottom:0;} 
+
+        .n_input>.btn_more{background:linear-gradient(to bottom,#ffedf1,#ffc5d3); height:36px; line-height:36px; border-radius:6px; box-shadow:0 5px 5px #fadce3; width:100%;float:left;
+        padding:0 10px;color:#ee5472;font-size:15px;margin:10px 0;cursor:pointer;}
+        .n_input>.btn_more>.right{width:23px; height:23px; margin:5px 0; background:#fff;border-radius:15px;box-shadow:0 5px 5px #f6a3b6;display: flex; align-items: center; justify-content: center;}
+        .n_input>.btn_more>.right>img{transform:rotate(-90deg); width:8px;-ms-transform:rotate(-90deg); -moz-transform:rotate(-90deg); -webkit-transform:rotate(-90deg); -o-transform:rotate(-90deg); }
+        .n_input .mb0{margin-bottom:0;}
+        .n_input>.btn_more.up>.right>img{transform:rotate(90deg);-ms-transform:rotate(90deg); -moz-transform:rotate(90deg); -webkit-transform:rotate(90deg); -o-transform:rotate(90deg);}
+
+
+
         .blur_img {
             filter: blur(3px);
             -webkit-filter: blur(3px);
