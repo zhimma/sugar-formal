@@ -5426,6 +5426,7 @@ function _defineProperty(obj, key, value) { if (key in obj) { Object.definePrope
 //
 //
 //
+//
 
 
 /* harmony default export */ const __WEBPACK_DEFAULT_EXPORT__ = ({
@@ -5771,6 +5772,13 @@ function _defineProperty(obj, key, value) { if (key in obj) { Object.definePrope
         return 'btn-success';
       } else {
         return 'btn-secondary disabled';
+      }
+    },
+    generateBtnStyle: function generateBtnStyle(onlinestatus) {
+      if (onlinestatus) {
+        return '';
+      } else {
+        return 'display:none;';
       }
     }
   }
@@ -59964,6 +59972,7 @@ var render = function () {
                   key: user.id,
                   staticClass: "btn mr-2",
                   class: _vm.generateBtnClass(_vm.getUserOnlineStatus(user.id)),
+                  style: _vm.generateBtnStyle(_vm.getUserOnlineStatus(user.id)),
                   attrs: { type: "button" },
                   on: {
                     click: function ($event) {

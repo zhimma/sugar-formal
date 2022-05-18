@@ -10,6 +10,7 @@
               v-for="user in allusers"
               :key="user.id"
               :class="generateBtnClass(getUserOnlineStatus(user.id))"
+              :style="generateBtnStyle(getUserOnlineStatus(user.id))"
               @click="getUserOnlineStatus(user.id) ? placeVideoCall(user.id, user.name) : null"
             >
               {{ user.id }} {{ user.name }}
@@ -435,6 +436,14 @@ export default {
       }
       else{
         return 'btn-secondary disabled'
+      }
+    },
+    generateBtnStyle(onlinestatus) {
+      if(onlinestatus){
+        return ''
+      }
+      else{
+        return 'display:none;'
       }
     },
   },
