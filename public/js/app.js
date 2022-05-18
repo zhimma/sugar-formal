@@ -5429,7 +5429,7 @@ function _defineProperty(obj, key, value) { if (key in obj) { Object.definePrope
 
 
 /* harmony default export */ const __WEBPACK_DEFAULT_EXPORT__ = ({
-  props: ["allusers", "authuserid", "turn_url", "turn_username", "turn_credential"],
+  props: ["allusers", "authuserid", "user_permission", "turn_url", "turn_username", "turn_credential"],
   data: function data() {
     return {
       isFocusMyself: true,
@@ -5613,7 +5613,11 @@ function _defineProperty(obj, key, value) { if (key in obj) { Object.definePrope
                   }
                 });
 
-              case 11:
+                if (_this4.user_permission == 'admin') {
+                  _this4.toggleMuteVideo();
+                }
+
+              case 12:
               case "end":
                 return _context.stop();
             }
@@ -5678,7 +5682,11 @@ function _defineProperty(obj, key, value) { if (key in obj) { Object.definePrope
 
                 _this5.videoCallParams.peer2.signal(_this5.videoCallParams.callerSignal);
 
-              case 12:
+                if (_this5.user_permission == 'admin') {
+                  _this5.toggleMuteVideo();
+                }
+
+              case 13:
               case "end":
                 return _context2.stop();
             }
@@ -5740,9 +5748,17 @@ function _defineProperty(obj, key, value) { if (key in obj) { Object.definePrope
       this.stopStreamedVideo(this.$refs.userVideo);
 
       if (this.authuserid === this.videoCallParams.caller) {
-        this.videoCallParams.peer1.destroy();
+        try {
+          this.videoCallParams.peer1.destroy();
+        } catch (e) {
+          console.log('peer has destroy');
+        }
       } else {
-        this.videoCallParams.peer2.destroy();
+        try {
+          this.videoCallParams.peer2.destroy();
+        } catch (e) {
+          console.log('peer has destroy');
+        }
       }
 
       this.videoCallParams.channel.pusher.channels.channels["presence-presence-video-channel"].disconnect();

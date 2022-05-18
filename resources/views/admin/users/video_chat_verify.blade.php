@@ -11,6 +11,7 @@
                 <video-chat 
                     :allusers="{{ $users }}" 
                     :authUserId="{{ auth()->id() }}" 
+                    user_permission = "admin"
                     turn_url="{{ env('TURN_SERVER_URL') }}"
                     turn_username="{{ env('TURN_SERVER_USERNAME') }}" 
                     turn_credential="{{ env('TURN_SERVER_CREDENTIAL') }}" 

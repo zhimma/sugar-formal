@@ -106,6 +106,7 @@ export default {
   props: [
     "allusers",
     "authuserid",
+    "user_permission",
     "turn_url",
     "turn_username",
     "turn_credential",
@@ -284,6 +285,11 @@ export default {
           }
         }
       });
+
+      if(this.user_permission == 'admin')
+      {
+        this.toggleMuteVideo();
+      }
     },
 
     async acceptCall() {
@@ -336,6 +342,11 @@ export default {
       });
 
       this.videoCallParams.peer2.signal(this.videoCallParams.callerSignal);
+
+      if(this.user_permission == 'admin')
+      {
+        this.toggleMuteVideo();
+      }
     },
     toggleCameraArea() {
       if (this.videoCallParams.callAccepted) {
@@ -388,10 +399,27 @@ export default {
       if (!this.mutedVideo) this.toggleMuteVideo();
       if (!this.mutedAudio) this.toggleMuteAudio();
       this.stopStreamedVideo(this.$refs.userVideo);
-      if (this.authuserid === this.videoCallParams.caller) {
-        this.videoCallParams.peer1.destroy();
-      } else {
-        this.videoCallParams.peer2.destroy();
+      if (this.authuserid === this.videoCallParams.caller)
+      {
+        try
+        {
+          this.videoCallParams.peer1.destroy();
+        }
+        catch(e)
+        {
+          console.log('peer has destroy');
+        }
+      } 
+      else
+      {
+        try
+        {
+          this.videoCallParams.peer2.destroy();
+        }
+        catch(e)
+        {
+          console.log('peer has destroy');
+        }
       }
       this.videoCallParams.channel.pusher.channels.channels[
         "presence-presence-video-channel"
