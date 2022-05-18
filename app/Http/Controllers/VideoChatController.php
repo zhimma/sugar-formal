@@ -8,11 +8,13 @@ use App\Events\StartVideoChat;
 use App\Models\User;
 use Carbon\Carbon;
 use Illuminate\Support\Facades\DB;
+use Illuminate\Support\Facades\Log;
 
 class VideoChatController extends Controller
 {
     public function callUser(Request $request)
     {
+        Log::Info('callUser');
         $data['userToCall'] = $request->user_to_call;
         $data['signalData'] = $request->signal_data;
         $data['from'] = Auth::id();
@@ -22,6 +24,7 @@ class VideoChatController extends Controller
     }
     public function acceptCall(Request $request)
     {
+        Log::Info('acceptCall');
         $data['signal'] = $request->signal;
         $data['to'] = $request->to;
         $data['type'] = 'callAccepted';
