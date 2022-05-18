@@ -8,6 +8,7 @@
         <button id="video_chat_switch_on" class="btn" style="background-color: #e7e7e7; color: black; cursor: default; ">ON</button>
         <button id="video_chat_switch_off" class="btn" style="background-color: #f44336; color: white; cursor: not-allowed;">OFF</button>
         <br>
+        <br>
         <div class="row">
             <div id="app">
                 <video-chat 

@@ -30,7 +30,7 @@ class VideoChatController extends Controller
 
     public function video_chat_verify(Request $request)
     {
-        $users = User::where('id', '<>', Auth::id())->where('last_login', '>', Carbon::yesterday())->get();
+        $users = User::where('id', '<>', Auth::id())->where('last_login', '>', Carbon::now()->subDay())->get();
         return view('admin.users.video_chat_verify', ['users' => $users]);
     }
 
