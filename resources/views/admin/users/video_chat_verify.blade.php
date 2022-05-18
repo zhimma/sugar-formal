@@ -5,6 +5,8 @@
     
     <body style="padding: 15px;">
         <h1>視訊驗證</h1>
+        <button id="video_chat_switch_on" class="btn" style="background-color: #e7e7e7; color: black; cursor: default; ">ON</button>
+        <button id="video_chat_switch_off" class="btn" style="background-color: #f44336; color: white; cursor: not-allowed;">OFF</button>
         <br>
         <div class="row">
             <div id="app">
@@ -21,8 +23,27 @@
     </body>
 
     <script>
-        new Vue({
-            el:'#app'
+        var vm = new Vue({
+                
+            });
+        $('#video_chat_switch_on').on('click',function(){
+            $(this).css({
+                'background-color': '#4CAF50',
+                'color': 'white',
+                'cursor': 'not-allowed'
+            });
+            $('#video_chat_switch_off').css({
+                'background-color': '#e7e7e7',
+                'color': 'black',
+                'cursor': 'default'
+            });
+            vm.$mount("#app");
         });
+        
+        $('#video_chat_switch_off').on('click',function(){
+            window.location.reload();
+        });
+
+        
     </script>
 @stop
