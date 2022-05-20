@@ -32,38 +32,65 @@
                     <div class="gg_zh">
                         <dt id="line_notify_expand" class="n_gg_mm"><span><i></i>Line通知設定</span><!--<img src="/new/images/shed_icon.png">--></dt>
                         <dd style="display: block;">
-                            <div class="tuba">當您開啟LINE通知後，可設定不同會員等級或收藏的會員 來訊通知與否。</div>     
+                            <div class="tuba">當您開啟LINE通知後，可設定不同會員等級或收藏的會員 來訊通知與否。</div>
                             <div class="tu_bd">
-                                狀態：
-                                @if($user->line_notify_token==null)
-                                    尚未綁定
-                                    <a @if($user->isVip()) href="javascript:void(0);" @else onclick="show_onlyForVipPleaseUpgrade()"  @endif class="tuk_bdbutton right line_notify">
-                                        立即绑定
-                                    </a>
-                                @else 
-                                    已綁定
-                                    <a href="javascript:void(0);" class="qux_bdbutton right line_notify_cancel">
-                                        取消綁定
-                                    </a>
-                                @endif
-                            </div>
-                            @if($user->line_notify_token!=null)
-                                <div class="ti_ktx"><span>來訊通知</span></div>
-                                <div class="ti_xcheck">
-                                    @foreach($line_notify_chat as $row)
-                                        @if($row->name == '收藏會員' || $row->name == '誰來看我' || $row->name == '收藏我的會員')
-                                            @if($user->isVip())
-                                                <span><input type="checkbox" name="group_name[]" id="q4" class="ti_ceckys" value="{{$row->id}}" @if(in_array($row->id, $user_line_notify_chat_set)) checked @endif>{{$row->name}}</span>
-                                            @else
-                                                @continue
-                                            @endif
+                                <div class="ngg_a_tab">
+                                    <div class="ti_xcheck naa_dd ga_tit">
+                                        狀態：
+                                        @if($user->line_notify_token==null)
+                                            尚未綁定
+                                            <a @if($user->isVip()) href="javascript:void(0);" @else onclick="show_onlyForVipPleaseUpgrade()"  @endif class="tuk_bdbutton right line_notify">
+                                                立即绑定
+                                            </a>
                                         @else
-                                            <span><input type="checkbox" name="group_name[]" id="q4" class="ti_ceckys" value="{{$row->id}}" @if(in_array($row->id, $user_line_notify_chat_set)) checked @endif>{{$row->name}}</span>
+                                            已綁定
+                                            <a href="javascript:void(0);" class="qux_bdbutton right line_notify_cancel" style="margin-bottom: 10px;">
+                                                取消綁定
+                                            </a>
                                         @endif
-                                    @endforeach
+                                    </div>
+                                    @if($user->line_notify_token!=null)
+                                        <div class="ti_ktx na_top10 ga_ti_ft"><font class="na_nb">a.<i class="ga_i">身份選擇。勾選的會員來訊時，會用 line notify 通知您</i></font></div>
+                                        <div class="ti_xcheck naa_dd">
+                                            @if($user->engroup==1)
+                                                <span><input type="checkbox" name="group_name[]" class="ti_ceckys" value="1" @if(in_array(1, $user_line_notify_chat_set)) checked @endif>長期為主</span>
+                                                <span><input type="checkbox" name="group_name[]" class="ti_ceckys" value="2" @if(in_array(2, $user_line_notify_chat_set)) checked @endif>長短皆可</span>
+                                                <span><input type="checkbox" name="group_name[]" class="ti_ceckys" value="3" @if(in_array(3, $user_line_notify_chat_set)) checked @endif>短期為主</span>
+                                            @else
+                                                <span><input type="checkbox" name="group_name[]" class="ti_ceckys" value="5" @if(in_array(5, $user_line_notify_chat_set)) checked @endif>VIP</span>
+                                                <span><input type="checkbox" name="group_name[]" class="ti_ceckys" value="6" @if(in_array(6, $user_line_notify_chat_set)) checked @endif>普通會員</span>
+                                            @endif
+                                            <span><input type="checkbox" name="group_name[]" class="ti_ceckys" value="8" @if(in_array(8, $user_line_notify_chat_set)) checked @endif>已收藏會員</span>
+                                        </div>
+                                        <div class="ti_ktx na_top25 ga_ti_ft"><font class="na_nb">b.<i class="ga_i">站方警示封鎖會員通知。勾選後，當與您聊天的{{$user->engroup==1? '女':'男'}}會員被站方封鎖/警示時，會用 line notify 通知您</i></font></div>
+                                        <div class="ti_xcheck naa_dd">
+                                            <span><input type="checkbox" name="group_name[]" class="ti_ceckys" value="7" @if(in_array(7, $user_line_notify_chat_set)) checked @endif>警示會員</span>
+                                            <span><input type="checkbox" name="group_name[]" class="ti_ceckys" value="11" @if(in_array(11, $user_line_notify_chat_set)) checked @endif>封鎖會員</span>
+                                        </div>
+                                        <div class="ti_ktx na_top25"><span class="na_nb">c.其他</span></div>
+                                        <div class="ti_xcheck naa_dd">
+                                            <span class="ga_w100"><input type="checkbox" name="group_name[]" class="ti_ceckys" value="9" @if(in_array(9, $user_line_notify_chat_set)) checked @endif><i class="gabb_i">來訪通知：當有{{$user->engroup==1? '女':'男'}}會員來查閱您時，會用 line notify 通知您</i></span>
+                                            <span class="ga_w100"><input type="checkbox" name="group_name[]" class="ti_ceckys" value="10" @if(in_array(10, $user_line_notify_chat_set)) checked @endif><i class="gabb_i">收藏通知：當有{{$user->engroup==1? '女':'男'}}會員收藏您時，會用 line notify 通知您</i></span>
+                                        </div>
+                                    @endif
                                 </div>
-                            
-                            @endif
+                            </div>
+{{--                            @if($user->line_notify_token!=null)--}}
+{{--                                <div class="ti_ktx"><span>來訊通知</span></div>--}}
+{{--                                <div class="ti_xcheck">--}}
+{{--                                    @foreach($line_notify_chat as $row)--}}
+{{--                                        @if($row->name == '收藏會員' || $row->name == '誰來看我' || $row->name == '收藏我的會員')--}}
+{{--                                            @if($user->isVip())--}}
+{{--                                                <span><input type="checkbox" name="group_name[]" id="q4" class="ti_ceckys" value="{{$row->id}}" @if(in_array($row->id, $user_line_notify_chat_set)) checked @endif>{{$row->name}}</span>--}}
+{{--                                            @else--}}
+{{--                                                @continue--}}
+{{--                                            @endif--}}
+{{--                                        @else--}}
+{{--                                            <span><input type="checkbox" name="group_name[]" id="q4" class="ti_ceckys" value="{{$row->id}}" @if(in_array($row->id, $user_line_notify_chat_set)) checked @endif>{{$row->name}}</span>--}}
+{{--                                        @endif--}}
+{{--                                    @endforeach--}}
+{{--                                </div>--}}
+{{--                            @endif--}}
                         </dd>
 
                         @if($user->engroup==2)
