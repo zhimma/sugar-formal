@@ -2,6 +2,7 @@
 
 namespace App\Http\Controllers;
 
+use App\Models\lineNotifyChatSet;
 use App\Models\User;
 use Illuminate\Http\RedirectResponse;
 use Illuminate\Http\Request;
@@ -21,6 +22,18 @@ class LineNotify extends Controller
     public function lineNotifyCallback(Request $request) {
         $user = $request->user();
         //$username = request()->get('username');
+        //通知項目預設開啟
+        if($user->engroup==1)
+            $line_notify_chat_id_ary=[1, 8, 10];
+        else
+            $line_notify_chat_id_ary=[5, 8, 10];
+
+        foreach ($line_notify_chat_id_ary as $line_notify_chat_id){
+            lineNotifyChatSet::create([
+                'user_id'=> $user->id,
+                'line_notify_chat_id'=> $line_notify_chat_id,
+            ]);
+        }
         $code = request()->get('code');
 //        $callbackUrl = route('lineNotifyCallback', ['user' => $user]);
         User::where('id',$user->id)->update(['line_notify_auth_code' => $code]);
@@ -77,6 +90,7 @@ class LineNotify extends Controller
         $user = $request->user();
         # 若使用者已連動則進行取消連動作業
         if (!empty($user->line_notify_token)) {
+            lineNotifyChatSet::where('user_id', $user->id)->delete();
             $this->lineNotifyRevoke($user->id, $user->line_notify_token);
             session()->flash('message', '解除連動');
             return back();
