@@ -1065,13 +1065,11 @@ header("Expires: Fri, 01 Jan 1990 00:00:00 GMT");
                             csrData +='<span style="margin-left: 10px;"><span style="padding-left: 5px;">職業</span><img src="/new/images/icon_35.png" class="nt_img"></span>';
                         }
                       
-
-
-                        if(user.engroup==1){
-                            if(userIsVip==1){
-                                $csrData +='<i class="j_lxx">丨</i><span>'+rowVisitorExchangePeriodName.name+'</span>';
+                        if(this.user.engroup==1){
+                            if(this.userIsVip==1){
+                                csrData +='<i class="j_lxx">丨</i><span>'+rowVisitorExchangePeriodName.name+'</span>';
                             }else{
-                                $csrData +='<i class="j_lxx">丨</i><span>包養關係<img src="/new/images/icon_35.png" class="nt_img"></span>';
+                                csrData +='<i class="j_lxx">丨</i><span>包養關係<img src="/new/images/icon_35.png" class="nt_img"></span>';
                             }
                         }
                         
@@ -1087,7 +1085,7 @@ header("Expires: Fri, 01 Jan 1990 00:00:00 GMT");
                         csrData +='</div>';
                         csrData +='</a>';
                         csrData +='</li>';
-console.log(csrData)
+
                         this.csrData = csrData;
                         });
                     }else{
