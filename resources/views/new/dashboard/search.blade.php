@@ -6,146 +6,6 @@ header("Expires: Fri, 01 Jan 1990 00:00:00 GMT");
 ?>
 @extends('new.layouts.website')
 
-@section('style')
-<style>
-
-.n_dlbut{width:150px;height: 40px;background: #fe92a8;/*border-radius:10px;*/color: #ffffff;text-align: center;line-height: 40px;display: table;
-    font-size:16px; float:left; cursor: pointer; box-shadow: 0 0 20px #ffb6c5;}
-.n_dlbut:hover{color:#ffffff;box-shadow:inset 0px 13px 10px -10px #f83964,inset 0px -10px 10px -20px #f83964;}
-
-.n_zcbut{width: 150px;height: 40px;background: #ffffff; border:#e44e71 1px solid;/*border-radius: 10px;*/color: #e44e71;text-align: center;line-height: 40px;
-    display: table; float:right;font-size:16px;box-shadow: 0 0 20px #ffb6c5;}
-.n_zcbut:hover{color:#ffffff;box-shadow:inset 0px 15px 10px -10px #f83964,inset 0px -10px 10px -20px #f83964;
-    background:#fe92a8; border:#fe92a8 1px solid;}
-
-
-
-
-
-
-    
-    .pagination > li > a:focus,
-    .pagination > li > a:hover,
-    .pagination > li > span:focus,
-    .pagination > li > span:hover{
-        z-index: 3;
-        /* color: #23527c !important; */
-        background-color: #FF8888 !important;
-        /* border-color: #ddd !important; */
-        /* border-color:#ee5472 !important; */
-        /* color:white !important; */
-    }
-        /* 
-        .pagination > .active > a,
-        .pagination > .active > span,
-        .pagination > .active > a:hover,
-        .pagination > .active > span:hover,
-        .pagination > .active > a:focus,
-        .pagination > .active > span:focus {
-            z-index: 3;
-        color: #23527c !important;
-        background-color: #f5c2c0 !important;
-        border-color:#ee5472 !important;
-        color:white !important;
-        } */
-        .hoverTip{
-            display: inline-flex;
-            width: auto;
-            /*position: absolute;*/
-        }
-        .popover{
-            position: fixed;
-        }    
-        @media (max-width: 768px) {
-            .popover{
-                max-width:60% !important;
-            }
-        }
-        .onineStatus{}
-        .onlineStatusNonVipSearch{
-            width: 15px;
-            height: 15px;
-            background: linear-gradient(to TOP,#ff9225,#ffb86e);
-            border-radius: 100px;
-            margin-top: 6px;
-            box-shadow: 2px 2px 0px #ff721d;
-            border-radius: 100px;
-            color: #fff;
-            float: left;
-            display: block;
-            margin-left: 5px;
-        }
-
-        .onlineStatusNonVipSearch img{
-            height: 7px;
-            margin: 0 auto;
-            display: table;
-            margin-top: 4px;
-        }
-
-        .onlineStatusSearch{
-            margin-left: 10px;
-            position: relative;
-            width: 10px;
-            height: 10px;
-            background: linear-gradient(to TOP,#8dd882,#abd4a5);
-            margin-top: 8px;
-            box-shadow: 2px 2px 2px #6aa763;
-            border-radius: 100px;
-            color: #fff;
-            float: left;
-            display: block;
-        }
-        
-        .n_search .n_input .twzipcode {margin-bottom:10px;} 
-        .n_search .n_input .twzipcode:last-child {margin-bottom:0;} 
-
-        .n_input>.btn_more{background:linear-gradient(to bottom,#ffedf1,#ffc5d3); height:36px; line-height:36px; border-radius:6px; box-shadow:0 5px 5px #fadce3; width:100%;float:left;
-        padding:0 10px;color:#ee5472;font-size:15px;margin:10px 0;cursor:pointer;}
-        .n_input>.btn_more>.right{width:23px; height:23px; margin:5px 0; background:#fff;border-radius:15px;box-shadow:0 5px 5px #f6a3b6;display: flex; align-items: center; justify-content: center;}
-        .n_input>.btn_more>.right>img{transform:rotate(-90deg); width:8px;-ms-transform:rotate(-90deg); -moz-transform:rotate(-90deg); -webkit-transform:rotate(-90deg); -o-transform:rotate(-90deg); }
-        .n_input .mb0{margin-bottom:0;}
-        .n_input>.btn_more.up>.right>img{transform:rotate(90deg);-ms-transform:rotate(90deg); -moz-transform:rotate(90deg); -webkit-transform:rotate(90deg); -o-transform:rotate(90deg);}
-
-
-
-        .blur_img {
-            filter: blur(3px);
-            -webkit-filter: blur(3px);
-        }
-        .select_xx07{
-            /* width: 425px; */
-            border-radius: 4px;
-            height: 40px;
-            color: #555;
-            background: #ffffff;
-            font-size: 15px;
-            width:90%;
-        }
-
-        .select_xx01 {
-            margin-right: 0%;
-        }
-
-        .select_xx08{
-        	width: 100%;
-		    height: 40px;
-		    border-radius: 4px;
-		    /*padding: 0 6px;*/
-		    color: #555;
-		    background: #ffffff;
-		    font-size: 15px;
-        }
-        select{
-            -webkit-appearance: none;
-            -moz-appearance: none;
-            appearance: none;
-            padding-left: 10px;
-
-        }
-    </style>
-
-@endsection
 @section('app-content')
 @php $user_engroup = $user->engroup; @endphp
     <div id="app">
@@ -574,42 +434,42 @@ header("Expires: Fri, 01 Jan 1990 00:00:00 GMT");
 @php
 
                         try{
-                            $district = "";
-                            $county = "";
-                            $district2 = "";
-                            $county2 = "";
-                            $district3 = "";
-                            $county3 = "";                        
-                            $cup = "";
-                            $marriage = "";
-                            $budget = "";
-                            $income = "";
-                            $smoking = "";
-                            $drinking = "";
-                            $pic = "";
-                            $ageto = "";
-                            $agefrom = "";
-                            $seqtime = "";
-                            $body = "";
-                            $exchange_period = "";
-                            $umeta = $user->user_meta;
-                            $isBlocked = 1;
-                            if(isset($umeta->city)){
-                                $umeta->city = explode(",",$umeta->city);
-                                $umeta->area = explode(",",$umeta->area);
-                            }
-                            $heightfrom = "";
-                            $heightto = "";
-                            $prRange_none = "";
-                            $prRange = "";
-                            $situation = "";
-                            $education = "";
-                            $isVip = "";
-                            $isWarned = "";
-                            $isPhoneAuth = "";
-                            $tattoo= "";
+                            // $district = "";
+                            // $county = "";
+                            // $district2 = "";
+                            // $county2 = "";
+                            // $district3 = "";
+                            // $county3 = "";                        
+                            // $cup = "";
+                            // $marriage = "";
+                            // $budget = "";
+                            // $income = "";
+                            // $smoking = "";
+                            // $drinking = "";
+                            // $pic = "";
+                            // $ageto = "";
+                            // $agefrom = "";
+                            // $seqtime = "";
+                            // $body = "";
+                            // $exchange_period = "";
+                            // $umeta = $user->user_meta;
+                            // // $isBlocked = 1;
+                            // if(isset($umeta->city)){
+                            //     $umeta->city = explode(",",$umeta->city);
+                            //     $umeta->area = explode(",",$umeta->area);
+                            // }
+                            // $heightfrom = "";
+                            // $heightto = "";
+                            // $prRange_none = "";
+                            // $prRange = "";
+                            // $situation = "";
+                            // $education = "";
+                            // $isVip = "";
+                            // $isWarned = "";
+                            // $isPhoneAuth = "";
+                            // $tattoo= "";
                             //新增體重
-                            $weight = "";
+                            // $weight = "";
                         }
                         catch (\Exception $e){
                             \Illuminate\Support\Facades\Log::info('Search error, $user: ' . $user);
@@ -620,43 +480,53 @@ header("Expires: Fri, 01 Jan 1990 00:00:00 GMT");
 
 
 
-                    if (isset($_POST['_token']) || isset($_GET['_token']) || count(session()->get('search_page_key',[]))){
+                    // if (isset($_POST['_token']) || isset($_GET['_token']) || count(session()->get('search_page_key',[]))){
                         
-                        if (isset($_POST['district'])){ $district = $_POST['district'];}elseif(isset($_GET['district'])){$district = $_GET['district'];}elseif(!empty(session()->get('search_page_key.district'))){$district = session()->get('search_page_key.district');}
-                        if (isset($_POST['county'])){ $county = $_POST['county'];}elseif(isset($_GET['county'])){$county = $_GET['county'];}elseif(!empty(session()->get('search_page_key.county'))){$county = session()->get('search_page_key.county');}
-                        if (isset($_POST['cup'])){ $cup = $_POST['cup'];}elseif(isset($_GET['cup'])){$cup = $_GET['cup'];}elseif(!empty(session()->get('search_page_key.cup'))){$cup = session()->get('search_page_key.cup');}
-                        if (isset($_POST['marriage'])){ $marriage = $_POST['marriage'];}elseif(isset($_GET['marriage'])){$marriage = $_GET['marriage'];}elseif(!empty(session()->get('search_page_key.marriage'))){$marriage = session()->get('search_page_key.marriage');}
-                        if (isset($_POST['budget'])){ $budget = $_POST['budget'];}elseif(isset($_GET['budget'])){$budget = $_GET['budget'];}elseif(!empty(session()->get('search_page_key.budget'))){$budget = session()->get('search_page_key.budget');}
-                        if (isset($_POST['income'])){$income = $_POST['income'];}elseif(isset($_GET['income'])){$income = $_GET['income'];}elseif(!empty(session()->get('search_page_key.income'))){$income = session()->get('search_page_key.income');}
-                        if (isset($_POST['smoking'])){$smoking = $_POST['smoking'];}elseif(isset($_GET['smoking'])){$smoking = $_GET['smoking'];}elseif(!empty(session()->get('search_page_key.smoking'))){$smoking = session()->get('search_page_key.smoking');}
-                        if (isset($_POST['drinking'])){$drinking = $_POST['drinking'];}elseif(isset($_GET['drinking'])){$drinking = $_GET['drinking'];}elseif(!empty(session()->get('search_page_key.drinking'))){$drinking = session()->get('search_page_key.drinking');}
-                        if (isset($_POST['pic'])){$pic = $_POST['pic'];}elseif(isset($_GET['pic'])){$pic = $_GET['pic'];}elseif(!empty(session()->get('search_page_key.pic'))){$pic = session()->get('search_page_key.pic');}
-                        if (isset($_POST['ageto'])){$ageto = $_POST['ageto'];}elseif(isset($_GET['ageto'])){$ageto = $_GET['ageto'];}elseif(!empty(session()->get('search_page_key.ageto'))){$ageto = session()->get('search_page_key.ageto');}
-                        if (isset($_POST['agefrom'])){$agefrom = $_POST['agefrom'];}elseif(isset($_GET['agefrom'])){ $agefrom = $_GET['agefrom'];}elseif(!empty(session()->get('search_page_key.agefrom'))){$agefrom = session()->get('search_page_key.agefrom');}
-                        if (isset($_POST['seqtime'])){$seqtime = $_POST['seqtime'];}elseif(isset($_GET['seqtime'])){ $seqtime = $_GET['seqtime'];}elseif(!empty(session()->get('search_page_key.seqtime'))){$seqtime = session()->get('search_page_key.seqtime');}
-                        if (isset($_POST['body'])){$body = $_POST['body'];}elseif(isset($_GET['body'])){$body = $_GET['body'];}elseif(!empty(session()->get('search_page_key.body'))){$body = session()->get('search_page_key.body');}
-                        if (isset($_POST['exchange_period'])){$exchange_period = $_POST['exchange_period'];}elseif(isset($_GET['exchange_period'])){$exchange_period = $_GET['exchange_period'];}elseif(!empty(session()->get('search_page_key.exchange_period'))){$exchange_period = session()->get('search_page_key.exchange_period');}
-                        if (isset($_POST['isBlocked'])){$isBlocked = $_POST['isBlocked'];}elseif(isset($_GET['isBlocked'])){$isBlocked = $_GET['isBlocked'];}elseif(!empty(session()->get('search_page_key.isBlocked'))){$isBlocked = session()->get('search_page_key.isBlocked');}
-                        if (isset($_POST['heightto'])){$heightto = $_POST['heightto'];}elseif(isset($_GET['heightto'])){$heightto = $_GET['heightto'];}elseif(!empty(session()->get('search_page_key.heightto'))){$heightto = session()->get('search_page_key.heightto');}
-                        if (isset($_POST['heightfrom'])){$heightfrom = $_POST['heightfrom'];}elseif(isset($_GET['heightfrom'])){ $heightfrom = $_GET['heightfrom'];}elseif(!empty(session()->get('search_page_key.heightfrom'))){$heightfrom = session()->get('search_page_key.heightfrom');}
-                        if (isset($_POST['prRange_none'])){$prRange_none = $_POST['prRange_none'];}elseif(isset($_GET['prRange_none'])){ $prRange_none = $_GET['prRange_none'];}elseif(!empty(session()->get('search_page_key.prRange_none'))){$prRange_none = session()->get('search_page_key.prRange_none');}
-                        if (isset($_POST['prRange'])){$prRange = $_POST['prRange'];}elseif(isset($_GET['prRange'])){ $prRange = $_GET['prRange'];}elseif(!empty(session()->get('search_page_key.prRange'))){$prRange = session()->get('search_page_key.prRange');}
-                        if (isset($_POST['situation'])){$situation = $_POST['situation'];}elseif(isset($_GET['situation'])){ $situation = $_GET['situation'];}elseif(!empty(session()->get('search_page_key.situation'))){$situation = session()->get('search_page_key.situation');}
-                        if (isset($_POST['education'])){$education = $_POST['education'];}elseif(isset($_GET['education'])){ $education = $_GET['education'];}elseif(!empty(session()->get('search_page_key.education'))){$education = session()->get('search_page_key.education');}
-                        //if (isset($_POST['isPic'])){$isPic = $_POST['isPic'];}elseif(isset($_GET['isPic'])){$isPic = $_GET['isPic'];}
-                        if (isset($_POST['isVip'])){$isVip = $_POST['isVip'];}elseif(isset($_GET['isVip'])){$isVip = $_GET['isVip'];}elseif(!empty(session()->get('search_page_key.isVip'))){$isVip = session()->get('search_page_key.isVip');}
-                        if (isset($_POST['isWarned'])){$isWarned = $_POST['isWarned'];}elseif(isset($_GET['isWarned'])){$isWarned = $_GET['isWarned'];}elseif(!empty(session()->get('search_page_key.isWarned'))){$isWarned = session()->get('search_page_key.isWarned');}
-                        if (isset($_POST['isPhoneAuth'])){$isPhoneAuth = $_POST['isPhoneAuth'];}elseif(isset($_GET['isPhoneAuth'])){$isPhoneAuth = $_GET['isPhoneAuth'];}elseif(!empty(session()->get('search_page_key.isPhoneAuth'))){$isPhoneAuth = session()->get('search_page_key.isPhoneAuth');}
-                        //新增體重
-                        if (isset($_POST['weight'])){$weight = $_POST['weight'];}elseif(isset($_GET['weight'])){$weight = $_GET['weight'];}elseif(!empty(session()->get('search_page_key.weight'))){$weight = session()->get('search_page_key.weight');}
+                        $umeta = $user->user_meta;
+                        if(isset($umeta->city)){
+                            $umeta->city = explode(",",$umeta->city);
+                            $umeta->area = explode(",",$umeta->area);
+                        }
+
+                        $district = search_variable('district',"");
+                        $county = search_variable('county',"");
+                        $cup = search_variable('cup',"");
+                        $marriage = search_variable('marriage',"");
+                        $budget = search_variable('budget',"");
+                        $income = search_variable('income',"");
+                        $smoking = search_variable('smoking',"");
+                        $drinking = search_variable('drinking',"");
+                        $pic = search_variable('pic',"");
+                        $ageto = search_variable('ageto',"");
+                        $agefrom = search_variable('agefrom',"");
+                        $seqtime = search_variable('seqtime',"");
+                        $body = search_variable('body',"");
+                        $exchange_period = search_variable('exchange_period',"");
+                        $isBlocked = search_variable('isBlocked',1);
+                        $heightto = search_variable('heightto',"");
+                        $heightfrom = search_variable('heightfrom',"");
+                        $prRange_none = search_variable('prRange_none',"");
+                        $prRange = search_variable('prRange',"");
+                        $situation = search_variable('situation',"");
+                        $education = search_variable('education',"");
+                        $isVip = search_variable('isVip',"");
+                        $isWarned = search_variable('isWarned',"");
+                        $isPhoneAuth = search_variable('isPhoneAuth',"");
+                        $weight = search_variable('weight',"");
                         
-                        $tattoo = request()->tattoo??session()->get('search_page_key.tattoo');
-                        $county2 = request()->county2??session()->get('search_page_key.county2');
-                        $county3 = request()->county3??session()->get('search_page_key.county3');
-                        $district2 = request()->district2??session()->get('search_page_key.district2');
-                        $district3 = request()->district3??session()->get('search_page_key.district3');
                         
-                    }
+                        //is these are correct modification??
+                        // $tattoo = request()->tattoo??session()->get('search_page_key.tattoo');
+                        // $county2 = request()->county2??session()->get('search_page_key.county2');
+                        // $county3 = request()->county3??session()->get('search_page_key.county3');
+                        // $district2 = request()->district2??session()->get('search_page_key.district2');
+                        // $district3 = request()->district3??session()->get('search_page_key.district3');
+                        $tattoo = search_variable("tattoo","");
+                        $county2 = search_variable("county2","");
+                        $county3 = search_variable("county3","");
+                        $district2 = search_variable("district2","");
+                        $district3 = search_variable("district3","");
+                    // }
 
 
 
@@ -697,10 +567,10 @@ header("Expires: Fri, 01 Jan 1990 00:00:00 GMT");
 
                         <div class="n_sepeop">
                             
-                            <a v-html="ssrData">
-                                @for($i=0;$i<12;$i++)
+                            <a v-html="csrData">
+                                {{-- @for($i=0;$i<12;$i++)
                                     <li class="nt_fg"><div class="n_seicon"><a><div class="nt_photo blur_img"></div><div class="nt_bot nt_bgco"><h2>loading...</h2><h3>loading...</h3><h3>最後上線時間：loading... </h3></div></a></div></li>
-                                @endfor
+                                @endfor --}}
                             </a>
                             
                         </div>
@@ -902,16 +772,22 @@ header("Expires: Fri, 01 Jan 1990 00:00:00 GMT");
         });
     </script>
     <script>
-    let ssr_variable = [
-
-    ];
+    let perPageCount = 12 //每頁顯示筆數
+    let csrDataSingle = '<li class="nt_fg"><div class="n_seicon"><a><div class="nt_photo blur_img"></div><div class="nt_bot nt_bgco"><h2>loading...</h2><h3>loading...</h3><h3>最後上線時間：loading... </h3></div></a></div></li>';
+    let csrDataText = csrDataSingle.repeat(perPageCount);
+    // let csrDataText = '';
+    // for(let i=0;i<12;i++){
+    //     csrDataSingle = '<li class="nt_fg item_'+i+'"><div class="n_seicon"><a><div class="nt_photo blur_img"></div><div class="nt_bot nt_bgco"><h2>loading...</h2><h3>loading...</h3><h3>最後上線時間：loading... </h3></div></a></div></li>';
+    //     csrDataText += csrDataSingle
+    //     console.log(csrDataText)
+    // }
     const vm = new Vue({
             el: '#app',
             data () {
                 return {
                     "isShow":true,
                     "allSearchData": [],                   
-                    "ssrData":'',
+                    "csrData":csrDataText,
                     "isPrePageShow":false,
                     "isNextPageShow":false,
                     "isNowPageShow":false,
@@ -920,94 +796,304 @@ header("Expires: Fri, 01 Jan 1990 00:00:00 GMT");
                 }
             },
         mounted () {
-			
-			 let cup={!! json_encode($cup) !!};
-			 let body={!! json_encode($body) !!};
-			 let exchange_period={!! json_encode($exchange_period) !!};
-             let county = "{{$county}}";
-             let district="{{$district}}";
-             let marriage="{{$marriage}}";
-             let budget="{{$budget}}";
-             let income="{{$income}}";
-             let smoking="{{$smoking}}";
-             let drinking="{{$drinking}}";
-             let pic="{{$pic}}";
-             let agefrom="{{$agefrom}}";
-             let ageto="{{$ageto}}";
-             let user={!! $user !!};
-             let umeta={!! $umeta !!}
-             let seqtime="{{$seqtime}}";
-             let isBlocked="{{$isBlocked}}";
-             let userIsVip="{{$userIsVip}}";
-             let heightfrom="{{$heightfrom}}";
-             let heightto="{{$heightto}}";
-             let prRange_none="{{$prRange_none}}";
-             let prRange="{{$prRange}}";
-             let situation="{{$situation}}";
-             let education="{{$education}}";
-             let isVip="{{$isVip}}";
-             let isWarned="{{$isWarned}}";
-             let isPhoneAuth="{{$isPhoneAuth}}";
-             let userIsAdvanceAuth="{{$userIsAdvanceAuth}}";
-             let page= "{{$page ?? 1}}";
-             let tattoo= "{{$tattoo ?? null}}";
-             let district2= "{{$district2  ?? null}}";
-             let county2= "{{$county2  ?? null}}";
-             let district3= "{{$district3  ?? null}}";
-             let county3= "{{$county3  ?? null}}";
-             //新增體重
-             let weight="{{$weight}}";
-            axios.post('/getSearchData?{{ csrf_token() }}={{ now()->timestamp }}', {
-                county:county,
-                district:district,
-                cup:cup,
-                marriage:marriage,
-                budget:budget,
-                income:income,
-                smoking:smoking,
-                drinking:drinking,
-                pic:pic,
-                agefrom:agefrom,
-                ageto:ageto,
-                user:user,
-                umeta:umeta,
-                seqtime:seqtime,
-                body:body,
-                exchange_period:exchange_period,
-                isBlocked:isBlocked,
-                userIsVip:userIsVip,
-                heightfrom:heightfrom,
-                heightto:heightto,
-                prRange_none:prRange_none,
-                prRange:prRange,
-                situation:situation,
-                education:education,
-                isVip:isVip,
-                isWarned:isWarned,
-                isPhoneAuth:isPhoneAuth,
-                isAdvanceAuth:userIsAdvanceAuth,
-                userIsAdvanceAuth:userIsAdvanceAuth,  
-                page:page,
-                tattoo:tattoo,
-                city2:county2,
-                area2:district2,
-                city3:county3,
-                area3:district3,
+
+             let post_data = {
+                county:"{{$county}}",
+                district:"{{$district}}",
+                cup:{!! json_encode($cup) !!},
+                marriage:"{{$marriage}}",
+                budget:"{{$budget}}",
+                income:"{{$income}}",
+                smoking:"{{$smoking}}",
+                drinking:"{{$drinking}}",
+                pic:"{{$pic}}",
+                agefrom:"{{$agefrom}}",
+                ageto:"{{$ageto}}",
+                user:{!! $user !!},
+                umeta:{!! $umeta !!},
+                seqtime:"{{$seqtime}}",
+                body:{!! json_encode($body) !!},
+                exchange_period:{!! json_encode($exchange_period) !!},
+                isBlocked:"{{$isBlocked}}",
+                userIsVip:"{{$userIsVip}}",
+                heightfrom:"{{$heightfrom}}",
+                heightto:"{{$heightto}}",
+                prRange_none:"{{$prRange_none}}",
+                prRange:"{{$prRange}}",
+                situation:"{{$situation}}",
+                education:"{{$education}}",
+                isVip:"{{$isVip}}",
+                isWarned:"{{$isWarned}}",
+                isPhoneAuth:"{{$isPhoneAuth}}",
+                isAdvanceAuth:"{{$isAdvancedAuth ?? null}}",
+                userIsAdvanceAuth:"{{$userIsAdvanceAuth}}",  
+                page:"{{$page ?? 1}}",
+                tattoo:"{{$tattoo ?? null}}",
+                city2:"{{$county2  ?? null}}",
+                area2:"{{$district2  ?? null}}",
+                city3:"{{$county3  ?? null}}",
+                area3:"{{$district3  ?? null}}",
                 //新增體重
-                weight:weight
-            })
+                weight:"{{$weight}}",
+
+                perPageCount:perPageCount
+            };
+            axios.post('/getSearchData?{{ csrf_token() }}={{ now()->timestamp }}', post_data)
             .then(response => {
-                    this.ssrData = response.data.ssrData;
-                    this.ssrCount = response.data.count;
-                    this.ssrSingleCount = response.data.singleCount;
-                    if(this.ssrCount>12){
-                        this.isNowPageShow=true;
-                        this.isPrePageShow=true;
-                        this.isNextPageShow=true;
-                        if(this.ssrSingleCount<12){
-                            this.page_next = (Math.floor( this.ssrCount / 12 ) + 1);
+                    this.dataList = response.data.dataList;
+                    this.user = response.data.user;
+                    this.userIsVip = response.data.userIsVip;
+                    // this.singlePageData = this.searchData.singlePageData;
+                    // this.user = response.data.user;
+
+                    console.log(this.dataList);
+                    let arr = [];
+                    if(this.dataList.length>=1){
+                        let csrData = '';
+                        this.dataList.forEach((row, index) => {
+                            let umeta = row.rawData.user_meta;
+                            if(typeof umeta.city !== 'undefined'){
+                                umeta.city = umeta.city.split(",");
+                                umeta.area = umeta.area.split(",");
+                            }
+
+                          
+                            let csrVar = '';
+                            let csrVar2 = '';
+                            let onerror = '';
+                            let assetsUrl = '';
+                            
+                            let rowVisitorIsAdminWarned = row.visitorIsAdminWarned;
+                            let umetaIsWarned = umeta.isWarned;
+
+                            let rowEngroup = row.rawData.engroup;
+                            let rowVisitorCheckRecommendedUser = row.visitorCheckRecommendedUser;
+
+                            let rowVisitorIsVip = row.visitorIsVip;
+
+                            let rowVisitorIsPhoneAuth = row.visitorIsPhoneAuth;
+                            let rowVisitorIsAdvanceAuth = row.visitorIsAdvanceAuth;
+
+
+                            let rowPrLog = row.rawData.pr_log;
+                            let rowVisitorIsBlurAvatar = row.visitorIsBlurAvatar;
+
+                            let umetaIsAvatarHidden = umeta.isAvatarHidden;
+                            let umetaPic = umeta.pic;
+                            let rowID = row.rawData.id;
+                            let rowName = row.rawData.name;
+
+                            let rowVisitorAge = row.visitorAge;
+                            let rowVisitorIsOnline = row.visitorIsOnline;
+                            let rowIsHideOnline = row.rawData.is_hide_online;
+                            
+                            let umetaIsHideArea = umeta.isHideArea;
+                            let umetaArea = umeta.area;
+                            
+                            let umetaIsHideOccupation = umeta.isHideOccupation;
+                            let umetaOccupation = umeta.occupation;
+                            let rowVisitorExchangePeriodName = row.visitorExchangePeriodName;
+                            let rowVisitorValueAddedServiceStatusHideOnline = row.visitorValueAddedServiceStatusHideOnline;
+                            let rowHideOnlineTime = row.rawData.hide_online_time;
+                            let rowLastLogin = row.rawData.last_login;
+                            
+                            csrData +='<li class="nt_fg">';
+                            csrData +='<div class="n_seicon">';
+                            if(umetaIsWarned==1 || rowVisitorIsAdminWarned==1){
+                                csrData +='<div class="hoverTip">';
+                                    csrData +='<div class="tagText" data-toggle="popover" data-content="此會員為警示會員，與此會員交流務必提高警覺！">';
+                                    if(this.userIsVip==1){
+                                        csrData +='<img src="/new/images/a5.png">';
+                                    }else{
+                                        csrData +='<img src="/new/images/b_5.png">';
+                                    }
+                                
+                                    csrData +='</div>';
+                                csrData +='</div>';
+                                
+                            }else if(typeof rowVisitorCheckRecommendedUser['description'] !== 'undefined' && rowEngroup == 2){
+                                csrData +='<div class="hoverTip">';
+                                    csrData +='<div class="tagText" data-toggle="popover" data-content="新進甜心是指註冊未滿30天的新進會員，建議男會員可以多多接觸，不過要注意是否為八大行業人員。">';
+                                        if(this.userIsVip==1){
+                                            csrData +='<img src="/new/images/a1.png">';
+                                        }else{
+                                            csrData +='<img src="/new/images/b_1.png">';
+                                        }
+
+                                    csrData +='</div>';
+                                csrData +='</div>';
+                            }else if(rowVisitorIsVip && rowEngroup == 1){
+                                csrData +='<div class="hoverTip">';
+                                    csrData +='<div class="tagText" data-toggle="popover" data-content="本站的付費會員。">';
+                                        if(this.userIsVip==1){
+                                            csrData +='<img src="/new/images/a4.png">';
+                                        }else{
+                                            csrData +='<img src="/new/images/b_4.png">';
+                                        }
+                                    csrData +='</div>';
+                                csrData +='</div>';
+                            }else{
+                                if(this.userIsVip){
+                                    csrVar = 'xa_ssbg';
+                                }else{
+                                    csrVar = '';
+                                }
+                                if(rowVisitorIsPhoneAuth==1){
+                                    csrData +='<div class="hoverTip '+csrVar+'">';                            
+                                    if(this.userIsVip==1){
+                                        if(rowVisitorIsAdvanceAuth==1 && rowEngroup==2){
+                                            csrData +='<div class="tagText"  data-toggle="popover" data-content="本站的進階認證會員，本會員通過本站的嚴格驗證，基本資料正確無誤。">';
+                                            csrData +='<img src="/new/images/c_03.png">';
+                                            csrData +='</div> ';
+                                            csrData +='<span>丨</span>';
+                                        }else if(rowVisitorIsAdvanceAuth==0 && rowEngroup==2){
+                                            csrData +='<div class="tagText"  data-toggle="popover" data-content="通過本站手機驗證的會員。">';
+                                            csrData +='<img src="/new/images/c_09.png">';
+                                            csrData +='</div>  ';
+                                            csrData +='<span>丨</span>';
+                                        }
+                                    
+                                        csrData +='<div class="tagText"  data-toggle="popover" data-content="通過本站手機驗證的會員。">';
+                                        csrData +='<img src="/new/images/c_10.png">';
+                                        csrData +='</div>';
+                                    }else{
+                                        if(rowVisitorIsAdvanceAuth==1 && rowEngroup==2){
+                                            csrData +='<div class="tagText"  data-toggle="popover" data-content="本站的進階認證會員，本會員通過本站的嚴格驗證，基本資料正確無誤。">';
+                                            csrData +='<img src="/new/images/b_8x.png">';
+                                            csrData +='</div> ';
+                                        }else if(rowVisitorIsAdvanceAuth==0 && rowEngroup==2){
+                                            csrData +='<div class="tagText"  data-toggle="popover" data-content="通過本站手機驗證的會員。">';
+                                            csrData +='<img src="/new/images/b_5x.png">';
+                                            csrData +='</div>  ';
+                                        }else{
+                                            csrData +='<div class="tagText"  data-toggle="popover" data-content="通過本站手機驗證的會員。">';
+                                            csrData +='<img src="/new/images/b_6.png">';
+                                            csrData +='</div>  ';  
+                                        } 
+                                    }
+                                    csrData +='</div>';
+                                }
+                            
+                            }
+                          
+                            if(typeof rowPrLog !== 'undefined'){
+                                csrVar = rowPrLog.pr+"%;"; 
+                            }else{
+                                csrVar = "0%;";
+                            }
+
+
+                            if(rowEngroup == 1){
+                                csrData +='<div class="tixright_a">';
+                                    csrData +='<div class="span zi_sc">大方指數</div>';
+                                        csrData +='<div class="font">';
+                                            csrData +='<div class="vvipjdt tm_new">';
+                                                csrData +='<div class="progress progress-striped vvipjdt_pre_a">';
+                                                    csrData +='<div class="progress-bar progress_info_a" role="progressbar" aria-valuenow="60" aria-valuemin="0" aria-valuemax="100" style="width:'+csrVar+'"'; 
+                                                        csrData +='<span class="prfont_a">PR</span>';
+                                                    csrData +='</div>';
+                                                csrData +='</div>';
+                                            csrData +='</div>';
+                                        csrData +='</div>';
+                                    csrData +='</div>';
+                            }
+                            csrData +='</div>'; //this is correct??
+
+                        if(rowVisitorIsBlurAvatar==1) csrVar = 'blur_img';
+                        if(umetaIsAvatarHidden == 1){
+                            csrVar2 = 'makesomeerror';
+                        } else {
+                            csrVar2 = umetaPic;
                         }
+                    
+                        if (rowEngroup == 1){
+                            onerror="this.src='/new/images/male.png'" ;
+                        } else {
+                            onerror="this.src='/new/images/female.png'";
+                        }
+                        csrData +='<a href="/dashboard/viewuser/'+rowID+'">';
+                        csrData +='<div class="nt_photo '+csrVar+'"><img class="lazy" src="'+assetsUrl+csrVar2+'" data-original="'+csrVar2+'" onerror="'+onerror+'"/></div>';
+
+                        csrData +='<div class="nt_bot nt_bgco">';
+                        csrData +='<h2>';
+                        csrData +='<font class="left">'+rowName+'<span>'+rowVisitorAge+'歲</span></font>';
+                        
+                        if(this.userIsVip==1){
+                            if(rowVisitorIsOnline==1 && rowIsHideOnline==0){
+                                csrData +='<span class="onlineStatusSearch"></span>';
+                            }
+                        }else{
+                            csrData +='<div class="onlineStatusNonVipSearch"><img src="/new/images/wsx.png"></div>';
+                        }
+
+                        csrData +='</h2>';
+                        csrData +='<h3>';
+                            
+                        if(umeta.city !== ""){
+                            umeta.city.forEach((row, index) => {
+                                if (index==0){
+                                    csrData +=  umeta.city[index];
+                                    if(umetaIsHideArea == 0){
+                                        csrData +=  umetaArea[index]+'  ';
+                                    }
+                                }else{
+                                    
+                                    csrData +=  '<span>'+umeta.city[index];
+                                    if(umetaIsHideArea == 0){
+                                        csrData += (umetaArea[index]+'</span>');
+                                    }
+                                }
+                            })
+                        }           
+                        
+                           
+                        if(this.userIsVip==1){
+                            if(umetaIsHideOccupation==0 && umetaOccupation !== "" && umetaOccupation != 'null'){
+                                csrData +='<span style="margin-left: 0;">'+umetaOccupation+'</span>';
+                            }
+                        }else{
+                            csrData +='<span style="margin-left: 10px;"><span style="padding-left: 5px;">職業</span><img src="/new/images/icon_35.png" class="nt_img"></span>';
+                        }
+                      
+
+
+                        if(user.engroup==1){
+                            if(userIsVip==1){
+                                $csrData +='<i class="j_lxx">丨</i><span>'+rowVisitorExchangePeriodName.name+'</span>';
+                            }else{
+                                $csrData +='<i class="j_lxx">丨</i><span>包養關係<img src="/new/images/icon_35.png" class="nt_img"></span>';
+                            }
+                        }
+                        
+                        csrData +='</h3>';
+                        csrData +='<h3>最後上線時間：';
+                        if(rowVisitorValueAddedServiceStatusHideOnline==1 && rowIsHideOnline==1){
+                            csrData += rowHideOnlineTime.substr(0, 11);
+                        }else{
+                            csrData += rowLastLogin.substr(0, 11);
+                        }
+                    
+                        csrData +='</h3>';
+                        csrData +='</div>';
+                        csrData +='</a>';
+                        csrData +='</li>';
+console.log(csrData)
+                        this.csrData = csrData;
+                        });
+                    }else{
+                        this.csrData = '<div class="fengsicon search"><img src="/new/images/loupe.png" class="feng_img"><span>沒有資料</span></div>';
                     }
+
+
+
+                    // Promise.
+                    // this.searchData.map(async() => {
+                    //         await new Promise(resolve => setTimeout(resolve, 10));
+                    //         throw new Error('Oops!');
+                    //     })).
+                    //     catch(err => {
+                    //         err.message; // Oops!
+                    //     });
                     $(document).ready(function(){
                         $('[data-toggle="popover"]').popover({
                             animated: 'fade',
