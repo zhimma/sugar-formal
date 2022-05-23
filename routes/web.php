@@ -79,6 +79,7 @@ Route::get('/vue_test', 'PagesController@vue_test');
 Route::get('/getAllData', 'PagesController@getAllData');
 Route::get('/getCollectionData', 'PagesController@getCollectionData');
 Route::post('/getSearchData', 'PagesController@getSearchData');
+Route::post('/getSingleSearchData', 'PagesController@getSingleSearchData');
 
 Route::post('/getHideData', 'PagesController@getHideData');
 Route::post('/getFavCount', 'PagesController@getFavCount');
