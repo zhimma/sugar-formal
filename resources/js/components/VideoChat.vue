@@ -476,7 +476,7 @@ export default {
         console.log('Recorder stopped: ', event);
         console.log('Recorded Blobs: ', this.recordedBlobs);
       };
-      this.mediaRecorder.ondataavailable = function(event) {
+      this.mediaRecorder.ondataavailable = (event) => {
         console.log('handleDataAvailable', event);
         if (event.data && event.data.size > 0) {
           this.recordedBlobs.push(event.data);
