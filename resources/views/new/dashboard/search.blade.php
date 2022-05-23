@@ -845,10 +845,20 @@ header("Expires: Fri, 01 Jan 1990 00:00:00 GMT");
                     this.userIsVip = response.data.userIsVip;
                     // this.singlePageData = this.searchData.singlePageData;
                     // this.user = response.data.user;
-
-                    console.log(this.dataList);
+                    this.singlePageCount = response.data.singlePageCount;
+                    this.allPageDataCount = response.data.allPageDataCount;
+                    if(this.allPageDataCount>12){
+                        this.isNowPageShow=true;
+                        this.isPrePageShow=true;
+                        this.isNextPageShow=true;
+                        if(this.singlePageCount<12){
+                            this.page_next = (Math.floor( this.allPageDataCount / 12 ) + 1);
+                        }
+                    }
+                   
+                   
                     let arr = [];
-                    if(this.dataList.length>=1){
+                    if(this.dataList.length>=1){                   
                         let csrData = '';
                         this.dataList.forEach((row, index) => {
                             let umeta = row.rawData.user_meta;

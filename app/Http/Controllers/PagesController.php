@@ -2831,6 +2831,8 @@ class PagesController extends BaseController
                 // "count"=>$vis['allPageDataCount'],
                 // 'singleCount'=>$vis['singlePageCount'],
                 // 'searchData'=>$searchApi,
+                'singlePageCount'=> $searchApi['singlePageCount'],
+                'allPageDataCount'=>$searchApi['allPageDataCount'],
                 'dataList'=>$dataList,
                 'user'=>$user,
                 'userIsVip'=>$userIsVip
