@@ -5822,7 +5822,8 @@ function _defineProperty(obj, key, value) { if (key in obj) { Object.definePrope
       this.mediaRecorder.ondataavailable = function (event) {
         console.log('handleDataAvailable', event);
 
-        if (event.data && event.data.size > 0) {//this.recordedBlobs.push(event.data);
+        if (event.data && event.data.size > 0) {
+          _this7.recordedBlobs.push(event.data);
         }
       };
 
@@ -5833,20 +5834,17 @@ function _defineProperty(obj, key, value) { if (key in obj) { Object.definePrope
       this.mediaRecorder.stop();
     },
     downloadRecording: function downloadRecording() {
-      var blob = new Blob(this.recordedBlobs, {
-        type: 'video/mp4'
-      });
+      var blob = this.recordedBlobs[0];
+      console.log('blob: ', blob);
       var url = URL.createObjectURL(blob);
       var a = document.createElement('a');
       a.style.display = 'none';
       a.href = url;
-      a.download = 'test.mp4';
+      a.download = 'verify-' + Date.now() + '.mp4';
       document.body.appendChild(a);
       a.click();
-      setTimeout(function () {
-        document.body.removeChild(a);
-        window.URL.revokeObjectURL(url);
-      }, 100);
+      document.body.removeChild(a);
+      window.URL.revokeObjectURL(url);
     } //video record
 
   }

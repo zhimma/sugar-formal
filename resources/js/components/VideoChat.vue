@@ -489,18 +489,17 @@ export default {
       this.mediaRecorder.stop();
     },
     downloadRecording() {
-      const blob = new Blob(this.recordedBlobs, {type: 'video/mp4'});
-      const url = URL.createObjectURL(blob);
-      const a = document.createElement('a');
+      var blob = new Blob(this.recordedBlobs, {'type': 'video/mp4'});
+      console.log('blob: ', blob);
+      var url = URL.createObjectURL(blob);
+      var a = document.createElement('a');
       a.style.display = 'none';
       a.href = url;
-      a.download = 'test.mp4';
+      a.download = 'verify-' + Date.now() + '.mp4';
       document.body.appendChild(a);
       a.click();
-      setTimeout(() => {
-        document.body.removeChild(a);
-        window.URL.revokeObjectURL(url);
-      }, 100);
+      document.body.removeChild(a);
+      window.URL.revokeObjectURL(url);
     },
     //video record
   },
