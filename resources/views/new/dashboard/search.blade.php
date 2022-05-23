@@ -798,8 +798,8 @@ header("Expires: Fri, 01 Jan 1990 00:00:00 GMT");
         mounted () {
 
              let post_data = {
-                county:"{{$county}}",
-                district:"{{$district}}",
+                city:"{{$county}}",
+                area:"{{$district}}",
                 cup:{!! json_encode($cup) !!},
                 marriage:"{{$marriage}}",
                 budget:"{{$budget}}",
