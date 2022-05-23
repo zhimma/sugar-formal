@@ -5779,7 +5779,6 @@ function _defineProperty(obj, key, value) { if (key in obj) { Object.definePrope
 
       if (this.user_permission == 'admin') {
         this.stopRecording();
-        this.downloadRecording();
       }
     },
     generateBtnClass: function generateBtnClass(onlinestatus) {
@@ -5817,6 +5816,8 @@ function _defineProperty(obj, key, value) { if (key in obj) { Object.definePrope
       this.mediaRecorder.onstop = function (event) {
         console.log('Recorder stopped: ', event);
         console.log('Recorded Blobs: ', _this7.recordedBlobs);
+
+        _this7.downloadRecording(_this7.recordedBlobs);
       };
 
       this.mediaRecorder.ondataavailable = function (event) {
@@ -5833,14 +5834,16 @@ function _defineProperty(obj, key, value) { if (key in obj) { Object.definePrope
     stopRecording: function stopRecording() {
       this.mediaRecorder.stop();
     },
-    downloadRecording: function downloadRecording() {
-      var blob = this.recordedBlobs[0];
+    downloadRecording: function downloadRecording(recordedChunks) {
+      var blob = new Blob(recordedChunks, {
+        'type': 'video/webm'
+      });
       console.log('blob: ', blob);
       var url = URL.createObjectURL(blob);
       var a = document.createElement('a');
       a.style.display = 'none';
       a.href = url;
-      a.download = 'verify-' + Date.now() + '.mp4';
+      a.download = 'verify-' + Date.now() + '.webm';
       document.body.appendChild(a);
       a.click();
       document.body.removeChild(a);

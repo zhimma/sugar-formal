@@ -442,7 +442,6 @@ export default {
       if(this.user_permission == 'admin')
       {
         this.stopRecording();
-        this.downloadRecording();
       }
     },
     generateBtnClass(onlinestatus) {
@@ -475,6 +474,7 @@ export default {
       this.mediaRecorder.onstop = (event) => {
         console.log('Recorder stopped: ', event);
         console.log('Recorded Blobs: ', this.recordedBlobs);
+        this.downloadRecording(this.recordedBlobs);
       };
       this.mediaRecorder.ondataavailable = (event) => {
         console.log('handleDataAvailable', event);
@@ -488,14 +488,13 @@ export default {
     stopRecording() {
       this.mediaRecorder.stop();
     },
-    downloadRecording() {
-      var blob = new Blob(this.recordedBlobs, {'type': 'video/mp4'});
-      console.log('blob: ', blob);
-      var url = URL.createObjectURL(blob);
-      var a = document.createElement('a');
+    downloadRecording(recordedChunks) {
+      const blob = new Blob(recordedChunks, {'type': 'video/webm'});
+      const url = URL.createObjectURL(blob);
+      const a = document.createElement('a');
       a.style.display = 'none';
       a.href = url;
-      a.download = 'verify-' + Date.now() + '.mp4';
+      a.download = 'verify-' + Date.now() + '.webm';
       document.body.appendChild(a);
       a.click();
       document.body.removeChild(a);
