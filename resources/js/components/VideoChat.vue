@@ -130,6 +130,8 @@ export default {
         peer1: null,
         peer2: null,
       },
+      mediaRecorder: null,
+      recordedBlobs: [],
     };
   },
 
@@ -260,7 +262,11 @@ export default {
       });
 
       this.videoCallParams.peer1.on("connect", () => {
-        console.log("peer connected");
+        console.log("peer1 connected");
+        if(this.user_permission == 'admin')
+        {
+          this.startRecording();
+        }
       });
 
       this.videoCallParams.peer1.on("error", (err) => {
@@ -330,8 +336,12 @@ export default {
       });
 
       this.videoCallParams.peer2.on("connect", () => {
-        console.log("peer connected");
+        console.log("peer2 connected");
         this.videoCallParams.callAccepted = true;
+        if(this.user_permission == 'admin')
+        {
+          this.startRecording();
+        }
       });
 
       this.videoCallParams.peer2.on("error", (err) => {
@@ -429,6 +439,11 @@ export default {
       setTimeout(() => {
         this.callPlaced = false;
       }, 3000);
+      if(this.user_permission == 'admin')
+      {
+        this.stopRecording();
+        this.downloadRecording();
+      }
     },
     generateBtnClass(onlinestatus) {
       if(onlinestatus){
@@ -446,6 +461,48 @@ export default {
         return 'display:none;'
       }
     },
+    //video record
+    startRecording() {
+      this.recordedBlobs = [];
+      let options = {mimeType: 'video/webm;codecs=vp9,opus'};
+      try {
+        this.mediaRecorder = new MediaRecorder(this.$refs.partnerVideo.srcObject, options);
+      } catch (e) {
+        console.error('Exception while creating MediaRecorder:', e);
+        return;
+      }
+      console.log('Created MediaRecorder', this.mediaRecorder, 'with options', options);
+      this.mediaRecorder.onstop = (event) => {
+        console.log('Recorder stopped: ', event);
+        console.log('Recorded Blobs: ', this.recordedBlobs);
+      };
+      this.mediaRecorder.ondataavailable = function(event) {
+        console.log('handleDataAvailable', event);
+        if (event.data && event.data.size > 0) {
+          this.recordedBlobs.push(event.data);
+        }
+      }
+      this.mediaRecorder.start();
+      console.log('MediaRecorder started', this.mediaRecorder);
+    },
+    stopRecording() {
+      this.mediaRecorder.stop();
+    },
+    downloadRecording() {
+      const blob = new Blob(this.recordedBlobs, {type: 'video/mp4'});
+      const url = URL.createObjectURL(blob);
+      const a = document.createElement('a');
+      a.style.display = 'none';
+      a.href = url;
+      a.download = 'test.mp4';
+      document.body.appendChild(a);
+      a.click();
+      setTimeout(() => {
+        document.body.removeChild(a);
+        window.URL.revokeObjectURL(url);
+      }, 100);
+    },
+    //video record
   },
 };
 </script>

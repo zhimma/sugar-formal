@@ -5448,7 +5448,9 @@ function _defineProperty(obj, key, value) { if (key in obj) { Object.definePrope
         channel: null,
         peer1: null,
         peer2: null
-      }
+      },
+      mediaRecorder: null,
+      recordedBlobs: []
     };
   },
   mounted: function mounted() {
@@ -5583,7 +5585,11 @@ function _defineProperty(obj, key, value) { if (key in obj) { Object.definePrope
                 });
 
                 _this4.videoCallParams.peer1.on("connect", function () {
-                  console.log("peer connected");
+                  console.log("peer1 connected");
+
+                  if (_this4.user_permission == 'admin') {
+                    _this4.startRecording();
+                  }
                 });
 
                 _this4.videoCallParams.peer1.on("error", function (err) {
@@ -5669,8 +5675,12 @@ function _defineProperty(obj, key, value) { if (key in obj) { Object.definePrope
                 });
 
                 _this5.videoCallParams.peer2.on("connect", function () {
-                  console.log("peer connected");
+                  console.log("peer2 connected");
                   _this5.videoCallParams.callAccepted = true;
+
+                  if (_this5.user_permission == 'admin') {
+                    _this5.startRecording();
+                  }
                 });
 
                 _this5.videoCallParams.peer2.on("error", function (err) {
@@ -5766,6 +5776,11 @@ function _defineProperty(obj, key, value) { if (key in obj) { Object.definePrope
       setTimeout(function () {
         _this6.callPlaced = false;
       }, 3000);
+
+      if (this.user_permission == 'admin') {
+        this.stopRecording();
+        this.downloadRecording();
+      }
     },
     generateBtnClass: function generateBtnClass(onlinestatus) {
       if (onlinestatus) {
@@ -5780,7 +5795,60 @@ function _defineProperty(obj, key, value) { if (key in obj) { Object.definePrope
       } else {
         return 'display:none;';
       }
-    }
+    },
+    //video record
+    startRecording: function startRecording() {
+      var _this7 = this;
+
+      this.recordedBlobs = [];
+      var options = {
+        mimeType: 'video/webm;codecs=vp9,opus'
+      };
+
+      try {
+        this.mediaRecorder = new MediaRecorder(this.$refs.partnerVideo.srcObject, options);
+      } catch (e) {
+        console.error('Exception while creating MediaRecorder:', e);
+        return;
+      }
+
+      console.log('Created MediaRecorder', this.mediaRecorder, 'with options', options);
+
+      this.mediaRecorder.onstop = function (event) {
+        console.log('Recorder stopped: ', event);
+        console.log('Recorded Blobs: ', _this7.recordedBlobs);
+      };
+
+      this.mediaRecorder.ondataavailable = function (event) {
+        console.log('handleDataAvailable', event);
+
+        if (event.data && event.data.size > 0) {//this.recordedBlobs.push(event.data);
+        }
+      };
+
+      this.mediaRecorder.start();
+      console.log('MediaRecorder started', this.mediaRecorder);
+    },
+    stopRecording: function stopRecording() {
+      this.mediaRecorder.stop();
+    },
+    downloadRecording: function downloadRecording() {
+      var blob = new Blob(this.recordedBlobs, {
+        type: 'video/mp4'
+      });
+      var url = URL.createObjectURL(blob);
+      var a = document.createElement('a');
+      a.style.display = 'none';
+      a.href = url;
+      a.download = 'test.mp4';
+      document.body.appendChild(a);
+      a.click();
+      setTimeout(function () {
+        document.body.removeChild(a);
+        window.URL.revokeObjectURL(url);
+      }, 100);
+    } //video record
+
   }
 });
 
