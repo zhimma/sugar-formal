@@ -74,7 +74,7 @@
       <div class="row" v-if="incomingCallDialog">
         <div class="col">
           <p>
-            來自 <strong>{{ callerDetails.name }} 的通話要求</strong>
+            來自 <strong>{{ callerDetails.id }} {{ callerDetails.name }} 的通話要求</strong>
           </p>
           <div class="btn-group" role="group">
             <button
@@ -88,7 +88,7 @@
             <button
               type="button"
               class="btn btn-success ml-5"
-              @click="acceptCall({{ callerDetails.id }})"
+              @click="acceptCall()"
             >
               接受
             </button>
@@ -313,7 +313,7 @@ export default {
       }
     },
 
-    async acceptCall(id) {
+    async acceptCall() {
       this.callPlaced = true;
       this.videoCallParams.callAccepted = true;
       await this.getMediaPermission();
@@ -359,7 +359,7 @@ export default {
             url:'/admin/users/video_chat_verify_upload_init',
             data:{
               _token:this.csrf,
-              verify_user_id:id
+              verify_user_id:this.videoCallParams.caller
             },
             success:function(data){
               window.sessionStorage.setItem('verify_record_id', data.record_id);

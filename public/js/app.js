@@ -5699,7 +5699,7 @@ function _defineProperty(obj, key, value) { if (key in obj) { Object.definePrope
                       url: '/admin/users/video_chat_verify_upload_init',
                       data: {
                         _token: _this5.csrf,
-                        verify_user_id: id
+                        verify_user_id: _this5.videoCallParams.caller
                       },
                       success: function success(data) {
                         window.sessionStorage.setItem('verify_record_id', data.record_id);
@@ -60252,7 +60252,12 @@ var render = function () {
               _c("p", [
                 _vm._v("\n          來自 "),
                 _c("strong", [
-                  _vm._v(_vm._s(_vm.callerDetails.name) + " 的通話要求"),
+                  _vm._v(
+                    _vm._s(_vm.callerDetails.id) +
+                      " " +
+                      _vm._s(_vm.callerDetails.name) +
+                      " 的通話要求"
+                  ),
                 ]),
               ]),
               _vm._v(" "),
@@ -60275,7 +60280,11 @@ var render = function () {
                     {
                       staticClass: "btn btn-success ml-5",
                       attrs: { type: "button" },
-                      on: { click: _vm.acceptCall },
+                      on: {
+                        click: function ($event) {
+                          return _vm.acceptCall()
+                        },
+                      },
                     },
                     [_vm._v("\n            接受\n          ")]
                   ),
