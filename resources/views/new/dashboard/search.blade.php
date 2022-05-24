@@ -433,7 +433,7 @@ header("Expires: Fri, 01 Jan 1990 00:00:00 GMT");
                     ?>
 @php
 
-                        try{
+                        
                             // $district = "";
                             // $county = "";
                             // $district2 = "";
@@ -470,10 +470,7 @@ header("Expires: Fri, 01 Jan 1990 00:00:00 GMT");
                             // $tattoo= "";
                             //新增體重
                             // $weight = "";
-                        }
-                        catch (\Exception $e){
-                            \Illuminate\Support\Facades\Log::info('Search error, $user: ' . $user);
-                        }
+                        
 
 
 
@@ -481,7 +478,7 @@ header("Expires: Fri, 01 Jan 1990 00:00:00 GMT");
 
 
                     // if (isset($_POST['_token']) || isset($_GET['_token']) || count(session()->get('search_page_key',[]))){
-                        
+                    try{
                         $umeta = $user->user_meta;
                         if(isset($umeta->city)){
                             $umeta->city = explode(",",$umeta->city);
@@ -513,40 +510,23 @@ header("Expires: Fri, 01 Jan 1990 00:00:00 GMT");
                         $isWarned = search_variable('isWarned',"");
                         $isPhoneAuth = search_variable('isPhoneAuth',"");
                         $weight = search_variable('weight',"");
-                        
-                        
-                        //is these are correct modification??
-                        // $tattoo = request()->tattoo??session()->get('search_page_key.tattoo');
-                        // $county2 = request()->county2??session()->get('search_page_key.county2');
-                        // $county3 = request()->county3??session()->get('search_page_key.county3');
-                        // $district2 = request()->district2??session()->get('search_page_key.district2');
-                        // $district3 = request()->district3??session()->get('search_page_key.district3');
+
                         $tattoo = search_variable("tattoo","");
                         $county2 = search_variable("county2","");
                         $county3 = search_variable("county3","");
                         $district2 = search_variable("district2","");
                         $district3 = search_variable("district3","");
-                    // }
 
-
-
-
-
+                        $userIsAdvanceAuth = search_variable("isAdvanceAuth", 0);
+                    }
+                    catch (\Exception $e){
+                        \Illuminate\Support\Facades\Log::info('Search error, $user: ' . $user);
+                    }
+                        
 
                     $icc = 1;
                     $userIsVip = $user->isVIP();
-                    $userIsAdvanceAuth = $_POST["isAdvanceAuth"] ?? 
-                                         $_GET["isAdvanceAuth"]  ?? 
-                                         session()->get('search_page_key.isAdvanceAuth') ?? 0;
 
-                    // vi vendor/laravel/framework/src/Illuminate/Database/Query/Builder.php
-                    // addWhereExistsQuery() remove $operator
-                    // https://learnku.com/articles/28283?order_by=vote_count&
-
-
-
-
-                   
                     if(isset($_GET['page'])){
                         $page = $_GET['page'];
                         $page_pre = $page-1>0 ?? 1;
@@ -556,6 +536,25 @@ header("Expires: Fri, 01 Jan 1990 00:00:00 GMT");
                         $page_pre = 1;
                         $page_next = 2;
                     }
+                        //is these are correct modification??
+                        // $tattoo = request()->tattoo??session()->get('search_page_key.tattoo');
+                        // $county2 = request()->county2??session()->get('search_page_key.county2');
+                        // $county3 = request()->county3??session()->get('search_page_key.county3');
+                        // $district2 = request()->district2??session()->get('search_page_key.district2');
+                        // $district3 = request()->district3??session()->get('search_page_key.district3');
+                        
+                    // }
+
+
+                    
+                    // $userIsAdvanceAuth = $_POST["isAdvanceAuth"] ?? 
+                    //                      $_GET["isAdvanceAuth"]  ?? 
+                    //                      session()->get('search_page_key.isAdvanceAuth') ?? 0;
+
+                    // vi vendor/laravel/framework/src/Illuminate/Database/Query/Builder.php
+                    // addWhereExistsQuery() remove $operator
+                    // https://learnku.com/articles/28283?order_by=vote_count&
+
 @endphp
                     
 
@@ -843,8 +842,7 @@ header("Expires: Fri, 01 Jan 1990 00:00:00 GMT");
                     this.dataList = response.data.dataList;
                     this.user = response.data.user;
                     this.userIsVip = response.data.userIsVip;
-                    // this.singlePageData = this.searchData.singlePageData;
-                    // this.user = response.data.user;
+
                     this.singlePageCount = response.data.singlePageCount;
                     this.allPageDataCount = response.data.allPageDataCount;
                     if(this.allPageDataCount>12){
@@ -1007,7 +1005,7 @@ header("Expires: Fri, 01 Jan 1990 00:00:00 GMT");
                                         csrData +='</div>';
                                     csrData +='</div>';
                             }
-                            csrData +='</div>'; //this is correct??
+                            csrData +='</div>'; 
 
                         if(rowVisitorIsBlurAvatar==1) csrVar = 'blur_img';
                         if(umetaIsAvatarHidden == 1){
@@ -1092,16 +1090,6 @@ header("Expires: Fri, 01 Jan 1990 00:00:00 GMT");
                         this.csrData = '<div class="fengsicon search"><img src="/new/images/loupe.png" class="feng_img"><span>沒有資料</span></div>';
                     }
 
-
-
-                    // Promise.
-                    // this.searchData.map(async() => {
-                    //         await new Promise(resolve => setTimeout(resolve, 10));
-                    //         throw new Error('Oops!');
-                    //     })).
-                    //     catch(err => {
-                    //         err.message; // Oops!
-                    //     });
                     $(document).ready(function(){
                         $('[data-toggle="popover"]').popover({
                             animated: 'fade',
