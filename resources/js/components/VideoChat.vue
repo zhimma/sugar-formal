@@ -88,7 +88,7 @@
             <button
               type="button"
               class="btn btn-success ml-5"
-              @click="acceptCall"
+              @click="acceptCall(callerDetails.id)"
             >
               接受
             </button>
@@ -313,7 +313,7 @@ export default {
       }
     },
 
-    async acceptCall() {
+    async acceptCall(id) {
       this.callPlaced = true;
       this.videoCallParams.callAccepted = true;
       await this.getMediaPermission();
