@@ -869,7 +869,7 @@ header("Expires: Fri, 01 Jan 1990 00:00:00 GMT");
                             let csrVar = '';
                             let csrVar2 = '';
                             let onerror = '';
-                            let assetsUrl = '';
+                            let ASSET_SUBDOMAIN = env('ASSET_SUBDOMAIN');
                             
                             let rowVisitorIsAdminWarned = row.visitorIsAdminWarned;
                             let umetaIsWarned = umeta.isWarned;
@@ -1021,7 +1021,7 @@ header("Expires: Fri, 01 Jan 1990 00:00:00 GMT");
                             onerror="this.src='/new/images/female.png'";
                         }
                         csrData +='<a href="/dashboard/viewuser/'+rowID+'">';
-                        csrData +='<div class="nt_photo '+csrVar+'"><img class="lazy" src="'+assetsUrl+csrVar2+'" data-original="'+csrVar2+'" onerror="'+onerror+'"/></div>';
+                        csrData +='<div class="nt_photo '+csrVar+'"><img class="lazy" src="'+ASSET_SUBDOMAIN+csrVar2+'" data-original="'+csrVar2+'" onerror="'+onerror+'"/></div>';
 
                         csrData +='<div class="nt_bot nt_bgco">';
                         csrData +='<h2>';
