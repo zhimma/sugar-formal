@@ -869,8 +869,7 @@ header("Expires: Fri, 01 Jan 1990 00:00:00 GMT");
                             let csrVar = '';
                             let csrVar2 = '';
                             let onerror = '';
-                            let ASSET_SUBDOMAIN = env('ASSET_SUBDOMAIN');
-                            
+                            let ASSET_SUBDOMAIN = '{{env("ASSET_SUBDOMAIN")}}';
                             let rowVisitorIsAdminWarned = row.visitorIsAdminWarned;
                             let umetaIsWarned = umeta.isWarned;
 
