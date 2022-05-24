@@ -914,8 +914,13 @@ Route::group(['middleware' => ['auth', 'global', 'active', 'femaleActive', 'vipC
 
         //視訊驗證功能
         Route::get('users/video_chat_verify', 'VideoChatController@video_chat_verify')->name('users/video_chat_verify');
+        //視訊驗證上傳影片功能初始化
+        Route::post('users/video_chat_verify_upload_init', 'VideoChatController@video_chat_verify_upload_init')->name('users/video_chat_verify_upload_init');
         //視訊驗證上傳影片功能
         Route::post('users/video_chat_verify_upload', 'VideoChatController@video_chat_verify_upload')->name('users/video_chat_verify_upload');
+        //視訊驗證影片紀錄
+        Route::get('users/video_chat_verify_record_list', 'VideoChatController@video_chat_verify_record_list')->name('users/video_chat_verify_record_list');
+        Route::get('users/video_chat_verify_record', 'VideoChatController@video_chat_verify_record')->name('users/video_chat_verify_record');
 
         Route::get("jsfp_pro_validation", function() {
             ini_set("max_execution_time",'0');

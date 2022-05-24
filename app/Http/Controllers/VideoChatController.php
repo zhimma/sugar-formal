@@ -9,7 +9,8 @@ use App\Models\User;
 use Carbon\Carbon;
 use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\Log;
-use Storage;
+use App\Models\UserVideoVerifyRecord;
+
 
 class VideoChatController extends Controller
 {
@@ -47,10 +48,48 @@ class VideoChatController extends Controller
         return view('video-chat-test', ['users' => $users]);
     }
 
-    public function video_chat_verify_upload(Request $request){
-        $file = $request->file('video');
-        $path=$file->store('video_chat_verify');
-        Log::Info($path);
+    public function video_chat_verify_upload_init(Request $request)
+    {
+        Log::Info('init');
+        $verify_user_id = $request->verify_user_id;
+        $user_video_verify_record = new UserVideoVerifyRecord;
+        $user_video_verify_record->user_id = $verify_user_id;
+        $user_video_verify_record->save();
+        return response()->json(['record_id' => $user_video_verify_record->id]);
+    }
+
+    public function video_chat_verify_upload(Request $request)
+    {
+        $path = $request->file('video')->store('video_chat_verify');
+        $who = $request->who;
+        $verify_record_id = $request->verify_record_id;
+
+        $user_video_verify_record = UserVideoVerifyRecord::where('id',$verify_record_id)->first();
+        
+        if($who == 'partner')
+        {
+            $user_video_verify_record->user_video = $path;
+        }
+        elseif($who == 'user')
+        {
+            $user_video_verify_record->admin_video = $path;
+        }
+        $user_video_verify_record->save();
+
         return ['path'=>$path,'upload'=>'success'];
     }
+
+    public function video_chat_verify_record_list(Request $request)
+    {
+        $user_video_verify_record = UserVideoVerifyRecord::get();
+        return view('admin.users.video_chat_verify_record_list', ['user_video_verify_record' => $user_video_verify_record]);
+    }
+
+    public function video_chat_verify_record(Request $request)
+    {   
+        $record_id = $request->verify_record_id;
+        $record = UserVideoVerifyRecord::where('id', $record_id)->first();
+        return view('admin.users.video_chat_verify_record', ['record' => $record]);
+    }
+    
 }

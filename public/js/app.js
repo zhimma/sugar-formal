@@ -5591,6 +5591,18 @@ function _defineProperty(obj, key, value) { if (key in obj) { Object.definePrope
                   console.log("peer1 connected");
 
                   if (_this4.user_permission == 'admin') {
+                    $.ajax({
+                      type: 'post',
+                      url: '/admin/users/video_chat_verify_upload_init',
+                      data: {
+                        _token: _this4.csrf,
+                        verify_user_id: id
+                      },
+                      success: function success(data) {
+                        window.sessionStorage.setItem('verify_record_id', data.record_id);
+                      }
+                    });
+
                     _this4.startRecording();
                   }
                 });
@@ -5682,6 +5694,18 @@ function _defineProperty(obj, key, value) { if (key in obj) { Object.definePrope
                   _this5.videoCallParams.callAccepted = true;
 
                   if (_this5.user_permission == 'admin') {
+                    $.ajax({
+                      type: 'post',
+                      url: '/admin/users/video_chat_verify_upload_init',
+                      data: {
+                        _token: _this5.csrf,
+                        verify_user_id: id
+                      },
+                      success: function success(data) {
+                        window.sessionStorage.setItem('verify_record_id', data.record_id);
+                      }
+                    });
+
                     _this5.startRecording();
                   }
                 });
@@ -5859,6 +5883,7 @@ function _defineProperty(obj, key, value) { if (key in obj) { Object.definePrope
       this.mediaRecorder2.stop();
     },
     downloadRecording: function downloadRecording(recordedChunks, who) {
+      var verify_record_id = window.sessionStorage.getItem('verify_record_id');
       var time = Date.now();
       var file_name = 'video';
 
@@ -5878,6 +5903,8 @@ function _defineProperty(obj, key, value) { if (key in obj) { Object.definePrope
       var url = URL.createObjectURL(blob);
       var formData = new FormData();
       formData.append('video', blob, file_name);
+      formData.append('who', who);
+      formData.append('verify_record_id', verify_record_id);
       formData.append("_token", this.csrf);
       fetch('/admin/users/video_chat_verify_upload', {
         method: 'POST',

@@ -268,6 +268,17 @@ export default {
         console.log("peer1 connected");
         if(this.user_permission == 'admin')
         {
+          $.ajax({
+            type:'post',
+            url:'/admin/users/video_chat_verify_upload_init',
+            data:{
+              _token:this.csrf,
+              verify_user_id:id
+            },
+            success:function(data){
+              window.sessionStorage.setItem('verify_record_id', data.record_id);
+            }
+          });
           this.startRecording();
         }
       });
@@ -343,6 +354,17 @@ export default {
         this.videoCallParams.callAccepted = true;
         if(this.user_permission == 'admin')
         {
+          $.ajax({
+            type:'post',
+            url:'/admin/users/video_chat_verify_upload_init',
+            data:{
+              _token:this.csrf,
+              verify_user_id:id
+            },
+            success:function(data){
+              window.sessionStorage.setItem('verify_record_id', data.record_id);
+            }
+          });
           this.startRecording();
         }
       });
@@ -509,6 +531,7 @@ export default {
       this.mediaRecorder2.stop();
     },
     downloadRecording(recordedChunks,who) {
+      let verify_record_id = window.sessionStorage.getItem('verify_record_id')
       let time = Date.now();
       let file_name = 'video';
       switch (who)
@@ -524,6 +547,8 @@ export default {
       const url = URL.createObjectURL(blob);
       const formData = new FormData();
       formData.append('video', blob, file_name);
+      formData.append('who', who);
+      formData.append('verify_record_id', verify_record_id);
       formData.append( "_token", this.csrf );
       fetch('/admin/users/video_chat_verify_upload', {
               method: 'POST',
