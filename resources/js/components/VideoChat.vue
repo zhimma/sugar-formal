@@ -88,7 +88,7 @@
             <button
               type="button"
               class="btn btn-success ml-5"
-              @click="acceptCall(callerDetails.id)"
+              @click="acceptCall({{ callerDetails.id }})"
             >
               接受
             </button>
