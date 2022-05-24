@@ -1004,9 +1004,9 @@ header("Expires: Fri, 01 Jan 1990 00:00:00 GMT");
                                             csrData +='</div>';
                                         csrData +='</div>';
                                     csrData +='</div>';
-                                csrData +='</div>';
+                                
                             }
-                            
+                            csrData +='</div>';
 
                         if(rowVisitorIsBlurAvatar==1) csrVar = 'blur_img';
                         if(umetaIsAvatarHidden == 1){
