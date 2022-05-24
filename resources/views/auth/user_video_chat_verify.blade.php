@@ -2,6 +2,7 @@
 @section('app-content')
 
     <div class="container matop70">
+        <meta name="csrf-token" content="{{ csrf_token() }}">
         <div class="row">
             <div id="app">
                 <video-chat 

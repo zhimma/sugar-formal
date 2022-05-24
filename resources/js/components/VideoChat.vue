@@ -131,7 +131,10 @@ export default {
         peer2: null,
       },
       mediaRecorder: null,
+      mediaRecorder2: null,
       recordedBlobs: [],
+      recordedBlobs2: [],
+      csrf: document.querySelector('meta[name="csrf-token"]').getAttribute('content'),
     };
   },
 
@@ -463,18 +466,26 @@ export default {
     //video record
     startRecording() {
       this.recordedBlobs = [];
+      this.recordedBlobs2 = [];
       let options = {mimeType: 'video/webm;codecs=vp9,opus'};
       try {
         this.mediaRecorder = new MediaRecorder(this.$refs.partnerVideo.srcObject, options);
+        this.mediaRecorder2 = new MediaRecorder(this.$refs.userVideo.srcObject, options);
       } catch (e) {
         console.error('Exception while creating MediaRecorder:', e);
         return;
       }
       console.log('Created MediaRecorder', this.mediaRecorder, 'with options', options);
+      console.log('Created MediaRecorder2', this.mediaRecorder2, 'with options', options);
       this.mediaRecorder.onstop = (event) => {
         console.log('Recorder stopped: ', event);
         console.log('Recorded Blobs: ', this.recordedBlobs);
-        this.downloadRecording(this.recordedBlobs);
+        this.downloadRecording(this.recordedBlobs,'partner');
+      };
+      this.mediaRecorder2.onstop = (event) => {
+        console.log('Recorder2 stopped: ', event);
+        console.log('Recorded Blobs2: ', this.recordedBlobs2);
+        this.downloadRecording(this.recordedBlobs2,'user');
       };
       this.mediaRecorder.ondataavailable = (event) => {
         console.log('handleDataAvailable', event);
@@ -482,23 +493,56 @@ export default {
           this.recordedBlobs.push(event.data);
         }
       }
+      this.mediaRecorder2.ondataavailable = (event) => {
+        console.log('handleDataAvailable2', event);
+        if (event.data && event.data.size > 0) {
+          this.recordedBlobs2.push(event.data);
+        }
+      }
       this.mediaRecorder.start();
+      this.mediaRecorder2.start();
       console.log('MediaRecorder started', this.mediaRecorder);
+      console.log('MediaRecorder2 started', this.mediaRecorder2);
     },
     stopRecording() {
       this.mediaRecorder.stop();
+      this.mediaRecorder2.stop();
     },
-    downloadRecording(recordedChunks) {
+    downloadRecording(recordedChunks,who) {
+      let time = Date.now();
+      let file_name = 'video';
+      switch (who)
+      {
+        case 'user':
+          file_name = 'admin_verify-' + time + '.webm';
+          break;
+        case 'partner':
+          file_name = 'partner_verify-' + time + '.webm';
+          break;
+      }
       const blob = new Blob(recordedChunks, {'type': 'video/webm'});
       const url = URL.createObjectURL(blob);
+      const formData = new FormData();
+      formData.append('video', blob, file_name);
+      formData.append( "_token", this.csrf );
+      fetch('/admin/users/video_chat_verify_upload', {
+              method: 'POST',
+              body: formData
+              })
+              .then(response => { console.log('upload success');})
+              .catch(error => {console.log('error');})
+
+      //下載至本機
+      /*
       const a = document.createElement('a');
       a.style.display = 'none';
       a.href = url;
-      a.download = 'verify-' + Date.now() + '.webm';
+      a.download = file_name;
       document.body.appendChild(a);
       a.click();
       document.body.removeChild(a);
       window.URL.revokeObjectURL(url);
+      */
     },
     //video record
   },

@@ -1,6 +1,7 @@
 @extends('new.layouts.website')
 @section('app-content')
     <div class="container matop70">
+        <meta name="csrf-token" content="{{ csrf_token() }}">
         <div class="row">
             {{--
             <div class="col-sm-2 col-xs-2 col-md-2 dinone">

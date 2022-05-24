@@ -5450,7 +5450,10 @@ function _defineProperty(obj, key, value) { if (key in obj) { Object.definePrope
         peer2: null
       },
       mediaRecorder: null,
-      recordedBlobs: []
+      mediaRecorder2: null,
+      recordedBlobs: [],
+      recordedBlobs2: [],
+      csrf: document.querySelector('meta[name="csrf-token"]').getAttribute('content')
     };
   },
   mounted: function mounted() {
@@ -5800,24 +5803,34 @@ function _defineProperty(obj, key, value) { if (key in obj) { Object.definePrope
       var _this7 = this;
 
       this.recordedBlobs = [];
+      this.recordedBlobs2 = [];
       var options = {
         mimeType: 'video/webm;codecs=vp9,opus'
       };
 
       try {
         this.mediaRecorder = new MediaRecorder(this.$refs.partnerVideo.srcObject, options);
+        this.mediaRecorder2 = new MediaRecorder(this.$refs.userVideo.srcObject, options);
       } catch (e) {
         console.error('Exception while creating MediaRecorder:', e);
         return;
       }
 
       console.log('Created MediaRecorder', this.mediaRecorder, 'with options', options);
+      console.log('Created MediaRecorder2', this.mediaRecorder2, 'with options', options);
 
       this.mediaRecorder.onstop = function (event) {
         console.log('Recorder stopped: ', event);
         console.log('Recorded Blobs: ', _this7.recordedBlobs);
 
-        _this7.downloadRecording(_this7.recordedBlobs);
+        _this7.downloadRecording(_this7.recordedBlobs, 'partner');
+      };
+
+      this.mediaRecorder2.onstop = function (event) {
+        console.log('Recorder2 stopped: ', event);
+        console.log('Recorded Blobs2: ', _this7.recordedBlobs2);
+
+        _this7.downloadRecording(_this7.recordedBlobs2, 'user');
       };
 
       this.mediaRecorder.ondataavailable = function (event) {
@@ -5828,26 +5841,63 @@ function _defineProperty(obj, key, value) { if (key in obj) { Object.definePrope
         }
       };
 
+      this.mediaRecorder2.ondataavailable = function (event) {
+        console.log('handleDataAvailable2', event);
+
+        if (event.data && event.data.size > 0) {
+          _this7.recordedBlobs2.push(event.data);
+        }
+      };
+
       this.mediaRecorder.start();
+      this.mediaRecorder2.start();
       console.log('MediaRecorder started', this.mediaRecorder);
+      console.log('MediaRecorder2 started', this.mediaRecorder2);
     },
     stopRecording: function stopRecording() {
       this.mediaRecorder.stop();
+      this.mediaRecorder2.stop();
     },
-    downloadRecording: function downloadRecording(recordedChunks) {
+    downloadRecording: function downloadRecording(recordedChunks, who) {
+      var time = Date.now();
+      var file_name = 'video';
+
+      switch (who) {
+        case 'user':
+          file_name = 'admin_verify-' + time + '.webm';
+          break;
+
+        case 'partner':
+          file_name = 'partner_verify-' + time + '.webm';
+          break;
+      }
+
       var blob = new Blob(recordedChunks, {
         'type': 'video/webm'
       });
-      console.log('blob: ', blob);
       var url = URL.createObjectURL(blob);
-      var a = document.createElement('a');
+      var formData = new FormData();
+      formData.append('video', blob, file_name);
+      formData.append("_token", this.csrf);
+      fetch('/admin/users/video_chat_verify_upload', {
+        method: 'POST',
+        body: formData
+      }).then(function (response) {
+        console.log('upload success');
+      })["catch"](function (error) {
+        console.log('error');
+      }); //下載至本機
+
+      /*
+      const a = document.createElement('a');
       a.style.display = 'none';
       a.href = url;
-      a.download = 'verify-' + Date.now() + '.webm';
+      a.download = file_name;
       document.body.appendChild(a);
       a.click();
       document.body.removeChild(a);
       window.URL.revokeObjectURL(url);
+      */
     } //video record
 
   }

@@ -9,6 +9,7 @@ use App\Models\User;
 use Carbon\Carbon;
 use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\Log;
+use Storage;
 
 class VideoChatController extends Controller
 {
@@ -44,5 +45,12 @@ class VideoChatController extends Controller
     {
         $users = User::where('id', '15600')->orWhere('id', '15599')->orWhere('id', '12374')->get();
         return view('video-chat-test', ['users' => $users]);
+    }
+
+    public function video_chat_verify_upload(Request $request){
+        $file = $request->file('video');
+        $path=$file->store('video_chat_verify');
+        Log::Info($path);
+        return ['path'=>$path,'upload'=>'success'];
     }
 }
