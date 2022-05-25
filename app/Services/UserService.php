@@ -1252,6 +1252,7 @@ class UserService
                 ->whereNull('b1.member_id')
                 ->whereNull('b3.target')
                 ->whereNull('wu.member_id')
+                ->where('users.id', $targetUser->id)
                 ->where('users.accountStatus', 1)
                 ->where('users.account_status_admin', 1)
                 ->where(function($query)use($date_start,$date_end) {
@@ -1260,7 +1261,6 @@ class UserService
                         ->orWhereNull('message.sys_notice')
                         ->whereBetween('message.created_at', array($date_start . ' 00:00', $date_end . ' 23:59'));
                 });
-            $query->where('users.email',$targetUser->email);
             $results_a = $query->distinct('message.from_id')->get();
 
             if ($results_a != null) {
