@@ -24,10 +24,11 @@
         <div>
     <div>
     <script>
+        let ice_servers;
         async function kinesis_init()
         {
             // DescribeSignalingChannel API can also be used to get the ARN from a channel name.
-            const channelARN = 'arn:aws:kinesisvideo:us-west-2:123456789012:channel/test-channel/1234567890';
+            const channelARN = 'arn:aws:kinesisvideo:ap-southeast-1:428876234027:channel/videos/1653476269290';
 
             // AWS Credentials
             const accessKeyId = 'AKIAWHWYD7UVXA6QL2GN';
@@ -52,10 +53,7 @@
                     },
                 })
                 .promise();
-
-            console.log(getSignalingChannelEndpointResponse);
-            console.log('end');
-            /*
+            
             const endpointsByProtocol = getSignalingChannelEndpointResponse.ResourceEndpointList.reduce((endpoints, endpoint) => {
                 endpoints[endpoint.Protocol] = endpoint.ResourceEndpoint;
                 return endpoints;
@@ -68,7 +66,7 @@
                 endpoint: endpointsByProtocol.HTTPS,
                 correctClockSkew: true,
             });
-
+            
             const getIceServerConfigResponse = await kinesisVideoSignalingChannelsClient
                 .getIceServerConfig({
                     ChannelARN: channelARN,
@@ -86,13 +84,13 @@
                     credential: iceServer.Password,
                 }),
             );
-            */
+
+            ice_servers = iceServers;
         }
 
-        kinesis_init();
-        
-
-
+        kinesis_init().then(function(result){
+            console.log(ice_servers)
+        });
 
         /*
         new Vue({
