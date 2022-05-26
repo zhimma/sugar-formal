@@ -11,6 +11,7 @@
         "php": ">=7.3|^8.0",
         "ext-json": "*",
         "aws/aws-sdk-php": "^3.219",
+        "aws/aws-sdk-php-laravel": "^3.7",
         "beyondcode/laravel-websockets": "^1.13",
         "facade/ignition": "^2.3.6",
         "fideloper/proxy": "^4.0",

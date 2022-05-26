@@ -60280,11 +60280,7 @@ var render = function () {
                     {
                       staticClass: "btn btn-success ml-5",
                       attrs: { type: "button" },
-                      on: {
-                        click: function ($event) {
-                          return _vm.acceptCall()
-                        },
-                      },
+                      on: { click: _vm.acceptCall },
                     },
                     [_vm._v("\n            接受\n          ")]
                   ),
