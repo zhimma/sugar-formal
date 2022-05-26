@@ -5430,7 +5430,7 @@ function _defineProperty(obj, key, value) { if (key in obj) { Object.definePrope
 
 
 /* harmony default export */ const __WEBPACK_DEFAULT_EXPORT__ = ({
-  props: ["allusers", "authuserid", "user_permission", "turn_url", "turn_username", "turn_credential"],
+  props: ["allusers", "authuserid", "user_permission", "ice_server_json"],
   data: function data() {
     return {
       isFocusMyself: true,
@@ -5545,6 +5545,7 @@ function _defineProperty(obj, key, value) { if (key in obj) { Object.definePrope
       var _this4 = this;
 
       return _asyncToGenerator( /*#__PURE__*/_babel_runtime_regenerator__WEBPACK_IMPORTED_MODULE_0___default().mark(function _callee() {
+        var iceserver;
         return _babel_runtime_regenerator__WEBPACK_IMPORTED_MODULE_0___default().wrap(function _callee$(_context) {
           while (1) {
             switch (_context.prev = _context.next) {
@@ -5555,16 +5556,14 @@ function _defineProperty(obj, key, value) { if (key in obj) { Object.definePrope
                 return _this4.getMediaPermission();
 
               case 4:
+                iceserver = JSON.parse(_this4.ice_server_json.trim());
+                console.log(iceserver);
                 _this4.videoCallParams.peer1 = new (simple_peer__WEBPACK_IMPORTED_MODULE_1___default())({
                   initiator: true,
                   trickle: false,
                   stream: _this4.videoCallParams.stream,
                   config: {
-                    iceServers: [{
-                      urls: _this4.turn_url,
-                      username: _this4.turn_username,
-                      credential: _this4.turn_credential
-                    }]
+                    iceServers: iceserver
                   }
                 });
 
@@ -5639,7 +5638,7 @@ function _defineProperty(obj, key, value) { if (key in obj) { Object.definePrope
                   _this4.toggleMuteVideo();
                 }
 
-              case 12:
+              case 14:
               case "end":
                 return _context.stop();
             }
@@ -5651,6 +5650,7 @@ function _defineProperty(obj, key, value) { if (key in obj) { Object.definePrope
       var _this5 = this;
 
       return _asyncToGenerator( /*#__PURE__*/_babel_runtime_regenerator__WEBPACK_IMPORTED_MODULE_0___default().mark(function _callee2() {
+        var iceserver;
         return _babel_runtime_regenerator__WEBPACK_IMPORTED_MODULE_0___default().wrap(function _callee2$(_context2) {
           while (1) {
             switch (_context2.prev = _context2.next) {
@@ -5661,16 +5661,14 @@ function _defineProperty(obj, key, value) { if (key in obj) { Object.definePrope
                 return _this5.getMediaPermission();
 
               case 4:
+                iceserver = JSON.parse(_this5.ice_server_json.trim());
+                console.log(iceserver);
                 _this5.videoCallParams.peer2 = new (simple_peer__WEBPACK_IMPORTED_MODULE_1___default())({
                   initiator: false,
                   trickle: false,
                   stream: _this5.videoCallParams.stream,
                   config: {
-                    iceServers: [{
-                      urls: _this5.turn_url,
-                      username: _this5.turn_username,
-                      credential: _this5.turn_credential
-                    }]
+                    iceServers: iceserver
                   }
                 });
                 _this5.videoCallParams.receivingCall = false;
@@ -5724,7 +5722,7 @@ function _defineProperty(obj, key, value) { if (key in obj) { Object.definePrope
                   _this5.toggleMuteVideo();
                 }
 
-              case 13:
+              case 15:
               case "end":
                 return _context2.stop();
             }

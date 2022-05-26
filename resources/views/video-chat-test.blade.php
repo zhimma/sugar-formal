@@ -16,9 +16,8 @@
                 <video-chat 
                     :allusers="{{ $users }}" 
                     :authUserId="{{ auth()->id() }}" 
-                    turn_url="{{ env('TURN_SERVER_URL') }}"
-                    turn_username="{{ env('TURN_SERVER_USERNAME') }}" 
-                    turn_credential="{{ env('TURN_SERVER_CREDENTIAL') }}" 
+                    user_permission = "normal"
+                    ice_server_json="" 
                 />
             </div>
         <div>
@@ -34,8 +33,6 @@
             const accessKeyId = 'AKIAWHWYD7UVXA6QL2GN';
             const secretAccessKey = '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';
             const region = 'ap-southeast-1';
-
-            console.log('start');
 
             const kinesisVideoClient = new AWS.KinesisVideo({
                 region,
@@ -89,13 +86,10 @@
         }
 
         kinesis_init().then(function(result){
-            console.log(ice_servers)
+            $('#app video-chat').attr('ice_server_json',JSON.stringify(ice_servers));
+            new Vue({
+                el:'#app'
+            });
         });
-
-        /*
-        new Vue({
-            el:'#app'
-        });
-        */
     </script>
 @stop

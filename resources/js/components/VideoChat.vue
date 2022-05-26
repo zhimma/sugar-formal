@@ -108,9 +108,7 @@ export default {
     "allusers",
     "authuserid",
     "user_permission",
-    "turn_url",
-    "turn_username",
-    "turn_credential",
+    "ice_server_json",
   ],
   data() {
     return {
@@ -228,18 +226,14 @@ export default {
       this.callPlaced = true;
       this.callPartner = name;
       await this.getMediaPermission();
+      const iceserver = JSON.parse(this.ice_server_json.trim());
+      console.log(iceserver);
       this.videoCallParams.peer1 = new Peer({
         initiator: true,
         trickle: false,
         stream: this.videoCallParams.stream,
         config: {
-          iceServers: [
-            {
-              urls: this.turn_url,
-              username: this.turn_username,
-              credential: this.turn_credential,
-            },
-          ],
+          iceServers: iceserver,
         },
       });
 
@@ -317,18 +311,14 @@ export default {
       this.callPlaced = true;
       this.videoCallParams.callAccepted = true;
       await this.getMediaPermission();
+      const iceserver = JSON.parse(this.ice_server_json.trim());
+      console.log(iceserver);
       this.videoCallParams.peer2 = new Peer({
         initiator: false,
         trickle: false,
         stream: this.videoCallParams.stream,
         config: {
-          iceServers: [
-            {
-              urls: this.turn_url,
-              username: this.turn_username,
-              credential: this.turn_credential,
-            },
-          ],
+          iceServers: iceserver,
         },
       });
       this.videoCallParams.receivingCall = false;
