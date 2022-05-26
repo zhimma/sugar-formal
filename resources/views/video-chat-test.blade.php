@@ -27,12 +27,12 @@
         async function kinesis_init()
         {
             // DescribeSignalingChannel API can also be used to get the ARN from a channel name.
-            const channelARN = 'arn:aws:kinesisvideo:ap-southeast-1:428876234027:channel/videos/1653476269290';
+            const channelARN = "{{ env('AWS_KINESIS_CHANNELARN') }}";
 
             // AWS Credentials
-            const accessKeyId = 'AKIAWHWYD7UVXA6QL2GN';
-            const secretAccessKey = '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';
-            const region = 'ap-southeast-1';
+            const accessKeyId = "{{ env('AWS_KINESIS_ACCESSKEYID') }}";
+            const secretAccessKey = "{{ env('AWS_KINESIS_SECRETACCESSKEY') }}";
+            const region = "{{ env('AWS_KINESIS_REGION') }}";
 
             const kinesisVideoClient = new AWS.KinesisVideo({
                 region,
