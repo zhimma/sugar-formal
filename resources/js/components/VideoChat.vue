@@ -234,7 +234,7 @@ export default {
         trickle: false,
         stream: this.videoCallParams.stream,
         config: {
-          iceServers: iceserver,
+          iceServers: [iceserver[0],iceserver[1]],
         },
       });
 
@@ -320,7 +320,7 @@ export default {
         trickle: false,
         stream: this.videoCallParams.stream,
         config: {
-          iceServers: iceserver,
+          iceServers: [iceserver[0],iceserver[1]],
         },
       });
       this.videoCallParams.receivingCall = false;
