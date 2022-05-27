@@ -5556,14 +5556,15 @@ function _defineProperty(obj, key, value) { if (key in obj) { Object.definePrope
                 return _this4.getMediaPermission();
 
               case 4:
+                console.log("iceserver_json: " + _this4.ice_server_json);
                 iceserver = JSON.parse(_this4.ice_server_json.trim());
-                console.log(iceserver);
+                console.log("iceserver: " + iceserver);
                 _this4.videoCallParams.peer1 = new (simple_peer__WEBPACK_IMPORTED_MODULE_1___default())({
                   initiator: true,
                   trickle: false,
                   stream: _this4.videoCallParams.stream,
                   config: {
-                    iceServers: iceserver
+                    iceServers: [iceserver[0], iceserver[1]]
                   }
                 });
 
@@ -5638,7 +5639,7 @@ function _defineProperty(obj, key, value) { if (key in obj) { Object.definePrope
                   _this4.toggleMuteVideo();
                 }
 
-              case 14:
+              case 15:
               case "end":
                 return _context.stop();
             }
@@ -5661,14 +5662,15 @@ function _defineProperty(obj, key, value) { if (key in obj) { Object.definePrope
                 return _this5.getMediaPermission();
 
               case 4:
+                console.log("iceserver_json: " + _this5.ice_server_json);
                 iceserver = JSON.parse(_this5.ice_server_json.trim());
-                console.log(iceserver);
+                console.log("iceserver: " + iceserver);
                 _this5.videoCallParams.peer2 = new (simple_peer__WEBPACK_IMPORTED_MODULE_1___default())({
                   initiator: false,
                   trickle: false,
                   stream: _this5.videoCallParams.stream,
                   config: {
-                    iceServers: iceserver
+                    iceServers: [iceserver[0], iceserver[1]]
                   }
                 });
                 _this5.videoCallParams.receivingCall = false;
@@ -5722,7 +5724,7 @@ function _defineProperty(obj, key, value) { if (key in obj) { Object.definePrope
                   _this5.toggleMuteVideo();
                 }
 
-              case 15:
+              case 16:
               case "end":
                 return _context2.stop();
             }

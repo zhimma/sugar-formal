@@ -226,15 +226,15 @@ export default {
       this.callPlaced = true;
       this.callPartner = name;
       await this.getMediaPermission();
-      console.log("iceserver_json: " + this.ice_server_json);
+      //console.log("iceserver_json: " + this.ice_server_json);
       const iceserver = JSON.parse(this.ice_server_json.trim());
-      console.log("iceserver: " + iceserver);
+      //console.log("iceserver: " + iceserver);
       this.videoCallParams.peer1 = new Peer({
         initiator: true,
         trickle: false,
         stream: this.videoCallParams.stream,
         config: {
-          iceServers: iceserver,
+          iceServers: [iceserver[0],iceserver[1]],
         },
       });
 
@@ -312,15 +312,15 @@ export default {
       this.callPlaced = true;
       this.videoCallParams.callAccepted = true;
       await this.getMediaPermission();
-      console.log("iceserver_json: " + this.ice_server_json);
+      //console.log("iceserver_json: " + this.ice_server_json);
       const iceserver = JSON.parse(this.ice_server_json.trim());
-      console.log("iceserver: " + iceserver);
+      //console.log("iceserver: " + iceserver);
       this.videoCallParams.peer2 = new Peer({
         initiator: false,
         trickle: false,
         stream: this.videoCallParams.stream,
         config: {
-          iceServers: iceserver,
+          iceServers: [iceserver[0],iceserver[1]],
         },
       });
       this.videoCallParams.receivingCall = false;
