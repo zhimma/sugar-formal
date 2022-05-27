@@ -50,7 +50,6 @@ class VideoChatController extends Controller
 
     public function video_chat_verify_upload_init(Request $request)
     {
-        Log::Info('init');
         $verify_user_id = $request->verify_user_id;
         $user_video_verify_record = new UserVideoVerifyRecord;
         $user_video_verify_record->user_id = $verify_user_id;
@@ -81,7 +80,11 @@ class VideoChatController extends Controller
 
     public function video_chat_verify_record_list(Request $request)
     {
-        $user_video_verify_record = UserVideoVerifyRecord::get();
+        $user_video_verify_record = UserVideoVerifyRecord::select('user_video_verify_record.*', 'users.name','users.email')
+            ->leftJoin('users', 'user_video_verify_record.user_id', '=', 'users.id')
+            ->orderBy('user_video_verify_record.created_at','desc')
+            ->get();
+        Log::Info($user_video_verify_record->first());
         return view('admin.users.video_chat_verify_record_list', ['user_video_verify_record' => $user_video_verify_record]);
     }
 

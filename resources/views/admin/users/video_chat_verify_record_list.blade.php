@@ -8,14 +8,20 @@
         <h1>視訊驗證紀錄</h1>
         <br>
         <table class='table table-bordered table-hover'>
+            <tr>
+                <td><h3>暱稱</h3></td>
+                <td><h3>Email</h3></td>
+                <td><h3>視訊時間</h3></td>
+                <td><h3>查看</h3></td>
+            </tr>
             @foreach($user_video_verify_record as $record)
                 <tr>
-                    <td>
-                        <h3>{{$record->id}}</h3>
-                    </td>
+                    <td><h3>{{$record->name}}</h3></td>
+                    <td><h3>{{$record->email}}</h3></td>
+                    <td><h3>{{$record->created_at}}</h3></td>
                     <td>
                         <a href="{{route('users/video_chat_verify_record') . '?verify_record_id=' . $record->id}}">
-                            <h3>{{$record->user_id}}</h3>
+                            <h3>查看</h3>
                         </a>
                     </td>
                 </tr>
