@@ -245,6 +245,9 @@
             @elseif(!$user->isAdvanceAuth())
                 您好，您即將進入本站的進階身分驗證資訊系統。
                 通過驗證將獲得本站的<img src="{{asset('new/images/b_7.png')}}" class="adv_auth_icon" />進階驗證標籤<img src="{{asset('new/images/b_7.png')}}"  class="adv_auth_icon" />               
+                @if($rap_service->isInRealAuthProcess())
+                ，並可進行最後的視訊驗證。
+                @endif            
             @endif 
         </div>
         <div class="n_bbutton">

@@ -5,6 +5,14 @@ header("Last-Modified: " . gmdate("D, d M Y H:i:s") . " GMT");
 header("Expires: Fri, 01 Jan 1990 00:00:00 GMT");
 ?>
 @extends('new.layouts.website')
+@section('style')
+<style>
+.real_auth_bg{width:100%; height:100%;width: 100%;height: 100%;position: fixed;top: 0px;left: 0;background: rgba(0,0,0,0.5);z-index: 9;display:none;}
+</style>
+<script>
+real_auth_bad_count = 0;
+</script>
+@stop
 @section('app-content')
 
   <?php
@@ -124,6 +132,14 @@ dt span.engroup_type_title {display:inline-block;width:10%;white-space:nowrap;}
                 <input type="hidden" name="_token" value="{{ csrf_token() }}">
                 <input type="hidden" name="userId" value="{{$user->id}}">
                 <div class="n_input">
+                    @if(!$rap_service->isInRealAuthProcess())
+                    <dt>
+                        <span>本人驗證</span>
+                        <span>
+                            <div class="select_xx03">尚未認證<a class="btn btn-success" href="{{route('real_auth')}}">立即申請</a></div>
+                        </span>
+                    </dt>                
+                    @endif
                     <dt>
                         <span>LINE 通知</span>
                         <span>
@@ -177,7 +193,7 @@ dt span.engroup_type_title {display:inline-block;width:10%;white-space:nowrap;}
                         @endphp
                         <span>
 {{--                            <input name="" id="" type="text" class="select_xx01" value="{{$exchange_period_name->name}}" data-parsley-errors-messages-disabled disabled style="background-color: #d2d2d2;">--}}
-                            <div class="select_xx01 senhs hy_new" style="background: #d2d2d2;">{{$exchange_period_name->name}}</div>
+                            <div class="select_xx01 senhs hy_new" tabindex="-1" id="exchange_period_readonly_block" style="background: #d2d2d2;">{{$exchange_period_name->name}}</div>
                         </span>
                         <input name="exchange_period" id="" type="hidden" class="select_xx01" value="{{$user->exchange_period}}" data-parsley-errors-messages-disabled disabled style="background-color: #d2d2d2;">
                     </dt>
@@ -768,7 +784,13 @@ dt span.engroup_type_title {display:inline-block;width:10%;white-space:nowrap;}
                   </dt>
                   @endif
                 </div>
-                <a class="dlbut g_inputt20 abtn" onclick="$('form[name=user_data]').submit();">確定更新</a>
+                <a class="dlbut g_inputt20 abtn" onclick="$('body').attr('onbeforeunload','');$('form[name=user_data]').submit();">
+                    @if($rap_service->isInRealAuthProcess())
+                    完成
+                    @else
+                    確定更新
+                    @endif
+                </a>
                 <a href="" class="zcbut matop20">取消</a>
               </form>
             </div>
@@ -906,6 +928,36 @@ dt span.engroup_type_title {display:inline-block;width:10%;white-space:nowrap;}
       </div>
       <a onclick="gmBtnNoReload()" class="bl_gb"><img src="/new/images/gb_icon.png"></a>
   </div>
+
+    <div class="real_auth_bg" onclick="gmBtnNoReload()" style="display:none;"></div>
+    <div class="bl bl_tab" id="real_auth_hint_tab" style="display: none;">
+        <div class="bltitle">提示</div>
+        <div class="n_blnr01 matop10">
+            <div class="blnr bltext">
+                請確認包養關係
+                <br>
+                請確認身高
+                <br>
+                請確認體重
+                <br>                
+            </div>
+            <a class="n_bllbut matop30" onclick="real_auth_tab_close(this)">確定</a> 
+        </div>
+        <a onclick="real_auth_tab_close(this);" class="bl_gb"><img src="{{asset('/new/images/gb_icon.png')}}"></a>
+    </div>
+    
+    <div class="bl bl_tab" id="real_auth_backward_tab" style="display: none;">
+        <div class="bltitle">提示</div>
+        <div class="n_blnr01 matop10">
+            <div class="blnr bltext">
+                您尚未設定頭像，{{$add_avatar}}，並確認照片符合您的現況。         
+            </div>
+            <a class="n_bllbut matop30" onclick="location.href='{{route('dashboard_img',['real_auth'=>request()->real_auth])}}';">確定</a> 
+        </div>
+        <a onclick="real_auth_tab_close(this);" class="bl_gb"><img src="{{asset('/new/images/gb_icon.png')}}"></a>
+    </div>      
+ 
+
 <script>
     function pr() {
         $(".blbg").show();
@@ -1159,7 +1211,11 @@ dt span.engroup_type_title {display:inline-block;width:10%;white-space:nowrap;}
             @if (!$umeta->isAllSet( $user->engroup ))
                 c5('請寫上基本資料。');
             @elseif (empty($umeta->pic))
+                @if($rap_service->isInRealAuthProcess())
+                real_auth_backward_popup();
+                @else
                 c5("{{$add_avatar}}");
+                @endif
             @elseif ($umeta->age()<18)
                 c5('您好，您的年齡低於法定18歲，請至個人基本資料設定修改，否則您的資料將會被限制搜尋。');
             @endif
@@ -1448,7 +1504,7 @@ dt span.engroup_type_title {display:inline-block;width:10%;white-space:nowrap;}
 
         var form = $('form[name=user_data]').serialize();
         $.ajax({
-          url:'{{ route('dashboard2') }}?{{csrf_token()}}={{now()->timestamp}}',
+          url:'{{ route('dashboard2') }}?{{csrf_token()}}={{now()->timestamp}}&{{$rap_service->isInRealAuthProcess()?'real_auth='.request()->real_auth:null}}',
           type: 'POST',
           dataType: 'JSON',
           data: form,
@@ -1456,15 +1512,24 @@ dt span.engroup_type_title {display:inline-block;width:10%;white-space:nowrap;}
               $('#tab04').hide();
             waitingDialog.show();
           },
-          complete: function () {
-
-            window.location.reload();
+          complete: function (xhr) {
+            result = xhr.responseJSON;
+            if(!(!!result.status && !!result.redirect))
+                window.location.reload();
             waitingDialog.hide();
 
           },
           success: function (result) {
+            $('body').attr('onbeforeunload','');
+            console.log(result);
             ResultData(result);
-            window.location.reload();
+
+            if(!!result.status && !!result.redirect) {
+                location.href=result.redirect;
+            }
+            else
+                window.location.reload();
+            
           }
         });
       });
@@ -1599,8 +1664,42 @@ dt span.engroup_type_title {display:inline-block;width:10%;white-space:nowrap;}
             regist_start_time = new Date();
         });
     @endif
-    //計算註冊時間
+    //計算註冊時間end
 
   </script>
+@if($rap_service->isInRealAuthProcess())
+<script>
+    $(document).ready(function() {
+        if(real_auth_bad_count==0)
+            real_auth_popup();
+    });
 
+    //$('body').attr('onbeforeunload','break_leave_real_auth();return "";');
+    $('body').attr('onbeforeunload','return "";');
+/*
+function break_leave_real_auth() {
+    $.get( "{{route('forget_real_auth')}}?{{csrf_token()}}={{now()->timestamp}}");
+    window.history.replaceState( {} , $('title').html(), '{{route("real_auth")}}' );
+}
+*/
+
+function real_auth_popup() {
+    $('#real_auth_hint_tab').show();
+    $(".real_auth_bg").show();
+    $('#exchange_period_readonly_block').focus();
+}
+
+function real_auth_backward_popup() {
+    $('#real_auth_backward_tab').show();
+    $(".real_auth_bg").show();
+    $('body').attr('onbeforeunload','');
+    real_auth_bad_count++;
+}
+
+function real_auth_tab_close(dom) {
+    $(dom).closest('.bl_tab').hide();
+    $(".real_auth_bg").hide();
+}
+</script>
+@endif
 @stop

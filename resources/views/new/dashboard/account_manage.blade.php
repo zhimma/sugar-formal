@@ -64,7 +64,7 @@
                         <a @if($isAdvAuthUsable??false) href="/advance_auth/" @endif class="gg_zh_li" onclick="checkAdvAuth()"><span><img src="/new/images/zh10.png"></span>
                             <font>進階驗證</font>
                         </a>
-                        <a href="#" class="gg_zh_li"><span><img src="/new/images/zh11.png"></span>
+                        <a href="{{route('real_auth')}}" class="gg_zh_li"><span><img src="/new/images/zh11.png"></span>
 								<font>本人認證</font>
 						</a>                      
                         @endif

@@ -35,6 +35,7 @@ use App\Services\UserService;
 use App\Services\VipLogService;
 use App\Services\FaqUserService;
 use App\Services\FaqService;
+use App\Services\RealAuthPageService;
 use App\Models\Fingerprint;
 use App\Models\Visited;
 use App\Models\Board;
@@ -129,7 +130,7 @@ class PagesController extends BaseController
     }
 
     public function profileUpdate(Request $request, ProfileUpdateRequest $profileUpdateRequest)
-    {
+    {       
         //Custom validation.
         Validator::extend('not_contains', function($attribute, $value, $parameters)
         {
@@ -168,7 +169,7 @@ class PagesController extends BaseController
     }
 
     //新版編輯會員資料
-    public function profileUpdate_ajax(Request $request, ProfileUpdateRequest $profileUpdateRequest)
+    public function profileUpdate_ajax(Request $request, ProfileUpdateRequest $profileUpdateRequest,RealAuthPageService $rap_service)
     {
         //Custom validation.
         Validator::extend('not_contains', function($attribute, $value, $parameters)
@@ -208,6 +209,10 @@ class PagesController extends BaseController
                     'msg' => '資料更新成功',
                     'redirect'=>'/dashboard',
                 ];
+                
+                if($rap_service->isInRealAuthProcess()) {
+                    $status_data['redirect'] = url('/advance_auth/').'?real_auth='.request()->real_auth;
+                }
             }else{
                 $status_data =[
                     'status' => true,
@@ -685,8 +690,10 @@ class PagesController extends BaseController
         }
     }
 
-    public function dashboard(Request $request)
+    public function dashboard(Request $request,RealAuthPageService $rap_service)
     {
+        $notInRaProcessReturn = $rap_service->returnInWrongRealAuthProcess();
+        if($notInRaProcessReturn) return $notInRaProcessReturn; 
         // 驗證 VIP 是否成功付款
         //      1. 綠界：連 API 檢查，使用 Laravel Queue 執行檢查
         //      2. 藍新：後台手動
@@ -758,7 +765,8 @@ class PagesController extends BaseController
                     ->with('message', $message)
                     ->with('cancel_notice', $cancel_notice)
                     ->with('add_avatar', $add_avatar)
-                    ->with('no_avatar', isset($no_avatar)?$no_avatar->content:'');
+                    ->with('no_avatar', isset($no_avatar)?$no_avatar->content:'')
+                    ->with('rap_service',$rap_service);;
             }
             return view('new.dashboard')
                 ->with('user', $user)
@@ -771,7 +779,8 @@ class PagesController extends BaseController
                 ->with('add_avatar', $add_avatar)
                 ->with('isAdminWarnedRead',$isAdminWarnedRead)
                 ->with('no_avatar', isset($no_avatar)?$no_avatar->content:'')
-                ->with('pr', $pr);
+                ->with('pr', $pr)
+                ->with('rap_service',$rap_service);;
                 //->with('isWarnedReason',$isWarnedReason)
         }
     }
@@ -796,8 +805,19 @@ class PagesController extends BaseController
         }
     }
 
-    public function dashboard_img(Request $request)
+    public function dashboard_img(Request $request,RealAuthPageService $rap_service)
     {
+        /*
+        if(request()->real_auth && !session()->get('real_auth_type')
+            || (!request()->real_auth && session()->get('real_auth_type'))
+        )
+        {
+            session()->forget('real_auth_type');
+            return redirect()->route('real_auth');
+        }
+        */
+        $notInRaProcessReturn = $rap_service->returnInWrongRealAuthProcess();
+        if($notInRaProcessReturn) return $notInRaProcessReturn;
         $user = $request->user();
         $url = $request->fullUrl();
         //echo $url;
@@ -843,7 +863,8 @@ class PagesController extends BaseController
                     ->with('day', $day)
                     ->with('message', $message)
                     ->with('cancel_notice', $cancel_notice)
-                    ->with('girl_to_vip', $girl_to_vip->content);
+                    ->with('girl_to_vip', $girl_to_vip->content)
+                    ->with('rap_service',$rap_service);
             }
             if($user->engroup==1){
                 return view('new.dashboard_img')
@@ -855,7 +876,8 @@ class PagesController extends BaseController
                     ->with('day', $day)
                     ->with('member_pics', $member_pics)
                     ->with('girl_to_vip', $girl_to_vip->content)
-                    ->with('avatar', $avatar);
+                    ->with('avatar', $avatar)
+                    ->with('rap_service',$rap_service);
             }else{
                 return view('new.dashboard_img')
                     ->with('user', $user)
@@ -868,7 +890,9 @@ class PagesController extends BaseController
                     ->with('girl_to_vip', $girl_to_vip->content)
                     ->with('avatar', $avatar)
                     ->with('blurry_avatar', $blurryAvatar)
-                    ->with('blurry_life_photo', $blurryLifePhoto);
+                    ->with('blurry_life_photo', $blurryLifePhoto)
+                    ->with('rap_service',$rap_service)
+                    ;
             }
         }
     }
@@ -2804,16 +2828,16 @@ class PagesController extends BaseController
                                 foreach($umeta->city as $key => $cityval){
                                     if ($key==0){
                                        $ssrData .=  $umeta->city[$key];
-									   if($visitor->user_meta->isHideArea == 0){
-										   $ssrData .=  $umeta->area[$key].'  ';
-										   
-									   }
+                                       if($visitor->user_meta->isHideArea == 0){
+                                           $ssrData .=  $umeta->area[$key].'  ';
+                                           
+                                       }
                                     }else{
-										
+                                        
                                         $ssrData .=  '<span>'.$umeta->city[$key];
-										if($visitor->user_meta->isHideArea == 0){
-											$ssrData .= ($umeta->area[$key].'</span>');
-										}
+                                        if($visitor->user_meta->isHideArea == 0){
+                                            $ssrData .= ($umeta->area[$key].'</span>');
+                                        }
                                     }
                                 }
                                     
@@ -4111,7 +4135,7 @@ class PagesController extends BaseController
                 ->with('user',$user)
                 ->with('users', $userBanned);
     }
-	
+    
     public function showAnnouncement(Request $request){
 
         $user = $request->user();
@@ -4126,7 +4150,7 @@ class PagesController extends BaseController
 //                ->with('user', $request->user());
     }
     
-	public function mem_member(Request $request)
+    public function mem_member(Request $request)
     {
 
         $uri = $request->segments();
@@ -4521,16 +4545,26 @@ class PagesController extends BaseController
         session()->forget( 'is_edu_mode');     
     }
     
-    public function advance_auth(Request $request){
+    public function advance_auth(Request $request,RealAuthPageService $rap_service){
         $this->clear_advance_auth_email_entrance();
         $user = $request->user();
         $init_check_msg = $this->advance_auth_prechase();
+        
+        if($rap_service->riseByUserEntry($user)->isInRealAuthProcess() && $user->isAdvanceAuth()) {
+            $rap_service->saveRealAuthApply($request);
+            $success_msg = '
+                    恭喜你，只要通過最後的視訊驗證即可完成認證
+                    <br>請點選綠色按鈕開始進行視訊驗證
+                        ';
+            $request->session()->flash('message', [$success_msg??null]);                        
+        }        
 
         return view('/auth/advance_auth')
                 ->with('user',$user)
                 ->with('cur', $user)
                 ->with('init_check_msg',$init_check_msg??null)
                 ->with('user_pause_during_msg',$this->advance_auth_get_msg('user_pause2'))
+                ->with('rap_service',$rap_service)
                 ;
     }
     
@@ -4700,7 +4734,7 @@ class PagesController extends BaseController
         return implode('_',$check_rs??[]);
     }
     
-    public function advance_auth_process(Request $request){
+    public function advance_auth_process(Request $request,RealAuthPageService $rap_service){
         $LineToken = config('memadvauth.api.line_token');
         $api_check_cfg = config('memadvauth.api.check');
         $user =Auth::user();
@@ -4895,12 +4929,21 @@ class PagesController extends BaseController
             }
 
             $banOrWarnCanceledStr = $this->advance_auth_cancel_BanOrWarn($user);
-
-            return back()->with('message',['
-                                            驗證成功：恭喜您，您的資料已經通過驗證，'.($banOrWarnCanceledStr?'成功解除'.$banOrWarnCanceledStr.'，':'').'
-                                            系統會將您的手機號碼以及生日更新到您的基本資料。
-                                            並獲得<img src="'.asset('new/images/b_7.png').'" class="adv_auth_icon" />進階驗證的標籤<img src="'.asset('new/images/b_7.png').'" class="adv_auth_icon" />          
-                                    ']);
+            
+            $success_msg = '
+                        驗證成功：恭喜您，您的資料已經通過驗證，'.($banOrWarnCanceledStr?'成功解除'.$banOrWarnCanceledStr.'，':'').'
+                        系統會將您的手機號碼以及生日更新到您的基本資料。
+                        並獲得<img src="'.asset('new/images/b_7.png').'" class="adv_auth_icon" />進階驗證的標籤<img src="'.asset('new/images/b_7.png').'" class="adv_auth_icon" />             
+                    ';
+            if($rap_service->isInRealAuthProcess()) {
+                $rap_service->saveRealAuthApply($request);
+                $success_msg = '
+                        恭喜你，只要通過最後的視訊驗證即可完成認證
+                        <br>請點選綠色按鈕開始進行視訊驗證
+                            ';
+            }
+            
+            return back()->with('message',[$success_msg]);
         }else{
             $fullcode = $MIDOutputParams["fullcode"];
             if($test_auth_fail_mode) $fullcode = 3645024;
@@ -5047,7 +5090,7 @@ class PagesController extends BaseController
         return back()->with('is_edu_mode', '1');;      
     }  
 
-    public function advance_auth_email_activate($token) {
+    public function advance_auth_email_activate($token,RealAuthPageService $rap_service) {
         $user = User::where('advance_auth_email_token', $token)->first();
         $banOrWarnCanceledStr = '';
         if ($user) {
@@ -5059,11 +5102,13 @@ class PagesController extends BaseController
             $user->advance_auth_status = 1;
             $user->advance_auth_time = Carbon::now();
             if($user->save()){
+                $rap_service->saveRealAuthApply($reqeust);
                 if(!$user->isPhoneAuth()) {
                     $user->short_message()->create(['active'=>1]);
                 }
                 $banOrWarnCanceledStr = $this->advance_auth_cancel_BanOrWarn($user);
                 $success_msg = '驗證成功'.($banOrWarnCanceledStr?'，成功解除'.$banOrWarnCanceledStr:'');
+                
                 if(request()->user()) {
                     return redirect('advance_auth')->with('message', [$success_msg]);
                 }
@@ -6207,7 +6252,7 @@ class PagesController extends BaseController
                         $ecpay->HashKey = Config::get('ecpay.payment'.$envStr.'.HashKey');
                         $ecpay->Query = [
                             'MerchantTradeNo' => $vip->order_id,
-                            'TimeStamp' => 	time()
+                            'TimeStamp' =>  time()
                         ];
                         $paymentData = $ecpay->QueryPeriodCreditCardTradeInfo(); //信用卡定期定額
                         $last = last($paymentData['ExecLog']);
@@ -6355,7 +6400,7 @@ class PagesController extends BaseController
                     $ecpay->HashKey = Config::get('ecpay.payment'.$envStr.'.HashKey');
                     $ecpay->Query = [
                         'MerchantTradeNo' => $vas->order_id,
-                        'TimeStamp' => 	time()
+                        'TimeStamp' =>  time()
                     ];
                     $paymentData = $ecpay->QueryPeriodCreditCardTradeInfo(); //信用卡定期定額
                     
@@ -6753,10 +6798,10 @@ class PagesController extends BaseController
             $query->where($whereArr1);
         });        
         $admin_msg_entrys =  $query->orderBy('created_at', 'desc')->get();
-		$admin_msgs = [];
+        $admin_msgs = [];
         $admin_msgs_sys = [];
 
-		foreach($admin_msg_entrys->where('sys_notice',0) as $admin_msg_entry) {
+        foreach($admin_msg_entrys->where('sys_notice',0) as $admin_msg_entry) {
             $admin_msg_entry->content = str_replace('NAME', $user->name, $admin_msg_entry->content);
             $admin_msg_entry->content = str_replace('|$report|', $user->name, $admin_msg_entry->content);
             $admin_msg_entry->content = str_replace('LINE_ICON', AdminService::$line_icon_html, $admin_msg_entry->content);
@@ -6765,13 +6810,13 @@ class PagesController extends BaseController
             $admin_msg_entry->content = str_replace('|$reportTime|', date("Y-m-d H:i:s"), $admin_msg_entry->content);
             $admin_msg_entry->content = str_replace('NOW_TIME', date("Y-m-d H:i:s"), $admin_msg_entry->content);  
             $admin_msgs[] = $admin_msg_entry;
-		}
+        }
         $i=0;
-		foreach($admin_msg_entrys->where('sys_notice','1') as $admin_msg_entry) {
-			$admin_msgs_sys[] = $admin_msg_entry;
-			$i++;
-			if($i>=3) break;
-		}        
+        foreach($admin_msg_entrys->where('sys_notice','1') as $admin_msg_entry) {
+            $admin_msgs_sys[] = $admin_msg_entry;
+            $i++;
+            if($i>=3) break;
+        }        
 
 
         //僅顯示30天內的評價
@@ -7039,38 +7084,38 @@ class PagesController extends BaseController
                     }
                 }
                 break;
-			case 'admin_msgs':
-				$admin_id = AdminService::checkAdmin()->id;
-				$messages = Message::where([['to_id',$user_id],['from_id',$admin_id]])->whereIn('id', $items)->get();
-				foreach($messages  as $message) {
-					Message::deleteSingleMessage($message, $user_id, $admin_id, $message->created_at, $message->content, 0);
-				}
+            case 'admin_msgs':
+                $admin_id = AdminService::checkAdmin()->id;
+                $messages = Message::where([['to_id',$user_id],['from_id',$admin_id]])->whereIn('id', $items)->get();
+                foreach($messages  as $message) {
+                    Message::deleteSingleMessage($message, $user_id, $admin_id, $message->created_at, $message->content, 0);
+                }
                 $sys_notice = $sys_remind ? 1 : 0;
-				$admin_msg_entrys = Message::allToFromSender($user_id,$admin_id, false, $sys_notice);
-				$admin_msgs = [];
-				$i=0;
-				foreach($admin_msg_entrys as $admin_msg_entry) {
-					$admin_msgs[] = $admin_msg_entry;
-					$i++;
-					if($i >= 3) { break; }
-				}	
-				return json_encode($admin_msgs);
-			break;
+                $admin_msg_entrys = Message::allToFromSender($user_id,$admin_id, false, $sys_notice);
+                $admin_msgs = [];
+                $i=0;
+                foreach($admin_msg_entrys as $admin_msg_entry) {
+                    $admin_msgs[] = $admin_msg_entry;
+                    $i++;
+                    if($i >= 3) { break; }
+                }   
+                return json_encode($admin_msgs);
+            break;
         }
     }
-	
-	public function switchOtherEngroup() {
-		$user = \View::shared('user');
-		if(!$user->isVip()) return redirect()->back();
-		$toEngroup = $user->id;
-		switch($user->engroup) {
-			case 2:
-				$toEngroup =1;
-			break;
-			case 1:
-				$toEngroup =2;
-			break;			
-		}
+    
+    public function switchOtherEngroup() {
+        $user = \View::shared('user');
+        if(!$user->isVip()) return redirect()->back();
+        $toEngroup = $user->id;
+        switch($user->engroup) {
+            case 2:
+                $toEngroup =1;
+            break;
+            case 1:
+                $toEngroup =2;
+            break;          
+        }
         
         if(!User::find($toEngroup)) {
             DB::table('users')->insert([
@@ -7151,21 +7196,21 @@ class PagesController extends BaseController
 
         if($this->service->switchToUser($toEngroup))
 
-			return redirect()->back()->with('message', '成功切換使用者');
-		else 
-			return redirect()->back()->with('message', '無法切換使用者');
-		
-	}
-	
-	public function switchEngroupBack() {
-		$user = \View::shared('user');
-		if(!$user->isVip()) return redirect()->back();
+            return redirect()->back()->with('message', '成功切換使用者');
+        else 
+            return redirect()->back()->with('message', '無法切換使用者');
+        
+    }
+    
+    public function switchEngroupBack() {
+        $user = \View::shared('user');
+        if(!$user->isVip()) return redirect()->back();
 
         $this->service->switchUserBack();
 
-        return redirect()->back();	
-		
-	}	
+        return redirect()->back();  
+        
+    }   
 
     public function messageBoard_showList(Request $request)
     {
@@ -7529,7 +7574,7 @@ class PagesController extends BaseController
         $ssrData .='</div>';
         $ssrData .='</a>';
         $ssrData .='<div class="liuyan_text"><a href="/dashboard/viewuser/'.$postDetail->uid.'">'. $postDetail->uname .'</a> , '.$age .'<span class="liu_dq">'. $cityAndArea .'</span></div>';
-					
+                    
                 // $ssrData .= $postDetail->uid. $postDetail->uname .  $userMeta->age(). $cityAndArea ;
         if($postDetail->uid!==$user->id){
             $ssrData .='<a href="/dashboard/chat2/chatShow/'.$postDetail->uid.'" class="liuyicon"></a>';
@@ -8167,6 +8212,119 @@ class PagesController extends BaseController
         $visited_record->visited_time = ($visited_record->visited_time ?? 0) + $second;
         $visited_record->save();
     }
+    
+    public function showRealAuth(Request $request,RealAuthPageService $service) {
+        $user = $request->user();
+        $data = [];
+        $data['user']=$data['cur']=$user;
+        $data['service'] = $service->riseByUserEntry($user);
+        return view('auth.real_auth', $data);
+    }
+    
+    public function forwardRealAuth(Request $request,RealAuthPageService $service) {
+        $real_auth_type = $request->input('real_auth');
+        if($real_auth_type && $service->isAllowRealAuthType($real_auth_type)) {
+            session()->put('real_auth_type',$real_auth_type);
+            return redirect()->route('dashboard_img',['real_auth'=>$real_auth_type]);
+        }
+
+        return back();
+    }  
+    
+    public function forgetRealAuthType() {
+        session()->forget('real_auth_type');
+    }
+    
+    public function showFamousAuth(Request $request,RealAuthPageService $service) {
+        $user = $request->user();
+        $data = [];
+        $data['user']=$data['cur']=$user;
+        $data['service'] = $service->riseByUserEntry($user);
+        $data['entry_list'] =$data['service']->getFamousAuthQuestionList();
+        return view('auth.famous_auth', $data);
+    } 
+    
+    public function saveFamousAuth(Request $request,RealAuthPageService $service) {
+        $user = $request->user();
+        $data = [];
+        $data['user']=$data['cur']=$user;
+        $data['service'] = $service->riseByUserEntry($user);
+        $req_entry = (object) $request->all();
+        $req_entry->real_auth = 3;
+        if($data['service']->saveFamousAuthForm($req_entry)) {
+            //$service->saveRealAuthApply((object)['real_auth'=>3]);
+            //return redirect()->route('real_auth')->with('message','成功送出名人認證申請，敬請等待審核結果');
+            return response()->json(['return_url'=>route('real_auth'),'message'=>'成功送出名人認證申請，敬請等待審核結果'], 200);
+        }
+        else return response()->json(['message'=>'資料儲存過程中發生錯誤，請檢查資料後重新送出，若問題仍持續發生，請聯絡站長。']);
+    } 
+
+    public function deleteFamousAuthPic(Request $request,RealAuthPageService $service)
+    {
+        
+       $rs = $service->riseByUserEntry($request->user())->deleteFamousAuthPic($request);
+        /*
+        if($reply_list->count()) {
+            foreach($reply_list as $reply_entry) {
+                $fullPath = null;
+                $fullPath = public_path($reply_entry->pic);
+            
+                if(File::exists($fullPath))
+                    unlink($fullPath);                
+                $now_rs = $reply_entry->real_auth_user_reply_pic()->where('pic',$pic)->delete();
+            
+                if($rs===null) {
+                    $rs = $now_rs;
+                }
+                else {
+                    $rs = $rs && $now_rs;
+                }
+            }
+        }
+        */
+        if($rs) $msg = '刪除成功';
+        else $msg='刪除過程中有錯誤發生，部分檔案可能刪除失敗';
+        
+        return response($msg);
+    } 
+
+    public function deleteBeautyAuthPic(Request $request,RealAuthPageService $service)
+    {
+        
+       $rs = $service->riseByUserEntry($request->user())->deleteBeautyAuthPic($request);
+        if($rs) $msg = '刪除成功';
+        else $msg='刪除過程中有錯誤發生，部分檔案可能刪除失敗';
+        
+        return response($msg);
+    }       
+
+    public function showBeautyAuth(Request $request,RealAuthPageService $service) {
+        $user = $request->user();
+        $data = [];
+        $data['user']=$data['cur']=$user;
+        $data['service'] = $service->riseByUserEntry($user);
+        $data['entry_list'] =$data['service']->getBeautyAuthQuestionList();
+        return view('auth.beauty_auth', $data);
+    }
+
+    public function saveBeautyAuth(Request $request,RealAuthPageService $service) {
+        $user = $request->user();
+        $data = [];
+        $data['user']=$data['cur']=$user;
+        $data['service'] = $service->riseByUserEntry($user);
+        $req_entry = (object) $request->all();
+        $req_entry->real_auth = 2;        
+        if($data['service']->saveBeautyAuthForm($req_entry)) {
+            return response()->json(['return_url'=>route('real_auth'),'message'=>'成功送出美顏推薦申請，敬請等待審核結果'], 200);
+        }
+        else return response()->json(['message'=>'資料儲存過程中發生錯誤，請檢查資料後重新送出，若問題仍持續發生，請聯絡站長。']);        
+        /*
+        if($data['service']->saveBeautyAuthForm($request)) {
+            return redirect()->route('real_auth')->with('message','成功送出美顏推薦申請，敬請等待審核結果');
+        }
+        else return back()->withErrors(['美顏推薦申請送出失敗']);
+        */
+    }     
     
 }
 

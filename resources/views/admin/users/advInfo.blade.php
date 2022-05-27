@@ -8,7 +8,8 @@
         max-width: 600px; /* Max Width of the popover (depending on the container!) */
     }
     .gray {color:#C0C0C0;}
-    #adv_auth_block_user.btn-secondary,#adv_auth_warned_user.btn-secondary {
+    #real_auth_actor_container .btn-secondary {color:black !important;}
+    #real_auth_actor_container .btn-secondary, #adv_auth_block_user.btn-secondary,#adv_auth_warned_user.btn-secondary {
         cursor: default;
         color: #fff;
         /*
@@ -1778,7 +1779,12 @@
         <td>{{ $userMeta->updated_at }}</td>
     </tr>
 </table>
-
+<div id="real_auth_actor_container">
+<a class="btn {{$raa_service->getActorClassAttrByAuthTypeId(1)}}" id="self_auth_actor" href="javascript:void(0)" data-auth_type_id="1" data-auth_name="本人認證" data-user_id="{{ $user['id'] }}" >{{$raa_service->getStatusActorPrefixByAuthTypeId(1)}}本人認證</a>
+<a class="btn {{$raa_service->getActorClassAttrByAuthTypeId(2)}}"" id="beauty_auth_actor" href="javascript:void(0)" data-auth_type_id="2" data-auth_name="美顏推薦"  data-user_id="{{ $user['id'] }}" >{{$raa_service->getStatusActorPrefixByAuthTypeId(2)}}美顏推薦</a>
+<a class="btn {{$raa_service->getActorClassAttrByAuthTypeId(3)}}"" id="famous_auth_actor" href="javascript:void(0)" data-auth_type_id="3" data-auth_name="名人認證"  data-user_id="{{ $user['id'] }}" >{{$raa_service->getStatusActorPrefixByAuthTypeId(3)}}名人認證</a>
+<a class="btn btn-info" href="{{route('admin/editRealAuth_sendMsg',['id'=>$user->id])}}">站長信件</a>
+</div>
 <div id="pic_block">
 <div class="loading"><span class="loading_text">loading</span></div>
 </div>
@@ -2353,6 +2359,54 @@ $("#unwarned_user").click(function(){
             dataType:"json",
             success: function(res){
                 alert('已解除站方警示');
+                location.reload();
+            }});
+    }
+    else{
+        return false;
+    }
+});
+
+
+$(".real_auth_pass").click(function(){
+    var data = $(this).data();
+    
+    if(confirm('確定要通過此會員的'+data.auth_name+'申請?')){
+        $.ajax({
+            type: 'POST',
+            url: "{{route('admin/passRealAuth')}}?{{csrf_token()}}={{now()->timestamp}}",
+            data:{
+                _token: '{{csrf_token()}}',
+                data: data,
+            },
+            dataType:"json",
+            success: function(res){
+                if(res==1 )alert('已通過'+data.auth_name);
+                else alert('儲存失敗，無法通過此會員的'+data.auth_name+'申請');
+                location.reload();
+            }});
+    }
+    else{
+        return false;
+    }
+});
+
+
+$(".real_auth_cancel_pass").click(function(){
+    var data = $(this).data();
+    
+    if(confirm('確定要取消此會員的'+data.auth_name+'?')){
+        $.ajax({
+            type: 'POST',
+            url: "{{route('admin/cancelPassRealAuth')}}?{{csrf_token()}}={{now()->timestamp}}",
+            data:{
+                _token: '{{csrf_token()}}',
+                data: data,
+            },
+            dataType:"json",
+            success: function(res){
+                if(res==1 )alert('已取消'+data.auth_name);
+                else alert('儲存失敗，無法取消此會員的'+data.auth_name);
                 location.reload();
             }});
     }

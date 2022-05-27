@@ -25,6 +25,9 @@
     @elseif(str_contains(url()->current(), 'editPic_sendMsg'))
         <p>變數設定說明： 被會員的名字 NAME ，現在時間 NOW_TIME，line加入好友圖示 LINE_ICON。</p>
         <p>範例:NAME您好，由於您上傳的照片不適合網站主旨，故已在NOW_TIME刪除。請重新上傳。如有疑慮請與站長聯絡：LINE_ICON。</p>
+    @elseif(str_contains(url()->current(), 'editRealAuth_sendMsg'))
+        <p>變數設定說明： 被會員的名字 NAME ，現在日期 NOW_DATE，line加入好友圖示 LINE_ICON，本人認證 SELF_AUTH，美顏推薦 BEAUTY_AUTH，名人認證 FAMOUS_AUTH，認證申請日期 APPLY_DATE，補交項目的「請點我」連結 PATCH_LINK。</p>
+        <p>範例:NAME您好，您於APPLY_DATE的SELF_AUTH申請，經站長在NOW_DATE審核，需要您補充部分資料，[PATCH_LINK]，再麻煩您了。</p>    
     @else
         <p>檢舉者變數|$report|，被檢舉者變數|$reported|，line加入好友圖示|$lineIcon|   ，範例:|$report|在|$reportTime|檢舉|$reported|，經站長在|$responseTime|判別沒有問題。如有疑慮請與站長聯絡：|$lineIcon|。</p>
     @endif
@@ -32,18 +35,21 @@
     <form action="" id='msglibform' method='POST'>
         {!! csrf_field() !!}
         <input type="hidden" name="msg_id" id="msg_id" value="{{$msg_id??''}}">
+
         種類
         <select name="kind" id="kind">
             @if(str_contains(url()->current(), 'delpic'))
                 <option value="delpic" selected>照片刪除</option>
             @elseif(str_contains(url()->current(), 'editPic_sendMsg'))
                 <option value="smsg" selected>站長訊息</option>
+            @elseif(str_contains(url()->current(), 'editRealAuth_sendMsg'))
+                <option value="real_auth" selected>本人證認/美顏推薦/名人認證</option>
             @else
                 <option value="report" @if(str_contains(url()->current(), 'reporter')) selected @endif>檢舉者</option>
                 <option value="reported" @if(str_contains(url()->current(), 'reported')) selected @endif>被檢舉者</option>
             @endif
             
-        </select>
+        </select>       
         範本選項標題<input type="text" name="title_msglib" id="msglib_title" value="{{$title??''}}"><br>
         範本內容<textarea name="textarea_msglib" id="msglib_content" class="form-control" cols="80" rows="5">{{$msg??''}}</textarea>
     </form>

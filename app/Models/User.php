@@ -14,6 +14,9 @@ use App\Models\SimpleTables\banned_users;
 use App\Models\SimpleTables\warned_users;
 use App\Models\FaqUserGroup;
 use App\Models\FaqUserReply;
+use App\Models\RealAuthUserApply;
+use App\Models\RealAuthUserReply;
+use App\Models\RealAuthUserModify;
 use App\Notifications\ResetPassword;
 use Illuminate\Notifications\Notifiable;
 use Illuminate\Foundation\Auth\User as Authenticatable;
@@ -283,7 +286,50 @@ class User extends Authenticatable
     
     public function faq_user_reply() {
         return $this->hasMany(FaqUserReply::class);
-    }         
+    } 
+
+    //real auth
+    public function real_auth_user_apply() {
+        return $this->hasMany(RealAuthUserApply::class,'user_id','id');
+    }     
+    
+    public function self_auth_unchecked_apply() {
+        return $this->hasOne(RealAuthUserApply::class,'user_id','id')
+                ->where('auth_type_id',1)
+                ->where(function($q) {$q->whereNull('status')->orWhere('status',0);})
+                ->orderByDesc('id')->take(1);
+    }
+
+    public function beauty_auth_working_apply() {
+        return $this->hasOne(RealAuthUserApply::class,'user_id','id')
+                ->where('auth_type_id',2)
+                ->orderByDesc('id')->take(1);
+    }      
+    
+    public function beauty_auth_unchecked_apply() {
+        return $this->hasOne(RealAuthUserApply::class,'user_id','id')
+                ->where('auth_type_id',2)
+                ->where(function($q) {$q->whereNull('status')->orWhere('status',0);})
+                ->orderByDesc('id')->take(1);
+    }     
+    
+    public function famous_auth_unchecked_apply() {
+        return $this->hasOne(RealAuthUserApply::class,'user_id','id')
+                ->where('auth_type_id',3)
+                ->where(function($q) {$q->whereNull('status')->orWhere('status',0);})
+                ->orderByDesc('id')->take(1);
+    } 
+    
+    public function famous_auth_working_apply() {
+        return $this->hasOne(RealAuthUserApply::class,'user_id','id')
+                ->where('auth_type_id',3)              
+                ->orderByDesc('id')->take(1);
+    }     
+
+    public function real_auth_user_modify() {
+        return $this->hasMany(RealAuthUserModify::class,'user_id','id');
+    }    
+    
 
     /**
      * Check if user has role

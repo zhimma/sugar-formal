@@ -1,0 +1,1 @@
+    <input type="checkbox" name="reply[{{$question_entry->id}}][]" value="{{$choice_entry->id}}" data-labelauty="{{$choice->name}}" {{$service->getQuValueAttrByEntry($question_entry,$choice_entry->id,'checked')}} >

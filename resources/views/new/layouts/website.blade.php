@@ -1,7 +1,6 @@
 <!DOCTYPE html>
 <html lang="{{ app()->getLocale() }}" >
 <head>
-
     @include('new.partials.header')
     @yield("style")
 

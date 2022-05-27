@@ -184,7 +184,7 @@
                     <div class="sys_aa" id="vip_state_block">
                         <div class="tabbox_new_dt"><span>本人認證</span>
                         @if($user!=$user->meta)
-                            <a class="zs_buttonn" href="{{url('/advance_auth/')}}">立即認證</a>
+                            <a class="zs_buttonn" href="{{route('real_auth')}}">立即認證</a>
                         @endif
                         </div>
                         <div class="tabbox_new_dd">

@@ -70,13 +70,15 @@ use App\Models\CheckPointUser;
 use App\Models\ComeFromAdvertise;
 use App\Models\UserRecord;
 use App\Models\Visited;
+use App\Services\RealAuthAdminService;
 
 class UserController extends \App\Http\Controllers\BaseController
 {
-    public function __construct(UserService $userService, AdminService $adminService)
+    public function __construct(UserService $userService, AdminService $adminService,RealAuthAdminService $raa_service)
     {
         $this->service = $userService;
         $this->admin = $adminService;
+        $this->raa_service = $raa_service->riseByUserService($this->service);
     }
 
     /**
@@ -972,6 +974,9 @@ class UserController extends \App\Http\Controllers\BaseController
             return view('admin.users.advInfo_UserAdvInfo')
                 ->with('userAdvInfo', $userAdvInfo);
         }
+        
+        
+        
         $userMessage = Message::where('from_id', $id)->orderBy('created_at', 'desc')->paginate(config('social.admin.showMessageCount'));
         if(!empty($request->get('page'))){
             //新增Admin操作log
@@ -1477,7 +1482,8 @@ class UserController extends \App\Http\Controllers\BaseController
                 ->with('user', $user)
                 ->with('year', $year)
                 ->with('month', $month)
-                ->with('day', $day);
+                ->with('day', $day)
+                ->with('raa_service',$this->raa_service->riseByUserEntry($user));
         } else {
             return view('admin.users.advInfo')
                 ->with('userMeta', $userMeta)
@@ -1509,7 +1515,8 @@ class UserController extends \App\Http\Controllers\BaseController
                 ->with('last_images_compare_encode',ImagesCompareEncode::orderByDesc('id')->firstOrNew())
                 ->with('posts_forum', $posts_forum)
                 ->with('hideonline_order', $hideonline_order)
-                ->with('user_record', $user_record);
+                ->with('user_record', $user_record)
+                ->with('raa_service',$this->raa_service->riseByUserEntry($user));
         }
     }
 
@@ -1621,6 +1628,72 @@ class UserController extends \App\Http\Controllers\BaseController
 
     }
 
+    public function editRealAuth_sendMsg(Request $request, $id)
+    {
+        $raa_service = $this->raa_service;
+        $admin = $this->admin->checkAdmin();
+        if ($admin) {
+            $user = $this->service->find($id);
+            $raa_service->riseByUserEntry($user);
+            // $msglib = Msglib::get();
+            $userMeta = UserMeta::where('user_id', 'like', $id)->get()->first();
+            $msglib = Msglib::selectraw('id, title, msg')->where('kind', '=', 'real_auth')->get();
+            $msglib_report = Msglib::selectraw('id, title, msg')->where('kind', '=', 'real_auth')->get();
+            $msglib_msg = collect();
+            foreach ($msglib as $m) {
+                $org_msg = $m->msg;
+                $m->msg = str_replace('|$report|', $user->name, $m->msg);
+                $m->msg = str_replace('NAME', $user->name, $m->msg);
+                $m->msg = str_replace('NOW_DATE', date("Y-m-d"), $m->msg);
+                $m->msg = str_replace('NOW_TIME', date("Y-m-d H:i:s"), $m->msg);
+                $m->msg = str_replace('LINE_ICON', AdminService::$line_icon_html, $m->msg);               
+                $m->msg = str_replace('|$responseTime|', date("Y-m-d H:i:s"), $m->msg);
+                $m->msg = str_replace('|$reportTime|', date("Y-m-d H:i:s"), $m->msg);
+                $m->msg = str_replace('|$lineIcon|', AdminService::$line_icon_html, $m->msg); 
+                // $m->msg = str_replace('|$reported|', "|被檢舉者|", $m->msg);
+                $m->msg = str_replace('SELF_AUTH', '本人認證', $m->msg);
+                $m->msg = str_replace('BEAUTY_AUTH', '美顏推薦', $m->msg);
+                $m->msg = str_replace('FAMOUS_AUTH', '名人認證', $m->msg);
+                if(strpos($org_msg,'SELF_AUTH'))
+                {
+                   $apply_date_str = $raa_service->getApplyDateVarReplaceByAuthTypeId(1);
+                   if($apply_date_str) 
+                   {
+                        $m->msg = str_replace('APPLY_DATE',$apply_date_str , $m->msg); 
+                   }
+                }
+                else if(strpos($org_msg,'BEAUTY_AUTH')) {
+                   $apply_date_str = $raa_service->getApplyDateVarReplaceByAuthTypeId(2);
+                   if($apply_date_str)                     
+                    $m->msg = str_replace('APPLY_DATE', $apply_date_str, $m->msg); 
+                }
+                else if(strpos($org_msg,'FAMOUS_AUTH')) {
+                   $apply_date_str = $raa_service->getApplyDateVarReplaceByAuthTypeId(3);
+                   if($apply_date_str)                     
+                    $m->msg = str_replace('APPLY_DATE', $apply_date_str, $m->msg); 
+                }
+                    
+                $msglib_msg->push($m->msg);
+            }
+            return view('admin.users.editRealAuth_sendMsg')
+                ->with('admin', $admin)
+                ->with('user', $user)
+                ->with('userMeta', $userMeta)
+                ->with('from_user', $user)
+                ->with('to_user', $admin)
+                ->with('msglib', $msglib)
+                ->with('msglib2', collect())
+                ->with('msglib_report', $msglib_report)
+                ->with('msglib_reported', null)
+                ->with('msglib_msg', $msglib_msg)
+                ->with('message_msg', collect())
+                ->with('msglib_msg2', collect());
+        } else {
+            return back()->withErrors(['找不到暱稱含有「站長」的使用者！請先新增再執行此步驟']);
+        }
+
+    }
+    
     public function showUserPictures()
     {
         return view('admin.users.userPictures');
@@ -3156,6 +3229,27 @@ class UserController extends \App\Http\Controllers\BaseController
         }
         return view('admin.users.messenger_create', $data);
     }
+    
+    public function addMessageLibRealAuth(Request $request, $id = 0)
+    {
+        if ($id != 0) {
+            $msglib = MsgLib::where('id', $id)->first();
+            $data = array(
+                'page_title' => '編輯訊息範本',
+                'msg_id' => $msglib->id,
+                'title' => $msglib->title,
+                'msg' => $msglib->msg,
+                'isEdit' => 1,
+            );
+        } else {
+            $data = array(
+                'page_title' => '新增訊息範本',
+            );
+        }
+        //return view('admin.users.messenger_create_real_auth', $data);
+        return view('admin.users.messenger_create', $data);
+    }
+    
 
     public function addMessageLibPageReporter(Request $request, $id = 0)
     {
@@ -3779,10 +3873,13 @@ class UserController extends \App\Http\Controllers\BaseController
         $item_a = DB::table('account_name_change')->where('status', 0)->count();
         $item_b = DB::table('account_gender_change')->where('status', 0)->count();
         $item_c = DB::table('account_exchange_period')->where('status', 0)->count();
+        $item_d = $this->raa_service->getAdminCheckNum();
         return view('admin.adminCheck')
             ->with('item_a', $item_a)
             ->with('item_b', $item_b)
-            ->with('item_c', $item_c);
+            ->with('item_c', $item_c)
+            ->with('item_d', $item_d)
+            ;
     }
 
     public function showAdminCheckNameChange()
@@ -3887,6 +3984,40 @@ class UserController extends \App\Http\Controllers\BaseController
         return view('admin.adminCheckExchangePeriod')
             ->with('data', $data);
     }
+
+    public function showAdminCheckRealAuth()
+    {
+        $data['service'] = $this->raa_service;
+        $data['row_list'] = $data['service']->getListInAdminCheck();
+        
+        //$data = User::select('account_exchange_period.*','users.id','users.email','users.name','users.engroup')
+        //    ->join('account_exchange_period', 'account_exchange_period.user_id', '=', 'users.id')
+        //    ->orderBy('account_exchange_period.created_at', 'desc')->get();
+       return view('admin.adminCheckRealAuth')
+            ->with($data);
+    }
+    
+    public function showAdminCheckBeautyAuthForm($user_id)
+    {
+        $data['service'] = $this->raa_service->riseByUserId($user_id);
+        $data['user'] = $data['service']->user();
+        $data['apply_entry'] = $data['service']->rau_repo()->getUncheckedApplyByAuthTypeId(2);        
+        $data['entry_list'] =$data['service']->getBeautyAuthQuestionList();
+
+       return view('admin.adminCheckRealAuthForm')
+            ->with($data);
+    } 
+
+    public function showAdminCheckFamousAuthForm($user_id)
+    {
+        $data['service'] = $this->raa_service->riseByUserId($user_id);        
+        $data['user'] = $data['service']->user();
+        $data['apply_entry'] = $data['service']->rau_repo()->getUncheckedApplyByAuthTypeId(3);
+        $data['entry_list'] = $data['service']->getFamousAuthQuestionList();
+
+       return view('admin.adminCheckRealAuthForm')
+            ->with($data);
+    }      
 
     public function AdminCheckExchangePeriodSave(Request $request)
     {
@@ -6076,6 +6207,24 @@ class UserController extends \App\Http\Controllers\BaseController
         $user_visited_record = Visited::whereNotNull('visited_time')->orderBy('id','desc')->get();
         return view('admin.users.user_visited_time_view')
                 ->with('user_visited_record', $user_visited_record);
+    }
+    
+    public function passRealAuth(Request $request) {
+        $data = $request->data;
+        $user_id = $data['user_id'];
+        $auth_type_id = $data['auth_type_id'];
+        $raa_service = $this->raa_service->riseByUserId($user_id);
+        return $raa_service->passByAuthTypeId($auth_type_id)?'1':'0';
+            
+    }
+    
+    public function cancelPassRealAuth(Request $request) {
+        $data = $request->data;
+        $user_id = $data['user_id'];
+        $auth_type_id = $data['auth_type_id'];        
+        $raa_service = $this->raa_service->riseByUserId($user_id);;
+        return $raa_service->cancelPassByAuthTypeId($auth_type_id)?'1':'0';
+            
     }
 
 }

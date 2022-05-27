@@ -509,7 +509,20 @@ Route::group(['middleware' => ['auth', 'global', 'active', 'femaleActive', 'vipC
         Route::post('/dashboard/anonymousChatReport', 'PagesController@anonymous_chat_report')->name('anonymous_chat_report');
         Route::post('/dashboard/anonymousChatMessage', 'PagesController@anonymous_chat_message')->name('anonymous_chat_message');
         Route::post('/dashboard/anonymousChatSave', 'PagesController@anonymous_chat_save')->name('anonymous_chat_save');
-
+        /*
+        |--------------------------------------------------------------------------
+        | Real Auth
+        |--------------------------------------------------------------------------
+        */
+        Route::get('/dashboard/real_auth', 'PagesController@showRealAuth')->name('real_auth');
+        Route::get('/dashboard/real_auth_break', 'PagesController@forgetRealAuthType')->name('forget_real_auth');
+        Route::post('/dashboard/real_auth_forward', 'PagesController@forwardRealAuth')->name('real_auth_forward');
+        Route::get('/dashboard/famous_auth', 'PagesController@showFamousAuth')->name('famous_auth');
+        Route::post('/dashboard/famous_auth/save', 'PagesController@saveFamousAuth')->name('famous_auth_save');
+        Route::get('/dashboard/famous_auth/delete_pic', 'PagesController@deleteFamousAuthPic')->name('famous_auth_pic_delete');
+        Route::get('/dashboard/beauty_auth', 'PagesController@showBeautyAuth')->name('beauty_auth');
+        Route::post('/dashboard/beauty_auth/save', 'PagesController@saveBeautyAuth')->name('beauty_auth_save');
+        Route::get('/dashboard/beauty_auth/delete_pic', 'PagesController@deleteBeautyAuthPic')->name('beauty_auth_pic_delete');        
         /*
         |--------------------------------------------------------------------------
         | LINE
@@ -817,7 +830,14 @@ Route::group(['middleware' => ['auth', 'global', 'active', 'femaleActive', 'vipC
         Route::post('checkGenderChange', 'UserController@AdminCheckGenderChangeSave');
         Route::post('checkPicUpload', 'UserController@AdminCheckPicUploadSave');
         Route::get('checkExchangePeriod', 'UserController@showAdminCheckExchangePeriod')->name('admin/checkExchangePeriod');
-		Route::get('checkPicUpload', 'UserController@showAdminCheckPicUpload')->name('admin/checkPicUpload');
+		Route::get('editRealAuth_sendMsg/{id}', 'UserController@editRealAuth_sendMsg')->name('admin/editRealAuth_sendMsg');
+        Route::get('real_auth/msglib/create/editRealAuth_sendMsg', 'UserController@addMessageLibRealAuth')->name('admin/addMessageLibRealAuth');
+        Route::get('checkRealAuth', 'UserController@showAdminCheckRealAuth')->name('admin/checkRealAuth');
+        Route::get('checkFamousAuthForm/{user_id}', 'UserController@showAdminCheckFamousAuthForm')->name('admin/checkFamousAuthForm');
+        Route::get('checkBeautyAuthForm/{user_id}', 'UserController@showAdminCheckBeautyAuthForm')->name('admin/checkBeautyAuthForm');
+        Route::post('passRealAuth', 'UserController@passRealAuth')->name('admin/passRealAuth');
+        Route::post('cancelPassRealAuth', 'UserController@cancelPassRealAuth')->name('admin/cancelPassRealAuth');
+        Route::get('checkPicUpload', 'UserController@showAdminCheckPicUpload')->name('admin/checkPicUpload');
         Route::post('checkExchangePeriod', 'UserController@AdminCheckExchangePeriodSave');
         Route::get('roleManage', 'UserController@adminRole')->name('admin/role');
         Route::post('roleEdit', 'UserController@adminRoleEdit')->name('admin/role/edit');

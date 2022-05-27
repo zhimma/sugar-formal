@@ -1,4 +1,33 @@
 @extends('new.layouts.website')
+@section('style')
+<style>
+.se_but3{width:240px;height: 50px;background: #fe92a8;border-radius:100px;color: #ffffff;text-align: center;line-height: 18; margin: 0 auto;display: table;
+font-size:16px;cursor: pointer; box-shadow: 0 0 20px #ffb6c5;cursor: pointer;line-height:18px; padding: 0 10px; margin-bottom: 15px;}
+.se_but3:hover{color:#ffffff;box-shadow:inset 0px 13px 10px -10px #f83964,inset 0px -10px 10px -20px #f83964;}
+.se_but3 span{padding-top:8px; display: table; text-align: center !important;width: 100%;}
+.se_but3 font{font-size: 10px; line-height: 18px; display: table;text-align: center !important;width: 100%;}
+
+.se_but4{width: 240px;height: 50px;background: #ffffff; border:#e44e71 1px solid;border-radius: 100px;color: #e44e71;text-align: center;line-height: 50px;
+ margin: 0 auto;display: table;font-size:16px;box-shadow: 0 0 20px #ffb6c5;cursor: pointer;}
+.se_but4:hover{color:#ffffff;box-shadow:inset 0px 15px 10px -10px #f83964,inset 0px -10px 10px -20px #f83964;
+background:#fe92a8; border:#fe92a8 1px solid;}
+
+@media (max-width:360px) {
+
+}
+
+</style>
+<style>
+  
+  
+  .ga_dtie{width:100%; margin: 0 auto; display: table; padding: 10px; border: #fe92a8 1px dashed;background-image: linear-gradient(to right,#fff8f9 ,#fffefe); color: #fe92a8; 
+  border-radius: 5px; margin-top: 10px;box-shadow: 0 0 10px #ffeff6;}
+
+</style>
+<style>
+.real_auth_bg{width:100%; height:100%;width: 100%;height: 100%;position: fixed;top: 0px;left: 0;background: rgba(0,0,0,0.5);z-index: 9;display:none;}
+</style>
+@stop
 @section('app-content')
 
 <?php
@@ -384,7 +413,34 @@ function requestBlurryAvatarDefault() {
                             </form>
                         </div>
                     </div>
-                    
+                    {{--
+                    @if(request()->real_auth && session()->get('real_auth_type'))
+                    --}}
+                    @if($rap_service->isInRealAuthProcess())
+                    <div class="ga_dtie" style="margin-top: 50px;">
+                        此認證將驗證本人，如果您照片不想曝光，請改用背影照或者是馬賽克。禁止使用非本人照片。認證通過後照片如要修改需經過審核。(強烈建議千萬不要使用曾在FB,iG使用過的照片)
+                    </div>
+                    <div></div>
+					<div class="n_txbut" style="width: auto;">
+					  <a href="{{route('dashboard',['real_auth'=>request()->real_auth])}}" class="se_but3 " onclick="$('body').attr('onbeforeunload','');">
+						  <span >前往下一步認證</span><font>生活照與大頭照皆以上傳完成</font>
+					  </a>
+					  <a href="" class="se_but4" >取消認證</a>
+				   </div>
+                    <div class="real_auth_bg" onclick="gmBtnNoReload()" style="display:none;"></div>
+                    {{--
+                    <div class="bl bl_tab" id="real_auth_leave_tab" style="display: none;">
+                        <div class="bltitle">提示</div>
+                        <div class="n_blnr01 matop10">
+                            <div class="blnr bltext">
+                                請檢查
+                            </div>
+                            <a class="n_bllbut matop30" onclick="real_auth_tab_close(this)">確定</a> 
+                        </div>
+                        <a onclick="real_auth_tab_close(this);" class="bl_gb"><img src="{{asset('/new/images/gb_icon.png')}}"></a>
+                    </div>
+                    --}}
+                   @endif
                 </div>
             </div>
         </div>
@@ -673,5 +729,73 @@ function requestBlurryAvatarDefault() {
         }
     });
 </script>
+@if($rap_service->isInRealAuthProcess())
+<script>
+//$('body').attr('onbeforeunload','real_auth_popup();return false;');
+    $(document).ready(function() {
+        real_auth_popup();
+    });
+/*    
+$(window).on('beforeunload',function(e){
+    //e.preventDefault();
+    //real_auth_popup();
+    //window.onbeforeunload = false;
+    var confirmClose = confirm('Close?');
+    return confirmClose;
+    //return '';
+});
+*/
 
+//$('body').attr('onbeforeunload','break_leave_real_auth();return "";');
+//$('body').attr('onbeforeunload','return "";');
+/*
+function break_leave_real_auth() {
+    $.get( "{{route('forget_real_auth')}}?{{csrf_token()}}={{now()->timestamp}}");
+    window.history.replaceState( {} , $('title').html(), '{{route("real_auth")}}' );
+}
+
+
+window.onbeforeunload = null; 
+window.onbeforeunload = function() {
+    window.onbeforeunload = null;
+    real_auth_popup();
+    window.onbeforeunload = null; 
+    //return;
+}
+*/
+/*
+window.addEventListener('beforeunload', (event) => {
+  // Cancel the event as stated by the standard.
+  //debugger;
+  //real_auth_popup();
+  //event.preventDefault();
+  //debugger;
+  // Chrome requires returnValue to be set.
+  //event.returnValue = null;
+  return null;
+});
+*/
+/*
+function real_auth_popup() {
+    $('#real_auth_leave_tab').show();
+    $(".real_auth_bg").show();
+}
+
+function real_auth_tab_close(dom) {
+    $(dom).closest('.bl_tab').hide();
+    // $("#blbg").hide();
+    $(".real_auth_bg").hide();
+}
+*/
+/*
+function goto_real_auth_forward(auth_type) {
+    $('#real_auth_forward_form')
+    .attr('action','{{route('real_auth_forward')}}')
+    .children('div').eq(0)
+    .html('<input type="hidden" name="real_auth" value="'+auth_type+'">');
+    $('#real_auth_forward_form').submit();
+};//
+*/
+</script>
+@endif
 @stop

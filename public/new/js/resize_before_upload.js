@@ -4,6 +4,10 @@ rbupld_not_support_file_numSet={};
 rbupld_add_not_support_file_numSet={};
 rbupld_uploader_index = 0;
 resize_before_upload_fileReaderSet = {};
+//rbupld_submiting_fomrelt_namearr_set = {};
+rbupld_form_id_numSet = {};
+rbupld_form_id_submitting_numSet = {};
+rbupld_form_id_submitting_fdataSet = {};
 function resize_before_upload(uploader,checkWidth
                                 ,checkHeight
                                 ,outer_selector=''
@@ -141,14 +145,39 @@ function resize_before_upload(uploader,checkWidth
             form_showed_container = cur_uploader_api.getParentEl().closest(outer_selector);
         else outer_selector='body';
         var curUploaderFormElt = cur_uploader_api.getParentEl().closest('form');
+        var curFormElt = curUploaderFormElt;
+        var curFormElt_rbupld_id = curFormElt.data('rbupld_id');
+        var curFormElt_name = curFormElt.attr('name');
+        if(curFormElt_rbupld_id==undefined || curFormElt_rbupld_id=='') {
+            if(curFormElt_name==undefined)  curFormElt_name = '';
+            curFormElt_rbupld_id = curFormElt_name+Math.floor(Math.random() * 1000000);
+            curFormElt.data('rbupld_id',curFormElt_rbupld_id);
+            //rbupld_submiting_fomrelt_namearr_set[curFormElt_rbupld_id] = [];
+            rbupld_form_id_numSet[curFormElt_rbupld_id] = 1;
+        }  
+        else {
+            rbupld_form_id_numSet[curFormElt_rbupld_id]++;
+        }
+        
         curUploaderFormElt.on('reset',function(){
             var uploader_input_elt = $(this).find('.fileuploader-thumbnails-input');
             if(uploader_input_elt.length==1 && uploader_input_elt.css('display')=='none') {
                 uploader_input_elt.show();
             } 
         });
+        /*
+        var now_form_submit_attr = curUploaderFormElt.attr('onsubmit');
+        //console.log(curUploaderFormElt.attr('name'));
+        if(now_form_submit_attr==undefined) now_form_submit_attr = '';
+        if(now_form_submit_attr.search('resize_before_upload_loading();')<0) {
+            curUploaderFormElt.attr('onsubmit','resize_before_upload_loading();'+now_form_submit_attr);
+        }
+        else return;
+        */
+        
+        
         curUploaderFormElt.on('submit',function(evt){
-
+evt.preventDefault();
             var cur_uploader_option = cur_uploader_api.getOptions();
             loading();
             if(cur_uploader_option.beforeSubmit!=undefined){
@@ -157,18 +186,45 @@ function resize_before_upload(uploader,checkWidth
             
             var nowElt = $(evt.target);
             var nowFormElt = nowElt;
+            var nowFormElt_rbupld_id = nowFormElt.data('rbupld_id');
+            if(rbupld_form_id_submitting_numSet[nowFormElt_rbupld_id]==undefined) {
+                rbupld_form_id_submitting_numSet[nowFormElt_rbupld_id] = 1;
+            }
+            else rbupld_form_id_submitting_numSet[nowFormElt_rbupld_id]++;
+            //var nowFormElt_name = nowFormElt.attr('name');
+            /*
+            if(nowFormElt_rbupld_id==undefined || nowFormElt_rbupld_id=='') {
+                if(nowFormElt_name==undefined)  nowFormElt_name = '';
+                nowFormElt_rbupld_id = nowFormElt_name+Math.floor(Math.random() * 1000000);
+                nowFormElt.data('rbupld_id',nowFormElt_rbupld_id);
+                rbupld_submiting_fomrelt_namearr_set[nowFormElt_rbupld_id] = [];
+            }
+            */
             var realUploadingFiles = cur_uploader_api.getChoosedFiles();
 
             var realUploadFileArr = [];
             for(var k in realUploadingFiles) {
                realUploadFileArr.push(realUploadingFiles[k].name);
             }
-
-            fdata = new FormData();
+            
+            if(rbupld_form_id_submitting_fdataSet[nowFormElt_rbupld_id]==undefined) {
+                fdata = new FormData();
+            }
+            else {
+                fdata = rbupld_form_id_submitting_fdataSet[nowFormElt_rbupld_id];
+            }
+            
+            //if(rbupld_form_id_submitting_numSet[nowFormElt_rbupld_id]==rbupld_form_id_numSet[nowFormElt_rbupld_id]  && rbupld_form_id_submitting_fdataSet[nowFormElt_rbupld_id]!=undefined) {
+                //fdata = rbupld_form_id_submitting_fdataSet[nowFormElt_rbupld_id];
+            //}            
+            //else fdata = new FormData();
             var fdata_value_count=0;
             $.each(nowFormElt.serializeArray(), function( index, value ) {
-                fdata.append(value.name, value.value);
-                fdata_value_count++;
+                //if(rbupld_submiting_fomrelt_namearr_set[nowFormElt_rbupld_id].indexOf(value.name)<0 || value.name=='_token') {
+                    fdata.append(value.name, value.value);
+                    fdata_value_count++;
+                    //rbupld_submiting_fomrelt_namearr_set[nowFormElt_rbupld_id].push(value.name);
+                //}
             });
             
             realBlobIndex = 0;
@@ -217,7 +273,11 @@ function resize_before_upload(uploader,checkWidth
                         }
                     }
                 }
-
+console.log(fdata);
+                rbupld_form_id_submitting_fdataSet[nowFormElt_rbupld_id] = fdata;
+                if(rbupld_form_id_submitting_numSet[nowFormElt_rbupld_id]<rbupld_form_id_numSet[nowFormElt_rbupld_id] ) {
+                    return false;
+                }
                 $.ajax({
                     type: nowFormElt.attr('method'),
                     url: nowFormElt.attr('action'),
@@ -249,11 +309,15 @@ function resize_before_upload(uploader,checkWidth
                         console.log(xhr);
                         console.log(status);
                         console.log(error);
+                        bupld_form_id_submitting_numSet = {};
+                        rbupld_form_id_submitting_fdataSet = {};                        
                         if(cur_uploader_option.afterSubmit!=undefined){
                             cur_uploader_option.afterSubmit(evt,cur_uploader_api);
                         }                     
                     },  
                     success: function(data,status,xhr) { 
+                        bupld_form_id_submitting_numSet = {};
+                        rbupld_form_id_submitting_fdataSet = {};                        
                         rbupld_not_support_file_num = this.rbupld_not_support_file_num;
                         if(cur_uploader_option.beforeSubmitedSuccess!=undefined){
                             cur_uploader_option.beforeSubmitedSuccess(data,status,xhr,this,cur_uploader_api);
@@ -498,4 +562,8 @@ function resize_pic_loading_close(cur_uploader_option,listEl,parentEl, newInputE
         if(cur_uploader_option.afterResize!=undefined) {
            cur_uploader_option.afterResize(listEl,parentEl, newInputEl, inputEl);            
         }                         
+}
+
+function resize_before_upload_loading() {
+    loading();
 }

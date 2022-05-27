@@ -603,7 +603,9 @@ class ImageController extends BaseController
         if($upload)
         {
             $publicPath = public_path();
-
+           // print_r($fileUploader);
+print_r($fileUploader->getPreloadedFiles());
+print_r($fileUploader->getUploadedFiles());die('test');
             foreach($fileUploader->getUploadedFiles() as  $uploadIndex=>$uploadedFile)
             {
                 $path = substr($uploadedFile['file'], strlen($publicPath));
