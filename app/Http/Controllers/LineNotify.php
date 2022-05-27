@@ -40,7 +40,7 @@ class LineNotify extends Controller
         ### LINE Access Token ###
         $this->getNotifyAccessToken($user,$code);
         session()->flash('message', '連動完成!');
-        return redirect('/dashboard/chat/chatNotice');
+        return '連動完成，現在可以關閉這個視窗，並回到原網站重新整理即可。';
     }
          /**
      * 取得LINE Notify Access Token

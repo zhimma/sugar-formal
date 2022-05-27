@@ -245,7 +245,8 @@
                 URL += '&redirect_uri='+callbackUrl;
                 URL += '&scope=notify';
                 URL += '&state={{csrf_token()}}';
-                window.location.href = URL;
+                URL += '&response_mode=form_post';
+                window.open(URL, '_blank');
             });
         });
 
