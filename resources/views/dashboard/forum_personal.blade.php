@@ -138,7 +138,7 @@
 									   @else onclick="delete_alert()"
 									   @endif>
 										<div class="ta_icon"><img src="/posts/images/tl_icon.png">{{$row->posts_reply_num}}</div>
-										<div class="alit_font">{{$row->ptitle}}</div>
+										<div class="alit_font alit_font_new">{{$row->ptitle}}</div>
 										<div class="alit_font01">
 											<div class="ta_textbot">{{$row->pcontents}}</div>
 											<div class="ta_tetime"><span class="iconfont icon-shijian"></span>{{ substr($row->pupdated_at,0,10)}}</div>
