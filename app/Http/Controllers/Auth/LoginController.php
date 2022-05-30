@@ -228,6 +228,7 @@ class LoginController extends \App\Http\Controllers\BaseController
         if(isset($_COOKIE['loginAccount']) && $user && $this->decrypt_string($_COOKIE['loginAccount'])==$user->email ){
             //自動登入
             \Auth::login($user, true);
+            return redirect('/dashboard/personalPage');
         }else{
             //自動登入帳號驗證失敗
             if(isset($_COOKIE['loginAccount'])){
