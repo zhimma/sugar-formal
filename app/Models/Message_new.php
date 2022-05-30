@@ -420,18 +420,12 @@ class Message_new extends Model
                                 'sender.aw_relation',      'receiver.aw_relation'])
             ->select("message.*")
             //->from('message as m')
-            ->leftJoin('message_room_user_xrefs','message_room_user_xrefs.room_id','=','message.room_id')
-            // ->leftJoin('users as u1', 'u1.id', '=', 'message.from_id')
-            // ->leftJoin('users as u2', 'u2.id', '=', 'message.to_id')
-            ->leftJoin('users','users.id','=','message_room_user_xrefs.user_id')
-            ->leftJoin('banned_users','banned_users.member_id','=','message_room_user_xrefs.user_id')
-            // ->leftJoin('banned_users as b1', 'b1.member_id', '=', 'message.from_id')
-            // ->leftJoin('banned_users as b2', 'b2.member_id', '=', 'message.to_id')
-            ->leftJoin('banned_users_implicitly','banned_users_implicitly.target','=','message_room_user_xrefs.user_id')
-            // ->leftJoin('banned_users_implicitly as b3', 'b3.target', '=', 'message.from_id')
-            // ->leftJoin('banned_users_implicitly as b4', 'b4.target', '=', 'message.to_id')
-            // ->leftJoin('blocked as b','b.blocked_id','=','message_room_user_xrefs.user_id')
-            // ->leftJoin('blocked','blocked.blocked_id','=','message_room_user_xrefs.user_id')
+            ->leftJoin('users as u1', 'u1.id', '=', 'message.from_id')
+            ->leftJoin('users as u2', 'u2.id', '=', 'message.to_id')
+            ->leftJoin('banned_users as b1', 'b1.member_id', '=', 'message.from_id')
+            ->leftJoin('banned_users as b2', 'b2.member_id', '=', 'message.to_id')
+            ->leftJoin('banned_users_implicitly as b3', 'b3.target', '=', 'message.from_id')
+            ->leftJoin('banned_users_implicitly as b4', 'b4.target', '=', 'message.to_id')
             ->leftJoin('blocked as b5', function($join) use($uid) {
                 $join->on('b5.blocked_id', '=', 'message.from_id')
                     ->where('b5.member_id', $uid); })
@@ -441,11 +435,8 @@ class Message_new extends Model
             ->leftJoin('blocked as b7', function($join) use($uid) {
                 $join->on('b7.member_id', '=', 'message.from_id')
                     ->where('b7.blocked_id', $uid); });
-        $query = $query
-                ->whereNotNull('users.id')
-                // ->whereNotNull('u1.id')
-                // ->whereNotNull('u2.id')
-                // ->whereNull('blocked.blocked_id')
+        $query = $query->whereNotNull('u1.id')
+                ->whereNotNull('u2.id')
                 ->whereNull('b5.blocked_id')
                 ->whereNull('b6.blocked_id')
                 ->whereNull('b7.member_id')
@@ -453,55 +444,35 @@ class Message_new extends Model
                     $query->where([['message.to_id', $uid], ['message.from_id', '!=', $uid],['message.from_id','!=',$admin_id]])
                         ->orWhere([['message.from_id', $uid], ['message.to_id', '!=',$uid],['message.to_id','!=',$admin_id]]);
                 });
-            // dd($query)->get();
 		if($forEventSenders) 
 		{
 			self::$date = \Carbon\Carbon::parse(date("Y-m-01"))->toDateTimeString();
-		}else{
-            //  if($d==7){
-            // self::$date = \Carbon\Carbon::parse("7 days ago")->toDateTimeString();
-            // }else if($d==30){
-            //     self::$date = \Carbon\Carbon::parse("30 days ago")->toDateTimeString();
-            // }else if($d=='all'){
-            //     if($isVip) {
-            //         self::$date =\Carbon\Carbon::parse("180 days ago")->toDateTimeString();
-            //     }else {
-            //         self::$date = \Carbon\Carbon::parse("30 days ago")->toDateTimeString();
-            //     }
-            // }
-            switch($d):
-                case '7':
-                    self::$date = \Carbon\Carbon::parse("7 days ago")->toDateTimeString();
-                    break;
-                case '30':
-                    self::$date = \Carbon\Carbon::parse("30 days ago")->toDateTimeString();
-                    break;
-                case 'all':
-                    if($isVip) {
-                        self::$date =\Carbon\Carbon::parse("180 days ago")->toDateTimeString();
-                    }else {
-                        self::$date = \Carbon\Carbon::parse("30 days ago")->toDateTimeString();
-                    }
-                    break;
-            endswitch;
+		}
+        else if($d==7){
+            self::$date = \Carbon\Carbon::parse("7 days ago")->toDateTimeString();
+        }else if($d==30){
+            self::$date = \Carbon\Carbon::parse("30 days ago")->toDateTimeString();
+        }else if($d=='all'){
+            if($isVip) {
+                self::$date =\Carbon\Carbon::parse("180 days ago")->toDateTimeString();
+            }else {
+                self::$date = \Carbon\Carbon::parse("30 days ago")->toDateTimeString();
+            }
         }
 
         $query->where([['message.created_at','>=',self::$date]]);
-        $query->whereRaw('message.created_at < IFNULL(banned_users.created_at,"2999-12-31 23:59:59")');
-        $query->whereRaw('message.created_at < IFNULL(banned_users_implicitly.created_at,"2999-12-31 23:59:59")');
-        // $query->whereRaw('message.created_at < IFNULL(b1.created_at,"2999-12-31 23:59:59")');
-        // $query->whereRaw('message.created_at < IFNULL(b2.created_at,"2999-12-31 23:59:59")');
-        // $query->whereRaw('message.created_at < IFNULL(b3.created_at,"2999-12-31 23:59:59")');
-        // $query->whereRaw('message.created_at < IFNULL(b4.created_at,"2999-12-31 23:59:59")');
+        $query->whereRaw('message.created_at < IFNULL(b1.created_at,"2999-12-31 23:59:59")');
+        $query->whereRaw('message.created_at < IFNULL(b2.created_at,"2999-12-31 23:59:59")');
+        $query->whereRaw('message.created_at < IFNULL(b3.created_at,"2999-12-31 23:59:59")');
+        $query->whereRaw('message.created_at < IFNULL(b4.created_at,"2999-12-31 23:59:59")');
         $query->where([['message.is_row_delete_1','<>',$uid],['message.is_single_delete_1', '<>' ,$uid], ['message.all_delete_count', '<>' ,$uid],['message.is_row_delete_2', '<>' ,$uid],['message.is_single_delete_2', '<>' ,$uid],['message.temp_id', '=', 0]]);
-        $query->groupBy('message.client_id');
         $query->orderBy('message.created_at', 'desc');
-        // if($user->id != 1049){
-        //     $query->where(function($query){
-        //         $query->where(DB::raw('(u1.engroup + u2.engroup)'), '<>', '2');
-        //         $query->orWhere(DB::raw('(u1.engroup + u2.engroup)'), '<>', '4');
-        //     });
-        // }
+        if($user->id != 1049){
+            $query->where(function($query){
+                $query->where(DB::raw('(u1.engroup + u2.engroup)'), '<>', '2');
+                $query->orWhere(DB::raw('(u1.engroup + u2.engroup)'), '<>', '4');
+            });
+        }
         $messages = $query->get();
         $mCount = count($messages);
         $mm = [];
@@ -716,7 +687,7 @@ class Message_new extends Model
 //            //$all_msg = $all_msg->whereIn('from_id', $allVip);
 //            $all_msg = $all_msg->join('member_vip', 'member_vip.member_id', '=', 'message.from_id');
 //        }
-        // $unreadCount = 0;
+        $unreadCount = 0;
 //        if($block->count() == 0) return $all_msg->count();
 //        //echo $block->count();
 //        //echo 'count = '. $block->count();
