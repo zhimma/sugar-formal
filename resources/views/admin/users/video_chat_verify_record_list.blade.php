@@ -11,7 +11,7 @@
             <tr>
                 <td><h3>暱稱</h3></td>
                 <td><h3>Email</h3></td>
-                <td><h3>視訊時間</h3></td>
+                <td><h3>最新視訊時間</h3></td>
                 <td><h3>查看</h3></td>
             </tr>
             @foreach($user_video_verify_record as $record)
@@ -20,7 +20,7 @@
                     <td><h3>{{$record->email}}</h3></td>
                     <td><h3>{{$record->created_at}}</h3></td>
                     <td>
-                        <a href="{{route('users/video_chat_verify_record') . '?verify_record_id=' . $record->id}}">
+                        <a href="{{route('users/video_chat_verify_record') . '?user_id=' . $record->user_id}}">
                             <h3>查看</h3>
                         </a>
                     </td>

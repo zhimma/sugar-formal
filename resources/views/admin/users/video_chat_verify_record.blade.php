@@ -7,31 +7,45 @@
     <body style="padding: 15px;">
         <h1>視訊驗證紀錄</h1>
         <br>
-        <h2>使用者</h2>
-        <div id="profile-video">
-            <video id="record-video" class="video-js vjs-big-play-centered"><video>
-        </div>
-        <h2>管理員</h2>
-        <div id="profile-video2">
-            <video id="record-video2" class="video-js vjs-big-play-centered"><video>
-        </div>
+        <table class='table table-bordered table-hover'>
+            <tr>
+                <td><h3>使用者</h3></td>
+                <td><h3>管理員</h3></td>
+                <td><h3>視訊時間</h3></td>
+            </tr>
+            @foreach($record as $r)
+            <tr>
+                <td>
+                    <div id="profile-video-{{$r->id}}">
+                        <video id="record-video-{{$r->id}}" class="video-js vjs-big-play-centered"><video>
+                    </div>
+                </td>
+                <td>
+                    <div id="profile-video2-{{$r->id}}">
+                        <video id="record-video2-{{$r->id}}" class="video-js vjs-big-play-centered"><video>
+                    </div>
+                </td>
+                <td>{{$r->created_at}}</td>
+            </tr>
+            <script>
+                const player_{{$r->id}} = videojs('record-video-{{$r->id}}',{
+                    sources:[{ src: "{{asset('storage/' . $r->user_video)}}"}],
+                    loop:false,
+                    muted:false,
+                    width:"600",
+                    height:"400px",
+                    controls:true
+                });
+                const player2_{{$r->id}} = videojs('record-video2-{{$r->id}}',{
+                    sources:[{ src: "{{asset('storage/' . $r->admin_video)}}"}],
+                    loop:false,
+                    muted:false,
+                    width:"600",
+                    height:"400px",
+                    controls:true
+                });
+            </script>
+            @endforeach
+        </table>
     </body>
-    <script>
-        const player = videojs('record-video',{
-            sources:[{ src: "{{asset('storage/' . $record->user_video)}}"}],
-            loop:true,
-            muted:true,
-            width:"600",
-            height:"400px",
-            controls:true
-        });
-        const player2 = videojs('record-video2',{
-            sources:[{ src: "{{asset('storage/' . $record->admin_video)}}"}],
-            loop:true,
-            muted:true,
-            width:"600",
-            height:"400px",
-            controls:true
-        });
-    </script>
 @stop

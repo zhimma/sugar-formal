@@ -83,15 +83,16 @@ class VideoChatController extends Controller
         $user_video_verify_record = UserVideoVerifyRecord::select('user_video_verify_record.*', 'users.name', 'users.email')
             ->leftJoin('users', 'user_video_verify_record.user_id', '=', 'users.id')
             ->orderBy('user_video_verify_record.created_at', 'desc')
-            ->get();
+            ->get()
+            ->unique('user_id');
         Log::Info($user_video_verify_record);
         return view('admin.users.video_chat_verify_record_list', ['user_video_verify_record' => $user_video_verify_record]);
     }
 
     public function video_chat_verify_record(Request $request)
     {   
-        $record_id = $request->verify_record_id;
-        $record = UserVideoVerifyRecord::where('id', $record_id)->first();
+        $user_id = $request->user_id;
+        $record = UserVideoVerifyRecord::where('user_id', $user_id)->orderBy('created_at', 'desc')->get();
         return view('admin.users.video_chat_verify_record', ['record' => $record]);
     }
     
