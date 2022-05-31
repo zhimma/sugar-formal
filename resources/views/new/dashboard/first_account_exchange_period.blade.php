@@ -56,7 +56,7 @@ header("Expires: Fri, 01 Jan 1990 00:00:00 GMT");
                                     <div class="de_input01 matop10"><input name="password" id="password" type="password" class="zcinput" placeholder="請輸入您的密碼"></div>
                                 </div>
                             </form>
-                            @if($user_login_count <= 3)
+                            @if($user_login_count <= 10)
                                 <br>
                                 <div class="n_txbut">
                                     <a class="se_but1" onclick="submit()">送出</a>
