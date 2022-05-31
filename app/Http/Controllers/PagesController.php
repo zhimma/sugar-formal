@@ -19,6 +19,7 @@ use App\Models\ForumChat;
 use App\Models\ForumManage;
 use App\Models\ForumPosts;
 use App\Models\hideOnlineData;
+use App\Models\lineNotifyChatSet;
 use App\Models\LogUserLogin;
 use App\Models\Message_new;
 use App\Models\MessageBoard;
@@ -2027,6 +2028,24 @@ class PagesController extends BaseController
                 }
             }
 
+            $line_notify_user_list = lineNotifyChatSet::select('line_notify_chat_set.user_id')
+                ->selectRaw('users.line_notify_token')
+                ->leftJoin('line_notify_chat','line_notify_chat.id', 'line_notify_chat_set.line_notify_chat_id')
+                ->leftJoin('users','users.id', 'line_notify_chat_set.user_id')
+                ->where('line_notify_chat.active',1)
+                ->where('line_notify_chat_set.line_notify_chat_id',9)
+                ->where('line_notify_chat_set.user_id',$targetUser->id)
+                ->where('line_notify_chat_set.deleted_at',null)
+                ->groupBy('line_notify_chat_set.user_id')->get();
+            foreach ($line_notify_user_list as $notify_user){
+                if($notify_user->line_notify_token != null){
+                    $url = url('/dashboard/visited');
+                    //send notify
+                    // ＸＸＸ 正在瀏覽您的檔案 https://minghua.test-tw.icu/dashboard/visited
+                    $message = $user->name.' 正在瀏覽您的檔案 '.$url;
+                    User::sendLineNotify($notify_user->line_notify_token, $message);
+                }
+            }
 
             $member_pic = MemberPic::where('member_id', $uid)->where('pic', '<>', $targetUser->meta->pic)->whereNull('deleted_at')->orderByDesc('created_at')->get();
 
@@ -3370,6 +3389,28 @@ class PagesController extends BaseController
         {
             $isFav = MemberFav::where('member_id', $aid)->where('member_fav_id',$uid)->count();
             $isBlocked = Blocked::isBlocked($aid, $uid);
+
+            $member_id=User::findById($aid);
+            $member_fav_id=User::findById($uid);
+            $line_notify_user_list = lineNotifyChatSet::select('line_notify_chat_set.user_id')
+                ->selectRaw('users.line_notify_token')
+                ->leftJoin('line_notify_chat','line_notify_chat.id', 'line_notify_chat_set.line_notify_chat_id')
+                ->leftJoin('users','users.id', 'line_notify_chat_set.user_id')
+                ->where('line_notify_chat.active',1)
+                ->where('line_notify_chat_set.line_notify_chat_id',10)
+                ->where('line_notify_chat_set.user_id',$member_fav_id->id)
+                ->where('line_notify_chat_set.deleted_at',null)
+                ->groupBy('line_notify_chat_set.user_id')->get();
+            foreach ($line_notify_user_list as $notify_user){
+                if($notify_user->line_notify_token != null){
+                    $url = url('/dashboard/personalPage');
+                    //send notify
+                    // ＸＸＸ 收藏您 https://minghua.test-tw.icu/dashboard/personalPage
+                    $message = $member_id->name.' 收藏您 '.$url;
+                    User::sendLineNotify($notify_user->line_notify_token, $message);
+                }
+            }
+
             if($isFav==0 && !$isBlocked) {
                 MemberFav::fav($aid, $uid);
                 return response()->json(['save' => 'ok']);
@@ -6988,31 +7029,6 @@ class PagesController extends BaseController
     public function checkcfp(Request $request){
         $this->service->checkcfp($request->hash, $request->user()->id);
 
-        return response()->json(array(
-            'status' => 1,
-            'msg' => 'success',
-        ), 200);
-    }
-
-    public function saveVisitorID(Request $request){
-        $cfp = new \App\Models\VisitorID;
-        $cfp->hash = $request->hash;
-        $cfp->host = request()->getHttpHost();
-        $cfp->save();
-        $cfp_user = new \App\Models\VisitorIDUser;
-        $cfp_user->visitor_id = $cfp->id;
-        $cfp_user->user_id = $request->user()->id;
-        $cfp_user->save();
-
-        return response()->json(array(
-            'status' => 1,
-            'msg' => 'success'
-        ), 200);
-    }
-
-    public function checkVisitorID(Request $request){
-        $this->service->checkvisitorid($request->hash, $request->user()->id);
-        
         return response()->json(array(
             'status' => 1,
             'msg' => 'success',

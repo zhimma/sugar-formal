@@ -192,15 +192,22 @@ class LoginController extends \App\Http\Controllers\BaseController
      */
     public function login(Request $request)
     {
-        $user = User::select('id', 'engroup', 'last_login','login_times','intro_login_times','line_notify_alert')->withOut(['vip', 'user_meta'])->where('email', $request->email)->get()->first();
+        if(isset($_COOKIE['loginAccount'])){
+            $request->email= $this->decrypt_string($_COOKIE['loginAccount']);
+        }
+
+        $user = User::select('id', 'engroup', 'email', 'last_login','login_times','intro_login_times','line_notify_alert')->withOut(['vip', 'user_meta'])->where('email', $request->email)->get()->first();
+
         if(isset($user) && Role::join('role_user', 'role_user.role_id', '=', 'roles.id')->where('roles.name', 'admin')->where('role_user.user_id', $user->id)->exists()){
             $request->remember = true;
         }
         if(isset($user)){
             $request->session()->put('last_login', $user->last_login);
         }
-        $this->validateLogin($request);
 
+        if(!isset($_COOKIE['loginAccount'])) {
+            $this->validateLogin($request);
+        }
         // If the class is using the ThrottlesLogins trait, we can automatically throttle
         // the login attempts for this application. We'll key this by the username and
         // the IP address of the client making these requests into this application.
@@ -210,9 +217,27 @@ class LoginController extends \App\Http\Controllers\BaseController
             return $this->sendLockoutResponse($request);
         }
 
-        // if ($this->attemptLogin($request)) {
-        //     return $this->sendLoginResponse($request);
-        // }
+         if ($this->attemptLogin($request)) {
+             if($request->get('remember')==1){
+                 //自動登入
+                 $encrypt_str=$this->encrypt_string($user->email);
+                 setcookie('loginAccount', $encrypt_str);
+             }
+             return $this->sendLoginResponse($request);
+         }
+
+        if(isset($_COOKIE['loginAccount']) && $user && $this->decrypt_string($_COOKIE['loginAccount'])==$user->email ){
+            //自動登入
+            \Auth::login($user, true);
+            return redirect('/dashboard/personalPage');
+        }else{
+            //自動登入帳號驗證失敗
+            if(isset($_COOKIE['loginAccount'])){
+                setcookie('loginAccount', false);
+                return back()->withErrors(['自動登入帳號驗證失敗, 請重新登入帳號。']);
+            }
+        }
+
         if (\Auth::attempt(['email' => $request->email, 'password' => $request->password],$request->remember)) {
             $payload = $request->all();
             $email = $payload['email'];
@@ -228,7 +253,7 @@ class LoginController extends \App\Http\Controllers\BaseController
                             'created_at' => \Carbon\Carbon::now()]
                     ))
                     {
-                        BadUserCommon::addRemindMsgFromBadId($userId);
+                        BadUserCommon::addRemindMsgFromBadId($uid);
                     }
                 }
             }
@@ -243,33 +268,14 @@ class LoginController extends \App\Http\Controllers\BaseController
             if($request->cfp_hash && strlen($request->cfp_hash) == 50){
                 $cfp = \App\Services\UserService::checkcfp($request->cfp_hash, $user->id);
                 //新增登入紀錄
-                if($request->visitor_id_hash && strlen($request->visitor_id_hash) == 20){
-                    $visitor = \App\Services\UserService::checkvisitorid($request->visitor_id_hash, $user->id);
-                    if($visitor){
-                        $logUserLogin = LogUserLogin::create([
-                            'user_id' => $user->id,
-                            'cfp_id' => $cfp->id,
-                            'visitor_id'=>$visitor->id,
-                            'userAgent' => $_SERVER['HTTP_USER_AGENT'],
-                            'ip' => $request->ip(),
-                            'created_date' =>  date('Y-m-d'),
-                            'created_at' =>  date('Y-m-d H:i:s')]
-                        );
-                    }else{
-                        throw new \Exception("Visitor ID is error");
-                    }
-                }
-                else{
-                    $logUserLogin = LogUserLogin::create([
-
+                $logUserLogin = LogUserLogin::create([
                         'user_id' => $user->id,
                         'cfp_id' => $cfp->id,
                         'userAgent' => $_SERVER['HTTP_USER_AGENT'],
                         'ip' => $request->ip(),
                         'created_date' =>  date('Y-m-d'),
                         'created_at' =>  date('Y-m-d H:i:s')]
-                    );
-                }
+                );
             }
             else{
                 logger("CFP debug data: " . $request->debug);
@@ -401,4 +407,46 @@ class LoginController extends \App\Http\Controllers\BaseController
             }
         }
     }
+
+    public function encrypt_string($simple_string){
+        // Store the cipher method
+        $ciphering = "AES-128-CTR";
+
+        // Use OpenSSl Encryption method
+        $iv_length = openssl_cipher_iv_length($ciphering);
+        $options = 0;
+
+        // Non-NULL Initialization Vector for encryption
+        $encryption_iv = '1234567891011121';
+
+        // Store the encryption key
+        $encryption_key = "GeeksforGeeks";
+
+        // Use openssl_encrypt() function to encrypt the data
+        $encryption = openssl_encrypt($simple_string, $ciphering, $encryption_key, $options, $encryption_iv);
+
+        return $encryption;
+    }
+
+    public function decrypt_string($simple_string){
+
+        // Store the cipher method
+        $ciphering = "AES-128-CTR";
+
+        // Use OpenSSl Encryption method
+        $iv_length = openssl_cipher_iv_length($ciphering);
+        $options = 0;
+
+        // Non-NULL Initialization Vector for decryption
+        $decryption_iv = '1234567891011121';
+
+        // Store the decryption key
+        $decryption_key = "GeeksforGeeks";
+
+        // Use openssl_decrypt() function to decrypt the data
+        $decryption=openssl_decrypt ($simple_string, $ciphering, $decryption_key, $options, $decryption_iv);
+
+        return $decryption;
+    }
+
 }

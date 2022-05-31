@@ -12,6 +12,7 @@ use App\Models\EvaluationPic;
 use App\Models\ExpectedBanningUsers;
 use App\Models\Fingerprint2;
 use App\Models\hideOnlineData;
+use App\Models\lineNotifyChatSet;
 use App\Models\LogUserLogin;
 use App\Models\MemberPic;
 use App\Models\Message;
@@ -425,7 +426,28 @@ class UserController extends \App\Http\Controllers\BaseController
                     }
                 }
             }
-        }        
+        }
+
+
+        $blocked_user=User::findById($request->user_id);
+        $line_notify_user_list = lineNotifyChatSet::select('line_notify_chat_set.user_id')
+            ->selectRaw('users.line_notify_token')
+            ->leftJoin('line_notify_chat','line_notify_chat.id', 'line_notify_chat_set.line_notify_chat_id')
+            ->leftJoin('users','users.id', 'line_notify_chat_set.user_id')
+            ->where('line_notify_chat.active',1)
+            ->where('line_notify_chat_set.line_notify_chat_id',11) //封鎖會員
+            ->where('line_notify_chat_set.deleted_at',null)
+            ->whereNotNull('users.line_notify_token')
+            ->get();
+        foreach ($line_notify_user_list as $notify_user){
+            $has_message = Message::where([['to_id', $blocked_user->id], ['from_id', $notify_user->user_id]])->orWhere([['to_id', $notify_user->user_id], ['from_id', $blocked_user->id]])->get()->count();
+            if($notify_user->line_notify_token != null && $has_message){
+                $url = url('/dashboard/chat2');
+                //send notify
+                $message = '與您通訊的 '.$blocked_user->name.' 已經被站方封鎖。對話記錄將移到封鎖信件夾，請您再去檢查，如果您們已經交換聯絡方式，請多加注意。'.$url;
+                User::sendLineNotify($notify_user->line_notify_token, $message);
+            }
+        }
 
         if ($userBanned) {
             $checkLog = DB::table('is_banned_log')->where('user_id', $userBanned->member_id)->where('created_at', $userBanned->created_at)->first();
@@ -464,6 +486,7 @@ class UserController extends \App\Http\Controllers\BaseController
                 $userBanned->reason = $request->reason;
             }
             $userBanned->save();
+            BadUserCommon::addRemindMsgFromBadId($request->user_id);
             //寫入log
             DB::table('is_banned_log')->insert(['user_id' => $request->user_id, 'reason' => $userBanned->reason, 'expire_date' => $userBanned->expire_date, 'vip_pass' => $userBanned->vip_pass, 'adv_auth' => $userBanned->adv_auth, 'created_at' => Carbon::now()]);
             //新增Admin操作log
@@ -583,10 +606,31 @@ class UserController extends \App\Http\Controllers\BaseController
             $userWarned->reason = $request->reason;
         }
         $userWarned->save();
+        BadUserCommon::addRemindMsgFromBadId($request->user_id);
         //寫入log
         DB::table('is_warned_log')->insert(['user_id' => $request->user_id, 'reason' => $request->reason, 'vip_pass'=>$request->vip_pass, 'adv_auth'=>$request->adv_auth,'created_at' => Carbon::now()]);
         //新增Admin操作log
         $this->insertAdminActionLog($request->user_id, '站方警示');
+
+        $warned_user=User::findById($request->user_id);
+        $line_notify_user_list = lineNotifyChatSet::select('line_notify_chat_set.user_id')
+            ->selectRaw('users.line_notify_token')
+            ->leftJoin('line_notify_chat','line_notify_chat.id', 'line_notify_chat_set.line_notify_chat_id')
+            ->leftJoin('users','users.id', 'line_notify_chat_set.user_id')
+            ->where('line_notify_chat.active',1)
+            ->where('line_notify_chat_set.line_notify_chat_id',7)//警示會員
+            ->where('line_notify_chat_set.deleted_at',null)
+            ->whereNotNull('users.line_notify_token')
+            ->groupBy('line_notify_chat_set.user_id')->get();
+        foreach ($line_notify_user_list as $notify_user){
+            $has_message = Message::where([['to_id', $warned_user->id], ['from_id', $notify_user->user_id]])->orWhere([['to_id', $notify_user->user_id], ['from_id', $warned_user->id]])->get()->count();
+            if($notify_user->line_notify_token != null && $has_message){
+                $url = url('/dashboard/chat2');
+                //send notify
+                $message = '與您通訊的 '.$warned_user->name.' 已經被站方警示。對話記錄將移到警示會員信件夾，請您再去檢查，如果您們已經交換聯絡方式，請多加注意。 '.$url;
+                User::sendLineNotify($notify_user->line_notify_token, $message);
+            }
+        }
 
         if (isset($request->page)) {
             switch ($request->page) {

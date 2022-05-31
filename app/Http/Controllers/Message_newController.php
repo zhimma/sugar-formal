@@ -322,7 +322,7 @@ class Message_newController extends BaseController {
             ->where('line_notify_chat_set.user_id', $to_user->id)
             ->get();
 
-        if(!empty($line_notify_chat_set_data)){
+        /*if(!empty($line_notify_chat_set_data)){
             $user_meta_data = UserMeta::select('user_meta.isWarned', 'exchange_period_name.*')
                 ->leftJoin('users', 'users.id', 'user_meta.user_id')
                 ->leftJoin('exchange_period_name', 'exchange_period_name.id', 'users.exchange_period')
@@ -465,16 +465,74 @@ class Message_newController extends BaseController {
                 }
             }
             //對方的過濾篩選條件
+        }*/
+
+        $line_notify_chat_id_ary=$line_notify_chat_set_data->pluck('line_notify_chat_id')->toArray();
+        $line_notify_send = false;
+        $into_area='no set';
+        if($to_user->engroup==1){
+            if(in_array(1, $line_notify_chat_id_ary) && $user->exchange_period==1){
+                $line_notify_send = true;
+            }
+            if(in_array(2, $line_notify_chat_id_ary) && $user->exchange_period==2){
+                $line_notify_send = true;
+            }
+            if(in_array(3, $line_notify_chat_id_ary) && $user->exchange_period==3){
+                $line_notify_send = true;
+            }
+            if(in_array(8, $line_notify_chat_id_ary) && memberFav::where('member_id', $to_user->id)->where('member_fav_id', $user->id)->first()){
+                $line_notify_send = true;
+            }
+        }else{
+            if(in_array(5, $line_notify_chat_id_ary) && $user->isVip()){
+                $line_notify_send = true;
+            }
+            if(in_array(6, $line_notify_chat_id_ary) && !$user->isVip()){
+                $line_notify_send = true;
+            }
+            if(in_array(8, $line_notify_chat_id_ary) && memberFav::where('member_id', $to_user->id)->where('member_fav_id', $user->id)->first()){
+                $line_notify_send = true;
+            }
         }
 
-        if($to_user->line_notify_token != null && $line_notify_send){
+        //封鎖帳號＆警示帳號 notify訊息提示
+        $line_notify_send_blockOrWarned=false;
+
+        //正被警示
+        $isWarned = warned_users::where('member_id', $user->id)->where('expire_date', null)->orWhere('expire_date','>',Carbon::now() )->where('member_id', $user->id)->orderBy('created_at','desc')->first();
+        $has_message_after_warned=false;
+        if($isWarned){
+            $has_message_after_warned = Message::where([['to_id', $to_user->id], ['from_id', $user->id]])->orWhere([['to_id', $user->id], ['from_id', $to_user->id]])->where('created_at','>',$isWarned->created_at)->get()->count();
+        }
+        //正被封鎖
+        $isBanned = banned_users::where('member_id', $user->id)->where('expire_date', null)->orWhere('expire_date','>',Carbon::now() )->where('member_id', $user->id)->orderBy('created_at','desc')->first();
+        $has_message_after_banned=false;
+        if($isBanned){
+            $has_message_after_banned = Message::where([['to_id', $to_user->id], ['from_id', $user->id]])->orWhere([['to_id', $user->id], ['from_id', $to_user->id]])->where('created_at','>',$isBanned->created_at)->get()->count();
+        }
+
+        if(in_array(11, $line_notify_chat_id_ary) && ( $has_message_after_banned==1)){
+            $line_notify_send_blockOrWarned = true;
+            $url = url('/dashboard/chat2');
+            $message = '與您通訊的 '.$user->name.' 已經被站方封鎖。對話記錄將移到封鎖信件夾，請您再去檢查，如果您們已經交換聯絡方式，請多加注意。'.$url;
+        }
+        if(in_array(7, $line_notify_chat_id_ary) && $has_message_after_warned==1){
+            $line_notify_send_blockOrWarned = true;
+            $url = url('/dashboard/chat2');
+            $message = '與您通訊的 '.$user->name.' 已經被站方警示。對話記錄將移到警示會員信件夾，請您再去檢查，如果您們已經交換聯絡方式，請多加注意。 '.$url;
+        }
+
+        if($to_user->line_notify_token != null && $line_notify_send_blockOrWarned){
+            User::sendLineNotify($to_user->line_notify_token, $message);
+        }
+        else if($to_user->line_notify_token != null && $line_notify_send){
+
             $url = url('/dashboard/chat2/chatShow/'.$user->id);
-//            $url = app('bitly')->getUrl($url); //新套件用，如無法使用則先隱藏相關class
+            //$url = app('bitly')->getUrl($url); //新套件用，如無法使用則先隱藏相關class
 
             //send notify
             $message = '您有一則訊息來自 '.$user->name.'。'.$url;
             User::sendLineNotify($to_user->line_notify_token, $message);
-
         }
 
         //發送訊息後後判斷是否需備自動封鎖

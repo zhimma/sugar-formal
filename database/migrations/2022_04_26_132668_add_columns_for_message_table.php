@@ -15,15 +15,21 @@ class AddColumnsForMessageTable extends Migration
     {
         //
         if (!Schema::hasColumn('message', 'views_count')) {
-            DB::statement('ALTER TABLE `message` ADD `views_count` int(11) unsigned DEFAULT 0 AFTER `read`, ALGORITHM = INPLACE, LOCK=NONE;');
+            Schema::table('message', function (Blueprint $table) {
+                $table->integer('views_count')->default(0)->after('read');
+            });
         }
         
         if (!Schema::hasColumn('message', 'views_count_quota')) {
-            DB::statement('ALTER TABLE `message` ADD `views_count_quota` int(11) unsigned DEFAULT 0 AFTER `views_count`, ALGORITHM = INPLACE, LOCK=NONE;');
+            Schema::table('message', function (Blueprint $table) {
+                $table->integer('views_count_quota')->default(0)->after('views_count');
+            });
         }
 
         if (!Schema::hasColumn('message', 'show_time_limit')) {
-            DB::statement('ALTER TABLE `message` ADD `show_time_limit` int(11) unsigned DEFAULT 0 AFTER `views_count_quota`, ALGORITHM = INPLACE, LOCK=NONE;');
+            Schema::table('message', function (Blueprint $table) {
+                $table->integer('show_time_limit')->default(0)->after('views_count_quota');
+            });
         } 
         
     }
