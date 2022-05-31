@@ -20,9 +20,7 @@
                     <td>{{$record->email}}</td>
                     <td>{{$record->created_at}}</td>
                     <td>
-                        <a href="{{route('users/video_chat_verify_record') . '?user_id=' . $record->user_id}}">
-                            查看
-                        </a>
+                        <button class='text-white btn btn-success' href="{{route('users/video_chat_verify_record') . '?user_id=' . $record->user_id}}">查看</button>
                     </td>
                 </tr>
             @endforeach
