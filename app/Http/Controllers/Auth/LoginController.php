@@ -198,6 +198,16 @@ class LoginController extends \App\Http\Controllers\BaseController
 
         $user = User::select('id', 'engroup', 'email', 'last_login','login_times','intro_login_times','line_notify_alert')->withOut(['vip', 'user_meta'])->where('email', $request->email)->get()->first();
 
+        //登入時新增使用者一次性資料
+        $user_provisional_variables = UserProvisionalVariables::where('user_id', $user->id)->first();
+        if(!($user_provisional_variables ?? false))
+        {
+            $user_provisional_variables = new UserProvisionalVariables();
+            $user_provisional_variables->user_id = $user->id;
+        }
+        $user_provisional_variables->save();
+
+
         if(isset($user) && Role::join('role_user', 'role_user.role_id', '=', 'roles.id')->where('roles.name', 'admin')->where('role_user.user_id', $user->id)->exists()){
             $request->remember = true;
         }
@@ -333,17 +343,6 @@ class LoginController extends \App\Http\Controllers\BaseController
             }
             catch (\Exception $e){
                 logger($e);
-            }
-
-            if($user->engroup == 2)
-            {
-                $user_provisional_variables = UserProvisionalVariables::where('user_id', $user->id)->first();
-                if(!($user_provisional_variables ?? false))
-                {
-                    $user_provisional_variables = new UserProvisionalVariables();
-                    $user_provisional_variables->user_id = $user->id;
-                }
-                $user_provisional_variables->save();
             }
 
             return $this->sendLoginResponse($request);
