@@ -198,6 +198,18 @@ class LoginController extends \App\Http\Controllers\BaseController
 
         $user = User::select('id', 'engroup', 'email', 'last_login','login_times','intro_login_times','line_notify_alert')->withOut(['vip', 'user_meta'])->where('email', $request->email)->get()->first();
 
+        //登入時新增使用者一次性資料
+        if(isset($user))
+        {
+            $user_provisional_variables = UserProvisionalVariables::where('user_id', $user->id)->first();
+            if(!($user_provisional_variables ?? false))
+            {
+                $user_provisional_variables = new UserProvisionalVariables();
+                $user_provisional_variables->user_id = $user->id;
+            }
+            $user_provisional_variables->save();
+        }
+
         if(isset($user) && Role::join('role_user', 'role_user.role_id', '=', 'roles.id')->where('roles.name', 'admin')->where('role_user.user_id', $user->id)->exists()){
             $request->remember = true;
         }
@@ -209,15 +221,6 @@ class LoginController extends \App\Http\Controllers\BaseController
             $this->validateLogin($request);
         }
 
-        //登入時新增使用者一次性資料
-        $user_provisional_variables = UserProvisionalVariables::where('user_id', $user->id)->first();
-        if(!($user_provisional_variables ?? false))
-        {
-            $user_provisional_variables = new UserProvisionalVariables();
-            $user_provisional_variables->user_id = $user->id;
-        }
-        $user_provisional_variables->save();
-        
         // If the class is using the ThrottlesLogins trait, we can automatically throttle
         // the login attempts for this application. We'll key this by the username and
         // the IP address of the client making these requests into this application.
