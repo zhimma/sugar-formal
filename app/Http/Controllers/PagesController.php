@@ -1466,7 +1466,7 @@ class PagesController extends BaseController
         $user_provisional_variables = UserProvisionalVariables::where('user_id', $user->id)->first();
         $user_login_count = LogUserLogin::where('user_id', $user->id)->count();
 
-        if($user_login_count = 10 && $user_provisional_variables->has_adjusted_period_first_time == 0)
+        if($user_login_count == 10 && $user_provisional_variables->has_adjusted_period_first_time == 0)
         {
             return view('new.dashboard.first_account_exchange_period')
                 ->with('user', $user)
