@@ -195,7 +195,14 @@ class LoginController extends \App\Http\Controllers\BaseController
             $request->email= $this->decrypt_string($_COOKIE['loginAccount']);
         }
 
-        $user = User::select('id', 'engroup', 'email', 'last_login','login_times','intro_login_times','line_notify_alert')->withOut(['vip', 'user_meta'])->where('email', $request->email)->get()->first();
+        $user = User::query()
+                    ->select('id', 'engroup', 'email', 'last_login', 'login_times', 'intro_login_times', 'line_notify_alert', 'registered_from_mobile')
+                    ->withOut(['vip', 'user_meta'])
+                    ->where('email', $request->email)->get()->first();
+
+        if($user && $user->registered_from_mobile){
+            return back()->withErrors(['請使用手機登入。']);
+        }
 
         if(isset($user) && Role::join('role_user', 'role_user.role_id', '=', 'roles.id')->where('roles.name', 'admin')->where('role_user.user_id', $user->id)->exists()){
             $request->remember = true;
