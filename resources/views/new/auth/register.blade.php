@@ -200,6 +200,7 @@ div.new_poptk{color:#6783c7;overflow-y:scroll;}
                             <a href="" class="se_but2">取消</a>
                         </div>
                         <input type="hidden" name="regist_cost_time" id="regist_cost_time">
+                        <input type="hidden" name="advertise_id" id="advertise_id">
                     </form>
                     <iframe id="childFrame" src="https://www.sugar-garden.org/cfp" style="border:none;" ></iframe>
                 </div>
@@ -487,6 +488,10 @@ div.new_poptk{color:#6783c7;overflow-y:scroll;}
                     return false;
                 }
             }else{
+                if(window.sessionStorage.getItem('advertise_id'))
+                {
+                    $('#advertise_id').val(window.sessionStorage.getItem('advertise_id'));
+                }
                 t.submit();
             }
             // t.submit();

@@ -18,6 +18,7 @@ use App\Models\IsBannedLog;
 use App\Models\BannedUsersImplicitly;
 use App\Models\IsWarnedLog;
 use App\Models\UserRecord;
+use App\Models\ComeFromAdvertise;
 
 class RegisterController extends \App\Http\Controllers\BaseController
 {
@@ -162,7 +163,16 @@ class RegisterController extends \App\Http\Controllers\BaseController
         \Session::forget('filled_data');
 
         event(new \Illuminate\Auth\Events\Registered($user = $this->create($request->all())));
+
 		$this->guard()->login($user);
+
+        $advertise_record =ComeFromAdvertise::where('id', $request->advertise_id)->first();
+        if($advertise_record??false)
+        {
+            $advertise_record->user_id = $user->id;
+            $advertise_record->save();
+        }
+        
         if($request->cfp_hash){
             $cfp = \App\Services\UserService::checkcfp($request->cfp_hash, $user->id);
             $logUserLogin = LogUserLogin::create([
