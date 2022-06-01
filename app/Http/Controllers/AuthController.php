@@ -166,6 +166,7 @@ class AuthController extends Controller
             $modelUser->title = $req['title'];
             $modelUser->engroup = $req['engroup'];
             $modelUser->exchange_period = $req['exchange_period'];
+            $modelUser->registered_from_mobile = 1; // for 手機註冊使用者
 
             if ($modelUser->save()) {   
                 // 新註冊不須顯示修改提示，故須先將註記資料存入
