@@ -6096,11 +6096,14 @@ class UserController extends \App\Http\Controllers\BaseController
         $login_count = ComeFromAdvertise::where('action', 'login')->get()->count();
         $explore_count = ComeFromAdvertise::where('action', 'explore')->get()->count();
         $regist_count = ComeFromAdvertise::where('action', 'regist')->get()->count();
+        $complete_regist_count = ComeFromAdvertise::where('action', 'regist')->whereNotNull('user_id')->get()->count();
 
         return view('admin.users.advertiseStatistics')
                 ->with('login_count', $login_count)
                 ->with('explore_count', $explore_count)
-                ->with('regist_count', $regist_count);
+                ->with('regist_count', $regist_count)
+                ->with('complete_regist_count', $complete_regist_count)
+                ;
     }
     
     public function user_record_view(Request $request)
