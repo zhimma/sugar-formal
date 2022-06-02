@@ -8259,7 +8259,7 @@ class PagesController extends BaseController
             UserProvisionalVariables::where('user_id',$user->id)->update(['has_adjusted_period_first_time' => 1]);
             User::where('id', $user->id)->update(['exchange_period' => $period]);
             DB::table('exchange_period_temp')->insert(['user_id' => $user->id, 'created_at' => \Carbon\Carbon::now()]);
-            return back()->with('message', '已完成首次設定，無需審核');
+            return back()->with('message', '已完成設定，無需審核');
         }
         else
         {
