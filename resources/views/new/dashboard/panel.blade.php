@@ -70,7 +70,7 @@
                     <a href="{!! url('dashboard/vipSelect') !!}"><img src="/new/images/us2.png">升級付費</a>
                 </li>
                 <li>
-                    <a href="{!! url('logout') !!}"><img src="/new/images/iconout.png">退出</a>
+                    <a href="{!! url('logout') !!}" onclick="clean_session_storage()"><img src="/new/images/iconout.png">退出</a>
                 </li>
             </ul>
         </div>
@@ -105,6 +105,9 @@
             @elseif(str_contains(url()->current(), 'dashboard/forum'))
                 window.location.href = "/dashboard/forum";
             @endif
+        }
+        function clean_session_storage(){
+            sessionStorage.clear();
         }
     </script>
 
