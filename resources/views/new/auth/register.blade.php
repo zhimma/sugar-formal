@@ -152,7 +152,7 @@ div.new_poptk{color:#6783c7;overflow-y:scroll;}
                         @include('partials.message')
                     </div>
                     <div class="zhuce"><h2>註冊</h2><h3>請記住您的密碼，不要留下真名</h3></div>
-                    <form class="de_input " name="register" method="POST" action="/register" data-parsley-validate novalidate>
+                    <form class="de_input " name="register" method="POST" action="/register?{{ time() }}={{ csrf_token() }}" data-parsley-validate novalidate>
                         {!! csrf_field() !!}
                         <div class="de_input01 dlmarbot">
                             <input type="password" style="display:none" />
