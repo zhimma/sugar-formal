@@ -223,18 +223,15 @@ class LoginController extends \App\Http\Controllers\BaseController
             return $this->sendLockoutResponse($request);
         }
 
-         if ($this->attemptLogin($request)) {
-             if($request->get('remember')==1){
-                 //自動登入
-                 $encrypt_str=$this->encrypt_string($user->email);
-                 setcookie('loginAccount', $encrypt_str);
-             }
-             return $this->sendLoginResponse($request);
-         }
-
+        if($request->get('remember')==1){
+            //自動登入
+            $encrypt_str=$this->encrypt_string($user->email);
+            setcookie('loginAccount', $encrypt_str);
+        }
         if(isset($_COOKIE['loginAccount']) && $user && $this->decrypt_string($_COOKIE['loginAccount'])==$user->email ){
             //自動登入
             \Auth::login($user, true);
+            $this->handle_other_events_after_login($request, $user);
             return redirect('/dashboard/personalPage');
         }else{
             //自動登入帳號驗證失敗
@@ -246,101 +243,7 @@ class LoginController extends \App\Http\Controllers\BaseController
 
         if (\Auth::attempt(['email' => $request->email, 'password' => $request->password],$request->remember)) {
             $payload = $request->all();
-            $email = $payload['email'];
-            $uid = \Auth::user()->id;
-            $domains = config('banned.domains');
-            foreach ($domains as $domain){
-                if(str_contains($email, $domain)
-                    && !\DB::table('banned_users_implicitly')->where('target', $uid)->exists()){
-                    if(\DB::table('banned_users_implicitly')->insert(
-                        ['fp' => 'DirectlyBanned',
-                            'user_id' => '0',
-                            'target' => $uid,
-                            'created_at' => \Carbon\Carbon::now()]
-                    ))
-                    {
-                        BadUserCommon::addRemindMsgFromBadId($uid);
-                    }
-                }
-            }
-
-            //更新login_times
-            User::where('id',$user->id)->update(['login_times'=>$user->login_times +1]);
-            //更新教學<->登入次數
-            User::where('id',$user->id)->update(['intro_login_times'=>$user->intro_login_times +1]);
-            //更新會員專屬頁通知<->登入次數
-            User::where('id',$user->id)->update(['line_notify_alert'=>$user->line_notify_alert +1]);
-
-            if($request->cfp_hash && strlen($request->cfp_hash) == 50){
-                $cfp = \App\Services\UserService::checkcfp($request->cfp_hash, $user->id);
-                //新增登入紀錄
-                $logUserLogin = LogUserLogin::create([
-                        'user_id' => $user->id,
-                        'cfp_id' => $cfp->id,
-                        'userAgent' => $_SERVER['HTTP_USER_AGENT'],
-                        'ip' => $request->ip(),
-                        'created_date' =>  date('Y-m-d'),
-                        'created_at' =>  date('Y-m-d H:i:s')]
-                );
-            }
-            else{
-                logger("CFP debug data: " . $request->debug);
-                $logUserLogin = LogUserLogin::create([
-                        'user_id' => $user->id,
-                        'userAgent' => $_SERVER['HTTP_USER_AGENT'],
-                        'ip' => $request->ip(),
-                        'created_date' =>  date('Y-m-d'),
-                        'created_at' =>  date('Y-m-d H:i:s')]
-                );
-            }
-
-            try{
-                $country = null;
-                // 先檢查 IP 是否有記錄
-                $ip_record = LogUserLogin::where('ip', $request->ip())->first();
-                if($ip_record && $ip_record->country && $ip_record->country != "??"){
-                    $country = $ip_record->country;
-                }
-                // 否則從 API 查詢
-                else{
-                    $client = new \GuzzleHttp\Client();
-                    $response = $client->get('http://ipinfo.io/' . $request->ip() . '?token=27fc624e833728');
-                    $content = json_decode($response->getBody());
-                    if(isset($content->country)){
-                        $country = $content->country;
-                    }
-                    else{
-                        $country = "??";
-                    }
-                }
-
-                if(isset($country)){
-                    $logUserLogin->country = $country;
-                    $logUserLogin->save();
-                    $whiteList = [
-                        "pig820827@yahoo.com.tw",
-                        "henyanyilily@gmail.com",
-                        "chenyanyilily@gmail.com",
-                        "sa83109@gmail.com",
-                        "frebert456@gmail.com",
-                        "sagitwang@gmail.com",
-                        "nathan7720757@gmail.com",
-                    ];
-                    if(!in_array($request->email, $whiteList)){
-                        if($country != "TW" && $country != "??") {
-                            logger("None TW login, user id: " . $user->id);
-                            // if($user->engroup == 2){
-                            //     Auth::logout();
-                            //     return back()->withErrors('Forbidden.');
-                            // }
-                        }
-                    }
-                }
-            }
-            catch (\Exception $e){
-                logger($e);
-            }
-
+            $this->handle_other_events_after_login($request, $user);
             return $this->sendLoginResponse($request);
         }
 
@@ -355,6 +258,101 @@ class LoginController extends \App\Http\Controllers\BaseController
         return $this->sendFailedLoginResponse($request);
     }
 
+    public function handle_other_events_after_login($request, $user){
+        $email = $user->email;
+        $uid = \Auth::user()->id;
+        $domains = config('banned.domains');
+        foreach ($domains as $domain){
+            if(str_contains($email, $domain)
+                && !\DB::table('banned_users_implicitly')->where('target', $uid)->exists()){
+                if(\DB::table('banned_users_implicitly')->insert(
+                    ['fp' => 'DirectlyBanned',
+                        'user_id' => '0',
+                        'target' => $uid,
+                        'created_at' => \Carbon\Carbon::now()]
+                ))
+                {
+                    BadUserCommon::addRemindMsgFromBadId($uid);
+                }
+            }
+        }
+        //更新login_times
+        User::where('id',$user->id)->update(['login_times'=>$user->login_times +1]);
+        //更新教學<->登入次數
+        User::where('id',$user->id)->update(['intro_login_times'=>$user->intro_login_times +1]);
+        //更新會員專屬頁通知<->登入次數
+        User::where('id',$user->id)->update(['line_notify_alert'=>$user->line_notify_alert +1]);
+
+        if($request->cfp_hash && strlen($request->cfp_hash) == 50){
+            $cfp = \App\Services\UserService::checkcfp($request->cfp_hash, $user->id);
+            //新增登入紀錄
+            $logUserLogin = LogUserLogin::create([
+                    'user_id' => $user->id,
+                    'cfp_id' => $cfp->id,
+                    'userAgent' => $_SERVER['HTTP_USER_AGENT'],
+                    'ip' => $request->ip(),
+                    'created_date' =>  date('Y-m-d'),
+                    'created_at' =>  date('Y-m-d H:i:s')]
+            );
+        }
+        else{
+            logger("CFP debug data: " . $request->debug);
+            $logUserLogin = LogUserLogin::create([
+                    'user_id' => $user->id,
+                    'userAgent' => $_SERVER['HTTP_USER_AGENT'],
+                    'ip' => $request->ip(),
+                    'created_date' =>  date('Y-m-d'),
+                    'created_at' =>  date('Y-m-d H:i:s')]
+            );
+        }
+
+        try{
+            $country = null;
+            // 先檢查 IP 是否有記錄
+            $ip_record = LogUserLogin::where('ip', $request->ip())->first();
+            if($ip_record && $ip_record->country && $ip_record->country != "??"){
+                $country = $ip_record->country;
+            }
+            // 否則從 API 查詢
+            else{
+                $client = new \GuzzleHttp\Client();
+                $response = $client->get('http://ipinfo.io/' . $request->ip() . '?token=27fc624e833728');
+                $content = json_decode($response->getBody());
+                if(isset($content->country)){
+                    $country = $content->country;
+                }
+                else{
+                    $country = "??";
+                }
+            }
+
+            if(isset($country)){
+                $logUserLogin->country = $country;
+                $logUserLogin->save();
+                $whiteList = [
+                    "pig820827@yahoo.com.tw",
+                    "henyanyilily@gmail.com",
+                    "chenyanyilily@gmail.com",
+                    "sa83109@gmail.com",
+                    "frebert456@gmail.com",
+                    "sagitwang@gmail.com",
+                    "nathan7720757@gmail.com",
+                ];
+                if(!in_array($request->email, $whiteList)){
+                    if($country != "TW" && $country != "??") {
+                        logger("None TW login, user id: " . $user->id);
+                        // if($user->engroup == 2){
+                        //     Auth::logout();
+                        //     return back()->withErrors('Forbidden.');
+                        // }
+                    }
+                }
+            }
+        }
+        catch (\Exception $e){
+            logger($e);
+        }
+    }
     public function get_mac_address(){
         $string=exec('getmac');
         $mac=substr($string, 0, 17); 
