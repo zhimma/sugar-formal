@@ -59,9 +59,9 @@ header("Expires: Fri, 01 Jan 1990 00:00:00 GMT");
                                             <img src="/new/images/fengs_icon.png">
                                         </div>
                                     </div>
-                                {{-- @endif
+                                @endif
 
-                                @if ($user->isVIP()) --}}
+                                @if ($user->isVIP())
                                     
                                     <dt>
                                         <div class="n_se left">
