@@ -14,10 +14,15 @@ class LineNotifyChatInsertValues extends Migration
      */
     public function up()
     {
-        DB::table('line_notify_chat')
+        if(!DB::table('line_notify_chat')
+                ->where(['name' => '封鎖會員', 'gender' => 0, 'active' => 1, 'order' => 99])
+                ->exists()
+        ) {
+            DB::table('line_notify_chat')
             ->insert(array(
                 array('name' => '封鎖會員', 'gender' => 0, 'active' => 1, 'order' => 99),
             ));
+        }
     }
 
     /**

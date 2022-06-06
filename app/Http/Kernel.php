@@ -97,5 +97,7 @@ class Kernel extends HttpKernel
         "HasReferer"=>HasReferer::class,
         //檢查是否要作答FAQ
         "FaqCheck"=>\App\Http\Middleware\FaqCheck::class,
+        //登入三次更新包養關係
+        'AdjustedPeriodCheck'=>\App\Http\Middleware\AdjustedPeriodCheck::class,
     ];
 }

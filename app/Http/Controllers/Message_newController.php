@@ -17,7 +17,6 @@ use App\Models\User;
 use App\Models\UserMeta;
 use App\Models\SetAutoBan;
 use App\Models\AdminCommonText;
-use App\Models\MessageRoom;
 use App\Models\hideOnlineData;
 use App\Models\Visited;
 use App\Services\UserService;
@@ -35,7 +34,6 @@ use App\Models\InboxRefuseSet;
 use App\Models\Pr_log;
 //use Shivella\Bitly\Facade\Bitly;
 use Illuminate\Support\Facades\Log;
-use App\Models\MessageRoomUserXref;
 
 class Message_newController extends BaseController {
     public function __construct(UserService $userService) {
@@ -297,31 +295,7 @@ class Message_newController extends BaseController {
 
         if(!is_null($request->file('images')) && count($request->file('images'))){
             //上傳訊息照片
-            $rows = array(
-                $user->id,
-                $payload['to']
-            );
-
-            $checkData = MessageRoomUserXref::whereIn('user_id',$rows)->groupBy('room_id')->havingRaw('count(user_id) = ?', [2]);
-
-            if($checkData->count()==0){
-                $messageRoom = new MessageRoom;
-                $messageRoom->save();
-                $room_id = $messageRoom->id;
-            
-
-                foreach($rows as $row){
-                    $messageRoomUserXref = new MessageRoomUserXref;
-                    $messageRoomUserXref->user_id = $row;
-                    $messageRoomUserXref->room_id = $room_id;
-                    $messageRoomUserXref->save();
-                }
-            }else{
-                $room_id = $checkData->first()['room_id'];
-            }
-
             $messageInfo = Message::create([
-                'room_id'=>$room_id,
                 'from_id'=>$user->id,
                 'to_id'=>$payload['to'],
                 'client_id'=>$payload['client_id'],
@@ -583,7 +557,9 @@ class Message_newController extends BaseController {
         $user = $request->user();
         $m_time = '';
         if (isset($user)) {
-            $this->service->dispatchCheckECPay($this->userIsVip, $this->userIsFreeVip, $this->userVipData);
+            if($user->vip_any) {
+                $this->service->dispatchCheckECPay($this->userIsVip, $this->userIsFreeVip, $user->vip_any->first());
+            }
             $isVip = $user->isVip();
             /*編輯文案-檢舉大頭照-START*/
             $vip_member = AdminCommonText::where('alias','vip_member')->get()->first();
@@ -636,9 +612,8 @@ class Message_newController extends BaseController {
          *  }
          */
         $data = Message_new::allSendersAJAX($user_id, $request->isVip,$request->date);
-        // $data = MessageRoom::getRooms($user_id, $request->isVip,$request->date);
-        // dd($data);
-        if($data != ['No data'])
+        
+        if(is_array($data) && $data != ['No data'])
         {
             //過濾篩選條件
             $inbox_refuse_set = InboxRefuseSet::where('user_id', $user->id)->first();
