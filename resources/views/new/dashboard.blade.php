@@ -1168,7 +1168,7 @@ dt span.engroup_type_title {display:inline-block;width:10%;white-space:nowrap;}
         @php
             $exchange_period_read = DB::table('exchange_period_temp')->where('user_id',$user->id)->count();
         @endphp
-        @if($exchange_period_read==0 && $user->engroup==2)
+        @if($user->engroup==2 && ($exchange_period_read == 0))
             $('#isExchangePeriod').show();
             $('#announce_bg').show();
         @endif

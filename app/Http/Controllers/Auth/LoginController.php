@@ -15,6 +15,7 @@ use App\Models\Role;
 use App\Models\SetAutoBan;
 use Auth;
 use App\Models\SimpleTables\banned_users;
+use App\Models\UserProvisionalVariables;
 use Illuminate\Support\Facades\Config;
 use Illuminate\Support\Facades\DB;
 use Session;
@@ -204,6 +205,18 @@ class LoginController extends \App\Http\Controllers\BaseController
             return back()->withErrors(['請使用 APP 登入。']);
         }
 
+        //登入時新增使用者一次性資料
+        if(isset($user))
+        {
+            $user_provisional_variables = UserProvisionalVariables::where('user_id', $user->id)->first();
+            if(!($user_provisional_variables ?? false))
+            {
+                $user_provisional_variables = new UserProvisionalVariables();
+                $user_provisional_variables->user_id = $user->id;
+            }
+            $user_provisional_variables->save();
+        }
+
         if(isset($user) && Role::join('role_user', 'role_user.role_id', '=', 'roles.id')->where('roles.name', 'admin')->where('role_user.user_id', $user->id)->exists()){
             $request->remember = true;
         }
@@ -214,6 +227,7 @@ class LoginController extends \App\Http\Controllers\BaseController
         if(!isset($_COOKIE['loginAccount'])) {
             $this->validateLogin($request);
         }
+
         // If the class is using the ThrottlesLogins trait, we can automatically throttle
         // the login attempts for this application. We'll key this by the username and
         // the IP address of the client making these requests into this application.
@@ -228,6 +242,7 @@ class LoginController extends \App\Http\Controllers\BaseController
             $encrypt_str=$this->encrypt_string($user->email);
             setcookie('loginAccount', $encrypt_str);
         }
+
         if(isset($_COOKIE['loginAccount']) && $user && $this->decrypt_string($_COOKIE['loginAccount'])==$user->email ){
             //自動登入
             \Auth::login($user, true);

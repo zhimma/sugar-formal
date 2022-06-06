@@ -82,6 +82,7 @@ use App\Models\ComeFromAdvertise;
 use App\Models\SimpleTables\short_message;
 use App\Models\LogAdvAuthApi;
 use App\Models\StayOnlineRecord;
+use App\Models\UserProvisionalVariables;
 use Illuminate\Support\Facades\Http;
 use App\Services\SearchIgnoreService;
 use \FileUploader;
@@ -739,6 +740,7 @@ class PagesController extends BaseController
         if($year=='1970'){
             $year=$month=$day='';
         }
+
         if ($user) {
 
             $pr = DB::table('pr_log')->where('user_id',$user->id)->where('active',1)->first();
@@ -773,8 +775,9 @@ class PagesController extends BaseController
                 ->with('add_avatar', $add_avatar)
                 ->with('isAdminWarnedRead',$isAdminWarnedRead)
                 ->with('no_avatar', isset($no_avatar)?$no_avatar->content:'')
-                ->with('pr', $pr);
+                ->with('pr', $pr)
                 //->with('isWarnedReason',$isWarnedReason)
+                ;
         }
     }
 
@@ -1460,7 +1463,20 @@ class PagesController extends BaseController
     public function view_exchange_period(Request $request)
     {
         $user = $request->user();
-        return view('new.dashboard.account_exchange_period')->with('user', $user)->with('cur', $user);
+        $user_provisional_variables = UserProvisionalVariables::where('user_id', $user->id)->first();
+        $user_login_count = LogUserLogin::where('user_id', $user->id)->count();
+
+        if($user_login_count == 10 && $user_provisional_variables->has_adjusted_period_first_time == 0)
+        {
+            return view('new.dashboard.first_account_exchange_period')
+                ->with('user', $user)
+                ->with('user_login_count', $user_login_count);
+        }
+        else
+        {
+            return view('new.dashboard.account_exchange_period')
+                ->with('user', $user);
+        }
     }
 
     public function exchangePeriodModify(Request $request){
@@ -2671,8 +2687,22 @@ class PagesController extends BaseController
             catch (\Exception $e){
                 \Illuminate\Support\Facades\Log::info('Search error, visitor: ' . $vi);
             }
-           
-            $ssrData .='<li class="nt_fg">';
+            
+            if($vi->engroup == 2)
+            {
+                if($vi->exchange_period == 2)
+                {
+                    $ssrData .='<li class="nt_fg vvip_bg1">';
+                }
+                else
+                {
+                    $ssrData .='<li class="nt_fg vvip_bg2">';
+                }
+            }
+            else
+            {
+                $ssrData .='<li class="nt_fg vvip_bg2">';
+            }
                 $ssrData .='<div class="n_seicon">';
                    
                         $data = \App\Services\UserService::checkRecommendedUser($visitor);
@@ -2802,8 +2832,21 @@ class PagesController extends BaseController
                     }
                 $ssrData .='<a href="/dashboard/viewuser/' . $visitor->id . '">';
                 $ssrData .='<div class="nt_photo '.$ssr_var.'"><img class="lazy" src="'.$ssr_var2.'" data-original="'.$ssr_var2.'" onerror="'.$onerror.'"/></div>'; // need to check again
-
-                $ssrData .='<div class="nt_bot nt_bgco">';
+                if($vi->engroup == 2)
+                {
+                    if($vi->exchange_period == 2)
+                    {
+                        $ssrData .='<div class="nt_bot vvip_bgco1">';
+                    }
+                    else
+                    {
+                        $ssrData .='<div class="nt_bot vvip_bgco2">';
+                    }
+                }
+                else
+                {
+                    $ssrData .='<div class="nt_bot nt_bgco">';
+                }
                 $ssrData .='<h2>';
                 $ssrData .='<font class="left">'.$visitor->name.'<span>'.$visitor->age().'歲</span></font>';
                             if($user->isVip()){
@@ -8204,6 +8247,30 @@ class PagesController extends BaseController
         }
         
         return response()->json(['stay_online_record_id' => $stay_online_record_id]);
+    }
+
+    public function first_exchange_period_modify(Request $request)
+    {
+        $user = $request->user();
+        if( Hash::check($request->input('password'),$user->password)) 
+        {
+            $period = $request->input('exchange_period');
+            $reason = $request->input('reason');
+            UserProvisionalVariables::where('user_id',$user->id)->update(['has_adjusted_period_first_time' => 1]);
+            User::where('id', $user->id)->update(['exchange_period' => $period]);
+            DB::table('exchange_period_temp')->insert(['user_id' => $user->id, 'created_at' => \Carbon\Carbon::now()]);
+            return back()->with('message', '已完成設定，無需審核');
+        }
+        else
+        {
+            return back()->with('message', '密碼有誤，請重新操作');
+        }
+
+    }
+
+    public function first_exchange_period_modify_next_time(Request $request)
+    {
+        $request->session()->put('first_exchange_period_modify_next_time', true);
     }
     
 }
