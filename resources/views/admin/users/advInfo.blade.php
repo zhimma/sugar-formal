@@ -376,7 +376,7 @@
         <td><a href="{{ route('stats/vip_log', $user->id) }}" target="_blank">{{ $showVipInfo }}</a></td>
         @if(!is_null($warnedInfo))<td>{{ !is_null($warnedInfo) ? $warnedDay.'('.$diffDays.')' : ''}}</td>@endif
         <td>{{ $user->last_login }}</td>
-        <td>{{ $user->login_times }}</td>
+        <td>{{ \App\Models\LogUserLogin::countOfUser($user->id) }}</td>
     </tr>
 </table>
 <h4>詳細資料</h4>
