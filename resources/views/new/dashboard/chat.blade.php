@@ -219,27 +219,59 @@
                         $exchange_period_name = DB::table('exchange_period_name')->get();
                         @endphp
                         <!--男性介面-->
-                        @foreach($exchange_period_name as $row)
-                        @if($user->isVip())
-                        <span class="exchange_period_delete_{{$row->id}} shou_but">全部刪除</span>
-                        @endif
-                        <dt class="lebox{{$row->id}} lebox_exchange_period_{{$row->id}}" data-step="{{2+$row->id}}"
-                            data-position="top" data-highlightClass="yd4a" data-tooltipClass="yd4"
-                            data-intro="<p>
-                                        @if($row->id==1)此區會員找尋長期包養關係，如若發現短期或是直接外約+line的，請直接檢舉。
-                                        @elseif($row->id==2)此區會員可接受長期或短期的包養關係。如果有發現直接要 line的狀況，請向站方檢舉。
-                                        @elseif($row->id==3)本區會員主要希望單次約會為主。如果是找尋長期包養關係建議避開此區會員。@endif</p><em></em><em></em>">
+                            @if($user->isVip())
+                                <span class="exchange_period_delete_{{$exchange_period_name[0]->id}} shou_but">全部刪除</span>
+                            @endif
+                            <dt class="lebox1 lebox_exchange_period_{{$exchange_period_name[0]->id}}" data-step="{{2+$exchange_period_name[0]->id}}"
+                                data-position="top" data-highlightClass="yd4a" data-tooltipClass="yd4"
+                                data-intro="<p>
+                                            此區會員找尋長期包養關係，如若發現短期或是直接外約+line的，請直接檢舉。
+                                            </p><em></em><em></em>">
+                                <span class="le_span">{{$exchange_period_name[0]->name}}</span>
+                            </dt>
+                            <dd>
+                                <div class="loading warning" id="sjlist_exchange_period_warning_{{$exchange_period_name[0]->id}}"><span
+                                        class="loading_text">loading</span></div>
+                                <ul class="sjlist sjlist_exchange_period_{{$exchange_period_name[0]->id}}">
+                                </ul>
+                                <div class="page page_exchange_period_{{$exchange_period_name[0]->id}} fenye" style="text-align: center;"></div>
+                            </dd>
 
-                            {{$row->name}}
-                        </dt>
-                        <dd>
-                            <div class="loading warning" id="sjlist_exchange_period_warning_{{$row->id}}"><span
-                                    class="loading_text">loading</span></div>
-                            <ul class="sjlist sjlist_exchange_period_{{$row->id}}">
-                            </ul>
-                            <div class="page page_exchange_period_{{$row->id}} fenye" style="text-align: center;"></div>
-                        </dd>
-                        @endforeach
+                            @if($user->isVip())
+                                <span class="exchange_period_delete_{{$exchange_period_name[2]->id}} shou_but">全部刪除</span>
+                            @endif
+                            <dt class="lebox2 lebox_exchange_period_{{$exchange_period_name[2]->id}}" data-step="{{2+$exchange_period_name[2]->id}}"
+                                data-position="top" data-highlightClass="yd4a" data-tooltipClass="yd4"
+                                data-intro="<p>
+                                            本區會員主要希望單次約會為主。如果是找尋長期包養關係建議避開此區會員。
+                                            </p><em></em><em></em>">
+                                <span class="le_span">{{$exchange_period_name[2]->name}}</span>
+                            </dt>
+                            <dd>
+                                <div class="loading warning" id="sjlist_exchange_period_warning_{{$exchange_period_name[2]->id}}"><span
+                                        class="loading_text">loading</span></div>
+                                <ul class="sjlist sjlist_exchange_period_{{$exchange_period_name[2]->id}}">
+                                </ul>
+                                <div class="page page_exchange_period_{{$exchange_period_name[2]->id}} fenye" style="text-align: center;"></div>
+                            </dd>
+
+                            @if($user->isVip())
+                                <span class="exchange_period_delete_{{$exchange_period_name[1]->id}} shou_but">全部刪除</span>
+                            @endif
+                            <dt class="lebox3 lebox_exchange_period_{{$exchange_period_name[1]->id}}" data-step="{{2+$exchange_period_name[1]->id}}"
+                                data-position="top" data-highlightClass="yd4a" data-tooltipClass="yd4"
+                                data-intro="<p>
+                                            此區會員可接受長期或短期的包養關係。如果有發現直接要 line的狀況，請向站方檢舉。
+                                            </p><em></em><em></em>">
+                                <span class="le_span">{{$exchange_period_name[1]->name}}</span>
+                            </dt>
+                            <dd>
+                                <div class="loading warning" id="sjlist_exchange_period_warning_{{$exchange_period_name[1]->id}}"><span
+                                        class="loading_text">loading</span></div>
+                                <ul class="sjlist sjlist_exchange_period_{{$exchange_period_name[1]->id}}">
+                                </ul>
+                                <div class="page page_exchange_period_{{$exchange_period_name[1]->id}} fenye" style="text-align: center;"></div>
+                            </dd>
                         <!--男性介面-->
 
                         {{-- @if(($user->isVip() && ($user->engroup==1 || $user->engroup==2)) || (!$user->isVip() &&
@@ -271,7 +303,7 @@
                                 VIP 會員互動。本區會員的素質最佳，投訴率低於 0.1%。</p>
                                         <em></em><em></em>">
 
-                            VIP會員
+                            <span class="le_span">VIP會員</span>
                         </dt>
                         <dd>
                             <div class="loading warning" id="sjlist_vip_warning"><span
@@ -287,7 +319,7 @@
                         <dt class="lebox2" data-position="top" data-highlightClass="yd4a" data-tooltipClass="yd4"
                             data-step="4" data-intro="未付費的會員賴帳機率高於VIP 50倍<em></em><em></em>">
 
-                            普通會員
+                            <span class="le_span">普通會員</span>
                         </dt>
                         <dd>
                             <div class="loading warning" id="sjlist_novip_warning"><span
@@ -326,7 +358,8 @@
                             data-step="6" @endif
                             data-intro="被多人或站方檢舉，互動過程請提高十二萬分警覺。<em></em><em></em>">
 
-                            警示會員</dt>
+                            <span class="le_span">警示會員</span>
+                        </dt>
                         <dd>
                             <div class="loading warning" id="sjlist_alert_warning"><span
                                     class="loading_text">loading</span></div>
@@ -337,7 +370,9 @@
                         $user->engroup==2))
                         <span class="banned_delete shou_but">全部刪除</span>
                         @endif
-                        <dt class="lebox5">已被站方封鎖會員</dt>
+                        <dt class="lebox5">
+                            <span class="le_span">已被站方封鎖會員</span>
+                        </dt>
                         <dd>
                             <div class="loading warning" id="sjlist_banned_warning"><span
                                     class="loading_text">loading</span></div>
@@ -911,10 +946,12 @@
         //ajax資料
         function LoadTable(){
             div = '';
-
+            const dateTime = Date.now();
+            const timestamp = Math.floor(dateTime / 1000);
+            
             // alert(date);
             $.ajax({
-                url: '{{ route('showMessages') }}?{{ csrf_token() }}={{ now()->timestamp }}',
+                url: '{{ route('showMessages') }}?{{ csrf_token() }}={{ now()->timestamp }}' + timestamp.toString(),
                 type: 'POST',
                 dataType: 'json',
                 // headers: {

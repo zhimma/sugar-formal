@@ -6,6 +6,15 @@ header("Expires: Fri, 01 Jan 1990 00:00:00 GMT");
 ?>
 @extends('new.layouts.website')
 @section('app-content')
+    <style>
+        .by{width:85%; margin: 0 auto; display: table;}
+        @media (max-width:1024px) {
+        .by{width:100%; }
+        }
+        @media (max-width:797px) {
+        .by{width:100%; }
+        }
+    </style>
     <div class="container matop70">
         <div class="row">
             <div class="col-sm-2 col-xs-2 col-md-2 dinone">
@@ -18,12 +27,16 @@ header("Expires: Fri, 01 Jan 1990 00:00:00 GMT");
                         <li><a href="{!! url('dashboard') !!}" class="g_pwicon_t "><span>基本資料</span></a></li>
                         <li><a href="{!! url('dashboard_img') !!}" class="g_pwicon_t2"><span>照片管理</span></a></li>
                         <li><a href="{!! url('/dashboard/account_manage') !!}" class="g_pwicon_t3 g_hicon3"><span>帳號設定</span></a></li>
-{{--                        <li><a href="{!! url('dashboard/vipSelect') !!}" class="g_pwicon_t4"><span>升級付費</span></a></li>--}}
+                        {{--<li><a href="{!! url('dashboard/vipSelect') !!}" class="g_pwicon_t4"><span>升級付費</span></a></li>--}}
                     </div>
                     <div class="gg_zh">
                         <div class="gg_mm"><span><i></i>包養關係</span><img src="/new/images/rzh06.png"></div>
                         <div class="gg_nr01">
-                            <form method="POST" id="exchange_period_modify" action="/dashboard/exchangePeriodModify?n={{ time() }}">
+                            <div class="ga_dtie ewn_6">
+                                {{$user->name}} 您好，自您 {{$user->created_at->toDateString()}} 註冊以來已經是第 {{$user_login_count}} 次光臨本站。本站包養關係有自行調整一次的機會，再麻煩您確認您的包養關係。
+                                <span class="hdss_s">包養關係經確認後，如果還要調整，需經站方審核，</span>故請慎重選擇”</span>
+                            </div>
+                            <form method="POST" id="exchange_period_modify" action="/dashboard/first_exchange_period_modify">
                                 {!! csrf_field() !!}
                                 <input type="hidden" name="{{ time() }}" value="{{ time() }}">
                                 <div class="baoy">
@@ -39,16 +52,19 @@ header("Expires: Fri, 01 Jan 1990 00:00:00 GMT");
                                         @endforeach
                                     </ul>
                                 </div>
-                                <br>
-                                <div class="gg_input01">
-                                <div class="de_input01"><input name="reason" id="reason" type="text" class="zcinput" placeholder="請輸入修改的原因" maxlength="100"></div>
-                                <br>
-                                <div class="de_input01"><input name="password" id="password" type="password" class="zcinput" placeholder="請輸入您的密碼"></div>
+                                <div class="by">
+                                    <div class="de_input01 matop10"><input name="password" id="password" type="password" class="zcinput" placeholder="請輸入您的密碼"></div>
                                 </div>
-                                <br>
-                                <div class="blxg">只能申請改一次，並且要通過站長同意</div>
                             </form>
-                            <a class="dlbut g_inputt40" onclick="submit()">送出</a>
+                            @if($user_login_count <= 10)
+                                <br>
+                                <div class="n_txbut">
+                                    <a class="se_but1" onclick="submit()">送出</a>
+                                    <a class="se_but2" onclick="next_time()">下次再說</a>
+                                </div>
+                            @else
+                                <a class="dlbut g_inputt40" onclick="submit()">送出</a>
+                            @endif
                         </div>
 
                     </div>
@@ -61,24 +77,15 @@ header("Expires: Fri, 01 Jan 1990 00:00:00 GMT");
 
     <script>
 
-        @php
-            $exchange_period_read = DB::table('exchange_period_temp')->where('user_id',$user->id)->first();
-            if(!isset($exchange_period_read->id)){
-                DB::table('exchange_period_temp')->insert(['user_id'=>$user->id,'created_at'=>\Carbon\Carbon::now()]);
-            }
-        @endphp
-
-        function submit(){
-            if($('#reason').val()==''){
-                c5('請輸入欲修改的原因');
-                return false;
-            }else if($('#password').val()==''){
+        function submit()
+        {
+            if($('#password').val()=='')
+            {
                 c5('請輸入您的密碼');
                 return false;
-            }else if($('input[name=exchange_period]:checked', '#exchange_period_modify').val() == '{{$user->exchange_period}}') {
-                c5('您當前所選項目無需變更');
-                return false;
-            }else{
+            }
+            else
+            {
                 c4('確定要變更包養關係嗎？');
                 $('.n_left').on('click', function(event) {
                     $('#exchange_period_modify').submit();
@@ -86,8 +93,19 @@ header("Expires: Fri, 01 Jan 1990 00:00:00 GMT");
             }
         }
 
+        function next_time()
+        {
+            $.ajax({
+                type:'get',
+                url:'/dashboard/first_exchange_period_modify_next_time',
+                success:function(){
+                    location.href="/dashboard/personalPage"
+                }
+            });
+        }
+
         @if(Session::has('message'))
-        c5('{{Session::get('message')}}');
+            c5('{{Session::get('message')}}');
         @endif
 
     </script>

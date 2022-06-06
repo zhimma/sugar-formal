@@ -443,8 +443,8 @@
 .ta_icon{ position: absolute; right: 10px; top: 10px; color: #fe92a8; line-height: 20px;}
 .ta_icon img{ height: 20px; margin-right: 2px;}
 
-.ta_textbot{width:calc(100% - 100px);height: 25px;display: -webkit-box;  line-height: 25px;-webkit-box-orient: vertical;-webkit-line-clamp:1;text-overflow: ellipsis;overflow: hidden;float: left;}
-.ta_tetime{width:100px; float: right; color: #999999; text-align: right;}
+.ta_textbot{width:calc(100% - 102px);height: 25px;display: -webkit-box;  line-height: 25px;-webkit-box-orient: vertical;-webkit-line-clamp:1;text-overflow: ellipsis;overflow: hidden;float: left;}
+.ta_tetime{width:102px; float: right; color: #999999; text-align: right;}
 .ta_tetime span{ color: #cdcdcd;}
 
 .shenqing{width: 100%; position: absolute; bottom:20px;}
@@ -528,11 +528,17 @@ box-shadow:4px 4px 6px 0 rgba(214,92,117,.5),-4px -4px 6px 0 rgba(255,255,255,.5
         white-space: nowrap;
         text-overflow: ellipsis;
     }
+    .alit_font_new{
+        width: 100% !important;
+    }
 }
 
 @media (max-width:540px){
     .alit_font{
         width: 430px;
+    }
+    .alit_font_new{
+        width: 100% !important;
     }
 }
 

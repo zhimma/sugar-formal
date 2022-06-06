@@ -19,6 +19,7 @@ use App\Models\ForumChat;
 use App\Models\ForumManage;
 use App\Models\ForumPosts;
 use App\Models\hideOnlineData;
+use App\Models\lineNotifyChatSet;
 use App\Models\LogUserLogin;
 use App\Models\Message_new;
 use App\Models\MessageBoard;
@@ -81,6 +82,7 @@ use App\Models\ComeFromAdvertise;
 use App\Models\SimpleTables\short_message;
 use App\Models\LogAdvAuthApi;
 use App\Models\StayOnlineRecord;
+use App\Models\UserProvisionalVariables;
 use Illuminate\Support\Facades\Http;
 use App\Services\SearchIgnoreService;
 use \FileUploader;
@@ -738,6 +740,7 @@ class PagesController extends BaseController
         if($year=='1970'){
             $year=$month=$day='';
         }
+
         if ($user) {
 
             $pr = DB::table('pr_log')->where('user_id',$user->id)->where('active',1)->first();
@@ -772,8 +775,9 @@ class PagesController extends BaseController
                 ->with('add_avatar', $add_avatar)
                 ->with('isAdminWarnedRead',$isAdminWarnedRead)
                 ->with('no_avatar', isset($no_avatar)?$no_avatar->content:'')
-                ->with('pr', $pr);
+                ->with('pr', $pr)
                 //->with('isWarnedReason',$isWarnedReason)
+                ;
         }
     }
 
@@ -1459,7 +1463,20 @@ class PagesController extends BaseController
     public function view_exchange_period(Request $request)
     {
         $user = $request->user();
-        return view('new.dashboard.account_exchange_period')->with('user', $user)->with('cur', $user);
+        $user_provisional_variables = UserProvisionalVariables::where('user_id', $user->id)->first();
+        $user_login_count = LogUserLogin::where('user_id', $user->id)->count();
+
+        if($user_login_count == 10 && $user_provisional_variables->has_adjusted_period_first_time == 0)
+        {
+            return view('new.dashboard.first_account_exchange_period')
+                ->with('user', $user)
+                ->with('user_login_count', $user_login_count);
+        }
+        else
+        {
+            return view('new.dashboard.account_exchange_period')
+                ->with('user', $user);
+        }
     }
 
     public function exchangePeriodModify(Request $request){
@@ -2011,6 +2028,24 @@ class PagesController extends BaseController
                 }
             }
 
+            $line_notify_user_list = lineNotifyChatSet::select('line_notify_chat_set.user_id')
+                ->selectRaw('users.line_notify_token')
+                ->leftJoin('line_notify_chat','line_notify_chat.id', 'line_notify_chat_set.line_notify_chat_id')
+                ->leftJoin('users','users.id', 'line_notify_chat_set.user_id')
+                ->where('line_notify_chat.active',1)
+                ->where('line_notify_chat_set.line_notify_chat_id',9)
+                ->where('line_notify_chat_set.user_id',$targetUser->id)
+                ->where('line_notify_chat_set.deleted_at',null)
+                ->groupBy('line_notify_chat_set.user_id')->get();
+            foreach ($line_notify_user_list as $notify_user){
+                if($notify_user->line_notify_token != null){
+                    $url = url('/dashboard/visited');
+                    //send notify
+                    // ＸＸＸ 正在瀏覽您的檔案 https://minghua.test-tw.icu/dashboard/visited
+                    $message = $user->name.' 正在瀏覽您的檔案 '.$url;
+                    User::sendLineNotify($notify_user->line_notify_token, $message);
+                }
+            }
 
             $member_pic = MemberPic::where('member_id', $uid)->where('pic', '<>', $targetUser->meta->pic)->whereNull('deleted_at')->orderByDesc('created_at')->get();
 
@@ -3324,6 +3359,28 @@ class PagesController extends BaseController
         {
             $isFav = MemberFav::where('member_id', $aid)->where('member_fav_id',$uid)->count();
             $isBlocked = Blocked::isBlocked($aid, $uid);
+
+            $member_id=User::findById($aid);
+            $member_fav_id=User::findById($uid);
+            $line_notify_user_list = lineNotifyChatSet::select('line_notify_chat_set.user_id')
+                ->selectRaw('users.line_notify_token')
+                ->leftJoin('line_notify_chat','line_notify_chat.id', 'line_notify_chat_set.line_notify_chat_id')
+                ->leftJoin('users','users.id', 'line_notify_chat_set.user_id')
+                ->where('line_notify_chat.active',1)
+                ->where('line_notify_chat_set.line_notify_chat_id',10)
+                ->where('line_notify_chat_set.user_id',$member_fav_id->id)
+                ->where('line_notify_chat_set.deleted_at',null)
+                ->groupBy('line_notify_chat_set.user_id')->get();
+            foreach ($line_notify_user_list as $notify_user){
+                if($notify_user->line_notify_token != null){
+                    $url = url('/dashboard/personalPage');
+                    //send notify
+                    // ＸＸＸ 收藏您 https://minghua.test-tw.icu/dashboard/personalPage
+                    $message = $member_id->name.' 收藏您 '.$url;
+                    User::sendLineNotify($notify_user->line_notify_token, $message);
+                }
+            }
+
             if($isFav==0 && !$isBlocked) {
                 MemberFav::fav($aid, $uid);
                 return response()->json(['save' => 'ok']);
@@ -8160,6 +8217,30 @@ class PagesController extends BaseController
         }
         
         return response()->json(['stay_online_record_id' => $stay_online_record_id]);
+    }
+
+    public function first_exchange_period_modify(Request $request)
+    {
+        $user = $request->user();
+        if( Hash::check($request->input('password'),$user->password)) 
+        {
+            $period = $request->input('exchange_period');
+            $reason = $request->input('reason');
+            UserProvisionalVariables::where('user_id',$user->id)->update(['has_adjusted_period_first_time' => 1]);
+            User::where('id', $user->id)->update(['exchange_period' => $period]);
+            DB::table('exchange_period_temp')->insert(['user_id' => $user->id, 'created_at' => \Carbon\Carbon::now()]);
+            return back()->with('message', '已完成設定，無需審核');
+        }
+        else
+        {
+            return back()->with('message', '密碼有誤，請重新操作');
+        }
+
+    }
+
+    public function first_exchange_period_modify_next_time(Request $request)
+    {
+        $request->session()->put('first_exchange_period_modify_next_time', true);
     }
     
 }

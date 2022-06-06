@@ -15,7 +15,7 @@ class InsertDataToMessageRoom extends Migration
      */
     public function up()
     {
-        $messagesList = DB::table('message')->orderBy('id','desc')->chunk(10000, function($messages) {
+        $messagesList = DB::table('message')->where('room_id', null)->orderBy('id','desc')->chunk(10000, function($messages) {
 
             foreach($messages->lazy() as $row){
 

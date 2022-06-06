@@ -70,4 +70,8 @@ class LogUserLogin extends Model
 	public function isCfpIdExist() {
 		return LogUserLogin::isCfpIdUsedByOtherUserId($this->cfp_id,$this->user_id);
 	}	
+
+	public static function countOfUser($user_id) {
+		return LogUserLogin::where('user_id', $user_id)->count();
+	}	
 }
