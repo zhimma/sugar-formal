@@ -201,7 +201,7 @@ class LoginController extends \App\Http\Controllers\BaseController
                     ->where('email', $request->email)->get()->first();
 
         if($user && $user->registered_from_mobile){
-            return back()->withErrors(['請使用手機登入。']);
+            return back()->withErrors(['請使用 APP 登入。']);
         }
 
         if(isset($user) && Role::join('role_user', 'role_user.role_id', '=', 'roles.id')->where('roles.name', 'admin')->where('role_user.user_id', $user->id)->exists()){
