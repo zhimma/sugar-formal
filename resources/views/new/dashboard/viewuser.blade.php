@@ -890,6 +890,7 @@
                                     </dt>
                                     @endif
 
+                                    {{--
                                     @if(!empty($to->meta->budget))
                                     <dt>
                                         <span>預算</span>
@@ -898,6 +899,7 @@
                                         </span>
                                     </dt>
                                     @endif
+                                    --}}
 
                                     @if(!empty($to->meta->age()))
                                     <dt>
@@ -1055,6 +1057,7 @@
                                     </dt>
                                     @endif
 
+                                    {{--
                                     @if(!empty($to->meta->income) && $to->engroup==1)
                                     <dt>
                                         <span>收入</span>
@@ -1063,7 +1066,9 @@
                                         </span>
                                     </dt>
                                     @endif
+                                    --}}
 
+                                    {{--
                                     @if(!empty($to->meta->assets) && $to->engroup==1)
                                     <dt>
                                         <span>資產</span>
@@ -1072,6 +1077,7 @@
                                         </span>
                                     </dt>
                                     @endif
+                                    --}}
 
 
 
