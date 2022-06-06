@@ -4832,3 +4832,7 @@ margin-bottom: 50px; border-radius: 10PX 10PX 10PX 10PX;}
 @media (max-width:320px) {
 .le_span{text-align: left;padding-left:50px;}
 }
+
+.rgnback{position: absolute; right:10px; top:-10px;background:linear-gradient(to right, #ffa2b5, #ffc1cd); z-index:6; color: #ffffff; border-radius: 100px; padding:0px 10px 0px 10px; 
+line-height:26px; box-shadow: 0 5px 5px #ffc1cd;}
+.rgnback img{ height:20px; vertical-align: middle; margin-top:0px; margin-right: 2px;}
