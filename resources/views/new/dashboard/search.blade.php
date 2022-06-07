@@ -1046,7 +1046,7 @@ header("Expires: Fri, 01 Jan 1990 00:00:00 GMT");
                         }
                         else
                         {
-                            $ssrData +='<div class="nt_bot nt_bgco">';
+                            csrData +='<div class="nt_bot nt_bgco">';
                         }
                         // csrData +='<div class="nt_bot nt_bgco">';
                         csrData +='<h2>';
