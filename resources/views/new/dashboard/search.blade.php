@@ -874,6 +874,7 @@ header("Expires: Fri, 01 Jan 1990 00:00:00 GMT");
                             let umetaIsWarned = umeta.isWarned;
 
                             let rowEngroup = row.rawData.engroup;
+                            let rowExchangePeriod = row.rawData.exchange_period;
                             let rowVisitorCheckRecommendedUser = row.visitorCheckRecommendedUser;
 
                             let rowVisitorIsVip = row.visitorIsVip;
@@ -904,7 +905,17 @@ header("Expires: Fri, 01 Jan 1990 00:00:00 GMT");
                             let rowHideOnlineTime = row.rawData.hide_online_time;
                             let rowLastLogin = row.rawData.last_login;
                             
-                            csrData +='<li class="nt_fg">';
+                            // csrData +='<li class="nt_fg">';
+                            if(rowEngroup==2){
+                                if(rowExchangePeriod==2){
+                                    csrData += '<li class="nt_fg vvip_bg1">';
+                                }else{
+                                    csrData +='<li class="nt_fg vvip_bg2">';
+                                }
+                            }else{
+                                csrData +='<li class="nt_fg vvip_bg2">';
+                            }
+
                             csrData +='<div class="n_seicon">';
                             if(umetaIsWarned==1 || rowVisitorIsAdminWarned==1){
                                 csrData +='<div class="hoverTip">';
