@@ -1033,7 +1033,22 @@ header("Expires: Fri, 01 Jan 1990 00:00:00 GMT");
                         csrData +='<a href="/dashboard/viewuser/'+rowID+'">';
                         csrData +='<div class="nt_photo '+csrVar+'"><img class="lazy" src="'+ASSET_SUBDOMAIN+csrVar2+'" data-original="'+csrVar2+'" onerror="'+onerror+'"/></div>';
 
-                        csrData +='<div class="nt_bot nt_bgco">';
+                        if(rowEngroup == 2)
+                        {
+                            if(rowExchangePeriod == 2)
+                            {
+                                csrData +='<div class="nt_bot vvip_bgco1">';
+                            }
+                            else
+                            {
+                                csrData +='<div class="nt_bot vvip_bgco2">';
+                            }
+                        }
+                        else
+                        {
+                            $ssrData +='<div class="nt_bot nt_bgco">';
+                        }
+                        // csrData +='<div class="nt_bot nt_bgco">';
                         csrData +='<h2>';
                         csrData +='<font class="left">'+rowName+'<span>'+rowVisitorAge+'歲</span></font>';
                         
