@@ -1056,7 +1056,7 @@ header("Expires: Fri, 01 Jan 1990 00:00:00 GMT");
                         
                            
                         if(this.userIsVip==1){
-                            if(umetaIsHideOccupation==0 && umetaOccupation !== "" && umetaOccupation != 'null'){
+                            if(umetaIsHideOccupation==0 && umetaOccupation !== "" && umetaOccupation != 'null' && umetaOccupation != null){
                                 csrData +='<span style="margin-left: 0;">'+umetaOccupation+'</span>';
                             }
                         }else{
