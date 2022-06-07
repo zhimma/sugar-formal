@@ -518,7 +518,7 @@ class UserMeta extends Model
         $situation = $request->situation ?? '';
         $education = $request->education ?? '';
         $isVip = $request->isVip ?? '';
-        $isWarned = $request->isWarned ?? 2;
+        $isWarned = $request->isWarned ?? 0;
         $isPhoneAuth = $request->isPhoneAuth ?? '';
         $isAdvanceAuth = $request->isAdvanceAuth??null;
         $page = $request->page;
@@ -632,9 +632,10 @@ class UserMeta extends Model
             }
             if (isset($situation) && strlen($situation) != 0) $query->where('situation', $situation);
             if (isset($education) && strlen($education) != 0) $query->where('education', $education);
-
-            if($isWarned != 2 && $userIsVip){
-                $query->where('isWarned', '<>', 1);
+            if($userIsVip){
+                if($isWarned==0){
+                    $query->where('isWarned', 0);
+                }   
             }
             $meta = UserMeta::select('city', 'area')->where('user_id', $userid)->get()->first();
             $user_city = explode(',', $meta->city);
