@@ -93,7 +93,7 @@ header("Expires: Fri, 01 Jan 1990 00:00:00 GMT");
 
     </style>
 
-    <div id="app">
+    <div id="app" ontouchstart="" onmouseover="">
         <div class="container matop70">
             <div class="row">
                 <div class="col-sm-2 col-xs-2 col-md-2 dinone">
