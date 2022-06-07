@@ -529,7 +529,7 @@ header("Expires: Fri, 01 Jan 1990 00:00:00 GMT");
 
                     if(isset($_GET['page'])){
                         $page = $_GET['page'];
-                        $page_pre = $page-1>0 ?? 1;
+                        $page_pre = $page-1>0 ?$page-1: 1;
                         $page_next = $page+1;
                     }else{
                         $page = 1;
