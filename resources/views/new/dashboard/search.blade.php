@@ -837,7 +837,7 @@ header("Expires: Fri, 01 Jan 1990 00:00:00 GMT");
 
                 perPageCount:perPageCount
             };
-            axios.post('/getSearchData?{{ csrf_token() }}={{ now()->timestamp }}', post_data)
+            axios.post('/getSearchData', post_data)
             .then(response => {
                     this.dataList = response.data.dataList;
                     this.user = response.data.user;
