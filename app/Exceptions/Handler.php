@@ -9,6 +9,8 @@ use Illuminate\Foundation\Exceptions\Handler as ExceptionHandler;
 use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\Request;
 use Throwable;
+use Symfony\Component\HttpKernel\Exception\UnauthorizedHttpException;
+use Log;
 
 class Handler extends ExceptionHandler
 {
@@ -74,8 +76,12 @@ class Handler extends ExceptionHandler
         // }
         // if(!$exception instanceof ValidationException && !$exception instanceof AuthenticationException) {
         //     return response()->view('errors.exception', [ 'exception' => $exception->getMessage() == null ? null : $exception->getMessage()]);
-        // }        
+        // }
         
+        if ($exception instanceof AuthenticationException) {
+            return response()->json(['status' => 1, 'message' => 'Token is Invalid'], 401);
+        }
+
         return parent::render($request, $exception);
     }
 
