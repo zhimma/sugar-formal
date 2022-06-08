@@ -860,7 +860,7 @@ header("Expires: Fri, 01 Jan 1990 00:00:00 GMT");
                         let csrData = '';
                         this.dataList.forEach((row, index) => {
                             let umeta = row.rawData.user_meta;
-                            if(typeof umeta.city !== 'undefined'){
+                            if(typeof umeta.city !== 'undefined' && typeof umeta.city !== null){
                                 umeta.city = umeta.city.split(",");
                                 umeta.area = umeta.area.split(",");
                             }
@@ -994,7 +994,7 @@ header("Expires: Fri, 01 Jan 1990 00:00:00 GMT");
                             
                             }
                           
-                            if(typeof rowPrLog !== 'undefined'){
+                            if(typeof rowPrLog !== 'undefined' && typeof rowPrLog !== null){
                                 csrVar = rowPrLog.pr+"%;"; 
                             }else{
                                 csrVar = "0%;";
