@@ -471,7 +471,7 @@
                             <a href="{{ !empty(session()->get('goBackPage')) ? session()->get('goBackPage') : \Illuminate\Support\Facades\URL::previous() }}" {{--href="javascript: history.back()"--}} class="hyneback" style="z-index: 6;"><img src="/new/images/back_icon.png">返回</a>                          
                         @endif   
 
-                        @if(!empty($to->exchange_period) && $to->engroup==2 && $user->isVip())
+                        @if(!empty($to->exchange_period) && $to->engroup==2)
                             @php
                                 $exchange_period_name = DB::table('exchange_period_name')->where('id',$to->exchange_period)->first();
                             @endphp

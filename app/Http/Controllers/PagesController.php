@@ -2894,6 +2894,9 @@ class PagesController extends BaseController
                           
 
                             if($user->engroup==1){
+                                $exchange_period_name = DB::table('exchange_period_name')->where('id',$visitor->exchange_period)->first();
+                                $ssrData .='<i class="j_lxx">丨</i><span>'.$exchange_period_name->name.'</span>';
+                                /*
                                 if($user->isVip()){
                                     $exchange_period_name = DB::table('exchange_period_name')->where('id',$visitor->exchange_period)->first();
                                     
@@ -2901,6 +2904,7 @@ class PagesController extends BaseController
                                 }else{
                                     $ssrData .='<i class="j_lxx">丨</i><span>包養關係<img src="/new/images/icon_35.png" class="nt_img"></span>';
                                 }
+                                */
                             }
                             
                             $ssrData .='</h3>';
