@@ -929,7 +929,7 @@ header("Expires: Fri, 01 Jan 1990 00:00:00 GMT");
                                     csrData +='</div>';
                                 csrData +='</div>';
                                 
-                            }else if(typeof rowVisitorCheckRecommendedUser['description'] !== 'undefined' && rowEngroup == 2){
+                            }else if(typeof rowVisitorCheckRecommendedUser['description'] !== 'undefined' && rowVisitorCheckRecommendedUser['description'] !== null && rowEngroup == 2){
                                 csrData +='<div class="hoverTip">';
                                     csrData +='<div class="tagText" data-toggle="popover" data-content="新進甜心是指註冊未滿30天的新進會員，建議男會員可以多多接觸，不過要注意是否為八大行業人員。">';
                                         if(this.userIsVip==1){
