@@ -49,7 +49,16 @@ class CustomSessionServiceProvider extends ServiceProvider
             $lifetime = $app->config->get('session.lifetime');
             
             // Return an implementation of SessionHandlerInterface...
-            return new CustomFileSessionHandler($app->container->make('files'), $app->config->get('session.files'), $lifetime);
+            /**
+             * 從 \Illuminate\Session\SessionManager::createNativeDriver() 中，可以看到它對
+             * FileSessionHandler 放入了三個參數，這三個參數都從「$this」取得資料，也就是 SessionManager
+             * 本身，將 $this dd() 出來後，可知它將 Laravel App 本身記在 $container 中、Laravel 的設定資料
+             * 記在 $config 中，故下方的程式碼需要相對應的調整，
+             * 從 \Illuminate\Support\Manager::callCustomCreator() 中，可以看到 Laravel 將會對自訂
+             * handler 的匿名函式注入 $this->container，固現在這個匿名函式的參數可以取名為 $app，也較符合
+             * Laravel 一慣的命名邏輯，因此下方使用 $app 邏輯將會與 helper 的 app 或 facade 的 App 一致。
+             */
+            return new CustomFileSessionHandler($app->make('files'), $app->config->get('session.files'), $lifetime);
         });
     }
 }
