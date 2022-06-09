@@ -758,7 +758,7 @@ class UserMeta extends Model
                     }else{
                         $query->where('pr', '<>', '無');
                     }
-
+                    $query->get();
                 });
             }
 
@@ -767,7 +767,7 @@ class UserMeta extends Model
                 $query->select('user_id')
                     ->from(with(new Pr_log)->getTable())
                     ->where('active', 1)
-                    ->where('pr', '無');
+                    ->where('pr', '無')->get();
             });
 
         }
