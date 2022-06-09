@@ -746,13 +746,13 @@ class UserMeta extends Model
         if ( $prRange != '' && $userIsVip) {
             $pieces = explode('-', $prRange);
             if(is_array($pieces)) {
-                $from = $pieces[0];
-                $to = $pieces[1];
+                $from = (int)$pieces[0];
+                $to = (int)$pieces[1];
                 $query->whereIn('users.id', function ($query) use ($from, $to, $prRange_none) {
                     $query->select('user_id')
                         ->from(with(new Pr_log)->getTable())
                         ->where('active', 1)
-                        ->whereBetween(DB::raw("CAST(pr AS INT)"), [$from, $to]);
+                        ->whereBetween("pr", [$from, $to]);
                     if($prRange_none != '' && isset($prRange_none)) {
                         $query->orWhere('pr', $prRange_none);
                     }else{
