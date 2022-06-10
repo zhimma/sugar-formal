@@ -33,7 +33,7 @@ header("Expires: Fri, 01 Jan 1990 00:00:00 GMT");
                                         @endphp
                                         @foreach($exchange_period_name as $row)
                                             <li>
-                                                <div><input name="exchange_period" type="radio" value="{{$row->id}}" @if($user->exchange_period == $row->id) checked @endif><span>{{$row->name}}</span></div>
+                                                <div><input name="exchange_period" type="radio" value="{{$row->id}}" @if($user->exchange_period == $row->id) checked @endif><span>{{$row->name}}{{$row->name_explain}}</span></div>
                                                 <div class="ew_font">{{$row->remark}}</div>
                                             </li>
                                         @endforeach
