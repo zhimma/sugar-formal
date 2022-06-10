@@ -50,7 +50,6 @@ class AuthController extends Controller
         $this->service = $userService;
         $this->logService = $logService;
         $this->middleware('auth:api')->except('login', 'register', 'registerMode');
-        $this->middleware('jwtVerify')->except('login', 'register', 'registerMode');
     }
 
     public function registerMode()

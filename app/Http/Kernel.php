@@ -91,7 +91,6 @@ class Kernel extends HttpKernel
         'CheckDiscussPermissions' => \App\Http\Middleware\CheckDiscussPermissions::class,
 
         'appGlobal' => \App\Http\Middleware\AppGlobalVariables::class,
-        'jwtVerify' => \App\Http\Middleware\JwtMiddleware::class,
 
         //一段時間未動作就自動登出
         'SessionExpired'=> \App\Http\Middleware\SessionExpired::class,
