@@ -772,7 +772,17 @@ header("Expires: Fri, 01 Jan 1990 00:00:00 GMT");
     </script>
     <script>
     let perPageCount = 12 //每頁顯示筆數
-    let csrDataSingle = '<li class="nt_fg"><div class="n_seicon"><a><div class="nt_photo blur_img"></div><div class="nt_bot vvip_bgco2"><h2>loading...</h2><h3>loading...</h3><h3>最後上線時間：loading... </h3></div></a></div></li>';
+    let engroup = {!!$user->engroup!!};
+    console.log(engroup);
+    let csrDataSingle = '';
+    if(engroup==1){
+        csrDataSingle = '<li class="nt_fg"><div class="n_seicon"><a><div class="nt_photo blur_img"></div><div class="nt_bot vvip_bgco2"><h2>loading...</h2><h3>loading...</h3><h3>最後上線時間：loading... </h3></div></a></div></li>';
+    }else if(engroup==2){
+        csrDataSingle = '<li class="nt_fg"><div class="n_seicon"><a><div class="nt_photo blur_img"></div><div class="nt_bot nt_bgco"><h2>loading...</h2><h3>loading...</h3><h3>最後上線時間：loading... </h3></div></a></div></li>';
+    }else{
+        csrDataSingle = '<li class="nt_fg"><div class="n_seicon"><a><div class="nt_photo blur_img"></div><div class="nt_bot vvip_bgco2"><h2>loading...</h2><h3>loading...</h3><h3>最後上線時間：loading... </h3></div></a></div></li>';
+    }
+    
     let csrDataText = csrDataSingle.repeat(perPageCount);
     // let csrDataText = '';
     // for(let i=0;i<12;i++){
