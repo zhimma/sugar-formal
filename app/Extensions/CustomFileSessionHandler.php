@@ -11,6 +11,7 @@ class CustomFileSessionHandler extends FileSessionHandler
 {
     public function gc($lifetime)
     {
+        //Log::Info('start_gc');
         $files = Finder::create()
                     ->in($this->path)
                     ->files()
@@ -24,7 +25,6 @@ class CustomFileSessionHandler extends FileSessionHandler
                     $user_id = $value;
                 }
             }
-            //Log::Info($user_id);
             SetAutoBan::logout_warned($user_id);
             $this->files->delete($file->getRealPath());
         }
