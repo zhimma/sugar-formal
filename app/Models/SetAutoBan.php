@@ -202,6 +202,8 @@ class SetAutoBan extends Model
     //登出後的警示
     public static function logout_warned($uid)
     {
+        //Log::Info('start_LogoutAutoBan_logout_warned');
+        //Log::Info($uid);
         LogoutAutoBan::dispatch($uid)->onConnection('database-long')->onQueue('long-jobs')->delay(SetAutoBan::_getDelayTime());
     }
 
