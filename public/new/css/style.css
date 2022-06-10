@@ -1542,7 +1542,7 @@ border-radius:100px;margin-top:5px;font-weight:normal;font-size:18px;padding:15p
 .n_sepeop{width:100%; margin:0 auto; display:table; padding:20px 0 0px 0; height: auto;/*min-height:600px*/}
 .n_sepeop li{width:45%; height:320px;border-radius:10px; float:left; position:relative; margin-bottom:20px; margin-left:2%; margin-right:2%}
 
-.n_seicon{width:96%; /*margin:0 auto*/;height:40px;/*display:table;*/}
+.n_seicon{width:96%; margin:0 auto;height:40px;/*display:table;*/}
 /* .n_seicon img{height:33px; float:left; margin-right:4px; float:left; margin-top:4px} */
 .n_seicon img{height:34px; float:left; margin-right:4px !important; float:left; margin-top:4px}
 /* .n_seicon img:last-child{ margin-right:0 !important}  */
@@ -3629,7 +3629,7 @@ border-radius:100px;margin-top:5px;font-weight:normal;font-size:18px;padding:15p
 .star_hy{width: 100%; display: table;}
 
 
-.n_seicon_bg{width:98%; margin:0 auto;height:40px;display:table;}
+.n_seicon_bg{width:96%; /*margin:0 auto*/;height:40px;display:table;}
 
 .n_seico_nn{height:40px; float: left;}
 .n_seico_nn img{height:25px; float:left; margin-right:0px !important; float:left; margin-top:8px}
