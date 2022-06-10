@@ -834,7 +834,7 @@ header("Expires: Fri, 01 Jan 1990 00:00:00 GMT");
                 isVip:"{{$isVip}}",
                 isWarned:"{{$isWarned}}",
                 isPhoneAuth:"{{$isPhoneAuth}}",
-                isAdvanceAuth:"{{$isAdvancedAuth ?? null}}",
+                isAdvanceAuth:"{{$userIsAdvanceAuth ?? null}}",
                 userIsAdvanceAuth:"{{$userIsAdvanceAuth}}",  
                 page:"{{$page ?? 1}}",
                 tattoo:"{{$tattoo ?? null}}",
