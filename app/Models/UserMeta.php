@@ -486,51 +486,61 @@ class UserMeta extends Model
         return $query->orderBy($orderBy, 'desc')->paginate(12);
     }
 
-    public static function searchApi($city,
-                                  $area,
-                                  $cup,
-                                  $marriage,
-                                  $budget,
-                                  $income,
-                                  $smoking,
-                                  $drinking,
-                                  $pic,
-                                  $agefrom,
-                                  $ageto,
-                                  $engroup,
-                                  $blockcity,
-                                  $blockarea,
-                                  $blockdomain,
-                                  $blockdomainType,
-                                  $seqtime,
-                                  $body,
-                                  $userid,
-                                  $exchange_period = '',
-                                  $isBlocked = 1,
-                                  $userIsVip = '',
-                                  $heightfrom = '',
-                                  $heightto = '',
-                                  $prRange_none = '',
-                                  $prRange = '',
-                                  $situation = '',
-                                  $education = '',
-                                  $isVip = '',
-                                  $isWarned = 2,
-                                  $isPhoneAuth = '',
-                                  $isAdvanceAuth=null,
-                                  $page,
-                                  $tattoo=null,
-                                  $city2=null,
-                                  $area2=null, 
-                                  $city3=null,
-                                  $area3=null,
-                                  //新增體重
-                                  $weight = ''  )
+    public static function searchApi($request)
     {
-        if ($engroup == 1) { $engroup = 2; }
-        else if ($engroup == 2) { $engroup = 1; }
-        if(isset($seqtime) && $seqtime == 2){ $orderBy = 'users.created_at'; }
-        else{ $orderBy = 'last_login'; }
+        // $time_start = microtime(true); 
+        $city = $request->city;
+        $area = $request->area;
+        $cup = $request->cup;
+        $marriage = $request->marriage;
+        $budget = $request->budget;
+        $income = $request->income;
+        $smoking = $request->smoking;
+        $drinking = $request->drinking;
+        $pic = $request->pic;
+        $agefrom = $request->agefrom;
+        $ageto = $request->ageto;
+        $engroup =  $request->user['engroup'];
+        // $blockcity = $request->umeta['city'];
+        // $blockarea = $request->umeta['area'];
+        // $blockdomain = $request->umeta['blockdomain'];
+        // $blockdomainType = $request->umeta['blockdomainType'];
+        $seqtime = $request->seqtime;
+        $body = $request->body;
+        $userid = $request->user['id'];
+        $exchange_period = $request->exchange_period ?? '';
+        $isBlocked = $request->isBlocked ?? 1;
+        $userIsVip = $request->userIsVip ?? '';
+        $heightfrom = $request->heightfrom ?? '';
+        $heightto = $request->heightto ?? '';
+        $prRange_none = $request->prRange_none ?? '';
+        $prRange = $request->prRange ?? '';
+        $situation = $request->situation ?? '';
+        $education = $request->education ?? '';
+        $isVip = $request->isVip ?? '';
+        $isWarned = $request->isWarned ?? 0;
+        $isPhoneAuth = $request->isPhoneAuth ?? '';
+        $isAdvanceAuth = $request->isAdvanceAuth??null;
+        $page = $request->page;
+        $tattoo = $request->tattoo??null;
+        $city2 = $request->city2??null;
+        $area2 = $request->area2??null; 
+        $city3 = $request->city3??null;
+        $area3 = $request->area3??null;
+        //新增體重
+        $weight = $request->weight ?? '';
+
+        if ($engroup == 1) { 
+            $engroup = 2; 
+        }else if ($engroup == 2) { 
+            $engroup = 1; 
+        }
+        if(isset($seqtime) && $seqtime == 2){ 
+            $orderBy = 'users.created_at'; 
+        }else{ 
+            $orderBy = 'last_login'; 
+        }
+
         $constraint = function ($query) use (
             $city,
             $area,
@@ -543,25 +553,14 @@ class UserMeta extends Model
             $smoking,
             $drinking,
             $pic,
-            $engroup,
-            $blockcity,
-            $blockarea,
-            $blockdomain,
-            $blockdomainType,
-            $seqtime, $body,
+            $body,
             $userid,
-            $exchange_period,
-            $isBlocked,
             $userIsVip,
             $heightfrom,
             $heightto,
-            $prRange_none,
-            $prRange,
             $situation,
             $education,
-            $isVip,
             $isWarned,
-            $isPhoneAuth,
             $city2,
             $area2,
             $city3,
@@ -634,8 +633,10 @@ class UserMeta extends Model
             if (isset($situation) && strlen($situation) != 0) $query->where('situation', $situation);
             if (isset($education) && strlen($education) != 0) $query->where('education', $education);
 
-            if($isWarned != 2 && $userIsVip){
-                $query->where('isWarned', '<>', 1);
+            if($isWarned == 2 && $userIsVip){
+                $query->where('isWarned', 0)->orWhere('isWarned', 1);
+            }else if($isWarned == 0){
+                $query->where('isWarned', 0);
             }
             $meta = UserMeta::select('city', 'area')->where('user_id', $userid)->get()->first();
             $user_city = explode(',', $meta->city);
@@ -662,8 +663,6 @@ class UserMeta extends Model
                                 });
                     });
             }
-
-
 
             return $query->where('is_active', 1);
         };
@@ -747,19 +746,19 @@ class UserMeta extends Model
         if ( $prRange != '' && $userIsVip) {
             $pieces = explode('-', $prRange);
             if(is_array($pieces)) {
-                $from = $pieces[0];
-                $to = $pieces[1];
+                $from = (int)$pieces[0];
+                $to = (int)$pieces[1];
                 $query->whereIn('users.id', function ($query) use ($from, $to, $prRange_none) {
                     $query->select('user_id')
                         ->from(with(new Pr_log)->getTable())
                         ->where('active', 1)
-                        ->whereBetween(DB::raw("CAST(pr AS INT)"), [$from, $to]);
+                        ->whereBetween("pr", [$from, $to]);
                     if($prRange_none != '' && isset($prRange_none)) {
                         $query->orWhere('pr', $prRange_none);
                     }else{
                         $query->where('pr', '<>', '無');
                     }
-
+                    $query->get();
                 });
             }
 
@@ -768,7 +767,7 @@ class UserMeta extends Model
                 $query->select('user_id')
                     ->from(with(new Pr_log)->getTable())
                     ->where('active', 1)
-                    ->where('pr', '無');
+                    ->where('pr', '無')->get();
             });
 
         }
@@ -807,23 +806,28 @@ class UserMeta extends Model
             $ignore_user_ids = $siService->member_query()->get()->pluck('ignore_id')->all();
             $query->whereNotIn('users.id',$ignore_user_ids);
         }    
-
+        // $time_end = microtime(true);
+        
         $page = $page-1;
-        $count = 12;
+        $count = $request->perPageCount;
         $start = $page*$count;
+        $allPageDataCount = $query->count();
         $DataQuery = $query->orderBy($orderBy, 'desc');
-        $allPageDataCount = $DataQuery->count();
+        
+        // $execution_time = ($time_end - $time_start);
+        // echo '<b>Total Execution Time:</b> '.($execution_time*1000).'Milliseconds';
+        
         $singlePageDataQuery = $DataQuery->skip($start)->take($count);
-
         $singlePageData = $singlePageDataQuery->get();
-        $singlePageCount = count($singlePageData);
+        $singlePageCount = $singlePageData->count();
         
         $output = array(
             'singlePageData'=> $singlePageData,
             'singlePageCount'=> $singlePageCount,
             'allPageDataCount'=>$allPageDataCount 
         );
-
+        // dd($output);
+// var_dump($output['singlePageCOunt'], $output['allPageDataCount']);
         return $output;
     }
     
