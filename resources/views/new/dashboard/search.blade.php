@@ -776,11 +776,11 @@ header("Expires: Fri, 01 Jan 1990 00:00:00 GMT");
     console.log(engroup);
     let csrDataSingle = '';
     if(engroup==1){
-        csrDataSingle = '<li class="nt_fg"><div class="n_seicon"><a><div class="nt_photo blur_img"></div><div class="nt_bot vvip_bgco2"><h2>loading...</h2><h3>loading...</h3><h3>最後上線時間：loading... </h3></div></a></div></li>';
+        csrDataSingle = '<li class="nt_fg"><div class="n_seicon_bg"><a><div class="nt_photo blur_img"></div><div class="nt_bot vvip_bgco2"><h2>loading...</h2><h3>loading...</h3><h3>最後上線時間：loading... </h3></div></a></div></li>';
     }else if(engroup==2){
-        csrDataSingle = '<li class="nt_fg"><div class="n_seicon"><a><div class="nt_photo blur_img"></div><div class="nt_bot nt_bgco"><h2>loading...</h2><h3>loading...</h3><h3>最後上線時間：loading... </h3></div></a></div></li>';
+        csrDataSingle = '<li class="nt_fg"><div class="n_seicon_bg"><a><div class="nt_photo blur_img"></div><div class="nt_bot nt_bgco"><h2>loading...</h2><h3>loading...</h3><h3>最後上線時間：loading... </h3></div></a></div></li>';
     }else{
-        csrDataSingle = '<li class="nt_fg"><div class="n_seicon"><a><div class="nt_photo blur_img"></div><div class="nt_bot vvip_bgco2"><h2>loading...</h2><h3>loading...</h3><h3>最後上線時間：loading... </h3></div></a></div></li>';
+        csrDataSingle = '<li class="nt_fg"><div class="n_seicon_bg"><a><div class="nt_photo blur_img"></div><div class="nt_bot vvip_bgco2"><h2>loading...</h2><h3>loading...</h3><h3>最後上線時間：loading... </h3></div></a></div></li>';
     }
     
     let csrDataText = csrDataSingle.repeat(perPageCount);
@@ -834,7 +834,7 @@ header("Expires: Fri, 01 Jan 1990 00:00:00 GMT");
                 isVip:"{{$isVip}}",
                 isWarned:"{{$isWarned}}",
                 isPhoneAuth:"{{$isPhoneAuth}}",
-                isAdvanceAuth:"{{$isAdvancedAuth ?? null}}",
+                isAdvanceAuth:"{{$userIsAdvanceAuth ?? null}}",
                 userIsAdvanceAuth:"{{$userIsAdvanceAuth}}",  
                 page:"{{$page ?? 1}}",
                 tattoo:"{{$tattoo ?? null}}",
@@ -1120,11 +1120,12 @@ header("Expires: Fri, 01 Jan 1990 00:00:00 GMT");
                         }
                       
                         if(this.user.engroup==1){
-                            if(this.userIsVip==1){
-                                csrData +='<i class="j_lxx">丨</i><span>'+rowVisitorExchangePeriodName.name+'</span>';
-                            }else{
-                                csrData +='<i class="j_lxx">丨</i><span>包養關係<img src="/new/images/icon_35.png" class="nt_img"></span>';
-                            }
+                            csrData +='<i class="j_lxx">丨</i><span>'+rowVisitorExchangePeriodName.name+'</span>';
+                            // if(this.userIsVip==1){
+                            //     csrData +='<i class="j_lxx">丨</i><span>'+rowVisitorExchangePeriodName.name+'</span>';
+                            // }else{
+                            //     csrData +='<i class="j_lxx">丨</i><span>包養關係<img src="/new/images/icon_35.png" class="nt_img"></span>';
+                            // }
                         }
                         
                         csrData +='</h3>';
