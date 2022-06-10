@@ -633,9 +633,7 @@ class UserMeta extends Model
             if (isset($situation) && strlen($situation) != 0) $query->where('situation', $situation);
             if (isset($education) && strlen($education) != 0) $query->where('education', $education);
 
-            if($isWarned == 2 && $userIsVip){
-                $query->where('isWarned', 0)->orWhere('isWarned', 1);
-            }else if($isWarned == 0){
+            if($isWarned != 2 && $userIsVip){
                 $query->where('isWarned', 0);
             }
             $meta = UserMeta::select('city', 'area')->where('user_id', $userid)->get()->first();
