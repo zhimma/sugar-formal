@@ -1008,8 +1008,8 @@ header("Expires: Fri, 01 Jan 1990 00:00:00 GMT");
                                             csrData +='<div class="tagText"  data-toggle="popover" data-content="通過本站手機驗證的會員。">';
                                             csrData +='<img src="/new/images/c_10.png">';
                                             csrData +='</div>';
-                                            csrData +='</div>';
                                         }
+                                        csrData +='</div>';
                                     }else{
                                         csrData +='<div class="hoverTip '+csrVar+'">';
                                         if(rowVisitorIsAdvanceAuth==1 && rowVisitorIsPhoneAuth==1 ){
