@@ -990,22 +990,26 @@ header("Expires: Fri, 01 Jan 1990 00:00:00 GMT");
                                                            
                                     if(this.userIsVip==1){
                                         csrData +='<div class="hoverTip '+csrVar+'">';
-                                        if(rowVisitorIsAdvanceAuth==1 && rowVisitorIsPhoneAuth==1 ){
+                                        if(rowVisitorIsAdvanceAuth==1){
                                             csrData +='<div class="tagText"  data-toggle="popover" data-content="本站的進階認證會員，本會員通過本站的嚴格驗證，基本資料正確無誤。">';
                                             csrData +='<img src="/new/images/c_03.png">';
                                             csrData +='</div> ';
-                                            csrData +='<span>丨</span>';
-                                        }else if(rowVisitorIsAdvanceAuth==0 && rowVisitorIsPhoneAuth==1 ){
+                                        }else if(rowVisitorIsAdvanceAuth==0){
                                             csrData +='<div class="tagText"  data-toggle="popover" data-content="通過本站手機驗證的會員。">';
                                             csrData +='<img src="/new/images/c_09.png">';
                                             csrData +='</div>  ';
+                                            
+                                        }
+                                        if((rowVisitorIsAdvanceAuth==1 || rowVisitorIsAdvanceAuth==0) && rowVisitorIsPhoneAuth==1){
                                             csrData +='<span>丨</span>';
                                         }
-                                    
-                                        csrData +='<div class="tagText"  data-toggle="popover" data-content="通過本站手機驗證的會員。">';
-                                        csrData +='<img src="/new/images/c_10.png">';
-                                        csrData +='</div>';
-                                        csrData +='</div>';
+
+                                        if(rowVisitorIsPhoneAuth==1 ){
+                                            csrData +='<div class="tagText"  data-toggle="popover" data-content="通過本站手機驗證的會員。">';
+                                            csrData +='<img src="/new/images/c_10.png">';
+                                            csrData +='</div>';
+                                            csrData +='</div>';
+                                        }
                                     }else{
                                         csrData +='<div class="hoverTip '+csrVar+'">';
                                         if(rowVisitorIsAdvanceAuth==1 && rowVisitorIsPhoneAuth==1 ){
