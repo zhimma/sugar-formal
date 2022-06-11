@@ -2662,6 +2662,9 @@ class PagesController extends BaseController
             return json_encode($output);
         }catch (\Exception $e){
             \Illuminate\Support\Facades\Log::info('Search error: ' . $e);
+            if (app()->bound('sentry')) {
+                app('sentry')->captureException($e);
+            }
         }
     }
 
