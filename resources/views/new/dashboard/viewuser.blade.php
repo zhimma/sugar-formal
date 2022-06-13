@@ -746,7 +746,7 @@
 							
                             <li style="position: relative;">
                                 <div class="userlogo"><img src="/new/images/icon_15.png" class="tubiao_i"><span>更多</span></div>
-                                <div class="he_tkcn showslide">
+                                <div class="he_tkcn showslide" style="z-index:1">
                                     <ul>
                                         @if($user->isVip())
                                             @if($isBlocked)
@@ -821,7 +821,7 @@
 
                 </div>
                 @if($to->engroup==1)
-                    <div class="metx_tab">
+                    <div class="metx_tab"  style="z-index:0">
                         <div class="hdlist1_left">
                             <div class="hdlist1_left_tab">
                                     <div class="hs_tnes">
