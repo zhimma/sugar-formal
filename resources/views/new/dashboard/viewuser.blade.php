@@ -857,28 +857,28 @@
                     </div>
 
                     <div class="bl bl_tab" id="jianju">
-                                <div class="bltitle"><span>預算不實</span></div><a href="" onclick="button()" class="bl_gb"><img src="/new/images/gb_icon.png"></a>
-                                <div class="new_pot" style="height: auto;">
-                                        <div class="ju_pic">
-                                                <div class="ju_pjckbox">
-                                                    注意：檢舉預算不實一定要付上證據，例如轉帳截圖，或者對話紀錄，或其他可資證明的方式
-                                                </div>
-                                                <div class="plshan">
-                                                    <li>
-                                                        <div class="pj_photo_01"><img src="/new/images/zz_zz.png" class="imgov"></div>
-                                                    </li>
-                                                    <li>
-                                                        <div class="pj_photo_01"><img src="/new/images/zz_zz.png" class="imgov"></div>
-                                                    </li>
-                                                    <li>
-                                                        <div class="pj_photo_01"><img src="/new/images/zz_zz.png" class="imgov"></div>
-                                                    </li>
-                                                </div>
+                        <div class="bltitle"><span>預算不實</span></div><a href="" onclick="button()" class="bl_gb"><img src="/new/images/gb_icon.png"></a>
+                        <div class="new_pot" style="height: auto;">
+                            <div class="ju_pic">
+                                <div class="ju_pjckbox">
+                                    注意：檢舉預算不實一定要付上證據，例如轉帳截圖，或者對話紀錄，或其他可資證明的方式
+                                </div>
+                                <form action="{{ route('reportPost') }}" method="post" enctype="multipart/form-data">
+                                    <input type="hidden" name="_token" value="{{ csrf_token() }}">
+                                    <input type="hidden" name="aid" value="{{$user->id}}">
+                                    <input type="hidden" name="uid" value="{{$to->id}}">
+                                    <input type="hidden" name="content" value="預算不實">
+                                    <span class="alert_tip" style="color:red;"></span>
+                                    <input type="file" name="reportedImages">
+                                    <div class="n_bbutton" style="margin-top:10px;">
+                                        <div style="display: inline-flex;">
+                                            <input type="submit" class="n_right" style="border-style: none; background: #8a9ff0; color:#ffffff; float: unset; margin-left: 0px; margin-right: 20px;" value="送出">
+                                            <button type="reset" class="n_left" style="border: 1px solid #8a9ff0; background: #ffffff; color:#8a9ff0; float: unset; margin-right: 0px;" onclick="show_banned_close()">返回</button>
                                         </div>
-                                </div>
-                                <div class="n_bbutton" style="margin-top: 0; margin-bottom: 15px;">
-                                    <a href="" class="n_bllbut" onclick="button()">確定</a>
-                                </div>
+                                    </div>
+                                </form>
+                            </div>
+                        </div>
                     </div>
                 @endif
 
