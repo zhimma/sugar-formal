@@ -890,7 +890,7 @@ header("Expires: Fri, 01 Jan 1990 00:00:00 GMT");
                         // })
                         this.dataList.forEach((row, index) => {
                             let umeta = row.rawData.user_meta;
-                            if(typeof umeta.city !== 'undefined' && typeof umeta.city !== null){
+                            if(varCheck(umeta.city)){
                                 umeta.city = umeta.city.split(",");
                                 umeta.area = umeta.area.split(",");
                             }
@@ -959,7 +959,7 @@ header("Expires: Fri, 01 Jan 1990 00:00:00 GMT");
                                     csrData +='</div>';
                                 csrData +='</div>';
                                 
-                            }else if(typeof rowVisitorCheckRecommendedUser['description'] !== 'undefined' && rowVisitorCheckRecommendedUser['description'] !== null && rowEngroup == 2){
+                            }else if(varCheck(rowVisitorCheckRecommendedUser['description']) && rowVisitorCheckRecommendedUser['description'] !== null && rowEngroup == 2){
                                 csrData +='<div class="hoverTip">';
                                     csrData +='<div class="tagText" data-toggle="popover" data-content="新進甜心是指註冊未滿30天的新進會員，建議男會員可以多多接觸，不過要注意是否為八大行業人員。">';
                                         if(this.userIsVip==1){
@@ -1031,7 +1031,7 @@ header("Expires: Fri, 01 Jan 1990 00:00:00 GMT");
                             
                             }
                           
-                            if(typeof rowPrLog !== 'undefined' && typeof rowPrLog !== null){
+                            if(varCheck(rowPrLog)){
                                 csrVar = rowPrLog.pr+"%;"; 
                             }else{
                                 csrVar = "0%;";
@@ -1169,6 +1169,10 @@ header("Expires: Fri, 01 Jan 1990 00:00:00 GMT");
             });
         }
         });
+
+        function varCheck(variable){
+            return (typeof variable !== 'undefined' && typeof variable !== undefined && typeof variable !== 'null' && typeof variable !== null && variable!==undefined && variable !=='undefined' && variable !== null && variable !=='null');
+        }
     </script>
 @endsection
 
