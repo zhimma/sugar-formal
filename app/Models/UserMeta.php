@@ -78,8 +78,11 @@ class UserMeta extends Model
         'adminNote',
         'blurryLifePhoto',
         'blurryAvatar',
-        'phone' 
-        
+        'phone',
+        'budget_per_month_max',
+        'budget_per_month_min',
+        'transport_fare_max',
+        'transport_fare_min'
     ];
 
     /*

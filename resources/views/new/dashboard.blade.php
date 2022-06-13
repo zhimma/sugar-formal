@@ -772,6 +772,22 @@ dt span.engroup_type_title {display:inline-block;width:10%;white-space:nowrap;}
                       <span><input data-parsley-errors-messages-disabled name="assets" id="assets" value="{{$umeta->assets}}" type="number" class="select_xx01"  placeholder="請輸入數字範圍0～10000000000"></span>
                   </dt>
                   --}}
+                    <dt>
+                        <span>每月預算<i>(選填)</i></span>
+                        <span>
+                            <input id="budget_per_month_min" name="budget_per_month_min" type="number" class="select_xx01"  placeholder="請輸入最低金額" value="{{$umeta->budget_per_month_min}}" data-parsley-errors-messages-disabled onchange="c5('每月預算是非常重要的欄位，請確實填寫，如果被檢舉浮報或未給，查證屬實。將會有”預算不實”的標籤。')">
+                            ~
+                            <input id="budget_per_month_max" name="budget_per_month_max" type="number" class="select_xx01"  placeholder="請輸入最高金額" value="{{$umeta->budget_per_month_max}}" data-parsley-errors-messages-disabled>
+                        </span>
+                    </dt>
+                    <dt>
+                        <span>車馬費預算<i>(選填)</i></span>
+                        <span>
+                            <input id="transport_fare_min" name="transport_fare_min" type="number" class="select_xx01"  placeholder="請輸入最低金額" value="{{$umeta->transport_fare_min}}" data-parsley-errors-messages-disabled onchange="c5('車馬費預算是非常重要的欄位，請確實填寫，如果被檢舉浮報或未給查證屬實。將會有”預算不實”的標籤。')">
+                            ~
+                            <input id="transport_fare_max" name="transport_fare_max" type="number" class="select_xx01"  placeholder="請輸入最高金額" value="{{$umeta->transport_fare_max}}" data-parsley-errors-messages-disabled>
+                        </span>
+                    </dt>
                   @endif
                 </div>
                 <a class="dlbut g_inputt20 abtn" onclick="$('form[name=user_data]').submit();">確定更新</a>
@@ -1218,6 +1234,10 @@ dt span.engroup_type_title {display:inline-block;width:10%;white-space:nowrap;}
           let situation = $('select[name=situation]');
           let tattoo_part = $('#tattoo_part');
           let tattoo_range = $('#tattoo_range');
+          let budget_per_month_min = $('#budget_per_month_min');
+          let budget_per_month_max = $('#budget_per_month_max');
+          let transport_fare_min = $('#transport_fare_min');
+          let transport_fare_max = $('#transport_fare_max');
 
           if(title.val() === "") {
             title.focus();
@@ -1297,6 +1317,18 @@ dt span.engroup_type_title {display:inline-block;width:10%;white-space:nowrap;}
             c5('請選擇抽煙');
             return false;
           }
+          if(tattoo_part.val()=='' && tattoo_range.val()!='') {
+              tattoo_part.focus();
+              c5('請選擇刺青位置');
+              return false;
+          } 
+          
+          if(tattoo_range.val()=='' && tattoo_part.val()!='') {
+              tattoo_range.focus();
+              c5('請選擇刺青面積');
+              return false;
+          }  
+
           /*
           if('{{$user->engroup}}' == '1'){
             console.log(income.val())
@@ -1312,19 +1344,39 @@ dt span.engroup_type_title {display:inline-block;width:10%;white-space:nowrap;}
             }
           }
           */
-          if(tattoo_part.val()=='' && tattoo_range.val()!='') {
-              tattoo_part.focus();
-              c5('請選擇刺青位置');
-              return false;
-          } 
-          
-          if(tattoo_range.val()=='' && tattoo_part.val()!='') {
-              tattoo_range.focus();
-              c5('請選擇刺青面積');
-              return false;
-          }           
-          
-          
+
+            if(budget_per_month_min.val()!='')
+            {
+                if(budget_per_month_max.val() > budget_per_month_min.val() * 2)
+                {
+                    budget_per_month_max.focus();
+                    c5('您好，每月預算上下限最大差異不得超過 100%，您的下限為' + budget_per_month_min.val() + '，則必須降低上限最多至' + budget_per_month_min.val() * 2);
+                    return false;
+                }
+                if(budget_per_month_min.val() > budget_per_month_max.val())
+                {
+                    budget_per_month_max.focus();
+                    c5('每月預算下限不可大於上限');
+                    return false;
+                }
+            }
+
+            if(transport_fare_min.val()!='')
+            {
+                if(transport_fare_max.val() > transport_fare_min.val() * 2)
+                {
+                    transport_fare_max.focus();
+                    c5('您好，車馬費預算上下限最大差異不得超過 100%，您的下限為' + transport_fare_min.val() + '，則必須降低上限最多至' + transport_fare_min.val() * 2);
+                    return false;
+                }
+                if(transport_fare_min.val() > transport_fare_max.val())
+                {
+                    transport_fare_max.focus();
+                    c5('車馬費預算下限不可大於上限');
+                    return false;
+                }
+            }
+
           var form_dump = $(this);
           c4('確定要變更會員資料嗎?');
           // swal({
