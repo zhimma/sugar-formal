@@ -251,7 +251,7 @@
         @if(!$user->isVip())
             .tubiao ul li img {height:50px !important;}
         @endif
-        
+
         @media (min-width:812px) and (min-height: 375px) and (max-width:812px) and (max-height:375px) {
             .bl_tab{
                 width: 40%;
@@ -748,35 +748,35 @@
                                 <div class="userlogo"><img src="/new/images/icon_15.png" class="tubiao_i"><span>更多</span></div>
                                 <div class="he_tkcn showslide">
                                     <ul>
-                            @if($user->isVip())
-                                @if($isBlocked)
-                                    <a class="unblock"><img src="/new/images/icon_12_h.png" class="tubiao_i he_tkcn_img"><span>解除封鎖</span></a>
-                                @else
-                                    @if($user->id == $to->id)
-                                    <a onclick="c5('不可封鎖自己');"><img src="/new/images/icon_12.png" class="tubiao_i he_tkcn_img"><span>封鎖</span></a>
-                                    @else
-                                    <a onclick="show_block()"><img src="/new/images/icon_12.png" class="tubiao_i he_tkcn_img"><span>封鎖</span></a>
-                                    @endif
-                                @endif
-                            @else
-                                    <a href="javascript:void(0);">
-                                    <img src="/new/images/icon_12.png" class="tubiao_i he_tkcn_img"><span>封鎖</span>
-                                    <span class="vip_space"><img src="/new/images/icon_36.png" class="tap-vip"></span>
-                                    </a>
-                            @endif
-                                    <a href="javascript:void(0);" class="@if($user->isVip()) skip_search @endif">
-                                        <img src="/new/images/icon_17.png" class="he_tkcn_img">
-                                        <span>{{$user->search_ignore()->where('ignore_id',$to->id)->count()?'解除略過':'略過'}}</span>
-                                        @if(!$user->isVip())
-                                        <span class="vip_space"><img src="/new/images/icon_36.png" class="tap-vip"></span>
+                                        @if($user->isVip())
+                                            @if($isBlocked)
+                                                <a class="unblock"><img src="/new/images/icon_12_h.png" class="tubiao_i he_tkcn_img"><span>解除封鎖</span></a>
+                                            @else
+                                                @if($user->id == $to->id)
+                                                <a onclick="c5('不可封鎖自己');"><img src="/new/images/icon_12.png" class="tubiao_i he_tkcn_img"><span>封鎖</span></a>
+                                                @else
+                                                <a onclick="show_block()"><img src="/new/images/icon_12.png" class="tubiao_i he_tkcn_img"><span>封鎖</span></a>
+                                                @endif
+                                            @endif
+                                        @else
+                                                <a href="javascript:void(0);">
+                                                <img src="/new/images/icon_12.png" class="tubiao_i he_tkcn_img"><span>封鎖</span>
+                                                <span class="vip_space"><img src="/new/images/icon_36.png" class="tap-vip"></span>
+                                                </a>
                                         @endif
-                                    </a>
-                                @if($isAdminWarned)
-                                    <a onclick="show_Warned()"><img src="/new/images/icon_10.png" class="tubiao_i he_tkcn_img"><span>檢舉會員</span></a>
-                                @else
-                                    <a onclick="show_banned()"><img src="/new/images/icon_10.png" class="tubiao_i he_tkcn_img"><span>檢舉會員</span></a>
-                                @endif
-                                    <a onclick="show_reportPic()"><img src="/new/images/icon_008.png" class="he_tkcn_img">檢舉照片</a>
+                                        <a href="javascript:void(0);" class="@if($user->isVip()) skip_search @endif">
+                                            <img src="/new/images/icon_17.png" class="he_tkcn_img">
+                                            <span>{{$user->search_ignore()->where('ignore_id',$to->id)->count()?'解除略過':'略過'}}</span>
+                                            @if(!$user->isVip())
+                                            <span class="vip_space"><img src="/new/images/icon_36.png" class="tap-vip"></span>
+                                            @endif
+                                        </a>
+                                        @if($isAdminWarned)
+                                            <a onclick="show_Warned()"><img src="/new/images/icon_10.png" class="tubiao_i he_tkcn_img"><span>檢舉會員</span></a>
+                                        @else
+                                            <a onclick="show_banned()"><img src="/new/images/icon_10.png" class="tubiao_i he_tkcn_img"><span>檢舉會員</span></a>
+                                        @endif
+                                        <a onclick="show_reportPic()"><img src="/new/images/icon_008.png" class="he_tkcn_img">檢舉照片</a>
                                     </ul>
                                 </div>						
 							</li>                            
@@ -820,57 +820,67 @@
                     </script>
 
                 </div>
-
-                <div class="metx_tab">
-                    <div class="hdlist1_left">
-                        <div class="hdlist1_left_tab">
-                                <div class="hs_tnes">
-                                    <img src="/new/images/shouru.png">
-                                    <div class="she_fontetex">收入<span>income</span></div>
-                                </div>
-                                <a class="s_bushi" onclick="jianju()">檢舉不實</a>
-                                <div class="sh_button_w">
-                                    <div class="sh_button_n">5.5~8.3萬</div>
+                @if($to->engroup==1)
+                    <div class="metx_tab">
+                        <div class="hdlist1_left">
+                            <div class="hdlist1_left_tab">
+                                    <div class="hs_tnes">
+                                        <img src="/new/images/shouru.png">
+                                        <div class="she_fontetex">車馬費預算<span>transport fare</span></div>
+                                    </div>
+                                    <a class="s_bushi" onclick="jianju()">檢舉不實</a>
+                                    <div class="sh_button_w">
+                                        @if(!empty($to->meta->transport_fare_min) && !empty($to->meta->transport_fare_max))
+                                            <div class="sh_button_n"> {{round($to->meta->transport_fare_min, -2)}}~{{round($to->meta->transport_fare_max, -2)}}</div>
+                                        @else
+                                            <div class="sh_button_n"> 最低 / 未填</div>
+                                        @endif
+                                    </div>
+                            </div>
+                        </div>
+                        <div class="hdlist2_right">
+                                <div class="hdlist2_right_tab">
+                                    <div class="hs_tnes">
+                                        <img src="/new/images/zichan.png">
+                                        <div class="she_fontetex">每月預算<span>month budget</span></div>
+                                    </div>
+                                    <a class="s_bushizz" onclick="jianju()">檢舉不實</a>
+                                    <div class="zc_button_w">
+                                        @if(!empty($to->meta->budget_per_month_min) && !empty($to->meta->budget_per_month_max))
+                                            <div class="zc_button_n"> {{round($to->meta->budget_per_month_min, -3)/10000}}萬~{{round($to->meta->budget_per_month_max, -3)/10000}}萬</div>
+                                        @else
+                                            <div class="zc_button_n"> 最低 / 未填</div>
+                                        @endif
+                                    </div>
                                 </div>
                         </div>
                     </div>
-                    <div class="hdlist2_right">
-                            <div class="hdlist2_right_tab">
-                                <div class="hs_tnes">
-                                    <img src="/new/images/zichan.png">
-                                    <div class="she_fontetex">資產<span>assets</span></div>
+
+                    <div class="bl bl_tab" id="jianju">
+                                <div class="bltitle"><span>預算不實</span></div><a href="" onclick="button()" class="bl_gb"><img src="/new/images/gb_icon.png"></a>
+                                <div class="new_pot" style="height: auto;">
+                                        <div class="ju_pic">
+                                                <div class="ju_pjckbox">
+                                                    注意：檢舉預算不實一定要付上證據，例如轉帳截圖，或者對話紀錄，或其他可資證明的方式
+                                                </div>
+                                                <div class="plshan">
+                                                    <li>
+                                                        <div class="pj_photo_01"><img src="/new/images/zz_zz.png" class="imgov"></div>
+                                                    </li>
+                                                    <li>
+                                                        <div class="pj_photo_01"><img src="/new/images/zz_zz.png" class="imgov"></div>
+                                                    </li>
+                                                    <li>
+                                                        <div class="pj_photo_01"><img src="/new/images/zz_zz.png" class="imgov"></div>
+                                                    </li>
+                                                </div>
+                                        </div>
                                 </div>
-                                <a class="s_bushizz" onclick="jianju()">檢舉不實</a>
-                                <div class="zc_button_w">
-                                    <div class="zc_button_n"> 1500~1萬</div>
+                                <div class="n_bbutton" style="margin-top: 0; margin-bottom: 15px;">
+                                    <a href="" class="n_bllbut" onclick="button()">確定</a>
                                 </div>
-                            </div>
                     </div>
-                </div>
-                <div class="bl bl_tab" id="jianju">
-                            <div class="bltitle"><span>預算不實</span></div><a href="" onclick="button()" class="bl_gb"><img src="/new/images/gb_icon.png"></a>
-                            <div class="new_pot" style="height: auto;">
-                                    <div class="ju_pic">
-                                            <div class="ju_pjckbox">
-                                                注意：檢舉預算不實一定要付上證據，例如轉帳截圖，或者對話紀錄，或其他可資證明的方式
-                                            </div>
-                                            <div class="plshan">
-                                                <li>
-                                                    <div class="pj_photo_01"><img src="/new/images/zz_zz.png" class="imgov"></div>
-                                                </li>
-                                                <li>
-                                                    <div class="pj_photo_01"><img src="/new/images/zz_zz.png" class="imgov"></div>
-                                                </li>
-                                                <li>
-                                                    <div class="pj_photo_01"><img src="/new/images/zz_zz.png" class="imgov"></div>
-                                                </li>
-                                            </div>
-                                    </div>
-                            </div>
-                            <div class="n_bbutton" style="margin-top: 0; margin-bottom: 15px;">
-                                <a href="" class="n_bllbut" onclick="button()">確定</a>
-                            </div>
-                </div>
+                @endif
 
                 <!--基本资料-->
                 <div class="mintop">
