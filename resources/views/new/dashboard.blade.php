@@ -291,6 +291,7 @@ dt span.engroup_type_title {display:inline-block;width:10%;white-space:nowrap;}
                       </div>
                   </dt>
                   @endif
+                  {{--
                   <dt class="">
                       <span>預算<i>(必填)</i></span>
                       <span>
@@ -310,6 +311,7 @@ dt span.engroup_type_title {display:inline-block;width:10%;white-space:nowrap;}
                         </select>
                       </span>
                   </dt>
+                  --}}
                   <dt>
                       <span>出生年月<i>(必填)</i></span>
                       <span>
@@ -734,6 +736,7 @@ dt span.engroup_type_title {display:inline-block;width:10%;white-space:nowrap;}
                       </span>
                   </dt>
                   @if($user->engroup==1)
+                  {{--
                   <dt>
                       <span>年收<i>(必填)</i></span>
                       <span>
@@ -762,10 +765,13 @@ dt span.engroup_type_title {display:inline-block;width:10%;white-space:nowrap;}
                         </select>
                       </span>
                   </dt>
+                  --}}
+                  {{--
                   <dt>
                       <span>資產<i>(必填)</i></span>
                       <span><input data-parsley-errors-messages-disabled name="assets" id="assets" value="{{$umeta->assets}}" type="number" class="select_xx01"  placeholder="請輸入數字範圍0～10000000000"></span>
                   </dt>
+                  --}}
                   @endif
                 </div>
                 <a class="dlbut g_inputt20 abtn" onclick="$('form[name=user_data]').submit();">確定更新</a>
@@ -1234,12 +1240,13 @@ dt span.engroup_type_title {display:inline-block;width:10%;white-space:nowrap;}
               }
           }
           
-          
+          /*
           if(budget.val() === "") {
             budget.focus();
             c5('請選擇預算');
             return false;
           }
+          */
           if($('select[name=year]').val() == "" || $('select[name=month]').val() == "" || age < 18){
             c5('您的年齡低於法定18歲，請於基本資料設定修改，否則您的資料將會被限制搜尋。');
             // swal({
@@ -1290,6 +1297,7 @@ dt span.engroup_type_title {display:inline-block;width:10%;white-space:nowrap;}
             c5('請選擇抽煙');
             return false;
           }
+          /*
           if('{{$user->engroup}}' == '1'){
             console.log(income.val())
             if(income.val() === "") {
@@ -1303,7 +1311,7 @@ dt span.engroup_type_title {display:inline-block;width:10%;white-space:nowrap;}
               return false;
             }
           }
-          
+          */
           if(tattoo_part.val()=='' && tattoo_range.val()!='') {
               tattoo_part.focus();
               c5('請選擇刺青位置');
