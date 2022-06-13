@@ -39,7 +39,10 @@ class LogoutAutoBan implements ShouldQueue
      */
     public function handle()
     {
-        SetAutoBan::logoutWarned($this->uid);
+        if($this->uid != 0)
+        {
+            SetAutoBan::logoutWarned($this->uid);
+        }
     }
 
     /**
