@@ -251,6 +251,13 @@
         @if(!$user->isVip())
             .tubiao ul li img {height:50px !important;}
         @endif
+        
+        @media (min-width:812px) and (min-height: 375px) and (max-width:812px) and (max-height:375px) {
+            .bl_tab{
+                width: 40%;
+                left: 30%;
+            }
+        }
     </style>
     <style>
         .new_pot1{width:96%;height:auto;margin: 0 auto;color: #666666;display: block; margin-top: 20px; margin-bottom: 20px;}
@@ -813,6 +820,58 @@
                     </script>
 
                 </div>
+
+                <div class="metx_tab">
+                    <div class="hdlist1_left">
+                        <div class="hdlist1_left_tab">
+                                <div class="hs_tnes">
+                                    <img src="/new/images/shouru.png">
+                                    <div class="she_fontetex">收入<span>income</span></div>
+                                </div>
+                                <a class="s_bushi" onclick="jianju()">檢舉不實</a>
+                                <div class="sh_button_w">
+                                    <div class="sh_button_n">5.5~8.3萬</div>
+                                </div>
+                        </div>
+                    </div>
+                    <div class="hdlist2_right">
+                            <div class="hdlist2_right_tab">
+                                <div class="hs_tnes">
+                                    <img src="/new/images/zichan.png">
+                                    <div class="she_fontetex">資產<span>assets</span></div>
+                                </div>
+                                <a class="s_bushizz" onclick="jianju()">檢舉不實</a>
+                                <div class="zc_button_w">
+                                    <div class="zc_button_n"> 1500~1萬</div>
+                                </div>
+                            </div>
+                    </div>
+                </div>
+                <div class="bl bl_tab" id="jianju">
+                            <div class="bltitle"><span>預算不實</span></div><a href="" onclick="button()" class="bl_gb"><img src="/new/images/gb_icon.png"></a>
+                            <div class="new_pot" style="height: auto;">
+                                    <div class="ju_pic">
+                                            <div class="ju_pjckbox">
+                                                注意：檢舉預算不實一定要付上證據，例如轉帳截圖，或者對話紀錄，或其他可資證明的方式
+                                            </div>
+                                            <div class="plshan">
+                                                <li>
+                                                    <div class="pj_photo_01"><img src="/new/images/zz_zz.png" class="imgov"></div>
+                                                </li>
+                                                <li>
+                                                    <div class="pj_photo_01"><img src="/new/images/zz_zz.png" class="imgov"></div>
+                                                </li>
+                                                <li>
+                                                    <div class="pj_photo_01"><img src="/new/images/zz_zz.png" class="imgov"></div>
+                                                </li>
+                                            </div>
+                                    </div>
+                            </div>
+                            <div class="n_bbutton" style="margin-top: 0; margin-bottom: 15px;">
+                                <a href="" class="n_bllbut" onclick="button()">確定</a>
+                            </div>
+                </div>
+
                 <!--基本资料-->
                 <div class="mintop">
                     <div class="">
@@ -2909,6 +2968,20 @@
         }
     }
     //訪問時間紀錄
+</script>
+
+<script>
+    function jianju() {
+        $(".blbg").show()
+        $("#jianju").show()
+        $('body').css("overflow", "hidden")
+    }
+
+    function button() {
+        $(".blbg").hide()
+        $("#jianju").hide()
+    }
+    
 </script>
 
 @stop
