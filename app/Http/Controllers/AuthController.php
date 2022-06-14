@@ -767,28 +767,28 @@ class AuthController extends Controller
                 /**
                  * 效能調整：使用左結合以大幅降低處理時間，並且減少 query 次數，進一步降低時間及程式碼複雜度
                  */
-                $query = \App\Models\Evaluation::select('e.*')->from('evaluation as e')->with('user')
-                    ->leftJoin('banned_users as b1', 'b1.member_id', '=', 'e.from_id')
-                    ->leftJoin('banned_users_implicitly as b3', 'b3.target', '=', 'e.from_id')
+                $query = \App\Models\Evaluation::select('*')->from('evaluation')->with('user')
+                    ->leftJoin('banned_users as b1', 'b1.member_id', '=', 'evaluation.from_id')
+                    ->leftJoin('banned_users_implicitly as b3', 'b3.target', '=', 'evaluation.from_id')
                     ->leftJoin('blocked as b7', function($join) use($uid) {
-                        $join->on('b7.member_id', '=', 'e.from_id')
+                        $join->on('b7.member_id', '=', 'evaluation.from_id')
                             ->where('b7.blocked_id', $uid); })
                     // ->leftJoin('user_meta as um', function($join) {
                     //     $join->on('um.user_id', '=', 'e.from_id')
                     //         ->where('isWarned', 1); })
                     ->leftJoin('warned_users as wu', function($join) {
-                        $join->on('wu.member_id', '=', 'e.from_id')
+                        $join->on('wu.member_id', '=', 'evaluation.from_id')
                             ->where(function($query){
                                 $query->where('wu.expire_date', '>=', Carbon::now())
                                     ->orWhere('wu.expire_date', null); }); })
-                    ->leftJoin('is_warned_log as iw', 'iw.user_id', '=', 'e.from_id')
+                    ->leftJoin('is_warned_log as iw', 'iw.user_id', '=', 'evaluation.from_id')
                     ->whereNull('b1.member_id')
                     ->whereNull('b3.target')
                     ->whereNull('b7.member_id')
                     // ->whereNull('um.user_id')
                     ->whereNull('wu.member_id')
                     ->whereNull('iw.user_id')
-                    ->where('e.to_id', $uid);
+                    ->where('evaluation.to_id', $uid);
                 $rating_avg = $query->avg('rating');
                 $cur->rating_avg = floatval($rating_avg);
                 if ($cur->tattoo->count()) {
