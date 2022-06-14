@@ -2629,305 +2629,56 @@ class PagesController extends BaseController
     }
     
     public function getSearchData(Request $request){
-        $vis = \App\Models\UserMeta::searchApi(
-            $request->county,
-            $request->district,
-            $request->cup,
-            $request->marriage,
-            $request->budget,
-            $request->income,
-            $request->smoking,
-            $request->drinking,
-            $request->pic,
-            $request->agefrom,
-            $request->ageto,
-            $request->user['engroup'],
-            $request->umeta['city'],
-            $request->umeta['area'],
-            $request->umeta['blockdomain'],
-            $request->umeta['blockdomainType'],
-            $request->seqtime,
-            $request->body,
-            $request->user['id'],
-            $request->exchange_period,
-            $request->isBlocked,
-            $request->userIsVip,
-            $request->heightfrom,
-            $request->heightto,
-            $request->prRange_none,
-            $request->prRange,
-            $request->situation,
-            $request->education,
-            $request->isVip,
-            $request->isWarned,
-            $request->isPhoneAuth,
-            $request->userIsAdvanceAuth,
-            $request->page,
-            $request->tattoo,
-            $request->city2,
-            $request->area2,
-            $request->city3,
-            $request->area3,
-            $request->weight
-        );
+        try{
+            $searchApi = \App\Models\UserMeta::searchApi(
+                $request
+            );
 
-        $ssrData = '';
-  
-        $user = Auth::user();
-    if (!empty($vis['singlePageData']) && isset($vis['singlePageData']) && sizeof($vis['singlePageData']) > 0){
-            foreach ($vis['singlePageData'] as $vi){
-            $visitor = $vi;
-            try{
-                $umeta = $visitor->user_meta;
-                if(isset($umeta->city)){
-                    $umeta->city = explode(",",$umeta->city);
-                    $umeta->area = explode(",",$umeta->area);
-                }
+            // $ssrData = '';
+    
+            $user = Auth::user();
+            $userIsVip = $user->isVip();
+            $dataList = [];
+            foreach ($searchApi['singlePageData'] as $key=>$visitor){
+                $dataList[$key]['rawData'] = $visitor;
+                $dataList[$key]['visitorCheckRecommendedUser'] = \App\Services\UserService::checkRecommendedUser($visitor);
+                $dataList[$key]['visitorIsVip'] = $visitor->isVip();
+                $dataList[$key]['visitorIsAdminWarned'] = $visitor->isAdminWarned();
+                $dataList[$key]['visitorIsPhoneAuth'] = $visitor->isPhoneAuth();
+                $dataList[$key]['visitorIsAdvanceAuth'] = $visitor->isAdvanceAuth();
+                $dataList[$key]['visitorIsBlurAvatar'] = \App\Services\UserService::isBlurAvatar($visitor, $user);
+                $dataList[$key]['visitorAge'] = $visitor->age();
+                $dataList[$key]['visitorIsOnline'] = $visitor->isOnline();
+                $dataList[$key]['visitorExchangePeriodName'] = DB::table('exchange_period_name')->where('id',$visitor->exchange_period)->first();
+                $dataList[$key]['visitorValueAddedServiceStatusHideOnline'] = $visitor->valueAddedServiceStatus('hideOnline');
             }
-            catch (\Exception $e){
-                \Illuminate\Support\Facades\Log::info('Search error, visitor: ' . $vi);
-            }
-            
-            if($vi->engroup == 2)
-            {
-                if($vi->exchange_period == 2)
-                {
-                    $ssrData .='<li class="nt_fg vvip_bg1">';
-                }
-                else
-                {
-                    $ssrData .='<li class="nt_fg vvip_bg2">';
-                }
-            }
-            else
-            {
-                $ssrData .='<li class="nt_fg vvip_bg2">';
-            }
-                $ssrData .='<div class="n_seicon">';
-                   
-                        $data = \App\Services\UserService::checkRecommendedUser($visitor);
-                    
-
-                    if(!$visitor->user_meta){
-                        logger("Searched user no meta, id:" . $visitor->id);
-                        continue;
-                    }
-                   
-                    if($visitor->user_meta->isWarned == 1 || $visitor->isAdminWarned()){
-                        $ssrData .='<div class="hoverTip">';
-                            $ssrData .='<div class="tagText" data-toggle="popover" data-content="此會員為警示會員，與此會員交流務必提高警覺！">';
-                            if($user->isVip()){
-                                $ssrData .='<img src="/new/images/a5.png">';
-                            }else{
-                                $ssrData .='<img src="/new/images/b_5.png">';
-                            }
-                          
-                            $ssrData .='</div>';
-                        $ssrData .='</div>';
-                        
-                    }elseif(isset($data['description']) && $visitor->engroup == 2){
-                        $ssrData .='<div class="hoverTip">';
-                            $ssrData .='<div class="tagText" data-toggle="popover" data-content="新進甜心是指註冊未滿30天的新進會員，建議男會員可以多多接觸，不過要注意是否為八大行業人員。">';
-                                if($user->isVip()){
-                                    $ssrData .='<img src="/new/images/a1.png">';
-                                }else{
-                                    $ssrData .='<img src="/new/images/b_1.png">';
-                                }
-
-                            $ssrData .='</div>';
-                        $ssrData .='</div>';
-                    }elseif($visitor->isVip() && $visitor->engroup == 1){
-                        $ssrData .='<div class="hoverTip">';
-                            $ssrData .='<div class="tagText" data-toggle="popover" data-content="本站的付費會員。">';
-                                if($user->isVip()){
-                                    $ssrData .='<img src="/new/images/a4.png">';
-                                }else{
-                                    $ssrData .='<img src="/new/images/b_4.png">';
-                                }
-                            $ssrData .='</div>';
-                        $ssrData .='</div>';
-                    }else{
-                        if($user->isVip()){
-                            $ssr_var = 'xa_ssbg';
-                        }else{
-                            $ssr_var = '';
-                        }
-                        if($visitor->isPhoneAuth()){
-                            $ssrData .='<div class="hoverTip '.$ssr_var.'">';                            
-                            if($user->isVip()){
-                                if($visitor->isAdvanceAuth() && $visitor->engroup==2){
-                                    $ssrData .='<div class="tagText"  data-toggle="popover" data-content="本站的進階認證會員，本會員通過本站的嚴格驗證，基本資料正確無誤。">';
-                                    $ssrData .='<img src="/new/images/c_03.png">';
-                                    $ssrData .='</div> ';
-                                    $ssrData .='<span>丨</span>';
-                                }else if(!$visitor->isAdvanceAuth() && $visitor->engroup==2){
-                                    $ssrData .='<div class="tagText"  data-toggle="popover" data-content="通過本站手機驗證的會員。">';
-                                    $ssrData .='<img src="/new/images/c_09.png">';
-                                    $ssrData .='</div>  ';
-                                    $ssrData .='<span>丨</span>';
-                                }
-                               
-                                $ssrData .='<div class="tagText"  data-toggle="popover" data-content="通過本站手機驗證的會員。">';
-                                $ssrData .='<img src="/new/images/c_10.png">';
-                                $ssrData .='</div>';
-                            }else{
-                                if($visitor->isAdvanceAuth() && $visitor->engroup==2){
-                                    $ssrData .='<div class="tagText"  data-toggle="popover" data-content="本站的進階認證會員，本會員通過本站的嚴格驗證，基本資料正確無誤。">';
-                                    $ssrData .='<img src="/new/images/b_8x.png">';
-                                    $ssrData .='</div> ';
-                                }else if(!$visitor->isAdvanceAuth() && $visitor->engroup==2){
-                                    $ssrData .='<div class="tagText"  data-toggle="popover" data-content="通過本站手機驗證的會員。">';
-                                    $ssrData .='<img src="/new/images/b_5x.png">';
-                                    $ssrData .='</div>  ';
-                                }else{
-                                    $ssrData .='<div class="tagText"  data-toggle="popover" data-content="通過本站手機驗證的會員。">';
-                                    $ssrData .='<img src="/new/images/b_6.png">';
-                                    $ssrData .='</div>  ';  
-                                } 
-                            }
-                            $ssrData .='</div>';
-                        }
-                     
-                    }
-          
-                    if(isset($visitor->pr_log)){
-                        $ssr_var = $visitor->pr_log->pr."%;"; 
-                    }else{
-                        $ssr_var = "0%;";
-                    } 
-                                                       
-                 
-                  
-                    if($visitor->engroup == 1){
-                        $ssrData .='<div class="tixright_a">';
-                        $ssrData .='<div class="span zi_sc">大方指數</div>';
-                        $ssrData .='<div class="font">';
-                        $ssrData .='<div class="vvipjdt tm_new">';
-                        $ssrData .='<div class="progress progress-striped vvipjdt_pre_a">';
-                        $ssrData .='<div class="progress-bar progress_info_a" role="progressbar" aria-valuenow="60" aria-valuemin="0"
-                                         aria-valuemax="100" style="width:'.$ssr_var.'"'; //need to check again
-                                         $ssrData .='<span class="prfont_a">PR</span>';
-                                         $ssrData .='</div>';
-                                         $ssrData .='</div>';
-                                         $ssrData .='</div>';
-                                         $ssrData .='</div>';
-                                         $ssrData .='</div>';
-                    }
-                    
-                   
-                    $ssrData .='</div>';
-                
-                    $isBlurAvatar = \App\Services\UserService::isBlurAvatar($visitor, $user);
-                    if($isBlurAvatar) $ssr_var = 'blur_img';
-                    if($visitor->user_meta->isAvatarHidden == 1){
-                        $ssr_var2 = 'makesomeerror';
-                    } else {
-                        $ssr_var2 = $visitor->user_meta->pic;
-                    }
-                   
-                    if ($visitor->engroup == 1){
-                        $onerror="this.src='/new/images/male.png'" ;
-                    } else {
-                        $onerror="this.src='/new/images/female.png'";
-                    }
-                $ssrData .='<a href="/dashboard/viewuser/' . $visitor->id . '">';
-                $ssrData .='<div class="nt_photo '.$ssr_var.'"><img class="lazy" src="'.$ssr_var2.'" data-original="'.$ssr_var2.'" onerror="'.$onerror.'"/></div>'; // need to check again
-                if($vi->engroup == 2)
-                {
-                    if($vi->exchange_period == 2)
-                    {
-                        $ssrData .='<div class="nt_bot vvip_bgco1">';
-                    }
-                    else
-                    {
-                        $ssrData .='<div class="nt_bot vvip_bgco2">';
-                    }
-                }
-                else
-                {
-                    $ssrData .='<div class="nt_bot nt_bgco">';
-                }
-                $ssrData .='<h2>';
-                $ssrData .='<font class="left">'.$visitor->name.'<span>'.$visitor->age().'歲</span></font>';
-                            if($user->isVip()){
-                                if($visitor->isOnline() && $visitor->is_hide_online==0){
-                                    $ssrData .='<span class="onlineStatusSearch"></span>';
-                                }
-                            }else{
-                                $ssrData .='<div class="onlineStatusNonVipSearch"><img src="/new/images/wsx.png"></div>';
-                            }
-                                
-                          
-
-                            $ssrData .='</h2>';
-                            $ssrData .='<h3>';
-                        
-                            if(!empty($umeta->city)){
-                                foreach($umeta->city as $key => $cityval){
-                                    if ($key==0){
-                                       $ssrData .=  $umeta->city[$key];
-									   if($visitor->user_meta->isHideArea == 0){
-										   $ssrData .=  $umeta->area[$key].'  ';
-										   
-									   }
-                                    }else{
-										
-                                        $ssrData .=  '<span>'.$umeta->city[$key];
-										if($visitor->user_meta->isHideArea == 0){
-											$ssrData .= ($umeta->area[$key].'</span>');
-										}
-                                    }
-                                }
-                                    
-                             
-                            }
-                                
-                           
-                            if($user->isVip()){
-                                if($visitor->user_meta->isHideOccupation == 0 && !empty($visitor->user_meta->occupation) && $visitor->user_meta->occupation != 'null'){
-                                    $ssrData .='<span style="margin-left: 0;">'.$visitor->user_meta->occupation.'</span>';
-                                }
-                            }else{
-                                $ssrData .='<span style="margin-left: 10px;"><span style="padding-left: 5px;">職業</span><img src="/new/images/icon_35.png" class="nt_img"></span>';
-                            }
-                                
-                          
-
-                            if($user->engroup==1){
-                                $exchange_period_name = DB::table('exchange_period_name')->where('id',$visitor->exchange_period)->first();
-                                $ssrData .='<i class="j_lxx">丨</i><span>'.$exchange_period_name->name.'</span>';
-                                /*
-                                if($user->isVip()){
-                                    $exchange_period_name = DB::table('exchange_period_name')->where('id',$visitor->exchange_period)->first();
-                                    
-                                    $ssrData .='<i class="j_lxx">丨</i><span>'.$exchange_period_name->name.'</span>';
-                                }else{
-                                    $ssrData .='<i class="j_lxx">丨</i><span>包養關係<img src="/new/images/icon_35.png" class="nt_img"></span>';
-                                }
-                                */
-                            }
-                            
-                            $ssrData .='</h3>';
-                            $ssrData .='<h3>最後上線時間：';
-                            if($visitor->valueAddedServiceStatus('hideOnline')==1 && $visitor->is_hide_online==1){
-                                $ssrData .= substr($visitor->hide_online_time,0,11);
-                            }else{
-                                $ssrData .= substr($visitor->last_login,0,11);
-                            }
-                            $ssrData .='</h3>';
-                        $ssrData .='</div>';
-                        $ssrData .='</a>';
-                        $ssrData .='</li>';
-                         }
-        }else{
-            $ssrData .='<div class="fengsicon search"><img src="/new/images/loupe.png" class="feng_img"><span>沒有資料</span></div>';
+            $output = array(
+                'singlePageCount'=> $searchApi['singlePageCount'],
+                'allPageDataCount'=>$searchApi['allPageDataCount'],
+                'dataList'=>$dataList,
+                'user'=>$user,
+                'userIsVip'=>$userIsVip
+            );
+            return json_encode($output);
+        }catch (\Exception $e){
+            \Illuminate\Support\Facades\Log::info('Search error: ' . $e);
         }
-        $output = array(
-            "ssrData"=>$ssrData,
-            "count"=>$vis['allPageDataCount'],
-            'singleCount'=>$vis['singlePageCount']
-        );
-        return json_encode($output);
+    }
+
+    public function getSingleSearchData(Request $request){
+        $visitor_pre = $request->visitor;
+        $user_pre = $request->user;
+        $visitor = User::where('id',$visitor_pre['id'])->get();
+        $user = User::where('id',$user_pre['id'])->get();
+        // $data = \App\Services\UserService::checkRecommendedUser($visitor);
+        // $visitorIsVip = $visitor->isVip();
+        // $visitorIsAdminWarned = $visitor->isAdminWarned();
+        // $visitorIsPhoneAuth = $visitor->isPhoneAuth();
+        // $visitorIsBlurAvatar = \App\Services\UserService::isBlurAvatar($visitor, $user);
+        // $visitorAge = $visitor->age();
+        // $visitorIsOnline = $visitor->isOnline();
+        
+        return $data;
     }
 
     public function evaluation_self(Request $request)
