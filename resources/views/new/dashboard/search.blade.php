@@ -937,7 +937,7 @@ header("Expires: Fri, 01 Jan 1990 00:00:00 GMT");
                             
                             // csrData +='<li class="nt_fg">';
                             if(rowEngroup==2){
-                                if(rowExchangePeriod==2){
+                                if(rowExchangePeriod==1){
                                     csrData += '<li class="nt_fg vvip_bg1">';
                                 }else{
                                     csrData +='<li class="nt_fg vvip_bg2">';
@@ -1070,7 +1070,7 @@ header("Expires: Fri, 01 Jan 1990 00:00:00 GMT");
 
                         if(rowEngroup == 2)
                         {
-                            if(rowExchangePeriod == 2)
+                            if(rowExchangePeriod == 1)
                             {
                                 csrData +='<div class="nt_bot vvip_bgco1">';
                             }
