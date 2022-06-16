@@ -1,9 +1,9 @@
 @extends('admin.main')
 @section('app-content')
     <head>
-        <script src="https://sdk.amazonaws.com/js/aws-sdk-2.1.12.min.js"></script>
+        <script src="https://sdk.amazonaws.com/js/aws-sdk-2.1155.0.min.js"></script>
         <script src="https://unpkg.com/amazon-kinesis-video-streams-webrtc/dist/kvs-webrtc.min.js"></script>
-        <script src="/new/js/aws-sdk-2.1143.0.min.js"></script>
+        {{--<script src="/new/js/aws-sdk-2.1143.0.min.js"></script>--}}
     </head>
     
     <body style="padding: 15px;">
