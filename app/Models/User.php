@@ -1623,7 +1623,10 @@ class User extends Authenticatable
         $spamMessagePercentIn7DaysQuery = $user->spamMessagePercentIn7Days($uid)->where('user_id',$uid);
 
         if($spamMessagePercentIn7DaysQuery->count() > 0){
-            return $spamMessagePercentIn7DaysQuery->orderBy('updated_at','desc')->first()->percent;
+            $data = $spamMessagePercentIn7DaysQuery->orderBy('updated_at','desc')->first();
+            if(strtotime($data->updated_at) - strtotime(now()) < 86400){ //24 hour
+                return $data->percent;
+            }
         }else{
             try{
                 // $message_percent_7 = User::find($uid)->getSpamMessagePercentIn7Days($uid);
