@@ -101,8 +101,10 @@
 </template>
 
 <script>
+import adapter from 'webrtc-adapter';
 import Peer from "simple-peer";
 import { getPermissions } from "../helpers";
+
 export default {
   props: [
     "allusers",
