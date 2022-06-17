@@ -594,9 +594,9 @@ class Message_newController extends BaseController {
 
     public function chatviewMore(Request $request)
     {
-        $user = new User;
-        $can_pr = $user->getSpamMessagePercentIn7Days(15600);
-        dd($can_pr);
+        // $user = new User;
+        // $can_pr = $user->getSpamMessagePercentIn7Days(15600);
+        // dd($can_pr);
         $user = Auth::user();
         $user_id = $request->uid;
         /**
