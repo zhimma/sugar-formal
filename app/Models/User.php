@@ -1613,4 +1613,31 @@ class User extends Authenticatable
         return $query->first();
     }
 
+    public function spamMessagePercentIn7Days(){
+        return $this->hasOne('App\Models\SpamMessagePercentIn7Days');
+    }
+
+    public function getSpamMessagePercentIn7Days($uid){
+        
+        $user = new User;
+        $spamMessagePercentIn7DaysQuery = $user->spamMessagePercentIn7Days($uid)->where('user_id',$uid);
+
+        if($spamMessagePercentIn7DaysQuery->count() > 0){
+            return $spamMessagePercentIn7DaysQuery->orderBy('updated_at','desc')->first()->percent;
+        }else{
+            try{
+                // $message_percent_7 = User::find($uid)->getSpamMessagePercentIn7Days($uid);
+                $message_percent_7 = UserService::computeCanMessagePercent_7($uid);
+                $data = array(
+                    'user_id'=>$uid,
+                    'percent'=>$message_percent_7
+                );
+                $spamMessagePercentIn7Days = \App\Models\SpamMessagePercentIn7Days::firstOrCreate($data);
+                return $data['percent'];
+            }catch(\Exception $e){
+                dd($e);
+            }
+        }
+    }
+
 }
