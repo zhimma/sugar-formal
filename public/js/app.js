@@ -6024,6 +6024,7 @@ window.Echo = new laravel_echo__WEBPACK_IMPORTED_MODULE_0__["default"]({
 
 });
 
+window.adapter = webrtc_adapter__WEBPACK_IMPORTED_MODULE_1__["default"];
 
 /***/ }),
 

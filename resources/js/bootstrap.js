@@ -48,3 +48,4 @@ window.Echo = new Echo({
 });
 
 import adapter from 'webrtc-adapter';
+window.adapter = adapter;
