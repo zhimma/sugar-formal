@@ -47,6 +47,7 @@
         "node": "^16.5.0",
         "simple-peer": "^9.11.1",
         "video.js": "^7.19.2",
-        "vue-axios": "^3.4.0"
+        "vue-axios": "^3.4.0",
+        "webrtc-adapter": "^8.1.1"
     }
 }
