@@ -5310,10 +5310,9 @@ __webpack_require__.r(__webpack_exports__);
 /* harmony export */ });
 /* harmony import */ var _babel_runtime_regenerator__WEBPACK_IMPORTED_MODULE_0__ = __webpack_require__(/*! @babel/runtime/regenerator */ "./node_modules/@babel/runtime/regenerator/index.js");
 /* harmony import */ var _babel_runtime_regenerator__WEBPACK_IMPORTED_MODULE_0___default = /*#__PURE__*/__webpack_require__.n(_babel_runtime_regenerator__WEBPACK_IMPORTED_MODULE_0__);
-/* harmony import */ var webrtc_adapter__WEBPACK_IMPORTED_MODULE_1__ = __webpack_require__(/*! webrtc-adapter */ "./node_modules/webrtc-adapter/src/js/adapter_core.js");
-/* harmony import */ var simple_peer__WEBPACK_IMPORTED_MODULE_2__ = __webpack_require__(/*! simple-peer */ "./node_modules/simple-peer/index.js");
-/* harmony import */ var simple_peer__WEBPACK_IMPORTED_MODULE_2___default = /*#__PURE__*/__webpack_require__.n(simple_peer__WEBPACK_IMPORTED_MODULE_2__);
-/* harmony import */ var _helpers__WEBPACK_IMPORTED_MODULE_3__ = __webpack_require__(/*! ../helpers */ "./resources/js/helpers.js");
+/* harmony import */ var simple_peer__WEBPACK_IMPORTED_MODULE_1__ = __webpack_require__(/*! simple-peer */ "./node_modules/simple-peer/index.js");
+/* harmony import */ var simple_peer__WEBPACK_IMPORTED_MODULE_1___default = /*#__PURE__*/__webpack_require__.n(simple_peer__WEBPACK_IMPORTED_MODULE_1__);
+/* harmony import */ var _helpers__WEBPACK_IMPORTED_MODULE_2__ = __webpack_require__(/*! ../helpers */ "./resources/js/helpers.js");
 
 
 function asyncGeneratorStep(gen, resolve, reject, _next, _throw, key, arg) { try { var info = gen[key](arg); var value = info.value; } catch (error) { reject(error); return; } if (info.done) { resolve(value); } else { Promise.resolve(value).then(_next, _throw); } }
@@ -5430,7 +5429,6 @@ function _defineProperty(obj, key, value) { if (key in obj) { Object.definePrope
 //
 
 
-
 /* harmony default export */ const __WEBPACK_DEFAULT_EXPORT__ = ({
   props: ["allusers", "authuserid", "user_permission", "ice_server_json"],
   data: function data() {
@@ -5494,7 +5492,7 @@ function _defineProperty(obj, key, value) { if (key in obj) { Object.definePrope
     getMediaPermission: function getMediaPermission() {
       var _this2 = this;
 
-      return (0,_helpers__WEBPACK_IMPORTED_MODULE_3__.getPermissions)().then(function (stream) {
+      return (0,_helpers__WEBPACK_IMPORTED_MODULE_2__.getPermissions)().then(function (stream) {
         _this2.videoCallParams.stream = stream;
 
         if (_this2.$refs.userVideo) {
@@ -5561,7 +5559,7 @@ function _defineProperty(obj, key, value) { if (key in obj) { Object.definePrope
                 //console.log("iceserver_json: " + this.ice_server_json);
                 iceserver = JSON.parse(_this4.ice_server_json.trim()); //console.log("iceserver: " + iceserver);
 
-                _this4.videoCallParams.peer1 = new (simple_peer__WEBPACK_IMPORTED_MODULE_2___default())({
+                _this4.videoCallParams.peer1 = new (simple_peer__WEBPACK_IMPORTED_MODULE_1___default())({
                   initiator: true,
                   trickle: false,
                   stream: _this4.videoCallParams.stream,
@@ -5667,7 +5665,7 @@ function _defineProperty(obj, key, value) { if (key in obj) { Object.definePrope
                 //console.log("iceserver_json: " + this.ice_server_json);
                 iceserver = JSON.parse(_this5.ice_server_json.trim()); //console.log("iceserver: " + iceserver);
 
-                _this5.videoCallParams.peer2 = new (simple_peer__WEBPACK_IMPORTED_MODULE_2___default())({
+                _this5.videoCallParams.peer2 = new (simple_peer__WEBPACK_IMPORTED_MODULE_1___default())({
                   initiator: false,
                   trickle: false,
                   stream: _this5.videoCallParams.stream,
@@ -5980,6 +5978,7 @@ Vue.component("video-chat", (__webpack_require__(/*! ./components/VideoChat.vue 
 "use strict";
 __webpack_require__.r(__webpack_exports__);
 /* harmony import */ var laravel_echo__WEBPACK_IMPORTED_MODULE_0__ = __webpack_require__(/*! laravel-echo */ "./node_modules/laravel-echo/dist/echo.js");
+/* harmony import */ var webrtc_adapter__WEBPACK_IMPORTED_MODULE_1__ = __webpack_require__(/*! webrtc-adapter */ "./node_modules/webrtc-adapter/src/js/adapter_core.js");
 window._ = __webpack_require__(/*! lodash */ "./node_modules/lodash/lodash.js");
 /**
  * We'll load jQuery and the Bootstrap jQuery plugin which provides support
@@ -6024,6 +6023,7 @@ window.Echo = new laravel_echo__WEBPACK_IMPORTED_MODULE_0__["default"]({
   // forceTLS: false,
 
 });
+
 
 /***/ }),
 
