@@ -2035,6 +2035,7 @@ class PagesController extends BaseController
                 ->where('line_notify_chat.active',1)
                 ->where('line_notify_chat_set.line_notify_chat_id',9)
                 ->where('line_notify_chat_set.user_id',$targetUser->id)
+                ->where('line_notify_chat_set.user_id','!=',$user->id)
                 ->where('line_notify_chat_set.deleted_at',null)
                 ->groupBy('line_notify_chat_set.user_id')->get();
             foreach ($line_notify_user_list as $notify_user){
