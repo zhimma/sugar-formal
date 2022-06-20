@@ -77,8 +77,8 @@ class Handler extends ExceptionHandler
         // if(!$exception instanceof ValidationException && !$exception instanceof AuthenticationException) {
         //     return response()->view('errors.exception', [ 'exception' => $exception->getMessage() == null ? null : $exception->getMessage()]);
         // }
-        
-        if ($exception instanceof AuthenticationException) {
+
+        if ($exception instanceof AuthenticationException && Request::is('api/*')) {
             return response()->json(['status' => 1, 'message' => 'Token is Invalid'], 401);
         }
 
