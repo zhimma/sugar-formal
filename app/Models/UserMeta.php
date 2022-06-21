@@ -204,7 +204,8 @@ class UserMeta extends Model
                                     $area2=null, 
                                     $city3=null,
                                     $area3=null,
-                                    $weight=''                               
+                                    $weight='',
+                                    $registered_from_mobile = 0                               
                                   )
     {
         if ($engroup == 1) { $engroup = 2; }
@@ -282,7 +283,7 @@ class UserMeta extends Model
                     
                 });
             }
-            
+
             if (isset($cup) && $cup!=''){
                 if(count($cup) > 0){
                     $query->whereIn('cup', $cup)->where('isHideCup', 0);
@@ -358,6 +359,7 @@ class UserMeta extends Model
                 ->select('*', \DB::raw("IF(is_hide_online = 1, hide_online_time, last_login) as last_login"))
                 ->whereHas('user_meta', $constraint)
                 ->where('engroup', $engroup)
+                ->where('registered_from_mobile', $registered_from_mobile)
                 ->where('accountStatus', 1)
                 ->where('account_status_admin', 1)
                 ->where('is_hide_online', '<>', 2)
@@ -376,6 +378,7 @@ class UserMeta extends Model
                 ->select('*', \DB::raw("IF(is_hide_online = 1, hide_online_time, last_login) as last_login"))
                 ->whereHas('user_meta', $constraint)
                 ->where('engroup', $engroup)
+                ->where('registered_from_mobile', $registered_from_mobile)
                 ->where('accountStatus', 1)
                 ->where('account_status_admin', 1)
                 ->where('is_hide_online', '<>', 2)
