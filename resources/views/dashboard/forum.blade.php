@@ -40,8 +40,8 @@
 					<div class="tl_bbg">
 						<a href="/dashboard/posts_list">
 						<img src="/posts/images/taolq02.png" class="tl_bbg_img">
-						<div class="te_ins">
-							<div class="ta_wdka_text te_incob">主題數<span>{{$posts_list[0]->posts_num}}</span><i>丨</i>回覆數<span>{{$posts_list[0]->posts_reply_num}}</span></div>
+						<div class="te_ins_2">
+							<div class="ta_wdka_text te_incob">主題數<span class="te_clo">{{$posts_list[0]->posts_num}}</span><i>丨</i>回覆數<span class="te_clo">{{$posts_list[0]->posts_reply_num}}</span></div>
 							<div class="ta_witx_rig">
 								<div class="wt_txb">
 									@foreach($posts_list as $key=>$row)
@@ -69,6 +69,43 @@
 						</a>
 					</div>
 
+					<div class="tl_bbg_2" style="margin-top: 15px;">
+						<a href="/dashboard/essence_enter_intro">
+							<img src="/posts/images/taolq02-a.png" class="tl_bbg_img">
+							<div class="te_ins">
+								<div class="ta_wdka_text te_incob">主題數<span>{{ $essence_posts_num }}</span></div>
+								<div class="ta_witx_rig">
+									<div class="wt_txb">
+										@foreach($essence_posts_list as $key=>$row)
+											@if(count($essence_posts_list)>5)
+												@once
+												<span class="ta_toxmr">
+												<img src="/posts/images/imor.png" class="hycov">
+											</span>
+												@endonce
+											@endif
+
+											@if($key==0)
+												<span class="ta_toxmr @if(count($essence_posts_list)>5) xa_rig10 @endif">
+												<img src="@if(file_exists( public_path().$row->umpic ) && $row->umpic != ""){{$row->umpic}} @elseif($row->engroup==2)/new/images/female.png @else/new/images/male.png @endif" class="hycov">
+											</span>
+											@elseif($key>0 && $key<5)
+												<span class="ta_toxmr xa_rig10">
+												<img src="@if(file_exists( public_path().$row->umpic ) && $row->umpic != ""){{$row->umpic}} @elseif($row->engroup==2)/new/images/female.png @else/new/images/male.png @endif" class="hycov">
+											</span>
+											@endif
+										@endforeach
+										{{--<span class="ta_toxmr"><img src="/posts/images/imor.png" class="hycov"></span>
+										<span class="ta_toxmr xa_rig10"><img src="/posts/images/zx.jpg" class="hycov"></span>
+										<span class="ta_toxmr xa_rig10"><img src="/posts/images/zx.jpg" class="hycov"></span>
+										<span class="ta_toxmr xa_rig10"><img src="/posts/images/zx.jpg" class="hycov"></span>
+										<span class="ta_toxmr xa_rig10"><img src="/posts/images/icon_010.png" class="hycov"></span>--}}
+										<div class="ta_sz" style="background: #ff7d97;">{{ $essence_posts_list->count() }}</div>
+									</div>
+								</div>
+							</div>
+						</a>
+					</div>
 
 					<div class="taolun_btl">
 						@if(isset($posts) && count($posts)>0)
@@ -179,9 +216,9 @@
 												</div>
 											</div>
 										</div>
-											@if($show_a==1)
-											</a>
-											@endif
+										@if($show_a==1)
+										</a>
+										@endif
 									</a>
 								</li>
 							@endforeach
@@ -191,10 +228,8 @@
 							</li>
 						@endif
 					</div>
-
 					<div class="fenye ba_but" style="margin-top: 10px;">
 						{{ $posts->links('pagination::sg-pages2') }}
-{{--						<a href="">上一頁</a><span class="new_page">1/5</span><a href="">下一頁</a>--}}
 					</div>
 				</div>
 			</div>

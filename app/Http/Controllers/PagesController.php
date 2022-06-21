@@ -13,6 +13,8 @@ use App\Models\AnonymousChatMessage;
 use App\Models\AnonymousChatReport;
 use App\Models\BannedUsersImplicitly;
 use App\Models\CustomFingerPrint;
+use App\Models\EssencePosts;
+use App\Models\EssencePostsRewardLog;
 use App\Models\Evaluation;
 use App\Models\EvaluationPic;
 use App\Models\ForumChat;
@@ -25,8 +27,10 @@ use App\Models\Message_new;
 use App\Models\MessageBoard;
 use App\Models\MessageBoardPic;
 use App\Models\Forum;
+use App\Models\Order;
 use App\Models\ReportedMessageBoard;
 use App\Models\SimpleTables\warned_users;
+use App\Models\VipLog;
 use App\Notifications\BannedUserImplicitly;
 use Auth;
 use App\Http\Requests;
@@ -5423,10 +5427,29 @@ class PagesController extends BaseController
                                         ->groupBy('forum_id')
                                         ->get()->keyBy('forum_id');
 
-        return view('/dashboard/forum', $data)
+        //精華討論區
+        $essence_posts_list=EssencePosts::orderBy('essence_posts.id','desc')
+            ->LeftJoin('users', 'users.id','=','essence_posts.user_id')
+            ->join('user_meta', 'users.id','=','user_meta.user_id')
+            ->where('essence_posts.verify_status', 2)
+            ->groupBy('essence_posts.user_id');
+        if($user->id!=1049){
+            $essence_posts_list->where('essence_posts.share_with', $user->engroup);
+        }
+        $essence_posts_list=$essence_posts_list->get();
+
+        $essence_posts_num=EssencePosts::where('essence_posts.verify_status', 2);
+        if($user->id!=1049){
+            $essence_posts_num->where('essence_posts.share_with', $user->engroup);
+        }
+        $essence_posts_num=$essence_posts_num->get()->count();
+
+       return view('/dashboard/forum', $data)
             ->with('checkUserVip', $checkUserVip)
             ->with('user', $user)
-            ->with('forum_member_count', $forum_member_count);
+            ->with('forum_member_count', $forum_member_count)
+            ->with('essence_posts_list', $essence_posts_list)
+            ->with('essence_posts_num', $essence_posts_num);
     }
 
     public function ForumEdit($uid)
@@ -5861,6 +5884,272 @@ class PagesController extends BaseController
             return response()->json(['msg'=>'回復成功!','postType'=>'main','redirectTo'=>'/dashboard/forum_personal/'.$request->get('fid')]);
         else
             return response()->json(['msg'=>'留言回復成功!','postType'=>'sub']);
+    }
+
+    public function essence_enter_intro()
+    {
+        return view('/dashboard/essence_enter_intro');
+    }
+    public function essence_list(Request $request)
+    {
+        $user=$request->user();
+        $postType=$request->get('postType');
+
+        $posts_list = EssencePosts::selectraw('
+             essence_posts.id as pid,
+             users.id as uid,
+             users.engroup,
+             users.name,
+             user_meta.pic as umpic,
+             essence_posts.category as category,
+             essence_posts.title as title,
+             essence_posts.contents as contents,
+             essence_posts.verify_status as verify_status,
+             essence_posts.created_at as post_created_at
+             ')->selectRaw('
+                (select count(*) from essence_posts left join users on users.id = essence_posts.user_id where (essence_posts.type="main")) as posts_num, 
+                (select count(*) from essence_posts where (type="sub" and reply_id in (select id from essence_posts where (type="main") ) )) as posts_reply_num
+            ')
+            ->selectRaw('(case when essence_posts.verify_status=0 then 1 else 0 end) as pendingFlag')
+            ->selectRaw('(case when users.id=1049 then 1 else 0 end) as adminFlag')
+            ->LeftJoin('users', 'users.id','=','essence_posts.user_id')
+            ->join('user_meta', 'users.id','=','user_meta.user_id');
+
+        if($request->get('order_by')=='pending'){
+            $posts_list->orderBy('pendingFlag','desc');
+        }else if ($request->get('order_by')=='created_at'){
+            $posts_list->orderBy('essence_posts.created_at','desc');
+        }
+        $posts_list->orderBy('adminFlag','desc');
+        $posts_list->orderBy('essence_posts.verify_status','desc');
+        if($user->id!=1049){
+            if($postType=='myself'){
+                $posts_list->where('essence_posts.user_id', $user->id);
+            }else{
+                $posts_list->where('essence_posts.verify_status', 2)->where('essence_posts.share_with', $user->engroup);
+            }
+            $posts_list->orderBy('essence_posts.created_at','desc');
+        }
+        $posts_list=$posts_list->paginate(10);
+        return view('/dashboard/essence_list', compact('posts_list', 'postType', 'user'));
+    }
+    public function essence_posts()
+    {
+        //個人討論區
+        $posts = Forum::selectraw('
+         users.id as uid, 
+         users.name as uname, 
+         users.engroup as uengroup, 
+         user_meta.pic as umpic, 
+         forum_posts.id as pid,
+         forum.id as f_id,
+         forum.status as f_status,
+         forum.title as f_title,
+         forum.sub_title as f_sub_title,
+         forum.is_warned as f_warned
+         ')
+            ->selectRaw('(select updated_at from forum_posts where (type="main" and id=pid and forum_id = f_id and deleted_at is null) or reply_id=pid or reply_id in ((select distinct(id) from forum_posts where type="sub" and reply_id=pid and forum_id = f_id and deleted_at is null) )  order by updated_at desc limit 1) as currentReplyTime')
+            ->selectRaw('(select count(*) from forum_posts where (type="main" and forum_id = f_id and deleted_at is null)) as posts_num, (select count(*) from forum_posts where (type="sub" and forum_id = f_id and deleted_at is null and tag_user_id is null)) as posts_reply_num')
+            ->LeftJoin('users', 'users.id','=','forum.user_id')
+            ->join('user_meta', 'users.id','=','user_meta.user_id')
+            ->leftJoin('forum_posts', 'forum_posts.user_id','=', 'users.id')
+            ->where('forum.status', 1)
+            ->orderBy('forum.status', 'desc')
+            ->orderBy('currentReplyTime','desc')
+            ->groupBy('forum.id');
+
+        $posts=$posts->get();
+        return view('/dashboard/essence_posts', compact('posts'));
+    }
+    public function essence_doPosts(Request $request)
+    {
+        $user=$request->user();
+        if($request->get('action') == 'update'){
+            $update_ary=[
+                'title'=>$request->get('title'),
+                'contents'=>$request->get('contents'),
+                'verify_status'=>$user->id==1049 ? EssencePosts::STATUS_PASSED : EssencePosts::STATUS_PENDING,
+            ];
+            if($user->id==1049){
+                $update_ary['category']=$request->get('category');
+                $update_ary['share_with']=$request->get('share_with');
+            }
+            EssencePosts::find($request->get('post_id'))->update($update_ary);
+
+            return redirect('/dashboard/essence_list')->with('message','修改成功'.($user->id==1049 ? '':'，待站長審核後則會自動發布'));
+
+        }else{
+            $posts = new EssencePosts();
+            $posts->user_id = $user->id;
+            $posts->type = $request->get('type','main');
+            $posts->category = $request->get('category');
+            $posts->share_with = $request->get('share_with');
+            $posts->title = $request->get('title');
+            $posts->contents = $request->get('contents');
+            if($user->id==1049){
+                $posts->verify_status = EssencePosts::STATUS_PASSED;
+            }
+            $posts->save();
+
+            DB::table('essence_posts')->where('id',$posts->id)->update(['article_id'=>$posts->id]);
+            return redirect('/dashboard/essence_list')->with('message','投稿成功'.($user->id==1049 ? '':'，待站長審核後則會自動發布'));
+        }
+    }
+
+    public function essence_post_detail(Request $request, $pid)
+    {
+        $user = $request->user();
+        $postDetail =EssencePosts::selectRaw('users.id as uid, users.name as uname, users.engroup as uengroup, user_meta.pic as umpic, user_meta.city, user_meta.area')
+            ->selectRaw('essence_posts.id as pid, essence_posts.title as ptitle, essence_posts.contents as pcontents, essence_posts.updated_at as pupdated_at, essence_posts.created_at as pcreated_at, essence_posts.verify_status as pverify_status')
+            ->LeftJoin('users', 'users.id','=','essence_posts.user_id')
+            ->LeftJoin('user_meta', 'users.id','=','user_meta.user_id')
+            ->where('essence_posts.id', $pid)->first();
+        if(!$postDetail) {
+            $request->session()->flash('message', '找不到該篇精華討論區：' . $pid);
+            $request->session()->reflash();
+            return  redirect('/dashboard/essence_list');
+        }
+
+        return view('/dashboard/essence_post_detail', compact('postDetail', 'user'));
+    }
+
+    public function essence_postsEdit($id, $editType='all')
+    {
+        $postInfo = EssencePosts::find($id);
+        //個人討論區
+        $posts = Forum::selectraw('
+         users.id as uid, 
+         users.name as uname, 
+         users.engroup as uengroup, 
+         user_meta.pic as umpic, 
+         forum_posts.id as pid,
+         forum.id as f_id,
+         forum.status as f_status,
+         forum.title as f_title,
+         forum.sub_title as f_sub_title,
+         forum.is_warned as f_warned
+         ')
+            ->selectRaw('(select updated_at from forum_posts where (type="main" and id=pid and forum_id = f_id and deleted_at is null) or reply_id=pid or reply_id in ((select distinct(id) from forum_posts where type="sub" and reply_id=pid and forum_id = f_id and deleted_at is null) )  order by updated_at desc limit 1) as currentReplyTime')
+            ->selectRaw('(select count(*) from forum_posts where (type="main" and forum_id = f_id and deleted_at is null)) as posts_num, (select count(*) from forum_posts where (type="sub" and forum_id = f_id and deleted_at is null and tag_user_id is null)) as posts_reply_num')
+            ->LeftJoin('users', 'users.id','=','forum.user_id')
+            ->join('user_meta', 'users.id','=','user_meta.user_id')
+            ->leftJoin('forum_posts', 'forum_posts.user_id','=', 'users.id')
+            ->where('forum.status', 1)
+            ->orderBy('forum.status', 'desc')
+            ->orderBy('currentReplyTime','desc')
+            ->groupBy('forum.id')
+            ->get();
+        return view('/dashboard/essence_posts_edit',compact('postInfo','editType','posts'));
+    }
+    public function essence_posts_delete(Request $request)
+    {
+        $posts = EssencePosts::where('id',$request->get('pid'))->first();
+        if(auth()->user()->id !=1049 && $posts->user_id !== auth()->user()->id){
+            return response()->json(['msg'=>'留言刪除失敗 不可刪除別人的留言!']);
+        }else{
+            EssencePosts::where('id',$request->get('pid'))->update(['deleted_by'=>auth()->user()->id]);
+            $posts->delete();
+            return response()->json(['msg'=>'刪除成功!','redirectTo'=>'/dashboard/essence_list']);
+        }
+    }
+
+    public function essence_posts_recover(Request $request)
+    {
+        $posts = EssencePosts::withTrashed()->where('id',$request->get('pid'))->first();
+        $postsType = $posts->type;
+        EssencePosts::withTrashed()->where('id',$request->get('pid'))->update(['deleted_at'=> null, 'deleted_by' => null ]);
+        if($postsType=='main')
+            return response()->json(['msg'=>'回復成功!','postType'=>'main','redirectTo'=>'/dashboard/forum_personal/'.$request->get('fid')]);
+        else
+            return response()->json(['msg'=>'留言回復成功!','postType'=>'sub']);
+    }
+
+    public function essence_verify_status(Request $request)
+    {
+        $posts = EssencePosts::withTrashed()->where('id',$request->get('pid'))->first();
+
+        EssencePosts::withTrashed()->where('id',$request->get('pid'))->update([
+            'verify_status'=> ($posts->verify_status==0 ||  $posts->verify_status==1) ? EssencePosts::STATUS_PASSED : EssencePosts::STATUS_FAILED,
+            'verify_time'=> now()
+        ]);
+
+        //通過審核, 給一個月VIP & PR值+10
+        $update_posts=EssencePosts::withTrashed()->where('id',$request->get('pid'))->first();
+        if( $update_posts->verify_status==2 && $update_posts->reward==0){
+            $user=User::findById($posts->user_id);
+            if($user->isVip()){
+                //已是VIP會員
+                $vipData = $user->getVipData(true);
+                $expire_origin=$vipData->expiry;
+                $expire_date='';
+                if($vipData->payment=='one_quarter_payment' || $vipData->payment=='one_month_payment' || is_null($vipData->payment)){
+                    $expire_date= date("Y-m-d H:i:s",strtotime("+1 month", strtotime($vipData->expiry)));
+                    $vipData->expiry= $expire_date;
+                    $vipData->save();
+                }else if($vipData->payment=='cc_quarterly_payment' || $vipData->payment=='cc_monthly_payment'){
+                    $vipData->remain_days+= 30;
+                    $vipData->save();
+                    if(!\App::environment('local')) {
+                        $order = Order::where('order_id', $vipData->order_id)->get()->first();
+                        $base_date=$order? $order->order_expire_date : null;
+                        if(is_null($base_date)){
+                            if($vipData->payment=='cc_quarterly_payment'){
+                                $base_date= date("Y-m-d H:i:s",strtotime("+3 month", strtotime($vipData->updated_at)));
+                            }else {
+                                $base_date= date("Y-m-d H:i:s",strtotime("+1 month", strtotime($vipData->updated_at)));
+                            }
+                        }
+                        $m_count=EssencePostsRewardLog::where('user_id',$user->id)->get()->count();
+                        $expire_origin= date("Y-m-d H:i:s",strtotime("+".$m_count." month", strtotime($base_date)));
+                        $expire_date= date("Y-m-d H:i:s",strtotime("+1 month", strtotime($expire_origin)));
+
+                    }else {
+                        //測試機環境
+                        if($vipData->payment=='cc_quarterly_payment'){
+                            $base_date= date("Y-m-d H:i:s",strtotime("+3 month", strtotime($vipData->updated_at)));
+                        }else {
+                            $base_date= date("Y-m-d H:i:s",strtotime("+1 month", strtotime($vipData->updated_at)));
+                        }
+                        $m_count=EssencePostsRewardLog::where('user_id',$user->id)->get()->count();
+                        $expire_origin= date("Y-m-d H:i:s",strtotime("+".$m_count." month", strtotime($base_date)));
+                        $expire_date= date("Y-m-d H:i:s",strtotime("+1 month", strtotime($expire_origin)));
+                    }
+                }
+                VipLog::addToLog($user->id, 'essence_post_extend_expiry', 'Manual Setting', 1, 0);
+                EssencePostsRewardLog::addToLog($update_posts, $expire_origin, $expire_date);
+            }else{
+                //非VIP會員
+                $vip = new Vip();
+                $vip->member_id = $user->id;
+                $vip->business_id = 'EssencePostUpgrade';
+                $vip->active = 1;
+                $vip->free = 0;
+                $vip->expiry = date("Y-m-d H:i:s",strtotime("+1 month", strtotime($update_posts->verify_time)));
+                $vip->save();
+                VipLog::addToLog($user->id, 'essence_post_upgragde', 'Manual Setting', 1, 0);
+                $expire_date=date("Y-m-d H:i:s",strtotime("+1 month", strtotime($update_posts->verify_time)));
+                EssencePostsRewardLog::addToLog($update_posts, null, $expire_date);
+            }
+            //更新發放獎勵狀態
+            $update_posts->reward=1;
+            $update_posts->save();
+            //PR+10 排程統一執行
+            //User::PR($posts->user_id);
+
+        }
+
+        //分享到個人討論區
+        $data=[
+            'forum_id' => str_replace('forum_','', $posts->share_with),
+            'type' => 'main',
+            'user_id' => $posts->user_id,
+            'title' => $posts->title,
+            'contents' => $posts->contents
+        ];
+        if(str_contains($posts->share_with,'forum_')){
+            ForumPosts::updateOrCreate(['essence_id' =>  $posts->id], $data);
+        }
+        return response()->json(['msg'=>'審核狀態已更新!']);
     }
 
     public function sms_add_view(Request $request){
