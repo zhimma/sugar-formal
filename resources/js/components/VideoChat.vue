@@ -102,7 +102,7 @@
 
 <script>
 import Peer from "simple-peer";
-import { getPermissions } from "../helpers";
+//import { getPermissions } from "../helpers";
 
 export default {
   props: [
@@ -121,6 +121,7 @@ export default {
       audioSet: false,
       videoSet: false,
       deviceReady: false,
+      getUserMediaError: false,
       videoCallParams: {
         users: [],
         stream: null,
@@ -178,7 +179,7 @@ export default {
     },
 
     getMediaPermission() {
-      return getPermissions()
+      return this.getPermissions()
         .then((stream) => {
           this.videoCallParams.stream = stream;
           if (this.$refs.userVideo) {
@@ -226,6 +227,7 @@ export default {
         }
       });
     },
+
     async placeVideoCall(id, name) {
       await this.checkDevices();
       //console.log(this.deviceReady);
@@ -234,9 +236,14 @@ export default {
         alert('未搜尋到鏡頭或麥克風裝置');
         return;
       }
+      await this.getMediaPermission();
+      if(this.getUserMediaError)
+      {
+        alert('未取得鏡頭或麥克風裝置權限');
+        return;
+      }
       this.callPlaced = true;
       this.callPartner = name;
-      await this.getMediaPermission();
       //console.log("iceserver_json: " + this.ice_server_json);
       const iceserver = JSON.parse(this.ice_server_json.trim());
       //console.log("iceserver: " + iceserver);
@@ -312,11 +319,12 @@ export default {
           }
         }
       });
-
+      /*
       if(this.user_permission == 'admin')
       {
         this.toggleMuteVideo();
       }
+      */
     },
 
     async acceptCall() {
@@ -327,9 +335,14 @@ export default {
         alert('未搜尋到鏡頭或麥克風裝置');
         return;
       }
+      await this.getMediaPermission();
+      if(this.getUserMediaError)
+      {
+        alert('未取得鏡頭或麥克風裝置權限');
+        return;
+      }
       this.callPlaced = true;
       this.videoCallParams.callAccepted = true;
-      await this.getMediaPermission();
       //console.log("iceserver_json: " + this.ice_server_json);
       const iceserver = JSON.parse(this.ice_server_json.trim());
       //console.log("iceserver: " + iceserver);
@@ -388,17 +401,20 @@ export default {
       });
 
       this.videoCallParams.peer2.signal(this.videoCallParams.callerSignal);
-
+      /*
       if(this.user_permission == 'admin')
       {
         this.toggleMuteVideo();
       }
+      */
     },
+
     toggleCameraArea() {
       if (this.videoCallParams.callAccepted) {
         this.isFocusMyself = !this.isFocusMyself;
       }
     },
+
     getUserOnlineStatus(id) {
       const onlineUserIndex = this.videoCallParams.users.findIndex(
         (data) => data.id === id
@@ -408,6 +424,7 @@ export default {
       }
       return true;
     },
+
     declineCall() {
       this.videoCallParams.receivingCall = false;
     },
@@ -440,6 +457,7 @@ export default {
       });
       videoElem.srcObject = null;
     },
+
     endCall() {
       // if video or audio is muted, enable it so that the stopStreamedVideo method will work
       if (!this.mutedVideo) this.toggleMuteVideo();
@@ -479,6 +497,7 @@ export default {
         this.stopRecording();
       }
     },
+
     generateBtnClass(onlinestatus) {
       if(onlinestatus){
         return 'btn-success'
@@ -487,6 +506,7 @@ export default {
         return 'btn-secondary disabled'
       }
     },
+
     generateBtnStyle(onlinestatus) {
       if(onlinestatus){
         return ''
@@ -495,6 +515,7 @@ export default {
         return 'display:none;'
       }
     },
+
     //video record
     startRecording() {
       this.recordedBlobs = [];
@@ -536,10 +557,12 @@ export default {
       console.log('MediaRecorder started', this.mediaRecorder);
       console.log('MediaRecorder2 started', this.mediaRecorder2);
     },
+
     stopRecording() {
       this.mediaRecorder.stop();
       this.mediaRecorder2.stop();
     },
+
     downloadRecording(recordedChunks,who) {
       let verify_record_id = window.sessionStorage.getItem('verify_record_id')
       let time = Date.now();
@@ -579,11 +602,13 @@ export default {
       window.URL.revokeObjectURL(url);
       */
     },
+
     checkDevices() {
       return navigator.mediaDevices.enumerateDevices()
         .then( dev => this.gotDevices(dev))
         .catch( err => console.warn(err));
     },
+    
     gotDevices(deviceInfos) {
       //console.log(deviceInfos)
       this.audioSet = false;
@@ -604,6 +629,54 @@ export default {
       //console.log((this.audioSet && this.videoSet));
       this.deviceReady = (this.audioSet && this.videoSet);
       //console.log(this.deviceReady);
+    },
+
+    getPermissions() {
+      // Older browsers might not implement mediaDevices at all, so we set an empty object first
+      if (navigator.mediaDevices === undefined) {
+          navigator.mediaDevices = {};
+      }
+
+      // Some browsers partially implement mediaDevices. We can't just assign an object
+      // with getUserMedia as it would overwrite existing properties.
+      // Here, we will just add the getUserMedia property if it's missing.
+      if (navigator.mediaDevices.getUserMedia === undefined) {
+          navigator.mediaDevices.getUserMedia = function(constraints) {
+              // First get ahold of the legacy getUserMedia, if present
+              const getUserMedia =
+                  navigator.webkitGetUserMedia || navigator.mozGetUserMedia;
+
+              // Some browsers just don't implement it - return a rejected promise with an error
+              // to keep a consistent interface
+              if (!getUserMedia) {
+                  return Promise.reject(
+                      new Error("getUserMedia is not implemented in this browser")
+                  );
+              }
+
+              // Otherwise, wrap the call to the old navigator.getUserMedia with a Promise
+              return new Promise((resolve, reject) => {
+                  getUserMedia.call(navigator, constraints, resolve, reject);
+              });
+          };
+      }
+      navigator.mediaDevices.getUserMedia =
+          navigator.mediaDevices.getUserMedia ||
+          navigator.webkitGetUserMedia ||
+          navigator.mozGetUserMedia;
+
+      return new Promise((resolve, reject) => {
+          navigator.mediaDevices
+              .getUserMedia({ video: true, audio: true })
+              .then(stream => {
+                  resolve(stream);
+              })
+              .catch(err => {
+                  this.getUserMediaError = true;
+                  reject(err);
+                  //   throw new Error(`Unable to fetch stream ${err}`);
+              });
+      });
     },
   },
 };
