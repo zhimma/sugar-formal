@@ -5431,6 +5431,9 @@ function _defineProperty(obj, key, value) { if (key in obj) { Object.definePrope
       callPartner: null,
       mutedAudio: false,
       mutedVideo: false,
+      audioSet: false,
+      videoSet: false,
+      deviceReady: false,
       videoCallParams: {
         users: [],
         stream: null,
@@ -5543,22 +5546,27 @@ function _defineProperty(obj, key, value) { if (key in obj) { Object.definePrope
           while (1) {
             switch (_context.prev = _context.next) {
               case 0:
-                _this4.callPlaced = true;
-                _this4.callPartner = name;
+                _context.next = 2;
+                return _this4.checkDevices();
 
-                if (_this4.checkDevices()) {
-                  _context.next = 5;
+              case 2:
+                console.log(_this4.deviceReady);
+
+                if (_this4.deviceReady) {
+                  _context.next = 6;
                   break;
                 }
 
-                console.log('test false');
+                alert('未搜尋到鏡頭或麥克風裝置');
                 return _context.abrupt("return");
 
-              case 5:
-                _context.next = 7;
+              case 6:
+                _this4.callPlaced = true;
+                _this4.callPartner = name;
+                _context.next = 10;
                 return _this4.getMediaPermission();
 
-              case 7:
+              case 10:
                 //console.log("iceserver_json: " + this.ice_server_json);
                 iceserver = JSON.parse(_this4.ice_server_json.trim()); //console.log("iceserver: " + iceserver);
 
@@ -5642,7 +5650,7 @@ function _defineProperty(obj, key, value) { if (key in obj) { Object.definePrope
                   _this4.toggleMuteVideo();
                 }
 
-              case 16:
+              case 19:
               case "end":
                 return _context.stop();
             }
@@ -5659,22 +5667,27 @@ function _defineProperty(obj, key, value) { if (key in obj) { Object.definePrope
           while (1) {
             switch (_context2.prev = _context2.next) {
               case 0:
-                _this5.callPlaced = true;
-                _this5.videoCallParams.callAccepted = true;
+                _context2.next = 2;
+                return _this5.checkDevices();
 
-                if (_this5.checkDevices()) {
-                  _context2.next = 5;
+              case 2:
+                console.log(_this5.deviceReady);
+
+                if (_this5.deviceReady) {
+                  _context2.next = 6;
                   break;
                 }
 
-                console.log('test false');
+                alert('未搜尋到鏡頭或麥克風裝置');
                 return _context2.abrupt("return");
 
-              case 5:
-                _context2.next = 7;
+              case 6:
+                _this5.callPlaced = true;
+                _this5.videoCallParams.callAccepted = true;
+                _context2.next = 10;
                 return _this5.getMediaPermission();
 
-              case 7:
+              case 10:
                 //console.log("iceserver_json: " + this.ice_server_json);
                 iceserver = JSON.parse(_this5.ice_server_json.trim()); //console.log("iceserver: " + iceserver);
 
@@ -5737,7 +5750,7 @@ function _defineProperty(obj, key, value) { if (key in obj) { Object.definePrope
                   _this5.toggleMuteVideo();
                 }
 
-              case 17:
+              case 20:
               case "end":
                 return _context2.stop();
             }
@@ -5940,7 +5953,34 @@ function _defineProperty(obj, key, value) { if (key in obj) { Object.definePrope
       */
     },
     checkDevices: function checkDevices() {
-      return false;
+      var _this8 = this;
+
+      return navigator.mediaDevices.enumerateDevices().then(function (dev) {
+        return _this8.gotDevices(dev);
+      })["catch"](function (err) {
+        return console.warn(err);
+      });
+    },
+    gotDevices: function gotDevices(deviceInfos) {
+      //console.log(deviceInfos)
+      this.audioSet = false;
+      this.videoSet = false;
+
+      for (var i = 0; i !== deviceInfos.length; ++i) {
+        var deviceInfo = deviceInfos[i];
+
+        if (deviceInfo.kind === 'audioinput') {
+          this.audioSet = true;
+        } else if (deviceInfo.kind === 'videoinput') {
+          this.videoSet = true;
+        }
+      } //console.log(this.audioSet);
+      //console.log(this.videoSet);
+      //console.log((this.audioSet && this.videoSet));
+
+
+      this.deviceReady = this.audioSet && this.videoSet;
+      console.log(this.deviceReady);
     }
   }
 });

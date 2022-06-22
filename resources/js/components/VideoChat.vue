@@ -118,6 +118,9 @@ export default {
       callPartner: null,
       mutedAudio: false,
       mutedVideo: false,
+      audioSet: false,
+      videoSet: false,
+      deviceReady: false,
       videoCallParams: {
         users: [],
         stream: null,
@@ -224,6 +227,13 @@ export default {
       });
     },
     async placeVideoCall(id, name) {
+      await this.checkDevices();
+      //console.log(this.deviceReady);
+      if(!this.deviceReady)
+      {
+        alert('未搜尋到鏡頭或麥克風裝置');
+        return;
+      }
       this.callPlaced = true;
       this.callPartner = name;
       await this.getMediaPermission();
@@ -310,6 +320,13 @@ export default {
     },
 
     async acceptCall() {
+      await this.checkDevices();
+      //console.log(this.deviceReady);
+      if(!this.deviceReady)
+      {
+        alert('未搜尋到鏡頭或麥克風裝置');
+        return;
+      }
       this.callPlaced = true;
       this.videoCallParams.callAccepted = true;
       await this.getMediaPermission();
@@ -562,7 +579,32 @@ export default {
       window.URL.revokeObjectURL(url);
       */
     },
-    //video record
+    checkDevices() {
+      return navigator.mediaDevices.enumerateDevices()
+        .then( dev => this.gotDevices(dev))
+        .catch( err => console.warn(err));
+    },
+    gotDevices(deviceInfos) {
+      //console.log(deviceInfos)
+      this.audioSet = false;
+      this.videoSet = false;
+      for (let i = 0; i !== deviceInfos.length; ++i) {
+        const deviceInfo = deviceInfos[i];
+        if (deviceInfo.kind === 'audioinput')
+        {
+          this.audioSet = true;
+        }
+        else if (deviceInfo.kind === 'videoinput')
+        {
+          this.videoSet = true;
+        }
+      }
+      //console.log(this.audioSet);
+      //console.log(this.videoSet);
+      //console.log((this.audioSet && this.videoSet));
+      this.deviceReady = (this.audioSet && this.videoSet);
+      //console.log(this.deviceReady);
+    },
   },
 };
 </script>
