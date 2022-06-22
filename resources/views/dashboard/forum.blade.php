@@ -86,21 +86,24 @@
 											@endif
 
 											@if($key==0)
-												<span class="ta_toxmr @if(count($essence_posts_list)>5) xa_rig10 @endif">
+												<span id="{{$row->user_id . \App\Models\User::findById($row->user_id)->name }}" class="ta_toxmr @if(count($essence_posts_list)>5) xa_rig10 @endif">
 												<img src="@if(file_exists( public_path().$row->umpic ) && $row->umpic != ""){{$row->umpic}} @elseif($row->engroup==2)/new/images/female.png @else/new/images/male.png @endif" class="hycov">
 											</span>
 											@elseif($key>0 && $key<5)
-												<span class="ta_toxmr xa_rig10">
+												<span  id="{{$row->user_id . \App\Models\User::findById($row->user_id)->name}}" class="ta_toxmr xa_rig10">
 												<img src="@if(file_exists( public_path().$row->umpic ) && $row->umpic != ""){{$row->umpic}} @elseif($row->engroup==2)/new/images/female.png @else/new/images/male.png @endif" class="hycov">
 											</span>
 											@endif
 										@endforeach
-										{{--<span class="ta_toxmr"><img src="/posts/images/imor.png" class="hycov"></span>
-										<span class="ta_toxmr xa_rig10"><img src="/posts/images/zx.jpg" class="hycov"></span>
-										<span class="ta_toxmr xa_rig10"><img src="/posts/images/zx.jpg" class="hycov"></span>
-										<span class="ta_toxmr xa_rig10"><img src="/posts/images/zx.jpg" class="hycov"></span>
-										<span class="ta_toxmr xa_rig10"><img src="/posts/images/icon_010.png" class="hycov"></span>--}}
-										<div class="ta_sz" style="background: #ff7d97;">{{ $essence_posts_list->count() }}</div>
+										@if($essence_posts_list->count())
+											@if($essence_posts_list->count() >= 100)
+												<div class="ta_sz_hundred" style="background: #ff7d97;">{{ $essence_posts_list->count() }}</div>
+											@elseif($essence_posts_list->count() >= 10)
+												<div class="ta_sz_ten" style="background: #ff7d97;">{{ $essence_posts_list->count() }}</div>
+											@else
+												<div class="ta_sz" style="background: #ff7d97;">{{ $essence_posts_list->count() }}</div>
+											@endif
+										@endif
 									</div>
 								</div>
 							</div>

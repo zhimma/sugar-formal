@@ -56,7 +56,13 @@
 											<option value="1" @if($postInfo->share_with==1) selected @endif>男會員</option>
 											<option value="2" @if($postInfo->share_with==2) selected @endif>女會員</option>
 											@foreach($posts as $post)
-												<option value="forum_{{ $post->f_id }}" @if($postInfo->share_with=='forum_'. $post->f_id) selected @endif>{{ $post->f_title }}</option>
+												@php
+													$forum = \App\Models\Forum::where('id', $post->f_id)->first();
+	                                                $getStatus = \App\Models\ForumManage::where('user_id', $postInfo->user_id)->where('forum_id', $post->f_id)->get()->first();
+												@endphp
+												@if(($postInfo->user_id == $forum->user_id ) || (isset($getStatus) && $getStatus->status==1 && $getStatus->forum_status ==1))
+													<option value="forum_{{ $post->f_id }}" @if($postInfo->share_with=='forum_'. $post->f_id) selected @endif>{{ $post->f_title }}</option>
+												@endif
 											@endforeach
 										</select>
 									</div>

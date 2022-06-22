@@ -5428,7 +5428,8 @@ class PagesController extends BaseController
                                         ->get()->keyBy('forum_id');
 
         //精華討論區
-        $essence_posts_list=EssencePosts::orderBy('essence_posts.id','desc')
+        $essence_posts_list=EssencePosts::selectraw('essence_posts.*,users.engroup as uengroup,user_meta.pic as umpic')
+            ->selectRaw('(case when users.id=1049 then 1 else 0 end) as adminFlag')
             ->LeftJoin('users', 'users.id','=','essence_posts.user_id')
             ->join('user_meta', 'users.id','=','user_meta.user_id')
             ->where('essence_posts.verify_status', 2)
@@ -5436,7 +5437,10 @@ class PagesController extends BaseController
         if($user->id!=1049){
             $essence_posts_list->where('essence_posts.share_with', $user->engroup);
         }
-        $essence_posts_list=$essence_posts_list->get();
+        $essence_posts_list->orderBy('adminFlag','desc');
+        $essence_posts_list->orderBy('essence_posts.updated_at','desc');
+        $essence_posts_list=$essence_posts_list->get()->reverse();
+
 
         $essence_posts_num=EssencePosts::where('essence_posts.verify_status', 2);
         if($user->id!=1049){
@@ -5905,31 +5909,38 @@ class PagesController extends BaseController
              essence_posts.title as title,
              essence_posts.contents as contents,
              essence_posts.verify_status as verify_status,
-             essence_posts.created_at as post_created_at
+             essence_posts.created_at as post_created_at,
+             essence_posts.updated_at as post_updated_at
              ')->selectRaw('
                 (select count(*) from essence_posts left join users on users.id = essence_posts.user_id where (essence_posts.type="main")) as posts_num, 
                 (select count(*) from essence_posts where (type="sub" and reply_id in (select id from essence_posts where (type="main") ) )) as posts_reply_num
             ')
-            ->selectRaw('(case when essence_posts.verify_status=0 then 1 else 0 end) as pendingFlag')
+            ->selectRaw('(case when essence_posts.verify_status!=2 then 1 else 0 end) as pendingFlag')
+            ->selectRaw('(case when essence_posts.verify_status=2 then 1 else 0 end) as passedFlag')
             ->selectRaw('(case when users.id=1049 then 1 else 0 end) as adminFlag')
             ->LeftJoin('users', 'users.id','=','essence_posts.user_id')
             ->join('user_meta', 'users.id','=','user_meta.user_id');
 
         if($request->get('order_by')=='pending'){
-            $posts_list->orderBy('pendingFlag','desc');
-        }else if ($request->get('order_by')=='created_at'){
-            $posts_list->orderBy('essence_posts.created_at','desc');
+            $posts_list->orderBy('pendingFlag','desc')->orderBy('essence_posts.updated_at','desc');
+        }else if ($request->get('order_by')=='updated_at'){
+            $posts_list->orderBy('essence_posts.updated_at','desc');
         }
         $posts_list->orderBy('adminFlag','desc');
         $posts_list->orderBy('essence_posts.verify_status','desc');
         if($user->id!=1049){
             if($postType=='myself'){
-                $posts_list->where('essence_posts.user_id', $user->id);
+                $posts_list->where('essence_posts.user_id', $user->id)
+                    ->orderBy('passedFlag','desc')
+                    ->orderBy('essence_posts.updated_at','desc');
             }else{
-                $posts_list->where('essence_posts.verify_status', 2)->where('essence_posts.share_with', $user->engroup);
+                $posts_list->where('essence_posts.verify_status', 2)
+                    ->where('essence_posts.share_with', $user->engroup)
+                    ->orderBy('essence_posts.updated_at','desc');
             }
-            $posts_list->orderBy('essence_posts.created_at','desc');
         }
+        $posts_list->orderBy('essence_posts.updated_at','desc');
+
         $posts_list=$posts_list->paginate(10);
         return view('/dashboard/essence_list', compact('posts_list', 'postType', 'user'));
     }
@@ -5976,6 +5987,19 @@ class PagesController extends BaseController
             }
             EssencePosts::find($request->get('post_id'))->update($update_ary);
 
+            //分享到個人討論區
+            $posts= EssencePosts::find($request->get('post_id'));
+            $data=[
+                'forum_id' => str_replace('forum_','',  $posts->share_with),
+                'type' => 'main',
+                'user_id' => $posts->user_id,
+                'title' => $posts->title,
+                'contents' => $posts->contents
+            ];
+            if(str_contains($posts->share_with,'forum_')){
+                ForumPosts::updateOrCreate(['essence_id' =>  $posts->id], $data);
+            }
+
             return redirect('/dashboard/essence_list')->with('message','修改成功'.($user->id==1049 ? '':'，待站長審核後則會自動發布'));
 
         }else{
@@ -6010,7 +6034,14 @@ class PagesController extends BaseController
             return  redirect('/dashboard/essence_list');
         }
 
-        return view('/dashboard/essence_post_detail', compact('postDetail', 'user'));
+        //紀錄返回上一頁的url
+        if(isset($_SERVER['HTTP_REFERER'])){
+            if(!str_contains($_SERVER['HTTP_REFERER'],'essence_postsEdit')){
+                session()->put('goBackPage_essence',$_SERVER['HTTP_REFERER']);
+            }
+        }
+        $goBackPage= session()->get('goBackPage_essence','/dashboard/essence_list');
+        return view('/dashboard/essence_post_detail', compact('postDetail', 'user','goBackPage'));
     }
 
     public function essence_postsEdit($id, $editType='all')

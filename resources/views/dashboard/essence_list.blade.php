@@ -46,7 +46,7 @@
                         </a>
                         <div class="fabiao showslide2" style="margin-top: 40px;margin-right: 100px;">
                             <a href="/dashboard/essence_list?order_by=pending">待審核</a>
-                            <a href="/dashboard/essence_list?order_by=created_at">文章時間</a>
+                            <a href="/dashboard/essence_list?order_by=updated_at">文章時間</a>
                         </div>
                     @endif
                     @if($user->engroup==1)
@@ -161,7 +161,7 @@
                                                 <div class="{{ $detail->uid==1049 ? 'jh_biaoq' : ($detail->verify_status==2 ? 'jh_biaoq01' : 'jh_biaoq01 jh_biaoq01_hs') }}"><span><img src="/posts/images/{{ $detail->engroup==1 ? 'jh_03.png' : 'jh_09.png' }}">{{ \App\Models\EssencePosts::CATEGORY[$detail->category] }}</span></div>
                                                 <div class="jh_one">
                                                     <div class="jh_one_img"><img src="@if(file_exists( public_path().$detail->umpic ) && $detail->umpic != ""){{$detail->umpic}} @elseif($detail->uengroup==2)/new/images/female.png @else/new/images/male.png @endif" class="imgov"></div>
-                                                    <div class="jh_fontw">{{ $detail->name }}<span>{{  $detail->post_created_a }}</span></div>
+                                                    <div class="jh_fontw">{{ $detail->name }}<span>{{ date('Y-m-d H:i',strtotime($detail->post_updated_at)) }}</span></div>
                                                 </div>
                                                 <div class="jh_two">
                                                     <h2>{{ $detail->title }}</h2>

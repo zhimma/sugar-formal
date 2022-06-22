@@ -37,7 +37,7 @@
 					<div class="shou">
 						<span>文章詳情</span>
 						<font>Article</font>
-						<a href="/dashboard/essence_list" class="toug_back btn_img">
+						<a href="{{ $goBackPage }}" class="toug_back btn_img">
 							<div class="btn_back"></div>
 						</a>
 					</div>
@@ -47,7 +47,7 @@
 								<a href="/dashboard/viewuser/{{$postDetail->uid}}">
 									<div class="tou_img_1">
 										<div class="tou_tx_img"><img src="@if(file_exists( public_path().$postDetail->umpic ) && $postDetail->umpic != ""){{$postDetail->umpic}} @elseif($postDetail->engroup==2)/new/images/female.png @else/new/images/male.png @endif" class="hycov"></div>
-										<span>{{ $postDetail->uname }}<i class="tou_fi">{{ date('Y-m-d H:i',strtotime($postDetail->pcreated_at)) }}</i></span>
+										<span>{{ $postDetail->uname }}<i class="tou_fi">{{ date('Y-m-d H:i',strtotime($postDetail->pupdated_at)) }}</i></span>
 									</div>
 								</a>
 								{{--<div class="tog_time">{{ date('Y-m-d H:i',strtotime($postDetail->pcreated_at)) }}</div>--}}
