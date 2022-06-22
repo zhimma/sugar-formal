@@ -5559,22 +5559,23 @@ function _defineProperty(obj, key, value) { if (key in obj) { Object.definePrope
                 return _context.abrupt("return");
 
               case 5:
-                _context.next = 7;
+                _this4.callPlaced = true;
+                _this4.callPartner = name;
+                _context.next = 9;
                 return _this4.getMediaPermission();
 
-              case 7:
+              case 9:
                 if (!_this4.getUserMediaError) {
-                  _context.next = 10;
+                  _context.next = 13;
                   break;
                 }
 
                 alert('未取得鏡頭或麥克風裝置權限');
+                _this4.callPlaced = false;
                 return _context.abrupt("return");
 
-              case 10:
-                _this4.callPlaced = true;
-                _this4.callPartner = name; //console.log("iceserver_json: " + this.ice_server_json);
-
+              case 13:
+                //console.log("iceserver_json: " + this.ice_server_json);
                 iceserver = JSON.parse(_this4.ice_server_json.trim()); //console.log("iceserver: " + iceserver);
 
                 _this4.videoCallParams.peer1 = new (simple_peer__WEBPACK_IMPORTED_MODULE_0___default())({
@@ -5652,15 +5653,12 @@ function _defineProperty(obj, key, value) { if (key in obj) { Object.definePrope
                     }
                   }
                 });
-                /*
-                if(this.user_permission == 'admin')
-                {
-                  this.toggleMuteVideo();
+
+                if (_this4.user_permission == 'admin') {
+                  if (_this4.mutedVideo) _this4.toggleMuteVideo();
                 }
-                */
 
-
-              case 20:
+              case 22:
               case "end":
                 return _context.stop();
             }
@@ -5690,22 +5688,23 @@ function _defineProperty(obj, key, value) { if (key in obj) { Object.definePrope
                 return _context2.abrupt("return");
 
               case 5:
-                _context2.next = 7;
+                _this5.callPlaced = true;
+                _this5.videoCallParams.callAccepted = true;
+                _context2.next = 9;
                 return _this5.getMediaPermission();
 
-              case 7:
+              case 9:
                 if (!_this5.getUserMediaError) {
-                  _context2.next = 10;
+                  _context2.next = 13;
                   break;
                 }
 
                 alert('未取得鏡頭或麥克風裝置權限');
+                _this5.callPlaced = false;
                 return _context2.abrupt("return");
 
-              case 10:
-                _this5.callPlaced = true;
-                _this5.videoCallParams.callAccepted = true; //console.log("iceserver_json: " + this.ice_server_json);
-
+              case 13:
+                //console.log("iceserver_json: " + this.ice_server_json);
                 iceserver = JSON.parse(_this5.ice_server_json.trim()); //console.log("iceserver: " + iceserver);
 
                 _this5.videoCallParams.peer2 = new (simple_peer__WEBPACK_IMPORTED_MODULE_0___default())({
@@ -5762,15 +5761,12 @@ function _defineProperty(obj, key, value) { if (key in obj) { Object.definePrope
                 });
 
                 _this5.videoCallParams.peer2.signal(_this5.videoCallParams.callerSignal);
-                /*
-                if(this.user_permission == 'admin')
-                {
-                  this.toggleMuteVideo();
+
+                if (_this5.user_permission == 'admin') {
+                  if (_this5.mutedVideo) _this5.toggleMuteVideo();
                 }
-                */
 
-
-              case 21:
+              case 23:
               case "end":
                 return _context2.stop();
             }

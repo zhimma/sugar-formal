@@ -236,14 +236,15 @@ export default {
         alert('未搜尋到鏡頭或麥克風裝置');
         return;
       }
+      this.callPlaced = true;
+      this.callPartner = name;
       await this.getMediaPermission();
       if(this.getUserMediaError)
       {
         alert('未取得鏡頭或麥克風裝置權限');
+        this.callPlaced = false;
         return;
       }
-      this.callPlaced = true;
-      this.callPartner = name;
       //console.log("iceserver_json: " + this.ice_server_json);
       const iceserver = JSON.parse(this.ice_server_json.trim());
       //console.log("iceserver: " + iceserver);
@@ -319,12 +320,10 @@ export default {
           }
         }
       });
-      /*
       if(this.user_permission == 'admin')
       {
-        this.toggleMuteVideo();
+        if (this.mutedVideo) this.toggleMuteVideo();
       }
-      */
     },
 
     async acceptCall() {
@@ -335,14 +334,15 @@ export default {
         alert('未搜尋到鏡頭或麥克風裝置');
         return;
       }
+      this.callPlaced = true;
+      this.videoCallParams.callAccepted = true;
       await this.getMediaPermission();
       if(this.getUserMediaError)
       {
         alert('未取得鏡頭或麥克風裝置權限');
+        this.callPlaced = false;
         return;
       }
-      this.callPlaced = true;
-      this.videoCallParams.callAccepted = true;
       //console.log("iceserver_json: " + this.ice_server_json);
       const iceserver = JSON.parse(this.ice_server_json.trim());
       //console.log("iceserver: " + iceserver);
@@ -401,12 +401,10 @@ export default {
       });
 
       this.videoCallParams.peer2.signal(this.videoCallParams.callerSignal);
-      /*
       if(this.user_permission == 'admin')
       {
-        this.toggleMuteVideo();
+        if (this.mutedVideo) this.toggleMuteVideo();
       }
-      */
     },
 
     toggleCameraArea() {
