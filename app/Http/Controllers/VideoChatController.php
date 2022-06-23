@@ -10,7 +10,7 @@ use Carbon\Carbon;
 use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\Log;
 use App\Models\UserVideoVerifyRecord;
-
+use LZCompressor\LZString;
 
 class VideoChatController extends Controller
 {
@@ -20,6 +20,11 @@ class VideoChatController extends Controller
         $data['signalData'] = $request->signal_data;
         $data['from'] = Auth::id();
         $data['type'] = 'incomingCall';
+        Log::info($data);
+        $data = json_encode($data);
+        Log::info($data);
+        $data = LZString::compress($data);
+        Log::info($data);
         broadcast(new StartVideoChat($data))->toOthers();
     }
     public function acceptCall(Request $request)
@@ -27,6 +32,11 @@ class VideoChatController extends Controller
         $data['signal'] = $request->signal;
         $data['to'] = $request->to;
         $data['type'] = 'callAccepted';
+        Log::info($data);
+        $data = json_encode($data);
+        Log::info($data);
+        $data = LZString::compress($data);
+        Log::info($data);
         broadcast(new StartVideoChat($data))->toOthers();
     }
 

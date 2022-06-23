@@ -101,6 +101,7 @@
 </template>
 
 <script>
+import { info } from "console";
 import Peer from "simple-peer";
 //import { getPermissions } from "../helpers";
 import LZString from "../lz-string.js";
@@ -215,13 +216,17 @@ export default {
       });
       // listen to incomming call
       this.videoCallParams.channel.listen("StartVideoChat", ({ data }) => {
+        //console.log(data);
+        data = LZString.decompress(data);
+        //console.log(data);
+        data = JSON.parse(data);
+        //console.log(data);
         if (data.type === "incomingCall") {
           // add a new line to the sdp to take care of error
           const updatedSignal = {
             ...data.signalData,
             sdp: `${data.signalData.sdp}\n`,
           };
-
           this.videoCallParams.receivingCall = true;
           this.videoCallParams.caller = data.from;
           this.videoCallParams.callerSignal = updatedSignal;
@@ -307,6 +312,11 @@ export default {
       });
 
       this.videoCallParams.channel.listen("StartVideoChat", ({ data }) => {
+        //console.log(data);
+        data = LZString.decompress(data);
+        //console.log(data);
+        data = JSON.parse(data);
+        //console.log(data);
         if (data.type === "callAccepted") {
           if (data.signal.renegotiate) {
             console.log("renegotating");
