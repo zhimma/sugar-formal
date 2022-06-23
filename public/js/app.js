@@ -5527,24 +5527,13 @@ function _defineProperty(obj, key, value) { if (key in obj) { Object.definePrope
 
       this.videoCallParams.channel.listen("StartVideoChat", function (_ref) {
         var data = _ref.data;
+        console.log(data);
 
         if (data.type === "incomingCall") {
           // add a new line to the sdp to take care of error
           var updatedSignal = _objectSpread(_objectSpread({}, data.signalData), {}, {
             sdp: "".concat(data.signalData.sdp, "\n")
-          }); //test
-
-
-          var test = updatedSignal;
-          console.log(test);
-          test = JSON.stringify(test);
-          console.log(test);
-          test = _lz_string_js__WEBPACK_IMPORTED_MODULE_1___default().compress(test);
-          console.log(test);
-          test = _lz_string_js__WEBPACK_IMPORTED_MODULE_1___default().decompress(test);
-          console.log(test);
-          test = JSON.parse(test);
-          console.log(test); //test
+          });
 
           _this3.videoCallParams.receivingCall = true;
           _this3.videoCallParams.caller = data.from;
@@ -5864,6 +5853,8 @@ function _defineProperty(obj, key, value) { if (key in obj) { Object.definePrope
       if (this.user_permission == 'admin') {
         this.stopRecording();
       }
+
+      console.log(this.videoCallParams);
     },
     generateBtnClass: function generateBtnClass(onlinestatus) {
       if (onlinestatus) {
