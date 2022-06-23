@@ -6105,7 +6105,7 @@ class PagesController extends BaseController
 
         //紀錄返回上一頁的url
         if(isset($_SERVER['HTTP_REFERER'])){
-            if(!str_contains($_SERVER['HTTP_REFERER'],'essence_postsEdit') && !str_contains($_SERVER['HTTP_REFERER'],'essence_post_detail')){
+            if(!str_contains($_SERVER['HTTP_REFERER'],'essence_postsEdit') && !str_contains($_SERVER['HTTP_REFERER'],'essence_post_detail') && !str_contains($_SERVER['HTTP_REFERER'],'viewuser')){
                 session()->put('goBackPage_essence',$_SERVER['HTTP_REFERER']);
             }
         }
@@ -6193,8 +6193,20 @@ class PagesController extends BaseController
                     $vipData->expiry= $expire_date;
                     $vipData->save();
                 }else if($vipData->payment=='cc_quarterly_payment' || $vipData->payment=='cc_monthly_payment'){
-                    $vipData->remain_days+= 30;
-                    $vipData->save();
+                    if(!\App::environment('local')) {
+                        $order_user = Vip::select('id', 'expiry', 'created_at', 'updated_at','payment','business_id', 'order_id','remain_days')
+                            ->where('member_id', $user->id)
+                            ->orderBy('created_at', 'desc')->get();
+                        $order = Order::where('order_id', $order_user[0]->order_id)->get()->first();
+                        if($order){
+                            $order->remain_days+= 30;
+                            $order->save();
+                        }
+                    }else {
+                        $vipData->remain_days+= 30;
+                        $vipData->save();
+                    }
+
                     if(!\App::environment('local')) {
                         $order = Order::where('order_id', $vipData->order_id)->get()->first();
                         $base_date=$order? $order->order_expire_date : null;
