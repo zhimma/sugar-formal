@@ -96,12 +96,14 @@
 											@endif
 										@endforeach
 										@if($essence_posts_list->count())
-											@if($essence_posts_list->count() >= 100)
-												<div class="ta_sz_hundred" style="background: #ff7d97;">{{ $essence_posts_list->count() }}</div>
-											@elseif($essence_posts_list->count() >= 10)
-												<div class="ta_sz_ten" style="background: #ff7d97;">{{ $essence_posts_list->count() }}</div>
-											@else
-												<div class="ta_sz" style="background: #ff7d97;">{{ $essence_posts_list->count() }}</div>
+											@if($essence_posts_list->count()>1)
+												@if($essence_posts_list->count() >= 100)
+													<div class="ta_sz_hundred" style="background: #ff7d97;">{{ $essence_posts_list->count() }}</div>
+												@elseif($essence_posts_list->count() >= 10)
+													<div class="ta_sz_ten" style="background: #ff7d97;">{{ $essence_posts_list->count() }}</div>
+												@else
+													<div class="ta_sz" style="background: #ff7d97;">{{ $essence_posts_list->count() }}</div>
+												@endif
 											@endif
 										@endif
 									</div>
