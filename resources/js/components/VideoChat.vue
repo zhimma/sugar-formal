@@ -103,6 +103,7 @@
 <script>
 import Peer from "simple-peer";
 //import { getPermissions } from "../helpers";
+import LZString from "../lz-string.js";
 
 export default {
   props: [
