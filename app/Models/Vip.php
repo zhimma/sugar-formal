@@ -28,7 +28,8 @@ class Vip extends Model
     protected $fillable = [
         'member_id',
         'txn_id',
-        'expiry'
+        'expiry',
+        'remain_days'
     ];
 
     /*
