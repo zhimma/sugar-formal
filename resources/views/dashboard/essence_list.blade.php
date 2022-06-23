@@ -172,9 +172,11 @@
                                     </a>
                                 @endforeach
                             @else
+                                @if($user->engroup!==2)
                                 <div class="sjlist">
                                     <div class="fengsicon"><img src="/posts/images/bianji.png" class="feng_img"><span>尚無資料</span></div>
                                 </div>
+                                @endif
                             @endif
                         </ul>
                     </div>
