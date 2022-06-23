@@ -5530,7 +5530,8 @@ function _defineProperty(obj, key, value) { if (key in obj) { Object.definePrope
 
         if (data.type === "incomingCall") {
           // add a new line to the sdp to take care of error
-          data.signalData = data.signalData;
+          data.signalData = JSON.parse(data.signalData);
+          console.log(data.signalData);
 
           var updatedSignal = _objectSpread(_objectSpread({}, data.signalData), {}, {
             sdp: "".concat(data.signalData.sdp, "\n")
@@ -5593,10 +5594,11 @@ function _defineProperty(obj, key, value) { if (key in obj) { Object.definePrope
                 });
 
                 _this4.videoCallParams.peer1.on("signal", function (data) {
-                  // send user call signal
+                  console.log(data); // send user call signal
+
                   axios.post("/video/call-user", {
                     user_to_call: id,
-                    signal_data: data,
+                    signal_data: JSON.stringify(data),
                     from: _this4.authuserid
                   }).then(function () {})["catch"](function (error) {
                     console.log(error);
@@ -5643,7 +5645,8 @@ function _defineProperty(obj, key, value) { if (key in obj) { Object.definePrope
                   var data = _ref2.data;
 
                   if (data.type === "callAccepted") {
-                    data.signal = data.signal;
+                    data.signal = JSON.parse(data.signal);
+                    console.log(data.signal);
 
                     if (data.signal.renegotiate) {
                       console.log("renegotating");
@@ -5725,8 +5728,9 @@ function _defineProperty(obj, key, value) { if (key in obj) { Object.definePrope
                 _this5.videoCallParams.receivingCall = false;
 
                 _this5.videoCallParams.peer2.on("signal", function (data) {
+                  console.log(data);
                   axios.post("/video/accept-call", {
-                    signal: data,
+                    signal: JSON.stringify(data),
                     to: _this5.videoCallParams.caller
                   }).then(function () {})["catch"](function (error) {
                     console.log(error);

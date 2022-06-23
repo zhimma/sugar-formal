@@ -217,7 +217,8 @@ export default {
       this.videoCallParams.channel.listen("StartVideoChat", ({ data }) => {
         if (data.type === "incomingCall") {
           // add a new line to the sdp to take care of error
-          data.signalData = data.signalData;
+          data.signalData = JSON.parse(data.signalData);
+          console.log(data.signalData);
           const updatedSignal = {
             ...data.signalData,
             sdp: `${data.signalData.sdp}\n`,
@@ -259,11 +260,12 @@ export default {
       });
 
       this.videoCallParams.peer1.on("signal", (data) => {
+        console.log(data);
         // send user call signal
         axios
           .post("/video/call-user", {
             user_to_call: id,
-            signal_data: data,
+            signal_data: JSON.stringify(data),
             from: this.authuserid,
           })
           .then(() => {})
@@ -308,7 +310,8 @@ export default {
 
       this.videoCallParams.channel.listen("StartVideoChat", ({ data }) => {
         if (data.type === "callAccepted") {
-          data.signal = data.signal;
+          data.signal = JSON.parse(data.signal);
+          console.log(data.signal);
           if (data.signal.renegotiate) {
             console.log("renegotating");
           }
@@ -358,9 +361,10 @@ export default {
       });
       this.videoCallParams.receivingCall = false;
       this.videoCallParams.peer2.on("signal", (data) => {
+        console.log(data);
         axios
           .post("/video/accept-call", {
-            signal: data,
+            signal: JSON.stringify(data),
             to: this.videoCallParams.caller,
           })
           .then(() => {})
