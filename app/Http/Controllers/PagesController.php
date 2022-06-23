@@ -5513,7 +5513,7 @@ class PagesController extends BaseController
             }
 
 
-            return redirect($request->get('redirect_path'))->with('message','修改成功'.($user->id==1049 ? '':'，待站長審核後則會自動發布'));
+            return redirect($request->get('redirect_path'))->with('message','修改成功');
 
         }else{
             $posts = new ForumPosts();
@@ -5900,6 +5900,11 @@ class PagesController extends BaseController
             ForumPosts::where('id',$request->get('pid'))->update(['deleted_by'=>auth()->user()->id]);
             $posts->delete();
 
+            //有分享到個人討論區的精華文章也要做刪除
+            if(!is_null($posts->essence_id)){
+                EssencePosts::where('id', $posts->essence_id)->delete();
+            }
+
             if($postsType=='main')
                 return response()->json(['msg'=>'刪除成功!','postType'=>'main','redirectTo'=>'/dashboard/forum_personal/'.$request->get('fid')]);
             else
@@ -6144,6 +6149,12 @@ class PagesController extends BaseController
         }else{
             EssencePosts::where('id',$request->get('pid'))->update(['deleted_by'=>auth()->user()->id]);
             $posts->delete();
+            //有分享到個人討論區的文章也要做刪除
+            $forum_posts = ForumPosts::where('essence_id',$request->get('pid'))->first();
+            if($forum_posts){
+                ForumPosts::where('essence_id',$request->get('pid'))->update(['deleted_by'=>auth()->user()->id]);
+                $forum_posts->delete();
+            }
             return response()->json(['msg'=>'刪除成功!','redirectTo'=>'/dashboard/essence_list']);
         }
     }
