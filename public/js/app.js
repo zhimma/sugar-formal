@@ -5527,10 +5527,11 @@ function _defineProperty(obj, key, value) { if (key in obj) { Object.definePrope
 
       this.videoCallParams.channel.listen("StartVideoChat", function (_ref) {
         var data = _ref.data;
-        console.log(data);
 
         if (data.type === "incomingCall") {
           // add a new line to the sdp to take care of error
+          data.signalData = data.signalData;
+
           var updatedSignal = _objectSpread(_objectSpread({}, data.signalData), {}, {
             sdp: "".concat(data.signalData.sdp, "\n")
           });
@@ -5642,6 +5643,8 @@ function _defineProperty(obj, key, value) { if (key in obj) { Object.definePrope
                   var data = _ref2.data;
 
                   if (data.type === "callAccepted") {
+                    data.signal = data.signal;
+
                     if (data.signal.renegotiate) {
                       console.log("renegotating");
                     }
@@ -5853,8 +5856,6 @@ function _defineProperty(obj, key, value) { if (key in obj) { Object.definePrope
       if (this.user_permission == 'admin') {
         this.stopRecording();
       }
-
-      console.log(this.videoCallParams);
     },
     generateBtnClass: function generateBtnClass(onlinestatus) {
       if (onlinestatus) {
