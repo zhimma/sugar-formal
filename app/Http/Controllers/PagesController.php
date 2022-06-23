@@ -6052,7 +6052,7 @@ class PagesController extends BaseController
 
 
             $forum_post = ForumPosts::withTrashed()->where('essence_id', $request->get('post_id'))->first();
-            if (!is_null($forum_post->essence_id)) {
+            if ($forum_post && !is_null($forum_post->essence_id)) {
                 $essencePosts = EssencePosts::where('id', $forum_post->essence_id)->first();
                 if($user->id==1049) {
                     $forum_post->title=$request->get('title');
