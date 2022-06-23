@@ -5487,7 +5487,33 @@ class PagesController extends BaseController
 
         if($request->get('action') == 'update'){
             ForumPosts::find($request->get('id'))->update(['title'=>$request->get('title'),'contents'=>$request->get('contents')]);
-            return redirect($request->get('redirect_path'))->with('message','修改成功');
+
+            //forum個人討論區文章從精華討論區分享過來的，user改了就需要送回去給站長送審
+            $forum_post=ForumPosts::find($request->get('id'));
+            if(!is_null($forum_post->essence_id)){
+                $essencePosts=EssencePosts::where('id', $forum_post->essence_id)->first();
+                if($user->id==1049){
+                    //精華文章更新
+                    $essencePosts->title=$request->get('title');
+                    $essencePosts->contents=$request->get('contents');
+                    $essencePosts->save();
+                    return redirect('/dashboard/forum_personal/'.$forum_post->forum_id)->with('message','修改成功');
+                }else{
+                    //forum posts 該筆刪除
+                    $forum_post->deleted_by=1049;
+                    $forum_post->deleted_at=now();
+                    $forum_post->save();
+                    //精華文章更新審核狀態
+                    $essencePosts->title=$request->get('title');
+                    $essencePosts->contents=$request->get('contents');
+                    $essencePosts->verify_status=EssencePosts::STATUS_PENDING;
+                    $essencePosts->save();
+                    return redirect('/dashboard/forum_personal/'.$forum_post->forum_id)->with('message','修改成功，待站長審核後則會自動發布');
+                }
+            }
+
+
+            return redirect($request->get('redirect_path'))->with('message','修改成功'.($user->id==1049 ? '':'，待站長審核後則會自動發布'));
 
         }else{
             $posts = new ForumPosts();
@@ -5540,6 +5566,7 @@ class PagesController extends BaseController
 
         }
 
+        $essence_post_id_ary=ForumPosts::withTrashed()->whereNotNull('essence_id')->whereNotNull('deleted_at')->get()->pluck('id');
         $posts_personal_all = ForumPosts::selectraw('
         users.id as uid, 
         users.name as uname, 
@@ -5564,6 +5591,7 @@ class PagesController extends BaseController
 //            ->where('forum_posts.user_id', $forum->user_id)
             ->where('forum.id', $forum->id)
             ->where('forum_posts.type', 'main')
+            ->whereNotIn('forum_posts.id',$essence_post_id_ary)
             ->orderBy('forum_posts.deleted_at','asc')
             ->orderBy('forum_posts.top', 'desc')
             ->orderBy('pupdated_at', 'desc')
@@ -5981,23 +6009,59 @@ class PagesController extends BaseController
                 'contents'=>$request->get('contents'),
                 'verify_status'=>$user->id==1049 ? EssencePosts::STATUS_PASSED : EssencePosts::STATUS_PENDING,
             ];
+
             if($user->id==1049){
                 $update_ary['category']=$request->get('category');
                 $update_ary['share_with']=$request->get('share_with');
+
+                if(str_contains($request->get('share_with'),'forum_')==false){
+                    ForumPosts::withTrashed()->where('essence_id', $request->get('post_id'))->update([
+                        'deleted_by'=> $user->id,
+                        'deleted_at'=> now()
+                    ]);
+                }else{
+                    //該文章是否曾經分享到討論區
+                    ForumPosts::withTrashed()->where('essence_id', $request->get('post_id'))
+                        ->update([
+                            'title'=> $request->get('title'),
+                            'contents'=> $request->get('contents'),
+                            'deleted_by'=>null,
+                            'deleted_at'=> null
+                        ]);
+                }
             }
             EssencePosts::find($request->get('post_id'))->update($update_ary);
 
             //分享到個人討論區
             $posts= EssencePosts::find($request->get('post_id'));
-            $data=[
-                'forum_id' => str_replace('forum_','',  $posts->share_with),
-                'type' => 'main',
-                'user_id' => $posts->user_id,
-                'title' => $posts->title,
-                'contents' => $posts->contents
-            ];
             if(str_contains($posts->share_with,'forum_')){
-                ForumPosts::updateOrCreate(['essence_id' =>  $posts->id], $data);
+                $data=[
+                    'forum_id' => str_replace('forum_','',  $posts->share_with),
+                    'type' => 'main',
+                    'user_id' => $posts->user_id,
+                    'title' => $posts->title,
+                    'contents' => $posts->contents
+                ];
+                ForumPosts::withTrashed()->updateOrCreate(['essence_id' =>  $posts->id], $data);
+            }
+
+
+            $forum_post = ForumPosts::withTrashed()->where('essence_id', $request->get('post_id'))->first();
+            if (!is_null($forum_post->essence_id)) {
+                $essencePosts = EssencePosts::where('id', $forum_post->essence_id)->first();
+                if($user->id==1049) {
+                    $forum_post->title=$request->get('title');
+                    $forum_post->contents=$request->get('contents');
+                    $forum_post->save();
+                }else{
+                    //forum posts 該筆刪除
+                    $forum_post->deleted_by = 1049;
+                    $forum_post->deleted_at = now();
+                    $forum_post->save();
+                    //精華文章更新審核狀態
+                    $essencePosts->verify_status = EssencePosts::STATUS_PENDING;
+                    $essencePosts->save();
+                }
             }
 
             return redirect('/dashboard/essence_list')->with('message','修改成功'.($user->id==1049 ? '':'，待站長審核後則會自動發布'));
@@ -6036,7 +6100,7 @@ class PagesController extends BaseController
 
         //紀錄返回上一頁的url
         if(isset($_SERVER['HTTP_REFERER'])){
-            if(!str_contains($_SERVER['HTTP_REFERER'],'essence_postsEdit')){
+            if(!str_contains($_SERVER['HTTP_REFERER'],'essence_postsEdit') && !str_contains($_SERVER['HTTP_REFERER'],'essence_post_detail')){
                 session()->put('goBackPage_essence',$_SERVER['HTTP_REFERER']);
             }
         }
@@ -6169,16 +6233,33 @@ class PagesController extends BaseController
 
         }
 
+        //更新個人討論區資料狀態
+        $update_posts=EssencePosts::withTrashed()->where('id',$request->get('pid'))->first();
+        if($update_posts->verify_status==2){
+            //通過審核
+            ForumPosts::withTrashed()->where('essence_id', $update_posts->id)
+                ->update([
+                    'deleted_by'=>null,
+                    'deleted_at'=> null
+                ]);
+        }else{
+            //不通過審核
+            ForumPosts::withTrashed()->where('essence_id', $update_posts->id)->update([
+                'deleted_by'=> auth()->user()->id,
+                'deleted_at'=> now()
+            ]);
+        }
+
         //分享到個人討論區
-        $data=[
-            'forum_id' => str_replace('forum_','', $posts->share_with),
-            'type' => 'main',
-            'user_id' => $posts->user_id,
-            'title' => $posts->title,
-            'contents' => $posts->contents
-        ];
         if(str_contains($posts->share_with,'forum_')){
-            ForumPosts::updateOrCreate(['essence_id' =>  $posts->id], $data);
+            $data=[
+                'forum_id' => str_replace('forum_','', $posts->share_with),
+                'type' => 'main',
+                'user_id' => $posts->user_id,
+                'title' => $posts->title,
+                'contents' => $posts->contents
+            ];
+            ForumPosts::withTrashed()->updateOrCreate(['essence_id' =>  $posts->id], $data);
         }
         return response()->json(['msg'=>'審核狀態已更新!']);
     }

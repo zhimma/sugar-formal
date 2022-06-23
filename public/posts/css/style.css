@@ -87,7 +87,7 @@
 .xq_text{width:100%; display:table;font-size:22px; font-weight:bold;margin-top:5px; padding-top:6px;}
 .xq_text span{ font-size:14px; color:#999999; text-align:center; display:block; font-weight:normal; line-height:30px}
 
-.xq_text01{width:100%; display:table;/* background:url(../images/tg_07.png) top left no-repeat; */ font-size:14px;padding-top:10px; color:#666666}
+.xq_text01{width:100%; display:table;/* background:url(../images/tg_07.png) top left no-repeat; */ font-size:14px;padding-top:10px; color:#666666;word-break: break-all;}
 .xq_text01 h2{width:94%; margin:0 auto; display:table; margin-bottom:15px;}
 .xq_text01 h2:last-child{ margin-bottom:0}
 
@@ -443,7 +443,7 @@
 .ta_icon{ position: absolute; right: 10px; top: 10px; color: #fe92a8; line-height: 20px;}
 .ta_icon img{ height: 20px; margin-right: 2px;}
 
-.ta_textbot{width:calc(100% - 102px);height: 25px;display: -webkit-box;  line-height: 25px;-webkit-box-orient: vertical;-webkit-line-clamp:1;text-overflow: ellipsis;overflow: hidden;float: left;}
+.ta_textbot{width:calc(100% - 102px);height: 25px;display: -webkit-box;  line-height: 25px;-webkit-box-orient: vertical;-webkit-line-clamp:1;text-overflow: ellipsis;overflow: hidden;float: left;word-break: break-all;}
 .ta_tetime{width:102px; float: right; color: #999999; text-align: right;}
 .ta_tetime span{ color: #cdcdcd;}
 
@@ -836,7 +836,7 @@ box-shadow:4px 4px 6px 0 rgba(214,92,117,.5),-4px -4px 6px 0 rgba(255,255,255,.5
 
 .jh_two{width: 96%; margin: 0 auto; display: table;padding:8px 0 0px 0;}
 .jh_two h2{ font-size: 15px; color: #333;}
-.jh_two h3{ font-size: 14px; color: #999;line-height: 25px;display: -webkit-box;-webkit-box-orient: vertical;-webkit-line-clamp:1;overflow: hidden;}
+.jh_two h3{ font-size: 14px; color: #999;line-height: 25px;display: -webkit-box;-webkit-box-orient: vertical;-webkit-line-clamp:1;overflow: hidden;word-break: break-all;}
 
 
 .jh_huise{width: 100%; background: #f1f3f7;box-shadow:3px 8px 10px rgba(78,113,172,0.3); padding: 10px; display: table;border-radius: 15px; position:relative;border:rgba(255,255,255,0.4) 1px solid}

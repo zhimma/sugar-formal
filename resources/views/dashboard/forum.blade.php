@@ -86,11 +86,11 @@
 											@endif
 
 											@if($key==0)
-												<span id="{{$row->user_id . \App\Models\User::findById($row->user_id)->name }}" class="ta_toxmr @if(count($essence_posts_list)>5) xa_rig10 @endif">
+												<span class="ta_toxmr @if(count($essence_posts_list)>5) xa_rig10 @endif">
 												<img src="@if(file_exists( public_path().$row->umpic ) && $row->umpic != ""){{$row->umpic}} @elseif($row->engroup==2)/new/images/female.png @else/new/images/male.png @endif" class="hycov">
 											</span>
 											@elseif($key>0 && $key<5)
-												<span  id="{{$row->user_id . \App\Models\User::findById($row->user_id)->name}}" class="ta_toxmr xa_rig10">
+												<span class="ta_toxmr xa_rig10">
 												<img src="@if(file_exists( public_path().$row->umpic ) && $row->umpic != ""){{$row->umpic}} @elseif($row->engroup==2)/new/images/female.png @else/new/images/male.png @endif" class="hycov">
 											</span>
 											@endif
