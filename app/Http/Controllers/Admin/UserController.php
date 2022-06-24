@@ -210,15 +210,8 @@ class UserController extends \App\Http\Controllers\BaseController
     {
         if ($request->isVip == 1) {
             //關閉VIP權限
+            Vip::where('member_id', $request->user_id)->get()->first()->removeVIP();
             $setVip = 0;
-            $user = Vip::select('member_id', 'active')
-                ->where('member_id', $request->user_id)
-                ->update(array(
-                    'active' => $setVip,
-                    'expiry' => '0000-00-00 00:00:00',
-                    'business_id' => '',
-                    'order_id' => ''
-                ));
         } else {
             //提供VIP權限
             $setVip = 1;
