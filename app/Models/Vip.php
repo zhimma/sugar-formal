@@ -310,9 +310,7 @@ class Vip extends Model
             //->where('order_id','!=','BackendFree')
             ->update(array(
                 'active' => 0,
-                'expiry' => '0000-00-00 00:00:00',
-                'business_id' => '',
-                'order_id' => ''
+                'expiry' => '0000-00-00 00:00:00'
             ));
 
         //關閉討論區權限
