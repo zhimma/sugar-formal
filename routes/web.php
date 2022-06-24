@@ -294,6 +294,20 @@ Route::group(['middleware' => ['auth', 'global', 'active', 'femaleActive', 'vipC
         Route::post('/dashboard/posts_delete', 'PagesController@posts_delete');/*討論區留言刪除*/
         Route::post('/dashboard/posts_recover', 'PagesController@posts_recover');/*討論區留言恢復*/
         Route::post('/dashboard/post_views', 'PagesController@post_views');
+
+
+        //精華討論區
+        Route::get('/dashboard/essence_enter_intro', 'PagesController@essence_enter_intro');
+        Route::get('/dashboard/essence_list', 'PagesController@essence_list');
+        Route::get('/dashboard/essence_posts', 'PagesController@essence_posts');
+        Route::post('/dashboard/essence_doPosts', 'PagesController@essence_doPosts');
+        Route::get('/dashboard/essence_post_detail/{pid}', 'PagesController@essence_post_detail');
+        Route::get('/dashboard/essence_postsEdit/{id}/{editType}', 'PagesController@essence_postsEdit');/*投稿修改功能*/
+        Route::post('/dashboard/essence_posts_delete', 'PagesController@essence_posts_delete');/*討論區留言刪除*/
+        Route::post('/dashboard/essence_posts_recover', 'PagesController@essence_posts_recover');/*討論區留言恢復*/
+        Route::post('/dashboard/essence_verify_status', 'PagesController@essence_verify_status');/*討論區留言審核*/
+
+
     });
 
     //留言板

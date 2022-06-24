@@ -59,6 +59,11 @@
                        @endif
                    </li>
                 @endif
+                @if(isset($user) && $user->engroup == 2)
+                    <li>
+                        <a href="/dashboard/essence_list"><img src="/new/images/icon_zq45.png">教學專區</a>
+                    </li>
+                @endif
                 <li>
                     <a href="/MessageBoard/showList"><img src="/new/images/icon_new45.png">留言板</a>
                 </li>
