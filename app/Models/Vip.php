@@ -307,8 +307,11 @@ class Vip extends Model
     public function removeVIP(){
         $user = Vip::select('member_id', 'active', 'expiry')
             ->where('member_id', $this->member_id)
-//            ->where('order_id','!=','BackendFree')
-            ->update(array('active' => 0, 'expiry' => null));
+            //->where('order_id','!=','BackendFree')
+            ->update(array(
+                'active' => 0,
+                'expiry' => '0000-00-00 00:00:00'
+            ));
 
         //關閉討論區權限
         //ForumManage::close_forum_active($this->member_id);
