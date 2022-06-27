@@ -278,7 +278,6 @@ class AuthController extends Controller
         if (isset($_GET['weight'])) $weight = $_GET['weight'];
         $userIsVip = $user->isVIP();
         $userIsAdvanceAuth = isset($_GET['isAdvanceAuth'])?1:0;
-        $registered_from_mobile = 1;
 
         $vis = UserMeta::search(
             $county, 
@@ -319,7 +318,7 @@ class AuthController extends Controller
             $city3,
             $area3,
             $weight,
-            $registered_from_mobile
+            $user->registered_from_mobile
         );
 
         foreach ($vis as $v) {
