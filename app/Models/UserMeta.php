@@ -247,9 +247,15 @@ class UserMeta extends Model
             $area2,
             $city3,
             $area3,
-            $weight            
+            $weight,
+            $registered_from_mobile            
             ){
-            $query->select('*')->where('user_meta.birthdate', '<', Carbon::now()->subYears(18));      
+
+            if ($registered_from_mobile == 1) {
+                $query->select('*');
+            } else {
+                $query->select('*')->where('user_meta.birthdate', '<', Carbon::now()->subYears(18));
+            }
             
             if($city || $city2 || $city3) {
                 $query->where(function($q) use ($city,$city2,$city3,$area,$area2,$area3) {
