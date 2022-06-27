@@ -4321,7 +4321,11 @@ class UserController extends \App\Http\Controllers\BaseController
 
     public function adminActionLog(Request $request)
     {
-        $getLogs = AdminActionLog::leftJoin('users', 'users.id', '=', 'admin_action_log.operator')->orderBy('admin_action_log.created_at', 'desc');
+        $getLogs = AdminActionLog::selectRaw('admin_action_log.operator, users.name AS operator_name, users.email AS operator_email')
+            ->selectRaw('count(*) AS dataCount')
+            ->leftJoin('users', 'users.id', '=', 'admin_action_log.operator')
+            ->orderBy('admin_action_log.created_at', 'desc')
+            ->groupBy('admin_action_log.operator');
 
         if(!empty($request->get('operator'))){
             $getLogs->where('users.email',$request->get('operator'));
@@ -4332,17 +4336,29 @@ class UserController extends \App\Http\Controllers\BaseController
         if(!empty($request->get('date_end'))){
             $getLogs->where('admin_action_log.created_at','<=',date("Y-m-d",strtotime("+1 day", strtotime($request->get('date_end')))));
         }
-        $getLogs = $getLogs->selectRaw('admin_action_log.*, users.email, (select email from users where id = admin_action_log.target_id) AS target_acc ');
         $getLogs = $getLogs->get();
 
+        foreach ($getLogs as $key => $log){
+            $result[$key]=$log->toArray();
+            $get_operator_by_date = AdminActionLog::selectRaw('LEFT(admin_action_log.created_at,10) as log_by_date, (count(*)) AS count_by_date')->orderBy('admin_action_log.created_at', 'desc')
+                ->where('admin_action_log.operator', $log->operator )
+                ->groupBy('log_by_date');
 
-        $page = $request->get('page',1);
-        $perPage = 50;
-        $totalCount = $getLogs->count();
-        $getLogs = new LengthAwarePaginator($getLogs->forPage($page, $perPage), $totalCount, $perPage, $page, ['path' => route('admin/getAdminActionLog', $request->input())]);
+            if(!empty($request->get('operator'))){
+                $get_operator_by_date->where('users.email',$request->get('operator'));
+            }
+            if(!empty($request->get('date_start'))){
+                $get_operator_by_date->where('admin_action_log.created_at','>=',$request->get('date_start'));
+            }
+            if(!empty($request->get('date_end'))){
+                $get_operator_by_date->where('admin_action_log.created_at','<=',date("Y-m-d",strtotime("+1 day", strtotime($request->get('date_end')))));
+            }
+            $result[$key]['operator_by_date']=$get_operator_by_date->get()->toArray();
 
+        }
+        $getLogs=$result;
 
-        return view('admin.users.showAdminActionLog', compact('getLogs','totalCount'));
+        return view('admin.users.showAdminActionLog', compact('getLogs'));
     }
 
     public function insertAdminActionLog($targetAccountID, $action)
