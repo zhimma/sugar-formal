@@ -354,6 +354,7 @@ class SetAutoBan extends Model
         {
             foreach ($msg as $m)
             {
+                $userBanned = null;
                 $violation = false;
                 if (strpos($m->content, $ban_set->content) !== false) {
                     $violation = true;
@@ -362,11 +363,19 @@ class SetAutoBan extends Model
                     if($ban_set->set_ban == 1 && banned_users::where('member_id', $uid)->first() == null) {
                         //直接封鎖
                         $userBanned = new banned_users;
-                        $userBanned->member_id = $uid;
-                        $userBanned->reason = "系統原因($ban_set->id)";
-                        $userBanned->save();
-                        //寫入log
-                        DB::table('is_banned_log')->insert(['user_id' => $uid, 'reason' => "系統原因($ban_set->id)"]);
+                        if($user->engroup==2 ) {
+                           if(!($user->advance_auth_status??null)) {
+                               $userBanned->adv_auth=1;
+                           }
+                           else $userBanned=null;
+                        }                         
+                        if($userBanned) {
+                            $userBanned->member_id = $uid;
+                            $userBanned->reason = "系統原因($ban_set->id)";
+                            $userBanned->save();
+                            //寫入log
+                            DB::table('is_banned_log')->insert(['user_id' => $uid, 'reason' => "系統原因($ban_set->id)"]);
+                        }
                     }
                     elseif($ban_set->set_ban == 2 && BannedUsersImplicitly::where('target', $uid)->first() == null) {
                         //隱性封鎖
