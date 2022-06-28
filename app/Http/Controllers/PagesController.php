@@ -2041,6 +2041,8 @@ class PagesController extends BaseController
                 ->where('line_notify_chat_set.user_id',$targetUser->id)
                 ->where('line_notify_chat_set.user_id','!=',$user->id)
                 ->where('line_notify_chat_set.deleted_at',null)
+                ->whereRaw('(select count(*) from banned_users where banned_users.member_id='.$user->id.') =0')
+                ->whereRaw('(select count(*) from blocked where blocked.member_id='.$targetUser->id.' and blocked.blocked_id='.$user->id.') =0')
                 ->groupBy('line_notify_chat_set.user_id')->get();
             foreach ($line_notify_user_list as $notify_user){
                 if($notify_user->line_notify_token != null){
@@ -3160,6 +3162,8 @@ class PagesController extends BaseController
                 ->where('line_notify_chat_set.line_notify_chat_id',10)
                 ->where('line_notify_chat_set.user_id',$member_fav_id->id)
                 ->where('line_notify_chat_set.deleted_at',null)
+                ->whereRaw('(select count(*) from banned_users where banned_users.member_id='.$member_id->id.') =0')
+                ->whereRaw('(select count(*) from blocked where blocked.member_id='.$member_fav_id->id.' and blocked.blocked_id='.$member_id->id.') =0')
                 ->groupBy('line_notify_chat_set.user_id')->get();
             foreach ($line_notify_user_list as $notify_user){
                 if($notify_user->line_notify_token != null){
