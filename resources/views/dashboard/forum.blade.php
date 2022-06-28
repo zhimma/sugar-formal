@@ -168,7 +168,7 @@
 													@elseif(isset($getStatus) && ($getStatus->status==2 || $getStatus->status==3))
 														<div class="wtg_z" onclick="forumStatus({{$getStatus->status}})">未通過</div>
 													@elseif($post->uid != $user->id && !isset($getStatus) && $post->f_status==1)
-														<a onclick="forum_manage_toggle({{$post->uid}}, 0, {{$post->f_id}})" class="seqr">申請加入</a>
+														<a onclick="forum_manage_toggle({{$post->uid}}, 1, {{$post->f_id}})" class="seqr">申請加入</a>
 													@endif
 												@endif
 												<div class="wt_txb">
@@ -274,6 +274,8 @@
 		uid = '{{ $user->id }}';
 		if(status==0){
 			msg='您確定要申請加入嗎?'
+		}else if(status==1){
+			msg='您確定要申請加入嗎?'
 		}else{
 			return false;
 		}
@@ -293,6 +295,11 @@
 					if(obj.message=='申請成功'){
 						window.location.href = "/dashboard/forum_manage_chat/" + auid + "/" + uid + "";
 						// window.location.href = "/dashboard/forum";
+					}else if(obj.message=='申請通過'){
+						ccc('申請通過');
+						$(".n_bllbut_tab_other").on('click', function() {
+							location.reload();
+						});
 					}else {
 						location.reload();
 					}

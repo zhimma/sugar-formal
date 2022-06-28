@@ -5691,8 +5691,21 @@ class PagesController extends BaseController
                 ForumManage::where('user_id', $uid)->where('forum_id', $fid->id)->update(['status' => $status, 'forum_status' => 1, 'chat_status' => 1,'updated_at' => Carbon::now()]);
                 $msg = '該會員已通過';
             }else{
-                $msg = 'error';
+                ForumManage::insert([
+                    'forum_id'=>$fid->id,
+                    'user_id' => $uid,
+                    'apply_user_id' => $auid,
+                    'status' => $status,
+                    'forum_status' => 1,
+                    'chat_status' => 1,
+                    'created_at' => Carbon::now(),
+                    'updated_at' => Carbon::now()
+                ]);
+                $msg = '申請通過';
             }
+//            else{
+//                $msg = 'error';
+//            }
 
         }else if($status==2){
             if(isset($checkData)){
