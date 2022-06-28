@@ -274,7 +274,7 @@ class SetAutoBan extends Model
 						break;
 					}					
                     $ip = LogUserLogin::where('user_id',$uid)->orderBy('created_at','desc')->first();
-                    if($ip->ip == $content) {
+                    if($ip?->ip == $content) {
 						$violation = true;
 						$ban_set->expiry = \Carbon\Carbon::now()->addMonths(1)->format('Y-m-d H:i:s');
                         $ban_set->updated_at = now();
