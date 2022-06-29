@@ -234,6 +234,21 @@
                                     @if($users[$result['member_id']]['warnedicon']['isWarned']==0 AND $users[$result['member_id']]['warnedicon']['WarnedScore']>10 AND $users[$result['member_id']]['warnedicon']['auth_status']==1)
                                         <img src="/img/warned_black.png" style="height: 16px;width: 16px;">
                                     @endif
+                                    @php
+                                        //個人檢舉紀錄
+                                        $b_reported_list=\App\Models\Reported::where('member_id',$result['member_id'])->groupBy('reported_id')->get()->pluck('reported_id')->toArray();
+                                        $b_reported_pic_list=\App\Models\ReportedPic::where('reporter_id',$result['member_id'])->groupBy('reported_pic_id')->get()->pluck('reported_pic_id')->toArray();
+                                        $b_reported_avatar_list=\App\Models\ReportedAvatar::where('reporter_id',$result['member_id'])->groupBy('reported_user_id')->get()->pluck('reported_user_id')->toArray();
+                                        $b_reported_message_list=\App\Models\Message::where('to_id',$result['member_id'])->where('isReported',1)->get()->pluck('from_id')->toArray();
+                                        $reported_user_list=array_merge($b_reported_list, $b_reported_pic_list, $b_reported_avatar_list, $b_reported_message_list);
+                                        $reported_count=array_unique($reported_user_list);
+
+                                        $a_admin_banned=\App\Models\SimpleTables\banned_users::whereIn('member_id',$reported_user_list)->get()->pluck('member_id')->toArray();
+                                        $a_admin_warned=\App\Models\SimpleTables\warned_users::whereIn('member_id',$reported_user_list)->get()->pluck('member_id')->toArray();
+                                        $admin_reported_user_list=array_merge($a_admin_banned, $a_admin_warned);
+                                        $admin_reported_count=array_unique($admin_reported_user_list);
+                                    @endphp
+                                    {{ '('.count($admin_reported_count).'/'.count($reported_count).')' }}
                                 </p>
                             </a>
                         </td>
