@@ -28,6 +28,7 @@ class SetAutoBan extends Model
     //自動封鎖 用後台設定的關鍵字查詢
     public static function auto_ban($uid)
     {
+        Log::info('start_SetAutoBan_auto_ban');
         AutoBanCaller::dispatch($uid)->onConnection('database-long')->onQueue('long-jobs')->delay(SetAutoBan::_getDelayTime());
     }
     
@@ -212,13 +213,14 @@ class SetAutoBan extends Model
     //登出後的警示
     public static function logout_warned($uid)
     {
-        //Log::Info('start_LogoutAutoBan_logout_warned');
-        //Log::Info($uid);
+        Log::Info('start_LogoutAutoBan_logout_warned');
+        Log::Info($uid);
         LogoutAutoBan::dispatch($uid)->onConnection('database-long')->onQueue('long-jobs')->delay(SetAutoBan::_getDelayTime());
     }
 
     public static function logoutWarned($uid)
     {
+        Log::info('start_LogoutAutoBan_logoutWarned');
         $user = User::findById($uid);
         try {
             if(isset($user) && $user->can('admin')){
