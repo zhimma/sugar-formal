@@ -82,7 +82,7 @@ class SetAutoBan extends Model
                     if(UserMeta::where('user_id',$uid)->where('pic_original_name','like','%'.$content.'%')->first() != null) $violation = true;
                     
                     //有一筆違規就可以封鎖了
-                    if(MemberPic::where('user_id',$uid)->where('original_name','like','%'.$content.'%')->first() != null) $violation = true;
+                    if(MemberPic::where('member_id',$uid)->where('original_name','like','%'.$content.'%')->first() != null) $violation = true;
                     break;
                 //20220629新增圖片檔名   
 
@@ -303,7 +303,7 @@ class SetAutoBan extends Model
                     if(UserMeta::where('user_id',$uid)->where('pic_original_name','like','%'.$content.'%')->first() != null) $violation = true;
 
                     //有一筆違規就可以封鎖了
-                    if(MemberPic::where('user_id',$uid)->where('original_name','like','%'.$content.'%')->first() != null) $violation = true;
+                    if(MemberPic::where('member_id',$uid)->where('original_name','like','%'.$content.'%')->first() != null) $violation = true;
                     break;
                 //20220629新增圖片檔名   
 
