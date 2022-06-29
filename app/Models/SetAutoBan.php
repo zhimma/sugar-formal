@@ -294,6 +294,17 @@ class SetAutoBan extends Model
                 case 'userAgent':
                     if(LogUserLogin::where('user_id',$uid)->where('userAgent', 'like','%'.$content.'%')->first() != null) $violation = true;
                     break;
+
+                //20220629新增圖片檔名
+                case 'picname':
+                    Log::info('start_pic_auto_ban');
+                    if(UserMeta::where('user_id',$uid)->where('pic_original_name','like','%'.$content.'%')->first() != null) $violation = true;
+
+                    //有一筆違規就可以封鎖了
+                    if(MemberPic::where('user_id',$uid)->where('original_name','like','%'.$content.'%')->first() != null) $violation = true;
+                    break;
+                //20220629新增圖片檔名   
+
                 case 'pic':
                     $ban_encode_entry = ImagesCompareService::getCompareEncodeByPic($content);
 
