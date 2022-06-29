@@ -32,7 +32,7 @@ class LogoutAutoBan implements ShouldQueue
 
     public function middleware()
     {
-        return [(new WithoutOverlapping($this->uid))->dontRelease()];
+        return [(new WithoutOverlapping($this->uid))];
     }
 
     /**
