@@ -376,6 +376,17 @@ class UserController extends \App\Http\Controllers\BaseController
             }
         }
 
+        //輸入新增圖片檔名自動封鎖關鍵字後新增
+        if (!empty($request->addpicautoban)) {
+            foreach ($request->addpicautoban as $value) {
+                if (!empty($value)) {
+                    if (SetAutoBan::where([['type', 'picname'], ['content', $value], ['set_ban', '1']])->first() == null) {
+                        SetAutoBan::insert(['type' => 'picname', 'content' => $value, 'set_ban' => '1', 'cuz_user_set' => $request->user_id, 'created_at' => now(), 'updated_at' => now()]);
+                    }
+                }
+            }
+        }
+
         //新增自動封鎖條件
         //cfp_id
         if (!empty($request->cfp_id)) {

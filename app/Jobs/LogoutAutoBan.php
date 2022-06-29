@@ -10,6 +10,7 @@ use Illuminate\Queue\InteractsWithQueue;
 use Illuminate\Queue\SerializesModels;
 use App\Models\SetAutoBan;
 use Illuminate\Queue\Middleware\WithoutOverlapping;
+use Illuminate\Support\Facades\Log;
 
 class LogoutAutoBan implements ShouldQueue
 {
@@ -24,6 +25,8 @@ class LogoutAutoBan implements ShouldQueue
     
     public function __construct($uid)
     {
+        Log::info('start_jobs_LogoutAutoBan_construct');
+        Log::info($uid);
         $this->uid = $uid;
     }
 
@@ -39,6 +42,8 @@ class LogoutAutoBan implements ShouldQueue
      */
     public function handle()
     {
+        Log::info('start_jobs_LogoutAutoBan');
+        Log::info($this->uid);
         if($this->uid != 0)
         {
             SetAutoBan::logoutWarned($this->uid);

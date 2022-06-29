@@ -28,6 +28,7 @@ class SetAutoBan extends Model
     //自動封鎖 用後台設定的關鍵字查詢
     public static function auto_ban($uid)
     {
+        Log::info('start_SetAutoBan_auto_ban');
         AutoBanCaller::dispatch($uid)->onConnection('database-long')->onQueue('long-jobs')->delay(SetAutoBan::_getDelayTime());
     }
     
@@ -75,6 +76,16 @@ class SetAutoBan extends Model
                         $violation = true;
                     }
                     break;
+
+                //20220629新增圖片檔名
+                case 'picname':
+                    if(UserMeta::where('user_id',$uid)->where('pic_original_name','like','%'.$content.'%')->first() != null) $violation = true;
+                    
+                    //有一筆違規就可以封鎖了
+                    if(MemberPic::where('member_id',$uid)->where('original_name','like','%'.$content.'%')->first() != null) $violation = true;
+                    break;
+                //20220629新增圖片檔名   
+
                 case 'pic':
                     $ban_encode_entry = ImagesCompareService::getCompareEncodeByPic($content);
                     if($ban_encode_entry??null) {
@@ -202,13 +213,14 @@ class SetAutoBan extends Model
     //登出後的警示
     public static function logout_warned($uid)
     {
-        //Log::Info('start_LogoutAutoBan_logout_warned');
-        //Log::Info($uid);
+        Log::Info('start_LogoutAutoBan_logout_warned');
+        Log::Info($uid);
         LogoutAutoBan::dispatch($uid)->onConnection('database-long')->onQueue('long-jobs')->delay(SetAutoBan::_getDelayTime());
     }
 
     public static function logoutWarned($uid)
     {
+        Log::info('start_LogoutAutoBan_logoutWarned');
         $user = User::findById($uid);
         try {
             if(isset($user) && $user->can('admin')){
@@ -284,6 +296,17 @@ class SetAutoBan extends Model
                 case 'userAgent':
                     if(LogUserLogin::where('user_id',$uid)->where('userAgent', 'like','%'.$content.'%')->first() != null) $violation = true;
                     break;
+
+                //20220629新增圖片檔名
+                case 'picname':
+                    Log::info('start_pic_auto_ban');
+                    if(UserMeta::where('user_id',$uid)->where('pic_original_name','like','%'.$content.'%')->first() != null) $violation = true;
+
+                    //有一筆違規就可以封鎖了
+                    if(MemberPic::where('member_id',$uid)->where('original_name','like','%'.$content.'%')->first() != null) $violation = true;
+                    break;
+                //20220629新增圖片檔名   
+
                 case 'pic':
                     $ban_encode_entry = ImagesCompareService::getCompareEncodeByPic($content);
 

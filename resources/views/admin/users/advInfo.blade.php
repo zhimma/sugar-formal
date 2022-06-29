@@ -1901,15 +1901,20 @@
                             </select>
                         </div>--}}
 
-{{--                        <div class="form-group">--}}
-{{--                            <label for="ip">IP</label>--}}
-{{--                            <input type="checkbox" name="ip[]" id="ip" value="" class="form-check-input">Check me out--}}
-{{--                        </div>--}}
+                        {{--<div class="form-group">--}}
+                            {{--<label for="ip">IP</label>--}}
+                            {{--<input type="checkbox" name="ip[]" id="ip" value="" class="form-check-input">Check me out--}}
+                        {{--</div>--}}
                         <hr>
                         新增自動封鎖關鍵字 ( @if($user->engroup==2) 驗證封鎖 @else 永久封鎖  @endif )
                         <input placeholder="1.請輸入封鎖關鍵字" onfocus="this.placeholder=''" onblur="this.placeholder='1.請輸入封鎖關鍵字'" class="form-control" type="text" name="addautoban[]" rows="1">
                         <input placeholder="2.請輸入封鎖關鍵字" onfocus="this.placeholder=''" onblur="this.placeholder='2.請輸入封鎖關鍵字'" class="form-control" type="text" name="addautoban[]" rows="1">
                         <input placeholder="3.請輸入封鎖關鍵字" onfocus="this.placeholder=''" onblur="this.placeholder='3.請輸入封鎖關鍵字'" class="form-control" type="text" name="addautoban[]" rows="1">
+                        <hr>
+                        新增圖片檔名封鎖關鍵字 ( @if($user->engroup==2) 驗證封鎖 @else 永久封鎖  @endif )
+                        <input placeholder="1.請輸入封鎖關鍵字" onfocus="this.placeholder=''" onblur="this.placeholder='1.請輸入封鎖關鍵字'" class="form-control" type="text" name="addpicautoban[]" rows="1">
+                        <input placeholder="2.請輸入封鎖關鍵字" onfocus="this.placeholder=''" onblur="this.placeholder='2.請輸入封鎖關鍵字'" class="form-control" type="text" name="addpicautoban[]" rows="1">
+                        <input placeholder="3.請輸入封鎖關鍵字" onfocus="this.placeholder=''" onblur="this.placeholder='3.請輸入封鎖關鍵字'" class="form-control" type="text" name="addpicautoban[]" rows="1">
                 </div>
                 <div class="modal-footer">
                     <button type="submit" class='btn btn-outline-success ban-user'> 送出 </button>
