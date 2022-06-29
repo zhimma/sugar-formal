@@ -11,23 +11,47 @@ use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\Log;
 use App\Models\UserVideoVerifyRecord;
 use LZCompressor\LZString;
+use App\Models\WebrtcSignalData;
 
 class VideoChatController extends Controller
 {
     public function callUser(Request $request)
     {
+        $signal_data = json_encode($request->signal_data);
+
+        $data = new WebrtcSignalData;
+        $data->signal_data = $signal_data;
+        $data->save();
+
         $data['userToCall'] = $request->user_to_call;
-        $data['signalData'] = $request->signal_data;
+        $data['signalData'] = $data->id;
         $data['from'] = Auth::id();
         $data['type'] = 'incomingCall';
         broadcast(new StartVideoChat($data))->toOthers();
     }
+
     public function acceptCall(Request $request)
     {
-        $data['signal'] = $request->signal;
+        $signal = json_encode($request->signal);
+
+        $data = new WebrtcSignalData;
+        $data->signal_data = $signal;
+        $data->save();
+        
+        $data['signal'] = $data->id;
         $data['to'] = $request->to;
         $data['type'] = 'callAccepted';
         broadcast(new StartVideoChat($data))->toOthers();
+    }
+
+    public function receiveCallUserSignalData(Request $request)
+    {
+
+    }
+
+    public function receiveAcceptCallSignalData(Request $request)
+    {
+        
     }
 
     public function video_chat_verify(Request $request)

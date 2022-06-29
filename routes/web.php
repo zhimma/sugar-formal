@@ -265,6 +265,8 @@ Route::group(['middleware' => ['auth', 'global', 'active', 'femaleActive', 'vipC
     //視訊功能
     Route::post('/video/call-user', 'VideoChatController@callUser');
     Route::post('/video/accept-call', 'VideoChatController@acceptCall');
+    Route::get('/video/receive-call-user-signal-data', 'VideoChatController@receiveCallUserSignalData');
+    Route::get('/video/receive-accept-call-signal-data', 'VideoChatController@receiveAcceptCallSignalData');
 
     /*
     |--------------------------------------------------------------------------
