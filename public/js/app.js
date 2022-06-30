@@ -5529,11 +5529,24 @@ function _defineProperty(obj, key, value) { if (key in obj) { Object.definePrope
         var data = _ref.data;
 
         if (data.type === "incomingCall") {
-          // add a new line to the sdp to take care of error
-          data.signalData = JSON.parse(data.signalData); //console.log(data.signalData);
+          var signal_data = '';
+          $.ajax({
+            async: false,
+            type: 'get',
+            url: '/video/receive-call-user-signal-data',
+            data: {
+              signal_data_id: data.signalData
+            },
+            success: function success(s_data) {
+              signal_data = s_data;
+            }
+          }); // add a new line to the sdp to take care of error
 
-          var updatedSignal = _objectSpread(_objectSpread({}, data.signalData), {}, {
-            sdp: "".concat(data.signalData.sdp, "\n")
+          console.log('ajaxoutput ' + signal_data);
+          signal_data = JSON.parse(signal_data); //console.log(signal_data);
+
+          var updatedSignal = _objectSpread(_objectSpread({}, signal_data), {}, {
+            sdp: "".concat(signal_data.sdp, "\n")
           });
 
           _this3.videoCallParams.receivingCall = true;
@@ -5645,17 +5658,30 @@ function _defineProperty(obj, key, value) { if (key in obj) { Object.definePrope
                   var data = _ref2.data;
 
                   if (data.type === "callAccepted") {
-                    data.signal = JSON.parse(data.signal); //console.log(data.signal);
+                    var signal_data = '';
+                    $.ajax({
+                      async: false,
+                      type: 'get',
+                      url: '/video/receive-accept-call-signal-data',
+                      data: {
+                        signal_data_id: data.signal
+                      },
+                      success: function success(s_data) {
+                        signal_data = s_data;
+                      }
+                    });
+                    console.log('ajaxoutput ' + signal_data);
+                    signal_data = JSON.parse(signal_data); //console.log(signal_data);
 
-                    if (data.signal.renegotiate) {
+                    if (signal_data.renegotiate) {
                       console.log("renegotating");
                     }
 
-                    if (data.signal.sdp) {
+                    if (signal_data.sdp) {
                       _this4.videoCallParams.callAccepted = true;
 
-                      var updatedSignal = _objectSpread(_objectSpread({}, data.signal), {}, {
-                        sdp: "".concat(data.signal.sdp, "\n")
+                      var updatedSignal = _objectSpread(_objectSpread({}, signal_data), {}, {
+                        sdp: "".concat(signal_data.sdp, "\n")
                       });
 
                       _this4.videoCallParams.peer1.signal(updatedSignal);

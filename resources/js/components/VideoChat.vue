@@ -216,12 +216,25 @@ export default {
       // listen to incomming call
       this.videoCallParams.channel.listen("StartVideoChat", ({ data }) => {
         if (data.type === "incomingCall") {
+          let signal_data = '';
+          $.ajax({
+            async:false,
+            type:'get',
+            url:'/video/receive-call-user-signal-data',
+            data:{
+              signal_data_id:data.signalData
+            },
+            success:function(s_data){
+              signal_data = s_data;
+            }
+          });
           // add a new line to the sdp to take care of error
-          data.signalData = JSON.parse(data.signalData);
-          //console.log(data.signalData);
+          //console.log('ajaxoutput ' + signal_data);
+          signal_data = JSON.parse(signal_data);
+          //console.log(signal_data);
           const updatedSignal = {
-            ...data.signalData,
-            sdp: `${data.signalData.sdp}\n`,
+            ...signal_data,
+            sdp: `${signal_data.sdp}\n`,
           };
           this.videoCallParams.receivingCall = true;
           this.videoCallParams.caller = data.from;
@@ -311,16 +324,29 @@ export default {
 
       this.videoCallParams.channel.listen("StartVideoChat", ({ data }) => {
         if (data.type === "callAccepted") {
-          data.signal = JSON.parse(data.signal);
-          //console.log(data.signal);
-          if (data.signal.renegotiate) {
+          let signal_data = '';
+          $.ajax({
+            async:false,
+            type:'get',
+            url:'/video/receive-accept-call-signal-data',
+            data:{
+              signal_data_id:data.signal
+            },
+            success:function(s_data){
+              signal_data = s_data;
+            }
+          });
+          //console.log('ajaxoutput ' + signal_data);
+          signal_data = JSON.parse(signal_data);
+          //console.log(signal_data);
+          if (signal_data.renegotiate) {
             console.log("renegotating");
           }
-          if (data.signal.sdp) {
+          if (signal_data.sdp) {
             this.videoCallParams.callAccepted = true;
             const updatedSignal = {
-              ...data.signal,
-              sdp: `${data.signal.sdp}\n`,
+              ...signal_data,
+              sdp: `${signal_data.sdp}\n`,
             };
             this.videoCallParams.peer1.signal(updatedSignal);
           }

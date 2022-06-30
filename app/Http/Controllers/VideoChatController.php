@@ -46,12 +46,16 @@ class VideoChatController extends Controller
 
     public function receiveCallUserSignalData(Request $request)
     {
-
+        $id = $request->signal_data_id;
+        $signal_data = WebrtcSignalData::where('id', $id)->first()->signal_data;
+        return $signal_data;
     }
 
     public function receiveAcceptCallSignalData(Request $request)
     {
-        
+        $id = $request->signal_data_id;
+        $signal_data = WebrtcSignalData::where('id', $id)->first()->signal_data;
+        return $signal_data;
     }
 
     public function video_chat_verify(Request $request)
