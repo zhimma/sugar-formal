@@ -15,7 +15,7 @@ class CreateWebrtcSignalData extends Migration
     {
         Schema::create('webrtc_signal_data', function (Blueprint $table) {
             $table->id();
-            $table->json('signal_data')->nullable();
+            $table->text('signal_data')->nullable();
             $table->timestamps();
         });
     }
