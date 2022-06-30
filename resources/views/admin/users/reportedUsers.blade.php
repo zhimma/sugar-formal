@@ -236,19 +236,51 @@
                                     @endif
                                     @php
                                         //個人檢舉紀錄
-                                        $b_reported_list=\App\Models\Reported::where('member_id',$result['member_id'])->groupBy('reported_id')->get()->pluck('reported_id')->toArray();
-                                        $b_reported_pic_list=\App\Models\ReportedPic::where('reporter_id',$result['member_id'])->groupBy('reported_pic_id')->get()->pluck('reported_pic_id')->toArray();
-                                        $b_reported_avatar_list=\App\Models\ReportedAvatar::where('reporter_id',$result['member_id'])->groupBy('reported_user_id')->get()->pluck('reported_user_id')->toArray();
-                                        $b_reported_message_list=\App\Models\Message::where('to_id',$result['member_id'])->where('isReported',1)->get()->pluck('from_id')->toArray();
-                                        $reported_user_list=array_merge($b_reported_list, $b_reported_pic_list, $b_reported_avatar_list, $b_reported_message_list);
-                                        $reported_count=array_unique($reported_user_list);
+                                        $reported = \App\Models\Reported::select('reported.id','reported.reported_id as rid','reported.content as reason','reported.pic as pic', 'reported.created_at as reporter_time','u.name','u.email','u.engroup','m.isWarned','b.id as banned_id','b.expire_date as banned_expire_date','w.id as warned_id','w.expire_date as warned_expire_date')
+                                            ->leftJoin('users as u', 'u.id','reported.reported_id')->where('u.id','!=',null)
+                                            ->leftJoin('user_meta as m','u.id','m.user_id')
+                                            ->leftJoin('banned_users as b','u.id','b.member_id')
+                                            ->leftJoin('warned_users as w','u.id','w.member_id')
+                                            ->where('reported.member_id',$result['member_id'])->get();
 
-                                        $a_admin_banned=\App\Models\SimpleTables\banned_users::whereIn('member_id',$reported_user_list)->get()->pluck('member_id')->toArray();
-                                        $a_admin_warned=\App\Models\SimpleTables\warned_users::whereIn('member_id',$reported_user_list)->get()->pluck('member_id')->toArray();
+                                        $reported_pic = \App\Models\ReportedPic::select('reported_pic.id','member_pic.member_id as rid','reported_pic.content as reason','reported_pic.created_at as reporter_time','u.name','u.email','u.engroup','m.isWarned','b.id as banned_id','b.expire_date as banned_expire_date','w.id as warned_id','w.expire_date as warned_expire_date');
+                                        $reported_pic = $reported_pic->join('member_pic','member_pic.id','=','reported_pic.reported_pic_id')
+                                            ->leftJoin('users as u', 'u.id','member_pic.member_id')->where('u.id','!=',null)
+                                            ->leftJoin('user_meta as m','u.id','m.user_id')
+                                            ->leftJoin('banned_users as b','u.id','b.member_id')
+                                            ->leftJoin('warned_users as w','u.id','w.member_id')
+                                            ->where('reported_pic.reporter_id',$result['member_id'])->get();
+
+                                        $reported_avatar = \App\Models\ReportedAvatar::select('reported_avatar.id','reported_avatar.reported_user_id as rid', 'reported_avatar.content as reason','reported_avatar.pic as pic' , 'reported_avatar.created_at as reporter_time','u.name','u.email','u.engroup','m.isWarned','b.id as banned_id','b.expire_date as banned_expire_date','w.id as warned_id','w.expire_date as warned_expire_date')
+                                            ->leftJoin('users as u', 'u.id','reported_avatar.reported_user_id')->where('u.id','!=',null)
+                                            ->leftJoin('user_meta as m','u.id','m.user_id')
+                                            ->leftJoin('banned_users as b','u.id','b.member_id')
+                                            ->leftJoin('warned_users as w','u.id','w.member_id')
+                                            ->where('reported_avatar.reporter_id',$result['member_id'])->get();
+
+                                        $reported_message = \App\Models\Message::select('message.id','message.from_id as rid', 'message.reportContent as reason', 'message.updated_at as reporter_time','u.name','u.email','u.engroup','m.isWarned','b.id as banned_id','b.expire_date as banned_expire_date','w.id as warned_id','w.expire_date as warned_expire_date')
+                                            ->leftJoin('users as u', 'u.id','message.from_id')->where('u.id','!=',null)
+                                            ->leftJoin('user_meta as m','u.id','m.user_id')
+                                            ->leftJoin('banned_users as b','u.id','b.member_id')
+                                            ->leftJoin('warned_users as w','u.id','w.member_id')
+                                            ->where('message.to_id',$result['member_id'])->where('message.isReported',1)->get();
+
+                                        $collections = collect([$reported, $reported_pic, $reported_avatar, $reported_message]);
+                                        $report_all_personal = $collections->collapse()->sortByDesc('reporter_time')->groupBy('rid')->collapse();
+
+                                        $reported_user_list_ary=[];
+                                        foreach ($report_all_personal as $report){
+                                            $reported_user_list_ary[]=$report->rid;
+                                        }
+                                        $reported_user_list_ary=array_unique($reported_user_list_ary);
+
+                                        //站方封鎖＆警示人數
+                                        $a_admin_banned=\App\Models\SimpleTables\banned_users::whereIn('member_id',$reported_user_list_ary)->whereRaw('(expire_date IS NULL OR expire_date >="'.now().'")')->pluck('member_id')->toArray();
+                                        $a_admin_warned=\App\Models\SimpleTables\warned_users::whereIn('member_id',$reported_user_list_ary)->whereRaw('(expire_date IS NULL OR expire_date >="'.now().'")')->pluck('member_id')->toArray();
                                         $admin_reported_user_list=array_merge($a_admin_banned, $a_admin_warned);
                                         $admin_reported_count=array_unique($admin_reported_user_list);
                                     @endphp
-                                    {{ '('.count($admin_reported_count).'/'.count($reported_count).')' }}
+                                    {{ '('.count($admin_reported_count).'/'.count($reported_user_list_ary).')' }}
                                 </p>
                             </a>
                         </td>
