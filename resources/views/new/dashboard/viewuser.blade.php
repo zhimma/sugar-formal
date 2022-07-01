@@ -476,7 +476,15 @@
                             <a href="{!! url('dashboard') !!}" class="zh_shed" style="z-index: 6;"></a>
                         @else
                             <a href="{{ !empty(session()->get('goBackPage')) ? session()->get('goBackPage') : \Illuminate\Support\Facades\URL::previous() }}" {{--href="javascript: history.back()"--}} class="hyneback" style="z-index: 6;"><img src="/new/images/back_icon.png">返回</a>                          
-                        @endif                        
+                        @endif   
+
+                        @if(!empty($to->exchange_period) && $to->engroup==2)
+                            @php
+                                $exchange_period_name = DB::table('exchange_period_name')->where('id',$to->exchange_period)->first();
+                            @endphp
+                            <span class="rgnback"><img src="/new/images/zx_x.png">{{$exchange_period_name->name}}</span>
+                        @endif  
+
                         <div class="swiper-container photo">
                             <div class="swiper-wrapper">
                                 <div class="swiper-slide @if($isBlurAvatar) blur_img @endif" data-type="avatar" data-sid="{{$to->id}}" data-pic_id=""><img src="@if(file_exists( public_path().$to->meta->pic ) && $to->meta->pic != ""){{$to->meta->pic}} @elseif($to->engroup==2)/new/images/female.png @else/new/images/male.png @endif"></div>
@@ -913,6 +921,7 @@
                                         </span>
                                     </dt>
 
+                                    {{--
                                     @if(!empty($to->exchange_period) && $to->engroup==2 && $user->isVip())
                                         <dt>
                                             <span>包養關係</span>
@@ -926,6 +935,7 @@
                                         </span>
                                         </dt>
                                     @endif
+                                    --}}
 
                                     @if($to->meta->isHideArea == '0')
                                     <dt>

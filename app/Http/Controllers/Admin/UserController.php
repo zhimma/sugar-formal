@@ -210,15 +210,8 @@ class UserController extends \App\Http\Controllers\BaseController
     {
         if ($request->isVip == 1) {
             //關閉VIP權限
+            Vip::where('member_id', $request->user_id)->get()->first()->removeVIP();
             $setVip = 0;
-            $user = Vip::select('member_id', 'active')
-                ->where('member_id', $request->user_id)
-                ->update(array(
-                    'active' => $setVip,
-                    'expiry' => '0000-00-00 00:00:00',
-                    'business_id' => '',
-                    'order_id' => ''
-                ));
         } else {
             //提供VIP權限
             $setVip = 1;
@@ -378,6 +371,17 @@ class UserController extends \App\Http\Controllers\BaseController
                 if (!empty($value)) {
                     if (SetAutoBan::where([['type', 'allcheck'], ['content', $value], ['set_ban', '1']])->first() == null) {
                         SetAutoBan::insert(['type' => 'allcheck', 'content' => $value, 'set_ban' => '1', 'cuz_user_set' => $request->user_id, 'created_at' => now(), 'updated_at' => now()]);
+                    }
+                }
+            }
+        }
+
+        //輸入新增圖片檔名自動封鎖關鍵字後新增
+        if (!empty($request->addpicautoban)) {
+            foreach ($request->addpicautoban as $value) {
+                if (!empty($value)) {
+                    if (SetAutoBan::where([['type', 'picname'], ['content', $value], ['set_ban', '1']])->first() == null) {
+                        SetAutoBan::insert(['type' => 'picname', 'content' => $value, 'set_ban' => '1', 'cuz_user_set' => $request->user_id, 'created_at' => now(), 'updated_at' => now()]);
                     }
                 }
             }
@@ -4328,7 +4332,11 @@ class UserController extends \App\Http\Controllers\BaseController
 
     public function adminActionLog(Request $request)
     {
-        $getLogs = AdminActionLog::leftJoin('users', 'users.id', '=', 'admin_action_log.operator')->orderBy('admin_action_log.created_at', 'desc');
+        $getLogs = AdminActionLog::selectRaw('admin_action_log.operator, users.name AS operator_name, users.email AS operator_email')
+            ->selectRaw('count(*) AS dataCount')
+            ->leftJoin('users', 'users.id', '=', 'admin_action_log.operator')
+            ->orderBy('admin_action_log.created_at', 'desc')
+            ->groupBy('admin_action_log.operator');
 
         if(!empty($request->get('operator'))){
             $getLogs->where('users.email',$request->get('operator'));
@@ -4339,17 +4347,29 @@ class UserController extends \App\Http\Controllers\BaseController
         if(!empty($request->get('date_end'))){
             $getLogs->where('admin_action_log.created_at','<=',date("Y-m-d",strtotime("+1 day", strtotime($request->get('date_end')))));
         }
-        $getLogs = $getLogs->selectRaw('admin_action_log.*, users.email, (select email from users where id = admin_action_log.target_id) AS target_acc ');
         $getLogs = $getLogs->get();
 
+        foreach ($getLogs as $key => $log){
+            $result[$key]=$log->toArray();
+            $get_operator_by_date = AdminActionLog::selectRaw('LEFT(admin_action_log.created_at,10) as log_by_date, (count(*)) AS count_by_date')->orderBy('admin_action_log.created_at', 'desc')
+                ->where('admin_action_log.operator', $log->operator )
+                ->groupBy('log_by_date');
 
-        $page = $request->get('page',1);
-        $perPage = 50;
-        $totalCount = $getLogs->count();
-        $getLogs = new LengthAwarePaginator($getLogs->forPage($page, $perPage), $totalCount, $perPage, $page, ['path' => route('admin/getAdminActionLog', $request->input())]);
+            if(!empty($request->get('operator'))){
+                $get_operator_by_date->where('users.email',$request->get('operator'));
+            }
+            if(!empty($request->get('date_start'))){
+                $get_operator_by_date->where('admin_action_log.created_at','>=',$request->get('date_start'));
+            }
+            if(!empty($request->get('date_end'))){
+                $get_operator_by_date->where('admin_action_log.created_at','<=',date("Y-m-d",strtotime("+1 day", strtotime($request->get('date_end')))));
+            }
+            $result[$key]['operator_by_date']=$get_operator_by_date->get()->toArray();
 
+        }
+        $getLogs=$result;
 
-        return view('admin.users.showAdminActionLog', compact('getLogs','totalCount'));
+        return view('admin.users.showAdminActionLog', compact('getLogs'));
     }
 
     public function insertAdminActionLog($targetAccountID, $action)
@@ -4612,7 +4632,7 @@ class UserController extends \App\Http\Controllers\BaseController
 
     public function suspiciousUser(Request $request){
 
-        $query = SuspiciousUser::select('users.*','user_meta.pic','user_meta.style','user_meta.about','suspicious_user.created_at AS suspicious_created_time','suspicious_user.reason AS suspicious_reason')
+        $query = SuspiciousUser::select('users.*','user_meta.pic','user_meta.style','user_meta.about','suspicious_user.admin_id AS suspicious_admin_id','suspicious_user.created_at AS suspicious_created_time','suspicious_user.reason AS suspicious_reason')
             ->leftJoin('users','users.id','suspicious_user.user_id')
             ->leftJoin('user_meta','user_meta.user_id','suspicious_user.user_id')
             ->where('suspicious_user.deleted_at',null)
@@ -6096,11 +6116,14 @@ class UserController extends \App\Http\Controllers\BaseController
         $login_count = ComeFromAdvertise::where('action', 'login')->get()->count();
         $explore_count = ComeFromAdvertise::where('action', 'explore')->get()->count();
         $regist_count = ComeFromAdvertise::where('action', 'regist')->get()->count();
+        $complete_regist_count = ComeFromAdvertise::where('action', 'regist')->whereNotNull('user_id')->get()->count();
 
         return view('admin.users.advertiseStatistics')
                 ->with('login_count', $login_count)
                 ->with('explore_count', $explore_count)
-                ->with('regist_count', $regist_count);
+                ->with('regist_count', $regist_count)
+                ->with('complete_regist_count', $complete_regist_count)
+                ;
     }
     
     public function user_record_view(Request $request)

@@ -53,7 +53,7 @@
                                         <div class="ti_ktx na_top10 ga_ti_ft"><font class="na_nb">a.<i class="ga_i">身份選擇。勾選的會員來訊時，會用 line notify 通知您</i></font></div>
                                         <div class="ti_xcheck naa_dd">
                                             @if($user->engroup==1)
-                                                <span><input type="checkbox" name="group_name[]" class="ti_ceckys" value="1" @if(in_array(1, $user_line_notify_chat_set)) checked @endif>長期為主</span>
+                                                <span><input type="checkbox" name="group_name[]" class="ti_ceckys" value="1" @if(in_array(1, $user_line_notify_chat_set)) checked @endif>中長期為主</span>
                                                 <span><input type="checkbox" name="group_name[]" class="ti_ceckys" value="2" @if(in_array(2, $user_line_notify_chat_set)) checked @endif>長短皆可</span>
                                                 <span><input type="checkbox" name="group_name[]" class="ti_ceckys" value="3" @if(in_array(3, $user_line_notify_chat_set)) checked @endif>短期為主</span>
                                             @else

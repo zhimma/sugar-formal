@@ -521,11 +521,13 @@ class Message_newController extends BaseController {
             $url = url('/dashboard/chat2');
             $message = '與您通訊的 '.$user->name.' 已經被站方警示。對話記錄將移到警示會員信件夾，請您再去檢查，如果您們已經交換聯絡方式，請多加注意。 '.$url;
         }
+        //該帳號是否被user加入封鎖名單
+        $is_blocked_user=Blocked::where('member_id',$to_user->id)->where('blocked_id',$user->id)->get()->count();
 
         if($to_user->line_notify_token != null && $line_notify_send_blockOrWarned){
             User::sendLineNotify($to_user->line_notify_token, $message);
         }
-        else if($to_user->line_notify_token != null && $line_notify_send){
+        else if($to_user->line_notify_token != null && $line_notify_send && $is_blocked_user==0 && !$isBanned){
 
             $url = url('/dashboard/chat2/chatShow/'.$user->id);
             //$url = app('bitly')->getUrl($url); //新套件用，如無法使用則先隱藏相關class

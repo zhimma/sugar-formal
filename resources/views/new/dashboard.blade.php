@@ -177,7 +177,7 @@ dt span.engroup_type_title {display:inline-block;width:10%;white-space:nowrap;}
                         @endphp
                         <span>
 {{--                            <input name="" id="" type="text" class="select_xx01" value="{{$exchange_period_name->name}}" data-parsley-errors-messages-disabled disabled style="background-color: #d2d2d2;">--}}
-                            <div class="select_xx01 senhs hy_new" style="background: #d2d2d2;">{{$exchange_period_name->name}}</div>
+                            <div class="select_xx01 senhs hy_new" style="background: #d2d2d2;">{{$exchange_period_name->name}}{{$exchange_period_name->name_explain}}</div>
                         </span>
                         <input name="exchange_period" id="" type="hidden" class="select_xx01" value="{{$user->exchange_period}}" data-parsley-errors-messages-disabled disabled style="background-color: #d2d2d2;">
                     </dt>
@@ -1190,7 +1190,7 @@ dt span.engroup_type_title {display:inline-block;width:10%;white-space:nowrap;}
         @php
             $exchange_period_read = DB::table('exchange_period_temp')->where('user_id',$user->id)->count();
         @endphp
-        @if($exchange_period_read==0 && $user->engroup==2)
+        @if($user->engroup==2 && ($exchange_period_read == 0))
             $('#isExchangePeriod').show();
             $('#announce_bg').show();
         @endif

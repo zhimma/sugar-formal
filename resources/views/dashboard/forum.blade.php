@@ -40,8 +40,8 @@
 					<div class="tl_bbg">
 						<a href="/dashboard/posts_list">
 						<img src="/posts/images/taolq02.png" class="tl_bbg_img">
-						<div class="te_ins">
-							<div class="ta_wdka_text te_incob">主題數<span>{{$posts_list[0]->posts_num}}</span><i>丨</i>回覆數<span>{{$posts_list[0]->posts_reply_num}}</span></div>
+						<div class="te_ins_2">
+							<div class="ta_wdka_text te_incob">主題數<span class="te_clo">{{$posts_list[0]->posts_num}}</span><i>丨</i>回覆數<span class="te_clo">{{$posts_list[0]->posts_reply_num}}</span></div>
 							<div class="ta_witx_rig">
 								<div class="wt_txb">
 									@foreach($posts_list as $key=>$row)
@@ -69,6 +69,48 @@
 						</a>
 					</div>
 
+					<div class="tl_bbg_2" style="margin-top: 15px;">
+						<a href="/dashboard/essence_enter_intro">
+							<img src="/posts/images/taolq02-a.png" class="tl_bbg_img">
+							<div class="te_ins">
+								<div class="ta_wdka_text te_incob">主題數<span>{{ $essence_posts_num }}</span></div>
+								<div class="ta_witx_rig">
+									<div class="wt_txb">
+										@foreach($essence_posts_list as $key=>$row)
+											@if(count($essence_posts_list)>5)
+												@once
+												<span class="ta_toxmr">
+												<img src="/posts/images/imor.png" class="hycov">
+											</span>
+												@endonce
+											@endif
+
+											@if($key==0)
+												<span class="ta_toxmr @if(count($essence_posts_list)>5) xa_rig10 @endif">
+												<img src="@if(file_exists( public_path().$row->umpic ) && $row->umpic != ""){{$row->umpic}} @elseif($row->engroup==2)/new/images/female.png @else/new/images/male.png @endif" class="hycov">
+											</span>
+											@elseif($key>0 && $key<5)
+												<span class="ta_toxmr xa_rig10">
+												<img src="@if(file_exists( public_path().$row->umpic ) && $row->umpic != ""){{$row->umpic}} @elseif($row->engroup==2)/new/images/female.png @else/new/images/male.png @endif" class="hycov">
+											</span>
+											@endif
+										@endforeach
+										@if($essence_posts_list->count())
+											@if($essence_posts_list->count()>1)
+												@if($essence_posts_list->count() >= 100)
+													<div class="ta_sz_hundred" style="background: #ff7d97;">{{ $essence_posts_list->count() }}</div>
+												@elseif($essence_posts_list->count() >= 10)
+													<div class="ta_sz_ten" style="background: #ff7d97;">{{ $essence_posts_list->count() }}</div>
+												@else
+													<div class="ta_sz" style="background: #ff7d97;">{{ $essence_posts_list->count() }}</div>
+												@endif
+											@endif
+										@endif
+									</div>
+								</div>
+							</div>
+						</a>
+					</div>
 
 					<div class="taolun_btl">
 						@if(isset($posts) && count($posts)>0)
@@ -126,7 +168,7 @@
 													@elseif(isset($getStatus) && ($getStatus->status==2 || $getStatus->status==3))
 														<div class="wtg_z" onclick="forumStatus({{$getStatus->status}})">未通過</div>
 													@elseif($post->uid != $user->id && !isset($getStatus) && $post->f_status==1)
-														<a onclick="forum_manage_toggle({{$post->uid}}, 0, {{$post->f_id}})" class="seqr">申請加入</a>
+														<a onclick="forum_manage_toggle({{$post->uid}}, 1, {{$post->f_id}})" class="seqr">申請加入</a>
 													@endif
 												@endif
 												<div class="wt_txb">
@@ -179,9 +221,9 @@
 												</div>
 											</div>
 										</div>
-											@if($show_a==1)
-											</a>
-											@endif
+										@if($show_a==1)
+										</a>
+										@endif
 									</a>
 								</li>
 							@endforeach
@@ -191,10 +233,8 @@
 							</li>
 						@endif
 					</div>
-
 					<div class="fenye ba_but" style="margin-top: 10px;">
 						{{ $posts->links('pagination::sg-pages2') }}
-{{--						<a href="">上一頁</a><span class="new_page">1/5</span><a href="">下一頁</a>--}}
 					</div>
 				</div>
 			</div>
@@ -234,6 +274,8 @@
 		uid = '{{ $user->id }}';
 		if(status==0){
 			msg='您確定要申請加入嗎?'
+		}else if(status==1){
+			msg='您確定要申請加入嗎?'
 		}else{
 			return false;
 		}
@@ -253,6 +295,11 @@
 					if(obj.message=='申請成功'){
 						window.location.href = "/dashboard/forum_manage_chat/" + auid + "/" + uid + "";
 						// window.location.href = "/dashboard/forum";
+					}else if(obj.message=='申請通過'){
+						ccc('申請通過');
+						$(".n_bllbut_tab_other").on('click', function() {
+							location.reload();
+						});
 					}else {
 						location.reload();
 					}

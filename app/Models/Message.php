@@ -635,13 +635,13 @@ class Message extends Model
                                 ;   
                         }) 
                         ->where(function($q){
-                            $q->where('show_time_limit','>',0)
-                                ->whereRaw('ADDTIME(created_at,show_time_limit) > now()')
-                                ->orWhere('show_time_limit',0)
-                                ->orWhereNull('show_time_limit')
-                                ;                             
-                        })
-                        ;
+                            $q->where(function($q2) {
+                                $q2->where('show_time_limit','>',0)
+                                    ->whereRaw('ADDTIME(created_at,show_time_limit) > DATE_ADD(now(), INTERVAL 8 HOUR)');
+                                    // ADD 8 HOUR 暫時寫死，未來可能需要使用浮動時間
+                            })->orWhere('show_time_limit',0)
+                              ->orWhereNull('show_time_limit');
+                        });
             
             if($includeUnsend) { 
                 $query->withTrashed()->where(function ($q) {
