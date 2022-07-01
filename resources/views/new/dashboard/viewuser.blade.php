@@ -880,7 +880,7 @@
                                 <div class="n_bbutton" style="margin-top:10px;">
                                     <div style="display: inline-flex;">
                                         <input type="button" onclick="budget_jianju_submit()" class="n_right" style="border-style: none; background: #8a9ff0; color:#ffffff; float: unset; margin-left: 0px; margin-right: 20px;" value="送出">
-                                        <button type="reset" class="n_left" style="border: 1px solid #8a9ff0; background: #ffffff; color:#8a9ff0; float: unset; margin-right: 0px;" onclick="button()">返回</button>
+                                        <a type="reset" class="n_left" style="border: 1px solid #8a9ff0; background: #ffffff; color:#8a9ff0; float: unset; margin-right: 0px;" href="" onclick="button()">返回</a>
                                     </div>
                                 </div>
                             </form>
