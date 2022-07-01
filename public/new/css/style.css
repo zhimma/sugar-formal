@@ -5058,3 +5058,14 @@ background:rgba(255,255,255,0.6);
 line-height:26px; box-shadow: 0 5px 5px #ffc1cd;}
 .rgnback img{ height:20px; vertical-align: middle; margin-top:0px; margin-right: 2px;}
 
+
+
+.xz_iconp{ position: absolute; width:50%; top:20px; left:25%;}
+
+@media (max-width:450px){
+.xz_iconp{ position: absolute; width:80%; top:20px; left:10%;}
+}
+
+@media (max-width:320px){
+.xz_iconp{ position: absolute; width:60%; top:20px; left:20%;}
+}

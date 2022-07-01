@@ -2188,6 +2188,10 @@ class PagesController extends BaseController
             //判斷自己是否封鎖該用戶
             $isBlocked = \App\Models\Blocked::isBlocked($user->id, $uid);
 
+            //預算被檢舉紀錄
+            $transport_fare_reported = Reported::where('reported_id', $uid)->where('content', '車馬費預算不實')->first();
+            $month_budget_reported = Reported::where('reported_id', $uid)->where('content', '每月預算不實')->first();
+
             // die();
             return view('new.dashboard.viewuser', $data ?? [])
                     ->with('user', $user)
@@ -2217,7 +2221,10 @@ class PagesController extends BaseController
                     ->with('is_banned',User::isBanned($user->id))
                     ->with('pr', $pr)
                     ->with('isBlocked',$isBlocked)
-                    ->with('visited_id', $visited_id);
+                    ->with('visited_id', $visited_id)
+                    ->with('transport_fare_reported', $transport_fare_reported)
+                    ->with('month_budget_reported', $month_budget_reported)
+                    ;
             }
 
     }
