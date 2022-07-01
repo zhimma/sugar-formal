@@ -870,16 +870,16 @@
                             <div class="ju_pjckbox">
                                 注意：檢舉預算不實一定要付上證據，例如轉帳截圖，或者對話紀錄，或其他可資證明的方式
                             </div>
-                            <form action="{{ route('reportPost') }}" method="post" enctype="multipart/form-data">
+                            <form id="budget_jianju_form" action="{{ route('reportPost') }}" method="post" enctype="multipart/form-data">
                                 <input type="hidden" name="_token" value="{{ csrf_token() }}">
                                 <input type="hidden" name="aid" value="{{$user->id}}">
                                 <input type="hidden" name="uid" value="{{$to->id}}">
                                 <input type="hidden" name="content" value="預算不實">
                                 <span class="alert_tip" style="color:red;"></span>
-                                <input type="file" name="reportedImages">
+                                <input type="file" id="budget_jianju_file" name="reportedImages">
                                 <div class="n_bbutton" style="margin-top:10px;">
                                     <div style="display: inline-flex;">
-                                        <input type="submit" class="n_right" style="border-style: none; background: #8a9ff0; color:#ffffff; float: unset; margin-left: 0px; margin-right: 20px;" value="送出">
+                                        <input type="button" onclick="budget_jianju_submit()" class="n_right" style="border-style: none; background: #8a9ff0; color:#ffffff; float: unset; margin-left: 0px; margin-right: 20px;" value="送出">
                                         <button type="reset" class="n_left" style="border: 1px solid #8a9ff0; background: #ffffff; color:#8a9ff0; float: unset; margin-right: 0px;" onclick="button()">返回</button>
                                     </div>
                                 </div>
@@ -3002,6 +3002,18 @@
     function button() {
         $(".blbg").hide()
         $("#jianju").hide()
+    }
+
+    function budget_jianju_submit() {
+        var fileInput = $('#budget_jianju_file').get(0).files[0];
+        if(fileInput)
+        {
+		    $("#budget_jianju_form").submit();
+        }
+        else
+        {
+            c5("檢舉預算不實一定要附上證據，例如轉帳截圖、對話記錄等");
+        }
     }
     
 </script>
