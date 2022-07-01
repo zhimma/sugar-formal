@@ -47,7 +47,7 @@
         @foreach($getLogs as $key => $log)
             <tr>
                 <td>
-                    <span class="OperatorItem" data-sectionName="showOperator_{{ $log['operator'] }}">操作人員：{{  $log['operator_name'] . ' ['. $log['dataCount'] .']' }}</span>
+                    <span class="OperatorItem" data-sectionName="showOperator_{{ $log['operator'] }}">操作人員：{{  $log['operator_name']. ' ['. $log['dataCount'] .']' .' Email： '.$log['operator_email']  }}</span>
                     <table>
                         @php
                             $operator_by_date=array_get($log,'operator_by_date',[]);
