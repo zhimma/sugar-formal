@@ -2992,9 +2992,13 @@
 
 <script>
     function jianju() {
-        $(".blbg").show()
-        $("#jianju").show()
-        $('body').css("overflow", "hidden")
+        @if($user->id != $to->id)
+            $(".blbg").show()
+            $("#jianju").show()
+            $('body').css("overflow", "hidden")
+        @else
+            c5('不可檢舉自己');
+        @endif
     }
 
     function button() {
