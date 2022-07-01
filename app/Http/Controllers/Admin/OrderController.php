@@ -231,7 +231,7 @@ class OrderController extends \App\Http\Controllers\BaseController
                 $current_order_pay_date = last(json_decode($currentOrder->pay_date));
                 if($last['RtnCode'] == 1 && $lastProcessDate != $current_order_pay_date[0]){
                     Order::updateEcPayOrder($order_id);
-                    $result .= '更新付款日期<br>';
+                    $result .= '更新訂單資訊<br>';
                 }
             }
 
@@ -268,19 +268,14 @@ class OrderController extends \App\Http\Controllers\BaseController
                         $lastProcessDate = str_replace('%20', ' ', $last['process_date']);
                         $lastProcessDate = \Carbon\Carbon::createFromFormat('Y/m/d H:i:s', $lastProcessDate);
                         $lastProcessDateDiffDays = $lastProcessDate->diffInDays(Carbon::now());
-                        if($last['RtnCode']==1){
+                        if($last['RtnCode']==1 && $paymentPeriodInfo['ExecStatus'] == 1){
+                            //定期定額正常狀態中 更新hideOnline
                             if(str_contains($paymentData['CustomField3'], 'quarterly')){
-                                if($lastProcessDateDiffDays<90){
-                                    //效期內 更新hideOnline
-                                    $result .= 'hideOnline定期定額季付效期內<br>';
-                                    $updateHideOnline = 1;
-                                }
+                                $result .= 'hideOnline定期定額季付效期內<br>';
+                                $updateHideOnline = 1;
                             }else if(str_contains($paymentData['CustomField3'], 'monthly')){
-                                if($lastProcessDateDiffDays<30){
-                                    //效期內 更新hideOnline
-                                    $result .= 'hideOnline定期定額月付效期內<br>';
-                                    $updateHideOnline = 1;
-                                }
+                                $result .= 'hideOnline定期定額月付效期內<br>';
+                                $updateHideOnline = 1;
                             }
                         }
 
@@ -318,38 +313,24 @@ class OrderController extends \App\Http\Controllers\BaseController
                             }
                         }
 
-                    }else if(str_contains($paymentData['CustomField3'], 'cc')) {
+                    }else if(str_contains($paymentData['CustomField3'], 'cc') || $paymentData['CustomField3']=='') {
                         $last = last($paymentPeriodInfo['ExecLog']);
                         $lastProcessDate = str_replace('%20', ' ', $last['process_date']);
                         $lastProcessDate = \Carbon\Carbon::createFromFormat('Y/m/d H:i:s', $lastProcessDate);
                         $lastProcessDateDiffDays = $lastProcessDate->diffInDays(Carbon::now());
-                        if($last['RtnCode']==1){
+                        if($last['RtnCode']==1 && $paymentPeriodInfo['ExecStatus'] == 1){
+                            //定期定額正常狀態中 更新VIP
                             if(str_contains($paymentData['CustomField3'], 'quarterly')){
-                                if($lastProcessDateDiffDays<90){
-                                    //效期內 更新VIP
-                                    $result .= 'VIP定期定額季付效期內<br>';
-                                    $updateVip = 1;
-                                }
+                                $result .= 'VIP定期定額季付效期內<br>';
+                                $updateVip = 1;
                             }else if(str_contains($paymentData['CustomField3'], 'monthly')){
-                                if($lastProcessDateDiffDays<30){
-                                    //效期內 更新VIP
-                                    $result .= 'VIP定期定額月付效期內<br>';
-                                    $updateVip = 1;
-                                }
+                                $result .= 'VIP定期定額月付效期內<br>';
+                                $updateVip = 1;
+                            }else if($paymentData['CustomField3']==''){
+                                $result .= 'VIP定期定額月付效期內<br>';
+                                $updateVip = 1;
                             }
                         }
-
-                    }else if($paymentData['CustomField3']==''){
-                        $last = last($paymentPeriodInfo['ExecLog']);
-                        $lastProcessDate = str_replace('%20', ' ', $last['process_date']);
-                        $lastProcessDate = \Carbon\Carbon::createFromFormat('Y/m/d H:i:s', $lastProcessDate);
-                        $lastProcessDateDiffDays = $lastProcessDate->diffInDays(Carbon::now());
-                        if($lastProcessDateDiffDays<30){
-                            //效期內 更新VIP
-                            $result .= 'VIP定期定額月付效期內<br>';
-                            $updateVip = 1;
-                        }
-
                     }
 
                     if($updateVip == 1){
