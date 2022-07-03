@@ -7,6 +7,8 @@ use Illuminate\Http\Request;
 use App\Models\AwsSesMailLog;
 use Carbon\Carbon;
 use Illuminate\Support\Facades\Log;
+use App\Models\LogUserLogin;
+use App\Models\Message;
 
 
 class MailController extends Controller
@@ -89,5 +91,55 @@ class MailController extends Controller
         }
         return back()
                 ->with('message','寄送成功 '.$str);
+    }
+
+    public function test_stat(Request $request)
+    {
+        $start_date = $request->start_date ?? "2022-06-25 14:00:00";
+        $end_date = $request->end_date ?? "2022-06-25 15:00:00";
+        $men_total = $request->men_total ?? 10;
+
+        // email/是否封鎖/暱稱/關於我/約會模式
+
+        // 在 2022/6/25 1400~1500 間有 login 的女會員
+        // and 曾經有發訊息給超過 10 個男會員
+        // and 對單一男會員發出訊息都沒有超過10則的
+
+        // 在...間有登入的女會員
+        $users_id = LogUserLogin::join('users', 'users.id', '=', 'log_user_login.user_id')
+            ->where('engroup', 2)
+            ->where('log_user_login.created_at', '>=', $start_date)
+            ->where('log_user_login.created_at', '<=', $end_date)
+            ->groupBy('user_id')
+            ->get()
+            ->pluck('user_id');
+
+        $messages = Message::whereIn("from_id", $users_id)
+            ->where('created_at', '>=', $start_date)
+            ->where('created_at', '<=', $end_date)
+            ->get()->toArray();
+        
+        // 不重複的發送者 ID，將這些 ID 設為陣列的 key
+        $messages_from_id = array_fill_keys(array_unique(array_column($messages, 'from_id')), ["total" => 0, "to_ids" => []]);
+        
+        collect($messages)->each(function ($msg, $key) use (&$messages_from_id) {
+            // to_ids: 對方 ID 表
+            // to_id_stat: 各 ID 收到的訊息數統計
+            $messages_from_id[$msg['from_id']]["total"]++;
+            if(!in_array($msg['to_id'], $messages_from_id[$msg['from_id']]["to_ids"])) {
+                $messages_from_id[$msg['from_id']]["to_ids"][] = $msg['to_id'];
+                $messages_from_id[$msg['from_id']]["to_id_stat"][$msg['to_id']]["count"] = 1;
+            }
+            else {
+                $messages_from_id[$msg['from_id']]["to_id_stat"][$msg['to_id']]["count"]++;
+            }
+        });
+
+        // 曾經有發訊息給超過 10 個男會員
+        $filtered = collect($messages_from_id)->filter(function ($from_stat, $key) use ($men_total) {
+            return count($from_stat["to_ids"]) > $men_total;
+        });
+
+        return $filtered;
     }
 }
