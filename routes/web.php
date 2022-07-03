@@ -935,9 +935,10 @@ Route::group(['middleware' => ['auth', 'global', 'active', 'femaleActive', 'vipC
                 ->where('log_user_login.created_at', '>=', '2022-06-25 14:00:00')
                 ->where('log_user_login.created_at', '<=', '2022-06-25 15:00:00')
                 ->groupBy('user_id')
+                ->get()
                 ->pluck('user_id');
 
-            $receivers_by_user = Message::where("")
+            $receivers_by_user = Message::whereIn("from_id", $users_id)->keyBy("from_id")->pluck("to_id")->get();
 
 
 
