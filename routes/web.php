@@ -3,6 +3,8 @@
 use Illuminate\Support\Facades\Route;
 use Illuminate\Http\Request;
 use App\Http\Controllers\Api\CfpController;
+use App\Models\LogUserLogin;
+use App\Models\Message;
 
 /*
 |--------------------------------------------------------------------------
@@ -919,6 +921,29 @@ Route::group(['middleware' => ['auth', 'global', 'active', 'femaleActive', 'vipC
         Route::get('maillog', 'Api\MailController@viewMailLog')->name('maillog');
         Route::get("fakeMail", 'Api\MailController@fakeMail')->name('fakeMail');
         Route::post("sendFakeMail", 'Api\MailController@sendFakeMail')->name('sendFakeMail');
+
+        Route::get("stat_test", function () {
+            // email/是否封鎖/暱稱/關於我/約會模式
+
+            // 在 2022/6/25 1400~1500 間有 login 的女會員
+            // and 曾經有發訊息給超過 10 個男會員
+            // and 對單一男會員發出訊息都沒有超過10則的
+
+            // 在...間有登入的女會員
+            $users_id = LogUserLogin::join('users', 'users.id', '=', 'log_user_login.user_id')
+                ->where('engroup', 2)
+                ->where('log_user_login.created_at', '>=', '2022-06-25 14:00:00')
+                ->where('log_user_login.created_at', '<=', '2022-06-25 15:00:00')
+                ->groupBy('user_id')
+                ->pluck('user_id');
+
+            $receivers_by_user = Message::where("")
+
+
+
+
+            return view('admin.stat_test');
+        });
 
         Route::get("jsfp_pro_validation", function() {
             ini_set("max_execution_time",'0');
