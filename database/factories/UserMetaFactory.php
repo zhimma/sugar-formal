@@ -1,16 +1,21 @@
 <?php
+namespace Database\Factories;
 
-/*
-|--------------------------------------------------------------------------
-| UserMeta Factory
-|--------------------------------------------------------------------------
-*/
+use App\Models\UserMeta;
+use Illuminate\Database\Eloquent\Factories\Factory;
 
-$factory->define(App\Models\UserMeta::class, function (Faker\Generator $faker) {
-    return [
-        'user_id' => 1,
-        'phone' => $faker->phoneNumber,
-        'marketing' => 1,
-        'terms_and_cond' => 1,
-    ];
-});
+class UserMetaFactory extends Factory
+{
+    protected $model = UserMeta::class;
+
+    public function definition()
+    {
+        $user = \DB::table('users')->orderBy('id','desc')->first();
+        return [
+            'user_id' => $user->id,
+            'phone' => '0912345678',
+            'marketing' => 1,
+            'terms_and_cond' => 1,
+        ];
+    }
+}
