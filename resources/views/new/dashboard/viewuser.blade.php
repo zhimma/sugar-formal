@@ -836,9 +836,9 @@
 
                 </div>
                 @if($to->engroup==1)
-                    <div class="metx_tab"  style="z-index:0">
+                    <div class="metx_tab" style="z-index:0">
                         <div class="hdlist1_left">
-                            <div class="hdlist1_left_tab">
+                            <div class="hdlist1_left_tab xa_psirp">
                                     <div class="hs_tnes">
                                         <img src="/new/images/shouru.png">
                                         <div class="she_fontetex">車馬費預算<span>transport fare</span></div>
@@ -855,7 +855,7 @@
                             </div>
                         </div>
                         <div class="hdlist2_right">
-                                <div class="hdlist2_right_tab">
+                                <div class="hdlist2_right_tab xa_psirp">
                                     <div class="hs_tnes">
                                         <img src="/new/images/zichan.png">
                                         <div class="she_fontetex">每月預算<span>month budget</span></div>
