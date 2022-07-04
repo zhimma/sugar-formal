@@ -2623,7 +2623,7 @@ $("input[name='phone']").keyup(function(){
                     success: function(res){
                         alert('警示成功');
                         location.reload();
-                    }
+                    },
                     error: function(res){
                         location.reload();
                     }
