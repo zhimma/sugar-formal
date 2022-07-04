@@ -668,6 +668,11 @@ Route::group(['middleware' => ['auth', 'global', 'active', 'femaleActive', 'vipC
         Route::post('users/applyPicMemberList', 'UserController@applyPicMemberList')->name('applyPicMemberList');
         
         Route::post('users/toggleUserWarned', 'UserController@toggleUserWarned');
+
+        //預算及車馬費警示警示
+        Route::post('users/warnBudget', 'UserController@warnBudget');
+        //預算及車馬費警示警示
+
         Route::get('users/closeAccountReason', 'UserController@closeAccountReason')->name('users/closeAccountReasonList');
         Route::get('users/closeAccountDetail', 'UserController@closeAccountDetail');
 

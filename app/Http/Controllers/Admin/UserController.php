@@ -655,6 +655,97 @@ class UserController extends \App\Http\Controllers\BaseController
 
     }
 
+    //預算及車馬費警示警示
+    public function warnBudget(Request $request)
+    {
+        $reason = '';
+        $days = 0;
+        if($request->type == 'month_budget')
+        {
+            $reason = '每月預算不實';
+            $warn_frequency = DB::table('is_warned_log')->where('user_id', $request->user_id)->where('reason', $reason)->count();
+            if($warn_frequency == 0)
+            {
+                $days = 7;
+            }
+            else if($warn_frequency == 1)
+            {
+                $days = 20;
+            }
+            else
+            {
+                $days = 60;
+            }
+        }
+        else if($request->type == 'transport_fare')
+        {
+            $reason = '車馬費預算不實';
+            $warn_frequency = DB::table('is_warned_log')->where('user_id', $request->user_id)->where('reason', $reason)->count();
+            if($warn_frequency == 0)
+            {
+                $days = 7;
+            }
+            else if($warn_frequency == 1)
+            {
+                $days = 20;
+            }
+            else
+            {
+                $days = 60;
+            }
+        }
+        $expire_date = Carbon::now()->addDays($days);
+
+        ini_set('max_execution_time', -1);
+        $userWarned = warned_users::where('member_id', $request->user_id)
+            ->orderBy('created_at', 'desc')
+            ->get()->first();
+
+        if ($userWarned) {
+            $checkLog = DB::table('is_warned_log')->where('user_id', $userWarned->member_id)->where('created_at', $userWarned->created_at)->get()->first();
+            if(!$checkLog) {
+                //寫入log
+                DB::table('is_warned_log')->insert(['user_id' => $userWarned->member_id, 'reason' => $userWarned->reason, 'created_at' => $userWarned->created_at,'vip_pass'=>$userWarned->vip_pass,'adv_auth'=>$userWarned->adv_auth]);
+            }
+            $userWarned->delete();
+        }
+
+        
+        $userWarned = new warned_users;
+        $userWarned->member_id = $request->user_id;
+        $userWarned->expire_date = $expire_date;
+        $userWarned->reason = $reason;
+        $userWarned->save();
+
+
+        BadUserCommon::addRemindMsgFromBadId($request->user_id);
+        //寫入log
+        DB::table('is_warned_log')->insert(['user_id' => $request->user_id, 'reason' => $reason, 'expire_date' =>$expire_date, 'created_at' => Carbon::now()]);
+        //新增Admin操作log
+        $this->insertAdminActionLog($request->user_id, '站方警示');
+
+        $warned_user=User::findById($request->user_id);
+        $line_notify_user_list = lineNotifyChatSet::select('line_notify_chat_set.user_id')
+            ->selectRaw('users.line_notify_token')
+            ->leftJoin('line_notify_chat','line_notify_chat.id', 'line_notify_chat_set.line_notify_chat_id')
+            ->leftJoin('users','users.id', 'line_notify_chat_set.user_id')
+            ->where('line_notify_chat.active',1)
+            ->where('line_notify_chat_set.line_notify_chat_id',7)//警示會員
+            ->where('line_notify_chat_set.deleted_at',null)
+            ->whereNotNull('users.line_notify_token')
+            ->groupBy('line_notify_chat_set.user_id')->get();
+        foreach ($line_notify_user_list as $notify_user){
+            $has_message = Message::where([['to_id', $warned_user->id], ['from_id', $notify_user->user_id]])->orWhere([['to_id', $notify_user->user_id], ['from_id', $warned_user->id]])->get()->count();
+            if($notify_user->line_notify_token != null && $has_message){
+                $url = url('/dashboard/chat2');
+                //send notify
+                $message = '與您通訊的 '.$warned_user->name.' 已經被站方警示。對話記錄將移到警示會員信件夾，請您再去檢查，如果您們已經交換聯絡方式，請多加注意。 '.$url;
+                User::sendLineNotify($notify_user->line_notify_token, $message);
+            }
+        }
+    }
+    //預算及車馬費警示警示
+
     public function closeAccountReason(Request $request)
     {
         $getAccount =  AccountStatusLog::leftJoin('users', 'users.id', '=', 'account_status_log.user_id')->groupBy('user_id');
