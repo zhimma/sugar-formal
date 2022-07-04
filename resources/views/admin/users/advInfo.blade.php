@@ -2610,19 +2610,31 @@ $("input[name='phone']").keyup(function(){
     {
         if(confirm('確定警示?'))
         {
-            $.ajax({
-                type: 'POST',
-                url: "/admin/users/warnBudget?{{csrf_token()}}={{now()->timestamp}}",
-                data:{
-                    _token: '{{csrf_token()}}',
-                    type: type,
-                    user_id: {{$user->id}}
-                },
-                success: function(){
-                    alert('警示成功');
-                    location.reload();
-                }
-            });
+            try
+            {
+                $.ajax({
+                    type: 'POST',
+                    url: "/admin/users/warnBudget?{{csrf_token()}}={{now()->timestamp}}",
+                    data:{
+                        _token: '{{csrf_token()}}',
+                        type: type,
+                        user_id: {{$user->id}}
+                    },
+                    success: function(res){
+                        alert('警示成功');
+                        location.reload();
+                    }
+                    error: function(res){
+                        location.reload();
+                    }
+                });
+            }
+            catch(error) 
+            {
+                console.error(error);
+                location.reload();
+            }
+            
         }
         else
         {
