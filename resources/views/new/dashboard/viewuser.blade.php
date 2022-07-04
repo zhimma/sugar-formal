@@ -429,6 +429,13 @@
             $('body').css("overflow", "auto");
         } 
 
+        function button() {
+            $(".blbg").hide()
+            $("#jianju").hide()
+            $(".announce_bg").hide();
+            $('body').css("overflow", "auto");
+        }
+
         function show_reportPic_close(){
             $(".announce_bg").hide();
             $("#show_reportPic").hide();
@@ -864,32 +871,7 @@
                                     @if(!empty($month_budget_reported)) <img src="/new/images/cm_icon02.png" class="xz_iconp"> @endif
                                 </div>
                         </div>
-                    </div>
-
-                    <div class="bl bl_tab" id="jianju">
-                        <div class="bltitle"><span>預算不實</span></div><a href="" onclick="button()" class="bl_gb"><img src="/new/images/gb_icon.png"></a>
-                        <div class="new_pot" style="height: auto;">
-                            <div class="ju_pic">
-                                <div class="ju_pjckbox">
-                                    注意：檢舉預算不實一定要付上證據，例如轉帳截圖，或者對話紀錄，或其他可資證明的方式
-                                </div>
-                                <form id="budget_jianju_form" action="{{ route('reportPost') }}" method="post" enctype="multipart/form-data">
-                                    <input type="hidden" name="_token" value="{{ csrf_token() }}">
-                                    <input type="hidden" name="aid" value="{{$user->id}}">
-                                    <input type="hidden" name="uid" value="{{$to->id}}">
-                                    <input type="hidden" id="jianju_content" name="content" value="預算不實">
-                                    <span class="alert_tip" style="color:red;"></span>
-                                    <input type="file" id="budget_jianju_file" name="reportedImages">
-                                    <div class="n_bbutton" style="margin-top:10px;">
-                                        <div style="display: inline-flex;">
-                                            <input type="button" onclick="budget_jianju_submit()" class="n_right" style="border-style: none; background: #8a9ff0; color:#ffffff; float: unset; margin-left: 0px; margin-right: 20px;" value="送出">
-                                            <a type="reset" class="n_left" style="border: 1px solid #8a9ff0; background: #ffffff; color:#8a9ff0; float: unset; margin-right: 0px;" href="" onclick="button()">返回</a>
-                                        </div>
-                                    </div>
-                                </form>
-                            </div>
-                        </div>
-                    </div>
+                    </div>       
                 @endif
 
                 <!--基本资料-->
@@ -1607,6 +1589,36 @@
             <a onclick="show_banned_close()" class="bl_gb"><img src="/new/images/gb_icon.png"></a>
         </div>
     </div>
+    
+    @if($to->engroup==1)
+        <div class="bl_tab_aa" id="jianju" style="display: none;">
+            <div class="bl_tab_bb">
+                <div class="bltitle"><span style="text-align: center; float: none;">預算不實</span></div>
+                <div class="new_pot new_poptk_nn new_pot001">
+                    <div class="fpt_pic new_po000">
+                        <div class="ju_pjckbox">
+                            注意：檢舉預算不實一定要付上證據，例如轉帳截圖，或者對話紀錄，或其他可資證明的方式
+                        </div>
+                        <form id="budget_jianju_form" action="{{ route('reportPost') }}" method="post" enctype="multipart/form-data">
+                            <input type="hidden" name="_token" value="{{ csrf_token() }}">
+                            <input type="hidden" name="aid" value="{{$user->id}}">
+                            <input type="hidden" name="uid" value="{{$to->id}}">
+                            <input type="hidden" id="jianju_content" name="content" value="預算不實">
+                            <span class="alert_tip" style="color:red;"></span>
+                            <input type="file" id="budget_jianju_file" name="reportedImages">
+                            <div class="n_bbutton" style="margin-top:10px;">
+                                <div style="display: inline-flex;">
+                                    <input type="button" onclick="budget_jianju_submit()" class="n_right" style="border-style: none; background: #8a9ff0; color:#ffffff; float: unset; margin-left: 0px; margin-right: 20px;" value="送出">
+                                    <a type="reset" class="n_left" style="border: 1px solid #8a9ff0; background: #ffffff; color:#8a9ff0; float: unset; margin-right: 0px;" href="" onclick="button()">返回</a>
+                                </div>
+                            </div>
+                        </form>
+                    </div>
+                </div>
+                <a onclick="button()" class="bl_gb"><img src="/new/images/gb_icon.png"></a>
+            </div>
+        </div>         
+    @endif
 
     <div class="bl_tab_aa reportPic_aa" id="show_reportPic" style="display: none;">
         <div class="bl_tab_bb">
@@ -3013,19 +3025,16 @@
         @endif
     }
 
-    function button() {
-        $(".blbg").hide()
-        $("#jianju").hide()
-    }
-
     function budget_jianju_submit() {
         var fileInput = $('#budget_jianju_file').get(0).files[0];
         if(fileInput)
         {
+            button();
 		    $("#budget_jianju_form").submit();
         }
         else
         {
+            button();
             c5("檢舉預算不實一定要附上證據，例如轉帳截圖、對話記錄等");
         }
     }
