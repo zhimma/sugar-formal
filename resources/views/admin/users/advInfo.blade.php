@@ -2608,19 +2608,26 @@ $("input[name='phone']").keyup(function(){
     //預算及車馬費警示警示
     function WarnBudget(type)
     {
-        $.ajax({
-            type: 'POST',
-            url: "/admin/users/warnBudget?{{csrf_token()}}={{now()->timestamp}}",
-            data:{
-                _token: '{{csrf_token()}}',
-                type: type,
-                user_id: {{$user->id}}
-            },
-            success: function(){
-                alert('警示成功');
-                location.reload();
-            }
-        });
+        if(confirm('確定警示?'))
+        {
+            $.ajax({
+                type: 'POST',
+                url: "/admin/users/warnBudget?{{csrf_token()}}={{now()->timestamp}}",
+                data:{
+                    _token: '{{csrf_token()}}',
+                    type: type,
+                    user_id: {{$user->id}}
+                },
+                success: function(){
+                    alert('警示成功');
+                    location.reload();
+                }
+            });
+        }
+        else
+        {
+            return false;
+        }
     }
     //預算及車馬費警示警示
 
