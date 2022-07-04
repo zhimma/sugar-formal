@@ -638,9 +638,7 @@ class Message_newController extends BaseController {
          *  }
          */
         $data = Message_new::allSendersAJAX($user_id, $request->isVip,$request->date);
-        // $data = MessageRoom::getRooms($user_id, $request->isVip,$request->date);
-        // dd($data);
-        if($data != ['No data'])
+        if(is_array($data) && $data != ['No data'])
         {
             //過濾篩選條件
             $inbox_refuse_set = InboxRefuseSet::where('user_id', $user->id)->first();
