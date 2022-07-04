@@ -828,67 +828,69 @@
                     </script>
 
                 </div>
-                <div class="metx_tab"  style="z-index:0">
-                    <div class="hdlist1_left">
-                        <div class="hdlist1_left_tab">
-                                <div class="hs_tnes">
-                                    <img src="/new/images/shouru.png">
-                                    <div class="she_fontetex">車馬費預算<span>transport fare</span></div>
-                                </div>
-                                <a class="s_bushi" onclick="jianju_transport_fare()">檢舉不實</a>
-                                <div class="sh_button_w">
-                                    @if(!empty($to->meta->transport_fare_min) && !empty($to->meta->transport_fare_max))
-                                        <div class="sh_button_n"> {{round($to->meta->transport_fare_min, -2)}}~{{round($to->meta->transport_fare_max, -2)}}</div>
-                                    @else
-                                        <div class="sh_button_n"> 最低 / 未填</div>
-                                    @endif
-                                </div>
-                                @if(!empty($transport_fare_reported)) <img src="/new/images/cm_icon01.png" class="xz_iconp"> @endif
-                        </div>
-                    </div>
-                    <div class="hdlist2_right">
-                            <div class="hdlist2_right_tab">
-                                <div class="hs_tnes">
-                                    <img src="/new/images/zichan.png">
-                                    <div class="she_fontetex">每月預算<span>month budget</span></div>
-                                </div>
-                                <a class="s_bushizz" onclick="jianju_month_budget()">檢舉不實</a>
-                                <div class="zc_button_w">
-                                    @if(!empty($to->meta->budget_per_month_min) && !empty($to->meta->budget_per_month_max))
-                                        <div class="zc_button_n"> {{round($to->meta->budget_per_month_min, -3)/10000}}萬~{{round($to->meta->budget_per_month_max, -3)/10000}}萬</div>
-                                    @else
-                                        <div class="zc_button_n"> 最低 / 未填</div>
-                                    @endif
-                                </div>
-                                @if(!empty($month_budget_reported)) <img src="/new/images/cm_icon02.png" class="xz_iconp"> @endif
-                            </div>
-                    </div>
-                </div>
-
-                <div class="bl bl_tab" id="jianju">
-                    <div class="bltitle"><span>預算不實</span></div><a href="" onclick="button()" class="bl_gb"><img src="/new/images/gb_icon.png"></a>
-                    <div class="new_pot" style="height: auto;">
-                        <div class="ju_pic">
-                            <div class="ju_pjckbox">
-                                注意：檢舉預算不實一定要付上證據，例如轉帳截圖，或者對話紀錄，或其他可資證明的方式
-                            </div>
-                            <form id="budget_jianju_form" action="{{ route('reportPost') }}" method="post" enctype="multipart/form-data">
-                                <input type="hidden" name="_token" value="{{ csrf_token() }}">
-                                <input type="hidden" name="aid" value="{{$user->id}}">
-                                <input type="hidden" name="uid" value="{{$to->id}}">
-                                <input type="hidden" id="jianju_content" name="content" value="預算不實">
-                                <span class="alert_tip" style="color:red;"></span>
-                                <input type="file" id="budget_jianju_file" name="reportedImages">
-                                <div class="n_bbutton" style="margin-top:10px;">
-                                    <div style="display: inline-flex;">
-                                        <input type="button" onclick="budget_jianju_submit()" class="n_right" style="border-style: none; background: #8a9ff0; color:#ffffff; float: unset; margin-left: 0px; margin-right: 20px;" value="送出">
-                                        <a type="reset" class="n_left" style="border: 1px solid #8a9ff0; background: #ffffff; color:#8a9ff0; float: unset; margin-right: 0px;" href="" onclick="button()">返回</a>
+                @if($to->engroup==1)
+                    <div class="metx_tab"  style="z-index:0">
+                        <div class="hdlist1_left">
+                            <div class="hdlist1_left_tab">
+                                    <div class="hs_tnes">
+                                        <img src="/new/images/shouru.png">
+                                        <div class="she_fontetex">車馬費預算<span>transport fare</span></div>
                                     </div>
+                                    <a class="s_bushi" onclick="jianju_transport_fare()">檢舉不實</a>
+                                    <div class="sh_button_w">
+                                        @if(!empty($to->meta->transport_fare_min) && !empty($to->meta->transport_fare_max))
+                                            <div class="sh_button_n"> {{round($to->meta->transport_fare_min, -2)}}~{{round($to->meta->transport_fare_max, -2)}}</div>
+                                        @else
+                                            <div class="sh_button_n"> 最低 / 未填</div>
+                                        @endif
+                                    </div>
+                                    @if(!empty($transport_fare_reported)) <img src="/new/images/cm_icon01.png" class="xz_iconp"> @endif
+                            </div>
+                        </div>
+                        <div class="hdlist2_right">
+                                <div class="hdlist2_right_tab">
+                                    <div class="hs_tnes">
+                                        <img src="/new/images/zichan.png">
+                                        <div class="she_fontetex">每月預算<span>month budget</span></div>
+                                    </div>
+                                    <a class="s_bushizz" onclick="jianju_month_budget()">檢舉不實</a>
+                                    <div class="zc_button_w">
+                                        @if(!empty($to->meta->budget_per_month_min) && !empty($to->meta->budget_per_month_max))
+                                            <div class="zc_button_n"> {{round($to->meta->budget_per_month_min, -3)/10000}}萬~{{round($to->meta->budget_per_month_max, -3)/10000}}萬</div>
+                                        @else
+                                            <div class="zc_button_n"> 最低 / 未填</div>
+                                        @endif
+                                    </div>
+                                    @if(!empty($month_budget_reported)) <img src="/new/images/cm_icon02.png" class="xz_iconp"> @endif
                                 </div>
-                            </form>
                         </div>
                     </div>
-                </div>
+
+                    <div class="bl bl_tab" id="jianju">
+                        <div class="bltitle"><span>預算不實</span></div><a href="" onclick="button()" class="bl_gb"><img src="/new/images/gb_icon.png"></a>
+                        <div class="new_pot" style="height: auto;">
+                            <div class="ju_pic">
+                                <div class="ju_pjckbox">
+                                    注意：檢舉預算不實一定要付上證據，例如轉帳截圖，或者對話紀錄，或其他可資證明的方式
+                                </div>
+                                <form id="budget_jianju_form" action="{{ route('reportPost') }}" method="post" enctype="multipart/form-data">
+                                    <input type="hidden" name="_token" value="{{ csrf_token() }}">
+                                    <input type="hidden" name="aid" value="{{$user->id}}">
+                                    <input type="hidden" name="uid" value="{{$to->id}}">
+                                    <input type="hidden" id="jianju_content" name="content" value="預算不實">
+                                    <span class="alert_tip" style="color:red;"></span>
+                                    <input type="file" id="budget_jianju_file" name="reportedImages">
+                                    <div class="n_bbutton" style="margin-top:10px;">
+                                        <div style="display: inline-flex;">
+                                            <input type="button" onclick="budget_jianju_submit()" class="n_right" style="border-style: none; background: #8a9ff0; color:#ffffff; float: unset; margin-left: 0px; margin-right: 20px;" value="送出">
+                                            <a type="reset" class="n_left" style="border: 1px solid #8a9ff0; background: #ffffff; color:#8a9ff0; float: unset; margin-right: 0px;" href="" onclick="button()">返回</a>
+                                        </div>
+                                    </div>
+                                </form>
+                            </div>
+                        </div>
+                    </div>
+                @endif
 
                 <!--基本资料-->
                 <div class="mintop">
@@ -969,8 +971,7 @@
                                     </dt>
                                     @endif
 
-                                    {{--
-                                    @if(!empty($to->meta->budget))
+                                    @if($to->engroup == 2 && !empty($to->meta->budget))
                                     <dt>
                                         <span>預算</span>
                                         <span>
@@ -978,7 +979,6 @@
                                         </span>
                                     </dt>
                                     @endif
-                                    --}}
 
                                     @if(!empty($to->meta->age()))
                                     <dt>
