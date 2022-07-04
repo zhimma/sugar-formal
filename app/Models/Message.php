@@ -48,7 +48,8 @@ class Message extends Model
         'parent_client_id',
         'views_count',
         'views_count_quota',
-        'show_time_limit'
+        'show_time_limit',
+        'room_id'
     ];
 
     static $date = null;
@@ -73,6 +74,18 @@ class Message extends Model
         return $this->belongsTo(Message::class, 'parent_msg', 'id');
     }
 
+    public function latestMessage2() {
+        return $this->messages()??"";
+    }
+
+    public function roomMembers() {
+        return $this->belongsToMany(User::class, MessageRoomUserXref::class);
+    }
+
+    public function joinedMessageRooms() {
+        return $this->belongsTo(User::class, MessageRoomUserXref::class, 'user_id', 'id', 'id');
+    }
+    
     // handle delete Message
     public static function deleteBetween($uid, $sid) {
         $message = Message::where([['to_id', $uid], ['from_id', $sid]])->orWhere([['to_id', $sid], ['from_id', $uid]])->orderBy('created_at', 'desc')->first();
@@ -1014,11 +1027,50 @@ class Message extends Model
 
     public static function postByArr($arr)
     {
+        
+
         $tip_action = array_key_exists('tip_action',$arr)?$arr['tip_action']:true;
         $sys_notice = array_key_exists('sys_notice',$arr)?$arr['sys_notice']:0;
         $message = new Message;
         $message->from_id = $arr['from_id']??null;
         $message->to_id = $arr['to']??null;
+        
+
+        $rows = array(
+            $message->from_id,
+            $message->to_id
+        );
+
+        $checkData = MessageRoomUserXref::whereIn('user_id',$rows)->groupBy('room_id')->havingRaw('count(user_id) = ?', [2]);
+        // $checkData = $checkData->get();
+
+        if($checkData->count()==0){
+            $messageRoom = new MessageRoom;
+            $messageRoom->save();
+            $room_id = $messageRoom->id;
+          
+
+            foreach($rows as $row){
+                $messageRoomUserXref = new MessageRoomUserXref;
+                $messageRoomUserXref->user_id = $row;
+                $messageRoomUserXref->room_id = $room_id;
+                $messageRoomUserXref->save();
+            }
+            // dd('1');
+        }else{
+            $room_id = $checkData->first()['room_id'];
+            // dd($room_id);
+        }
+
+        // $rows = array(
+        //     $message->from_id,
+        //     $message->to_id
+        // );
+        // $checkData = MessageRoomUserXref::whereIn('user_id',$rows)->groupBy('room_id')->havingRaw('count(user_id) = ?', [2])->first();
+        // sort($sort);
+        // $message->room_id = implode("_",$sort);
+        // dd($checkData);
+        $message->room_id = $room_id;
         $message->content = array_key_exists('msg',$arr)?$arr['msg']:'';
         $message->parent_msg = array_key_exists('parent',$arr)?$arr['parent']:'';
         $message->client_id = array_key_exists('client_id',$arr)?$arr['client_id']:'';
