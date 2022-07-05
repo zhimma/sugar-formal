@@ -140,6 +140,22 @@ class MailController extends Controller
             return count($from_stat["to_ids"]) > $men_total;
         });
 
-        return $filtered;
+        $html = "<table style='border: 1px solid black;border-collapse: collapse;'>";
+
+        foreach ($filtered as $user_id => $content) {
+            $html .= "<tr style='border: 1px solid black;border-collapse: collapse;'>";
+            $html .= "<td style='border: 1px solid black;border-collapse: collapse;'>" . $user_id . "</td>";
+            $html .= "<td style='border: 1px solid black;border-collapse: collapse;'>總計：" . $content["total"] . "</td>";
+            $html .= "<td style='border: 1px solid black;border-collapse: collapse;'>";
+            foreach ($content["to_id_stat"] as $to_id => $stat) {
+                $html .= $to_id . "：" . $stat["count"] . "<br>";
+            }
+            $html .= "</td>";
+            $html .= "/<tr>";
+        }
+
+        $html .= "</table>";
+
+        return $html;
     }
 }
