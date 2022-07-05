@@ -1054,6 +1054,11 @@ header("Expires: Fri, 01 Jan 1990 00:00:00 GMT");
                             csrData +='</div>';
 
                         if(rowVisitorIsBlurAvatar==1) csrVar = 'blur_img';
+                        if(rowVisitorIsBlurAvatar==1){
+                            var blur_img_class = 'nt_photo_blur_img';
+                        } else{
+                            var blur_img_class = '';
+                        }
                         if(umetaIsAvatarHidden == 1){
                             csrVar2 = 'makesomeerror';
                         } else {
@@ -1066,7 +1071,7 @@ header("Expires: Fri, 01 Jan 1990 00:00:00 GMT");
                             onerror="this.src='/new/images/female.png'";
                         }
                         csrData +='<a href="/dashboard/viewuser/'+rowID+'">';
-                        csrData +='<div class="nt_photo '+csrVar+'"><img class="lazy" src="'+ASSET_SUBDOMAIN+csrVar2+'" data-original="'+csrVar2+'" onerror="'+onerror+'"/></div>';
+                        csrData +='<div class="nt_photo '+csrVar+'"><img class="lazy '+blur_img_class+ '" src="'+ASSET_SUBDOMAIN+csrVar2+'" data-original="'+csrVar2+'" onerror="'+onerror+'"/></div>';
 
                         if(rowEngroup == 2)
                         {
