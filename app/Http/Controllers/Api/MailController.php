@@ -135,7 +135,7 @@ class MailController extends Controller
             }
         });
 
-        // 曾經有發訊息給超過 10 個男會員
+        // 曾經有發訊息給超過 $men_total 個男會員
         $filtered = collect($messages_from_id)->filter(function ($from_stat, $key) use ($men_total) {
             return count($from_stat["to_ids"]) > $men_total;
         });
