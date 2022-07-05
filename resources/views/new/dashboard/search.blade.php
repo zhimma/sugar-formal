@@ -359,6 +359,14 @@ header("Expires: Fri, 01 Jan 1990 00:00:00 GMT");
 
                                         @if ($user_engroup == 1)
                                             <dt class="matopj15">
+                                                <span>是否純約會?<i class="ssrgf">(僅顯示有填寫者)</i></span>
+                                                <span class="line20">
+                                                    <label class="n_tx"><input type="radio" name="is_pure_dating" value="1" id="is_pure_dating1" {{(request()->is_pure_dating=="1" || session()->get('search_page_key.is_pure_dating')=="1")?'checked':''}}><i>是</i></label>
+                                                    <label class="n_tx"><input type="radio" name="is_pure_dating" value="0" id="is_pure_dating0" {{(request()->is_pure_dating=="0" ||  session()->get('search_page_key.is_pure_dating')=="0")?'checked':''}}><i>否</i></label>
+                                                    <label class="n_tx"><input type="radio" name="is_pure_dating" value='' id="is_pure_datingn" {{(request()->is_pure_dating=='' ||  session()->get('search_page_key.is_pure_dating')=='')?'checked':''}}><i>不選擇</i></label>
+                                                </span>
+                                            </dt>
+                                            <dt class="matopj15">
                                                 <span>CUP<i class="ssrgf">(僅顯示有填寫者)</i></span>
                                                 <span class="line20">
                                                     <label class="n_tx"><input type="checkbox" name="cup[0]" value="A" id="Check" @if( !empty( $_POST["cup"][0] ) && $_POST["cup"][0] == "A" ) checked @elseif(!empty( $_GET["cup"][0] ) && $_GET["cup"][0] == "A") checked @elseif(isset( session()->get('search_page_key.cup')[0] ) && session()->get('search_page_key.cup')[0] == "A") checked @endif><i>A</i></label>
@@ -527,7 +535,7 @@ header("Expires: Fri, 01 Jan 1990 00:00:00 GMT");
                         $isWarned = search_variable('isWarned',"");
                         $isPhoneAuth = search_variable('isPhoneAuth',"");
                         $weight = search_variable('weight',"");
-
+                        $is_pure_dating = search_variable("is_pure_dating","");
                         $tattoo = search_variable("tattoo","");
                         $county2 = search_variable("county2","");
                         $county3 = search_variable("county3","");
@@ -854,6 +862,7 @@ header("Expires: Fri, 01 Jan 1990 00:00:00 GMT");
                 isAdvanceAuth:"{{$userIsAdvanceAuth ?? null}}",
                 userIsAdvanceAuth:"{{$userIsAdvanceAuth}}",  
                 page:"{{$page ?? 1}}",
+                is_pure_dating:"{{$is_pure_dating ?? null}}",
                 tattoo:"{{$tattoo ?? null}}",
                 city2:"{{$county2  ?? null}}",
                 area2:"{{$district2  ?? null}}",

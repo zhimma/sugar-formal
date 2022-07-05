@@ -493,6 +493,7 @@ class UserMeta extends Model
 
     public static function searchApi($request)
     {
+        Log::Info($request->all());
         // $time_start = microtime(true); 
         $city = $request->city;
         $area = $request->area;
@@ -527,6 +528,7 @@ class UserMeta extends Model
         $isPhoneAuth = $request->isPhoneAuth ?? '';
         $isAdvanceAuth = $request->isAdvanceAuth??null;
         $page = $request->page;
+        $is_pure_dating = $request->is_pure_dating??null;
         $tattoo = $request->tattoo??null;
         $city2 = $request->city2??null;
         $area2 = $request->area2??null; 
@@ -553,6 +555,7 @@ class UserMeta extends Model
             $agefrom,
             $ageto,
             $marriage,
+            $is_pure_dating,
             $budget,
             $income,
             $smoking,
@@ -621,6 +624,15 @@ class UserMeta extends Model
 
             if (isset($weight) && strlen($weight) != 0) $query->where('weight', $weight)->where('isHideWeight', 0);
             if (isset($marriage) && strlen($marriage) != 0) $query->where('marriage', $marriage);
+            if (isset($is_pure_dating) && strlen($is_pure_dating) != 0)
+            {
+                if($is_pure_dating=="1") {
+                    $query->where('is_pure_dating', 1);
+                }
+                else if($is_pure_dating=="0") {
+                    $query->where('is_pure_dating', 0);
+                }
+            }
             if (isset($budget) && strlen($budget) != 0) $query->where('budget', $budget);
             if (isset($income) && strlen($income) != 0) $query->where('income', $income);
             if (isset($smoking) && strlen($smoking) != 0) $query->where('smoking', $smoking);
