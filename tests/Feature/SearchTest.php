@@ -17,26 +17,6 @@ class SearchTest extends TestCase
 
     // use RefreshDatabase;
 
-    // public function test_example()
-    // {
-    //     $response = $this->get('/');
-
-    //     $response->assertStatus(200);
-    // }
-
-    public function test_search_screen_can_be_rendered_with_no_input()
-    {
-        /** @var \Illuminate\Contracts\Auth\Authenticatable $user */
-        $user = \App\Models\User::factory()->create();
-
-        $userMeta = \App\Models\UserMeta::factory()->create();
-
-        $hasUser = $user ? true : false;
-
-        $response = $this->actingAs($user)->get('/dashboard/search');
-        $response->assertStatus(200);
-    }
-
     public function test_search_return_correct_data_with_correct_input()
     {
         /** @var \Illuminate\Contracts\Auth\Authenticatable $user */
