@@ -85,6 +85,8 @@ use Illuminate\Support\Facades\Http;
 use App\Services\SearchIgnoreService;
 use \FileUploader;
 use App\Models\UserRecord;
+use App\Models\MessageRoom;
+use App\Models\MessageRoomUserXref;
 
 class PagesController extends BaseController
 {
@@ -1379,6 +1381,41 @@ class PagesController extends BaseController
                 Message::post(1049, $current_data->a_user_id, $content_a, true, 1);
                 Message::post(1049, $current_data->b_user_id, $content_b, true, 1);
 
+                $webmaster_with_a_user = [1049, $current_data->a_user_id];
+                $checkData = MessageRoomUserXref::whereIn('user_id',$webmaster_with_a_user)->groupBy('room_id')->havingRaw('count(user_id) = ?', [2]);
+  
+                if($checkData->count()==0){
+                    $messageRoom = new MessageRoom;
+                    $messageRoom->save();
+                    $room_id = $messageRoom->id;
+                
+
+                    foreach($webmaster_with_a_user as $row){
+                        $messageRoomUserXref = new MessageRoomUserXref;
+                        $messageRoomUserXref->user_id = $row;
+                        $messageRoomUserXref->room_id = $room_id;
+                        $messageRoomUserXref->save();
+                    }
+                }
+
+
+                $webmaster_with_b_user = [1049, $current_data->b_user_id];
+                $checkData = MessageRoomUserXref::whereIn('user_id', $webmaster_with_b_user)->groupBy('room_id')->havingRaw('count(user_id) = ?', [2]);
+                // $checkData = $checkData->get();
+    
+                if($checkData->count()==0){
+                    $messageRoom = new MessageRoom;
+                    $messageRoom->save();
+                    $room_id = $messageRoom->id;
+                
+
+                    foreach($webmaster_with_b_user as $row){
+                        $messageRoomUserXref = new MessageRoomUserXref;
+                        $messageRoomUserXref->user_id = $row;
+                        $messageRoomUserXref->room_id = $room_id;
+                        $messageRoomUserXref->save();
+                    }
+                }
                 return back()->with('message', '帳號關閉成功');
             }else{
                 //存入交付資料表
@@ -1443,6 +1480,41 @@ class PagesController extends BaseController
                     Message::post(1049, $current_data->a_user_id, $content_a, true, 1);
                     Message::post(1049, $current_data->b_user_id, $content_b, true, 1);
 
+                    $webmaster_with_a_user = [1049, $current_data->a_user_id];
+                    $checkData = MessageRoomUserXref::whereIn('user_id',$webmaster_with_a_user)->groupBy('room_id')->havingRaw('count(user_id) = ?', [2]);
+    
+                    if($checkData->count()==0){
+                        $messageRoom = new MessageRoom;
+                        $messageRoom->save();
+                        $room_id = $messageRoom->id;
+                    
+
+                        foreach($webmaster_with_a_user as $row){
+                            $messageRoomUserXref = new MessageRoomUserXref;
+                            $messageRoomUserXref->user_id = $row;
+                            $messageRoomUserXref->room_id = $room_id;
+                            $messageRoomUserXref->save();
+                        }
+                    }
+
+
+                    $webmaster_with_b_user = [1049, $current_data->b_user_id];
+                    $checkData = MessageRoomUserXref::whereIn('user_id', $webmaster_with_b_user)->groupBy('room_id')->havingRaw('count(user_id) = ?', [2]);
+        
+                    if($checkData->count()==0){
+                        $messageRoom = new MessageRoom;
+                        $messageRoom->save();
+                        $room_id = $messageRoom->id;
+                    
+
+                        foreach($webmaster_with_b_user as $row){
+                            $messageRoomUserXref = new MessageRoomUserXref;
+                            $messageRoomUserXref->user_id = $row;
+                            $messageRoomUserXref->room_id = $room_id;
+                            $messageRoomUserXref->save();
+                        }
+                    }
+                    
                     return back()->with('message', '帳號開啟成功，將於24小時候啟用');
                 }
 
@@ -8016,6 +8088,42 @@ class PagesController extends BaseController
 //            dd($sys_message);
             Message::post(1049, $to_user_id->user_id, $sys_message, true, 0);
             Message::post($user->id, $to_user_id->user_id, $request->content);
+
+            $webmaster_with_user = [1049, $to_user_id->user_id];
+                $checkData = MessageRoomUserXref::whereIn('user_id',$webmaster_with_user)->groupBy('room_id')->havingRaw('count(user_id) = ?', [2]);
+  
+                if($checkData->count()==0){
+                    $messageRoom = new MessageRoom;
+                    $messageRoom->save();
+                    $room_id = $messageRoom->id;
+                
+
+                    foreach($webmaster_with_user as $row){
+                        $messageRoomUserXref = new MessageRoomUserXref;
+                        $messageRoomUserXref->user_id = $row;
+                        $messageRoomUserXref->room_id = $room_id;
+                        $messageRoomUserXref->save();
+                    }
+                }
+
+
+                $user_with_to_user = [$user->id, $to_user_id->user_id];
+                $checkData = MessageRoomUserXref::whereIn('user_id', $user_with_to_user)->groupBy('room_id')->havingRaw('count(user_id) = ?', [2]);
+                // $checkData = $checkData->get();
+    
+                if($checkData->count()==0){
+                    $messageRoom = new MessageRoom;
+                    $messageRoom->save();
+                    $room_id = $messageRoom->id;
+                
+
+                    foreach($user_with_to_user as $row){
+                        $messageRoomUserXref = new MessageRoomUserXref;
+                        $messageRoomUserXref->user_id = $row;
+                        $messageRoomUserXref->room_id = $room_id;
+                        $messageRoomUserXref->save();
+                    }
+                }
         }
 
         return back()->with('message', $msg);
