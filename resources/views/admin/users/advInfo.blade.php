@@ -172,6 +172,13 @@
     </form>-->
     <!--開啟使用者隱藏-->
 
+    @if($user['isAdminWarned']!=1)
+        <!--預算及車馬費警示-->
+        <button class="btn btn-danger" onclick="WarnBudget('month_budget')">預算不實</button>
+        <button class="btn btn-danger" onclick="WarnBudget('transport_fare')">車馬費不實</button>
+        <!--預算及車馬費警示-->
+    @endif
+
     @if (Auth::user()->can('admin') || Auth::user()->can('juniorAdmin'))
         <a href="{{ route('AdminMessage', $user['id']) }}" target="_blank" class='btn btn-dark'>撰寫站長訊息</a>
     @elseif (Auth::user()->can('readonly'))
@@ -2597,6 +2604,45 @@ $("input[name='phone']").keyup(function(){
         }
 
     });
+
+    //預算及車馬費警示警示
+    function WarnBudget(type)
+    {
+        if(confirm('確定警示?'))
+        {
+            try
+            {
+                $.ajax({
+                    type: 'POST',
+                    url: "/admin/users/warnBudget?{{csrf_token()}}={{now()->timestamp}}",
+                    data:{
+                        _token: '{{csrf_token()}}',
+                        type: type,
+                        user_id: {{$user->id}}
+                    },
+                    success: function(res){
+                        alert('警示成功');
+                        location.reload();
+                    },
+                    error: function(res){
+                        location.reload();
+                    }
+                });
+            }
+            catch(error) 
+            {
+                console.error(error);
+                location.reload();
+            }
+            
+        }
+        else
+        {
+            return false;
+        }
+    }
+    //預算及車馬費警示警示
+
 </script>
 <!--照片查看end-->
 </html>

@@ -385,7 +385,7 @@ background: transparent;
 .select_xx{width:49%; border:#d2d2d2 1px solid; border-radius:4px;height:40px; padding:0 6px; color:#999999; background:#ffffff;font-size:15px;}
 .select_xx01{width:100%; border:#d2d2d2 1px solid; border-radius:4px;height:40px; margin-right:1%;padding:0 8px;color:#999999;background:#ffffff; font-size:15px;}
 .select_xx02{width:100%; border:#d2d2d2 1px solid; border-radius:4px;margin-right:1%;padding:5px 6px;color:#555; line-height:25px;background:#ffffff; display:table;font-size:15px;}
-.select_xx03{width:100%;border-radius:4px;margin-right:0%;padding:5px 6px;color:#999999; line-height:25px;background:#f8f8f8;font-size:15px; }
+.select_xx03{width:100%;border-radius:4px;margin-right:0%;padding:5px 6px;color:#999999; line-height:25px;background:#f8f8f8;font-size:15px;word-break:break-all; }
 .select_xx04{width:93%; border:#d2d2d2 1px solid; border-radius:4px;height:40px; padding:0 12px; color:#555; background:#ffffff;font-size:15px;}
 
 .select_xx05{width:100%; border:#d2d2d2 1px solid; border-radius:4px;padding:5px 10px;color:#555; line-height:25px;background:#ffffff;font-size:15px;}
@@ -4815,6 +4815,90 @@ margin-bottom: 50px; border-radius: 10PX 10PX 10PX 10PX;}
 .gabb_i{ width: calc(100% - 20px); float: right; font-style: normal; line-height: 25px;}
 .ga_w100{width: 100%;}
 
+
+
+.metx_tab {width: 60%; margin: 0 auto; display: table; padding-top:20px; padding-bottom: 20px;}
+@media (max-width:992px) {
+.metx_tab {width:95%; margin: 0 auto; display: table;}	
+}
+
+.hdlist1_left{width: 48%; float: left; height: auto; box-shadow:0 -5px 10px rgba(255,188,193,0.8); border-radius: 8px;}
+.hdlist1_left_tab{width: 100%; display: table; box-shadow:5px 10px 12px rgba(255,79,92,0.3); padding:15px 5px 10px 5px;background:linear-gradient(120deg, #ff8593, #ffdadb); position: relative;
+border-radius: 8px;}
+
+@media (max-width:320px) {
+.hdlist1_left{width: 100%; margin-bottom:20px;}
+.hdlist2_right{width:100%; }
+}
+
+.hs_tnes{width: 100%; display: table;}
+.hs_tnes img{ height:49px; float: left;}
+.she_fontetex{font-size: 18px; font-weight: bold; color: #ffffff; position: absolute; left:62px;}
+.she_fontetex span{ font-size: 12px; display: table; font-weight: normal;}
+
+.s_bushi{ position: absolute; right: 0; border-radius: 100px 0 0 100px; background: rgba(255,255,255,0.6);top:10px; color: #f65f6e; font-size:14px; padding:3px 8px;cursor: pointer;}
+.s_bushi:hover{ color: #f65f6e;background: rgba(255,255,255,0.8);}
+
+.s_bushizz{ position: absolute; right: 0; border-radius: 100px 0 0 100px; background: rgba(255,255,255,0.6); color: #688cff; top:10px;font-size: 14px; padding:3px 8px; cursor: pointer;}
+.s_bushizz:hover{ color: #688cff;background: rgba(255,255,255,0.8);}
+
+@media (max-width:450px) {
+.s_bushi{ font-size:12px;}
+.s_bushizz{font-size: 12px;}
+}
+
+.sh_button_w{width: 95%; margin: 0 auto; display: table; box-shadow:0 -3px 10px rgba(255,255,255,0.5); border-radius:5px; margin-top:6px; margin-bottom:4px;}
+.sh_button_n{width: 100%; margin: 0 auto; display: table;background:linear-gradient(120deg, #fe8694, #febec3);
+box-shadow:3px 5px 9px rgba(255,56,79,0.5); border-radius:5px; padding:8px 0; font-weight: bold; text-align: center; color: #ffffff; font-size: 16px;}
+
+.hdlist2_right{width: 48.5%; float: right; height: auto; box-shadow: 0 -5px 10px rgba(148,175,255,0.3);border-radius: 10px;}
+.hdlist2_right_tab{width: 100%; display: table; box-shadow:5px 10px 12px rgba(77,123,255,0.3);padding:15px 5px 10px 5px;background:linear-gradient(120deg, #95b0ff, #c1d5ff);position: relative;
+border-radius: 10px;}
+
+.zc_button_w{width: 95%; margin: 0 auto; display: table; box-shadow:0 -3px 10px rgba(255,255,255,0.5); border-radius:5px; margin-top:6px; margin-bottom:4px;}
+.zc_button_n{width: 100%; margin: 0 auto; display: table;background:linear-gradient(120deg, #88a7ff, #b9cdff);
+box-shadow:3px 5px 9px rgba(64,106,250,0.5); border-radius:5px; padding:8px 0; font-weight: bold; text-align: center; color: #ffffff; font-size: 16px;}
+
+.ju_pic{width:100%;margin: 0 auto;display: block;margin-top: 0px;height: auto;padding: 0 5px;}
+@media (max-width:824px) {
+.ju_pic{height:160px;overflow-y: auto;}
+}
+@media (max-width:640px) {
+.ju_pic{height:130px;overflow-y: auto;}
+}
+@media (max-width:568px) {
+.ju_pic{height:120px;overflow-y: auto;}
+}
+  
+@media (max-width:450px) {
+  .ju_pic{height:210px;overflow-y: auto;}
+}
+  
+
+.ju_pic::-webkit-scrollbar {
+/*滚动条整体样式*/
+width :4px;  /*高宽分别对应横竖滚动条的尺寸*/
+height: 1px;
+}
+.ju_pic::-webkit-scrollbar-thumb {
+/*滚动条里面小方块*/
+border-radius: 100px;
+background: #8a9fef;
+}
+.ju_pic::-webkit-scrollbar-track {
+/*滚动条里面轨道*/
+border-radius: 100px;
+background:rgba(255,255,255,0.6);
+}
+
+.ju_pjckbox{width: 100%; background: rgba(255,255,255,0.4); padding:10px 10px 5px 10px; border-radius: 5px; margin-top: 10px; color: #8a9fef; border: #8a9fef 1px dashed;}
+.ju_pjckbox span{width: 100%; padding:0px 0px; display: table; color: #8a9fef; line-height:20px;}
+
+.plshan{width: 100%; display: table; margin-top: 10px;}
+.plshan li{width: 33.3%; float: left;position: relative;}
+.pj_photo_01{width: 95%; margin: 0 auto; height:105px;background: #f9faff;justify-content: center;align-items: center;overflow: hidden;display: flex; border-radius: 10px;}
+.pj_photo_01 img{margin: 0 auto;}
+
 .ga_dtie{width:100%; margin: 0 auto; display: table; padding: 10px; border: #fe92a8 1px dashed;background-image: linear-gradient(to right,#fff8f9 ,#fffefe); color: #fe92a8; 
     border-radius: 5px; margin-top: 10px;box-shadow: 0 0 10px #ffeff6;}
 
@@ -4973,3 +5057,17 @@ margin-bottom: 50px; border-radius: 10PX 10PX 10PX 10PX;}
 .rgnback{position: absolute; right:10px; top:-10px;background:linear-gradient(to right, #ffa2b5, #ffc1cd); z-index:6; color: #ffffff; border-radius: 100px; padding:0px 10px 0px 10px; 
 line-height:26px; box-shadow: 0 5px 5px #ffc1cd;}
 .rgnback img{ height:20px; vertical-align: middle; margin-top:0px; margin-right: 2px;}
+
+
+
+.xz_iconp{ position: absolute; width:50%; top:20px; left:25%;}
+
+@media (max-width:450px){
+.xz_iconp{ position: absolute; width:80%; top:20px; left:10%;}
+}
+
+@media (max-width:320px){
+.xz_iconp{ position: absolute; width:60%; top:20px; left:20%;}
+}
+
+.xa_psirp{ position: relative;}

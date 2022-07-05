@@ -2188,6 +2188,10 @@ class PagesController extends BaseController
             //判斷自己是否封鎖該用戶
             $isBlocked = \App\Models\Blocked::isBlocked($user->id, $uid);
 
+            //預算被檢舉紀錄
+            $transport_fare_reported = Reported::where('reported_id', $uid)->where('content', '車馬費預算不實')->first();
+            $month_budget_reported = Reported::where('reported_id', $uid)->where('content', '每月預算不實')->first();
+
             // die();
             return view('new.dashboard.viewuser', $data ?? [])
                     ->with('user', $user)
@@ -2217,7 +2221,10 @@ class PagesController extends BaseController
                     ->with('is_banned',User::isBanned($user->id))
                     ->with('pr', $pr)
                     ->with('isBlocked',$isBlocked)
-                    ->with('visited_id', $visited_id);
+                    ->with('visited_id', $visited_id)
+                    ->with('transport_fare_reported', $transport_fare_reported)
+                    ->with('month_budget_reported', $month_budget_reported)
+                    ;
             }
 
     }
@@ -6795,6 +6802,9 @@ class PagesController extends BaseController
                 $adminWarnedStatus.='原因是<span class="main_word"> ' . $user_isBannedOrWarned->warned_reason . '</span>，';
             }            
             $adminWarnedStatus.= '做完進階驗證可解除<a class="red" href="'.url('advance_auth').'"> [請點我進行驗證]</a>。';
+        }
+        else if($user_isBannedOrWarned->warned_reason == '每月預算不實' || $user_isBannedOrWarned->warned_reason == '車馬費預算不實') {
+            $adminWarnedStatus = '您因為 <span class="main_word">'.$user_isBannedOrWarned->warned_reason.'</span>，警示 <span class="main_word">'.$diffDays.'天</span>。時間自'.substr($user_isBannedOrWarned->warned_created_at,0,16).'~'.substr($user_isBannedOrWarned->warned_expire_date,0,16).'。如有疑慮請聯絡站長<a href="https://lin.ee/rLqcCns" target="_blank"> <img src="https://scdn.line-apps.com/n/line_add_friends/btn/zh-Hant.png" alt="加入好友" height="26" border="0" style="height: 26px; float: unset;"></a>';
         }
         else if($user_isBannedOrWarned->warned_vip_pass == 1 && $user_isBannedOrWarned->warned_expire_date == null) {
             $adminWarnedStatus = '您目前<span class="main_word">已被站方警示</span>，原因是<span class="main_word"> ' . $user_isBannedOrWarned->warned_reason . '</span>，若要解鎖請升級VIP解除，並同意如有再犯，站方有權不退費並永久警示。同意[<a href="../dashboard/new_vip" class="red">請點我</a>]';
