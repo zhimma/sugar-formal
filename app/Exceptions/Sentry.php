@@ -9,7 +9,7 @@ class Sentry
     public static function tracesSampler(SamplingContext $context): float
     {
         // The code you would have placed in the closure...
-        logger($context);
+        logger(print_r($context, true));
         return 0.001;
     }
 }
