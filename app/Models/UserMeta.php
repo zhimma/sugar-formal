@@ -59,6 +59,7 @@ class UserMeta extends Model
         'occupation',
         'education',
         'marriage',
+        'is_pure_dating',
         'drinking',
         'smoking',
         'isHideOccupation',

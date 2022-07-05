@@ -246,6 +246,7 @@ class UserService
      */
     public function update($userId, $payload)
     {
+        //Log::Info($payload);
         $setBlockKeys = ['blockcity','blockarea'];
         $notLikeBlockKeys = ['blockarea' => 'isHideArea'];
         foreach($setBlockKeys as $setBlockKeys){
@@ -481,6 +482,11 @@ class UserService
                   {
                   $payload['meta']['marriage'] = $payload['marriage'];
                   unset($payload['marriage']);
+                  }
+                  if (isset($payload['is_pure_dating']))
+                  {
+                  $payload['meta']['is_pure_dating'] = $payload['is_pure_dating'];
+                  unset($payload['is_pure_dating']);
                   }
                   if (isset($payload['drinking']))
                   {

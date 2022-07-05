@@ -177,6 +177,7 @@ class PagesController extends BaseController
     //新版編輯會員資料
     public function profileUpdate_ajax(Request $request, ProfileUpdateRequest $profileUpdateRequest)
     {
+        //Log::Info($request->all());
         //Custom validation.
         Validator::extend('not_contains', function($attribute, $value, $parameters)
         {
