@@ -346,7 +346,17 @@ header("Expires: Fri, 01 Jan 1990 00:00:00 GMT");
                                         {{--</span>--}}
                                         {{--</dt>--}}
 
-
+                                        @if ($user_engroup == 1)
+                                            <dt class="matopj15">
+                                                <span>是否純約會?<i class="ssrgf">(僅顯示有填寫者)</i></span>
+                                                <span class="line20">
+                                                    <label class="n_tx"><input type="radio" name="is_pure_dating" value="1" id="is_pure_dating1" {{(request()->is_pure_dating=="1" || session()->get('search_page_key.is_pure_dating')=="1")?'checked':''}}><i>是</i></label>
+                                                    <label class="n_tx"><input type="radio" name="is_pure_dating" value="0" id="is_pure_dating0" {{(request()->is_pure_dating=="0" ||  session()->get('search_page_key.is_pure_dating')=="0")?'checked':''}}><i>否</i></label>
+                                                    <label class="n_tx"><input type="radio" name="is_pure_dating" value='' id="is_pure_datingn" {{(request()->is_pure_dating=='' ||  session()->get('search_page_key.is_pure_dating')=='')?'checked':''}}><i>不選擇</i></label>
+                                                </span>
+                                            </dt>
+                                        @endif
+                                        
                                         <dt class="matopj15">
                                             <span>體型<i class="ssrgf">(僅顯示有填寫者)</i></span>
                                             <span class="line20">
@@ -358,14 +368,6 @@ header("Expires: Fri, 01 Jan 1990 00:00:00 GMT");
                                         </dt>
 
                                         @if ($user_engroup == 1)
-                                            <dt class="matopj15">
-                                                <span>是否純約會?<i class="ssrgf">(僅顯示有填寫者)</i></span>
-                                                <span class="line20">
-                                                    <label class="n_tx"><input type="radio" name="is_pure_dating" value="1" id="is_pure_dating1" {{(request()->is_pure_dating=="1" || session()->get('search_page_key.is_pure_dating')=="1")?'checked':''}}><i>是</i></label>
-                                                    <label class="n_tx"><input type="radio" name="is_pure_dating" value="0" id="is_pure_dating0" {{(request()->is_pure_dating=="0" ||  session()->get('search_page_key.is_pure_dating')=="0")?'checked':''}}><i>否</i></label>
-                                                    <label class="n_tx"><input type="radio" name="is_pure_dating" value='' id="is_pure_datingn" {{(request()->is_pure_dating=='' ||  session()->get('search_page_key.is_pure_dating')=='')?'checked':''}}><i>不選擇</i></label>
-                                                </span>
-                                            </dt>
                                             <dt class="matopj15">
                                                 <span>CUP<i class="ssrgf">(僅顯示有填寫者)</i></span>
                                                 <span class="line20">
@@ -383,8 +385,7 @@ header("Expires: Fri, 01 Jan 1990 00:00:00 GMT");
                                                     <label class="n_tx"><input type="radio" name="tattoo" value="1" id="tattoo1" {{(request()->tattoo==1 || session()->get('search_page_key.tattoo')==1)?'checked':''}}><i>有</i></label>
                                                     <label class="n_tx"><input type="radio" name="tattoo" value="-1" id="tattoo0" {{(request()->tattoo==-1 ||  session()->get('search_page_key.tattoo')==-1)?'checked':''}}><i>無</i></label>
                                                 </span>
-                                            </dt>                               
-                                        @else
+                                            </dt>
                                         @endif
 
                                         <dt class="b_nsead matopjf10">
