@@ -522,6 +522,22 @@ class UserService
 //                    unset($payload['exchange_period']);
 //                }
 
+                if (isset($payload['budget_per_month_min']) && isset($payload['budget_per_month_max']))
+                {
+                    $payload['meta']['budget_per_month_min'] = $payload['budget_per_month_min'];
+                    unset($payload['budget_per_month_min']);
+                    $payload['meta']['budget_per_month_max'] = $payload['budget_per_month_max'];
+                    unset($payload['budget_per_month_max']);
+                }
+
+                if (isset($payload['transport_fare_min']) && isset($payload['transport_fare_max']))
+                {
+                    $payload['meta']['transport_fare_min'] = $payload['transport_fare_min'];
+                    unset($payload['transport_fare_min']);
+                    $payload['meta']['transport_fare_max'] = $payload['transport_fare_max'];
+                    unset($payload['transport_fare_max']);
+                }
+
                 $meta = $user->meta_();
                 if (isset($payload['meta']))
                 {

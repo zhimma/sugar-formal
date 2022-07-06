@@ -191,6 +191,7 @@ header("Expires: Fri, 01 Jan 1990 00:00:00 GMT");
                                         </dt>
 
                                         <dt>
+                                            @if($user->engroup == 1)
                                             <div class="n_se left">
                                                 <span>預算</span>
                                                 <select name="budget" id="budget" class="select_xx01">
@@ -202,6 +203,18 @@ header("Expires: Fri, 01 Jan 1990 00:00:00 GMT");
                                                     <option value="可商議" @if( !empty( $_POST["budget"] ) && $_POST["budget"] == "可商議" ) selected @elseif(!empty( $_GET["budget"] ) && $_GET["budget"] == "可商議") selected @elseif(!empty( session()->get('search_page_key.budget') ) && session()->get('search_page_key.budget') == "可商議") selected @endif>可商議</option>
                                                 </select>
                                             </div>
+                                            @else
+                                            <div class="n_se left">
+                                                <span>教育</span>
+                                                <select name="education" class="select_xx01">
+                                                    <option value="">請選擇</option>
+                                                    <option value="國中" @if( !empty( $_POST["education"] ) && $_POST["education"] == "國中" ) selected @elseif(!empty( $_GET["education"] ) && $_GET["education"] == "國中") selected @elseif(!empty( session()->get('search_page_key.education') ) && session()->get('search_page_key.education') == "國中") selected @endif>國中</option>
+                                                    <option value="高中" @if( !empty( $_POST["education"] ) && $_POST["education"] == "高中" ) selected @elseif(!empty( $_GET["education"] ) && $_GET["education"] == "高中") selected @elseif(!empty( session()->get('search_page_key.education') ) && session()->get('search_page_key.education') == "高中") selected @endif>高中</option>
+                                                    <option value="大學" @if( !empty( $_POST["education"] ) && $_POST["education"] == "大學" ) selected @elseif(!empty( $_GET["education"] ) && $_GET["education"] == "大學") selected @elseif(!empty( session()->get('search_page_key.education') ) && session()->get('search_page_key.education') == "大學") selected @endif>大學</option>
+                                                    <option value="研究所" @if( !empty( $_POST["education"] ) && $_POST["education"] == "研究所" ) selected @elseif(!empty( $_GET["education"] ) && $_GET["education"] == "研究所") selected @elseif(!empty( session()->get('search_page_key.education') ) && session()->get('search_page_key.education') == "研究所") selected @endif>研究所</option>
+                                                </select>
+                                            </div>
+                                            @endif
                                             {{--@if ($user->engroup == 2)--}}
                                                 {{--<div class="n_se right">--}}
                                                     {{--<span>PR值(大方指數)</span>--}}
@@ -246,6 +259,7 @@ header("Expires: Fri, 01 Jan 1990 00:00:00 GMT");
                                                         <option value="常喝" @if( !empty( $_POST["drinking"] ) && $_POST["drinking"] == "常喝" ) selected @elseif(!empty( $_GET["drinking"] ) && $_GET["drinking"] == "常喝") selected @elseif(!empty( session()->get('search_page_key.drinking') ) && session()->get('search_page_key.drinking') == "常喝") selected @endif>常喝</option>
                                                     </select>
                                                 </div>
+                                                {{--
                                                 <div class="n_se right">
                                                     <span>教育</span>
                                                     <select name="education" class="select_xx01">
@@ -256,6 +270,7 @@ header("Expires: Fri, 01 Jan 1990 00:00:00 GMT");
                                                         <option value="研究所" @if( !empty( $_POST["education"] ) && $_POST["education"] == "研究所" ) selected @elseif(!empty( $_GET["education"] ) && $_GET["education"] == "研究所") selected @elseif(!empty( session()->get('search_page_key.education') ) && session()->get('search_page_key.education') == "研究所") selected @endif>研究所</option>
                                                     </select>
                                                 </div>
+                                                --}}
                                             </dt>
                                         @else
                                             <dt>
@@ -273,6 +288,7 @@ header("Expires: Fri, 01 Jan 1990 00:00:00 GMT");
                                                         @endif
                                                     </select>
                                                 </div>
+                                                @if ($user_engroup == 1)
                                                 <div class="n_se right">
                                                     <span>教育</span>
                                                     <select name="education" class="select_xx01">
@@ -283,6 +299,7 @@ header("Expires: Fri, 01 Jan 1990 00:00:00 GMT");
                                                         <option value="研究所" @if( !empty( $_POST["education"] ) && $_POST["education"] == "研究所" ) selected @elseif(!empty( $_GET["education"] ) && $_GET["education"] == "研究所") selected @elseif(!empty( session()->get('search_page_key.education') ) && session()->get('search_page_key.education') == "研究所") selected @endif>研究所</option>
                                                     </select>
                                                 </div>
+                                                @endif
                                             </dt>
                                         @endif
 
@@ -1054,6 +1071,11 @@ header("Expires: Fri, 01 Jan 1990 00:00:00 GMT");
                             csrData +='</div>';
 
                         if(rowVisitorIsBlurAvatar==1) csrVar = 'blur_img';
+                        if(rowVisitorIsBlurAvatar==1){
+                            var blur_img_class = 'nt_photo_blur_img';
+                        } else{
+                            var blur_img_class = '';
+                        }
                         if(umetaIsAvatarHidden == 1){
                             csrVar2 = 'makesomeerror';
                         } else {
@@ -1066,7 +1088,7 @@ header("Expires: Fri, 01 Jan 1990 00:00:00 GMT");
                             onerror="this.src='/new/images/female.png'";
                         }
                         csrData +='<a href="/dashboard/viewuser/'+rowID+'">';
-                        csrData +='<div class="nt_photo '+csrVar+'"><img class="lazy" src="'+ASSET_SUBDOMAIN+csrVar2+'" data-original="'+csrVar2+'" onerror="'+onerror+'"/></div>';
+                        csrData +='<div class="nt_photo '+csrVar+'"><img class="lazy '+blur_img_class+ '" src="'+ASSET_SUBDOMAIN+csrVar2+'" data-original="'+csrVar2+'" onerror="'+onerror+'"/></div>';
 
                         if(rowEngroup == 2)
                         {

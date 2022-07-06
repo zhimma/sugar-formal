@@ -135,11 +135,27 @@ class MailController extends Controller
             }
         });
 
-        // 曾經有發訊息給超過 10 個男會員
+        // 曾經有發訊息給超過 $men_total 個男會員
         $filtered = collect($messages_from_id)->filter(function ($from_stat, $key) use ($men_total) {
             return count($from_stat["to_ids"]) > $men_total;
         });
 
-        return $filtered;
+        $html = "<table style='border: 1px solid black;border-collapse: collapse;'>";
+
+        foreach ($filtered as $user_id => $content) {
+            $html .= "<tr style='border: 1px solid black;border-collapse: collapse;'>";
+            $html .= "<td style='border: 1px solid black;border-collapse: collapse;'>" . $user_id . "</td>";
+            $html .= "<td style='border: 1px solid black;border-collapse: collapse;'>總計：" . $content["total"] . "</td>";
+            $html .= "<td style='border: 1px solid black;border-collapse: collapse;'>";
+            foreach ($content["to_id_stat"] as $to_id => $stat) {
+                $html .= $to_id . "：" . $stat["count"] . "<br>";
+            }
+            $html .= "</td>";
+            $html .= "/<tr>";
+        }
+
+        $html .= "</table>";
+
+        return $html;
     }
 }

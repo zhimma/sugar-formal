@@ -251,6 +251,13 @@
         @if(!$user->isVip())
             .tubiao ul li img {height:50px !important;}
         @endif
+
+        @media (min-width:812px) and (min-height: 375px) and (max-width:812px) and (max-height:375px) {
+            .bl_tab{
+                width: 40%;
+                left: 30%;
+            }
+        }
     </style>
     <style>
         .new_pot1{width:96%;height:auto;margin: 0 auto;color: #666666;display: block; margin-top: 20px; margin-bottom: 20px;}
@@ -421,6 +428,13 @@
             $("#show_banned_ele").hide();
             $('body').css("overflow", "auto");
         } 
+
+        function button() {
+            $(".blbg").hide()
+            $("#jianju").hide()
+            $(".announce_bg").hide();
+            $('body').css("overflow", "auto");
+        }
 
         function show_reportPic_close(){
             $(".announce_bg").hide();
@@ -747,37 +761,37 @@
 							
                             <li style="position: relative;">
                                 <div class="userlogo"><img src="/new/images/icon_15.png" class="tubiao_i"><span>更多</span></div>
-                                <div class="he_tkcn showslide">
+                                <div class="he_tkcn showslide" style="z-index:1">
                                     <ul>
-                            @if($user->isVip())
-                                @if($isBlocked)
-                                    <a class="unblock"><img src="/new/images/icon_12_h.png" class="tubiao_i he_tkcn_img"><span>解除封鎖</span></a>
-                                @else
-                                    @if($user->id == $to->id)
-                                    <a onclick="c5('不可封鎖自己');"><img src="/new/images/icon_12.png" class="tubiao_i he_tkcn_img"><span>封鎖</span></a>
-                                    @else
-                                    <a onclick="show_block()"><img src="/new/images/icon_12.png" class="tubiao_i he_tkcn_img"><span>封鎖</span></a>
-                                    @endif
-                                @endif
-                            @else
-                                    <a href="javascript:void(0);">
-                                    <img src="/new/images/icon_12.png" class="tubiao_i he_tkcn_img"><span>封鎖</span>
-                                    <span class="vip_space"><img src="/new/images/icon_36.png" class="tap-vip"></span>
-                                    </a>
-                            @endif
-                                    <a href="javascript:void(0);" class="@if($user->isVip()) skip_search @endif">
-                                        <img src="/new/images/icon_17.png" class="he_tkcn_img">
-                                        <span>{{$user->search_ignore()->where('ignore_id',$to->id)->count()?'解除略過':'略過'}}</span>
-                                        @if(!$user->isVip())
-                                        <span class="vip_space"><img src="/new/images/icon_36.png" class="tap-vip"></span>
+                                        @if($user->isVip())
+                                            @if($isBlocked)
+                                                <a class="unblock"><img src="/new/images/icon_12_h.png" class="tubiao_i he_tkcn_img"><span>解除封鎖</span></a>
+                                            @else
+                                                @if($user->id == $to->id)
+                                                <a onclick="c5('不可封鎖自己');"><img src="/new/images/icon_12.png" class="tubiao_i he_tkcn_img"><span>封鎖</span></a>
+                                                @else
+                                                <a onclick="show_block()"><img src="/new/images/icon_12.png" class="tubiao_i he_tkcn_img"><span>封鎖</span></a>
+                                                @endif
+                                            @endif
+                                        @else
+                                                <a href="javascript:void(0);">
+                                                <img src="/new/images/icon_12.png" class="tubiao_i he_tkcn_img"><span>封鎖</span>
+                                                <span class="vip_space"><img src="/new/images/icon_36.png" class="tap-vip"></span>
+                                                </a>
                                         @endif
-                                    </a>
-                                @if($isAdminWarned)
-                                    <a onclick="show_Warned()"><img src="/new/images/icon_10.png" class="tubiao_i he_tkcn_img"><span>檢舉會員</span></a>
-                                @else
-                                    <a onclick="show_banned()"><img src="/new/images/icon_10.png" class="tubiao_i he_tkcn_img"><span>檢舉會員</span></a>
-                                @endif
-                                    <a onclick="show_reportPic()"><img src="/new/images/icon_008.png" class="he_tkcn_img">檢舉照片</a>
+                                        <a href="javascript:void(0);" class="@if($user->isVip()) skip_search @endif">
+                                            <img src="/new/images/icon_17.png" class="he_tkcn_img">
+                                            <span>{{$user->search_ignore()->where('ignore_id',$to->id)->count()?'解除略過':'略過'}}</span>
+                                            @if(!$user->isVip())
+                                            <span class="vip_space"><img src="/new/images/icon_36.png" class="tap-vip"></span>
+                                            @endif
+                                        </a>
+                                        @if($isAdminWarned)
+                                            <a onclick="show_Warned()"><img src="/new/images/icon_10.png" class="tubiao_i he_tkcn_img"><span>檢舉會員</span></a>
+                                        @else
+                                            <a onclick="show_banned()"><img src="/new/images/icon_10.png" class="tubiao_i he_tkcn_img"><span>檢舉會員</span></a>
+                                        @endif
+                                        <a onclick="show_reportPic()"><img src="/new/images/icon_008.png" class="he_tkcn_img">檢舉照片</a>
                                     </ul>
                                 </div>						
 							</li>                            
@@ -821,6 +835,45 @@
                     </script>
 
                 </div>
+                @if($to->engroup==1)
+                    <div class="metx_tab" style="z-index:0">
+                        <div class="hdlist1_left">
+                            <div class="hdlist1_left_tab xa_psirp">
+                                    <div class="hs_tnes">
+                                        <img src="/new/images/shouru.png">
+                                        <div class="she_fontetex">車馬費預算<span>transport fare</span></div>
+                                    </div>
+                                    <a class="s_bushi" onclick="jianju_transport_fare()">檢舉不實</a>
+                                    <div class="sh_button_w">
+                                        @if(!empty($to->meta->transport_fare_min) && !empty($to->meta->transport_fare_max))
+                                            <div class="sh_button_n"> {{round($to->meta->transport_fare_min, -2)}}~{{round($to->meta->transport_fare_max, -2)}}</div>
+                                        @else
+                                            <div class="sh_button_n"> 最低 / 未填</div>
+                                        @endif
+                                    </div>
+                                    @if(!empty($transport_fare_reported)) <img src="/new/images/cm_icon01.png" class="xz_iconp"> @endif
+                            </div>
+                        </div>
+                        <div class="hdlist2_right">
+                                <div class="hdlist2_right_tab xa_psirp">
+                                    <div class="hs_tnes">
+                                        <img src="/new/images/zichan.png">
+                                        <div class="she_fontetex">每月預算<span>month budget</span></div>
+                                    </div>
+                                    <a class="s_bushizz" onclick="jianju_month_budget()">檢舉不實</a>
+                                    <div class="zc_button_w">
+                                        @if(!empty($to->meta->budget_per_month_min) && !empty($to->meta->budget_per_month_max))
+                                            <div class="zc_button_n"> {{round($to->meta->budget_per_month_min, -3)/10000}}萬~{{round($to->meta->budget_per_month_max, -3)/10000}}萬</div>
+                                        @else
+                                            <div class="zc_button_n"> 最低 / 未填</div>
+                                        @endif
+                                    </div>
+                                    @if(!empty($month_budget_reported)) <img src="/new/images/cm_icon02.png" class="xz_iconp"> @endif
+                                </div>
+                        </div>
+                    </div>       
+                @endif
+
                 <!--基本资料-->
                 <div class="mintop">
                     <div class="">
@@ -900,7 +953,7 @@
                                     </dt>
                                     @endif
 
-                                    @if(!empty($to->meta->budget))
+                                    @if($to->engroup == 2 && !empty($to->meta->budget))
                                     <dt>
                                         <span>預算</span>
                                         <span>
@@ -1065,6 +1118,7 @@
                                     </dt>
                                     @endif
 
+                                    {{--
                                     @if(!empty($to->meta->income) && $to->engroup==1)
                                     <dt>
                                         <span>收入</span>
@@ -1073,7 +1127,9 @@
                                         </span>
                                     </dt>
                                     @endif
+                                    --}}
 
+                                    {{--
                                     @if(!empty($to->meta->assets) && $to->engroup==1)
                                     <dt>
                                         <span>資產</span>
@@ -1082,6 +1138,7 @@
                                         </span>
                                     </dt>
                                     @endif
+                                    --}}
 
 
 
@@ -1532,6 +1589,36 @@
             <a onclick="show_banned_close()" class="bl_gb"><img src="/new/images/gb_icon.png"></a>
         </div>
     </div>
+    
+    @if($to->engroup==1)
+        <div class="bl_tab_aa" id="jianju" style="display: none;">
+            <div class="bl_tab_bb">
+                <div class="bltitle"><span style="text-align: center; float: none;">預算不實</span></div>
+                <div class="new_pot new_poptk_nn new_pot001">
+                    <div class="fpt_pic new_po000">
+                        <div class="ju_pjckbox">
+                            注意：檢舉預算不實一定要付上證據，例如轉帳截圖，或者對話紀錄，或其他可資證明的方式
+                        </div>
+                        <form id="budget_jianju_form" action="{{ route('reportPost') }}" method="post" enctype="multipart/form-data">
+                            <input type="hidden" name="_token" value="{{ csrf_token() }}">
+                            <input type="hidden" name="aid" value="{{$user->id}}">
+                            <input type="hidden" name="uid" value="{{$to->id}}">
+                            <input type="hidden" id="jianju_content" name="content" value="預算不實">
+                            <span class="alert_tip" style="color:red;"></span>
+                            <input type="file" id="budget_jianju_file" name="reportedImages">
+                            <div class="n_bbutton" style="margin-top:10px;">
+                                <div style="display: inline-flex;">
+                                    <input type="button" onclick="budget_jianju_submit()" class="n_right" style="border-style: none; background: #8a9ff0; color:#ffffff; float: unset; margin-left: 0px; margin-right: 20px;" value="送出">
+                                    <a type="reset" class="n_left" style="border: 1px solid #8a9ff0; background: #ffffff; color:#8a9ff0; float: unset; margin-right: 0px;" href="" onclick="button()">返回</a>
+                                </div>
+                            </div>
+                        </form>
+                    </div>
+                </div>
+                <a onclick="button()" class="bl_gb"><img src="/new/images/gb_icon.png"></a>
+            </div>
+        </div>         
+    @endif
 
     <div class="bl_tab_aa reportPic_aa" id="show_reportPic" style="display: none;">
         <div class="bl_tab_bb">
@@ -2913,6 +3000,45 @@
         }
     }
     //訪問時間紀錄
+</script>
+
+<script>
+    function jianju_transport_fare() {
+        @if($user->id != $to->id)
+            $("#jianju_content").val('車馬費預算不實');
+            $(".blbg").show()
+            $("#jianju").show()
+            $('body').css("overflow", "hidden")
+        @else
+            c5('不可檢舉自己');
+        @endif
+    }
+
+    function jianju_month_budget() {
+        @if($user->id != $to->id)
+            $("#jianju_content").val('每月預算不實');
+            $(".blbg").show()
+            $("#jianju").show()
+            $('body').css("overflow", "hidden")
+        @else
+            c5('不可檢舉自己');
+        @endif
+    }
+
+    function budget_jianju_submit() {
+        var fileInput = $('#budget_jianju_file').get(0).files[0];
+        if(fileInput)
+        {
+            button();
+		    $("#budget_jianju_form").submit();
+        }
+        else
+        {
+            button();
+            c5("檢舉預算不實一定要附上證據，例如轉帳截圖、對話記錄等");
+        }
+    }
+    
 </script>
 
 @stop
