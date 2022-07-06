@@ -528,7 +528,7 @@ class UserMeta extends Model
         $isPhoneAuth = $request->isPhoneAuth ?? '';
         $isAdvanceAuth = $request->isAdvanceAuth??null;
         $page = $request->page;
-        $is_pure_dating = $request->is_pure_dating??null;
+        $is_pure_dating = $request->is_pure_dating??1;
         $tattoo = $request->tattoo??null;
         $city2 = $request->city2??null;
         $area2 = $request->area2??null; 
