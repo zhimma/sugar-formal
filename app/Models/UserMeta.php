@@ -528,7 +528,6 @@ class UserMeta extends Model
         $isPhoneAuth = $request->isPhoneAuth ?? '';
         $isAdvanceAuth = $request->isAdvanceAuth??null;
         $page = $request->page;
-        $is_pure_dating = $request->is_pure_dating??1;
         $tattoo = $request->tattoo??null;
         $city2 = $request->city2??null;
         $area2 = $request->area2??null; 
@@ -538,8 +537,10 @@ class UserMeta extends Model
         $weight = $request->weight ?? '';
 
         if ($engroup == 1) { 
+            $is_pure_dating = $request->is_pure_dating??1;
             $engroup = 2; 
         }else if ($engroup == 2) { 
+            $is_pure_dating = $request->is_pure_dating??null;
             $engroup = 1; 
         }
         if(isset($seqtime) && $seqtime == 2){ 
