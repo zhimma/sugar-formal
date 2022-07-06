@@ -346,7 +346,17 @@ header("Expires: Fri, 01 Jan 1990 00:00:00 GMT");
                                         {{--</span>--}}
                                         {{--</dt>--}}
 
-
+                                        @if ($user_engroup == 1)
+                                            <dt class="matopj15">
+                                                <span>是否純約會?<i class="ssrgf">(僅顯示有填寫者)</i></span>
+                                                <span class="line20">
+                                                    <label class="n_tx"><input type="radio" name="is_pure_dating" value="1" id="is_pure_dating1" {{(request()->is_pure_dating=="1" || session()->get('search_page_key.is_pure_dating')=="1") || (request()->is_pure_dating=="" || session()->get('search_page_key.is_pure_dating')=="")?'checked':''}}><i>是</i></label>
+                                                    <label class="n_tx"><input type="radio" name="is_pure_dating" value="0" id="is_pure_dating0" {{(request()->is_pure_dating=="0" ||  session()->get('search_page_key.is_pure_dating')=="0")?'checked':''}}><i>否</i></label>
+                                                    <label class="n_tx"><input type="radio" name="is_pure_dating" value='-1' id="is_pure_datingn" {{(request()->is_pure_dating=='-1' ||  session()->get('search_page_key.is_pure_dating')=='-1')?'checked':''}}><i>不選擇</i></label>
+                                                </span>
+                                            </dt>
+                                        @endif
+                                        
                                         <dt class="matopj15">
                                             <span>體型<i class="ssrgf">(僅顯示有填寫者)</i></span>
                                             <span class="line20">
@@ -375,8 +385,7 @@ header("Expires: Fri, 01 Jan 1990 00:00:00 GMT");
                                                     <label class="n_tx"><input type="radio" name="tattoo" value="1" id="tattoo1" {{(request()->tattoo==1 || session()->get('search_page_key.tattoo')==1)?'checked':''}}><i>有</i></label>
                                                     <label class="n_tx"><input type="radio" name="tattoo" value="-1" id="tattoo0" {{(request()->tattoo==-1 ||  session()->get('search_page_key.tattoo')==-1)?'checked':''}}><i>無</i></label>
                                                 </span>
-                                            </dt>                               
-                                        @else
+                                            </dt>
                                         @endif
 
                                         <dt class="b_nsead matopjf10">
@@ -527,7 +536,7 @@ header("Expires: Fri, 01 Jan 1990 00:00:00 GMT");
                         $isWarned = search_variable('isWarned',"");
                         $isPhoneAuth = search_variable('isPhoneAuth',"");
                         $weight = search_variable('weight',"");
-
+                        $is_pure_dating = search_variable("is_pure_dating","");
                         $tattoo = search_variable("tattoo","");
                         $county2 = search_variable("county2","");
                         $county3 = search_variable("county3","");
@@ -854,6 +863,7 @@ header("Expires: Fri, 01 Jan 1990 00:00:00 GMT");
                 isAdvanceAuth:"{{$userIsAdvanceAuth ?? null}}",
                 userIsAdvanceAuth:"{{$userIsAdvanceAuth}}",  
                 page:"{{$page ?? 1}}",
+                is_pure_dating:"{{$is_pure_dating ?? null}}",
                 tattoo:"{{$tattoo ?? null}}",
                 city2:"{{$county2  ?? null}}",
                 area2:"{{$district2  ?? null}}",

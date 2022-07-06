@@ -699,6 +699,24 @@ dt span.engroup_type_title {display:inline-block;width:10%;white-space:nowrap;}
                         </select>
                       </span>
                   </dt>
+                    @if($user->engroup==2)
+                        <dt>
+                            <span>希望純約會嗎?</span>
+                            <span>
+                                <select data-parsley-errors-messages-disabled name="is_pure_dating"  class="select_xx01">
+                                    <option value="-1"
+                                            @if($umeta->is_pure_dating == "-1") selected @endif>請選擇
+                                    </option>
+                                    <option value="1"
+                                            @if($umeta->is_pure_dating == "1") selected @endif>是
+                                    </option>
+                                    <option value="0"
+                                            @if($umeta->is_pure_dating == "0") selected @endif>否
+                                    </option>
+                                </select>
+                            </span>
+                        </dt>
+                    @endif
                   <dt>
                       <span>喝酒<i>(必填)</i></span>
                       <span>
