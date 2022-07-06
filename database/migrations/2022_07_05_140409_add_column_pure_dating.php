@@ -16,7 +16,7 @@ class AddColumnPureDating extends Migration
         Schema::table('user_meta', function (Blueprint $table) {
             if (!Schema::hasColumn('user_meta', 'is_pure_dating')) {
                 Schema::table('user_meta', function (Blueprint $table) {
-                    $table->boolean('is_pure_dating')->nullable()->after('style');
+                    $table->integer('is_pure_dating')->nullable()->after('style');
                 });
             }
         });
