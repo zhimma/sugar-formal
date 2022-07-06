@@ -1100,6 +1100,21 @@
                                     </dt>
                                     @endif
 
+                                    @if(!empty($to->meta->marriage) && $to->engroup==2)
+                                    <dt>
+                                        <span>希望純約會嗎?</span>
+                                        <span>
+                                            <div class="select_xx01 senhs hy_new">
+                                            @if($to->meta->is_pure_dating)
+                                            是
+                                            @else
+                                            否
+                                            @endif
+                                            </div>
+                                        </span>
+                                    </dt>
+                                    @endif
+
                                     @if(!empty($to->meta->drinking))
                                     <dt>
                                         <span>喝酒</span>
