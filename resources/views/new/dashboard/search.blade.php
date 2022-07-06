@@ -350,9 +350,9 @@ header("Expires: Fri, 01 Jan 1990 00:00:00 GMT");
                                             <dt class="matopj15">
                                                 <span>是否純約會?<i class="ssrgf">(僅顯示有填寫者)</i></span>
                                                 <span class="line20">
-                                                    <label class="n_tx"><input type="radio" name="is_pure_dating" value="1" id="is_pure_dating1" {{(request()->is_pure_dating=="1" || session()->get('search_page_key.is_pure_dating')=="1")?'checked':''}}><i>是</i></label>
+                                                    <label class="n_tx"><input type="radio" name="is_pure_dating" value="1" id="is_pure_dating1" {{(request()->is_pure_dating=="1" || session()->get('search_page_key.is_pure_dating')=="1") || (request()->is_pure_dating=="" || session()->get('search_page_key.is_pure_dating')=="")?'checked':''}}><i>是</i></label>
                                                     <label class="n_tx"><input type="radio" name="is_pure_dating" value="0" id="is_pure_dating0" {{(request()->is_pure_dating=="0" ||  session()->get('search_page_key.is_pure_dating')=="0")?'checked':''}}><i>否</i></label>
-                                                    <label class="n_tx"><input type="radio" name="is_pure_dating" value='' id="is_pure_datingn" {{(request()->is_pure_dating=='' ||  session()->get('search_page_key.is_pure_dating')=='')?'checked':''}}><i>不選擇</i></label>
+                                                    <label class="n_tx"><input type="radio" name="is_pure_dating" value='-1' id="is_pure_datingn" {{(request()->is_pure_dating=='-1' ||  session()->get('search_page_key.is_pure_dating')=='-1')?'checked':''}}><i>不選擇</i></label>
                                                 </span>
                                             </dt>
                                         @endif
