@@ -775,17 +775,17 @@ dt span.engroup_type_title {display:inline-block;width:10%;white-space:nowrap;}
                         <dt>
                             <span>每月預算</span>
                             <span style="text-align:center;">
-                                <input id="budget_per_month_min" name="budget_per_month_min" type="number" style="width:48%;" class="select_xx01 se_zlman left"  placeholder="請輸入最低金額" value="{{$umeta->budget_per_month_min}}" data-parsley-errors-messages-disabled onchange="budget_per_month_change()">
+                                <input id="budget_per_month_min" name="budget_per_month_min" type="number" style="width:48%;" class="select_xx01 se_zlman left"  placeholder="請輸入最低金額" @if(!empty($umeta->budget_per_month_min) && $umeta->budget_per_month_min != -1) value="{{$umeta->budget_per_month_min}}" @endif data-parsley-errors-messages-disabled onchange="budget_per_month_change()">
                                 ~
-                                <input id="budget_per_month_max" name="budget_per_month_max" type="number" style="width:48%;" class="select_xx01 se_zlman right"  placeholder="請輸入最高金額" value="{{$umeta->budget_per_month_max}}" data-parsley-errors-messages-disabled onchange="budget_per_month_change()">
+                                <input id="budget_per_month_max" name="budget_per_month_max" type="number" style="width:48%;" class="select_xx01 se_zlman right"  placeholder="請輸入最高金額" @if(!empty($umeta->budget_per_month_max) && $umeta->budget_per_month_max != -1) value="{{$umeta->budget_per_month_max}}" @endif data-parsley-errors-messages-disabled onchange="budget_per_month_change()">
                             </span>
                         </dt>
                         <dt>
                             <span>車馬費預算</span>
                             <span style="text-align:center;">
-                                <input id="transport_fare_min" name="transport_fare_min" type="number" style="width:48%;" class="select_xx01 se_zlman left"  placeholder="請輸入最低金額" value="{{$umeta->transport_fare_min}}" data-parsley-errors-messages-disabled onchange="transport_fare_change()">
+                                <input id="transport_fare_min" name="transport_fare_min" type="number" style="width:48%;" class="select_xx01 se_zlman left"  placeholder="請輸入最低金額" @if(!empty($umeta->transport_fare_min) && $umeta->transport_fare_min != -1) value="{{$umeta->transport_fare_min}}" @endif data-parsley-errors-messages-disabled onchange="transport_fare_change()">
                                 ~
-                                <input id="transport_fare_max" name="transport_fare_max" type="number" style="width:48%;" class="select_xx01 se_zlman right"  placeholder="請輸入最高金額" value="{{$umeta->transport_fare_max}}" data-parsley-errors-messages-disabled onchange="transport_fare_change()">
+                                <input id="transport_fare_max" name="transport_fare_max" type="number" style="width:48%;" class="select_xx01 se_zlman right"  placeholder="請輸入最高金額" @if(!empty($umeta->transport_fare_max) && $umeta->transport_fare_max != -1) value="{{$umeta->transport_fare_max}}" @endif data-parsley-errors-messages-disabled onchange="transport_fare_change()">
                             </span>
                         </dt>
                     @endif
@@ -1346,7 +1346,7 @@ dt span.engroup_type_title {display:inline-block;width:10%;white-space:nowrap;}
           }
           */
 
-            if(budget_per_month_min.val()!='')
+            if(budget_per_month_min.val()!='' || budget_per_month_max.val()!='')
             {
                 if(budget_per_month_max.val() > budget_per_month_min.val() * 2)
                 {
@@ -1362,7 +1362,7 @@ dt span.engroup_type_title {display:inline-block;width:10%;white-space:nowrap;}
                 }
             }
 
-            if(transport_fare_min.val()!='')
+            if(transport_fare_min.val()!='' || transport_fare_max.val()!='')
             {
                 if(transport_fare_max.val() > transport_fare_min.val() * 2)
                 {
@@ -1376,6 +1376,17 @@ dt span.engroup_type_title {display:inline-block;width:10%;white-space:nowrap;}
                     c5('車馬費預算下限不可大於上限');
                     return false;
                 }
+            }
+
+            if(budget_per_month_min.val() == '' && budget_per_month_max.val() =='')
+            {
+                budget_per_month_min.val(-1);
+                budget_per_month_max.val(-1);
+            }
+            if(transport_fare_min.val() == '' && transport_fare_max.val() =='')
+            {
+                transport_fare_min.val(-1);
+                transport_fare_max.val(-1);
             }
 
           var form_dump = $(this);

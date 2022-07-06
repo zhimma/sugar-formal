@@ -845,7 +845,7 @@
                                     </div>
                                     <a class="s_bushi" onclick="jianju_transport_fare()">檢舉不實</a>
                                     <div class="sh_button_w">
-                                        @if(!empty($to->meta->transport_fare_min) && !empty($to->meta->transport_fare_max))
+                                        @if(!empty($to->meta->transport_fare_min) && !empty($to->meta->transport_fare_max) && $to->meta->transport_fare_min != -1 && $to->meta->transport_fare_max != -1)
                                             <div class="sh_button_n"> {{round($to->meta->transport_fare_min, -2)}}~{{round($to->meta->transport_fare_max, -2)}}</div>
                                         @else
                                             <div class="sh_button_n"> 最低 / 未填</div>
@@ -862,7 +862,7 @@
                                     </div>
                                     <a class="s_bushizz" onclick="jianju_month_budget()">檢舉不實</a>
                                     <div class="zc_button_w">
-                                        @if(!empty($to->meta->budget_per_month_min) && !empty($to->meta->budget_per_month_max))
+                                        @if(!empty($to->meta->budget_per_month_min) && !empty($to->meta->budget_per_month_max) && $to->meta->budget_per_month_min != -1 && $to->meta->budget_per_month_max != -1)
                                             <div class="zc_button_n"> {{round($to->meta->budget_per_month_min, -3)/10000}}萬~{{round($to->meta->budget_per_month_max, -3)/10000}}萬</div>
                                         @else
                                             <div class="zc_button_n"> 最低 / 未填</div>
