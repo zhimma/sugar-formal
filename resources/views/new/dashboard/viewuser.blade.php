@@ -1593,7 +1593,7 @@
     @if($to->engroup==1)
         <div class="bl_tab_aa" id="jianju" style="display: none;">
             <div class="bl_tab_bb">
-                <div class="bltitle"><span style="text-align: center; float: none;">預算不實</span></div>
+                <div class="bltitle"><span id="jianju_title" style="text-align: center; float: none;">預算不實</span></div>
                 <div class="new_pot new_poptk_nn new_pot001">
                     <div class="fpt_pic new_po000">
                         <div class="ju_pjckbox">
@@ -3005,6 +3005,7 @@
 <script>
     function jianju_transport_fare() {
         @if($user->id != $to->id)
+            $("#jianju_title").text('車馬費預算不實');
             $("#jianju_content").val('車馬費預算不實');
             $(".blbg").show()
             $("#jianju").show()
@@ -3016,6 +3017,7 @@
 
     function jianju_month_budget() {
         @if($user->id != $to->id)
+            $("#jianju_title").text('每月預算不實');
             $("#jianju_content").val('每月預算不實');
             $(".blbg").show()
             $("#jianju").show()
