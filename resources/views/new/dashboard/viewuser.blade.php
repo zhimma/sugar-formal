@@ -608,45 +608,46 @@
                                         $user->isReadIntro = 1;
                                         $introCount++;
                                     @endphp                          
-                                @else
+                                @endif
                                     @if($to->isPhoneAuth())
                                     <li>
                                         @if($user->isVip())
-                                            @if($to->isAdvanceAuth() && $to->engroup==2)
+                                            {{--@if($to->isAdvanceAuth() && $to->engroup==2)
                                             <div class="tagText"  data-toggle="popover" data-content="本站的進階認證會員，本會員通過本站的嚴格驗證，基本資料正確無誤。">
                                                 <img src="/new/images/a8_x.png">
-                                            </div> 
+                                            </div>
                                             @elseif(!$to->isAdvanceAuth() && $to->engroup==2)
                                             <div class="tagText"  data-toggle="popover" data-content="通過本站手機驗證的會員。">
                                                 <img src="/new/images/a6_x.png">
-                                            </div>  
-                                            @else
+                                            </div>
+                                            @endif--}}
+                                            @if($to->isAdvanceAuth() && $to->engroup==2)
                                             <div class="tagText"  data-toggle="popover" data-content="通過本站手機驗證的會員。">
                                                 <img src="/new/images/a6.png">
-                                            </div>                                            
+                                            </div>
                                             @endif
                                         @else
-                                            @if($to->isAdvanceAuth() && $to->engroup==2)
+                                            {{--@if($to->isAdvanceAuth() && $to->engroup==2)
                                             <div class="tagText"  data-toggle="popover" data-content="本站的進階認證會員，本會員通過本站的嚴格驗證，基本資料正確無誤。">
                                                 <img src="/new/images/b_8x.png">
-                                            </div>                                                      
+                                            </div>
                                             @elseif(!$to->isAdvanceAuth() && $to->engroup==2)
                                             <div class="tagText"  data-toggle="popover" data-content="通過本站手機驗證的會員。">
                                                 <img src="/new/images/b_5x.png">
-                                            </div>                                              
-                                            @else
+                                            </div>
+                                            @endif--}}
+                                            @if($to->isAdvanceAuth() && $to->engroup==2)
                                             <div class="tagText"  data-toggle="popover" data-content="通過本站手機驗證的會員。">
                                                 <img src="/new/images/b_6.png">
-                                            </div>                                                 
-                                            @endif                                          
-                                        @endif                                
+                                            </div>
+                                            @endif
+                                        @endif
                                     </li>
                                         @php
                                             $user->isReadIntro = 1;
                                             $introCount++;
                                         @endphp
                                     @endif
-                                @endif                                
                             </ul>
                         </div>
                         <!--引导弹出层-->
