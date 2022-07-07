@@ -533,9 +533,9 @@ class UserMeta extends Model
         $area2 = $request->area2 ?? null; 
         $city3 = $request->city3 ?? null;
         $area3 = $request->area3 ?? null;
-        //新增體重
+        // 新增體重
         $weight = $request->weight ?? '';
-        // 純約會
+        // 是否想進一步發展
         $is_pure_dating = $request->is_pure_dating ?? null;
 
         if ($engroup == 1) { 

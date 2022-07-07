@@ -701,7 +701,7 @@ dt span.engroup_type_title {display:inline-block;width:10%;white-space:nowrap;}
                   </dt>
                     @if($user->engroup==2)
                         <dt>
-                            <span>希望純約會嗎?</span>
+                            <span>希望進一步發展嗎?</span>
                             <span>
                                 <select data-parsley-errors-messages-disabled name="is_pure_dating"  class="select_xx01">
                                     <option value="-1"

@@ -1104,7 +1104,7 @@
                                     @if(isset($to->meta->is_pure_dating) && $to->engroup==2)
                                         @if($to->meta->is_pure_dating != -1)
                                         <dt>
-                                            <span>希望純約會嗎?</span>
+                                            <span>希望進一步發展嗎?</span>
                                             <span>
                                                 <div class="select_xx01 senhs hy_new">
                                                 @if($to->meta->is_pure_dating == 1)

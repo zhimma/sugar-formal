@@ -348,7 +348,7 @@ header("Expires: Fri, 01 Jan 1990 00:00:00 GMT");
 
                                         @if ($user_engroup == 1)
                                             <dt class="matopj15">
-                                                <span>是否純約會?<i class="ssrgf">(僅顯示有填寫者)</i></span>
+                                                <span>是否想進一步發展?<i class="ssrgf">(僅顯示有填寫者)</i></span>
                                                 <span class="line20">
                                                     <label class="n_tx">
                                                         <input type="radio" name="is_pure_dating" value="1" id="is_pure_dating1" {{ 
