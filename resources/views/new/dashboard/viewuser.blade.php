@@ -846,7 +846,7 @@
                                     </div>
                                     <a class="s_bushi" onclick="jianju_transport_fare()">檢舉不實</a>
                                     <div class="sh_button_w">
-                                        @if(!empty($to->meta->transport_fare_min) && !empty($to->meta->transport_fare_max))
+                                        @if(!empty($to->meta->transport_fare_min) && !empty($to->meta->transport_fare_max) && $to->meta->transport_fare_min != -1 && $to->meta->transport_fare_max != -1)
                                             <div class="sh_button_n"> {{round($to->meta->transport_fare_min, -2)}}~{{round($to->meta->transport_fare_max, -2)}}</div>
                                         @else
                                             <div class="sh_button_n"> 最低 / 未填</div>
@@ -863,7 +863,7 @@
                                     </div>
                                     <a class="s_bushizz" onclick="jianju_month_budget()">檢舉不實</a>
                                     <div class="zc_button_w">
-                                        @if(!empty($to->meta->budget_per_month_min) && !empty($to->meta->budget_per_month_max))
+                                        @if(!empty($to->meta->budget_per_month_min) && !empty($to->meta->budget_per_month_max) && $to->meta->budget_per_month_min != -1 && $to->meta->budget_per_month_max != -1)
                                             <div class="zc_button_n"> {{round($to->meta->budget_per_month_min, -3)/10000}}萬~{{round($to->meta->budget_per_month_max, -3)/10000}}萬</div>
                                         @else
                                             <div class="zc_button_n"> 最低 / 未填</div>
@@ -1611,7 +1611,7 @@
     @if($to->engroup==1)
         <div class="bl_tab_aa" id="jianju" style="display: none;">
             <div class="bl_tab_bb">
-                <div class="bltitle"><span style="text-align: center; float: none;">預算不實</span></div>
+                <div class="bltitle"><span id="jianju_title" style="text-align: center; float: none;">預算不實</span></div>
                 <div class="new_pot new_poptk_nn new_pot001">
                     <div class="fpt_pic new_po000">
                         <div class="ju_pjckbox">
@@ -3022,7 +3022,16 @@
 
 <script>
     function jianju_transport_fare() {
+        if(is_banned)
+        {
+            return c5('您目前被站方封鎖，無檢舉權限');
+        }
+        if(is_warned)
+        {
+            return c5('您目前被站方警示，無檢舉權限');
+        }
         @if($user->id != $to->id)
+            $("#jianju_title").text('車馬費預算不實');
             $("#jianju_content").val('車馬費預算不實');
             $(".blbg").show()
             $("#jianju").show()
@@ -3033,7 +3042,16 @@
     }
 
     function jianju_month_budget() {
+        if(is_banned)
+        {
+            return c5('您目前被站方封鎖，無檢舉權限');
+        }
+        if(is_warned)
+        {
+            return c5('您目前被站方警示，無檢舉權限');
+        }
         @if($user->id != $to->id)
+            $("#jianju_title").text('每月預算不實');
             $("#jianju_content").val('每月預算不實');
             $(".blbg").show()
             $("#jianju").show()
