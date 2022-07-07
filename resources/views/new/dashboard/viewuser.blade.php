@@ -1100,7 +1100,7 @@
                                     </dt>
                                     @endif
 
-                                    @if(!empty($to->meta->is_pure_dating) && $to->engroup==2)
+                                    @if(isset($to->meta->is_pure_dating) && $to->engroup==2)
                                         @if($to->meta->is_pure_dating != -1)
                                         <dt>
                                             <span>希望純約會嗎?</span>
