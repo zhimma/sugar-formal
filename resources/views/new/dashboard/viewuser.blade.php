@@ -3004,6 +3004,14 @@
 
 <script>
     function jianju_transport_fare() {
+        if(is_banned)
+        {
+            return c5('您目前被站方封鎖，無檢舉權限');
+        }
+        if(is_warned)
+        {
+            return c5('您目前被站方警示，無檢舉權限');
+        }
         @if($user->id != $to->id)
             $("#jianju_title").text('車馬費預算不實');
             $("#jianju_content").val('車馬費預算不實');
@@ -3016,6 +3024,14 @@
     }
 
     function jianju_month_budget() {
+        if(is_banned)
+        {
+            return c5('您目前被站方封鎖，無檢舉權限');
+        }
+        if(is_warned)
+        {
+            return c5('您目前被站方警示，無檢舉權限');
+        }
         @if($user->id != $to->id)
             $("#jianju_title").text('每月預算不實');
             $("#jianju_content").val('每月預算不實');
