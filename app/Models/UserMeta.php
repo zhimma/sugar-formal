@@ -526,21 +526,22 @@ class UserMeta extends Model
         $isVip = $request->isVip ?? '';
         $isWarned = $request->isWarned ?? 0;
         $isPhoneAuth = $request->isPhoneAuth ?? '';
-        $isAdvanceAuth = $request->isAdvanceAuth??null;
+        $isAdvanceAuth = $request->isAdvanceAuth ?? null;
         $page = $request->page;
-        $tattoo = $request->tattoo??null;
-        $city2 = $request->city2??null;
-        $area2 = $request->area2??null; 
-        $city3 = $request->city3??null;
-        $area3 = $request->area3??null;
+        $tattoo = $request->tattoo ?? null;
+        $city2 = $request->city2 ?? null;
+        $area2 = $request->area2 ?? null; 
+        $city3 = $request->city3 ?? null;
+        $area3 = $request->area3 ?? null;
         //新增體重
         $weight = $request->weight ?? '';
+        // 純約會
+        $is_pure_dating = $request->is_pure_dating ?? null;
 
         if ($engroup == 1) { 
-            $is_pure_dating = $request->is_pure_dating??1;
             $engroup = 2; 
-        }else if ($engroup == 2) { 
-            $is_pure_dating = $request->is_pure_dating??null;
+        }
+        else if ($engroup == 2) {             
             $engroup = 1; 
         }
         if(isset($seqtime) && $seqtime == 2){ 

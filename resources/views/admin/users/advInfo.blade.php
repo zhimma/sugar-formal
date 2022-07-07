@@ -172,7 +172,7 @@
     </form>-->
     <!--開啟使用者隱藏-->
 
-    @if($user['isAdminWarned']!=1)
+    @if($user['isAdminWarned'] != 1 AND $user->engroup != 2)
         <!--預算及車馬費警示-->
         <button class="btn btn-danger" onclick="WarnBudget('month_budget')">預算不實</button>
         <button class="btn btn-danger" onclick="WarnBudget('transport_fare')">車馬費不實</button>
