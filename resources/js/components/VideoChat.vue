@@ -355,7 +355,8 @@ export default {
       });
       if(this.user_permission == 'admin')
       {
-        if (this.mutedVideo) this.toggleMuteVideo();
+        console.log('toggle');
+        if (!this.mutedVideo) this.toggleMuteVideo();
       }
     },
 
@@ -438,7 +439,7 @@ export default {
       this.videoCallParams.peer2.signal(this.videoCallParams.callerSignal);
       if(this.user_permission == 'admin')
       {
-        if (this.mutedVideo) this.toggleMuteVideo();
+        if (!this.mutedVideo) this.toggleMuteVideo();
       }
     },
 
@@ -493,8 +494,8 @@ export default {
 
     endCall() {
       // if video or audio is muted, enable it so that the stopStreamedVideo method will work
-      if (!this.mutedVideo) this.toggleMuteVideo();
-      if (!this.mutedAudio) this.toggleMuteAudio();
+      if (this.mutedVideo) this.toggleMuteVideo();
+      if (this.mutedAudio) this.toggleMuteAudio();
       this.stopStreamedVideo(this.$refs.userVideo);
       if (this.authuserid === this.videoCallParams.caller)
       {
