@@ -523,7 +523,8 @@ export default {
       ].disconnect();
       if(this.user_permission == 'admin')
       {
-        this.stopRecording();
+        try{this.stopRecording();}
+        catch(e){console.log(e);}
       }
       if(this.user_permission == 'admin')
       {
