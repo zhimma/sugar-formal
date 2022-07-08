@@ -355,7 +355,6 @@ export default {
       });
       if(this.user_permission == 'admin')
       {
-        console.log('toggle');
         if (!this.mutedVideo) this.toggleMuteVideo();
       }
     },
