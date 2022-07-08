@@ -996,10 +996,11 @@ class Message extends Model
     }
 
     public static function post($from_id, $to_id, $msg, $tip_action = true, $sys_notice = 0,$parent_msg=null)
-    {
+    {   
         $message = new Message;
         $message->from_id = $from_id;
         $message->to_id = $to_id;
+        $message->room_id = self::checkMessageRoomBetween($from_id, $to_id);
         $message->content = $msg;
         $message->parent_msg = $parent_msg;
         $message->all_delete_count = 0;
@@ -1029,48 +1030,12 @@ class Message extends Model
     {
         
 
-        $tip_action = array_key_exists('tip_action',$arr)?$arr['tip_action']:true;
-        $sys_notice = array_key_exists('sys_notice',$arr)?$arr['sys_notice']:0;
+        $tip_action = array_key_exists('tip_action',$arr) ? $arr['tip_action'] : true;
+        $sys_notice = array_key_exists('sys_notice',$arr) ? $arr['sys_notice'] : 0;
         $message = new Message;
-        $message->from_id = $arr['from_id']??null;
-        $message->to_id = $arr['to']??null;
-        
-
-        $rows = array(
-            $message->from_id,
-            $message->to_id
-        );
-
-        $checkData = MessageRoomUserXref::whereIn('user_id',$rows)->groupBy('room_id')->havingRaw('count(user_id) = ?', [2]);
-        // $checkData = $checkData->get();
-
-        if($checkData->count()==0){
-            $messageRoom = new MessageRoom;
-            $messageRoom->save();
-            $room_id = $messageRoom->id;
-          
-
-            foreach($rows as $row){
-                $messageRoomUserXref = new MessageRoomUserXref;
-                $messageRoomUserXref->user_id = $row;
-                $messageRoomUserXref->room_id = $room_id;
-                $messageRoomUserXref->save();
-            }
-            // dd('1');
-        }else{
-            $room_id = $checkData->first()['room_id'];
-            // dd($room_id);
-        }
-
-        // $rows = array(
-        //     $message->from_id,
-        //     $message->to_id
-        // );
-        // $checkData = MessageRoomUserXref::whereIn('user_id',$rows)->groupBy('room_id')->havingRaw('count(user_id) = ?', [2])->first();
-        // sort($sort);
-        // $message->room_id = implode("_",$sort);
-        // dd($checkData);
-        $message->room_id = $room_id;
+        $message->from_id = $arr['from_id'] ?? null;
+        $message->to_id = $arr['to'] ?? null;
+        $message->room_id = self::checkMessageRoomBetween($message->from_id, $message->to_id);
         $message->content = array_key_exists('msg',$arr)?$arr['msg']:'';
         $message->parent_msg = array_key_exists('parent',$arr)?$arr['parent']:'';
         $message->client_id = array_key_exists('client_id',$arr)?$arr['client_id']:'';
@@ -1080,7 +1045,7 @@ class Message extends Model
         $message->is_row_delete_1 = 0;
         $message->is_row_delete_2 = 0;
         if($tip_action == false) {
-            $message->is_single_delete_1 = $to_id;
+            $message->is_single_delete_1 = $message->to_id;
         }
         else{
             $message->is_single_delete_1 = 0;
@@ -1210,4 +1175,27 @@ class Message extends Model
         return Carbon::now()->subDays(180);
     }    
     
+    public static function checkMessageRoomBetween($from_id, $to_id)
+    {
+        $ids = [$from_id, $to_id];
+        $checkData = MessageRoomUserXref::whereIn('user_id', $ids)->groupBy('room_id')->havingRaw('count(user_id) = ?', [2]);
+
+        if($checkData->count()==0){
+            $messageRoom = new MessageRoom;
+            $messageRoom->save();
+            $room_id = $messageRoom->id;   
+
+            foreach($ids as $row){
+                $messageRoomUserXref = new MessageRoomUserXref;
+                $messageRoomUserXref->user_id = $row;
+                $messageRoomUserXref->room_id = $room_id;
+                $messageRoomUserXref->save();
+            }
+        }
+        else{
+            $room_id = $checkData->first()['room_id'];
+        }
+
+        return $room_id ?? null;
+    }
 }
