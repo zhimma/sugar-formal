@@ -72,7 +72,8 @@ use App\Models\ComeFromAdvertise;
 use App\Models\StayOnlineRecord;
 use App\Models\UserRecord;
 use App\Models\Visited;
-
+use App\Models\MessageRoom;
+use App\Models\MessageRoomUserXref;
 class UserController extends \App\Http\Controllers\BaseController
 {
     public function __construct(UserService $userService, AdminService $adminService)
@@ -3969,6 +3970,23 @@ class UserController extends \App\Http\Controllers\BaseController
         //站長系統訊息
         Message::post(1049, $user->id, $content, true, 1);
 
+        $webmaster_with_user = [1049, $user->id];
+        $checkData = MessageRoomUserXref::whereIn('user_id',$webmaster_with_user)->groupBy('room_id')->havingRaw('count(user_id) = ?', [2]);
+
+        if($checkData->count()==0){
+            $messageRoom = new MessageRoom;
+            $messageRoom->save();
+            $room_id = $messageRoom->id;
+        
+
+            foreach($webmaster_with_user as $row){
+                $messageRoomUserXref = new MessageRoomUserXref;
+                $messageRoomUserXref->user_id = $row;
+                $messageRoomUserXref->room_id = $room_id;
+                $messageRoomUserXref->save();
+            }
+        }
+
         Session::flash('message', '審核已完成，系統將自動發信通知該會員');
 
         echo json_encode('ok');
@@ -4013,6 +4031,23 @@ class UserController extends \App\Http\Controllers\BaseController
         //站長系統訊息
         Message::post(1049, $user->id, $content, true, 1);
 
+        $webmaster_with_user = [1049, $user->id];
+        $checkData = MessageRoomUserXref::whereIn('user_id',$webmaster_with_user)->groupBy('room_id')->havingRaw('count(user_id) = ?', [2]);
+
+        if($checkData->count()==0){
+            $messageRoom = new MessageRoom;
+            $messageRoom->save();
+            $room_id = $messageRoom->id;
+        
+
+            foreach($webmaster_with_user as $row){
+                $messageRoomUserXref = new MessageRoomUserXref;
+                $messageRoomUserXref->user_id = $row;
+                $messageRoomUserXref->room_id = $room_id;
+                $messageRoomUserXref->save();
+            }
+        }
+        
         Session::flash('message', '審核已完成，系統將自動發信通知該會員');
 
         echo json_encode('ok');
@@ -4059,6 +4094,23 @@ class UserController extends \App\Http\Controllers\BaseController
         //站長系統訊息
         Message::post(1049, $user->id, $content, true, 1);
 
+        $webmaster_with_user = [1049, $user->id];
+        $checkData = MessageRoomUserXref::whereIn('user_id',$webmaster_with_user)->groupBy('room_id')->havingRaw('count(user_id) = ?', [2]);
+
+        if($checkData->count()==0){
+            $messageRoom = new MessageRoom;
+            $messageRoom->save();
+            $room_id = $messageRoom->id;
+        
+
+            foreach($webmaster_with_user as $row){
+                $messageRoomUserXref = new MessageRoomUserXref;
+                $messageRoomUserXref->user_id = $row;
+                $messageRoomUserXref->room_id = $room_id;
+                $messageRoomUserXref->save();
+            }
+        }
+        
         Session::flash('message', '審核已完成，系統將自動發信通知該會員');
 
         echo json_encode('ok');
