@@ -2,7 +2,6 @@
 
 namespace App\Http\Controllers;
 
-use App\Http\Controllers\Controller;
 use App\Models\Blocked;
 use App\Models\lineNotifyChat;
 use App\Models\lineNotifyChatSet;
@@ -17,25 +16,17 @@ use App\Models\User;
 use App\Models\UserMeta;
 use App\Models\SetAutoBan;
 use App\Models\AdminCommonText;
-use App\Models\MessageRoom;
-use App\Models\hideOnlineData;
-use App\Models\Visited;
 use App\Services\UserService;
-use App\Services\VipLogService;
 use Carbon\Carbon;
 use Illuminate\Support\Facades\Auth;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Config;
-use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\File;
 use Intervention\Image\Facades\Image;
 use App\Services\AdminService;
 use Session;
 use App\Models\InboxRefuseSet;
 use App\Models\Pr_log;
-//use Shivella\Bitly\Facade\Bitly;
-use Illuminate\Support\Facades\Log;
-use App\Models\MessageRoomUserXref;
 
 class Message_newController extends BaseController {
     public function __construct(UserService $userService) {
@@ -302,33 +293,15 @@ class Message_newController extends BaseController {
                 $payload['to']
             );
 
-            $checkData = MessageRoomUserXref::whereIn('user_id',$rows)->groupBy('room_id')->havingRaw('count(user_id) = ?', [2]);
-
-            if($checkData->count()==0){
-                $messageRoom = new MessageRoom;
-                $messageRoom->save();
-                $room_id = $messageRoom->id;
-            
-
-                foreach($rows as $row){
-                    $messageRoomUserXref = new MessageRoomUserXref;
-                    $messageRoomUserXref->user_id = $row;
-                    $messageRoomUserXref->room_id = $room_id;
-                    $messageRoomUserXref->save();
-                }
-            }else{
-                $room_id = $checkData->first()['room_id'];
-            }
-
             $messageInfo = Message::create([
-                'room_id'=>$room_id,
-                'from_id'=>$user->id,
-                'to_id'=>$payload['to'],
-                'client_id'=>$payload['client_id'],
-                'parent_msg'=>($payload['parent']??null),
-                'parent_client_id'=>($payload['parent_client']??null),
-                'views_count_quota'=>($payload['views_count_quota']??0),
-                'show_time_limit'=>($payload['show_time_limit']??0),
+                'room_id' => Message::checkMessageRoomBetween($user->id, $payload['to']),
+                'from_id' => $user->id,
+                'to_id' => $payload['to'],
+                'client_id' => $payload['client_id'],
+                'parent_msg' => ($payload['parent']??null),
+                'parent_client_id' => ($payload['parent_client']??null),
+                'views_count_quota' => ($payload['views_count_quota']??0),
+                'show_time_limit' => ($payload['show_time_limit']??0),
             ]);
 
             $messagePosted = $this->message_pic_save($messageInfo->id, $request->file('images'));

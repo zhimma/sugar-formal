@@ -1193,7 +1193,7 @@ class Message extends Model
             }
         }
         else{
-            $room_id = $checkData->first()['room_id'];
+            $room_id = $checkData->first()?->room_id
         }
 
         return $room_id ?? null;

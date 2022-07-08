@@ -2,7 +2,6 @@
 
 namespace App\Http\Controllers;
 
-use App\Jobs\CheckECpay;
 use App\Jobs\CheckECpayForValueAddedService;
 use App\Models\AccountStatusLog;
 use App\Models\AdminAnnounce;
@@ -12,7 +11,6 @@ use App\Models\AnonymousChat;
 use App\Models\AnonymousChatMessage;
 use App\Models\AnonymousChatReport;
 use App\Models\BannedUsersImplicitly;
-use App\Models\CustomFingerPrint;
 use App\Models\EssencePosts;
 use App\Models\EssencePostsRewardLog;
 use App\Models\Evaluation;
@@ -31,9 +29,7 @@ use App\Models\Order;
 use App\Models\ReportedMessageBoard;
 use App\Models\SimpleTables\warned_users;
 use App\Models\VipLog;
-use App\Notifications\BannedUserImplicitly;
 use Auth;
-use App\Http\Requests;
 use Carbon\Carbon;
 use Illuminate\Http\Request;
 use App\Services\UserService;
@@ -56,25 +52,17 @@ use App\Models\BasicSetting;
 use App\Models\Posts;
 use App\Models\UserMeta;
 use App\Models\MemberPic;
-use App\Models\SetAutoBan;
-use App\Http\Controllers\Controller;
-use App\Http\Requests\ReportRequest;
 use App\Http\Requests\ProfileUpdateRequest;
-use App\Http\Requests\FormFilterRequest;
 use Illuminate\Pagination\LengthAwarePaginator;
 use Illuminate\Support\Arr;
 use Illuminate\Support\Facades\File;
-use Illuminate\Support\Facades\Redirect;
 use Illuminate\Support\Facades\Log;
 use Illuminate\Support\Facades\Config;
 use Illuminate\Support\Facades\Validator;
 use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\Hash;
 use App\Models\SimpleTables\banned_users;
-use Illuminate\Support\Facades\Input;
 use Intervention\Image\Facades\Image;
-use Session;
-use App\Notifications\AccountConsign;
 use App\Models\ValueAddedService;
 use App\Repositories\SuspiciousRepository;
 use App\Services\AdminService;
@@ -91,8 +79,6 @@ use Illuminate\Support\Facades\Http;
 use App\Services\SearchIgnoreService;
 use \FileUploader;
 use App\Models\UserRecord;
-use App\Models\MessageRoom;
-use App\Models\MessageRoomUserXref;
 
 class PagesController extends BaseController
 {
@@ -1389,42 +1375,6 @@ class PagesController extends BaseController
                 //站長系統訊息
                 Message::post(1049, $current_data->a_user_id, $content_a, true, 1);
                 Message::post(1049, $current_data->b_user_id, $content_b, true, 1);
-
-                $webmaster_with_a_user = [1049, $current_data->a_user_id];
-                $checkData = MessageRoomUserXref::whereIn('user_id',$webmaster_with_a_user)->groupBy('room_id')->havingRaw('count(user_id) = ?', [2]);
-  
-                if($checkData->count()==0){
-                    $messageRoom = new MessageRoom;
-                    $messageRoom->save();
-                    $room_id = $messageRoom->id;
-                
-
-                    foreach($webmaster_with_a_user as $row){
-                        $messageRoomUserXref = new MessageRoomUserXref;
-                        $messageRoomUserXref->user_id = $row;
-                        $messageRoomUserXref->room_id = $room_id;
-                        $messageRoomUserXref->save();
-                    }
-                }
-
-
-                $webmaster_with_b_user = [1049, $current_data->b_user_id];
-                $checkData = MessageRoomUserXref::whereIn('user_id', $webmaster_with_b_user)->groupBy('room_id')->havingRaw('count(user_id) = ?', [2]);
-                // $checkData = $checkData->get();
-    
-                if($checkData->count()==0){
-                    $messageRoom = new MessageRoom;
-                    $messageRoom->save();
-                    $room_id = $messageRoom->id;
-                
-
-                    foreach($webmaster_with_b_user as $row){
-                        $messageRoomUserXref = new MessageRoomUserXref;
-                        $messageRoomUserXref->user_id = $row;
-                        $messageRoomUserXref->room_id = $room_id;
-                        $messageRoomUserXref->save();
-                    }
-                }
                 return back()->with('message', '帳號關閉成功');
             }else{
                 //存入交付資料表
@@ -1488,42 +1438,6 @@ class PagesController extends BaseController
                     //站長系統訊息
                     Message::post(1049, $current_data->a_user_id, $content_a, true, 1);
                     Message::post(1049, $current_data->b_user_id, $content_b, true, 1);
-
-                    $webmaster_with_a_user = [1049, $current_data->a_user_id];
-                    $checkData = MessageRoomUserXref::whereIn('user_id',$webmaster_with_a_user)->groupBy('room_id')->havingRaw('count(user_id) = ?', [2]);
-    
-                    if($checkData->count()==0){
-                        $messageRoom = new MessageRoom;
-                        $messageRoom->save();
-                        $room_id = $messageRoom->id;
-                    
-
-                        foreach($webmaster_with_a_user as $row){
-                            $messageRoomUserXref = new MessageRoomUserXref;
-                            $messageRoomUserXref->user_id = $row;
-                            $messageRoomUserXref->room_id = $room_id;
-                            $messageRoomUserXref->save();
-                        }
-                    }
-
-
-                    $webmaster_with_b_user = [1049, $current_data->b_user_id];
-                    $checkData = MessageRoomUserXref::whereIn('user_id', $webmaster_with_b_user)->groupBy('room_id')->havingRaw('count(user_id) = ?', [2]);
-        
-                    if($checkData->count()==0){
-                        $messageRoom = new MessageRoom;
-                        $messageRoom->save();
-                        $room_id = $messageRoom->id;
-                    
-
-                        foreach($webmaster_with_b_user as $row){
-                            $messageRoomUserXref = new MessageRoomUserXref;
-                            $messageRoomUserXref->user_id = $row;
-                            $messageRoomUserXref->room_id = $room_id;
-                            $messageRoomUserXref->save();
-                        }
-                    }
-                    
                     return back()->with('message', '帳號開啟成功，將於24小時候啟用');
                 }
 
@@ -8359,42 +8273,6 @@ class PagesController extends BaseController
 //            dd($sys_message);
             Message::post(1049, $to_user_id->user_id, $sys_message, true, 0);
             Message::post($user->id, $to_user_id->user_id, $request->content);
-
-            $webmaster_with_user = [1049, $to_user_id->user_id];
-                $checkData = MessageRoomUserXref::whereIn('user_id',$webmaster_with_user)->groupBy('room_id')->havingRaw('count(user_id) = ?', [2]);
-  
-                if($checkData->count()==0){
-                    $messageRoom = new MessageRoom;
-                    $messageRoom->save();
-                    $room_id = $messageRoom->id;
-                
-
-                    foreach($webmaster_with_user as $row){
-                        $messageRoomUserXref = new MessageRoomUserXref;
-                        $messageRoomUserXref->user_id = $row;
-                        $messageRoomUserXref->room_id = $room_id;
-                        $messageRoomUserXref->save();
-                    }
-                }
-
-
-                $user_with_to_user = [$user->id, $to_user_id->user_id];
-                $checkData = MessageRoomUserXref::whereIn('user_id', $user_with_to_user)->groupBy('room_id')->havingRaw('count(user_id) = ?', [2]);
-                // $checkData = $checkData->get();
-    
-                if($checkData->count()==0){
-                    $messageRoom = new MessageRoom;
-                    $messageRoom->save();
-                    $room_id = $messageRoom->id;
-                
-
-                    foreach($user_with_to_user as $row){
-                        $messageRoomUserXref = new MessageRoomUserXref;
-                        $messageRoomUserXref->user_id = $row;
-                        $messageRoomUserXref->room_id = $room_id;
-                        $messageRoomUserXref->save();
-                    }
-                }
         }
 
         return back()->with('message', $msg);

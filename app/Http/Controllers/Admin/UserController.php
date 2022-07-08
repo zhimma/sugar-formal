@@ -10,7 +10,6 @@ use App\Models\Board;
 use App\Models\Evaluation;
 use App\Models\EvaluationPic;
 use App\Models\ExpectedBanningUsers;
-use App\Models\Fingerprint2;
 use App\Models\hideOnlineData;
 use App\Models\lineNotifyChatSet;
 use App\Models\LogUserLogin;
@@ -25,14 +24,10 @@ use App\Models\ReportedPic;
 use App\Models\SetAutoBan;
 use App\Models\SimpleTables\users;
 use App\Models\SuspiciousUser;
-use App\Notifications\AccountConsign;
-use App\Notifications\BannedUserImplicitly;
-use Illuminate\Database\Eloquent\Collection;
 use Illuminate\Http\Request;
 use App\Services\UserService;
 use App\Services\AdminService;
 use App\Services\FaqService;
-use App\Http\Controllers\Controller;
 use App\Http\Requests\UserInviteRequest;
 use App\Models\User;
 use App\Models\UserMeta;
@@ -52,7 +47,6 @@ use App\Models\DataForFilterByInfo;
 use App\Models\DataForFilterByInfoIgnores;
 use App\Models\ImagesCompareEncode;
 use App\Models\Order;
-use App\Notifications\BannedNotification;
 use App\Observer\BadUserCommon;
 use Carbon\Carbon;
 use Illuminate\Pagination\LengthAwarePaginator;
@@ -60,9 +54,7 @@ use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\File;
 use Intervention\Image\Facades\Image;
-use Illuminate\Support\Facades\Log;
 use Session;
-use App\Http\Controller\PagesController;
 use App\Models\Blocked;
 use App\Models\ValueAddedService;
 use App\Services\ImagesCompareService;
@@ -72,8 +64,6 @@ use App\Models\ComeFromAdvertise;
 use App\Models\StayOnlineRecord;
 use App\Models\UserRecord;
 use App\Models\Visited;
-use App\Models\MessageRoom;
-use App\Models\MessageRoomUserXref;
 class UserController extends \App\Http\Controllers\BaseController
 {
     public function __construct(UserService $userService, AdminService $adminService)
@@ -3970,23 +3960,6 @@ class UserController extends \App\Http\Controllers\BaseController
         //站長系統訊息
         Message::post(1049, $user->id, $content, true, 1);
 
-        $webmaster_with_user = [1049, $user->id];
-        $checkData = MessageRoomUserXref::whereIn('user_id',$webmaster_with_user)->groupBy('room_id')->havingRaw('count(user_id) = ?', [2]);
-
-        if($checkData->count()==0){
-            $messageRoom = new MessageRoom;
-            $messageRoom->save();
-            $room_id = $messageRoom->id;
-        
-
-            foreach($webmaster_with_user as $row){
-                $messageRoomUserXref = new MessageRoomUserXref;
-                $messageRoomUserXref->user_id = $row;
-                $messageRoomUserXref->room_id = $room_id;
-                $messageRoomUserXref->save();
-            }
-        }
-
         Session::flash('message', '審核已完成，系統將自動發信通知該會員');
 
         echo json_encode('ok');
@@ -4030,23 +4003,6 @@ class UserController extends \App\Http\Controllers\BaseController
 
         //站長系統訊息
         Message::post(1049, $user->id, $content, true, 1);
-
-        $webmaster_with_user = [1049, $user->id];
-        $checkData = MessageRoomUserXref::whereIn('user_id',$webmaster_with_user)->groupBy('room_id')->havingRaw('count(user_id) = ?', [2]);
-
-        if($checkData->count()==0){
-            $messageRoom = new MessageRoom;
-            $messageRoom->save();
-            $room_id = $messageRoom->id;
-        
-
-            foreach($webmaster_with_user as $row){
-                $messageRoomUserXref = new MessageRoomUserXref;
-                $messageRoomUserXref->user_id = $row;
-                $messageRoomUserXref->room_id = $room_id;
-                $messageRoomUserXref->save();
-            }
-        }
         
         Session::flash('message', '審核已完成，系統將自動發信通知該會員');
 
@@ -4093,23 +4049,6 @@ class UserController extends \App\Http\Controllers\BaseController
 
         //站長系統訊息
         Message::post(1049, $user->id, $content, true, 1);
-
-        $webmaster_with_user = [1049, $user->id];
-        $checkData = MessageRoomUserXref::whereIn('user_id',$webmaster_with_user)->groupBy('room_id')->havingRaw('count(user_id) = ?', [2]);
-
-        if($checkData->count()==0){
-            $messageRoom = new MessageRoom;
-            $messageRoom->save();
-            $room_id = $messageRoom->id;
-        
-
-            foreach($webmaster_with_user as $row){
-                $messageRoomUserXref = new MessageRoomUserXref;
-                $messageRoomUserXref->user_id = $row;
-                $messageRoomUserXref->room_id = $room_id;
-                $messageRoomUserXref->save();
-            }
-        }
         
         Session::flash('message', '審核已完成，系統將自動發信通知該會員');
 
