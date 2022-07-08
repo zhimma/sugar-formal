@@ -315,6 +315,7 @@ export default {
       });
 
       this.videoCallParams.peer1.on("error", (err) => {
+        console.log('peer1 error');
         console.log(err);
       });
 
@@ -520,14 +521,18 @@ export default {
       this.videoCallParams.channel.pusher.channels.channels[
         "presence-presence-video-channel"
       ].disconnect();
-
-      setTimeout(() => {
-        this.callPlaced = false;
-      }, 3000);
       if(this.user_permission == 'admin')
       {
         this.stopRecording();
       }
+      if(this.user_permission == 'admin')
+      {
+        window.sessionStorage.setItem('endcall_reload',true);
+      }
+      setTimeout(() => {
+        this.callPlaced = false;
+        location.reload();
+      }, 3000);
     },
 
     generateBtnClass(onlinestatus) {

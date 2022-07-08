@@ -88,8 +88,8 @@
             ice_servers = iceServers;
         }
 
-        $('#video_chat_switch_on').on('click',function(){
-            $(this).css({
+        function start_video_chat(){
+            $('#video_chat_switch_on').css({
                 'background-color': '#4CAF50',
                 'color': 'white',
                 'cursor': 'not-allowed'
@@ -105,8 +105,20 @@
                     el:'#app'
                 });
             });
+        }
+
+        $('#video_chat_switch_on').on('click',function(){
+            start_video_chat();
         });
-        
+
+        $(document).ready(function(){
+            if(window.sessionStorage.endcall_reload)
+            {
+                start_video_chat();
+                window.sessionStorage.removeItem('endcall_reload');
+            }
+        });
+
         $('#video_chat_switch_off').on('click',function(){
             window.location.reload();
         });
