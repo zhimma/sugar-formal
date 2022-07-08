@@ -288,11 +288,6 @@ class Message_newController extends BaseController {
 
         if(!is_null($request->file('images')) && count($request->file('images'))){
             //上傳訊息照片
-            $rows = array(
-                $user->id,
-                $payload['to']
-            );
-
             $messageInfo = Message::create([
                 'room_id' => Message::checkMessageRoomBetween($user->id, $payload['to']),
                 'from_id' => $user->id,
