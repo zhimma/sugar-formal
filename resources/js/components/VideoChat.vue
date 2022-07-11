@@ -428,6 +428,7 @@ export default {
       });
 
       this.videoCallParams.peer2.on("error", (err) => {
+        console.log('peer2 error');
         console.log(err);
       });
 
