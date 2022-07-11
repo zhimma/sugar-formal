@@ -27,6 +27,8 @@ class VideoChatController extends Controller
         $data['signalData'] = $data->id;
         $data['from'] = Auth::id();
         $data['type'] = 'incomingCall';
+        Log::Info('callUser data');
+        Log::Info($data);
         broadcast(new StartVideoChat($data))->toOthers();
     }
 
@@ -41,6 +43,8 @@ class VideoChatController extends Controller
         $data['signal'] = $data->id;
         $data['to'] = $request->to;
         $data['type'] = 'callAccepted';
+        Log::Info('acceptCall data');
+        Log::Info($data);
         broadcast(new StartVideoChat($data))->toOthers();
     }
 
