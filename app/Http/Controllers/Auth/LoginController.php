@@ -227,7 +227,7 @@ class LoginController extends \App\Http\Controllers\BaseController
                             'created_at' => \Carbon\Carbon::now()]
                     ))
                     {
-                        BadUserCommon::addRemindMsgFromBadId($userId);
+                        BadUserCommon::addRemindMsgFromBadId($uid);
                     }
                 }
             }
@@ -242,33 +242,14 @@ class LoginController extends \App\Http\Controllers\BaseController
             if($request->cfp_hash && strlen($request->cfp_hash) == 50){
                 $cfp = \App\Services\UserService::checkcfp($request->cfp_hash, $user->id);
                 //新增登入紀錄
-                if($request->visitor_id_hash && strlen($request->visitor_id_hash) == 20){
-                    $visitor = \App\Services\UserService::checkvisitorid($request->visitor_id_hash, $user->id);
-                    if($visitor){
-                        $logUserLogin = LogUserLogin::create([
-                            'user_id' => $user->id,
-                            'cfp_id' => $cfp->id,
-                            'visitor_id'=>$visitor->id,
-                            'userAgent' => $_SERVER['HTTP_USER_AGENT'],
-                            'ip' => $request->ip(),
-                            'created_date' =>  date('Y-m-d'),
-                            'created_at' =>  date('Y-m-d H:i:s')]
-                        );
-                    }else{
-                        throw new \Exception("Visitor ID is error");
-                    }
-                }
-                else{
-                    $logUserLogin = LogUserLogin::create([
-
+                $logUserLogin = LogUserLogin::create([
                         'user_id' => $user->id,
                         'cfp_id' => $cfp->id,
                         'userAgent' => $_SERVER['HTTP_USER_AGENT'],
                         'ip' => $request->ip(),
                         'created_date' =>  date('Y-m-d'),
                         'created_at' =>  date('Y-m-d H:i:s')]
-                    );
-                }
+                );
             }
             else{
                 logger("CFP debug data: " . $request->debug);

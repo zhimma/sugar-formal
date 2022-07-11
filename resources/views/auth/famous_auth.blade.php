@@ -23,7 +23,6 @@
 </style>
 @stop
 @section('app-content')
-		<!---->
 		<div class="container matop70">
 			<div class="row">
 				<div class="col-sm-2 col-xs-2 col-md-2 dinone">
@@ -34,116 +33,77 @@
 						<font>Certification</font>
 						<a href="" class="toug_back btn_img"><div class="btn_back"></div></a>
 					</div>
-					<!--  -->
 					<div class="gjrz_nr01 ga_bot70">
 						<div class="gjr_b"><img src="{{asset('posts/images/gj_bt2.png')}}"></div>
 						<div class="renz_n">請提供相關資料</div>
 						<form name="famous_auth_form" method="post" action="{{route('famous_auth_save')}}" enctype="multipart/form-data">
                         {!! csrf_field() !!}
                         @include('auth.real_auth_question_tpl')
-                        {{--
-                        @foreach($entry_list as $q_idx=>$question_entry)
-					    <div class="gjr_nr02 gir_top20 gir_pa01">
-							 <h2 class="gjr_nr02_h2">{{$q_idx+1}}:{{$question_entry->question}}</h2>
-							 <div class="gjr_nr02_h2 rzmatop_5">
-                                <h2 class="rzmatop_5">
-                                @foreach($question_entry->real_auth_choice as $choice_index=> $choice_entry)
-                                    @if($choice_index && $choice_entry->type!=$question_entry->real_auth_choice[$choice_index-1]->type)
-                                    <span class="ga_or01">-or-</span>    
-                                    @endif
-                                    @include('auth.real_auth_choice_tpl_'.$service->questionTypeToKey($question_entry->type??$choice_entry->type))
-
-                                @endforeach
-                                --}}{{--
-								 @if($question_entry->type??null)
-                                    @include('auth.real_auth_choice_tpl_'.$service->questionTypeToKey($question_entry->type))
-                                 @else
-                                    @include('auth.real_auth_choice_tpl')
-                                 @endif
-                                 --}}{{--
-                                </h2>
-                             </div>
-						</div>                        
-                        @endforeach
-                        --}}
-					    {{--
-                        <div class="gjr_nr02 gir_top20 gir_pa01">
-							 <h2 class="gjr_nr02_h2">1:FB/IG 超過 5000 人追蹤</h2>
-							 <div class="gjr_nr02_h2 rzmatop_5">
-								 <h2 class="rzmatop_5"><input class="g_rinput" placeholder="請輸入連結"></h2>
-							 </div>
-						</div>
-					
-					
-					<div class="gjr_nr02 gir_top20 gir_pa01">
-						 <h2 class="gjr_nr02_h2">2:曾參與超過三場以上走秀/演出</h2>
-						 <div class="gjr_nr02_h2 rzmatop_5">
-							 <h2 class="rzmatop_5"><input class="g_rinput" placeholder="請輸入連結"></h2>
-							 <span class="ga_or01">-or-</span>
-							 <ul class="n_ulpic" style="margin-bottom:5px;">
-							 		<li class="write_img mabot_10 dt_pa0"><b class="img dt_heght gir_border"><img src="{{asset('posts/images/ph_xz01.png')}}" class="hycov"></b></li>
-							 </ul>
-						 </div>
-					</div>
-					
-					<div class="gjr_nr02 gir_top20 gir_pa01">
-						 <h2 class="gjr_nr02_h2">3:公眾人物</h2>
-						 <div class="gjr_nr02_h2 rzmatop_5">
-							 <h2 class="rzmatop_5"><input class="g_rinput" placeholder="請輸入姓名或外號"></h2>
-						 </div>
-					</div>
-					
-					<div class="gjr_nr02 gir_top20 gir_pa01">
-						 <h2 class="gjr_nr02_h2">4:公認校花/系花</h2>
-						 <div class="gjr_nr02_h2 rzmatop_5">
-							 <h2 class="rzmatop_5">
-								 <input class="g_rinput rzmabot_10" placeholder="請輸入學校名稱">
-								 <input class="g_rinput rzmabot_10" placeholder="請輸入系級">
-								 <input class="g_rinput" placeholder="請輸入真實姓名">
-							 </h2>
-						 </div>
-					</div>
-					
-					<div class="gjr_nr02 gir_top20 gir_pa01">
-						 <h2 class="gjr_nr02_h2">5:其他特殊條件</h2>
-						 <div class="gjr_nr02_h2 rzmatop_5">
-							 <h2 class="rzmatop_5">
-								 <textarea placeholder="請輸入" class="g_rtext" ></textarea>
-								 <span class="ga_or01">-or-</span>
-								 <ul class="n_ulpic" style="margin-bottom:5px;">
-								 	<li class="write_img mabot_10 dt_pa0"><b class="img dt_heght gir_border"><img src="{{asset('posts/images/ph_xz01.png')}}" class="hycov"></b></li>
-								 </ul>
-							 </h2>
-						 </div>
-					</div>
-                        --}}
 					
                         <div class="n_txbut g_inputt40">
-                              <a href="javascript:void(0);" class="se_but1" onclick="document.famous_auth_form.requestSubmit();">我同意</a>
-                              <a href="" class="se_but2">放棄</a>
+                              <a href="javascript:void(0);" class="se_but1" onclick="return is_form_have_any_change(this) && document.famous_auth_form.requestSubmit();">
+                              @if($service->isPassedByAuthTypeId(3))
+                                送出異動申請
+                              @else
+                                我同意
+                              @endif  
+                              </a>
+                              <a href="{{route('real_auth')}}" class="se_but2">放棄</a>
                         </div>
 					</form>
 					
 					    
 					</div>
-					<!--  -->
-						
 				</div>
-
 			</div>
 		</div>
 @stop
 @section('javascript')
 <style>
-/*
-.fileuploader-thumbnails-input {width:100%;height:100%;}
-*/
 .write_img {float:none !important;}
 </style>
 <script>
+    function is_form_have_any_change(dom) {
+        var nowElt = $(dom);
+        var nowFormElt = nowElt.closest('form');
+        var check_rs = false;
+        var ans_chain_str = '';
+        
+        $.each(nowFormElt.serializeArray(), function( index, value ) {
+                
+                if(value.name=='_token') return;
+                if(value.name.indexOf('reply_pic_')>=0) return;
+                ans_chain_str+=value.value;
+                if(check_rs) return;
+                var now_form_org_ans = nowFormElt.find('.form_org_ans_'+value.name.replaceAll(']','_').replaceAll('[','_')).data('form_org_ans');
+                if(now_form_org_ans==undefined) now_form_org_ans='';
+                
+                
+                if(check_rs==false && now_form_org_ans!=undefined && value.value!=now_form_org_ans) {
+                    check_rs = true;
+                }
+        });
+        
+        images_uploader.each(function(upl_index,uplder){
+            if(check_rs) return;
+            var uplder_api = $.fileuploader.getInstance($(uplder));
+            if(uplder_api.getChoosedFiles().length>0) {
+                check_rs=true;
+            }
+        });
+
+        if(check_rs==false) {
+            c5('無法送出！您尚未'+(ans_chain_str==''?'填寫':'修改')+'任何答案。');
+        }
+
+        return check_rs;
+    }
+    
+
     $(document).ready(function () {
         images_uploader = $('.reply_pic_choice').fileuploader({
-            //extensions: ['jpg', 'png', 'jpeg', 'bmp'],
+            extensions: ['jpg', 'png', 'jpeg', 'bmp','gif','heif','heic'],
+            notResetApiAfterResizePopupMsg: true,
             changeInput: ' ',
             theme: 'thumbnails',
             enableApi: true,
@@ -226,7 +186,7 @@
             },
             dialogs: {
                 alert:function(message) {
-                    alert(message);
+                    c5(message);
                 },
             },
             dragDrop: {
@@ -243,7 +203,7 @@
                             pic: item.data.url
                         },
                         success: function(data){
-                            //c2("刪除成功")
+  
                             $(".announce_bg").hide();
                             $("#tab02").hide();
                             if(data.length>100 || data=='' || data==undefined) {
@@ -251,11 +211,7 @@
                             } else {
                                 c5(data);
                             }
-                            // if(data.length>4){
-                            //     c2(data);
-                            // }else {
-                            //     c2(data);
-                            // }
+
                             isRemovable = true
                         },
                         error: function(xhr, status, msg){
@@ -289,7 +245,16 @@
             afterRender: function(listEl, parentEl, newInputEl, inputEl) {
                 var plusInput = listEl.find('.fileuploader-thumbnails-input'),
                     api = $.fileuploader.getInstance(inputEl.get(0));
+                @if($service->isPassedByAuthTypeId(3))
+                var option_limit = api.getOptions()['limit'];
+                var unchk_pic_num = $('#unchk_pic_num_of_'+inputEl.attr('id')).val();
+                 api.setOption('unchk_pic_num',unchk_pic_num);
+                var new_limit = option_limit - unchk_pic_num;
 
+                if(new_limit<0) new_limit=0;
+                api.setOption('org_limit',option_limit)
+                api.setOption('limit',new_limit);
+                @endif
                 plusInput.on('click', function() {
                     api.open();
                 });
@@ -318,8 +283,52 @@
                 open: '打開',
                 removeConfirmation: '確認要刪除檔案嗎?',
                 errors: {
-                    filesLimit: function(options) {
-                        return '最多上傳 ${limit} 張圖片.'
+                    filesLimit: function(options,listEl, parentEl, newInputEl, inputEl) {
+                            var filesLimit_error_msg = '最多上傳 ${limit} 張圖片！';
+                            @if($service->isPassedByAuthTypeId(3))
+                            var api = $.fileuploader.getInstance(inputEl.get(0));
+                            var api_options = api.getOptions();
+                            var option_limit = api_options['limit'];
+                            var unchk_pic_num = api_options['unchk_pic_num'];                           
+                            var passed_pic_num = api.getAppendedFiles().length;
+                            var allow_pic_num = option_limit-passed_pic_num;
+                            var allow_msg_part = '';
+                            var choosed_pic_num = api.getChoosedFiles().length-1;
+                            
+                            if(allow_pic_num<0) allow_pic_num=0;
+                            
+                            if(allow_pic_num) {
+                                allow_msg_part = '所以最多只能再上傳'+allow_pic_num+'張照片。';
+                                
+                                if(choosed_pic_num) {
+                                    allow_msg_part+='您剛剛已經成功選取了'+choosed_pic_num+'張照片，';
+                                }
+                                
+                                if(choosed_pic_num>0 && choosed_pic_num>=allow_pic_num) {
+                                    allow_msg_part+='因此無法再選取照片。本次選取照片失敗。請刪除部分照片後再選取或按送出按鈕上傳'+choosed_pic_num+'張照片。';
+                                }
+                                else {
+                                    if(choosed_pic_num) {
+                                        allow_msg_part+='再加上本次選取的照片，';
+                                    }
+                                    allow_msg_part+='您'+(choosed_pic_num?'已經':'')+'選取了超過'+allow_pic_num+'張的照片，因此本次選取照片失敗。請重新選取照片';
+                                    
+                                    if(choosed_pic_num) {
+                                        allow_msg_part+='或按送出按鈕上傳'+choosed_pic_num+'張照片';
+                                    }
+                                    
+                                }
+                                
+                            }
+                            else allow_msg_part = '已到達'+api_options['org_limit']+'張的限制，因此無法再選取照片。請刪除部分照片後再選取。';
+                            
+                            filesLimit_error_msg = '此欄位目前有'+passed_pic_num+'張通過審核、';
+                            if(unchk_pic_num>0) filesLimit_error_msg+=unchk_pic_num+'張審核中，合計共'+(parseInt(passed_pic_num)+parseInt(unchk_pic_num))+'張的照片，'
+                            filesLimit_error_msg+=allow_msg_part;
+                            
+                            @endif                        
+                        
+                        return filesLimit_error_msg;
                     },
                     filesType: '檔名: ${name} 不支援此格式, 只允許 ${extensions} 檔案類型上傳.',
                     fileSize: '${name} 檔案太大, 請確認容量需小於 ${fileMaxSize}MB.',

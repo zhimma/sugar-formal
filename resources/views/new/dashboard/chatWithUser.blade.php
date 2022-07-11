@@ -837,7 +837,7 @@
                     </form>
                     @endif
                 </div>
-                @if($to->exchange_period == 1 && !($messages->first()??false))
+                @if($to->engroup==2 && $to->exchange_period == 1 && !($messages->first()??false))
                     <div class="ditext" id='long_time_notice'>
                         <h2>此會員包養模式是"長期為主"，站規規定禁止向該女會員主動發送罐頭/短約訊息。如有違反將會警示/封鎖的懲處。</h2>
                         <h3>

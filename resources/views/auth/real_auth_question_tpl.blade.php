@@ -1,10 +1,10 @@
 @foreach($entry_list->whereNull('parent_id') as $q_idx=>$question_entry)
 <div class="gjr_nr02 gir_top20 gir_pa01">
     <h2 class="gjr_nr02_h2">{{$q_idx+1}}:{{$question_entry->question}}{{$question_entry->required?'(必填)':''}}</h2>
-    @if(in_array($service->questionTypeToKey($question_entry->type),[3,4])) 
+    @if(in_array($service->questionTypeToKey($question_entry->type),[3,4]) ||  $question_entry->real_auth_choice->whereNull('parent_id')->unique('type')->count()>1) 
     <div class="gjr_nr02_h2 rzmatop_5">
     @endif
-    {{--<h2 class="rzmatop_5">--}}
+    <h2 class="rzmatop_5">
         @if($service->questionTypeToKey($question_entry->type)!==false) 
             @include('auth.real_auth_choice_tpl_'.$service->questionTypeToKey($question_entry->type),['tpl_question_entry'=>$question_entry])
         @else
@@ -17,14 +17,7 @@
                 @endif
             @endforeach
         @endif
-        {{--
-         @if($question_entry->type??null)
-            @include('auth.real_auth_choice_tpl_'.$service->questionTypeToKey($question_entry->type),['tpl_question_entry'=>$question_entry])
-         @else
-            @include('auth.real_auth_choice_tpl')
-         @endif
-         --}}
-         {{--</h2>--}}
+         </h2>
     @if(in_array($service->questionTypeToKey($question_entry->type),[3,4])) 
     </div>
     @endif

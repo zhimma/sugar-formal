@@ -911,10 +911,12 @@
         //ajax資料
         function LoadTable(){
             div = '';
-
+            const dateTime = Date.now();
+            const timestamp = Math.floor(dateTime / 1000);
+            
             // alert(date);
             $.ajax({
-                url: '{{ route('showMessages') }}?{{ csrf_token() }}={{ now()->timestamp }}',
+                url: '{{ route('showMessages') }}?{{ csrf_token() }}={{ now()->timestamp }}' + timestamp.toString(),
                 type: 'POST',
                 dataType: 'json',
                 // headers: {

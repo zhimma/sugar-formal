@@ -44,10 +44,11 @@ class FaqCheck
             $url_arr = explode('/',url()->current());
             $last_url_seq = array_pop($url_arr);
 
-            if( $this->service->isForceShowFaqPopup() &&
+            if( !$request->ajax() && $this->service->isForceShowFaqPopup() &&
                 $last_url_seq!='dashboard' &&
                 $last_url_seq!='dashboard2' &&                
                 $last_url_seq!='logout' &&
+                //$last_url_seq!='beauty_auth' &&
                 !str_contains(url()->current(), 'dashboard/personalPage') &&
                 !str_contains(url()->current(), 'users/switch-back') &&
                 !Gate::allows('admin', $this->auth->user()) &&

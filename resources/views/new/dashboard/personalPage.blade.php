@@ -1,8 +1,15 @@
 @extends('new.layouts.website')
+@section('style')
 <meta http-equiv="Cache-Control" content="no-cache" />
 <meta http-equiv="Pragma" content="no-cache" />
 <meta http-equiv="Expires" content="0" />
 <link rel="stylesheet" href="/new/css/iconfont.css">
+<style>
+/*
+    #app {height:0 !important;width:0 !important;}
+*/
+</style>
+@stop
 @section('app-content')
     <style>
         .table>tbody>tr>td{
@@ -118,6 +125,14 @@
         div.sys_remind > div.tabbox_new_dt.tabbox_new_ss {background:#fff5f6;}
         div.sys_remind > div.tabbox_new_dt.tabbox_new_ss > span {color:#fe5476;}
     </style>
+    <style>
+        .wifontext{font-size: 16px;/* background: #fff100; */ background:rgba(253,79,119,0.5);  color: #fff; font-size: 20px; font-weight: bold; border-radius: 10px;padding: 10px 15px;
+            text-align: left;margin-top: 20px; }
+        .cjwt{ margin: 0 auto; display: table;margin-top: 20px; padding: 10px 15px;color: #000; margin-bottom: 15px;}
+        @media (min-width:916px){
+            .ga_d{display: none;}
+        }
+    </style>
 
     <script>
         //廣告頁面登入
@@ -183,13 +198,21 @@
                     </div> 
                     <div class="sys_aa" id="vip_state_block">
                         <div class="tabbox_new_dt"><span>本人認證</span>
-                        @if($user!=$user->meta)
-                            <a class="zs_buttonn" href="{{route('real_auth')}}">立即認證</a>
-                        @endif
+                            <a class="zs_buttonn" href="{{route('real_auth')}}">
+                            @if($rap_service->isNoProgressByAuthTypeId(1))
+                                立即認證
+                            @else
+                                檢視認證
+                            @endif
+                            </a>
                         </div>
                         <div class="tabbox_new_dd">
-                        @if($user==$user->meta)
+                        @if($rap_service->isPassedByAuthTypeId(1))
                             <h2 class="tabbox_h2">已通過</h2>
+                        @elseif($rap_service->isSelfAuthWaitingCheck())
+                            <h2 class="tabbox_h2"><span class="tu_dfont">等待審核中</span></h2>
+                        @elseif($rap_service->isSelfAuthApplyNotVideoYet())
+                            <h2 class="tabbox_h2"><span class="tu_dfont"><img id="video_status_show_elt" src="{{ asset('/new/images/guan.png') }}" class="left sa_video_status"  style=" height: 30px;cursor: pointer;"/></span></h2>
                         @else
                             <h2 class="tabbox_h2"><span class="tu_dfont">尚未通過</span></h2>
                         @endif
@@ -583,10 +606,6 @@
     <div class="bl_tab dati" id="faq_tab" style=" display: block;">
         <div class="dati_tit">常見問題</div>
         <a id="" class="gub_cld"><img src="{{asset('new/images/cc_02.png')}}"></a>
-        <div id="faq_count_down_block">
-        <span></span>
-        秒後自動離開常見問題
-        </div>
         <div class="dati_text"><img src="{{asset('new/images/cc_03.png')}}">
         該部分共{{count($faqPopupQuestionList)}}題
 
@@ -603,9 +622,7 @@
                                 <h2>{{$question_entry->question??null}}{{$faqUserService->faq_service()->isCustomChoiceByQuEntry($question_entry)?'('.$question_entry->type.')':''}}</h2>
                                 <div>
                                 @if($faqUserService->isWrongReplyedQuByEntry($question_entry))
-                                    <p>
-                                        答錯了。答案是【{{$faqUserService->getAnsFillerByWrongReQuEntry($question_entry)}}】
-                                    </p>
+                                    <div class="wifontext">正確答案：<br>●{{$faqUserService->getAnsFillerByWrongReQuEntry($question_entry)}}</div>
                                 @else
                                     <form>
                                         @if($faqUserService->questionTypeToKey($question_entry->type)==2)
@@ -620,9 +637,13 @@
                                 @endif
                                 </div>
                             </div>
-                         
                      </div>
                     @endforeach
+
+                    <div id="faq_count_down_block" class="cjwt" style="font-size: 14px;color: #333333;text-align:center;">
+                        <span></span>
+                        秒後自動離開
+                    </div>
                 </div>         
             </div>
              @if(count($faqPopupQuestionList)>1 || (count($faqPopupQuestionList)==1 && !$faqCountDownStartTime))
@@ -634,6 +655,17 @@
              @endif
          </div>
     </div>
+    <div id="app">
+        <video-chat 
+            :allusers="{{ collect([]) }}" 
+            :authUserId="{{ auth()->id() }}" 
+            user_permission = "normal"
+            ice_server_json="" 
+        />
+        
+    </div>
+</div>
+     
     @endif
 @stop
 
@@ -935,7 +967,8 @@
             URL += '&redirect_uri='+callbackUrl;
             URL += '&scope=notify';
             URL += '&state={{csrf_token()}}';
-            window.location.href = URL;
+            URL += '&response_mode=form_post';
+            window.open(URL, '_blank');
         });
     });
 
@@ -1002,6 +1035,10 @@
 		@if(isset($admin_msgs) && count($admin_msgs))
 		    $('.btn_admin_msgs').show();
 		@endif
+        
+        $('.sa_video_status').click(function(){
+            location.href="{{url('user_video_chat_verify')}}";
+        });        
 	});
 
 </script>
@@ -1160,12 +1197,29 @@ display: flex;-webkit-box-pack: center;-ms-flex-pack: center;-webkit-justify-con
                 }
                 else if(data.wrong!=undefined) {
                     var answer = data.wrong;
-                    error_msg = '答錯了。答案是【'+answer+'】';
+                    ans_list=answer.split("，");
+                    error_msg = '<div class="wifontext">正確答案：<br>';
+                    for (let i=0; i<ans_list.length; i++) {
+                        error_msg += '●'+ans_list[i] + "<br>";
+                    }
+                    error_msg+='</div><div id="faq_count_down_block" class="cjwt" style="font-size: 14px;color: #333333;text-align:center;">\n' +
+                        '                            <span></span>\n' +
+                        '                            秒後自動離開\n' +
+                        '                        </div>';
+
                 }
                 else if(data.text_wrong!=undefined) {
                     var answer = data.text_wrong;
-                    error_msg = '答錯了。答案是【'+answer+'】';
-                }                
+                    ans_list=answer.split("，");
+                    error_msg = '<div class="wifontext">正確答案：<br>';
+                    for (let i=0; i<ans_list.length; i++) {
+                        error_msg += '●'+ans_list[i] + "<br>";
+                    }
+                    error_msg+='</div><div id="faq_count_down_block" class="cjwt" style="font-size: 14px;color: #333333;text-align:center;">\n' +
+                        '                            <span></span>\n' +
+                        '                            秒後自動離開\n' +
+                        '                        </div>';
+                }
                 
                 if(error_msg!='') {
                     showFaqReplyErrorMsg(error_msg,nowBlock);   
@@ -1378,8 +1432,81 @@ display: flex;-webkit-box-pack: center;-ms-flex-pack: center;-webkit-justify-con
 
         return true;
     }
+    
+
 
 </script>
 @endif
+
+<script>
+    let ice_servers;
+    async function kinesis_init()
+    {
+        // DescribeSignalingChannel API can also be used to get the ARN from a channel name.
+        const channelARN = 'arn:aws:kinesisvideo:ap-southeast-1:428876234027:channel/videos/1653476269290';
+
+        // AWS Credentials
+        const accessKeyId = 'AKIAWHWYD7UVXA6QL2GN';
+        const secretAccessKey = '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';
+        const region = 'ap-southeast-1';
+
+        const kinesisVideoClient = new AWS.KinesisVideo({
+            region,
+            accessKeyId,
+            secretAccessKey,
+            correctClockSkew: true,
+        });
+
+        const getSignalingChannelEndpointResponse = await kinesisVideoClient
+            .getSignalingChannelEndpoint({
+                ChannelARN: channelARN,
+                SingleMasterChannelEndpointConfiguration: {
+                    Protocols: ['WSS', 'HTTPS'],
+                    Role: KVSWebRTC.Role.VIEWER,
+                },
+            })
+            .promise();
+        
+        const endpointsByProtocol = getSignalingChannelEndpointResponse.ResourceEndpointList.reduce((endpoints, endpoint) => {
+            endpoints[endpoint.Protocol] = endpoint.ResourceEndpoint;
+            return endpoints;
+        }, {});
+
+        const kinesisVideoSignalingChannelsClient = new AWS.KinesisVideoSignalingChannels({
+            region,
+            accessKeyId,
+            secretAccessKey,
+            endpoint: endpointsByProtocol.HTTPS,
+            correctClockSkew: true,
+        });
+        
+        const getIceServerConfigResponse = await kinesisVideoSignalingChannelsClient
+            .getIceServerConfig({
+                ChannelARN: channelARN,
+            })
+            .promise();
+
+        const iceServers = [
+            { urls: `stun:stun.kinesisvideo.${region}.amazonaws.com:443` }
+        ];
+
+        getIceServerConfigResponse.IceServerList.forEach(iceServer =>
+            iceServers.push({
+                urls: iceServer.Uris,
+                username: iceServer.Username,
+                credential: iceServer.Password,
+            }),
+        );
+
+        ice_servers = iceServers;
+    }
+
+    kinesis_init().then(function(result){
+        $('#app video-chat').attr('ice_server_json',JSON.stringify(ice_servers));
+        new Vue({
+            el:'#app'
+        });
+    })
+</script>
 
 @stop

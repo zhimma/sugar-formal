@@ -10,7 +10,6 @@
 </style>
 @stop
 @section('app-content')
-    <!---->
     <div class="container matop70">
         <div class="row">
             <div class="col-sm-2 col-xs-2 col-md-2 dinone">
@@ -19,7 +18,6 @@
             <div class="col-sm-12 col-xs-12 col-md-10">
                 <div class="shou"><span>本人認證/美顏推薦/名人認證</span>
                 </div>
-                <!--  -->
                 <div class="renz">
                 本認證主要讓站方協助認證本人資訊，可以讓站方幫助你更好的尋找優質 daddy，擺脫放鳥/騙炮/沒意義的邀約等等不愉快的經驗。
                 </div>
@@ -59,18 +57,19 @@
                     <div class="ga_button">
                         @if($service->isPassedByAuthTypeId(1))
                         <a href="javascript:void(0)" class="ga_3">已完成本人認證</a>    
+                        @elseif($service->isSelfAuthWaitingCheck())
+                        <a href="{{url('user_video_chat_verify')}}" class="ga_1">等待審核中 - 重錄視頻</a>    
+                        @elseif($service->isSelfAuthApplyNotVideoYet())
+                        <a href="{{url('user_video_chat_verify')}}" class="ga_1">前往視訊頁面</a>
                         @else
                         <a href="javascript:void(0)" class="ga_1" onclick="real_auth_popup(1);">立即進行本人認證</a>
-                        <a href="" class="ga_2">放棄</a>
+                        <a href="{{url('/dashboard/personalPage')}}" class="ga_2">放棄</a>
                         @endif
                     </div>
                     
                     
                 
                 </div>
-                <!--  -->
-                
-                <!--  -->
                 <div class="gaoji_rz">
                     <img src="{{asset('alert/images/renz_23.png')}}" class="gao_bitaoti">
                     <div class="gao_font">這是專門為符合條件，尋找高素質高收入daddy的妳所安排，請先確認妳符合以下條件：</div>
@@ -114,15 +113,21 @@
                     </div>
                     <div class="ga_button">
                     @if($service->isPassedByAuthTypeId(2))
-                        <a href="{{route('beauty_auth')}}" class="ga_1">編修認證表</a>
+                        <a href="{{route('beauty_auth')}}" class="ga_1">已通過認證 - 編修認證表</a>
+                    @elseif($service->isBeautyAuthWaitingCheck())
+                        <a href="{{route('beauty_auth')}}" class="ga_1">認證表審核中 - 編修認證表</a>                     
+                    @elseif($service->isSelfAuthWaitingCheck())
+                        <a href="{{url('user_video_chat_verify')}}" class="ga_1">視訊審核中 - 重錄視頻</a>    
+                    @elseif($service->isSelfAuthApplyNotVideoYet())
+                        <a href="{{url('user_video_chat_verify')}}" class="ga_1">前往視訊頁面</a>
+                    @elseif($service->isPassedByAuthTypeId(1))
+                        <a href="{{route('beauty_auth')}}" class="ga_1">填寫認證表</a>
                     @else                        
                         <a href="javascript:void(0)" class="ga_1" onclick="real_auth_popup(2);">我符合，申請美顏推薦</a>
-                        <a href="javascript:void(0)" class="ga_2">放棄</a>
+                        <a href="{{url('/dashboard/personalPage')}}" class="ga_2">放棄</a>
                     @endif                    
                     </div>
                 </div>
-                <!--  -->
-                    <!--  -->
                     <div class="gaoji_rz ga_top40 ga_bot70">
                         <img src="{{asset('new/images/mrrenz_25.png')}}" class="gao_bitaoti ga_top">
                         <div class="gao_font">如果你是特殊人物/具有公開身分。想尋找優質daddy不想曝光者。</div>
@@ -169,16 +174,16 @@
                         
                         
                         <div class="ga_button">
-                            {{--
-                            <a href="" class="ga_3">已完成名人認證</a>
-                            --}}
+                        @if($service->isPassedByAuthTypeId(3))
+                            <a href="{{route('famous_auth')}}" class="ga_1">已通過認證 - 編修認證表</a>
+                        @elseif($service->isFamousAuthWaitingCheck())
+                            <a href="{{route('famous_auth')}}" class="ga_1">審核中 - 編修認證表</a>                     
+                        @else                                
                         <a href="{{route('famous_auth')}}" class="ga_1" >我符合，進行名人認證</a>
-                        <a href="javascript:void(0)" class="ga_2">放棄</a>                            
-                            
+                        <a href="{{url('/dashboard/personalPage')}}" class="ga_2">放棄</a>                            
+                        @endif    
                         </div>
                     </div>
-                    <!--  -->
-                
             </div>
 
         </div>
@@ -281,7 +286,7 @@
 
     function real_auth_tab_close(dom) {
         $(dom).closest('.bl_tab').hide();
-        // $("#blbg").hide();
+
         $(".real_auth_bg").hide();
     }
     
@@ -291,6 +296,6 @@
         .children('div').eq(0)
         .html('<input type="hidden" name="real_auth" value="'+auth_type+'">');
         $('#real_auth_forward_form').submit();
-    };//
+    };
 </script>
 @stop

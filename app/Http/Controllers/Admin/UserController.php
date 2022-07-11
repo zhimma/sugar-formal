@@ -12,6 +12,7 @@ use App\Models\EvaluationPic;
 use App\Models\ExpectedBanningUsers;
 use App\Models\Fingerprint2;
 use App\Models\hideOnlineData;
+use App\Models\lineNotifyChatSet;
 use App\Models\LogUserLogin;
 use App\Models\MemberPic;
 use App\Models\Message;
@@ -68,9 +69,11 @@ use App\Services\ImagesCompareService;
 use App\Models\SimilarImages;
 use App\Models\CheckPointUser;
 use App\Models\ComeFromAdvertise;
+use App\Models\StayOnlineRecord;
 use App\Models\UserRecord;
 use App\Models\Visited;
 use App\Services\RealAuthAdminService;
+use App\Models\UserVideoVerifyRecord;
 
 class UserController extends \App\Http\Controllers\BaseController
 {
@@ -426,7 +429,28 @@ class UserController extends \App\Http\Controllers\BaseController
                     }
                 }
             }
-        }        
+        }
+
+
+        $blocked_user=User::findById($request->user_id);
+        $line_notify_user_list = lineNotifyChatSet::select('line_notify_chat_set.user_id')
+            ->selectRaw('users.line_notify_token')
+            ->leftJoin('line_notify_chat','line_notify_chat.id', 'line_notify_chat_set.line_notify_chat_id')
+            ->leftJoin('users','users.id', 'line_notify_chat_set.user_id')
+            ->where('line_notify_chat.active',1)
+            ->where('line_notify_chat_set.line_notify_chat_id',11) //封鎖會員
+            ->where('line_notify_chat_set.deleted_at',null)
+            ->whereNotNull('users.line_notify_token')
+            ->get();
+        foreach ($line_notify_user_list as $notify_user){
+            $has_message = Message::where([['to_id', $blocked_user->id], ['from_id', $notify_user->user_id]])->orWhere([['to_id', $notify_user->user_id], ['from_id', $blocked_user->id]])->get()->count();
+            if($notify_user->line_notify_token != null && $has_message){
+                $url = url('/dashboard/chat2');
+                //send notify
+                $message = '與您通訊的 '.$blocked_user->name.' 已經被站方封鎖。對話記錄將移到封鎖信件夾，請您再去檢查，如果您們已經交換聯絡方式，請多加注意。'.$url;
+                User::sendLineNotify($notify_user->line_notify_token, $message);
+            }
+        }
 
         if ($userBanned) {
             $checkLog = DB::table('is_banned_log')->where('user_id', $userBanned->member_id)->where('created_at', $userBanned->created_at)->first();
@@ -465,6 +489,7 @@ class UserController extends \App\Http\Controllers\BaseController
                 $userBanned->reason = $request->reason;
             }
             $userBanned->save();
+            BadUserCommon::addRemindMsgFromBadId($request->user_id);
             //寫入log
             DB::table('is_banned_log')->insert(['user_id' => $request->user_id, 'reason' => $userBanned->reason, 'expire_date' => $userBanned->expire_date, 'vip_pass' => $userBanned->vip_pass, 'adv_auth' => $userBanned->adv_auth, 'created_at' => Carbon::now()]);
             //新增Admin操作log
@@ -584,10 +609,31 @@ class UserController extends \App\Http\Controllers\BaseController
             $userWarned->reason = $request->reason;
         }
         $userWarned->save();
+        BadUserCommon::addRemindMsgFromBadId($request->user_id);
         //寫入log
         DB::table('is_warned_log')->insert(['user_id' => $request->user_id, 'reason' => $request->reason, 'vip_pass'=>$request->vip_pass, 'adv_auth'=>$request->adv_auth,'created_at' => Carbon::now()]);
         //新增Admin操作log
         $this->insertAdminActionLog($request->user_id, '站方警示');
+
+        $warned_user=User::findById($request->user_id);
+        $line_notify_user_list = lineNotifyChatSet::select('line_notify_chat_set.user_id')
+            ->selectRaw('users.line_notify_token')
+            ->leftJoin('line_notify_chat','line_notify_chat.id', 'line_notify_chat_set.line_notify_chat_id')
+            ->leftJoin('users','users.id', 'line_notify_chat_set.user_id')
+            ->where('line_notify_chat.active',1)
+            ->where('line_notify_chat_set.line_notify_chat_id',7)//警示會員
+            ->where('line_notify_chat_set.deleted_at',null)
+            ->whereNotNull('users.line_notify_token')
+            ->groupBy('line_notify_chat_set.user_id')->get();
+        foreach ($line_notify_user_list as $notify_user){
+            $has_message = Message::where([['to_id', $warned_user->id], ['from_id', $notify_user->user_id]])->orWhere([['to_id', $notify_user->user_id], ['from_id', $warned_user->id]])->get()->count();
+            if($notify_user->line_notify_token != null && $has_message){
+                $url = url('/dashboard/chat2');
+                //send notify
+                $message = '與您通訊的 '.$warned_user->name.' 已經被站方警示。對話記錄將移到警示會員信件夾，請您再去檢查，如果您們已經交換聯絡方式，請多加注意。 '.$url;
+                User::sendLineNotify($notify_user->line_notify_token, $message);
+            }
+        }
 
         if (isset($request->page)) {
             switch ($request->page) {
@@ -1485,6 +1531,12 @@ class UserController extends \App\Http\Controllers\BaseController
                 ->with('day', $day)
                 ->with('raa_service',$this->raa_service->riseByUserEntry($user));
         } else {
+            $user_video_verify_record = UserVideoVerifyRecord::select('user_video_verify_record.*', 'users.name','users.email')
+                        ->leftJoin('users', 'user_video_verify_record.user_id', '=', 'users.id')
+                        ->orderBy('user_video_verify_record.created_at','desc')
+                        ->where('user_video_verify_record.user_id',$user->id)
+                        ->get();            
+            
             return view('admin.users.advInfo')
                 ->with('userMeta', $userMeta)
                 ->with('banReason', $banReason)
@@ -1516,7 +1568,9 @@ class UserController extends \App\Http\Controllers\BaseController
                 ->with('posts_forum', $posts_forum)
                 ->with('hideonline_order', $hideonline_order)
                 ->with('user_record', $user_record)
-                ->with('raa_service',$this->raa_service->riseByUserEntry($user));
+                ->with('raa_service',$this->raa_service->riseByUserEntry($user))
+                ->with('user_video_verify_record',$user_video_verify_record)
+                ;
         }
     }
 
@@ -1621,7 +1675,8 @@ class UserController extends \App\Http\Controllers\BaseController
                 ->with('msglib_reported', null)
                 ->with('msglib_msg', $msglib_msg)
                 ->with('message_msg', collect())
-                ->with('msglib_msg2', collect());
+                ->with('msglib_msg2', collect())
+                ->with('raa_service',$this->raa_service->riseByUserEntry($user));
         } else {
             return back()->withErrors(['找不到暱稱含有「站長」的使用者！請先新增再執行此步驟']);
         }
@@ -2331,10 +2386,16 @@ class UserController extends \App\Http\Controllers\BaseController
      *
      * @return \Illuminate\Http\Response
      */
-    public function sendAdminMessage(Request $request, $id)
+    public function sendAdminMessage(Request $request,RealAuthAdminService $raa_service, $id)
     {
         $payload = $request->all();
-        Message::post($payload['admin_id'], $id, $payload['msg']);
+        $p_rs = Message::post($payload['admin_id'], $id, $payload['msg']);
+        
+        $raa_service->riseByUserId($id);
+        if($p_rs) {
+            $raa_service->savePatchByMsgEntryAndReqArr($p_rs,$payload);
+        }
+        
         if ($request->rollback == 1) {
             if ($request->msg_id) {
                 $m = Message::withTrashed()->where(function ($q) {$q->where('unsend',0)->whereNull('deleted_at');$q->orwhere('unsend',1);})->where('id', $request->msg_id)->get()->first();
@@ -4021,34 +4082,7 @@ class UserController extends \App\Http\Controllers\BaseController
 
     public function AdminCheckExchangePeriodSave(Request $request)
     {
-        $id = $request->id;
-        $status = $request->status;
-        $reject_content = $request->reject_content;
-        DB::table('account_exchange_period')->where('user_id', $id)
-            ->update(['status' => $status, 'passed_at' => now(), 'reject_content' => $reject_content]);
-
-        $current_data = DB::table('account_exchange_period')->where('user_id', $id)->first();
-
-        //notify
-        if ($current_data->reject_content == '') {
-            $text = '無法通過您的申請。';
-        } else {
-            $text = '因 ' . $current_data->reject_content . ' 原因無法通過您的申請。';
-        }
-        $user = User::findById($current_data->user_id);
-        if ($status == 1) {
-            $content = $user->name . ' 您好：<br>您在 ' . $current_data->created_at . ' 申請變更包養關係，經站長審視已通過您的申請';
-            //修改
-            User::where('id', $current_data->user_id)->update(['exchange_period' => $current_data->exchange_period]);
-            UserMeta::where('user_id', $current_data->user_id)->update(['exchange_period_change' => 1]);
-        } else {
-            $content = $user->name . ' 您好：<br>您在 ' . $current_data->created_at . ' 申請變更包養關係，經站長審視，' . $text;
-            UserMeta::where('user_id', $current_data->user_id)->update(['exchange_period_change' => 1]);
-        }
-        //        $user->notify(new AccountConsign('變更帳號類型結果通知',$user->name, $content));
-
-        //站長系統訊息
-        Message::post(1049, $user->id, $content, true, 1);
+        $this->service->AdminCheckExchangePeriodSave($request,$this->raa_service);
 
         Session::flash('message', '審核已完成，系統將自動發信通知該會員');
 
@@ -6197,28 +6231,47 @@ class UserController extends \App\Http\Controllers\BaseController
 
     public function user_regist_time_view(Request $request)
     {
-        $user_record = UserRecord::leftJoin('users', 'users.id', '=', 'user_record.user_id')->whereNotNull('user_record.cost_time_of_first_dataprofile')->orderBy('user_record.updated_at','desc')->get();
+        $user_record = UserRecord::leftJoin('users', 'users.id', '=', 'user_record.user_id')->whereNotNull('user_record.cost_time_of_first_dataprofile')->orderBy('user_record.updated_at','desc')->paginate(200);
         return view('admin.users.user_regist_time_view')
                 ->with('user_record', $user_record);
     }
 
     public function user_visited_time_view(Request $request)
     {
-        $user_visited_record = Visited::whereNotNull('visited_time')->orderBy('id','desc')->get();
+        $user_visited_record = Visited::whereNotNull('visited_time')->orderBy('id','desc')->paginate(200);
         return view('admin.users.user_visited_time_view')
                 ->with('user_visited_record', $user_visited_record);
     }
     
-    public function passRealAuth(Request $request) {
+    public function passRealAuth(Request $request) 
+    {
         $data = $request->data;
         $user_id = $data['user_id'];
         $auth_type_id = $data['auth_type_id'];
         $raa_service = $this->raa_service->riseByUserId($user_id);
-        return $raa_service->passByAuthTypeId($auth_type_id)?'1':'0';
+        
+        $latest_modify_id = $data['latest_modify_id']??null;
+        
+        if($latest_modify_id && $latest_modify_id< $raa_service->getLatestUncheckedModifyIdByAuthTypeId($auth_type_id)) {
+            return 2;
+        }
+        
+        return $raa_service->passApplyByAuthTypeId($auth_type_id)?'1':'0';
             
     }
     
-    public function cancelPassRealAuth(Request $request) {
+    public function passRealAuthModify(Request $request) 
+    {
+        $data = $request->data;
+        $user_id = $data['user_id'];
+        $latest_modify_id = $data['latest_modify_id'];
+        $raa_service = $this->raa_service->riseByUserId($user_id);
+        return $raa_service->passModifyBeforeModifyId($latest_modify_id)?'1':'0';
+            
+    }    
+    
+    public function cancelPassRealAuth(Request $request) 
+    {
         $data = $request->data;
         $user_id = $data['user_id'];
         $auth_type_id = $data['auth_type_id'];        
@@ -6227,4 +6280,10 @@ class UserController extends \App\Http\Controllers\BaseController
             
     }
 
+    public function user_online_time_view(Request $request)
+    {
+        $user_online_record = StayOnlineRecord::leftJoin('users', 'users.id', '=', 'stay_online_record.user_id')->whereNotNull('stay_online_time')->orderBy('stay_online_record.id','desc')->paginate(200);
+        return view('admin.users.user_online_time_view')
+                ->with('user_online_record', $user_online_record);
+    }
 }

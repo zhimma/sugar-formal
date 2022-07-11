@@ -8,6 +8,8 @@
         max-width: 600px; /* Max Width of the popover (depending on the container!) */
     }
     .gray {color:#C0C0C0;}
+    #real_auth_actor_container {display:inline;}
+    #real_auth_actor_container .btn-primary {background:#FF44FF;}
     #real_auth_actor_container .btn-secondary {color:black !important;}
     #real_auth_actor_container .btn-secondary, #adv_auth_block_user.btn-secondary,#adv_auth_warned_user.btn-secondary {
         cursor: default;
@@ -46,6 +48,10 @@
     #autoban_pic_gather .autoban_pic_unit label {padding:0 10px 10px 10px;} 
     #autoban_pic_gather .autoban_pic_unit label span {display:block;text-align:center;font-size:4px;}
     #autoban_pic_gather .autoban_pic_unit input:checked+label {background:#1E90FF;}
+    span.unchecked_value_show {background:yellow;}
+    .unchecked_value_show {width:45%;display:inline-block;margin-left:10%;vertical-align:top;margin-bottom:10px;}
+    .unchecked_value_show > div {display:inline-block;background:yellow;padding:15px;}
+    .has_unchecked_compare_origin_show {display:inline-block;width:45%;}
 </style>
 
 <body style="padding: 15px;">
@@ -191,9 +197,15 @@
         <input type="hidden" name='user_id' value="{{ $user->id }}">
         <input type="hidden" name='is_real' value="{{ $user->is_real }}">
         <button type="submit" class="btn {{ $user->is_real? 'btn-warning' : 'btn-danger' }}">{{ $user->is_real ? '是本人' : '非本人' }}</button>
-    </form>
-    
+    </form>   
     @if($user->engroup==2)
+    <div id="real_auth_actor_container">
+        <a class="btn {{$raa_service->getActorClassAttrByAuthTypeId(1)}}" id="self_auth_actor" href="javascript:void(0)" data-auth_type_id="1" data-auth_name="本人認證" data-user_id="{{ $user['id'] }}"  data-latest_modify_id="{{$raa_service->getLatestUncheckedModifyIdByAuthTypeId(1)}}" >{{$raa_service->getStatusActorPrefixByAuthTypeId(1)}}本人認證</a>
+        <a class="btn {{$raa_service->getActorClassAttrByAuthTypeId(2)}}" id="beauty_auth_actor" href="javascript:void(0)" data-auth_type_id="2" data-auth_name="美顏推薦"  data-user_id="{{ $user['id'] }}"    data-latest_modify_id="{{$raa_service->getLatestUncheckedModifyIdByAuthTypeId(2)}}">{{$raa_service->getStatusActorPrefixByAuthTypeId(2)}}美顏推薦</a>
+        <a class="btn {{$raa_service->getActorClassAttrByAuthTypeId(3)}}" id="famous_auth_actor" href="javascript:void(0)" data-auth_type_id="3" data-auth_name="名人認證"  data-user_id="{{ $user['id'] }}"    data-latest_modify_id="{{$raa_service->getLatestUncheckedModifyIdByAuthTypeId(3)}}">{{$raa_service->getStatusActorPrefixByAuthTypeId(3)}}名人認證</a>
+        <a class="btn {{$raa_service->getModifyCheckActorClassAttr()}}" id="modify_check_actor" href="javascript:void(0)" data-latest_modify_id="{{$user->latest_real_auth_user_modify->id??null}}" data-auth_name="資料異動"  data-user_id="{{ $user['id'] }}" >{{$raa_service->getModifyCheckActorPrefix()}}資料異動</a>
+        <a class="btn btn-info" href="{{route('admin/editRealAuth_sendMsg',['id'=>$user->id])}}">站長信件</a>
+    </div>     
     <form method="POST" id="form_exchange_period" action="{{ route('changeExchangePeriod') }}" style="margin:0px;display:inline;">
         {!! csrf_field() !!}
         <select class="form-control" style="width:auto; display: inline;" name="exchange_period" id="exchange_period">
@@ -545,13 +557,13 @@
         <th>生日</th>
         <td>{{ date('Y-m-d', strtotime($userMeta->birthdate)) }}</td>
         <th>身高</th>
-        <td>{{ $userMeta->height }}</td>
+        <td>{{ $userMeta->height }}{!!$raa_service->getActualUncheckedHeightLayout()!!}</td>
         <th>職業</th>
         <td>{{ $userMeta->occupation }}</td>
     </tr>
     <tr>
         <th>體重</th>
-        <td>{{ $userMeta->weight }}</td>
+        <td>{{ $userMeta->weight }}{!!$raa_service->getActualUncheckedWeightLayout()!!}</td>
         <th>罩杯</th>
         <td>{{ $userMeta->cup }}</td>
         <th>體型</th>
@@ -631,6 +643,107 @@
     }
 
 @endphp
+<br>
+@if($raa_service->getApplyByAuthTypeId(2) || $raa_service->getApplyByAuthTypeId(3))
+    <style>
+
+    .gjrz_nr{width: 94%; margin: 0 auto; display: table; border-radius: 10px; box-shadow: 0 5px 10px rgba(123,123,123,0.3); background: url(../../alert/images/rz_022.png) no-repeat TOP; 
+    background-size: 100%;padding: 15px 0; margin-top:30px;}
+
+    .gjrz_nr01{width: 94%; margin: 0 auto; display: table; border-radius: 10px; box-shadow: 0 5px 10px rgba(123,123,123,0.3); background: url(../../alert/images/rz_011.png) no-repeat TOP; 
+    background-size: 100%;padding: 15px 0; margin-top:30px;}
+
+
+    .gjr_b{width: 90%;margin: 0 auto; display: table; margin-top: 30px;}
+    .gjr_b img{ height:50px; float: left;}
+    .gjr_nr01{width: 95%; margin: 0 auto; display: table; background: rgba(255,255,255,0.6);box-shadow: 0 5px 10px rgba(184,184,184,0.5);border-radius: 10px; 
+    margin-top: 10px; color: #666666; padding: 10px;}
+    .gjr_nr01 h2{width: 96%; margin: 0 auto; display: table;}
+    .gjr_nr02{width: 95%; margin: 0 auto; display: table;background: linear-gradient(to bottom,#fff3f4,#fff);box-shadow:0 7px 5px rgba(223,160,167,0.3);border-radius: 10px;}
+    .gjr_nr02_h2{text-align:left;width: 95%; margin: 0 auto; display: table; color: #ee5472; font-size: 15px;}
+    .gir_pa{ padding:15px 0 10px 0;}
+    .gir_pa01{ padding:15px 0 15px 0;}
+    .gir_top20{ margin-top: 20px;}
+    .gir_top15{ margin-top: 15px;}
+
+
+    .gir_border{ border-radius: 10px !important; border: #ffc2c9 1px solid !important; background-color: #fff;}
+
+.shou{width:94%; height:40px; line-height:40px; margin:0 auto; border-bottom:#e44e71 1px solid; margin-top:0px; margin-bottom:20px;}
+.shou span{ color:#fd5678; border-bottom:#fd5678 3px solid; font-size:20px; font-weight:bold; line-height:50px;}
+.shou font{ color:#999999; margin-left:10px;font-size:16px;}
+.shou_but{float:right; padding:0px 15px; background:#fd5678; height:24px; line-height:24px; color:#ffffff; text-align:center; border-radius:100px; margin-top:13px;}
+.shou_but:hover{color:#ffffff;box-shadow:inset 0px 15px 10px -10px #f83964,inset 0px -10px 10px -20px #f83964;background:#fe92a8;}
+
+.sjlist_heg{ min-height:445px !important;}
+.sjlist_li{ min-height:528px; margin-bottom:150px;}    
+
+.g_rznz{width: 95%; margin: 0 auto; display: table;background: #fff; border-radius: 10px;box-shadow: 0 4px 10px rgba(254,146,169,0.3); padding: 18px 0 20px 0;}
+.g_rznz h2{text-align:left;font: inherit;width: 95%; margin: 0 auto; display: table; color: #666;}
+.g_rinput{width: 100%; height: 40px; border: #ffc2c9 1px solid; border-radius: 10px; color: #333; padding:0 10px; outline: none;}
+.g_rtext{width: 100%; height:75px; border: #ffc2c9 1px solid; border-radius: 10px; color: #333; padding:5px 10px; outline: none; line-height: 25px;}
+.ga_or{ background:#fff8f9; color: #d2d2d2; border-radius: 100px; display:table; padding: 0 20px; margin:8px 0;}
+.ga_or01{ background:#fff; color: #d2d2d2; border-radius: 100px; display:table; padding: 0 20px; margin:8px 0;}
+
+    </style>
+     
+@endif
+@if($raa_service->getApplyByAuthTypeId(2))
+   <div class="shou">
+        <h4>
+            {{$raa_service->apply_entry()->real_auth_type->name??null}}表
+
+        </h4>
+        @if($raa_service->apply_entry()->status==2)
+           <div>(已取消認證)</div>
+        @endif        
+    </div>
+    @if($raa_service->apply_entry()->status!=2)
+        @foreach($raa_service->getBeautyAuthQuestionList()->whereNull('parent_id') as $q_idx=>$question_entry)
+        <div class="gjr_nr02 gir_top20 gir_pa01">
+            <h2 class="gjr_nr02_h2">{{$q_idx+1}}:{{$question_entry->question}}{{$question_entry->required?'(必填)':''}}</h2>
+            <div class="rzmatop_5">
+            {!!$raa_service->getUserReplyLayoutByQuEntry($question_entry)!!} 
+            </div>
+
+            @foreach($raa_service->ra_repo()->question_list()->where('parent_id',$question_entry->id) as $sub_q_idx=>$sub_question_entry)
+            <div class="g_rznz matop15 rzmabot_20">
+                 <h2>{{$sub_question_entry->question}}</h2>
+                {!!$raa_service->getUserReplyLayoutByQuEntry($sub_question_entry)!!}
+            </div>                        
+            @endforeach
+        </div>    
+        @endforeach
+    @endif
+@endif
+<br>
+@if($raa_service->getApplyByAuthTypeId(3))
+    <div class="shou">
+        <h4>
+            {{$raa_service->apply_entry()->real_auth_type->name??null}}表       
+        </h4>
+        @if($raa_service->apply_entry()->status==2)
+           <div >(已取消認證)</div>
+        @endif         
+    </div>
+    @if($raa_service->apply_entry()->status!=2)
+        @foreach($raa_service->getFamousAuthQuestionList()->whereNull('parent_id') as $q_idx=>$question_entry)
+        <div class="gjr_nr02 gir_top20 gir_pa01">
+            <h2 class="gjr_nr02_h2">{{$q_idx+1}}:{{$question_entry->question}}{{$question_entry->required?'(必填)':''}}</h2>
+            <div class="rzmatop_5">
+            {!!$raa_service->getUserReplyLayoutByQuEntry($question_entry)!!} 
+            </div>
+
+            @foreach($raa_service->ra_repo()->question_list()->where('parent_id',$question_entry->id) as $sub_q_idx=>$sub_question_entry)
+            <div class="g_rznz matop15 rzmabot_20">
+                 <h2>{{$sub_question_entry->question}}</h2>
+                {!!$raa_service->getUserReplyLayoutByQuEntry($sub_question_entry)!!}
+            </div>                        
+            @endforeach
+        </div>    
+        @endforeach
+    @endif
+@endif
 <br>
 @if($isEverWarned_log || $isEverBanned_log || $isWarned_show || $isBanned_show)
     <h4>封鎖與警示紀錄</h4>
@@ -1767,6 +1880,7 @@
                     $exchange_period_name = DB::table('exchange_period_name')->where('id',$user->exchange_period)->first();
                 @endphp
                 {{$exchange_period_name->name}}
+                {!!$raa_service->getActualUncheckedExchangePeriodLayout()!!}
             </td>
 
 
@@ -1779,11 +1893,30 @@
         <td>{{ $userMeta->updated_at }}</td>
     </tr>
 </table>
-<div id="real_auth_actor_container">
-<a class="btn {{$raa_service->getActorClassAttrByAuthTypeId(1)}}" id="self_auth_actor" href="javascript:void(0)" data-auth_type_id="1" data-auth_name="本人認證" data-user_id="{{ $user['id'] }}" >{{$raa_service->getStatusActorPrefixByAuthTypeId(1)}}本人認證</a>
-<a class="btn {{$raa_service->getActorClassAttrByAuthTypeId(2)}}"" id="beauty_auth_actor" href="javascript:void(0)" data-auth_type_id="2" data-auth_name="美顏推薦"  data-user_id="{{ $user['id'] }}" >{{$raa_service->getStatusActorPrefixByAuthTypeId(2)}}美顏推薦</a>
-<a class="btn {{$raa_service->getActorClassAttrByAuthTypeId(3)}}"" id="famous_auth_actor" href="javascript:void(0)" data-auth_type_id="3" data-auth_name="名人認證"  data-user_id="{{ $user['id'] }}" >{{$raa_service->getStatusActorPrefixByAuthTypeId(3)}}名人認證</a>
-<a class="btn btn-info" href="{{route('admin/editRealAuth_sendMsg',['id'=>$user->id])}}">站長信件</a>
+
+<div id="video_chat_block">
+    <h4>視訊歷程紀錄</h4>
+    <br>
+    <table class='table table-bordered table-hover'>
+        <tr>
+            <th>視訊時間</th>
+            <th>查看</th>
+        </tr>
+        @forelse($user_video_verify_record as $record)
+            <tr>
+                <td>{{$record->created_at}}</td>
+                <td>
+                    <a href="{{route('users/video_chat_verify_record') . '?verify_record_id=' . $record->id}}">
+                        <h3>查看</h3>
+                    </a>
+                </td>
+            </tr>
+        @empty
+            <tr>
+                <td colspan="2" align="center">尚無視訊歷程</td>
+            </tr>
+        @endforelse
+    </table>
 </div>
 <div id="pic_block">
 <div class="loading"><span class="loading_text">loading</span></div>
@@ -2369,9 +2502,13 @@ $("#unwarned_user").click(function(){
 
 
 $(".real_auth_pass").click(function(){
-    var data = $(this).data();
-    
-    if(confirm('確定要通過此會員的'+data.auth_name+'申請?')){
+    var now_elt = $(this);
+    var data = now_elt.data();
+    var additional_str = '';
+    if(data.auth_type_id=='2'　&& $('#self_auth_actor').hasClass('real_auth_pass')) {
+        additional_str = '\n\n( 本人認證將一併通過 )\n\n';
+    }      
+    if(confirm('確定要通過此會員的'+data.auth_name+'申請?'+additional_str)){
         $.ajax({
             type: 'POST',
             url: "{{route('admin/passRealAuth')}}?{{csrf_token()}}={{now()->timestamp}}",
@@ -2380,6 +2517,38 @@ $(".real_auth_pass").click(function(){
                 data: data,
             },
             dataType:"json",
+            beforeSend: function(){
+                now_elt.html('處理中-'+now_elt.html().replace('處理中-','')).css('color','black');
+            },
+            success: function(res){
+                if(res==1 )alert('已通過'+data.auth_name);
+                else if(res==2) {
+                    alert('無法通過'+data.auth_name+'，發現有新送出的修改，頁面將自動重新整理，請重新審核'+data.auth_name);
+                }
+                else alert('儲存失敗，無法通過此會員的'+data.auth_name+'申請');
+                location.reload();
+            }});
+    }
+    else{
+        return false;
+    }
+});
+
+$(".modify_check_pass").click(function(){
+    var now_elt=$(this),data = $(this).data();
+  
+    if(confirm('確定要通過此會員的'+data.auth_name+'資料異動申請?')){
+        $.ajax({
+            type: 'POST',
+            url: "{{route('admin/passRealAuthModify')}}?{{csrf_token()}}={{now()->timestamp}}",
+            data:{
+                _token: '{{csrf_token()}}',
+                data: data,
+            },
+            dataType:"json",
+            beforeSend: function(){
+                now_elt.html('處理中-'+now_elt.html().replace('處理中-','')).css('color','black');
+            },            
             success: function(res){
                 if(res==1 )alert('已通過'+data.auth_name);
                 else alert('儲存失敗，無法通過此會員的'+data.auth_name+'申請');
@@ -2393,9 +2562,12 @@ $(".real_auth_pass").click(function(){
 
 
 $(".real_auth_cancel_pass").click(function(){
-    var data = $(this).data();
-    
-    if(confirm('確定要取消此會員的'+data.auth_name+'?')){
+    var data = $(this).data(),now_elt=$(this);
+    var additional_str = '';
+    if(data.auth_type_id=='1'　&& $('#beauty_auth_actor').hasClass('real_auth_cancel_pass')) {
+        additional_str = '\n\n( 美顏推薦認證將一併取消 )\n\n';
+    }
+    if(confirm('確定要取消此會員的'+data.auth_name+'?'+additional_str)){
         $.ajax({
             type: 'POST',
             url: "{{route('admin/cancelPassRealAuth')}}?{{csrf_token()}}={{now()->timestamp}}",
@@ -2404,6 +2576,9 @@ $(".real_auth_cancel_pass").click(function(){
                 data: data,
             },
             dataType:"json",
+            beforeSend: function(){
+                now_elt.html('處理中-'+now_elt.html().replace('處理中-','')).css('color','black');
+            },             
             success: function(res){
                 if(res==1 )alert('已取消'+data.auth_name);
                 else alert('儲存失敗，無法取消此會員的'+data.auth_name);

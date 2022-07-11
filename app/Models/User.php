@@ -14,6 +14,7 @@ use App\Models\SimpleTables\banned_users;
 use App\Models\SimpleTables\warned_users;
 use App\Models\FaqUserGroup;
 use App\Models\FaqUserReply;
+use App\Models\RealAuthUserPatch;
 use App\Models\RealAuthUserApply;
 use App\Models\RealAuthUserReply;
 use App\Models\RealAuthUserModify;
@@ -280,56 +281,104 @@ class User extends Authenticatable
     }
     
     //faq
-    public function faq_user_group() {
+    public function faq_user_group() 
+    {
         return $this->hasMany(FaqUserGroup::class);
     }
     
-    public function faq_user_reply() {
+    public function faq_user_reply() 
+    {
         return $this->hasMany(FaqUserReply::class);
     } 
 
     //real auth
-    public function real_auth_user_apply() {
-        return $this->hasMany(RealAuthUserApply::class,'user_id','id');
+    public function real_auth_user_patch() 
+    {
+        return $this->hasMany(RealAuthUserPatch::class,'user_id','id');
     }     
     
-    public function self_auth_unchecked_apply() {
+    public function real_auth_user_apply() 
+    {
+        return $this->hasMany(RealAuthUserApply::class,'user_id','id');
+    } 
+    
+    public function self_auth_apply() 
+    {
         return $this->hasOne(RealAuthUserApply::class,'user_id','id')
                 ->where('auth_type_id',1)
-                ->where(function($q) {$q->whereNull('status')->orWhere('status',0);})
                 ->orderByDesc('id')->take(1);
     }
-
-    public function beauty_auth_working_apply() {
+    
+    public function self_auth_unchecked_apply() 
+    {
+        
+        return $this->hasOne(RealAuthUserApply::class,'user_id','id')
+                ->where('auth_type_id',1)
+                ->where(function($q) {$q->whereNull('status')->orWhere('status','!=',1);})
+                ->orderByDesc('id')->take(1);
+    }
+    
+    
+    public function beauty_auth_apply() 
+    {
         return $this->hasOne(RealAuthUserApply::class,'user_id','id')
                 ->where('auth_type_id',2)
                 ->orderByDesc('id')->take(1);
-    }      
+    }    
     
-    public function beauty_auth_unchecked_apply() {
+    public function beauty_auth_unchecked_apply() 
+    {
+        
         return $this->hasOne(RealAuthUserApply::class,'user_id','id')
                 ->where('auth_type_id',2)
-                ->where(function($q) {$q->whereNull('status')->orWhere('status',0);})
+                ->where(function($q) {$q->whereNull('status')->orWhere('status','!=',1);})
                 ->orderByDesc('id')->take(1);
-    }     
+    }
     
-    public function famous_auth_unchecked_apply() {
+    public function famous_auth_apply() 
+    {
         return $this->hasOne(RealAuthUserApply::class,'user_id','id')
                 ->where('auth_type_id',3)
-                ->where(function($q) {$q->whereNull('status')->orWhere('status',0);})
+                ->orderByDesc('id')->take(1);
+    }     
+
+    public function famous_auth_unchecked_apply() 
+    {
+        return $this->hasOne(RealAuthUserApply::class,'user_id','id')
+                ->where('auth_type_id',3)
+                ->where(function($q) {$q->whereNull('status')->orWhere('status','!=',1);})
                 ->orderByDesc('id')->take(1);
     } 
     
-    public function famous_auth_working_apply() {
-        return $this->hasOne(RealAuthUserApply::class,'user_id','id')
-                ->where('auth_type_id',3)              
-                ->orderByDesc('id')->take(1);
+    public function real_auth_user_modify() 
+    {
+        return $this->hasManyThrough(RealAuthUserModify::class,RealAuthUserApply::class,'user_id','apply_id');
+    } 
+    
+    public function real_auth_user_modify_with_trashed() 
+    {
+        return $this->real_auth_user_modify()->withTrashed();
+    }     
+    
+    public function real_auth_modify_item_group_modify()
+    {
+        return $this->real_auth_user_modify()->groupBy('real_auth_user_applies.id','item_id')->select('item_id')->selectRaw('max(real_auth_user_modify.id) as id')->orderByDesc('id');
+    }  
+
+    public function real_auth_modify_item_group_modify_with_trashed()
+    {
+        return $this->real_auth_modify_item_group_modify()->withTrashed();
     }     
 
-    public function real_auth_user_modify() {
-        return $this->hasMany(RealAuthUserModify::class,'user_id','id');
-    }    
+    public function latest_real_auth_user_modify() 
+    {
+        return $this->hasOneThrough(RealAuthUserModify::class,RealAuthUserApply::class,'user_id','apply_id')->orderByDesc('real_auth_user_modify.id')->take(1);
+    }     
     
+    public function real_auth_user_modify_max_created_at() 
+    {
+        return $this->hasOneThrough(RealAuthUserModify::class,RealAuthUserApply::class,'user_id','apply_id')->select(DB::raw('max(real_auth_user_modify.created_at) as max_created_at'))->groupBy('real_auth_user_applies.user_id');
+    }     
 
     /**
      * Check if user has role

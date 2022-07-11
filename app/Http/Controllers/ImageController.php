@@ -9,6 +9,7 @@ use App\Http\Requests\ImageRequest;
 use App\Http\Requests\MultipleImageRequest;
 use App\Http\Requests;
 use App\Services\ImageService;
+use App\Services\RealAuthPageService;
 //use App\Services\ImagesCompareService;
 use App\Models\User;
 use App\Models\MemberPic;
@@ -292,10 +293,12 @@ class ImageController extends BaseController
         }
     }
 
-    public function uploadAvatar(Request $request)
+    public function uploadAvatar(Request $request,RealAuthPageService $rap_service)
     {
+        $msg='';
         $userId = $request->userId;
         $user = $request->user();
+        $rap_service->riseByUserEntry($user);
         $preloadedFiles = $this->getAvatar($request)->content();        
         $preloadedFiles = json_decode($preloadedFiles, true);
 
@@ -303,8 +306,14 @@ class ImageController extends BaseController
         $user_meta = UserMeta::where('user_id', auth()->id())->first();
         $user_meta->updated_at = Carbon::now();
         $user_meta->save();
+        
+        $file_input_name = 'avatar';
+        
+        if($rap_service->isPassedByAuthTypeId(1) ) {
+            $file_input_name = 'apply_replace_pic';
+        }
             
-        $fileUploader = new FileUploader('avatar', array(
+        $fileUploader = new FileUploader($file_input_name, array(
             'fileMaxSize' => 8,
             'extensions' => ['jpg', 'jpeg', 'png', 'gif'],
             'required' => true,
@@ -327,103 +336,60 @@ class ImageController extends BaseController
             }            
             return redirect()->back()->withErrors($upload['warnings']);
         }else{
-            //remove origin avator
-            $removeFiles = $fileUploader->getRemovedFiles();
-            if($removeFiles)
-            {
-                $file = public_path($removeFiles[0]['file']);
-                if(File::exists($file))
-                {
-                    $UserMeta = UserMeta::where('user_id', $userId)->first();
-                    $UserMeta->pic = NULL;
-                    $UserMeta->save();
-                    unlink($file);
-                }
-            }
             //upload new avator
             $avatar = $fileUploader->getUploadedFiles();
-
+            
             if($avatar)
             {
+                
                 $path = substr($avatar[0]['file'], strlen(public_path()));                 
                 $path[0] = '/';
-                UserMeta::where('user_id', $userId)->update(['pic' => $path, 'pic_original_name'=>$avatar[0]['old_name']]);
-                if($user->engroup==2)
-                    \App\Jobs\SimilarImagesSearcher::dispatch($path);                
+                if(!$rap_service->isPassedByAuthTypeId(1)) {
+                    
+                    //remove origin avator
+                    $removeFiles = $fileUploader->getRemovedFiles();
+                    if($removeFiles)
+                    {
+                        $file = public_path($removeFiles[0]['file']);
+                        if(File::exists($file))
+                        {
+                            $UserMeta = UserMeta::where('user_id', $userId)->first();
+                            $UserMeta->pic = NULL;
+                            $UserMeta->save();
+                            unlink($file);
+                        }
+                    }                
+                    
+                    
+                    $this->handleAvatarUploadedFile($user,$path,$avatar[0]['old_name']);
+                    
+                    if($rap_service->isApplyEffectByAuthTypeId(1)) {
+                        $rap_service->savePicModifyByReq($request);
+                        $arr['pic'] = $path;
+                        $arr['operate'] = 1;
+                        $arr['original_name'] = $avatar[0]['old_name'];
+                        $arr['pic_cat'] = 'avatar';
+                        $this->handleUploadedFileForRealAuth($rap_service,$arr);
+                    }
+                }
+                else {
+                   $rap_service->savePicModifyByReq($request);
+                   $arr['old_pic'] = $user->meta->pic??null;
+                   $arr['operate'] = 1;
+                   $arr['pic'] = $path;
+                    $arr['original_name'] = $avatar[0]['old_name'];
+                    $arr['pic_cat'] = 'avatar';
+                   $this->handleUploadedFileForRealAuth($rap_service,$arr);
+                }
+               // UserMeta::where('user_id', $userId)->update(['pic' => $path, 'pic_original_name'=>$avatar[0]['old_name']]);
+                //if($user->engroup==2)
+               //     \App\Jobs\SimilarImagesSearcher::dispatch($path);                
             }
+            
             $msg="上傳成功";
 
-            $girl_to_vip = AdminCommonText::where('alias', 'girl_to_vip')->get()->first();
-
-            $user->load('meta','pic');
-            if($avatar) $user->meta->compareImages('ImageController@uploadAvatar');
-            $log_pic_acts_count = $user->log_free_vip_pic_acts->count();  
-            $last_avatar_act_log = $user->log_free_vip_avatar_acts()->orderBY('created_at','DESC')->first();
-            $last_avatar_sys_react = $last_avatar_act_log->sys_react??'';
-            $last_avatar_act_time =  isset($last_avatar_act_log->created_at)?Carbon::parse($last_avatar_act_log->created_at):'0000-00-00 00:00:00';
-            if($user->existHeaderImage() && $user->engroup==2){
-                if(!$user->isVip()) {
-                    $vip_record = Carbon::parse($user->vip_record);
-                    $freeVipCount =  VipLog::where('member_id', $user->id)->where('free',1)->where('action',1)->count();
-                    if(!$freeVipCount) {
-                        $msg = $girl_to_vip->content;
-                        $shot_vip_record = '';
-                        $sys_react = 'upgrade';                        
-                    }                    
-                    else {
-                        $msg = "照片上傳成功，24H後升級為VIP會員";
-                        $shot_vip_record = $vip_record;
-                        $sys_react = 'recovering';
-                        
-                    }
-                    
-                    LogFreeVipPicAct::create(['user_id'=> $user->id
-                         ,'user_operate'=>'upload'
-                         ,'img_remain_num'=>isset($user->meta->pic)
-                         ,'pic_type'=>'avatar'
-                         ,'sys_react'=>$sys_react
-                         ,'shot_vip_record'=>$shot_vip_record
-                          ,'shot_is_free_vip'=>$user->isFreeVip()    
-                             ]);                  
-                }
-                else {  //is still in free vip
-                    $checkFreeVipLog = LogFreeVipPicAct::where([['user_id',$user->id],['pic_type','avatar']])->orderBy('created_at', 'DESC')->first();
-                    $sys_react = "";
-                    if($checkFreeVipLog) {
-                        if($checkFreeVipLog->user_operate=='delete') {
-                            $last_del_time = Carbon::parse($checkFreeVipLog->created_at);
-                            if($last_del_time->diffInSeconds(Carbon::now()) <= 1800) {
-                                $sys_react = 'remain';
-                            }  
-                            else {
-                                $sys_react = 'error：delete pics but still free vip after 30 min ';
-                            }
-                        }
-                    }
-                    else{
-                        $sys_react = 'remain_init';
-                    }
-                    LogFreeVipPicAct::create([
-                        'user_id'=> $user->id,
-                        'user_operate' => 'upload',
-                        'img_remain_num' => isset($user->meta->pic),
-                        'pic_type' => 'avatar',
-                        'sys_react' => $sys_react,
-                        'shot_vip_record' => $user->vip_record,
-                        'shot_is_free_vip' => $user->isFreeVip()
-                    ]);
-                }
-            }
-            else if($user->meta->pic && $user->pic->count()<3  && $user->engroup==2) {
-                LogFreeVipPicAct::create(['user_id'=> $user->id
-                           ,'user_operate'=>'upload'
-                           ,'img_remain_num'=>isset($user->meta->pic)
-                           ,'pic_type'=>'avatar'
-                           ,'sys_react'=>'avatar_ok'
-                           ,'shot_vip_record'=>$user->vip_record
-                           ,'shot_is_free_vip'=>$user->isFreeVip()
-                        ]);              
-            }
+            $this->handleAvatarLogFreeVipPicAct($user);
+            
             if($request->ajax()) {
                 if( $msg) {
                     echo $msg;
@@ -433,6 +399,96 @@ class ImageController extends BaseController
             }
             return redirect()->back()->with('message', $msg);
         }
+    }
+    
+    public static function handleAvatarUploadedFile($user,$path,$pic_original_name)
+    {
+            $userId = $user->id;
+            $msg = '';    
+            $path[0] = '/';
+            UserMeta::where('user_id', $userId)->update(['pic' => $path, 'pic_original_name'=>$pic_original_name]);
+            if($user->engroup==2)
+                \App\Jobs\SimilarImagesSearcher::dispatch($path);                
+    }
+    
+    public static function handleUploadedFileForRealAuth($rap_service,$arr)
+    {
+            $rap_service->saveRealAuthUserModifyPicByArr($arr);            
+     }    
+    
+    public static function handleAvatarLogFreeVipPicAct($user)
+    {
+        $girl_to_vip = AdminCommonText::where('alias', 'girl_to_vip')->get()->first();
+
+        $user->load('meta','pic');
+        $user->meta->compareImages('ImageController@uploadAvatar');
+        $log_pic_acts_count = $user->log_free_vip_pic_acts->count();  
+        $last_avatar_act_log = $user->log_free_vip_avatar_acts()->orderBY('created_at','DESC')->first();
+        $last_avatar_sys_react = $last_avatar_act_log->sys_react??'';
+        $last_avatar_act_time =  isset($last_avatar_act_log->created_at)?Carbon::parse($last_avatar_act_log->created_at):'0000-00-00 00:00:00';
+        if($user->existHeaderImage() && $user->engroup==2){
+            if(!$user->isVip()) {
+                $vip_record = Carbon::parse($user->vip_record);
+                $freeVipCount =  VipLog::where('member_id', $user->id)->where('free',1)->where('action',1)->count();
+                if(!$freeVipCount) {
+                    $msg = $girl_to_vip->content;
+                    $shot_vip_record = '';
+                    $sys_react = 'upgrade';                        
+                }                    
+                else {
+                    $msg = "照片上傳成功，24H後升級為VIP會員";
+                    $shot_vip_record = $vip_record;
+                    $sys_react = 'recovering';
+                    
+                }
+                
+                LogFreeVipPicAct::create(['user_id'=> $user->id
+                     ,'user_operate'=>'upload'
+                     ,'img_remain_num'=>isset($user->meta->pic)
+                     ,'pic_type'=>'avatar'
+                     ,'sys_react'=>$sys_react
+                     ,'shot_vip_record'=>$shot_vip_record
+                      ,'shot_is_free_vip'=>$user->isFreeVip()    
+                         ]);                  
+            }
+            else {  //is still in free vip
+                $checkFreeVipLog = LogFreeVipPicAct::where([['user_id',$user->id],['pic_type','avatar']])->orderBy('created_at', 'DESC')->first();
+                $sys_react = "";
+                if($checkFreeVipLog) {
+                    if($checkFreeVipLog->user_operate=='delete') {
+                        $last_del_time = Carbon::parse($checkFreeVipLog->created_at);
+                        if($last_del_time->diffInSeconds(Carbon::now()) <= 1800) {
+                            $sys_react = 'remain';
+                        }  
+                        else {
+                            $sys_react = 'error：delete pics but still free vip after 30 min ';
+                        }
+                    }
+                }
+                else{
+                    $sys_react = 'remain_init';
+                }
+                LogFreeVipPicAct::create([
+                    'user_id'=> $user->id,
+                    'user_operate' => 'upload',
+                    'img_remain_num' => isset($user->meta->pic),
+                    'pic_type' => 'avatar',
+                    'sys_react' => $sys_react,
+                    'shot_vip_record' => $user->vip_record,
+                    'shot_is_free_vip' => $user->isFreeVip()
+                ]);
+            }
+        }
+        else if($user->meta->pic && $user->pic->count()<3  && $user->engroup==2) {
+            LogFreeVipPicAct::create(['user_id'=> $user->id
+                       ,'user_operate'=>'upload'
+                       ,'img_remain_num'=>isset($user->meta->pic)
+                       ,'pic_type'=>'avatar'
+                       ,'sys_react'=>'avatar_ok'
+                       ,'shot_vip_record'=>$user->vip_record
+                       ,'shot_is_free_vip'=>$user->isFreeVip()
+                    ]);              
+        }         
     }
 
     public function deleteAvatar(Request $request)
@@ -547,10 +603,11 @@ class ImageController extends BaseController
     * @param Request request 
     */
 
-    public function uploadPictures(Request $request)
+    public function uploadPictures(Request $request,RealAuthPageService $rap_service)
     {
         $userId = $request->userId;
         $user=$request->user();
+        $rap_service->riseByUserEntry($user);
         $preloadedFiles = $this->getPictures($request)->content();
         $preloadedFiles = json_decode($preloadedFiles, true);
         $before_uploaded_existHeaderImage = $user->existHeaderImage();
@@ -559,8 +616,14 @@ class ImageController extends BaseController
         $user_meta = UserMeta::where('user_id', auth()->id())->first();
         $user_meta->updated_at = Carbon::now();
         $user_meta->save();
+        
+        $file_input_name = 'pictures';
+        
+        if($rap_service->isPassedByAuthTypeId(1) && $request->pic_kind) {
+            $file_input_name = 'apply_replace_pic';
+        }        
 
-        $fileUploader = new FileUploader('pictures', array(
+        $fileUploader = new FileUploader($file_input_name, array(
             'fileMaxSize' => 8,
             'extensions' => ['jpg', 'jpeg', 'png', 'gif'],
             'required' => true,
@@ -602,31 +665,87 @@ class ImageController extends BaseController
         
         if($upload)
         {
+            if($rap_service->isApplyEffectByAuthTypeId(1)) {
+                $rap_service->savePicModifyByReq($request);
+            }
+            
             $publicPath = public_path();
-           // print_r($fileUploader);
-print_r($fileUploader->getPreloadedFiles());
-print_r($fileUploader->getUploadedFiles());die('test');
+
             foreach($fileUploader->getUploadedFiles() as  $uploadIndex=>$uploadedFile)
             {
                 $path = substr($uploadedFile['file'], strlen($publicPath));
 
                 $path[0] = "/";
-                $addPicture = new MemberPic;
-                $addPicture->member_id = $userId;
-                $addPicture->pic = $path;
-                $addPicture->original_name = $uploadedFile['old_name'];
-                $addPicture->save();
 
-                // 新增生活照時,刪除AdminDeleteImageLog紀錄
-                AdminDeleteImageLog::where('member_id', $userId)->orderBy('id')->take(1)->delete();
-                if($user->engroup==2)
-                    \App\Jobs\SimilarImagesSearcher::dispatch($path);
-                $addPicture->compareImages('ImageController@uploadPictures');
-                $addPicture = null;
+                if(!$rap_service->isPassedByAuthTypeId(1)) {
+                    $this->handlePicturesUploadedFile($user,$path,$uploadedFile['old_name']);
+                    
+                    if($rap_service->isSelfAuthWaitingCheck()) {
+
+                        $arr['pic'] = $path;
+                        $arr['operate'] = 1;
+                        $arr['original_name'] = $uploadedFile['old_name'];
+                        $arr['pic_cat'] = 'member_pic';
+                        $this->handleUploadedFileForRealAuth($rap_service,$arr);
+                    }
+                }
+                else {
+                    $arr['pic'] = $path;
+                    $arr['old_pic'] = $request->org_pic;
+                    $arr['operate'] = 1;
+                    $arr['original_name'] = $uploadedFile['old_name'];
+                    $arr['pic_cat'] = 'member_pic';
+                    $this->handleUploadedFileForRealAuth($rap_service,$arr);                    
+                }
             }
+            
+            if($rap_service->isApplyEffectByAuthTypeId(1)) {
+                $rap_service->updateModifyNewMemPicNum();
+            }            
         }
+        
         $msg="上傳成功";
+    
+        $this->handlePicturesLogFreeVipPicAct($user);
+        if($request->ajax()) {
+            $no_react = true;
+            if( $msg) {
+                echo $msg;
+                $no_react=false;
+            }
+            
+            if(!($upload['isSuccess']??false) ) {
+                if($upload['warnings']??false) {
+                    echo $upload['warnings'];
+                    $no_react=false;
+                }
+            }
+            if($no_react) echo '1';
+            exit;
+        }
+        $previous = redirect()->back()->with('message', $msg);
+        return $upload['isSuccess'] ? $previous : $previous->withErrors($upload['warnings']);
+    }
+    
+    public static function handlePicturesUploadedFile($user,$path,$pic_original_name)
+    {
+        $userId = $user->id;
+       $addPicture = new MemberPic;
+        $addPicture->member_id = $userId;
+        $addPicture->pic = $path;
+        $addPicture->original_name = $pic_original_name;
+        $addPicture->save();
 
+        // 新增生活照時,刪除AdminDeleteImageLog紀錄
+        AdminDeleteImageLog::where('member_id', $userId)->orderBy('id')->take(1)->delete();
+        if($user->engroup==2)
+            \App\Jobs\SimilarImagesSearcher::dispatch($path);
+        $addPicture->compareImages('ImageController@uploadPictures');
+        $addPicture = null;        
+    }
+    
+    public static function handlePicturesLogFreeVipPicAct($user) 
+    {
         $girl_to_vip = AdminCommonText::where('alias', 'girl_to_vip')->get()->first();
 
         $user->load('pic','meta');         
@@ -710,26 +829,7 @@ print_r($fileUploader->getUploadedFiles());die('test');
                       ,'shot_vip_record'=>$user->vip_record
                      ,'shot_is_free_vip'=>$user->isFreeVip()
                     ]);              
-        }
-        
-        if($request->ajax()) {
-            $no_react = true;
-            if( $msg) {
-                echo $msg;
-                $no_react=false;
-            }
-            
-            if(!($upload['isSuccess']??false) ) {
-                if($upload['warnings']??false) {
-                    echo $upload['warnings'];
-                    $no_react=false;
-                }
-            }
-            if($no_react) echo '1';
-            exit;
-        }
-        $previous = redirect()->back()->with('message', $msg);
-        return $upload['isSuccess'] ? $previous : $previous->withErrors($upload['warnings']);
+        }        
     }
 
     /**
@@ -748,6 +848,13 @@ print_r($fileUploader->getUploadedFiles());die('test');
         else{
             $pictures = MemberPic::withTrashed()->where('pic', $request->picture)->get();
         }
+        
+        return $this->handleDeletePictures($pictures,$user);
+
+    }
+    
+    public function handleDeletePictures($pictures,$user)
+    {
 
         foreach($pictures as $picture)
         {
@@ -796,7 +903,7 @@ print_r($fileUploader->getUploadedFiles());die('test');
             }
         }
         
-        return response($msg);
+        return response($msg);        
     }
 
     public function admin_user_image_delete(Request $request)

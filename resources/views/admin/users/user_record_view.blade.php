@@ -18,6 +18,13 @@
                     </a>
                 </td>
             </tr>
+            <tr>
+                <td>
+                    <a href="{{route('admin/user_online_time_view')}}">
+                        <h3>上線停留時間</h3>
+                    </a>
+                </td>
+            </tr>
         </table>
     </body>
 @stop

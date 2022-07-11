@@ -25,6 +25,25 @@
                 $.ms_DatePicker();            
             });              
         </script>
+        @if($rap_service->isInRealAuthProcess())
+        <script>
+            real_auth_process_check();
+            
+            function real_auth_process_check()
+            {
+                $('body').hide();
+                $.get( "{{route('check_is_in_real_auth_process')}}"+location.search+"&{{csrf_token()}}="+(new Date().getTime()),function(data){
+                    if(data!='1') {
+                        window.history.replaceState( {} , $('title').html(), '{{route("real_auth")}}' );
+                        location.href='{{route("real_auth")}}';
+                    }
+                    else {
+                        $('body').show();
+                    }
+                });
+            }  
+        </script>
+        @endif        
         <style>
             .select_xx04,.se_zlman {width:initial !important;}
             .se_zlman {margin-left:3%;margin-right:3%;}
@@ -138,7 +157,7 @@
                                 <li>身分證字號則只用在本次驗證後刪除，本站不會留存</li>
                                 </ol>
                             </div>
-                            <div class="i_am_student"><a href="{{url('goto_advance_auth_email')}}">我是學生未滿20歲，沒有辦個人門號，<span class="remind-regular">請點我</span></a></div>
+                            <div class="i_am_student"><a href="{{url('goto_advance_auth_email')}}{{request()->getQueryString()?'?'.request()->getQueryString():null}}" {!!$rap_service->getOnClickAttrForNoUnloadConfirm() !!}>我是學生未滿20歲，沒有辦個人門號，<span class="remind-regular">請點我</span></a></div>
                             @endif
                             </h3>
 						</div>
@@ -146,8 +165,16 @@
 						<div class="de_input">
 							
 							@if($user->isAdvanceAuth())
-
-								<div class="center">已完成驗證，<a href="{!! url('dashboard') !!}" class="red">按此開始使用網站</a></div>
+								
+                                @if($rap_service->isInRealAuthProcess())
+                                    @if(Session::has('message'))
+                                        {!!implode('<br>',Session::get('message')??[])!!}                                
+                                    @elseif($init_check_msg)
+                                    <div class="center">{!!$init_check_msg!!}</div>    
+                                    @endif
+                                @else
+                                <div class="center">已完成驗證，<a href="{!! url('dashboard') !!}" class="red">按此開始使用網站</a></div>    
+                                @endif
                             @elseif($init_check_msg)
                                 <div class="center">{!!$init_check_msg!!}</div>
 							@else
@@ -246,7 +273,7 @@
                 您好，您即將進入本站的進階身分驗證資訊系統。
                 通過驗證將獲得本站的<img src="{{asset('new/images/b_7.png')}}" class="adv_auth_icon" />進階驗證標籤<img src="{{asset('new/images/b_7.png')}}"  class="adv_auth_icon" />               
                 @if($rap_service->isInRealAuthProcess())
-                ，並可進行最後的視訊驗證。
+                ，並可進行與站長的視訊。
                 @endif            
             @endif 
         </div>
@@ -256,6 +283,27 @@
     </div>
     <a  onclick="gmBtn1()" class="bl_gb"><img src="/auth/images/gb_icon.png"></a>
 </div>
+
+
+@if($rap_service->isInRealAuthProcess() && $rap_service->isSelfAuthApplyNotVideoYet())
+<div style="position:relative;" id="video_app_container">
+    <div id="app" style="z-index: 9;">
+        <video-chat 
+            :allusers="{{ $users }}" 
+            :authUserId="{{ auth()->id() }}" 
+            user_permission = "normal"
+            ice_server_json="" 
+        />
+        
+    </div>
+    <div style="flex-wrap: wrap;position: absolute;top: 0;z-index: -1;">
+        <button type="button" class="btn mr-2 btn-secondary disabled" style="padding:0;">           
+            <span class="badge badge-light" style="line-height:normal;letter-spacing:2px;text-align:left;">目前無站方人員<br>暫時無法視訊</span>
+        </button>
+    </div>
+</div>
+</div>
+@endif     
 
 <script>
     $(function(){
@@ -270,8 +318,10 @@
     function gmBtn1(){
         $(".blbg").hide();
         $(".bl").hide();
+        
         @if(!$user->isPhoneAuth() && !($is_edu_mode??null) && !$user->isAdvanceAuth())
-        location.href='{{url("goto_member_auth")}}';
+        {!!$rap_service->getClearUnloadConfirmJs() !!}
+        location.href='{{url("goto_member_auth")}}'+location.search;
         @endif
     }
 
@@ -288,5 +338,87 @@
     });            
 </script> 
 @endif
+@if($rap_service->isInRealAuthProcess() && !$user->isAdvanceAuth())
+<script>
 
+    active_onbeforeunload_hint();
 
+    function active_onbeforeunload_hint()
+    {
+        $('body').attr('onbeforeunload',"return '';");
+        $('body').attr('onkeydown',"if (window.event.keyCode == 116) $(this).attr('onbeforeunload','');");    
+    }
+</script>
+@endif
+@if($rap_service->isInRealAuthProcess() && $rap_service->isSelfAuthApplyNotVideoYet())
+    <script>
+        let ice_servers;
+        async function kinesis_init()
+        {
+            // DescribeSignalingChannel API can also be used to get the ARN from a channel name.
+            const channelARN = 'arn:aws:kinesisvideo:ap-southeast-1:428876234027:channel/videos/1653476269290';
+
+            // AWS Credentials
+            const accessKeyId = 'AKIAWHWYD7UVXA6QL2GN';
+            const secretAccessKey = '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';
+            const region = 'ap-southeast-1';
+
+            const kinesisVideoClient = new AWS.KinesisVideo({
+                region,
+                accessKeyId,
+                secretAccessKey,
+                correctClockSkew: true,
+            });
+
+            const getSignalingChannelEndpointResponse = await kinesisVideoClient
+                .getSignalingChannelEndpoint({
+                    ChannelARN: channelARN,
+                    SingleMasterChannelEndpointConfiguration: {
+                        Protocols: ['WSS', 'HTTPS'],
+                        Role: KVSWebRTC.Role.VIEWER,
+                    },
+                })
+                .promise();
+            
+            const endpointsByProtocol = getSignalingChannelEndpointResponse.ResourceEndpointList.reduce((endpoints, endpoint) => {
+                endpoints[endpoint.Protocol] = endpoint.ResourceEndpoint;
+                return endpoints;
+            }, {});
+
+            const kinesisVideoSignalingChannelsClient = new AWS.KinesisVideoSignalingChannels({
+                region,
+                accessKeyId,
+                secretAccessKey,
+                endpoint: endpointsByProtocol.HTTPS,
+                correctClockSkew: true,
+            });
+            
+            const getIceServerConfigResponse = await kinesisVideoSignalingChannelsClient
+                .getIceServerConfig({
+                    ChannelARN: channelARN,
+                })
+                .promise();
+
+            const iceServers = [
+                { urls: `stun:stun.kinesisvideo.${region}.amazonaws.com:443` }
+            ];
+
+            getIceServerConfigResponse.IceServerList.forEach(iceServer =>
+                iceServers.push({
+                    urls: iceServer.Uris,
+                    username: iceServer.Username,
+                    credential: iceServer.Password,
+                }),
+            );
+
+            ice_servers = iceServers;
+        }
+
+        kinesis_init().then(function(result){
+            $('#app video-chat').attr('ice_server_json',JSON.stringify(ice_servers));
+            new Vue({
+                el:'#app'
+            });
+        })
+    </script>    
+@endif

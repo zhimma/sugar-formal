@@ -9,72 +9,54 @@
                 <th scope="col">審核時間</th>
                 <th scope="col">申請類型</th>
                 <th scope="col">狀態</th>
-                <th scope="col">異動時間</th>
                 <th scope="col">異動類型</th>
             </tr>
         </thead>
         <tbody>
         @foreach($row_list as $row)
-            @php
-                //$Vip = \App\Models\Vip::vip_diamond($row->id);
-            @endphp
             <tr>
-                <td scope="row"  {!!$service->getRowspanAttr($service->riseByUserEntry($row)->getUserUncheckedApplyList()->count())!!}>
-                    <a href="{{route('users/advInfo',['id'=>$service->user()->id])}}" target="_blank">
+                <td scope="row"  {!!$service->getRowspanAttr($row->real_auth_modify_item_group_modify_with_trashed->count())!!}>
+                    <a href="{{route('users/advInfo',['id'=>$row->id])}}" target="_blank">
                         {{$row->email}}
                     </a>
                 </td>
-                <td {!!$service->getRowspanAttr($service->getApplyUncheckedModifyList()->count())!!}>
-                    {{$service->apply_entry()->created_at}}
+                <td >
+                    {{$row->real_auth_modify_item_group_modify_with_trashed->first()->real_auth_user_modify_with_trashed->created_at}}
                 </td>
-                <td {!!$service->getRowspanAttr($service->modify_list()->count())!!}>
-                    {{$service->handleNullWord($service->apply_entry()->passed_at,'尚未審核')}}
+                <td >
+                    {{$service->handleNullWord($row->real_auth_modify_item_group_modify_with_trashed->first()->real_auth_user_modify_with_trashed->status_at,'尚未審核')}}
                 </td>
-                    {{--
-                <td {!!$service->getRowspanAttr($service->modify_list()->count())!!}>{{$service->apply_entry()->real_auth_type->name}}</td>
-                    --}}
-                <td {!!$service->getRowspanAttr($service->modify_list()->count())!!}>
-                    {!!$service->getAdminCheckAuthTypeLayoutByApplyEntry()!!}
+
+                <td >
+                    {!!$service->getAuthTypeLayoutInAdminCheckByModifyEntry($row->real_auth_modify_item_group_modify_with_trashed->first()->real_auth_user_modify_with_trashed)!!}
                 </td>
                 <td>
-                    {{$service->modify_list()->count()?$service->convertStatusToCompleteWord($service->modify_entry()->status):null}}
+                    {{$service->convertModifyStatusToCompleteWord($row->real_auth_modify_item_group_modify_with_trashed->first()->real_auth_user_modify_with_trashed)}}
                 </td>
                 <td>
-                    {{$service->modify_list()->count()?$service->modify_entry()->created_at:null}}
-                </td>
-                <td>
-                    {{$service->modify_list()->count()?$service->modify_entry()->passed_at:null}}
+                    {{$row->real_auth_modify_item_group_modify_with_trashed->first()->real_auth_user_modify_with_trashed->patch_id_shot?'新申請補件-':''}}  
+                    {{$row->real_auth_modify_item_group_modify_with_trashed->first()->real_auth_user_modify_with_trashed->real_auth_modify_item->name??null}}  
                 </td>               
             </tr>
-            @foreach($service->modify_list()->slice(1) as $modify)
+            @foreach($row->real_auth_modify_item_group_modify_with_trashed->slice(1) as $modify)
             <tr>    
-                <td>{{$service->convertStatusToCompleteWord($modify->status)}}</td>
-                <td>{{$service->getStatusLayout($modify->status)}}</td>
-                <td>{{$modify->created_at}}</td>
-                <td>{{$modify->real_auth_modify_item->name??null}}</td>                
+                <td>{{$modify->real_auth_user_modify_with_trashed->created_at}}</td>
+                <td>
+                    {{$service->handleNullWord($modify->real_auth_user_modify_with_trashed->status_at,'尚未審核')}}
+                </td>
+                <td>
+                    {!!$service->getAuthTypeLayoutInAdminCheckByModifyEntry($modify->real_auth_user_modify_with_trashed)!!}
+                </td>                
+                <td>{{$service->convertModifyStatusToCompleteWord($modify->real_auth_user_modify_with_trashed)}}</td>
+                <td>
+                    {{$modify->real_auth_user_modify_with_trashed->patch_id_shot?'新申請補件-':''}}  
+                    {{$modify->real_auth_user_modify_with_trashed->real_auth_modify_item->name??null}}                    
+                </td>                
             </tr> 
             @endforeach
-            
-            @foreach($service->apply_list()->slice(1) as $apply)
-            <tr>                
-                <td {!!$service->getRowspanAttr($service->slotByApplyEntry($apply)->getApplyUncheckedModifyList()->count())!!}>{{$apply->created_at}}</td>
-                <td>{{$service->handleNullWord($apply->passed_at,'尚未審核')}}</td>
-                <td>{!!$service->getAdminCheckAuthTypeLayoutByApplyEntry()!!}</td>
-                <td>{{$service->modify_entry()->status??null}}</td>
-                <td>{{$modify->created_at??null}}</td>
-                <td>{{$modify->real_auth_modify_item->name??null}}</td>
-            </tr>
-            @endforeach
-            @foreach($service->modify_list() as $modify)
-            <tr>    
-                <td>{{$modify->status?'已完成':'待確認'}}</td>
-                <td>{{$modify->created_at}}</td>
-                <td>{{$modify->real_auth_modify_item->name}}</td>                
-            </tr>
-            @endforeach
-
 
         @endforeach
+            
         </tbody>
     </table>
 @stop

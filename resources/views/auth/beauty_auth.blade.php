@@ -30,7 +30,6 @@ background: #eee; border: #eee 1px solid;
 </style>
 @stop
 @section('app-content')
-		<!---->
 		<div class="container matop70">
 			<div class="row">
 				<div class="col-sm-2 col-xs-2 col-md-2 dinone">
@@ -41,7 +40,6 @@ background: #eee; border: #eee 1px solid;
 						<font>Beauty</font>
 						<a href="" class="toug_back btn_img"><div class="btn_back"></div></a>
 					</div>
-					<!--  -->
 					<div class="gjrz_nr ga_bot70">
 						<div class="gjr_b"><img src="{{asset('alert/images/gj_bt1.png')}}"></div>
 						<div class="gjr_nr01">
@@ -50,132 +48,16 @@ background: #eee; border: #eee 1px solid;
                         <form method="post" name="beauty_auth_form" action="{{route('beauty_auth_save')}}" enctype="multipart/form-data">
                         {!! csrf_field() !!}
                         @include('auth.real_auth_question_tpl')
-						{{--
-						<div class="gjr_nr02 gir_top20 gir_pa">
-							 <h2 class="gjr_nr02_h2">1:是否單一daddy(必填)</h2>
-							 <div class="re_bae ga_top10">
-								<span class="re_bae_span"><input name="Fruit" type="radio" value="" style="margin-top: 2px; margin-right: 5px;">是</span>
-								<span class="re_bae_span"><input name="Fruit" type="radio" value="" style="margin-top: 2px; margin-right: 5px;">否</span>
-							</div>
-						</div>
-						<div class="gjr_nr02 gir_top20 gir_pa">
-							 <h2 class="gjr_nr02_h2">2:目前是否有交往/曖昧中的異性(必填)</h2>
-							 <div class="re_bae ga_top10">
-								<span class="re_bae_span"><input name="Fruit" type="radio" value="" style="margin-top: 2px; margin-right: 5px;">是</span>
-								<span class="re_bae_span"><input name="Fruit" type="radio" value="" style="margin-top: 2px; margin-right: 5px;">否</span>
-							</div>
-						</div>
-						
-						<div class="gjr_nr02 gir_top20 gir_pa">
-							 <h2 class="gjr_nr02_h2">3:包養關係持續中，如果有遇上其他異性(必填)</h2>
-							 <div class="re_bae ga_top10">
-								<span class="re_bae_span ga_tabbot"><input name="Fruit" type="radio" value="" style="margin-top: 2px; margin-right: 5px;">A:通知daddy 雙方協商後續</span>
-								<span class="re_bae_span"><input name="Fruit" type="radio" value="" style="margin-top: 2px; margin-right: 5px;">B:中止包養關係</span>
-							</div>
-						</div>
-						
-						
-
-			
-						<div class="gjr_nr02 gir_top20 gir_pa">
-							 <h2 class="gjr_nr02_h2">4:生活作息(必填)</h2>
-							 <div class="re_bae ga_top10">
-								<span class="re_bae_span ga_tabbot">
-									<input type="radio" name="radio" id="r1" onclick="inputDisabledFunction(this)" value="option1" style="margin-top: 2px; margin-right: 5px;">A:正常上班族，晚上及周末有空</span>
-								<span class="re_bae_span ga_tabbot">
-									<input type="radio" name="radio" id="r2" onclick="inputDisabledFunction(this)" value="option2" style="margin-top: 2px; margin-right: 5px;">B:學生，正常晚上及周末有空，周間看課表</span>
-								<span class="re_bae_span ga_tabbot">
-									<input type="radio" name="radio" id="r3" onclick="inputDisabledFunction(this)" value="option3" style="margin-top: 2px; margin-right: 5px;">C:排班人，可每月提供班表</span>
-								<span class="re_bae_span ga_tabbot">
-									<input type="radio" name="radio" id="r4" onclick="inputDisabledFunction(this)" value="option4" style="margin-top: 2px; margin-right: 5px;">D:其他不固定作息時間</span>
-								<input name="" id="single_1" type="text" placeholder="請輸入作息時間" disabled="disabled" class="re_rinput ga_tabbot" style="width: 100%;">
-							</div>
-						</div>
-						
-						
-						
-						<!-- 
-					    <div class="gjr_nr02 gir_top20 gir_pa">
-							 <h2 class="gjr_nr02_h2">1:請將相機調成無濾鏡，自拍三張照上傳。</h2>
-							 <div class="gjr_nr02_h2  rzmatop_8">
-								 <ul class="n_ulpic" style="margin-bottom: 0;">
-									 <li class="write_img mabot_10 dt_pa0"><b class="img dt_heght gir_border"><img src="images/01.png" class="hycov"></b><div class="dt_ckb01"><img src="images/cha.png"></div></li>
-									 <li class="write_img mabot_10 dt_pa0"><b class="img dt_heght gir_border"><img src="images/ph_xz01.png" class="hycov"></b></li>
-								 </ul>
-							 </div>
-						</div> -->
-					
-						<div class="gjr_nr02 gir_top20 gir_pa">
-							 <h2 class="gjr_nr02_h2">5:其他加分資料</h2>
-							 <div class="g_rznz matop15 rzmabot_20">
-								 <h2>☆ 多人追蹤的社群帳號</h2>
-								 <h2 class="rzmatop_5"><input class="g_rinput" placeholder="請輸入連結"></h2>
-							 </div>
-							 
-							 <div class="g_rznz matop15 rzmabot_20 g_pa10">
-									 <h2>☆ 兼差展場show girl </h2>
-									 <h2 class="">
-									 <ul class="n_ulpic" style="margin-bottom: 0;">
-										 <li class="write_img mabot_10 dt_pa0"><b class="img dt_heght gir_border"><img src="images/ph_xz01.png" class="hycov"></b></li>
-									 </ul>
-									 </h2>
-							 </div>
-							 <div class="g_rznz matop15 rzmabot_20">
-									 <h2>☆ 校花/系花</h2>
-									 <h2 class="rzmatop_5">
-									     <input class="g_rinput rzmabot_10" placeholder="請輸入學校名稱">
-										 <input class="g_rinput rzmabot_10" placeholder="請輸入系級">
-										 <input class="g_rinput" placeholder="請輸入真實姓名">
-									 </h2>
-							 </div>
-							 
-							 <div class="g_rznz matop15 rzmabot_20">
-									 <h2>☆ 曾上Ptt or Dcard 表特版 (或是其他論壇)</h2>
-									 <h2 class="rzmatop_5">
-										 <input class="g_rinput" placeholder="請輸入連結">
-									 </h2>
-							 </div>
-							 
-							 <div class="g_rznz matop15 rzmabot_20 g_pa10">
-									 <h2>☆ 在學證明</h2>
-									 <h2 class="rzmatop_5">
-										 <textarea placeholder="請輸入" class="g_rtext" ></textarea>
-										 <span class="ga_or">-or-</span>
-										 <ul class="n_ulpic" style="margin-bottom:5px;">
-											 <li class="write_img mabot_10 dt_pa0"><b class="img dt_heght gir_border"><img src="images/01.png" class="hycov"></b><div class="dt_ckb01"><img src="images/cha.png"></div></li>
-										 	 <li class="write_img mabot_10 dt_pa0"><b class="img dt_heght gir_border"><img src="{{asset('alert/images/ph_xz01.png')}}" class="hycov"></b></li>
-										 </ul>
-									 </h2>
-							 </div>
-							 
-							 <div class="g_rznz matop15 rzmabot_20 g_pa10">
-									 <h2>☆ 工作證明</h2>
-									 <h2 class="rzmatop_5">
-										 <textarea placeholder="請輸入" class="g_rtext" ></textarea>
-										 <span class="ga_or">-or-</span>
-										 <ul class="n_ulpic" style="margin-bottom:5px;">
-											 <li class="write_img mabot_10 dt_pa0"><b class="img dt_heght gir_border"><img src="{{asset('alert/images/ph_xz01.png')}}" class="hycov"></b></li>
-										 </ul>
-									 </h2>
-							 </div>
-							 
-							 <div class="g_rznz matop15 rzmabot_20 g_pa10">
-									 <h2>☆ 其他可加分事項</h2>
-									 <h2 class="rzmatop_5">
-										 <textarea placeholder="請輸入" class="g_rtext" ></textarea>
-										 <span class="ga_or">-or-</span>
-										 <ul class="n_ulpic" style="margin-bottom:5px;">
-											 <li class="write_img mabot_10 dt_pa0"><b class="img dt_heght gir_border"><img src="{{asset('alert/images/ph_xz01.png')}}" class="hycov"></b></li>
-										 </ul>
-									 </h2>
-							 </div>
-							 
-						</div>
-					--}}
 					
                         <div class="n_txbut g_inputt40">
-						  <a href="javascript:void(0);" class="se_but1" onclick="document.beauty_auth_form.requestSubmit();">我同意</a>
-						  <a href="" class="se_but2">放棄</a>
+						  <a href="javascript:void(0);" class="se_but1" onclick="return is_form_have_any_change(this) && document.beauty_auth_form.requestSubmit();">
+                          @if($service->isPassedByAuthTypeId(2))  
+                            送出異動申請
+                          @else
+                            我同意
+                          @endif
+                          </a>
+						  <a href="{{route('real_auth')}}" class="se_but2">放棄</a>
                         </div>
                     
                     </form>
@@ -183,7 +65,6 @@ background: #eee; border: #eee 1px solid;
 					
 					    
 					</div>
-					<!--  -->
 						
 				</div>
 
@@ -199,6 +80,7 @@ background: #eee; border: #eee 1px solid;
     $('#choice_3,#choice_4,#choice_5,#choice_6').attr('onclick','inputDisabledFunction(this);');
     inputDisabledFunction($('#choice_3,#choice_4,#choice_5,#choice_6').filter(':checked').get(0));
     function inputDisabledFunction(obj){
+        if(obj==undefined) return;
         if(obj.value == "6"){
             
             $("#choice_7").attr("disabled",false);
@@ -209,9 +91,49 @@ background: #eee; border: #eee 1px solid;
     }
 </script>
 <script>
+    function is_form_have_any_change(dom) {
+        var nowElt = $(dom);
+        var nowFormElt = nowElt.closest('form');
+        var check_rs = false;
+        var ans_chain_str = '';
+        
+        $.each(nowFormElt.serializeArray(), function( index, value ) {
+                if(value.name=='_token') return;
+                if(value.name.indexOf('reply_pic_')>=0) return;
+                ans_chain_str+=value.value;
+                if(check_rs) return;                
+                var now_form_org_ans = nowFormElt.find('.form_org_ans_'+value.name.replaceAll(']','_').replaceAll('[','_')).data('form_org_ans');
+     
+                if(now_form_org_ans==undefined) now_form_org_ans='';
+                
+                if(check_rs==false  && value.value!=now_form_org_ans) {
+                    check_rs = true;
+                }
+        });
+        
+        images_uploader.each(function(upl_index,uplder){
+            if(check_rs) return;
+            var uplder_api = $.fileuploader.getInstance($(uplder));
+            if(uplder_api.getChoosedFiles().length>0) {
+                check_rs=true;
+            }
+        });
+
+        if(check_rs==false &&  ans_chain_str!='') {
+            c5('無法送出！您尚未'+(ans_chain_str==''?'填寫':'修改')+'任何答案。');
+        }
+        else if(ans_chain_str=='') {
+            check_rs = true;
+        }
+
+        return check_rs;
+    }
+    
+
     $(document).ready(function () {
         images_uploader = $('.reply_pic_choice').fileuploader({
-            //extensions: ['jpg', 'png', 'jpeg', 'bmp'],
+            extensions: ['jpg', 'png', 'jpeg', 'bmp','gif','heif','heic'],
+            notResetApiAfterResizePopupMsg: true,
             changeInput: ' ',
             theme: 'thumbnails',
             enableApi: true,
@@ -264,8 +186,7 @@ background: #eee; border: #eee 1px solid;
                 },
                 onItemShow: function(item, listEl, parentEl, newInputEl, inputEl) {
                     nowObj = this;
-                    console.log('onItemShow');
-                    console.log(Object.getOwnPropertyNames(this));
+
                     var plusInput = listEl.find('.fileuploader-thumbnails-input'),
                         api = $.fileuploader.getInstance(inputEl.get(0));
 
@@ -279,7 +200,7 @@ background: #eee; border: #eee 1px solid;
                         $('.fileuploader-thumbnails-input-inner').css('background-image', 'url({{ asset("new/images/addpic.png") }})');
                     }
                 },
-                onItemRemove: function(html, listEl, parentEl, newInputEl, inputEl) {
+                onItemRemove: function(html, listEl, parentEl, newInputEl, inputEl) {                    
                     var plusInput = listEl.find('.fileuploader-thumbnails-input'),
                         api = $.fileuploader.getInstance(inputEl.get(0));
 
@@ -297,7 +218,7 @@ background: #eee; border: #eee 1px solid;
             },
             dialogs: {
                 alert:function(message) {
-                    alert(message);
+                    c5(message);
                 },
             },
             dragDrop: {
@@ -313,7 +234,6 @@ background: #eee; border: #eee 1px solid;
                             pic: item.data.url
                         },
                         success: function(data){
-                            //c2("刪除成功")
                             $(".announce_bg").hide();
                             $("#tab02").hide();
                             if(data.length>100 || data=='' || data==undefined) {
@@ -321,11 +241,7 @@ background: #eee; border: #eee 1px solid;
                             } else {
                                 c5(data);
                             }
-                            // if(data.length>4){
-                            //     c2(data);
-                            // }else {
-                            //     c2(data);
-                            // }
+
                             isRemovable = true
                         },
                         error: function(xhr, status, msg){
@@ -360,6 +276,19 @@ background: #eee; border: #eee 1px solid;
                 var plusInput = listEl.find('.fileuploader-thumbnails-input'),
                     api = $.fileuploader.getInstance(inputEl.get(0));
 
+                @if($service->isPassedByAuthTypeId(2))
+                
+                var option_limit = api.getOptions()['limit'];
+                var unchk_pic_num = $('#unchk_pic_num_of_'+inputEl.attr('id')).val();
+                 api.setOption('unchk_pic_num',unchk_pic_num);
+                var new_limit = option_limit - unchk_pic_num;
+                
+                if(new_limit<0) new_limit=0;
+                api.setOption('org_limit',option_limit)
+                api.setOption('limit',new_limit);
+                
+                @endif
+                
                 plusInput.on('click', function() {
                     api.open();
                 });
@@ -388,8 +317,52 @@ background: #eee; border: #eee 1px solid;
                 open: '打開',
                 removeConfirmation: '確認要刪除檔案嗎?',
                 errors: {
-                    filesLimit: function(options) {
-                        return '最多上傳 ${limit} 張圖片.'
+                    filesLimit: function(options,listEl, parentEl, newInputEl, inputEl) {
+                            var filesLimit_error_msg = '最多上傳 ${limit} 張圖片！';
+                            @if($service->isPassedByAuthTypeId(2))
+                            var api = $.fileuploader.getInstance(inputEl.get(0));
+                            var api_options = api.getOptions();
+                            var option_limit = api_options['limit'];
+                            var unchk_pic_num = api_options['unchk_pic_num'];                           
+                            var passed_pic_num = api.getAppendedFiles().length;
+                            var allow_pic_num = option_limit-passed_pic_num;
+                            var allow_msg_part = '';
+                            var choosed_pic_num = api.getChoosedFiles().length-1;
+                            
+                            if(choosed_pic_num<0) choosed_pic_num=0;
+                            if(allow_pic_num<0) allow_pic_num=0;
+                            
+                            if(allow_pic_num) {
+                                allow_msg_part = '所以最多只能再上傳'+allow_pic_num+'張照片。';
+                                
+                                if(choosed_pic_num) {
+                                    allow_msg_part+='您剛剛已經成功選取了'+choosed_pic_num+'張照片，';
+                                }
+                                
+                                if(choosed_pic_num>0 && choosed_pic_num>=allow_pic_num) {
+                                    allow_msg_part+='因此無法再選取照片。本次選取照片失敗。請刪除部分照片後再選取或按送出按鈕上傳'+choosed_pic_num+'張照片。';
+                                }
+                                else {
+                                    if(choosed_pic_num) {
+                                        allow_msg_part+='再加上本次選取的照片，';
+                                    }
+                                    allow_msg_part+='您已經選取了超過'+allow_pic_num+'張的照片，因此本次選取照片失敗。請重新選取照片';
+                                    
+                                    if(choosed_pic_num) {
+                                        allow_msg_part+='或按送出按鈕上傳'+choosed_pic_num+'張照片';
+                                    }                                    
+                                }
+                                
+                            }
+                            else allow_msg_part = '已到達'+api_options['org_limit']+'張的限制，因此無法再選取照片。請刪除部分照片後再選取。';
+                            
+                            filesLimit_error_msg = '此欄位目前有'+passed_pic_num+'張通過審核，';
+                            if(unchk_pic_num>0) filesLimit_error_msg+=unchk_pic_num+'張審核中，合計共'+(parseInt(passed_pic_num)+parseInt(unchk_pic_num))+'張的照片，'
+                            filesLimit_error_msg+=allow_msg_part;
+                            
+                            @endif
+                            
+                            return filesLimit_error_msg;                        
                     },
                     filesType: '檔名: ${name} 不支援此格式, 只允許 ${extensions} 檔案類型上傳.',
                     fileSize: '${name} 檔案太大, 請確認容量需小於 ${fileMaxSize}MB.',
@@ -402,4 +375,12 @@ background: #eee; border: #eee 1px solid;
         resize_before_upload(images_uploader,400,600,'form','json','c5');
     });
 </script>
+@if($service->isPassedByAuthTypeId(1) && !$service->getApplyByAuthTypeId(2))
+<script>
+$(document).ready(function () {
+    c5html('只要填寫美顏認證表並送出申請由站長審核通過，即可通過美顏認證。');
+    
+});
+</script>
+@endif
 @stop

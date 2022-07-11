@@ -40,3 +40,7 @@ Broadcast::channel('NewMessage.{id}', function (User $user, $id) {
 Broadcast::channel('Online', function (User $user) {
     return ['id' => $user->id, 'name' => $user->name, 'engroup' => $user->engroup];
 });
+
+Broadcast::channel('presence-video-channel', function($user) {
+    return ['id' => $user->id, 'name' => $user->name];
+});

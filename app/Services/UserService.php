@@ -785,7 +785,7 @@ class UserService
         $receiver->email = $user->advance_auth_email;
         $receiver->name = $user->name;
 
-        $receiver->notify(new AdvAuthUserEmail($token));
+        $receiver->notify(new AdvAuthUserEmail($token,request()));
         
         $user->advance_auth_email_at = Carbon::now();
         $user->save();
@@ -1140,57 +1140,6 @@ class UserService
 
         return $cfp;
     }
-
-    public static function checkvisitorid($hash, $user_id){
-        if(!$hash){
-            return false;
-        }
-
-        
-        // $cfp = \App\Models\VisitorID::where('hash', $hash)->orderBy('id','desc')->first();
-        // $cfp_id = $cfp->id ?? null;
-        // $cfp_user = \App\Models\VisitorIDUser::where('visitor_id', $cfp_id)->where('user_id', $user_id)->first();
-
-        // try{
-            // if(!$cfp){
-            //     $cfp = new \App\Models\VisitorID;
-            //     $cfp->hash = $hash;
-            //     $cfp->host = request()->getHttpHost();
-            //     $cfp->save();
-    
-            //     $cfp_user = new \App\Models\VisitorIDUser;
-            //     $cfp_user->visitor_id = $cfp->id;
-            //     $cfp_user->user_id = $user_id;
-            //     $cfp_user->save();
-
-            //     return $cfp;
-            // }else if($cfp && !$cfp_user){
-            //     throw new \Exception("Visitor ID is not correspond");
-            // }else if($cfp && $cfp_user){
-            //     return $cfp;
-            // }
-
-            $cfp = \App\Models\VisitorID::where('hash', $hash)->first();
-            if(!$cfp){
-                $cfp = new \App\Models\VisitorID;
-                $cfp->hash = $hash;
-                $cfp->host = request()->getHttpHost();
-                $cfp->save();
-            }
-            $exists = \App\Models\VisitorIDUser::where('visitor_id', $cfp->id)->where('user_id', $user_id)->count();
-            if($exists == 0){
-                $cfp_user = new \App\Models\VisitorIDUser;
-                $cfp_user->visitor_id = $cfp->id;
-                $cfp_user->user_id = $user_id;
-                $cfp_user->save();
-            }
-
-            return $cfp;
-        // }catch(\Exception $e){
-        //     logger($e);
-        // }
-        
-    }
     
     public static function checkNewSugarForbidMsg($femaleUser,$maleUser) {
         
@@ -1232,12 +1181,7 @@ class UserService
 				$query = LogUserLogin::queryOfCfpIdUsedByOtherUserId($value,$user_id);
 				if($query)
 					$logEntrys = $query->distinct('user_id')->get();
-			break;
-            case 'visitor_id':
-                $query = LogUserLogin::queryOfVisitorIdUsedByOtherUserId($value,$user_id);
-				if($query)
-					$logEntrys = $query->distinct('user_id','visitor_id')->get();
-            break;
+			break;			
 		}
 		$user_list = [];
 		$b_count_total=0;
@@ -1308,6 +1252,7 @@ class UserService
                 ->whereNull('b1.member_id')
                 ->whereNull('b3.target')
                 ->whereNull('wu.member_id')
+                ->where('users.id', $targetUser->id)
                 ->where('users.accountStatus', 1)
                 ->where('users.account_status_admin', 1)
                 ->where(function($query)use($date_start,$date_end) {
@@ -1316,7 +1261,6 @@ class UserService
                         ->orWhereNull('message.sys_notice')
                         ->whereBetween('message.created_at', array($date_start . ' 00:00', $date_end . ' 23:59'));
                 });
-            $query->where('users.email',$targetUser->email);
             $results_a = $query->distinct('message.from_id')->get();
 
             if ($results_a != null) {
@@ -1364,7 +1308,48 @@ class UserService
             return $message_percent_7;
     }
     
-    public function riseByUserEntry($userEntry) {
+    public function AdminCheckExchangePeriodSave($request,$raa_service) 
+    {
+        $id = $request->id??null;
+        if(!$id) $id = $this->model->id;
+        $status = $request->status;
+        $reject_content = $request->reject_content??null;
+        DB::table('account_exchange_period')->where('user_id', $id)
+            ->update(['status' => $status, 'passed_at' => now(), 'reject_content' => $reject_content]);
+
+        $current_data = DB::table('account_exchange_period')->where('user_id', $id)->first();
+
+        //notify
+        if ($current_data->reject_content == '') {
+            $text = '無法通過您的申請。';
+        } else {
+            $text = '因 ' . $current_data->reject_content . ' 原因無法通過您的申請。';
+        }
+        $user = User::findById($current_data->user_id);
+        if ($status == 1) {
+            $content = $user->name . ' 您好：<br>您在 ' . $current_data->created_at . ' 申請變更包養關係，經站長審視已通過您的申請';
+            //修改
+            $rs = User::where('id', $current_data->user_id)->update(['exchange_period' => $current_data->exchange_period]);
+            UserMeta::where('user_id', $current_data->user_id)->update(['exchange_period_change' => 1]);
+            
+            if($rs)
+            {
+                $raa_service->riseByUserEntry($user)->passExchangePeriodModify();
+            }
+        } else {
+            $content = $user->name . ' 您好：<br>您在 ' . $current_data->created_at . ' 申請變更包養關係，經站長審視，' . $text;
+            UserMeta::where('user_id', $current_data->user_id)->update(['exchange_period_change' => 1]);
+        }
+        //        $user->notify(new AccountConsign('變更帳號類型結果通知',$user->name, $content));
+
+        //站長系統訊息
+        Message::post(1049, $user->id, $content, true, 1);        
+    
+        return $current_data->status==$status;
+    } 
+    
+    public function riseByUserEntry($userEntry) 
+    {
         $this->model = $userEntry;
         $this->userMeta = $userEntry->meta;
         return $this;

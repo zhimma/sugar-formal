@@ -97,5 +97,7 @@ class Kernel extends HttpKernel
         "HasReferer"=>HasReferer::class,
         //檢查是否要作答FAQ
         "FaqCheck"=>\App\Http\Middleware\FaqCheck::class,
+        //跳離本人認證申請流程後清除流程狀態
+        "RealAuthMiddleware"=>\App\Http\Middleware\RealAuthMiddleware::class,
     ];
 }

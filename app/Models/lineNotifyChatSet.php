@@ -16,5 +16,8 @@ class lineNotifyChatSet extends Model
      * @var string
      */
     protected $table = 'line_notify_chat_set';
-
+    protected $fillable = [
+        'user_id',
+        'line_notify_chat_id'
+    ];
 }

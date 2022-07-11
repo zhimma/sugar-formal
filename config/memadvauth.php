@@ -2,11 +2,11 @@
 
 return [
     'service'=> [
-        'host'=>env('ADV_AUTH_SERVICE_HOST','midonline.twca.com.tw'),
+        'host'=>env('ADV_AUTH_SERVICE_HOST',(env('APP_ENV', 'production')=='production')?'midonline.twca.com.tw':'midonlinetest.twca.com.tw'),
         'port'=>env('ADV_AUTH_SERVICE_PORT',null),
         'uri'=>env('ADV_AUTH_SERVICE_URI','IDPortal/MIDClause'),
         'business_no'=>env('ADV_AUTH_BUSINESS_NO','54666024'),
-        'hash_key'=>env('ADV_AUTH_HASH_KEY','2f2ea269-6b84-441f-b333-0a75605265e9'),
+        'hash_key'=>env('ADV_AUTH_HASH_KEY',(env('APP_ENV', 'production')=='production')?'2f2ea269-6b84-441f-b333-0a75605265e9':'4341dcdf-0b14-475e-9b2a-3eb69650a12d'),
         'hash_key_no'=>env('ADV_AUTH_HASH_KEY_NO','12'),
     ],
     'user' => [
