@@ -30,7 +30,7 @@
             autoplay
             class="cursor-pointer"
             :class="isFocusMyself === true ? 'user-video' : 'partner-video'"
-            @click="toggleCameraArea"
+            @click=""
           />
           <video
             ref="partnerVideo"
@@ -38,7 +38,7 @@
             autoplay
             class="cursor-pointer"
             :class="isFocusMyself === true ? 'partner-video' : 'user-video'"
-            @click="toggleCameraArea"
+            @click=""
             v-if="videoCallParams.callAccepted"
           />
           <div class="partner-video" v-else>

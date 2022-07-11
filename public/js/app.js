@@ -5573,7 +5573,7 @@ function _defineProperty(obj, key, value) { if (key in obj) { Object.definePrope
                 });
 
                 if (_this4.user_permission == 'admin') {
-                  if (_this4.mutedVideo) _this4.toggleMuteVideo();
+                  if (!_this4.mutedVideo) _this4.toggleMuteVideo();
                 }
 
               case 22:
@@ -5683,7 +5683,7 @@ function _defineProperty(obj, key, value) { if (key in obj) { Object.definePrope
                 _this5.videoCallParams.peer2.signal(_this5.videoCallParams.callerSignal);
 
                 if (_this5.user_permission == 'admin') {
-                  if (_this5.mutedVideo) _this5.toggleMuteVideo();
+                  if (!_this5.mutedVideo) _this5.toggleMuteVideo();
                 }
 
               case 23:
@@ -5743,8 +5743,8 @@ function _defineProperty(obj, key, value) { if (key in obj) { Object.definePrope
       var _this6 = this;
 
       // if video or audio is muted, enable it so that the stopStreamedVideo method will work
-      if (!this.mutedVideo) this.toggleMuteVideo();
-      if (!this.mutedAudio) this.toggleMuteAudio();
+      if (this.mutedVideo) this.toggleMuteVideo();
+      if (this.mutedAudio) this.toggleMuteAudio();
       this.stopStreamedVideo(this.$refs.userVideo);
 
       if (this.authuserid === this.videoCallParams.caller) {
@@ -5764,7 +5764,11 @@ function _defineProperty(obj, key, value) { if (key in obj) { Object.definePrope
       this.videoCallParams.channel.pusher.channels.channels["presence-presence-video-channel"].disconnect();
 
       if (this.user_permission == 'admin') {
-        this.stopRecording();
+        try {
+          this.stopRecording();
+        } catch (e) {
+          console.log(e);
+        }
       }
 
       if (this.user_permission == 'admin') {
@@ -6080,7 +6084,7 @@ var render = function render() {
       muted: true
     },
     on: {
-      click: _vm.toggleCameraArea
+      click: function click($event) {}
     }
   }), _vm._v(" "), _vm.videoCallParams.callAccepted ? _c("video", {
     ref: "partnerVideo",
@@ -6091,7 +6095,7 @@ var render = function render() {
       autoplay: ""
     },
     on: {
-      click: _vm.toggleCameraArea
+      click: function click($event) {}
     }
   }) : _c("div", {
     staticClass: "partner-video"
