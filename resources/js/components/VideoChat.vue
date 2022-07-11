@@ -284,7 +284,7 @@ export default {
           })
           .then(() => {})
           .catch((error) => {
-            console.log(error);
+            console.log('signal axios error:' + error);
           });
       });
 
@@ -398,7 +398,7 @@ export default {
           })
           .then(() => {})
           .catch((error) => {
-            console.log(error);
+            console.log('signal axios error:' + error);
           });
       });
 
