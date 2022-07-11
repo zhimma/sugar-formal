@@ -245,7 +245,7 @@ export default {
 
     async placeVideoCall(id, name) {
       await this.checkDevices();
-      //console.log(this.deviceReady);
+      //console.log('deviceReady:' + this.deviceReady);
       if(!this.deviceReady)
       {
         alert('未搜尋到鏡頭或麥克風裝置');
@@ -361,7 +361,7 @@ export default {
 
     async acceptCall() {
       await this.checkDevices();
-      //console.log(this.deviceReady);
+      //console.log('deviceReady:' + this.deviceReady);
       if(!this.deviceReady)
       {
         alert('未搜尋到鏡頭或麥克風裝置');
