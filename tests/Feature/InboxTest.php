@@ -28,8 +28,10 @@ class InboxTest extends TestCase
             $result = env("INBOX_NO_VALUE_RESULT");
             $this->assertEquals($result, $response->getContent());
         }catch(\Exception $e){
+            $notification_string = test_notification(__CLASS__, __FUNCTION__, __LINE__);
+            
             $lineNotify = new LineNotify;
-            $lineNotify->sendLineNotifyMessage(json_encode($e));
+            $lineNotify->sendLineNotifyMessage($notification_string);
         }
     }
 
@@ -52,8 +54,10 @@ class InboxTest extends TestCase
             $result = env("INBOX_HAS_VALUE_RESULT");
             $this->assertEquals($result, $response->getContent());
         }catch(\Exception $e){
+            $notification_string = test_notification(__CLASS__, __FUNCTION__, __LINE__);
+            
             $lineNotify = new LineNotify;
-            $lineNotify->sendLineNotifyMessage(json_encode($e));
+            $lineNotify->sendLineNotifyMessage($notification_string);
         }
     }
 }

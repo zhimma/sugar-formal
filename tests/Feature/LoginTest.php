@@ -42,8 +42,10 @@ class LoginTest extends TestCase
             $response = $this->get('/login');
             $response->assertStatus(200);
         }catch(\Exception $e){
+            $notification_string = test_notification(__CLASS__, __FUNCTION__, __LINE__);
+            
             $lineNotify = new LineNotify;
-            $lineNotify->sendLineNotifyMessage(json_encode($e));
+            $lineNotify->sendLineNotifyMessage($notification_string);
         }
     }
 
@@ -54,8 +56,10 @@ class LoginTest extends TestCase
             $response = $this->postJson('/login', ['email' => $user->email, 'password'=>$user->password]);
             $this->assertAuthenticated();   
         }catch(\Exception $e){
+            $notification_string = test_notification(__CLASS__, __FUNCTION__, __LINE__);
+            
             $lineNotify = new LineNotify;
-            $lineNotify->sendLineNotifyMessage(json_encode($e));
+            $lineNotify->sendLineNotifyMessage($notification_string);
         }
     }
 
@@ -65,8 +69,10 @@ class LoginTest extends TestCase
             $response = $this->postJson('/login', ['email' => 'TESTmal@test.com', 'password'=>'123123']);
             $this->assertGuest();
         }catch(\Exception $e){
+            $notification_string = test_notification(__CLASS__, __FUNCTION__, __LINE__);
+            
             $lineNotify = new LineNotify;
-            $lineNotify->sendLineNotifyMessage(json_encode($e));
+            $lineNotify->sendLineNotifyMessage($notification_string);
         }
     }
 }

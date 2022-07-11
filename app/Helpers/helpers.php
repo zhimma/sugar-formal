@@ -26,6 +26,12 @@ if (! function_exists('search_variable')){
     }
 }
 
+if (! function_exists('test_notification')){
+    function test_notification($className, $functionName, $line){
+        return "【TEST SCHEDULER ERROR】: className:$className, functionName: $functionName, line: $line";
+    }
+}
+
 // if (! function_exists('isset_variable')){
 //     function isset_variable($variable){
 //         return isset($variable) ? $variable: "";
