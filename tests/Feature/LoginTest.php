@@ -5,7 +5,7 @@ namespace Tests\Feature;
 use Illuminate\Foundation\Testing\RefreshDatabase;
 use Illuminate\Foundation\Testing\WithFaker;
 use Tests\TestCase;
-
+use App\Services\LineNotifyService as LineNotify;
 class LoginTest extends TestCase
 {
     public function setUp():void
@@ -38,23 +38,35 @@ class LoginTest extends TestCase
 
     public function test_login_screen_can_be_rendered()
     {
-        $response = $this->get('/login');
-        $response->assertStatus(200);
+        try{
+            $response = $this->get('/login');
+            $response->assertStatus(200);
+        }catch(\Exception $e){
+            $lineNotify = new LineNotify;
+            $lineNotify->sendLineNotifyMessage(json_encode($e));
+        }
     }
 
     public function test_users_can_authenticate_using_the_login_screen()
     { 
-        $user = \App\Models\User::factory()->create();
-
-        $response = $this->postJson('/login', ['email' => $user->email, 'password'=>$user->password]);
-
-        $this->assertAuthenticated();
+        try{
+            $user = \App\Models\User::factory()->create();
+            $response = $this->postJson('/login', ['email' => $user->email, 'password'=>$user->password]);
+            $this->assertAuthenticated();   
+        }catch(\Exception $e){
+            $lineNotify = new LineNotify;
+            $lineNotify->sendLineNotifyMessage(json_encode($e));
+        }
     }
 
     public function test_users_can_not_authenticate_with_invalid_password()
     {
-        $response = $this->postJson('/login', ['email' => 'TESTmal@test.com', 'password'=>'123123']);
- 
-        $this->assertGuest();
+        try{
+            $response = $this->postJson('/login', ['email' => 'TESTmal@test.com', 'password'=>'123123']);
+            $this->assertGuest();
+        }catch(\Exception $e){
+            $lineNotify = new LineNotify;
+            $lineNotify->sendLineNotifyMessage(json_encode($e));
+        }
     }
 }
