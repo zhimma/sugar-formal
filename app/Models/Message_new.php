@@ -821,11 +821,14 @@ class Message_new extends Model
         $query->whereRaw('message.created_at < IFNULL(b2.created_at,"2999-12-31 23:59:59")');
         $query->whereRaw('message.created_at < IFNULL(b3.created_at,"2999-12-31 23:59:59")');
         $query->whereRaw('message.created_at < IFNULL(b4.created_at,"2999-12-31 23:59:59")');
-		$allSenders = $query->get();
 
         if($isCount) {
             $allSenders = $query->groupBy('to_from_pair')->get()->count();
         }
+        else {
+            $allSenders = $query->get();
+        }
+        
         return $allSenders;
     }
 
