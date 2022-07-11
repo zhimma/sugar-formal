@@ -19,12 +19,12 @@ class VideoChatController extends Controller
     {
         $signal_data = json_encode($request->signal_data);
 
-        $data = new WebrtcSignalData;
-        $data->signal_data = $signal_data;
-        $data->save();
+        $save_data = new WebrtcSignalData;
+        $save_data->signal_data = $signal_data;
+        $save_data->save();
 
         $data['userToCall'] = $request->user_to_call;
-        $data['signalData'] = $data->id;
+        $data['signalData'] = $save_data->id;
         $data['from'] = Auth::id();
         $data['type'] = 'incomingCall';
         Log::Info('callUser data');
@@ -36,11 +36,11 @@ class VideoChatController extends Controller
     {
         $signal = json_encode($request->signal);
 
-        $data = new WebrtcSignalData;
-        $data->signal_data = $signal;
-        $data->save();
+        $save_data = new WebrtcSignalData;
+        $save_data->signal_data = $signal;
+        $save_data->save();
         
-        $data['signal'] = $data->id;
+        $data['signal'] = $save_data->id;
         $data['to'] = $request->to;
         $data['type'] = 'callAccepted';
         Log::Info('acceptCall data');
