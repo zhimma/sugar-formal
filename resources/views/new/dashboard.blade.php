@@ -242,13 +242,12 @@ dt span.engroup_type_title {display:inline-block;width:10%;white-space:nowrap;}
                         @endphp
                         <span>
 {{--                            <input name="" id="" type="text" class="select_xx01" value="{{$exchange_period_name->name}}" data-parsley-errors-messages-disabled disabled style="background-color: #d2d2d2;">--}}
-                            <div class="select_xx01 senhs hy_new" tabindex="-1" id="exchange_period_readonly_block" style="background: #d2d2d2;@if($rap_service->modify_entry()) display:inline-block;width:50%;  @endif">{{$exchange_period_name->name}}</div>
+                            <div class="select_xx01 senhs hy_new" tabindex="-1" id="exchange_period_readonly_block" style="background: #d2d2d2;@if($rap_service->modify_entry()) display:inline-block;width:50%;  @endif">{{$exchange_period_name->name}}{{$exchange_period_name->name_explain}}</div>
                             @if($rap_service->isPassedByAuthTypeId(1) && $rap_service->modify_entry())
-                            <div class="select_xx01 senhs hy_new" tabindex="-1" id="new_exchange_period_readonly_block" style="background: #d2d2d2;display:inline-block;width:47%;" >{{$rap_service->modify_entry()->new_exchange_period_name->name}}</div>        
+                            <div class="select_xx01 senhs hy_new" tabindex="-1" id="new_exchange_period_readonly_block" style="background: #d2d2d2;display:inline-block;width:47%;" >{{$rap_service->modify_entry()->new_exchange_period_name->name}}{{$rap_service->modify_entry()->new_exchange_period_name->name_explain}}</div>        
                             @endif                            
                         </span>
-                        <input name="exchange_period" id="" type="hidden" class="select_xx01" value="{{$user->exchange_period}}" data-parsley-errors-messages-disabled disabled style="background-color: #d2d2d2;">                   
-                    
+                        <input name="exchange_period" id="" type="hidden" class="select_xx01" value="{{$user->exchange_period}}" data-parsley-errors-messages-disabled disabled style="background-color: #d2d2d2;">                                     
                     </dt>
                     @endif
                   <dt>
@@ -360,25 +359,27 @@ dt span.engroup_type_title {display:inline-block;width:10%;white-space:nowrap;}
                       </div>
                   </dt>
                   @endif
-                  <dt class="">
-                      <span>預算<i>(必填)</i></span>
-                      <span>
-                        <select data-parsley-errors-messages-disabled name="budget"  class="select_xx01">
-                          <option value="">請選擇</option>
-                          <option value="基礎" {{($umeta->budget == '基礎')?"selected":""  }}>基礎</option>
-                          <option value="進階"
-                                  @if($umeta->budget == '進階') selected @endif>進階
-                          </option>
-                          <option value="高級"
-                                  @if($umeta->budget == '高級') selected @endif>高級
-                          </option>
-                          <option value="最高"
-                                  @if($umeta->budget == '最高') selected @endif>最高
-                          </option>
-                          <option value="可商議" {{($umeta->budget == '可商議')?"selected":""  }}>可商議</option>
-                        </select>
-                      </span>
-                  </dt>
+                  @if($user->engroup==2)
+                        <dt class="">
+                            <span>預算<i>(必填)</i></span>
+                            <span>
+                            <select data-parsley-errors-messages-disabled name="budget"  class="select_xx01">
+                                <option value="">請選擇</option>
+                                <option value="基礎" {{($umeta->budget == '基礎')?"selected":""  }}>基礎</option>
+                                <option value="進階"
+                                        @if($umeta->budget == '進階') selected @endif>進階
+                                </option>
+                                <option value="高級"
+                                        @if($umeta->budget == '高級') selected @endif>高級
+                                </option>
+                                <option value="最高"
+                                        @if($umeta->budget == '最高') selected @endif>最高
+                                </option>
+                                <option value="可商議" {{($umeta->budget == '可商議')?"selected":""  }}>可商議</option>
+                            </select>
+                            </span>
+                        </dt>
+                  @endif
                   <dt>
                       <span>出生年月<i>(必填)</i></span>
                       <span>
@@ -786,6 +787,24 @@ dt span.engroup_type_title {display:inline-block;width:10%;white-space:nowrap;}
                         </select>
                       </span>
                   </dt>
+                    @if($user->engroup==2)
+                        <dt>
+                            <span>希望進一步發展嗎?</span>
+                            <span>
+                                <select data-parsley-errors-messages-disabled name="is_pure_dating"  class="select_xx01">
+                                    <option value="-1"
+                                            @if($umeta->is_pure_dating == "-1") selected @endif>請選擇
+                                    </option>
+                                    <option value="1"
+                                            @if($umeta->is_pure_dating == "1") selected @endif>是
+                                    </option>
+                                    <option value="0"
+                                            @if($umeta->is_pure_dating == "0") selected @endif>否
+                                    </option>
+                                </select>
+                            </span>
+                        </dt>
+                    @endif
                   <dt>
                       <span>喝酒<i>(必填)</i></span>
                       <span>
@@ -822,40 +841,60 @@ dt span.engroup_type_title {display:inline-block;width:10%;white-space:nowrap;}
                         </select>
                       </span>
                   </dt>
-                  @if($user->engroup==1)
-                  <dt>
-                      <span>年收<i>(必填)</i></span>
-                      <span>
-                        <select data-parsley-errors-messages-disabled name="income"  class="select_xx01">
-                          <option value="">請選擇</option>
-                          <option value="50萬以下"
-                                  @if($umeta->income == '50萬以下') selected @endif>
-                              50萬以下
-                          </option>
-                          <option value="50~100萬"
-                                  @if($umeta->income == '50~100萬') selected @endif>
-                              50~100萬
-                          </option>
-                          <option value="100-200萬"
-                                  @if($umeta->income == '100-200萬') selected @endif>
-                              100-200萬
-                          </option>
-                          <option value="200-300萬"
-                                  @if($umeta->income == '200-300萬') selected @endif>
-                              200-300萬
-                          </option>
-                          <option value="300萬以上"
-                                  @if($umeta->income == '300萬以上') selected @endif>
-                              300萬以上
-                          </option>
-                        </select>
-                      </span>
-                  </dt>
-                  <dt>
-                      <span>資產<i>(必填)</i></span>
-                      <span><input data-parsley-errors-messages-disabled name="assets" id="assets" value="{{$umeta->assets}}" type="number" class="select_xx01"  placeholder="請輸入數字範圍0～10000000000"></span>
-                  </dt>
-                  @endif
+                    @if($user->engroup==1)
+                        {{--
+                        <dt>
+                            <span>年收<i>(必填)</i></span>
+                            <span>
+                                <select data-parsley-errors-messages-disabled name="income"  class="select_xx01">
+                                <option value="">請選擇</option>
+                                <option value="50萬以下"
+                                        @if($umeta->income == '50萬以下') selected @endif>
+                                    50萬以下
+                                </option>
+                                <option value="50~100萬"
+                                        @if($umeta->income == '50~100萬') selected @endif>
+                                    50~100萬
+                                </option>
+                                <option value="100-200萬"
+                                        @if($umeta->income == '100-200萬') selected @endif>
+                                    100-200萬
+                                </option>
+                                <option value="200-300萬"
+                                        @if($umeta->income == '200-300萬') selected @endif>
+                                    200-300萬
+                                </option>
+                                <option value="300萬以上"
+                                        @if($umeta->income == '300萬以上') selected @endif>
+                                    300萬以上
+                                </option>
+                                </select>
+                            </span>
+                        </dt>
+                        --}}
+                        {{--
+                        <dt>
+                            <span>資產<i>(必填)</i></span>
+                            <span><input data-parsley-errors-messages-disabled name="assets" id="assets" value="{{$umeta->assets}}" type="number" class="select_xx01"  placeholder="請輸入數字範圍0～10000000000"></span>
+                        </dt>
+                        --}}
+                        <dt>
+                            <span>每月預算</span>
+                            <span style="text-align:center;">
+                                <input id="budget_per_month_min" name="budget_per_month_min" type="number" style="width:48%;" class="select_xx01 se_zlman left"  placeholder="請輸入最低金額" @if(!empty($umeta->budget_per_month_min) && $umeta->budget_per_month_min != -1) value="{{$umeta->budget_per_month_min}}" @endif data-parsley-errors-messages-disabled onchange="budget_per_month_change()">
+                                ~
+                                <input id="budget_per_month_max" name="budget_per_month_max" type="number" style="width:48%;" class="select_xx01 se_zlman right"  placeholder="請輸入最高金額" @if(!empty($umeta->budget_per_month_max) && $umeta->budget_per_month_max != -1) value="{{$umeta->budget_per_month_max}}" @endif data-parsley-errors-messages-disabled onchange="budget_per_month_change()">
+                            </span>
+                        </dt>
+                        <dt>
+                            <span>車馬費預算</span>
+                            <span style="text-align:center;">
+                                <input id="transport_fare_min" name="transport_fare_min" type="number" style="width:48%;" class="select_xx01 se_zlman left"  placeholder="請輸入最低金額" @if(!empty($umeta->transport_fare_min) && $umeta->transport_fare_min != -1) value="{{$umeta->transport_fare_min}}" @endif data-parsley-errors-messages-disabled onchange="transport_fare_change()">
+                                ~
+                                <input id="transport_fare_max" name="transport_fare_max" type="number" style="width:48%;" class="select_xx01 se_zlman right"  placeholder="請輸入最高金額" @if(!empty($umeta->transport_fare_max) && $umeta->transport_fare_max != -1) value="{{$umeta->transport_fare_max}}" @endif data-parsley-errors-messages-disabled onchange="transport_fare_change()">
+                            </span>
+                        </dt>
+                    @endif
                 </div>
                 <a class="dlbut g_inputt20 abtn" onclick="$('body').attr('onbeforeunload','');$('form[name=user_data]').submit();">
                     @if($rap_service->isInRealAuthProcess())
@@ -1360,7 +1399,7 @@ dt span.engroup_type_title {display:inline-block;width:10%;white-space:nowrap;}
         @php
             $exchange_period_read = DB::table('exchange_period_temp')->where('user_id',$user->id)->count();
         @endphp
-        @if($exchange_period_read==0 && $user->engroup==2)
+        @if($user->engroup==2 && ($exchange_period_read == 0))
             $('#isExchangePeriod').show();
             $('#announce_bg').show();
         @endif
@@ -1404,6 +1443,10 @@ dt span.engroup_type_title {display:inline-block;width:10%;white-space:nowrap;}
           let situation = $('select[name=situation]');
           let tattoo_part = $('#tattoo_part');
           let tattoo_range = $('#tattoo_range');
+          let budget_per_month_min = $('#budget_per_month_min');
+          let budget_per_month_max = $('#budget_per_month_max');
+          let transport_fare_min = $('#transport_fare_min');
+          let transport_fare_max = $('#transport_fare_max');
 
           if(title.val() === "") {
             title.focus();
@@ -1426,12 +1469,14 @@ dt span.engroup_type_title {display:inline-block;width:10%;white-space:nowrap;}
               }
           }
           
-          
-          if(budget.val() === "") {
-            budget.focus();
-            c5('請選擇預算');
-            return false;
-          }
+          @if($user->engroup==2)
+            if(budget.val() === "") {
+                budget.focus();
+                c5('請選擇預算');
+                return false;
+            }
+          @endif
+
           if($('select[name=year]').val() == "" || $('select[name=month]').val() == "" || age < 18){
             c5('您的年齡低於法定18歲，請於基本資料設定修改，否則您的資料將會被限制搜尋。');
             // swal({
@@ -1482,6 +1527,19 @@ dt span.engroup_type_title {display:inline-block;width:10%;white-space:nowrap;}
             c5('請選擇抽煙');
             return false;
           }
+          if(tattoo_part.val()=='' && tattoo_range.val()!='') {
+              tattoo_part.focus();
+              c5('請選擇刺青位置');
+              return false;
+          } 
+          
+          if(tattoo_range.val()=='' && tattoo_part.val()!='') {
+              tattoo_range.focus();
+              c5('請選擇刺青面積');
+              return false;
+          }  
+
+          /*
           if('{{$user->engroup}}' == '1'){
             console.log(income.val())
             if(income.val() === "") {
@@ -1495,20 +1553,51 @@ dt span.engroup_type_title {display:inline-block;width:10%;white-space:nowrap;}
               return false;
             }
           }
-          
-          if(tattoo_part.val()=='' && tattoo_range.val()!='') {
-              tattoo_part.focus();
-              c5('請選擇刺青位置');
-              return false;
-          } 
-          
-          if(tattoo_range.val()=='' && tattoo_part.val()!='') {
-              tattoo_range.focus();
-              c5('請選擇刺青面積');
-              return false;
-          }           
-          
-          
+          */
+
+            if(budget_per_month_min.val()!='' || budget_per_month_max.val()!='')
+            {
+                if(budget_per_month_max.val() > budget_per_month_min.val() * 2)
+                {
+                    budget_per_month_max.focus();
+                    c5('您好，每月預算上下限最大差異不得超過 100%，您的下限為' + budget_per_month_min.val() + '，則必須降低上限最多至' + budget_per_month_min.val() * 2);
+                    return false;
+                }
+                if(budget_per_month_min.val() > budget_per_month_max.val())
+                {
+                    budget_per_month_max.focus();
+                    c5('每月預算下限不可大於上限');
+                    return false;
+                }
+            }
+
+            if(transport_fare_min.val()!='' || transport_fare_max.val()!='')
+            {
+                if(transport_fare_max.val() > transport_fare_min.val() * 2)
+                {
+                    transport_fare_max.focus();
+                    c5('您好，車馬費預算上下限最大差異不得超過 100%，您的下限為' + transport_fare_min.val() + '，則必須降低上限最多至' + transport_fare_min.val() * 2);
+                    return false;
+                }
+                if(transport_fare_min.val() > transport_fare_max.val())
+                {
+                    transport_fare_max.focus();
+                    c5('車馬費預算下限不可大於上限');
+                    return false;
+                }
+            }
+
+            if(budget_per_month_min.val() == '' && budget_per_month_max.val() =='')
+            {
+                budget_per_month_min.val(-1);
+                budget_per_month_max.val(-1);
+            }
+            if(transport_fare_min.val() == '' && transport_fare_max.val() =='')
+            {
+                transport_fare_min.val(-1);
+                transport_fare_max.val(-1);
+            }
+
           var form_dump = $(this);
           c4('確定要變更會員資料嗎?');
           // swal({
@@ -1801,9 +1890,29 @@ dt span.engroup_type_title {display:inline-block;width:10%;white-space:nowrap;}
             regist_start_time = new Date();
         });
     @endif
-    //計算註冊時間end
+    //計算註冊時間
 
   </script>
+    <script>
+        budget_per_month_has_changed = false;
+        transport_fare_has_changed = false;
+        function budget_per_month_change()
+        {
+            if(!budget_per_month_has_changed)
+            {
+                c5('每月預算是非常重要的欄位，請確實填寫，如果被檢舉浮報或未給，查證屬實。將會有”預算不實”的標籤。')
+                budget_per_month_has_changed = true;
+            }
+        }
+        function transport_fare_change()
+        {
+            if(!transport_fare_has_changed)
+            {
+                c5('車馬費預算是非常重要的欄位，請確實填寫，如果被檢舉浮報或未給查證屬實。將會有”車馬費不實”的標籤。')
+                transport_fare_has_changed = true;
+            }
+        }
+    </script>
 
 <script>
 @if($rap_service->isInRealAuthProcess())
@@ -1812,16 +1921,9 @@ dt span.engroup_type_title {display:inline-block;width:10%;white-space:nowrap;}
             real_auth_popup();
     });   
 
-    //$('body').attr('onbeforeunload','break_leave_real_auth();return "";');
-    //$('body').attr('onbeforeunload',"window.history.replaceState( {} , $('title').html(), '{{route("real_auth")}}' );return '';");
-    //$('body').attr('onbeforeunload',"return '';");
+
     active_onbeforeunload_hint();
-/*
-function break_leave_real_auth() {
-    $.get( "{{route('forget_real_auth')}}?{{csrf_token()}}={{now()->timestamp}}");
-    window.history.replaceState( {} , $('title').html(), '{{route("real_auth")}}' );
-}
-*/
+
 function active_onbeforeunload_hint()
 {
     $('body').attr('onbeforeunload',"return '';");
@@ -1879,10 +1981,6 @@ function real_auth_input_new_height_handle()
           complete: function (xhr) {
             waitingDialog.hide();
             real_auth_tab_end_reload();
-            //result = xhr.responseJSON;
-            //if(!(!!result.status && !!result.redirect))
-             //   window.location.reload();
-            //waitingDialog.hide();
 
           },
           success: function (result) {
@@ -1896,15 +1994,6 @@ function real_auth_input_new_height_handle()
             }
             
             result_msg_tab.show().find('.bltext').html(rs_msg);
-            //$('body').attr('onbeforeunload','');
-            //console.log(result);
-            //ResultData(result);
-
-            //if(!!result.status && !!result.redirect) {
-           //     location.href=result.redirect;
-            //}
-            //else
-           //     window.location.reload();
             
           },
           error: function() {
@@ -1914,18 +2003,6 @@ function real_auth_input_new_height_handle()
           }
         });        
     }
-    
-
-    /*
-    $('#input_new_height').clone()
-    .attr('name','new_height')
-    .attr('type','hidden')
-    .appendTo('#height_container');
-    span_elt = $('#height_container>span').eq(0);
-    div_elt = $('#height_container>div').eq(0);
-    span_ele.after(span_elt.css({'display':'inline-block','width':'50%'}).clone().html('申請修改身高'));
-    div_elt.after(div_elt.)
-    */
 }
 
 function real_auth_input_new_weight_handle() 

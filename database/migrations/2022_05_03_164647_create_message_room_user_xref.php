@@ -13,12 +13,14 @@ class CreateMessageRoomUserXref extends Migration
      */
     public function up()
     {
-        Schema::create('message_room_user_xrefs', function (Blueprint $table) {
-            $table->id();
-            $table->integer('room_id');
-            $table->integer('user_id');
-            $table->timestamps();
-        });
+        if(!Schema::hasTable('message_room_user_xrefs')) {
+            Schema::create('message_room_user_xrefs', function (Blueprint $table) {
+                $table->id();
+                $table->integer('room_id');
+                $table->integer('user_id');
+                $table->timestamps();
+            });
+        }
     }
 
     /**

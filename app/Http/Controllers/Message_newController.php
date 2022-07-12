@@ -2,7 +2,6 @@
 
 namespace App\Http\Controllers;
 
-use App\Http\Controllers\Controller;
 use App\Models\Blocked;
 use App\Models\lineNotifyChat;
 use App\Models\lineNotifyChatSet;
@@ -17,25 +16,17 @@ use App\Models\User;
 use App\Models\UserMeta;
 use App\Models\SetAutoBan;
 use App\Models\AdminCommonText;
-use App\Models\MessageRoom;
-use App\Models\hideOnlineData;
-use App\Models\Visited;
 use App\Services\UserService;
-use App\Services\VipLogService;
 use Carbon\Carbon;
 use Illuminate\Support\Facades\Auth;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Config;
-use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\File;
 use Intervention\Image\Facades\Image;
 use App\Services\AdminService;
 use Session;
 use App\Models\InboxRefuseSet;
 use App\Models\Pr_log;
-//use Shivella\Bitly\Facade\Bitly;
-use Illuminate\Support\Facades\Log;
-use App\Models\MessageRoomUserXref;
 
 class Message_newController extends BaseController {
     public function __construct(UserService $userService) {
@@ -297,38 +288,15 @@ class Message_newController extends BaseController {
 
         if(!is_null($request->file('images')) && count($request->file('images'))){
             //上傳訊息照片
-            $rows = array(
-                $user->id,
-                $payload['to']
-            );
-
-            $checkData = MessageRoomUserXref::whereIn('user_id',$rows)->groupBy('room_id')->havingRaw('count(user_id) = ?', [2]);
-
-            if($checkData->count()==0){
-                $messageRoom = new MessageRoom;
-                $messageRoom->save();
-                $room_id = $messageRoom->id;
-            
-
-                foreach($rows as $row){
-                    $messageRoomUserXref = new MessageRoomUserXref;
-                    $messageRoomUserXref->user_id = $row;
-                    $messageRoomUserXref->room_id = $room_id;
-                    $messageRoomUserXref->save();
-                }
-            }else{
-                $room_id = $checkData->first()['room_id'];
-            }
-
             $messageInfo = Message::create([
-                'room_id'=>$room_id,
-                'from_id'=>$user->id,
-                'to_id'=>$payload['to'],
-                'client_id'=>$payload['client_id'],
-                'parent_msg'=>($payload['parent']??null),
-                'parent_client_id'=>($payload['parent_client']??null),
-                'views_count_quota'=>($payload['views_count_quota']??0),
-                'show_time_limit'=>($payload['show_time_limit']??0),
+                'room_id' => Message::checkMessageRoomBetween($user->id, $payload['to']),
+                'from_id' => $user->id,
+                'to_id' => $payload['to'],
+                'client_id' => $payload['client_id'],
+                'parent_msg' => ($payload['parent']??null),
+                'parent_client_id' => ($payload['parent_client']??null),
+                'views_count_quota' => ($payload['views_count_quota']??0),
+                'show_time_limit' => ($payload['show_time_limit']??0),
             ]);
 
             $messagePosted = $this->message_pic_save($messageInfo->id, $request->file('images'));
@@ -547,11 +515,13 @@ class Message_newController extends BaseController {
             $url = url('/dashboard/chat2');
             $message = '與您通訊的 '.$user->name.' 已經被站方警示。對話記錄將移到警示會員信件夾，請您再去檢查，如果您們已經交換聯絡方式，請多加注意。 '.$url;
         }
+        //該帳號是否被user加入封鎖名單
+        $is_blocked_user=Blocked::where('member_id',$to_user->id)->where('blocked_id',$user->id)->get()->count();
 
         if($to_user->line_notify_token != null && $line_notify_send_blockOrWarned){
             User::sendLineNotify($to_user->line_notify_token, $message);
         }
-        else if($to_user->line_notify_token != null && $line_notify_send){
+        else if($to_user->line_notify_token != null && $line_notify_send && $is_blocked_user==0 && !$isBanned){
 
             $url = url('/dashboard/chat2/chatShow/'.$user->id);
             //$url = app('bitly')->getUrl($url); //新套件用，如無法使用則先隱藏相關class
@@ -636,9 +606,7 @@ class Message_newController extends BaseController {
          *  }
          */
         $data = Message_new::allSendersAJAX($user_id, $request->isVip,$request->date);
-        // $data = MessageRoom::getRooms($user_id, $request->isVip,$request->date);
-        // dd($data);
-        if($data != ['No data'])
+        if(is_array($data) && $data != ['No data'])
         {
             //過濾篩選條件
             $inbox_refuse_set = InboxRefuseSet::where('user_id', $user->id)->first();

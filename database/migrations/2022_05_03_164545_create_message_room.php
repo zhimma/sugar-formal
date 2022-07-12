@@ -13,10 +13,13 @@ class CreateMessageRoom extends Migration
      */
     public function up()
     {
-        Schema::create('message_rooms', function (Blueprint $table) {
-            $table->id();
-            $table->timestamps();
-        });
+        if(!Schema::hasTable('message_rooms'))
+        {
+            Schema::create('message_rooms', function (Blueprint $table) {
+                $table->id();
+                $table->timestamps();
+            });
+        }        
     }
 
     /**

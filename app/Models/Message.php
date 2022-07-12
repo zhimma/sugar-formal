@@ -206,6 +206,7 @@ class Message extends Model
             $message->reportContentPic = json_encode($images_ary);
         }
         $message->save();
+        event(new \App\Events\CheckWarnedOfReport($message->from_id));
     }
 
     public static function isAdminMessage($content) {
@@ -647,13 +648,13 @@ class Message extends Model
                                 ;   
                         }) 
                         ->where(function($q){
-                            $q->where('show_time_limit','>',0)
-                                ->whereRaw('ADDTIME(created_at,show_time_limit) > now()')
-                                ->orWhere('show_time_limit',0)
-                                ->orWhereNull('show_time_limit')
-                                ;                             
-                        })
-                        ;
+                            $q->where(function($q2) {
+                                $q2->where('show_time_limit','>',0)
+                                    ->whereRaw('ADDTIME(created_at,show_time_limit) > DATE_ADD(now(), INTERVAL 8 HOUR)');
+                                    // ADD 8 HOUR 暫時寫死，未來可能需要使用浮動時間
+                            })->orWhere('show_time_limit',0)
+                              ->orWhereNull('show_time_limit');
+                        });
             
             if($includeUnsend) { 
                 $query->withTrashed()->where(function ($q) {
@@ -750,17 +751,12 @@ class Message extends Model
         //增加篩選過濾條件
         $inbox_refuse_set = InboxRefuseSet::where('user_id', $uid)->first();
 
-        $query = Message::
-                        // leftJoin('users as u1', 'u1.id', '=', 'message.from_id')
-                        // ->leftJoin('users as u2', 'u2.id', '=', 'message.to_id')
-                        leftJoin('message_room_user_xrefs','message_room_user_xrefs.room_id','=','message.room_id')
-                        ->leftJoin('users','users.id','=','message_room_user_xrefs.user_id')
-                        ->leftJoin('banned_users','banned_users.member_id','=','message_room_user_xrefs.user_id')
-                        // ->leftJoin('banned_users as b1', 'b1.member_id', '=', 'message.from_id')
-                        // ->leftJoin('banned_users as b2', 'b2.member_id', '=', 'message.to_id')
-                        // ->leftJoin('banned_users_implicitly as b3', 'b3.target', '=', 'message.from_id')
-                        // ->leftJoin('banned_users_implicitly as b4', 'b4.target', '=', 'message.to_id')
-                        ->leftJoin('banned_users_implicitly','banned_users_implicitly.target','=','message_room_user_xrefs.user_id')
+        $query = Message::leftJoin('users as u1', 'u1.id', '=', 'message.from_id')
+                        ->leftJoin('users as u2', 'u2.id', '=', 'message.to_id')
+                        ->leftJoin('banned_users as b1', 'b1.member_id', '=', 'message.from_id')
+                        ->leftJoin('banned_users as b2', 'b2.member_id', '=', 'message.to_id')
+                        ->leftJoin('banned_users_implicitly as b3', 'b3.target', '=', 'message.from_id')
+                        ->leftJoin('banned_users_implicitly as b4', 'b4.target', '=', 'message.to_id')
                         ->leftJoin('blocked as b5', function($join) use($uid) {
                             $join->on('b5.blocked_id', '=', 'message.from_id')
                                 ->where('b5.member_id', $uid); })
@@ -788,21 +784,13 @@ class Message extends Model
             }
         }
         
-        $all_msg = $query
-        ->whereNotNull('users.id')
-                // ->whereNotNull('u1.id')
-                // ->whereNotNull('u2.id')
-                // ->whereNull('blocked.blocked_id')
-                ->whereNull('b5.blocked_id')
-                ->whereNull('b6.blocked_id')
-                ->whereNull('b7.member_id')
-                        // ->whereNotNull('u1.id')
-                        // ->whereNotNull('u2.id')
-                        // ->whereNull('b1.member_id')
-                        // ->whereNull('b3.target')
-                        // ->whereNull('b5.blocked_id')
-                        // ->whereNull('b6.blocked_id')
-                        // ->whereNull('b7.member_id')
+        $all_msg = $query->whereNotNull('u1.id')
+                        ->whereNotNull('u2.id')
+                        ->whereNull('b1.member_id')
+                        ->whereNull('b3.target')
+                        ->whereNull('b5.blocked_id')
+                        ->whereNull('b6.blocked_id')
+                        ->whereNull('b7.member_id')
                         ->where(function($query)use($uid){
                             $query->where([
                                 ['message.to_id', $uid],
@@ -813,14 +801,11 @@ class Message extends Model
                         ->where([['message.is_row_delete_1','<>',$uid],['message.is_single_delete_1', '<>' ,$uid], ['message.all_delete_count', '<>' ,$uid],['message.is_row_delete_2', '<>' ,$uid],['message.is_single_delete_2', '<>' ,$uid],['message.temp_id', '=', 0]])
                         ->where('message.read', 'N')
                         ->where([['message.created_at','>=',self::$date]])
-                        // ->whereRaw('message.created_at < IFNULL(b1.created_at,"2999-12-31 23:59:59")')
-                        // ->whereRaw('message.created_at < IFNULL(b2.created_at,"2999-12-31 23:59:59")')
-                        // ->whereRaw('message.created_at < IFNULL(b3.created_at,"2999-12-31 23:59:59")')
-                        // ->whereRaw('message.created_at < IFNULL(b4.created_at,"2999-12-31 23:59:59")');
-                        ->whereRaw('message.created_at < IFNULL(banned_users.created_at,"2999-12-31 23:59:59")')
-                        ->whereRaw('message.created_at < IFNULL(banned_users_implicitly.created_at,"2999-12-31 23:59:59")')
-                        ->groupBy('message.client_id');
-                        // dd($all_msg);
+                        ->whereRaw('message.created_at < IFNULL(b1.created_at,"2999-12-31 23:59:59")')
+                        ->whereRaw('message.created_at < IFNULL(b2.created_at,"2999-12-31 23:59:59")')
+                        ->whereRaw('message.created_at < IFNULL(b3.created_at,"2999-12-31 23:59:59")')
+                        ->whereRaw('message.created_at < IFNULL(b4.created_at,"2999-12-31 23:59:59")');
+
         //增加篩選過濾條件
         if($inbox_refuse_set)
         {
@@ -848,12 +833,12 @@ class Message extends Model
             }
         }
 
-        // if($user->id != 1049){
-        //     $all_msg = $all_msg->where(function($query){
-        //         $query->where(DB::raw('(u1.engroup + u2.engroup)'), '<>', '2');
-        //         $query->orWhere(DB::raw('(u1.engroup + u2.engroup)'), '<>', '4');
-        //     });
-        // }
+        if($user->id != 1049){
+            $all_msg = $all_msg->where(function($query){
+                $query->where(DB::raw('(u1.engroup + u2.engroup)'), '<>', '2');
+                $query->orWhere(DB::raw('(u1.engroup + u2.engroup)'), '<>', '4');
+            });
+        }
 
 		$all_msg = $all_msg->get();
 
@@ -880,7 +865,7 @@ class Message extends Model
             }
         }
 
-        $unreadCount =$all_msg->count();
+        $unreadCount = $all_msg->count();
 
         return $unreadCount;
     }
@@ -1011,10 +996,11 @@ class Message extends Model
     }
 
     public static function post($from_id, $to_id, $msg, $tip_action = true, $sys_notice = 0,$parent_msg=null)
-    {
+    {   
         $message = new Message;
         $message->from_id = $from_id;
         $message->to_id = $to_id;
+        $message->room_id = self::checkMessageRoomBetween($from_id, $to_id);
         $message->content = $msg;
         $message->parent_msg = $parent_msg;
         $message->all_delete_count = 0;
@@ -1044,48 +1030,12 @@ class Message extends Model
     {
         
 
-        $tip_action = array_key_exists('tip_action',$arr)?$arr['tip_action']:true;
-        $sys_notice = array_key_exists('sys_notice',$arr)?$arr['sys_notice']:0;
+        $tip_action = array_key_exists('tip_action',$arr) ? $arr['tip_action'] : true;
+        $sys_notice = array_key_exists('sys_notice',$arr) ? $arr['sys_notice'] : 0;
         $message = new Message;
-        $message->from_id = $arr['from_id']??null;
-        $message->to_id = $arr['to']??null;
-        
-
-        $rows = array(
-            $message->from_id,
-            $message->to_id
-        );
-
-        $checkData = MessageRoomUserXref::whereIn('user_id',$rows)->groupBy('room_id')->havingRaw('count(user_id) = ?', [2]);
-        // $checkData = $checkData->get();
-
-        if($checkData->count()==0){
-            $messageRoom = new MessageRoom;
-            $messageRoom->save();
-            $room_id = $messageRoom->id;
-          
-
-            foreach($rows as $row){
-                $messageRoomUserXref = new MessageRoomUserXref;
-                $messageRoomUserXref->user_id = $row;
-                $messageRoomUserXref->room_id = $room_id;
-                $messageRoomUserXref->save();
-            }
-            // dd('1');
-        }else{
-            $room_id = $checkData->first()['room_id'];
-            // dd($room_id);
-        }
-
-        // $rows = array(
-        //     $message->from_id,
-        //     $message->to_id
-        // );
-        // $checkData = MessageRoomUserXref::whereIn('user_id',$rows)->groupBy('room_id')->havingRaw('count(user_id) = ?', [2])->first();
-        // sort($sort);
-        // $message->room_id = implode("_",$sort);
-        // dd($checkData);
-        $message->room_id = $room_id;
+        $message->from_id = $arr['from_id'] ?? null;
+        $message->to_id = $arr['to'] ?? null;
+        $message->room_id = self::checkMessageRoomBetween($message->from_id, $message->to_id);
         $message->content = array_key_exists('msg',$arr)?$arr['msg']:'';
         $message->parent_msg = array_key_exists('parent',$arr)?$arr['parent']:'';
         $message->client_id = array_key_exists('client_id',$arr)?$arr['client_id']:'';
@@ -1095,7 +1045,7 @@ class Message extends Model
         $message->is_row_delete_1 = 0;
         $message->is_row_delete_2 = 0;
         if($tip_action == false) {
-            $message->is_single_delete_1 = $to_id;
+            $message->is_single_delete_1 = $message->to_id;
         }
         else{
             $message->is_single_delete_1 = 0;
@@ -1225,4 +1175,27 @@ class Message extends Model
         return Carbon::now()->subDays(180);
     }    
     
+    public static function checkMessageRoomBetween($from_id, $to_id)
+    {
+        $ids = [$from_id, $to_id];
+        $checkData = MessageRoomUserXref::whereIn('user_id', $ids)->groupBy('room_id')->havingRaw('count(user_id) = ?', [2]);
+
+        if($checkData->count()==0){
+            $messageRoom = new MessageRoom;
+            $messageRoom->save();
+            $room_id = $messageRoom->id;   
+
+            foreach($ids as $row){
+                $messageRoomUserXref = new MessageRoomUserXref;
+                $messageRoomUserXref->user_id = $row;
+                $messageRoomUserXref->room_id = $room_id;
+                $messageRoomUserXref->save();
+            }
+        }
+        else{
+            $room_id = $checkData->first()->room_id;
+        }
+
+        return $room_id ?? null;
+    }
 }

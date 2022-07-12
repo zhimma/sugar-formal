@@ -203,8 +203,8 @@ class CheckECpay implements ShouldQueue
                         $message->subject('綠界扣款失敗通知');
                     });
                 }
-                // 非 VIP，檢查最後一次付款是否成功且在週期內
-                else if (!$this->userIsVip && $last['RtnCode'] == 1 && $lastProcessDate->diffInDays($now) < $days) {
+                // 非 VIP，檢查最後一次付款是否成功且定期定額狀態正常
+                else if (!$this->userIsVip && $last['RtnCode'] == 1 && $paymentData['ExecStatus'] == 1) {
                     Log::info('VIP 回復');
                     Log::info($paymentData);
 
