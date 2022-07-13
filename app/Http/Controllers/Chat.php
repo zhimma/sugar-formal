@@ -4,7 +4,8 @@ namespace App\Http\Controllers;
 
 use Illuminate\Http\Request;
 use App\Services\UserService;
-
+use App\Models\MessageRoom;
+use App\Models\MessageRoomUserXref;
 class Chat extends BaseController
 {
     /**
@@ -57,6 +58,7 @@ class Chat extends BaseController
                 $m->parent_client_id = $m->parent_message->client_id??null; 
             }
         }
+
         if(!isset($m['error'])){
             \App\Events\NewMessage::dispatch($m->id, $m->content, $m->from_id, $m->to_id);
         }

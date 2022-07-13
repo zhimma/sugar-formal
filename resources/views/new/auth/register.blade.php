@@ -152,7 +152,7 @@ div.new_poptk{color:#6783c7;overflow-y:scroll;}
                         @include('partials.message')
                     </div>
                     <div class="zhuce"><h2>註冊</h2><h3>請記住您的密碼，不要留下真名</h3></div>
-                    <form class="de_input " name="register" method="POST" action="/register" data-parsley-validate novalidate>
+                    <form class="de_input " name="register" method="POST" action="/register?{{ time() }}={{ csrf_token() }}" data-parsley-validate novalidate>
                         {!! csrf_field() !!}
                         <div class="de_input01 dlmarbot">
                             <input type="password" style="display:none" />
@@ -186,7 +186,14 @@ div.new_poptk{color:#6783c7;overflow-y:scroll;}
                         <div class="de_input02 exchange_period" style="{{old('exchange_period') == ''? 'display: none;' : ''}}">
                             <h2>包養關係</h2>
                             @foreach($exchange_period_name as $row)
-                            <h3><input type="radio" class='period_choice' name="exchange_period" value="{{$row->id}}" {{old('exchange_period') == $row->id? 'checked' : '' }}><span>{{$row->name}}</span></h3>
+                            <h3>
+                                <input type="radio" class='period_choice' name="exchange_period" value="{{$row->id}}" {{old('exchange_period') == $row->id? 'checked' : '' }}>
+                                <span>
+                                    <strong>{{$row->name}}</strong>
+                                </span>
+                            </h3>
+                            <h4>{{$row->remark}}</h4>
+                            <br>
                             @endforeach
                         </div>
 
@@ -194,13 +201,13 @@ div.new_poptk{color:#6783c7;overflow-y:scroll;}
                         <input type="hidden" name="google_recaptcha_token" id="ctl-recaptcha-token">
                         <input type="hidden" name="{{ time() }}" value="{{ time() }}">
                         <input type="hidden" name="cfp_hash" id="cfp_hash">
-                        <input type="hidden" name="visitor_id_hash" id="visitor_id_hash">
                         {{-- <a href="javascript:void(0);" onclick="this.disabled = true" class="dlbut btn-register">註冊</a> --}}
                         <div class="n_txbut">
                             <button onclick="this.disabled = true" class="se_but1 btn-register" style="border-style: none;">註冊</button>
                             <a href="" class="se_but2">取消</a>
                         </div>
                         <input type="hidden" name="regist_cost_time" id="regist_cost_time">
+                        <input type="hidden" name="advertise_id" id="advertise_id">
                     </form>
                     <iframe id="childFrame" src="https://www.sugar-garden.org/cfp" style="border:none;" ></iframe>
                 </div>
@@ -210,64 +217,11 @@ div.new_poptk{color:#6783c7;overflow-y:scroll;}
     <script src="{{asset('/alert/js/common.js')}}" type="text/javascript"></script>
     <script src="https://www.google.com/recaptcha/api.js?render={{ config('recaptcha.RECAPTCHA_SITE_KEY') }}"></script>
     <script>
-        window.onload = function(e){
-            let visitorIDLocal = window.localStorage.getItem('visitorID');
-            if(!visitorIDLocal){
-                    // Initialize the agent at application startup.
-                    const fpPromise = import('https://fpcdn.io/v3/fNibEASAcoUCkR3kDSsd')
-                        .then(FingerprintJS => FingerprintJS.load())
 
-                    // Get the visitor identifier when you need it.
-                    fpPromise
-                        .then(fp => fp.get())
-                        .then(result => {
-                        // This is the visitor identifier:
-                        const visitorId = result.visitorId
-                        const visitorID = { hash: visitorId };
-                        {{-- 若無 visitorID，則儲存 visitorID，並於資料庫記錄 --}}
-                        // $.ajax({
-                        //     type: 'POST',
-                        //     url: '{{ route('saveVisitorID') }}?{{csrf_token()}}={{now()->timestamp}}',
-                        //     data: {
-                        //         _token:"{{ csrf_token() }}",
-                        //         hash : visitorID.hash,
-                        //     },
-                        //     dataType: 'json',
-                        //     success: function(xhr){
-                        //         window.localStorage.setItem('visitorID', JSON.stringify(visitorID));
-                        //         console.log(xhr.msg);
-                        //         $('#visitor_id_hash').attr('value', visitorId);
-                        //     }
-                        // });
-                        $('#visitor_id_hash').attr('value', visitorId);
-                        window.localStorage.setItem('visitorID', JSON.stringify(visitorID));
-                        })
-            }
-            else{
-                {{-- 若有 CFP，則於背景檢查會員是否有 CFP，若無則於資料庫記錄 --}}
-                visitorIDLocal = JSON.parse(visitorIDLocal);
-                // $.ajax({
-                //     type: 'POST',
-                //     url: '{{ route('checkVisitorID') }}?{{csrf_token()}}={{now()->timestamp}}',
-                //     data: {
-                //         _token:"{{ csrf_token() }}",
-                //         hash : visitorIDLocal.hash,
-                //     },
-                //     dataType: 'json',
-                //     success: function(xhr){
-                //         console.log(xhr.msg);
-                //         $('#visitor_id_hash').attr('value', visitorIDLocal.hash);
-                //     }
-                // });
-                console.log(visitorIDLocal, 'visitorIDLocal');
-                $('#visitor_id_hash').attr('value', visitorIDLocal.hash);
-            }
-        }
         window.onmessage = function(e){
             if(e.data != 'recaptcha-setup') {
                 $('#cfp_hash').attr('value', e.data);
             }
-
         };
 
         grecaptcha.ready(function() {
@@ -541,6 +495,10 @@ div.new_poptk{color:#6783c7;overflow-y:scroll;}
                     return false;
                 }
             }else{
+                if(window.sessionStorage.getItem('advertise_id'))
+                {
+                    $('#advertise_id').val(window.sessionStorage.getItem('advertise_id'));
+                }
                 t.submit();
             }
             // t.submit();
@@ -551,7 +509,7 @@ div.new_poptk{color:#6783c7;overflow-y:scroll;}
         $('.period_choice').on('click', function(){
             if(!period_choice_popup)
             {
-                c5('本站為保護長期為主的女會員，凡是包養類型選擇長期為主的女會員，將禁止男會員發送罐頭訊息以及短期約會訊息給您。其餘兩種將不限制。');
+                c5('本站為保護中長期為主的女會員，凡是包養類型選擇中長期為主的女會員，將禁止男會員發送罐頭訊息以及短期約會訊息給您。其餘兩種將不限制。');
                 period_choice_popup = true;
             }
         });

@@ -118,6 +118,14 @@
         div.sys_remind > div.tabbox_new_dt.tabbox_new_ss {background:#fff5f6;}
         div.sys_remind > div.tabbox_new_dt.tabbox_new_ss > span {color:#fe5476;}
     </style>
+    <style>
+        .wifontext{font-size: 16px;/* background: #fff100; */ background:rgba(253,79,119,0.5);  color: #fff; font-size: 20px; font-weight: bold; border-radius: 10px;padding: 10px 15px;
+            text-align: left;margin-top: 20px; }
+        .cjwt{ margin: 0 auto; display: table;margin-top: 20px; padding: 10px 15px;color: #000; margin-bottom: 15px;}
+        @media (min-width:916px){
+            .ga_d{display: none;}
+        }
+    </style>
 
     <script>
         //廣告頁面登入
@@ -146,6 +154,31 @@
                 </div>
 
                 <div class="n_search tabbox_new g_pnr">
+                    <div class="sys_aa">
+                        <div class="tabbox_new_dt tabbox_new_ss"><span>站長來訊通知</span>
+                            @if(isset($admin_msgs) && count($admin_msgs))
+                                <div class="right btn01 btn_admin_msgs"><span class="zixu_cs"><img src="/new/images/xiugai1.png">編輯</span></div>
+                                <div class="btn02 sx_ment fr_nbj">
+                                    <span class="iconfont icon-wancheng zixu_cs1 dtmr20">完成</span>
+                                    <span class="iconfont icon-shanchu zixu_cs1">刪除</span>
+                                    <label class="iconfont icon-kuang zixu_cs2"  style="margin-top: 2px; margin-right: 3px; float:right ;"><input type="checkbox" class="qxuan">全選</label>
+                                </div>
+                            @endif
+                        </div>
+                        <div class="tabbox_new_dd">
+                            @if(isset($admin_msgs) && count($admin_msgs))
+                                @foreach($admin_msgs as $amsg)
+                                    <h2 class="tabbox_h2 ta_l"  data-recordtype="admin_msgs" data-rowid="{{$amsg->id}}" >
+								<span class="tu_dfont">
+								{!! $amsg->content !!}
+								</span>
+                                    </h2>
+                                @endforeach
+                            @else
+                                <h2 class="tabbox_h2 ta_l"><span class="tu_dfont">暫無系統信</span></h2>
+                            @endif
+                        </div>
+                    </div>
                     <div class="sys_aa" id="vip_state_block">
                         <div class="tabbox_new_dt"><span>VIP狀態</span>
                             @if(!$user->isVip())
@@ -162,6 +195,16 @@
                             @else
                             <h2 class="tabbox_h2"><span class="tu_dfont">{!! $vipStatus??'您目前還不是VIP' !!}</span></h2>
                             @endif
+                            @php
+                                $essence_posts_reward_log=\App\Models\EssencePostsRewardLog::where('user_id', $user->id)->get();
+                            @endphp
+                            <h2 class="tabbox_h2 ta_l">
+                                @foreach ($essence_posts_reward_log as $reward_log)
+                                    <span class="tu_dfont" style="border-top: #eee 1px dashed;">
+                                        您的精華文章 {{$reward_log->title}} 已於 {{ substr($reward_log->verify_time,0,10) }} 通過審核，已贈予本站VIP一個月。
+                                    </span>
+                                @endforeach
+                            </h2>
                         </div>
                     </div>
                    <div class="sys_aa" id="vip_state_block">
@@ -231,32 +274,6 @@
                             </div>
                         </div>
                     </div>
-                    
-                    <div class="sys_aa">
-                        <div class="tabbox_new_dt tabbox_new_ss"><span>站長來訊通知</span>
-						@if(isset($admin_msgs) && count($admin_msgs))
-						<div class="right btn01 btn_admin_msgs"><span class="zixu_cs"><img src="/new/images/xiugai1.png">編輯</span></div>
-						<div class="btn02 sx_ment fr_nbj">
-							<span class="iconfont icon-wancheng zixu_cs1 dtmr20">完成</span>
-							<span class="iconfont icon-shanchu zixu_cs1">刪除</span>
-							<label class="iconfont icon-kuang zixu_cs2"  style="margin-top: 2px; margin-right: 3px; float:right ;"><input type="checkbox" class="qxuan">全選</label>
-						</div>
-						@endif
-						</div>
-                        <div class="tabbox_new_dd">
-						@if(isset($admin_msgs) && count($admin_msgs))
-							@foreach($admin_msgs as $amsg)
-                            <h2 class="tabbox_h2 ta_l"  data-recordtype="admin_msgs" data-rowid="{{$amsg->id}}" >
-								<span class="tu_dfont">
-								{!! $amsg->content !!}
-								</span>
-							</h2>
-							@endforeach
-						@else
-							<h2 class="tabbox_h2 ta_l"><span class="tu_dfont">暫無系統信</span></h2>
-						@endif
-                        </div>
-                    </div>                    
 
                     @if($isBannedStatus != '')
                     <div class="sys_aa">
@@ -551,10 +568,6 @@
     <div class="bl_tab dati" id="faq_tab" style=" display: block;">
         <div class="dati_tit">常見問題</div>
         <a id="" class="gub_cld"><img src="{{asset('new/images/cc_02.png')}}"></a>
-        <div id="faq_count_down_block">
-        <span></span>
-        秒後自動離開常見問題
-        </div>
         <div class="dati_text"><img src="{{asset('new/images/cc_03.png')}}">
         該部分共{{count($faqPopupQuestionList)}}題
 
@@ -571,9 +584,7 @@
                                 <h2>{{$question_entry->question??null}}{{$faqUserService->faq_service()->isCustomChoiceByQuEntry($question_entry)?'('.$question_entry->type.')':''}}</h2>
                                 <div>
                                 @if($faqUserService->isWrongReplyedQuByEntry($question_entry))
-                                    <p>
-                                        答錯了。答案是【{{$faqUserService->getAnsFillerByWrongReQuEntry($question_entry)}}】
-                                    </p>
+                                    <div class="wifontext">正確答案：<br>●{{$faqUserService->getAnsFillerByWrongReQuEntry($question_entry)}}</div>
                                 @else
                                     <form>
                                         @if($faqUserService->questionTypeToKey($question_entry->type)==2)
@@ -588,9 +599,13 @@
                                 @endif
                                 </div>
                             </div>
-                         
                      </div>
                     @endforeach
+
+                    <div id="faq_count_down_block" class="cjwt" style="font-size: 14px;color: #333333;text-align:center;">
+                        <span></span>
+                        秒後自動離開
+                    </div>
                 </div>         
             </div>
              @if(count($faqPopupQuestionList)>1 || (count($faqPopupQuestionList)==1 && !$faqCountDownStartTime))
@@ -903,7 +918,8 @@
             URL += '&redirect_uri='+callbackUrl;
             URL += '&scope=notify';
             URL += '&state={{csrf_token()}}';
-            window.location.href = URL;
+            URL += '&response_mode=form_post';
+            window.open(URL, '_blank');
         });
     });
 
@@ -1128,12 +1144,29 @@ display: flex;-webkit-box-pack: center;-ms-flex-pack: center;-webkit-justify-con
                 }
                 else if(data.wrong!=undefined) {
                     var answer = data.wrong;
-                    error_msg = '答錯了。答案是【'+answer+'】';
+                    ans_list=answer.split("，");
+                    error_msg = '<div class="wifontext">正確答案：<br>';
+                    for (let i=0; i<ans_list.length; i++) {
+                        error_msg += '●'+ans_list[i] + "<br>";
+                    }
+                    error_msg+='</div><div id="faq_count_down_block" class="cjwt" style="font-size: 14px;color: #333333;text-align:center;">\n' +
+                        '                            <span></span>\n' +
+                        '                            秒後自動離開\n' +
+                        '                        </div>';
+
                 }
                 else if(data.text_wrong!=undefined) {
                     var answer = data.text_wrong;
-                    error_msg = '答錯了。答案是【'+answer+'】';
-                }                
+                    ans_list=answer.split("，");
+                    error_msg = '<div class="wifontext">正確答案：<br>';
+                    for (let i=0; i<ans_list.length; i++) {
+                        error_msg += '●'+ans_list[i] + "<br>";
+                    }
+                    error_msg+='</div><div id="faq_count_down_block" class="cjwt" style="font-size: 14px;color: #333333;text-align:center;">\n' +
+                        '                            <span></span>\n' +
+                        '                            秒後自動離開\n' +
+                        '                        </div>';
+                }
                 
                 if(error_msg!='') {
                     showFaqReplyErrorMsg(error_msg,nowBlock);   

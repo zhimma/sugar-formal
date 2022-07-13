@@ -79,6 +79,7 @@ Route::get('/vue_test', 'PagesController@vue_test');
 Route::get('/getAllData', 'PagesController@getAllData');
 Route::get('/getCollectionData', 'PagesController@getCollectionData');
 Route::post('/getSearchData', 'PagesController@getSearchData');
+Route::post('/getSingleSearchData', 'PagesController@getSingleSearchData');
 
 Route::post('/getHideData', 'PagesController@getHideData');
 Route::post('/getFavCount', 'PagesController@getFavCount');
@@ -169,14 +170,11 @@ Route::group(['middleware' => ['auth', 'global','SessionExpired']], function () 
     Route::post('/multiple-login', 'PagesController@multipleLogin')->name('multipleLogin');
     Route::post('/save-cfp', 'PagesController@savecfp')->name('savecfp');
     Route::post('/check-cfp', 'PagesController@checkcfp')->name('checkcfp');
-
-    Route::post('/save-visitor-id', 'PagesController@saveVisitorID')->name('saveVisitorID');
-    Route::post('/check-visitor-id', 'PagesController@checkVisitorID')->name('checkVisitorID');
 });
 Route::post('/dashboard/faq_reply', 'PagesController@checkFaqAnswer')->middleware('auth')->name('checkFaqAnswer');
 Route::get('/advance_auth_activate/token/{token}', 'PagesController@advance_auth_email_activate')->name('advance_auth_email_activate');
 
-Route::group(['middleware' => ['auth', 'global', 'active', 'femaleActive', 'vipCheck', 'newerManual','CheckAccountStatus','SessionExpired','FaqCheck']], function () {
+Route::group(['middleware' => ['auth', 'global', 'active', 'femaleActive', 'vipCheck', 'newerManual', 'CheckAccountStatus', 'AdjustedPeriodCheck', 'SessionExpired','FaqCheck']], function () {
 
     Route::get('/dashboard/browse', 'PagesController@browse');
     /*
@@ -296,6 +294,20 @@ Route::group(['middleware' => ['auth', 'global', 'active', 'femaleActive', 'vipC
         Route::post('/dashboard/posts_delete', 'PagesController@posts_delete');/*討論區留言刪除*/
         Route::post('/dashboard/posts_recover', 'PagesController@posts_recover');/*討論區留言恢復*/
         Route::post('/dashboard/post_views', 'PagesController@post_views');
+
+
+        //精華討論區
+        Route::get('/dashboard/essence_enter_intro', 'PagesController@essence_enter_intro');
+        Route::get('/dashboard/essence_list', 'PagesController@essence_list');
+        Route::get('/dashboard/essence_posts', 'PagesController@essence_posts');
+        Route::post('/dashboard/essence_doPosts', 'PagesController@essence_doPosts');
+        Route::get('/dashboard/essence_post_detail/{pid}', 'PagesController@essence_post_detail');
+        Route::get('/dashboard/essence_postsEdit/{id}/{editType}', 'PagesController@essence_postsEdit');/*投稿修改功能*/
+        Route::post('/dashboard/essence_posts_delete', 'PagesController@essence_posts_delete');/*討論區留言刪除*/
+        Route::post('/dashboard/essence_posts_recover', 'PagesController@essence_posts_recover');/*討論區留言恢復*/
+        Route::post('/dashboard/essence_verify_status', 'PagesController@essence_verify_status');/*討論區留言審核*/
+
+
     });
 
     //留言板
@@ -349,8 +361,10 @@ Route::group(['middleware' => ['auth', 'global', 'active', 'femaleActive', 'vipC
     Route::post('/dashboard/consignAdd', 'PagesController@consignAdd'); //new route
     Route::get('/dashboard/account_consign_cancel', 'PagesController@view_consign_cancel'); //new route
     Route::post('/dashboard/consignCancel', 'PagesController@consignCancel'); //new route
-    Route::get('/dashboard/account_exchange_period', 'PagesController@view_exchange_period'); //new route exchange_period_modify
+    Route::get('/dashboard/account_exchange_period', 'PagesController@view_exchange_period')->withoutMiddleware(['AdjustedPeriodCheck']); //new route exchange_period_modify
     Route::post('/dashboard/exchangePeriodModify', 'PagesController@exchangePeriodModify'); //new route
+    Route::post('/dashboard/first_exchange_period_modify', 'PagesController@first_exchange_period_modify')->withoutMiddleware(['AdjustedPeriodCheck']);
+    Route::get('/dashboard/first_exchange_period_modify_next_time', 'PagesController@first_exchange_period_modify_next_time')->withoutMiddleware(['AdjustedPeriodCheck']);
     Route::get('/dashboard/account_hide_online', 'PagesController@view_account_hide_online'); //new route
 
     Route::get('/dashboard/vip', 'PagesController@view_new_vip'); //new route
@@ -517,7 +531,7 @@ Route::group(['middleware' => ['auth', 'global', 'active', 'femaleActive', 'vipC
         | LINE
         |--------------------------------------------------------------------------
         */
-        Route::get('/dashboard/line/callback', 'LineNotify@lineNotifyCallback')->name('lineNotifyCallback');
+        Route::post('/dashboard/line/callback', 'LineNotify@lineNotifyCallback')->name('lineNotifyCallback');
         Route::get('/dashboard/line/notifyCancel', 'LineNotify@lineNotifyCancel')->name('lineNotifyCancel');
 
         Route::get('/dashboard/setTinySetting','PagesController@setTinySetting')->name('setTinySetting');
@@ -654,6 +668,11 @@ Route::group(['middleware' => ['auth', 'global', 'active', 'femaleActive', 'vipC
         Route::post('users/applyPicMemberList', 'UserController@applyPicMemberList')->name('applyPicMemberList');
         
         Route::post('users/toggleUserWarned', 'UserController@toggleUserWarned');
+
+        //預算及車馬費警示警示
+        Route::post('users/warnBudget', 'UserController@warnBudget');
+        //預算及車馬費警示警示
+
         Route::get('users/closeAccountReason', 'UserController@closeAccountReason')->name('users/closeAccountReasonList');
         Route::get('users/closeAccountDetail', 'UserController@closeAccountDetail');
 
@@ -719,6 +738,7 @@ Route::group(['middleware' => ['auth', 'global', 'active', 'femaleActive', 'vipC
         Route::get('users/pics/reported/{date_start?}/{date_end?}/{reported_id?}', 'UserController@searchReportedPics')->name('users/pics/reported/EXTRA');
         Route::get('users/reported/{date_start?}/{date_end?}/{reported_id?}', 'UserController@showReportedUsersList')->name('users/reported/EXTRA');
         Route::get('users/message/search/reported/{date_start?}/{date_end?}/{reported_id?}', 'UserController@showReportedMessages')->name('users/message/search/reported');
+        Route::post('users/reported/handle/status', 'UserController@reportedIsWrite')->name('users.reported.isWrite');
 
         Route::post('users/pics/reported', 'UserController@searchReportedPics')->name('users/pics/reported');
         Route::get('users/basic_setting', 'UserController@basicSetting')->name('users/basic_setting/GET');
@@ -873,6 +893,7 @@ Route::group(['middleware' => ['auth', 'global', 'active', 'femaleActive', 'vipC
         Route::post('users/picturesSimilar/image:delete', [\App\Http\Controllers\ImageController::class, 'admin_user_image_delete'])->withoutMiddleware('Admin');
         Route::post('users/picturesSimilar/avatar:delete', [\App\Http\Controllers\ImageController::class, 'admin_user_avatar_delete'])->withoutMiddleware('Admin');
         Route::post('users/picturesSimilar/pictures:delete/all', [\App\Http\Controllers\ImageController::class, 'admin_user_pictures_all_delete'])->withoutMiddleware('Admin');
+        Route::get('users/message/check', 'UserController@messageCheckIndex')->name("users.message.check");
 
         /*
         |--------------------------------------------------------------------------
@@ -905,6 +926,8 @@ Route::group(['middleware' => ['auth', 'global', 'active', 'femaleActive', 'vipC
         Route::get('maillog', 'Api\MailController@viewMailLog')->name('maillog');
         Route::get("fakeMail", 'Api\MailController@fakeMail')->name('fakeMail');
         Route::post("sendFakeMail", 'Api\MailController@sendFakeMail')->name('sendFakeMail');
+
+        Route::get("stat_test", 'Api\MailController@test_stat');
 
         Route::get("jsfp_pro_validation", function() {
             ini_set("max_execution_time",'0');

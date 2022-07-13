@@ -13,6 +13,10 @@
                 <td> {{$regist_count}} 人 </td>
             <tr>
             <tr>
+                <td> 完成註冊人數 </td>
+                <td> {{$complete_regist_count}} 人 </td>
+            <tr>
+            <tr>
                 <td> 登入人數 </td>
                 <td> {{$login_count}} 人 </td>
             <tr>

@@ -59,6 +59,11 @@
                        @endif
                    </li>
                 @endif
+                @if(isset($user) && $user->engroup == 2)
+                    <li>
+                        <a href="/dashboard/essence_list"><img src="/new/images/icon_zq45.png">教學專區</a>
+                    </li>
+                @endif
                 <li>
                     <a href="/MessageBoard/showList"><img src="/new/images/icon_new45.png">留言板</a>
                 </li>
@@ -70,7 +75,7 @@
                     <a href="{!! url('dashboard/vipSelect') !!}"><img src="/new/images/us2.png">升級付費</a>
                 </li>
                 <li>
-                    <a href="{!! url('logout') !!}"><img src="/new/images/iconout.png">退出</a>
+                    <a href="{!! url('logout') !!}" onclick="clean_session_storage()"><img src="/new/images/iconout.png">退出</a>
                 </li>
             </ul>
         </div>
@@ -105,6 +110,9 @@
             @elseif(str_contains(url()->current(), 'dashboard/forum'))
                 window.location.href = "/dashboard/forum";
             @endif
+        }
+        function clean_session_storage(){
+            sessionStorage.clear();
         }
     </script>
 

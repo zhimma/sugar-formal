@@ -12,8 +12,12 @@ class ForumPosts extends Model
 
     protected $fillable = [
         'id',
+        'forum_id',
+        'type',
+        'user_id',
         'title',
         'contents',
+        'essence_id',
     ];
 
     protected $table = 'forum_posts';

@@ -2,7 +2,6 @@
 
 namespace App\Http\Controllers;
 
-use App\Jobs\CheckECpay;
 use App\Jobs\CheckECpayForValueAddedService;
 use App\Models\AccountStatusLog;
 use App\Models\AdminAnnounce;
@@ -12,23 +11,25 @@ use App\Models\AnonymousChat;
 use App\Models\AnonymousChatMessage;
 use App\Models\AnonymousChatReport;
 use App\Models\BannedUsersImplicitly;
-use App\Models\CustomFingerPrint;
+use App\Models\EssencePosts;
+use App\Models\EssencePostsRewardLog;
 use App\Models\Evaluation;
 use App\Models\EvaluationPic;
 use App\Models\ForumChat;
 use App\Models\ForumManage;
 use App\Models\ForumPosts;
 use App\Models\hideOnlineData;
+use App\Models\lineNotifyChatSet;
 use App\Models\LogUserLogin;
 use App\Models\Message_new;
 use App\Models\MessageBoard;
 use App\Models\MessageBoardPic;
 use App\Models\Forum;
+use App\Models\Order;
 use App\Models\ReportedMessageBoard;
 use App\Models\SimpleTables\warned_users;
-use App\Notifications\BannedUserImplicitly;
+use App\Models\VipLog;
 use Auth;
-use App\Http\Requests;
 use Carbon\Carbon;
 use Illuminate\Http\Request;
 use App\Services\UserService;
@@ -51,25 +52,17 @@ use App\Models\BasicSetting;
 use App\Models\Posts;
 use App\Models\UserMeta;
 use App\Models\MemberPic;
-use App\Models\SetAutoBan;
-use App\Http\Controllers\Controller;
-use App\Http\Requests\ReportRequest;
 use App\Http\Requests\ProfileUpdateRequest;
-use App\Http\Requests\FormFilterRequest;
 use Illuminate\Pagination\LengthAwarePaginator;
 use Illuminate\Support\Arr;
 use Illuminate\Support\Facades\File;
-use Illuminate\Support\Facades\Redirect;
 use Illuminate\Support\Facades\Log;
 use Illuminate\Support\Facades\Config;
 use Illuminate\Support\Facades\Validator;
 use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\Hash;
 use App\Models\SimpleTables\banned_users;
-use Illuminate\Support\Facades\Input;
 use Intervention\Image\Facades\Image;
-use Session;
-use App\Notifications\AccountConsign;
 use App\Models\ValueAddedService;
 use App\Repositories\SuspiciousRepository;
 use App\Services\AdminService;
@@ -81,6 +74,7 @@ use App\Models\ComeFromAdvertise;
 use App\Models\SimpleTables\short_message;
 use App\Models\LogAdvAuthApi;
 use App\Models\StayOnlineRecord;
+use App\Models\UserProvisionalVariables;
 use Illuminate\Support\Facades\Http;
 use App\Services\SearchIgnoreService;
 use \FileUploader;
@@ -171,6 +165,7 @@ class PagesController extends BaseController
     //新版編輯會員資料
     public function profileUpdate_ajax(Request $request, ProfileUpdateRequest $profileUpdateRequest)
     {
+        //Log::Info($request->all());
         //Custom validation.
         Validator::extend('not_contains', function($attribute, $value, $parameters)
         {
@@ -738,6 +733,7 @@ class PagesController extends BaseController
         if($year=='1970'){
             $year=$month=$day='';
         }
+
         if ($user) {
 
             $pr = DB::table('pr_log')->where('user_id',$user->id)->where('active',1)->first();
@@ -772,8 +768,9 @@ class PagesController extends BaseController
                 ->with('add_avatar', $add_avatar)
                 ->with('isAdminWarnedRead',$isAdminWarnedRead)
                 ->with('no_avatar', isset($no_avatar)?$no_avatar->content:'')
-                ->with('pr', $pr);
+                ->with('pr', $pr)
                 //->with('isWarnedReason',$isWarnedReason)
+                ;
         }
     }
 
@@ -1378,7 +1375,6 @@ class PagesController extends BaseController
                 //站長系統訊息
                 Message::post(1049, $current_data->a_user_id, $content_a, true, 1);
                 Message::post(1049, $current_data->b_user_id, $content_b, true, 1);
-
                 return back()->with('message', '帳號關閉成功');
             }else{
                 //存入交付資料表
@@ -1442,7 +1438,6 @@ class PagesController extends BaseController
                     //站長系統訊息
                     Message::post(1049, $current_data->a_user_id, $content_a, true, 1);
                     Message::post(1049, $current_data->b_user_id, $content_b, true, 1);
-
                     return back()->with('message', '帳號開啟成功，將於24小時候啟用');
                 }
 
@@ -1459,7 +1454,20 @@ class PagesController extends BaseController
     public function view_exchange_period(Request $request)
     {
         $user = $request->user();
-        return view('new.dashboard.account_exchange_period')->with('user', $user)->with('cur', $user);
+        $user_provisional_variables = UserProvisionalVariables::where('user_id', $user->id)->first();
+        $user_login_count = LogUserLogin::where('user_id', $user->id)->count();
+
+        if($user_login_count == 10 && $user_provisional_variables->has_adjusted_period_first_time == 0)
+        {
+            return view('new.dashboard.first_account_exchange_period')
+                ->with('user', $user)
+                ->with('user_login_count', $user_login_count);
+        }
+        else
+        {
+            return view('new.dashboard.account_exchange_period')
+                ->with('user', $user);
+        }
     }
 
     public function exchangePeriodModify(Request $request){
@@ -2011,6 +2019,27 @@ class PagesController extends BaseController
                 }
             }
 
+            $line_notify_user_list = lineNotifyChatSet::select('line_notify_chat_set.user_id')
+                ->selectRaw('users.line_notify_token')
+                ->leftJoin('line_notify_chat','line_notify_chat.id', 'line_notify_chat_set.line_notify_chat_id')
+                ->leftJoin('users','users.id', 'line_notify_chat_set.user_id')
+                ->where('line_notify_chat.active',1)
+                ->where('line_notify_chat_set.line_notify_chat_id',9)
+                ->where('line_notify_chat_set.user_id',$targetUser->id)
+                ->where('line_notify_chat_set.user_id','!=',$user->id)
+                ->where('line_notify_chat_set.deleted_at',null)
+                ->whereRaw('(select count(*) from banned_users where banned_users.member_id='.$user->id.') =0')
+                ->whereRaw('(select count(*) from blocked where blocked.member_id='.$targetUser->id.' and blocked.blocked_id='.$user->id.') =0')
+                ->groupBy('line_notify_chat_set.user_id')->get();
+            foreach ($line_notify_user_list as $notify_user){
+                if($notify_user->line_notify_token != null){
+                    $url = url('/dashboard/visited');
+                    //send notify
+                    // ＸＸＸ 正在瀏覽您的檔案 https://minghua.test-tw.icu/dashboard/visited
+                    $message = $user->name.' 正在瀏覽您的檔案 '.$url;
+                    User::sendLineNotify($notify_user->line_notify_token, $message);
+                }
+            }
 
             $member_pic = MemberPic::where('member_id', $uid)->where('pic', '<>', $targetUser->meta->pic)->whereNull('deleted_at')->orderByDesc('created_at')->get();
 
@@ -2146,6 +2175,10 @@ class PagesController extends BaseController
             //判斷自己是否封鎖該用戶
             $isBlocked = \App\Models\Blocked::isBlocked($user->id, $uid);
 
+            //預算被檢舉紀錄
+            $transport_fare_reported = Reported::where('reported_id', $uid)->where('content', '車馬費預算不實')->first();
+            $month_budget_reported = Reported::where('reported_id', $uid)->where('content', '每月預算不實')->first();
+
             // die();
             return view('new.dashboard.viewuser', $data ?? [])
                     ->with('user', $user)
@@ -2175,7 +2208,10 @@ class PagesController extends BaseController
                     ->with('is_banned',User::isBanned($user->id))
                     ->with('pr', $pr)
                     ->with('isBlocked',$isBlocked)
-                    ->with('visited_id', $visited_id);
+                    ->with('visited_id', $visited_id)
+                    ->with('transport_fare_reported', $transport_fare_reported)
+                    ->with('month_budget_reported', $month_budget_reported)
+                    ;
             }
 
     }
@@ -2594,274 +2630,56 @@ class PagesController extends BaseController
     }
     
     public function getSearchData(Request $request){
-        $vis = \App\Models\UserMeta::searchApi(
-            $request->county,
-            $request->district,
-            $request->cup,
-            $request->marriage,
-            $request->budget,
-            $request->income,
-            $request->smoking,
-            $request->drinking,
-            $request->pic,
-            $request->agefrom,
-            $request->ageto,
-            $request->user['engroup'],
-            $request->umeta['city'],
-            $request->umeta['area'],
-            $request->umeta['blockdomain'],
-            $request->umeta['blockdomainType'],
-            $request->seqtime,
-            $request->body,
-            $request->user['id'],
-            $request->exchange_period,
-            $request->isBlocked,
-            $request->userIsVip,
-            $request->heightfrom,
-            $request->heightto,
-            $request->prRange_none,
-            $request->prRange,
-            $request->situation,
-            $request->education,
-            $request->isVip,
-            $request->isWarned,
-            $request->isPhoneAuth,
-            $request->userIsAdvanceAuth,
-            $request->page,
-            $request->tattoo,
-            $request->city2,
-            $request->area2,
-            $request->city3,
-            $request->area3,
-            $request->weight
-        );
+        try{
+            $searchApi = \App\Models\UserMeta::searchApi(
+                $request
+            );
 
-        $ssrData = '';
-  
-        $user = Auth::user();
-    if (!empty($vis['singlePageData']) && isset($vis['singlePageData']) && sizeof($vis['singlePageData']) > 0){
-            foreach ($vis['singlePageData'] as $vi){
-            $visitor = $vi;
-            try{
-                $umeta = $visitor->user_meta;
-                if(isset($umeta->city)){
-                    $umeta->city = explode(",",$umeta->city);
-                    $umeta->area = explode(",",$umeta->area);
-                }
+            // $ssrData = '';
+    
+            $user = Auth::user();
+            $userIsVip = $user->isVip();
+            $dataList = [];
+            foreach ($searchApi['singlePageData'] as $key=>$visitor){
+                $dataList[$key]['rawData'] = $visitor;
+                $dataList[$key]['visitorCheckRecommendedUser'] = \App\Services\UserService::checkRecommendedUser($visitor);
+                $dataList[$key]['visitorIsVip'] = $visitor->isVip();
+                $dataList[$key]['visitorIsAdminWarned'] = $visitor->isAdminWarned();
+                $dataList[$key]['visitorIsPhoneAuth'] = $visitor->isPhoneAuth();
+                $dataList[$key]['visitorIsAdvanceAuth'] = $visitor->isAdvanceAuth();
+                $dataList[$key]['visitorIsBlurAvatar'] = \App\Services\UserService::isBlurAvatar($visitor, $user);
+                $dataList[$key]['visitorAge'] = $visitor->age();
+                $dataList[$key]['visitorIsOnline'] = $visitor->isOnline();
+                $dataList[$key]['visitorExchangePeriodName'] = DB::table('exchange_period_name')->where('id',$visitor->exchange_period)->first();
+                $dataList[$key]['visitorValueAddedServiceStatusHideOnline'] = $visitor->valueAddedServiceStatus('hideOnline');
             }
-            catch (\Exception $e){
-                \Illuminate\Support\Facades\Log::info('Search error, visitor: ' . $vi);
-            }
-           
-            $ssrData .='<li class="nt_fg">';
-                $ssrData .='<div class="n_seicon">';
-                   
-                        $data = \App\Services\UserService::checkRecommendedUser($visitor);
-                    
-
-                    if(!$visitor->user_meta){
-                        logger("Searched user no meta, id:" . $visitor->id);
-                        continue;
-                    }
-                   
-                    if($visitor->user_meta->isWarned == 1 || $visitor->isAdminWarned()){
-                        $ssrData .='<div class="hoverTip">';
-                            $ssrData .='<div class="tagText" data-toggle="popover" data-content="此會員為警示會員，與此會員交流務必提高警覺！">';
-                            if($user->isVip()){
-                                $ssrData .='<img src="/new/images/a5.png">';
-                            }else{
-                                $ssrData .='<img src="/new/images/b_5.png">';
-                            }
-                          
-                            $ssrData .='</div>';
-                        $ssrData .='</div>';
-                        
-                    }elseif(isset($data['description']) && $visitor->engroup == 2){
-                        $ssrData .='<div class="hoverTip">';
-                            $ssrData .='<div class="tagText" data-toggle="popover" data-content="新進甜心是指註冊未滿30天的新進會員，建議男會員可以多多接觸，不過要注意是否為八大行業人員。">';
-                                if($user->isVip()){
-                                    $ssrData .='<img src="/new/images/a1.png">';
-                                }else{
-                                    $ssrData .='<img src="/new/images/b_1.png">';
-                                }
-
-                            $ssrData .='</div>';
-                        $ssrData .='</div>';
-                    }elseif($visitor->isVip() && $visitor->engroup == 1){
-                        $ssrData .='<div class="hoverTip">';
-                            $ssrData .='<div class="tagText" data-toggle="popover" data-content="本站的付費會員。">';
-                                if($user->isVip()){
-                                    $ssrData .='<img src="/new/images/a4.png">';
-                                }else{
-                                    $ssrData .='<img src="/new/images/b_4.png">';
-                                }
-                            $ssrData .='</div>';
-                        $ssrData .='</div>';
-                    }else{
-                        if($user->isVip()){
-                            $ssr_var = 'xa_ssbg';
-                        }else{
-                            $ssr_var = '';
-                        }
-                        if($visitor->isPhoneAuth()){
-                            $ssrData .='<div class="hoverTip '.$ssr_var.'">';                            
-                            if($user->isVip()){
-                                if($visitor->isAdvanceAuth() && $visitor->engroup==2){
-                                    $ssrData .='<div class="tagText"  data-toggle="popover" data-content="本站的進階認證會員，本會員通過本站的嚴格驗證，基本資料正確無誤。">';
-                                    $ssrData .='<img src="/new/images/c_03.png">';
-                                    $ssrData .='</div> ';
-                                    $ssrData .='<span>丨</span>';
-                                }else if(!$visitor->isAdvanceAuth() && $visitor->engroup==2){
-                                    $ssrData .='<div class="tagText"  data-toggle="popover" data-content="通過本站手機驗證的會員。">';
-                                    $ssrData .='<img src="/new/images/c_09.png">';
-                                    $ssrData .='</div>  ';
-                                    $ssrData .='<span>丨</span>';
-                                }
-                               
-                                $ssrData .='<div class="tagText"  data-toggle="popover" data-content="通過本站手機驗證的會員。">';
-                                $ssrData .='<img src="/new/images/c_10.png">';
-                                $ssrData .='</div>';
-                            }else{
-                                if($visitor->isAdvanceAuth() && $visitor->engroup==2){
-                                    $ssrData .='<div class="tagText"  data-toggle="popover" data-content="本站的進階認證會員，本會員通過本站的嚴格驗證，基本資料正確無誤。">';
-                                    $ssrData .='<img src="/new/images/b_8x.png">';
-                                    $ssrData .='</div> ';
-                                }else if(!$visitor->isAdvanceAuth() && $visitor->engroup==2){
-                                    $ssrData .='<div class="tagText"  data-toggle="popover" data-content="通過本站手機驗證的會員。">';
-                                    $ssrData .='<img src="/new/images/b_5x.png">';
-                                    $ssrData .='</div>  ';
-                                }else{
-                                    $ssrData .='<div class="tagText"  data-toggle="popover" data-content="通過本站手機驗證的會員。">';
-                                    $ssrData .='<img src="/new/images/b_6.png">';
-                                    $ssrData .='</div>  ';  
-                                } 
-                            }
-                            $ssrData .='</div>';
-                        }
-                     
-                    }
-          
-                    if(isset($visitor->pr_log)){
-                        $ssr_var = $visitor->pr_log->pr."%;"; 
-                    }else{
-                        $ssr_var = "0%;";
-                    } 
-                                                       
-                 
-                  
-                    if($visitor->engroup == 1){
-                        $ssrData .='<div class="tixright_a">';
-                        $ssrData .='<div class="span zi_sc">大方指數</div>';
-                        $ssrData .='<div class="font">';
-                        $ssrData .='<div class="vvipjdt tm_new">';
-                        $ssrData .='<div class="progress progress-striped vvipjdt_pre_a">';
-                        $ssrData .='<div class="progress-bar progress_info_a" role="progressbar" aria-valuenow="60" aria-valuemin="0"
-                                         aria-valuemax="100" style="width:'.$ssr_var.'"'; //need to check again
-                                         $ssrData .='<span class="prfont_a">PR</span>';
-                                         $ssrData .='</div>';
-                                         $ssrData .='</div>';
-                                         $ssrData .='</div>';
-                                         $ssrData .='</div>';
-                                         $ssrData .='</div>';
-                    }
-                    
-                   
-                    $ssrData .='</div>';
-                
-                    $isBlurAvatar = \App\Services\UserService::isBlurAvatar($visitor, $user);
-                    if($isBlurAvatar) $ssr_var = 'blur_img';
-                    if($visitor->user_meta->isAvatarHidden == 1){
-                        $ssr_var2 = 'makesomeerror';
-                    } else {
-                        $ssr_var2 = $visitor->user_meta->pic;
-                    }
-                   
-                    if ($visitor->engroup == 1){
-                        $onerror="this.src='/new/images/male.png'" ;
-                    } else {
-                        $onerror="this.src='/new/images/female.png'";
-                    }
-                $ssrData .='<a href="/dashboard/viewuser/' . $visitor->id . '">';
-                $ssrData .='<div class="nt_photo '.$ssr_var.'"><img class="lazy" src="'.$ssr_var2.'" data-original="'.$ssr_var2.'" onerror="'.$onerror.'"/></div>'; // need to check again
-
-                $ssrData .='<div class="nt_bot nt_bgco">';
-                $ssrData .='<h2>';
-                $ssrData .='<font class="left">'.$visitor->name.'<span>'.$visitor->age().'歲</span></font>';
-                            if($user->isVip()){
-                                if($visitor->isOnline() && $visitor->is_hide_online==0){
-                                    $ssrData .='<span class="onlineStatusSearch"></span>';
-                                }
-                            }else{
-                                $ssrData .='<div class="onlineStatusNonVipSearch"><img src="/new/images/wsx.png"></div>';
-                            }
-                                
-                          
-
-                            $ssrData .='</h2>';
-                            $ssrData .='<h3>';
-                        
-                            if(!empty($umeta->city)){
-                                foreach($umeta->city as $key => $cityval){
-                                    if ($key==0){
-                                       $ssrData .=  $umeta->city[$key];
-									   if($visitor->user_meta->isHideArea == 0){
-										   $ssrData .=  $umeta->area[$key].'  ';
-										   
-									   }
-                                    }else{
-										
-                                        $ssrData .=  '<span>'.$umeta->city[$key];
-										if($visitor->user_meta->isHideArea == 0){
-											$ssrData .= ($umeta->area[$key].'</span>');
-										}
-                                    }
-                                }
-                                    
-                             
-                            }
-                                
-                           
-                            if($user->isVip()){
-                                if($visitor->user_meta->isHideOccupation == 0 && !empty($visitor->user_meta->occupation) && $visitor->user_meta->occupation != 'null'){
-                                    $ssrData .='<span style="margin-left: 0;">'.$visitor->user_meta->occupation.'</span>';
-                                }
-                            }else{
-                                $ssrData .='<span style="margin-left: 10px;"><span style="padding-left: 5px;">職業</span><img src="/new/images/icon_35.png" class="nt_img"></span>';
-                            }
-                                
-                          
-
-                            if($user->engroup==1){
-                                if($user->isVip()){
-                                    $exchange_period_name = DB::table('exchange_period_name')->where('id',$visitor->exchange_period)->first();
-                                    
-                                    $ssrData .='<i class="j_lxx">丨</i><span>'.$exchange_period_name->name.'</span>';
-                                }else{
-                                    $ssrData .='<i class="j_lxx">丨</i><span>包養關係<img src="/new/images/icon_35.png" class="nt_img"></span>';
-                                }
-                            }
-                            
-                            $ssrData .='</h3>';
-                            $ssrData .='<h3>最後上線時間：';
-                            if($visitor->valueAddedServiceStatus('hideOnline')==1 && $visitor->is_hide_online==1){
-                                $ssrData .= substr($visitor->hide_online_time,0,11);
-                            }else{
-                                $ssrData .= substr($visitor->last_login,0,11);
-                            }
-                            $ssrData .='</h3>';
-                        $ssrData .='</div>';
-                        $ssrData .='</a>';
-                        $ssrData .='</li>';
-                         }
-        }else{
-            $ssrData .='<div class="fengsicon search"><img src="/new/images/loupe.png" class="feng_img"><span>沒有資料</span></div>';
+            $output = array(
+                'singlePageCount'=> $searchApi['singlePageCount'],
+                'allPageDataCount'=>$searchApi['allPageDataCount'],
+                'dataList'=>$dataList,
+                'user'=>$user,
+                'userIsVip'=>$userIsVip
+            );
+            return json_encode($output);
+        }catch (\Exception $e){
+            \Illuminate\Support\Facades\Log::info('Search error: ' . $e);
         }
-        $output = array(
-            "ssrData"=>$ssrData,
-            "count"=>$vis['allPageDataCount'],
-            'singleCount'=>$vis['singlePageCount']
-        );
-        return json_encode($output);
+    }
+
+    public function getSingleSearchData(Request $request){
+        $visitor_pre = $request->visitor;
+        $user_pre = $request->user;
+        $visitor = User::where('id',$visitor_pre['id'])->get();
+        $user = User::where('id',$user_pre['id'])->get();
+        // $data = \App\Services\UserService::checkRecommendedUser($visitor);
+        // $visitorIsVip = $visitor->isVip();
+        // $visitorIsAdminWarned = $visitor->isAdminWarned();
+        // $visitorIsPhoneAuth = $visitor->isPhoneAuth();
+        // $visitorIsBlurAvatar = \App\Services\UserService::isBlurAvatar($visitor, $user);
+        // $visitorAge = $visitor->age();
+        // $visitorIsOnline = $visitor->isOnline();
+        
+        return $data;
     }
 
     public function evaluation_self(Request $request)
@@ -3327,6 +3145,30 @@ class PagesController extends BaseController
         {
             $isFav = MemberFav::where('member_id', $aid)->where('member_fav_id',$uid)->count();
             $isBlocked = Blocked::isBlocked($aid, $uid);
+
+            $member_id=User::findById($aid);
+            $member_fav_id=User::findById($uid);
+            $line_notify_user_list = lineNotifyChatSet::select('line_notify_chat_set.user_id')
+                ->selectRaw('users.line_notify_token')
+                ->leftJoin('line_notify_chat','line_notify_chat.id', 'line_notify_chat_set.line_notify_chat_id')
+                ->leftJoin('users','users.id', 'line_notify_chat_set.user_id')
+                ->where('line_notify_chat.active',1)
+                ->where('line_notify_chat_set.line_notify_chat_id',10)
+                ->where('line_notify_chat_set.user_id',$member_fav_id->id)
+                ->where('line_notify_chat_set.deleted_at',null)
+                ->whereRaw('(select count(*) from banned_users where banned_users.member_id='.$member_id->id.') =0')
+                ->whereRaw('(select count(*) from blocked where blocked.member_id='.$member_fav_id->id.' and blocked.blocked_id='.$member_id->id.') =0')
+                ->groupBy('line_notify_chat_set.user_id')->get();
+            foreach ($line_notify_user_list as $notify_user){
+                if($notify_user->line_notify_token != null){
+                    $url = url('/dashboard/personalPage');
+                    //send notify
+                    // ＸＸＸ 收藏您 https://minghua.test-tw.icu/dashboard/personalPage
+                    $message = $member_id->name.' 收藏您 '.$url;
+                    User::sendLineNotify($notify_user->line_notify_token, $message);
+                }
+            }
+
             if($isFav==0 && !$isBlocked) {
                 MemberFav::fav($aid, $uid);
                 return response()->json(['save' => 'ok']);
@@ -5532,6 +5374,7 @@ class PagesController extends BaseController
 
         $forum = Forum::where('user_id', $user->id)->first();
 
+        $get_delete_forum_post_id_ary=ForumPosts::withTrashed()->whereNotNull('deleted_at')->get()->pluck('id')->toArray();
         $posts = Forum::selectraw('
          users.id as uid, 
          users.name as uname, 
@@ -5545,7 +5388,7 @@ class PagesController extends BaseController
          forum.is_warned as f_warned
          ')
             ->selectRaw('(select updated_at from forum_posts where (type="main" and id=pid and forum_id = f_id and deleted_at is null) or reply_id=pid or reply_id in ((select distinct(id) from forum_posts where type="sub" and reply_id=pid and forum_id = f_id and deleted_at is null) )  order by updated_at desc limit 1) as currentReplyTime')
-            ->selectRaw('(select count(*) from forum_posts where (type="main" and forum_id = f_id and deleted_at is null)) as posts_num, (select count(*) from forum_posts where (type="sub" and forum_id = f_id and deleted_at is null and tag_user_id is null)) as posts_reply_num')
+            ->selectRaw('(select count(*) from forum_posts where (type="main" and forum_id = f_id and deleted_at is null)) as posts_num, (select count(*) from forum_posts where (type="sub" and forum_id = f_id and deleted_at is null and tag_user_id is null and reply_id NOT IN ('. implode(',',$get_delete_forum_post_id_ary).')  )) as posts_reply_num')
             ->LeftJoin('users', 'users.id','=','forum.user_id')
             ->join('user_meta', 'users.id','=','user_meta.user_id')
             ->leftJoin('forum_posts', 'forum_posts.user_id','=', 'users.id')
@@ -5583,10 +5426,33 @@ class PagesController extends BaseController
                                         ->groupBy('forum_id')
                                         ->get()->keyBy('forum_id');
 
-        return view('/dashboard/forum', $data)
+        //精華討論區
+        $essence_posts_list=EssencePosts::selectraw('essence_posts.*,users.engroup as uengroup,user_meta.pic as umpic')
+            ->selectRaw('(case when users.id=1049 then 1 else 0 end) as adminFlag')
+            ->LeftJoin('users', 'users.id','=','essence_posts.user_id')
+            ->join('user_meta', 'users.id','=','user_meta.user_id')
+            ->where('essence_posts.verify_status', 2)
+            ->groupBy('essence_posts.user_id');
+        if($user->id!=1049){
+            $essence_posts_list->where('essence_posts.share_with', $user->engroup);
+        }
+        $essence_posts_list->orderBy('adminFlag','desc');
+        $essence_posts_list->orderBy('essence_posts.updated_at','desc');
+        $essence_posts_list=$essence_posts_list->get()->reverse();
+
+
+        $essence_posts_num=EssencePosts::where('essence_posts.verify_status', 2);
+        if($user->id!=1049){
+            $essence_posts_num->where('essence_posts.share_with', $user->engroup);
+        }
+        $essence_posts_num=$essence_posts_num->get()->count();
+
+       return view('/dashboard/forum', $data)
             ->with('checkUserVip', $checkUserVip)
             ->with('user', $user)
-            ->with('forum_member_count', $forum_member_count);
+            ->with('forum_member_count', $forum_member_count)
+            ->with('essence_posts_list', $essence_posts_list)
+            ->with('essence_posts_num', $essence_posts_num);
     }
 
     public function ForumEdit($uid)
@@ -5620,6 +5486,32 @@ class PagesController extends BaseController
 
         if($request->get('action') == 'update'){
             ForumPosts::find($request->get('id'))->update(['title'=>$request->get('title'),'contents'=>$request->get('contents')]);
+
+            //forum個人討論區文章從精華討論區分享過來的，user改了就需要送回去給站長送審
+            $forum_post=ForumPosts::find($request->get('id'));
+            if(!is_null($forum_post->essence_id)){
+                $essencePosts=EssencePosts::where('id', $forum_post->essence_id)->first();
+                if($user->id==1049){
+                    //精華文章更新
+                    $essencePosts->title=$request->get('title');
+                    $essencePosts->contents=$request->get('contents');
+                    $essencePosts->save();
+                    return redirect('/dashboard/forum_personal/'.$forum_post->forum_id)->with('message','修改成功');
+                }else{
+                    //forum posts 該筆刪除
+                    $forum_post->deleted_by=1049;
+                    $forum_post->deleted_at=now();
+                    $forum_post->save();
+                    //精華文章更新審核狀態
+                    $essencePosts->title=$request->get('title');
+                    $essencePosts->contents=$request->get('contents');
+                    $essencePosts->verify_status=EssencePosts::STATUS_PENDING;
+                    $essencePosts->save();
+                    return redirect('/dashboard/forum_personal/'.$forum_post->forum_id)->with('message','修改成功，待站長審核後則會自動發布');
+                }
+            }
+
+
             return redirect($request->get('redirect_path'))->with('message','修改成功');
 
         }else{
@@ -5673,6 +5565,7 @@ class PagesController extends BaseController
 
         }
 
+        $essence_post_id_ary=ForumPosts::withTrashed()->whereNotNull('essence_id')->whereNotNull('deleted_at')->get()->pluck('id');
         $posts_personal_all = ForumPosts::selectraw('
         users.id as uid, 
         users.name as uname, 
@@ -5697,6 +5590,7 @@ class PagesController extends BaseController
 //            ->where('forum_posts.user_id', $forum->user_id)
             ->where('forum.id', $forum->id)
             ->where('forum_posts.type', 'main')
+            ->whereNotIn('forum_posts.id',$essence_post_id_ary)
             ->orderBy('forum_posts.deleted_at','asc')
             ->orderBy('forum_posts.top', 'desc')
             ->orderBy('pupdated_at', 'desc')
@@ -5795,8 +5689,21 @@ class PagesController extends BaseController
                 ForumManage::where('user_id', $uid)->where('forum_id', $fid->id)->update(['status' => $status, 'forum_status' => 1, 'chat_status' => 1,'updated_at' => Carbon::now()]);
                 $msg = '該會員已通過';
             }else{
-                $msg = 'error';
+                ForumManage::insert([
+                    'forum_id'=>$fid->id,
+                    'user_id' => $uid,
+                    'apply_user_id' => $auid,
+                    'status' => $status,
+                    'forum_status' => 1,
+                    'chat_status' => 1,
+                    'created_at' => Carbon::now(),
+                    'updated_at' => Carbon::now()
+                ]);
+                $msg = '申請通過';
             }
+//            else{
+//                $msg = 'error';
+//            }
 
         }else if($status==2){
             if(isset($checkData)){
@@ -6005,6 +5912,11 @@ class PagesController extends BaseController
             ForumPosts::where('id',$request->get('pid'))->update(['deleted_by'=>auth()->user()->id]);
             $posts->delete();
 
+            //有分享到個人討論區的精華文章也要做刪除
+            if(!is_null($posts->essence_id)){
+                EssencePosts::where('id', $posts->essence_id)->delete();
+            }
+
             if($postsType=='main')
                 return response()->json(['msg'=>'刪除成功!','postType'=>'main','redirectTo'=>'/dashboard/forum_personal/'.$request->get('fid')]);
             else
@@ -6021,6 +5933,373 @@ class PagesController extends BaseController
             return response()->json(['msg'=>'回復成功!','postType'=>'main','redirectTo'=>'/dashboard/forum_personal/'.$request->get('fid')]);
         else
             return response()->json(['msg'=>'留言回復成功!','postType'=>'sub']);
+    }
+
+    public function essence_enter_intro()
+    {
+        return view('/dashboard/essence_enter_intro');
+    }
+    public function essence_list(Request $request)
+    {
+        $user=$request->user();
+        $postType=$request->get('postType');
+
+        $posts_list = EssencePosts::selectraw('
+             essence_posts.id as pid,
+             users.id as uid,
+             users.engroup,
+             users.name,
+             user_meta.pic as umpic,
+             essence_posts.category as category,
+             essence_posts.title as title,
+             essence_posts.contents as contents,
+             essence_posts.verify_status as verify_status,
+             essence_posts.created_at as post_created_at,
+             essence_posts.updated_at as post_updated_at
+             ')->selectRaw('
+                (select count(*) from essence_posts left join users on users.id = essence_posts.user_id where (essence_posts.type="main")) as posts_num, 
+                (select count(*) from essence_posts where (type="sub" and reply_id in (select id from essence_posts where (type="main") ) )) as posts_reply_num
+            ')
+            ->selectRaw('(case when essence_posts.verify_status!=2 then 1 else 0 end) as pendingFlag')
+            ->selectRaw('(case when essence_posts.verify_status=2 then 1 else 0 end) as passedFlag')
+            ->selectRaw('(case when users.id=1049 then 1 else 0 end) as adminFlag')
+            ->LeftJoin('users', 'users.id','=','essence_posts.user_id')
+            ->join('user_meta', 'users.id','=','user_meta.user_id');
+
+        //排除被站方封鎖的帳號
+        $posts_list->whereRaw('(select count(*) from banned_users where member_id=essence_posts.user_id)=0');
+        if($request->get('order_by')=='pending'){
+            $posts_list->orderBy('pendingFlag','desc')->orderBy('essence_posts.updated_at','desc');
+        }else if ($request->get('order_by')=='updated_at'){
+            $posts_list->orderBy('essence_posts.updated_at','desc');
+        }
+        $posts_list->orderBy('adminFlag','desc');
+        $posts_list->orderBy('essence_posts.verify_status','desc');
+        if($user->id!=1049){
+            if($postType=='myself'){
+                $posts_list->where('essence_posts.user_id', $user->id)
+                    ->orderBy('passedFlag','desc')
+                    ->orderBy('essence_posts.updated_at','desc');
+            }else{
+                $posts_list->where('essence_posts.verify_status', 2)
+                    ->where('essence_posts.share_with', $user->engroup)
+                    ->orderBy('essence_posts.updated_at','desc');
+            }
+        }
+        $posts_list->orderBy('essence_posts.updated_at','desc');
+
+        $posts_list=$posts_list->paginate(10);
+        return view('/dashboard/essence_list', compact('posts_list', 'postType', 'user'));
+    }
+    public function essence_posts()
+    {
+        //個人討論區
+        $posts = Forum::selectraw('
+         users.id as uid, 
+         users.name as uname, 
+         users.engroup as uengroup, 
+         user_meta.pic as umpic, 
+         forum_posts.id as pid,
+         forum.id as f_id,
+         forum.status as f_status,
+         forum.title as f_title,
+         forum.sub_title as f_sub_title,
+         forum.is_warned as f_warned
+         ')
+            ->selectRaw('(select updated_at from forum_posts where (type="main" and id=pid and forum_id = f_id and deleted_at is null) or reply_id=pid or reply_id in ((select distinct(id) from forum_posts where type="sub" and reply_id=pid and forum_id = f_id and deleted_at is null) )  order by updated_at desc limit 1) as currentReplyTime')
+            ->selectRaw('(select count(*) from forum_posts where (type="main" and forum_id = f_id and deleted_at is null)) as posts_num, (select count(*) from forum_posts where (type="sub" and forum_id = f_id and deleted_at is null and tag_user_id is null)) as posts_reply_num')
+            ->LeftJoin('users', 'users.id','=','forum.user_id')
+            ->join('user_meta', 'users.id','=','user_meta.user_id')
+            ->leftJoin('forum_posts', 'forum_posts.user_id','=', 'users.id')
+            ->where('forum.status', 1)
+            ->orderBy('forum.status', 'desc')
+            ->orderBy('currentReplyTime','desc')
+            ->groupBy('forum.id');
+
+        $posts=$posts->get();
+        return view('/dashboard/essence_posts', compact('posts'));
+    }
+    public function essence_doPosts(Request $request)
+    {
+        $user=$request->user();
+        if($request->get('action') == 'update'){
+            $update_ary=[
+                'title'=>$request->get('title'),
+                'contents'=>$request->get('contents'),
+                'verify_status'=>$user->id==1049 ? EssencePosts::STATUS_PASSED : EssencePosts::STATUS_PENDING,
+            ];
+
+            if($user->id==1049){
+                $update_ary['category']=$request->get('category');
+                $update_ary['share_with']=$request->get('share_with');
+
+                if(str_contains($request->get('share_with'),'forum_')==false){
+                    ForumPosts::withTrashed()->where('essence_id', $request->get('post_id'))->update([
+                        'deleted_by'=> $user->id,
+                        'deleted_at'=> now()
+                    ]);
+                }else{
+                    //該文章是否曾經分享到討論區
+                    ForumPosts::withTrashed()->where('essence_id', $request->get('post_id'))
+                        ->update([
+                            'title'=> $request->get('title'),
+                            'contents'=> $request->get('contents'),
+                            'deleted_by'=>null,
+                            'deleted_at'=> null
+                        ]);
+                }
+            }
+            EssencePosts::find($request->get('post_id'))->update($update_ary);
+
+            //分享到個人討論區
+            $posts= EssencePosts::find($request->get('post_id'));
+            if(str_contains($posts->share_with,'forum_')){
+                $data=[
+                    'forum_id' => str_replace('forum_','',  $posts->share_with),
+                    'type' => 'main',
+                    'user_id' => $posts->user_id,
+                    'title' => $posts->title,
+                    'contents' => $posts->contents
+                ];
+                ForumPosts::withTrashed()->updateOrCreate(['essence_id' =>  $posts->id], $data);
+            }
+
+
+            $forum_post = ForumPosts::withTrashed()->where('essence_id', $request->get('post_id'))->first();
+            if ($forum_post && !is_null($forum_post->essence_id)) {
+                $essencePosts = EssencePosts::where('id', $forum_post->essence_id)->first();
+                if($user->id==1049) {
+                    $forum_post->title=$request->get('title');
+                    $forum_post->contents=$request->get('contents');
+                    $forum_post->save();
+                }else{
+                    //forum posts 該筆刪除
+                    $forum_post->deleted_by = 1049;
+                    $forum_post->deleted_at = now();
+                    $forum_post->save();
+                    //精華文章更新審核狀態
+                    $essencePosts->verify_status = EssencePosts::STATUS_PENDING;
+                    $essencePosts->save();
+                }
+            }
+
+            return redirect('/dashboard/essence_list')->with('message','修改成功'.($user->id==1049 ? '':'，待站長審核後則會自動發布'));
+
+        }else{
+            $posts = new EssencePosts();
+            $posts->user_id = $user->id;
+            $posts->type = $request->get('type','main');
+            $posts->category = $request->get('category');
+            $posts->share_with = $request->get('share_with');
+            $posts->title = $request->get('title');
+            $posts->contents = $request->get('contents');
+            if($user->id==1049){
+                $posts->verify_status = EssencePosts::STATUS_PASSED;
+            }
+            $posts->save();
+
+            DB::table('essence_posts')->where('id',$posts->id)->update(['article_id'=>$posts->id]);
+            return redirect('/dashboard/essence_list')->with('message','投稿成功'.($user->id==1049 ? '':'，待站長審核後則會自動發布'));
+        }
+    }
+
+    public function essence_post_detail(Request $request, $pid)
+    {
+        $user = $request->user();
+        $postDetail =EssencePosts::selectRaw('users.id as uid, users.name as uname, users.engroup as uengroup, user_meta.pic as umpic, user_meta.city, user_meta.area')
+            ->selectRaw('essence_posts.id as pid, essence_posts.title as ptitle, essence_posts.contents as pcontents, essence_posts.updated_at as pupdated_at, essence_posts.created_at as pcreated_at, essence_posts.verify_status as pverify_status')
+            ->LeftJoin('users', 'users.id','=','essence_posts.user_id')
+            ->LeftJoin('user_meta', 'users.id','=','user_meta.user_id')
+            ->where('essence_posts.id', $pid)->first();
+        if(!$postDetail) {
+            $request->session()->flash('message', '找不到該篇精華討論區：' . $pid);
+            $request->session()->reflash();
+            return  redirect('/dashboard/essence_list');
+        }
+
+        //紀錄返回上一頁的url
+        if(isset($_SERVER['HTTP_REFERER'])){
+            if(!str_contains($_SERVER['HTTP_REFERER'],'essence_postsEdit') && !str_contains($_SERVER['HTTP_REFERER'],'essence_post_detail') && !str_contains($_SERVER['HTTP_REFERER'],'viewuser')){
+                session()->put('goBackPage_essence',$_SERVER['HTTP_REFERER']);
+            }
+        }
+        $goBackPage= session()->get('goBackPage_essence','/dashboard/essence_list');
+        return view('/dashboard/essence_post_detail', compact('postDetail', 'user','goBackPage'));
+    }
+
+    public function essence_postsEdit($id, $editType='all')
+    {
+        $postInfo = EssencePosts::find($id);
+        //個人討論區
+        $posts = Forum::selectraw('
+         users.id as uid, 
+         users.name as uname, 
+         users.engroup as uengroup, 
+         user_meta.pic as umpic, 
+         forum_posts.id as pid,
+         forum.id as f_id,
+         forum.status as f_status,
+         forum.title as f_title,
+         forum.sub_title as f_sub_title,
+         forum.is_warned as f_warned
+         ')
+            ->selectRaw('(select updated_at from forum_posts where (type="main" and id=pid and forum_id = f_id and deleted_at is null) or reply_id=pid or reply_id in ((select distinct(id) from forum_posts where type="sub" and reply_id=pid and forum_id = f_id and deleted_at is null) )  order by updated_at desc limit 1) as currentReplyTime')
+            ->selectRaw('(select count(*) from forum_posts where (type="main" and forum_id = f_id and deleted_at is null)) as posts_num, (select count(*) from forum_posts where (type="sub" and forum_id = f_id and deleted_at is null and tag_user_id is null)) as posts_reply_num')
+            ->LeftJoin('users', 'users.id','=','forum.user_id')
+            ->join('user_meta', 'users.id','=','user_meta.user_id')
+            ->leftJoin('forum_posts', 'forum_posts.user_id','=', 'users.id')
+            ->where('forum.status', 1)
+            ->orderBy('forum.status', 'desc')
+            ->orderBy('currentReplyTime','desc')
+            ->groupBy('forum.id')
+            ->get();
+        return view('/dashboard/essence_posts_edit',compact('postInfo','editType','posts'));
+    }
+    public function essence_posts_delete(Request $request)
+    {
+        $posts = EssencePosts::where('id',$request->get('pid'))->first();
+        if(auth()->user()->id !=1049 && $posts->user_id !== auth()->user()->id){
+            return response()->json(['msg'=>'留言刪除失敗 不可刪除別人的留言!']);
+        }else{
+            EssencePosts::where('id',$request->get('pid'))->update(['deleted_by'=>auth()->user()->id]);
+            $posts->delete();
+            //有分享到個人討論區的文章也要做刪除
+            $forum_posts = ForumPosts::where('essence_id',$request->get('pid'))->first();
+            if($forum_posts){
+                ForumPosts::where('essence_id',$request->get('pid'))->update(['deleted_by'=>auth()->user()->id]);
+                $forum_posts->delete();
+            }
+            return response()->json(['msg'=>'刪除成功!','redirectTo'=>'/dashboard/essence_list']);
+        }
+    }
+
+    public function essence_posts_recover(Request $request)
+    {
+        $posts = EssencePosts::withTrashed()->where('id',$request->get('pid'))->first();
+        $postsType = $posts->type;
+        EssencePosts::withTrashed()->where('id',$request->get('pid'))->update(['deleted_at'=> null, 'deleted_by' => null ]);
+        if($postsType=='main')
+            return response()->json(['msg'=>'回復成功!','postType'=>'main','redirectTo'=>'/dashboard/forum_personal/'.$request->get('fid')]);
+        else
+            return response()->json(['msg'=>'留言回復成功!','postType'=>'sub']);
+    }
+
+    public function essence_verify_status(Request $request)
+    {
+        $posts = EssencePosts::withTrashed()->where('id',$request->get('pid'))->first();
+
+        EssencePosts::withTrashed()->where('id',$request->get('pid'))->update([
+            'verify_status'=> ($posts->verify_status==0 ||  $posts->verify_status==1) ? EssencePosts::STATUS_PASSED : EssencePosts::STATUS_FAILED,
+            'verify_time'=> now()
+        ]);
+
+        //通過審核, 給一個月VIP & PR值+10
+        $update_posts=EssencePosts::withTrashed()->where('id',$request->get('pid'))->first();
+        if( $update_posts->verify_status==2 && $update_posts->reward==0){
+            $user=User::findById($posts->user_id);
+            if($user->isVip()){
+                //已是VIP會員
+                $vipData = $user->getVipData(true);
+                $expire_origin=$vipData->expiry;
+                $expire_date='';
+                if($vipData->payment=='one_quarter_payment' || $vipData->payment=='one_month_payment' || is_null($vipData->payment)){
+                    $expire_date= date("Y-m-d H:i:s",strtotime("+1 month", strtotime($vipData->expiry)));
+                    $vipData->expiry= $expire_date;
+                    $vipData->save();
+                }else if($vipData->payment=='cc_quarterly_payment' || $vipData->payment=='cc_monthly_payment'){
+                    if(!\App::environment('local')) {
+                        $order_user = Vip::select('id', 'expiry', 'created_at', 'updated_at','payment','business_id', 'order_id','remain_days')
+                            ->where('member_id', $user->id)
+                            ->orderBy('created_at', 'desc')->get();
+                        $order = Order::where('order_id', $order_user[0]->order_id)->get()->first();
+                        if($order){
+                            Order::where('order_id', $order_user[0]->order_id)->update([
+                                'remain_days'=> $order->remain_days+ 30
+                            ]);
+                        }
+                    }else {
+                        $vipData->remain_days+= 30;
+                        $vipData->save();
+                    }
+
+                    if(!\App::environment('local')) {
+                        $order = Order::where('order_id', $vipData->order_id)->get()->first();
+                        $base_date=$order? $order->order_expire_date : null;
+                        if(is_null($base_date)){
+                            if($vipData->payment=='cc_quarterly_payment'){
+                                $base_date= date("Y-m-d H:i:s",strtotime("+3 month", strtotime($vipData->updated_at)));
+                            }else {
+                                $base_date= date("Y-m-d H:i:s",strtotime("+1 month", strtotime($vipData->updated_at)));
+                            }
+                        }
+                        $m_count=EssencePostsRewardLog::where('user_id',$user->id)->get()->count();
+                        $expire_origin= date("Y-m-d H:i:s",strtotime("+".$m_count." month", strtotime($base_date)));
+                        $expire_date= date("Y-m-d H:i:s",strtotime("+1 month", strtotime($expire_origin)));
+
+                    }else {
+                        //測試機環境
+                        if($vipData->payment=='cc_quarterly_payment'){
+                            $base_date= date("Y-m-d H:i:s",strtotime("+3 month", strtotime($vipData->updated_at)));
+                        }else {
+                            $base_date= date("Y-m-d H:i:s",strtotime("+1 month", strtotime($vipData->updated_at)));
+                        }
+                        $m_count=EssencePostsRewardLog::where('user_id',$user->id)->get()->count();
+                        $expire_origin= date("Y-m-d H:i:s",strtotime("+".$m_count." month", strtotime($base_date)));
+                        $expire_date= date("Y-m-d H:i:s",strtotime("+1 month", strtotime($expire_origin)));
+                    }
+                }
+                VipLog::addToLog($user->id, 'essence_post_extend_expiry', 'Manual Setting', 1, 0);
+                EssencePostsRewardLog::addToLog($update_posts, $expire_origin, $expire_date);
+            }else{
+                //非VIP會員
+                $vip = new Vip();
+                $vip->member_id = $user->id;
+                $vip->business_id = 'EssencePostUpgrade';
+                $vip->active = 1;
+                $vip->free = 0;
+                $vip->expiry = date("Y-m-d H:i:s",strtotime("+1 month", strtotime($update_posts->verify_time)));
+                $vip->save();
+                VipLog::addToLog($user->id, 'essence_post_upgragde', 'Manual Setting', 1, 0);
+                $expire_date=date("Y-m-d H:i:s",strtotime("+1 month", strtotime($update_posts->verify_time)));
+                EssencePostsRewardLog::addToLog($update_posts, null, $expire_date);
+            }
+            //更新發放獎勵狀態
+            $update_posts->reward=1;
+            $update_posts->save();
+            //PR+10 排程統一執行
+            //User::PR($posts->user_id);
+
+        }
+
+        //更新個人討論區資料狀態
+        $update_posts=EssencePosts::withTrashed()->where('id',$request->get('pid'))->first();
+        if($update_posts->verify_status==2){
+            //通過審核
+            ForumPosts::withTrashed()->where('essence_id', $update_posts->id)
+                ->update([
+                    'deleted_by'=>null,
+                    'deleted_at'=> null
+                ]);
+        }else{
+            //不通過審核
+            ForumPosts::withTrashed()->where('essence_id', $update_posts->id)->update([
+                'deleted_by'=> auth()->user()->id,
+                'deleted_at'=> now()
+            ]);
+        }
+
+        //分享到個人討論區
+        if(str_contains($posts->share_with,'forum_')){
+            $data=[
+                'forum_id' => str_replace('forum_','', $posts->share_with),
+                'type' => 'main',
+                'user_id' => $posts->user_id,
+                'title' => $posts->title,
+                'contents' => $posts->contents
+            ];
+            ForumPosts::withTrashed()->updateOrCreate(['essence_id' =>  $posts->id], $data);
+        }
+        return response()->json(['msg'=>'審核狀態已更新!']);
     }
 
     public function sms_add_view(Request $request){
@@ -6511,6 +6790,9 @@ class PagesController extends BaseController
             }            
             $adminWarnedStatus.= '做完進階驗證可解除<a class="red" href="'.url('advance_auth').'"> [請點我進行驗證]</a>。';
         }
+        else if($user_isBannedOrWarned->warned_reason == '每月預算不實' || $user_isBannedOrWarned->warned_reason == '車馬費預算不實') {
+            $adminWarnedStatus = '您因為 <span class="main_word">'.$user_isBannedOrWarned->warned_reason.'</span>，警示 <span class="main_word">'.$diffDays.'天</span>。時間自'.substr($user_isBannedOrWarned->warned_created_at,0,16).'~'.substr($user_isBannedOrWarned->warned_expire_date,0,16).'。如有疑慮請聯絡站長<a href="https://lin.ee/rLqcCns" target="_blank"> <img src="https://scdn.line-apps.com/n/line_add_friends/btn/zh-Hant.png" alt="加入好友" height="26" border="0" style="height: 26px; float: unset;"></a>';
+        }
         else if($user_isBannedOrWarned->warned_vip_pass == 1 && $user_isBannedOrWarned->warned_expire_date == null) {
             $adminWarnedStatus = '您目前<span class="main_word">已被站方警示</span>，原因是<span class="main_word"> ' . $user_isBannedOrWarned->warned_reason . '</span>，若要解鎖請升級VIP解除，並同意如有再犯，站方有權不退費並永久警示。同意[<a href="../dashboard/new_vip" class="red">請點我</a>]';
         }else if($user_isBannedOrWarned->warned_vip_pass == 1 && $user_isBannedOrWarned->warned_expire_date > now()) {
@@ -6945,31 +7227,6 @@ class PagesController extends BaseController
     public function checkcfp(Request $request){
         $this->service->checkcfp($request->hash, $request->user()->id);
 
-        return response()->json(array(
-            'status' => 1,
-            'msg' => 'success',
-        ), 200);
-    }
-
-    public function saveVisitorID(Request $request){
-        $cfp = new \App\Models\VisitorID;
-        $cfp->hash = $request->hash;
-        $cfp->host = request()->getHttpHost();
-        $cfp->save();
-        $cfp_user = new \App\Models\VisitorIDUser;
-        $cfp_user->visitor_id = $cfp->id;
-        $cfp_user->user_id = $request->user()->id;
-        $cfp_user->save();
-
-        return response()->json(array(
-            'status' => 1,
-            'msg' => 'success'
-        ), 200);
-    }
-
-    public function checkVisitorID(Request $request){
-        $this->service->checkvisitorid($request->hash, $request->user()->id);
-        
         return response()->json(array(
             'status' => 1,
             'msg' => 'success',
@@ -8188,6 +8445,30 @@ class PagesController extends BaseController
         }
         
         return response()->json(['stay_online_record_id' => $stay_online_record_id]);
+    }
+
+    public function first_exchange_period_modify(Request $request)
+    {
+        $user = $request->user();
+        if( Hash::check($request->input('password'),$user->password)) 
+        {
+            $period = $request->input('exchange_period');
+            $reason = $request->input('reason');
+            UserProvisionalVariables::where('user_id',$user->id)->update(['has_adjusted_period_first_time' => 1]);
+            User::where('id', $user->id)->update(['exchange_period' => $period]);
+            DB::table('exchange_period_temp')->insert(['user_id' => $user->id, 'created_at' => \Carbon\Carbon::now()]);
+            return back()->with('message', '已完成設定，無需審核');
+        }
+        else
+        {
+            return back()->with('message', '密碼有誤，請重新操作');
+        }
+
+    }
+
+    public function first_exchange_period_modify_next_time(Request $request)
+    {
+        $request->session()->put('first_exchange_period_modify_next_time', true);
     }
     
 }

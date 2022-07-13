@@ -172,6 +172,13 @@
     </form>-->
     <!--開啟使用者隱藏-->
 
+    @if($user['isAdminWarned'] != 1 AND $user->engroup != 2)
+        <!--預算及車馬費警示-->
+        <button class="btn btn-danger" onclick="WarnBudget('month_budget')">預算不實</button>
+        <button class="btn btn-danger" onclick="WarnBudget('transport_fare')">車馬費不實</button>
+        <!--預算及車馬費警示-->
+    @endif
+
     @if (Auth::user()->can('admin') || Auth::user()->can('juniorAdmin'))
         <a href="{{ route('AdminMessage', $user['id']) }}" target="_blank" class='btn btn-dark'>撰寫站長訊息</a>
     @elseif (Auth::user()->can('readonly'))
@@ -376,7 +383,7 @@
         <td><a href="{{ route('stats/vip_log', $user->id) }}" target="_blank">{{ $showVipInfo }}</a></td>
         @if(!is_null($warnedInfo))<td>{{ !is_null($warnedInfo) ? $warnedDay.'('.$diffDays.')' : ''}}</td>@endif
         <td>{{ $user->last_login }}</td>
-        <td>{{ $user->login_times }}</td>
+        <td>{{ \App\Models\LogUserLogin::countOfUser($user->id) }}</td>
     </tr>
 </table>
 <h4>詳細資料</h4>
@@ -1907,15 +1914,20 @@
                             </select>
                         </div>--}}
 
-{{--                        <div class="form-group">--}}
-{{--                            <label for="ip">IP</label>--}}
-{{--                            <input type="checkbox" name="ip[]" id="ip" value="" class="form-check-input">Check me out--}}
-{{--                        </div>--}}
+                        {{--<div class="form-group">--}}
+                            {{--<label for="ip">IP</label>--}}
+                            {{--<input type="checkbox" name="ip[]" id="ip" value="" class="form-check-input">Check me out--}}
+                        {{--</div>--}}
                         <hr>
                         新增自動封鎖關鍵字 ( @if($user->engroup==2) 驗證封鎖 @else 永久封鎖  @endif )
                         <input placeholder="1.請輸入封鎖關鍵字" onfocus="this.placeholder=''" onblur="this.placeholder='1.請輸入封鎖關鍵字'" class="form-control" type="text" name="addautoban[]" rows="1">
                         <input placeholder="2.請輸入封鎖關鍵字" onfocus="this.placeholder=''" onblur="this.placeholder='2.請輸入封鎖關鍵字'" class="form-control" type="text" name="addautoban[]" rows="1">
                         <input placeholder="3.請輸入封鎖關鍵字" onfocus="this.placeholder=''" onblur="this.placeholder='3.請輸入封鎖關鍵字'" class="form-control" type="text" name="addautoban[]" rows="1">
+                        <hr>
+                        新增圖片檔名封鎖關鍵字 ( @if($user->engroup==2) 驗證封鎖 @else 永久封鎖  @endif )
+                        <input placeholder="1.請輸入封鎖關鍵字" onfocus="this.placeholder=''" onblur="this.placeholder='1.請輸入封鎖關鍵字'" class="form-control" type="text" name="addpicautoban[]" rows="1">
+                        <input placeholder="2.請輸入封鎖關鍵字" onfocus="this.placeholder=''" onblur="this.placeholder='2.請輸入封鎖關鍵字'" class="form-control" type="text" name="addpicautoban[]" rows="1">
+                        <input placeholder="3.請輸入封鎖關鍵字" onfocus="this.placeholder=''" onblur="this.placeholder='3.請輸入封鎖關鍵字'" class="form-control" type="text" name="addpicautoban[]" rows="1">
                 </div>
                 <div class="modal-footer">
                     <button type="submit" class='btn btn-outline-success ban-user'> 送出 </button>
@@ -2598,6 +2610,45 @@ $("input[name='phone']").keyup(function(){
         }
 
     });
+
+    //預算及車馬費警示警示
+    function WarnBudget(type)
+    {
+        if(confirm('確定警示?'))
+        {
+            try
+            {
+                $.ajax({
+                    type: 'POST',
+                    url: "/admin/users/warnBudget?{{csrf_token()}}={{now()->timestamp}}",
+                    data:{
+                        _token: '{{csrf_token()}}',
+                        type: type,
+                        user_id: {{$user->id}}
+                    },
+                    success: function(res){
+                        alert('警示成功');
+                        location.reload();
+                    },
+                    error: function(res){
+                        location.reload();
+                    }
+                });
+            }
+            catch(error) 
+            {
+                console.error(error);
+                location.reload();
+            }
+            
+        }
+        else
+        {
+            return false;
+        }
+    }
+    //預算及車馬費警示警示
+
 </script>
 <!--照片查看end-->
 </html>

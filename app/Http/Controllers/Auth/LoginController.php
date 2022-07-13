@@ -15,6 +15,7 @@ use App\Models\Role;
 use App\Models\SetAutoBan;
 use Auth;
 use App\Models\SimpleTables\banned_users;
+use App\Models\UserProvisionalVariables;
 use Illuminate\Support\Facades\Config;
 use Illuminate\Support\Facades\DB;
 use Session;
@@ -191,14 +192,41 @@ class LoginController extends \App\Http\Controllers\BaseController
      */
     public function login(Request $request)
     {
-        $user = User::select('id', 'engroup', 'last_login','login_times','intro_login_times','line_notify_alert')->withOut(['vip', 'user_meta'])->where('email', $request->email)->get()->first();
+        if(isset($_COOKIE['loginAccount'])){
+            $request->email= $this->decrypt_string($_COOKIE['loginAccount']);
+        }
+
+        $user = User::query()
+                    ->select('id', 'engroup', 'email', 'last_login', 'login_times', 'intro_login_times', 'line_notify_alert', 'registered_from_mobile')
+                    ->withOut(['vip', 'user_meta'])
+                    ->where('email', $request->email)->get()->first();
+
+        if($user && $user->registered_from_mobile){
+            return back()->withErrors(['請使用 APP 登入。']);
+        }
+
+        //登入時新增使用者一次性資料
+        if(isset($user))
+        {
+            $user_provisional_variables = UserProvisionalVariables::where('user_id', $user->id)->first();
+            if(!($user_provisional_variables ?? false))
+            {
+                $user_provisional_variables = new UserProvisionalVariables();
+                $user_provisional_variables->user_id = $user->id;
+            }
+            $user_provisional_variables->save();
+        }
+
         if(isset($user) && Role::join('role_user', 'role_user.role_id', '=', 'roles.id')->where('roles.name', 'admin')->where('role_user.user_id', $user->id)->exists()){
             $request->remember = true;
         }
         if(isset($user)){
             $request->session()->put('last_login', $user->last_login);
         }
-        $this->validateLogin($request);
+
+        if(!isset($_COOKIE['loginAccount'])) {
+            $this->validateLogin($request);
+        }
 
         // If the class is using the ThrottlesLogins trait, we can automatically throttle
         // the login attempts for this application. We'll key this by the username and
@@ -209,125 +237,28 @@ class LoginController extends \App\Http\Controllers\BaseController
             return $this->sendLockoutResponse($request);
         }
 
-        // if ($this->attemptLogin($request)) {
-        //     return $this->sendLoginResponse($request);
-        // }
+        if($request->get('remember')==1){
+            //自動登入
+            $encrypt_str=$this->encrypt_string($user->email);
+            setcookie('loginAccount', $encrypt_str);
+        }
+
+        if(isset($_COOKIE['loginAccount']) && $user && $this->decrypt_string($_COOKIE['loginAccount'])==$user->email ){
+            //自動登入
+            \Auth::login($user, true);
+            $this->handle_other_events_after_login($request, $user);
+            return redirect('/dashboard/personalPage');
+        }else{
+            //自動登入帳號驗證失敗
+            if(isset($_COOKIE['loginAccount'])){
+                setcookie('loginAccount', false);
+                return back()->withErrors(['自動登入帳號驗證失敗, 請重新登入帳號。']);
+            }
+        }
+
         if (\Auth::attempt(['email' => $request->email, 'password' => $request->password],$request->remember)) {
             $payload = $request->all();
-            $email = $payload['email'];
-            $uid = \Auth::user()->id;
-            $domains = config('banned.domains');
-            foreach ($domains as $domain){
-                if(str_contains($email, $domain)
-                    && !\DB::table('banned_users_implicitly')->where('target', $uid)->exists()){
-                    if(\DB::table('banned_users_implicitly')->insert(
-                        ['fp' => 'DirectlyBanned',
-                            'user_id' => '0',
-                            'target' => $uid,
-                            'created_at' => \Carbon\Carbon::now()]
-                    ))
-                    {
-                        BadUserCommon::addRemindMsgFromBadId($userId);
-                    }
-                }
-            }
-
-            //更新login_times
-            User::where('id',$user->id)->update(['login_times'=>$user->login_times +1]);
-            //更新教學<->登入次數
-            User::where('id',$user->id)->update(['intro_login_times'=>$user->intro_login_times +1]);
-            //更新會員專屬頁通知<->登入次數
-            User::where('id',$user->id)->update(['line_notify_alert'=>$user->line_notify_alert +1]);
-
-            if($request->cfp_hash && strlen($request->cfp_hash) == 50){
-                $cfp = \App\Services\UserService::checkcfp($request->cfp_hash, $user->id);
-                //新增登入紀錄
-                if($request->visitor_id_hash && strlen($request->visitor_id_hash) == 20){
-                    $visitor = \App\Services\UserService::checkvisitorid($request->visitor_id_hash, $user->id);
-                    if($visitor){
-                        $logUserLogin = LogUserLogin::create([
-                            'user_id' => $user->id,
-                            'cfp_id' => $cfp->id,
-                            'visitor_id'=>$visitor->id,
-                            'userAgent' => $_SERVER['HTTP_USER_AGENT'],
-                            'ip' => $request->ip(),
-                            'created_date' =>  date('Y-m-d'),
-                            'created_at' =>  date('Y-m-d H:i:s')]
-                        );
-                    }else{
-                        throw new \Exception("Visitor ID is error");
-                    }
-                }
-                else{
-                    $logUserLogin = LogUserLogin::create([
-
-                        'user_id' => $user->id,
-                        'cfp_id' => $cfp->id,
-                        'userAgent' => $_SERVER['HTTP_USER_AGENT'],
-                        'ip' => $request->ip(),
-                        'created_date' =>  date('Y-m-d'),
-                        'created_at' =>  date('Y-m-d H:i:s')]
-                    );
-                }
-            }
-            else{
-                logger("CFP debug data: " . $request->debug);
-                $logUserLogin = LogUserLogin::create([
-                        'user_id' => $user->id,
-                        'userAgent' => $_SERVER['HTTP_USER_AGENT'],
-                        'ip' => $request->ip(),
-                        'created_date' =>  date('Y-m-d'),
-                        'created_at' =>  date('Y-m-d H:i:s')]
-                );
-            }
-
-            try{
-                $country = null;
-                // 先檢查 IP 是否有記錄
-                $ip_record = LogUserLogin::where('ip', $request->ip())->first();
-                if($ip_record && $ip_record->country && $ip_record->country != "??"){
-                    $country = $ip_record->country;
-                }
-                // 否則從 API 查詢
-                else{
-                    $client = new \GuzzleHttp\Client();
-                    $response = $client->get('http://ipinfo.io/' . $request->ip() . '?token=27fc624e833728');
-                    $content = json_decode($response->getBody());
-                    if(isset($content->country)){
-                        $country = $content->country;
-                    }
-                    else{
-                        $country = "??";
-                    }
-                }
-
-                if(isset($country)){
-                    $logUserLogin->country = $country;
-                    $logUserLogin->save();
-                    $whiteList = [
-                        "pig820827@yahoo.com.tw",
-                        "henyanyilily@gmail.com",
-                        "chenyanyilily@gmail.com",
-                        "sa83109@gmail.com",
-                        "frebert456@gmail.com",
-                        "sagitwang@gmail.com",
-                        "nathan7720757@gmail.com",
-                    ];
-                    if(!in_array($request->email, $whiteList)){
-                        if($country != "TW" && $country != "??") {
-                            logger("None TW login, user id: " . $user->id);
-                            // if($user->engroup == 2){
-                            //     Auth::logout();
-                            //     return back()->withErrors('Forbidden.');
-                            // }
-                        }
-                    }
-                }
-            }
-            catch (\Exception $e){
-                logger($e);
-            }
-
+            $this->handle_other_events_after_login($request, $user);
             return $this->sendLoginResponse($request);
         }
 
@@ -342,6 +273,101 @@ class LoginController extends \App\Http\Controllers\BaseController
         return $this->sendFailedLoginResponse($request);
     }
 
+    public function handle_other_events_after_login($request, $user){
+        $email = $user->email;
+        $uid = \Auth::user()->id;
+        $domains = config('banned.domains');
+        foreach ($domains as $domain){
+            if(str_contains($email, $domain)
+                && !\DB::table('banned_users_implicitly')->where('target', $uid)->exists()){
+                if(\DB::table('banned_users_implicitly')->insert(
+                    ['fp' => 'DirectlyBanned',
+                        'user_id' => '0',
+                        'target' => $uid,
+                        'created_at' => \Carbon\Carbon::now()]
+                ))
+                {
+                    BadUserCommon::addRemindMsgFromBadId($uid);
+                }
+            }
+        }
+        //更新login_times
+        User::where('id',$user->id)->update(['login_times'=>$user->login_times +1]);
+        //更新教學<->登入次數
+        User::where('id',$user->id)->update(['intro_login_times'=>$user->intro_login_times +1]);
+        //更新會員專屬頁通知<->登入次數
+        User::where('id',$user->id)->update(['line_notify_alert'=>$user->line_notify_alert +1]);
+
+        if($request->cfp_hash && strlen($request->cfp_hash) == 50){
+            $cfp = \App\Services\UserService::checkcfp($request->cfp_hash, $user->id);
+            //新增登入紀錄
+            $logUserLogin = LogUserLogin::create([
+                    'user_id' => $user->id,
+                    'cfp_id' => $cfp->id,
+                    'userAgent' => $_SERVER['HTTP_USER_AGENT'],
+                    'ip' => $request->ip(),
+                    'created_date' =>  date('Y-m-d'),
+                    'created_at' =>  date('Y-m-d H:i:s')]
+            );
+        }
+        else{
+            logger("CFP debug data: " . $request->debug);
+            $logUserLogin = LogUserLogin::create([
+                    'user_id' => $user->id,
+                    'userAgent' => $_SERVER['HTTP_USER_AGENT'],
+                    'ip' => $request->ip(),
+                    'created_date' =>  date('Y-m-d'),
+                    'created_at' =>  date('Y-m-d H:i:s')]
+            );
+        }
+
+        try{
+            $country = null;
+            // 先檢查 IP 是否有記錄
+            $ip_record = LogUserLogin::where('ip', $request->ip())->first();
+            if($ip_record && $ip_record->country && $ip_record->country != "??"){
+                $country = $ip_record->country;
+            }
+            // 否則從 API 查詢
+            else{
+                $client = new \GuzzleHttp\Client();
+                $response = $client->get('http://ipinfo.io/' . $request->ip() . '?token=27fc624e833728');
+                $content = json_decode($response->getBody());
+                if(isset($content->country)){
+                    $country = $content->country;
+                }
+                else{
+                    $country = "??";
+                }
+            }
+
+            if(isset($country)){
+                $logUserLogin->country = $country;
+                $logUserLogin->save();
+                $whiteList = [
+                    "pig820827@yahoo.com.tw",
+                    "henyanyilily@gmail.com",
+                    "chenyanyilily@gmail.com",
+                    "sa83109@gmail.com",
+                    "frebert456@gmail.com",
+                    "sagitwang@gmail.com",
+                    "nathan7720757@gmail.com",
+                ];
+                if(!in_array($request->email, $whiteList)){
+                    if($country != "TW" && $country != "??") {
+                        logger("None TW login, user id: " . $user->id);
+                        // if($user->engroup == 2){
+                        //     Auth::logout();
+                        //     return back()->withErrors('Forbidden.');
+                        // }
+                    }
+                }
+            }
+        }
+        catch (\Exception $e){
+            logger($e);
+        }
+    }
     public function get_mac_address(){
         $string=exec('getmac');
         $mac=substr($string, 0, 17); 
@@ -389,4 +415,46 @@ class LoginController extends \App\Http\Controllers\BaseController
             }
         }
     }
+
+    public function encrypt_string($simple_string){
+        // Store the cipher method
+        $ciphering = "AES-128-CTR";
+
+        // Use OpenSSl Encryption method
+        $iv_length = openssl_cipher_iv_length($ciphering);
+        $options = 0;
+
+        // Non-NULL Initialization Vector for encryption
+        $encryption_iv = '1234567891011121';
+
+        // Store the encryption key
+        $encryption_key = "GeeksforGeeks";
+
+        // Use openssl_encrypt() function to encrypt the data
+        $encryption = openssl_encrypt($simple_string, $ciphering, $encryption_key, $options, $encryption_iv);
+
+        return $encryption;
+    }
+
+    public function decrypt_string($simple_string){
+
+        // Store the cipher method
+        $ciphering = "AES-128-CTR";
+
+        // Use OpenSSl Encryption method
+        $iv_length = openssl_cipher_iv_length($ciphering);
+        $options = 0;
+
+        // Non-NULL Initialization Vector for decryption
+        $decryption_iv = '1234567891011121';
+
+        // Store the decryption key
+        $decryption_key = "GeeksforGeeks";
+
+        // Use openssl_decrypt() function to decrypt the data
+        $decryption=openssl_decrypt ($simple_string, $ciphering, $decryption_key, $options, $decryption_iv);
+
+        return $decryption;
+    }
+
 }
