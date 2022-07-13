@@ -1613,4 +1613,8 @@ class User extends Authenticatable
         return $query->first();
     }
 
+    public function message()
+    {
+        return $this->hasMany(Message::class, 'from_id', 'id');
+    }
 }

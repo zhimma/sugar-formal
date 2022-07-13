@@ -136,7 +136,7 @@
                             @endif
                         </td>
                         <td>
-                            <a href="{{ route('AdminMessengerWithReportedId', [$result->member_id, $result->reported_id, $result->id, 0, 'reported']) }}" target="_blank" class='btn btn-dark'>撰寫</a>
+                            <a href="javascript:void(0);" data-id="{{ $result->id }}" data-memberid = "{{ $result->member_id }}" data-reportedid = "{{ $result->reported_id }}" class='btn btn-dark write_btn'>撰寫</a>
                         </td>
                         <td>
 {{--                            <a class="btn btn-danger ban-user" href="{{ route('banUserWithDayAndMessage', [$result['reported_id'], $result['id'], 'reported'])}}" target="_blank">封鎖</a>--}}
@@ -146,13 +146,20 @@
                                 $isBlocked = is_null($banned_users) && is_null($implicitly_users) ? 0 : 1;
 
                                 $data = \App\Models\SimpleTables\warned_users::where('member_id', $result['reported_id'])->first();
+                                $reportedInfo = \App\Models\User::findById($result['reported_id']);
+                                $reported_userMeta = \App\Models\UserMeta::where('user_id',$result['reported_id'])->first();
+
+                                $isWomanWarned = 0;
+
                                 if (isset($data) && ($data->expire_date == null || $data->expire_date >= \Carbon\Carbon::now())) {
                                     $isAdminWarned = 1;
+
+                                    if ($reportedInfo->engroup != 2) {
+                                        $isWomanWarned = 1;
+                                    }
                                 } else {
                                     $isAdminWarned = 0;
                                 }
-                                $reportedInfo = \App\Models\User::findById($result['reported_id']);
-                                $reported_userMeta = \App\Models\UserMeta::where('user_id',$result['reported_id'])->first();
                                 $reported_auth_status = 0;
                                 if (!is_null($reportedInfo) && $reportedInfo->isPhoneAuth() == 1) {
                                     $reported_auth_status = 1;
@@ -238,29 +245,34 @@
                             </a>
                         </td>
                         <td>
-                            <a href="{{ route('AdminMessengerWithReportedId', [$result->member_id, $result->reported_id]) }}" target="_blank" class='btn btn-dark'>撰寫</a>
+                            <a href="javascript:void(0);" data-id="{{ $result->id }}" data-memberid = "{{ $result->member_id }}" data-reportedid = "{{ $result->reported_id }}" class='btn btn-dark write_btn'>撰寫</a>
+                            @if ($result->is_write == 1 || (!$reportedInfo || $reportedInfo && ($isBlocked == 1 || ($isAdminWarned == 1 && $isWomanWarned == 1))))
+                            <a href="javascript:void(0);" data-id="{{ $result->id }}" data-memberid = "{{ $result->member_id }}" data-reportedid = "{{ $result->reported_id }}" class='btn btn-success handle_status_btn' data-handlestatus="1">已處理</a>
+                            @else
+                            <a href="javascript:void(0);" data-id="{{ $result->id }}" data-memberid = "{{ $result->member_id }}" data-reportedid = "{{ $result->reported_id }}" class='btn btn-dark handle_status_btn' data-handlestatus="0">未處理</a>
+                            @endif
                         </td>
                         <td>
-{{--                            <a class="btn btn-danger ban-user" href="{{ route('banUserWithDayAndMessage', [ $result['member_id'], $result['id'] , 'reported' ] ) }}" target="_blank">封鎖</a>--}}
+{{--                            <a class="btn btn-danger ban-user" href="{{ route('banUserWithDayAndMessage', [ $result['member_id'], $result['id'] , 'reported' ] ) }}" target="_blank">封鎖</a>--}}                    
                             @php
-                                $banned_users =  \App\Models\SimpleTables\banned_users::where('member_id', 'like', $result['member_id'])->get()->first();
-                                $implicitly_users = \App\Models\BannedUsersImplicitly::where('target', $result['member_id'])->get()->first();
-                                $isBlocked = is_null($banned_users) && is_null($implicitly_users) ? 0 : 1;
+                            $banned_users =  \App\Models\SimpleTables\banned_users::where('member_id', 'like', $result['member_id'])->get()->first();
 
-                                $data = \App\Models\SimpleTables\warned_users::where('member_id', $result['member_id'])->first();
-                                if (isset($data) && ($data->expire_date == null || $data->expire_date >= \Carbon\Carbon::now())) {
-                                    $isAdminWarned = 1;
-                                } else {
-                                    $isAdminWarned = 0;
-                                }
-                                $memberIDInfo = \App\Models\User::findById($result['member_id']);
-                                $memberID_userMeta = \App\Models\UserMeta::where('user_id', $result['member_id'])->first();
-                                $memberID_auth_status = 0;
-                                if (!is_null($memberIDInfo) && $memberIDInfo->isPhoneAuth() == 1) {
-                                    $memberID_auth_status = 1;
-                                }
+                            $implicitly_users = \App\Models\BannedUsersImplicitly::where('target', $result['member_id'])->get()->first();
+                            $isBlocked = is_null($banned_users) && is_null($implicitly_users) ? 0 : 1;
+
+                            $data = \App\Models\SimpleTables\warned_users::where('member_id', $result['member_id'])->first();
+                            if (isset($data) && ($data->expire_date == null || $data->expire_date >= \Carbon\Carbon::now())) {
+                                $isAdminWarned = 1;
+                            } else {
+                                $isAdminWarned = 0;
+                            }
+                            $memberIDInfo = \App\Models\User::findById($result['member_id']);
+                            $memberID_userMeta = \App\Models\UserMeta::where('user_id', $result['member_id'])->first();
+                            $memberID_auth_status = 0;
+                            if (!is_null($memberIDInfo) && $memberIDInfo->isPhoneAuth() == 1) {
+                                $memberID_auth_status = 1;
+                            }
                             @endphp
-
                             @if(!is_null($memberIDInfo))
                                 @if($isBlocked)
                                     <button type="button" class='unblock_user text-white btn @if($isBlocked) btn-success @else btn-danger @endif' onclick="Release({{ $result['member_id'] }})" data-id="{{ $result['member_id'] }}">解除封鎖</button>
@@ -591,6 +603,78 @@
         // $('.improper-photo').on('click', function(e) {
         //     $('.m-reason').val('照片不當');
         // });
+
+        $(".write_btn").click(function () {
+            const _self = $(this),
+                memberId = _self.data('memberid'),
+                reportedId = _self.data('reportedid'),
+                url = `{{ route('AdminMessengerWithReportedId', [':memberId', ':reportedId']) }}`.replace(':memberId', memberId).replace(':reportedId', reportedId),
+                parentElem = _self.parents('tr'),
+                handleStatusBtn = parentElem.find("a.handle_status_btn"),
+                reportedIndexId = _self.data('id');
+
+            $.ajax({
+                url : `{{ route('users.reported.isWrite') }}`,
+                type: "POST",
+                data: {
+                    _token: '{{csrf_token()}}',
+                    memberId: memberId,
+                    reportedId: reportedId,
+                    reportedIndexId: reportedIndexId,
+                },
+                success: res => {
+                    handleStatusBtn.data('handlestatus', 1);
+
+                    handleStatusBtn.text("已處理");
+
+                    handleStatusBtn.removeClass('btn-dark');
+
+                    handleStatusBtn.addClass('btn-success');
+
+                    window.open(url);
+                },
+                error: error => {
+                    console.log(error.responseJSON.message);
+                }
+            });
+        });
+
+        $(".handle_status_btn").click(function () {
+            const _self = $(this),
+                memberId = _self.data('memberid'),
+                reportedId = _self.data('reportedid'),
+                url = `{{ route('AdminMessengerWithReportedId', [':memberId', ':reportedId']) }}`.replace(':memberId', memberId).replace(':reportedId', reportedId),
+                status = _self.data('handlestatus'),
+                handleStatus = status == 1 ? "未處理" : "已處理",
+                reportedIndexId = _self.data('id');
+
+            $.ajax({
+                url : `{{ route('users.reported.isWrite') }}`,
+                type: "POST",
+                data: {
+                    _token: '{{csrf_token()}}',
+                    memberId: memberId,
+                    reportedId: reportedId,
+                    reportedIndexId: reportedIndexId,
+                },
+                success: res => {
+                    _self.data('handlestatus', status == 1 ? 0 : 1);
+
+                    _self.text(handleStatus);
+
+                    if (status == 1) {
+                        _self.removeClass('btn-success');
+                        _self.addClass('btn-dark');
+                    } else {
+                        _self.removeClass('btn-dark');
+                        _self.addClass('btn-success');
+                    }
+                },
+                error: error => {
+                    console.log(error.responseJSON.message);
+                }
+            });
+        });
 
         $(".unblock_user").click(function(){
             var data = $(this).data();
