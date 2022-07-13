@@ -52,10 +52,11 @@
             </div>
           </div>
           <div class="action-btns">
-            <button type="button" class="btn btn-info" @click="toggleMuteAudio">
+            <button v-if="this.user_permission == 'admin'" type="button" class="btn btn-info" @click="toggleMuteAudio">
               {{ mutedAudio ? "關閉靜音" : "開啟靜音" }}
             </button>
             <button
+              v-if="this.user_permission == 'admin'"
               type="button"
               class="btn btn-primary mx-4"
               @click="toggleMuteVideo"

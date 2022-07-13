@@ -5496,7 +5496,7 @@ function _defineProperty(obj, key, value) { if (key in obj) { Object.definePrope
                     signal_data: data,
                     from: _this4.authuserid
                   }).then(function () {})["catch"](function (error) {
-                    console.log(error);
+                    console.log('signal axios error:' + error);
                   });
                 });
 
@@ -5642,7 +5642,7 @@ function _defineProperty(obj, key, value) { if (key in obj) { Object.definePrope
                     signal: data,
                     to: _this5.videoCallParams.caller
                   }).then(function () {})["catch"](function (error) {
-                    console.log(error);
+                    console.log('signal axios error:' + error);
                   });
                 });
 
@@ -5673,6 +5673,7 @@ function _defineProperty(obj, key, value) { if (key in obj) { Object.definePrope
                 });
 
                 _this5.videoCallParams.peer2.on("error", function (err) {
+                  console.log('peer2 error');
                   console.log(err);
                 });
 
@@ -6107,7 +6108,7 @@ var render = function render() {
     staticClass: "q-pt-md"
   }, [_c("strong", [_vm._v(_vm._s(_vm.callPartner))])]), _vm._v(" "), _c("p", [_vm._v("撥打中...")])])]) : _vm._e()]), _vm._v(" "), _c("div", {
     staticClass: "action-btns"
-  }, [_c("button", {
+  }, [this.user_permission == "admin" ? _c("button", {
     staticClass: "btn btn-info",
     attrs: {
       type: "button"
@@ -6115,7 +6116,7 @@ var render = function render() {
     on: {
       click: _vm.toggleMuteAudio
     }
-  }, [_vm._v("\r\n              " + _vm._s(_vm.mutedAudio ? "關閉靜音" : "開啟靜音") + "\r\n            ")]), _vm._v(" "), _c("button", {
+  }, [_vm._v("\r\n              " + _vm._s(_vm.mutedAudio ? "關閉靜音" : "開啟靜音") + "\r\n            ")]) : _vm._e(), _vm._v(" "), this.user_permission == "admin" ? _c("button", {
     staticClass: "btn btn-primary mx-4",
     attrs: {
       type: "button"
@@ -6123,7 +6124,7 @@ var render = function render() {
     on: {
       click: _vm.toggleMuteVideo
     }
-  }, [_vm._v("\r\n              " + _vm._s(_vm.mutedVideo ? "顯示畫面" : "隱藏畫面") + "\r\n            ")]), _vm._v(" "), _c("button", {
+  }, [_vm._v("\r\n              " + _vm._s(_vm.mutedVideo ? "顯示畫面" : "隱藏畫面") + "\r\n            ")]) : _vm._e(), _vm._v(" "), _c("button", {
     staticClass: "btn btn-danger",
     attrs: {
       type: "button"
