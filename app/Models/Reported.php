@@ -25,7 +25,8 @@ class Reported extends Model
     protected $fillable = [
         'member_id',
         'reported_id',
-        'pic'
+        'pic',
+        'is_write',
     ];
 
     /**

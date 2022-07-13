@@ -738,6 +738,7 @@ Route::group(['middleware' => ['auth', 'global', 'active', 'femaleActive', 'vipC
         Route::get('users/pics/reported/{date_start?}/{date_end?}/{reported_id?}', 'UserController@searchReportedPics')->name('users/pics/reported/EXTRA');
         Route::get('users/reported/{date_start?}/{date_end?}/{reported_id?}', 'UserController@showReportedUsersList')->name('users/reported/EXTRA');
         Route::get('users/message/search/reported/{date_start?}/{date_end?}/{reported_id?}', 'UserController@showReportedMessages')->name('users/message/search/reported');
+        Route::post('users/reported/handle/status', 'UserController@reportedIsWrite')->name('users.reported.isWrite');
 
         Route::post('users/pics/reported', 'UserController@searchReportedPics')->name('users/pics/reported');
         Route::get('users/basic_setting', 'UserController@basicSetting')->name('users/basic_setting/GET');
@@ -892,6 +893,7 @@ Route::group(['middleware' => ['auth', 'global', 'active', 'femaleActive', 'vipC
         Route::post('users/picturesSimilar/image:delete', [\App\Http\Controllers\ImageController::class, 'admin_user_image_delete'])->withoutMiddleware('Admin');
         Route::post('users/picturesSimilar/avatar:delete', [\App\Http\Controllers\ImageController::class, 'admin_user_avatar_delete'])->withoutMiddleware('Admin');
         Route::post('users/picturesSimilar/pictures:delete/all', [\App\Http\Controllers\ImageController::class, 'admin_user_pictures_all_delete'])->withoutMiddleware('Admin');
+        Route::get('users/message/check', 'UserController@messageCheckIndex')->name("users.message.check");
 
         /*
         |--------------------------------------------------------------------------
