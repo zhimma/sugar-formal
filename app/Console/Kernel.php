@@ -59,6 +59,9 @@ class Kernel extends ConsoleKernel
             //每週檢查討論區
             $schedule->command('ForumCheck')->timezone('Asia/Taipei')->weeklyOn(1, '2:15');
 
+            //每小時檢查登入使用者
+            $schedule->command('UserLogin')->timezone('Asia/Taipei')->hourly();
+
         }
         if(app()->environment('CFP')){
             $schedule->call('\App\Http\Controllers\Admin\FindPuppetController@entrance')->timezone('Asia/Taipei')->dailyAt('05:00');
