@@ -1,0 +1,15 @@
+version = 1
+
+[[analyzers]]
+name = "php"
+enabled = true
+
+  [analyzers.meta]
+  bootstrap_files = ["public/index.php"]
+
+[[analyzers]]
+name = "javascript"
+enabled = true
+
+  [analyzers.meta]
+  plugins = ["vue"]

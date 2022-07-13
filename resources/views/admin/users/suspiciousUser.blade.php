@@ -41,9 +41,10 @@
                     $user['tipcount'] = \App\Models\Tip::TipCount_ChangeGood($userInfo->id);
                     $user['exchange_period'] = $userInfo->exchange_period;
                     $user['warnedicon'] = \App\Models\User::warned_icondata($row->id);
+                    $adminInfo=\App\Models\User::findById($row->suspicious_admin_id);
                 @endphp
                 <tr>
-                    <td>{{$row->suspicious_created_time }}</td>
+                    <td>{{$row->suspicious_created_time }}@if($adminInfo)<br><span>提報人員：<a href="{{ route('users/advInfo', $row->suspicious_admin_id) }}" target='_blank'>{{ $adminInfo->email }}</a></span>@endif</td>
                     <td>{{$row->suspicious_reason ? $row->suspicious_reason : '無' }}</td>
                     <td>{{$row->title }}</td>
                     <td><a href="/admin/users/advInfo/{{ $row->id }}" target="_blank">{{ $row->email }}</a></td>

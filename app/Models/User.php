@@ -845,6 +845,20 @@ class User extends Authenticatable
             $pr_log = $pr_log.'車馬費 '.$tip_count.' 次計分 => '.$pr.'; ';
         }
 
+        //精華文章通過站長審核計分
+        //Ex.他2/2通過一篇，那就2/2~3/2 +10，如果他在2/5通過一篇，那就2/5~3/5再+10。上限就是加到100為止
+        $essence_posts_reward_log=EssencePostsRewardLog::where('user_id', $uid)->groupByRaw('LEFT(verify_time, 10)')->orderBy('verify_time')->get();
+        foreach ($essence_posts_reward_log as $key => $reward_log){
+            $period_start=$reward_log->verify_time;
+            $period_end=date("Y-m-d H:i:s",strtotime("+1 month", strtotime($reward_log->verify_time)));
+            $today=date('Y-m-d H:i:s');
+            if(($today>=$period_start) &&($today<=$period_end)){
+                $pr = $pr +10;
+                $pr_log = $pr_log.date("Y/m/d",strtotime($reward_log->verify_time)).'精華文章通過審核 =>'.$pr.'; ';
+            }
+        }
+
+
         //曾被付費警示/封鎖扣分
         //付費警示紀錄
         $isEverBannedByVipPass = IsBannedLog::where('user_id', $uid)->where('vip_pass', 1)->get()->count();

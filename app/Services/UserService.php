@@ -246,6 +246,7 @@ class UserService
      */
     public function update($userId, $payload)
     {
+        //Log::Info($payload);
         $setBlockKeys = ['blockcity','blockarea'];
         $notLikeBlockKeys = ['blockarea' => 'isHideArea'];
         foreach($setBlockKeys as $setBlockKeys){
@@ -482,6 +483,11 @@ class UserService
                   $payload['meta']['marriage'] = $payload['marriage'];
                   unset($payload['marriage']);
                   }
+                  if (isset($payload['is_pure_dating']))
+                  {
+                  $payload['meta']['is_pure_dating'] = $payload['is_pure_dating'];
+                  unset($payload['is_pure_dating']);
+                  }
                   if (isset($payload['drinking']))
                   {
                   $payload['meta']['drinking'] = $payload['drinking'];
@@ -521,6 +527,22 @@ class UserService
 //                    $payload['meta']['exchange_period'] = $payload['exchange_period'];
 //                    unset($payload['exchange_period']);
 //                }
+
+                if (isset($payload['budget_per_month_min']) && isset($payload['budget_per_month_max']))
+                {
+                    $payload['meta']['budget_per_month_min'] = $payload['budget_per_month_min'];
+                    unset($payload['budget_per_month_min']);
+                    $payload['meta']['budget_per_month_max'] = $payload['budget_per_month_max'];
+                    unset($payload['budget_per_month_max']);
+                }
+
+                if (isset($payload['transport_fare_min']) && isset($payload['transport_fare_max']))
+                {
+                    $payload['meta']['transport_fare_min'] = $payload['transport_fare_min'];
+                    unset($payload['transport_fare_min']);
+                    $payload['meta']['transport_fare_max'] = $payload['transport_fare_max'];
+                    unset($payload['transport_fare_max']);
+                }
 
                 $meta = $user->meta_();
                 if (isset($payload['meta']))
@@ -1140,57 +1162,6 @@ class UserService
 
         return $cfp;
     }
-
-    public static function checkvisitorid($hash, $user_id){
-        if(!$hash){
-            return false;
-        }
-
-        
-        // $cfp = \App\Models\VisitorID::where('hash', $hash)->orderBy('id','desc')->first();
-        // $cfp_id = $cfp->id ?? null;
-        // $cfp_user = \App\Models\VisitorIDUser::where('visitor_id', $cfp_id)->where('user_id', $user_id)->first();
-
-        // try{
-            // if(!$cfp){
-            //     $cfp = new \App\Models\VisitorID;
-            //     $cfp->hash = $hash;
-            //     $cfp->host = request()->getHttpHost();
-            //     $cfp->save();
-    
-            //     $cfp_user = new \App\Models\VisitorIDUser;
-            //     $cfp_user->visitor_id = $cfp->id;
-            //     $cfp_user->user_id = $user_id;
-            //     $cfp_user->save();
-
-            //     return $cfp;
-            // }else if($cfp && !$cfp_user){
-            //     throw new \Exception("Visitor ID is not correspond");
-            // }else if($cfp && $cfp_user){
-            //     return $cfp;
-            // }
-
-            $cfp = \App\Models\VisitorID::where('hash', $hash)->first();
-            if(!$cfp){
-                $cfp = new \App\Models\VisitorID;
-                $cfp->hash = $hash;
-                $cfp->host = request()->getHttpHost();
-                $cfp->save();
-            }
-            $exists = \App\Models\VisitorIDUser::where('visitor_id', $cfp->id)->where('user_id', $user_id)->count();
-            if($exists == 0){
-                $cfp_user = new \App\Models\VisitorIDUser;
-                $cfp_user->visitor_id = $cfp->id;
-                $cfp_user->user_id = $user_id;
-                $cfp_user->save();
-            }
-
-            return $cfp;
-        // }catch(\Exception $e){
-        //     logger($e);
-        // }
-        
-    }
     
     public static function checkNewSugarForbidMsg($femaleUser,$maleUser) {
         
@@ -1232,12 +1203,7 @@ class UserService
 				$query = LogUserLogin::queryOfCfpIdUsedByOtherUserId($value,$user_id);
 				if($query)
 					$logEntrys = $query->distinct('user_id')->get();
-			break;
-            case 'visitor_id':
-                $query = LogUserLogin::queryOfVisitorIdUsedByOtherUserId($value,$user_id);
-				if($query)
-					$logEntrys = $query->distinct('user_id','visitor_id')->get();
-            break;
+			break;			
 		}
 		$user_list = [];
 		$b_count_total=0;
@@ -1308,6 +1274,7 @@ class UserService
                 ->whereNull('b1.member_id')
                 ->whereNull('b3.target')
                 ->whereNull('wu.member_id')
+                ->where('users.id', $targetUser->id)
                 ->where('users.accountStatus', 1)
                 ->where('users.account_status_admin', 1)
                 ->where(function($query)use($date_start,$date_end) {
@@ -1316,7 +1283,6 @@ class UserService
                         ->orWhereNull('message.sys_notice')
                         ->whereBetween('message.created_at', array($date_start . ' 00:00', $date_end . ' 23:59'));
                 });
-            $query->where('users.email',$targetUser->email);
             $results_a = $query->distinct('message.from_id')->get();
 
             if ($results_a != null) {

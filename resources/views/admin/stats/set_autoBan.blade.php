@@ -22,6 +22,7 @@
 				<option value="cfp_id">cfp_id</option>
 				<option value="ip">ip</option>
 				<option value="userAgent">userAgent</option>
+				<option value="picname">圖片檔名</option>
 	        </select>
 	    </td>
 	    <td>
@@ -53,6 +54,7 @@
 			@elseif($result->type=='style')期待的約會模式 
 			@elseif($result->type=='msg')發送訊息內容 
 			@elseif($result->type=='allcheck')全欄位封鎖
+			@elseif($result->type=='picname')圖片檔名
 				@else {{$result->type}}
 			@endif
 		</td>

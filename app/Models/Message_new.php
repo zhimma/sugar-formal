@@ -718,6 +718,7 @@ class Message_new extends Model
         $message = new Message;
         $message->from_id = $from_id;
         $message->to_id = $to_id;
+        $message->room_id = Message::checkMessageRoomBetween($from_id, $to_id);
         $message->content = $msg;
         $message->all_delete_count = 0;
         $message->is_row_delete_1 = 0;
@@ -820,11 +821,14 @@ class Message_new extends Model
         $query->whereRaw('message.created_at < IFNULL(b2.created_at,"2999-12-31 23:59:59")');
         $query->whereRaw('message.created_at < IFNULL(b3.created_at,"2999-12-31 23:59:59")');
         $query->whereRaw('message.created_at < IFNULL(b4.created_at,"2999-12-31 23:59:59")');
-		$allSenders = $query->get();
 
         if($isCount) {
             $allSenders = $query->groupBy('to_from_pair')->get()->count();
         }
+        else {
+            $allSenders = $query->get();
+        }
+        
         return $allSenders;
     }
 
