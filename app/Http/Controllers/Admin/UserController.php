@@ -1276,8 +1276,13 @@ class UserController extends \App\Http\Controllers\BaseController
                     break;
             }
             $r_user = User::findById($row->rid);
-            array_push(
-                $reportBySelf,
+            $punishment_status = '';
+            if ($row->banned_id && ($row->banned_expire_date > Carbon::now() || $row->banned_expire_date == null)) {
+                $punishment_status = 'banning';
+            } else if ($row->warned_id && ($row->warned_expire_date > Carbon::now() || $row->warned_expire_date == null)) {
+                $punishment_status = 'warning';
+            }
+            array_push($reportBySelf,
                 array(
                     'reporter_id' => $row->rid,
                     'content' => $row->reason,
@@ -1290,7 +1295,8 @@ class UserController extends \App\Http\Controllers\BaseController
                     'isvip' => $r_user->isVip(),
                     'auth_status' => $r_user->isPhoneAuth(),
                     'report_type' => $report_type,
-                    'engroup' => $row->engroup
+                    'engroup' => $row->engroup,
+                    'punishment_status' => $punishment_status
                 )
             );
             continue;
@@ -1298,19 +1304,73 @@ class UserController extends \App\Http\Controllers\BaseController
 
         //被檢舉紀錄
         //檢舉紀錄 reporter_id檢舉者uid  被檢舉者reported_user_id為此頁面主要會員
-        $pic_report1 = ReportedAvatar::select('reporter_id as uid', 'reported_user_id as edid', 'cancel', 'created_at', 'content', 'pic')->where('reported_user_id', $user->id)->where('reporter_id', '!=', $user->id)->groupBy('reporter_id')->get();
+        $pic_report1 = ReportedAvatar::select(
+                'reported_avatar.reporter_id as uid',
+                'reported_avatar.reported_user_id as edid',
+                'reported_avatar.cancel',
+                'reported_avatar.created_at',
+                'reported_avatar.content',
+                'reported_avatar.pic',
+                'b.id as banned_id',
+                'b.expire_date as banned_expire_date',
+                'w.id as warned_id',
+                'w.expire_date as warned_expire_date')
+            ->leftJoin('banned_users as b', 'reported_avatar.reporter_id','b.member_id')
+            ->leftJoin('warned_users as w','reported_avatar.reporter_id','w.member_id')
+            ->where('reported_user_id', $user->id)
+            ->where('reporter_id', '!=', $user->id)
+            ->groupBy('reporter_id')
+            ->get();
         $pic_report2 = ReportedPic::select('reported_pic.reporter_id as uid', 'member_pic.member_id as edid', 'cancel', 'reported_pic.created_at', 'reported_pic.content')->join('member_pic', 'reported_pic.reported_pic_id', '=', 'member_pic.id')->where('member_pic.member_id', $user->id)->where('reported_pic.reporter_id', '!=', $user->id)->groupBy('reported_pic.reporter_id')->get();
         //大頭照與照片合併計算
         $collection = collect([$pic_report1, $pic_report2]);
         $pic_all_report = $collection->collapse()->unique('uid');
         //$pic_all_report->unique()->all();
 
-        $msg_report = Message::select('to_id', 'id', 'cancel', 'created_at', 'content', 'from_id')->where('from_id', $user->id)->where('isReported', 1)->distinct('to_id')->get();
-        $report = Reported::select('member_id', 'reported_id', 'cancel', 'created_at', 'content', 'pic')->where('reported_id', $user->id)->where('member_id', '!=', $user->id)->groupBy('member_id')->get();
+        $msg_report = Message::select(
+                'message.to_id', 
+                'message.id', 
+                'message.cancel', 
+                'message.created_at', 
+                'message.content',
+                'message.from_id',
+                'b.id as banned_id',
+                'b.expire_date as banned_expire_date',
+                'w.id as warned_id',
+                'w.expire_date as warned_expire_date')
+            ->leftJoin('banned_users as b', 'message.to_id', 'b.member_id')
+            ->leftJoin('warned_users as w', 'message.to_id', 'w.member_id')
+            ->where('message.from_id', $user->id)
+            ->where('message.isReported', 1)
+            ->distinct('message.to_id')
+            ->get();
+        $report = Reported::select(
+                'reported.member_id', 
+                'reported.reported_id', 
+                'reported.cancel', 
+                'reported.created_at', 
+                'reported.content', 
+                'reported.pic',
+                'b.id as banned_id',
+                'b.expire_date as banned_expire_date',
+                'w.id as warned_id',
+                'w.expire_date as warned_expire_date')
+            ->leftJoin('banned_users as b', 'reported.member_id', 'b.member_id')
+            ->leftJoin('warned_users as w', 'reported.member_id', 'w.member_id')
+            ->where('reported.reported_id', $user->id)
+            ->where('reported.member_id', '!=', $user->id)
+            ->groupBy('reported.member_id')
+            ->get();
         $report_all = array();
 
         foreach ($pic_all_report as $row) {
             $f_user = User::findById($row->uid);
+            $punishment_status = '';
+            if ($row->banned_id && ($row->banned_expire_date > Carbon::now() || $row->banned_expire_date == null)) {
+                $punishment_status = 'banning';
+            } else if ($row->warned_id && ($row->warned_expire_date > Carbon::now() || $row->warned_expire_date == null)) {
+                $punishment_status = 'warning';
+            }
             if (!isset($f_user)) {
                 array_push(
                     $report_all,
@@ -1329,7 +1389,8 @@ class UserController extends \App\Http\Controllers\BaseController
                         'auth_status' => null,
                         'report_type' => '照片檢舉',
                         'report_table' => 'reported_avatarpic',
-                        'engroup' => null
+                        'engroup' => null,
+                        'punishment_status' => $punishment_status
                     )
                 );
                 continue;
@@ -1357,14 +1418,20 @@ class UserController extends \App\Http\Controllers\BaseController
                     'auth_status' => $auth_status,
                     'report_type' => '照片檢舉',
                     'report_table' => 'reported_avatarpic',
-                    'engroup' => $f_user->engroup
+                    'engroup' => $f_user->engroup,
+                    'punishment_status' => $punishment_status
                 )
             );
         }
         foreach ($msg_report as $row) {
             $f_user = User::findById($row->to_id);
-
-            if (array_search($row->to_id, array_column($report_all, 'reporter_id')) === false) {
+            $punishment_status = '';
+            if ($row->banned_id && ($row->banned_expire_date > Carbon::now() || $row->banned_expire_date == null)) {
+                $punishment_status = 'banning';
+            } else if ($row->warned_id && ($row->warned_expire_date > Carbon::now() || $row->warned_expire_date == null)) {
+                $punishment_status = 'warning';
+            }
+            if(array_search($row->to_id, array_column($report_all, 'reporter_id')) === false) {
                 if (!isset($f_user)) {
                     array_push(
                         $report_all,
@@ -1384,7 +1451,8 @@ class UserController extends \App\Http\Controllers\BaseController
                             'auth_status' => null,
                             'report_type' => '訊息檢舉',
                             'report_table' => 'message',
-                            'engroup' => null
+                            'engroup' => null,
+                            'punishment_status' => $punishment_status
                         )
                     );
                     continue;
@@ -1413,14 +1481,21 @@ class UserController extends \App\Http\Controllers\BaseController
                         'auth_status' => $auth_status,
                         'report_type' => '訊息檢舉',
                         'report_table' => 'message',
-                        'engroup' => $f_user->engroup
+                        'engroup' => $f_user->engroup,
+                        'punishment_status' => $punishment_status
                     )
                 );
             }
         }
         foreach ($report as $row) {
             $f_user = User::findById($row->member_id);
-            if (array_search($row->member_id, array_column($report_all, 'reporter_id')) === false) {
+            $punishment_status = '';
+            if ($row->banned_id && ($row->banned_expire_date > Carbon::now() || $row->banned_expire_date == null)) {
+                $punishment_status = 'banning';
+            } else if ($row->warned_id && ($row->warned_expire_date > Carbon::now() || $row->warned_expire_date == null)) {
+                $punishment_status = 'warning';
+            }
+            if(array_search($row->member_id, array_column($report_all, 'reporter_id')) === false) {
                 if (!isset($f_user)) {
                     array_push(
                         $report_all,
@@ -1440,7 +1515,8 @@ class UserController extends \App\Http\Controllers\BaseController
                             'auth_status' => null,
                             'report_type' => '會員檢舉',
                             'report_table' => 'reported',
-                            'engroup' => null
+                            'engroup' => null,
+                            'punishment_status' => $punishment_status
                         )
                     );
                     continue;
@@ -1469,7 +1545,8 @@ class UserController extends \App\Http\Controllers\BaseController
                         'auth_status' => $auth_status,
                         'report_type' => '會員檢舉',
                         'report_table' => 'reported',
-                        'engroup' => $f_user->engroup
+                        'engroup' => $f_user->engroup,
+                        'punishment_status' => $punishment_status
                     )
                 );
             }
