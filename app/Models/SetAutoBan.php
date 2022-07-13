@@ -28,6 +28,7 @@ class SetAutoBan extends Model
     //自動封鎖 用後台設定的關鍵字查詢
     public static function auto_ban($uid)
     {
+        Log::info('start_SetAutoBan_auto_ban');
         AutoBanCaller::dispatch($uid)->onConnection('database-long')->onQueue('long-jobs')->delay(SetAutoBan::_getDelayTime());
     }
     
@@ -75,6 +76,16 @@ class SetAutoBan extends Model
                         $violation = true;
                     }
                     break;
+
+                //20220629新增圖片檔名
+                case 'picname':
+                    if(UserMeta::where('user_id',$uid)->where('pic_original_name','like','%'.$content.'%')->first() != null) $violation = true;
+                    
+                    //有一筆違規就可以封鎖了
+                    if(MemberPic::where('member_id',$uid)->where('original_name','like','%'.$content.'%')->first() != null) $violation = true;
+                    break;
+                //20220629新增圖片檔名   
+
                 case 'pic':
                     $ban_encode_entry = ImagesCompareService::getCompareEncodeByPic($content);
                     if($ban_encode_entry??null) {
@@ -202,11 +213,14 @@ class SetAutoBan extends Model
     //登出後的警示
     public static function logout_warned($uid)
     {
+        Log::Info('start_LogoutAutoBan_logout_warned');
+        Log::Info($uid);
         LogoutAutoBan::dispatch($uid)->onConnection('database-long')->onQueue('long-jobs')->delay(SetAutoBan::_getDelayTime());
     }
 
     public static function logoutWarned($uid)
     {
+        Log::info('start_LogoutAutoBan_logoutWarned');
         $user = User::findById($uid);
         try {
             if(isset($user) && $user->can('admin')){
@@ -272,7 +286,7 @@ class SetAutoBan extends Model
 						break;
 					}					
                     $ip = LogUserLogin::where('user_id',$uid)->orderBy('created_at','desc')->first();
-                    if($ip->ip == $content) {
+                    if($ip?->ip == $content) {
 						$violation = true;
 						$ban_set->expiry = \Carbon\Carbon::now()->addMonths(1)->format('Y-m-d H:i:s');
                         $ban_set->updated_at = now();
@@ -282,6 +296,17 @@ class SetAutoBan extends Model
                 case 'userAgent':
                     if(LogUserLogin::where('user_id',$uid)->where('userAgent', 'like','%'.$content.'%')->first() != null) $violation = true;
                     break;
+
+                //20220629新增圖片檔名
+                case 'picname':
+                    Log::info('start_pic_auto_ban');
+                    if(UserMeta::where('user_id',$uid)->where('pic_original_name','like','%'.$content.'%')->first() != null) $violation = true;
+
+                    //有一筆違規就可以封鎖了
+                    if(MemberPic::where('member_id',$uid)->where('original_name','like','%'.$content.'%')->first() != null) $violation = true;
+                    break;
+                //20220629新增圖片檔名   
+
                 case 'pic':
                     $ban_encode_entry = ImagesCompareService::getCompareEncodeByPic($content);
 
@@ -352,6 +377,7 @@ class SetAutoBan extends Model
         {
             foreach ($msg as $m)
             {
+                $userBanned = null;
                 $violation = false;
                 if (strpos($m->content, $ban_set->content) !== false) {
                     $violation = true;
@@ -360,11 +386,19 @@ class SetAutoBan extends Model
                     if($ban_set->set_ban == 1 && banned_users::where('member_id', $uid)->first() == null) {
                         //直接封鎖
                         $userBanned = new banned_users;
-                        $userBanned->member_id = $uid;
-                        $userBanned->reason = "系統原因($ban_set->id)";
-                        $userBanned->save();
-                        //寫入log
-                        DB::table('is_banned_log')->insert(['user_id' => $uid, 'reason' => "系統原因($ban_set->id)"]);
+                        if($user->engroup==2 ) {
+                           if(!($user->advance_auth_status??null)) {
+                               $userBanned->adv_auth=1;
+                           }
+                           else $userBanned=null;
+                        }                         
+                        if($userBanned) {
+                            $userBanned->member_id = $uid;
+                            $userBanned->reason = "系統原因($ban_set->id)";
+                            $userBanned->save();
+                            //寫入log
+                            DB::table('is_banned_log')->insert(['user_id' => $uid, 'reason' => "系統原因($ban_set->id)"]);
+                        }
                     }
                     elseif($ban_set->set_ban == 2 && BannedUsersImplicitly::where('target', $uid)->first() == null) {
                         //隱性封鎖

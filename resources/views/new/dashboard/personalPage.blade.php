@@ -154,6 +154,31 @@
                 </div>
 
                 <div class="n_search tabbox_new g_pnr">
+                    <div class="sys_aa">
+                        <div class="tabbox_new_dt tabbox_new_ss"><span>站長來訊通知</span>
+                            @if(isset($admin_msgs) && count($admin_msgs))
+                                <div class="right btn01 btn_admin_msgs"><span class="zixu_cs"><img src="/new/images/xiugai1.png">編輯</span></div>
+                                <div class="btn02 sx_ment fr_nbj">
+                                    <span class="iconfont icon-wancheng zixu_cs1 dtmr20">完成</span>
+                                    <span class="iconfont icon-shanchu zixu_cs1">刪除</span>
+                                    <label class="iconfont icon-kuang zixu_cs2"  style="margin-top: 2px; margin-right: 3px; float:right ;"><input type="checkbox" class="qxuan">全選</label>
+                                </div>
+                            @endif
+                        </div>
+                        <div class="tabbox_new_dd">
+                            @if(isset($admin_msgs) && count($admin_msgs))
+                                @foreach($admin_msgs as $amsg)
+                                    <h2 class="tabbox_h2 ta_l"  data-recordtype="admin_msgs" data-rowid="{{$amsg->id}}" >
+								<span class="tu_dfont">
+								{!! $amsg->content !!}
+								</span>
+                                    </h2>
+                                @endforeach
+                            @else
+                                <h2 class="tabbox_h2 ta_l"><span class="tu_dfont">暫無系統信</span></h2>
+                            @endif
+                        </div>
+                    </div>
                     <div class="sys_aa" id="vip_state_block">
                         <div class="tabbox_new_dt"><span>VIP狀態</span>
                             @if(!$user->isVip())
@@ -170,6 +195,16 @@
                             @else
                             <h2 class="tabbox_h2"><span class="tu_dfont">{!! $vipStatus??'您目前還不是VIP' !!}</span></h2>
                             @endif
+                            @php
+                                $essence_posts_reward_log=\App\Models\EssencePostsRewardLog::where('user_id', $user->id)->get();
+                            @endphp
+                            <h2 class="tabbox_h2 ta_l">
+                                @foreach ($essence_posts_reward_log as $reward_log)
+                                    <span class="tu_dfont" style="border-top: #eee 1px dashed;">
+                                        您的精華文章 {{$reward_log->title}} 已於 {{ substr($reward_log->verify_time,0,10) }} 通過審核，已贈予本站VIP一個月。
+                                    </span>
+                                @endforeach
+                            </h2>
                         </div>
                     </div>
                    <div class="sys_aa" id="vip_state_block">
@@ -239,32 +274,6 @@
                             </div>
                         </div>
                     </div>
-                    
-                    <div class="sys_aa">
-                        <div class="tabbox_new_dt tabbox_new_ss"><span>站長來訊通知</span>
-						@if(isset($admin_msgs) && count($admin_msgs))
-						<div class="right btn01 btn_admin_msgs"><span class="zixu_cs"><img src="/new/images/xiugai1.png">編輯</span></div>
-						<div class="btn02 sx_ment fr_nbj">
-							<span class="iconfont icon-wancheng zixu_cs1 dtmr20">完成</span>
-							<span class="iconfont icon-shanchu zixu_cs1">刪除</span>
-							<label class="iconfont icon-kuang zixu_cs2"  style="margin-top: 2px; margin-right: 3px; float:right ;"><input type="checkbox" class="qxuan">全選</label>
-						</div>
-						@endif
-						</div>
-                        <div class="tabbox_new_dd">
-						@if(isset($admin_msgs) && count($admin_msgs))
-							@foreach($admin_msgs as $amsg)
-                            <h2 class="tabbox_h2 ta_l"  data-recordtype="admin_msgs" data-rowid="{{$amsg->id}}" >
-								<span class="tu_dfont">
-								{!! $amsg->content !!}
-								</span>
-							</h2>
-							@endforeach
-						@else
-							<h2 class="tabbox_h2 ta_l"><span class="tu_dfont">暫無系統信</span></h2>
-						@endif
-                        </div>
-                    </div>                    
 
                     @if($isBannedStatus != '')
                     <div class="sys_aa">

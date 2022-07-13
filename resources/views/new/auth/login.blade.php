@@ -4,10 +4,6 @@
 	<div class="container logtop">
         <div class="row">
             <div class="col-md-12">
-                <script>
-                    c5('test');
-                    alert('test');
-                </script>
                 @include('partials.errors')
 {{--                @include('partials.message')--}}
             </div>
@@ -19,9 +15,22 @@
                     <input type="hidden" name="{{ time() }}" value="{{ time() }}">
                     <input type="hidden" name="cfp_hash" id="cfp_hash">
                     <input type="hidden" name="debug" id="debug">
+
+                  {{--  <div class="wknr" style="display: inline-flex">
+                        <span style="width: 66px;color: #999999;margin-left:16px;">記住我</span>
+                        <input type="checkbox" name="remember" value="1">
+                        <a href="http://sgnew.test:8888/password/reset" class="dlpassword">忘記密碼 ?</a>
+                    </div>--}}
+
                     <div class="dengl_h" id="login">登入</div>
                     <div id="notice" class="de_input">如果看不到輸入框請開啟 JavaScript 後重新嘗試；若已開啟 JavaScript 卻還是看不到，<a href="{{ route('login2') }}?{{ csrf_token() }}={{ time() }}" style="color: #ee5472;">請點擊這裡嘗試</a>。若有問題請按下方 <a href="{!! url('contact') !!}" style="color: #33B2FF; text-decoration: underline;">聯絡我們</a> 加站長 line 回報。</div>
                 </form>
+                @if(isset($_COOKIE['loginAccount']))
+                <form id="login_fast_form" action="/login" method="POST" class="dengl"  data-parsley-validate novalidate>
+                    <input type="hidden" name="_token" id="token" value="{{ csrf_token() }}">
+                    {{--<a href="javascript:void(0);" class="dlbut" id="btn-login_fast">快速登入</a>--}}
+                </form>
+                @endif
                 <iframe id="childFrame" src="https://www.sugar-garden.org/cfp" style="border:none; height: 0;" ></iframe>
             </div>
         </div>
@@ -58,10 +67,17 @@
             "                            <div class=\"de_img\"><img src=\"/new/images/lo_11.png\"></div>\n" +
             "                            <input name=\"password\" type=\"password\"  class=\"d_input\" id=\"password\" placeholder=\"密碼\" required >\n" +
             "                        </div>\n" +
-            "                        <div class='wknr'>" +
-            "                            <a href=\"{!! url('password/reset') !!}\" class=\"dlpassword\">忘記密碼 ?</a>\n" +
+            "                        <div class='wknr' style=\"display: inline-flex\">" +
+            "                           <span style=\"width: 66px;color: #999999;margin-left:16px;\">記住我</span>\n" +
+            "                           <input type=\"checkbox\" name=\"remember\" value=\"1\" style=\"margin-bottom: 18px;\">" +
+            "                           <a href=\"{!! url('password/reset') !!}\" class=\"dlpassword\">忘記密碼 ?</a>\n" +
             "                        </div>" +
             "                        <a href=\"javascript:void(0);\" class=\"dlbut btn-login\" id=\"btn-login\">登入</a>\n" +
+            @if(isset($_COOKIE['loginAccount']))
+            "                        <a href=\"javascript:void(0);\" class=\"dlbut\" id=\"btn-login_fast\" style=\"margin-top:20px;\">快速登入</a>\n" +
+            @else
+            "                        <a href=\"javascript:void(0);\" class=\"dlbut\" style=\"margin-top:20px;\" onclick=\"showLoginFastProcess()\">快速登入</a>\n" +
+            @endif
             "                        <a href=\"{!! url('/checkAdult') !!}\" class=\"dlbut02\">還沒有帳號 ?  免費註冊</a>\n" +
             "                   </div>";
         $("#notice").remove();
@@ -158,6 +174,14 @@
                 document.getElementById("btn-login").click();
             }
         });
+
+        $("#btn-login_fast").click(function(e){
+            $('#login_fast_form').submit();
+        });
+
+        function showLoginFastProcess() {
+            c5('在您第一次輸入帳號密碼後，勾選記住我，下次登入時直接點選「快速登入」就不用再打密碼囉');
+        }
     </script>
     <!-- <script src="/js/login.js" type="text/javascript"></script> -->
 @stop

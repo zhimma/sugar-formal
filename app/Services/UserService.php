@@ -246,6 +246,7 @@ class UserService
      */
     public function update($userId, $payload)
     {
+        //Log::Info($payload);
         $setBlockKeys = ['blockcity','blockarea'];
         $notLikeBlockKeys = ['blockarea' => 'isHideArea'];
         foreach($setBlockKeys as $setBlockKeys){
@@ -482,6 +483,11 @@ class UserService
                   $payload['meta']['marriage'] = $payload['marriage'];
                   unset($payload['marriage']);
                   }
+                  if (isset($payload['is_pure_dating']))
+                  {
+                  $payload['meta']['is_pure_dating'] = $payload['is_pure_dating'];
+                  unset($payload['is_pure_dating']);
+                  }
                   if (isset($payload['drinking']))
                   {
                   $payload['meta']['drinking'] = $payload['drinking'];
@@ -521,6 +527,22 @@ class UserService
 //                    $payload['meta']['exchange_period'] = $payload['exchange_period'];
 //                    unset($payload['exchange_period']);
 //                }
+
+                if (isset($payload['budget_per_month_min']) && isset($payload['budget_per_month_max']))
+                {
+                    $payload['meta']['budget_per_month_min'] = $payload['budget_per_month_min'];
+                    unset($payload['budget_per_month_min']);
+                    $payload['meta']['budget_per_month_max'] = $payload['budget_per_month_max'];
+                    unset($payload['budget_per_month_max']);
+                }
+
+                if (isset($payload['transport_fare_min']) && isset($payload['transport_fare_max']))
+                {
+                    $payload['meta']['transport_fare_min'] = $payload['transport_fare_min'];
+                    unset($payload['transport_fare_min']);
+                    $payload['meta']['transport_fare_max'] = $payload['transport_fare_max'];
+                    unset($payload['transport_fare_max']);
+                }
 
                 $meta = $user->meta_();
                 if (isset($payload['meta']))

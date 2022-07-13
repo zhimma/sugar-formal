@@ -31,7 +31,8 @@ class ReportedPic extends Model
         $reported->reported_pic_id = $reported_pic_id;
         $reported->content = $content;
         $reported->save();
-        event(new \App\Events\CheckWarnedOfReport($reported_pic_id));
+        $user_id = MemberPic::where('id',$reported_pic_id)->first()->member_id;
+        event(new \App\Events\CheckWarnedOfReport($user_id));
     }
 
     public static function findMember($reporter_id, $reported_pic_id){

@@ -10,7 +10,6 @@ use App\Models\Board;
 use App\Models\Evaluation;
 use App\Models\EvaluationPic;
 use App\Models\ExpectedBanningUsers;
-use App\Models\Fingerprint2;
 use App\Models\hideOnlineData;
 use App\Models\lineNotifyChatSet;
 use App\Models\LogUserLogin;
@@ -25,14 +24,10 @@ use App\Models\ReportedPic;
 use App\Models\SetAutoBan;
 use App\Models\SimpleTables\users;
 use App\Models\SuspiciousUser;
-use App\Notifications\AccountConsign;
-use App\Notifications\BannedUserImplicitly;
-use Illuminate\Database\Eloquent\Collection;
 use Illuminate\Http\Request;
 use App\Services\UserService;
 use App\Services\AdminService;
 use App\Services\FaqService;
-use App\Http\Controllers\Controller;
 use App\Http\Requests\UserInviteRequest;
 use App\Models\User;
 use App\Models\UserMeta;
@@ -52,7 +47,6 @@ use App\Models\DataForFilterByInfo;
 use App\Models\DataForFilterByInfoIgnores;
 use App\Models\ImagesCompareEncode;
 use App\Models\Order;
-use App\Notifications\BannedNotification;
 use App\Observer\BadUserCommon;
 use Carbon\Carbon;
 use Illuminate\Pagination\LengthAwarePaginator;
@@ -60,9 +54,7 @@ use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\File;
 use Intervention\Image\Facades\Image;
-use Illuminate\Support\Facades\Log;
 use Session;
-use App\Http\Controller\PagesController;
 use App\Models\Blocked;
 use App\Models\ValueAddedService;
 use App\Services\ImagesCompareService;
@@ -72,7 +64,6 @@ use App\Models\ComeFromAdvertise;
 use App\Models\StayOnlineRecord;
 use App\Models\UserRecord;
 use App\Models\Visited;
-
 class UserController extends \App\Http\Controllers\BaseController
 {
     public function __construct(UserService $userService, AdminService $adminService)
@@ -210,15 +201,8 @@ class UserController extends \App\Http\Controllers\BaseController
     {
         if ($request->isVip == 1) {
             //關閉VIP權限
+            Vip::where('member_id', $request->user_id)->get()->first()->removeVIP();
             $setVip = 0;
-            $user = Vip::select('member_id', 'active')
-                ->where('member_id', $request->user_id)
-                ->update(array(
-                    'active' => $setVip,
-                    'expiry' => '0000-00-00 00:00:00',
-                    'business_id' => '',
-                    'order_id' => ''
-                ));
         } else {
             //提供VIP權限
             $setVip = 1;
@@ -378,6 +362,17 @@ class UserController extends \App\Http\Controllers\BaseController
                 if (!empty($value)) {
                     if (SetAutoBan::where([['type', 'allcheck'], ['content', $value], ['set_ban', '1']])->first() == null) {
                         SetAutoBan::insert(['type' => 'allcheck', 'content' => $value, 'set_ban' => '1', 'cuz_user_set' => $request->user_id, 'created_at' => now(), 'updated_at' => now()]);
+                    }
+                }
+            }
+        }
+
+        //輸入新增圖片檔名自動封鎖關鍵字後新增
+        if (!empty($request->addpicautoban)) {
+            foreach ($request->addpicautoban as $value) {
+                if (!empty($value)) {
+                    if (SetAutoBan::where([['type', 'picname'], ['content', $value], ['set_ban', '1']])->first() == null) {
+                        SetAutoBan::insert(['type' => 'picname', 'content' => $value, 'set_ban' => '1', 'cuz_user_set' => $request->user_id, 'created_at' => now(), 'updated_at' => now()]);
                     }
                 }
             }
@@ -650,6 +645,97 @@ class UserController extends \App\Http\Controllers\BaseController
 
 
     }
+
+    //預算及車馬費警示警示
+    public function warnBudget(Request $request)
+    {
+        $reason = '';
+        $days = 0;
+        if($request->type == 'month_budget')
+        {
+            $reason = '每月預算不實';
+            $warn_frequency = DB::table('is_warned_log')->where('user_id', $request->user_id)->where('reason', $reason)->count();
+            if($warn_frequency == 0)
+            {
+                $days = 7;
+            }
+            else if($warn_frequency == 1)
+            {
+                $days = 20;
+            }
+            else
+            {
+                $days = 60;
+            }
+        }
+        else if($request->type == 'transport_fare')
+        {
+            $reason = '車馬費預算不實';
+            $warn_frequency = DB::table('is_warned_log')->where('user_id', $request->user_id)->where('reason', $reason)->count();
+            if($warn_frequency == 0)
+            {
+                $days = 7;
+            }
+            else if($warn_frequency == 1)
+            {
+                $days = 20;
+            }
+            else
+            {
+                $days = 60;
+            }
+        }
+        $expire_date = Carbon::now()->addDays($days);
+
+        ini_set('max_execution_time', -1);
+        $userWarned = warned_users::where('member_id', $request->user_id)
+            ->orderBy('created_at', 'desc')
+            ->get()->first();
+
+        if ($userWarned) {
+            $checkLog = DB::table('is_warned_log')->where('user_id', $userWarned->member_id)->where('created_at', $userWarned->created_at)->get()->first();
+            if(!$checkLog) {
+                //寫入log
+                DB::table('is_warned_log')->insert(['user_id' => $userWarned->member_id, 'reason' => $userWarned->reason, 'created_at' => $userWarned->created_at,'vip_pass'=>$userWarned->vip_pass,'adv_auth'=>$userWarned->adv_auth]);
+            }
+            $userWarned->delete();
+        }
+
+        
+        $userWarned = new warned_users;
+        $userWarned->member_id = $request->user_id;
+        $userWarned->expire_date = $expire_date;
+        $userWarned->reason = $reason;
+        $userWarned->save();
+
+
+        BadUserCommon::addRemindMsgFromBadId($request->user_id);
+        //寫入log
+        DB::table('is_warned_log')->insert(['user_id' => $request->user_id, 'reason' => $reason, 'expire_date' =>$expire_date, 'created_at' => Carbon::now()]);
+        //新增Admin操作log
+        $this->insertAdminActionLog($request->user_id, '站方警示');
+
+        $warned_user=User::findById($request->user_id);
+        $line_notify_user_list = lineNotifyChatSet::select('line_notify_chat_set.user_id')
+            ->selectRaw('users.line_notify_token')
+            ->leftJoin('line_notify_chat','line_notify_chat.id', 'line_notify_chat_set.line_notify_chat_id')
+            ->leftJoin('users','users.id', 'line_notify_chat_set.user_id')
+            ->where('line_notify_chat.active',1)
+            ->where('line_notify_chat_set.line_notify_chat_id',7)//警示會員
+            ->where('line_notify_chat_set.deleted_at',null)
+            ->whereNotNull('users.line_notify_token')
+            ->groupBy('line_notify_chat_set.user_id')->get();
+        foreach ($line_notify_user_list as $notify_user){
+            $has_message = Message::where([['to_id', $warned_user->id], ['from_id', $notify_user->user_id]])->orWhere([['to_id', $notify_user->user_id], ['from_id', $warned_user->id]])->get()->count();
+            if($notify_user->line_notify_token != null && $has_message){
+                $url = url('/dashboard/chat2');
+                //send notify
+                $message = '與您通訊的 '.$warned_user->name.' 已經被站方警示。對話記錄將移到警示會員信件夾，請您再去檢查，如果您們已經交換聯絡方式，請多加注意。 '.$url;
+                User::sendLineNotify($notify_user->line_notify_token, $message);
+            }
+        }
+    }
+    //預算及車馬費警示警示
 
     public function closeAccountReason(Request $request)
     {
@@ -3917,7 +4003,7 @@ class UserController extends \App\Http\Controllers\BaseController
 
         //站長系統訊息
         Message::post(1049, $user->id, $content, true, 1);
-
+        
         Session::flash('message', '審核已完成，系統將自動發信通知該會員');
 
         echo json_encode('ok');
@@ -3963,7 +4049,7 @@ class UserController extends \App\Http\Controllers\BaseController
 
         //站長系統訊息
         Message::post(1049, $user->id, $content, true, 1);
-
+        
         Session::flash('message', '審核已完成，系統將自動發信通知該會員');
 
         echo json_encode('ok');
@@ -4328,7 +4414,11 @@ class UserController extends \App\Http\Controllers\BaseController
 
     public function adminActionLog(Request $request)
     {
-        $getLogs = AdminActionLog::leftJoin('users', 'users.id', '=', 'admin_action_log.operator')->orderBy('admin_action_log.created_at', 'desc');
+        $getLogs = AdminActionLog::selectRaw('admin_action_log.operator, users.name AS operator_name, users.email AS operator_email')
+            ->selectRaw('count(*) AS dataCount')
+            ->leftJoin('users', 'users.id', '=', 'admin_action_log.operator')
+            ->orderBy('admin_action_log.created_at', 'desc')
+            ->groupBy('admin_action_log.operator');
 
         if(!empty($request->get('operator'))){
             $getLogs->where('users.email',$request->get('operator'));
@@ -4339,17 +4429,29 @@ class UserController extends \App\Http\Controllers\BaseController
         if(!empty($request->get('date_end'))){
             $getLogs->where('admin_action_log.created_at','<=',date("Y-m-d",strtotime("+1 day", strtotime($request->get('date_end')))));
         }
-        $getLogs = $getLogs->selectRaw('admin_action_log.*, users.email, (select email from users where id = admin_action_log.target_id) AS target_acc ');
         $getLogs = $getLogs->get();
 
+        foreach ($getLogs as $key => $log){
+            $result[$key]=$log->toArray();
+            $get_operator_by_date = AdminActionLog::selectRaw('LEFT(admin_action_log.created_at,10) as log_by_date, (count(*)) AS count_by_date')->orderBy('admin_action_log.created_at', 'desc')
+                ->where('admin_action_log.operator', $log->operator )
+                ->groupBy('log_by_date');
 
-        $page = $request->get('page',1);
-        $perPage = 50;
-        $totalCount = $getLogs->count();
-        $getLogs = new LengthAwarePaginator($getLogs->forPage($page, $perPage), $totalCount, $perPage, $page, ['path' => route('admin/getAdminActionLog', $request->input())]);
+            if(!empty($request->get('operator'))){
+                $get_operator_by_date->where('users.email',$request->get('operator'));
+            }
+            if(!empty($request->get('date_start'))){
+                $get_operator_by_date->where('admin_action_log.created_at','>=',$request->get('date_start'));
+            }
+            if(!empty($request->get('date_end'))){
+                $get_operator_by_date->where('admin_action_log.created_at','<=',date("Y-m-d",strtotime("+1 day", strtotime($request->get('date_end')))));
+            }
+            $result[$key]['operator_by_date']=$get_operator_by_date->get()->toArray();
 
+        }
+        $getLogs=$result;
 
-        return view('admin.users.showAdminActionLog', compact('getLogs','totalCount'));
+        return view('admin.users.showAdminActionLog', compact('getLogs'));
     }
 
     public function insertAdminActionLog($targetAccountID, $action)
@@ -4612,7 +4714,7 @@ class UserController extends \App\Http\Controllers\BaseController
 
     public function suspiciousUser(Request $request){
 
-        $query = SuspiciousUser::select('users.*','user_meta.pic','user_meta.style','user_meta.about','suspicious_user.created_at AS suspicious_created_time','suspicious_user.reason AS suspicious_reason')
+        $query = SuspiciousUser::select('users.*','user_meta.pic','user_meta.style','user_meta.about','suspicious_user.admin_id AS suspicious_admin_id','suspicious_user.created_at AS suspicious_created_time','suspicious_user.reason AS suspicious_reason')
             ->leftJoin('users','users.id','suspicious_user.user_id')
             ->leftJoin('user_meta','user_meta.user_id','suspicious_user.user_id')
             ->where('suspicious_user.deleted_at',null)
@@ -6096,11 +6198,14 @@ class UserController extends \App\Http\Controllers\BaseController
         $login_count = ComeFromAdvertise::where('action', 'login')->get()->count();
         $explore_count = ComeFromAdvertise::where('action', 'explore')->get()->count();
         $regist_count = ComeFromAdvertise::where('action', 'regist')->get()->count();
+        $complete_regist_count = ComeFromAdvertise::where('action', 'regist')->whereNotNull('user_id')->get()->count();
 
         return view('admin.users.advertiseStatistics')
                 ->with('login_count', $login_count)
                 ->with('explore_count', $explore_count)
-                ->with('regist_count', $regist_count);
+                ->with('regist_count', $regist_count)
+                ->with('complete_regist_count', $complete_regist_count)
+                ;
     }
     
     public function user_record_view(Request $request)

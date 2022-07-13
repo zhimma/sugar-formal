@@ -23,7 +23,6 @@ header("Expires: Fri, 01 Jan 1990 00:00:00 GMT");
                     <div class="gg_zh">
                         <div class="gg_mm"><span><i></i>包養關係</span><img src="/new/images/rzh06.png"></div>
                         <div class="gg_nr01">
-
                             <form method="POST" id="exchange_period_modify" action="/dashboard/exchangePeriodModify?n={{ time() }}">
                                 {!! csrf_field() !!}
                                 <input type="hidden" name="{{ time() }}" value="{{ time() }}">
@@ -34,7 +33,8 @@ header("Expires: Fri, 01 Jan 1990 00:00:00 GMT");
                                         @endphp
                                         @foreach($exchange_period_name as $row)
                                             <li>
-                                                <input name="exchange_period" type="radio" value="{{$row->id}}" @if($user->exchange_period == $row->id) checked @endif><span>{{$row->name}}</span>
+                                                <div><input name="exchange_period" type="radio" value="{{$row->id}}" @if($user->exchange_period == $row->id) checked @endif><span>{{$row->name}}{{$row->name_explain}}</span></div>
+                                                <div class="ew_font">{{$row->remark}}</div>
                                             </li>
                                         @endforeach
                                     </ul>
@@ -48,7 +48,7 @@ header("Expires: Fri, 01 Jan 1990 00:00:00 GMT");
                                 <br>
                                 <div class="blxg">只能申請改一次，並且要通過站長同意</div>
                             </form>
-                            <a class="dlbut g_inputt40" onclick="submit()">確定</a>
+                            <a class="dlbut g_inputt40" onclick="submit()">送出</a>
                         </div>
 
                     </div>
@@ -66,7 +66,6 @@ header("Expires: Fri, 01 Jan 1990 00:00:00 GMT");
             if(!isset($exchange_period_read->id)){
                 DB::table('exchange_period_temp')->insert(['user_id'=>$user->id,'created_at'=>\Carbon\Carbon::now()]);
             }
-
         @endphp
 
         function submit(){
