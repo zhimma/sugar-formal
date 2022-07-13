@@ -1041,7 +1041,13 @@
         @else
             <?php $r_id = $row['reporter_id']; ?>
             <tr>
-                <td>
+                @if ($row['punishment_status'] == 'banning')
+                    <td bgcolor="yellow">
+                @elseif ($row['punishment_status'] == 'warning')
+                    <td bgcolor="#34bfa3">
+                @else
+                    <td>
+                @endif
                     <a href="{{ route('admin/showMessagesBetween', [$user->id, $row['reporter_id']]) }}" target="_blank">{{$row['name']}}</a>
                     @if($row['vip'])
                         @if($row['vip']=='diamond_black')
@@ -1104,7 +1110,7 @@
     </tr>
     @foreach($report_all as $row)
         <tr>
-            <td @if(!is_null($row['isBlocked'])) style="color: #F00;" @endif>
+            <td bgcolor="<?php echo $row['punishment_status'] == 'banning' ? 'yellow' : ($row['punishment_status'] == 'warning' ? '#34bfa3' : '');?>" @if(!is_null($row['isBlocked'])) style="color: #F00;" @endif>
                 <a href="{{ route('admin/showMessagesBetween', [$user->id, $row['reporter_id']]) }}" target="_blank">{{ $row['name'] }}</a>
                 @if($row['vip'])
                     @if($row['vip']=='diamond_black')
