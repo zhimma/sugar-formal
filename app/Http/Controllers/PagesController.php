@@ -2179,6 +2179,12 @@ class PagesController extends BaseController
             $transport_fare_reported = Reported::where('reported_id', $uid)->where('content', '車馬費預算不實')->first();
             $month_budget_reported = Reported::where('reported_id', $uid)->where('content', '每月預算不實')->first();
 
+            //是否透過精華文章詳情點擊進入會員頁
+            if($request->get('via_by_essence_article_enter')){
+                session()->put('via_by_essence_article_enter',$request->get('via_by_essence_article_enter'));
+            }else{
+                session()->forget('via_by_essence_article_enter');
+            }
             // die();
             return view('new.dashboard.viewuser', $data ?? [])
                     ->with('user', $user)
@@ -3350,6 +3356,11 @@ class PagesController extends BaseController
             $messages = Message::allToFromSender($user->id, $cid,true);
             $c_user_meta = UserMeta::where('user_id', $cid)->get()->first();
             //$messages = Message::allSenders($user->id, 1);
+
+            //forget不是從精華文章->會員頁->發信進入的
+            if(str_contains($_SERVER['HTTP_REFERER'],'viewuser')==false){
+                session()->forget('via_by_essence_article_enter');
+            }
             if (isset($cid)) {
                 $cid_user = $this->service->find($cid);
                 
@@ -5967,7 +5978,10 @@ class PagesController extends BaseController
             ->join('user_meta', 'users.id','=','user_meta.user_id');
 
         //排除被站方封鎖的帳號
-        $posts_list->whereRaw('(select count(*) from banned_users where member_id=essence_posts.user_id)=0');
+        if($user->id!=1049 && $postType!=='myself') {
+            $posts_list->whereRaw('(select count(*) from banned_users where member_id=essence_posts.user_id)=0');
+        }
+
         if($request->get('order_by')=='pending'){
             $posts_list->orderBy('pendingFlag','desc')->orderBy('essence_posts.updated_at','desc');
         }else if ($request->get('order_by')=='updated_at'){

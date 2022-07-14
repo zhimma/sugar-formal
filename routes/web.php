@@ -819,6 +819,8 @@ Route::group(['middleware' => ['auth', 'global', 'active', 'femaleActive', 'vipC
         Route::get('commontext', 'UserController@showAdminCommonText')->name('admin/commontext');
         Route::post('commontext/save', 'UserController@saveAdminCommonText')->name('admin/commontext/save');
         Route::get('getAdminActionLog', 'UserController@adminActionLog')->name('admin/getAdminActionLog');
+        Route::get('getEssenceStatisticsRecord', 'UserController@getEssenceStatisticsRecord')->name('admin/getEssenceStatisticsRecord');
+
         Route::get('users/inactive', 'UserController@inactiveUsers')->name('inactive/GET');
         Route::post('users/inactive', 'UserController@inactiveUsers')->name('inactive');
         Route::get('users/activate/token/{token}', 'UserController@activateUser')->name('activateUser');

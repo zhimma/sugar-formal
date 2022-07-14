@@ -61,6 +61,7 @@
         <a href="{{ route('admin/faq') }}">FAQ機制</a>
 		<a href="{{ route('admin/advertiseStatistics') }}">廣告紀錄統計</a>
 		<a href="{{ route('admin/user_record_view') }}">停留時間</a>
+		<a href="{{ route('admin/getEssenceStatisticsRecord') }}">精華文章統計資料</a>
 
 	@elseif (Auth::user()->can('readonly'))
 		<a href="javascript:void(0)" class="closebtn" onclick="closeNav()">&times;</a>
