@@ -166,7 +166,7 @@ class StatController extends \App\Http\Controllers\BaseController
             }
             $data=$data->paginate(50);
         }else{
-            $data = collect();
+            $data = SetAutoBan::whereId(null)->paginate(50);
         }
         return view('admin.stats.set_autoBan')->with('data', $data);
     }
