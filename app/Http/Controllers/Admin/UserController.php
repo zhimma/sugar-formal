@@ -7,6 +7,7 @@ use App\Models\AdminActionLog;
 use App\Models\AnonymousChat;
 use App\Models\AnonymousChatReport;
 use App\Models\Board;
+use App\Models\EssenceStatisticsLog;
 use App\Models\Evaluation;
 use App\Models\EvaluationPic;
 use App\Models\ExpectedBanningUsers;
@@ -4586,6 +4587,31 @@ class UserController extends \App\Http\Controllers\BaseController
             'act'         => $action,
             'ip'          => array_get($_SERVER, 'REMOTE_ADDR')
         ]);
+    }
+
+    public function getEssenceStatisticsRecord(Request $request)
+    {
+        $getLogs = EssenceStatisticsLog::selectRaw('essence_statistics_log.user_id, users.name AS user_name, users.email AS user_email')
+            ->selectRaw('count(*) AS dataCount')
+            ->leftJoin('users', 'users.id', '=', 'essence_statistics_log.user_id')
+            ->orderBy('essence_statistics_log.created_at', 'desc')
+            ->groupBy('essence_statistics_log.user_id')
+            ->get();
+
+        $result=[];
+        foreach ($getLogs as $key => $log){
+            $result[$key]=$log->toArray();
+            $get_operator_by_date = EssenceStatisticsLog::selectRaw('essence_statistics_log.*, users.name AS user_name, users.email AS user_email, essence_posts.title AS essence_posts_title')
+                ->leftJoin('essence_posts', 'essence_posts.id', '=', 'essence_statistics_log.essence_posts_id')
+                ->leftJoin('users', 'users.id', '=', 'essence_posts.user_id')
+                ->where('essence_statistics_log.user_id', $log->user_id )
+                ->orderBy('essence_statistics_log.created_at', 'desc')
+                ->get();
+            $result[$key]['log_list']=$get_operator_by_date->toArray();
+
+        }
+        $getLogs=$result;
+        return view('admin.users.showEssenceStatisticsRecord', compact('getLogs'));
     }
 
     //    public function adminRole(Request $request)
