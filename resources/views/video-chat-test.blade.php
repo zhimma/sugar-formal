@@ -1,8 +1,8 @@
 @extends('new.layouts.website')
 @section('app-content')
-    <script src="https://sdk.amazonaws.com/js/aws-sdk-2.1.12.min.js"></script>
+    <script src="https://sdk.amazonaws.com/js/aws-sdk-2.1155.0.min.js"></script>
     <script src="https://unpkg.com/amazon-kinesis-video-streams-webrtc/dist/kvs-webrtc.min.js"></script>
-    <script src="/new/js/aws-sdk-2.1143.0.min.js"></script>
+    {{--<script src="/new/js/aws-sdk-2.1143.0.min.js"></script>--}}
     <div class="container matop70">
         <meta name="csrf-token" content="{{ csrf_token() }}">
         <div class="row">

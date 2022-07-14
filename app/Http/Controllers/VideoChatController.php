@@ -11,24 +11,56 @@ use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\Log;
 use App\Models\UserVideoVerifyRecord;
 use App\Services\RealAuthPageService;
-
+use LZCompressor\LZString;
+use App\Models\WebrtcSignalData;
 
 class VideoChatController extends Controller
 {
     public function callUser(Request $request)
     {
+        $signal_data = json_encode($request->signal_data);
+
+        $save_data = new WebrtcSignalData;
+        $save_data->signal_data = $signal_data;
+        $save_data->save();
+
         $data['userToCall'] = $request->user_to_call;
-        $data['signalData'] = $request->signal_data;
+        $data['signalData'] = $save_data->id;
         $data['from'] = Auth::id();
         $data['type'] = 'incomingCall';
+        Log::Info('callUser data');
+        Log::Info($data);
         broadcast(new StartVideoChat($data))->toOthers();
     }
+
     public function acceptCall(Request $request)
     {
-        $data['signal'] = $request->signal;
+        $signal = json_encode($request->signal);
+
+        $save_data = new WebrtcSignalData;
+        $save_data->signal_data = $signal;
+        $save_data->save();
+        
+        $data['signal'] = $save_data->id;
         $data['to'] = $request->to;
         $data['type'] = 'callAccepted';
+        Log::Info('acceptCall data');
+        Log::Info($data);
         broadcast(new StartVideoChat($data))->toOthers();
+    }
+
+    public function receiveCallUserSignalData(Request $request)
+    {
+        $id = $request->signal_data_id;
+        $signal_data = WebrtcSignalData::where('id', $id)->first()->signal_data;
+        return $signal_data;
+    }
+
+    public function receiveAcceptCallSignalData(Request $request)
+    {
+        $id = $request->signal_data_id;
+        $signal_data = WebrtcSignalData::where('id', $id)->first()->signal_data;
+        return $signal_data;
     }
 
     public function video_chat_verify(Request $request)
@@ -99,18 +131,19 @@ class VideoChatController extends Controller
 
     public function video_chat_verify_record_list(Request $request)
     {
-        $user_video_verify_record = UserVideoVerifyRecord::select('user_video_verify_record.*', 'users.name','users.email')
+        $user_video_verify_record = UserVideoVerifyRecord::select('user_video_verify_record.*', 'users.name', 'users.email')
             ->leftJoin('users', 'user_video_verify_record.user_id', '=', 'users.id')
-            ->orderBy('user_video_verify_record.created_at','desc')
-            ->get();
-        Log::Info($user_video_verify_record->first());
+            ->orderBy('user_video_verify_record.created_at', 'desc')
+            ->get()
+            ->unique('user_id');
+        Log::Info($user_video_verify_record);
         return view('admin.users.video_chat_verify_record_list', ['user_video_verify_record' => $user_video_verify_record]);
     }
 
     public function video_chat_verify_record(Request $request)
     {   
-        $record_id = $request->verify_record_id;
-        $record = UserVideoVerifyRecord::where('id', $record_id)->first();
+        $user_id = $request->user_id;
+        $record = UserVideoVerifyRecord::where('user_id', $user_id)->orderBy('created_at', 'desc')->get();
         return view('admin.users.video_chat_verify_record', ['record' => $record]);
     }
     

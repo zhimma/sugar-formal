@@ -6,14 +6,15 @@
     #left_side_content_block .shou {margin-bottom:10px;}
     #app div.btn-group {height:50px;background:url('{{asset('new/images/fengsuo.png')}}');}
 </style>
-<script src="https://sdk.amazonaws.com/js/aws-sdk-2.1.12.min.js"></script>
-<script src="https://unpkg.com/amazon-kinesis-video-streams-webrtc/dist/kvs-webrtc.min.js"></script>
-<script src="/new/js/aws-sdk-2.1143.0.min.js"></script>
+    <script src="https://sdk.amazonaws.com/js/aws-sdk-2.1155.0.min.js"></script>
+    <script src="https://unpkg.com/amazon-kinesis-video-streams-webrtc/dist/kvs-webrtc.min.js"></script>
+    {{--<script src="/new/js/aws-sdk-2.1143.0.min.js"></script>--}}
 <meta name="csrf-token" content="{{ csrf_token() }}">
 @stop
 @section('app-content')
+<<<<<<< HEAD
 
-    <div class="container matop70">      
+    <div class="container matop70">     
         <div class="row" >
             <div class="col-sm-2 col-xs-2 col-md-2 dinone">
                 @include('new.dashboard.panel')

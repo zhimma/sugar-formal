@@ -30,7 +30,7 @@
             autoplay
             class="cursor-pointer"
             :class="isFocusMyself === true ? 'user-video' : 'partner-video'"
-            @click="toggleCameraArea"
+            @click=""
           />
           <video
             ref="partnerVideo"
@@ -38,7 +38,7 @@
             autoplay
             class="cursor-pointer"
             :class="isFocusMyself === true ? 'partner-video' : 'user-video'"
-            @click="toggleCameraArea"
+            @click=""
             v-if="videoCallParams.callAccepted"
           />
           <div class="partner-video" v-else>
@@ -52,10 +52,11 @@
             </div>
           </div>
           <div class="action-btns">
-            <button type="button" class="btn btn-info" @click="toggleMuteAudio">
+            <button v-if="this.user_permission == 'admin'" type="button" class="btn btn-info" @click="toggleMuteAudio">
               {{ mutedAudio ? "關閉靜音" : "開啟靜音" }}
             </button>
             <button
+              v-if="this.user_permission == 'admin'"
               type="button"
               class="btn btn-primary mx-4"
               @click="toggleMuteVideo"
@@ -102,7 +103,9 @@
 
 <script>
 import Peer from "simple-peer";
-import { getPermissions } from "../helpers";
+//import { getPermissions } from "../helpers";
+import LZString from "../lz-string.js";
+
 export default {
   props: [
     "allusers",
@@ -117,6 +120,10 @@ export default {
       callPartner: null,
       mutedAudio: false,
       mutedVideo: false,
+      audioSet: false,
+      videoSet: false,
+      deviceReady: false,
+      getUserMediaError: false,
       videoCallParams: {
         users: [],
         stream: null,
@@ -174,7 +181,7 @@ export default {
     },
 
     getMediaPermission() {
-      return getPermissions()
+      return this.getPermissions()
         .then((stream) => {
           this.videoCallParams.stream = stream;
           if (this.$refs.userVideo) {
@@ -210,22 +217,50 @@ export default {
       // listen to incomming call
       this.videoCallParams.channel.listen("StartVideoChat", ({ data }) => {
         if (data.type === "incomingCall") {
+          let signal_data = '';
+          $.ajax({
+            async:false,
+            type:'get',
+            url:'/video/receive-call-user-signal-data',
+            data:{
+              signal_data_id:data.signalData
+            },
+            success:function(s_data){
+              signal_data = s_data;
+            }
+          });
           // add a new line to the sdp to take care of error
+          //console.log('ajaxoutput ' + signal_data);
+          signal_data = JSON.parse(signal_data);
+          //console.log(signal_data);
           const updatedSignal = {
-            ...data.signalData,
-            sdp: `${data.signalData.sdp}\n`,
+            ...signal_data,
+            sdp: `${signal_data.sdp}\n`,
           };
-
           this.videoCallParams.receivingCall = true;
           this.videoCallParams.caller = data.from;
           this.videoCallParams.callerSignal = updatedSignal;
         }
       });
     },
+
     async placeVideoCall(id, name) {
+      await this.checkDevices();
+      //console.log('deviceReady:' + this.deviceReady);
+      if(!this.deviceReady)
+      {
+        alert('未搜尋到鏡頭或麥克風裝置');
+        return;
+      }
       this.callPlaced = true;
       this.callPartner = name;
       await this.getMediaPermission();
+      if(this.getUserMediaError)
+      {
+        alert('未取得鏡頭或麥克風裝置權限');
+        this.callPlaced = false;
+        return;
+      }
       //console.log("iceserver_json: " + this.ice_server_json);
       const iceserver = JSON.parse(this.ice_server_json.trim());
       //console.log("iceserver: " + iceserver);
@@ -239,16 +274,18 @@ export default {
       });
 
       this.videoCallParams.peer1.on("signal", (data) => {
+        //console.log(data);
         // send user call signal
         axios
           .post("/video/call-user", {
             user_to_call: id,
+            //signal_data: JSON.stringify(data),
             signal_data: data,
             from: this.authuserid,
           })
           .then(() => {})
           .catch((error) => {
-            console.log(error);
+            console.log('signal axios error:' + error);
           });
       });
 
@@ -279,6 +316,7 @@ export default {
       });
 
       this.videoCallParams.peer1.on("error", (err) => {
+        console.log('peer1 error');
         console.log(err);
       });
 
@@ -288,30 +326,57 @@ export default {
 
       this.videoCallParams.channel.listen("StartVideoChat", ({ data }) => {
         if (data.type === "callAccepted") {
-          if (data.signal.renegotiate) {
+          let signal_data = '';
+          $.ajax({
+            async:false,
+            type:'get',
+            url:'/video/receive-accept-call-signal-data',
+            data:{
+              signal_data_id:data.signal
+            },
+            success:function(s_data){
+              signal_data = s_data;
+            }
+          });
+          //console.log('ajaxoutput ' + signal_data);
+          signal_data = JSON.parse(signal_data);
+          //console.log(signal_data);
+          if (signal_data.renegotiate) {
             console.log("renegotating");
           }
-          if (data.signal.sdp) {
+          if (signal_data.sdp) {
             this.videoCallParams.callAccepted = true;
             const updatedSignal = {
-              ...data.signal,
-              sdp: `${data.signal.sdp}\n`,
+              ...signal_data,
+              sdp: `${signal_data.sdp}\n`,
             };
             this.videoCallParams.peer1.signal(updatedSignal);
           }
         }
       });
-
       if(this.user_permission == 'admin')
       {
-        this.toggleMuteVideo();
+        if (!this.mutedVideo) this.toggleMuteVideo();
       }
     },
 
     async acceptCall() {
+      await this.checkDevices();
+      //console.log('deviceReady:' + this.deviceReady);
+      if(!this.deviceReady)
+      {
+        alert('未搜尋到鏡頭或麥克風裝置');
+        return;
+      }
       this.callPlaced = true;
       this.videoCallParams.callAccepted = true;
       await this.getMediaPermission();
+      if(this.getUserMediaError)
+      {
+        alert('未取得鏡頭或麥克風裝置權限');
+        this.callPlaced = false;
+        return;
+      }
       //console.log("iceserver_json: " + this.ice_server_json);
       const iceserver = JSON.parse(this.ice_server_json.trim());
       //console.log("iceserver: " + iceserver);
@@ -325,14 +390,16 @@ export default {
       });
       this.videoCallParams.receivingCall = false;
       this.videoCallParams.peer2.on("signal", (data) => {
+        //console.log(data);
         axios
           .post("/video/accept-call", {
+            //signal: JSON.stringify(data),
             signal: data,
             to: this.videoCallParams.caller,
           })
           .then(() => {})
           .catch((error) => {
-            console.log(error);
+            console.log('signal axios error:' + error);
           });
       });
 
@@ -362,6 +429,7 @@ export default {
       });
 
       this.videoCallParams.peer2.on("error", (err) => {
+        console.log('peer2 error');
         console.log(err);
       });
 
@@ -370,17 +438,18 @@ export default {
       });
 
       this.videoCallParams.peer2.signal(this.videoCallParams.callerSignal);
-
       if(this.user_permission == 'admin')
       {
-        this.toggleMuteVideo();
+        if (!this.mutedVideo) this.toggleMuteVideo();
       }
     },
+
     toggleCameraArea() {
       if (this.videoCallParams.callAccepted) {
         this.isFocusMyself = !this.isFocusMyself;
       }
     },
+
     getUserOnlineStatus(id) {
       const onlineUserIndex = this.videoCallParams.users.findIndex(
         (data) => data.id === id
@@ -390,6 +459,7 @@ export default {
       }
       return true;
     },
+
     declineCall() {
       this.videoCallParams.receivingCall = false;
     },
@@ -422,10 +492,11 @@ export default {
       });
       videoElem.srcObject = null;
     },
+
     endCall() {
       // if video or audio is muted, enable it so that the stopStreamedVideo method will work
-      if (!this.mutedVideo) this.toggleMuteVideo();
-      if (!this.mutedAudio) this.toggleMuteAudio();
+      if (this.mutedVideo) this.toggleMuteVideo();
+      if (this.mutedAudio) this.toggleMuteAudio();
       this.stopStreamedVideo(this.$refs.userVideo);
       if (this.authuserid === this.videoCallParams.caller)
       {
@@ -452,15 +523,21 @@ export default {
       this.videoCallParams.channel.pusher.channels.channels[
         "presence-presence-video-channel"
       ].disconnect();
-
-      setTimeout(() => {
-        this.callPlaced = false;
-      }, 3000);
       if(this.user_permission == 'admin')
       {
-        this.stopRecording();
+        try{this.stopRecording();}
+        catch(e){console.log(e);}
       }
+      if(this.user_permission == 'admin')
+      {
+        window.sessionStorage.setItem('endcall_reload',true);
+      }
+      setTimeout(() => {
+        this.callPlaced = false;
+        location.reload();
+      }, 3000);
     },
+
     generateBtnClass(onlinestatus) {
       if(onlinestatus){
         return 'btn-success'
@@ -469,6 +546,7 @@ export default {
         return 'btn-secondary disabled'
       }
     },
+
     generateBtnStyle(onlinestatus) {
       if(onlinestatus){
         return ''
@@ -477,6 +555,7 @@ export default {
         return 'display:none;'
       }
     },
+
     //video record
     startRecording() {
       this.recordedBlobs = [];
@@ -518,10 +597,12 @@ export default {
       console.log('MediaRecorder started', this.mediaRecorder);
       console.log('MediaRecorder2 started', this.mediaRecorder2);
     },
+
     stopRecording() {
       this.mediaRecorder.stop();
       this.mediaRecorder2.stop();
     },
+
     downloadRecording(recordedChunks,who) {
       let verify_record_id = window.sessionStorage.getItem('verify_record_id')
       let time = Date.now();
@@ -561,7 +642,82 @@ export default {
       window.URL.revokeObjectURL(url);
       */
     },
-    //video record
+
+    checkDevices() {
+      return navigator.mediaDevices.enumerateDevices()
+        .then( dev => this.gotDevices(dev))
+        .catch( err => console.warn(err));
+    },
+    
+    gotDevices(deviceInfos) {
+      //console.log(deviceInfos)
+      this.audioSet = false;
+      this.videoSet = false;
+      for (let i = 0; i !== deviceInfos.length; ++i) {
+        const deviceInfo = deviceInfos[i];
+        if (deviceInfo.kind === 'audioinput')
+        {
+          this.audioSet = true;
+        }
+        else if (deviceInfo.kind === 'videoinput')
+        {
+          this.videoSet = true;
+        }
+      }
+      //console.log(this.audioSet);
+      //console.log(this.videoSet);
+      //console.log((this.audioSet && this.videoSet));
+      this.deviceReady = (this.audioSet && this.videoSet);
+      //console.log(this.deviceReady);
+    },
+
+    getPermissions() {
+      // Older browsers might not implement mediaDevices at all, so we set an empty object first
+      if (navigator.mediaDevices === undefined) {
+          navigator.mediaDevices = {};
+      }
+
+      // Some browsers partially implement mediaDevices. We can't just assign an object
+      // with getUserMedia as it would overwrite existing properties.
+      // Here, we will just add the getUserMedia property if it's missing.
+      if (navigator.mediaDevices.getUserMedia === undefined) {
+          navigator.mediaDevices.getUserMedia = function(constraints) {
+              // First get ahold of the legacy getUserMedia, if present
+              const getUserMedia =
+                  navigator.webkitGetUserMedia || navigator.mozGetUserMedia;
+
+              // Some browsers just don't implement it - return a rejected promise with an error
+              // to keep a consistent interface
+              if (!getUserMedia) {
+                  return Promise.reject(
+                      new Error("getUserMedia is not implemented in this browser")
+                  );
+              }
+
+              // Otherwise, wrap the call to the old navigator.getUserMedia with a Promise
+              return new Promise((resolve, reject) => {
+                  getUserMedia.call(navigator, constraints, resolve, reject);
+              });
+          };
+      }
+      navigator.mediaDevices.getUserMedia =
+          navigator.mediaDevices.getUserMedia ||
+          navigator.webkitGetUserMedia ||
+          navigator.mozGetUserMedia;
+
+      return new Promise((resolve, reject) => {
+          navigator.mediaDevices
+              .getUserMedia({ video: true, audio: true })
+              .then(stream => {
+                  resolve(stream);
+              })
+              .catch(err => {
+                  this.getUserMediaError = true;
+                  reject(err);
+                  //   throw new Error(`Unable to fetch stream ${err}`);
+              });
+      });
+    },
   },
 };
 </script>
