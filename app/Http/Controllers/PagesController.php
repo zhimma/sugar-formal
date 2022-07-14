@@ -3357,10 +3357,20 @@ class PagesController extends BaseController
             $c_user_meta = UserMeta::where('user_id', $cid)->get()->first();
             //$messages = Message::allSenders($user->id, 1);
 
-            //forget不是從精華文章->會員頁->發信進入的
-            if(str_contains($_SERVER['HTTP_REFERER'],'viewuser')==false){
-                session()->forget('via_by_essence_article_enter');
+            if(isset($_SERVER['HTTP_REFERER'])) {
+                //forget不是從精華文章->會員頁->發信進入的
+                if(str_contains($_SERVER['HTTP_REFERER'], 'viewuser') == false){
+                    session()->forget('via_by_essence_article_enter');
+                }
             }
+            else {
+                logger("HTTP_REFERER not set, user id: " . $user->id);
+                logger("Referer: " . request()->headers->get("referer"));
+                logger("UserAgent: " . request()->headers->get("User-Agent"));
+                logger("IP: " . request()->ip);
+                \Sentry\captureMessage("HTTP_REFERER not set.");
+            }
+            
             if (isset($cid)) {
                 $cid_user = $this->service->find($cid);
                 
