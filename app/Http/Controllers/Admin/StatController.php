@@ -137,7 +137,7 @@ class StatController extends \App\Http\Controllers\BaseController
         return view('admin.stats.datFileLog')->with('data', $data);
     }
 
-    public function set_autoBan(){
+    public function set_autoBan(Request $request){
         if(request()->ip_expire=='1' && request()->ip) {
             $uq = SetAutoBan::where('type', 'ip');
             if(request()->ip) $uq->where('content', request()->ip);
@@ -146,7 +146,28 @@ class StatController extends \App\Http\Controllers\BaseController
         }
         SetAutoBan::where('type', 'ip')->where('expiry', '0000-00-00 00:00:00')
 			->update(['expiry'=>\Carbon\Carbon::now()->addMonths(1)->format('Y-m-d H:i:s')]);
-        $data = SetAutoBan::orderBy('id', 'desc')->get();
+
+        $key_word=$request->get('key_word');
+        if($key_word){
+            $key_word_type=$key_word;
+            if($key_word=='暱稱') $key_word_type='name';
+			elseif($key_word=='email') $key_word_type='email';
+			elseif($key_word=='一句話形容自己') $key_word_type='title';
+			elseif($key_word=='關於我') $key_word_type='about';
+            elseif($key_word=='期待的約會模式') $key_word_type='style';
+            elseif($key_word=='發送訊息內容') $key_word_type='msg';
+            elseif($key_word=='全欄位封鎖')$key_word_type='allcheck';
+            elseif($key_word=='圖片檔名')$key_word_type='picname';
+
+            $data = SetAutoBan::orWhere('id', $key_word)->orWhere('type', $key_word_type)->orWhere('content', 'like', '%'.$key_word.'%')->orderBy('id', 'desc');
+            $key_word_user_list=User::Where('email', 'like', '%'.$key_word.'%')->get()->pluck('id')->toArray();
+            if(count($key_word_user_list)){
+                $data->orWhereRaw('cuz_user_set IN ('. implode(',',$key_word_user_list) .') AND cuz_user_set IS NOT NULL');
+            }
+            $data=$data->paginate(50);
+        }else{
+            $data = collect();
+        }
         return view('admin.stats.set_autoBan')->with('data', $data);
     }
 
@@ -161,7 +182,7 @@ class StatController extends \App\Http\Controllers\BaseController
 //                DB::table('set_auto_ban')->insert(['type' => $request->type, 'content' => $request->content, 'set_ban' => $request->set_ban,'expiry'=>$expiry]);
             }
         }
-        $data = SetAutoBan::orderBy('id', 'desc')->get();
+        $data = SetAutoBan::orderBy('id', 'desc')->get();// collect();//
         return view('admin.stats.set_autoBan')->with('data', $data);
     }
 
