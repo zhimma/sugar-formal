@@ -6556,7 +6556,13 @@ class PagesController extends BaseController
         $vipStatus = '您目前還不是VIP，<a class="red" href="../dashboard/new_vip">立即成為VIP!</a>';
         $picTypeNameStrArr = ['avatar'=>'大頭照','member_pic'=> '生活照']; 
         $user->load('vip');
+        
         $rap_service->riseByUserEntry($user);
+        $users = collect([]);
+        if( $rap_service->isSelfAuthApplyNotVideoYet() && $user->isAdvanceAuth()) {           
+            $users = DB::table('role_user')->leftJoin('users', 'role_user.user_id', '=', 'users.id')->where('users.id', '<>', Auth::id())->get();                      
+        }         
+        
         $existHeaderImage = $user->existHeaderImage(); 
         $latest_pic_act_log = $vipStatusMsgType 
         = $vipStatusPicTime = $vipStatusPicStr
@@ -7285,6 +7291,7 @@ class PagesController extends BaseController
                 ->with('allMessage', $allMessage)
                 ->with('forum',$forum)
                 ->with('rap_service',$rap_service)
+                ->with('users',$users)
                 ;
         }
     }

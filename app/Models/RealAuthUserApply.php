@@ -100,6 +100,13 @@ class RealAuthUserApply extends Model
     public function latest_reply_modify() 
     {
         return $this->latest_modify()->where('has_reply',1);       
+    }   
+
+    public function latest_video_modify() 
+    {
+        return $this->latest_modify()
+                    ->where('item_id',4)
+                    ->whereNotNull('new_video_record_id');
     }     
 
     public function latest_unchecked_modify() 

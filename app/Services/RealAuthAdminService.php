@@ -322,9 +322,10 @@ class RealAuthAdminService {
             }
         }
 
-        if($video_modify && $self_auth_apply_entry && $video_modify->new_video_record_id!=$self_auth_apply_entry->video_modify_id) {
-            
-            $self_auth_apply_entry->video_modify_id = $video_modify->new_video_record_id;
+        //if($video_modify && $self_auth_apply_entry && $video_modify->new_video_record_id!=$self_auth_apply_entry->video_modify_id) {
+        if($video_modify && $self_auth_apply_entry && $video_modify->id!=$self_auth_apply_entry->video_modify_id) {
+            //$self_auth_apply_entry->video_modify_id = $video_modify->new_video_record_id;
+            $self_auth_apply_entry->video_modify_id = $video_modify->id;
             $video_rs = $self_auth_apply_entry->save();
             
             if($video_rs) {
@@ -512,7 +513,8 @@ class RealAuthAdminService {
         $user = $this->user();
         $unchecked_apply = $this->getUncheckedApplyByAuthTypeId($auth_type_id);
         $rs = !$this->isPassedByAuthTypeId($auth_type_id)  && $unchecked_apply
-                && !($auth_type_id==1 && !$unchecked_apply->video_modify_id);
+                //&& !($auth_type_id==1 && !$unchecked_apply->video_modify_id);
+                && !($auth_type_id==1 && !$unchecked_apply->latest_video_modify);
 
         return $rs;
     }
@@ -684,9 +686,9 @@ class RealAuthAdminService {
 
     public function convertModifyStatusToCompleteWord($modify_entry) 
     {
-        if(!$modify_entry)  echo 'NULL';
+        //if(!$modify_entry)  echo 'NULL';
         if(!$modify_entry) $modify_entry = $this->modify_entry();
-        if(!$modify_entry)  echo 'NULL';
+        //if(!$modify_entry)  echo 'NULL';
         if(!$modify_entry) return;
         $apply_entry = $modify_entry->real_auth_user_apply;
         if(!$apply_entry) return;
@@ -697,6 +699,8 @@ class RealAuthAdminService {
                 &&  !$modify_entry->now_video_record_id 
             ){
                 $status_word = '待視訊';
+                if($modify_entry->item_id==1 && $apply_entry->latest_video_modify) $status_word = '待確認';
+                if($modify_entry->item_id==4 && $modify_entry->new_video_record_id ) $status_word = '已異動';
             }
 
             else if($modify_entry->item_id!=1 
@@ -886,11 +890,10 @@ class RealAuthAdminService {
         
         $layout_pic_str = '';
         $pic_reply_list = collect([]);
+        
         if($reply_list_without_trashed) {
-            $pic_choice_reply_list = $reply_list_without_trashed->whereNotNull('pic_choice_id')->sortBy('id');
-            $pic_no_choice_reply_list = $reply_list_without_trashed;
-                         
-           $pic_reply_list = $pic_choice_reply_list->merge($pic_no_choice_reply_list);
+
+            $pic_reply_list = $reply_list_without_trashed;
         }
 
         foreach($pic_reply_list as $pic_reply_entry) {    

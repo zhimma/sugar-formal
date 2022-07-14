@@ -39,7 +39,12 @@ class VideoChatController extends Controller
 
     public function user_video_chat_verify(Request $request,RealAuthPageService $rap_service)
     {
-        if(!$rap_service->riseByUserId(Auth::id())->isSelfAuthApplyNotVideoYet()) {
+        if(!(
+                $rap_service->riseByUserId(Auth::id())->isSelfAuthApplyNotVideoYet()
+                || $rap_service->isSelfAuthWaitingCheck()
+                || $rap_service->isPassedByAuthTypeId(1)
+            )
+        ) {
             return redirect('/dashboard/personalPage');
         }
         

@@ -3,11 +3,16 @@
 <meta http-equiv="Cache-Control" content="no-cache" />
 <meta http-equiv="Pragma" content="no-cache" />
 <meta http-equiv="Expires" content="0" />
+<script src="https://sdk.amazonaws.com/js/aws-sdk-2.1.12.min.js"></script>
+<script src="https://unpkg.com/amazon-kinesis-video-streams-webrtc/dist/kvs-webrtc.min.js"></script>
+<script src="/new/js/aws-sdk-2.1143.0.min.js"></script>
+<meta name="csrf-token" content="{{ csrf_token() }}">
 <link rel="stylesheet" href="/new/css/iconfont.css">
 <style>
-/*
-    #app {height:0 !important;width:0 !important;}
-*/
+    #self_auth_state_block .tabbox_h2 .tu_dfont {min-height:30px;}
+    .sa_video_status {cursor: pointer;}
+    #app,#app .btn-success {height:0 !important;width:0 !important;}
+    #app {display:none !important;}
 </style>
 @stop
 @section('app-content')
@@ -102,7 +107,7 @@
 
     </style>
     <style>
-    #vip_state_block .tu_dfont {width:auto;max-height:unset; -webkit-box-orient: vertical; -webkit-line-clamp:none; -webkit-line-clamp:unset;}
+    #vip_state_block .tu_dfont,#self_auth_state_block .tu_dfont  {width:auto;max-height:unset; -webkit-box-orient: vertical; -webkit-line-clamp:none; -webkit-line-clamp:unset;}
     #vip_state_block .tabbox_new_dt a.zs_buttonn{font-size: 15px; line-height: 30px;font-weight:normal;margin-right:2%; }
     </style>
     <style>
@@ -217,7 +222,7 @@
                     </div>
                     @endif
                     @if($user->engroup==2)
-                    <div class="sys_aa" id="vip_state_block">
+                    <div class="sys_aa" id="adv_auth_state_block">
                         <div class="tabbox_new_dt"><span>進階驗證</span>
                         @if(!$user->isAdvanceAuth())
                             <a class="zs_buttonn" href="{{url('/advance_auth/')}}">立即驗證</a>
@@ -231,7 +236,7 @@
                         @endif
                         </div>
                     </div> 
-                    <div class="sys_aa" id="vip_state_block">
+                    <div class="sys_aa" id="self_auth_state_block">
                         <div class="tabbox_new_dt"><span>本人認證</span>
                             <a class="zs_buttonn" href="{{route('real_auth')}}">
                             @if($rap_service->isNoProgressByAuthTypeId(1))
@@ -247,7 +252,7 @@
                         @elseif($rap_service->isSelfAuthWaitingCheck())
                             <h2 class="tabbox_h2"><span class="tu_dfont">等待審核中</span></h2>
                         @elseif($rap_service->isSelfAuthApplyNotVideoYet())
-                            <h2 class="tabbox_h2"><span class="tu_dfont"><img id="video_status_show_elt" src="{{ asset('/new/images/guan.png') }}" class="left sa_video_status"  style=" height: 30px;cursor: pointer;"/></span></h2>
+                            <h2 class="tabbox_h2"><span class="tu_dfont"><span class="sa_video_status" id="video_status_text_show_elt">前往視訊</span><img id="video_status_show_elt" src="{{ asset('/new/images/guan.png') }}" class="left sa_video_status"  style="cursor: pointer;height: 30px;display:none;"/></span></h2>
                         @else
                             <h2 class="tabbox_h2"><span class="tu_dfont">尚未通過</span></h2>
                         @endif
@@ -664,18 +669,30 @@
              @endif
          </div>
     </div>
-    <div id="app">
-        <video-chat 
-            :allusers="{{ collect([]) }}" 
-            :authUserId="{{ auth()->id() }}" 
-            user_permission = "normal"
-            ice_server_json="" 
-        />
-        
-    </div>
-</div>
-     
+   
     @endif
+    @if($rap_service->isSelfAuthApplyNotVideoYet())
+    <div style="position:relative;" id="video_app_container">
+        <div id="app" style="display: none;">
+            <video-chat 
+                :allusers="{{ $users }}" 
+                :authUserId="{{ auth()->id() }}" 
+                user_permission = "normal"
+                ice_server_json="" 
+            />
+            
+        </div>
+        {{--
+        <div style="flex-wrap: wrap;position: absolute;top: 0;z-index: -1;">
+            <button type="button" class="btn mr-2 btn-secondary disabled" style="padding:0;">           
+                <span class="badge badge-light" style="line-height:normal;letter-spacing:2px;text-align:left;">目前無站方人員<br>暫時無法視訊</span>
+            </button>
+        </div>
+        --}}
+    </div>
+    @endif
+</div>
+      
 @stop
 
 @section('javascript')
@@ -1446,7 +1463,7 @@ display: flex;-webkit-box-pack: center;-ms-flex-pack: center;-webkit-justify-con
 
 </script>
 @endif
-
+@if($rap_service->isSelfAuthApplyNotVideoYet())
 <script>
     let ice_servers;
     async function kinesis_init()
@@ -1512,10 +1529,25 @@ display: flex;-webkit-box-pack: center;-ms-flex-pack: center;-webkit-justify-con
 
     kinesis_init().then(function(result){
         $('#app video-chat').attr('ice_server_json',JSON.stringify(ice_servers));
+        
         new Vue({
             el:'#app'
         });
     })
+    
+    setTimeout(change_video_status, 3000);
+    setInterval(change_video_status, 10000);
+    
+    function change_video_status() 
+    {
+        $('#video_status_text_show_elt').hide().removeAttr('id');
+        if($('#app .btn-success').length) {
+            $('#video_status_show_elt').show().attr('src','{{asset("/new/images/kai-1.png")}}');
+        }
+        else {
+            $('#video_status_show_elt').show().attr('src','{{asset("/new/images/guan.png")}}');
+        }
+    }
 </script>
-
+@endif
 @stop

@@ -44,8 +44,8 @@
                 補交項目：
                     <input type="radio" class="patch_type" name="patch_type"  value=2 onclick="document.getElementById('item_id').value=this.value;">基本資料
                     <input type="radio" class="patch_type" name="patch_type" value=3 onclick="document.getElementById('item_id').value=this.value;">照片
-                    <input type="radio" class="patch_type" name="patch_type" value=4 onclick="document.getElementById('item_id').value=this.value;">表單必填資料
-                    <input type="radio" class="patch_type" name="patch_type" value=5 onclick="document.getElementById('item_id').value=this.value;">重錄視頻
+                    <input type="radio" class="patch_type" name="patch_type" value=4 onclick="document.getElementById('item_id').value=this.value;">重錄視頻
+                    <input type="radio" class="patch_type" name="patch_type" value=5 onclick="document.getElementById('item_id').value=this.value;">表單必填資料                    
                 </div>               
             
             </td>
@@ -147,7 +147,7 @@
                                 case '3':
                                     template_str = template_str.replace('PATCH_LINK','<a href="'+pic_manage_url+'">請點我</a>');
                                 break;
-                                case '4':
+                                case '5':
                                     if(msglib_msg.eq(i).html().search('BEAUTY_AUTH')>=0) 
                                     {
                                         template_str = template_str.replace('PATCH_LINK','<a href="{{route('beauty_auth')}}">請點我</a>');
@@ -157,14 +157,14 @@
                                         template_str = template_str.replace('PATCH_LINK','<a href="{{route('famous_auth')}}">請點我</a>');
                                     }
                                 break;
-                                case '5':
-                                    template_str = template_str.replace('PATCH_LINK','<a href="#">請點我</a>');
+                                case '4':
+                                    template_str = template_str.replace('PATCH_LINK','<a href="{{url('user_video_chat_verify')}}">請點我</a>');
                                 break;                            
                             }
                         
                         });
                     }
-                    //$('#msg').val(template[i]);
+
                     $('#msg').val(template_str);
                     error_msg = '';
                     if(template_str.search('APPLY_DATE')>=0) {

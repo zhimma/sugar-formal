@@ -316,11 +316,12 @@ class RealAuthPageService {
         
         return $start_msg_str.' 請點選綠色按鈕開始進行視訊驗證。                     
                         <a href="'.url('user_video_chat_verify').'">
-                            <img src="'.asset('/new/images/guan.png').'" class="center line_notify" id="caocao_pic" style=" height: 30px;cursor: pointer;">
+                            <span class="video_status_text_show_elt">前往視訊</span>
+                            <img src="'.asset('/new/images/guan.png').'" class="center line_notify video_status_show_elt" style=" display:none;height: 30px;cursor: pointer;">
                         </a>
-                    <br><br>按鈕灰色代表目前無站方人員可視訊，
+                    <br><br><div class="video_status_color_intro">按鈕灰色代表目前無站方人員可視訊，
                     <br>可在<a href="'.url('/dashboard/personalPage').'">專屬頁面</a>看到視訊狀態變綠色之後，
-                    <br>即可做視訊完成認證。
+                    <br>即可做視訊完成認證。</div>
 
                         ';
     }
@@ -418,37 +419,47 @@ class RealAuthPageService {
     public function saveVideoRecordId($vrid) 
     {
         $self_auth_apply_entry = $this->getApplyByAuthTypeId(1);
-        $latest_vmodify = $self_auth_apply_entry->latest_working_modify()->where('item_id',4)->first();
+        //$latest_vmodify = $self_auth_apply_entry->latest_working_modify()->where('item_id',4)->first();
+        $latest_vmodify = $self_auth_apply_entry->latest_working_video_modify;
         
         if($latest_vmodify)
         {
-            if($latest_vmodify->new_video_modify_id )
+            if($latest_vmodify->new_video_record_id )
             {
-                $vmodify_data['old_video_record_id'] = $latest_vmodify->new_video_modify_id;
+                $vmodify_data['old_video_record_id'] = $latest_vmodify->new_video_record_id;
             }
             
             if($self_auth_apply_entry->status==1)
             {
                 $vmodify_data['status'] = 0;
-                $vmodify_data['now_video_record_id'] = $self_auth_apply_entry->video_modify_id;
+                $vmodify_data['now_video_record_id'] = $latest_vmodify->new_video_record_id;
                 
-                if($latest_vmodify->new_video_modify_id)
+                if($latest_vmodify->new_video_record_id)
                 {
-                    $vmodify_data['old_video_record_id'] = $latest_vmodify->new_video_modify_id;
+                    $vmodify_data['old_video_record_id'] = $latest_vmodify->new_video_record_id;
                 }
             }   
             else
             {
                 $vmodify_data['now_video_record_id'] = $vrid;
-                $self_auth_apply_entry->video_modify_id = $vrid;
-                $self_auth_apply_entry->save();
+
             }    
+        }
+        else {
+            $vmodify_data['now_video_record_id'] = $vrid;
         }
 
         $vmodify_data['new_video_record_id'] = $vrid;
-        $vmodify_data['item_id '] = 4;
+        $vmodify_data['item_id'] = 4;
         
-        $this->rau_repo()->saveModifyByArr($vmodify_data);
+        $modify_rs = $this->rau_repo()->saveModifyByArr($vmodify_data);
+    
+        if($modify_rs && $self_auth_apply_entry->status!=1) {
+                $self_auth_apply_entry->video_modify_id = $modify_rs->id;
+                $self_auth_apply_entry->save();            
+        }
+        
+        return $modify_rs;
     }
     
     public function saveProfileModifyByReq($request)
@@ -631,7 +642,7 @@ class RealAuthPageService {
 
         $unchk_sa_apply_entry = $this->getUncheckedApplyByAuthTypeId(1);
         
-        return ($unchk_sa_apply_entry && $unchk_sa_apply_entry->status==0 && !$unchk_sa_apply_entry->video_record_id);        
+        return ($unchk_sa_apply_entry && $unchk_sa_apply_entry->status==0 && !$unchk_sa_apply_entry->latest_video_modify);        
     }
 
     public function isSelfAuthWaitingCheck() 
@@ -643,7 +654,7 @@ class RealAuthPageService {
         
         $unchk_sa_apply_entry = $this->getUncheckedApplyByAuthTypeId(1);
         
-        return ($unchk_sa_apply_entry && $unchk_sa_apply_entry->video_record_id && $unchk_sa_apply_entry->status!=2);
+        return ($unchk_sa_apply_entry && $unchk_sa_apply_entry->latest_video_modify && $unchk_sa_apply_entry->status!=2);
   
     } 
     

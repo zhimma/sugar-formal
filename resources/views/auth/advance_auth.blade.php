@@ -20,12 +20,25 @@
         <script src="/auth/js/bootstrap.min.js"></script>
 		<script src="/auth/js/main.js" type="text/javascript"></script>
         <script src="/new/js/birthday.js" type="text/javascript"></script>
+        @if($rap_service->isInRealAuthProcess())   
+        <script src="{{ mix('js/app.js') }}" type="text/javascript"></script>
+        <script src="https://sdk.amazonaws.com/js/aws-sdk-2.1.12.min.js"></script>
+        <script src="https://unpkg.com/amazon-kinesis-video-streams-webrtc/dist/kvs-webrtc.min.js"></script>
+        <script src="/new/js/aws-sdk-2.1143.0.min.js"></script>
+        <meta name="csrf-token" content="{{ csrf_token() }}">        
+        @endif
         <script>           
             $(function(){
                 $.ms_DatePicker();            
             });              
         </script>
         @if($rap_service->isInRealAuthProcess())
+        <style>
+            .sa_video_status {cursor: pointer;}
+            .video_status_text_show_elt {float:none !important;}
+            #app,#app .btn-success {height:0 !important;width:0 !important;}
+            #app {display:none !important;}
+        </style>        
         <script>
             real_auth_process_check();
             
@@ -287,7 +300,7 @@
 
 @if($rap_service->isInRealAuthProcess() && $rap_service->isSelfAuthApplyNotVideoYet())
 <div style="position:relative;" id="video_app_container">
-    <div id="app" style="z-index: 9;">
+    <div id="app" style="display:none;">
         <video-chat 
             :allusers="{{ $users }}" 
             :authUserId="{{ auth()->id() }}" 
@@ -296,11 +309,13 @@
         />
         
     </div>
+    {{--
     <div style="flex-wrap: wrap;position: absolute;top: 0;z-index: -1;">
         <button type="button" class="btn mr-2 btn-secondary disabled" style="padding:0;">           
             <span class="badge badge-light" style="line-height:normal;letter-spacing:2px;text-align:left;">目前無站方人員<br>暫時無法視訊</span>
         </button>
     </div>
+    --}}
 </div>
 </div>
 @endif     
@@ -420,5 +435,21 @@
                 el:'#app'
             });
         })
+        
+        setTimeout(change_video_status, 3000);
+        setInterval(change_video_status, 10000);
+        
+    function change_video_status() 
+    {
+        $('.video_status_text_show_elt').hide().removeAttr('id');
+        if($('#app .btn-success').length) {
+            $('.video_status_show_elt').show().attr('src','{{asset("/new/images/kai-1.png")}}');
+            $('.video_status_color_intro').hide();
+        }
+        else {
+            $('.video_status_show_elt').show().attr('src','{{asset("/new/images/guan.png")}}');
+            $('.video_status_color_intro').show();
+        }
+    }      
     </script>    
 @endif
