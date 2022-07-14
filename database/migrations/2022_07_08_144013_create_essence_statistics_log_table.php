@@ -14,7 +14,7 @@ class CreateEssenceStatisticsLogTable extends Migration
     public function up()
     {
         if (!Schema::hasTable('essence_statistics_log')) {
-            Schema::create('essence_statistics_log_test', function (Blueprint $table) {
+            Schema::create('essence_statistics_log', function (Blueprint $table) {
                 $table->id();
                 $table->integer('user_id');
                 $table->integer('essence_posts_id');
