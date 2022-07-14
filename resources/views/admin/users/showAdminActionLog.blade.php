@@ -12,18 +12,14 @@
             {!! csrf_field() !!}
             <table class="table-hover table table-bordered">
                 <tr>
-                    <th>Admin操作人員</th>
-                    <td><input type="email" class="form-control" name="operator" value="@if(isset($_GET['operator'])){{ $_GET['operator'] }}@endif"></td>
-                </tr>
-                <tr>
                     <th>開始時間</th>
                     <td>
-                        <input type='text' id="datepicker_1" name="date_start" data-date-format='yyyy-mm-dd' value="@if(isset($_GET['date_start'])){{ $_GET['date_start'] }}@endif" class="form-control" required>
+                        <input type='text' id="datepicker_1" name="date_start" data-date-format='yyyy-mm-dd' value="@if(isset($_GET['date_start'])){{ $_GET['date_start'] }}@endif" class="form-control">
                     </td>
                 <tr>
                     <th>結束時間</th>
                     <td>
-                        <input type='text' id="datepicker_2" name="date_end" data-date-format='yyyy-mm-dd' value="@if(isset($_GET['date_end'])){{ $_GET['date_end'] }}@endif" class="form-control" required>
+                        <input type='text' id="datepicker_2" name="date_end" data-date-format='yyyy-mm-dd' value="@if(isset($_GET['date_end'])){{ $_GET['date_end'] }}@endif" class="form-control">
                     </td>
                 </tr>
                 <tr>
@@ -33,6 +29,14 @@
                         <a class="text-white btn btn-success last3days">最近3天</a>
                         <a class="text-white btn btn-success last10days">最近10天</a>
                         <a class="text-white btn btn-success last30days">最近30天</a>
+                    </td>
+                </tr>
+                <tr>
+                    <th>Admin操作人員</th>
+                    <td>
+                        @foreach($operator_list as $operator)
+                            <input type="checkbox" name="operator[]" value="{{$operator->operator}}" @if(in_array($operator->operator, Request()->get('operator',[]))) checked @endif><span>{{$operator->operator_email}}</span><br>
+                        @endforeach
                     </td>
                 </tr>
                 <tr>
@@ -111,6 +115,9 @@
                 </td>
             </tr>
         @endforeach
+        @if(count($getLogs)==0)
+            暫無資料
+        @endif
     </table>
 </body>
 
@@ -201,6 +208,29 @@
             }else{
                 $('#'+sectionName).hide();
                 $('#btn_'+sectionName).text('+');
+            }
+        });
+
+        $('form').on('submit', function(event) {
+            event.preventDefault();
+
+            var searchIDs = [];
+            $("input:checkbox:checked").map(function(){
+                searchIDs.push($(this).val());
+            });
+            console.log(searchIDs.length);
+
+            if($('#datepicker_1').val()==''){
+                alert('請輸入開始時間');
+                return false;
+            }else if($('#datepicker_2').val()==''){
+                alert('請輸入結束時間');
+                return false;
+            }else if(searchIDs==0){
+                alert('請勾選Admin操作人員');
+                return false;
+            }else{
+                this.submit();
             }
         });
     });
