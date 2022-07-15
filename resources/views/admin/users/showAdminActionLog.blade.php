@@ -67,10 +67,11 @@
                                 <tr class="showLog" id="showLogByDateDetail{{ $group['log_by_date'] }}_operator_{{$log['operator']}}">
                                     <td>
                                         @php
-                                            $logInLog=\App\Models\AdminActionLog::selectRaw('admin_action_log.*, users.email, (select email from users where id = admin_action_log.target_id) AS target_acc ')
+                                            $logInLog=\App\Models\AdminActionLog::selectRaw('admin_action_log.*, users.email, (select email from users where id = admin_action_log.target_id) AS target_acc, `warned_users`.`expire_date` ')
                                                 ->selectRaw('IF((select count(*) from banned_users where banned_users.member_id=admin_action_log.target_id) >0,1,0) AS is_banned')
                                                 ->selectRaw('IF((select count(*) from warned_users where warned_users.member_id=admin_action_log.target_id) >0,1,0) AS is_warned')
                                                 ->leftJoin('users', 'users.id', '=', 'admin_action_log.operator')
+                                                ->leftJoin('warned_users', 'warned_users.member_id', '=', 'admin_action_log.target_id')
                                                 ->where('admin_action_log.operator', $log['operator'])
                                                 ->where('admin_action_log.created_at','like', '%'.$group['log_by_date'].'%')
                                                 ->orderBy('admin_action_log.created_at', 'desc')
@@ -84,6 +85,7 @@
                                                 <td>目標帳號</td>
                                                 <td>動作</td>
                                                 <td>IP</td>
+                                                <td>過期時間</td>
                                                 <td>操作時間</td>
                                             </tr>
                                             </thead>
@@ -93,7 +95,7 @@
                                                     $backgroud_color='';
                                                     if($detail->is_banned==1)
                                                         $backgroud_color='yellow';
-                                                    elseif ($detail->is_warned==1)
+                                                    elseif ($detail->is_warned==1 && \Carbon\Carbon::now()->lt($detail->expire_date))
                                                         $backgroud_color='#62ff07d1';
                                                 @endphp
                                                 <tr style="background-color:{{$backgroud_color}}">
