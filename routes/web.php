@@ -895,7 +895,7 @@ Route::group(['middleware' => ['auth', 'global', 'active', 'femaleActive', 'vipC
         Route::post('users/picturesSimilar/image:delete', [\App\Http\Controllers\ImageController::class, 'admin_user_image_delete'])->withoutMiddleware('Admin');
         Route::post('users/picturesSimilar/avatar:delete', [\App\Http\Controllers\ImageController::class, 'admin_user_avatar_delete'])->withoutMiddleware('Admin');
         Route::post('users/picturesSimilar/pictures:delete/all', [\App\Http\Controllers\ImageController::class, 'admin_user_pictures_all_delete'])->withoutMiddleware('Admin');
-        Route::get('users/message/check', 'UserController@messageCheckIndex')->name("users.message.check");
+        Route::get('users/message/check', 'UserController@messageCheck')->name("users.message.check");
 
         /*
         |--------------------------------------------------------------------------
