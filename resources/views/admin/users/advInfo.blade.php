@@ -2111,6 +2111,27 @@
     </div>
     <div class="swiper-pagination2"></div>
 </div>
+
+
+
+<h4>新增封鎖人員</h4>
+<table class="table table-hover table-bordered" style="width: 50%;">
+    <tr>
+        <td></td>
+        <td>是否封鎖</td>
+        <td>是否警示</td>
+        <td>過往封鎖紀錄</td>
+    </tr>
+        <tr>
+            <td>時間</td>
+            <td>{{ $banned_users->isNotEmpty() ? $banned_users[1]->created_at : '' }}</td>
+            <td>{{ $warned_user ? $warned_user->created_at : '' }}</td>
+            <td>{{ $banned_users->isNotEmpty() ? $banned_users[0]->created_at : '' }}</td>
+        </tr>
+        <tr>
+            <td>後台解決封鎖原因</td>
+        </tr>
+</table>
 <script src="/js/vendors.bundle.js" type="text/javascript"></script>
 <script>
 jQuery(document).ready(function(){
