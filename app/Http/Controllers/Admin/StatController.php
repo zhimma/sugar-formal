@@ -182,13 +182,13 @@ class StatController extends \App\Http\Controllers\BaseController
 //                DB::table('set_auto_ban')->insert(['type' => $request->type, 'content' => $request->content, 'set_ban' => $request->set_ban,'expiry'=>$expiry]);
             }
         }
-        $data = SetAutoBan::orderBy('id', 'desc')->get();// collect();//
+        $data = SetAutoBan::orderBy('id', 'desc')->paginate(50);
         return view('admin.stats.set_autoBan')->with('data', $data);
     }
 
     public function set_autoBan_del(Request $request){
         SetAutoBan::where('id', '=', $request->id)->delete();
-        $data = SetAutoBan::orderBy('id', 'desc')->get();
+        $data = SetAutoBan::orderBy('id', 'desc')->paginate(50);
         return view('admin.stats.set_autoBan')->with('data', $data);
     }
 
