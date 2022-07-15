@@ -104,6 +104,7 @@
                                                     <td><a href="/admin/users/advInfo/{{ $detail->target_id }}" target="_blank">{{ $detail->target_acc }}</a></td>
                                                     <td>{{ $detail->act }}</td>
                                                     <td>{{ $detail->ip }}</td>
+                                                    <td>{{ $detail->expire_date }}</td>
                                                     <td>{{ $detail->created_at }}</td>
                                                 </tr>
                                             @endforeach
