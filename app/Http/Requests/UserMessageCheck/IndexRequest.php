@@ -26,9 +26,9 @@ class IndexRequest extends FormRequest
     {
         return [
             'date_start'            => 'nullable|date',
-            'date_end'              => 'nullable|date|after:date_end',
+            'date_end'              => 'nullable|date|after:date_start',
             'message_date_start'    => 'nullable|date',
-            'message_date_end'      => 'nullable|date|after:date_end',
+            'message_date_end'      => 'nullable|date|after:message_date_start',
             'total'                 => 'nullable|numeric',
             'en_group'              => 'nullable|numeric',
             'page'                  => 'nullable|numeric',
