@@ -219,7 +219,7 @@ class SetAutoBan extends Model
             LogoutAutoBan::dispatch($uid)->onConnection('sqs')->onQueue('auto-ban')->delay(SetAutoBan::_getDelayTime());
         }
         else {
-            LogoutAutoBan::dispatch($uid)->onConnection('sqs-test')->onQueue('auto-ban')->delay(SetAutoBan::_getDelayTime());
+            LogoutAutoBan::dispatch($uid)->onConnection('sqs')->onQueue('auto-ban-test')->delay(SetAutoBan::_getDelayTime());
         }
     }
 
