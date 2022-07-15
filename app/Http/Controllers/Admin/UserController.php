@@ -57,6 +57,7 @@ use Illuminate\Support\Facades\File;
 use Intervention\Image\Facades\Image;
 use Session;
 use App\Http\Requests\Reported\ReportedIsWriteRequest;
+use App\Http\Requests\UserMessageCheck\IndexRequest;
 use App\Models\Blocked;
 use App\Models\ValueAddedService;
 use App\Services\ImagesCompareService;
@@ -6385,7 +6386,7 @@ class UserController extends \App\Http\Controllers\BaseController
             ->with('user_online_record', $user_online_record);
     }
 
-    public function messageCheck(Request $request)
+    public function messageCheck(IndexRequest $request)
     {
         if (!$this->admin->checkAdmin()) {
             return redirect()->back()->withErrors(['找不到暱稱含有「站長」的使用者！請先新增再執行此步驟']);
@@ -6393,7 +6394,7 @@ class UserController extends \App\Http\Controllers\BaseController
 
         $data = collect();
 
-        if (!empty($request)) {
+        if (!empty($request->all())) {
             // 登入區間
             $startDate = $request->date_start ?? "2022-06-25 14:00:00";
             $endDate = $request->date_end ?? "2022-06-30 15:00:00";
