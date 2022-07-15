@@ -107,7 +107,7 @@
                                                     <td><a href="/admin/users/advInfo/{{ $detail->target_id }}" target="_blank">{{ $detail->target_acc }}</a></td>
                                                     <td>{{ $detail->act }}</td>
                                                     <td>{{ $detail->ip }}</td>
-                                                    <td>{{ "到期日：" . $detail->banned_expire_date ?? "到期日：" . $detail->warned_expire_date ?? null }}</td>
+                                                    <td>@if($detail->banned_expire_date || $detail->warned_expire_date)到期日：@endif{{ $detail->banned_expire_date ?? $detail->warned_expire_date ?? null }}</td>
                                                     <td>{{ $detail->created_at }}</td>
                                                 </tr>
                                             @endforeach
