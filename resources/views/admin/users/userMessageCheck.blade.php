@@ -157,6 +157,7 @@
                     {!! $d->isPhoneAuth() ? '<br>通過手機驗證' : '' !!}
                     {!! $d->is_real ? '<br>是本人' : '' !!}
                     {!! $d->isAdvAuthUsable ? '<br>進階驗證' : '' !!}
+                    <br>
                     訊息數: {{ $d->messageCount }}
                     <br>
                     @if ($d->isBanned($d->id))
