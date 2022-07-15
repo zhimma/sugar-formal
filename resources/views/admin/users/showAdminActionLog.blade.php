@@ -67,10 +67,12 @@
                                 <tr class="showLog" id="showLogByDateDetail{{ $group['log_by_date'] }}_operator_{{$log['operator']}}">
                                     <td>
                                         @php
-                                            $logInLog=\App\Models\AdminActionLog::selectRaw('admin_action_log.*, users.email, (select email from users where id = admin_action_log.target_id) AS target_acc ')
+                                            $logInLog=\App\Models\AdminActionLog::selectRaw('admin_action_log.*, users.email, (select email from users where id = admin_action_log.target_id) AS target_acc, `warned_users`.`expire_date` as `warned_expire_date`, `banned_users`.`expire_date` as `banned_expire_date`')
                                                 ->selectRaw('IF((select count(*) from banned_users where banned_users.member_id=admin_action_log.target_id) >0,1,0) AS is_banned')
                                                 ->selectRaw('IF((select count(*) from warned_users where warned_users.member_id=admin_action_log.target_id) >0,1,0) AS is_warned')
                                                 ->leftJoin('users', 'users.id', '=', 'admin_action_log.operator')
+                                                ->leftJoin('warned_users', 'warned_users.member_id', '=', 'admin_action_log.target_id')
+                                                ->leftJoin('banned_users', 'banned_users.member_id', '=', 'admin_action_log.target_id')
                                                 ->where('admin_action_log.operator', $log['operator'])
                                                 ->where('admin_action_log.created_at','like', '%'.$group['log_by_date'].'%')
                                                 ->orderBy('admin_action_log.created_at', 'desc')
@@ -84,6 +86,7 @@
                                                 <td>目標帳號</td>
                                                 <td>動作</td>
                                                 <td>IP</td>
+                                                <td>備註</td>
                                                 <td>操作時間</td>
                                             </tr>
                                             </thead>
@@ -91,10 +94,12 @@
                                             @foreach($logInLog as $detail)
                                                 @php
                                                     $backgroud_color='';
-                                                    if($detail->is_banned==1)
+                                                    if($detail->is_banned==1 && (now()->lt($detail->banned_expire_date) || $detail->banned_expire_date == null)) {
                                                         $backgroud_color='yellow';
-                                                    elseif ($detail->is_warned==1)
+                                                    }
+                                                    elseif ($detail->is_warned==1 && (now()->lt($detail->warned_expire_date) || $detail->warned_expire_date == null)) {
                                                         $backgroud_color='#62ff07d1';
+                                                    }
                                                 @endphp
                                                 <tr style="background-color:{{$backgroud_color}}">
                                                     <td>{{ $detail->operator }}</td>
@@ -102,6 +107,7 @@
                                                     <td><a href="/admin/users/advInfo/{{ $detail->target_id }}" target="_blank">{{ $detail->target_acc }}</a></td>
                                                     <td>{{ $detail->act }}</td>
                                                     <td>{{ $detail->ip }}</td>
+                                                    <td>{{ "到期日：" . $detail->banned_expire_date ?? "到期日：" . $detail->warned_expire_date ?? null }}</td>
                                                     <td>{{ $detail->created_at }}</td>
                                                 </tr>
                                             @endforeach
