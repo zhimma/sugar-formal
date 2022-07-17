@@ -167,10 +167,7 @@
                 <td>
                     @foreach ($fromUser->toUser as $countKey => $toUser)
                     <div style="{{ $fromUser->isBanned($toUser->id) ? 'background-color:#FFFF00' : ($toUser->isAdminWarned() ? 'background-color:#B0FFB1' : '') }}">
-                    email: <a href="{{ route('users/advInfo', ['id' => $toUser->id]) }}" target="_blank">{{ $toUser->email }}</a>
-                    <br>
-                    訊息發送數: {{ $toUser->count }}
-                    <br>
+                    email: <a href="{{ route('users/advInfo', ['id' => $toUser->id]) }}" target="_blank">{{ $toUser->email }}</a> ({{ $toUser->count }})
                     </div>
                     @endforeach
                 </td>
