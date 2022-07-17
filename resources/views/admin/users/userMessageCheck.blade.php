@@ -156,7 +156,7 @@
                     抬頭: {{ $fromUser->title }}
                     {!! $fromUser->isPhoneAuth() ? '<br>通過手機驗證' : '' !!}
                     {!! $fromUser->is_real ? '' : '<br>是本人' !!}
-                    {!! $fromUser->isAdvAuthUsable ? '<br>進階驗證' : '' !!}
+                    {!! $fromUser->isAdvAuthUsable ? '' : '<br>進階驗證' !!}
                     <br>
                 </td>
                 <td>
