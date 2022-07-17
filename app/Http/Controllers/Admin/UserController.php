@@ -6394,64 +6394,66 @@ class UserController extends \App\Http\Controllers\BaseController
             return redirect()->back()->withErrors(['找不到暱稱含有「站長」的使用者！請先新增再執行此步驟']);
         }
 
-        $data = collect();
+        if (empty($request->all())) {
+            $data = collect();
 
-        if (!empty($request->all())) {
-            // 登入區間
-            $startDate = $request->date_start ?? "2022-06-25 14:00:00";
-            $endDate = $request->date_end ?? "2022-06-30 15:00:00";
-
-            // 訊息區間
-            $messageStartDate = $request->message_date_start ?? "2022-06-01 15:00:00";
-            $messageEndDate = $request->message_date_end ?? "2022-06-30 15:00:00";
-
-            $total = $request->total ?? 10; // 發送人數
-            $gender = $request->en_group ?? 1; // 性別
-
-            $currentPage = $request->page ?? 1;
-
-            $data = Message::with(['toUser', 'fromUser'])
-                ->whereHas('toUser', function ($query) use ($gender) {
-                    $query->where('engroup', $gender == 1 ? 2 : 1); // 傳給那些異性
-                })
-                ->whereHas('fromUser', function ($query) use ($gender, $startDate, $endDate) {
-                    $query->where('engroup', $gender) // 發送訊息者性別
-                        ->whereBetween('last_login', [$startDate, $endDate]); // 登入區間
-                })
-                ->whereBetween('created_at', [$messageStartDate, $messageEndDate]) // 訊息區間
-                ->get()
-                ->groupBy('from_id')
-                ->sortDesc()
-                ->filter(function ($item) use ($total) {
-                    // 清除不滿發送人數
-                    if ($item->countBy('to_id')->count() >= $total) {
-                        return $item;
-                    }
-                })->transform(function ($items, $key) {
-                    // 取得發送訊息者
-                    $fromUser = User::find($key);
-                    // 置入接收者
-                    $fromUser->toUser = $items->groupBy('to_id')->sortDesc()->transform(function ($items, $key) {
-                        // 取得接收訊息者
-                        $toUser = User::find($key);
-                        // 置入幾封訊息
-                        $toUser->count = $items->count();
-                        // 接收者進階驗證
-                        $toUser->isAdvAuthUsable = $toUser->isAdvAuthUsable ?: UserService::isAdvAuthUsableByUser($toUser);
-
-                        return $toUser;
-                    });
-                    // 發訊息者進階驗證
-                    $fromUser->isAdvAuthUsable = $fromUser->isAdvAuthUsable ?: UserService::isAdvAuthUsableByUser($fromUser);
-
-                    return $fromUser;
-                });
-
-            $data = forPaginate($data, session('per_page') ?: 15, $currentPage, [
-                'path' => route("users.message.check"),
-                'query' => $request->all()
-            ]);
+            return view('admin.users.userMessageCheck', compact('data'));
         }
+
+        // 登入區間
+        $startDate = $request->date_start ?? "2022-06-25 14:00:00";
+        $endDate = $request->date_end ?? "2022-06-30 15:00:00";
+
+        // 訊息區間
+        $messageStartDate = $request->message_date_start ?? "2022-06-01 15:00:00";
+        $messageEndDate = $request->message_date_end ?? "2022-06-30 15:00:00";
+
+        $total = $request->total ?? 10; // 發送人數
+        $gender = $request->en_group ?? 1; // 性別
+
+        $currentPage = $request->page ?? 1;
+
+        $data = Message::with(['toUser', 'fromUser'])
+            ->whereHas('toUser', function ($query) use ($gender) {
+                $query->where('engroup', $gender == 1 ? 2 : 1); // 傳給那些異性
+            })
+            ->whereHas('fromUser', function ($query) use ($gender, $startDate, $endDate) {
+                $query->where('engroup', $gender) // 發送訊息者性別
+                    ->whereBetween('last_login', [$startDate, $endDate]); // 登入區間
+            })
+            ->whereBetween('created_at', [$messageStartDate, $messageEndDate]) // 訊息區間
+            ->get()
+            ->groupBy('from_id')
+            ->sortDesc()
+            ->filter(function ($item) use ($total) {
+                // 清除不滿發送人數
+                if ($item->countBy('to_id')->count() >= $total) {
+                    return $item;
+                }
+            })->transform(function ($items, $key) {
+                // 取得發送訊息者
+                $fromUser = User::find($key);
+                // 置入接收者
+                $fromUser->toUser = $items->groupBy('to_id')->sortDesc()->transform(function ($items, $key) {
+                    // 取得接收訊息者
+                    $toUser = User::find($key);
+                    // 置入幾封訊息
+                    $toUser->count = $items->count();
+                    // 接收者進階驗證
+                    $toUser->isAdvAuthUsable = $toUser->isAdvAuthUsable ?: UserService::isAdvAuthUsableByUser($toUser);
+
+                    return $toUser;
+                });
+                // 發訊息者進階驗證
+                $fromUser->isAdvAuthUsable = $fromUser->isAdvAuthUsable ?: UserService::isAdvAuthUsableByUser($fromUser);
+
+                return $fromUser;
+            });
+
+        $data = forPaginate($data, session('per_page') ?: 15, $currentPage, [
+            'path' => route("users.message.check"),
+            'query' => $request->all()
+        ]);
 
         return view('admin.users.userMessageCheck', compact('data'));
     }
