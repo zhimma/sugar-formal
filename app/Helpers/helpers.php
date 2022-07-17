@@ -88,6 +88,6 @@ if (!function_exists('strLimit')) {
             return $value;
         }
 
-        return rtrim(mb_substr($value, 0, $limit, '', 'UTF-8')).$end;
+        return rtrim(mb_substr($value, 0, $limit, 'UTF-8')).$end;
     }
 }
