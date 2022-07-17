@@ -65,6 +65,7 @@ use App\Models\ComeFromAdvertise;
 use App\Models\StayOnlineRecord;
 use App\Models\UserRecord;
 use App\Models\Visited;
+use App\Models\Features;
 class UserController extends \App\Http\Controllers\BaseController
 {
     public function __construct(UserService $userService, AdminService $adminService)
@@ -6380,4 +6381,100 @@ class UserController extends \App\Http\Controllers\BaseController
 
         return $html;
     }
+
+    public function feature_flags(Request $request){
+        $data['features'] = Features::get()->toArray();
+        return view('admin.users.feature_flags', $data);
+    }
+
+    public function feature_flags_create(Request $request){
+        if($request->method()=='GET'){
+            return view('admin.users.feature_flags_create');
+        }else if($request->method()=='POST'){
+            $feature = $request->feature;
+            $priority = $request->priority ?? 0;
+    
+            $description_data = array(
+                'priority'=>$priority
+            );
+    
+            $data = array(
+                'key'=>$feature,
+                'feature'=>$feature,
+                'description'=> json_encode($description_data)
+            );
+    
+            Features::insert($data);
+
+            return redirect('/admin/global/feature_flags');
+        }else{
+            return 'method invalid';
+        }
+        
+    }
+
+    public function feature_flags_edit(Request $request){
+        if($request->method()=='GET'){
+            $feature_key = $request->feature_key;
+            
+            $data['feature'] = Features::where('id',$feature_key)->first();
+
+            return view('admin.users.feature_flags_edit', $data);
+        }else if($request->method()=='POST'){
+            $feature_id = $request->feature_id;
+
+            $feature = $request->feature;
+
+            $priority = $request->priority ?? 0;
+    
+            $description_data = array(
+                'priority'=>$priority
+            );
+    
+            $data = array(
+                'key'=>$feature,
+                'feature'=>$feature,
+                'description'=> json_encode($description_data)
+            );
+
+            Features::where('id',$feature_id)->update($data);
+
+            return redirect('/admin/global/feature_flags');
+        }else{
+            return 'method invalid';
+        }
+    }
+
+    public function feature_flags_update(Request $request){
+        $feature_id = $request->feature_id;
+        $feature = $request->feature;
+        $status =  $request->status;
+        if($status=='true'){
+            $active_at = now();
+        }else{
+            $active_at = null;
+        }
+
+        Features::where('id',$feature_id)->update(['active_at'=>$active_at]);
+
+    }
+
+    public function feature_flags_delete(Request $request){
+        $feature_id = $request->feature_id;
+        $status = Features::where('id',$feature_id)->delete();
+        if($status){
+            $data = array(
+                'code'=>200,
+                'message'=>'刪除成功'
+            );  
+        }else{
+            $data = array(
+                'code'=>400,
+                'message'=>'刪除失敗'
+            );
+        }
+
+        return json_encode($data);
+    }
+
 }
