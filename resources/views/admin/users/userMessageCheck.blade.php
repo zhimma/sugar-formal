@@ -170,20 +170,28 @@
                                     {{ strLimit($fromUser->user_meta->style, 20) }}</p>
                             </td>
                             <td>
-                                <table class="table-hover table table-bordered">
+                                <table class="table-hover table table-bordered" width="100%" style="table-layout:fixed">
                                     @php
-                                        $count = 1;
+                                        $count = 0;
                                     @endphp
-                                    @foreach ($fromUser->toUser as $toUser)
-                                        {!! $count % 8 == 0 ? '<tr>' : '' !!}
+                                    @foreach ($fromUser->toUser as $key => $toUser)
+                                        {!! $count % 7 === 7 ? '<tr>' : '' !!}
                                         <td
                                             style="{{ $fromUser->isBanned($toUser->id) ? 'background-color:#FFFF00' : ($toUser->isAdminWarned() ? 'background-color:#B0FFB1' : '') }}">
                                             email: <a href="{{ route('users/advInfo', ['id' => $toUser->id]) }}"
                                                 target="_blank">{{ $toUser->email }}</a> ({{ $toUser->count }})
                                         </td>
-                                        {!! $count % 8 == 0 ? '</tr>' : '' !!}
+                                        @if ($fromUser->toUser->reverse()->keys()->first() === $key && $count < 8)
+                                        @for ($i = 0; $i < (7 - $count); $i++)
+                                            {!! '<td></td>' !!}
+                                        @endfor
+                                        @endif
+                                        {!! $count != 0 && $count % 7 === 0 ? '</tr>' : '' !!}
                                         @php
-                                            $count++;
+                                            if ($count == 7)
+                                                $count = 0;
+                                            else
+                                                $count++;
                                         @endphp
                                     @endforeach
                                 </table>
