@@ -124,7 +124,7 @@
                 </td>
             </tr>
             <tr>
-                <th>發送訊息數</th>
+                <th>訊息發送人數</th>
                 <td>
                     <input type="text" name="total" value="{{ request()->get('total') }}">
                 </td>
@@ -146,57 +146,38 @@
                 <td width="12%">會員資訊</td>
                 <td width="12%">關於我&約會模式</td>
             </tr>
-            @foreach ($data as $key =>$d)
+            @foreach ($data as $key =>$fromUser)
             <tr id="list">
-                <td>
-                    email: <a href="{{ route('users/advInfo', ['id' => $d->id]) }}" target="_blank">{{ $d->email }}<a>
+                <td style="{{ $fromUser->isBanned($fromUser->id) ? 'background-color:#FFFF00' : ($fromUser->isAdminWarned() ? 'background-color:#B0FFB1' : '') }}">
+                    email: <a {{ $fromUser->is_real }} href="{{ route('users/advInfo', ['id' => $fromUser->id]) }}" target="_blank">{{ $fromUser->email }}<a>
                     <br>
-                    暱稱: {{ $d->name }}
+                    暱稱: {{ $fromUser->name }}
                     <br>
-                    抬頭: {{ $d->title }}
-                    {!! $d->isPhoneAuth() ? '<br>通過手機驗證' : '' !!}
-                    {!! $d->is_real ? '<br>是本人' : '' !!}
-                    {!! $d->isAdvAuthUsable ? '<br>進階驗證' : '' !!}
+                    抬頭: {{ $fromUser->title }}
+                    {!! $fromUser->isPhoneAuth() ? '<br>通過手機驗證' : '' !!}
+                    {!! $fromUser->is_real ? '' : '<br>是本人' !!}
+                    {!! $fromUser->isAdvAuthUsable ? '<br>進階驗證' : '' !!}
                     <br>
-                    訊息數: {{ $d->messageCount }}
-                    <br>
-                    @if ($d->isBanned($d->id))
-                    <a href="javascript:void(0);" class='btn btn-danger handle_status_btn' data-handlestatus="1">封鎖</a>
-                    <br>
-                    @endif
-                    @if ($d->isAdminWarned())
-                    <a href="javascript:void(0);" class='btn btn-success handle_status_btn' data-handlestatus="0">警示</a>
-                    <br>
-                    @endif
                 </td>
                 <td>
-                    <p class="about-me" title="{{ $d->user_meta->about }}">關於我: {{ str_limit($d->user_meta->about, 20, '...') }}</p>
+                    <p class="about-me" title="{{ $fromUser->user_meta->about }}">關於我: {{ strLimit($fromUser->user_meta->about, 20) }}</p>
                     <br>
-                    <p class="date-mode" title="{{ $d->user_meta->style }}">約會模式: {{ str_limit($d->user_meta->style, 20, '...') }}</p>
+                    <p class="date-mode" title="{{ $fromUser->user_meta->style }}">約會模式: {{ strLimit($fromUser->user_meta->style, 20) }}</p>
                 </td>
                 <td>
-                    @foreach ($d->toUser as $countKey => $toUser)
+                    @foreach ($fromUser->toUser as $countKey => $toUser)
+                    <div style="{{ $fromUser->isBanned($toUser->id) ? 'background-color:#FFFF00' : ($toUser->isAdminWarned() ? 'background-color:#B0FFB1' : '') }}">
                     email: <a href="{{ route('users/advInfo', ['id' => $toUser->id]) }}" target="_blank">{{ $toUser->email }}</a>
                     <br>
                     訊息發送數: {{ $toUser->count }}
                     <br>
-                    @if ($toUser->isBanned($d->id))
-                    <a href="javascript:void(0);" class='btn btn-danger handle_status_btn' data-handlestatus="1">封鎖</a>
-                    <br>
-                    @endif
-                    @if ($toUser->isAdminWarned())
-                    <a href="javascript:void(0);" class='btn btn-success handle_status_btn' data-handlestatus="0">警示</a>
-                    <br>
-                    @endif
+                    </div>
                     @endforeach
                 </td>
             </tr>
             @endforeach
         </table>
         {!! $data->isNotEmpty() ? $data->links('pagination::sg-pages') : "" !!}
-        <div style="text-align:center;">
-            <button class="check_and_next_page btn btn-primary">下一頁(檢查完畢)</button>
-        </div>
         <br>
     </div>
     @endif

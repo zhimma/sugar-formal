@@ -51,3 +51,43 @@ if (!function_exists('forPaginate')) {
         return new \Illuminate\Pagination\LengthAwarePaginator($items->forPage($itemsPage ?? $page, $perPage), $count ?? $items->count(), $perPage, $page, $options);
     }
 }
+
+if (!function_exists('getQueries')) {
+    /** 
+     * @return array
+     */
+    function getQueries()
+    {
+        return array_map(function ($queryLog) {
+            $stringSQL = str_replace('?', '"%s"', $queryLog['query']);
+
+            return sprintf($stringSQL, ...$queryLog['bindings']);
+        }, \DB::getQueryLog());
+    }
+}
+
+if (!function_exists('getLastQuery')) {
+    /** 
+     * @return array
+     */
+    function getLastQuery()
+    {
+        $queries = getQueries();
+
+        return end($queries);
+    }
+}
+
+if (!function_exists('strLimit')) {
+    /** 
+     * @return array
+     */
+    function strLimit($value, $limit = 100, $end = '...')
+    {
+        if (mb_strlen($value, 'UTF-8') <= $limit) {
+            return $value;
+        }
+
+        return rtrim(mb_substr($value, 0, $limit, '', 'UTF-8')).$end;
+    }
+}
