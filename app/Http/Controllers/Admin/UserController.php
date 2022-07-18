@@ -6408,7 +6408,6 @@ class UserController extends \App\Http\Controllers\BaseController
         $messageStartDate = $request->message_date_start ?? "2022-06-01 15:00:00";
         $messageEndDate = $request->message_date_end ?? "2022-06-30 15:00:00";
 
-        $total = $request->total ?? 10; // 發送人數
         $gender = $request->en_group ?? 1; // 性別
 
         $currentPage = $request->page ?? 1;
@@ -6425,9 +6424,9 @@ class UserController extends \App\Http\Controllers\BaseController
             ->get()
             ->groupBy('from_id')
             ->sortDesc()
-            ->filter(function ($item) use ($total) {
-                // 清除不滿發送人數
-                if ($item->countBy('to_id')->count() >= $total) {
+            ->filter(function ($item) {
+                // 清除不滿個別發送給10人者
+                if ($item->countBy('to_id')->count() >= 10) {
                     return $item;
                 }
             })->transform(function ($items, $key) {
