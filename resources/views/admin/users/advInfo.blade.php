@@ -587,8 +587,8 @@
             $isEverWarned_log[$key]['cancal_admin']=$isEverWarned_cancel? \App\Models\User::findById($isEverWarned_cancel->operator):'';
             $isEverWarned_log[$key]['cancal_time']=$isEverWarned_cancel?$isEverWarned_cancel->created_at:'';
         }
-        $isEverWarned_warneder=\App\Models\AdminActionLog::where('target_id', $user->id)->where('act','站方警示')->orderByDesc('created_at')->skip($key)->first();
-        $isEverWarned_log['warned_admin']=$isEverWarned_warneder? \App\Models\User::findById($isEverWarned_warneder->operator):'';
+        $isEverWarned_warneder=\App\Models\AdminActionLog::where('target_id', $user->id)->where('act','站方警示')->orderByDesc('created_at')->first();
+        $isEverWarned_log['warned_admin']=$isEverWarned_warneder? \App\Models\User::findById($isEverWarned_warneder->operator) : null;
     }
     //曾被封鎖
     $isEverBanned_log=array();
@@ -604,8 +604,8 @@
             $isEverBanned_log[$key]['cancal_admin']=$isEverBanned_cancel? \App\Models\User::findById($isEverBanned_cancel->operator) :'';
             $isEverBanned_log[$key]['cancal_time']=$isEverBanned_cancel? $isEverBanned_cancel->created_at:'';
         }
-        $isEverBanned_banneder=\App\Models\AdminActionLog::where('target_id', $user->id)->where('act','封鎖會員')->orderByDesc('created_at')->skip($key)->first();
-        $isEverBanned_log['banneder_admin']=$isEverBanned_banneder? \App\Models\User::findById($isEverBanned_banneder->operator) :'';
+        $isEverBanned_banneder=\App\Models\AdminActionLog::where('target_id', $user->id)->where('act','封鎖會員')->orderByDesc('created_at')->first();
+        $isEverBanned_log['banneder_admin']=$isEverBanned_banneder? \App\Models\User::findById($isEverBanned_banneder->operator) : null;
     }
     //目前正被警示
     $isWarned_show=array();
@@ -816,12 +816,18 @@
             @endphp
             @if(count($isBanned)>0 && $isBanned_admin)
                 <td><a href="{{ route('users/advInfo', $isBanned_admin->id) }}" target='_blank' @if($isBanned_admin->engroup == '2') style="color: #F00;" @else  style="color: #5867DD;"  @endif>{{ $isBanned_admin->name }}</a></td>
+            @else
+            <td></td>
             @endif
             @if(count($isWarned)>0 &&$isWarned_admin)
                 <td><a href="{{ route('users/advInfo', $isWarned_admin->id) }}" target='_blank' @if($isWarned_admin->engroup == '2') style="color: #F00;" @else  style="color: #5867DD;"  @endif>{{ $isWarned_admin->name }}</a></td>
+            @elseif($isEverBanned_admin)
+            <td></td>
             @endif
             @if($isEverBanned_admin)
                 <td><a href="{{ route('users/advInfo', $isEverBanned_admin->id) }}" target='_blank' @if($isEverBanned_admin->engroup == '2') style="color: #F00;" @else  style="color: #5867DD;"  @endif>{{ $isEverBanned_admin->name }}</a></td>
+            @elseif($isEverBanned_admin)
+            <td></td>
             @endif
             @if($isEverBanned_admin)
                 <td><a href="{{ route('users/advInfo', $isEverWarned_admin->id) }}" target='_blank' @if($isEverWarned_admin->engroup == '2') style="color: #F00;" @else  style="color: #5867DD;"  @endif>{{ $isEverWarned_admin->name }}</a></td>
