@@ -7016,16 +7016,16 @@ class PagesController extends BaseController
 
         $queryBE = \App\Models\Evaluation::select('evaluation.*')->from('evaluation as evaluation')->with('user')
                 ->leftJoin('blocked as b1', 'b1.blocked_id', '=', 'evaluation.from_id')
-//                ->leftJoin('user_meta as um', function($join) {
-//                    $join->on('um.user_id', '=', 'e.from_id')
-//                        ->where('isWarned', 1); })
-//                ->leftJoin('warned_users as wu', function($join) {
-//                    $join->on('wu.member_id', '=', 'e.from_id')
-//                        ->where(function($query){
-//                            $query->where('wu.expire_date', '>=', Carbon::now())
-//                                ->orWhere('wu.expire_date', null); }); })
-//                ->whereNull('um.user_id')
-//                ->whereNull('wu.member_id')
+                //->leftJoin('user_meta as um', function($join) {
+                    //$join->on('um.user_id', '=', 'e.from_id')
+                    //->where('isWarned', 1); })
+                //->leftJoin('warned_users as wu', function($join) {
+                    //$join->on('wu.member_id', '=', 'e.from_id')
+                    //->where(function($query){
+                        //$query->where('wu.expire_date', '>=', Carbon::now())
+                        //->orWhere('wu.expire_date', null); }); })
+                //->whereNull('um.user_id')
+                //->whereNull('wu.member_id')
                 ->orderBy('evaluation.created_at','desc')
                 ->where('b1.member_id', $uid)
                 ->where('evaluation.to_id', $uid)
@@ -7141,11 +7141,11 @@ class PagesController extends BaseController
                 'vipStatus' => $vipStatus,
                 'vasStatus'=> $vasStatus,
                 'isBannedStatus' => $isBannedStatus,
-//                'isBannedImplicitlyStatus' => $isBannedImplicitlyStatus,
+                //'isBannedImplicitlyStatus' => $isBannedImplicitlyStatus,
                 'adminWarnedStatus' => $adminWarnedStatus,
                 'isWarnedStatus' => $isWarnedStatus,
                 'bannedCount' => $bannedCount,
-//                'reportedCount' => $reportedCount,
+                //'reportedCount' => $reportedCount,
                 'warnedCount' => $warnedCount,
                 'reportedStatus' => $reportedStatus,
                 'msgMemberCount' => $msgMemberCount,
