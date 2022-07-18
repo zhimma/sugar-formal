@@ -1648,6 +1648,11 @@ class UserController extends \App\Http\Controllers\BaseController
 
         //正被警示
         $isWarned = warned_users::where('member_id', $user->id)->where('expire_date', null)->orWhere('expire_date', '>', Carbon::now())->where('member_id', $user->id)->orderBy('created_at', 'desc')->paginate(10);
+        $is_warned_of_budget = false;
+        if(($isWarned->first()->reason??'') == '每月預算不實' || ($isWarned->first()->reason??'') == '車馬費預算不實')
+        {
+            $is_warned_of_budget = true;
+        }
         //正被封鎖
         $isBanned = banned_users::where('member_id', $user->id)->where('expire_date', null)->orWhere('expire_date', '>', Carbon::now())->where('member_id', $user->id)->orderBy('created_at', 'desc')->paginate(10);
 
@@ -1718,7 +1723,9 @@ class UserController extends \App\Http\Controllers\BaseController
                 ->with('last_images_compare_encode', ImagesCompareEncode::orderByDesc('id')->firstOrNew())
                 ->with('posts_forum', $posts_forum)
                 ->with('hideonline_order', $hideonline_order)
-                ->with('user_record', $user_record);
+                ->with('user_record', $user_record)
+                ->with('is_warned_of_budget', $is_warned_of_budget)
+                ;
         }
     }
 
