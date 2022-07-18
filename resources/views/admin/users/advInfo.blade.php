@@ -603,6 +603,7 @@
     }
     //目前正被警示
     $isWarned_show=array();
+    $isWarned_show['admin_user'] = null;
     if(isset($isWarned) && count($isWarned)>0){
          foreach($isWarned as $row){
              $isWarned_show['created_at']=$row->created_at;
@@ -622,6 +623,7 @@
     }
     //目前正被封鎖
     $isBanned_show=array();
+    $isBanned_show['admin_user'] = null;
     if(isset($isBanned) && count($isBanned)>0){
          foreach($isBanned as $row){
              $isBanned_show['created_at']=$row->created_at;
@@ -803,8 +805,8 @@
             @php
                 $isBanned_admin=$isBanned_show["admin_user"];
                 $isWarned_admin=$isWarned_show["admin_user"];
-                $isEverBanned_admin=$isBanned_show["admin_user"] ?? '';
-                $isEverWarned_admin=$isWarned_show["admin_user"] ?? '';
+                $isEverBanned_admin=$isBanned_show["admin_user"];
+                $isEverWarned_admin=$isWarned_show["admin_user"];
             @endphp
             @if(count($isBanned)>0 && $isBanned_admin)
                 <td><a href="{{ route('users/advInfo', $isBanned_admin->id) }}" target='_blank' @if($isBanned_admin->engroup == '2') style="color: #F00;" @else  style="color: #5867DD;"  @endif>{{ $isBanned_admin->name }}</a></td>
@@ -816,10 +818,12 @@
             @else
                 <td></td>
             @endif
-            @if($isEverBanned0_admin)
+            @if($isEverBanned_admin)
                 <td><a href="{{ route('users/advInfo', $isEverBanned_admin->id) }}" target='_blank' @if($isEverBanned_admin->engroup == '2') style="color: #F00;" @else  style="color: #5867DD;"  @endif>{{ $isEverBanned_admin->name }}</a></td>
+            @else
+            <td></td>
             @endif
-            @if($isEverWarned0_admin)
+            @if($isEverBanned_admin)
                 <td><a href="{{ route('users/advInfo', $isEverWarned_admin->id) }}" target='_blank' @if($isEverWarned_admin->engroup == '2') style="color: #F00;" @else  style="color: #5867DD;"  @endif>{{ $isEverWarned_admin->name }}</a></td>
             @endif
         </tr>
