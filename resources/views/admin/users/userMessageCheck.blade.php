@@ -146,6 +146,12 @@
                     </td>
                 </tr>
                 <tr>
+                    <th>訊息發送人數</th>
+                    <td>
+                        <input type="text" name="total" value="{{ request()->get('total') }}">
+                    </td>
+                </tr>
+                <tr>
                     <td colspan="2">
                         <button type="submit" class="btn btn-primary">查詢</button> 或
                         <!-- <button type="submit" class="btn btn-info" name="hidden" value="1">查詢並顯示隱藏的照片</button> -->
