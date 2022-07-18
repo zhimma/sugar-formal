@@ -197,7 +197,7 @@
                                     @foreach ($fromUser->toUser as $key => $toUser)
                                         <li
                                             style="{{ $fromUser->isBanned($toUser->id) ? 'background-color:#FFFF00' : ($toUser->isAdminWarned() ? 'background-color:#B0FFB1' : '') }}">
-                                            email: <a href="{{ route('users/advInfo', ['id' => $toUser->id]) }}"
+                                            <a href="{{ route('users/advInfo', ['id' => $toUser->id]) }}"
                                                 target="_blank">{{ $toUser->email }}</a> ({{ $toUser->count }})
                                             </li>
                                     @endforeach
