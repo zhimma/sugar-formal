@@ -6433,6 +6433,8 @@ class UserController extends \App\Http\Controllers\BaseController
             })->transform(function ($items, $key) {
                 // 取得發送訊息者
                 $fromUser = User::find($key);
+                // 總訊息數
+                $fromUser->messageCount = $items->count();
                 // 置入接收者
                 $fromUser->toUser = $items->groupBy('to_id')->sortDesc()->transform(function ($items, $key) {
                     // 取得接收訊息者

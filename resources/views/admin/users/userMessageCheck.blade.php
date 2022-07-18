@@ -161,6 +161,7 @@
                                         {!! $fromUser->is_real ? '' : '<br>是本人' !!}
                                         {!! $fromUser->isAdvAuthUsable ? '' : '<br>進階驗證' !!}
                                         <br>
+                                        總訊息數: {{ $fromUser->messageCount }}
                             </td>
                             <td>
                                 <p class="about-me" title="{{ $fromUser->user_meta->about }}">關於我:
