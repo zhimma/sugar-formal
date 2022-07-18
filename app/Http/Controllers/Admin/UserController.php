@@ -6454,16 +6454,14 @@ class UserController extends \App\Http\Controllers\BaseController
                 $fromUser->isAdvAuthUsable = $fromUser->isAdvAuthUsable ?: UserService::isAdvAuthUsableByUser($fromUser);
 
                 return $fromUser;
-            })->filter(function ($model) {
-                if ($model->toUser->isNotEmpty()) {
+            })->filter(function ($model) use ($total) {
+                if ($model->toUser->isNotEmpty() && $model->toUser->count() >= $total) {
                     // 總訊息數
                     $model->messageCount = $model->toUser->sum('count');
 
                     return $model;
                 }
             });
-
-            $data->count() < $total && $data = collect();
 
         $data = forPaginate($data, session('per_page') ?: 15, $currentPage, [
             'path' => route("users.message.check"),
