@@ -56,6 +56,28 @@
         #autoban_pic_gather .autoban_pic_unit input:checked+label {
             background: #1E90FF;
         }
+
+        th.titleColumn {
+            width: 300px;
+            min-width: 300px;
+        }
+
+        ul.elist {
+            display: flex;
+            justify-content: flex-start;
+            flex-wrap: wrap;
+            align-items: flex-start;
+            width: 1600px;
+            padding: 0;
+        }
+
+        ul.elist li {
+            width: 200px;
+            padding: 10px;
+            height: : 100px;
+            border: 1px solid #e9ecef;
+            align-self: stretch;
+        }
     </style>
 
     <body style="padding: 15px;">
@@ -124,12 +146,6 @@
                     </td>
                 </tr>
                 <tr>
-                    <th>訊息發送數</th>
-                    <td>
-                        <input type="text" name="message_total" value="{{ request()->get('message_total') }}">
-                    </td>
-                </tr>
-                <tr>
                     <th>訊息發送人數</th>
                     <td>
                         <input type="text" name="total" value="{{ request()->get('total') }}">
@@ -147,13 +163,13 @@
 
         @if ($data->isNotEmpty())
             <div>
-                <table class="table-hover table table-bordered">
+                <table class="table-hover table table-bordered" width="200%">
                     <tr>
-                        <td width="8%">會員資訊</td>
-                        <td width="8%">關於我&約會模式</td>
+                        <th class="titleColumn" width="20%">會員資訊</td>
+                        <th class="titleColumn" width="20%">關於我&約會模式</td>
                     </tr>
                     @foreach ($data as $key => $fromUser)
-                        <tr id="list">
+                        <tr>
                             <td
                                 style="{{ $fromUser->isBanned($fromUser->id) ? 'background-color:#FFFF00' : ($fromUser->isAdminWarned() ? 'background-color:#B0FFB1' : '') }}">
                                 email: <a {{ $fromUser->is_real }}
@@ -177,31 +193,15 @@
                                     {{ strLimit($fromUser->user_meta->style, 20) }}</p>
                             </td>
                             <td>
-                                <table class="table-hover table table-bordered" cellpadding="0" cellspacing="0" width="100%" style="table-layout:fixed">
-                                    @php
-                                        $count = 0;
-                                    @endphp
+                                <ul class="elist">
                                     @foreach ($fromUser->toUser as $key => $toUser)
-                                        {!! $count % 7 === 7 ? '<tr>' : '' !!}
-                                        <td
+                                        <li
                                             style="{{ $fromUser->isBanned($toUser->id) ? 'background-color:#FFFF00' : ($toUser->isAdminWarned() ? 'background-color:#B0FFB1' : '') }}">
                                             email: <a href="{{ route('users/advInfo', ['id' => $toUser->id]) }}"
                                                 target="_blank">{{ $toUser->email }}</a> ({{ $toUser->count }})
-                                        </td>
-                                        @if ($fromUser->toUser->reverse()->keys()->first() === $key && $count < 8)
-                                        @for ($i = 0; $i < (7 - $count); $i++)
-                                            {!! '<td></td>' !!}
-                                        @endfor
-                                        @endif
-                                        {!! $count != 0 && $count % 7 === 0 ? '</tr>' : '' !!}
-                                        @php
-                                            if ($count == 7)
-                                                $count = 0;
-                                            else
-                                                $count++;
-                                        @endphp
+                                            </li>
                                     @endforeach
-                                </table>
+                                </ul>
                             </td>
                         </tr>
                     @endforeach

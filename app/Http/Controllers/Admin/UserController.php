@@ -6409,7 +6409,6 @@ class UserController extends \App\Http\Controllers\BaseController
         $messageEndDate = $request->message_date_end ?? "2022-06-30 15:00:00";
 
         $total = $request->total ?? 10; // 發送人數
-        $messageTotal = $request->message_total ?? 10; // 一次幾封
         $gender = $request->en_group ?? 1; // 性別
 
         $currentPage = $request->page ?? 1;
@@ -6431,16 +6430,11 @@ class UserController extends \App\Http\Controllers\BaseController
                 if ($item->countBy('to_id')->count() >= $total) {
                     return $item;
                 }
-            })->transform(function ($items, $key) use ($messageTotal) {
+            })->transform(function ($items, $key) {
                 // 取得發送訊息者
                 $fromUser = User::find($key);
 
-                $fromUser->toUser = $items->groupBy('to_id')->sortDesc()->filter(function ($items) use ($messageTotal) {
-                    // 清除不滿幾封
-                    if ($items->count() >= $messageTotal) {
-                        return $items;
-                    }
-                })->transform(function ($items, $key) { // 置入接收者
+                $fromUser->toUser = $items->groupBy('to_id')->sortDesc()->transform(function ($items, $key) { // 置入接收者
                     // 取得接收訊息者
                     $toUser = User::find($key);
                     // 置入幾封訊息
@@ -6454,8 +6448,8 @@ class UserController extends \App\Http\Controllers\BaseController
                 $fromUser->isAdvAuthUsable = $fromUser->isAdvAuthUsable ?: UserService::isAdvAuthUsableByUser($fromUser);
 
                 return $fromUser;
-            })->filter(function ($model) use ($total) {
-                if ($model->toUser->isNotEmpty() && $model->toUser->count() >= $total) {
+            })->filter(function ($model) {
+                if ($model->toUser->isNotEmpty()) {
                     // 總訊息數
                     $model->messageCount = $model->toUser->sum('count');
 
