@@ -586,6 +586,8 @@
             $isEverWarned_log[$key]['cancal_admin']=$isEverWarned_cancel? \App\Models\User::findById($isEverWarned_cancel->operator):'';
             $isEverWarned_log[$key]['cancal_time']=$isEverWarned_cancel?$isEverWarned_cancel->created_at:'';
         }
+        $isEverWarned_warneder=\App\Models\AdminActionLog::where('target_id', $user->id)->where('act','站方警示')->orderByDesc('created_at')->skip($key)->first();
+        $isEverWarned_log['warned_admin']=$isEverWarned_warneder? \App\Models\User::findById($isEverWarned_warneder->operator):'';
     }
     //曾被封鎖
     $isEverBanned_log=array();
@@ -600,6 +602,8 @@
             $isEverBanned_log[$key]['cancal_admin']=$isEverBanned_cancel? \App\Models\User::findById($isEverBanned_cancel->operator) :'';
             $isEverBanned_log[$key]['cancal_time']=$isEverBanned_cancel? $isEverBanned_cancel->created_at:'';
         }
+        $isEverBanned_banneder=\App\Models\AdminActionLog::where('target_id', $user->id)->where('act','封鎖會員')->orderByDesc('created_at')->skip($key)->first();
+        $isEverBanned_log['banneder_admin']=$isEverBanned_banneder? \App\Models\User::findById($isEverBanned_banneder->operator) :'';
     }
     //目前正被警示
     $isWarned_show=array();
@@ -805,8 +809,8 @@
             @php
                 $isBanned_admin=$isBanned_show["admin_user"];
                 $isWarned_admin=$isWarned_show["admin_user"];
-                $isEverBanned_admin=$isBanned_show["admin_user"];
-                $isEverWarned_admin=$isWarned_show["admin_user"];
+                $isEverBanned_admin=$isEverBanned_log['banneder_admin'] ?: null;
+                $isEverWarned_admin=$isEverWarned_log["warned_admin"] ?: null;
             @endphp
             @if(count($isBanned)>0 && $isBanned_admin)
                 <td><a href="{{ route('users/advInfo', $isBanned_admin->id) }}" target='_blank' @if($isBanned_admin->engroup == '2') style="color: #F00;" @else  style="color: #5867DD;"  @endif>{{ $isBanned_admin->name }}</a></td>
