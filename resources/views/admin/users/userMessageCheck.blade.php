@@ -124,6 +124,12 @@
                     </td>
                 </tr>
                 <tr>
+                    <th>訊息發送數</th>
+                    <td>
+                        <input type="text" name="message_total" value="{{ request()->get('message_total') }}">
+                    </td>
+                </tr>
+                <tr>
                     <th>訊息發送人數</th>
                     <td>
                         <input type="text" name="total" value="{{ request()->get('total') }}">
