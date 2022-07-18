@@ -613,6 +613,8 @@
          }
         $isWarned_show['cancal_admin']='';
         $isWarned_show['cancal_time']='尚未解除';
+        $warneder=\App\Models\AdminActionLog::where('target_id', $user->id)->where('act','站方警示')->orderByDesc('created_at')->first();
+        $isWarned_show['admin_user'] = \App\Models\User::findById($warneder->operator);
     }else{
         $isWarned_cancel=\App\Models\AdminActionLog::where('target_id', $user->id)->where('act','解除站方警示')->orderByDesc('created_at')->first();
         $isWarned_show['cancal_admin']=$isWarned_cancel? \App\Models\User::findById($isWarned_cancel->operator) : '';
@@ -630,6 +632,8 @@
          }
          $isBanned_show['cancal_admin']='';
          $isBanned_show['cancal_time']='尚未解除';
+        $banneder=\App\Models\AdminActionLog::where('target_id', $user->id)->where('act','封鎖會員')->orderByDesc('created_at')->first();
+        $isBanned_show['admin_user'] = \App\Models\User::findById($banneder->operator);
     }else{
          $isBanned_cancel=\App\Models\AdminActionLog::where('target_id', $user->id)->where('act','解除封鎖')->orderByDesc('created_at')->first();
          $isBanned_show['cancal_admin']=$isBanned_cancel? \App\Models\User::findById($isBanned_cancel->operator) : '';
@@ -792,6 +796,31 @@
             @endif
             @if($isEverWarned0_admin)
                 <td><a href="{{ route('users/advInfo', $isEverWarned0_admin->id) }}" target='_blank' @if($isEverWarned0_admin->engroup == '2') style="color: #F00;" @else  style="color: #5867DD;"  @endif>{{ $isEverWarned0_admin->name }}</a></td>
+            @endif
+        </tr>
+        <tr>
+            <th>後台封鎖人員</th>
+            @php
+                $isBanned_admin=$isBanned_show["admin_user"];
+                $isWarned_admin=$isWarned_show["admin_user"];
+                $isEverBanned_admin=$isBanned_show["admin_user"] ?? '';
+                $isEverWarned_admin=$isWarned_show["admin_user"] ?? '';
+            @endphp
+            @if(count($isBanned)>0 && $isBanned_admin)
+                <td><a href="{{ route('users/advInfo', $isBanned_admin->id) }}" target='_blank' @if($isBanned_admin->engroup == '2') style="color: #F00;" @else  style="color: #5867DD;"  @endif>{{ $isBanned_admin->name }}</a></td>
+            @else
+                <td></td>
+            @endif
+            @if(count($isWarned)>0 &&$isWarned_admin)
+                <td><a href="{{ route('users/advInfo', $isWarned_admin->id) }}" target='_blank' @if($isWarned_admin->engroup == '2') style="color: #F00;" @else  style="color: #5867DD;"  @endif>{{ $isWarned_admin->name }}</a></td>
+            @else
+                <td></td>
+            @endif
+            @if($isEverBanned0_admin)
+                <td><a href="{{ route('users/advInfo', $isEverBanned_admin->id) }}" target='_blank' @if($isEverBanned_admin->engroup == '2') style="color: #F00;" @else  style="color: #5867DD;"  @endif>{{ $isEverBanned_admin->name }}</a></td>
+            @endif
+            @if($isEverWarned0_admin)
+                <td><a href="{{ route('users/advInfo', $isEverWarned_admin->id) }}" target='_blank' @if($isEverWarned_admin->engroup == '2') style="color: #F00;" @else  style="color: #5867DD;"  @endif>{{ $isEverWarned_admin->name }}</a></td>
             @endif
         </tr>
     </table>
@@ -2111,27 +2140,6 @@
     </div>
     <div class="swiper-pagination2"></div>
 </div>
-
-
-
-<h4>新增封鎖人員</h4>
-<table class="table table-hover table-bordered" style="width: 50%;">
-    <tr>
-        <td></td>
-        <td>是否封鎖</td>
-        <td>是否警示</td>
-        <td>過往封鎖紀錄</td>
-    </tr>
-        <tr>
-            <td>時間</td>
-            <td>{{ $banned_users->isNotEmpty() ? $banned_users[1]->created_at : '' }}</td>
-            <td>{{ $warned_user ? $warned_user->created_at : '' }}</td>
-            <td>{{ $banned_users->isNotEmpty() ? $banned_users[0]->created_at : '' }}</td>
-        </tr>
-        <tr>
-            <td>後台解決封鎖原因</td>
-        </tr>
-</table>
 <script src="/js/vendors.bundle.js" type="text/javascript"></script>
 <script>
 jQuery(document).ready(function(){

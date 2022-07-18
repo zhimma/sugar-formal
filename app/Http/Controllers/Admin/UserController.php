@@ -63,6 +63,7 @@ use App\Services\ImagesCompareService;
 use App\Models\SimilarImages;
 use App\Models\CheckPointUser;
 use App\Models\ComeFromAdvertise;
+use App\Models\IsBannedLog;
 use App\Models\StayOnlineRecord;
 use App\Models\UserRecord;
 use App\Models\Visited;
@@ -1651,10 +1652,6 @@ class UserController extends \App\Http\Controllers\BaseController
         //正被封鎖
         $isBanned = banned_users::where('member_id', $user->id)->where('expire_date', null)->orWhere('expire_date', '>', Carbon::now())->where('member_id', $user->id)->orderBy('created_at', 'desc')->paginate(10);
 
-        $warnedUser = warned_users::where('member_id', $user->id)->orderBy('created_at', 'desc')->first();
-
-        $bannedUsers = banned_users::where('member_id', $user->id)->orderBy('created_at', 'desc')->limit(2)->get();
-
         //cfp_id distinct
         $cfp_id = LogUserLogin::select('cfp_id')->selectRaw('MAX(created_at) AS last_tiime')->orderByDesc('last_tiime')->where('user_id', $user->id)->groupBy('cfp_id')->get();
 
@@ -1721,9 +1718,7 @@ class UserController extends \App\Http\Controllers\BaseController
                 ->with('last_images_compare_encode', ImagesCompareEncode::orderByDesc('id')->firstOrNew())
                 ->with('posts_forum', $posts_forum)
                 ->with('hideonline_order', $hideonline_order)
-                ->with('user_record', $user_record)
-                ->with('warned_user', $warnedUser)
-                ->with('banned_users', $bannedUsers);
+                ->with('user_record', $user_record);
         }
     }
 
