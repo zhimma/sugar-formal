@@ -143,8 +143,8 @@
             <div>
                 <table class="table-hover table table-bordered">
                     <tr>
-                        <td width="12%">會員資訊</td>
-                        <td width="12%">關於我&約會模式</td>
+                        <td width="8%">會員資訊</td>
+                        <td width="8%">關於我&約會模式</td>
                     </tr>
                     @foreach ($data as $key => $fromUser)
                         <tr id="list">
@@ -170,7 +170,7 @@
                                     {{ strLimit($fromUser->user_meta->style, 20) }}</p>
                             </td>
                             <td>
-                                <table class="table-hover table table-bordered" width="100%" style="table-layout:fixed">
+                                <table class="table-hover table table-bordered" cellpadding="0" cellspacing="0" width="100%" style="table-layout:fixed">
                                     @php
                                         $count = 0;
                                     @endphp
