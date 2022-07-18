@@ -89,14 +89,14 @@
                     <th>訊息開始時間</th>
                     <td>
                         <input type='text' id="datepicker_1" name="message_date_start"
-                            value="@if (isset($_GET['date_start'])) {{ $_GET['date_start'] }}@else{{ old('date_start') }} @endif"
+                            value="@if (isset($_GET['message_date_start'])) {{ $_GET['message_date_start'] }}@else{{ old('message_date_start') }} @endif"
                             class="form-control datepick">
                     </td>
                 <tr>
                     <th>訊息結束時間</th>
                     <td>
                         <input type='text' id="datepicker_2" name="message_date_end"
-                            value="@if (isset($_GET['date_end'])) {{ $_GET['date_end'] }}@else{{ old('date_end') }} @endif"
+                            value="@if (isset($_GET['message_date_end'])) {{ $_GET['message_date_end'] }}@else{{ old('message_date_end') }} @endif"
                             class="form-control datepick">
                     </td>
                 </tr>
