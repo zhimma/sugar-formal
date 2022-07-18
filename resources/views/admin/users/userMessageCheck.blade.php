@@ -92,14 +92,14 @@
                     <th>登入開始時間</th>
                     <td>
                         <input type='text' id="datepicker_3" name="date_start"
-                            value="@if (isset($_GET['date_start'])) {{ $_GET['date_start'] }}@else{{ old('date_start') }} @endif"
+                            value="{{ request()->get('date_start') ?? old('date_start') }}"
                             class="form-control datepick">
                     </td>
                 <tr>
                     <th>登入結束時間</th>
                     <td>
                         <input type='text' id="datepicker_4" name="date_end"
-                            value="@if (isset($_GET['date_end'])) {{ $_GET['date_end'] }}@else{{ old('date_end') }} @endif"
+                            value="{{ request()->get('date_end') ?? old('date_end') }}"
                             class="form-control datepick">
                     </td>
                 </tr>
