@@ -6463,6 +6463,8 @@ class UserController extends \App\Http\Controllers\BaseController
                 }
             });
 
+            $data->count() < $total && $data = collect();
+
         $data = forPaginate($data, session('per_page') ?: 15, $currentPage, [
             'path' => route("users.message.check"),
             'query' => $request->all()
