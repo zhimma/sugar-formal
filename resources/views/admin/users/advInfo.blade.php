@@ -576,6 +576,7 @@
 @php
     //曾被警示
     $isEverWarned_log=array();
+    $isEverWarned_log['warned_admin']=null;
     if(isset($isEverWarned) && count($isEverWarned)>0){
         foreach($isEverWarned as $key =>$row){
             $isEverWarned_log[$key]['created_at']=$row->created_at;
@@ -591,6 +592,7 @@
     }
     //曾被封鎖
     $isEverBanned_log=array();
+    $isEverBanned_log['banneder_admin']= null;
     if(isset($isEverBanned) && count($isEverBanned)>0){
         foreach($isEverBanned as $key =>$row){
             $isEverBanned_log[$key]['created_at']=$row->created_at;
@@ -814,18 +816,12 @@
             @endphp
             @if(count($isBanned)>0 && $isBanned_admin)
                 <td><a href="{{ route('users/advInfo', $isBanned_admin->id) }}" target='_blank' @if($isBanned_admin->engroup == '2') style="color: #F00;" @else  style="color: #5867DD;"  @endif>{{ $isBanned_admin->name }}</a></td>
-            @else
-                <td></td>
             @endif
             @if(count($isWarned)>0 &&$isWarned_admin)
                 <td><a href="{{ route('users/advInfo', $isWarned_admin->id) }}" target='_blank' @if($isWarned_admin->engroup == '2') style="color: #F00;" @else  style="color: #5867DD;"  @endif>{{ $isWarned_admin->name }}</a></td>
-            @else
-                <td></td>
             @endif
             @if($isEverBanned_admin)
                 <td><a href="{{ route('users/advInfo', $isEverBanned_admin->id) }}" target='_blank' @if($isEverBanned_admin->engroup == '2') style="color: #F00;" @else  style="color: #5867DD;"  @endif>{{ $isEverBanned_admin->name }}</a></td>
-            @else
-            <td></td>
             @endif
             @if($isEverBanned_admin)
                 <td><a href="{{ route('users/advInfo', $isEverWarned_admin->id) }}" target='_blank' @if($isEverWarned_admin->engroup == '2') style="color: #F00;" @else  style="color: #5867DD;"  @endif>{{ $isEverWarned_admin->name }}</a></td>
