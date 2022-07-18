@@ -14,7 +14,7 @@ use App\Http\Controllers\Api\CfpController;
 | to using a given Closure or controller and enjoy the fresh air.
 |
 */
-
+// Route::group(['middleware' => ['feature:site-maintenance-mode']], function () {
 
 Route::get('/fingerprint', 'PagesController@fingerprint');
 Route::post('/saveFingerprint', 'PagesController@saveFingerprint')->name('saveFingerprint');
@@ -430,7 +430,7 @@ Route::group(['middleware' => ['auth', 'global', 'active', 'femaleActive', 'vipC
         Route::get('/dashboard/search_discard/del', 'PagesController@delSearchIgnore');        
     });
     Route::post('/dashboard/chat2/showMessages/{randomNo?}', 'Message_newController@chatviewMore')->name('showMessages');
-    Route::group(['middleware' => ['filled']], function () {
+    Route::group(['middleware' => ['filled', 'feature:site-maintenance-mode']], function () {
         //新樣板
         Route::get('/dashboard/chat2/{randomNo?}', 'Message_newController@chatview')->name('chat2View');
         Route::get('/dashboard/chat2/chatShow/{cid}', 'PagesController@chat2')->name('chat2WithUser');
@@ -1010,3 +1010,4 @@ Route::group(['middleware' => ['auth', 'global', 'active', 'femaleActive', 'vipC
 Route::get('/test', 'ImageController@deletePictures');
 
 Route::get('/cfp', [CfpController::class, 'cfp']);
+// });
