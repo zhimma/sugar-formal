@@ -119,7 +119,12 @@
         @endif
     @endif
     @if($user['isAdminWarned']==1)
-        <button type="button" title="{{'於'.$user['adminWarned_createdAt'].'被警示，將於'.(isset($user['adminWarned_expireDate'])? $user['adminWarned_expireDate'] : '永久').'解除站方警示' }}" id="unwarned_user" class='text-white btn @if($user["isAdminWarned"]) btn-success @else btn-danger @endif' onclick="ReleaseWarnedUser({{ $user['id'] }})" data-id="{{ $user['id'] }}" data-name="{{ $user['name']}}"> 解除站方警示 </button>
+        @if($is_warned_of_budget)
+            <button class="btn btn-info isWarned-user" title="站方警示與自動封鎖的警示，只能經後台解除" disabled="disabled" style="background-color: #C0C0C0;border-color: #C0C0C0;">站方警示</button>
+            <button class="btn btn-info isWarned-user" title="站方警示與自動封鎖的警示，只能經後台解除" disabled="disabled" style="background-color: #C0C0C0;border-color: #C0C0C0;" @if($user['isvip']==1 && $user['isfreevip']==0)style="display: none;" @endif>付費警示</button>
+        @else
+            <button type="button" title="{{'於'.$user['adminWarned_createdAt'].'被警示，將於'.(isset($user['adminWarned_expireDate'])? $user['adminWarned_expireDate'] : '永久').'解除站方警示' }}" class='text-white btn unwarned_user @if($user["isAdminWarned"]) btn-success @else btn-danger @endif' onclick="ReleaseWarnedUser({{ $user['id'] }})" data-id="{{ $user['id'] }}" data-name="{{ $user['name']}}"> 解除站方警示 </button>
+        @endif
     @else
         <a class="btn btn-danger warned-user warned_vip_pass" title="站方警示與自動封鎖的警示，只能經後台解除" id="warned_user" href="#" data-toggle="modal" data-target="#warned_modal" data-vip_pass="0" data-id="{{ $user['id'] }}" data-name="{{ $user['name']}}">站方警示</a>
         <a class="btn btn-danger warned-user warned_vip_pass" title="站方警示與自動封鎖的警示，只能經後台解除" id="warned_user" href="#" data-toggle="modal" data-target="#warned_modal" data-vip_pass="1" data-id="{{ $user['id'] }}" data-name="{{ $user['name']}}" @if($user['isvip']==1 && $user['isfreevip']==0)style="display: none;"@endif>付費警示</a>
@@ -177,6 +182,13 @@
         <button class="btn btn-danger" onclick="WarnBudget('month_budget')">預算不實</button>
         <button class="btn btn-danger" onclick="WarnBudget('transport_fare')">車馬費不實</button>
         <!--預算及車馬費警示-->
+    @elseif($is_warned_of_budget)
+        @if($isWarned->first()->reason == '每月預算不實')
+            <button type="button" title="{{'於'.$user['adminWarned_createdAt'].'被警示，將於'.(isset($user['adminWarned_expireDate'])? $user['adminWarned_expireDate'] : '永久').'解除站方警示' }}" class='text-white btn unwarned_user @if($user["isAdminWarned"]) btn-success @else btn-danger @endif' onclick="ReleaseWarnedUser({{ $user['id'] }})" data-id="{{ $user['id'] }}" data-name="{{ $user['name']}}"> 解除預算不實 </button>
+        @endif
+        @if($isWarned->first()->reason == '車馬費預算不實')
+            <button type="button" title="{{'於'.$user['adminWarned_createdAt'].'被警示，將於'.(isset($user['adminWarned_expireDate'])? $user['adminWarned_expireDate'] : '永久').'解除站方警示' }}" class='text-white btn unwarned_user @if($user["isAdminWarned"]) btn-success @else btn-danger @endif' onclick="ReleaseWarnedUser({{ $user['id'] }})" data-id="{{ $user['id'] }}" data-name="{{ $user['name']}}"> 解除車馬費不實 </button>
+        @endif
     @endif
 
     @if (Auth::user()->can('admin') || Auth::user()->can('juniorAdmin'))
@@ -2358,7 +2370,7 @@ $("#unblock_user").click(function(){
     }
 });
 
-$("#unwarned_user").click(function(){
+$(".unwarned_user").click(function(){
     var data = $(this).data();
     if(confirm('確定解除此會員站方警示?')){
         $.ajax({
