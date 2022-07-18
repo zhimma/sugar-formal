@@ -6434,8 +6434,6 @@ class UserController extends \App\Http\Controllers\BaseController
             })->transform(function ($items, $key) use ($messageTotal) {
                 // 取得發送訊息者
                 $fromUser = User::find($key);
-                // 總訊息數
-                $fromUser->messageCount = $items->count();
 
                 $fromUser->toUser = $items->groupBy('to_id')->sortDesc()->filter(function ($items) use ($messageTotal) {
                     // 清除不滿幾封
@@ -6458,6 +6456,9 @@ class UserController extends \App\Http\Controllers\BaseController
                 return $fromUser;
             })->filter(function ($model) {
                 if ($model->toUser->isNotEmpty()) {
+                    // 總訊息數
+                    $model->messageCount = $model->toUser->sum('count');
+
                     return $model;
                 }
             });
