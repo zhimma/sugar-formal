@@ -823,8 +823,8 @@
             @php
                 $isBanned_admin=$isBanned_show["admin_user"];
                 $isWarned_admin=$isWarned_show["admin_user"];
-                $isEverBanned_admin=$isEverBanned_log['banneder_admin'] ?: null;
-                $isEverWarned_admin=$isEverWarned_log["warned_admin"] ?: null;
+                $isEverBanned_admin=$isEverBanned_log['banneder_admin'] ?? null;
+                $isEverWarned_admin=$isEverWarned_log["warned_admin"] ?? null;
             @endphp
             @if(count($isBanned)>0 && $isBanned_admin)
                 <td><a href="{{ route('users/advInfo', $isBanned_admin->id) }}" target='_blank' @if($isBanned_admin->engroup == '2') style="color: #F00;" @else  style="color: #5867DD;"  @endif>{{ $isBanned_admin->name }}</a></td>
@@ -841,7 +841,7 @@
             @elseif($isEverBanned_admin)
             <td></td>
             @endif
-            @if($isEverBanned_admin)
+            @if($isEverWarned_admin)
                 <td><a href="{{ route('users/advInfo', $isEverWarned_admin->id) }}" target='_blank' @if($isEverWarned_admin->engroup == '2') style="color: #F00;" @else  style="color: #5867DD;"  @endif>{{ $isEverWarned_admin->name }}</a></td>
             @endif
         </tr>
