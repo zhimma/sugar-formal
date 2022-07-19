@@ -8441,7 +8441,12 @@ class PagesController extends BaseController
             return false;
         }
         $visited_record->visited_time = ($visited_record->visited_time ?? 0) + $second;
-        $visited_record->save();
+        if( $user->is_hide_online != 1 ) {
+            $visited_record->save();
+        }else{
+            return false;
+        }
+
     }
 
     public function stay_online_time(Request $request)
