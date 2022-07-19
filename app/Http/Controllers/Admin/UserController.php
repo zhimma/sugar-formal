@@ -683,6 +683,7 @@ class UserController extends \App\Http\Controllers\BaseController
         $userWarned = new warned_users;
         $userWarned->member_id = $request->user_id;
         $userWarned->expire_date = $expire_date;
+        $userWarned->type = $request->type;
         $userWarned->reason = $reason;
         $userWarned->save();
 
@@ -1644,7 +1645,7 @@ class UserController extends \App\Http\Controllers\BaseController
         //正被警示
         $isWarned = warned_users::where('member_id', $user->id)->where('expire_date', null)->orWhere('expire_date', '>', Carbon::now())->where('member_id', $user->id)->orderBy('created_at', 'desc')->paginate(10);
         $is_warned_of_budget = false;
-        if(($isWarned->first()->reason??'') == '每月預算不實' || ($isWarned->first()->reason??'') == '車馬費預算不實')
+        if(($isWarned->first()->type??'') == 'month_budget' || ($isWarned->first()->type??'') == 'transport_fare')
         {
             $is_warned_of_budget = true;
         }
