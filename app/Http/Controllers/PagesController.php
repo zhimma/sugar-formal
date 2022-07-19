@@ -8434,6 +8434,7 @@ class PagesController extends BaseController
 
     public function update_visited_time(Request $request)
     {
+        $user = auth()->user();
         $second = $request->stay_second;
         $visited_id = $request->view_user_visited_id;
         $visited_record = Visited::where('id', $visited_id)->first();
