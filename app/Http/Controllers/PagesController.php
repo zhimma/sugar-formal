@@ -6823,7 +6823,7 @@ class PagesController extends BaseController
         {
             $adminWarnedStatus = '您目前<span class="main_word">已被系統警示</span>，原因是<span class="main_word"> ' . $user_isBannedOrWarned->warned_reason . '</span>，<a class="red" href="' . url('/member_auth') . '">立即手機驗證</a>';
         }
-        else if($user_isBannedOrWarned->warned_reason == '每月預算不實' || $user_isBannedOrWarned->warned_reason == '車馬費預算不實') 
+        else if($user_isBannedOrWarned->type == 'month_budget' || $user_isBannedOrWarned->type == 'transport_fare') 
         {
             $adminWarnedStatus = '您因為 <span class="main_word">'.$user_isBannedOrWarned->warned_reason.'</span>，警示 <span class="main_word">'.$diffDays.'天</span>。時間自'.substr($user_isBannedOrWarned->warned_created_at,0,16).'~'.substr($user_isBannedOrWarned->warned_expire_date,0,16).'。如有疑慮請聯絡站長<a href="https://lin.ee/rLqcCns" target="_blank"> <img src="https://scdn.line-apps.com/n/line_add_friends/btn/zh-Hant.png" alt="加入好友" height="26" border="0" style="height: 26px; float: unset;"></a>';
         }

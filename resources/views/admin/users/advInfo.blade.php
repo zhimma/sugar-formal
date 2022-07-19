@@ -183,10 +183,10 @@
         <button class="btn btn-danger" onclick="WarnBudget('transport_fare')">車馬費不實</button>
         <!--預算及車馬費警示-->
     @elseif($is_warned_of_budget)
-        @if($isWarned->first()->reason == '每月預算不實')
+        @if($isWarned->first()->type == 'month_budget')
             <button type="button" title="{{'於'.$user['adminWarned_createdAt'].'被警示，將於'.(isset($user['adminWarned_expireDate'])? $user['adminWarned_expireDate'] : '永久').'解除站方警示' }}" class='text-white btn unwarned_user @if($user["isAdminWarned"]) btn-success @else btn-danger @endif' onclick="ReleaseWarnedUser({{ $user['id'] }})" data-id="{{ $user['id'] }}" data-name="{{ $user['name']}}"> 解除預算不實 </button>
         @endif
-        @if($isWarned->first()->reason == '車馬費預算不實')
+        @if($isWarned->first()->type == 'transport_fare')
             <button type="button" title="{{'於'.$user['adminWarned_createdAt'].'被警示，將於'.(isset($user['adminWarned_expireDate'])? $user['adminWarned_expireDate'] : '永久').'解除站方警示' }}" class='text-white btn unwarned_user @if($user["isAdminWarned"]) btn-success @else btn-danger @endif' onclick="ReleaseWarnedUser({{ $user['id'] }})" data-id="{{ $user['id'] }}" data-name="{{ $user['name']}}"> 解除車馬費不實 </button>
         @endif
     @endif
