@@ -126,6 +126,8 @@
                     <option value="設計美術" @if($userMeta->occupation == '設計美術') selected @endif>設計美術</option>
                     <option value="模特演員" @if($userMeta->occupation == '模特演員') selected @endif>模特演員</option>
                     <option value="傳播藝術" @if($userMeta->occupation == '傳播藝術') selected @endif>傳播藝術</option>
+                    <option value="soho" @if($userMeta->occupation == 'soho') selected @endif>soho</option>
+                    <option value="自行創業" @if($userMeta->occupation == '自行創業') selected @endif>自行創業</option>
                     <!--  <option value="1" @if($userMeta->job == '1') selected @endif>其他(自填)</option> -->
                 </select>
             </td>
@@ -164,6 +166,8 @@
                     <option value="休學" @if($userMeta->situation == '休學') selected @endif>休學</option>
                     <option value="打工" @if($userMeta->situation == '打工') selected @endif>打工</option>
                     <option value="上班族" @if($userMeta->situation == '上班族') selected @endif>上班族</option>
+                    <option value="在家工作" @if($userMeta->situation == '在家工作') selected @endif>在家工作</option>
+                    <option value="自行開業" @if($userMeta->situation == '自行開業') selected @endif>自行開業</option>
                 </select>
             </td>
         </tr>
