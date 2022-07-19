@@ -1198,4 +1198,14 @@ class Message extends Model
 
         return $room_id ?? null;
     }
+
+    public function fromUser()
+    {
+        return $this->belongsTo(User::class, 'from_id');
+    }
+
+    public function toUser()
+    {
+        return $this->belongsTo(User::class, 'to_id');
+    }
 }
