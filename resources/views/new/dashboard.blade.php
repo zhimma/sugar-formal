@@ -484,14 +484,6 @@ dt span.engroup_type_title {display:inline-block;width:10%;white-space:nowrap;}
                                   @if($umeta->situation == '上班族') selected @endif>
                               上班族
                           </option>
-                          <option value="在家工作"
-                                  @if($umeta->situation == '在家工作') selected @endif>
-                              在家工作
-                          </option>
-                          <option value="自行開業"
-                                  @if($umeta->situation == '自行開業') selected @endif>
-                              自行開業
-                          </option>
                         </select>
                       </span>
                   </dt>
@@ -603,14 +595,6 @@ dt span.engroup_type_title {display:inline-block;width:10%;white-space:nowrap;}
                           <option value="傳播藝術"
                                   @if($umeta->occupation == '傳播藝術') selected @endif>
                               傳播藝術
-                          </option>
-                          <option value="soho"
-                                  @if($umeta->occupation == 'soho') selected @endif>
-                              soho
-                          </option>
-                          <option value="自行創業"
-                                  @if($umeta->occupation == '自行創業') selected @endif>
-                              自行創業
                           </option>
                         </select>
                       </span>
