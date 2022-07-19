@@ -2005,7 +2005,9 @@ class PagesController extends BaseController
             $visited_id = 0;
             if ($user->id != $uid) {
                 if(isset($canViewUsers)){
-                    $visited_id = Visited::visit($user->id, $targetUser);
+                    if( $user->is_hide_online != 1 ) {
+                        $visited_id = Visited::visit($user->id, $targetUser);
+                    }
                 }
                 elseif(
                     //檢查性別
@@ -2015,7 +2017,9 @@ class PagesController extends BaseController
                 ){
                     return redirect()->route('listSeatch2');
                 }else{
-                    $visited_id = Visited::visit($user->id, $targetUser);
+                    if( $user->is_hide_online != 1 ) {
+                        $visited_id = Visited::visit($user->id, $targetUser);
+                    }
                 }
             }
 
@@ -2394,7 +2398,7 @@ class PagesController extends BaseController
 
         
             $userHideOnlinePayStatus = ValueAddedService::status($uid,'hideOnline');
-            if($userHideOnlinePayStatus == 1 /*&& $targetUser->is_hide_online != 0*/){
+            if($userHideOnlinePayStatus == 1 && $targetUser->is_hide_online == 1){
                 $hideOnlineData = hideOnlineData::where('user_id',$uid)->where('deleted_at',null)->get()->first();
                 if(isset($hideOnlineData)){
                     // $hideOnlineDays = now()->diffInDays($hideOnlineData->created_at);
@@ -2523,10 +2527,11 @@ class PagesController extends BaseController
     public function getBlockUser(Request $request) {
         $user = $request->user();
         $is_vip = $user->isVip();
+//        $is_vip = ($user->isVip()||$user->isVVIP());
         if($is_vip) {
             $uid = $request->uid;
             $target_user = User::find($uid);
-            if($target_user->valueAddedServiceStatus('hideOnline')) {
+            if($target_user->valueAddedServiceStatus('hideOnline') && $target_user->is_hide_online == 1) {
                 $data = hideOnlineData::select('user_id', 'blocked_other_count', 'be_blocked_other_count')->where('user_id', $uid)->first();
                 /*此會員封鎖多少其他會員*/
                 $blocked_other_count = $data->blocked_other_count;
@@ -2584,7 +2589,7 @@ class PagesController extends BaseController
         if($is_vip){
             $uid = $request->uid;
             $target_user = User::find($uid);
-            if($target_user->valueAddedServiceStatus('hideOnline')) {
+            if($target_user->valueAddedServiceStatus('hideOnline') && $target_user->is_hide_online == 1) {
                 $data = hideOnlineData::select('user_id', 'fav_count', 'be_fav_count')->where('user_id', $uid)->first();
                 /*收藏會員次數*/
                 $fav_count = $data->fav_count;
@@ -8455,6 +8460,7 @@ class PagesController extends BaseController
 
     public function update_visited_time(Request $request)
     {
+        $user = auth()->user();
         $second = $request->stay_second;
         $visited_id = $request->view_user_visited_id;
         $visited_record = Visited::where('id', $visited_id)->first();
@@ -8463,7 +8469,12 @@ class PagesController extends BaseController
             return false;
         }
         $visited_record->visited_time = ($visited_record->visited_time ?? 0) + $second;
-        $visited_record->save();
+        if( $user->is_hide_online != 1 ) {
+            $visited_record->save();
+        }else{
+            return false;
+        }
+
     }
 
     public function stay_online_time(Request $request)

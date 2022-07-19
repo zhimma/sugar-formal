@@ -823,8 +823,8 @@
             @php
                 $isBanned_admin=$isBanned_show["admin_user"];
                 $isWarned_admin=$isWarned_show["admin_user"];
-                $isEverBanned_admin=$isEverBanned_log['banneder_admin'] ?: null;
-                $isEverWarned_admin=$isEverWarned_log["warned_admin"] ?: null;
+                $isEverBanned_admin=$isEverBanned_log['banneder_admin'] ?? null;
+                $isEverWarned_admin=$isEverWarned_log["warned_admin"] ?? null;
             @endphp
             @if(count($isBanned)>0 && $isBanned_admin)
                 <td><a href="{{ route('users/advInfo', $isBanned_admin->id) }}" target='_blank' @if($isBanned_admin->engroup == '2') style="color: #F00;" @else  style="color: #5867DD;"  @endif>{{ $isBanned_admin->name }}</a></td>
@@ -841,7 +841,7 @@
             @elseif($isEverBanned_admin)
             <td></td>
             @endif
-            @if($isEverBanned_admin)
+            @if($isEverWarned_admin)
                 <td><a href="{{ route('users/advInfo', $isEverWarned_admin->id) }}" target='_blank' @if($isEverWarned_admin->engroup == '2') style="color: #F00;" @else  style="color: #5867DD;"  @endif>{{ $isEverWarned_admin->name }}</a></td>
             @endif
         </tr>
@@ -1238,7 +1238,12 @@
             @if($row['is_check']==1)
                 <td style="color: red;">***此評價目前由站方審核中***@if(!is_null($row['is_delete'])) <br><span style="color: red;">(該評價已刪除)</span> @endif</td>
             @else
-                <td>@if(!is_null($row['is_delete'])) <span style="color: red;">(該評價已刪除)</span><br>@endif {{ $row['content'] }}</td>
+                <td>@if(!is_null($row['is_delete'])) <span style="color: red;">(該評價已刪除)</span><br>@endif {{ $row['content'] }} <br>
+                    @if($row['re_content'])
+                        <div id="re_content_btn_{{$row['id']}}" class="btn btn-success" onclick="show_re_content({{ $row['id'] }})">+ 回覆</div>
+                        <div id="re_content_{{$row['id']}}" style="display: none;">{{ $row['re_content'] }}</div>
+                    @endif
+                </td>
             @endif
             <td class="evaluation_zoomIn">
                 @if(!is_null($row['is_delete'])) <span style="color: red;">(該評價已刪除)</span> @endif
@@ -1299,7 +1304,12 @@
             @if($row['is_check']==1)
                 <td style="color: red;">***此評價目前由站方審核中***@if(!is_null($row['is_delete'])) <br><span style="color: red;">(該評價已刪除)</span> @endif</td>
             @else
-                <td>@if(!is_null($row['is_delete'])) <span style="color: red;">(該評價已刪除)</span><br>@endif {{ $row['content'] }}</td>
+                <td>@if(!is_null($row['is_delete'])) <span style="color: red;">(該評價已刪除)</span><br>@endif {{ $row['content'] }} <br>
+                    @if($row['re_content'])
+                        <div id="re_content_btn_{{$row['id']}}" class="btn btn-success" onclick="show_re_content({{ $row['id'] }})">+ 回覆</div>
+                        <div id="re_content_{{$row['id']}}" style="display: none;">{{ $row['re_content'] }}</div>
+                    @endif
+                </td>
             @endif
             <td class="evaluation_zoomIn">
                 @if(!is_null($row['is_delete'])) <span style="color: red;">(該評價已刪除)</span> @endif
@@ -2543,7 +2553,15 @@ $("input[name='phone']").keyup(function(){
     });
 });
 
-
+function show_re_content(id){
+    if($('#re_content_'+id).css('display')=='none') {
+        $('#re_content_'+id).show();
+        $('#re_content_btn_'+id).text('- 回覆');
+    }else{
+        $('#re_content_'+id).hide();
+        $('#re_content_btn_'+id).text('+ 回覆');
+    }
+}
 </script>
 <!--照片查看-->
 <link type="text/css" rel="stylesheet" href="/new/css/app.css">

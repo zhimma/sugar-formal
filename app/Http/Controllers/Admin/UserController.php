@@ -1061,6 +1061,7 @@ class UserController extends \App\Http\Controllers\BaseController
      */
     public function advInfo(Request $request, $id)
     {
+        set_time_limit(300);
         if (!$id) {
             return redirect(route('users/advSearch'));
         }
