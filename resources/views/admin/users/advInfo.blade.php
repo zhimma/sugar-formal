@@ -183,10 +183,10 @@
         <button class="btn btn-danger" onclick="WarnBudget('transport_fare')">車馬費不實</button>
         <!--預算及車馬費警示-->
     @elseif($is_warned_of_budget)
-        @if($isWarned->first()->reason == '每月預算不實')
+        @if($isWarned->first()->type == 'month_budget')
             <button type="button" title="{{'於'.$user['adminWarned_createdAt'].'被警示，將於'.(isset($user['adminWarned_expireDate'])? $user['adminWarned_expireDate'] : '永久').'解除站方警示' }}" class='text-white btn unwarned_user @if($user["isAdminWarned"]) btn-success @else btn-danger @endif' onclick="ReleaseWarnedUser({{ $user['id'] }})" data-id="{{ $user['id'] }}" data-name="{{ $user['name']}}"> 解除預算不實 </button>
         @endif
-        @if($isWarned->first()->reason == '車馬費預算不實')
+        @if($isWarned->first()->type == 'transport_fare')
             <button type="button" title="{{'於'.$user['adminWarned_createdAt'].'被警示，將於'.(isset($user['adminWarned_expireDate'])? $user['adminWarned_expireDate'] : '永久').'解除站方警示' }}" class='text-white btn unwarned_user @if($user["isAdminWarned"]) btn-success @else btn-danger @endif' onclick="ReleaseWarnedUser({{ $user['id'] }})" data-id="{{ $user['id'] }}" data-name="{{ $user['name']}}"> 解除車馬費不實 </button>
         @endif
     @endif
@@ -588,6 +588,7 @@
 @php
     //曾被警示
     $isEverWarned_log=array();
+    $isEverWarned_log['warned_admin']=null;
     if(isset($isEverWarned) && count($isEverWarned)>0){
         foreach($isEverWarned as $key =>$row){
             $isEverWarned_log[$key]['created_at']=$row->created_at;
@@ -595,12 +596,15 @@
             $isEverWarned_log[$key]['vip_pass']=$row->vip_pass;
             $isEverWarned_log[$key]['adv_auth']=$row->adv_auth;
             $isEverWarned_cancel=\App\Models\AdminActionLog::where('target_id', $user->id)->where('act','解除站方警示')->orderByDesc('created_at')->skip($key)->first();
-            $isEverWarned_log[$key]['cancal_admin']=$isEverWarned_cancel? \App\Models\User::findById($isEverWarned_cancel->operator):'';
+            $isEverWarned_log[$key]['cancal_admin']=$isEverWarned_cancel? \App\Models\User::findById($isEverWarned_cancel->operator??''):'';
             $isEverWarned_log[$key]['cancal_time']=$isEverWarned_cancel?$isEverWarned_cancel->created_at:'';
         }
+        $isEverWarned_warneder=\App\Models\AdminActionLog::where('target_id', $user->id)->where('act','站方警示')->orderByDesc('created_at')->first();
+        $isEverWarned_log['warned_admin']=$isEverWarned_warneder? \App\Models\User::findById($isEverWarned_warneder->operator??'') : null;
     }
     //曾被封鎖
     $isEverBanned_log=array();
+    $isEverBanned_log['banneder_admin']= null;
     if(isset($isEverBanned) && count($isEverBanned)>0){
         foreach($isEverBanned as $key =>$row){
             $isEverBanned_log[$key]['created_at']=$row->created_at;
@@ -609,12 +613,15 @@
             $isEverBanned_log[$key]['vip_pass']=$row->vip_pass;
             $isEverBanned_log[$key]['adv_auth']=$row->adv_auth;
             $isEverBanned_cancel=\App\Models\AdminActionLog::where('target_id', $user->id)->where('act','解除封鎖')->orderByDesc('created_at')->skip($key)->first();
-            $isEverBanned_log[$key]['cancal_admin']=$isEverBanned_cancel? \App\Models\User::findById($isEverBanned_cancel->operator) :'';
+            $isEverBanned_log[$key]['cancal_admin']=$isEverBanned_cancel? \App\Models\User::findById($isEverBanned_cancel->operator??'') :'';
             $isEverBanned_log[$key]['cancal_time']=$isEverBanned_cancel? $isEverBanned_cancel->created_at:'';
         }
+        $isEverBanned_banneder=\App\Models\AdminActionLog::where('target_id', $user->id)->where('act','封鎖會員')->orderByDesc('created_at')->first();
+        $isEverBanned_log['banneder_admin']=$isEverBanned_banneder? \App\Models\User::findById($isEverBanned_banneder->operator??'') : null;
     }
     //目前正被警示
     $isWarned_show=array();
+    $isWarned_show['admin_user'] = null;
     if(isset($isWarned) && count($isWarned)>0){
          foreach($isWarned as $row){
              $isWarned_show['created_at']=$row->created_at;
@@ -625,13 +632,16 @@
          }
         $isWarned_show['cancal_admin']='';
         $isWarned_show['cancal_time']='尚未解除';
+        $warneder=\App\Models\AdminActionLog::where('target_id', $user->id)->where('act','站方警示')->orderByDesc('created_at')->first();
+        $isWarned_show['admin_user'] = \App\Models\User::findById($warneder->operator??'');
     }else{
         $isWarned_cancel=\App\Models\AdminActionLog::where('target_id', $user->id)->where('act','解除站方警示')->orderByDesc('created_at')->first();
-        $isWarned_show['cancal_admin']=$isWarned_cancel? \App\Models\User::findById($isWarned_cancel->operator) : '';
+        $isWarned_show['cancal_admin']=$isWarned_cancel? \App\Models\User::findById($isWarned_cancel->operator??'') : '';
         $isWarned_show['cancal_time']=$isWarned_cancel? $isWarned_cancel->created_at : '';
     }
     //目前正被封鎖
     $isBanned_show=array();
+    $isBanned_show['admin_user'] = null;
     if(isset($isBanned) && count($isBanned)>0){
          foreach($isBanned as $row){
              $isBanned_show['created_at']=$row->created_at;
@@ -642,9 +652,11 @@
          }
          $isBanned_show['cancal_admin']='';
          $isBanned_show['cancal_time']='尚未解除';
+        $banneder=\App\Models\AdminActionLog::where('target_id', $user->id)->where('act','封鎖會員')->orderByDesc('created_at')->first();
+        $isBanned_show['admin_user'] = \App\Models\User::findById($banneder->operator??'');
     }else{
          $isBanned_cancel=\App\Models\AdminActionLog::where('target_id', $user->id)->where('act','解除封鎖')->orderByDesc('created_at')->first();
-         $isBanned_show['cancal_admin']=$isBanned_cancel? \App\Models\User::findById($isBanned_cancel->operator) : '';
+         $isBanned_show['cancal_admin']=$isBanned_cancel? \App\Models\User::findById($isBanned_cancel->operator??'') : '';
          $isBanned_show['cancal_time']=$isBanned_cancel? $isBanned_cancel->created_at : '';
     }
 
@@ -804,6 +816,33 @@
             @endif
             @if($isEverWarned0_admin)
                 <td><a href="{{ route('users/advInfo', $isEverWarned0_admin->id) }}" target='_blank' @if($isEverWarned0_admin->engroup == '2') style="color: #F00;" @else  style="color: #5867DD;"  @endif>{{ $isEverWarned0_admin->name }}</a></td>
+            @endif
+        </tr>
+        <tr>
+            <th>後台封鎖人員</th>
+            @php
+                $isBanned_admin=$isBanned_show["admin_user"];
+                $isWarned_admin=$isWarned_show["admin_user"];
+                $isEverBanned_admin=$isEverBanned_log['banneder_admin'] ?? null;
+                $isEverWarned_admin=$isEverWarned_log["warned_admin"] ?? null;
+            @endphp
+            @if(count($isBanned)>0 && $isBanned_admin)
+                <td><a href="{{ route('users/advInfo', $isBanned_admin->id) }}" target='_blank' @if($isBanned_admin->engroup == '2') style="color: #F00;" @else  style="color: #5867DD;"  @endif>{{ $isBanned_admin->name }}</a></td>
+            @else
+            <td></td>
+            @endif
+            @if(count($isWarned)>0 &&$isWarned_admin)
+                <td><a href="{{ route('users/advInfo', $isWarned_admin->id) }}" target='_blank' @if($isWarned_admin->engroup == '2') style="color: #F00;" @else  style="color: #5867DD;"  @endif>{{ $isWarned_admin->name }}</a></td>
+            @elseif($isEverBanned_admin)
+            <td></td>
+            @endif
+            @if($isEverBanned_admin)
+                <td><a href="{{ route('users/advInfo', $isEverBanned_admin->id) }}" target='_blank' @if($isEverBanned_admin->engroup == '2') style="color: #F00;" @else  style="color: #5867DD;"  @endif>{{ $isEverBanned_admin->name }}</a></td>
+            @elseif($isEverBanned_admin)
+            <td></td>
+            @endif
+            @if($isEverWarned_admin)
+                <td><a href="{{ route('users/advInfo', $isEverWarned_admin->id) }}" target='_blank' @if($isEverWarned_admin->engroup == '2') style="color: #F00;" @else  style="color: #5867DD;"  @endif>{{ $isEverWarned_admin->name }}</a></td>
             @endif
         </tr>
     </table>
@@ -1199,7 +1238,12 @@
             @if($row['is_check']==1)
                 <td style="color: red;">***此評價目前由站方審核中***@if(!is_null($row['is_delete'])) <br><span style="color: red;">(該評價已刪除)</span> @endif</td>
             @else
-                <td>@if(!is_null($row['is_delete'])) <span style="color: red;">(該評價已刪除)</span><br>@endif {{ $row['content'] }}</td>
+                <td>@if(!is_null($row['is_delete'])) <span style="color: red;">(該評價已刪除)</span><br>@endif {{ $row['content'] }} <br>
+                    @if($row['re_content'])
+                        <div id="re_content_btn_{{$row['id']}}" class="btn btn-success" onclick="show_re_content({{ $row['id'] }})">+ 回覆</div>
+                        <div id="re_content_{{$row['id']}}" style="display: none;">{{ $row['re_content'] }}</div>
+                    @endif
+                </td>
             @endif
             <td class="evaluation_zoomIn">
                 @if(!is_null($row['is_delete'])) <span style="color: red;">(該評價已刪除)</span> @endif
@@ -1260,7 +1304,12 @@
             @if($row['is_check']==1)
                 <td style="color: red;">***此評價目前由站方審核中***@if(!is_null($row['is_delete'])) <br><span style="color: red;">(該評價已刪除)</span> @endif</td>
             @else
-                <td>@if(!is_null($row['is_delete'])) <span style="color: red;">(該評價已刪除)</span><br>@endif {{ $row['content'] }}</td>
+                <td>@if(!is_null($row['is_delete'])) <span style="color: red;">(該評價已刪除)</span><br>@endif {{ $row['content'] }} <br>
+                    @if($row['re_content'])
+                        <div id="re_content_btn_{{$row['id']}}" class="btn btn-success" onclick="show_re_content({{ $row['id'] }})">+ 回覆</div>
+                        <div id="re_content_{{$row['id']}}" style="display: none;">{{ $row['re_content'] }}</div>
+                    @endif
+                </td>
             @endif
             <td class="evaluation_zoomIn">
                 @if(!is_null($row['is_delete'])) <span style="color: red;">(該評價已刪除)</span> @endif
@@ -2504,7 +2553,15 @@ $("input[name='phone']").keyup(function(){
     });
 });
 
-
+function show_re_content(id){
+    if($('#re_content_'+id).css('display')=='none') {
+        $('#re_content_'+id).show();
+        $('#re_content_btn_'+id).text('- 回覆');
+    }else{
+        $('#re_content_'+id).hide();
+        $('#re_content_btn_'+id).text('+ 回覆');
+    }
+}
 </script>
 <!--照片查看-->
 <link type="text/css" rel="stylesheet" href="/new/css/app.css">
