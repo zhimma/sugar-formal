@@ -7,6 +7,7 @@ use App\Models\AdminActionLog;
 use App\Models\AnonymousChat;
 use App\Models\AnonymousChatReport;
 use App\Models\Board;
+use App\Models\EssenceStatisticsLog;
 use App\Models\Evaluation;
 use App\Models\EvaluationPic;
 use App\Models\ExpectedBanningUsers;
@@ -56,16 +57,19 @@ use Illuminate\Support\Facades\File;
 use Intervention\Image\Facades\Image;
 use Session;
 use App\Http\Requests\Reported\ReportedIsWriteRequest;
+use App\Http\Requests\UserMessageCheck\IndexRequest;
 use App\Models\Blocked;
 use App\Models\ValueAddedService;
 use App\Services\ImagesCompareService;
 use App\Models\SimilarImages;
 use App\Models\CheckPointUser;
 use App\Models\ComeFromAdvertise;
+use App\Models\IsBannedLog;
 use App\Models\StayOnlineRecord;
 use App\Models\UserRecord;
 use App\Models\Visited;
 use App\Models\Features;
+
 class UserController extends \App\Http\Controllers\BaseController
 {
     public function __construct(UserService $userService, AdminService $adminService)
@@ -416,22 +420,22 @@ class UserController extends \App\Http\Controllers\BaseController
         }
 
 
-        $blocked_user=User::findById($request->user_id);
+        $blocked_user = User::findById($request->user_id);
         $line_notify_user_list = lineNotifyChatSet::select('line_notify_chat_set.user_id')
             ->selectRaw('users.line_notify_token')
-            ->leftJoin('line_notify_chat','line_notify_chat.id', 'line_notify_chat_set.line_notify_chat_id')
-            ->leftJoin('users','users.id', 'line_notify_chat_set.user_id')
-            ->where('line_notify_chat.active',1)
-            ->where('line_notify_chat_set.line_notify_chat_id',11) //封鎖會員
-            ->where('line_notify_chat_set.deleted_at',null)
+            ->leftJoin('line_notify_chat', 'line_notify_chat.id', 'line_notify_chat_set.line_notify_chat_id')
+            ->leftJoin('users', 'users.id', 'line_notify_chat_set.user_id')
+            ->where('line_notify_chat.active', 1)
+            ->where('line_notify_chat_set.line_notify_chat_id', 11) //封鎖會員
+            ->where('line_notify_chat_set.deleted_at', null)
             ->whereNotNull('users.line_notify_token')
             ->get();
-        foreach ($line_notify_user_list as $notify_user){
+        foreach ($line_notify_user_list as $notify_user) {
             $has_message = Message::where([['to_id', $blocked_user->id], ['from_id', $notify_user->user_id]])->orWhere([['to_id', $notify_user->user_id], ['from_id', $blocked_user->id]])->get()->count();
-            if($notify_user->line_notify_token != null && $has_message){
+            if ($notify_user->line_notify_token != null && $has_message) {
                 $url = url('/dashboard/chat2');
                 //send notify
-                $message = '與您通訊的 '.$blocked_user->name.' 已經被站方封鎖。對話記錄將移到封鎖信件夾，請您再去檢查，如果您們已經交換聯絡方式，請多加注意。'.$url;
+                $message = '與您通訊的 ' . $blocked_user->name . ' 已經被站方封鎖。對話記錄將移到封鎖信件夾，請您再去檢查，如果您們已經交換聯絡方式，請多加注意。' . $url;
                 User::sendLineNotify($notify_user->line_notify_token, $message);
             }
         }
@@ -595,22 +599,22 @@ class UserController extends \App\Http\Controllers\BaseController
         //新增Admin操作log
         $this->insertAdminActionLog($request->user_id, '站方警示');
 
-        $warned_user=User::findById($request->user_id);
+        $warned_user = User::findById($request->user_id);
         $line_notify_user_list = lineNotifyChatSet::select('line_notify_chat_set.user_id')
             ->selectRaw('users.line_notify_token')
-            ->leftJoin('line_notify_chat','line_notify_chat.id', 'line_notify_chat_set.line_notify_chat_id')
-            ->leftJoin('users','users.id', 'line_notify_chat_set.user_id')
-            ->where('line_notify_chat.active',1)
-            ->where('line_notify_chat_set.line_notify_chat_id',7)//警示會員
-            ->where('line_notify_chat_set.deleted_at',null)
+            ->leftJoin('line_notify_chat', 'line_notify_chat.id', 'line_notify_chat_set.line_notify_chat_id')
+            ->leftJoin('users', 'users.id', 'line_notify_chat_set.user_id')
+            ->where('line_notify_chat.active', 1)
+            ->where('line_notify_chat_set.line_notify_chat_id', 7) //警示會員
+            ->where('line_notify_chat_set.deleted_at', null)
             ->whereNotNull('users.line_notify_token')
             ->groupBy('line_notify_chat_set.user_id')->get();
-        foreach ($line_notify_user_list as $notify_user){
+        foreach ($line_notify_user_list as $notify_user) {
             $has_message = Message::where([['to_id', $warned_user->id], ['from_id', $notify_user->user_id]])->orWhere([['to_id', $notify_user->user_id], ['from_id', $warned_user->id]])->get()->count();
-            if($notify_user->line_notify_token != null && $has_message){
+            if ($notify_user->line_notify_token != null && $has_message) {
                 $url = url('/dashboard/chat2');
                 //send notify
-                $message = '與您通訊的 '.$warned_user->name.' 已經被站方警示。對話記錄將移到警示會員信件夾，請您再去檢查，如果您們已經交換聯絡方式，請多加注意。 '.$url;
+                $message = '與您通訊的 ' . $warned_user->name . ' 已經被站方警示。對話記錄將移到警示會員信件夾，請您再去檢查，如果您們已經交換聯絡方式，請多加注意。 ' . $url;
                 User::sendLineNotify($notify_user->line_notify_token, $message);
             }
         }
@@ -639,37 +643,24 @@ class UserController extends \App\Http\Controllers\BaseController
     {
         $reason = '';
         $days = 0;
-        if($request->type == 'month_budget')
-        {
+        if ($request->type == 'month_budget') {
             $reason = '每月預算不實';
             $warn_frequency = DB::table('is_warned_log')->where('user_id', $request->user_id)->where('reason', $reason)->count();
-            if($warn_frequency == 0)
-            {
+            if ($warn_frequency == 0) {
                 $days = 7;
-            }
-            else if($warn_frequency == 1)
-            {
+            } else if ($warn_frequency == 1) {
                 $days = 20;
-            }
-            else
-            {
+            } else {
                 $days = 60;
             }
-        }
-        else if($request->type == 'transport_fare')
-        {
+        } else if ($request->type == 'transport_fare') {
             $reason = '車馬費預算不實';
             $warn_frequency = DB::table('is_warned_log')->where('user_id', $request->user_id)->where('reason', $reason)->count();
-            if($warn_frequency == 0)
-            {
+            if ($warn_frequency == 0) {
                 $days = 7;
-            }
-            else if($warn_frequency == 1)
-            {
+            } else if ($warn_frequency == 1) {
                 $days = 20;
-            }
-            else
-            {
+            } else {
                 $days = 60;
             }
         }
@@ -682,14 +673,14 @@ class UserController extends \App\Http\Controllers\BaseController
 
         if ($userWarned) {
             $checkLog = DB::table('is_warned_log')->where('user_id', $userWarned->member_id)->where('created_at', $userWarned->created_at)->get()->first();
-            if(!$checkLog) {
+            if (!$checkLog) {
                 //寫入log
-                DB::table('is_warned_log')->insert(['user_id' => $userWarned->member_id, 'reason' => $userWarned->reason, 'created_at' => $userWarned->created_at,'vip_pass'=>$userWarned->vip_pass,'adv_auth'=>$userWarned->adv_auth]);
+                DB::table('is_warned_log')->insert(['user_id' => $userWarned->member_id, 'reason' => $userWarned->reason, 'created_at' => $userWarned->created_at, 'vip_pass' => $userWarned->vip_pass, 'adv_auth' => $userWarned->adv_auth]);
             }
             $userWarned->delete();
         }
 
-        
+
         $userWarned = new warned_users;
         $userWarned->member_id = $request->user_id;
         $userWarned->expire_date = $expire_date;
@@ -699,26 +690,26 @@ class UserController extends \App\Http\Controllers\BaseController
 
         BadUserCommon::addRemindMsgFromBadId($request->user_id);
         //寫入log
-        DB::table('is_warned_log')->insert(['user_id' => $request->user_id, 'reason' => $reason, 'expire_date' =>$expire_date, 'created_at' => Carbon::now()]);
+        DB::table('is_warned_log')->insert(['user_id' => $request->user_id, 'reason' => $reason, 'expire_date' => $expire_date, 'created_at' => Carbon::now()]);
         //新增Admin操作log
         $this->insertAdminActionLog($request->user_id, '站方警示');
 
-        $warned_user=User::findById($request->user_id);
+        $warned_user = User::findById($request->user_id);
         $line_notify_user_list = lineNotifyChatSet::select('line_notify_chat_set.user_id')
             ->selectRaw('users.line_notify_token')
-            ->leftJoin('line_notify_chat','line_notify_chat.id', 'line_notify_chat_set.line_notify_chat_id')
-            ->leftJoin('users','users.id', 'line_notify_chat_set.user_id')
-            ->where('line_notify_chat.active',1)
-            ->where('line_notify_chat_set.line_notify_chat_id',7)//警示會員
-            ->where('line_notify_chat_set.deleted_at',null)
+            ->leftJoin('line_notify_chat', 'line_notify_chat.id', 'line_notify_chat_set.line_notify_chat_id')
+            ->leftJoin('users', 'users.id', 'line_notify_chat_set.user_id')
+            ->where('line_notify_chat.active', 1)
+            ->where('line_notify_chat_set.line_notify_chat_id', 7) //警示會員
+            ->where('line_notify_chat_set.deleted_at', null)
             ->whereNotNull('users.line_notify_token')
             ->groupBy('line_notify_chat_set.user_id')->get();
-        foreach ($line_notify_user_list as $notify_user){
+        foreach ($line_notify_user_list as $notify_user) {
             $has_message = Message::where([['to_id', $warned_user->id], ['from_id', $notify_user->user_id]])->orWhere([['to_id', $notify_user->user_id], ['from_id', $warned_user->id]])->get()->count();
-            if($notify_user->line_notify_token != null && $has_message){
+            if ($notify_user->line_notify_token != null && $has_message) {
                 $url = url('/dashboard/chat2');
                 //send notify
-                $message = '與您通訊的 '.$warned_user->name.' 已經被站方警示。對話記錄將移到警示會員信件夾，請您再去檢查，如果您們已經交換聯絡方式，請多加注意。 '.$url;
+                $message = '與您通訊的 ' . $warned_user->name . ' 已經被站方警示。對話記錄將移到警示會員信件夾，請您再去檢查，如果您們已經交換聯絡方式，請多加注意。 ' . $url;
                 User::sendLineNotify($notify_user->line_notify_token, $message);
             }
         }
@@ -1277,6 +1268,12 @@ class UserController extends \App\Http\Controllers\BaseController
                     break;
             }
             $r_user = User::findById($row->rid);
+            $punishment_status = '';
+            if ($row->banned_id && ($row->banned_expire_date > Carbon::now() || $row->banned_expire_date == null)) {
+                $punishment_status = 'banning';
+            } else if ($row->warned_id && ($row->warned_expire_date > Carbon::now() || $row->warned_expire_date == null)) {
+                $punishment_status = 'warning';
+            }
             array_push(
                 $reportBySelf,
                 array(
@@ -1291,7 +1288,8 @@ class UserController extends \App\Http\Controllers\BaseController
                     'isvip' => $r_user->isVip(),
                     'auth_status' => $r_user->isPhoneAuth(),
                     'report_type' => $report_type,
-                    'engroup' => $row->engroup
+                    'engroup' => $row->engroup,
+                    'punishment_status' => $punishment_status
                 )
             );
             continue;
@@ -1299,19 +1297,76 @@ class UserController extends \App\Http\Controllers\BaseController
 
         //被檢舉紀錄
         //檢舉紀錄 reporter_id檢舉者uid  被檢舉者reported_user_id為此頁面主要會員
-        $pic_report1 = ReportedAvatar::select('reporter_id as uid', 'reported_user_id as edid', 'cancel', 'created_at', 'content', 'pic')->where('reported_user_id', $user->id)->where('reporter_id', '!=', $user->id)->groupBy('reporter_id')->get();
+        $pic_report1 = ReportedAvatar::select(
+            'reported_avatar.reporter_id as uid',
+            'reported_avatar.reported_user_id as edid',
+            'reported_avatar.cancel',
+            'reported_avatar.created_at',
+            'reported_avatar.content',
+            'reported_avatar.pic',
+            'b.id as banned_id',
+            'b.expire_date as banned_expire_date',
+            'w.id as warned_id',
+            'w.expire_date as warned_expire_date'
+        )
+            ->leftJoin('banned_users as b', 'reported_avatar.reporter_id', 'b.member_id')
+            ->leftJoin('warned_users as w', 'reported_avatar.reporter_id', 'w.member_id')
+            ->where('reported_user_id', $user->id)
+            ->where('reporter_id', '!=', $user->id)
+            ->groupBy('reporter_id')
+            ->get();
         $pic_report2 = ReportedPic::select('reported_pic.reporter_id as uid', 'member_pic.member_id as edid', 'cancel', 'reported_pic.created_at', 'reported_pic.content')->join('member_pic', 'reported_pic.reported_pic_id', '=', 'member_pic.id')->where('member_pic.member_id', $user->id)->where('reported_pic.reporter_id', '!=', $user->id)->groupBy('reported_pic.reporter_id')->get();
         //大頭照與照片合併計算
         $collection = collect([$pic_report1, $pic_report2]);
         $pic_all_report = $collection->collapse()->unique('uid');
         //$pic_all_report->unique()->all();
 
-        $msg_report = Message::select('to_id', 'id', 'cancel', 'created_at', 'content', 'from_id')->where('from_id', $user->id)->where('isReported', 1)->distinct('to_id')->get();
-        $report = Reported::select('member_id', 'reported_id', 'cancel', 'created_at', 'content', 'pic')->where('reported_id', $user->id)->where('member_id', '!=', $user->id)->groupBy('member_id')->get();
+        $msg_report = Message::select(
+            'message.to_id',
+            'message.id',
+            'message.cancel',
+            'message.created_at',
+            'message.content',
+            'message.from_id',
+            'b.id as banned_id',
+            'b.expire_date as banned_expire_date',
+            'w.id as warned_id',
+            'w.expire_date as warned_expire_date'
+        )
+            ->leftJoin('banned_users as b', 'message.to_id', 'b.member_id')
+            ->leftJoin('warned_users as w', 'message.to_id', 'w.member_id')
+            ->where('message.from_id', $user->id)
+            ->where('message.isReported', 1)
+            ->distinct('message.to_id')
+            ->get();
+        $report = Reported::select(
+            'reported.member_id',
+            'reported.reported_id',
+            'reported.cancel',
+            'reported.created_at',
+            'reported.content',
+            'reported.pic',
+            'b.id as banned_id',
+            'b.expire_date as banned_expire_date',
+            'w.id as warned_id',
+            'w.expire_date as warned_expire_date'
+        )
+            ->leftJoin('banned_users as b', 'reported.member_id', 'b.member_id')
+            ->leftJoin('warned_users as w', 'reported.member_id', 'w.member_id')
+            ->where('reported.reported_id', $user->id)
+            ->where('reported.member_id', '!=', $user->id)
+            ->groupBy('reported.member_id')
+            ->get();
         $report_all = array();
 
         foreach ($pic_all_report as $row) {
             $f_user = User::findById($row->uid);
+            $punishment_status = '';
+            if ($row->banned_id && ($row->banned_expire_date > Carbon::now() || $row->banned_expire_date == null)) {
+                $punishment_status = 'banning';
+            } else if ($row->warned_id && ($row->warned_expire_date > Carbon::now() || $row->warned_expire_date == null)) {
+                $punishment_status = 'warning';
+            }
             if (!isset($f_user)) {
                 array_push(
                     $report_all,
@@ -1330,7 +1385,8 @@ class UserController extends \App\Http\Controllers\BaseController
                         'auth_status' => null,
                         'report_type' => '照片檢舉',
                         'report_table' => 'reported_avatarpic',
-                        'engroup' => null
+                        'engroup' => null,
+                        'punishment_status' => $punishment_status
                     )
                 );
                 continue;
@@ -1358,13 +1414,19 @@ class UserController extends \App\Http\Controllers\BaseController
                     'auth_status' => $auth_status,
                     'report_type' => '照片檢舉',
                     'report_table' => 'reported_avatarpic',
-                    'engroup' => $f_user->engroup
+                    'engroup' => $f_user->engroup,
+                    'punishment_status' => $punishment_status
                 )
             );
         }
         foreach ($msg_report as $row) {
             $f_user = User::findById($row->to_id);
-
+            $punishment_status = '';
+            if ($row->banned_id && ($row->banned_expire_date > Carbon::now() || $row->banned_expire_date == null)) {
+                $punishment_status = 'banning';
+            } else if ($row->warned_id && ($row->warned_expire_date > Carbon::now() || $row->warned_expire_date == null)) {
+                $punishment_status = 'warning';
+            }
             if (array_search($row->to_id, array_column($report_all, 'reporter_id')) === false) {
                 if (!isset($f_user)) {
                     array_push(
@@ -1385,7 +1447,8 @@ class UserController extends \App\Http\Controllers\BaseController
                             'auth_status' => null,
                             'report_type' => '訊息檢舉',
                             'report_table' => 'message',
-                            'engroup' => null
+                            'engroup' => null,
+                            'punishment_status' => $punishment_status
                         )
                     );
                     continue;
@@ -1414,13 +1477,20 @@ class UserController extends \App\Http\Controllers\BaseController
                         'auth_status' => $auth_status,
                         'report_type' => '訊息檢舉',
                         'report_table' => 'message',
-                        'engroup' => $f_user->engroup
+                        'engroup' => $f_user->engroup,
+                        'punishment_status' => $punishment_status
                     )
                 );
             }
         }
         foreach ($report as $row) {
             $f_user = User::findById($row->member_id);
+            $punishment_status = '';
+            if ($row->banned_id && ($row->banned_expire_date > Carbon::now() || $row->banned_expire_date == null)) {
+                $punishment_status = 'banning';
+            } else if ($row->warned_id && ($row->warned_expire_date > Carbon::now() || $row->warned_expire_date == null)) {
+                $punishment_status = 'warning';
+            }
             if (array_search($row->member_id, array_column($report_all, 'reporter_id')) === false) {
                 if (!isset($f_user)) {
                     array_push(
@@ -1441,7 +1511,8 @@ class UserController extends \App\Http\Controllers\BaseController
                             'auth_status' => null,
                             'report_type' => '會員檢舉',
                             'report_table' => 'reported',
-                            'engroup' => null
+                            'engroup' => null,
+                            'punishment_status' => $punishment_status
                         )
                     );
                     continue;
@@ -1470,7 +1541,8 @@ class UserController extends \App\Http\Controllers\BaseController
                         'auth_status' => $auth_status,
                         'report_type' => '會員檢舉',
                         'report_table' => 'reported',
-                        'engroup' => $f_user->engroup
+                        'engroup' => $f_user->engroup,
+                        'punishment_status' => $punishment_status
                     )
                 );
             }
@@ -1571,9 +1643,13 @@ class UserController extends \App\Http\Controllers\BaseController
 
         //正被警示
         $isWarned = warned_users::where('member_id', $user->id)->where('expire_date', null)->orWhere('expire_date', '>', Carbon::now())->where('member_id', $user->id)->orderBy('created_at', 'desc')->paginate(10);
+        $is_warned_of_budget = false;
+        if(($isWarned->first()->reason??'') == '每月預算不實' || ($isWarned->first()->reason??'') == '車馬費預算不實')
+        {
+            $is_warned_of_budget = true;
+        }
         //正被封鎖
         $isBanned = banned_users::where('member_id', $user->id)->where('expire_date', null)->orWhere('expire_date', '>', Carbon::now())->where('member_id', $user->id)->orderBy('created_at', 'desc')->paginate(10);
-
 
         //cfp_id distinct
         $cfp_id = LogUserLogin::select('cfp_id')->selectRaw('MAX(created_at) AS last_tiime')->orderByDesc('last_tiime')->where('user_id', $user->id)->groupBy('cfp_id')->get();
@@ -1641,7 +1717,9 @@ class UserController extends \App\Http\Controllers\BaseController
                 ->with('last_images_compare_encode', ImagesCompareEncode::orderByDesc('id')->firstOrNew())
                 ->with('posts_forum', $posts_forum)
                 ->with('hideonline_order', $hideonline_order)
-                ->with('user_record', $user_record);
+                ->with('user_record', $user_record)
+                ->with('is_warned_of_budget', $is_warned_of_budget)
+                ;
         }
     }
 
@@ -4059,7 +4137,7 @@ class UserController extends \App\Http\Controllers\BaseController
 
         //站長系統訊息
         Message::post(1049, $user->id, $content, true, 1);
-        
+
         Session::flash('message', '審核已完成，系統將自動發信通知該會員');
 
         echo json_encode('ok');
@@ -4105,7 +4183,7 @@ class UserController extends \App\Http\Controllers\BaseController
 
         //站長系統訊息
         Message::post(1049, $user->id, $content, true, 1);
-        
+
         Session::flash('message', '審核已完成，系統將自動發信通知該會員');
 
         echo json_encode('ok');
@@ -4462,44 +4540,47 @@ class UserController extends \App\Http\Controllers\BaseController
 
     public function adminActionLog(Request $request)
     {
-        $getLogs = AdminActionLog::selectRaw('admin_action_log.operator, users.name AS operator_name, users.email AS operator_email')
-            ->selectRaw('count(*) AS dataCount')
+        $operator_list = AdminActionLog::selectRaw('admin_action_log.operator, users.name AS operator_name, users.email AS operator_email')
             ->leftJoin('users', 'users.id', '=', 'admin_action_log.operator')
-            ->orderBy('admin_action_log.created_at', 'desc')
-            ->groupBy('admin_action_log.operator');
+            ->groupBy('admin_action_log.operator')->get();
 
-        if (!empty($request->get('operator'))) {
-            $getLogs->where('users.email', $request->get('operator'));
-        }
-        if (!empty($request->get('date_start'))) {
-            $getLogs->where('admin_action_log.created_at', '>=', $request->get('date_start'));
-        }
-        if (!empty($request->get('date_end'))) {
-            $getLogs->where('admin_action_log.created_at', '<=', date("Y-m-d", strtotime("+1 day", strtotime($request->get('date_end')))));
-        }
-        $getLogs = $getLogs->get();
+        $getLogs = [];
+        if (!empty($request->get('date_start')) && !empty($request->get('date_end')) && count($request->get('operator'))) {
+            $getLogs = AdminActionLog::selectRaw('admin_action_log.operator, users.name AS operator_name, users.email AS operator_email')
+                ->selectRaw('count(*) AS dataCount')
+                ->leftJoin('users', 'users.id', '=', 'admin_action_log.operator')
+                ->orderBy('admin_action_log.created_at', 'desc')
+                ->groupBy('admin_action_log.operator');
 
-        foreach ($getLogs as $key => $log){
-            $result[$key]=$log->toArray();
-            $get_operator_by_date = AdminActionLog::selectRaw('LEFT(admin_action_log.created_at,10) as log_by_date, (count(*)) AS count_by_date')->orderBy('admin_action_log.created_at', 'desc')
-                ->where('admin_action_log.operator', $log->operator )
-                ->groupBy('log_by_date');
-
-            if(!empty($request->get('operator'))){
-                $get_operator_by_date->where('users.email',$request->get('operator'));
+            if (!empty($request->get('operator'))) {
+                $getLogs->whereIn('users.id', $request->get('operator'));
             }
-            if(!empty($request->get('date_start'))){
-                $get_operator_by_date->where('admin_action_log.created_at','>=',$request->get('date_start'));
+            if (!empty($request->get('date_start'))) {
+                $getLogs->where('admin_action_log.created_at', '>=', $request->get('date_start'));
             }
-            if(!empty($request->get('date_end'))){
-                $get_operator_by_date->where('admin_action_log.created_at','<=',date("Y-m-d",strtotime("+1 day", strtotime($request->get('date_end')))));
+            if (!empty($request->get('date_end'))) {
+                $getLogs->where('admin_action_log.created_at', '<=', date("Y-m-d", strtotime("+1 day", strtotime($request->get('date_end')))));
             }
-            $result[$key]['operator_by_date']=$get_operator_by_date->get()->toArray();
+            $getLogs = $getLogs->get();
 
+            $result = [];
+            foreach ($getLogs as $key => $log) {
+                $result[$key] = $log->toArray();
+                $get_operator_by_date = AdminActionLog::selectRaw('LEFT(admin_action_log.created_at,10) as log_by_date, (count(*)) AS count_by_date')->orderBy('admin_action_log.created_at', 'desc')
+                    ->where('admin_action_log.operator', $log->operator)
+                    ->groupBy('log_by_date');
+                if (!empty($request->get('date_start'))) {
+                    $get_operator_by_date->where('admin_action_log.created_at', '>=', $request->get('date_start'));
+                }
+                if (!empty($request->get('date_end'))) {
+                    $get_operator_by_date->where('admin_action_log.created_at', '<=', date("Y-m-d", strtotime("+1 day", strtotime($request->get('date_end')))));
+                }
+                $result[$key]['operator_by_date'] = $get_operator_by_date->get()->toArray();
+            }
+            $getLogs = $result;
         }
-        $getLogs=$result;
 
-        return view('admin.users.showAdminActionLog', compact('getLogs'));
+        return view('admin.users.showAdminActionLog', compact('operator_list', 'getLogs'));
     }
 
     public function insertAdminActionLog($targetAccountID, $action)
@@ -4510,6 +4591,30 @@ class UserController extends \App\Http\Controllers\BaseController
             'act'         => $action,
             'ip'          => array_get($_SERVER, 'REMOTE_ADDR')
         ]);
+    }
+
+    public function getEssenceStatisticsRecord(Request $request)
+    {
+        $getLogs = EssenceStatisticsLog::selectRaw('essence_statistics_log.user_id, users.name AS user_name, users.email AS user_email')
+            ->selectRaw('count(*) AS dataCount')
+            ->leftJoin('users', 'users.id', '=', 'essence_statistics_log.user_id')
+            ->orderBy('essence_statistics_log.created_at', 'desc')
+            ->groupBy('essence_statistics_log.user_id')
+            ->get();
+
+        $result = [];
+        foreach ($getLogs as $key => $log) {
+            $result[$key] = $log->toArray();
+            $get_operator_by_date = EssenceStatisticsLog::selectRaw('essence_statistics_log.*, users.name AS user_name, users.email AS user_email, essence_posts.title AS essence_posts_title')
+                ->leftJoin('essence_posts', 'essence_posts.id', '=', 'essence_statistics_log.essence_posts_id')
+                ->leftJoin('users', 'users.id', '=', 'essence_posts.user_id')
+                ->where('essence_statistics_log.user_id', $log->user_id)
+                ->orderBy('essence_statistics_log.created_at', 'desc')
+                ->get();
+            $result[$key]['log_list'] = $get_operator_by_date->toArray();
+        }
+        $getLogs = $result;
+        return view('admin.users.showEssenceStatisticsRecord', compact('getLogs'));
     }
 
     //    public function adminRole(Request $request)
@@ -4775,10 +4880,10 @@ class UserController extends \App\Http\Controllers\BaseController
     public function suspiciousUser(Request $request)
     {
 
-        $query = SuspiciousUser::select('users.*','user_meta.pic','user_meta.style','user_meta.about','suspicious_user.admin_id AS suspicious_admin_id','suspicious_user.created_at AS suspicious_created_time','suspicious_user.reason AS suspicious_reason')
-            ->leftJoin('users','users.id','suspicious_user.user_id')
-            ->leftJoin('user_meta','user_meta.user_id','suspicious_user.user_id')
-            ->where('suspicious_user.deleted_at',null)
+        $query = SuspiciousUser::select('users.*', 'user_meta.pic', 'user_meta.style', 'user_meta.about', 'suspicious_user.admin_id AS suspicious_admin_id', 'suspicious_user.created_at AS suspicious_created_time', 'suspicious_user.reason AS suspicious_reason')
+            ->leftJoin('users', 'users.id', 'suspicious_user.user_id')
+            ->leftJoin('user_meta', 'user_meta.user_id', 'suspicious_user.user_id')
+            ->where('suspicious_user.deleted_at', null)
             ->whereNotNull('users.id')
             ->orderBy('suspicious_user.created_at', 'desc')
             ->paginate(20);
@@ -6258,11 +6363,10 @@ class UserController extends \App\Http\Controllers\BaseController
         $complete_regist_count = ComeFromAdvertise::where('action', 'regist')->whereNotNull('user_id')->get()->count();
 
         return view('admin.users.advertiseStatistics')
-                ->with('login_count', $login_count)
-                ->with('explore_count', $explore_count)
-                ->with('regist_count', $regist_count)
-                ->with('complete_regist_count', $complete_regist_count)
-                ;
+            ->with('login_count', $login_count)
+            ->with('explore_count', $explore_count)
+            ->with('regist_count', $regist_count)
+            ->with('complete_regist_count', $complete_regist_count);
     }
 
     public function user_record_view(Request $request)
@@ -6292,94 +6396,81 @@ class UserController extends \App\Http\Controllers\BaseController
             ->with('user_online_record', $user_online_record);
     }
 
-    public function messageCheck()
+    public function messageCheck(IndexRequest $request)
     {
         if (!$this->admin->checkAdmin()) {
-            return view('admin.users.userMessageCheck')->withErrors(['找不到暱稱含有「站長」的使用者！請先新增再執行此步驟']);
+            return redirect()->back()->withErrors(['找不到暱稱含有「站長」的使用者！請先新增再執行此步驟']);
         }
 
-        return view('admin.users.userMessageCheck');
-    }
+        if (empty($request->all())) {
+            $data = collect();
 
-    public function messageCheckIndex(Request $request)
-    {
+            return view('admin.users.userMessageCheck', compact('data'));
+        }
 
         // 登入區間
-        $startDate = $request->start_date ?? "2022-06-25 14:00:00";
-        $endDate = $request->end_date ?? "2022-06-30 15:00:00";
+        $startDate = $request->date_start ?? "2022-06-25 14:00:00";
+        $endDate = $request->date_end ?? "2022-06-30 15:00:00";
 
         // 訊息區間
-        $messageStartDate = $request->message_start_date ?? "2022-06-01 15:00:00";
-        $messageEndDate = $request->message_end_date ?? "2022-06-30 15:00:00";
+        $messageStartDate = $request->message_date_start ?? "2022-06-01 15:00:00";
+        $messageEndDate = $request->message_date_end ?? "2022-06-30 15:00:00";
 
-        $total = $request->total ?? 10; // 訊息次數
-        $gender = $request->gender ?? 1; // 性別
+        $total = $request->total ?? 10; // 發送人數
+        $gender = $request->en_group ?? 1; // 性別
 
-        // email/是否封鎖/暱稱/關於我/約會模式
+        $currentPage = $request->page ?? 1;
 
-        // 在 2022/6/25 1400~1500 間有 login 的女會員
-        // and 曾經有發訊息給超過 10 個男會員
-        // and 對單一男會員發出訊息都沒有超過10則的
+        $data = Message::with(['toUser', 'fromUser'])
+            ->whereHas('toUser', function ($query) use ($gender) {
+                $query->where('engroup', $gender == 1 ? 2 : 1); // 傳給那些異性
+            })
+            ->whereHas('fromUser', function ($query) use ($gender, $startDate, $endDate) {
+                $query->where('engroup', $gender) // 發送訊息者性別
+                    ->whereBetween('last_login', [$startDate, $endDate]); // 登入區間
+            })
+            ->whereBetween('created_at', [$messageStartDate, $messageEndDate]) // 訊息區間
+            ->get()
+            ->groupBy('from_id')
+            ->sortDesc()
+            ->filter(function ($item) use ($total) {
+                // 清除不滿發送人數
+                if ($item->countBy('to_id')->count() >= $total) {
+                    return $item;
+                }
+            })->transform(function ($items, $key) {
+                // 取得發送訊息者
+                $fromUser = User::find($key);
 
-        // 在...間有登入的女會員
-        $user = User::with([
-            'message' => function ($query) use ($gender, $messageStartDate, $messageEndDate) {
-                $query->whereBetween('created_at', [$messageStartDate, $messageEndDate])->orderby("id", "DESC");
-            }
-        ])->where('engroup', $gender)
-            ->whereBetween('last_login', [$startDate, $endDate])
-            ->orderby("id", "DESC")
-            ->get()->filter(function ($model) use ($total) {
-                $message = $model->message;
+                $fromUser->toUser = $items->groupBy('to_id')->sortDesc()->transform(function ($items, $key) { // 置入接收者
+                    // 取得接收訊息者
+                    $toUser = User::find($key);
+                    // 置入幾封訊息
+                    $toUser->count = $items->count();
+                    // 接收者進階驗證
+                    $toUser->isAdvAuthUsable = $toUser->isAdvAuthUsable ?: UserService::isAdvAuthUsableByUser($toUser);
 
-                if ($message->isNotEmpty() && $total <= $message->count()) {
-                    $model->messageCount = $message->count();
-                    
-                    $model->messages = $model->message->countBy('to_id');
+                    return $toUser;
+                });
+                // 發訊息者進階驗證
+                $fromUser->isAdvAuthUsable = $fromUser->isAdvAuthUsable ?: UserService::isAdvAuthUsableByUser($fromUser);
+
+                return $fromUser;
+            })->filter(function ($model) {
+                if ($model->toUser->isNotEmpty()) {
+                    // 總訊息數
+                    $model->messageCount = $model->toUser->sum('count');
 
                     return $model;
                 }
             });
 
-        dd($user->toArray());
+        $data = forPaginate($data, session('per_page') ?: 15, $currentPage, [
+            'path' => route("users.message.check"),
+            'query' => $request->all()
+        ]);
 
-        // 不重複的發送者 ID，將這些 ID 設為陣列的 key
-        $messages_from_id = array_fill_keys(array_unique(array_column($messages, 'from_id')), ["total" => 0, "to_ids" => []]);
-
-        collect($messages)->each(function ($msg, $key) use (&$messages_from_id) {
-            // to_ids: 對方 ID 表
-            // to_id_stat: 各 ID 收到的訊息數統計
-            $messages_from_id[$msg['from_id']]["total"]++;
-            if (!in_array($msg['to_id'], $messages_from_id[$msg['from_id']]["to_ids"])) {
-                $messages_from_id[$msg['from_id']]["to_ids"][] = $msg['to_id'];
-                $messages_from_id[$msg['from_id']]["to_id_stat"][$msg['to_id']]["count"] = 1;
-            } else {
-                $messages_from_id[$msg['from_id']]["to_id_stat"][$msg['to_id']]["count"]++;
-            }
-        });
-
-        // 曾經有發訊息給超過 $men_total 個男會員
-        $filtered = collect($messages_from_id)->filter(function ($from_stat, $key) use ($men_total) {
-            return count($from_stat["to_ids"]) > $men_total;
-        });
-
-        $html = "<table style='border: 1px solid black;border-collapse: collapse;'>";
-
-        foreach ($filtered as $user_id => $content) {
-            $html .= "<tr style='border: 1px solid black;border-collapse: collapse;'>";
-            $html .= "<td style='border: 1px solid black;border-collapse: collapse;'>" . $user_id . "</td>";
-            $html .= "<td style='border: 1px solid black;border-collapse: collapse;'>總計：" . $content["total"] . "</td>";
-            $html .= "<td style='border: 1px solid black;border-collapse: collapse;'>";
-            foreach ($content["to_id_stat"] as $to_id => $stat) {
-                $html .= $to_id . "：" . $stat["count"] . "<br>";
-            }
-            $html .= "</td>";
-            $html .= "/<tr>";
-        }
-
-        $html .= "</table>";
-
-        return $html;
+        return view('admin.users.userMessageCheck', compact('data'));
     }
 
     public function feature_flags(Request $request){

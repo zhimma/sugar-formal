@@ -119,7 +119,12 @@
         @endif
     @endif
     @if($user['isAdminWarned']==1)
-        <button type="button" title="{{'於'.$user['adminWarned_createdAt'].'被警示，將於'.(isset($user['adminWarned_expireDate'])? $user['adminWarned_expireDate'] : '永久').'解除站方警示' }}" id="unwarned_user" class='text-white btn @if($user["isAdminWarned"]) btn-success @else btn-danger @endif' onclick="ReleaseWarnedUser({{ $user['id'] }})" data-id="{{ $user['id'] }}" data-name="{{ $user['name']}}"> 解除站方警示 </button>
+        @if($is_warned_of_budget)
+            <button class="btn btn-info isWarned-user" title="站方警示與自動封鎖的警示，只能經後台解除" disabled="disabled" style="background-color: #C0C0C0;border-color: #C0C0C0;">站方警示</button>
+            <button class="btn btn-info isWarned-user" title="站方警示與自動封鎖的警示，只能經後台解除" disabled="disabled" style="background-color: #C0C0C0;border-color: #C0C0C0;" @if($user['isvip']==1 && $user['isfreevip']==0)style="display: none;" @endif>付費警示</button>
+        @else
+            <button type="button" title="{{'於'.$user['adminWarned_createdAt'].'被警示，將於'.(isset($user['adminWarned_expireDate'])? $user['adminWarned_expireDate'] : '永久').'解除站方警示' }}" class='text-white btn unwarned_user @if($user["isAdminWarned"]) btn-success @else btn-danger @endif' onclick="ReleaseWarnedUser({{ $user['id'] }})" data-id="{{ $user['id'] }}" data-name="{{ $user['name']}}"> 解除站方警示 </button>
+        @endif
     @else
         <a class="btn btn-danger warned-user warned_vip_pass" title="站方警示與自動封鎖的警示，只能經後台解除" id="warned_user" href="#" data-toggle="modal" data-target="#warned_modal" data-vip_pass="0" data-id="{{ $user['id'] }}" data-name="{{ $user['name']}}">站方警示</a>
         <a class="btn btn-danger warned-user warned_vip_pass" title="站方警示與自動封鎖的警示，只能經後台解除" id="warned_user" href="#" data-toggle="modal" data-target="#warned_modal" data-vip_pass="1" data-id="{{ $user['id'] }}" data-name="{{ $user['name']}}" @if($user['isvip']==1 && $user['isfreevip']==0)style="display: none;"@endif>付費警示</a>
@@ -177,6 +182,13 @@
         <button class="btn btn-danger" onclick="WarnBudget('month_budget')">預算不實</button>
         <button class="btn btn-danger" onclick="WarnBudget('transport_fare')">車馬費不實</button>
         <!--預算及車馬費警示-->
+    @elseif($is_warned_of_budget)
+        @if($isWarned->first()->reason == '每月預算不實')
+            <button type="button" title="{{'於'.$user['adminWarned_createdAt'].'被警示，將於'.(isset($user['adminWarned_expireDate'])? $user['adminWarned_expireDate'] : '永久').'解除站方警示' }}" class='text-white btn unwarned_user @if($user["isAdminWarned"]) btn-success @else btn-danger @endif' onclick="ReleaseWarnedUser({{ $user['id'] }})" data-id="{{ $user['id'] }}" data-name="{{ $user['name']}}"> 解除預算不實 </button>
+        @endif
+        @if($isWarned->first()->reason == '車馬費預算不實')
+            <button type="button" title="{{'於'.$user['adminWarned_createdAt'].'被警示，將於'.(isset($user['adminWarned_expireDate'])? $user['adminWarned_expireDate'] : '永久').'解除站方警示' }}" class='text-white btn unwarned_user @if($user["isAdminWarned"]) btn-success @else btn-danger @endif' onclick="ReleaseWarnedUser({{ $user['id'] }})" data-id="{{ $user['id'] }}" data-name="{{ $user['name']}}"> 解除車馬費不實 </button>
+        @endif
     @endif
 
     @if (Auth::user()->can('admin') || Auth::user()->can('juniorAdmin'))
@@ -576,6 +588,7 @@
 @php
     //曾被警示
     $isEverWarned_log=array();
+    $isEverWarned_log['warned_admin']=null;
     if(isset($isEverWarned) && count($isEverWarned)>0){
         foreach($isEverWarned as $key =>$row){
             $isEverWarned_log[$key]['created_at']=$row->created_at;
@@ -586,9 +599,12 @@
             $isEverWarned_log[$key]['cancal_admin']=$isEverWarned_cancel? \App\Models\User::findById($isEverWarned_cancel->operator):'';
             $isEverWarned_log[$key]['cancal_time']=$isEverWarned_cancel?$isEverWarned_cancel->created_at:'';
         }
+        $isEverWarned_warneder=\App\Models\AdminActionLog::where('target_id', $user->id)->where('act','站方警示')->orderByDesc('created_at')->first();
+        $isEverWarned_log['warned_admin']=$isEverWarned_warneder? \App\Models\User::findById($isEverWarned_warneder->operator) : null;
     }
     //曾被封鎖
     $isEverBanned_log=array();
+    $isEverBanned_log['banneder_admin']= null;
     if(isset($isEverBanned) && count($isEverBanned)>0){
         foreach($isEverBanned as $key =>$row){
             $isEverBanned_log[$key]['created_at']=$row->created_at;
@@ -600,9 +616,12 @@
             $isEverBanned_log[$key]['cancal_admin']=$isEverBanned_cancel? \App\Models\User::findById($isEverBanned_cancel->operator) :'';
             $isEverBanned_log[$key]['cancal_time']=$isEverBanned_cancel? $isEverBanned_cancel->created_at:'';
         }
+        $isEverBanned_banneder=\App\Models\AdminActionLog::where('target_id', $user->id)->where('act','封鎖會員')->orderByDesc('created_at')->first();
+        $isEverBanned_log['banneder_admin']=$isEverBanned_banneder? \App\Models\User::findById($isEverBanned_banneder->operator) : null;
     }
     //目前正被警示
     $isWarned_show=array();
+    $isWarned_show['admin_user'] = null;
     if(isset($isWarned) && count($isWarned)>0){
          foreach($isWarned as $row){
              $isWarned_show['created_at']=$row->created_at;
@@ -613,6 +632,8 @@
          }
         $isWarned_show['cancal_admin']='';
         $isWarned_show['cancal_time']='尚未解除';
+        $warneder=\App\Models\AdminActionLog::where('target_id', $user->id)->where('act','站方警示')->orderByDesc('created_at')->first();
+        $isWarned_show['admin_user'] = \App\Models\User::findById($warneder->operator);
     }else{
         $isWarned_cancel=\App\Models\AdminActionLog::where('target_id', $user->id)->where('act','解除站方警示')->orderByDesc('created_at')->first();
         $isWarned_show['cancal_admin']=$isWarned_cancel? \App\Models\User::findById($isWarned_cancel->operator) : '';
@@ -620,6 +641,7 @@
     }
     //目前正被封鎖
     $isBanned_show=array();
+    $isBanned_show['admin_user'] = null;
     if(isset($isBanned) && count($isBanned)>0){
          foreach($isBanned as $row){
              $isBanned_show['created_at']=$row->created_at;
@@ -630,6 +652,8 @@
          }
          $isBanned_show['cancal_admin']='';
          $isBanned_show['cancal_time']='尚未解除';
+        $banneder=\App\Models\AdminActionLog::where('target_id', $user->id)->where('act','封鎖會員')->orderByDesc('created_at')->first();
+        $isBanned_show['admin_user'] = \App\Models\User::findById($banneder->operator);
     }else{
          $isBanned_cancel=\App\Models\AdminActionLog::where('target_id', $user->id)->where('act','解除封鎖')->orderByDesc('created_at')->first();
          $isBanned_show['cancal_admin']=$isBanned_cancel? \App\Models\User::findById($isBanned_cancel->operator) : '';
@@ -792,6 +816,33 @@
             @endif
             @if($isEverWarned0_admin)
                 <td><a href="{{ route('users/advInfo', $isEverWarned0_admin->id) }}" target='_blank' @if($isEverWarned0_admin->engroup == '2') style="color: #F00;" @else  style="color: #5867DD;"  @endif>{{ $isEverWarned0_admin->name }}</a></td>
+            @endif
+        </tr>
+        <tr>
+            <th>後台封鎖人員</th>
+            @php
+                $isBanned_admin=$isBanned_show["admin_user"];
+                $isWarned_admin=$isWarned_show["admin_user"];
+                $isEverBanned_admin=$isEverBanned_log['banneder_admin'] ?: null;
+                $isEverWarned_admin=$isEverWarned_log["warned_admin"] ?: null;
+            @endphp
+            @if(count($isBanned)>0 && $isBanned_admin)
+                <td><a href="{{ route('users/advInfo', $isBanned_admin->id) }}" target='_blank' @if($isBanned_admin->engroup == '2') style="color: #F00;" @else  style="color: #5867DD;"  @endif>{{ $isBanned_admin->name }}</a></td>
+            @else
+            <td></td>
+            @endif
+            @if(count($isWarned)>0 &&$isWarned_admin)
+                <td><a href="{{ route('users/advInfo', $isWarned_admin->id) }}" target='_blank' @if($isWarned_admin->engroup == '2') style="color: #F00;" @else  style="color: #5867DD;"  @endif>{{ $isWarned_admin->name }}</a></td>
+            @elseif($isEverBanned_admin)
+            <td></td>
+            @endif
+            @if($isEverBanned_admin)
+                <td><a href="{{ route('users/advInfo', $isEverBanned_admin->id) }}" target='_blank' @if($isEverBanned_admin->engroup == '2') style="color: #F00;" @else  style="color: #5867DD;"  @endif>{{ $isEverBanned_admin->name }}</a></td>
+            @elseif($isEverBanned_admin)
+            <td></td>
+            @endif
+            @if($isEverBanned_admin)
+                <td><a href="{{ route('users/advInfo', $isEverWarned_admin->id) }}" target='_blank' @if($isEverWarned_admin->engroup == '2') style="color: #F00;" @else  style="color: #5867DD;"  @endif>{{ $isEverWarned_admin->name }}</a></td>
             @endif
         </tr>
     </table>
@@ -1048,7 +1099,13 @@
         @else
             <?php $r_id = $row['reporter_id']; ?>
             <tr>
-                <td>
+                @if ($row['punishment_status'] == 'banning')
+                    <td bgcolor="yellow">
+                @elseif ($row['punishment_status'] == 'warning')
+                    <td bgcolor="#B0FFB1">
+                @else
+                    <td>
+                @endif
                     <a href="{{ route('admin/showMessagesBetween', [$user->id, $row['reporter_id']]) }}" target="_blank">{{$row['name']}}</a>
                     @if($row['vip'])
                         @if($row['vip']=='diamond_black')
@@ -1111,7 +1168,7 @@
     </tr>
     @foreach($report_all as $row)
         <tr>
-            <td @if(!is_null($row['isBlocked'])) style="color: #F00;" @endif>
+            <td bgcolor="<?php echo $row['punishment_status'] == 'banning' ? 'yellow' : ($row['punishment_status'] == 'warning' ? '#B0FFB1' : '');?>" @if(!is_null($row['isBlocked'])) style="color: #F00;" @endif>
                 <a href="{{ route('admin/showMessagesBetween', [$user->id, $row['reporter_id']]) }}" target="_blank">{{ $row['name'] }}</a>
                 @if($row['vip'])
                     @if($row['vip']=='diamond_black')
@@ -2352,7 +2409,7 @@ $("#unblock_user").click(function(){
     }
 });
 
-$("#unwarned_user").click(function(){
+$(".unwarned_user").click(function(){
     var data = $(this).data();
     if(confirm('確定解除此會員站方警示?')){
         $.ajax({

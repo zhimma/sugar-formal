@@ -819,6 +819,8 @@ Route::group(['middleware' => ['auth', 'global', 'active', 'femaleActive', 'vipC
         Route::get('commontext', 'UserController@showAdminCommonText')->name('admin/commontext');
         Route::post('commontext/save', 'UserController@saveAdminCommonText')->name('admin/commontext/save');
         Route::get('getAdminActionLog', 'UserController@adminActionLog')->name('admin/getAdminActionLog');
+        Route::get('getEssenceStatisticsRecord', 'UserController@getEssenceStatisticsRecord')->name('admin/getEssenceStatisticsRecord');
+
         Route::get('users/inactive', 'UserController@inactiveUsers')->name('inactive/GET');
         Route::post('users/inactive', 'UserController@inactiveUsers')->name('inactive');
         Route::get('users/activate/token/{token}', 'UserController@activateUser')->name('activateUser');
@@ -893,7 +895,7 @@ Route::group(['middleware' => ['auth', 'global', 'active', 'femaleActive', 'vipC
         Route::post('users/picturesSimilar/image:delete', [\App\Http\Controllers\ImageController::class, 'admin_user_image_delete'])->withoutMiddleware('Admin');
         Route::post('users/picturesSimilar/avatar:delete', [\App\Http\Controllers\ImageController::class, 'admin_user_avatar_delete'])->withoutMiddleware('Admin');
         Route::post('users/picturesSimilar/pictures:delete/all', [\App\Http\Controllers\ImageController::class, 'admin_user_pictures_all_delete'])->withoutMiddleware('Admin');
-        Route::get('users/message/check', 'UserController@messageCheckIndex')->name("users.message.check");
+        Route::get('users/message/check', 'UserController@messageCheck')->name("users.message.check");
 
         /*
         |--------------------------------------------------------------------------

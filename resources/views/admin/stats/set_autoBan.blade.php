@@ -6,6 +6,15 @@
 </style>
 <h1>自動封鎖警示設定</h1>
 <span></span>
+<form action="{{ route('stats/set_autoBan') }}" method="get">
+	{!! csrf_field() !!}
+	<span>
+		輸入關鍵字 <input type ="text" name="key_word" value="{{ request()->get('key_word') }}">
+	</span>
+	<span>
+		<input class="new text-white btn btn-success" type ="submit" value="查詢">
+	</span>
+</form>
 <table class='table table-bordered table-hover'>
     <th>設定封鎖項目</th>
     <form action="{{ route('stats/set_autoBan_add') }}" method="post">
@@ -100,6 +109,9 @@
 	</tr>
 	@endforelse
 </table>
+@if(count($data))
+	{!! $data->appends(request()->input())->links('pagination::sg-pages') !!}
+@endif
 </body>
 </html>
 @stop

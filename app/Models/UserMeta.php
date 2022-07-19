@@ -208,7 +208,9 @@ class UserMeta extends Model
                                     $city2=null,
                                     $area2=null, 
                                     $city3=null,
-                                    $area3=null                               
+                                    $area3=null,
+                                    $weight='',
+                                    $registered_from_mobile = 0                               
                                   )
     {
         if ($engroup == 1) { $engroup = 2; }
@@ -249,9 +251,16 @@ class UserMeta extends Model
             $city2,
             $area2,
             $city3,
-            $area3            
+            $area3,
+            $weight,
+            $registered_from_mobile            
             ){
-            $query->select('*')->where('user_meta.birthdate', '<', Carbon::now()->subYears(18));      
+
+            if ($registered_from_mobile == 1) {
+                $query->select('*');
+            } else {
+                $query->select('*')->where('user_meta.birthdate', '<', Carbon::now()->subYears(18));
+            }
             
             if($city || $city2 || $city3) {
                 $query->where(function($q) use ($city,$city2,$city3,$area,$area2,$area3) {
@@ -285,10 +294,10 @@ class UserMeta extends Model
                     
                 });
             }
-            
+
             if (isset($cup) && $cup!=''){
                 if(count($cup) > 0){
-                    $query->whereIn('cup', $cup);
+                    $query->whereIn('cup', $cup)->where('isHideCup', 0);
                 }
             }
             if (isset($agefrom) && isset($ageto) && strlen($agefrom) != 0 && strlen($ageto) != 0) {
@@ -299,7 +308,7 @@ class UserMeta extends Model
                 $query->whereBetween(\DB::raw("STR_TO_DATE(birthdate, '%Y-%m-%d')"), [$to, $from]);
             }
 
-
+            if (isset($weight) && strlen($weight) != 0) $query->where('weight', $weight)->where('isHideWeight', 0);
             if (isset($marriage) && strlen($marriage) != 0) $query->where('marriage', $marriage);
             if (isset($budget) && strlen($budget) != 0) $query->where('budget', $budget);
             if (isset($income) && strlen($income) != 0) $query->where('income', $income);
@@ -361,6 +370,7 @@ class UserMeta extends Model
                 ->select('*', \DB::raw("IF(is_hide_online = 1, hide_online_time, last_login) as last_login"))
                 ->whereHas('user_meta', $constraint)
                 ->where('engroup', $engroup)
+                ->where('registered_from_mobile', $registered_from_mobile)
                 ->where('accountStatus', 1)
                 ->where('account_status_admin', 1)
                 ->where('is_hide_online', '<>', 2)
@@ -379,6 +389,7 @@ class UserMeta extends Model
                 ->select('*', \DB::raw("IF(is_hide_online = 1, hide_online_time, last_login) as last_login"))
                 ->whereHas('user_meta', $constraint)
                 ->where('engroup', $engroup)
+                ->where('registered_from_mobile', $registered_from_mobile)
                 ->where('accountStatus', 1)
                 ->where('account_status_admin', 1)
                 ->where('is_hide_online', '<>', 2)

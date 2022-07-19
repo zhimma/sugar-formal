@@ -12,18 +12,14 @@
             {!! csrf_field() !!}
             <table class="table-hover table table-bordered">
                 <tr>
-                    <th>Admin操作人員</th>
-                    <td><input type="email" class="form-control" name="operator" value="@if(isset($_GET['operator'])){{ $_GET['operator'] }}@endif"></td>
-                </tr>
-                <tr>
                     <th>開始時間</th>
                     <td>
-                        <input type='text' id="datepicker_1" name="date_start" data-date-format='yyyy-mm-dd' value="@if(isset($_GET['date_start'])){{ $_GET['date_start'] }}@endif" class="form-control" required>
+                        <input type='text' id="datepicker_1" name="date_start" data-date-format='yyyy-mm-dd' value="@if(isset($_GET['date_start'])){{ $_GET['date_start'] }}@endif" class="form-control">
                     </td>
                 <tr>
                     <th>結束時間</th>
                     <td>
-                        <input type='text' id="datepicker_2" name="date_end" data-date-format='yyyy-mm-dd' value="@if(isset($_GET['date_end'])){{ $_GET['date_end'] }}@endif" class="form-control" required>
+                        <input type='text' id="datepicker_2" name="date_end" data-date-format='yyyy-mm-dd' value="@if(isset($_GET['date_end'])){{ $_GET['date_end'] }}@endif" class="form-control">
                     </td>
                 </tr>
                 <tr>
@@ -33,6 +29,14 @@
                         <a class="text-white btn btn-success last3days">最近3天</a>
                         <a class="text-white btn btn-success last10days">最近10天</a>
                         <a class="text-white btn btn-success last30days">最近30天</a>
+                    </td>
+                </tr>
+                <tr>
+                    <th>Admin操作人員</th>
+                    <td>
+                        @foreach($operator_list as $operator)
+                            <input type="checkbox" name="operator[]" value="{{$operator->operator}}" @if(in_array($operator->operator, Request()->get('operator',[]))) checked @endif><span>{{$operator->operator_email}}</span><br>
+                        @endforeach
                     </td>
                 </tr>
                 <tr>
@@ -63,10 +67,12 @@
                                 <tr class="showLog" id="showLogByDateDetail{{ $group['log_by_date'] }}_operator_{{$log['operator']}}">
                                     <td>
                                         @php
-                                            $logInLog=\App\Models\AdminActionLog::selectRaw('admin_action_log.*, users.email, (select email from users where id = admin_action_log.target_id) AS target_acc ')
+                                            $logInLog=\App\Models\AdminActionLog::selectRaw('admin_action_log.*, users.email, (select email from users where id = admin_action_log.target_id) AS target_acc, `warned_users`.`expire_date` as `warned_expire_date`, `banned_users`.`expire_date` as `banned_expire_date`')
                                                 ->selectRaw('IF((select count(*) from banned_users where banned_users.member_id=admin_action_log.target_id) >0,1,0) AS is_banned')
                                                 ->selectRaw('IF((select count(*) from warned_users where warned_users.member_id=admin_action_log.target_id) >0,1,0) AS is_warned')
                                                 ->leftJoin('users', 'users.id', '=', 'admin_action_log.operator')
+                                                ->leftJoin('warned_users', 'warned_users.member_id', '=', 'admin_action_log.target_id')
+                                                ->leftJoin('banned_users', 'banned_users.member_id', '=', 'admin_action_log.target_id')
                                                 ->where('admin_action_log.operator', $log['operator'])
                                                 ->where('admin_action_log.created_at','like', '%'.$group['log_by_date'].'%')
                                                 ->orderBy('admin_action_log.created_at', 'desc')
@@ -80,6 +86,7 @@
                                                 <td>目標帳號</td>
                                                 <td>動作</td>
                                                 <td>IP</td>
+                                                <td>備註</td>
                                                 <td>操作時間</td>
                                             </tr>
                                             </thead>
@@ -87,10 +94,12 @@
                                             @foreach($logInLog as $detail)
                                                 @php
                                                     $backgroud_color='';
-                                                    if($detail->is_banned==1)
+                                                    if($detail->is_banned==1 && (now()->lt($detail->banned_expire_date) || $detail->banned_expire_date == null)) {
                                                         $backgroud_color='yellow';
-                                                    elseif ($detail->is_warned==1)
+                                                    }
+                                                    elseif ($detail->is_warned==1 && (now()->lt($detail->warned_expire_date) || $detail->warned_expire_date == null)) {
                                                         $backgroud_color='#62ff07d1';
+                                                    }
                                                 @endphp
                                                 <tr style="background-color:{{$backgroud_color}}">
                                                     <td>{{ $detail->operator }}</td>
@@ -98,6 +107,7 @@
                                                     <td><a href="/admin/users/advInfo/{{ $detail->target_id }}" target="_blank">{{ $detail->target_acc }}</a></td>
                                                     <td>{{ $detail->act }}</td>
                                                     <td>{{ $detail->ip }}</td>
+                                                    <td>@if($detail->banned_expire_date || $detail->warned_expire_date)到期日：@endif{{ $detail->banned_expire_date ?? $detail->warned_expire_date ?? null }}</td>
                                                     <td>{{ $detail->created_at }}</td>
                                                 </tr>
                                             @endforeach
@@ -111,6 +121,9 @@
                 </td>
             </tr>
         @endforeach
+        @if(count($getLogs)==0)
+            暫無資料
+        @endif
     </table>
 </body>
 
@@ -201,6 +214,29 @@
             }else{
                 $('#'+sectionName).hide();
                 $('#btn_'+sectionName).text('+');
+            }
+        });
+
+        $('form').on('submit', function(event) {
+            event.preventDefault();
+
+            var searchIDs = [];
+            $("input:checkbox:checked").map(function(){
+                searchIDs.push($(this).val());
+            });
+            console.log(searchIDs.length);
+
+            if($('#datepicker_1').val()==''){
+                alert('請輸入開始時間');
+                return false;
+            }else if($('#datepicker_2').val()==''){
+                alert('請輸入結束時間');
+                return false;
+            }else if(searchIDs==0){
+                alert('請勾選Admin操作人員');
+                return false;
+            }else{
+                this.submit();
             }
         });
     });

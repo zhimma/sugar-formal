@@ -2005,7 +2005,9 @@ class PagesController extends BaseController
             $visited_id = 0;
             if ($user->id != $uid) {
                 if(isset($canViewUsers)){
-                    $visited_id = Visited::visit($user->id, $targetUser);
+                    if( $user->is_hide_online != 1 ) {
+                        $visited_id = Visited::visit($user->id, $targetUser);
+                    }
                 }
                 elseif(
                     //檢查性別
@@ -2015,7 +2017,9 @@ class PagesController extends BaseController
                 ){
                     return redirect()->route('listSeatch2');
                 }else{
-                    $visited_id = Visited::visit($user->id, $targetUser);
+                    if( $user->is_hide_online != 1 ) {
+                        $visited_id = Visited::visit($user->id, $targetUser);
+                    }
                 }
             }
 
@@ -2179,6 +2183,12 @@ class PagesController extends BaseController
             $transport_fare_reported = Reported::where('reported_id', $uid)->where('content', '車馬費預算不實')->first();
             $month_budget_reported = Reported::where('reported_id', $uid)->where('content', '每月預算不實')->first();
 
+            //是否透過精華文章詳情點擊進入會員頁
+            if($request->get('via_by_essence_article_enter')){
+                session()->put('via_by_essence_article_enter',$request->get('via_by_essence_article_enter'));
+            }else{
+                session()->forget('via_by_essence_article_enter');
+            }
             // die();
             return view('new.dashboard.viewuser', $data ?? [])
                     ->with('user', $user)
@@ -2388,7 +2398,7 @@ class PagesController extends BaseController
 
         
             $userHideOnlinePayStatus = ValueAddedService::status($uid,'hideOnline');
-            if($userHideOnlinePayStatus == 1 /*&& $targetUser->is_hide_online != 0*/){
+            if($userHideOnlinePayStatus == 1 && $targetUser->is_hide_online == 1){
                 $hideOnlineData = hideOnlineData::where('user_id',$uid)->where('deleted_at',null)->get()->first();
                 if(isset($hideOnlineData)){
                     // $hideOnlineDays = now()->diffInDays($hideOnlineData->created_at);
@@ -2516,11 +2526,11 @@ class PagesController extends BaseController
 
     public function getBlockUser(Request $request) {
         $user = $request->user();
-        $is_vip = $user->isVip();
+        $is_vip = ($user->isVip()||$user->isVVIP());
         if($is_vip) {
             $uid = $request->uid;
             $target_user = User::find($uid);
-            if($target_user->valueAddedServiceStatus('hideOnline')) {
+            if($target_user->valueAddedServiceStatus('hideOnline') && $target_user->is_hide_online == 1) {
                 $data = hideOnlineData::select('user_id', 'blocked_other_count', 'be_blocked_other_count')->where('user_id', $uid)->first();
                 /*此會員封鎖多少其他會員*/
                 $blocked_other_count = $data->blocked_other_count;
@@ -2578,7 +2588,7 @@ class PagesController extends BaseController
         if($is_vip){
             $uid = $request->uid;
             $target_user = User::find($uid);
-            if($target_user->valueAddedServiceStatus('hideOnline')) {
+            if($target_user->valueAddedServiceStatus('hideOnline') && $target_user->is_hide_online == 1) {
                 $data = hideOnlineData::select('user_id', 'fav_count', 'be_fav_count')->where('user_id', $uid)->first();
                 /*收藏會員次數*/
                 $fav_count = $data->fav_count;
@@ -2663,6 +2673,9 @@ class PagesController extends BaseController
             return json_encode($output);
         }catch (\Exception $e){
             \Illuminate\Support\Facades\Log::info('Search error: ' . $e);
+            if (app()->bound('sentry')) {
+                app('sentry')->captureException($e);
+            }
         }
     }
 
@@ -3350,6 +3363,21 @@ class PagesController extends BaseController
             $messages = Message::allToFromSender($user->id, $cid,true);
             $c_user_meta = UserMeta::where('user_id', $cid)->get()->first();
             //$messages = Message::allSenders($user->id, 1);
+
+            if(isset($_SERVER['HTTP_REFERER'])) {
+                //forget不是從精華文章->會員頁->發信進入的
+                if(str_contains($_SERVER['HTTP_REFERER'], 'viewuser') == false){
+                    session()->forget('via_by_essence_article_enter');
+                }
+            }
+            else {
+                logger("HTTP_REFERER not set, user id: " . $user->id);
+                logger("Referer: " . request()->headers->get("referer"));
+                logger("UserAgent: " . request()->headers->get("User-Agent"));
+                logger("IP: " . request()->ip);
+                \Sentry\captureMessage("HTTP_REFERER not set.");
+            }
+            
             if (isset($cid)) {
                 $cid_user = $this->service->find($cid);
                 
@@ -5967,7 +5995,10 @@ class PagesController extends BaseController
             ->join('user_meta', 'users.id','=','user_meta.user_id');
 
         //排除被站方封鎖的帳號
-        $posts_list->whereRaw('(select count(*) from banned_users where member_id=essence_posts.user_id)=0');
+        if($user->id!=1049 && $postType!=='myself') {
+            $posts_list->whereRaw('(select count(*) from banned_users where member_id=essence_posts.user_id)=0');
+        }
+
         if($request->get('order_by')=='pending'){
             $posts_list->orderBy('pendingFlag','desc')->orderBy('essence_posts.updated_at','desc');
         }else if ($request->get('order_by')=='updated_at'){
@@ -8423,7 +8454,12 @@ class PagesController extends BaseController
             return false;
         }
         $visited_record->visited_time = ($visited_record->visited_time ?? 0) + $second;
-        $visited_record->save();
+        if( $user->is_hide_online != 1 ) {
+            $visited_record->save();
+        }else{
+            return false;
+        }
+
     }
 
     public function stay_online_time(Request $request)
