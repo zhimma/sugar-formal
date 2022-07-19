@@ -1238,7 +1238,12 @@
             @if($row['is_check']==1)
                 <td style="color: red;">***此評價目前由站方審核中***@if(!is_null($row['is_delete'])) <br><span style="color: red;">(該評價已刪除)</span> @endif</td>
             @else
-                <td>@if(!is_null($row['is_delete'])) <span style="color: red;">(該評價已刪除)</span><br>@endif {{ $row['content'] }}</td>
+                <td>@if(!is_null($row['is_delete'])) <span style="color: red;">(該評價已刪除)</span><br>@endif {{ $row['content'] }} <br>
+                    @if($row['re_content'])
+                        <div id="re_content_btn_{{$row['id']}}" class="btn btn-success" onclick="show_re_content({{ $row['id'] }})">+ 回覆</div>
+                        <div id="re_content_{{$row['id']}}" style="display: none;">{{ $row['re_content'] }}</div>
+                    @endif
+                </td>
             @endif
             <td class="evaluation_zoomIn">
                 @if(!is_null($row['is_delete'])) <span style="color: red;">(該評價已刪除)</span> @endif
@@ -1299,7 +1304,12 @@
             @if($row['is_check']==1)
                 <td style="color: red;">***此評價目前由站方審核中***@if(!is_null($row['is_delete'])) <br><span style="color: red;">(該評價已刪除)</span> @endif</td>
             @else
-                <td>@if(!is_null($row['is_delete'])) <span style="color: red;">(該評價已刪除)</span><br>@endif {{ $row['content'] }}</td>
+                <td>@if(!is_null($row['is_delete'])) <span style="color: red;">(該評價已刪除)</span><br>@endif {{ $row['content'] }} <br>
+                    @if($row['re_content'])
+                        <div id="re_content_btn_{{$row['id']}}" class="btn btn-success" onclick="show_re_content({{ $row['id'] }})">+ 回覆</div>
+                        <div id="re_content_{{$row['id']}}" style="display: none;">{{ $row['re_content'] }}</div>
+                    @endif
+                </td>
             @endif
             <td class="evaluation_zoomIn">
                 @if(!is_null($row['is_delete'])) <span style="color: red;">(該評價已刪除)</span> @endif
@@ -2543,7 +2553,15 @@ $("input[name='phone']").keyup(function(){
     });
 });
 
-
+function show_re_content(id){
+    if($('#re_content_'+id).css('display')=='none') {
+        $('#re_content_'+id).show();
+        $('#re_content_btn_'+id).text('- 回覆');
+    }else{
+        $('#re_content_'+id).hide();
+        $('#re_content_btn_'+id).text('+ 回覆');
+    }
+}
 </script>
 <!--照片查看-->
 <link type="text/css" rel="stylesheet" href="/new/css/app.css">
