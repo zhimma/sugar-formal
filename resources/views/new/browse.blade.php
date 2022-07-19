@@ -69,3 +69,9 @@
       }
   </style>
 @stop
+@section('javascript')
+<script>
+    // 計算瀏覽時間
+    var page_id = 'browse';
+</script>
+@stop
