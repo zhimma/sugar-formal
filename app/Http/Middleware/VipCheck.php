@@ -99,8 +99,25 @@ class VipCheck
                 }
             }
 
+        }elseif(view()->shared('valueAddedServices')['hideOnline'] == 0){
+            User::where('id', $user->id)->update(['is_hide_online' => 0]);
         }
 
-        return $next($request);
+        //加值服務_vvip
+//        if(view()->shared('valueAddedServices')['VVIP'] == 1) {
+//            $userValueAddedService = \App\Models\ValueAddedService::getData($user->id, 'VVIP');
+//            $expiry = \Carbon\Carbon::createFromFormat('Y-m-d H:i:s', $userValueAddedService->expiry);
+//            if ($now > $expiry && $userValueAddedService->expiry != '0000-00-00 00:00:00') {
+//                \App\Models\ValueAddedService::removeValueAddedService($user->id, $userValueAddedService->service_name);
+//                \App\Models\ValueAddedServiceLog::addToLog($user->id, $userValueAddedService->service_name, 'Expired, system auto cancellation.', $userValueAddedService->order_id, $userValueAddedService->txn_id, 0);
+//            }
+//
+//            if($user->is_vvip==0 && $user->passVVIP()){
+//                User::where('id', $user->id)->update(['is_vvip' => 1]);
+//            }
+//        }elseif(view()->shared('valueAddedServices')['VVIP'] == 0) {
+//            User::where('id', $user->id)->update(['is_vvip' => 0]);
+//        }
+            return $next($request);
     }
 }
