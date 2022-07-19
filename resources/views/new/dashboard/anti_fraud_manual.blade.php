@@ -283,6 +283,8 @@
 
 @section('javascript')
     <script>
+        // 計算瀏覽時間
+        var page_id = 'browse';
 
         //alert(window.location.hash.substr(1));
         if(window.location.hash.substr(1) != ''){
