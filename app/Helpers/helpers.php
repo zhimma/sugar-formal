@@ -31,3 +31,63 @@ if (! function_exists('search_variable')){
 //         return isset($variable) ? $variable: "";
 //     }
 // }
+
+if (!function_exists('forPaginate')) {
+    /**
+     * @param array $items
+     * @param integer $perPage
+     * @param integer $page
+     * @param array $options
+     * @param integer|null $itemsPage
+     * @param integer|null $count
+     * 
+     * @return \Illuminate\Pagination\LengthAwarePaginator
+     */
+    function forPaginate($items, $perPage = 15, $page = null, $options = [], ?int $itemsPage = null, ?int $count = null)
+    {
+        $page = $page ?: (\Illuminate\Pagination\Paginator::resolveCurrentPage() ?: 1);
+        $items = $items instanceof \Illuminate\Support\Collection || $items instanceof \Illuminate\Database\Eloquent\Collection ? $items : \Illuminate\Support\Collection::make($items);
+
+        return new \Illuminate\Pagination\LengthAwarePaginator($items->forPage($itemsPage ?? $page, $perPage), $count ?? $items->count(), $perPage, $page, $options);
+    }
+}
+
+if (!function_exists('getQueries')) {
+    /** 
+     * @return array
+     */
+    function getQueries()
+    {
+        return array_map(function ($queryLog) {
+            $stringSQL = str_replace('?', '"%s"', $queryLog['query']);
+
+            return sprintf($stringSQL, ...$queryLog['bindings']);
+        }, \DB::getQueryLog());
+    }
+}
+
+if (!function_exists('getLastQuery')) {
+    /** 
+     * @return array
+     */
+    function getLastQuery()
+    {
+        $queries = getQueries();
+
+        return end($queries);
+    }
+}
+
+if (!function_exists('strLimit')) {
+    /** 
+     * @return array
+     */
+    function strLimit($value, $limit = 100, $end = '...')
+    {
+        if (mb_strlen($value, 'UTF-8') <= $limit) {
+            return $value;
+        }
+
+        return rtrim(mb_substr($value, 0, $limit, 'UTF-8')).$end;
+    }
+}

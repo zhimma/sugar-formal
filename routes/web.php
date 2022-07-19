@@ -294,6 +294,20 @@ Route::group(['middleware' => ['auth', 'global', 'active', 'femaleActive', 'vipC
         Route::post('/dashboard/posts_delete', 'PagesController@posts_delete');/*討論區留言刪除*/
         Route::post('/dashboard/posts_recover', 'PagesController@posts_recover');/*討論區留言恢復*/
         Route::post('/dashboard/post_views', 'PagesController@post_views');
+
+
+        //精華討論區
+        Route::get('/dashboard/essence_enter_intro', 'PagesController@essence_enter_intro');
+        Route::get('/dashboard/essence_list', 'PagesController@essence_list');
+        Route::get('/dashboard/essence_posts', 'PagesController@essence_posts');
+        Route::post('/dashboard/essence_doPosts', 'PagesController@essence_doPosts');
+        Route::get('/dashboard/essence_post_detail/{pid}', 'PagesController@essence_post_detail');
+        Route::get('/dashboard/essence_postsEdit/{id}/{editType}', 'PagesController@essence_postsEdit');/*投稿修改功能*/
+        Route::post('/dashboard/essence_posts_delete', 'PagesController@essence_posts_delete');/*討論區留言刪除*/
+        Route::post('/dashboard/essence_posts_recover', 'PagesController@essence_posts_recover');/*討論區留言恢復*/
+        Route::post('/dashboard/essence_verify_status', 'PagesController@essence_verify_status');/*討論區留言審核*/
+
+
     });
 
     //留言板
@@ -654,6 +668,11 @@ Route::group(['middleware' => ['auth', 'global', 'active', 'femaleActive', 'vipC
         Route::post('users/applyPicMemberList', 'UserController@applyPicMemberList')->name('applyPicMemberList');
         
         Route::post('users/toggleUserWarned', 'UserController@toggleUserWarned');
+
+        //預算及車馬費警示警示
+        Route::post('users/warnBudget', 'UserController@warnBudget');
+        //預算及車馬費警示警示
+
         Route::get('users/closeAccountReason', 'UserController@closeAccountReason')->name('users/closeAccountReasonList');
         Route::get('users/closeAccountDetail', 'UserController@closeAccountDetail');
 
@@ -719,6 +738,7 @@ Route::group(['middleware' => ['auth', 'global', 'active', 'femaleActive', 'vipC
         Route::get('users/pics/reported/{date_start?}/{date_end?}/{reported_id?}', 'UserController@searchReportedPics')->name('users/pics/reported/EXTRA');
         Route::get('users/reported/{date_start?}/{date_end?}/{reported_id?}', 'UserController@showReportedUsersList')->name('users/reported/EXTRA');
         Route::get('users/message/search/reported/{date_start?}/{date_end?}/{reported_id?}', 'UserController@showReportedMessages')->name('users/message/search/reported');
+        Route::post('users/reported/handle/status', 'UserController@reportedIsWrite')->name('users.reported.isWrite');
 
         Route::post('users/pics/reported', 'UserController@searchReportedPics')->name('users/pics/reported');
         Route::get('users/basic_setting', 'UserController@basicSetting')->name('users/basic_setting/GET');
@@ -799,6 +819,8 @@ Route::group(['middleware' => ['auth', 'global', 'active', 'femaleActive', 'vipC
         Route::get('commontext', 'UserController@showAdminCommonText')->name('admin/commontext');
         Route::post('commontext/save', 'UserController@saveAdminCommonText')->name('admin/commontext/save');
         Route::get('getAdminActionLog', 'UserController@adminActionLog')->name('admin/getAdminActionLog');
+        Route::get('getEssenceStatisticsRecord', 'UserController@getEssenceStatisticsRecord')->name('admin/getEssenceStatisticsRecord');
+
         Route::get('users/inactive', 'UserController@inactiveUsers')->name('inactive/GET');
         Route::post('users/inactive', 'UserController@inactiveUsers')->name('inactive');
         Route::get('users/activate/token/{token}', 'UserController@activateUser')->name('activateUser');
@@ -873,6 +895,7 @@ Route::group(['middleware' => ['auth', 'global', 'active', 'femaleActive', 'vipC
         Route::post('users/picturesSimilar/image:delete', [\App\Http\Controllers\ImageController::class, 'admin_user_image_delete'])->withoutMiddleware('Admin');
         Route::post('users/picturesSimilar/avatar:delete', [\App\Http\Controllers\ImageController::class, 'admin_user_avatar_delete'])->withoutMiddleware('Admin');
         Route::post('users/picturesSimilar/pictures:delete/all', [\App\Http\Controllers\ImageController::class, 'admin_user_pictures_all_delete'])->withoutMiddleware('Admin');
+        Route::get('users/message/check', 'UserController@messageCheck')->name("users.message.check");
 
         /*
         |--------------------------------------------------------------------------
@@ -905,6 +928,8 @@ Route::group(['middleware' => ['auth', 'global', 'active', 'femaleActive', 'vipC
         Route::get('maillog', 'Api\MailController@viewMailLog')->name('maillog');
         Route::get("fakeMail", 'Api\MailController@fakeMail')->name('fakeMail');
         Route::post("sendFakeMail", 'Api\MailController@sendFakeMail')->name('sendFakeMail');
+
+        Route::get("stat_test", 'Api\MailController@test_stat');
 
         Route::get("jsfp_pro_validation", function() {
             ini_set("max_execution_time",'0');

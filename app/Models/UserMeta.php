@@ -59,6 +59,7 @@ class UserMeta extends Model
         'occupation',
         'education',
         'marriage',
+        'is_pure_dating',
         'drinking',
         'smoking',
         'isHideOccupation',
@@ -78,8 +79,11 @@ class UserMeta extends Model
         'adminNote',
         'blurryLifePhoto',
         'blurryAvatar',
-        'phone' 
-        
+        'phone',
+        'budget_per_month_max',
+        'budget_per_month_min',
+        'transport_fare_max',
+        'transport_fare_min'
     ];
 
     /*
@@ -115,7 +119,8 @@ class UserMeta extends Model
     public function isAllSet($engroup = 2)
     {
         if($engroup == 1) {
-            return isset($this->smoking) && isset($this->drinking) && isset($this->marriage) && isset($this->education) && isset($this->about) && isset($this->style) && isset($this->birthdate) && isset($this->budget) && $this->height > 0 && isset($this->area) && isset($this->city) && isset($this->income) && isset($this->assets);
+            //return isset($this->smoking) && isset($this->drinking) && isset($this->marriage) && isset($this->education) && isset($this->about) && isset($this->style) && isset($this->birthdate) && isset($this->budget) && $this->height > 0 && isset($this->area) && isset($this->city) && isset($this->income) && isset($this->assets);
+            return isset($this->smoking) && isset($this->drinking) && isset($this->marriage) && isset($this->education) && isset($this->about) && isset($this->style) && isset($this->birthdate) && $this->height > 0 && isset($this->area) && isset($this->city);
         }else{
             return isset($this->smoking) && isset($this->drinking) && isset($this->marriage) && isset($this->education) && isset($this->about) && isset($this->style) && isset($this->birthdate) && isset($this->budget) && $this->height > 0 && isset($this->area) && isset($this->city);
         }
@@ -203,7 +208,9 @@ class UserMeta extends Model
                                     $city2=null,
                                     $area2=null, 
                                     $city3=null,
-                                    $area3=null                               
+                                    $area3=null,
+                                    $weight='',
+                                    $registered_from_mobile = 0                               
                                   )
     {
         if ($engroup == 1) { $engroup = 2; }
@@ -244,9 +251,16 @@ class UserMeta extends Model
             $city2,
             $area2,
             $city3,
-            $area3            
+            $area3,
+            $weight,
+            $registered_from_mobile            
             ){
-            $query->select('*')->where('user_meta.birthdate', '<', Carbon::now()->subYears(18));      
+
+            if ($registered_from_mobile == 1) {
+                $query->select('*');
+            } else {
+                $query->select('*')->where('user_meta.birthdate', '<', Carbon::now()->subYears(18));
+            }
             
             if($city || $city2 || $city3) {
                 $query->where(function($q) use ($city,$city2,$city3,$area,$area2,$area3) {
@@ -280,10 +294,10 @@ class UserMeta extends Model
                     
                 });
             }
-            
+
             if (isset($cup) && $cup!=''){
                 if(count($cup) > 0){
-                    $query->whereIn('cup', $cup);
+                    $query->whereIn('cup', $cup)->where('isHideCup', 0);
                 }
             }
             if (isset($agefrom) && isset($ageto) && strlen($agefrom) != 0 && strlen($ageto) != 0) {
@@ -294,7 +308,7 @@ class UserMeta extends Model
                 $query->whereBetween(\DB::raw("STR_TO_DATE(birthdate, '%Y-%m-%d')"), [$to, $from]);
             }
 
-
+            if (isset($weight) && strlen($weight) != 0) $query->where('weight', $weight)->where('isHideWeight', 0);
             if (isset($marriage) && strlen($marriage) != 0) $query->where('marriage', $marriage);
             if (isset($budget) && strlen($budget) != 0) $query->where('budget', $budget);
             if (isset($income) && strlen($income) != 0) $query->where('income', $income);
@@ -356,6 +370,7 @@ class UserMeta extends Model
                 ->select('*', \DB::raw("IF(is_hide_online = 1, hide_online_time, last_login) as last_login"))
                 ->whereHas('user_meta', $constraint)
                 ->where('engroup', $engroup)
+                ->where('registered_from_mobile', $registered_from_mobile)
                 ->where('accountStatus', 1)
                 ->where('account_status_admin', 1)
                 ->where('is_hide_online', '<>', 2)
@@ -374,6 +389,7 @@ class UserMeta extends Model
                 ->select('*', \DB::raw("IF(is_hide_online = 1, hide_online_time, last_login) as last_login"))
                 ->whereHas('user_meta', $constraint)
                 ->where('engroup', $engroup)
+                ->where('registered_from_mobile', $registered_from_mobile)
                 ->where('accountStatus', 1)
                 ->where('account_status_admin', 1)
                 ->where('is_hide_online', '<>', 2)
@@ -488,6 +504,7 @@ class UserMeta extends Model
 
     public static function searchApi($request)
     {
+        Log::Info($request->all());
         // $time_start = microtime(true); 
         $city = $request->city;
         $area = $request->area;
@@ -520,19 +537,22 @@ class UserMeta extends Model
         $isVip = $request->isVip ?? '';
         $isWarned = $request->isWarned ?? 0;
         $isPhoneAuth = $request->isPhoneAuth ?? '';
-        $isAdvanceAuth = $request->isAdvanceAuth??null;
+        $isAdvanceAuth = $request->isAdvanceAuth ?? null;
         $page = $request->page;
-        $tattoo = $request->tattoo??null;
-        $city2 = $request->city2??null;
-        $area2 = $request->area2??null; 
-        $city3 = $request->city3??null;
-        $area3 = $request->area3??null;
-        //新增體重
+        $tattoo = $request->tattoo ?? null;
+        $city2 = $request->city2 ?? null;
+        $area2 = $request->area2 ?? null; 
+        $city3 = $request->city3 ?? null;
+        $area3 = $request->area3 ?? null;
+        // 新增體重
         $weight = $request->weight ?? '';
+        // 是否想進一步發展
+        $is_pure_dating = $request->is_pure_dating ?? null;
 
         if ($engroup == 1) { 
             $engroup = 2; 
-        }else if ($engroup == 2) { 
+        }
+        else if ($engroup == 2) {             
             $engroup = 1; 
         }
         if(isset($seqtime) && $seqtime == 2){ 
@@ -548,6 +568,7 @@ class UserMeta extends Model
             $agefrom,
             $ageto,
             $marriage,
+            $is_pure_dating,
             $budget,
             $income,
             $smoking,
@@ -616,6 +637,15 @@ class UserMeta extends Model
 
             if (isset($weight) && strlen($weight) != 0) $query->where('weight', $weight)->where('isHideWeight', 0);
             if (isset($marriage) && strlen($marriage) != 0) $query->where('marriage', $marriage);
+            if (isset($is_pure_dating) && strlen($is_pure_dating) != 0)
+            {
+                if($is_pure_dating=="1") {
+                    $query->where('is_pure_dating', 1);
+                }
+                else if($is_pure_dating=="0") {
+                    $query->where('is_pure_dating', 0);
+                }
+            }
             if (isset($budget) && strlen($budget) != 0) $query->where('budget', $budget);
             if (isset($income) && strlen($income) != 0) $query->where('income', $income);
             if (isset($smoking) && strlen($smoking) != 0) $query->where('smoking', $smoking);

@@ -36,6 +36,9 @@ class CheckDiscussPermissions
      */
     public function handle($request, Closure $next)
     {
+        if(str_contains(url()->current(), 'dashboard/essence_post_detail') || str_contains(url()->current(), 'dashboard/essence_list')){
+            return $next($request);
+        }
         if ($this->auth->user()->engroup!==1) {
             return redirect('/dashboard');
         }

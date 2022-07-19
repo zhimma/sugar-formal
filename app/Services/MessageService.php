@@ -3,6 +3,8 @@
 namespace App\Services;
 
 use App\Models\Message;
+use App\Models\MessageRoom;
+use App\Models\MessageRoomUserXref;
 
 class MessageService
 {
@@ -13,5 +15,3 @@ class MessageService
     	$this->message = $message;
     }
 }
-
-?>

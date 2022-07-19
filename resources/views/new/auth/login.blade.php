@@ -69,7 +69,7 @@
             "                        </div>\n" +
             "                        <div class='wknr' style=\"display: inline-flex\">" +
             "                           <span style=\"width: 66px;color: #999999;margin-left:16px;\">記住我</span>\n" +
-            "                           <input type=\"checkbox\" name=\"remember\" value=\"1\">" +
+            "                           <input type=\"checkbox\" name=\"remember\" value=\"1\" style=\"margin-bottom: 18px;\">" +
             "                           <a href=\"{!! url('password/reset') !!}\" class=\"dlpassword\">忘記密碼 ?</a>\n" +
             "                        </div>" +
             "                        <a href=\"javascript:void(0);\" class=\"dlbut btn-login\" id=\"btn-login\">登入</a>\n" +

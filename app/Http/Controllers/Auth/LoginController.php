@@ -192,6 +192,10 @@ class LoginController extends \App\Http\Controllers\BaseController
      */
     public function login(Request $request)
     {
+        if(!is_null($request->email)){
+            unset($_COOKIE['loginAccount']);
+        }
+
         if(isset($_COOKIE['loginAccount'])){
             $request->email= $this->decrypt_string($_COOKIE['loginAccount']);
         }

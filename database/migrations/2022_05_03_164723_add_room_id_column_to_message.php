@@ -13,9 +13,11 @@ class AddRoomIdColumnToMessage extends Migration
      */
     public function up()
     {
-        Schema::table('message', function (Blueprint $table) {
-            DB::statement('ALTER TABLE `message` ADD `room_id` int(11) unsigned DEFAULT NULL AFTER `deleted_at`, ALGORITHM = INPLACE, LOCK=NONE;');
-        });
+        if(!Schema::hasColumn('message', 'room_id')) {
+            Schema::table('message', function (Blueprint $table) {
+                DB::statement('ALTER TABLE `message` ADD `room_id` int(11) unsigned DEFAULT NULL AFTER `deleted_at`, ALGORITHM = INPLACE, LOCK=NONE;');
+           });
+        }
     }
 
     /**

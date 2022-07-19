@@ -6,6 +6,15 @@
 </style>
 <h1>自動封鎖警示設定</h1>
 <span></span>
+<form action="{{ route('stats/set_autoBan') }}" method="get">
+	{!! csrf_field() !!}
+	<span>
+		輸入關鍵字 <input type ="text" name="key_word" value="{{ request()->get('key_word') }}">
+	</span>
+	<span>
+		<input class="new text-white btn btn-success" type ="submit" value="查詢">
+	</span>
+</form>
 <table class='table table-bordered table-hover'>
     <th>設定封鎖項目</th>
     <form action="{{ route('stats/set_autoBan_add') }}" method="post">
@@ -22,6 +31,7 @@
 				<option value="cfp_id">cfp_id</option>
 				<option value="ip">ip</option>
 				<option value="userAgent">userAgent</option>
+				<option value="picname">圖片檔名</option>
 	        </select>
 	    </td>
 	    <td>
@@ -53,6 +63,7 @@
 			@elseif($result->type=='style')期待的約會模式 
 			@elseif($result->type=='msg')發送訊息內容 
 			@elseif($result->type=='allcheck')全欄位封鎖
+			@elseif($result->type=='picname')圖片檔名
 				@else {{$result->type}}
 			@endif
 		</td>
@@ -98,6 +109,9 @@
 	</tr>
 	@endforelse
 </table>
+@if(count($data))
+	{!! $data->appends(request()->input())->links('pagination::sg-pages') !!}
+@endif
 </body>
 </html>
 @stop

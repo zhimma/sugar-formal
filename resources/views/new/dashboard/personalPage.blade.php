@@ -195,6 +195,16 @@
                             @else
                             <h2 class="tabbox_h2"><span class="tu_dfont">{!! $vipStatus??'您目前還不是VIP' !!}</span></h2>
                             @endif
+                            @php
+                                $essence_posts_reward_log=\App\Models\EssencePostsRewardLog::where('user_id', $user->id)->get();
+                            @endphp
+                            <h2 class="tabbox_h2 ta_l">
+                                @foreach ($essence_posts_reward_log as $reward_log)
+                                    <span class="tu_dfont" style="border-top: #eee 1px dashed;">
+                                        您的精華文章 {{$reward_log->title}} 已於 {{ substr($reward_log->verify_time,0,10) }} 通過審核，已贈予本站VIP一個月。
+                                    </span>
+                                @endforeach
+                            </h2>
                         </div>
                     </div>
                    <div class="sys_aa" id="vip_state_block">
