@@ -2526,7 +2526,8 @@ class PagesController extends BaseController
 
     public function getBlockUser(Request $request) {
         $user = $request->user();
-        $is_vip = ($user->isVip()||$user->isVVIP());
+        $is_vip = $user->isVip();
+//        $is_vip = ($user->isVip()||$user->isVVIP());
         if($is_vip) {
             $uid = $request->uid;
             $target_user = User::find($uid);
