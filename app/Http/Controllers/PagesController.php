@@ -6476,7 +6476,8 @@ class PagesController extends BaseController
         
         if($user->isVip()) {
             $vipStatus='您已是 VIP';
-            $vip_record = Carbon::parse($user->vip_record);
+	    $vip_record = Carbon::parse($user->vip_record);
+	    $nextProcessDate = null;
             $vipDays = $vip_record->diffInDays(Carbon::now());
             if(!$user->isFreeVip()) {               
                 $vip = $user->vip->first();               
@@ -8457,6 +8458,7 @@ class PagesController extends BaseController
     {
         $second = $request->stay_second;
         $stay_online_record_id = $request->stay_online_record_id??0;
+        $page_id = $request->page_id;
         $user = auth()->user();
         if($user??false)
         {
@@ -8467,6 +8469,9 @@ class PagesController extends BaseController
                 $stay_online_record->user_id = $user->id;
             }
             $stay_online_record->stay_online_time = ($stay_online_record->stay_online_time ?? 0) + $second;
+            if ($page_id) {
+                $stay_online_record->{$page_id} = ($stay_online_record->{$page_id} ?? 0) + $second;
+            }
             $stay_online_record->save();
             $stay_online_record_id = $stay_online_record->id;
         }
