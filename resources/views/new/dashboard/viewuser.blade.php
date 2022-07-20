@@ -617,12 +617,12 @@
                                                 <img src="/new/images/a8_x.png">
                                             </div>
                                             @elseif(!$to->isAdvanceAuth() && $to->engroup==2)
-                                            <div class="tagText"  data-toggle="popover" data-content="通過本站手機驗證的會員。">
+                                            <div class="tagText"  data-toggle="popover" data-content="以手機門號通過年齡/性別驗證。">
                                                 <img src="/new/images/a6_x.png">
                                             </div>
                                             @endif--}}
                                             @if($to->isAdvanceAuth() && $to->engroup==2)
-                                            <div class="tagText"  data-toggle="popover" data-content="通過本站手機驗證的會員。">
+                                            <div class="tagText"  data-toggle="popover" data-content="以手機門號通過年齡/性別驗證。">
                                                 <img src="/new/images/a6.png">
                                             </div>
                                             @endif
@@ -632,12 +632,12 @@
                                                 <img src="/new/images/b_8x.png">
                                             </div>
                                             @elseif(!$to->isAdvanceAuth() && $to->engroup==2)
-                                            <div class="tagText"  data-toggle="popover" data-content="通過本站手機驗證的會員。">
+                                            <div class="tagText"  data-toggle="popover" data-content="以手機門號通過年齡/性別驗證。">
                                                 <img src="/new/images/b_5x.png">
                                             </div>
                                             @endif--}}
                                             @if($to->isAdvanceAuth() && $to->engroup==2)
-                                            <div class="tagText"  data-toggle="popover" data-content="通過本站手機驗證的會員。">
+                                            <div class="tagText"  data-toggle="popover" data-content="以手機門號通過年齡/性別驗證。">
                                                 <img src="/new/images/b_6.png">
                                             </div>
                                             @endif

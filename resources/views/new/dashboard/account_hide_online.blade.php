@@ -16,12 +16,10 @@
 {{--                        <li><a href="{!! url('dashboard/vipSelect') !!}" class="g_pwicon_t4"><span>升級付費</span></a></li>--}}
                     </div>
                     <div class="gg_zh">
-                        <div class="gg_mm"><span><i></i>搜索排序設定</span><img src="/new/images/rzh07.png"></div>
+                            <div class="gg_mm"><span><i></i>隱藏付費設定</span><img src="/new/images/rzh07.png"></div>
                         <div class="paix_bg">
                             <div class="paixnr">
-                                <h2>上線時，搜索頁面會有一個篩選條件是"登入時間"，會隨著您的上線時間來進行排序</h2>
-                                <div class="paix_bg_img"><img src="/new/images/px_img.png"></div>
-                                <h3>在您隱藏付費時，預設會關閉您在搜索上的登入排序，您也可以設定隱藏在搜索中，或是暫停隱藏(恢復正常)</h3>
+                                <h3>在您隱藏付費時，預設會關閉您在搜索頁及會員資料頁的上線資訊，您也可以設定隱藏在搜索中，或是暫停隱藏(恢復正常)</h3>
                                 <div class="paix_next">
 {{--                                    <h4 class="pa_line"><span>開啟：</span><font>搜索頁上會按照您的登入時間排序</font></h4>--}}
 {{--                                    <h4 class="pa_line"><span>關閉：</span><font>搜索頁上在您關閉時，之後將不會在更新您的登入時間直到再度開啟。</font></h4>--}}
