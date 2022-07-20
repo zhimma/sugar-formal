@@ -11,12 +11,14 @@
     <h1>Feature Flags Create</h1>
     <form action="/admin/global/feature_flags/create" method="POST">
         <div class="form-group">
-        <label for="exampleInputEmail1">Feature</label>
-        <input type="text" class="form-control" id="feature" name="feature" placeholder="feature">
-        </div>
-        <div class="form-group">
-        <label for="exampleInputPassword1">Priority</label>
-        <input type="number" class="form-control" id="priority" name="priority" placeholder="priority">
+            <label for="feature">鍵值 / FEATURE KEY</label>
+            <input type="text" class="form-control" id="feature" name="feature" placeholder="feature">
+       
+            <label for="introduction">用途介紹 / Introduction</label>
+            <input type="text" class="form-control" id="introduction" name="introduction" placeholder="introduction">
+       
+            <label for="priority">優先級 / Priority</label>
+            <input type="number" class="form-control" id="priority" name="priority" placeholder="priority">
         </div>
         @csrf
 

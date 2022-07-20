@@ -6483,9 +6483,11 @@ class UserController extends \App\Http\Controllers\BaseController
             return view('admin.users.feature_flags_create');
         }else if($request->method()=='POST'){
             $feature = $request->feature;
+            $introduction = $request->introduction ?? '';
             $priority = $request->priority ?? 0;
     
             $description_data = array(
+                'introduction'=>$introduction,
                 'priority'=>$priority
             );
     
@@ -6513,12 +6515,12 @@ class UserController extends \App\Http\Controllers\BaseController
             return view('admin.users.feature_flags_edit', $data);
         }else if($request->method()=='POST'){
             $feature_id = $request->feature_id;
-
             $feature = $request->feature;
-
+            $introduction = $request->introduction ?? '';
             $priority = $request->priority ?? 0;
     
             $description_data = array(
+                'introduction'=>$introduction,
                 'priority'=>$priority
             );
     

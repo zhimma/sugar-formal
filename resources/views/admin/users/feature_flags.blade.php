@@ -16,6 +16,7 @@
                 <thead>
                     <tr>
                         <th scope="col">鍵值 / FEATURE KEY</th>
+                        <th scope="col">用途介紹 / INTRODUCTION</th>
                         <th scope="col">狀態 / STATUS</th>
                         <th scope="col">啟動時間 / ACTIVE TIME</th>
                         <th scope="col">優先級 / PRIORITY</th>
@@ -28,9 +29,10 @@
                         <tr class="row-feature">
                             <input type="hidden" class="feature_id" name="feature_id" value="{{ $row['id'] }}" />
                             <td class="feature">{{ $row['feature'] }}</td>
+                            <td>{{isset(json_decode($row['description'])->introduction ) ? json_decode($row['description'])->introduction : 'No Introduction'}}</td>
                             <td><input type="checkbox" {{$row['active_at'] != null ? 'checked':''}} class="feature-toggle"></td>
                             <td>{{ $row['active_at']!=null ? date('Y-m-d H:i:s', strtotime($row['active_at'])): 'Active Off' }}</td>
-                            <td>{{json_decode($row['description']) != null ? json_decode($row['description'])->priority : ''}}</td>
+                            <td>{{isset(json_decode($row['description'])->priority) ? json_decode($row['description'])->priority : 'No Priority'}}</td>
                             <td>{{ date('Y-m-d H:i:s', strtotime($row['updated_at'])) }}</td>
                             <td><button type="button" class="btn btn-success edit"><a href="/admin/global/feature_flags/edit/{{$row['id']}}" style="color:white">編輯</a></button><button type="button" class="btn btn-danger delete">刪除</button></td>
                         </tr>
