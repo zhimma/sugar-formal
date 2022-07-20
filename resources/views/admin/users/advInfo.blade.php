@@ -183,10 +183,10 @@
         <button class="btn btn-danger" onclick="WarnBudget('transport_fare')">車馬費不實</button>
         <!--預算及車馬費警示-->
     @elseif($is_warned_of_budget)
-        @if($isWarned->first()->reason == '每月預算不實')
+        @if($isWarned->first()->type == 'month_budget')
             <button type="button" title="{{'於'.$user['adminWarned_createdAt'].'被警示，將於'.(isset($user['adminWarned_expireDate'])? $user['adminWarned_expireDate'] : '永久').'解除站方警示' }}" class='text-white btn unwarned_user @if($user["isAdminWarned"]) btn-success @else btn-danger @endif' onclick="ReleaseWarnedUser({{ $user['id'] }})" data-id="{{ $user['id'] }}" data-name="{{ $user['name']}}"> 解除預算不實 </button>
         @endif
-        @if($isWarned->first()->reason == '車馬費預算不實')
+        @if($isWarned->first()->type == 'transport_fare')
             <button type="button" title="{{'於'.$user['adminWarned_createdAt'].'被警示，將於'.(isset($user['adminWarned_expireDate'])? $user['adminWarned_expireDate'] : '永久').'解除站方警示' }}" class='text-white btn unwarned_user @if($user["isAdminWarned"]) btn-success @else btn-danger @endif' onclick="ReleaseWarnedUser({{ $user['id'] }})" data-id="{{ $user['id'] }}" data-name="{{ $user['name']}}"> 解除車馬費不實 </button>
         @endif
     @endif
@@ -596,11 +596,11 @@
             $isEverWarned_log[$key]['vip_pass']=$row->vip_pass;
             $isEverWarned_log[$key]['adv_auth']=$row->adv_auth;
             $isEverWarned_cancel=\App\Models\AdminActionLog::where('target_id', $user->id)->where('act','解除站方警示')->orderByDesc('created_at')->skip($key)->first();
-            $isEverWarned_log[$key]['cancal_admin']=$isEverWarned_cancel? \App\Models\User::findById($isEverWarned_cancel->operator):'';
+            $isEverWarned_log[$key]['cancal_admin']=$isEverWarned_cancel? \App\Models\User::findById($isEverWarned_cancel->operator??''):'';
             $isEverWarned_log[$key]['cancal_time']=$isEverWarned_cancel?$isEverWarned_cancel->created_at:'';
         }
         $isEverWarned_warneder=\App\Models\AdminActionLog::where('target_id', $user->id)->where('act','站方警示')->orderByDesc('created_at')->first();
-        $isEverWarned_log['warned_admin']=$isEverWarned_warneder? \App\Models\User::findById($isEverWarned_warneder->operator) : null;
+        $isEverWarned_log['warned_admin']=$isEverWarned_warneder? \App\Models\User::findById($isEverWarned_warneder->operator??'') : null;
     }
     //曾被封鎖
     $isEverBanned_log=array();
@@ -613,11 +613,11 @@
             $isEverBanned_log[$key]['vip_pass']=$row->vip_pass;
             $isEverBanned_log[$key]['adv_auth']=$row->adv_auth;
             $isEverBanned_cancel=\App\Models\AdminActionLog::where('target_id', $user->id)->where('act','解除封鎖')->orderByDesc('created_at')->skip($key)->first();
-            $isEverBanned_log[$key]['cancal_admin']=$isEverBanned_cancel? \App\Models\User::findById($isEverBanned_cancel->operator) :'';
+            $isEverBanned_log[$key]['cancal_admin']=$isEverBanned_cancel? \App\Models\User::findById($isEverBanned_cancel->operator??'') :'';
             $isEverBanned_log[$key]['cancal_time']=$isEverBanned_cancel? $isEverBanned_cancel->created_at:'';
         }
         $isEverBanned_banneder=\App\Models\AdminActionLog::where('target_id', $user->id)->where('act','封鎖會員')->orderByDesc('created_at')->first();
-        $isEverBanned_log['banneder_admin']=$isEverBanned_banneder? \App\Models\User::findById($isEverBanned_banneder->operator) : null;
+        $isEverBanned_log['banneder_admin']=$isEverBanned_banneder? \App\Models\User::findById($isEverBanned_banneder->operator??'') : null;
     }
     //目前正被警示
     $isWarned_show=array();
@@ -633,10 +633,10 @@
         $isWarned_show['cancal_admin']='';
         $isWarned_show['cancal_time']='尚未解除';
         $warneder=\App\Models\AdminActionLog::where('target_id', $user->id)->where('act','站方警示')->orderByDesc('created_at')->first();
-        $isWarned_show['admin_user'] = \App\Models\User::findById($warneder->operator);
+        $isWarned_show['admin_user'] = \App\Models\User::findById($warneder->operator??'');
     }else{
         $isWarned_cancel=\App\Models\AdminActionLog::where('target_id', $user->id)->where('act','解除站方警示')->orderByDesc('created_at')->first();
-        $isWarned_show['cancal_admin']=$isWarned_cancel? \App\Models\User::findById($isWarned_cancel->operator) : '';
+        $isWarned_show['cancal_admin']=$isWarned_cancel? \App\Models\User::findById($isWarned_cancel->operator??'') : '';
         $isWarned_show['cancal_time']=$isWarned_cancel? $isWarned_cancel->created_at : '';
     }
     //目前正被封鎖
@@ -653,10 +653,10 @@
          $isBanned_show['cancal_admin']='';
          $isBanned_show['cancal_time']='尚未解除';
         $banneder=\App\Models\AdminActionLog::where('target_id', $user->id)->where('act','封鎖會員')->orderByDesc('created_at')->first();
-        $isBanned_show['admin_user'] = \App\Models\User::findById($banneder->operator);
+        $isBanned_show['admin_user'] = \App\Models\User::findById($banneder->operator??'');
     }else{
          $isBanned_cancel=\App\Models\AdminActionLog::where('target_id', $user->id)->where('act','解除封鎖')->orderByDesc('created_at')->first();
-         $isBanned_show['cancal_admin']=$isBanned_cancel? \App\Models\User::findById($isBanned_cancel->operator) : '';
+         $isBanned_show['cancal_admin']=$isBanned_cancel? \App\Models\User::findById($isBanned_cancel->operator??'') : '';
          $isBanned_show['cancal_time']=$isBanned_cancel? $isBanned_cancel->created_at : '';
     }
 
