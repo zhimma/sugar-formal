@@ -244,7 +244,7 @@ class LoginController extends \App\Http\Controllers\BaseController
             return $this->sendLockoutResponse($request);
         }
 
-        if($request->get('remember')==1){
+        if($request->get('remember')==1 && $user ?? false){
             //自動登入
             $encrypt_str=$this->encrypt_string($user->email);
             setcookie('loginAccount', $encrypt_str);
