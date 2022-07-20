@@ -222,7 +222,7 @@ class LoginController extends \App\Http\Controllers\BaseController
         }
 
         //登入時進行自動警示
-        SetAutoBan::login_warned($user->id);
+        SetAutoBan::login_warned($user?->id);
 
         if(isset($user) && Role::join('role_user', 'role_user.role_id', '=', 'roles.id')->where('roles.name', 'admin')->where('role_user.user_id', $user->id)->exists()){
             $request->remember = true;
