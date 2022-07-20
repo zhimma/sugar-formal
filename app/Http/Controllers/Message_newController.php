@@ -694,8 +694,12 @@ class Message_newController extends BaseController {
                     $count = 0;
                     foreach ($data as $d)
                     {
-                        $user = new User;
-                        $can_pr = $user->getSpamMessagePercentIn7Days($d['user_id']);
+                        if(Features::accessible('inbox-7-days')){
+                            $can_pr = UserService::computeCanMessagePercent_7($d['user_id']);
+                        }else{
+                            $user = new User;
+                            $can_pr = $user->getSpamMessagePercentIn7Days($d['user_id']);
+                        }                     
                         $can_pr = trim($can_pr,'%');
                         if($can_pr > $inbox_refuse_set->refuse_canned_message_pr)
                         {
