@@ -537,6 +537,7 @@ class UserMeta extends Model
         $prRange = $request->prRange ?? '';
         $situation = $request->situation ?? '';
         $education = $request->education ?? '';
+        $body_touch = $request->body_touch ?? '';
         $isVip = $request->isVip ?? '';
         $isWarned = $request->isWarned ?? 0;
         $isPhoneAuth = $request->isPhoneAuth ?? '';
@@ -584,6 +585,7 @@ class UserMeta extends Model
             $heightto,
             $situation,
             $education,
+            $body_touch,
             $isWarned,
             $city2,
             $area2,
@@ -665,6 +667,7 @@ class UserMeta extends Model
             }
             if (isset($situation) && strlen($situation) != 0) $query->where('situation', $situation);
             if (isset($education) && strlen($education) != 0) $query->where('education', $education);
+            if (isset($body_touch) && strlen($body_touch) != 0) $query->where('body_touch', $body_touch);
 
             if($isWarned != 2 && $userIsVip){
                 $query->where('isWarned', 0);

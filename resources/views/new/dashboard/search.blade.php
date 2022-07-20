@@ -301,8 +301,30 @@ header("Expires: Fri, 01 Jan 1990 00:00:00 GMT");
                                                 </div>
                                                 @endif
                                             </dt>
+                                            <dt>
+                                                <div class="n_se left">
+                                                    <span>肢體接觸</span>
+                                                    <select name="body_touch" class="select_xx01">
+                                                        <option value="-1" @if( !empty( $_POST["body_touch"] ) && $_POST["body_touch"] == "-1" ) selected @elseif(!empty( $_GET["body_touch"] ) && $_GET["body_touch"] == "-1") selected @elseif(!empty( session()->get('search_page_key.body_touch') ) && session()->get('search_page_key.body_touch') == "-1") selected @endif>請選擇</option>
+                                                        <option value="接受" @if( empty( $_POST["body_touch"] ) && empty( $_GET["body_touch"] ) && empty( session()->get('search_page_key.body_touch') )) selected 
+                                                                                @elseif( !empty( $_POST["body_touch"] ) && $_POST["body_touch"] == "接受" ) selected 
+                                                                                @elseif(!empty( $_GET["body_touch"] ) && $_GET["body_touch"] == "接受") selected 
+                                                                                @elseif(!empty( session()->get('search_page_key.body_touch') ) && session()->get('search_page_key.body_touch') == "接受") selected 
+                                                                                @endif>接受</option>
+                                                        <option value="拒絕" @if( !empty( $_POST["body_touch"] ) && $_POST["body_touch"] == "拒絕" ) selected @elseif(!empty( $_GET["body_touch"] ) && $_GET["body_touch"] == "拒絕") selected @elseif(!empty( session()->get('search_page_key.body_touch') ) && session()->get('search_page_key.body_touch') == "拒絕") selected @endif>拒絕</option>
+                                                    </select>
+                                                </div>
+                                                <div class="n_se right">
+                                                     <span>刺青<i class="ssrgf">(僅顯示有填寫者)</i></span>
+                                                      <select name="tattoo" class="select_xx01">
+                                                        <option value="">請選擇</option>
+                                                        <option value="1" @if( !empty( $_POST["tattoo"] ) && $_POST["tattoo"] == "1" ) selected @elseif(!empty( $_GET["tattoo"] ) && $_GET["tattoo"] == "1") selected @elseif(!empty( session()->get('search_page_key.tattoo') ) && session()->get('search_page_key.tattoo') == "1") selected @endif>有</option>
+                                                        <option value="-1" @if( !empty( $_POST["tattoo"] ) && $_POST["tattoo"] == "-1" ) selected @elseif(!empty( $_GET["tattoo"] ) && $_GET["tattoo"] == "-1") selected @elseif(!empty( session()->get('search_page_key.tattoo') ) && session()->get('search_page_key.tattoo') == "-1") selected @endif>無</option>
+                                                      </select>
+                                                </div>
+                                           </dt>
                                         @endif
-
+                                        
                                         <dt>
                                             {{--<div class="n_se right">--}}
                                             {{--<span>喝酒</span>--}}
@@ -391,6 +413,7 @@ header("Expires: Fri, 01 Jan 1990 00:00:00 GMT");
                                                     <label class="n_tx"><input type="checkbox" name="cup[5]" value="F" id="Check5" @if( !empty( $_POST["cup"][5] ) && $_POST["cup"][5] == "F" ) checked @elseif(!empty( $_GET["cup"][5] ) && $_GET["cup"][5] == "F") checked @elseif(isset( session()->get('search_page_key.cup')[5] ) && session()->get('search_page_key.cup')[5] == "F") checked @endif><i>F</i></label>
                                                 </span>
                                             </dt>
+                                            {{--
                                             <dt class="matopj15">
                                                 <span>有無刺青<i class="ssrgf">(僅顯示有填寫者)</i></span>
                                                 <span class="line20">
@@ -398,6 +421,7 @@ header("Expires: Fri, 01 Jan 1990 00:00:00 GMT");
                                                     <label class="n_tx"><input type="radio" name="tattoo" value="-1" id="tattoo0" {{(request()->tattoo==-1 ||  session()->get('search_page_key.tattoo')==-1)?'checked':''}}><i>無</i></label>
                                                 </span>
                                             </dt>
+                                            --}}
                                         @endif
 
                                         <dt class="b_nsead matopjf10">
@@ -544,6 +568,11 @@ header("Expires: Fri, 01 Jan 1990 00:00:00 GMT");
                         $prRange = search_variable('prRange',"");
                         $situation = search_variable('situation',"");
                         $education = search_variable('education',"");
+                        $body_touch = search_variable('body_touch',"接受");
+                        if($body_touch == '-1')
+                        {
+                            $body_touch = '';
+                        }
                         $isVip = search_variable('isVip',"");
                         $isWarned = search_variable('isWarned',"");
                         $isPhoneAuth = search_variable('isPhoneAuth',"");
@@ -869,6 +898,7 @@ header("Expires: Fri, 01 Jan 1990 00:00:00 GMT");
                 prRange:"{{$prRange}}",
                 situation:"{{$situation}}",
                 education:"{{$education}}",
+                body_touch:"{{$body_touch}}",
                 isVip:"{{$isVip}}",
                 isWarned:"{{$isWarned}}",
                 isPhoneAuth:"{{$isPhoneAuth}}",
