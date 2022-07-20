@@ -1038,14 +1038,14 @@ header("Expires: Fri, 01 Jan 1990 00:00:00 GMT");
 
                                             csrData +='<span>丨</span>';
                                         }else if(rowVisitorIsAdvanceAuth==0 && rowEngroup==2){
-                                            csrData +='<div class="tagText"  data-toggle="popover" data-content="通過本站手機驗證的會員。">';
+                                            csrData +='<div class="tagText"  data-toggle="popover" data-content="以手機門號通過年齡/性別驗證。">';
                                             csrData +='<img src="/new/images/c_09.png">';
                                             csrData +='</div>  ';
 
                                             csrData +='<span>丨</span>';
                                         }*/
                                         if(rowVisitorIsAdvanceAuth==1 && rowEngroup==2){
-                                            csrData +='<div class="tagText"  data-toggle="popover" data-content="通過本站手機驗證的會員。">';
+                                            csrData +='<div class="tagText"  data-toggle="popover" data-content="以手機門號通過年齡/性別驗證。">';
                                             csrData +='<img src="/new/images/c_10.png">';
                                             csrData +='</div>';
                                         }
@@ -1055,12 +1055,12 @@ header("Expires: Fri, 01 Jan 1990 00:00:00 GMT");
                                             csrData +='<img src="/new/images/b_8x.png">';
                                             csrData +='</div> ';
                                         }else if(rowVisitorIsAdvanceAuth==0 && rowEngroup==2 ){
-                                            csrData +='<div class="tagText"  data-toggle="popover" data-content="通過本站手機驗證的會員。">';
+                                            csrData +='<div class="tagText"  data-toggle="popover" data-content="以手機門號通過年齡/性別驗證。">';
                                             csrData +='<img src="/new/images/b_5x.png">';
                                             csrData +='</div>  ';
                                         }*/
                                         if(rowVisitorIsAdvanceAuth==1 && rowEngroup==2) {
-                                            csrData +='<div class="tagText"  data-toggle="popover" data-content="通過本站手機驗證的會員。">';
+                                            csrData +='<div class="tagText"  data-toggle="popover" data-content="以手機門號通過年齡/性別驗證。">';
                                             csrData +='<img src="/new/images/b_6.png">';
                                             csrData +='</div>  ';
                                         }
