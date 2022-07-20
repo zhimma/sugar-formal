@@ -248,7 +248,10 @@ class SetAutoBan extends Model
 
     public static function relieve_mobile_verify_warned($uid)
     {
-        warned_users::where('member_id', $uid)->where('type', 'no_mobile_verify')->delete();
+        if(User::findById($uid)->isPhoneAuth() == true)
+        {
+            warned_users::where('member_id', $uid)->where('type', 'no_mobile_verify')->delete();
+        }
     }
 
     public static function logoutWarned($uid)
