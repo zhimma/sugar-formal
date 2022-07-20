@@ -1016,49 +1016,70 @@ header("Expires: Fri, 01 Jan 1990 00:00:00 GMT");
                             }
 
                             csrData +='<div class="n_seicon">';
-                            if(umetaIsWarned==1 || rowVisitorIsAdminWarned==1){
+                            if(umetaIsWarned==1 || rowVisitorIsAdminWarned==1)
+                            {
                                 csrData +='<div class="hoverTip">';
                                     csrData +='<div class="tagText" data-toggle="popover" data-content="此會員為警示會員，與此會員交流務必提高警覺！">';
-                                    if(this.userIsVip==1){
+                                    if(this.userIsVip==1)
+                                    {
                                         csrData +='<img src="/new/images/a5.png">';
-                                    }else{
+                                    }
+                                    else
+                                    {
                                         csrData +='<img src="/new/images/b_5.png">';
                                     }
                                 
                                     csrData +='</div>';
                                 csrData +='</div>';
                                 
-                            }else if(varCheck(rowVisitorCheckRecommendedUser['description']) && rowVisitorCheckRecommendedUser['description'] !== null && rowEngroup == 2){
+                            }
+                            else if(varCheck(rowVisitorCheckRecommendedUser['description']) && rowVisitorCheckRecommendedUser['description'] !== null && rowEngroup == 2)
+                            {
                                 csrData +='<div class="hoverTip">';
                                     csrData +='<div class="tagText" data-toggle="popover" data-content="新進甜心是指註冊未滿30天的新進會員，建議男會員可以多多接觸，不過要注意是否為八大行業人員。">';
-                                        if(this.userIsVip==1){
+                                        if(this.userIsVip==1)
+                                        {
                                             csrData +='<img src="/new/images/a1.png">';
-                                        }else{
+                                        }
+                                        else
+                                        {
                                             csrData +='<img src="/new/images/b_1.png">';
                                         }
 
                                     csrData +='</div>';
                                 csrData +='</div>';
-                            }else if(rowVisitorIsVip && rowEngroup == 1){
+                            }
+                            else if(rowVisitorIsVip && rowEngroup == 1)
+                            {
                                 csrData +='<div class="hoverTip">';
                                     csrData +='<div class="tagText" data-toggle="popover" data-content="本站的付費會員。">';
-                                        if(this.userIsVip==1){
+                                        if(this.userIsVip==1)
+                                        {
                                             csrData +='<img src="/new/images/a4.png">';
-                                        }else{
+                                        }
+                                        else
+                                        {
                                             csrData +='<img src="/new/images/b_4.png">';
                                         }
                                     csrData +='</div>';
                                 csrData +='</div>';
-                            }else{
-                                if(this.userIsVip){
+                            }
+                            else
+                            {
+                                if(this.userIsVip)
+                                {
                                     csrVar = 'xa_ssbg';
-                                }else{
+                                }
+                                else
+                                {
                                     csrVar = '';
                                 }
                                
-                                if(rowVisitorIsPhoneAuth==true ){          
+                                if(rowVisitorIsPhoneAuth==true )
+                                {          
                                     csrData +='<div class="hoverTip '+csrVar+'">';     
-                                    if(this.userIsVip==1){
+                                    if(this.userIsVip==1)
+                                    {
                                         /*if(rowVisitorIsAdvanceAuth==1 && rowEngroup==2){
                                             csrData +='<div class="tagText"  data-toggle="popover" data-content="本站的進階認證會員，本會員通過本站的嚴格驗證，基本資料正確無誤。">';
                                             csrData +='<img src="/new/images/c_03.png">';
@@ -1077,7 +1098,9 @@ header("Expires: Fri, 01 Jan 1990 00:00:00 GMT");
                                             csrData +='<img src="/new/images/c_10.png">';
                                             csrData +='</div>';
                                         }
-                                    }else{
+                                    }
+                                    else
+                                    {
                                         /*if(rowVisitorIsAdvanceAuth==1 && rowEngroup==2 ){
                                             csrData +='<div class="tagText"  data-toggle="popover" data-content="本站的進階認證會員，本會員通過本站的嚴格驗證，基本資料正確無誤。">';
                                             csrData +='<img src="/new/images/b_8x.png">';
@@ -1095,9 +1118,9 @@ header("Expires: Fri, 01 Jan 1990 00:00:00 GMT");
                                     }
                                     csrData +='</div>';
                                 }
-                            
+                                
                             }
-                          
+                            
                             if(varCheck(rowPrLog)){
                                 csrVar = rowPrLog.pr+"%;"; 
                             }else{
