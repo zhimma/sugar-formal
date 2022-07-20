@@ -414,6 +414,57 @@ dt span.engroup_type_title {display:inline-block;width:10%;white-space:nowrap;}
                             </div>
                         </dt>
                         <dt>
+                            <span>家庭狀況</span>
+                            <select name="family_situation"  class="select_xx01">
+                                <option value=null>請選擇</option>
+                                <option value="有小孩(撫養中)"
+                                        @if($umeta->family_situation == '有小孩(撫養中)') selected @endif>有小孩(撫養中)
+                                </option>
+                                <option value="有小孩(無撫養)"
+                                        @if($umeta->family_situation == '有小孩(無撫養)') selected @endif>有小孩(無撫養)
+                                </option>
+                                <option value="有小孩(輪流養)"
+                                        @if($umeta->family_situation == '有小孩(輪流養)') selected @endif>有小孩(輪流養)
+                                </option>
+                                <option value="單親"
+                                        @if($umeta->family_situation == '單親') selected @endif>單親
+                                </option>
+                            </select>
+                        </dt>
+                        <dt>
+                            <span>肢體接觸<i>(必填)</i></span>
+                            <select name="body_touch" id="body_touch" class="select_xx01">
+                                <option value="">請選擇</option>
+                                <option value="接受"
+                                        @if($umeta->body_touch == '接受') selected @endif>接受
+                                </option>
+                                <option value="拒絕"
+                                        @if($umeta->body_touch == '拒絕') selected @endif>拒絕
+                                </option>
+                            </select>
+                        </dt>
+                        <dt>
+                            <span>有空時段</span>
+                            <select name="available_time"  class="select_xx01">
+                                <option value=null>請選擇</option>
+                                <option value="不固定"
+                                        @if($umeta->available_time == '不固定') selected @endif>不固定
+                                </option>
+                                <option value="平日白天"
+                                        @if($umeta->available_time == '平日白天') selected @endif>平日白天
+                                </option>
+                                <option value="平日晚上"
+                                        @if($umeta->available_time == '平日晚上') selected @endif>平日晚上
+                                </option>
+                                <option value="週末白天"
+                                        @if($umeta->available_time == '週末白天') selected @endif>週末白天
+                                </option>
+                                <option value="週末晚上"
+                                        @if($umeta->available_time == '週末晚上') selected @endif>週末晚上
+                                </option>
+                            </select>
+                        </dt>
+                        <dt>
                             <span>有刺青</span>
                             <font>
                                 <select name="tattoo_part" id="tattoo_part" class="select_xx01 new_iptnone select_xx2" style="width: 48%; float: left;color:#666666;">
@@ -1235,134 +1286,142 @@ dt span.engroup_type_title {display:inline-block;width:10%;white-space:nowrap;}
 
         e.preventDefault();
         if($(this).parsley().isValid()){
-          let birth = $('select[name=year]').val()+'/'+$('select[name=month]').val()+'/'+$('input[name=day]').val();
-          let age = getAge(birth);
-          let title = $('input[name=title]');
-          let about = $('textarea[name=about]');
-          let style = $('textarea[name=style]');
-          let budget = $('select[name=budget]');
-          let assets = $('#assets');
-          let height = $('#height');
-          let income = $('select[name=income]');
-          let marriage = $('select[name=marriage]');
-          let education = $('select[name=education]');
-          let drinking = $('select[name=drinking]');
-          let smoking = $('select[name=smoking]');
-          let county = $("#county");
-          let situation = $('select[name=situation]');
-          let tattoo_part = $('#tattoo_part');
-          let tattoo_range = $('#tattoo_range');
-          let budget_per_month_min = $('#budget_per_month_min');
-          let budget_per_month_max = $('#budget_per_month_max');
-          let transport_fare_min = $('#transport_fare_min');
-          let transport_fare_max = $('#transport_fare_max');
+            let birth = $('select[name=year]').val()+'/'+$('select[name=month]').val()+'/'+$('input[name=day]').val();
+            let age = getAge(birth);
+            let title = $('input[name=title]');
+            let about = $('textarea[name=about]');
+            let style = $('textarea[name=style]');
+            let budget = $('select[name=budget]');
+            let assets = $('#assets');
+            let height = $('#height');
+            let income = $('select[name=income]');
+            let marriage = $('select[name=marriage]');
+            let education = $('select[name=education]');
+            let drinking = $('select[name=drinking]');
+            let smoking = $('select[name=smoking]');
+            let county = $("#county");
+            let situation = $('select[name=situation]');
+            let tattoo_part = $('#tattoo_part');
+            let tattoo_range = $('#tattoo_range');
+            let budget_per_month_min = $('#budget_per_month_min');
+            let budget_per_month_max = $('#budget_per_month_max');
+            let transport_fare_min = $('#transport_fare_min');
+            let transport_fare_max = $('#transport_fare_max');
+            let body_touch = $('#body_touch');
 
-          if(title.val() === "") {
-            title.focus();
-            c5('請輸入一句話形容自己');
-            return false;
-          }
-          if($(county).find('.twzipcode').length == 0) {
-            c5('請選擇地區');
-            return false;
-          } else {
-            $(county).find('.twzipcode').each(function(index, element) {
-                if(index == 0 && $(element).find('select').val() === ""){
-                  c5('請選擇地區');
-                  return false;
-                }
-            })
-              if($('select[name=city]').val() === ""){
-                  c5('請選擇地區');
-                  return false;
-              }
-          }
-          
-          @if($user->engroup==2)
-            if(budget.val() === "") {
-                budget.focus();
-                c5('請選擇預算');
+            if(title.val() === "") {
+                title.focus();
+                c5('請輸入一句話形容自己');
                 return false;
             }
-          @endif
-
-          if($('select[name=year]').val() == "" || $('select[name=month]').val() == "" || age < 18){
-            c5('您的年齡低於法定18歲，請於基本資料設定修改，否則您的資料將會被限制搜尋。');
-            // swal({
-            //     title:'您的年齡低於法定18歲，請於基本資料設定修改，否則您的資料將會被限制搜尋。',
-            //     type:'warning'
-            // });
-            return false;
-          }
-          if(height.val() == '' || height.val().charAt(0)==0 || height.val() < 140 || height.val() > 210) {
-            height.focus();
-            c5('請輸入身高140～210');
-            return false;
-          }
-          if(about.val().length < 4 || about.val().length > 300) {
-            about.focus();
-            c5('關於我：請輸入4～300個字');
-            return false;
-          }
-          if(style.val().length < 4 || style.val().length > 300) {
-            style.focus();
-            c5('期待約會模式：請輸入4～300個字');
-            return false;
-          }
-          if('{{$user->engroup}}' == '2'){
-            if(situation.val() === "") {
-              situation.focus();
-              c5('請選擇現況');
-              return false;
-            };
-          }
-          if(education.val() === "") {
-            education.focus();
-            c5('請選擇教育');
-            return false;
-          }
-          if(marriage.val() === "") {
-            marriage.focus();
-            c5('請選擇婚姻');
-            return false;
-          }
-          if(drinking.val() === "") {
-            drinking.focus();
-            c5('請選擇喝酒');
-            return false;
-          }
-          if(smoking.val() === "") {
-            smoking.focus();
-            c5('請選擇抽煙');
-            return false;
-          }
-          if(tattoo_part.val()=='' && tattoo_range.val()!='') {
-              tattoo_part.focus();
-              c5('請選擇刺青位置');
-              return false;
-          } 
-          
-          if(tattoo_range.val()=='' && tattoo_part.val()!='') {
-              tattoo_range.focus();
-              c5('請選擇刺青面積');
-              return false;
-          }  
-
-          /*
-          if('{{$user->engroup}}' == '1'){
-            console.log(income.val())
-            if(income.val() === "") {
-              income.focus();
-              c5('請選擇年收');
-              return false;
+            if($(county).find('.twzipcode').length == 0) {
+                c5('請選擇地區');
+                return false;
+            } else {
+                $(county).find('.twzipcode').each(function(index, element) {
+                    if(index == 0 && $(element).find('select').val() === ""){
+                    c5('請選擇地區');
+                    return false;
+                    }
+                })
+                if($('select[name=city]').val() === ""){
+                    c5('請選擇地區');
+                    return false;
+                }
             }
-            if(assets.val() == '' || assets.val() < 0 || assets.val() > 10000000000) {
-              assets.focus();
-              c5('請輸入資產數字範圍0～10000000000');
-              return false;
+            
+            @if($user->engroup==2)
+                if(budget.val() === "") {
+                    budget.focus();
+                    c5('請選擇預算');
+                    return false;
+                }
+            @endif
+
+            if($('select[name=year]').val() == "" || $('select[name=month]').val() == "" || age < 18){
+                c5('您的年齡低於法定18歲，請於基本資料設定修改，否則您的資料將會被限制搜尋。');
+                // swal({
+                //     title:'您的年齡低於法定18歲，請於基本資料設定修改，否則您的資料將會被限制搜尋。',
+                //     type:'warning'
+                // });
+                return false;
             }
-          }
-          */
+            if(height.val() == '' || height.val().charAt(0)==0 || height.val() < 140 || height.val() > 210) {
+                height.focus();
+                c5('請輸入身高140～210');
+                return false;
+            }
+            if(about.val().length < 4 || about.val().length > 300) {
+                about.focus();
+                c5('關於我：請輸入4～300個字');
+                return false;
+            }
+            if(style.val().length < 4 || style.val().length > 300) {
+                style.focus();
+                c5('期待約會模式：請輸入4～300個字');
+                return false;
+            }
+            if('{{$user->engroup}}' == '2'){
+                if(situation.val() === "") {
+                situation.focus();
+                c5('請選擇現況');
+                return false;
+                };
+            }
+            if(education.val() === "") {
+                education.focus();
+                c5('請選擇教育');
+                return false;
+            }
+            if(marriage.val() === "") {
+                marriage.focus();
+                c5('請選擇婚姻');
+                return false;
+            }
+            if(drinking.val() === "") {
+                drinking.focus();
+                c5('請選擇喝酒');
+                return false;
+            }
+            if(smoking.val() === "") {
+                smoking.focus();
+                c5('請選擇抽煙');
+                return false;
+            }
+            if(tattoo_part.val()=='' && tattoo_range.val()!='') {
+                tattoo_part.focus();
+                c5('請選擇刺青位置');
+                return false;
+            } 
+            
+            if(tattoo_range.val()=='' && tattoo_part.val()!='') {
+                tattoo_range.focus();
+                c5('請選擇刺青面積');
+                return false;
+            }  
+
+            if(body_touch.val() == "")
+            {
+                body_touch.focus();
+                c5('請選擇是否接受肢體接觸');
+                return false;
+            }
+
+            /*
+            if('{{$user->engroup}}' == '1'){
+                console.log(income.val())
+                if(income.val() === "") {
+                income.focus();
+                c5('請選擇年收');
+                return false;
+                }
+                if(assets.val() == '' || assets.val() < 0 || assets.val() > 10000000000) {
+                assets.focus();
+                c5('請輸入資產數字範圍0～10000000000');
+                return false;
+                }
+            }
+            */
 
             if(budget_per_month_min.val()!='' || budget_per_month_max.val()!='')
             {
@@ -1407,33 +1466,33 @@ dt span.engroup_type_title {display:inline-block;width:10%;white-space:nowrap;}
                 transport_fare_max.val(-1);
             }
 
-          var form_dump = $(this);
-          c4('確定要變更會員資料嗎?');
-          // swal({
-          //     title: '確定要變更會員資料嗎？',
-          //     text: "",
-          //     type: 'warning',
-          //     showCancelButton: true,
-          //     confirmButtonText: '確定'
-          // }).then(function (isConfirm) {
-          //   if (isConfirm.value) {
-          //     $.ajax({
-          //       url:'{{ route('dashboard2') }}',
-          //       type: 'POST',
-          //       dataType: 'JSON',
-          //       data: form,
-          //       beforeSend: function () {
-          //         waitingDialog.show();
-          //       },
-          //       complete: function () {
-          //         waitingDialog.hide();
-          //       },
-          //       success: function (result) {
-          //         ResultData(result);
-          //       }
-          //     });
-          //   }
-          // });
+            var form_dump = $(this);
+            c4('確定要變更會員資料嗎?');
+            // swal({
+            //     title: '確定要變更會員資料嗎？',
+            //     text: "",
+            //     type: 'warning',
+            //     showCancelButton: true,
+            //     confirmButtonText: '確定'
+            // }).then(function (isConfirm) {
+            //   if (isConfirm.value) {
+            //     $.ajax({
+            //       url:'{{ route('dashboard2') }}',
+            //       type: 'POST',
+            //       dataType: 'JSON',
+            //       data: form,
+            //       beforeSend: function () {
+            //         waitingDialog.show();
+            //       },
+            //       complete: function () {
+            //         waitingDialog.hide();
+            //       },
+            //       success: function (result) {
+            //         ResultData(result);
+            //       }
+            //     });
+            //   }
+            // });
         }
         return false;
       });

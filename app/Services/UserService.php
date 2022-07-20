@@ -340,179 +340,194 @@ class UserService
                   $payload['meta']['city'] = $payload['city'];
                   unset($payload['city']);
                 }
-                  if (isset($payload['isHideCup']))
-                  {
-                  $payload['meta']['isHideCup'] = $payload['isHideCup'];
-                  unset($payload['isHideCup']);
-                  }
-                  if (isset($payload['isHideArea']))
-                  {
-                  $payload['meta']['isHideArea'] = $payload['isHideArea'];
-                  unset($payload['isHideArea']);
-                  }
-                  if (isset($payload['isHideWeight']))
-                  {
-                  $payload['meta']['isHideWeight'] = $payload['isHideWeight'];
-                  unset($payload['isHideWeight']);
-                  }
-                  if (isset($payload['isHideOccupation']))
-                  {
-                  $payload['meta']['isHideOccupation'] = $payload['isHideOccupation'];
-                  unset($payload['isHideOccupation']);
-                  }
-                  if (isset($payload['income']))
-                  {
-                  $payload['meta']['income'] = $payload['income'];
-                  unset($payload['income']);
-                  }
-                  if (isset($payload['assets']))
-                  {
-                  $payload['meta']['assets'] = $payload['assets'];
-                  unset($payload['assets']);
-                  }
-                  if (isset($payload['area']))
-                  {
-                  $payload['meta']['area'] = $payload['area'];
-                  unset($payload['area']);
-                  }
-                  if (isset($payload['budget']))
-                  {
-                  $payload['meta']['budget'] = $payload['budget'];
-                  unset($payload['budget']);
-                  }
-                  if (isset($payload['birthdate']) && !($user->advance_auth_status??null))
-                  {
-                  $payload['meta']['birthdate'] = $payload['birthdate'];
-                  unset($payload['birthdate']);
-                  }
-                  if (isset($payload['year']) && isset($payload['month']) && isset($payload['day']))
-                  {
-                      $payload['meta']['birthdate'] = $payload['year'].'-'.$payload['month'].'-'.$payload['day'];
-                      unset($payload['year']);
-                      unset($payload['month']);
-                      unset($payload['day']);
-                  }
-                  if (isset($payload['height']))
-                  {
-                  $payload['meta']['height'] = $payload['height'];
-                  unset($payload['height']);
-                  }
-                  if (isset($payload['weight']))
-                  {
-                  $payload['meta']['weight'] = $payload['weight'];
-                  unset($payload['weight']);
-                  }
-                  if (isset($payload['cup']))
-                  {
-                  $payload['meta']['cup'] = $payload['cup'];
-                  unset($payload['cup']);
-                  }
-                  if (isset($payload['job']))
-                  {
-                  $payload['meta']['job'] = $payload['job'];
-                  unset($payload['job']);
-                  }
-                  if (isset($payload['domain']))
-                  {
-                  $payload['meta']['domain'] = $payload['domain'];
-                  unset($payload['domain']);
-                  }
-                  if (isset($payload['domainType']))
-                  {
-                  $payload['meta']['domainType'] = $payload['domainType'];
-                  unset($payload['domainType']);
-                  }
-                   if (isset($payload['blockdomain']))
-                  {
-                  $payload['meta']['blockdomain'] = $payload['blockdomain'];
-                  unset($payload['blockdomain']);
-                  }
-                  if (isset($payload['domainType']))
-                  {
-                  $payload['meta']['domainType'] = $payload['domainType'];
-                  unset($payload['domainType']);
-                  }
-                  if (isset($payload['blockdomainType']))
-                  {
-                  $payload['meta']['blockdomainType'] = $payload['blockdomainType'];
-                  unset($payload['blockdomainType']);
-                  }
-                  if (isset($payload['blockcity']))
-                  {
-                    $payload['meta']['blockcity'] = $payload['blockcity'];
+                if (isset($payload['isHideCup']))
+                {
+                $payload['meta']['isHideCup'] = $payload['isHideCup'];
+                unset($payload['isHideCup']);
+                }
+                if (isset($payload['isHideArea']))
+                {
+                $payload['meta']['isHideArea'] = $payload['isHideArea'];
+                unset($payload['isHideArea']);
+                }
+                if (isset($payload['isHideWeight']))
+                {
+                $payload['meta']['isHideWeight'] = $payload['isHideWeight'];
+                unset($payload['isHideWeight']);
+                }
+                if (isset($payload['isHideOccupation']))
+                {
+                $payload['meta']['isHideOccupation'] = $payload['isHideOccupation'];
+                unset($payload['isHideOccupation']);
+                }
+                if (isset($payload['income']))
+                {
+                $payload['meta']['income'] = $payload['income'];
+                unset($payload['income']);
+                }
+                if (isset($payload['assets']))
+                {
+                $payload['meta']['assets'] = $payload['assets'];
+                unset($payload['assets']);
+                }
+                if (isset($payload['area']))
+                {
+                $payload['meta']['area'] = $payload['area'];
+                unset($payload['area']);
+                }
+                if (isset($payload['budget']))
+                {
+                $payload['meta']['budget'] = $payload['budget'];
+                unset($payload['budget']);
+                }
+                if (isset($payload['birthdate']) && !($user->advance_auth_status??null))
+                {
+                $payload['meta']['birthdate'] = $payload['birthdate'];
+                unset($payload['birthdate']);
+                }
+                if (isset($payload['year']) && isset($payload['month']) && isset($payload['day']))
+                {
+                    $payload['meta']['birthdate'] = $payload['year'].'-'.$payload['month'].'-'.$payload['day'];
+                    unset($payload['year']);
+                    unset($payload['month']);
+                    unset($payload['day']);
+                }
+                if (isset($payload['height']))
+                {
+                $payload['meta']['height'] = $payload['height'];
+                unset($payload['height']);
+                }
+                if (isset($payload['weight']))
+                {
+                $payload['meta']['weight'] = $payload['weight'];
+                unset($payload['weight']);
+                }
+                if (isset($payload['cup']))
+                {
+                $payload['meta']['cup'] = $payload['cup'];
+                unset($payload['cup']);
+                }
+                if (isset($payload['body_touch']))
+                {
+                    $payload['meta']['body_touch'] = $payload['body_touch'];
+                    unset($payload['body_touch']);
+                }
+                if (isset($payload['available_time']))
+                {
+                    $payload['meta']['available_time'] = $payload['available_time'];
+                    unset($payload['available_time']);
+                }
+                if (isset($payload['family_situation']))
+                {
+                    $payload['meta']['family_situation'] = $payload['family_situation'];
+                    unset($payload['family_situation']);
+                }
+                if (isset($payload['job']))
+                {
+                $payload['meta']['job'] = $payload['job'];
+                unset($payload['job']);
+                }
+                if (isset($payload['domain']))
+                {
+                $payload['meta']['domain'] = $payload['domain'];
+                unset($payload['domain']);
+                }
+                if (isset($payload['domainType']))
+                {
+                $payload['meta']['domainType'] = $payload['domainType'];
+                unset($payload['domainType']);
+                }
+                if (isset($payload['blockdomain']))
+                {
+                $payload['meta']['blockdomain'] = $payload['blockdomain'];
+                unset($payload['blockdomain']);
+                }
+                if (isset($payload['domainType']))
+                {
+                $payload['meta']['domainType'] = $payload['domainType'];
+                unset($payload['domainType']);
+                }
+                if (isset($payload['blockdomainType']))
+                {
+                $payload['meta']['blockdomainType'] = $payload['blockdomainType'];
+                unset($payload['blockdomainType']);
+                }
+                if (isset($payload['blockcity']))
+                {
+                $payload['meta']['blockcity'] = $payload['blockcity'];
+                unset($payload['blockcity']);
+                }else{
+                    $payload['meta']['blockcity'] = null;
                     unset($payload['blockcity']);
-                  }else{
-                      $payload['meta']['blockcity'] = null;
-                      unset($payload['blockcity']);
-                  }
-                  if (isset($payload['blockarea']))
-                  {
-                    $payload['meta']['blockarea'] = $payload['blockarea'];
+                }
+                if (isset($payload['blockarea']))
+                {
+                $payload['meta']['blockarea'] = $payload['blockarea'];
+                unset($payload['blockarea']);
+                }else{
+                    $payload['meta']['blockarea'] = null;
                     unset($payload['blockarea']);
-                  }else{
-                      $payload['meta']['blockarea'] = null;
-                      unset($payload['blockarea']);
-                  }
-                  if (isset($payload['body']))
-                  {
-                  $payload['meta']['body'] = $payload['body'];
-                  unset($payload['body']);
-                  }
-                  if (isset($payload['about']))
-                  {
-                  $payload['meta']['about'] = $payload['about'];
-                  unset($payload['about']);
-                  }
-                  if (isset($payload['style']))
-                  {
-                  $payload['meta']['style'] = $payload['style'];
-                  unset($payload['style']);
-                  }
-                  if (isset($payload['situation']))
-                  {
-                  $payload['meta']['situation'] = $payload['situation'];
-                  unset($payload['situation']);
-                  }
-                  if (isset($payload['education']))
-                  {
-                  $payload['meta']['education'] = $payload['education'];
-                  unset($payload['education']);
-                  }
-                  if (isset($payload['marriage']))
-                  {
-                  $payload['meta']['marriage'] = $payload['marriage'];
-                  unset($payload['marriage']);
-                  }
-                  if (isset($payload['is_pure_dating']))
-                  {
-                  $payload['meta']['is_pure_dating'] = $payload['is_pure_dating'];
-                  unset($payload['is_pure_dating']);
-                  }
-                  if (isset($payload['drinking']))
-                  {
-                  $payload['meta']['drinking'] = $payload['drinking'];
-                  unset($payload['drinking']);
-                  }
-                  if (isset($payload['smoking']))
-                  {
-                  $payload['meta']['smoking'] = $payload['smoking'];
-                  unset($payload['smoking']);
-                  }
-                  if (isset($payload['occupation']))
-                  {
+                }
+                if (isset($payload['body']))
+                {
+                $payload['meta']['body'] = $payload['body'];
+                unset($payload['body']);
+                }
+                if (isset($payload['about']))
+                {
+                $payload['meta']['about'] = $payload['about'];
+                unset($payload['about']);
+                }
+                if (isset($payload['style']))
+                {
+                $payload['meta']['style'] = $payload['style'];
+                unset($payload['style']);
+                }
+                if (isset($payload['situation']))
+                {
+                $payload['meta']['situation'] = $payload['situation'];
+                unset($payload['situation']);
+                }
+                if (isset($payload['education']))
+                {
+                $payload['meta']['education'] = $payload['education'];
+                unset($payload['education']);
+                }
+                if (isset($payload['marriage']))
+                {
+                $payload['meta']['marriage'] = $payload['marriage'];
+                unset($payload['marriage']);
+                }
+                if (isset($payload['is_pure_dating']))
+                {
+                $payload['meta']['is_pure_dating'] = $payload['is_pure_dating'];
+                unset($payload['is_pure_dating']);
+                }
+                if (isset($payload['drinking']))
+                {
+                $payload['meta']['drinking'] = $payload['drinking'];
+                unset($payload['drinking']);
+                }
+                if (isset($payload['smoking']))
+                {
+                $payload['meta']['smoking'] = $payload['smoking'];
+                unset($payload['smoking']);
+                }
+                if (isset($payload['occupation']))
+                {
                 $payload['meta']['occupation'] = $payload['occupation'];
-                  unset($payload['occupation']);
-                  }
-                  if (isset($payload['notifmessage']))
-                  {
+                unset($payload['occupation']);
+                }
+                if (isset($payload['notifmessage']))
+                {
                 $payload['meta']['notifmessage'] = $payload['notifmessage'];
-                  unset($payload['notifmessage']);
-                  }
-                   if (isset($payload['notifhistory']))
-                  {
-                                  $payload['meta']['notifhistory'] = $payload['notifhistory'];
-                  unset($payload['notifhistory']);
-                  }
+                unset($payload['notifmessage']);
+                }
+                if (isset($payload['notifhistory']))
+                {
+                $payload['meta']['notifhistory'] = $payload['notifhistory'];
+                unset($payload['notifhistory']);
+                }
                 if (isset($payload['adminNote']))
                 {
                     $payload['meta']['adminNote'] = $payload['adminNote'];
@@ -522,11 +537,11 @@ class UserService
                     $payload['meta']['adminNote'] = '';
                 }
 
-//                if (isset($payload['exchange_period']))
-//                {
-//                    $payload['meta']['exchange_period'] = $payload['exchange_period'];
-//                    unset($payload['exchange_period']);
-//                }
+                //if(isset($payload['exchange_period']))
+                //{
+                    //$payload['meta']['exchange_period'] = $payload['exchange_period'];
+                    //unset($payload['exchange_period']);
+                //}
 
                 if (isset($payload['budget_per_month_min']) && isset($payload['budget_per_month_max']))
                 {
