@@ -235,15 +235,20 @@ class SetAutoBan extends Model
                                                 ->count();
         if($user->engroup==2 && !$user->isPhoneAuth() && $count_of_user_login_with_desktop>=3 && $user->created_at>\Carbon\Carbon::now()->subDays(10))
         {
-            $reason = '尚未進行手機驗證';
-            $userWarned = new warned_users;
-            $userWarned->member_id = $uid;
-            $userWarned->type = 'no_mobile_verify';
-            $userWarned->reason = $reason;
-            $userWarned->save();
-            //寫入log
-            DB::table('is_warned_log')->insert(['user_id' => $uid, 'reason' => $reason]);
+            SetAutoBan::mobile_verify_warned($uid);
         }
+    }
+
+    public static function mobile_verify_warned($uid)
+    {
+        $reason = '尚未進行手機驗證';
+        $userWarned = new warned_users;
+        $userWarned->member_id = $uid;
+        $userWarned->type = 'no_mobile_verify';
+        $userWarned->reason = $reason;
+        $userWarned->save();
+        //寫入log
+        DB::table('is_warned_log')->insert(['user_id' => $uid, 'reason' => $reason]);
     }
 
     public static function relieve_mobile_verify_warned($uid)
