@@ -371,334 +371,334 @@ dt span.engroup_type_title {display:inline-block;width:10%;white-space:nowrap;}
                       </div>-->
                   </dt>
 
-                  @if($user->engroup==2)
-{{--                  <dt>--}}
-{{--                      <span>體重（kg）</span>--}}
-{{--                      <span><input minlength="2"  data-parsley-minlength="2" name="weight" type="text" class="select_xx01"  placeholder="請填入體重" value="{{$umeta->weight}}"></span>--}}
-{{--                      <div class="right" style="margin: 10px 0 -5px 10px;">--}}
-{{--                        <input type="hidden" name="isHideWeight" value="0">--}}
-{{--                        <input name="isHideArea" type="checkbox"  @if($umeta->isHideWeight == true) checked--}}
-{{--                                                                       @endif value="1"> 隱藏體重--}}
-{{--                      </div>--}}
-{{--                  </dt>--}}
-                  <dt style="margin-bottom:7px;">
-                      <span>CUP</span>
-                      <span>
-                        <select name="cup"  class="select_xx01" >
-                          <option value=null>請選擇</option>
-                          <option value="A"
-                                  @if($umeta->cup == 'A') selected @endif>A
-                          </option>
-                          <option value="B"
-                                  @if($umeta->cup == 'B') selected @endif>B
-                          </option>
-                          <option value="C"
-                                  @if($umeta->cup == 'C') selected @endif>C
-                          </option>
-                          <option value="D"
-                                  @if($umeta->cup == 'D') selected @endif>D
-                          </option>
-                          <option value="E"
-                                  @if($umeta->cup == 'E') selected @endif>E
-                          </option>
-                          <option value="F"
-                                  @if($umeta->cup == 'F') selected @endif>F
-                          </option>
-                        </select>
-                      </span>
-                      <div class="n_xqline">
-                          <div class="right" style="margin-bottom: 10px;">
-                              <input type="hidden" name="isHideCup" value="0">
-                              <input name="isHideCup" type="checkbox" @if($umeta->isHideCup == true) checked @endif value="1"> 隱藏CUP
-                          </div>
-                      </div>
-                  </dt>
-                <dt>
-                    <span>有刺青</span>
-                    <font>
-                        <select name="tattoo_part" id="tattoo_part" class="select_xx01 new_iptnone select_xx2" style="width: 48%; float: left;color:#666666;">
-                            <option value="">請選擇位置</option>
-                            <option value="四肢" {{$user->isTattooPart('四肢')?'selected':''}}>四肢</option>
-                            <option value="身體" {{$user->isTattooPart('身體')?'selected':''}}>身體</option>
-                        </select>
-                        <select name="tattoo_range" id="tattoo_range" class="select_xx01 new_iptnone select_xx2" style="width: 48%; float: right;color:#666666;">
-                            <option value="">請選擇面積</option>
-                            <option value="大" {{$user->isTattooRange('大')?'selected':''}}>大</option>
-                            <option value="小" {{$user->isTattooRange('小')?'selected':''}}>小</option>
-                        </select>
-                        
-                    </font>
-                </dt>                  
-                  @endif
-                  <dt>
-                      <span>體型</span>
-                      <span>
-                        <select name="body"  class="select_xx01">
-                          <option value=null>請選擇</option>
-                          <option value="瘦"
-                                  @if($umeta->body == '瘦') selected @endif>瘦
-                          </option>
-                          <option value="標準"
-                                  @if($umeta->body == '標準') selected @endif>標準
-                          </option>
-                          <option value="微胖"
-                                  @if($umeta->body == '微胖') selected @endif>微胖
-                          </option>
-                          <option value="胖"
-                                  @if($umeta->body == '胖') selected @endif>胖
-                          </option>
-                        </select>
-                      </span>
-                  </dt>
-                  <dt>
-                      <span>關於我<i>(必填)</i></span>
-                      <span><textarea data-parsley-errors-messages-disabled name="about" cols="" rows="3" class="select_xx05">{{$umeta->about}}</textarea></span>
-                  </dt>
-                  <dt class="matopj15">
-                      <span>期待的約會模式<i>(必填)</i></span>
-                      <span><textarea data-parsley-errors-messages-disabled name="style" cols="" rows="3" class="select_xx05">{{$umeta->style}}</textarea></span>
-                  </dt>
-                  @if($user->engroup==2)
-                  <dt class="matopj15">
-                      <span>現況<i>(必填)</i></span>
-                      <span>
-                        <select data-parsley-errors-messages-disabled name="situation"  class="select_xx01">
-                          <option value="">請選擇</option>
-                          <option value="學生"
-                                  @if($umeta->situation == '學生') selected @endif>
-                              學生
-                          </option>
-                          <option value="待業"
-                                  @if($umeta->situation == '待業') selected @endif>
-                              待業
-                          </option>
-                          <option value="休學"
-                                  @if($umeta->situation == '休學') selected @endif>
-                              休學
-                          </option>
-                          <option value="打工"
-                                  @if($umeta->situation == '打工') selected @endif>
-                              打工
-                          </option>
-                          <option value="上班族"
-                                  @if($umeta->situation == '上班族') selected @endif>
-                              上班族
-                          </option>
-                        </select>
-                      </span>
-                  </dt>
-                  <dt>
-                      <span>職業</span>
-                      <span>
-                        <select name="occupation"  class="select_xx01">
-                          <option value=null>請選擇</option>
-                          <option value="學生"
-                                  @if($umeta->occupation == '學生') selected @endif>
-                              學生
-                          </option>
-                          <option value="無業"
-                                  @if($umeta->occupation == '無業') selected @endif>
-                              無業
-                          </option>
-                          <option value="人資"
-                                  @if($umeta->occupation == '人資') selected @endif>
-                              人資
-                          </option>
-                          <option value="業務銷售"
-                                  @if($umeta->occupation == '業務銷售') selected @endif>
-                              業務銷售
-                          </option>
-                          <option value="行銷企劃"
-                                  @if($umeta->occupation == '行銷企劃') selected @endif>
-                              行銷企劃
-                          </option>
-                          <option value="行政助理"
-                                  @if($umeta->occupation == '行政助理') selected @endif>
-                              行政助理
-                          </option>
-                          <option value="專案管理"
-                                  @if($umeta->occupation == '專案管理') selected @endif>
-                              專案管理
-                          </option>
-                          <option value="餐飲類服務業"
-                                  @if($umeta->occupation == '餐飲類服務業') selected @endif>
-                              餐飲類服務業
-                          </option>
-                          <option value="旅遊類服務業"
-                                  @if($umeta->occupation == '旅遊類服務業') selected @endif>
-                              旅遊類服務業
-                          </option>
-                          <option value="美容美髮美甲芳療"
-                                  @if($umeta->occupation == '美容美髮美甲芳療') selected @endif>
-                              美容美髮美甲芳療
-                          </option>
-                          <option value="操作員"
-                                  @if($umeta->occupation == '操作員') selected @endif>
-                              操作員
-                          </option>
-                          <option value="文字工作者"
-                                  @if($umeta->occupation == '文字工作者') selected @endif>
-                              文字工作者
-                          </option>
-                          <option value="學術研究"
-                                  @if($umeta->occupation == '學術研究') selected @endif>
-                              學術研究
-                          </option>
-                          <option value="教育輔導"
-                                  @if($umeta->occupation == '教育輔導') selected @endif>
-                              教育輔導
-                          </option>
-                          <option value="金融營業交易"
-                                  @if($umeta->occupation == '金融營業交易') selected @endif>
-                              金融營業交易
-                          </option>
-                          <option value="財務會計"
-                                  @if($umeta->occupation == '財務會計') selected @endif>
-                              財務會計
-                          </option>
-                          <option value="總機秘書櫃檯"
-                                  @if($umeta->occupation == '總機秘書櫃檯') selected @endif>
-                              總機秘書櫃檯
-                          </option>
-                          <option value="法務記帳代書"
-                                  @if($umeta->occupation == '法務記帳代書') selected @endif>
-                              法務記帳代書
-                          </option>
-                          <option value="資訊軟體"
-                                  @if($umeta->occupation == '資訊軟體') selected @endif>
-                              資訊軟體
-                          </option>
-                          <option value="客服"
-                                  @if($umeta->occupation == '客服') selected @endif>
-                              客服
-                          </option>
-                          <option value="貿易船務"
-                                  @if($umeta->occupation == '貿易船務') selected @endif>
-                              貿易船務
-                          </option>
-                          <option value="交通運輸物流"
-                                  @if($umeta->occupation == '交通運輸物流') selected @endif>
-                              交通運輸物流
-                          </option>
-                          <option value="倉管採購"
-                                  @if($umeta->occupation == '倉管採購') selected @endif>
-                              倉管採購
-                          </option>
-                          <option value="設計美術"
-                                  @if($umeta->occupation == '設計美術') selected @endif>
-                              設計美術
-                          </option>
-                          <option value="模特演員"
-                                  @if($umeta->occupation == '模特演員') selected @endif>
-                              模特演員
-                          </option>
-                          <option value="傳播藝術"
-                                  @if($umeta->occupation == '傳播藝術') selected @endif>
-                              傳播藝術
-                          </option>
-                        </select>
-                      </span>
-                      <div class="right" style="margin: 10px 0 -5px 10px;">
-                        <input type="hidden" name="isHideOccupation" value="0">
-                        <input type="checkbox" name="isHideOccupation"  @if($umeta->isHideOccupation == true) checked @endif value="1"> 隱藏職業
-                      </div>
-                  </dt>
-                  @else
-                  <dt class="matopj15">
-                      <span>產業</span>
-                      <span>
-                        <input type="hidden" name="day" value="01">
-                        <div class="se_zlman left">
-                          <select  class="select_xx2 left" name="domainType" id="domainType" onchange="setDomain(0);">
+                    @if($user->engroup==2)
+                        {{--<dt>--}}
+                            {{--<span>體重（kg）</span>--}}
+                            {{--<span><input minlength="2"  data-parsley-minlength="2" name="weight" type="text" class="select_xx01"  placeholder="請填入體重" value="{{$umeta->weight}}"></span>--}}
+                            {{--<div class="right" style="margin: 10px 0 -5px 10px;">--}}
+                                {{--<input type="hidden" name="isHideWeight" value="0">--}}
+                                {{--<input name="isHideArea" type="checkbox"  @if($umeta->isHideWeight == true) checked--}}
+                                {{--@endif value="1"> 隱藏體重--}}
+                            {{--</div>--}}
+                        {{--</dt>--}}
+                        <dt style="margin-bottom:7px;">
+                            <span>CUP</span>
+                            <span>
+                                <select name="cup"  class="select_xx01" >
+                                <option value=null>請選擇</option>
+                                <option value="A"
+                                        @if($umeta->cup == 'A') selected @endif>A
+                                </option>
+                                <option value="B"
+                                        @if($umeta->cup == 'B') selected @endif>B
+                                </option>
+                                <option value="C"
+                                        @if($umeta->cup == 'C') selected @endif>C
+                                </option>
+                                <option value="D"
+                                        @if($umeta->cup == 'D') selected @endif>D
+                                </option>
+                                <option value="E"
+                                        @if($umeta->cup == 'E') selected @endif>E
+                                </option>
+                                <option value="F"
+                                        @if($umeta->cup == 'F') selected @endif>F
+                                </option>
+                                </select>
+                            </span>
+                            <div class="n_xqline">
+                                <div class="right" style="margin-bottom: 10px;">
+                                    <input type="hidden" name="isHideCup" value="0">
+                                    <input name="isHideCup" type="checkbox" @if($umeta->isHideCup == true) checked @endif value="1"> 隱藏CUP
+                                </div>
+                            </div>
+                        </dt>
+                        <dt>
+                            <span>有刺青</span>
+                            <font>
+                                <select name="tattoo_part" id="tattoo_part" class="select_xx01 new_iptnone select_xx2" style="width: 48%; float: left;color:#666666;">
+                                    <option value="">請選擇位置</option>
+                                    <option value="四肢" {{$user->isTattooPart('四肢')?'selected':''}}>四肢</option>
+                                    <option value="身體" {{$user->isTattooPart('身體')?'selected':''}}>身體</option>
+                                </select>
+                                <select name="tattoo_range" id="tattoo_range" class="select_xx01 new_iptnone select_xx2" style="width: 48%; float: right;color:#666666;">
+                                    <option value="">請選擇面積</option>
+                                    <option value="大" {{$user->isTattooRange('大')?'selected':''}}>大</option>
+                                    <option value="小" {{$user->isTattooRange('小')?'selected':''}}>小</option>
+                                </select>
+                                
+                            </font>
+                        </dt>                  
+                    @endif
+                    <dt>
+                        <span>體型</span>
+                        <span>
+                            <select name="body"  class="select_xx01">
                             <option value=null>請選擇</option>
-                            <option value="資訊科技"
-                                    @if($umeta->domainType == '資訊科技') selected @endif>
-                                資訊科技
+                            <option value="瘦"
+                                    @if($umeta->body == '瘦') selected @endif>瘦
                             </option>
-                            <option value="傳產製造"
-                                    @if($umeta->domainType == '傳產製造') selected @endif>
-                                傳產製造
+                            <option value="標準"
+                                    @if($umeta->body == '標準') selected @endif>標準
                             </option>
-                            <option value="工商服務"
-                                    @if($umeta->domainType == '工商服務') selected @endif>
-                                工商服務
+                            <option value="微胖"
+                                    @if($umeta->body == '微胖') selected @endif>微胖
                             </option>
-                            <option value="民生服務"
-                                    @if($umeta->domainType == '民生服務') selected @endif>
-                                民生服務
+                            <option value="胖"
+                                    @if($umeta->body == '胖') selected @endif>胖
                             </option>
-                            <option value="文教傳播"
-                                    @if($umeta->domainType == '文教傳播') selected @endif>
-                                文教傳播
+                            </select>
+                        </span>
+                    </dt>
+                    <dt>
+                        <span>關於我<i>(必填)</i></span>
+                        <span><textarea data-parsley-errors-messages-disabled name="about" cols="" rows="3" class="select_xx05">{{$umeta->about}}</textarea></span>
+                    </dt>
+                    <dt class="matopj15">
+                        <span>期待的約會模式<i>(必填)</i></span>
+                        <span><textarea data-parsley-errors-messages-disabled name="style" cols="" rows="3" class="select_xx05">{{$umeta->style}}</textarea></span>
+                    </dt>
+                    @if($user->engroup==2)
+                        <dt class="matopj15">
+                            <span>現況<i>(必填)</i></span>
+                            <span>
+                                <select data-parsley-errors-messages-disabled name="situation"  class="select_xx01">
+                                <option value="">請選擇</option>
+                                <option value="學生"
+                                        @if($umeta->situation == '學生') selected @endif>
+                                    學生
+                                </option>
+                                <option value="待業"
+                                        @if($umeta->situation == '待業') selected @endif>
+                                    待業
+                                </option>
+                                <option value="休學"
+                                        @if($umeta->situation == '休學') selected @endif>
+                                    休學
+                                </option>
+                                <option value="打工"
+                                        @if($umeta->situation == '打工') selected @endif>
+                                    打工
+                                </option>
+                                <option value="上班族"
+                                        @if($umeta->situation == '上班族') selected @endif>
+                                    上班族
+                                </option>
+                                </select>
+                            </span>
+                        </dt>
+                        <dt>
+                            <span>職業</span>
+                            <span>
+                                <select name="occupation"  class="select_xx01">
+                                <option value=null>請選擇</option>
+                                <option value="學生"
+                                        @if($umeta->occupation == '學生') selected @endif>
+                                    學生
+                                </option>
+                                <option value="無業"
+                                        @if($umeta->occupation == '無業') selected @endif>
+                                    無業
+                                </option>
+                                <option value="人資"
+                                        @if($umeta->occupation == '人資') selected @endif>
+                                    人資
+                                </option>
+                                <option value="業務銷售"
+                                        @if($umeta->occupation == '業務銷售') selected @endif>
+                                    業務銷售
+                                </option>
+                                <option value="行銷企劃"
+                                        @if($umeta->occupation == '行銷企劃') selected @endif>
+                                    行銷企劃
+                                </option>
+                                <option value="行政助理"
+                                        @if($umeta->occupation == '行政助理') selected @endif>
+                                    行政助理
+                                </option>
+                                <option value="專案管理"
+                                        @if($umeta->occupation == '專案管理') selected @endif>
+                                    專案管理
+                                </option>
+                                <option value="餐飲類服務業"
+                                        @if($umeta->occupation == '餐飲類服務業') selected @endif>
+                                    餐飲類服務業
+                                </option>
+                                <option value="旅遊類服務業"
+                                        @if($umeta->occupation == '旅遊類服務業') selected @endif>
+                                    旅遊類服務業
+                                </option>
+                                <option value="美容美髮美甲芳療"
+                                        @if($umeta->occupation == '美容美髮美甲芳療') selected @endif>
+                                    美容美髮美甲芳療
+                                </option>
+                                <option value="操作員"
+                                        @if($umeta->occupation == '操作員') selected @endif>
+                                    操作員
+                                </option>
+                                <option value="文字工作者"
+                                        @if($umeta->occupation == '文字工作者') selected @endif>
+                                    文字工作者
+                                </option>
+                                <option value="學術研究"
+                                        @if($umeta->occupation == '學術研究') selected @endif>
+                                    學術研究
+                                </option>
+                                <option value="教育輔導"
+                                        @if($umeta->occupation == '教育輔導') selected @endif>
+                                    教育輔導
+                                </option>
+                                <option value="金融營業交易"
+                                        @if($umeta->occupation == '金融營業交易') selected @endif>
+                                    金融營業交易
+                                </option>
+                                <option value="財務會計"
+                                        @if($umeta->occupation == '財務會計') selected @endif>
+                                    財務會計
+                                </option>
+                                <option value="總機秘書櫃檯"
+                                        @if($umeta->occupation == '總機秘書櫃檯') selected @endif>
+                                    總機秘書櫃檯
+                                </option>
+                                <option value="法務記帳代書"
+                                        @if($umeta->occupation == '法務記帳代書') selected @endif>
+                                    法務記帳代書
+                                </option>
+                                <option value="資訊軟體"
+                                        @if($umeta->occupation == '資訊軟體') selected @endif>
+                                    資訊軟體
+                                </option>
+                                <option value="客服"
+                                        @if($umeta->occupation == '客服') selected @endif>
+                                    客服
+                                </option>
+                                <option value="貿易船務"
+                                        @if($umeta->occupation == '貿易船務') selected @endif>
+                                    貿易船務
+                                </option>
+                                <option value="交通運輸物流"
+                                        @if($umeta->occupation == '交通運輸物流') selected @endif>
+                                    交通運輸物流
+                                </option>
+                                <option value="倉管採購"
+                                        @if($umeta->occupation == '倉管採購') selected @endif>
+                                    倉管採購
+                                </option>
+                                <option value="設計美術"
+                                        @if($umeta->occupation == '設計美術') selected @endif>
+                                    設計美術
+                                </option>
+                                <option value="模特演員"
+                                        @if($umeta->occupation == '模特演員') selected @endif>
+                                    模特演員
+                                </option>
+                                <option value="傳播藝術"
+                                        @if($umeta->occupation == '傳播藝術') selected @endif>
+                                    傳播藝術
+                                </option>
+                                </select>
+                            </span>
+                            <div class="right" style="margin: 10px 0 -5px 10px;">
+                                <input type="hidden" name="isHideOccupation" value="0">
+                                <input type="checkbox" name="isHideOccupation"  @if($umeta->isHideOccupation == true) checked @endif value="1"> 隱藏職業
+                            </div>
+                        </dt>
+                    @else
+                        <dt class="matopj15">
+                            <span>產業</span>
+                            <span>
+                                <input type="hidden" name="day" value="01">
+                                <div class="se_zlman left">
+                                <select  class="select_xx2 left" name="domainType" id="domainType" onchange="setDomain(0);">
+                                    <option value=null>請選擇</option>
+                                    <option value="資訊科技"
+                                            @if($umeta->domainType == '資訊科技') selected @endif>
+                                        資訊科技
+                                    </option>
+                                    <option value="傳產製造"
+                                            @if($umeta->domainType == '傳產製造') selected @endif>
+                                        傳產製造
+                                    </option>
+                                    <option value="工商服務"
+                                            @if($umeta->domainType == '工商服務') selected @endif>
+                                        工商服務
+                                    </option>
+                                    <option value="民生服務"
+                                            @if($umeta->domainType == '民生服務') selected @endif>
+                                        民生服務
+                                    </option>
+                                    <option value="文教傳播"
+                                            @if($umeta->domainType == '文教傳播') selected @endif>
+                                        文教傳播
+                                    </option>
+                                </select>
+                                </div>
+                                <div class="se_zlman right">
+                                <select class="select_xx2 right" name="domain" id="domain">
+                                </select>
+                                </div>
+                            </span>
+                        </dt>
+                        <dt class="matopj15">
+                            <span>職業<i></i></span>
+                            <span>
+                                <input name="occupation" type="text" class="select_xx01"  placeholder="請填入職業" @if(!empty($umeta->occupation) && $umeta->occupation != 'null')value="{{$umeta->occupation}}" @endif>
+                                <input name="occupation" id="occupation" type="hidden" value=null>
+                            </span>
+                        </dt>
+                    @endif
+                    <dt>
+                        <span>教育<i>(必填)</i></span>
+                        <span>
+                            <select data-parsley-errors-messages-disabled name="education"  class="select_xx01">
+                            <option value="">請選擇</option>
+                            <option value="國中"
+                                    @if($umeta->education == '國中') selected @endif>
+                                國中
                             </option>
-                          </select>
-                        </div>
-                        <div class="se_zlman right">
-                          <select class="select_xx2 right" name="domain" id="domain">
-                          </select>
-                        </div>
-                      </span>
-                  </dt>
-                  <dt class="matopj15">
-                      <span>職業<i></i></span>
-                      <span>
-                          <input name="occupation" type="text" class="select_xx01"  placeholder="請填入職業" @if(!empty($umeta->occupation) && $umeta->occupation != 'null')value="{{$umeta->occupation}}" @endif>
-                          <input name="occupation" id="occupation" type="hidden" value=null>
-                      </span>
-                  </dt>
-                  @endif
-                  <dt>
-                      <span>教育<i>(必填)</i></span>
-                      <span>
-                        <select data-parsley-errors-messages-disabled name="education"  class="select_xx01">
-                          <option value="">請選擇</option>
-                          <option value="國中"
-                                  @if($umeta->education == '國中') selected @endif>
-                              國中
-                          </option>
-                          <option value="高中"
-                                  @if($umeta->education == '高中') selected @endif>
-                              高中
-                          </option>
-                          <option value="大學"
-                                  @if($umeta->education == '大學') selected @endif>
-                              大學
-                          </option>
-                          <option value="研究所"
-                                  @if($umeta->education == '研究所') selected @endif>
-                              研究所
-                          </option>
-                        </select>
-                      </span>
-                  </dt>
-                  <dt>
-                      <span>婚姻<i>(必填)</i></span>
-                      <span>
-                        <select data-parsley-errors-messages-disabled name="marriage"  class="select_xx01">
-                          <option value="">請選擇</option>
-                          <option value="已婚"
-                                  @if($umeta->marriage == '已婚') selected @endif>已婚
-                          </option>
-                          <option value="分居"
-                                  @if($umeta->marriage == '分居') selected @endif>分居
-                          </option>
-                          <option value="單身"
-                                  @if($umeta->marriage == '單身') selected @endif>單身
-                          </option>
-                          @if($user->engroup==1)
-                          <option value="有女友"
-                                      @if($umeta->marriage == '有女友') selected @endif>
-                                  有女友
-                          </option>
-                          @else
-                          <option value="有男友"
-                                      @if($umeta->marriage == '有男友') selected @endif>
-                                  有男友
-                          </option>
-                          @endif
-                        </select>
-                      </span>
-                  </dt>
+                            <option value="高中"
+                                    @if($umeta->education == '高中') selected @endif>
+                                高中
+                            </option>
+                            <option value="大學"
+                                    @if($umeta->education == '大學') selected @endif>
+                                大學
+                            </option>
+                            <option value="研究所"
+                                    @if($umeta->education == '研究所') selected @endif>
+                                研究所
+                            </option>
+                            </select>
+                        </span>
+                    </dt>
+                    <dt>
+                        <span>婚姻<i>(必填)</i></span>
+                        <span>
+                            <select data-parsley-errors-messages-disabled name="marriage"  class="select_xx01">
+                            <option value="">請選擇</option>
+                            <option value="已婚"
+                                    @if($umeta->marriage == '已婚') selected @endif>已婚
+                            </option>
+                            <option value="分居"
+                                    @if($umeta->marriage == '分居') selected @endif>分居
+                            </option>
+                            <option value="單身"
+                                    @if($umeta->marriage == '單身') selected @endif>單身
+                            </option>
+                            @if($user->engroup==1)
+                            <option value="有女友"
+                                        @if($umeta->marriage == '有女友') selected @endif>
+                                    有女友
+                            </option>
+                            @else
+                            <option value="有男友"
+                                        @if($umeta->marriage == '有男友') selected @endif>
+                                    有男友
+                            </option>
+                            @endif
+                            </select>
+                        </span>
+                    </dt>
                     @if($user->engroup==2)
                         <dt>
                             <span>希望進一步發展嗎?</span>
