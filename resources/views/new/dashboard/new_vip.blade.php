@@ -176,7 +176,7 @@
                         <div class="vipbongn">
                             {!!  $vip_text  !!}
                         </div>
-                        <div class="n_vipbotf">本筆款項在信用卡帳單顯示為 信宏資產管理公司</div>
+                        {{--<div class="n_vipbotf">本筆款項在信用卡帳單顯示為 信宏資產管理公司</div>--}}
                         {{-- cancel vip --}}
                         <div class="hy_width n_viptop20"  id="vip_cancel" style="display:none">
                             <div class="fi_xq">
