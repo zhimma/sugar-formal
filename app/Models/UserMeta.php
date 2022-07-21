@@ -52,6 +52,7 @@ class UserMeta extends Model
         'isHideWeight',
         'cup',
         'body_touch',
+        'is_hide_body_touch',
         'available_time',
         'family_situation',
         'isHideCup',
@@ -667,7 +668,11 @@ class UserMeta extends Model
             }
             if (isset($situation) && strlen($situation) != 0) $query->where('situation', $situation);
             if (isset($education) && strlen($education) != 0) $query->where('education', $education);
-            if (isset($body_touch) && strlen($body_touch) != 0) $query->where('body_touch', $body_touch);
+            if (isset($body_touch) && strlen($body_touch) != 0) 
+            {
+                $query->where('body_touch', $body_touch);
+                $query->where('is_hide_body_touch', 0);
+            }
 
             if($isWarned != 2 && $userIsVip){
                 $query->where('isWarned', 0);

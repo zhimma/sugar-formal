@@ -442,6 +442,12 @@ dt span.engroup_type_title {display:inline-block;width:10%;white-space:nowrap;}
                                         @if($umeta->body_touch == '拒絕') selected @endif>拒絕
                                 </option>
                             </select>
+                            <div class="n_xqline">
+                                <div class="right" style="margin-bottom: 10px;">
+                                    <input type="hidden" name="is_hide_body_touch" value="0">
+                                    <input name="is_hide_body_touch" type="checkbox" @if($umeta->is_hide_body_touch == true) checked @endif value="1"> 隱藏肢體接觸
+                                </div>
+                            </div>
                         </dt>
                         <dt>
                             <span>有空時段</span>

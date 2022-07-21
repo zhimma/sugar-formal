@@ -1120,7 +1120,7 @@ header("Expires: Fri, 01 Jan 1990 00:00:00 GMT");
                                 }
                             }
                             
-                            if(umeta.body_touch == '接受')
+                            if(umeta.body_touch == '接受' && umeta.is_hide_body_touch == '0')
                             {
                                 csrData +='<img src="/new/images/zz_01.png" style="float: right;">';
                             }

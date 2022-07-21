@@ -988,13 +988,6 @@
                                             <div class="select_xx01 senhs hy_new">{{$to->meta->weight-4}} ~ {{$to->meta->weight}}</div>
                                         </span>
                                     </dt>
-                                    {{--@else--}}
-                                    {{--<dt>--}}
-                                        {{--<span>體重（kg）</span>--}}
-                                        {{--<span>--}}
-                                            {{--<div class="select_xx01 senhs hy_new">未填寫</div>--}}
-                                        {{--</span>--}}
-                                    {{--</dt>--}}
                                     @endif
 
                                     @if(!empty($to->meta->body) && $to->meta->body != null && $to->meta->body != 'null')
@@ -1004,40 +997,56 @@
                                             <div class="select_xx01 senhs hy_new">{{$to->meta->body}}</div>
                                         </span>
                                     </dt>
-                                    {{--@else--}}
-                                        {{--<dt>--}}
-                                            {{--<span>體型</span>--}}
-                                            {{--<span>--}}
-                                                {{--<div class="select_xx01 senhs hy_new">未填寫</div>--}}
-                                            {{--</span>--}}
-                                        {{--</dt>--}}
+                                    @endif
+                                    
+                                    @if($to->engroup == 2)
+                                        @if((!empty($to->meta->cup) && $to->meta->isHideCup == '0' && ($to->meta->cup == 'A' || $to->meta->cup == 'B' ||$to->meta->cup == 'C' || $to->meta->cup == 'D' || $to->meta->cup == 'E' || $to->meta->cup == 'F')))
+                                            <dt>
+                                                <span>CUP</span>
+                                                <span>
+                                                    <div class="select_xx01 senhs hy_new">{{$to->meta->cup}}</div>
+                                                </span>
+                                            </dt>
+                                        @endif
+                                        
+                                        @if(!empty($to->meta->family_situation) && $to->meta->family_situation != 'null')
+                                            <dt>
+                                                <span>家庭狀況</span>
+                                                <span>
+                                                    <div class="select_xx01 senhs hy_new">{{$to->meta->family_situation}}</div>
+                                                </span>
+                                            </dt>
+                                        @endif
+                                        
+                                        @if(!empty($to->meta->body_touch) && $to->meta->body_touch != 'null' && $to->meta->is_hide_body_touch == '0')
+                                            <dt>
+                                                <span>肢體接觸</span>
+                                                <span>
+                                                    <div class="select_xx01 senhs hy_new">{{$to->meta->body_touch}}</div>
+                                                </span>
+                                            </dt>
+                                        @endif
+
+                                        @if(!empty($to->meta->available_time) && $to->meta->available_time != 'null')
+                                            <dt>
+                                                <span>有空時段</span>
+                                                <span>
+                                                    <div class="select_xx01 senhs hy_new">{{$to->meta->available_time}}</div>
+                                                </span>
+                                            </dt>
+                                        @endif
+
+                                        @if($to->tattoo->count())
+                                            <dt>
+                                                <span>刺青</span>                                    
+                                                <span>
+                                                    <font class="select_xx senhs left hy_new">{{$to->tattoo->first()->part}}</font>
+                                                    <font class="select_xx senhs right hy_new">{{$to->tattoo->first()->range}}</font>
+                                                </span>                                    
+                                            </dt>
+                                        @endif
                                     @endif
 
-                                    @if($to->engroup == 2 && (!empty($to->meta->cup) && $to->meta->isHideCup == '0' && ($to->meta->cup == 'A' || $to->meta->cup == 'B' ||$to->meta->cup == 'C' || $to->meta->cup == 'D' || $to->meta->cup == 'E' || $to->meta->cup == 'F')))
-                                    <dt>
-                                        <span>CUP</span>
-                                        <span>
-                                            <div class="select_xx01 senhs hy_new">{{$to->meta->cup}}</div>
-                                        </span>
-                                    </dt>
-                                    {{--@elseif($to->engroup == 2)--}}
-                                        {{--<dt>--}}
-                                            {{--<span>CUP</span>--}}
-                                            {{--<span>--}}
-                                                {{--<div class="select_xx01 senhs hy_new">未填寫</div>--}}
-                                            {{--</span>--}}
-                                        {{--</dt>--}}
-                                    @endif
-
-                                    @if($to->engroup == 2 && $to->tattoo->count())
-                                    <dt>
-                                        <span>刺青</span>                                    
-                                        <span>
-                                            <font class="select_xx senhs left hy_new">{{$to->tattoo->first()->part}}</font>
-                                            <font class="select_xx senhs right hy_new">{{$to->tattoo->first()->range}}</font>
-                                        </span>                                    
-                                    </dt>
-                                    @endif
                                     @if(!empty($to->meta->about))
                                     <dt>
                                         <span>關於我</span>
