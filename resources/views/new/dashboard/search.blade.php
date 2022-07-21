@@ -1021,7 +1021,9 @@ header("Expires: Fri, 01 Jan 1990 00:00:00 GMT");
                                         }
                                     csrData +='</div>';
                                 csrData +='</div>';
-                            }else{
+                            }else if(umeta.is_pure_dating==1 && rowEngroup == 2){
+                                csrData +='<img src="/new/images/zz_01.png" style="float: right;">';
+                            } else{
                                 if(this.userIsVip){
                                     csrVar = 'xa_ssbg';
                                 }else{
