@@ -69,6 +69,49 @@
 						</a>
 					</div>
 
+					<div class="tl_bbg_1" style="margin-top: 15px;">
+						<a href="/dashboard/suspicious_list">
+						<img src="/posts/images/taolq04.png" class="tl_bbg_img">
+						<div class="te_ins_1">
+							<div class="ta_wdka_text te_incob">提報數<span class="te_cbk">{{ $suspicious_list_num }}</span></div>
+							<div class="ta_witx_rig">
+								<div class="wt_txb">
+									@foreach($suspicious_list as $key=>$row)
+										@if(count($suspicious_list)>5)
+											@once
+											<span class="ta_toxmr">
+												<img src="/posts/images/imor.png" class="hycov">
+											</span>
+											@endonce
+										@endif
+
+										@if($key==0)
+											<span class="ta_toxmr @if(count($suspicious_list)>5) xa_rig10 @endif">
+												<img src="@if(file_exists( public_path().$row->umpic ) && $row->umpic != ""){{$row->umpic}} @elseif($row->engroup==2)/new/images/female.png @else/new/images/male.png @endif" class="hycov">
+											</span>
+										@elseif($key>0 && $key<5)
+											<span class="ta_toxmr xa_rig10">
+												<img src="@if(file_exists( public_path().$row->umpic ) && $row->umpic != ""){{$row->umpic}} @elseif($row->engroup==2)/new/images/female.png @else/new/images/male.png @endif" class="hycov">
+											</span>
+										@endif
+									@endforeach
+									@if($suspicious_list->count())
+										@if($suspicious_list->count()>1)
+											@if($suspicious_list->count() >= 100)
+												<div class="ta_sz_hundred" style="background: #85a0c0;">{{ $suspicious_list->count() }}</div>
+											@elseif($suspicious_list->count() >= 10)
+												<div class="ta_sz_ten" style="background: #85a0c0;">{{ $suspicious_list->count() }}</div>
+											@else
+												<div class="ta_sz" style="background: #85a0c0;">{{ $suspicious_list->count() }}</div>
+											@endif
+										@endif
+									@endif
+								</div>
+							</div>
+						</div>
+						</a>
+					</div>
+
 					<div class="tl_bbg_2" style="margin-top: 15px;">
 						<a href="/dashboard/essence_enter_intro">
 							<img src="/posts/images/taolq02-a.png" class="tl_bbg_img">

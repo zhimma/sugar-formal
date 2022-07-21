@@ -39,17 +39,17 @@
             {{-- <a class="item" href="{!! url('dashboard/posts_list') !!}"><li><img src="/new/images/letter.png"><span class="n_zylg">投稿文章</span></li></a> --}}
 
             <a class="item" href="{!! url('dashboard/evaluation_self') !!}"><li style="float: right;"><img src="/new/images/z_10.png"><span class="n_zylg">評價名單</span></li></a>
-            @if(isset($user) && $user->engroup == 1)
+            {{--@if(isset($user) && $user->engroup == 1)
             @if (isset($user) && $user->isVip())
                 <a class="item" href="{!! url('dashboard/suspicious') !!}"><li style="float: left;"><img src="/new/images/z_11.png"><span class="n_zylg01">可疑帳號<font class="n_flbr">交流區</font></span></li></a>
             @else
                 <a class="item" href="javascript:void(0);"><li style="float: left;"><img src="/new/images/z_11.png"><span class="n_zylg01">可疑帳號<font class="n_flbr">交流區</font></span><span class="vipOnly"><img src="/new/images/icon_36.png" style="height: auto;width:120px;"></span></li></a>
             @endif
-            @endif
+            @endif--}}
             @if (isset($user) && $user->isVip())
-                <a class="item" href="{!! url('/dashboard/search_discard/list') !!}"><li style="float:@if($user->engroup == 1) right; @else left; @endif"><img src="/new/images/z_12.png"><span class="n_zylg">略過名單</span></li></a>
+                <a class="item" href="{!! url('/dashboard/search_discard/list') !!}"><li style="float:left;"><img src="/new/images/z_12.png"><span class="n_zylg">略過名單</span></li></a>
             @else
-                <a class="item" href="javascript:void(0);"><li style="float:@if($user->engroup == 1) right; @else left; @endif"><img src="/new/images/z_12.png"><span class="n_zylg">略過名單</span><span class="vipOnly"><img src="/new/images/icon_36.png" style="height: auto;width:120px;"></span></li></a>
+                <a class="item" href="javascript:void(0);"><li style="float: left;"><img src="/new/images/z_12.png"><span class="n_zylg">略過名單</span><span class="vipOnly"><img src="/new/images/icon_36.png" style="height: auto;width:120px;"></span></li></a>
             @endif            
         </div>
       </div>

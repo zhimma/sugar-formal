@@ -28,6 +28,7 @@ use App\Models\Forum;
 use App\Models\Order;
 use App\Models\ReportedMessageBoard;
 use App\Models\SimpleTables\warned_users;
+use App\Models\Suspicious;
 use App\Models\VipLog;
 use Auth;
 use Carbon\Carbon;
@@ -1102,6 +1103,210 @@ class PagesController extends BaseController
         }
         // dd($suspicious);
         return view('new.dashboard.suspicious')->with('user', $user)->with('suspicious', $suspicious)->with('query', $request->input('q'));
+    }
+
+    public function suspicious_list(Request $request)
+    {
+        $user = $request->user();
+        $suspicious_type1=Suspicious::selectRaw('suspicious.*')
+            ->selectRaw('(select name from users where users.id=suspicious.user_id) AS reported_name')
+            ->selectRaw('(select name from users where users.id=suspicious.reporter_user_id) AS reporter_name')
+            ->leftJoin('users','users.id', 'suspicious.user_id')
+            ->where('suspicious.report_type',1)
+            ->orderBy('suspicious.id','desc');
+        $suspicious_type2=Suspicious::selectRaw('suspicious.*')
+            ->selectRaw('(select name from users where users.id=suspicious.user_id) AS reported_name')
+            ->selectRaw('(select name from users where users.id=suspicious.reporter_user_id) AS reporter_name')
+            ->leftJoin('users','users.id', 'suspicious.user_id')
+            ->where('suspicious.report_type',2)
+            ->orderBy('suspicious.id','desc');
+
+        if($request->has('q') && !empty($request->input('q'))) {
+            $suspicious_type1->whereRaw('(suspicious.account_text LIKE "%'.$request->input('q') .'%"  OR '.'users.name LIKE "%'.$request->input('q') .'%")');
+            $suspicious_type2->whereRaw('(suspicious.account_text LIKE "%'.$request->input('q') .'%"  OR '.'users.name LIKE "%'.$request->input('q') .'%")');
+        }
+        $suspicious_type1=$suspicious_type1->paginate(10,['*'], 'lists_type1');
+        $suspicious_type2=$suspicious_type2->paginate(10,['*'], 'lists_type2');
+        return view('new.dashboard.suspicious_list')
+            ->with('user', $user)
+            ->with('suspicious_type1', $suspicious_type1)
+            ->with('suspicious_type2', $suspicious_type2)
+            ->with('query', $request->input('q'));
+    }
+    public function suspicious_posts(Request $request)
+    {
+        $message_to_id=Message::whereRaw('(select count(*) from role_user where  role_user.user_id=message.to_id) =0')->where('from_id', auth()->user()->id)->groupBy('to_id')->get()->pluck('to_id')->toArray();
+        $message_from_id=Message::whereRaw('(select count(*) from role_user where  role_user.user_id=message.from_id) =0')->where('to_id', auth()->user()->id)->groupBy('from_id')->get()->pluck('from_id')->toArray();
+        $message_user_list=array_unique(array_merge($message_to_id, $message_from_id));
+
+        $suspicious_id=$request->get('suspicious_id');
+        return view('new.dashboard.suspicious_posts', compact('message_user_list','suspicious_id'));
+    }
+
+    public function suspicious_pic_save($suspicious_id, $images, $newImages)
+    {
+        $suspicious=Suspicious::where('id',$suspicious_id)->first();
+        $suspiciousImages=$suspicious && !is_null($suspicious->images)? json_decode($suspicious->images, true) : [];
+        $nowImageList=array();
+        $images=json_decode($images, true);
+        if($images){
+            foreach ($images as $imageList){
+                $nowImageList[]=array_get($imageList,'file');
+            }
+        }
+
+        foreach ($suspiciousImages as $key => $dbImage){
+            if(in_array($dbImage, $nowImageList)){
+                continue;
+            }else{
+                //移除照片
+                if(file_exists(public_path().$dbImage)){
+                    unlink(public_path().$dbImage);
+                }
+                unset($suspiciousImages[$key]);
+            }
+        }
+
+        $destinationPath = [];
+        //新增新加入照片
+        if($files = $newImages)
+        {
+            foreach ($files as $file) {
+                $now = Carbon::now()->format('Ymd');
+                $input['imagename'] = $now . rand(100000000,999999999) . '.' . $file->getClientOriginalExtension();
+
+                $rootPath = public_path('/img/Suspicious');
+                $tempPath = $rootPath . '/' . substr($input['imagename'], 0, 4) . '/' . substr($input['imagename'], 4, 2) . '/'. substr($input['imagename'], 6, 2) . '/';
+
+                if(!is_dir($tempPath)) {
+                    File::makeDirectory($tempPath, 0777, true);
+                }
+
+                $destinationPath[] = '/img/Suspicious/'. substr($input['imagename'], 0, 4) . '/' . substr($input['imagename'], 4, 2) . '/'. substr($input['imagename'], 6, 2) . '/' . $input['imagename'];
+
+                $img = Image::make($file->getRealPath());
+                $img->resize(400, 600, function ($constraint) {
+                    $constraint->aspectRatio();
+                })->save($tempPath . $input['imagename']);
+
+            }
+        }
+        //整理images
+        $destinationPath = json_encode(array_merge($suspiciousImages, $destinationPath));
+        return $destinationPath;
+    }
+
+
+    public function suspicious_doPosts(Request $request)
+    {
+        //儲存照片
+        $fileuploaderListImages = $request->get('fileuploader-list-images');
+        $destinationPath=$this->suspicious_pic_save($request->get('suspicious_id'), $fileuploaderListImages, $request->file('images'));
+
+        $target_user_id=$request->get('target_user_id');
+        $target_user=User::findById($target_user_id);
+
+        if($request->get('action') == 'update'){
+            Suspicious::find($request->get('suspicious_id'))
+                ->update([
+                    'user_id'=>$request->get('target_user_id'),
+                    'name'=>$target_user? $target_user->name :'',
+                    'account_text'=>$request->get('account_text'),
+                    'reason'=>$request->get('reason'),
+                    'images' => isset($destinationPath) ? $destinationPath : null,
+                    'report_type'=>$request->get('type'),
+                ]);
+            return redirect('/dashboard/suspicious_list?s=false')->with('message','修改成功');
+        }else{
+            Suspicious::create([
+                'user_id'=>$request->get('target_user_id'),
+                'name'=>$target_user? $target_user->name :'',
+                'account_text'=>$request->get('account_text'),
+                'reason'=>$request->get('reason'),
+                'images' => isset($destinationPath) ? $destinationPath : null,
+                'report_type'=>$request->get('type'),
+                'reporter_user_id'=>auth()->user()->id,
+            ]);
+
+            //經由我也被這個銀行帳號騙過按鈕進來的, 需要更新reporter_user_id_list
+            if(!empty($request->get('cheatPlus_suspiciousID'))){
+                $suspicious = Suspicious::where('id', $request->get('cheatPlus_suspiciousID'))->first();
+                if($suspicious){
+                    $user_id_list=explode(",",$suspicious->reporter_user_id_list);
+                    $arr=array_unique(array_merge($user_id_list, [auth()->user()->id]));
+                    foreach ($arr as $key => $value){
+                        if(empty($value)){
+                            unset($arr[$key]);
+                        }
+                    }
+                    $suspicious->reporter_user_id_list=implode(",",$arr);
+                    $suspicious->save();
+                }
+            }
+            return redirect('/dashboard/suspicious_list?s=false')->with('message','提報成功');
+        }
+    }
+
+    public function view_suspicious_edit($id)
+    {
+        $suspicious = Suspicious::find($id);
+        $message_to_id=Message::whereRaw('(select count(*) from role_user where  role_user.user_id=message.to_id) =0')->where('from_id', auth()->user()->id)->groupBy('to_id')->get()->pluck('to_id')->toArray();
+        $message_from_id=Message::whereRaw('(select count(*) from role_user where  role_user.user_id=message.from_id) =0')->where('to_id', auth()->user()->id)->groupBy('from_id')->get()->pluck('from_id')->toArray();
+        $message_user_list=array_unique(array_merge($message_to_id, $message_from_id));
+
+        $images=json_decode($suspicious->images, true);
+        $imagesGroup=array();
+        if(!is_null($images) && count($images)){
+            foreach ($images as $key => $path) {
+                if(file_exists(public_path($path))){
+                    $imagePath = $path;
+                    $imagesGroup['type'][$key] = \App\Helpers\fileUploader_helper::mime_content_type(ltrim($imagePath, '/'));
+                    $imagesGroup['name'][$key] = Arr::last(explode('/', $imagePath));
+                    $imagesGroup['size'][$key] = str_starts_with($imagePath, 'http') ? null :filesize(ltrim($imagePath, '/'));
+                    $imagesGroup['local'][$key] = $imagePath;
+                    $imagesGroup['file'][$key] = $imagePath;
+                    $imagesGroup['data'][$key] = [
+                        'url' => $imagePath,
+                        'thumbnail' =>$imagePath,
+                        'renderForce' => true
+                    ];
+                }
+            }
+        }
+        $images=$imagesGroup;
+        return view('new.dashboard.suspicious_edit',compact('suspicious', 'message_user_list', 'images'));
+    }
+    public function suspicious_delete($id)
+    {
+        $suspicious = Suspicious::where('id', $id)->first();
+        if($suspicious->reporter_user_id !== auth()->user()->id){
+            return response()->json(['msg'=>'刪除失敗 不可刪除別人的留言!']);
+        }else{
+            $suspicious->delete();
+            return response()->json(['msg'=>'刪除成功!','redirectTo'=>'/dashboard/suspicious_list?s=false']);
+        }
+    }
+    public function suspicious_count($id)
+    {
+        $suspicious = Suspicious::where('id', $id)->first();
+        if($suspicious){
+            $user_id_list=explode(",",$suspicious->reporter_user_id_list);
+            if(auth()->user()->id!==$suspicious->reporter_user_id){
+                $arr=array_unique(array_merge($user_id_list, [auth()->user()->id]));
+            }else{
+                $arr=array_unique($user_id_list);
+            }
+
+            foreach ($arr as $key => $value){
+                if(empty($value)){
+                    unset($arr[$key]);
+                }
+            }
+            $suspicious->reporter_user_id_list=implode(",",$arr);
+            $suspicious->save();
+        }
+        return redirect('/dashboard/suspicious_list?s=false');
+
     }
 
     public function changePassword(Request $request){
@@ -5476,10 +5681,21 @@ class PagesController extends BaseController
         }
         $essence_posts_num=$essence_posts_num->get()->count();
 
+        //可疑銀行帳號交流區
+        $suspicious_list=Suspicious::selectraw('suspicious.*,users.engroup as uengroup,user_meta.pic as umpic')
+            ->LeftJoin('users', 'users.id','=','suspicious.reporter_user_id')
+            ->join('user_meta', 'users.id','=','user_meta.user_id')
+            ->whereIn('suspicious.report_type',[1,2])
+            ->orderBy('suspicious.id','desc')
+            ->groupBy('suspicious.reporter_user_id')->get();//->reverse();
+        $suspicious_list_num=Suspicious::whereIn('suspicious.report_type',[1,2])->get()->count();
+
        return view('/dashboard/forum', $data)
             ->with('checkUserVip', $checkUserVip)
             ->with('user', $user)
             ->with('forum_member_count', $forum_member_count)
+            ->with('suspicious_list', $suspicious_list)
+            ->with('suspicious_list_num', $suspicious_list_num)
             ->with('essence_posts_list', $essence_posts_list)
             ->with('essence_posts_num', $essence_posts_num);
     }

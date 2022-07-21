@@ -350,6 +350,12 @@ Route::group(['middleware' => ['auth', 'global', 'active', 'femaleActive', 'vipC
 
     Route::get('/dashboard/vipForNewebPay', 'PagesController@viewVipForNewebPay'); //new route
     Route::get('/dashboard/suspicious', 'PagesController@viewSuspicious'); //new route
+    Route::get('/dashboard/suspicious_list', 'PagesController@suspicious_list');
+    Route::get('/dashboard/suspicious_posts', 'PagesController@suspicious_posts');
+    Route::post('/dashboard/suspicious_doPosts', 'PagesController@suspicious_doPosts');
+    Route::get('/dashboard/view_suspicious_edit/{id}', 'PagesController@view_suspicious_edit');
+    Route::post('/dashboard/suspicious_delete/{id}', 'PagesController@suspicious_delete');
+    Route::get('/dashboard/suspicious_count/{id}', 'PagesController@suspicious_count');
     Route::post('/dashboard/suspicious_u_account', 'PagesController@suspiciousUserAccount')->name('suspicious_u_account'); //new route
 
     Route::get('/dashboard/account_manage', 'PagesController@view_account_manage'); //new route
