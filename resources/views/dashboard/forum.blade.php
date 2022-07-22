@@ -20,7 +20,7 @@
 			.ta_sz_ten{ position: absolute; width:20px; height:20px; color: #fff; border-radius: 100px; display: flex; text-align: center; justify-content: center; align-items: center; right: 0; top:0px; background: #69b9ff; font-size: 12px;}
 			.ta_sz_hundred{ position: absolute; width:25px; height:25px; color: #fff; border-radius: 100px; display: flex; text-align: center; justify-content: center; align-items: center; right: 0; top:0px; background: #69b9ff; font-size: 13px;}
 			
-			.hycov{ border-radius: 100px;}
+			.hycov{ border-radius: 100px; min-width:100%;}
 
 		</style>
 @endsection
