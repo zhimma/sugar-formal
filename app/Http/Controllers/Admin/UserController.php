@@ -1085,7 +1085,6 @@ class UserController extends \App\Http\Controllers\BaseController
         if ($block == 'userAdvInfo') {
             $userAdvInfo = \App\Models\User::userAdvInfo($user->id);
             return view('admin.users.advInfo_UserAdvInfo')
-                ->with('pageStay', $pageStay)
                 ->with('userAdvInfo', $userAdvInfo);
         }
         $userMessage = Message::where('from_id', $id)->orderBy('created_at', 'desc')->paginate(config('social.admin.showMessageCount'));
