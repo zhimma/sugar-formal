@@ -492,6 +492,29 @@
                 @endif
             </form>
         </td>
+        <td colspan="2">
+            <h4>停留時間</h4>
+            <table class="table table-bordered">
+                <thead>
+                <th style="width: 170px;">頁面名稱</th>
+                <th style="width: 170px;">停留時間(秒)</th>
+                </thead>
+                @foreach ($pageStay as $data)
+                    @foreach ($data as $name => $val)
+                        <tr>
+                            <td style="width: 170px;">
+                                @if($name == 'browse')
+                                    瀏覽資料
+                                @elseif ($name == 'newer_manual')
+                                    新手教學
+                                @endif
+                            </td>
+                            <td style="width: 170px;">{{$val??0}}</td>
+                        </tr>
+                    @endforeach
+                @endforeach
+            </table>
+        </td>
         <!--
         <td colspan='2'>
             <h4>隱藏付費紀錄</h4>

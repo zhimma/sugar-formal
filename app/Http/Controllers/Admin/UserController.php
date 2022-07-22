@@ -1076,18 +1076,10 @@ class UserController extends \App\Http\Controllers\BaseController
         }
         $userMeta = UserMeta::where('user_id', 'like', $id)->get()->first();
 
-        $pageStay = StayOnlineRecord::select(DB::raw("SUM(browse) as browse"), DB::raw("SUM(newer_manual) as newer_manual"))
-            ->where('user_id', $id)
-            ->where('browse', '>', 0)
-            ->orWhere('newer_manual', '>', 0)
-            ->where('user_id', $id)
-            ->get()
-            ->toArray();
         if ($block == 'pic') {
             return view('admin.users.advInfoPicBlock')
                 ->with('user', $user)
                 ->with('userMeta', $userMeta)
-                ->with('pageStay', $pageStay)
                 ->with('last_images_compare_encode', ImagesCompareEncode::orderByDesc('id')->firstOrNew());
         }
         if ($block == 'userAdvInfo') {
@@ -1684,6 +1676,15 @@ class UserController extends \App\Http\Controllers\BaseController
         //使用者紀錄
         $user_record = UserRecord::where('user_id', $user->id)->first();
 
+        //停留時間
+        $pageStay = StayOnlineRecord::select(DB::raw("SUM(browse) as browse"), DB::raw("SUM(newer_manual) as newer_manual"))
+            ->where('user_id', $id)
+            ->where('browse', '>', 0)
+            ->orWhere('newer_manual', '>', 0)
+            ->where('user_id', $id)
+            ->get()
+            ->toArray();
+
         if (str_contains(url()->current(), 'edit')) {
             $birthday = date('Y-m-d', strtotime($userMeta->birthdate));
             $birthday = explode('-', $birthday);
@@ -1729,6 +1730,7 @@ class UserController extends \App\Http\Controllers\BaseController
                 ->with('hideonline_order', $hideonline_order)
                 ->with('user_record', $user_record)
                 ->with('is_warned_of_budget', $is_warned_of_budget)
+                ->with('pageStay', $pageStay)
                 ;
         }
     }
