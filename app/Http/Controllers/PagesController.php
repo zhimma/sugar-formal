@@ -79,6 +79,7 @@ use Illuminate\Support\Facades\Http;
 use App\Services\SearchIgnoreService;
 use \FileUploader;
 use App\Models\UserRecord;
+use App\Models\OptionOccupation;
 
 class PagesController extends BaseController
 {
@@ -734,6 +735,8 @@ class PagesController extends BaseController
             $year=$month=$day='';
         }
 
+        $option['occupation'] = OptionOccupation::where('is_custom',false)->get();
+
         if ($user) {
 
             $pr = DB::table('pr_log')->where('user_id',$user->id)->where('active',1)->first();
@@ -770,6 +773,7 @@ class PagesController extends BaseController
                 ->with('no_avatar', isset($no_avatar)?$no_avatar->content:'')
                 ->with('pr', $pr)
                 //->with('isWarnedReason',$isWarnedReason)
+                ->with('option', $option)
                 ;
         }
     }
