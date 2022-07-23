@@ -24,7 +24,13 @@ class InsertDataToMessageRoom extends Migration
                     $row->to_id
                 );
 
-                $checkData = MessageRoomUserXref::whereIn('user_id',$rows)->groupBy('room_id')->havingRaw('count(user_id) = ?', [2]);
+                $checkData = MessageRoomUserXref::query()
+                                ->where('user_id', $row->from_id)
+                                ->whereIn('room_id', function($query) use ($row) {
+                                    $query->select('room_id')
+                                        ->from(with(new MessageRoomUserXref)->getTable())
+                                        ->where('user_id', $row->to_id);
+                                })->get();
         
                 if($checkData->count()==0){
                     $messageRoom = new MessageRoom;
