@@ -69,6 +69,10 @@ class BanJob implements ShouldQueue
             $Line = 0;
             switch($this->type)
             {
+                case 'profile':
+                    $Line = 79;
+                    break;
+                
                 case 'message':
                     $Line = 124;
                     break;
