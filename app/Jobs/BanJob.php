@@ -13,7 +13,7 @@ use App\Models\SimpleTables\banned_users;
 use Illuminate\Support\Facades\DB;
 use Carbon\Carbon;
 use App\Models\BannedUsersImplicitly;
-
+use Illuminate\Support\Facades\Log;
 
 class BanJob implements ShouldQueue
 {
@@ -32,6 +32,7 @@ class BanJob implements ShouldQueue
     
     public function __construct($uid, $ban_set, $user, $type)
     {
+        Log::info('start_jobs_BanJob_construct');
         $this->uid = $uid;
         $this->ban_set = $ban_set;
         $this->user = $user;
@@ -45,6 +46,8 @@ class BanJob implements ShouldQueue
      */
     public function handle()
     {
+        Log::info('start_jobs_BanJob');
+        Log::Info(Carbon::now());
         if($this->ban_set->set_ban == 1 && banned_users::where('member_id', $this->uid)->first() == null)
         {
             //直接封鎖
@@ -96,5 +99,6 @@ class BanJob implements ShouldQueue
             DB::table('is_warned_log')->insert(['user_id' => $this->uid, 'reason' => "系統原因($this->ban_set->id)"]);
             // UserMeta::where('user_id', $this->uid)->update(['isWarned' => 1]);
         }
+        sleep(90);
     }
 }

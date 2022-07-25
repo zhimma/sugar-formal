@@ -280,7 +280,7 @@ class SetAutoBan extends Model
 
                 //20220629新增圖片檔名
                 case 'picname':
-                    Log::info('start_pic_auto_ban');
+                    //Log::info('start_pic_auto_ban');
                     if(UserMeta::where('user_id',$uid)->where('pic_original_name','like','%'.$content.'%')->first() != null) $violation = true;
 
                     //有一筆違規就可以封鎖了
