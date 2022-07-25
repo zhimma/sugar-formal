@@ -54,7 +54,6 @@
                                         @endphp
                                         <h2>銀行帳號<span class="xzinput">{{ $str_star.str_replace($str_c, '', $suspicious_default->account_text) }}</span></h2>
                                         <input name="account_text" hidden value="{{ $suspicious_default->account_text }}">
-                                        <input name="cheatPlus_suspiciousID" hidden value="{{ $suspicious_default->id }}">
                                     @else
                                         <h2>銀行帳號<span class="xzinput"><input name="account_text" class="xte_input_a" placeholder="請輸入"></span></h2>
                                     @endif
