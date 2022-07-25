@@ -353,19 +353,10 @@ header("Expires: Fri, 01 Jan 1990 00:00:00 GMT");
                                                 <span>是否想進一步發展?<i class="ssrgf">(僅顯示有填寫者)</i></span>
                                                 <span class="line20">
                                                     <label class="n_tx">
-                                                        <input type="radio" name="is_pure_dating" value="1" id="is_pure_dating1" {{ 
-                                                            request()->is_pure_dating == "1" || session()->get('search_page_key.is_pure_dating') == "1"
-                                                            ? 'checked' : '' }}><i>是</i>
+                                                        <input type="radio" name="is_pure_dating" value="1" id="is_pure_dating1" {{request()->is_pure_dating == "1"? 'checked' : '' }}><i>是</i>
                                                     </label>
                                                     <label class="n_tx">
-                                                        <input type="radio" name="is_pure_dating" value="0" id="is_pure_dating0" {{
-                                                            request()->is_pure_dating == "0" ||  session()->get('search_page_key.is_pure_dating') == "0"
-                                                            ? 'checked' : ''}}><i>否</i>
-                                                    </label>
-                                                    <label class="n_tx">
-                                                        <input type="radio" name="is_pure_dating" value='-1' id="is_pure_datingn" {{
-                                                            (request()->is_pure_dating == '-1' || session()->get('search_page_key.is_pure_dating') == '-1') || (request()->is_pure_dating == "" || session()->get('search_page_key.is_pure_dating') == "")
-                                                            ? 'checked' : ''}}><i>不選擇</i>
+                                                        <input type="radio" name="is_pure_dating" value="0" id="is_pure_dating0" {{request()->is_pure_dating == "0"? 'checked' : ''}}><i>否</i>
                                                     </label>
                                                 </span>
                                             </dt>
@@ -988,6 +979,13 @@ header("Expires: Fri, 01 Jan 1990 00:00:00 GMT");
                             }
 
                             csrData +='<div class="n_seicon">';
+                            if(rowEngroup == 2){
+                                if(umeta.is_pure_dating==1){
+                                    csrData +='<img src="/new/images/zz_01.png" style="float: right;">';
+                                }else{
+                                    csrData +='<img src="/new/images/zz_02.png" style="float: right;">';
+                                }
+                            }
                             if(umetaIsWarned==1 || rowVisitorIsAdminWarned==1){
                                 csrData +='<div class="hoverTip">';
                                     csrData +='<div class="tagText" data-toggle="popover" data-content="此會員為警示會員，與此會員交流務必提高警覺！">';
@@ -1021,9 +1019,7 @@ header("Expires: Fri, 01 Jan 1990 00:00:00 GMT");
                                         }
                                     csrData +='</div>';
                                 csrData +='</div>';
-                            }else if(umeta.is_pure_dating==1 && rowEngroup == 2){
-                                csrData +='<img src="/new/images/zz_01.png" style="float: right;">';
-                            } else{
+                            }else{
                                 if(this.userIsVip){
                                     csrVar = 'xa_ssbg';
                                 }else{
