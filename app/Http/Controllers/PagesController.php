@@ -1227,22 +1227,6 @@ class PagesController extends BaseController
                 'report_type'=>$request->get('type'),
                 'reporter_user_id'=>auth()->user()->id,
             ]);
-
-            //經由我也被這個銀行帳號騙過按鈕進來的, 需要更新reporter_user_id_list
-            if(!empty($request->get('cheatPlus_suspiciousID'))){
-                $suspicious = Suspicious::where('id', $request->get('cheatPlus_suspiciousID'))->first();
-                if($suspicious){
-                    $user_id_list=explode(",",$suspicious->reporter_user_id_list);
-                    $arr=array_unique(array_merge($user_id_list, [auth()->user()->id]));
-                    foreach ($arr as $key => $value){
-                        if(empty($value)){
-                            unset($arr[$key]);
-                        }
-                    }
-                    $suspicious->reporter_user_id_list=implode(",",$arr);
-                    $suspicious->save();
-                }
-            }
             return redirect('/dashboard/suspicious_list?s=false')->with('message','提報成功');
         }
     }

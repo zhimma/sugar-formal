@@ -89,7 +89,10 @@
                                     </div>
                                 </div>
                                 <div class="ky_sy">
-                                    @if(auth()->user()->id!==$suspicious->reporter_user_id  && !in_array(auth()->user()->id, explode(',',$suspicious->reporter_user_id_list)))
+                                    @php
+                                        $suspicious_count=\App\Models\Suspicious::where('reporter_user_id', auth()->user()->id)->where('account_text', $suspicious->account_text)->get()->count();
+                                    @endphp
+                                    @if(auth()->user()->id!==$suspicious->reporter_user_id  && !in_array(auth()->user()->id, explode(',',$suspicious->reporter_user_id_list)) && $suspicious_count==0)
                                         <div class="kyzh_b" onclick="zh({{ $suspicious->id }})"><img src="/new/images/qz.png">我也被這個銀行帳號騙過</div>
                                     @endif
                                 </div>
@@ -163,7 +166,10 @@
                                     </ul>
                                 </div>
                                 <div class="ky_sy">
-                                    @if(auth()->user()->id!==$suspicious->reporter_user_id  && !in_array(auth()->user()->id, explode(',',$suspicious->reporter_user_id_list)))
+                                    @php
+                                        $suspicious_count=\App\Models\Suspicious::where('reporter_user_id', auth()->user()->id)->where('account_text', $suspicious->account_text)->get()->count();
+                                    @endphp
+                                    @if(auth()->user()->id!==$suspicious->reporter_user_id  && !in_array(auth()->user()->id, explode(',',$suspicious->reporter_user_id_list)) && $suspicious_count==0)
                                         <div class="kyzh_b" onclick="zh({{ $suspicious->id }})"><img src="/new/images/qz.png">我也被這個銀行帳號騙過</div>
                                     @endif
                                 </div>
