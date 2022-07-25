@@ -5211,4 +5211,9 @@ line-height:26px; box-shadow: 0 5px 5px #ffc1cd;}
 .za_photo_hh{ border: #e9e9e9 1px dashed;  background: #fafafa;}
 .za_c{ top: 0;}
 
+.zhu_y{width: 100%; border-radius: 10px; border: #ffccd6 1px solid; border-radius: 5px; background: #fff0f3; padding: 10px;
+    display: table; box-shadow: #fff0f3 0px 10px 15px; margin-bottom: 20px; margin-top: 15px;}
+.zhu_y img{width:18px; float: left;}
+.xh_font{width: calc(100% - 25px); float: right; color: #f00; font-weight: bold;}
+.te_tlh_n{width: 100%;background: #f1f1f1;margin-top: 10px;color: #999999;line-height: 22px;display: table; padding:10px;border-radius: 5px;}
 
