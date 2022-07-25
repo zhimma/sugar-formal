@@ -547,6 +547,15 @@ dt span.engroup_type_title {display:inline-block;width:10%;white-space:nowrap;}
                         <dt>
                             <span>職業</span>
                             <span>
+                                <select id="new_occupation" name="new_occupation"  class="select_xx01">
+                                    <option>請選擇</option>
+                                    @foreach($option['occupation'] as $option)
+                                        <option>{{$option->option_name}}</option>
+                                    @endforeach
+                                    <option value='other'>其他(自填)</option>
+                                </select>
+                                <input id="new_occupation_other" name="new_occupation_other" class="select_xx01" style="display:none">
+                                {{--
                                 <select name="occupation"  class="select_xx01">
                                     <option value=null>請選擇</option>
                                     <option value="學生"
@@ -654,6 +663,7 @@ dt span.engroup_type_title {display:inline-block;width:10%;white-space:nowrap;}
                                         傳播藝術
                                     </option>
                                 </select>
+                                --}}
                             </span>
                             <div class="right" style="margin: 10px 0 -5px 10px;">
                                 <input type="hidden" name="isHideOccupation" value="0">
@@ -1778,5 +1788,16 @@ dt span.engroup_type_title {display:inline-block;width:10%;white-space:nowrap;}
             }
         }
     </script>
-
+    <script>
+        $('#new_occupation').change(function(){
+            if($('#new_occupation').val() == 'other')
+            {
+                $('#new_occupation_other').show();
+            }
+            else
+            {
+                $('#new_occupation_other').hide();
+            }
+        });
+    </script>
 @stop

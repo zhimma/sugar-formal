@@ -80,6 +80,7 @@ use App\Services\SearchIgnoreService;
 use \FileUploader;
 use App\Models\UserRecord;
 use App\Models\OptionOccupation;
+use App\Models\UserOptionsXref;
 
 class PagesController extends BaseController
 {
@@ -735,7 +736,13 @@ class PagesController extends BaseController
             $year=$month=$day='';
         }
 
+        //系統固定選項
         $option['occupation'] = OptionOccupation::where('is_custom',false)->get();
+
+        //使用者選擇的選項
+        $user_option_xref = UserOptionsXref::where('user_id', $user->id);
+        $user_option['occupation'] = $user_option_xref->clone()->where('option_type', 1)->first();
+        Log::Info($user_option);
 
         if ($user) {
 
