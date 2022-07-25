@@ -60,10 +60,10 @@ class BanJob implements ShouldQueue
             }                         
             if($userBanned) {
                 $userBanned->member_id = $this->uid;
-                $userBanned->reason = "系統原因($this->ban_set->id)";
+                $userBanned->reason = "系統原因(".$this->ban_set->id.")";
                 $userBanned->save();
                 //寫入log
-                DB::table('is_banned_log')->insert(['user_id' => $this->uid, 'reason' => "系統原因($this->ban_set->id)"]);
+                DB::table('is_banned_log')->insert(['user_id' => $this->uid, 'reason' => "系統原因(".$this->ban_set->id.")"]);
             }
         }
         elseif($this->ban_set->set_ban == 2 && BannedUsersImplicitly::where('target', $this->uid)->first() == null)
@@ -87,7 +87,7 @@ class BanJob implements ShouldQueue
             //警示會員
             $userWarned = new warned_users;
             $userWarned->member_id = $this->uid;
-            $userWarned->reason = "系統原因($this->ban_set->id)";
+            $userWarned->reason = "系統原因(".$this->ban_set->id.")";
 
             if($this->ban_set->expired_days !=0)
             {
@@ -96,7 +96,7 @@ class BanJob implements ShouldQueue
 
             $userWarned->save();
             //寫入log
-            DB::table('is_warned_log')->insert(['user_id' => $this->uid, 'reason' => "系統原因($this->ban_set->id)"]);
+            DB::table('is_warned_log')->insert(['user_id' => $this->uid, 'reason' => "系統原因(".$this->ban_set->id.")"]);
             // UserMeta::where('user_id', $this->uid)->update(['isWarned' => 1]);
         }
         sleep(90);
