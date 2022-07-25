@@ -101,4 +101,9 @@ class BanJob implements ShouldQueue
         }
         sleep(90);
     }
+
+    public function retryUntil()
+    {
+        return now()->addMinutes(30);
+    }
 }
