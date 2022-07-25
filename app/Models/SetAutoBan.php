@@ -425,7 +425,8 @@ class SetAutoBan extends Model
                     $violation = true;
                 }
                 if ($violation) {
-                    BanJob::dispatch($uid, $ban_set, $user);
+                    $type = 'message';
+                    BanJob::dispatch($uid, $ban_set, $user, $type);
                 }
             }
         }
