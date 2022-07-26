@@ -21,6 +21,8 @@ class BanJob implements ShouldQueue
 {
     use Dispatchable, InteractsWithQueue, Queueable, SerializesModels;
     
+    public $timeout = 300;
+
     protected $uid;
     protected $ban_set;
     protected $user;
