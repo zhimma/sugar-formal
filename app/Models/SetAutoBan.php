@@ -113,7 +113,7 @@ class SetAutoBan extends Model
 
             if($violation){
                 $type = 'profile';
-                BanJob::dispatch($uid, $ban_set, $user, $type);
+                BanJob::dispatch($uid, $ban_set, $user, $type)->onConnection('ban-job')->onQueue('ban-job');
                 return;
             }
         }
@@ -144,7 +144,7 @@ class SetAutoBan extends Model
             }
             if ($violation) {
                 $type = 'message';
-                BanJob::dispatch($uid, $ban_set, $user, $type);
+                BanJob::dispatch($uid, $ban_set, $user, $type)->onConnection('ban-job')->onQueue('ban-job');
                 return;
             }
         }
@@ -315,7 +315,7 @@ class SetAutoBan extends Model
 
             if ($violation) {
                 $type = 'profile';
-                BanJob::dispatch($uid, $ban_set, $user, $type);
+                BanJob::dispatch($uid, $ban_set, $user, $type)->onConnection('ban-job')->onQueue('ban-job');
             }
         }
         $msg_auto_ban = $set_auto_ban->where('type', 'msg')->orwhere('type', 'allcheck')->orderBy('id', 'desc')->get();
@@ -332,7 +332,7 @@ class SetAutoBan extends Model
                 }
                 if ($violation) {
                     $type = 'message';
-                    BanJob::dispatch($uid, $ban_set, $user, $type);
+                    BanJob::dispatch($uid, $ban_set, $user, $type)->onConnection('ban-job')->onQueue('ban-job');
                 }
             }
         }

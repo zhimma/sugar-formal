@@ -48,6 +48,13 @@ return [
             'retry_after' => 10800,
         ],
 
+        'ban-job' => [
+            'driver' => 'database',
+            'table' => 'jobs',
+            'queue' => 'ban-job',
+            'retry_after' => 90,
+        ],
+
         'beanstalkd' => [
             'driver' => 'beanstalkd',
             'host' => 'localhost',

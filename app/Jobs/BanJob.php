@@ -92,7 +92,7 @@ class BanJob implements ShouldQueue
             DB::table('is_warned_log')->insert(['user_id' => $this->uid, 'reason' => "系統原因(".$this->ban_set->id.")"]);
             // UserMeta::where('user_id', $this->uid)->update(['isWarned' => 1]);
         }
-        sleep(90);
+        //sleep(90);
         Log::info('end_jobs_BanJob');
         Log::Info(Carbon::now());
     }
