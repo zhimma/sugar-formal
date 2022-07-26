@@ -13,29 +13,6 @@ class LoginTest extends TestCase
         parent::setUp();
     }
 
-    public function test_basic_test()
-    {
-        $this->assertTrue(true);
-    }
-
-    public function test_basic_dump_test()
-    {
-        $response = $this->get('/');
- 
-        $response->dumpHeaders();
- 
-        $response->dumpSession();
- 
-        $response->dump();
-    }
-    
-
-    public function test_example(){
-        $response = $this->get('/');
-        // dd($response);
-        $response->assertStatus(200);    
-    }
-
     public function test_login_screen_can_be_rendered()
     {
         try{
