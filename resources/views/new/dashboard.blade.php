@@ -1333,6 +1333,18 @@ dt span.engroup_type_title {display:inline-block;width:10%;white-space:nowrap;}
             let transport_fare_min = $('#transport_fare_min');
             let transport_fare_max = $('#transport_fare_max');
             let body_touch = $('#body_touch');
+            let new_occupation = $('#new_occupation');
+            let new_occupation_other = $('#new_occupation_other');
+
+            if(new_occupation.val() === "other")
+            {
+                if(new_occupation_other.val() === "")
+                {
+                    new_occupation_other.focus();
+                    c5('請輸入自填內容');
+                    return false;
+                }
+            }
 
             if(title.val() === "") {
                 title.focus();
