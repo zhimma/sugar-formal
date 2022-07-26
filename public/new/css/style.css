@@ -4479,7 +4479,7 @@ background-size: 100%;padding: 15px 0; margin-top:30px;}
 .ag_ttile{width: 95%; margin: 0 auto; display: table;
 border-radius:6px; padding: 5px 10px;box-shadow:0 6px 8px rgba(238,84,114,0.3);
 /* background:url(../images/renz_35.png)no-repeat 100% center,linear-gradient(to right,#ffb5be,#fff8f9);*/
-background: url(../images/z_dk.png) no-repeat, linear-gradient(90deg,#ffb5be,#fff8f9);
+background: url(../../alert/images/z_dk.png) no-repeat, linear-gradient(90deg,#ffb5be,#fff8f9);
 background-position: center;
 margin-top: 5px;
 background-position: right;}
@@ -4533,16 +4533,15 @@ padding:0px 10px; color: #fff; font-size: 18px; font-weight: bold;}
 .ga_button{margin: 0 auto; display:table; margin-top: 20px; margin-bottom: 15px;}
 .ga_1{width:200px; height: 45px; line-height: 45px; text-align: center;border-radius: 100px;background: linear-gradient(to top,#ffd9e0,#fff); 
 display: table; float: left; border: #ffcbd4 1px solid;box-shadow: 0 5px 10px rgba(238,84,114,0.3); color: #fe92a8; font-size: 15px;}
-.ga_1:hover{color:#fe92a8;background: linear-gradient(to bottom,#ffd9e0,#fff);box-shadow:4px 4px 6px 0 rgba(255,255,255,.5),-4px -4px 6px 0 rgba(116,125,136,.5),inset -4px -4px 6px 0 rgba(255,255,255,.2),inset 4px 4px 6px 0 rgba(0,0,0,.4)!important;}
+ .ga_1:active{color:#fe92a8;background: linear-gradient(to bottom,#ffd9e0,#fff);box-shadow:4px 4px 6px 0 rgba(255,255,255,.5),-4px -4px 6px 0 rgba(116,125,136,.5),inset -4px -4px 6px 0 rgba(255,255,255,.2),inset 4px 4px 6px 0 rgba(0,0,0,.4)!important;}
 
 
 
 
 .ga_2{height: 45px; line-height: 45px; text-align: center;border-radius: 100px;background: linear-gradient(to top,#bababa,#f8f8f8);  padding: 0 30px;
 display: table; float: left; border: #dbdbdb 1px solid;box-shadow: 0 5px 10px rgba(123,123,123,0.3); margin-left: 20px;font-size: 15px;color: #333;}
-.ga_2:hover{background: linear-gradient(to bottom,#bababa,#f8f8f8);  color: #333;}
-.ga_2:hover{color:#333;background: linear-gradient(to bottom,#bababa,#f8f8f8);box-shadow:4px 4px 6px 0 rgba(255,255,255,.5),-4px -4px 6px 0 rgba(116,125,136,.5),inset -4px -4px 6px 0 rgba(255,255,255,.2),inset 4px 4px 6px 0 rgba(0,0,0,.4)!important;}
-
+.ga_2:active{color:#333;background: linear-gradient(to bottom,#bababa,#f8f8f8);box-shadow:4px 4px 6px 0 rgba(255,255,255,.5),-4px -4px 6px 0 rgba(116,125,136,.5),inset -4px -4px 6px 0 rgba(255,255,255,.2),inset 4px 4px 6px 0 rgba(0,0,0,.4)!important;}
+.ga_2:hover{color:#333;}
 
 
 .ga_top{ margin-top: 20px;}
@@ -4583,8 +4582,8 @@ margin-top: 10px; color: #666666; padding: 10px;}
 .gir_border{ border-radius: 10px !important; border: #ffc2c9 1px solid !important; background-color: #fff;}
 
 @media (max-width:450px){
-.gjrz_nr{background: url(../images/rz_02.png) no-repeat TOP;background-size: 100%; }
-.gjrz_nr01{background: url(../images/rz_01.png) no-repeat TOP;background-size: 100%; }
+.gjrz_nr{background: url(../../alert/images/rz_02.png) no-repeat TOP;background-size: 100%; }
+.gjrz_nr01{background: url(../../alert/images/rz_01.png) no-repeat TOP;background-size: 100%; }
 }
 
 .g_rznz{width: 95%; margin: 0 auto; display: table;background: #fff; border-radius: 10px;box-shadow: 0 4px 10px rgba(254,146,169,0.3); padding: 18px 0 20px 0;}
@@ -4924,8 +4923,8 @@ border: 1px solid #fff;}
 
 .ga_3{width:200px;height: 45px; line-height: 45px; text-align: center;border-radius: 100px;background: linear-gradient(to top,#bababa,#f8f8f8);  padding: 0 30px;
 display: table; float: left; border: #dbdbdb 1px solid;box-shadow: 0 5px 10px rgba(123,123,123,0.3); margin-left: 20px;font-size: 15px;color: #333;}
-.ga_3:hover{background: linear-gradient(to bottom,#bababa,#f8f8f8);  color: #333;}
-.ga_3:hover{color:#333;background: linear-gradient(to bottom,#bababa,#f8f8f8);box-shadow:4px 4px 6px 0 rgba(255,255,255,.5),-4px -4px 6px 0 rgba(116,125,136,.5),inset -4px -4px 6px 0 rgba(255,255,255,.2),inset 4px 4px 6px 0 rgba(0,0,0,.4)!important;}
+.ga_3:hover{ color: #333;}
+.ga_3:active{color:#333;background: linear-gradient(to bottom,#bababa,#f8f8f8);box-shadow:4px 4px 6px 0 rgba(255,255,255,.5),-4px -4px 6px 0 rgba(116,125,136,.5),inset -4px -4px 6px 0 rgba(255,255,255,.2),inset 4px 4px 6px 0 rgba(0,0,0,.4)!important;}
 
 
 

@@ -7,6 +7,7 @@ use App\Models\RealAuthType;
 use App\Models\RealAuthUserApplyLog;
 use App\Models\RealAuthUserReply;
 use App\Models\UserVideoVerifyRecord;
+use App\Models\RealAuthUserPatch;
 use Illuminate\Database\Eloquent\Model;
 
 class RealAuthUserApply extends Model
@@ -48,11 +49,16 @@ class RealAuthUserApply extends Model
     {
         return $this->hasMany(RealAuthUserReply::class,'apply_id','id');
     } 
+    
+    public function real_auth_user_patch() 
+    {
+        return $this->hasMany(RealAuthUserPatch::class,'apply_id_shot','id');
+    }     
 
     public function real_auth_user_modify() 
     {
         return $this->hasMany(RealAuthUserModify::class,'apply_id','id');
-    } 
+    }    
     
     public function real_auth_user_modify_pic() 
     {

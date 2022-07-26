@@ -242,9 +242,9 @@ class CreateRealAuthTables extends Migration
             ,['id'=>4,'auth_type_id'=>2,'show_auth_type_id'=>0,'name'=>'表格異動','created_at'=>\Carbon\Carbon::now()]   
             ,['id'=>5,'auth_type_id'=>3,'show_auth_type_id'=>0,'name'=>'表格異動','created_at'=>\Carbon\Carbon::now()]                      
         */
-            ['id'=>1,'name'=>'新申請','created_at'=>\Carbon\Carbon::now()]
+            ['id'=>1,'name'=>'初始認證資料','created_at'=>\Carbon\Carbon::now()]
             ,['id'=>2,'name'=>'基本資料','created_at'=>\Carbon\Carbon::now()]
-            ,['id'=>3,'name'=>'照片新增','created_at'=>\Carbon\Carbon::now()]
+            ,['id'=>3,'name'=>'照片','created_at'=>\Carbon\Carbon::now()]
             //,['id'=>3,'name'=>'照片刪除','created_at'=>\Carbon\Carbon::now()]
             ,['id'=>4,'name'=>'重錄視訊','created_at'=>\Carbon\Carbon::now()] 
             ,['id'=>5,'name'=>'表格異動','created_at'=>\Carbon\Carbon::now()]             
@@ -282,7 +282,8 @@ class CreateRealAuthTables extends Migration
                 $table->integer('old_video_record_id')->nullable()->index();
                 $table->integer('new_video_record_id')->nullable()->index();                
                 $table->boolean('has_reply')->default(0);
-                $table->boolean('from_auto')->nullable()->default(0);
+                $table->boolean('is_formal_first')->default(0);
+                $table->boolean('from_auto'->default(0);
                 $table->boolean('status')->default(0);
                 //$table->integer('modify_times')->nullable()->default(0);
                 //$table->boolean('is_pass')->nullable()->default(0);
@@ -322,6 +323,7 @@ class CreateRealAuthTables extends Migration
                 $table->integer('apply_id_shot')->nullable()->index();
                 $table->integer('apply_status_shot')->nullable()->index();
                 $table->integer('modify_id')->nullable()->index();                
+                $table->softDeletes();                
                 $table->timestamp('created_at')->nullable();
                 $table->timestamp('updated_at')->useCurrent()->useCurrentOnUpdate()->nullable();
                 $table->index(['user_id', 'auth_type_id']);

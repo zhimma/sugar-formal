@@ -27,6 +27,8 @@ background: #eee; border: #eee 1px solid;
 @media (max-width: 414px){
 .dt_pa0 {padding-top: 0;height: 110px;}
 }
+
+.fileuploader-items .fileuploader-item .fileuploader-action.fileuploader-action-remove i:after {content:none !important;}
 </style>
 @stop
 @section('app-content')
@@ -38,7 +40,9 @@ background: #eee; border: #eee 1px solid;
 				<div class="col-sm-12 col-xs-12 col-md-10">
 					<div class="shou"><span>美顏推薦</span>
 						<font>Beauty</font>
-						<a href="" class="toug_back btn_img"><div class="btn_back"></div></a>
+                        <a href="{{request()->server('HTTP_REFERER')?request()->server('HTTP_REFERER'):route('real_auth')}}" class="toug_back btn_img" style=" position: absolute; right:20px;">
+                            <div class="btn_back"></div>
+                        </a>
 					</div>
 					<div class="gjrz_nr ga_bot70">
 						<div class="gjr_b"><img src="{{asset('alert/images/gj_bt1.png')}}"></div>

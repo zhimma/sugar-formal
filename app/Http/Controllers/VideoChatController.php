@@ -18,6 +18,12 @@ class VideoChatController extends Controller
 {
     public function callUser(Request $request)
     {
+        Log::Info('callUser start：');
+        Log::Info('$_SERVER=');
+        Log::Info($_SERVER);
+        Log::Info('$request->all()=');
+        Log::Info($request->all());
+         
         $signal_data = json_encode($request->signal_data);
 
         $save_data = new WebrtcSignalData;
@@ -30,11 +36,17 @@ class VideoChatController extends Controller
         $data['type'] = 'incomingCall';
         Log::Info('callUser data');
         Log::Info($data);
+        Log::Info('callUser end。');
         broadcast(new StartVideoChat($data))->toOthers();
     }
 
     public function acceptCall(Request $request)
     {
+        Log::Info('acceptCall start：');
+        Log::Info('$_SERVER=');
+        Log::Info($_SERVER);
+        Log::Info('$request->all()=');
+        Log::Info($request->all());
         $signal = json_encode($request->signal);
 
         $save_data = new WebrtcSignalData;
@@ -46,66 +58,130 @@ class VideoChatController extends Controller
         $data['type'] = 'callAccepted';
         Log::Info('acceptCall data');
         Log::Info($data);
+        Log::Info('acceptCall end。');
         broadcast(new StartVideoChat($data))->toOthers();
     }
 
     public function receiveCallUserSignalData(Request $request)
     {
+        Log::Info('receiveCallUserSignalData start：');
+        Log::Info('$_SERVER=');
+        Log::Info($_SERVER);
+        Log::Info('$request->all()=');
+        Log::Info($request->all());
         $id = $request->signal_data_id;
         $signal_data = WebrtcSignalData::where('id', $id)->first()->signal_data;
+        
+        Log::Info('$signal_data=');
+        Log::Info($signal_data);
+        Log::Info('receiveCallUserSignalData end。');
         return $signal_data;
     }
 
     public function receiveAcceptCallSignalData(Request $request)
     {
+        Log::Info('receiveAcceptCallSignalData start：');
+        Log::Info('$_SERVER=');
+        Log::Info($_SERVER);
+        Log::Info('$request->all()=');
+        Log::Info($request->all());
         $id = $request->signal_data_id;
         $signal_data = WebrtcSignalData::where('id', $id)->first()->signal_data;
+        
+        Log::Info('$signal_data=');
+        Log::Info($signal_data);
+        Log::Info('receiveAcceptCallSignalData end。');
         return $signal_data;
     }
 
     public function video_chat_verify(Request $request)
     {
+        Log::Info('video_chat_verify start：');
+        Log::Info('$_SERVER=');
+        Log::Info($_SERVER);
+        Log::Info('$request->all()=');
+        Log::Info($request->all());
         $users = User::where('id', '<>', Auth::id())->where('last_login', '>', Carbon::now()->subDay())->get();
+        Log::Info('video_chat_verify end。');
         return view('admin.users.video_chat_verify', ['users' => $users]);
     }
 
     public function user_video_chat_verify(Request $request,RealAuthPageService $rap_service)
     {
+        Log::Info('user_video_chat_verify start：');
+        Log::Info('$_SERVER=');
+        Log::Info($_SERVER);
+        Log::Info('$request->all()=');
+        Log::Info($request->all());
         if(!(
                 $rap_service->riseByUserId(Auth::id())->isSelfAuthApplyNotVideoYet()
                 || $rap_service->isSelfAuthWaitingCheck()
-                || $rap_service->isPassedByAuthTypeId(1)
+                || ($rap_service->getApplyByAuthTypeId(1) && !$rap_service->isPassedByAuthTypeId(1))
             )
+            
+            || $request->user()->engroup!=2
         ) {
+            if($request->server('HTTP_REFERER'))
+                return redirect($request->server('HTTP_REFERER'));
+            
             return redirect('/dashboard/personalPage');
         }
         
         $users = DB::table('role_user')->leftJoin('users', 'role_user.user_id', '=', 'users.id')->where('users.id', '<>', Auth::id())->get();
+        Log::Info('user_video_chat_verify end。');
         return view('auth.user_video_chat_verify', ['users' => $users]);
     }
 
     public function videoChatTest(Request $request)
     {
+        Log::Info('videoChatTest start：');
+        Log::Info('$_SERVER=');
+        Log::Info($_SERVER);
+        Log::Info('$request->all()=');
+        Log::Info($request->all());
         $users = User::where('id', '15600')->orWhere('id', '15599')->orWhere('id', '12374')->get();
+        Log::Info('videoChatTest end。');
         return view('video-chat-test', ['users' => $users]);
     }
 
     public function video_chat_verify_upload_init(Request $request)
     {
+        Log::Info(' video_chat_verify_upload_init start：');
+        Log::Info('$_SERVER=');
+        Log::Info($_SERVER);
+        Log::Info('$request->all()=');
+        Log::Info($request->all());
         $verify_user_id = $request->verify_user_id;
+        Log::Info('$verify_user_id='.$verify_user_id);
         $user_video_verify_record = new UserVideoVerifyRecord;
         $user_video_verify_record->user_id = $verify_user_id;
-        $user_video_verify_record->save();
+        $rs = $user_video_verify_record->save();
+        Log::Info('$user_video_verify_record=');
+        Log::Info($user_video_verify_record);
+        Log::Info('user_video_verify_record save rs = ');
+        Log::Info($rs);
+        Log::Info(' video_chat_verify_upload_init end。');
         return response()->json(['record_id' => $user_video_verify_record->id]);
     }
 
     public function video_chat_verify_upload(Request $request,RealAuthPageService $rap_service)
     {
+        Log::Info('video_chat_verify_upload start：');
+        Log::Info('$_SERVER=');
+        Log::Info($_SERVER);
+        Log::Info('$request->all()=');
+        Log::Info($request->all());
+        Log::Info(' $_FILES=');
+        Log::Info( $_FILES);         
         $path = $request->file('video')->store('video_chat_verify');
+        Log::Info(' $path='.$path);
         $who = $request->who;
+        Log::Info(' $who='.$who);
         $verify_record_id = $request->verify_record_id;
-
+        Log::Info(' $verify_record_id='.$verify_record_id);
         $user_video_verify_record = UserVideoVerifyRecord::where('id',$verify_record_id)->first();
+        Log::Info(' $user_video_verify_record=');
+        Log::Info( $user_video_verify_record); 
         
         if($who == 'partner')
         {
@@ -118,15 +194,15 @@ class VideoChatController extends Controller
         }
         if($user_video_verify_record->save())
         {
-        
+            Log::Info(' $user_video_verify_record->save() success');
             if($who == 'partner') {
                 $rap_service->saveVideoRecordId($user_video_verify_record->id);
             }
-            
+            Log::Info('video_chat_verify_upload $user_video_verify_record->save() success return end。');
             return ['path'=>$path,'upload'=>'success'];
         }
 
-        
+        Log::Info('video_chat_verify_upload  end。');
     }
 
     public function video_chat_verify_record_list(Request $request)
@@ -144,6 +220,7 @@ class VideoChatController extends Controller
     {   
         $user_id = $request->user_id;
         $record = UserVideoVerifyRecord::where('user_id', $user_id)->orderBy('created_at', 'desc')->get();
+
         return view('admin.users.video_chat_verify_record', ['record' => $record]);
     }
     

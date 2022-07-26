@@ -18,7 +18,7 @@
             @endforeach
         @endif
          </h2>
-    @if(in_array($service->questionTypeToKey($question_entry->type),[3,4])) 
+    @if(in_array($service->questionTypeToKey($question_entry->type),[3,4]) ||  $question_entry->real_auth_choice->whereNull('parent_id')->unique('type')->count()>1) 
     </div>
     @endif
 

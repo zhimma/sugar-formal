@@ -4479,7 +4479,7 @@ background-size: 100%;padding: 15px 0; margin-top:30px;}
 .ag_ttile{width: 95%; margin: 0 auto; display: table;
 border-radius:6px; padding: 5px 10px;box-shadow:0 6px 8px rgba(238,84,114,0.3);
 /* background:url(../images/renz_35.png)no-repeat 100% center,linear-gradient(to right,#ffb5be,#fff8f9);*/
-background: url(../images/z_dk.png) no-repeat, linear-gradient(90deg,#ffb5be,#fff8f9);
+background: url(../../alert/images/z_dk.png) no-repeat, linear-gradient(90deg,#ffb5be,#fff8f9);
 background-position: center;
 margin-top: 5px;
 background-position: right;}

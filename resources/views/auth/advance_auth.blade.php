@@ -38,6 +38,8 @@
             .video_status_text_show_elt {float:none !important;}
             #app,#app .btn-success {height:0 !important;width:0 !important;}
             #app {display:none !important;}
+            .video_status_online_intro,.video_status_offline_intro {display:none;}
+            
         </style>        
         <script>
             real_auth_process_check();
@@ -135,7 +137,7 @@
             .i_am_student a:active,.i_am_student a:visited,.i_am_student a:focus {text-decoration:none;}
             .i_am_student .remind-regular {color:blue;font-weight:bolder;font-size:16px;width:initial;float:initial}
         </style>   	
-        </head>
+    </head>
 
 	<body style="background:#ffffff">
         @include('new.layouts.navigation')
@@ -309,13 +311,6 @@
         />
         
     </div>
-    {{--
-    <div style="flex-wrap: wrap;position: absolute;top: 0;z-index: -1;">
-        <button type="button" class="btn mr-2 btn-secondary disabled" style="padding:0;">           
-            <span class="badge badge-light" style="line-height:normal;letter-spacing:2px;text-align:left;">目前無站方人員<br>暫時無法視訊</span>
-        </button>
-    </div>
-    --}}
 </div>
 </div>
 @endif     
@@ -331,12 +326,14 @@
     }
     
     function gmBtn1(){
-        $(".blbg").hide();
-        $(".bl").hide();
+
         
         @if(!$user->isPhoneAuth() && !($is_edu_mode??null) && !$user->isAdvanceAuth())
         {!!$rap_service->getClearUnloadConfirmJs() !!}
         location.href='{{url("goto_member_auth")}}'+location.search;
+        @else
+        $(".blbg").hide();
+        $(".bl").hide();            
         @endif
     }
 
@@ -438,18 +435,33 @@
         
         setTimeout(change_video_status, 3000);
         setInterval(change_video_status, 10000);
-        
+
+    tab01_n_left_onclick_str = $('#tab01 .n_bbutton .n_left').attr('onclick');
+    
     function change_video_status() 
     {
         $('.video_status_text_show_elt').hide().removeAttr('id');
+        $('.video_status_init_intro').hide();
+        var tab01_n_left_elt = $('#tab01 .n_bbutton .n_left');
+        
         if($('#app .btn-success').length) {
-            $('.video_status_show_elt').show().attr('src','{{asset("/new/images/kai-1.png")}}');
-            $('.video_status_color_intro').hide();
+            //$('.video_status_show_elt').show().attr('src','{{asset("/new/images/kai-1.png")}}');
+            $('.video_status_offline_intro').hide();
+            $('.video_status_online_intro').show();
+            
+            tab01_n_left_elt.attr('href',get_passed_real_auth_confirm_href()).attr('onclick','');
         }
         else {
-            $('.video_status_show_elt').show().attr('src','{{asset("/new/images/guan.png")}}');
-            $('.video_status_color_intro').show();
+            //$('.video_status_show_elt').show().attr('src','{{asset("/new/images/guan.png")}}');
+            $('.video_status_offline_intro').show();
+            $('.video_status_online_intro').hide();
+            tab01_n_left_elt.removeAttr('href').attr('onclick',tab01_n_left_onclick_str);
         }
-    }      
+    } 
+
+    function get_passed_real_auth_confirm_href()
+    {
+        return "{{url('user_video_chat_verify')}}";
+    }
     </script>    
 @endif

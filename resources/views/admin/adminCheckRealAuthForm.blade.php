@@ -40,24 +40,36 @@
 .ga_or{ background:#fff8f9; color: #d2d2d2; border-radius: 100px; display:table; padding: 0 20px; margin:8px 0;}
 .ga_or01{ background:#fff; color: #d2d2d2; border-radius: 100px; display:table; padding: 0 20px; margin:8px 0;}
 
+    span.unchecked_value_show {background:yellow;}
+    .unchecked_value_show {width:45%;display:inline-block;margin-left:10%;vertical-align:top;margin-bottom:10px;}
+    .unchecked_value_show > div {display:inline-block;background:yellow;padding:15px;}
+    .has_unchecked_compare_origin_show {display:inline-block;width:45%;}
     </style>
+
     <h1>站長審核 - 女會員認證 - 表單內容</h1>
     <div class="shou"><span>{{$apply_entry->real_auth_type->name??null}}</span>
         <font>{{$user->name??null}}&nbsp;&nbsp;&nbsp;&nbsp;  <a href="{{route('users/advInfo',['id'=>$user->id])}}" target="_blank">{{$user->email??null}}</a></font>
     </div>
-    @foreach($entry_list->whereNull('parent_id') as $q_idx=>$question_entry)
-    <div class="gjr_nr02 gir_top20 gir_pa01">
-        <h2 class="gjr_nr02_h2">{{$q_idx+1}}:{{$question_entry->question}}{{$question_entry->required?'(必填)':''}}</h2>
-        <div class="rzmatop_5">
-        {!!$service->getUserReplyLayoutByQuEntry($question_entry)!!} 
-        </div>
+    @if(($apply_entry->status??null) && $apply_entry->status==2)
+    <div >(已取消認證)</div>
+    @endif
+    @if($apply_entry && $apply_entry->status!=2)    
+        @foreach($entry_list->whereNull('parent_id') as $q_idx=>$question_entry)
+        <div class="gjr_nr02 gir_top20 gir_pa01">
+            <h2 class="gjr_nr02_h2">{{$q_idx+1}}:{{$question_entry->question}}{{$question_entry->required?'(必填)':''}}</h2>
+            <div class="rzmatop_5">
+            {!!$service->getUserReplyLayoutByQuEntry($question_entry)!!} 
+            </div>
 
-        @foreach($entry_list->where('parent_id',$question_entry->id) as $sub_q_idx=>$sub_question_entry)
-        <div class="g_rznz matop15 rzmabot_20">
-             <h2>{{$sub_question_entry->question}}</h2>
-            {!!$service->getUserReplyLayoutByQuEntry($sub_question_entry)!!}
-        </div>                        
+            @foreach($entry_list->where('parent_id',$question_entry->id) as $sub_q_idx=>$sub_question_entry)
+            <div class="g_rznz matop15 rzmabot_20">
+                 <h2>{{$sub_question_entry->question}}</h2>
+                {!!$service->getUserReplyLayoutByQuEntry($sub_question_entry)!!}
+            </div>                        
+            @endforeach
+        </div>    
         @endforeach
-    </div>    
-    @endforeach
+    @else
+        <div>此會員尚未申請認證</div>
+    @endif
 @stop

@@ -563,7 +563,10 @@
                                 {{--                            <li><img src="/new/images/icon_23.png"><span>{{$money_cert}}</span></li>--}}
 
                                 {{--                            <li><img src="/new/images/icon_27.png"><span>{{$alert_account}}</span></li>--}}
-                                @if($to->meta->isWarned == 1 || $to->aw_relation)
+
+                                @if($rap_service->isNeedShowTagOnPic())
+                                    {!!$rap_service->getTagShowOnPicLayoutByLoginedUserIsVip($user->isVip()) !!}
+                                @elseif($to->meta->isWarned == 1 || $to->aw_relation)
                                     <li>
 
                                         <div class="tagText" data-toggle="popover" data-content="此會員為警示會員，與此會員交流務必提高警覺！">
@@ -607,103 +610,24 @@
                                     @php
                                         $user->isReadIntro = 1;
                                         $introCount++;
-                                    @endphp                          
-                                 @endif
-                                {{--@if($to->isPhoneAuth())--}}
-                                @if($to->engroup==2)
+                                    @endphp 
+                                @elseif($to->isPhoneAuth() && $to->engroup==2)
+                                    <li>
                                     @if($user->isVip())
-                                        @if($to->isAdvanceAuth() )
-                                        <li>
-                                            <div class="tagText"  data-toggle="popover" data-content="本站的進階認證會員，本會員通過本站的嚴格驗證，基本資料正確無誤。">
-                                                <!--<img src="/new/images/a8_x.png">-->
-                                                <img src="/new/images/a7.png">
-                                            </div> 
-                                        </li>
-                                        {{--
-                                        @elseif(!$to->isAdvanceAuth() && $to->engroup==2)
-                                        <div class="tagText"  data-toggle="popover" data-content="通過本站手機驗證的會員。">
-                                            <img src="/new/images/a6_x.png">
-                                        </div>  
-                                        @else
                                         <div class="tagText"  data-toggle="popover" data-content="通過本站手機驗證的會員。">
                                             <img src="/new/images/a6.png">
-                                        </div> 
-                                        --}}
-                                        @endif
-                                        @if($rap_service->isPassedByAuthTypeId(1))
-                                        <li>
-                                            <div class="tagText"  data-toggle="popover" data-content="本站的本人認證會員。">
-                                                <img src="/new/images/a9.png">
-                                            </div>
-                                        </li>
-                                        @endif
-                                        @if($rap_service->isPassedByAuthTypeId(2))
-                                        <li>
-                                            <div class="tagText"  data-toggle="popover" data-content="本站的美顏推薦會員。">
-                                                <img src="/new/images/a10.png">
-                                            </div>
-                                        </li>
-                                        @endif
-                                        @if($rap_service->isPassedByAuthTypeId(3))
-                                        <li>
-                                            <div class="tagText"  data-toggle="popover" data-content="本站的名人認證會員。">
-                                                <img src="/new/images/a11.png">
-                                            </div> 
-                                        </li>
-                                        @endif
+                                        </div>
                                     @else
-                                        @if($to->isAdvanceAuth())
-                                        <li>
-                                            <div class="tagText"  data-toggle="popover" data-content="本站的進階認證會員，本會員通過本站的嚴格驗證，基本資料正確無誤。">
-                                                <!--<img src="/new/images/b_8x.png">-->
-                                                <img src="/new/images/b_7.png">
-                                            </div>
-                                        </li>
-                                        {{--
-                                        @elseif(!$to->isAdvanceAuth() && $to->engroup==2)
-                                        <li>
-                                            <div class="tagText"  data-toggle="popover" data-content="通過本站手機驗證的會員。">
-                                                <img src="/new/images/b_5x.png">
-                                            </div> 
-                                        </li>
-                                        @else
-                                        <li>
-                                            <div class="tagText"  data-toggle="popover" data-content="通過本站手機驗證的會員。">
-                                                <img src="/new/images/b_6.png">
-                                            </div>
-                                        </li>
-                                        --}}
-                                        @endif  
-
-                                        @if($rap_service->isPassedByAuthTypeId(1))
-                                        <li>
-                                            <div class="tagText"  data-toggle="popover" data-content="本站的本人認證會員。">
-                                                <img src="/new/images/bm_2.png">
-                                            </div>
-                                        </li>
-                                        @endif 
-                                        
-                                        @if($rap_service->isPassedByAuthTypeId(2))
-                                        <li>
-                                            <div class="tagText"  data-toggle="popover" data-content="本站的美顏推薦會員。">
-                                                <img src="/new/images/bm_1.png">
-                                            </div>
-                                        </li>
-                                        @endif 
-                                        
-                                        @if($rap_service->isPassedByAuthTypeId(3))
-                                        <li>
-                                            <div class="tagText"  data-toggle="popover" data-content="本站的名人認證會員。">
-                                                <img src="/new/images/bm_3.png">
-                                            </div> 
-                                        </li>
-                                        @endif 
-                                    @endif                                
+                                        <div class="tagText"  data-toggle="popover" data-content="通過本站手機驗證的會員。">
+                                            <img src="/new/images/b_6.png">
+                                        </div>
+                                    @endif
+                                    </li>
                                     @php
                                         $user->isReadIntro = 1;
                                         $introCount++;
-                                    @endphp
-                                @endif                               
+                                    @endphp 
+                                @endif                              
                             </ul>
                         </div>
                         <!--引导弹出层-->

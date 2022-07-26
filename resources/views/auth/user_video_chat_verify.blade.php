@@ -12,7 +12,6 @@
 <meta name="csrf-token" content="{{ csrf_token() }}">
 @stop
 @section('app-content')
-<<<<<<< HEAD
 
     <div class="container matop70">     
         <div class="row" >
@@ -21,6 +20,9 @@
             </div>
             <div class="col-sm-12 col-xs-12 col-md-10" id="left_side_content_block">
                 <div class="shou"><span>站方視訊</span>
+                    <a href="{{request()->server('HTTP_REFERER')?request()->server('HTTP_REFERER'):route('real_auth')}}" class="toug_back btn_img" style=" position: absolute; right:20px;">
+                        <div class="btn_back"></div>
+                    </a>                
                 </div>
                 <div style="position:relative;" id="video_app_container">
                     <div id="app" style="z-index: 9;">
@@ -34,7 +36,7 @@
                     </div>
                     <div style="flex-wrap: wrap;position: absolute;top: 0;z-index: -1;">
                         <button type="button" class="btn mr-2 btn-secondary disabled" style="padding:0;">           
-                            <span class="badge badge-light" style="line-height:normal;letter-spacing:2px;text-align:left;">目前無站方人員<br>暫時無法視訊</span>
+                            <span class="badge badge-light" style="line-height:normal;letter-spacing:2px;text-align:left;background:transparent;color:black;">請等待10~20秒，<br>將會有撥打給站方的按鈕，<br>才可開始視訊</span>
                         </button>
                     </div>
                 </div>

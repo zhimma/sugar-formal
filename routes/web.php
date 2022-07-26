@@ -866,7 +866,7 @@ Route::group(['middleware' => ['auth', 'global', 'active', 'femaleActive', 'vipC
         Route::post('checkPicUpload', 'UserController@AdminCheckPicUploadSave');
         Route::get('checkExchangePeriod', 'UserController@showAdminCheckExchangePeriod')->name('admin/checkExchangePeriod');
 		Route::get('editRealAuth_sendMsg/{id}', 'UserController@editRealAuth_sendMsg')->name('admin/editRealAuth_sendMsg');
-        Route::get('real_auth/msglib/create/editRealAuth_sendMsg', 'UserController@addMessageLibRealAuth')->name('admin/addMessageLibRealAuth');
+        Route::get('real_auth/msglib/create/editRealAuth_sendMsg/{id?}', 'UserController@addMessageLibRealAuth')->name('admin/addMessageLibRealAuth');
         Route::get('checkRealAuth', 'UserController@showAdminCheckRealAuth')->name('admin/checkRealAuth');
         Route::get('checkFamousAuthForm/{user_id}', 'UserController@showAdminCheckFamousAuthForm')->name('admin/checkFamousAuthForm');
         Route::get('checkBeautyAuthForm/{user_id}', 'UserController@showAdminCheckBeautyAuthForm')->name('admin/checkBeautyAuthForm');

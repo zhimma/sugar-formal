@@ -178,6 +178,7 @@ class RealAuthAdminService {
                         case 2:
                             $apply_entry->unchecked_modify()->update(['status'=>2,'status_at'=>Carbon::now()]);                   
                             $apply_entry->real_auth_user_modify()->delete();
+                            $apply_entry->real_auth_user_patch()->delete();
                         break;                        
                     }
                 }
@@ -279,7 +280,7 @@ class RealAuthAdminService {
         $modify_pic_list = null;
         
         if($self_auth_apply_entry)
-            $modify_pic_list = $self_auth_apply_entry->real_auth_user_modify_pic()->whereIn('real_auth_user_modify.id',$modify_list->pluck('real_auth_user_modify.id'))->orderBy('real_auth_user_modify_pic.id')->get();
+            $modify_pic_list = $self_auth_apply_entry->real_auth_user_modify_pic()->whereIn('real_auth_user_modify.id',(clone $modify_list)->pluck('real_auth_user_modify.id'))->orderBy('real_auth_user_modify_pic.id')->get();
         
         $height_modify = $height_modify_list->first();
         $weight_modify = $weight_modify_list->first();
@@ -490,10 +491,15 @@ class RealAuthAdminService {
 
             }
 
-            $pic_rs = $modify_list->whereHas('real_auth_user_modify_pic',function($q){$q->withTrashed();})->update($list_update_arr);
+            $pic_rs = (clone $modify_list)->whereHas('real_auth_user_modify_pic',function($q){$q->withTrashed();})->update($list_update_arr);
             
             if($pic_rs) $rs=true;
         }
+        
+        $all_rs = $modify_list->update($list_update_arr);
+
+        if($all_rs && !$rs) $rs=true;
+
         return $rs;
     }
     
@@ -512,8 +518,14 @@ class RealAuthAdminService {
     {
         $user = $this->user();
         $unchecked_apply = $this->getUncheckedApplyByAuthTypeId($auth_type_id);
+        $unchecked_modify = collect([]);
+        if($unchecked_apply) {
+            $unchecked_modify = $unchecked_apply->unchecked_modify;
+        }
+
         $rs = !$this->isPassedByAuthTypeId($auth_type_id)  && $unchecked_apply
                 //&& !($auth_type_id==1 && !$unchecked_apply->video_modify_id);
+                && $unchecked_modify->count()
                 && !($auth_type_id==1 && !$unchecked_apply->latest_video_modify);
 
         return $rs;
@@ -552,9 +564,7 @@ class RealAuthAdminService {
     public function getStatusActorPrefixByAuthTypeId($auth_type_id) 
     {
         $prefix = '';
-        if($this->isExistHangApplyByAuthTypeId($auth_type_id)
-            || $this->isCancelPassedByAuthTypeId($auth_type_id)
-        ) {
+        if($this->isExistHangApplyByAuthTypeId($auth_type_id)) {
             $prefix = '通過';
         }
         else if($this->isPassedByAuthTypeId($auth_type_id)) {
@@ -593,9 +603,7 @@ class RealAuthAdminService {
         $class_attr = '';
         $default_class = 'btn-primary';
         
-        if($this->isExistHangApplyByAuthTypeId($auth_type_id)
-            || $this->isCancelPassedByAuthTypeId($auth_type_id)
-        ) {
+        if($this->isExistHangApplyByAuthTypeId($auth_type_id)) {
             $class_attr = 'real_auth_pass '.$default_class;
         }
         else if($this->isPassedByAuthTypeId($auth_type_id)) {
@@ -635,17 +643,35 @@ class RealAuthAdminService {
     public function getListQueryInAdminCheck($countNum=false) 
     {     
     
-        $query = $this->user()
-                    ->with('real_auth_user_modify_max_created_at')
-                    ->with('real_auth_user_apply')
+        $query = $this->user()->whereNotNull('id');      
                     ;
+
         if($countNum) {
             $query->whereHas('real_auth_user_modify',function($q){
                 $q->where('real_auth_user_modify.status',0);
+                $q->where('real_auth_user_modify.item_id','!=',1);
             });
         }
         else {
-            $query->whereHas('real_auth_user_modify',function($q){$q->withTrashed();});           
+            $query->with('real_auth_user_modify_max_created_at')
+                  ->with('real_auth_user_apply')
+                  ->whereHas('real_auth_user_modify_with_trashed',function($q)
+                    {
+                        $q->where('real_auth_user_modify.item_id','!=',1)
+                          ->where(function($q) {
+                              $q->where('real_auth_user_modify.apply_status_shot',1)
+                                ->orWhere('is_formal_first',1)
+                                ->orWhere(function($qq)
+                                  {
+                                    $qq->where('real_auth_user_modify.apply_status_shot','!=',1)
+                                       ->whereNotNull('patch_id_shot')
+                                       ;
+                                  })
+                               ;
+                          })  
+                            
+                        ;
+                    });           
         }
 
         return $query;
@@ -655,16 +681,18 @@ class RealAuthAdminService {
     {
  
         $query = $this->getListQueryInAdminCheck(true);
-        
-        
+
         return $query->count();
     }
  
     public function getListInAdminCheck() 
-    {
+    {//\DB::enableQueryLog();
         $list = $this->getListQueryInAdminCheck()
                     ->get()
                     ->sortByDesc('real_auth_user_modify_max_created_at.max_created_at');          
+//$log_arr = \DB::getQueryLog();
+
+//echo  str_replace_array('?', $log_arr[0]['bindings'], $log_arr[0]['query']);
 
         return $list;
     } 
@@ -705,9 +733,19 @@ class RealAuthAdminService {
 
             else if($modify_entry->item_id!=1 
                 && $modify_entry->apply_status_shot!=1  
-            
+                && $modify_entry->is_formal_first!=1
             ){
                 $status_word = '已異動';
+            }
+            else if($modify_entry->is_formal_first) {
+                switch($modify_entry->item_id) {
+                    case 4:
+                        $status_word = '已視訊';
+                    break;
+                    case 5:
+                        $status_word = '已填表';
+                    break;
+                }
             }
         } 
         
@@ -718,6 +756,46 @@ class RealAuthAdminService {
         return $status_word;
     }
 
+    public function convertModifyItemIdToCompleteWord($modify_entry) 
+    {
+        if($modify_entry===false) return;
+        if($modify_entry===null) $modify_entry = $this->modify_entry();
+        if(!$modify_entry) return; 
+
+        $item_word = '';
+        $apply_entry = $modify_entry->real_auth_user_apply;
+        
+        if($modify_entry->is_formal_first)
+            $item_word ='新申請';
+        else { 
+            
+        
+            if($modify_entry->patch_id_shot)
+                $item_word = '新申請補件-';  
+        
+            if($modify_entry->patch_id_shot) {
+                if($modify_entry->item_id==5 && $apply_entry->auth_type_id==2) {
+                    $item_word.= '美顏推薦必填資料';
+                }
+                else if($modify_entry->item_id==5 && $apply_entry->auth_type_id==3) {
+                    $item_word.= '名人必填資料';
+                }
+                else {
+                    $item_word.=$modify_entry->real_auth_modify_item->name??null;
+                }
+
+            }
+            else {
+                $item_word.=$modify_entry->real_auth_modify_item->name??null;
+            }            
+        }
+
+        if($modify_entry->deleted_at) {
+            $item_word.='<br>(手動取消'.$apply_entry->real_auth_type->name.')';
+        }
+
+        return $item_word;
+    }
 
     public function getStatusLayout($status_code) 
     {
@@ -931,7 +1009,7 @@ class RealAuthAdminService {
         $auth_type_id = $question_entry->auth_type_id;
         $apply_entry = $this->getApplyByAuthTypeId($auth_type_id);
 
-        $modify_entry = $apply_entry->latest_working_reply_modify_with_trashed;
+        $modify_entry = $apply_entry->latest_working_reply_modify_with_trashed??null;
         
         $unchk_modify_entry = null;
 
@@ -983,7 +1061,8 @@ class RealAuthAdminService {
     
     public function getAuthTypeLayoutInAdminCheckByModifyEntry($modify_entry=null) 
     {
-        if(!$modify_entry) $modify_entry = $this->modify_entry();
+        if($modify_entry==false) return;
+        if($modify_entry==null) $modify_entry = $this->modify_entry();
         
         if(!$modify_entry) return;
         

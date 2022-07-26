@@ -2665,7 +2665,7 @@ class PagesController extends BaseController
         return json_encode($output); 
     }
     
-    public function getSearchData(Request $request){
+    public function getSearchData(Request $request,RealAuthPageService $rap_service){
         try{
             $searchApi = \App\Models\UserMeta::searchApi(
                 $request
@@ -2676,6 +2676,9 @@ class PagesController extends BaseController
             $user = Auth::user();
             $userIsVip = $user->isVip();
             $dataList = [];
+            
+            
+            
             foreach ($searchApi['singlePageData'] as $key=>$visitor){
                 $dataList[$key]['rawData'] = $visitor;
                 $dataList[$key]['visitorCheckRecommendedUser'] = \App\Services\UserService::checkRecommendedUser($visitor);
@@ -2683,12 +2686,18 @@ class PagesController extends BaseController
                 $dataList[$key]['visitorIsAdminWarned'] = $visitor->isAdminWarned();
                 $dataList[$key]['visitorIsPhoneAuth'] = $visitor->isPhoneAuth();
                 $dataList[$key]['visitorIsAdvanceAuth'] = $visitor->isAdvanceAuth();
+                $dataList[$key]['visitorIsSelfAuth'] = $rap_service->riseByUserEntry($visitor)->isPassedByAuthTypeId(1);
+                $dataList[$key]['visitorIsBeautyAuth'] = $rap_service->isPassedByAuthTypeId(2);
+                $dataList[$key]['visitorIsFamousAuth'] = $rap_service->isPassedByAuthTypeId(3);
                 $dataList[$key]['visitorIsBlurAvatar'] = \App\Services\UserService::isBlurAvatar($visitor, $user);
                 $dataList[$key]['visitorAge'] = $visitor->age();
                 $dataList[$key]['visitorIsOnline'] = $visitor->isOnline();
                 $dataList[$key]['visitorExchangePeriodName'] = DB::table('exchange_period_name')->where('id',$visitor->exchange_period)->first();
                 $dataList[$key]['visitorValueAddedServiceStatusHideOnline'] = $visitor->valueAddedServiceStatus('hideOnline');
             }
+            
+            $rap_service->riseByUserEntry($user);
+            
             $output = array(
                 'singlePageCount'=> $searchApi['singlePageCount'],
                 'allPageDataCount'=>$searchApi['allPageDataCount'],
@@ -3507,7 +3516,7 @@ class PagesController extends BaseController
 
         return view('dashboard.search')->with('user', $user);
     }
-    public function search2(Request $request)
+    public function search2(Request $request,RealAuthPageService $rap_service)
     {
         $input = $request->input();
         $search_page_key=session()->get('search_page_key',[]);
@@ -3523,6 +3532,7 @@ class PagesController extends BaseController
         }
 
         $user = $request->user();
+        $rap_service->riseByUserEntry($user);
         if($user->vip_any) {
             $this->service->dispatchCheckECPay($this->userIsVip, $this->userIsFreeVip, $user->vip_any->first());
         }
@@ -3539,7 +3549,7 @@ class PagesController extends BaseController
             }
 
         }
-        return view('new.dashboard.search')->with('user', $user);
+        return view('new.dashboard.search')->with('user', $user)->with('rap_service',$rap_service);
     }
 
     public function upgrade(Request $request)
@@ -5003,8 +5013,8 @@ class PagesController extends BaseController
         } 
 
         if(request()->server('SERVER_ADDR')=='127.0.0.1') $email = str_replace('@edu.tw','@yahoo.com',$email);
-        if(env('ADV_AUTH_EMAIL_TEST_SEND',0)==1 && request()->server('SERVER_ADDR')!='127.0.0.1') $email = $user->email;
-        \Log::info('adv auth email sent：'.$email);
+        if(config('memadvauth.user.email_test_send')==1 && request()->server('SERVER_ADDR')!='127.0.0.1') $email = $user->email;
+      
         $user->advance_auth_email = $email;
         $user->save();        
         $this->service->setAndSendUserAdvAuthEmailToken($user);
@@ -8638,7 +8648,7 @@ class PagesController extends BaseController
         if($data['service']->saveFamousAuthForm($req_entry)) {
 
             if($data['service']->isPassedByAuthTypeId(3)) {
-                $response_msg = '認證通過後的異動須經過審核，在異動審核通過前仍將維持原本資料，敬請等待異動審核結果';
+                $response_msg = '認證通過後的異動須經過審核，審核通過前仍將維持原始資料，待審核通過後資料直接更新';
             }
             else {
                 $response_msg = '成功送出名人認證申請，敬請等待認證審核結果';
@@ -8711,7 +8721,7 @@ class PagesController extends BaseController
         
         if($data['service']->saveBeautyAuthForm($req_entry)) {
             if($data['service']->isPassedByAuthTypeId(2)) {
-                $response_msg = '認證通過後的異動須經過審核，在異動審核通過前仍將維持原本資料，敬請等待異動審核結果';
+                $response_msg = '認證通過後的異動須經過審核，審核通過前仍將維持原始資料，待審核通過後資料直接更新';
             }
             else {
                 $response_msg = '成功送出美顏推薦申請，敬請等待認證審核結果';

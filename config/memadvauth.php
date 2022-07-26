@@ -12,6 +12,7 @@ return [
     'user' => [
         'pause_during' => env('ADV_AUTH_USER_PAUSE_DURING',1440*3),
         'allow_fault' => env('ADV_AUTH_USER_ALLOW_FAULT',3),        
+        'email_test_send' => env('ADV_AUTH_EMAIL_TEST_SEND'),
     ],
     'api'=>[
         'line_token'=>env('ADV_AUTH_LINE_TOKEN','dalgcYQoasC68P4wUIiD241DHZmAfP5fyoHDh8WLea9'),

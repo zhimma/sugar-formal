@@ -20,9 +20,18 @@
 @media (max-width: 414px){
 .dt_pa0 {padding-top: 0;height: 110px;}
 }
+
+.fileuploader-items .fileuploader-item .fileuploader-action.fileuploader-action-remove i:after {content:none !important;}
 </style>
 @stop
 @section('app-content')
+        <style>
+        .write_img{background-color:transparent; border-radius: 15px;}
+        .write_img .img{background-color: #fff;border-radius: 15px}
+        @media (max-width: 414px){
+        .dt_pa0 {padding-top: 0;height: 110px;}
+        }
+        </style>
 		<div class="container matop70">
 			<div class="row">
 				<div class="col-sm-2 col-xs-2 col-md-2 dinone">
@@ -31,7 +40,9 @@
 				<div class="col-sm-12 col-xs-12 col-md-10">
 					<div class="shou"><span>名人認證</span>
 						<font>Certification</font>
-						<a href="" class="toug_back btn_img"><div class="btn_back"></div></a>
+                        <a href="{{request()->server('HTTP_REFERER')?request()->server('HTTP_REFERER'):route('real_auth')}}" class="toug_back btn_img" style=" position: absolute; right:20px;">
+                            <div class="btn_back"></div>
+                        </a>
 					</div>
 					<div class="gjrz_nr01 ga_bot70">
 						<div class="gjr_b"><img src="{{asset('posts/images/gj_bt2.png')}}"></div>

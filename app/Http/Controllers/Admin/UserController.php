@@ -4144,7 +4144,8 @@ class UserController extends \App\Http\Controllers\BaseController
     {
         $data['service'] = $this->raa_service->riseByUserId($user_id);
         $data['user'] = $data['service']->user();
-        $data['apply_entry'] = $data['service']->rau_repo()->getUncheckedApplyByAuthTypeId(2);        
+        //$data['apply_entry'] = $data['service']->rau_repo()->getUncheckedApplyByAuthTypeId(2);        
+        $data['apply_entry'] = $data['service']->getApplyByAuthTypeId(2);        
         $data['entry_list'] =$data['service']->getBeautyAuthQuestionList();
 
        return view('admin.adminCheckRealAuthForm')
@@ -4155,7 +4156,8 @@ class UserController extends \App\Http\Controllers\BaseController
     {
         $data['service'] = $this->raa_service->riseByUserId($user_id);        
         $data['user'] = $data['service']->user();
-        $data['apply_entry'] = $data['service']->rau_repo()->getUncheckedApplyByAuthTypeId(3);
+        //$data['apply_entry'] = $data['service']->rau_repo()->getUncheckedApplyByAuthTypeId(3);
+        $data['apply_entry'] = $data['service']->getApplyByAuthTypeId(3); 
         $data['entry_list'] = $data['service']->getFamousAuthQuestionList();
        return view('admin.adminCheckRealAuthForm')
             ->with($data);

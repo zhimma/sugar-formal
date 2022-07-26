@@ -248,7 +248,16 @@ class RealAuthUserRepository
     {
         $data = $arr;
         $apply_entry = $this->apply_entry();
+        
+        if(!$apply_entry) return;       
+        
         $data['apply_status_shot'] = $apply_entry->status;
+        
+        if(in_array($data['item_id'],[4,5])) {
+            if(!$apply_entry->real_auth_user_modify->where('item_id',$data['item_id'])->where('apply_status_shot',0)->count()) {
+                $data['is_formal_first'] = 1;
+            }
+        }
         $rs = $apply_entry->real_auth_user_modify()->create($data);
         
         if($rs){

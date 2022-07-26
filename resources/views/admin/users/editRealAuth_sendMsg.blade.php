@@ -27,7 +27,7 @@
         @forelse($msglib_report as $msglib_report)
             <tr>
                 <td>{{$msglib_report->title}}</td>
-                <td class="btn btn_edit btn-success" id="{{$msglib_report->id}}"><a href="/admin/users/message/msglib/create/editPic_sendMsg/{{$msglib_report->id}}" style="color:white" target="_blank">編輯</a></td>
+                <td class="btn btn_edit btn-success" id="{{$msglib_report->id}}"><a href="{{route('admin/addMessageLibRealAuth', ['id' => $msglib_report->id])}}" style="color:white" target="_blank">編輯</a></td>
                 <td class="btn btn_del btn-danger" id="{{$msglib_report->id}}">刪除</td>
                 <td class="msglib_msg">{{$msglib_report->msg}}</td>
             </tr>
@@ -142,23 +142,23 @@
                             document.getElementById('item_id').value=patch_type_val;
                             switch(patch_type_val) {
                                 case '2':
-                                    template_str = template_str.replace('PATCH_LINK','<a href="'+profile_manage_url+'">請點我</a>');
+                                    template_str = template_str.replace('PATCH_LINK','<a href="'+profile_manage_url+'" style="color:#e44e71;">請點我</a>');
                                 break;
                                 case '3':
-                                    template_str = template_str.replace('PATCH_LINK','<a href="'+pic_manage_url+'">請點我</a>');
+                                    template_str = template_str.replace('PATCH_LINK','<a href="'+pic_manage_url+'"  style="color:#e44e71;">請點我</a>');
                                 break;
                                 case '5':
                                     if(msglib_msg.eq(i).html().search('BEAUTY_AUTH')>=0) 
                                     {
-                                        template_str = template_str.replace('PATCH_LINK','<a href="{{route('beauty_auth')}}">請點我</a>');
+                                        template_str = template_str.replace('PATCH_LINK','<a href="{{route('beauty_auth')}}"  style="color:#e44e71;">請點我</a>');
                                     }
                                     else if(msglib_msg.eq(i).html().search('FAMOUS_AUTH')>=0) 
                                     {
-                                        template_str = template_str.replace('PATCH_LINK','<a href="{{route('famous_auth')}}">請點我</a>');
+                                        template_str = template_str.replace('PATCH_LINK','<a href="{{route('famous_auth')}}"  style="color:#e44e71;">請點我</a>');
                                     }
                                 break;
                                 case '4':
-                                    template_str = template_str.replace('PATCH_LINK','<a href="{{url('user_video_chat_verify')}}">請點我</a>');
+                                    template_str = template_str.replace('PATCH_LINK','<a href="{{url('user_video_chat_verify')}}"  style="color:#e44e71;">請點我</a>');
                                 break;                            
                             }
                         

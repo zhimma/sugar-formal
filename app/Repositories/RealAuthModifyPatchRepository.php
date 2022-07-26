@@ -40,12 +40,18 @@ class RealAuthModifyPatchRepository {
         $user = $this->user();
         $patch_entry = $user->real_auth_user_patch()
                         ->where([['apply_id_shot',$modify_entry->apply_id],['item_id',$modify_entry->item_id],['apply_status_shot',$modify_entry->apply_status_shot]])
-                        ->whereNull('modify_id')->orderByDesc('id')->first();
+                        ->whereNull('modify_id')
+                        ->orderByDesc('id')->first();
 
         if($patch_entry) {
             
             $modify_entry->patch_id_shot = $patch_entry->id;
             $modify_entry->save();
+        
+            if(!$patch_entry->modify_id) {
+                $patch_entry->modify_id = $modify_entry->id;
+                $patch_entry->save();
+            }
         }
  
     }

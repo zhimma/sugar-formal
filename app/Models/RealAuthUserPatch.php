@@ -8,9 +8,11 @@ use App\Models\RealAuthUserApplyLog;
 use App\Models\RealAuthUserReply;
 use App\Models\UserVideoVerifyRecord;
 use Illuminate\Database\Eloquent\Model;
+use Illuminate\Database\Eloquent\SoftDeletes;
 
 class RealAuthUserPatch extends Model
 {
+    use SoftDeletes;
     /**
      * The database table used by the model.
      *

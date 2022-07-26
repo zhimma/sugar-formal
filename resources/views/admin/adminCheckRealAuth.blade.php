@@ -21,10 +21,10 @@
                     </a>
                 </td>
                 <td >
-                    {{$row->real_auth_modify_item_group_modify_with_trashed->first()->real_auth_user_modify_with_trashed->created_at}}
+                    {{$row->real_auth_modify_item_group_modify_with_trashed->first()->real_auth_user_modify_with_trashed->created_at??null}}
                 </td>
                 <td >
-                    {{$service->handleNullWord($row->real_auth_modify_item_group_modify_with_trashed->first()->real_auth_user_modify_with_trashed->status_at,'尚未審核')}}
+                    {{$service->handleNullWord($row->real_auth_modify_item_group_modify_with_trashed->first()->real_auth_user_modify_with_trashed->status_at??null,'尚未審核')}}
                 </td>
 
                 <td >
@@ -34,8 +34,16 @@
                     {{$service->convertModifyStatusToCompleteWord($row->real_auth_modify_item_group_modify_with_trashed->first()->real_auth_user_modify_with_trashed)}}
                 </td>
                 <td>
+                    {{--@if($row->real_auth_modify_item_group_modify_with_trashed->first()->real_auth_user_modify_with_trashed->item_id>=4 && !$row->real_auth_modify_item_group_modify_with_trashed->first()->real_auth_user_modify_with_trashed->apply_status_shot && $row->real_auth_modify_item_group_modify_with_trashed->first()->check_first==$row->real_auth_modify_item_group_modify_with_trashed->first()->real_auth_user_modify_with_trashed->id)--}}
+                    {{--
+                    @if($row->real_auth_modify_item_group_modify_with_trashed->first()->real_auth_user_modify_with_trashed->is_formal_first)
+                    新申請
+                    @else                
                     {{$row->real_auth_modify_item_group_modify_with_trashed->first()->real_auth_user_modify_with_trashed->patch_id_shot?'新申請補件-':''}}  
                     {{$row->real_auth_modify_item_group_modify_with_trashed->first()->real_auth_user_modify_with_trashed->real_auth_modify_item->name??null}}  
+                    @endif
+                    --}}
+                    {!!$service->convertModifyItemIdToCompleteWord($row->real_auth_modify_item_group_modify_with_trashed->first()->real_auth_user_modify_with_trashed)!!}
                 </td>               
             </tr>
             @foreach($row->real_auth_modify_item_group_modify_with_trashed->slice(1) as $modify)
@@ -49,8 +57,16 @@
                 </td>                
                 <td>{{$service->convertModifyStatusToCompleteWord($modify->real_auth_user_modify_with_trashed)}}</td>
                 <td>
+                    {{--@if($modify->real_auth_user_modify_with_trashed->item_id>=4 && !$modify->real_auth_user_modify_with_trashed->apply_status_shot && $modify->check_first==$modify->real_auth_user_modify_with_trashed->id)--}}
+                    {{--
+                    @if($modify->real_auth_user_modify_with_trashed->is_formal_first)
+                    新申請
+                    @else
                     {{$modify->real_auth_user_modify_with_trashed->patch_id_shot?'新申請補件-':''}}  
                     {{$modify->real_auth_user_modify_with_trashed->real_auth_modify_item->name??null}}                    
+                    @endif
+                    --}}
+                    {!!$service->convertModifyItemIdToCompleteWord($modify->real_auth_user_modify_with_trashed)!!}
                 </td>                
             </tr> 
             @endforeach

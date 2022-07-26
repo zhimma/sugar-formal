@@ -308,21 +308,35 @@ class RealAuthPageService {
         $start_msg_str = '';
         
         if($real_auth==1) {
-            $start_msg_str = '恭喜您，<br>只要通過最後的視訊驗證即可完成本人認證<br>';
+            $start_msg_str = '還差一點！只要通過最後的視訊驗證即可完成認證。';
         }
         else if($real_auth==2) {
-            $start_msg_str = '加油！<br><br>只剩最後兩個步驟即可完成美顏認證：視訊驗證（本人認證）和填寫美顏認證表。';
+            $start_msg_str = '還差一點！只剩最後兩個步驟即可完成美顏認證：視訊驗證和填寫美顏認證表。';
         }
         
-        return $start_msg_str.' 請點選綠色按鈕開始進行視訊驗證。                     
+        return $start_msg_str.' 
+                    <br>
+                    <div class="video_status_init_intro">
+                    <span class="video_status_text_show_elt">
+                    <a href="'.url('user_video_chat_verify').'">
+                    前往視訊頁面
+                    </a>
+                    </span>
+                    </div>
+                    <div class="video_status_online_intro">
+                    請點選綠色按鈕                     
                         <a href="'.url('user_video_chat_verify').'">
-                            <span class="video_status_text_show_elt">前往視訊</span>
-                            <img src="'.asset('/new/images/guan.png').'" class="center line_notify video_status_show_elt" style=" display:none;height: 30px;cursor: pointer;">
+                            
+                            <img src="'.asset('/new/images/kai-1.png').'" class="center line_notify video_status_show_elt" style="height: 30px;cursor: pointer;">
                         </a>
-                    <br><br><div class="video_status_color_intro">按鈕灰色代表目前無站方人員可視訊，
-                    <br>可在<a href="'.url('/dashboard/personalPage').'">專屬頁面</a>看到視訊狀態變綠色之後，
-                    <br>即可做視訊完成認證。</div>
-
+                        開始進行視訊驗證。         
+                    </div>
+                    <div class="video_status_offline_intro">
+                    但很抱歉可提供視訊審核的站方人員不在線，
+                    您可以隨時在<a href="'.url('/dashboard/personalPage').'">專屬頁面</a>查看，
+                    若審核人員在線，
+                    會顯示 <img src="'.asset('/new/images/kai-1.png').'" class="center line_notify video_status_show_elt" style="height: 30px;">您可以隨時進行驗證。</div>
+                    <br>
                         ';
     }
     
@@ -468,10 +482,15 @@ class RealAuthPageService {
         $apply_entry = $this->getApplyByAuthTypeId(1);
         
         if(!$apply_entry) {
-            $apply_data['auth_type_id'] = 1;
-            $apply_entry = $this->rau_repo()->saveApply((object)$apply_data);
+            return;
+            //$apply_data['auth_type_id'] = 1;
+            //$apply_entry = $this->rau_repo()->saveApply((object)$apply_data);
         }
-
+        /*
+        if($this->isSelfAuthApplyNotVideoYet()) {
+            return;
+        }
+        */
         $data['item_id'] = 2;
 
         $data['apply_status_shot']= $apply_entry->status;
@@ -532,10 +551,15 @@ class RealAuthPageService {
         $user = $this->user();
         $apply_entry = $this->getApplyByAuthTypeId(1);
         if(!$apply_entry) {
-            $apply_data['auth_type_id'] = 1;
-            $apply_entry = $this->rau_repo()->saveApply((object)$apply_data);
+            return;
+            //$apply_data['auth_type_id'] = 1;
+            //$apply_entry = $this->rau_repo()->saveApply((object)$apply_data);
         }
-
+        /*
+        if($this->isSelfAuthApplyNotVideoYet()) {
+            return;
+        }        
+        */
         $data['item_id'] = 3;
         
         $data['apply_status_shot']= $apply_entry->status;
@@ -680,8 +704,134 @@ class RealAuthPageService {
     public function isApplyEffectByAuthTypeId($auth_type_id) 
     {
         $apply_entry = $this->getApplyByAuthTypeId($auth_type_id);
-        return ($apply_entry && $apply_entry->status!=2);
+        $other_check = true;
+        
+        if($auth_type_id==1) {
+           $other_check =  !$this->isSelfAuthApplyNotVideoYet();
+        }
+        
+        return ($apply_entry && $apply_entry->status!=2 && $other_check);
     }
+    
+    public function isNeedShowTagOnPic()
+    {
+        if($this->user()->engroup!=2) return false;
+        
+        if($this->isPassedByAuthTypeId(1)
+           || $this->isPassedByAuthTypeId(2)
+            || $this->isPassedByAuthTypeId(3)
+        )
+        return true;
+        
+    }
+    
+    public function getTagShowOnPicLayoutByLoginedUserIsVip($is_vip)
+    {
+       $layout =''; 
+        
+       $passed1=   $this->isPassedByAuthTypeId(1);
+       $passed2=   $this->isPassedByAuthTypeId(2);
+       $passed3=   $this->isPassedByAuthTypeId(3);
+    
+        if($passed2 || $passed3) {
+            if($passed2) {
+                $layout.=$this->getTagShowOnPicLayoutByLoginedUserIsVipAndAuthTypeId($is_vip,2);
+            }
+            
+            if($passed3) {
+                $layout.=$this->getTagShowOnPicLayoutByLoginedUserIsVipAndAuthTypeId($is_vip,3);
+            }            
+        }
+        else if($passed1) {
+            $layout.=$this->getTagShowOnPicLayoutByLoginedUserIsVipAndAuthTypeId($is_vip,1);
+        }
+        
+        return $layout;
+    }
+
+    public function getTagShowOnPicLayoutByLoginedUserIsVipAndAuthTypeId($is_vip,$auth_type_id)
+    {
+        $layout = '';
+        
+        switch($auth_type_id) {
+            case 1:
+                $layout = $this->getSelfAuthTagShowOnPicLayoutByLoginedUserIsVip($is_vip);
+            break;
+            case 2:
+                $layout = $this->getBeautyAuthTagShowOnPicLayoutByLoginedUserIsVip($is_vip);
+            break;
+            case 3:
+                $layout = $this->getFamousAuthTagShowOnPicLayoutByLoginedUserIsVip($is_vip);
+            break;
+            
+           
+        }
+        
+        return $layout;
+    }
+
+    public function getSelfAuthTagShowOnPicLayoutByLoginedUserIsVip($is_vip,$is_in_search=false)
+    {
+        $img_src = '';
+        switch($is_vip) {
+            case 0:
+                $img_src = '/new/images/bm_2.png';
+            break;
+            case 1:
+                $img_src = '/new/images/a9.png';
+            break;
+        }  
+        
+        return  '
+                         '.($is_in_search?'<div class="hoverTip">':'<li>').'
+                            <div class="tagText"  data-toggle="popover" data-content="此會員通過本站的基本資料/照片與視訊認證。">
+                                <img src="'.$img_src.'">
+                            </div>
+                         '.($is_in_search?'</div>':'</li>').'   
+                ';
+    }
+    
+    public function getBeautyAuthTagShowOnPicLayoutByLoginedUserIsVip($is_vip,$is_in_search=false)
+    {
+        $img_src = '';
+        switch($is_vip) {
+            case 0:
+                $img_src = '/new/images/bm_1.png';
+            break;
+            case 1:
+                $img_src = '/new/images/a10.png';
+            break;
+        }        
+        
+        return '
+                        '.($is_in_search?'<div class="hoverTip">':'<li>').'
+                            <div class="tagText"  data-toggle="popover" data-content="此會員通過本站的基本資料/照片與視訊認證。推薦給各位 vvip 會員。">
+                                <img src="'.$img_src.'">
+                            </div>
+                        '.($is_in_search?'</div>':'</li>').'        
+                ';
+    }
+
+    public function getFamousAuthTagShowOnPicLayoutByLoginedUserIsVip($is_vip,$is_in_search=false)
+    {
+        $img_src = '';
+        switch($is_vip) {
+            case 0:
+                $img_src = '/new/images/bm_3.png';
+            break;
+            case 1:
+                $img_src = '/new/images/a11.png';
+            break;
+        }
+        
+        return '
+                       '.($is_in_search?'<div class="hoverTip">':'<li>').'
+                            <div class="tagText"  data-toggle="popover" data-content="本站的名人認證會員。">
+                                <img src="'.$img_src.'">
+                            </div> 
+                         '.($is_in_search?'</div>':'</li>').'          
+                ';
+    }    
     
     public function getLatestActualUnchekedHeightModifyEntry() 
     {

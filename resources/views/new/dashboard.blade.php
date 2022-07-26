@@ -21,6 +21,20 @@ header("Expires: Fri, 01 Jan 1990 00:00:00 GMT");
     font-size: 16px;
     margin-right: 11px;
 }
+
+a.real_auth_n_left:hover {
+    color: #ffffff;
+    box-shadow: inset 0px 15px 10px -10px #4c6ded, inset 0px -10px 10px -20px #4c6ded;
+}
+
+#real_auth_hint_tab .bltext ol {
+    margin:1em 0 1em 0;
+    list-style:none;
+    background:yellow;
+}
+
+#new_height_input_error_msg,#new_weight_input_error_msg {color:red;font-weight:bold;}
+
 </style>
 <script>
 real_auth_bad_count = 0;
@@ -164,7 +178,7 @@ dt span.engroup_type_title {display:inline-block;width:10%;white-space:nowrap;}
                 <input type="hidden" name="_token" value="{{ csrf_token() }}">
                 <input type="hidden" name="userId" value="{{$user->id}}">
                 <div class="n_input">
-                    @if(!$rap_service->isInRealAuthProcess() && !$rap_service->isPassedByAuthTypeId(1))
+                    @if($user->engroup==2 && !$rap_service->isInRealAuthProcess() && !$rap_service->isPassedByAuthTypeId(1))
                     <dt>
                         <span>本人驗證</span>
                         <span>
@@ -407,7 +421,7 @@ dt span.engroup_type_title {display:inline-block;width:10%;white-space:nowrap;}
                   <dt id="height_container">
                     <span  style="@if($rap_service->getLatestActualUnchekedHeightModifyEntry()) display:inline-block;width:51%; @endif" >身高（cm）<i>(必填)</i></span>
                     @if($rap_service->modify_entry())
-                    <span style="display:inline-block;width:47%;">正在審核的身高異動（cm）</span>
+                    <span style="display:inline-block;width:47%;">正在審核的身高異動</span>
                     @endif
                     @if($rap_service->isPassedByAuthTypeId(1))                      
                         <div onclick="show_real_auth_new_height_tab();"  class="select_xx01 senhs hy_new" tabindex="-1" id="height_readonly_block" style="background: #d2d2d2;@if($rap_service->modify_entry()) display:inline-block;width:50%;  @endif" onclick="show_real_auth_new_height_tab();">{{$umeta->height}}</div>    
@@ -423,7 +437,7 @@ dt span.engroup_type_title {display:inline-block;width:10%;white-space:nowrap;}
                   <dt>
                       <span style="@if($rap_service->getLatestActualUnchekedWeightModifyEntry()) display:inline-block;width:51%; @endif">體重（kg）</span>                     
                       @if($rap_service->modify_entry())
-                      <span style="display:inline-block;width:47%;">正在審核的體重異動（kg）</span>
+                      <span style="display:inline-block;width:47%;">正在審核的體重異動</span>
                       @endif                    
                     @if($rap_service->isPassedByAuthTypeId(1))
                     <div  onclick="show_real_auth_new_weight_tab();"  class="select_xx01 senhs hy_new" tabindex="-1" id="weight_readonly_block" style="background: #d2d2d2;@if($rap_service->modify_entry()) display:inline-block;width:50%;  @endif">{{$umeta->weight?($umeta->weight-4).' ~ '.$umeta->weight:0}}</div>         
@@ -1046,12 +1060,10 @@ dt span.engroup_type_title {display:inline-block;width:10%;white-space:nowrap;}
         <div class="bltitle">提示</div>
         <div class="n_blnr01 matop10">
             <div class="blnr bltext">
-                請確認包養關係
-                <br>
-                請確認身高
-                <br>
-                請確認體重
-                <br>                
+                請確認以下重要欄位，驗證後若要修改則須向站方申請
+                <ol>
+                    <li>包養關係、身高、體重</li>
+                </ol>
             </div>
             <a class="n_bllbut matop30" onclick="real_auth_tab_close(this)">確定</a> 
         </div>
@@ -1070,7 +1082,8 @@ dt span.engroup_type_title {display:inline-block;width:10%;white-space:nowrap;}
                 </div>
                 <div id="new_height_elt_container" style="display:none;">
                     <div style="margin-bottom:1%;">請輸入身高（cm）</div>
-                    <span><input name="new_height" id="new_height_elt" type="number" class="select_xx01"  placeholder="請輸入數字範圍140～210" value="" title="請輸入140~210範圍"></span>
+                    <span><input name="new_height" id="new_height_elt" type="number" class="select_xx01" max="210" min="140"  placeholder="請輸入數字範圍140～210" value="" title="請輸入140~210範圍" required></span>
+                    <div id="new_height_input_error_msg"></div>
                 </div>
             </div>
             <div class="n_bbutton">
@@ -1094,7 +1107,7 @@ dt span.engroup_type_title {display:inline-block;width:10%;white-space:nowrap;}
                 <div id="new_weight_elt_container" style="display:none;">
                     <div style="margin-bottom:1%;">請選擇體重選項（kg）</div>
                     <select name="new_weight" id="new_weight_elt"  class="select_xx01">
-                      <option value=null>請選擇</option>
+                      <option value="">請選擇</option>
                       @for ($i = 1; $i < 21; $i++)
                       <option value="{{$i*5}}">{{$i*5-4}} ~ {{$i*5}}
                       </option>
@@ -1102,6 +1115,7 @@ dt span.engroup_type_title {display:inline-block;width:10%;white-space:nowrap;}
                     </select>                
                 
                 </div>
+                <div id="new_weight_input_error_msg"></div>
             </div>
             <div class="n_bbutton">
                 <span><a class="real_auth_n_left" href="javascript:void(0)" onclick="real_auth_input_new_weight_handle();" >確認</a></span>
@@ -1960,13 +1974,30 @@ function show_real_auth_new_weight_tab() {
 
 function real_auth_input_new_height_handle() 
 {
-    elt_container = $('#new_height_elt_container');
-    confirm_block = $('#new_height_confirm_block');
+     var elt_container = $('#new_height_elt_container');
+    var input_elt = elt_container.find('input');
+    var confirm_block = $('#new_height_confirm_block');
+    var error_msg_elt = $('#new_height_input_error_msg');
+    error_msg_elt.html('').hide();
+    
     if(confirm_block.is(':visible')) {
         confirm_block.hide();
         elt_container.show();
     }
     else {
+        var input_value = input_elt.val();
+        var error_msg = '';
+
+        if(!input_value || input_value==null || input_value==undefined) error_msg='無法送出！請輸入身高';
+        else if(input_value<input_elt.attr('min') || input_value>input_elt.attr('max')) {
+            error_msg = '無法送出！請輸入'+input_elt.attr('min')+'～'+input_elt.attr('max')+'範圍的數字';
+        }
+
+        if(error_msg) {
+            error_msg_elt.show().html(error_msg);
+            return;
+        }
+        
         $('#new_height_modify_tab').hide();
         elt_container.hide();
         confirm_block.show(); 
@@ -2007,13 +2038,27 @@ function real_auth_input_new_height_handle()
 
 function real_auth_input_new_weight_handle() 
 {
-    elt_container = $('#new_weight_elt_container');
-    confirm_block = $('#new_weight_confirm_block');
+    var elt_container = $('#new_weight_elt_container');
+    var input_elt = elt_container.find('select');
+    var confirm_block = $('#new_weight_confirm_block');
+    var error_msg_elt = $('#new_weight_input_error_msg');
+    error_msg_elt.html('').hide();    
+    
     if(confirm_block.is(':visible')) {
         confirm_block.hide();
         elt_container.show();
     }
     else {
+        var input_value = input_elt.val();
+        var error_msg = '';
+
+        if(!input_value || input_value==null || input_value==undefined) error_msg='無法送出！請選擇體重選項';
+
+        if(error_msg) {
+            error_msg_elt.show().html(error_msg);
+            return;
+        }        
+        
         $('#new_weight_modify_tab').hide();
         elt_container.hide();
         confirm_block.show(); 

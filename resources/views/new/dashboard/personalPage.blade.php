@@ -9,8 +9,11 @@
 <meta name="csrf-token" content="{{ csrf_token() }}">
 <link rel="stylesheet" href="/new/css/iconfont.css">
 <style>
-    #self_auth_state_block .tabbox_h2 .tu_dfont {min-height:30px;}
-    .sa_video_status {cursor: pointer;}
+    #self_auth_state_block .tabbox_h2 .tu_dfont {min-height:30px;width:100%;}
+    .sa_video_status {cursor: pointer;display:inline-block;}
+    #video_status_text_show_elt {width:calc(100% - 85px);margin-right:20px;}
+    #video_status_show_elt {vertical-align:top;}
+    #self_auth_state_block .tabbox_h2,#self_auth_state_block .tabbox_h2 .tu_dfont {display:block;}
     #app,#app .btn-success {height:0 !important;width:0 !important;}
     #app {display:none !important;}
 </style>
@@ -108,7 +111,7 @@
     </style>
     <style>
     #vip_state_block .tu_dfont,#self_auth_state_block .tu_dfont  {width:auto;max-height:unset; -webkit-box-orient: vertical; -webkit-line-clamp:none; -webkit-line-clamp:unset;}
-    #vip_state_block .tabbox_new_dt a.zs_buttonn{font-size: 15px; line-height: 30px;font-weight:normal;margin-right:2%; }
+    #vip_state_block .tabbox_new_dt a.zs_buttonn,#self_auth_state_block  .tabbox_new_dt a.zs_buttonn,#adv_auth_state_block .tabbox_new_dt a.zs_buttonn{font-size: 15px; line-height: 30px;font-weight:normal;margin-right:2%; }
     </style>
     <style>
         span.main_word {color:#fd5678;font-weight:bolder;}
@@ -236,6 +239,25 @@
                         @endif
                         </div>
                     </div> 
+                    {{-- @if($rap_service->isSelfAuthApplyNotVideoYet())
+                    <div class="sys_aa" id="video_state_block">
+                        <div class="tabbox_new_dt">
+                            <span>視訊狀態</span>
+                        </div>
+                        <div class="tabbox_new_dd">
+                            <h2 class="tabbox_h2">
+                                <span class="tu_dfont">
+                                    <span class="sa_video_status" id="video_state_intro_block">
+                                        偵測中
+                                    </span>
+                                    <img  src="{{ asset('/new/images/guan.png') }}" class="right sa_video_status video_status_show_elt"  style="cursor: pointer;height: 30px;display:none;"/>
+                               </span>
+                            </h2>
+                        </div>
+                    </div>         
+                        
+                        
+                    @endif--}}
                     <div class="sys_aa" id="self_auth_state_block">
                         <div class="tabbox_new_dt"><span>本人認證</span>
                             <a class="zs_buttonn" href="{{route('real_auth')}}">
@@ -250,9 +272,9 @@
                         @if($rap_service->isPassedByAuthTypeId(1))
                             <h2 class="tabbox_h2">已通過</h2>
                         @elseif($rap_service->isSelfAuthWaitingCheck())
-                            <h2 class="tabbox_h2"><span class="tu_dfont">等待審核中</span></h2>
+                            <h2 class="tabbox_h2"><span class="tu_dfont">站方審核中</span></h2>
                         @elseif($rap_service->isSelfAuthApplyNotVideoYet())
-                            <h2 class="tabbox_h2"><span class="tu_dfont"><span class="sa_video_status" id="video_status_text_show_elt">前往視訊</span><img id="video_status_show_elt" src="{{ asset('/new/images/guan.png') }}" class="left sa_video_status"  style="cursor: pointer;height: 30px;display:none;"/></span></h2>
+                            <h2 class="tabbox_h2"><span class="tu_dfont"><span class="sa_video_status video_status_text_show_elt" id="video_status_text_show_elt">前往視訊</span><img id="video_status_show_elt" src="{{ asset('/new/images/guan.png') }}" class="sa_video_status video_status_show_elt"  style="cursor: pointer;height: 30px;display:none;"/></span></h2>
                         @else
                             <h2 class="tabbox_h2"><span class="tu_dfont">尚未通過</span></h2>
                         @endif
@@ -682,13 +704,6 @@
             />
             
         </div>
-        {{--
-        <div style="flex-wrap: wrap;position: absolute;top: 0;z-index: -1;">
-            <button type="button" class="btn mr-2 btn-secondary disabled" style="padding:0;">           
-                <span class="badge badge-light" style="line-height:normal;letter-spacing:2px;text-align:left;">目前無站方人員<br>暫時無法視訊</span>
-            </button>
-        </div>
-        --}}
     </div>
     @endif
 </div>
@@ -1540,12 +1555,17 @@ display: flex;-webkit-box-pack: center;-ms-flex-pack: center;-webkit-justify-con
     
     function change_video_status() 
     {
-        $('#video_status_text_show_elt').hide().removeAttr('id');
+        //$('.video_status_text_show_elt').hide().removeAttr('id');
+        var video_state_intro_block = $('#video_status_text_show_elt');
+        var video_status_show_elt = $('.video_status_show_elt');
         if($('#app .btn-success').length) {
-            $('#video_status_show_elt').show().attr('src','{{asset("/new/images/kai-1.png")}}');
+            if(video_status_show_elt.eq(0).attr('src')!='{{asset("/new/images/kai-1.png")}}')  video_status_show_elt.attr('src','');
+            video_status_show_elt.attr('src','{{asset("/new/images/kai-1.png")}}').show();
+            video_state_intro_block.html('現在可以進行視訊驗證，<span style="color:#e44e71;">點此開始驗證</span>');
         }
         else {
-            $('#video_status_show_elt').show().attr('src','{{asset("/new/images/guan.png")}}');
+            video_status_show_elt.attr('src','{{asset("/new/images/guan.png")}}').show();
+            video_state_intro_block.html('視訊審核的站方人員不在線，請稍後再試。');
         }
     }
 </script>

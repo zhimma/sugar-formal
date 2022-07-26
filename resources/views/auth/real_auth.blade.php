@@ -5,11 +5,25 @@
 <meta http-equiv="Expires" content="0" />
 <link rel="stylesheet" href="/new/css/iconfont.css">
 <style>
+.gaor_nr01 .system .ag_ttile {background:url(../../alert/images/z_dk.png) no-repeat right, linear-gradient(90deg,#ffb5be,#fff8f9) !important;}
 .real_auth_bg{width:100%; height:100%;width: 100%;height: 100%;position: fixed;top: 0px;left: 0;background: rgba(0,0,0,0.5);z-index: 9;display:none;}
 .bltext-real_auth { text-align:center; word-break:break-word;}
+.bltext-real_auth ul,.bltext-real_auth li {text-align:left;list-style: disc;list-style-type: disc;}
+.bltext-real_auth ul {margin-left:7%;margin-top:1em;margin-bottom:1em;}
+
+
 </style>
 @stop
 @section('app-content')
+    <style>
+    a.ga_3_passed:hover,a.ga_3_passed:visited,a.ga_3_passed:focus  {
+        text-decoration:none !important;
+        color: #333 !important;
+        background: linear-gradient(to top,#bababa,#f8f8f8) !important;
+        box-shadow: 0 5px 10px rgb(123 123 123 / 30%) !important;
+        cursor:default;
+    }
+    </style>
     <div class="container matop70">
         <div class="row">
             <div class="col-sm-2 col-xs-2 col-md-2 dinone">
@@ -17,6 +31,9 @@
             </div>
             <div class="col-sm-12 col-xs-12 col-md-10">
                 <div class="shou"><span>本人認證/美顏推薦/名人認證</span>
+                    <a href="{{request()->server('HTTP_REFERER')?request()->server('HTTP_REFERER'):url('/dashboard/personalPage')}}" class="toug_back btn_img" style=" position: absolute; right:20px;">
+                        <div class="btn_back"></div>
+                    </a>
                 </div>
                 <div class="renz">
                 本認證主要讓站方協助認證本人資訊，可以讓站方幫助你更好的尋找優質 daddy，擺脫放鳥/騙炮/沒意義的邀約等等不愉快的經驗。
@@ -41,7 +58,7 @@
                                  <dt class="ag_ttile">※ 通過這個認證我有什麼好處? </dt>
                                  <dd style="display: none;" class="matop_5 mabot_5">
                                      <div class="gaor_nr01_li"><img src="{{asset('alert/images/renz_12.png')}}"><font class="gaor_font">本人認證的標籤
-                                            <span style="color: #20b0c9; font-weight: bold; font-size: 16px;">「<span class="ewnz"><img src="images/w1.png">本人認證</span> 」</span>
+                                            <span style="color: #20b0c9; font-weight: bold; font-size: 16px;">「<span class="ewnz"><img src="{{asset('alert/images/w1.png')}}">本人認證</span> 」</span>
                                             通常daddy會更加信任你。</font>
                                     </div>
                                      <div class="gaor_nr01_li"><img src="{{asset('alert/images/renz_13.png')}}"><font class="gaor_font">投訴立即處理。</font>
@@ -56,7 +73,7 @@
                 
                     <div class="ga_button">
                         @if($service->isPassedByAuthTypeId(1))
-                        <a href="javascript:void(0)" class="ga_3">已完成本人認證</a>    
+                        <a href="javascript:void(0)" class="ga_3 ga_3_passed">已完成本人認證</a>    
                         @elseif($service->isSelfAuthWaitingCheck())
                         <a href="{{url('user_video_chat_verify')}}" class="ga_1">等待審核中 - 重錄視頻</a>    
                         @elseif($service->isSelfAuthApplyNotVideoYet())
@@ -91,7 +108,7 @@
                                  <dt class="ag_ttile">※ 通過這個認證我有什麼好處? </dt>
                                  <dd style="display: none;" class="matop_5 mabot_5">
                                      <div class="gaor_nr01_li"><img src="{{asset('alert/images/renz_12.png')}}"><font class="gaor_font">美顏推薦的標籤
-                                            <span style="color: #20b0c9; font-weight: bold; font-size: 16px;">「<span class="ewnz"><img src="images/w3.png">美顏推薦</span> 」</span>
+                                            <span style="color: #20b0c9; font-weight: bold; font-size: 16px;">「<span class="ewnz"><img src="{{asset('alert/images/w3.png')}}">美顏推薦</span> 」</span>
                                             </font>
                                     </div>
                                      <div class="gaor_nr01_li">
@@ -123,7 +140,7 @@
                     @elseif($service->isPassedByAuthTypeId(1))
                         <a href="{{route('beauty_auth')}}" class="ga_1">填寫認證表</a>
                     @else                        
-                        <a href="javascript:void(0)" class="ga_1" onclick="real_auth_popup(2);">我符合，申請美顏推薦</a>
+                        <a class="ga_1" onclick="real_auth_popup(2);return false;">我符合，申請美顏推薦</a>
                         <a href="{{url('/dashboard/personalPage')}}" class="ga_2">放棄</a>
                     @endif                    
                     </div>
@@ -154,7 +171,7 @@
                                          <div class="gaor_nr01_li">
                                                 <img src="{{asset('alert/images/renz_12.png')}}">
                                                 <font class="gaor_font">獲得名人認證的標籤
-                                                <span style="color: #20b0c9; font-weight: bold; font-size: 16px;">「<span class="ewnz"><img src="images/w2.png">名人認證</span> 」</span>
+                                                <span style="color: #20b0c9; font-weight: bold; font-size: 16px;">「<span class="ewnz"><img src="{{asset('alert/images/w2.png')}}">名人認證</span> 」</span>
                                                 </font>
                                         </div>
                                          <div class="gaor_nr01_li">
@@ -179,7 +196,7 @@
                         @elseif($service->isFamousAuthWaitingCheck())
                             <a href="{{route('famous_auth')}}" class="ga_1">審核中 - 編修認證表</a>                     
                         @else                                
-                        <a href="{{route('famous_auth')}}" class="ga_1" >我符合，進行名人認證</a>
+                        <a  class="ga_1" onclick="location.href='{{route('famous_auth')}}';return false;" >我符合，進行名人認證</a>
                         <a href="{{url('/dashboard/personalPage')}}" class="ga_2">放棄</a>                            
                         @endif    
                         </div>
@@ -195,11 +212,11 @@
         <div class="n_blnr01 matop10">
             <div class="blnr bltext-real_auth">
                 您好：本人驗證會分三步驟
-                <li>
-                    <ul>第一步請您先確認基本資料/照片符合您的現況</ul>
-                    <ul>第二步請您做進階驗證</ul>
-                    <ul>第三步會做站方視訊驗證約兩分鐘</ul>
-                </li>
+                <ul>
+                    <li>第一步請您先確認基本資料/照片符合您的現況</li>
+                    <li>第二步請您做進階驗證</li>
+                    <li>第三步會做站方視訊驗證約兩分鐘</li>
+                </ul>
                 整體大概會占用您 10~15分鐘的時間。
             </div>
             <div class="n_bbutton">
@@ -214,11 +231,11 @@
         <div class="n_blnr01 matop10">
             <div class="blnr bltext-real_auth">
                 您好：美顏推薦會分三步驟
-                <li>
-                    <ul>第一步請您先確認基本資料/照片符合您的現況</ul>
-                    <ul>第二步請您做進階驗證</ul>
-                    <ul>第三步會做站方視訊約三分鐘的驗證</ul>
-                </li>
+                <ul>
+                    <li>第一步請您先確認基本資料/照片符合您的現況</li>
+                    <li>第二步請您做進階驗證</li>
+                    <li>第三步會做站方視訊約三分鐘的驗證</li>
+                </ul>
                 整體大概會占用您 10~15分鐘的時間。
                 如果美顏推薦沒通過則獲得本人認證的標籤
 
