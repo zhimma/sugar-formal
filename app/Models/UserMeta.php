@@ -17,9 +17,11 @@ use App\Models\Vip;
 use App\Services\ImagesCompareService;
 use App\Models\SearchIgnore;
 use App\Services\SearchIgnoreService;
+use Illuminate\Database\Eloquent\Factories\HasFactory;
 
 class UserMeta extends Model
 {
+    use HasFactory;
     /**
      * The database table used by the model.
      *

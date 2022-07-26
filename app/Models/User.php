@@ -32,11 +32,13 @@ use App\Models\IsWarnedLog;
 use App\Models\SimpleTables\short_message;
 use App\Models\LogAdvAuthApi;
 use App\Models\UserTattoo;
+use Illuminate\Database\Eloquent\Factories\HasFactory;
 use function Clue\StreamFilter\fun;
 use Tymon\JWTAuth\Contracts\JWTSubject;
 
 class User extends Authenticatable implements JWTSubject
 {
+    use HasFactory;
     use Notifiable;
     /**
      * The database table used by the model.
