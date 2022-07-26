@@ -37,10 +37,12 @@ class BanJob implements ShouldQueue
         $this->type = $type;
     }
 
+    /*
     public function middleware()
     {
         return [(new WithoutOverlapping($this->uid))];
     }
+    */
 
     public function handle()
     {
@@ -100,8 +102,10 @@ class BanJob implements ShouldQueue
         sleep(90);
     }
 
+    /*
     public function retryUntil()
     {
         return now()->addMinutes(30);
     }
+    */
 }
