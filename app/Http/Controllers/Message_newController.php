@@ -3,6 +3,7 @@
 namespace App\Http\Controllers;
 
 use App\Models\Blocked;
+use App\Models\EssenceStatisticsLog;
 use App\Models\lineNotifyChat;
 use App\Models\lineNotifyChatSet;
 use App\Models\MemberFav;
@@ -300,10 +301,12 @@ class Message_newController extends BaseController {
             ]);
 
             $messagePosted = $this->message_pic_save($messageInfo->id, $request->file('images'));
+            $this->addEssenceStatisticsLog(['user_id'=>$user->id, 'to_id'=>$payload['to'], 'message_data'=>$messageInfo]);
         }else {
             $postArr = $payload;
             $postArr['from_id'] = $user->id;
             $messagePosted = Message::postByArr($postArr);
+            $this->addEssenceStatisticsLog(['user_id'=>$user->id, 'to_id'=>$payload['to'], 'message_data'=>$messagePosted]);
         }
 
         //line通知訊息
@@ -588,6 +591,9 @@ class Message_newController extends BaseController {
 
     public function chatviewMore(Request $request)
     {
+        // $user = new User;
+        // $can_pr = $user->getSpamMessagePercentIn7Days(15600);
+        // dd($can_pr);
         $user = Auth::user();
         $user_id = $request->uid;
         /**
@@ -688,7 +694,12 @@ class Message_newController extends BaseController {
                     $count = 0;
                     foreach ($data as $d)
                     {
-                        $can_pr = UserService::computeCanMessagePercent_7($d['user_id']);
+                        if(Features::accessible('inbox-7-days')){
+                            $can_pr = UserService::computeCanMessagePercent_7($d['user_id']);
+                        }else{
+                            $user = new User;
+                            $can_pr = $user->getSpamMessagePercentIn7Days($d['user_id']);
+                        }                     
                         $can_pr = trim($can_pr,'%');
                         if($can_pr > $inbox_refuse_set->refuse_canned_message_pr)
                         {
@@ -948,5 +959,22 @@ class Message_newController extends BaseController {
         
         $msg->views_count = $msg->views_count+1;
         return $msg->save();
+    }
+
+    public function addEssenceStatisticsLog($data)
+    {
+        $data=[
+            'user_id'=>$data['user_id'],
+            'essence_posts_id'=> session()->get('via_by_essence_article_enter'),
+            'message_client_id'=>array_get($data,'message_data.client_id'),
+            'message_send_time'=>array_get($data,'message_data.created_at'),
+        ];
+
+        $user=User::findById($data['user_id']);
+        if($user->engroup==2 && !is_null(session()->get('via_by_essence_article_enter'))){
+            EssenceStatisticsLog::addToLog($data);
+            session()->forget('via_by_essence_article_enter');
+
+        }
     }
 }

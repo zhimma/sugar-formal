@@ -14,7 +14,7 @@ use App\Http\Controllers\Api\CfpController;
 | to using a given Closure or controller and enjoy the fresh air.
 |
 */
-
+// Route::group(['middleware' => ['feature:site-maintenance-mode']], function () {
 
 Route::get('/fingerprint', 'PagesController@fingerprint');
 Route::post('/saveFingerprint', 'PagesController@saveFingerprint')->name('saveFingerprint');
@@ -362,6 +362,12 @@ Route::group(['middleware' => ['auth', 'global', 'active', 'femaleActive', 'vipC
 
     Route::get('/dashboard/vipForNewebPay', 'PagesController@viewVipForNewebPay'); //new route
     Route::get('/dashboard/suspicious', 'PagesController@viewSuspicious'); //new route
+    Route::get('/dashboard/suspicious_list', 'PagesController@suspicious_list');
+    Route::get('/dashboard/suspicious_posts', 'PagesController@suspicious_posts');
+    Route::post('/dashboard/suspicious_doPosts', 'PagesController@suspicious_doPosts');
+    Route::get('/dashboard/view_suspicious_edit/{id}', 'PagesController@view_suspicious_edit');
+    Route::post('/dashboard/suspicious_delete/{id}', 'PagesController@suspicious_delete');
+    Route::get('/dashboard/suspicious_count/{id}', 'PagesController@suspicious_count');
     Route::post('/dashboard/suspicious_u_account', 'PagesController@suspiciousUserAccount')->name('suspicious_u_account'); //new route
 
     Route::get('/dashboard/account_manage', 'PagesController@view_account_manage'); //new route
@@ -442,7 +448,7 @@ Route::group(['middleware' => ['auth', 'global', 'active', 'femaleActive', 'vipC
         Route::get('/dashboard/search_discard/del', 'PagesController@delSearchIgnore');        
     });
     Route::post('/dashboard/chat2/showMessages/{randomNo?}', 'Message_newController@chatviewMore')->name('showMessages');
-    Route::group(['middleware' => ['filled']], function () {
+    Route::group(['middleware' => ['filled', 'feature:site-maintenance-mode']], function () {
         //新樣板
         Route::get('/dashboard/chat2/{randomNo?}', 'Message_newController@chatview')->name('chat2View');
         Route::get('/dashboard/chat2/chatShow/{cid}', 'PagesController@chat2')->name('chat2WithUser');
@@ -765,6 +771,7 @@ Route::group(['middleware' => ['auth', 'global', 'active', 'femaleActive', 'vipC
         Route::get('users/pics/reported/{date_start?}/{date_end?}/{reported_id?}', 'UserController@searchReportedPics')->name('users/pics/reported/EXTRA');
         Route::get('users/reported/{date_start?}/{date_end?}/{reported_id?}', 'UserController@showReportedUsersList')->name('users/reported/EXTRA');
         Route::get('users/message/search/reported/{date_start?}/{date_end?}/{reported_id?}', 'UserController@showReportedMessages')->name('users/message/search/reported');
+        Route::post('users/reported/handle/status', 'UserController@reportedIsWrite')->name('users.reported.isWrite');
 
         Route::post('users/pics/reported', 'UserController@searchReportedPics')->name('users/pics/reported');
         Route::get('users/basic_setting', 'UserController@basicSetting')->name('users/basic_setting/GET');
@@ -845,6 +852,8 @@ Route::group(['middleware' => ['auth', 'global', 'active', 'femaleActive', 'vipC
         Route::get('commontext', 'UserController@showAdminCommonText')->name('admin/commontext');
         Route::post('commontext/save', 'UserController@saveAdminCommonText')->name('admin/commontext/save');
         Route::get('getAdminActionLog', 'UserController@adminActionLog')->name('admin/getAdminActionLog');
+        Route::get('getEssenceStatisticsRecord', 'UserController@getEssenceStatisticsRecord')->name('admin/getEssenceStatisticsRecord');
+
         Route::get('users/inactive', 'UserController@inactiveUsers')->name('inactive/GET');
         Route::post('users/inactive', 'UserController@inactiveUsers')->name('inactive');
         Route::get('users/activate/token/{token}', 'UserController@activateUser')->name('activateUser');
@@ -927,6 +936,7 @@ Route::group(['middleware' => ['auth', 'global', 'active', 'femaleActive', 'vipC
         Route::post('users/picturesSimilar/image:delete', [\App\Http\Controllers\ImageController::class, 'admin_user_image_delete'])->withoutMiddleware('Admin');
         Route::post('users/picturesSimilar/avatar:delete', [\App\Http\Controllers\ImageController::class, 'admin_user_avatar_delete'])->withoutMiddleware('Admin');
         Route::post('users/picturesSimilar/pictures:delete/all', [\App\Http\Controllers\ImageController::class, 'admin_user_pictures_all_delete'])->withoutMiddleware('Admin');
+        Route::get('users/message/check', 'UserController@messageCheck')->name("users.message.check");
 
         /*
         |--------------------------------------------------------------------------
@@ -952,7 +962,14 @@ Route::group(['middleware' => ['auth', 'global', 'active', 'femaleActive', 'vipC
         Route::get('admin/user_regist_time_view', 'UserController@user_regist_time_view')->name('admin/user_regist_time_view');
         Route::get('admin/user_visited_time_view', 'UserController@user_visited_time_view')->name('admin/user_visited_time_view');
         Route::get('admin/user_online_time_view', 'UserController@user_online_time_view')->name('admin/user_online_time_view');
-
+    
+        Route::get('global/feature_flags', 'UserController@feature_flags')->name('admin/feature_flags');
+        Route::get('global/feature_flags/create', 'UserController@feature_flags_create');
+        Route::post('global/feature_flags/create', 'UserController@feature_flags_create');
+        Route::get('global/feature_flags/edit/{feature_key}', 'UserController@feature_flags_edit');
+        Route::post('global/feature_flags/edit', 'UserController@feature_flags_edit');
+        Route::post('global/feature_flags/update', 'UserController@feature_flags_update');
+        Route::post('global/feature_flags/delete', 'UserController@feature_flags_delete');
     });
     Route::group(['prefix' => 'admin', 'middleware' => 'Admin'], function () {
         //寄退信Log查詢
@@ -1046,3 +1063,4 @@ Route::group(['middleware' => ['auth', 'global', 'active', 'femaleActive', 'vipC
 Route::get('/test', 'ImageController@deletePictures');
 
 Route::get('/cfp', [CfpController::class, 'cfp']);
+// });

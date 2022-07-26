@@ -215,7 +215,48 @@ class SetAutoBan extends Model
     {
         Log::Info('start_LogoutAutoBan_logout_warned');
         Log::Info($uid);
-        LogoutAutoBan::dispatch($uid)->onConnection('database-long')->onQueue('long-jobs')->delay(SetAutoBan::_getDelayTime());
+        if(\App::isProduction()) {
+            LogoutAutoBan::dispatch($uid)->onConnection('sqs')->onQueue('auto-ban')->delay(SetAutoBan::_getDelayTime());
+        }
+        else {
+            LogoutAutoBan::dispatch($uid)->onConnection('sqs')->onQueue('auto-ban-test')->delay(SetAutoBan::_getDelayTime());
+        }
+    }
+
+    //登入時的警示
+    public static function login_warned($uid)
+    {
+        $user = User::where('id', $uid)->first();
+        $count_of_user_login_with_desktop = LogUserLogin::where('user_id', $uid)
+                                                ->where(function($query){
+                                                    $query->where('userAgent', 'like', '%' . 'Windows' . '%');
+                                                    $query->orwhere('userAgent', 'like', '%' . 'Macintosh' . '%');
+                                                })
+                                                ->count();
+        if($user->engroup==2 && !$user->isPhoneAuth() && $count_of_user_login_with_desktop>=3 && $user->created_at>\Carbon\Carbon::now()->subDays(10))
+        {
+            SetAutoBan::mobile_verify_warned($uid);
+        }
+    }
+
+    public static function mobile_verify_warned($uid)
+    {
+        $reason = '尚未進行手機驗證';
+        $userWarned = new warned_users;
+        $userWarned->member_id = $uid;
+        $userWarned->type = 'no_mobile_verify';
+        $userWarned->reason = $reason;
+        $userWarned->save();
+        //寫入log
+        DB::table('is_warned_log')->insert(['user_id' => $uid, 'reason' => $reason]);
+    }
+
+    public static function relieve_mobile_verify_warned($uid)
+    {
+        if(User::findById($uid)->isPhoneAuth() == true)
+        {
+            warned_users::where('member_id', $uid)->where('type', 'no_mobile_verify')->delete();
+        }
     }
 
     public static function logoutWarned($uid)

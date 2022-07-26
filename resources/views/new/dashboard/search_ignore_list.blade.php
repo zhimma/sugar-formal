@@ -57,6 +57,8 @@
 @section('javascript')
 <script src="{{asset('/new/js/pick_real_error.js')}}" type="text/javascript"></script>
 <script>
+    // 計算瀏覽時間
+    var page_id = 'browse';
    
 	function cl() {
 		 $(".blbg").show()

@@ -50,7 +50,7 @@
                         @endif
 
                         <a href="javascript:void(0)" class="gg_zh_li" onclick="checkHideOnline();"><span><img src="/new/images/zh07.png"></span>
-                            <font>搜索隱藏設定</font>
+                            <font>隱藏付費設定</font>
                         </a>
 
                         <a href=" {{route('viewChatNotice')}}" class="gg_zh_li"><span><img src="/new/images/zh08.png"></span>

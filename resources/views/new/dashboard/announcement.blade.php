@@ -96,6 +96,9 @@
         </div>
     </div>
     <script>
+        // 計算瀏覽時間
+        var page_id = 'browse';
+
         $('a[data-toggle="picture"]').popover({
             animated: 'fade',
             placement: 'bottom',

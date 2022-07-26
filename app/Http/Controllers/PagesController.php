@@ -28,6 +28,7 @@ use App\Models\Forum;
 use App\Models\Order;
 use App\Models\ReportedMessageBoard;
 use App\Models\SimpleTables\warned_users;
+use App\Models\Suspicious;
 use App\Models\VipLog;
 use Auth;
 use Carbon\Carbon;
@@ -1130,6 +1131,194 @@ class PagesController extends BaseController
         return view('new.dashboard.suspicious')->with('user', $user)->with('suspicious', $suspicious)->with('query', $request->input('q'));
     }
 
+    public function suspicious_list(Request $request)
+    {
+        $user = $request->user();
+        $suspicious_type1=Suspicious::selectRaw('suspicious.*')
+            ->selectRaw('(select name from users where users.id=suspicious.user_id) AS reported_name')
+            ->selectRaw('(select name from users where users.id=suspicious.reporter_user_id) AS reporter_name')
+            ->leftJoin('users','users.id', 'suspicious.user_id')
+            ->where('suspicious.report_type',1)
+            ->orderBy('suspicious.id','desc');
+        $suspicious_type2=Suspicious::selectRaw('suspicious.*')
+            ->selectRaw('(select name from users where users.id=suspicious.user_id) AS reported_name')
+            ->selectRaw('(select name from users where users.id=suspicious.reporter_user_id) AS reporter_name')
+            ->leftJoin('users','users.id', 'suspicious.user_id')
+            ->where('suspicious.report_type',2)
+            ->orderBy('suspicious.id','desc');
+
+        if($request->has('q') && !empty($request->input('q'))) {
+            $suspicious_type1->whereRaw('(suspicious.account_text LIKE "%'.$request->input('q') .'%"  OR '.'users.name LIKE "%'.$request->input('q') .'%")');
+            $suspicious_type2->whereRaw('(suspicious.account_text LIKE "%'.$request->input('q') .'%"  OR '.'users.name LIKE "%'.$request->input('q') .'%")');
+        }
+        $suspicious_type1=$suspicious_type1->paginate(10,['*'], 'lists_type1');
+        $suspicious_type2=$suspicious_type2->paginate(10,['*'], 'lists_type2');
+        return view('new.dashboard.suspicious_list')
+            ->with('user', $user)
+            ->with('suspicious_type1', $suspicious_type1)
+            ->with('suspicious_type2', $suspicious_type2)
+            ->with('query', $request->input('q'));
+    }
+    public function suspicious_posts(Request $request)
+    {
+        $message_to_id=Message::whereRaw('(select count(*) from role_user where  role_user.user_id=message.to_id) =0')->where('from_id', auth()->user()->id)->groupBy('to_id')->get()->pluck('to_id')->toArray();
+        $message_from_id=Message::whereRaw('(select count(*) from role_user where  role_user.user_id=message.from_id) =0')->where('to_id', auth()->user()->id)->groupBy('from_id')->get()->pluck('from_id')->toArray();
+        $message_user_list=array_unique(array_merge($message_to_id, $message_from_id));
+
+        $suspicious_id=$request->get('suspicious_id');
+        return view('new.dashboard.suspicious_posts', compact('message_user_list','suspicious_id'));
+    }
+
+    public function suspicious_pic_save($suspicious_id, $images, $newImages)
+    {
+        $suspicious=Suspicious::where('id',$suspicious_id)->first();
+        $suspiciousImages=$suspicious && !is_null($suspicious->images)? json_decode($suspicious->images, true) : [];
+        $nowImageList=array();
+        $images=json_decode($images, true);
+        if($images){
+            foreach ($images as $imageList){
+                $nowImageList[]=array_get($imageList,'file');
+            }
+        }
+
+        foreach ($suspiciousImages as $key => $dbImage){
+            if(in_array($dbImage, $nowImageList)){
+                continue;
+            }else{
+                //移除照片
+                if(file_exists(public_path().$dbImage)){
+                    unlink(public_path().$dbImage);
+                }
+                unset($suspiciousImages[$key]);
+            }
+        }
+
+        $destinationPath = [];
+        //新增新加入照片
+        if($files = $newImages)
+        {
+            foreach ($files as $file) {
+                $now = Carbon::now()->format('Ymd');
+                $input['imagename'] = $now . rand(100000000,999999999) . '.' . $file->getClientOriginalExtension();
+
+                $rootPath = public_path('/img/Suspicious');
+                $tempPath = $rootPath . '/' . substr($input['imagename'], 0, 4) . '/' . substr($input['imagename'], 4, 2) . '/'. substr($input['imagename'], 6, 2) . '/';
+
+                if(!is_dir($tempPath)) {
+                    File::makeDirectory($tempPath, 0777, true);
+                }
+
+                $destinationPath[] = '/img/Suspicious/'. substr($input['imagename'], 0, 4) . '/' . substr($input['imagename'], 4, 2) . '/'. substr($input['imagename'], 6, 2) . '/' . $input['imagename'];
+
+                $img = Image::make($file->getRealPath());
+                $img->resize(400, 600, function ($constraint) {
+                    $constraint->aspectRatio();
+                })->save($tempPath . $input['imagename']);
+
+            }
+        }
+        //整理images
+        $destinationPath = json_encode(array_merge($suspiciousImages, $destinationPath));
+        return $destinationPath;
+    }
+
+
+    public function suspicious_doPosts(Request $request)
+    {
+        //儲存照片
+        $fileuploaderListImages = $request->get('fileuploader-list-images');
+        $destinationPath=$this->suspicious_pic_save($request->get('suspicious_id'), $fileuploaderListImages, $request->file('images'));
+
+        $target_user_id=$request->get('target_user_id');
+        $target_user=User::findById($target_user_id);
+
+        if($request->get('action') == 'update'){
+            Suspicious::find($request->get('suspicious_id'))
+                ->update([
+                    'user_id'=>$request->get('target_user_id'),
+                    'name'=>$target_user? $target_user->name :'',
+                    'account_text'=>$request->get('account_text'),
+                    'reason'=>$request->get('reason'),
+                    'images' => isset($destinationPath) ? $destinationPath : null,
+                    'report_type'=>$request->get('type'),
+                ]);
+            return redirect('/dashboard/suspicious_list?s=false')->with('message','修改成功');
+        }else{
+            Suspicious::create([
+                'user_id'=>$request->get('target_user_id'),
+                'name'=>$target_user? $target_user->name :'',
+                'account_text'=>$request->get('account_text'),
+                'reason'=>$request->get('reason'),
+                'images' => isset($destinationPath) ? $destinationPath : null,
+                'report_type'=>$request->get('type'),
+                'reporter_user_id'=>auth()->user()->id,
+            ]);
+            return redirect('/dashboard/suspicious_list?s=false')->with('message','提報成功');
+        }
+    }
+
+    public function view_suspicious_edit($id)
+    {
+        $suspicious = Suspicious::find($id);
+        $message_to_id=Message::whereRaw('(select count(*) from role_user where  role_user.user_id=message.to_id) =0')->where('from_id', auth()->user()->id)->groupBy('to_id')->get()->pluck('to_id')->toArray();
+        $message_from_id=Message::whereRaw('(select count(*) from role_user where  role_user.user_id=message.from_id) =0')->where('to_id', auth()->user()->id)->groupBy('from_id')->get()->pluck('from_id')->toArray();
+        $message_user_list=array_unique(array_merge($message_to_id, $message_from_id));
+
+        $images=json_decode($suspicious->images, true);
+        $imagesGroup=array();
+        if(!is_null($images) && count($images)){
+            foreach ($images as $key => $path) {
+                if(file_exists(public_path($path))){
+                    $imagePath = $path;
+                    $imagesGroup['type'][$key] = \App\Helpers\fileUploader_helper::mime_content_type(ltrim($imagePath, '/'));
+                    $imagesGroup['name'][$key] = Arr::last(explode('/', $imagePath));
+                    $imagesGroup['size'][$key] = str_starts_with($imagePath, 'http') ? null :filesize(ltrim($imagePath, '/'));
+                    $imagesGroup['local'][$key] = $imagePath;
+                    $imagesGroup['file'][$key] = $imagePath;
+                    $imagesGroup['data'][$key] = [
+                        'url' => $imagePath,
+                        'thumbnail' =>$imagePath,
+                        'renderForce' => true
+                    ];
+                }
+            }
+        }
+        $images=$imagesGroup;
+        return view('new.dashboard.suspicious_edit',compact('suspicious', 'message_user_list', 'images'));
+    }
+    public function suspicious_delete($id)
+    {
+        $suspicious = Suspicious::where('id', $id)->first();
+        if($suspicious->reporter_user_id !== auth()->user()->id){
+            return response()->json(['msg'=>'刪除失敗 不可刪除別人的留言!']);
+        }else{
+            $suspicious->delete();
+            return response()->json(['msg'=>'刪除成功!','redirectTo'=>'/dashboard/suspicious_list?s=false']);
+        }
+    }
+    public function suspicious_count($id)
+    {
+        $suspicious = Suspicious::where('id', $id)->first();
+        if($suspicious){
+            $user_id_list=explode(",",$suspicious->reporter_user_id_list);
+            if(auth()->user()->id!==$suspicious->reporter_user_id){
+                $arr=array_unique(array_merge($user_id_list, [auth()->user()->id]));
+            }else{
+                $arr=array_unique($user_id_list);
+            }
+
+            foreach ($arr as $key => $value){
+                if(empty($value)){
+                    unset($arr[$key]);
+                }
+            }
+            $suspicious->reporter_user_id_list=implode(",",$arr);
+            $suspicious->save();
+        }
+        return redirect('/dashboard/suspicious_list?s=false');
+
+    }
+
     public function changePassword(Request $request){
         $user = $request->user();
         if($request->input('password') != $request->input('password_confirmation')){
@@ -2040,7 +2229,9 @@ class PagesController extends BaseController
             $visited_id = 0;
             if ($user->id != $uid) {
                 if(isset($canViewUsers)){
-                    $visited_id = Visited::visit($user->id, $targetUser);
+                    if( $user->is_hide_online != 1 ) {
+                        $visited_id = Visited::visit($user->id, $targetUser);
+                    }
                 }
                 elseif(
                     //檢查性別
@@ -2050,7 +2241,9 @@ class PagesController extends BaseController
                 ){
                     return redirect()->route('listSeatch2');
                 }else{
-                    $visited_id = Visited::visit($user->id, $targetUser);
+                    if( $user->is_hide_online != 1 ) {
+                        $visited_id = Visited::visit($user->id, $targetUser);
+                    }
                 }
             }
 
@@ -2214,6 +2407,12 @@ class PagesController extends BaseController
             $transport_fare_reported = Reported::where('reported_id', $uid)->where('content', '車馬費預算不實')->first();
             $month_budget_reported = Reported::where('reported_id', $uid)->where('content', '每月預算不實')->first();
 
+            //是否透過精華文章詳情點擊進入會員頁
+            if($request->get('via_by_essence_article_enter')){
+                session()->put('via_by_essence_article_enter',$request->get('via_by_essence_article_enter'));
+            }else{
+                session()->forget('via_by_essence_article_enter');
+            }
             // die();
             return view('new.dashboard.viewuser', $data ?? [])
                     ->with('user', $user)
@@ -2424,7 +2623,7 @@ class PagesController extends BaseController
 
         
             $userHideOnlinePayStatus = ValueAddedService::status($uid,'hideOnline');
-            if($userHideOnlinePayStatus == 1 /*&& $targetUser->is_hide_online != 0*/){
+            if($userHideOnlinePayStatus == 1 && $targetUser->is_hide_online == 1){
                 $hideOnlineData = hideOnlineData::where('user_id',$uid)->where('deleted_at',null)->get()->first();
                 if(isset($hideOnlineData)){
                     // $hideOnlineDays = now()->diffInDays($hideOnlineData->created_at);
@@ -2553,10 +2752,11 @@ class PagesController extends BaseController
     public function getBlockUser(Request $request) {
         $user = $request->user();
         $is_vip = $user->isVip();
+//        $is_vip = ($user->isVip()||$user->isVVIP());
         if($is_vip) {
             $uid = $request->uid;
             $target_user = User::find($uid);
-            if($target_user->valueAddedServiceStatus('hideOnline')) {
+            if($target_user->valueAddedServiceStatus('hideOnline') && $target_user->is_hide_online == 1) {
                 $data = hideOnlineData::select('user_id', 'blocked_other_count', 'be_blocked_other_count')->where('user_id', $uid)->first();
                 /*此會員封鎖多少其他會員*/
                 $blocked_other_count = $data->blocked_other_count;
@@ -2614,7 +2814,7 @@ class PagesController extends BaseController
         if($is_vip){
             $uid = $request->uid;
             $target_user = User::find($uid);
-            if($target_user->valueAddedServiceStatus('hideOnline')) {
+            if($target_user->valueAddedServiceStatus('hideOnline') && $target_user->is_hide_online == 1) {
                 $data = hideOnlineData::select('user_id', 'fav_count', 'be_fav_count')->where('user_id', $uid)->first();
                 /*收藏會員次數*/
                 $fav_count = $data->fav_count;
@@ -3398,6 +3598,21 @@ class PagesController extends BaseController
             $messages = Message::allToFromSender($user->id, $cid,true);
             $c_user_meta = UserMeta::where('user_id', $cid)->get()->first();
             //$messages = Message::allSenders($user->id, 1);
+
+            if(isset($_SERVER['HTTP_REFERER'])) {
+                //forget不是從精華文章->會員頁->發信進入的
+                if(str_contains($_SERVER['HTTP_REFERER'], 'viewuser') == false){
+                    session()->forget('via_by_essence_article_enter');
+                }
+            }
+            else {
+                logger("HTTP_REFERER not set, user id: " . $user->id);
+                logger("Referer: " . request()->headers->get("referer"));
+                logger("UserAgent: " . request()->headers->get("User-Agent"));
+                logger("IP: " . request()->ip);
+                \Sentry\captureMessage("HTTP_REFERER not set.");
+            }
+            
             if (isset($cid)) {
                 $cid_user = $this->service->find($cid);
                 
@@ -5591,10 +5806,21 @@ class PagesController extends BaseController
         }
         $essence_posts_num=$essence_posts_num->get()->count();
 
+        //可疑銀行帳號交流區
+        $suspicious_list=Suspicious::selectraw('suspicious.*,users.engroup as uengroup,user_meta.pic as umpic')
+            ->LeftJoin('users', 'users.id','=','suspicious.reporter_user_id')
+            ->join('user_meta', 'users.id','=','user_meta.user_id')
+            ->whereIn('suspicious.report_type',[1,2])
+            ->orderBy('suspicious.id','desc')
+            ->groupBy('suspicious.reporter_user_id')->get();//->reverse();
+        $suspicious_list_num=Suspicious::whereIn('suspicious.report_type',[1,2])->get()->count();
+
        return view('/dashboard/forum', $data)
             ->with('checkUserVip', $checkUserVip)
             ->with('user', $user)
             ->with('forum_member_count', $forum_member_count)
+            ->with('suspicious_list', $suspicious_list)
+            ->with('suspicious_list_num', $suspicious_list_num)
             ->with('essence_posts_list', $essence_posts_list)
             ->with('essence_posts_num', $essence_posts_num);
     }
@@ -6111,7 +6337,10 @@ class PagesController extends BaseController
             ->join('user_meta', 'users.id','=','user_meta.user_id');
 
         //排除被站方封鎖的帳號
-        $posts_list->whereRaw('(select count(*) from banned_users where member_id=essence_posts.user_id)=0');
+        if($user->id!=1049 && $postType!=='myself') {
+            $posts_list->whereRaw('(select count(*) from banned_users where member_id=essence_posts.user_id)=0');
+        }
+
         if($request->get('order_by')=='pending'){
             $posts_list->orderBy('pendingFlag','desc')->orderBy('essence_posts.updated_at','desc');
         }else if ($request->get('order_by')=='updated_at'){
@@ -6600,8 +6829,10 @@ class PagesController extends BaseController
         
         if($user->isVip()) {
             $vipStatus='您已是 VIP';
-            $vip_record = Carbon::parse($user->vip_record);
+	    $vip_record = Carbon::parse($user->vip_record);
+	    $nextProcessDate = null;
             $vipDays = $vip_record->diffInDays(Carbon::now());
+            $nextProcessDate = null;
             if(!$user->isFreeVip()) {               
                 $vip = $user->vip->first();               
                 if($vip->payment){
@@ -6865,6 +7096,7 @@ class PagesController extends BaseController
             'b.adv_auth as banned_adv_auth',
             'w.id as warned_id',
             'w.expire_date as warned_expire_date',
+            'w.type as warned_type',
             'w.reason as warned_reason',
             'w.created_at as warned_created_at',
             'w.vip_pass as warned_vip_pass',
@@ -6916,11 +7148,11 @@ class PagesController extends BaseController
             $isBannedStatus .= '您從 '.substr($user_isBannedOrWarned->banned_created_at,0,10).' <span class="main_word">被站方封鎖'.$diffDays.'天</span>，預計至 '.substr($user_isBannedOrWarned->banned_expire_date,0,16).' 日解除，原因是 <span class="main_word">'.$user_isBannedOrWarned->banned_reason.'</span>，如有需要反應請點右下聯絡我們聯絡站長。';
         }
 
-//        $isBannedImplicitlyStatus = '';
-//        $banned_users_implicitly_data = BannedUsersImplicitly::where('target',$user->id)->first();
-//        if($banned_users_implicitly_data){
-//            $isBannedImplicitlyStatus = '您目前已被站方封鎖，原因是 ' . $banned_users_implicitly_data->reason . '，如有需要反應請點右下聯絡我們聯絡站長。';
-//        }
+        //$isBannedImplicitlyStatus = '';
+        //$banned_users_implicitly_data = BannedUsersImplicitly::where('target',$user->id)->first();
+        //if($banned_users_implicitly_data){
+            //$isBannedImplicitlyStatus = '您目前已被站方封鎖，原因是 ' . $banned_users_implicitly_data->reason . '，如有需要反應請點右下聯絡我們聯絡站長。';
+        //}
 
         //警示
         $adminWarnedStatus = '';
@@ -6931,7 +7163,8 @@ class PagesController extends BaseController
             $diffDays = $datetime2->diff($datetime3)->days;
         }
 
-        if(!empty($user_isBannedOrWarned->warned_id) && $user_isBannedOrWarned->warned_adv_auth==1) {
+        if(!empty($user_isBannedOrWarned->warned_id) && $user_isBannedOrWarned->warned_adv_auth==1) 
+        {
             $adminWarnedStatus = '您目前<span class="main_word">已被系統警示</span>，';
             if($user_isBannedOrWarned->warned_expire_date > now()) {
                 $adminWarnedStatus.='預計至 '.substr($user_isBannedOrWarned->warned_expire_date,0,16).' 日解除，';
@@ -6941,16 +7174,28 @@ class PagesController extends BaseController
             }            
             $adminWarnedStatus.= '做完進階驗證可解除<a class="red" href="'.url('advance_auth').'"> [請點我進行驗證]</a>。';
         }
-        else if($user_isBannedOrWarned->warned_reason == '每月預算不實' || $user_isBannedOrWarned->warned_reason == '車馬費預算不實') {
+        else if($user_isBannedOrWarned->warned_type == 'no_mobile_verify') 
+        {
+            $adminWarnedStatus = '您目前<span class="main_word">已被系統警示</span>，原因是<span class="main_word"> ' . $user_isBannedOrWarned->warned_reason . '</span>，<a class="red" href="' . url('/member_auth') . '">立即手機驗證</a>';
+        }
+        else if($user_isBannedOrWarned->type == 'month_budget' || $user_isBannedOrWarned->type == 'transport_fare') 
+        {
             $adminWarnedStatus = '您因為 <span class="main_word">'.$user_isBannedOrWarned->warned_reason.'</span>，警示 <span class="main_word">'.$diffDays.'天</span>。時間自'.substr($user_isBannedOrWarned->warned_created_at,0,16).'~'.substr($user_isBannedOrWarned->warned_expire_date,0,16).'。如有疑慮請聯絡站長<a href="https://lin.ee/rLqcCns" target="_blank"> <img src="https://scdn.line-apps.com/n/line_add_friends/btn/zh-Hant.png" alt="加入好友" height="26" border="0" style="height: 26px; float: unset;"></a>';
         }
-        else if($user_isBannedOrWarned->warned_vip_pass == 1 && $user_isBannedOrWarned->warned_expire_date == null) {
+        else if($user_isBannedOrWarned->warned_vip_pass == 1 && $user_isBannedOrWarned->warned_expire_date == null) 
+        {
             $adminWarnedStatus = '您目前<span class="main_word">已被站方警示</span>，原因是<span class="main_word"> ' . $user_isBannedOrWarned->warned_reason . '</span>，若要解鎖請升級VIP解除，並同意如有再犯，站方有權不退費並永久警示。同意[<a href="../dashboard/new_vip" class="red">請點我</a>]';
-        }else if($user_isBannedOrWarned->warned_vip_pass == 1 && $user_isBannedOrWarned->warned_expire_date > now()) {
+        }
+        else if($user_isBannedOrWarned->warned_vip_pass == 1 && $user_isBannedOrWarned->warned_expire_date > now()) 
+        {
             $adminWarnedStatus .= '您從 '.substr($user_isBannedOrWarned->warned_created_at,0,10).' <span class="main_word">被站方警示 '.$diffDays.'天</span>，預計至 '.substr($user_isBannedOrWarned->warned_expire_date,0,16).' 日解除，原因是<span class="main_word"> '.$user_isBannedOrWarned->warned_reason.'</span>，若要解鎖請升級VIP解除，並同意如有再犯，站方有權不退費並永久警示。同意[<a href="../dashboard/new_vip" class="red">請點我</a>]';
-        }else if(!empty($user_isBannedOrWarned->warned_id) && $user_isBannedOrWarned->warned_expire_date == null) {
+        }
+        else if(!empty($user_isBannedOrWarned->warned_id) && $user_isBannedOrWarned->warned_expire_date == null) 
+        {
             $adminWarnedStatus = '您目前<span class="main_word">已被站方警示</span>，原因是<span class="main_word"> ' . $user_isBannedOrWarned->warned_reason . '</span>，如有需要反應請點右下聯絡我們聯絡站長。';
-        }else if(!empty($user_isBannedOrWarned->warned_id) && $user_isBannedOrWarned->warned_expire_date > now() ) {
+        }
+        else if(!empty($user_isBannedOrWarned->warned_id) && $user_isBannedOrWarned->warned_expire_date > now() ) 
+        {
             $adminWarnedStatus .= '您從 '.substr($user_isBannedOrWarned->warned_created_at,0,10).' <span class="main_word">被站方警示 '.$diffDays.'天</span>，預計至 '.substr($user_isBannedOrWarned->warned_expire_date,0,16).' 日解除，原因是<span class="main_word"> '.$user_isBannedOrWarned->warned_reason.'</span>，如有需要反應請點右下聯絡我們聯絡站長。';
         }
 
@@ -6983,14 +7228,14 @@ class PagesController extends BaseController
         $bannedCount = $banned_users + $banned_users_implicitly;
 
         //本月被檢舉人數
-//        $reportedCount = User::select(['a.id'])->from('users as a')
-//            ->leftJoin('reported as b','a.id','b.reported_id')->where('b.created_at','>=',\Carbon\Carbon::parse(date("Y-m-01"))->toDateTimeString())
-//            ->leftJoin('member_pic as c','a.id','c.member_id')
-//            ->join('reported_pic as d','c.id','d.reported_pic_id')->where('d.created_at','>=',\Carbon\Carbon::parse(date("Y-m-01"))->toDateTimeString())
-//            ->leftJoin('reported_avatar as e','a.id','e.reported_user_id')->where('e.created_at','>=',\Carbon\Carbon::parse(date("Y-m-01"))->toDateTimeString())
-//            ->leftJoin('message as m','a.id','m.to_id')->where('m.isReported',1)->where('m.updated_at','>=',\Carbon\Carbon::parse(date("Y-m-01"))->toDateTimeString())
-//            ->distinct()
-//            ->count('a.id');
+        //$reportedCount = User::select(['a.id'])->from('users as a')
+            //->leftJoin('reported as b','a.id','b.reported_id')->where('b.created_at','>=',\Carbon\Carbon::parse(date("Y-m-01"))->toDateTimeString())
+            //->leftJoin('member_pic as c','a.id','c.member_id')
+            //->join('reported_pic as d','c.id','d.reported_pic_id')->where('d.created_at','>=',\Carbon\Carbon::parse(date("Y-m-01"))->toDateTimeString())
+            //->leftJoin('reported_avatar as e','a.id','e.reported_user_id')->where('e.created_at','>=',\Carbon\Carbon::parse(date("Y-m-01"))->toDateTimeString())
+            //->leftJoin('message as m','a.id','m.to_id')->where('m.isReported',1)->where('m.updated_at','>=',\Carbon\Carbon::parse(date("Y-m-01"))->toDateTimeString())
+            //->distinct()
+            //->count('a.id');
 
         //本月警示人數
         $warnedCount = warned_users::select('id','member_id')->where('created_at','>=',\Carbon\Carbon::parse(date("Y-m-01"))->toDateTimeString())->distinct()->count('member_id');
@@ -7002,12 +7247,12 @@ class PagesController extends BaseController
             ->leftJoin('user_meta as m','u.id','m.user_id')
             ->leftJoin('banned_users as b','u.id','b.member_id')
             ->leftJoin('warned_users as w','u.id','w.member_id');
-//        $reported = $reported->addSelect(DB::raw("'reported' as table_name"));
+        //$reported = $reported->addSelect(DB::raw("'reported' as table_name"));
         $reported = $reported->where('reported.member_id',$user->id)->where('reported.hide_reported_log',0)->get();
 
         $reported_pic = ReportedPic::select('reported_pic.id','member_pic.member_id as rid','reported_pic.content as reason','reported_pic.created_at as reporter_time','u.name','m.isWarned','b.id as banned_id','b.expire_date as banned_expire_date','w.id as warned_id','w.expire_date as warned_expire_date')
             ->selectRaw('"reportedPic" as reported_type');
-//        $reported_pic = $reported_pic->addSelect(DB::raw("'reported_pic' as table_name"));
+        //$reported_pic = $reported_pic->addSelect(DB::raw("'reported_pic' as table_name"));
         $reported_pic = $reported_pic->join('member_pic','member_pic.id','=','reported_pic.reported_pic_id')
             ->leftJoin('users as u', 'u.id','member_pic.member_id')->where('u.id','!=',null)
             ->leftJoin('user_meta as m','u.id','m.user_id')
@@ -7021,7 +7266,7 @@ class PagesController extends BaseController
             ->leftJoin('user_meta as m','u.id','m.user_id')
             ->leftJoin('banned_users as b','u.id','b.member_id')
             ->leftJoin('warned_users as w','u.id','w.member_id');
-//        $reported_avatar = $reported_avatar->addSelect(DB::raw("'reported_avatar' as table_name"));
+        //$reported_avatar = $reported_avatar->addSelect(DB::raw("'reported_avatar' as table_name"));
         $reported_avatar = $reported_avatar->where('reported_avatar.reporter_id',$user->id)->where('reported_avatar.hide_reported_log',0)->get();
 
         $reported_message = Message::select('message.id','message.from_id as rid', 'message.reportContent as reason', 'message.updated_at as reporter_time','u.name','m.isWarned','b.id as banned_id','b.expire_date as banned_expire_date','w.id as warned_id','w.expire_date as warned_expire_date')
@@ -7030,7 +7275,7 @@ class PagesController extends BaseController
             ->leftJoin('user_meta as m','u.id','m.user_id')
             ->leftJoin('banned_users as b','u.id','b.member_id')
             ->leftJoin('warned_users as w','u.id','w.member_id');
-//        $reported_message = $reported_message->addSelect(DB::raw("'message' as table_name"));
+        //$reported_message = $reported_message->addSelect(DB::raw("'message' as table_name"));
         $reported_message = $reported_message->where('message.to_id',$user->id)->where('message.isReported',1)->where('message.hide_reported_log',0)->get();
 
         $collection = collect([$reported, $reported_pic, $reported_avatar, $reported_message]);
@@ -7045,7 +7290,6 @@ class PagesController extends BaseController
                     //封鎖
                     $reporter_isBannedStatus = 0;
                     $reporter_isBannedStatus_expire = '';
-//
                     if (!empty($row->banned_id) && $row->banned_expire_date == null) {
                         $reporter_isBannedStatus = 1;
                     } else if (!empty($row->banned_id) && $row->banned_expire_date > now()) {
@@ -7141,16 +7385,16 @@ class PagesController extends BaseController
 
         $queryBE = \App\Models\Evaluation::select('evaluation.*')->from('evaluation as evaluation')->with('user')
                 ->leftJoin('blocked as b1', 'b1.blocked_id', '=', 'evaluation.from_id')
-//                ->leftJoin('user_meta as um', function($join) {
-//                    $join->on('um.user_id', '=', 'e.from_id')
-//                        ->where('isWarned', 1); })
-//                ->leftJoin('warned_users as wu', function($join) {
-//                    $join->on('wu.member_id', '=', 'e.from_id')
-//                        ->where(function($query){
-//                            $query->where('wu.expire_date', '>=', Carbon::now())
-//                                ->orWhere('wu.expire_date', null); }); })
-//                ->whereNull('um.user_id')
-//                ->whereNull('wu.member_id')
+                //->leftJoin('user_meta as um', function($join) {
+                    //$join->on('um.user_id', '=', 'e.from_id')
+                    //->where('isWarned', 1); })
+                //->leftJoin('warned_users as wu', function($join) {
+                    //$join->on('wu.member_id', '=', 'e.from_id')
+                    //->where(function($query){
+                        //$query->where('wu.expire_date', '>=', Carbon::now())
+                        //->orWhere('wu.expire_date', null); }); })
+                //->whereNull('um.user_id')
+                //->whereNull('wu.member_id')
                 ->orderBy('evaluation.created_at','desc')
                 ->where('b1.member_id', $uid)
                 ->where('evaluation.to_id', $uid)
@@ -7266,11 +7510,11 @@ class PagesController extends BaseController
                 'vipStatus' => $vipStatus,
                 'vasStatus'=> $vasStatus,
                 'isBannedStatus' => $isBannedStatus,
-//                'isBannedImplicitlyStatus' => $isBannedImplicitlyStatus,
+                //'isBannedImplicitlyStatus' => $isBannedImplicitlyStatus,
                 'adminWarnedStatus' => $adminWarnedStatus,
                 'isWarnedStatus' => $isWarnedStatus,
                 'bannedCount' => $bannedCount,
-//                'reportedCount' => $reportedCount,
+                //'reportedCount' => $reportedCount,
                 'warnedCount' => $warnedCount,
                 'reportedStatus' => $reportedStatus,
                 'msgMemberCount' => $msgMemberCount,
@@ -8569,6 +8813,7 @@ class PagesController extends BaseController
 
     public function update_visited_time(Request $request)
     {
+        $user = auth()->user();
         $second = $request->stay_second;
         $visited_id = $request->view_user_visited_id;
         $visited_record = Visited::where('id', $visited_id)->first();
@@ -8577,7 +8822,12 @@ class PagesController extends BaseController
             return false;
         }
         $visited_record->visited_time = ($visited_record->visited_time ?? 0) + $second;
-        $visited_record->save();
+        if( $user->is_hide_online != 1 ) {
+            $visited_record->save();
+        }else{
+            return false;
+        }
+
     }
 
     
@@ -8741,6 +8991,7 @@ class PagesController extends BaseController
     {
         $second = $request->stay_second;
         $stay_online_record_id = $request->stay_online_record_id??0;
+        $page_id = $request->page_id;
         $user = auth()->user();
         if($user??false)
         {
@@ -8751,6 +9002,9 @@ class PagesController extends BaseController
                 $stay_online_record->user_id = $user->id;
             }
             $stay_online_record->stay_online_time = ($stay_online_record->stay_online_time ?? 0) + $second;
+            if ($page_id) {
+                $stay_online_record->{$page_id} = ($stay_online_record->{$page_id} ?? 0) + $second;
+            }
             $stay_online_record->save();
             $stay_online_record_id = $stay_online_record->id;
         }

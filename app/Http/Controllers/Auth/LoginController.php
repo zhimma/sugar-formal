@@ -192,6 +192,10 @@ class LoginController extends \App\Http\Controllers\BaseController
      */
     public function login(Request $request)
     {
+        if(!is_null($request->email)){
+            unset($_COOKIE['loginAccount']);
+        }
+
         if(isset($_COOKIE['loginAccount'])){
             $request->email= $this->decrypt_string($_COOKIE['loginAccount']);
         }
@@ -217,6 +221,11 @@ class LoginController extends \App\Http\Controllers\BaseController
             $user_provisional_variables->save();
         }
 
+        if($user) {
+            //登入時進行自動警示
+            SetAutoBan::login_warned($user->id);
+        }
+
         if(isset($user) && Role::join('role_user', 'role_user.role_id', '=', 'roles.id')->where('roles.name', 'admin')->where('role_user.user_id', $user->id)->exists()){
             $request->remember = true;
         }
@@ -237,7 +246,7 @@ class LoginController extends \App\Http\Controllers\BaseController
             return $this->sendLockoutResponse($request);
         }
 
-        if($request->get('remember')==1){
+        if($request->get('remember')==1 && $user ?? false){
             //自動登入
             $encrypt_str=$this->encrypt_string($user->email);
             setcookie('loginAccount', $encrypt_str);

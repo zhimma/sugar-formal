@@ -220,7 +220,14 @@ dt span.engroup_type_title {display:inline-block;width:10%;white-space:nowrap;}
                   </dt>
 
                   <dt>
-                      <span class="engroup_type_title">帳號類型</span>
+                        <div>
+                            <span class="engroup_type_title">帳號類型</span>
+                            @if($user->engroup==2)
+                                <input type="hidden" name="is_pure_dating" value="1">
+                                <div style="float: right;margin-top:8px;"><input name="is_pure_dating" type="checkbox" @if($umeta->is_pure_dating != 1) checked @endif value="0"> 拒絕進一步發展</div>
+                            @endif
+                        </div>
+
                         @if($user->isVip() && !Session::has('original_user'))
 {{--                        <a onClick="popSwitchOtherEngroup()"class="zw_dw">模擬{{$user->engroup == 1?'女':'男'}}會員</a>--}}
                         @endif 
@@ -586,6 +593,14 @@ dt span.engroup_type_title {display:inline-block;width:10%;white-space:nowrap;}
                                   @if($umeta->situation == '上班族') selected @endif>
                               上班族
                           </option>
+                          <option value="在家工作"
+                                  @if($umeta->situation == '在家工作') selected @endif>
+                              在家工作
+                          </option>
+                          <option value="自行開業"
+                                  @if($umeta->situation == '自行開業') selected @endif>
+                              自行開業
+                          </option>
                         </select>
                       </span>
                   </dt>
@@ -698,6 +713,14 @@ dt span.engroup_type_title {display:inline-block;width:10%;white-space:nowrap;}
                                   @if($umeta->occupation == '傳播藝術') selected @endif>
                               傳播藝術
                           </option>
+                          <option value="soho"
+                                  @if($umeta->occupation == 'soho') selected @endif>
+                              soho
+                          </option>
+                          <option value="自行創業"
+                                  @if($umeta->occupation == '自行創業') selected @endif>
+                              自行創業
+                          </option>
                         </select>
                       </span>
                       <div class="right" style="margin: 10px 0 -5px 10px;">
@@ -801,24 +824,6 @@ dt span.engroup_type_title {display:inline-block;width:10%;white-space:nowrap;}
                         </select>
                       </span>
                   </dt>
-                    @if($user->engroup==2)
-                        <dt>
-                            <span>希望進一步發展嗎?</span>
-                            <span>
-                                <select data-parsley-errors-messages-disabled name="is_pure_dating"  class="select_xx01">
-                                    <option value="-1"
-                                            @if($umeta->is_pure_dating == "-1") selected @endif>請選擇
-                                    </option>
-                                    <option value="1"
-                                            @if($umeta->is_pure_dating == "1") selected @endif>是
-                                    </option>
-                                    <option value="0"
-                                            @if($umeta->is_pure_dating == "0") selected @endif>否
-                                    </option>
-                                </select>
-                            </span>
-                        </dt>
-                    @endif
                   <dt>
                       <span>喝酒<i>(必填)</i></span>
                       <span>

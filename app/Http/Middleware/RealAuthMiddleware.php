@@ -38,7 +38,7 @@ class RealAuthMiddleware
      * @return mixed
      */
     public function handle($request, Closure $next)
-    {
+    {        
         if (!is_null($this->auth->user())){
             $this->service->riseByUserEntry($this->auth->user());
             $url_arr = explode('/',url()->current());

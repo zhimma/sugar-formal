@@ -36,10 +36,10 @@ use App\Models\IsWarnedLog;
 use App\Models\SimpleTables\short_message;
 use App\Models\LogAdvAuthApi;
 use App\Models\UserTattoo;
-
 use function Clue\StreamFilter\fun;
+use Tymon\JWTAuth\Contracts\JWTSubject;
 
-class User extends Authenticatable
+class User extends Authenticatable implements JWTSubject
 {
     use Notifiable;
     /**
@@ -1794,4 +1794,58 @@ class User extends Authenticatable
         return $query->first();
     }
 
+    public function spamMessagePercentIn7Days(){
+        return $this->hasOne('App\Models\SpamMessagePercentIn7Days');
+    }
+
+    public function getSpamMessagePercentIn7Days($uid){
+        
+        $user = new User;
+        $spamMessagePercentIn7DaysQuery = $user->spamMessagePercentIn7Days($uid)->where('user_id',$uid);
+
+        if($spamMessagePercentIn7DaysQuery->count() > 0){
+            $data = $spamMessagePercentIn7DaysQuery->orderBy('updated_at','desc')->first();
+            if(strtotime($data->updated_at) - strtotime(now()) < 86400){ //24 hour
+                return $data->percent;
+            }
+        }else{
+            try{
+                // $message_percent_7 = User::find($uid)->getSpamMessagePercentIn7Days($uid);
+                $message_percent_7 = UserService::computeCanMessagePercent_7($uid);
+                $data = array(
+                    'user_id'=>$uid,
+                    'percent'=>$message_percent_7
+                );
+                $spamMessagePercentIn7Days = \App\Models\SpamMessagePercentIn7Days::firstOrCreate($data);
+                return $data['percent'];
+            }catch(\Exception $e){
+                dd($e);
+            }
+        }
+    }
+
+    public function message()
+    {
+        return $this->hasMany(Message::class, 'from_id', 'id');
+    }
+    
+    /**
+     * Get the identifier that will be stored in the subject claim of the JWT.
+     *
+     * @return mixed
+     */
+    public function getJWTIdentifier()
+    {
+        return $this->getKey();
+    }
+
+    /**
+     * Return a key value array, containing any custom claims to be added to the JWT.
+     *
+     * @return array
+     */
+    public function getJWTCustomClaims()
+    {
+        return [];
+    }
 }

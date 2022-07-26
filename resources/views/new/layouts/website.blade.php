@@ -384,6 +384,12 @@
         document.addEventListener(visibilityChangeEvent, onVisibilityChange);
         
         function update_online_time(second){
+            if (typeof(page_id) == 'undefined') {
+                page_id = null;
+            } else {
+                page_id = page_id;
+            }
+
             $.ajax({
                 type:'post',
                 url:'{{route("stay_online_time")}}',
@@ -391,7 +397,8 @@
                 {
                     _token: '{{ csrf_token() }}',
                     stay_second: second,
-                    stay_online_record_id: sessionStorage.getItem('stay_online_record_id')
+                    stay_online_record_id: sessionStorage.getItem('stay_online_record_id'),
+                    page_id: page_id
                 },
                 success:function(data){
                     sessionStorage.setItem('stay_online_record_id',data['stay_online_record_id'])

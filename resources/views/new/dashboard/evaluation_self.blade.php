@@ -283,6 +283,9 @@
 
 @section('javascript')
 <script>
+    // 計算瀏覽時間
+    var page_id = 'browse';
+
     function isEllipsisActive(e) {
         return (Math.ceil($(e).innerHeight()) < $(e)[0].scrollHeight);
     }

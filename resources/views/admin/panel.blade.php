@@ -31,6 +31,7 @@
 		<a href="{{ route('users/pictures') }}">會員照片管理</a>
 		<a href="{{ route('users/picturesSimple') }}">會員檢查 step 1</a>
 		<a href="{{ route('users/picturesSimilar') }}">會員檢查 step 2</a>
+		<a href="{{ route('users.message.check') }}">會員檢查 step 3</a>
 		<a href="{{ route('users/picturesSimilarLog') }}">會員照片管理結果列表圖</a>
 		<a href="{{ route('users/reported/count/GET') }}">會員被檢舉次數</a>
 		<a href="{{ route('users/posts') }}">討論區管理</a>
@@ -63,6 +64,9 @@
 		<a href="{{ route('admin/advertiseStatistics') }}">廣告紀錄統計</a>
 		<a href="{{ route('admin/user_record_view') }}">停留時間</a>
 		<a href="{{ route('users/video_chat_verify_record_list') }}">視訊驗證影片紀錄</a>
+		<a href="{{ route('admin/getEssenceStatisticsRecord') }}">精華文章統計資料</a>
+
+		<a href="{{ route('admin/feature_flags') }}">Feature Flags</a>
 
 	@elseif (Auth::user()->can('readonly'))
 		<a href="javascript:void(0)" class="closebtn" onclick="closeNav()">&times;</a>
