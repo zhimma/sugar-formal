@@ -37,13 +37,6 @@ class BanJob implements ShouldQueue
         $this->type = $type;
     }
 
-    /*
-    public function middleware()
-    {
-        return [(new WithoutOverlapping($this->uid))];
-    }
-    */
-
     public function handle()
     {
         Log::info('start_jobs_BanJob');
@@ -100,12 +93,7 @@ class BanJob implements ShouldQueue
             // UserMeta::where('user_id', $this->uid)->update(['isWarned' => 1]);
         }
         sleep(90);
+        Log::info('end_jobs_BanJob');
+        Log::Info(Carbon::now());
     }
-
-    /*
-    public function retryUntil()
-    {
-        return now()->addMinutes(30);
-    }
-    */
 }
