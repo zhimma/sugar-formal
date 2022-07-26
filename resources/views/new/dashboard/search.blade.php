@@ -350,7 +350,7 @@ header("Expires: Fri, 01 Jan 1990 00:00:00 GMT");
 
                                         @if ($user_engroup == 1)
                                             <dt class="matopj15">
-                                                <span>是否想進一步發展?<i class="ssrgf">(僅顯示有填寫者)</i></span>
+                                                <span>是否想進一步發展?</span>
                                                 <span class="line20">
                                                     <label class="n_tx">
                                                         <input type="radio" name="is_pure_dating" value="1" id="is_pure_dating1" {{request()->is_pure_dating == "1" || session()->get('search_page_key.is_pure_dating') =="1" ? 'checked' : '' }}><i>是</i>
@@ -980,9 +980,7 @@ header("Expires: Fri, 01 Jan 1990 00:00:00 GMT");
 
                             csrData +='<div class="n_seicon">';
                             if(rowEngroup == 2){
-                                if(umeta.is_pure_dating==1){
-                                    csrData +='<img src="/new/images/zz_01.png" style="float: right;">';
-                                }else{
+                                if(umeta.is_pure_dating==0){
                                     csrData +='<img src="/new/images/zz_02.png" style="float: right;">';
                                 }
                             }
