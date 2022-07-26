@@ -6,6 +6,7 @@ use Illuminate\Foundation\Testing\RefreshDatabase;
 use Illuminate\Foundation\Testing\WithFaker;
 use Tests\TestCase;
 use Illuminate\Support\Facades\Http;
+use App\Services\LineNotifyService as LineNotify;
 
 class HideOnlinePaymentTest extends TestCase
 {

@@ -5,8 +5,9 @@ namespace Tests\Feature;
 use Illuminate\Foundation\Testing\RefreshDatabase;
 use Illuminate\Foundation\Testing\WithFaker;
 use Tests\TestCase;
-// use Illuminate\Foundation\Testing\DatabaseTransactions;
 use Illuminate\Support\Facades\Http;
+use App\Services\LineNotifyService as LineNotify;
+
 class VipPaymentTest extends TestCase
 {   
     public function testEcpayCheckoutSingleMonthATM()
