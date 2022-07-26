@@ -746,7 +746,7 @@ $(document).ready(function () {
     </tbody>
 </table>
 
-<h4>停留時間</h4>
+{{--<h4>停留時間</h4>
 <table class="table table-bordered">
     <thead>
         <th style="width: 170px;">頁面名稱</th>
@@ -766,4 +766,4 @@ $(document).ready(function () {
                 </tr>
             @endforeach
         @endforeach
-</table>
+</table>--}}
