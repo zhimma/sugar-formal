@@ -545,7 +545,7 @@ dt span.engroup_type_title {display:inline-block;width:10%;white-space:nowrap;}
                             </span>
                         </dt>
                         <dt>
-                            <span>職業</span>
+                            <span>工作/學業模式</span>
                             <span>
                                 <select id="new_occupation" name="new_occupation"  class="select_xx01">
                                     <option>請選擇</option>
@@ -555,7 +555,16 @@ dt span.engroup_type_title {display:inline-block;width:10%;white-space:nowrap;}
                                     <option value='other'>其他(自填)</option>
                                 </select>
                                 <input id="new_occupation_other" name="new_occupation_other" class="select_xx01" style="display:none">
-                                {{--
+                            </span>
+                            <div class="right" style="margin: 10px 0 -5px 10px;">
+                                <input type="hidden" name="isHideOccupation" value="0">
+                                <input type="checkbox" name="isHideOccupation"  @if($umeta->isHideOccupation == true) checked @endif value="1"> 隱藏工作/學業模式
+                            </div>
+                        </dt>
+                        {{--
+                        <dt>
+                            <span>職業</span>
+                            <span>
                                 <select name="occupation"  class="select_xx01">
                                     <option value=null>請選擇</option>
                                     <option value="學生"
@@ -663,13 +672,13 @@ dt span.engroup_type_title {display:inline-block;width:10%;white-space:nowrap;}
                                         傳播藝術
                                     </option>
                                 </select>
-                                --}}
                             </span>
                             <div class="right" style="margin: 10px 0 -5px 10px;">
                                 <input type="hidden" name="isHideOccupation" value="0">
                                 <input type="checkbox" name="isHideOccupation"  @if($umeta->isHideOccupation == true) checked @endif value="1"> 隱藏職業
                             </div>
                         </dt>
+                        --}}
                     @else
                         <dt class="matopj15">
                             <span>產業</span>
