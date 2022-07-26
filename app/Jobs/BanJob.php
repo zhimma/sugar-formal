@@ -14,16 +14,12 @@ use Illuminate\Support\Facades\DB;
 use Carbon\Carbon;
 use App\Models\BannedUsersImplicitly;
 use Illuminate\Support\Facades\Log;
+use Illuminate\Queue\Middleware\WithoutOverlapping;
+
 
 class BanJob implements ShouldQueue
 {
     use Dispatchable, InteractsWithQueue, Queueable, SerializesModels;
-
-    /**
-     * Create a new job instance.
-     *
-     * @return void
-     */
     
     protected $uid;
     protected $ban_set;
@@ -39,11 +35,11 @@ class BanJob implements ShouldQueue
         $this->type = $type;
     }
 
-    /**
-     * Execute the job.
-     *
-     * @return void
-     */
+    public function middleware()
+    {
+        return [(new WithoutOverlapping($this->uid))];
+    }
+
     public function handle()
     {
         Log::info('start_jobs_BanJob');
