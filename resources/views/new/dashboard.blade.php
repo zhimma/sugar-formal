@@ -1772,8 +1772,7 @@ dt span.engroup_type_title {display:inline-block;width:10%;white-space:nowrap;}
                 location.href=result.redirect;
             }
             else
-                window.location.reload();
-            
+                window.location.reload();         
           }
         });
       });

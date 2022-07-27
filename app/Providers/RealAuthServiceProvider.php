@@ -7,7 +7,7 @@ use App\Observer\RealAuthUserApplyObserver;
 use App\Observer\RealAuthUserModifyObserver;
 use App\Models\RealAuthUserApply;
 use App\Models\RealAuthUserModify;
-// 會員間的訊息
+
 class RealAuthServiceProvider extends ServiceProvider
 {
 
@@ -31,8 +31,6 @@ class RealAuthServiceProvider extends ServiceProvider
      */
     public function register()
     {
-       // $this->app->binding(MessageService::class, function($app){
-        //    return new MessageService(Message::class);
-        //});
+
     }
 }

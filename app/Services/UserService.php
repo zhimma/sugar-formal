@@ -1362,7 +1362,6 @@ class UserService
             $content = $user->name . ' 您好：<br>您在 ' . $current_data->created_at . ' 申請變更包養關係，經站長審視，' . $text;
             UserMeta::where('user_id', $current_data->user_id)->update(['exchange_period_change' => 1]);
         }
-        //        $user->notify(new AccountConsign('變更帳號類型結果通知',$user->name, $content));
 
         //站長系統訊息
         Message::post(1049, $user->id, $content, true, 1);        

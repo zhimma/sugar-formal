@@ -97,9 +97,6 @@ class CreateRealAuthTables extends Migration
         if (!Schema::hasTable('real_auth_user_replies')) {        
             Schema::create('real_auth_user_replies', function (Blueprint $table) {
                 $table->id();
-                //$table->integer('user_id')->index();
-                //$table->integer('apply_id')->index();
-                //$table->integer('from_modify_id')->nullable()->index();
                 $table->integer('modify_id')->nullable()->index();
                 $table->integer('question_id')->nullable()->index();
                 $table->integer('choice_id')->nullable()->index();
@@ -116,8 +113,7 @@ class CreateRealAuthTables extends Migration
 
         if (!Schema::hasTable('real_auth_user_reply_pic')) {        
             Schema::create('real_auth_user_reply_pic', function (Blueprint $table) {
-                $table->increments('id');
-                //$table->integer('apply_id')->index();                
+                $table->increments('id');               
                 $table->integer('reply_id')->index();
                 $table->string('pic', 255);
                 $table->string('pic_origin_name', 255);
@@ -131,26 +127,14 @@ class CreateRealAuthTables extends Migration
                 $table->id();
                 $table->integer('user_id')->index();
                 $table->integer('auth_type_id')->index();
-                //$table->integer('video_record_id')->nullable()->index();
                 $table->integer('height_modify_id')->nullable()->index();
                 $table->integer('weight_modify_id')->nullable()->index();
                 $table->integer('exchange_period_modify_id')->nullable()->index();
                 $table->integer('pic_modify_id')->nullable()->index();
                 $table->integer('video_modify_id')->nullable()->index();                
                 $table->integer('reply_modify_id')->nullable()->index();                
-                //$table->integer('state_id')->nullable()->default(0)->index();
-                //$table->integer('apply_times')->nullable()->default(0);
-                //$table->smallInteger('exchange_period')->nullable();
-                //$table->integer('height')->nullable();
-                //$table->integer('weight')->nullable();               
-                //$table->integer('avatar_num')->nullable()->default(0);
-                //$table->integer('mem_pic_num')->nullable()->default(0);
                 $table->boolean('from_auto')->nullable()->default(0);
                 $table->smallInteger('status')->nullable()->default(0);
-                //$table->boolean('from_admin')->nullable()->default(0);
-                //$table->integer('from_admin_apply_id')->nullable()->default(0);
-                
-//                $table->timestamp('apply_at')->nullable();
                 $table->timestamp('status_at')->nullable();
                 $table->timestamp('created_at')->nullable();
                 $table->timestamp('updated_at')->useCurrent()->useCurrentOnUpdate()->nullable();
@@ -171,19 +155,8 @@ class CreateRealAuthTables extends Migration
                 $table->integer('pic_modify_id')->nullable()->index();
                 $table->integer('video_modify_id')->nullable()->index();
                 $table->integer('reply_modify_id')->nullable()->index();
-                //$table->integer('video_record_id')->nullable()->index();
-                //$table->integer('state_id')->nullable()->default(0)->index();
-                //$table->integer('apply_times')->nullable()->default(0);
-                //$table->smallInteger('exchange_period')->nullable();
-                //$table->integer('height')->nullable();
-                //$table->integer('weight')->nullable();               
-                //$table->integer('avatar_num')->nullable()->default(0);
-                //$table->integer('mem_pic_num')->nullable()->default(0);
                 $table->smallInteger('status')->nullable()->default(0);
-                //$table->boolean('from_admin')->nullable()->default(0);
-                //$table->integer('from_admin_apply_id')->nullable()->default(0);
                 $table->boolean('from_auto')->nullable()->default(0);
-//                $table->timestamp('apply_at')->nullable();
                 $table->timestamp('status_at')->nullable();
                 $table->timestamp('apply_created_at')->nullable();
                 $table->timestamp('apply_updated_at')->nullable();
@@ -207,24 +180,7 @@ class CreateRealAuthTables extends Migration
             ,['id'=>2,'name'=>'美顏推薦','created_at'=>\Carbon\Carbon::now()]
             ,['id'=>3,'name'=>'名人認證','created_at'=>\Carbon\Carbon::now()]          
         ]);           
-/*
-        if (!Schema::hasTable('real_auth_user_modify_item')) {
-            Schema::create('real_auth_user_modify_item', function (Blueprint $table) {
-                $table->id();
-                $table->integer('user_id')->index();
-                $table->integer('auth_type_id')->index();
-                $table->integer('item_id')->index();
-                $table->integer('modify_id')->index();
-                $table->smallInteger('state')->nullable()->default(0)->index();
-                $table->integer('modify_times')->nullable()->default(0);
-                //$table->timestamp('modify_at')->nullable();
-                $table->timestamp('created_at')->nullable();
-                $table->timestamp('updated_at')->useCurrent()->useCurrentOnUpdate()->nullable();
-                //$table->index(['user_id','auth_type_id', 'item_id','modify_id']);
-                //$table->index(['user_id', 'item_id','auth_type_id','modify_id']);
-            });
-        }
-*/        
+       
         if (!Schema::hasTable('real_auth_modify_item')) {
             Schema::create('real_auth_modify_item', function (Blueprint $table) {
                 $table->increments('id');
@@ -235,13 +191,7 @@ class CreateRealAuthTables extends Migration
         }        
         
         \Illuminate\Support\Facades\DB::table('real_auth_modify_item')->insert([
-        /*
-            ['id'=>1,'auth_type_id'=>0,'show_auth_type_id'=>2,'name'=>'照片新增','created_at'=>\Carbon\Carbon::now()]
-            ,['id'=>2,'auth_type_id'=>0,'show_auth_type_id'=>2,'name'=>'照片刪除','created_at'=>\Carbon\Carbon::now()]
-            ,['id'=>3,'auth_type_id'=>0,'show_auth_type_id'=>2,'name'=>'重錄視訊','created_at'=>\Carbon\Carbon::now()] 
-            ,['id'=>4,'auth_type_id'=>2,'show_auth_type_id'=>0,'name'=>'表格異動','created_at'=>\Carbon\Carbon::now()]   
-            ,['id'=>5,'auth_type_id'=>3,'show_auth_type_id'=>0,'name'=>'表格異動','created_at'=>\Carbon\Carbon::now()]                      
-        */
+
             ['id'=>1,'name'=>'初始認證資料','created_at'=>\Carbon\Carbon::now()]
             ,['id'=>2,'name'=>'基本資料','created_at'=>\Carbon\Carbon::now()]
             ,['id'=>3,'name'=>'照片','created_at'=>\Carbon\Carbon::now()]
@@ -254,9 +204,6 @@ class CreateRealAuthTables extends Migration
         {        
             Schema::create('real_auth_user_modify', function (Blueprint $table) {
                 $table->id();
-                //$table->integer('user_id')->index();
-                //$table->integer('auth_type_id')->index();
-                //$table->integer('modify_item_id')->index();
                 $table->integer('item_id')->index();
                 $table->integer('apply_id')->index();
                 $table->integer('apply_status_shot')->nullable()->index();
@@ -285,13 +232,10 @@ class CreateRealAuthTables extends Migration
                 $table->boolean('is_formal_first')->default(0);
                 $table->boolean('from_auto'->default(0);
                 $table->boolean('status')->default(0);
-                //$table->integer('modify_times')->nullable()->default(0);
-                //$table->boolean('is_pass')->nullable()->default(0);
                 $table->timestamp('status_at')->nullable();
                 $table->softDeletes();                
                 $table->timestamp('created_at')->nullable();
                 $table->timestamp('updated_at')->useCurrent()->useCurrentOnUpdate()->nullable();
-                //$table->index(['user_id', 'item_id']);
             });                   
         } 
 
@@ -300,7 +244,6 @@ class CreateRealAuthTables extends Migration
             Schema::create('real_auth_user_modify_pic', function (Blueprint $table) {
                 $table->id();
                 $table->integer('modify_id')->index();
-                //$table->smallInteger('state')->nullable()->default(0)->index();
                 $table->boolean('operate')->default(0);
                 $table->string('pic_cat',100)->nullable()->index();
                 $table->string('old_pic',255)->nullable()->index();                
@@ -329,24 +272,7 @@ class CreateRealAuthTables extends Migration
                 $table->index(['user_id', 'auth_type_id']);
             });                   
         }         
-
-/*
-        if (!Schema::hasTable('real_auth_user_modify_profile')) 
-        {        
-            Schema::create('real_auth_user_modify_profile', function (Blueprint $table) {
-                $table->id();
-                $table->integer('modify_id')->index();
-                $table->string('old_exchange_period',255)->nullable()->index();
-                $table->string('new_exchange_period',255)->nullable()->index();
-                $table->string('old_height',255)->nullable()->index();
-                $table->string('new_height',255)->nullable()->index();  
-                $table->string('old_weight',255)->nullable()->index();
-                $table->string('new_weight',255)->nullable()->index();               
-                $table->timestamp('created_at')->nullable();
-                $table->timestamp('updated_at')->useCurrent()->useCurrentOnUpdate()->nullable();
-            });                   
-        }  
-*/        
+      
      
     }
 

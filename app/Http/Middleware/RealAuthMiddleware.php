@@ -77,7 +77,7 @@ class RealAuthMiddleware
                         )
                     )
                 ) {
-                    $sess_go_beauty_auth_num = session()->get('redirect_to_beauty_auth_num',0);
+                       $sess_go_beauty_auth_num = session()->get('redirect_to_beauty_auth_num',0);
                        if($sess_go_beauty_auth_num<=3) {
                             session()->put('redirect_to_beauty_auth_num',$sess_go_beauty_auth_num+1);             
                             return Redirect::route('beauty_auth');

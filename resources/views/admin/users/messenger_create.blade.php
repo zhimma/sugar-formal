@@ -35,7 +35,6 @@
     <form action="" id='msglibform' method='POST'>
         {!! csrf_field() !!}
         <input type="hidden" name="msg_id" id="msg_id" value="{{$msg_id??''}}">
-
         種類
         <select name="kind" id="kind">
             @if(str_contains(url()->current(), 'delpic'))

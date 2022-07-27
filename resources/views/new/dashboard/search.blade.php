@@ -5,6 +5,7 @@ header("Last-Modified: " . gmdate("D, d M Y H:i:s") . " GMT");
 header("Expires: Fri, 01 Jan 1990 00:00:00 GMT");
 ?>
 @extends('new.layouts.website')
+
 @section('app-content')
 @php $user_engroup = $user->engroup; @endphp
     <div id="app" ontouchstart="" onmouseover="">
@@ -835,10 +836,6 @@ header("Expires: Fri, 01 Jan 1990 00:00:00 GMT");
                 }
             },
             methods: {
-              test(){
-                  console.log('in methods show');
-                    console.log('test_test='+test_test);
-              } ,
                 isRealAuthNeedShowTagOnPic(dataRow)
                 {
                    

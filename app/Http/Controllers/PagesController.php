@@ -2875,10 +2875,7 @@ class PagesController extends BaseController
     
             $user = Auth::user();
             $userIsVip = $user->isVip();
-            $dataList = [];
-            
-            
-            
+            $dataList = [];                                   
             foreach ($searchApi['singlePageData'] as $key=>$visitor){
                 $dataList[$key]['rawData'] = $visitor;
                 $dataList[$key]['visitorCheckRecommendedUser'] = \App\Services\UserService::checkRecommendedUser($visitor);
@@ -5238,8 +5235,7 @@ class PagesController extends BaseController
     }  
 
     public function advance_auth_email_activate(Request $request,RealAuthPageService $rap_service,$token) {
-        $user = User::where('advance_auth_email_token', $token)->first();
-        
+        $user = User::where('advance_auth_email_token', $token)->first();        
         $banOrWarnCanceledStr = '';
         if ($user) {
             $rap_service->riseByUserEntry($user);

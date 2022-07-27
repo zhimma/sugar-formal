@@ -323,7 +323,6 @@ class RealAuthAdminService {
             }
         }
 
-        //if($video_modify && $self_auth_apply_entry && $video_modify->new_video_record_id!=$self_auth_apply_entry->video_modify_id) {
         if($video_modify && $self_auth_apply_entry && $video_modify->id!=$self_auth_apply_entry->video_modify_id) {
             //$self_auth_apply_entry->video_modify_id = $video_modify->new_video_record_id;
             $self_auth_apply_entry->video_modify_id = $video_modify->id;
@@ -686,13 +685,10 @@ class RealAuthAdminService {
     }
  
     public function getListInAdminCheck() 
-    {//\DB::enableQueryLog();
+    {
         $list = $this->getListQueryInAdminCheck()
                     ->get()
                     ->sortByDesc('real_auth_user_modify_max_created_at.max_created_at');          
-//$log_arr = \DB::getQueryLog();
-
-//echo  str_replace_array('?', $log_arr[0]['bindings'], $log_arr[0]['query']);
 
         return $list;
     } 
@@ -714,9 +710,8 @@ class RealAuthAdminService {
 
     public function convertModifyStatusToCompleteWord($modify_entry) 
     {
-        //if(!$modify_entry)  echo 'NULL';
         if(!$modify_entry) $modify_entry = $this->modify_entry();
-        //if(!$modify_entry)  echo 'NULL';
+
         if(!$modify_entry) return;
         $apply_entry = $modify_entry->real_auth_user_apply;
         if(!$apply_entry) return;

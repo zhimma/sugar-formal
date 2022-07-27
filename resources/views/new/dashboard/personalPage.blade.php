@@ -239,25 +239,6 @@
                         @endif
                         </div>
                     </div> 
-                    {{-- @if($rap_service->isSelfAuthApplyNotVideoYet())
-                    <div class="sys_aa" id="video_state_block">
-                        <div class="tabbox_new_dt">
-                            <span>視訊狀態</span>
-                        </div>
-                        <div class="tabbox_new_dd">
-                            <h2 class="tabbox_h2">
-                                <span class="tu_dfont">
-                                    <span class="sa_video_status" id="video_state_intro_block">
-                                        偵測中
-                                    </span>
-                                    <img  src="{{ asset('/new/images/guan.png') }}" class="right sa_video_status video_status_show_elt"  style="cursor: pointer;height: 30px;display:none;"/>
-                               </span>
-                            </h2>
-                        </div>
-                    </div>         
-                        
-                        
-                    @endif--}}
                     <div class="sys_aa" id="self_auth_state_block">
                         <div class="tabbox_new_dt"><span>本人認證</span>
                             <a class="zs_buttonn" href="{{route('real_auth')}}">
@@ -691,7 +672,6 @@
              @endif
          </div>
     </div>
-   
     @endif
     @if($rap_service->isSelfAuthApplyNotVideoYet())
     <div style="position:relative;" id="video_app_container">
@@ -1474,8 +1454,6 @@ display: flex;-webkit-box-pack: center;-ms-flex-pack: center;-webkit-justify-con
         return true;
     }
     
-
-
 </script>
 @endif
 @if($rap_service->isSelfAuthApplyNotVideoYet())
@@ -1555,7 +1533,6 @@ display: flex;-webkit-box-pack: center;-ms-flex-pack: center;-webkit-justify-con
     
     function change_video_status() 
     {
-        //$('.video_status_text_show_elt').hide().removeAttr('id');
         var video_state_intro_block = $('#video_status_text_show_elt');
         var video_status_show_elt = $('.video_status_show_elt');
         if($('#app .btn-success').length) {

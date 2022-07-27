@@ -1863,7 +1863,7 @@ class UserController extends \App\Http\Controllers\BaseController
         if ($admin) {
             $user = $this->service->find($id);
             $raa_service->riseByUserEntry($user);
-            // $msglib = Msglib::get();
+           
             $userMeta = UserMeta::where('user_id', 'like', $id)->get()->first();
             $msglib = Msglib::selectraw('id, title, msg')->where('kind', '=', 'real_auth')->get();
             $msglib_report = Msglib::selectraw('id, title, msg')->where('kind', '=', 'real_auth')->get();
@@ -3535,7 +3535,7 @@ class UserController extends \App\Http\Controllers\BaseController
                 'page_title' => '新增訊息範本',
             );
         }
-        //return view('admin.users.messenger_create_real_auth', $data);
+        
         return view('admin.users.messenger_create', $data);
     }
     
@@ -4287,7 +4287,7 @@ class UserController extends \App\Http\Controllers\BaseController
     {
         $data['service'] = $this->raa_service->riseByUserId($user_id);
         $data['user'] = $data['service']->user();
-        //$data['apply_entry'] = $data['service']->rau_repo()->getUncheckedApplyByAuthTypeId(2);        
+        
         $data['apply_entry'] = $data['service']->getApplyByAuthTypeId(2);        
         $data['entry_list'] =$data['service']->getBeautyAuthQuestionList();
 
@@ -4299,7 +4299,7 @@ class UserController extends \App\Http\Controllers\BaseController
     {
         $data['service'] = $this->raa_service->riseByUserId($user_id);        
         $data['user'] = $data['service']->user();
-        //$data['apply_entry'] = $data['service']->rau_repo()->getUncheckedApplyByAuthTypeId(3);
+        
         $data['apply_entry'] = $data['service']->getApplyByAuthTypeId(3); 
         $data['entry_list'] = $data['service']->getFamousAuthQuestionList();
        return view('admin.adminCheckRealAuthForm')

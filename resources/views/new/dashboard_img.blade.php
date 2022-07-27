@@ -562,20 +562,7 @@ function requestBlurryAvatarDefault() {
                                 <a onclick="tab_real_auth_uploadPic_close()" class="bl_gb"><img src="/new/images/gb_icon.png"></a>
                             </div>
                         </form>
-                    </div>
-                                        
-                    {{--
-                    <div class="bl bl_tab" id="real_auth_leave_tab" style="display: none;">
-                        <div class="bltitle">提示</div>
-                        <div class="n_blnr01 matop10">
-                            <div class="blnr bltext">
-                                請檢查
-                            </div>
-                            <a class="n_bllbut matop30" onclick="real_auth_tab_close(this)">確定</a> 
-                        </div>
-                        <a onclick="real_auth_tab_close(this);" class="bl_gb"><img src="{{asset('/new/images/gb_icon.png')}}"></a>
-                    </div>
-                    --}}
+                    </div>                                        
                    @endif
                 </div>
             </div>
@@ -759,9 +746,6 @@ function requestBlurryAvatarDefault() {
         dataType: 'json',
 
         success: function(data){
-            //var pre_load_files_data = data;
-            //data = data === null ? "" : JSON.stringify(data,null,2)
-            //$("input[name='pictures']").attr('data-fileuploader-files', data)
             uploaderOfMemberPic = $("input[name='pictures']").fileuploader({
                 files:data,
                 addMore: true,
@@ -1032,17 +1016,8 @@ function requestBlurryAvatarDefault() {
                 });
 
                 api.getOptions().dragDrop.container = plusInput;
-                /*
-                listEl.find('.fileuploader-action-remove').click(function(){
-                    alert('test');
-                    $.fn.fileuploader.defaults.dialogs.remove_pic(true);
-                    $('#tab05').hide();
-                });
-                */
             },
             afterSelect:function(listEl, parentEl, newInputEl, inputEl) {
-                
-                //alert(listEl.html());
                 $('#tab06').attr('id','tab06_tmp');
                 $('#tab05').attr('id','tab05_tmp');
                 $('.blbg').addClass('blbg_tmp').removeClass('blbg');
@@ -1050,13 +1025,9 @@ function requestBlurryAvatarDefault() {
                 listEl.find('.fileuploader-action-remove').trigger('click');
                 listEl.find('.fileuploader-action-remove').click(function(){
                     var now_api = $.fileuploader.getInstance(inputEl.get(0));
-                    
-                    //$('#tab06 .bltext').html('').removeClass('bltext').addClass('bltext_tmp');
-                    
+
                     var button_elt = $('#tab06 .n_left');
-                    //button_elt.trigger( "click" );
-                    //$.fn.fileuploader.defaults.dialogs.remove_pic(true);
-                    
+
                     now_api.getOptions().dialogs.remove_pic(true);
                     
                 });

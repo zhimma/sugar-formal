@@ -36,7 +36,6 @@ function resize_before_upload(uploader,checkWidth
             var cur_uploader_option = cur_uploader_api.getOptions();
             var fileSelected = cur_uploader_api.getChoosedFiles();
 
-
             if(fileSelected.length>0) {
                     cur_uploader_api.getParentEl()
                     .append('<div class="announce_bg"></div>');
@@ -69,6 +68,8 @@ function resize_before_upload(uploader,checkWidth
                     && resize_before_upload_fileReaderSet[index][fileSelected[i].name].not_support_file==1)  {
                         rbupld_not_support_file_numSet[index]++;
                     }
+
+
                     continue;
                 }
                 else needless_resize = false;
@@ -209,7 +210,7 @@ evt.preventDefault();
             {
                 if(fileElt!=undefined) {
 
-                    curFileElt = fileElt;
+                    var curFileElt = fileElt;
 
                     var fileEltFiles = cur_uploader_api.getChoosedFiles();
                     var fileEltName = curFileElt.prop('name');
@@ -226,8 +227,7 @@ evt.preventDefault();
                     else {
                         postFileName=fileEltName;
                         postFileName_s=fileEltName+'_s';
-                    }
-                    
+                    }            
                     for(i=0;i<fileEltFiles.length;i++) {
                         var fileInputed = fileEltFiles[i];
                         var filenamesplit = fileInputed.name.split('.');
@@ -291,7 +291,6 @@ evt.preventDefault();
                                 c5(pop_content);
                             }
                         }
-
                         if(form_showed_container!=null && form_showed_container!=undefined )
                             form_showed_container.hide();
 
@@ -447,12 +446,10 @@ evt.preventDefault();
                     cur_uploader_api.reset();
                 }
                 
-                nowElt.find('.fileuploader-thumbnails-input').show();                
-                
+                nowElt.find('.fileuploader-thumbnails-input').show();                              
                 if(cur_uploader_option.afterSubmit!=undefined){
                     cur_uploader_option.afterSubmit(evt,cur_uploader_api);
-                } 
-                
+                }                
                 if(rbupld_not_support_file_num>0) {
                     var not_support_msg = '上傳失敗：所選取的檔案皆為不被支援的檔案格式，請重新操作';
 

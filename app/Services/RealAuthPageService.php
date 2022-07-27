@@ -433,7 +433,7 @@ class RealAuthPageService {
     public function saveVideoRecordId($vrid) 
     {
         $self_auth_apply_entry = $this->getApplyByAuthTypeId(1);
-        //$latest_vmodify = $self_auth_apply_entry->latest_working_modify()->where('item_id',4)->first();
+
         $latest_vmodify = $self_auth_apply_entry->latest_working_video_modify;
         
         if($latest_vmodify)
@@ -481,16 +481,7 @@ class RealAuthPageService {
         $user = $this->user();
         $apply_entry = $this->getApplyByAuthTypeId(1);
         
-        if(!$apply_entry) {
-            return;
-            //$apply_data['auth_type_id'] = 1;
-            //$apply_entry = $this->rau_repo()->saveApply((object)$apply_data);
-        }
-        /*
-        if($this->isSelfAuthApplyNotVideoYet()) {
-            return;
-        }
-        */
+
         $data['item_id'] = 2;
 
         $data['apply_status_shot']= $apply_entry->status;
@@ -550,16 +541,7 @@ class RealAuthPageService {
     {
         $user = $this->user();
         $apply_entry = $this->getApplyByAuthTypeId(1);
-        if(!$apply_entry) {
-            return;
-            //$apply_data['auth_type_id'] = 1;
-            //$apply_entry = $this->rau_repo()->saveApply((object)$apply_data);
-        }
-        /*
-        if($this->isSelfAuthApplyNotVideoYet()) {
-            return;
-        }        
-        */
+
         $data['item_id'] = 3;
         
         $data['apply_status_shot']= $apply_entry->status;

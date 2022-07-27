@@ -392,48 +392,15 @@ class User extends Authenticatable implements JWTSubject
     {
         return $this->real_auth_modify_item_group_for_admincheck_last_modify()->withTrashed();
     }     
-/*
-    public function real_auth_modify_item_group_for_admincheck_first_modify()
-    {
-        return $this->real_auth_user_modify()
-                    ->groupBy('apply_id')
-                    ->groupByRaw('item_id*!ifnull(patch_id_shot,0)')
-                    ->groupBy('is_formal_first')
-                    ->selectRaw('min(real_auth_user_modify.id) as id,min(real_auth_user_modify.id) as check_first')
-                    ->where('item_id','!=',1)
-                    ->where('real_auth_user_modify.apply_status_shot',1)
-                    ->orWhere(function($qq)
-                    {
-                        $qq->where('real_auth_user_modify.apply_status_shot','!=',1)
-                           ->whereNotNull('patch_id_shot')
-                           ;
-                    })
-                   ->orWhere('is_formal_first',1)                  
-                    ;
-    } 
-
-    public function real_auth_modify_item_group_for_admincheck_first_modify_with_trashed()
-    {
-        return $this->real_auth_modify_item_group_for_admincheck_first_modify()->withTrashed();
-    }    
-*/    
+   
     public function real_auth_modify_item_group_modify()
     {
-        //return $this->real_auth_user_modify()->groupBy('real_auth_user_applies.id')->groupByRaw('item_id*!ifnull(patch_id_shot,0)')->selectRaw('max(real_auth_user_modify.id) as id')->orderByDesc('id');
-        //$first_query = $this->real_auth_modify_item_group_for_admincheck_first_modify();
-        //$last_query = $this->real_auth_modify_item_group_for_admincheck_last_modify();
-        //return $this->real_auth_modify_item_group_for_admincheck_first_modify()->union($this->real_auth_modify_item_group_for_admincheck_last_modify()->selectRaw('0'));
         return $this->real_auth_modify_item_group_for_admincheck_last_modify();
-        //die($first_query->toSql());
-        //return $this->real_auth_modify_item_group_last_modify_with_trashed()->union($first_query)->orderByDesc('id');
+
     }  
 
     public function real_auth_modify_item_group_modify_with_trashed()
     {
-        //return $this->real_auth_modify_item_group_modify()->withTrashed();
-        //$first_query = $this->real_auth_modify_item_group_for_admincheck_first_modify_with_trashed();
-        //$last_query = $this->real_auth_modify_item_group_for_admincheck_last_modify_with_trashed();
-        //return $this->real_auth_modify_item_group_for_admincheck_first_modify_with_trashed()->union($this->real_auth_modify_item_group_for_admincheck_last_modify_with_trashed()->addSelect('user_id'))->orderByDesc('id');        
         return $this->real_auth_modify_item_group_for_admincheck_last_modify_with_trashed()->addSelect('user_id')->orderByDesc('id');        
     }     
 

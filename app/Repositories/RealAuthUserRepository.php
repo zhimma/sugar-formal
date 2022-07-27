@@ -443,7 +443,6 @@ class RealAuthUserRepository
                 'inputNameBrackets'=> true,
                 'fileMaxSize' => 8,
                 'extensions' => ['jpg', 'jpeg', 'png', 'gif','bmp','heif','heic'],
-                //'required' => true,
                 'uploadDir' => $this->uploadDir,
                 'title' => function(){
                     $now = Carbon::now()->format('Ymd');
