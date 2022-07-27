@@ -10,11 +10,18 @@
         </div>
     </div>
 </div> 
-@if($user??null)
+
+@if($adv_auth_user??null)
 <div class="m-portlet__body">
-    <p><h3>{{ $user->name }}進階驗證已通過</h3></p>
+    <p><h3>{{ $adv_auth_user->name }}進階驗證已通過</h3></p>
     <p>{{$message}} 。現在開始，您的帳號將被標註為本站的<img src="{{asset('new/images/b_7.png')}}" class="adv_auth_icon" />進階驗證會員<img src="{{asset('new/images/b_7.png')}}"  class="adv_auth_icon" />。
     </p><p>按<a href="{!! url('login') !!}">這裡登入</a>。</p>
 </div>
+@else
+<div class="m-portlet__body">
+    <p><h3></h3></p>
+    <p>{{$message}}</p>
+    <p>按<a href="{!! url('login') !!}">這裡登入</a>。</p>
+</div>    
 @endif
 @stop

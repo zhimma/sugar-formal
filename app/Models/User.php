@@ -14,6 +14,10 @@ use App\Models\SimpleTables\banned_users;
 use App\Models\SimpleTables\warned_users;
 use App\Models\FaqUserGroup;
 use App\Models\FaqUserReply;
+use App\Models\RealAuthUserPatch;
+use App\Models\RealAuthUserApply;
+use App\Models\RealAuthUserReply;
+use App\Models\RealAuthUserModify;
 use App\Notifications\ResetPassword;
 use Illuminate\Notifications\Notifiable;
 use Illuminate\Foundation\Auth\User as Authenticatable;
@@ -277,13 +281,143 @@ class User extends Authenticatable implements JWTSubject
     }
     
     //faq
-    public function faq_user_group() {
+    public function faq_user_group() 
+    {
         return $this->hasMany(FaqUserGroup::class);
     }
     
-    public function faq_user_reply() {
+    public function faq_user_reply() 
+    {
         return $this->hasMany(FaqUserReply::class);
-    }         
+    } 
+
+    //real auth
+    public function real_auth_user_patch() 
+    {
+        return $this->hasMany(RealAuthUserPatch::class,'user_id','id');
+    }     
+    
+    public function real_auth_user_apply() 
+    {
+        return $this->hasMany(RealAuthUserApply::class,'user_id','id');
+    } 
+    
+    public function self_auth_apply() 
+    {
+        return $this->hasOne(RealAuthUserApply::class,'user_id','id')
+                ->where('auth_type_id',1)
+                ->orderByDesc('id')->take(1);
+    }
+    
+    public function self_auth_unchecked_apply() 
+    {
+        
+        return $this->hasOne(RealAuthUserApply::class,'user_id','id')
+                ->where('auth_type_id',1)
+                ->where(function($q) {$q->whereNull('status')->orWhere('status','!=',1);})
+                ->orderByDesc('id')->take(1);
+    }
+    
+    
+    public function beauty_auth_apply() 
+    {
+        return $this->hasOne(RealAuthUserApply::class,'user_id','id')
+                ->where('auth_type_id',2)
+                ->orderByDesc('id')->take(1);
+    }    
+    
+    public function beauty_auth_unchecked_apply() 
+    {
+        
+        return $this->hasOne(RealAuthUserApply::class,'user_id','id')
+                ->where('auth_type_id',2)
+                ->where(function($q) {$q->whereNull('status')->orWhere('status','!=',1);})
+                ->orderByDesc('id')->take(1);
+    }
+    
+    public function famous_auth_apply() 
+    {
+        return $this->hasOne(RealAuthUserApply::class,'user_id','id')
+                ->where('auth_type_id',3)
+                ->orderByDesc('id')->take(1);
+    }     
+
+    public function famous_auth_unchecked_apply() 
+    {
+        return $this->hasOne(RealAuthUserApply::class,'user_id','id')
+                ->where('auth_type_id',3)
+                ->where(function($q) {$q->whereNull('status')->orWhere('status','!=',1);})
+                ->orderByDesc('id')->take(1);
+    } 
+    
+    public function real_auth_user_modify() 
+    {
+        return $this->hasManyThrough(RealAuthUserModify::class,RealAuthUserApply::class,'user_id','apply_id');
+    } 
+    
+    public function real_auth_user_modify_with_trashed() 
+    {
+        return $this->real_auth_user_modify()->withTrashed();
+    } 
+
+    public function real_auth_modify_item_group_for_admincheck_last_modify()
+    {
+        return $this->real_auth_user_modify()
+                    ->groupBy('apply_id')
+                    ->groupByRaw('item_id*!ifnull(patch_id_shot,0)')
+                    ->groupBy('is_formal_first')
+                    ->selectRaw('max(real_auth_user_modify.id) as id,min(real_auth_user_modify.id) as check_first')
+                    ->where('item_id','!=',1)
+                    
+                    ->Where(function($q)
+                    {
+                        $q->where('real_auth_user_modify.apply_status_shot',1)
+                          ->orWhere('is_formal_first',1)
+                          ->orWhere(function($qq)
+                          {
+                            $qq->where('real_auth_user_modify.apply_status_shot','!=',1)
+                               ->whereNotNull('patch_id_shot')
+                              
+                               ;                            
+                        })
+                        
+                        ;
+
+                    })
+                                        
+                    ;
+    } 
+
+    public function real_auth_modify_item_group_for_admincheck_last_modify_with_trashed()
+    {
+        return $this->real_auth_modify_item_group_for_admincheck_last_modify()->withTrashed();
+    }     
+   
+    public function real_auth_modify_item_group_modify()
+    {
+        return $this->real_auth_modify_item_group_for_admincheck_last_modify();
+
+    }  
+
+    public function real_auth_modify_item_group_modify_with_trashed()
+    {
+        return $this->real_auth_modify_item_group_for_admincheck_last_modify_with_trashed()->addSelect('user_id')->orderByDesc('id');        
+    }     
+
+    public function latest_real_auth_user_modify() 
+    {
+        return $this->hasOneThrough(RealAuthUserModify::class,RealAuthUserApply::class,'user_id','apply_id')->orderByDesc('real_auth_user_modify.id')->take(1);
+    }     
+    
+    public function real_auth_user_modify_max_created_at() 
+    {
+        return $this->hasOneThrough(RealAuthUserModify::class,RealAuthUserApply::class,'user_id','apply_id')
+                    ->select(DB::raw('max(real_auth_user_modify.created_at) as max_created_at'))
+                    ->groupBy('real_auth_user_applies.user_id')
+                    ->where('real_auth_user_modify.status',0)
+                    ->where('real_auth_user_modify.item_id','!=',1)
+                    ;
+    }     
 
     /**
      * Check if user has role
@@ -1625,6 +1759,36 @@ class User extends Authenticatable implements JWTSubject
         $query = $this->vas_log()->orderByDesc('created_at');
         if($service_name) $query->where('service_name',$service_name);
         return $query->first();
+    }
+
+    public function spamMessagePercentIn7Days(){
+        return $this->hasOne('App\Models\SpamMessagePercentIn7Days');
+    }
+
+    public function getSpamMessagePercentIn7Days($uid){
+        
+        $user = new User;
+        $spamMessagePercentIn7DaysQuery = $user->spamMessagePercentIn7Days($uid)->where('user_id',$uid);
+
+        if($spamMessagePercentIn7DaysQuery->count() > 0){
+            $data = $spamMessagePercentIn7DaysQuery->orderBy('updated_at','desc')->first();
+            if(strtotime($data->updated_at) - strtotime(now()) < 86400){ //24 hour
+                return $data->percent;
+            }
+        }else{
+            try{
+                // $message_percent_7 = User::find($uid)->getSpamMessagePercentIn7Days($uid);
+                $message_percent_7 = UserService::computeCanMessagePercent_7($uid);
+                $data = array(
+                    'user_id'=>$uid,
+                    'percent'=>$message_percent_7
+                );
+                $spamMessagePercentIn7Days = \App\Models\SpamMessagePercentIn7Days::firstOrCreate($data);
+                return $data['percent'];
+            }catch(\Exception $e){
+                dd($e);
+            }
+        }
     }
 
     public function message()

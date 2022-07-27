@@ -40,9 +40,19 @@ class MemberPic extends Model
     }
     
     
+    public function actual_unchecked_rau_modify_pic()
+    {
+        return $this->hasOne(RealAuthUserModifyPic::class, 'old_pic', 'pic')->whereHas('real_auth_user_modify',function($q){$q->where([['status',0],['apply_status_shot',1]])->whereHas('real_auth_user_apply',function($qq){$qq->where('status',1);});})->orderByDesc('id')->take(1);
+    }    
+    
+    
     public static function getSelf($uid)
     {
-        return MemberPic::where('member_id', $uid)->whereRaw("pic not LIKE '%IDPhoto%'")->get();
+        $self_pic = MemberPic::where('member_id', $uid)->whereRaw("pic not LIKE '%IDPhoto%'")->get();
+        
+        $real_auth_modify_pic = User::find($uid)->self_auth_apply()->where('status',1)->firstOrNew()->real_auth_user_modify_pic()->whereNull('old_pic')->whereHas('real_auth_user_modify',function($q){$q->where('apply_status_shot',1)->where('real_auth_user_modify.status',0);})->get();
+    
+        return $self_pic->merge($real_auth_modify_pic);
     }
 
     public static function getRand()

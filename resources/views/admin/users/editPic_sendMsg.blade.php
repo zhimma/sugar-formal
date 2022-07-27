@@ -13,6 +13,15 @@
     display:inline;
 }
 </style>
+<style>
+.mempic_tital_head_container h4 {width:30%;display:inline-block;}
+.mempic_tital_head_container h4:first-child {width:45%;margin-right:15%;}
+table.table-mempic {border-top:none;border-bottom:none;}
+td.pic_between_col {width:15%;border:none;}
+td.real_auth_user_modify_avatar_col {background:yellow;}
+td.real_auth_user_modify_pic_col div {width:100%;background:yellow;padding:20px;}
+td.real_auth_user_modify_pic_col img {margin:auto;}
+</style>
 <body style="padding: 15px;">
     @include('partials.errors')
     @include('partials.message')
@@ -109,6 +118,9 @@
             <th>會員ID</th>
             <th>暱稱</th>
             <th>頭像照</th>
+            @if($userMeta->actual_unchecked_rau_modify_pic) 
+            <th>頭像照異動</th>
+            @endif
             <th>標題</th>
             <th>男/女</th>
             <th>Email</th>
@@ -120,6 +132,9 @@
             <td>{{ $user->id }}</td>
             <td>{{ $user->name }}</td>
             <td>@if($userMeta->pic) <img src="{{$userMeta->pic}}" width='100px'> @else 無 @endif</td>
+            @if($userMeta->actual_unchecked_rau_modify_pic) 
+            <td class="real_auth_user_modify_avatar_col"><img src="{{$userMeta->actual_unchecked_rau_modify_pic->pic}}" width='100px'></td>
+            @endif
             <td>{{ $user->title }}</td>
             <td>@if($user->engroup==1) 男 @else 女 @endif</td>
             <td>{{ $user->email }}</td>
@@ -203,23 +218,42 @@
             </tr>
         </table>
     </form>
-    <h4>現有生活照</h4>
     <?php $pics = \App\Models\MemberPic::getSelf($user->id); ?>
-    <table class="table table-hover table-bordered" style="width: 50%;">
+    <div class="mempic_tital_head_container">
+        <h4>現有生活照</h4>
+        <h4>照片異動</h4>
+    </div>    
+    <table class="table table-hover table-bordered table-mempic" style="width: {{($raa_service->isPassedByAuthTypeId(1) && $raa_service->getApplyByAuthTypeId(1)->actual_unchecked_rau_modify_pic->count())?'100':'50'}}%;">
         @forelse ($pics as $pic)
             <tr>
                 <form class="m-form m-form--fit m-form--label-align-right" method="POST" action="/dashboard/imagedel/1">
                     <td>
+                        @if(!($pic->modify_id??null) && !($pic->pic_cat??null))
                         {!! csrf_field() !!}
                         <input type="hidden" name="userId" value="{{$user->id}}">
                         <input type="hidden" name="imgId" value="{{$pic->id}}">
+                        @endif
                         <div style="width:400px">
+                        @if(!($pic->modify_id??null) && !($pic->pic_cat??null))
                             <img class="w-100 text-center" src="{{$pic->pic}}">
+                        @endif
                         </div>
                     </td>
                     <td>
+                        @if(!($pic->modify_id??null) && !($pic->pic_cat??null))
                         <button type="submit" class="btn btn-metal">刪除</button>
+                        @endif
                     </td>
+                    @if($raa_service->isPicExistActualUncheckedModify($pic))
+                    <td class="pic_between_col">
+                    
+                    </td>
+                    <td class="real_auth_user_modify_pic_col">
+                        <div style="width:440px">
+                            <img class="w-100 text-center" src="{{$pic->modify_id && $pic->pic_cat?$pic->pic:$pic->actual_unchecked_rau_modify_pic->pic}}">
+                        </div>
+                    </td> 
+                    @endif
                 </form>
             </tr>
         @empty
@@ -354,6 +388,15 @@
                 alert('刪除失敗');
             }
             
+        });
+    </script>
+    <script>
+        $(document).ready(function () {
+            if($('.real_auth_user_modify_pic_col').length==0) {
+                var container_elt = $('.mempic_tital_head_container');
+                container_elt.find('h4').last().remove();
+                container_elt.removeClass('mempic_tital_head_container');
+            }
         });
     </script>
 

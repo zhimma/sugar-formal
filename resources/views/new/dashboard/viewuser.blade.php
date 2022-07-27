@@ -563,7 +563,10 @@
                                 {{--                            <li><img src="/new/images/icon_23.png"><span>{{$money_cert}}</span></li>--}}
 
                                 {{--                            <li><img src="/new/images/icon_27.png"><span>{{$alert_account}}</span></li>--}}
-                                @if($to->meta->isWarned == 1 || $to->aw_relation)
+
+                                @if($rap_service->isNeedShowTagOnPic())
+                                    {!!$rap_service->getTagShowOnPicLayoutByLoginedUserIsVip($user->isVip()) !!}
+                                @elseif($to->meta->isWarned == 1 || $to->aw_relation)
                                     <li>
 
                                         <div class="tagText" data-toggle="popover" data-content="此會員為警示會員，與此會員交流務必提高警覺！">
@@ -607,9 +610,8 @@
                                     @php
                                         $user->isReadIntro = 1;
                                         $introCount++;
-                                    @endphp                          
-                                @endif
-                                    @if($to->isPhoneAuth())
+                                    @endphp 
+                                @elseif($to->isPhoneAuth())
                                     <li>
                                         @if($user->isVip())
                                             {{--@if($to->isAdvanceAuth() && $to->engroup==2)
@@ -647,7 +649,7 @@
                                             $user->isReadIntro = 1;
                                             $introCount++;
                                         @endphp
-                                    @endif
+                                @endif                              
                             </ul>
                         </div>
                         <!--引导弹出层-->
