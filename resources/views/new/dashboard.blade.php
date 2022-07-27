@@ -224,7 +224,7 @@ dt span.engroup_type_title {display:inline-block;width:10%;white-space:nowrap;}
                             <span class="engroup_type_title">帳號類型</span>
                             @if($user->engroup==2)
                                 <input type="hidden" name="is_pure_dating" value="1">
-                                <div style="float: right;margin-top:8px;"><input name="is_pure_dating" type="checkbox" @if($umeta->is_pure_dating != 1) checked @endif value="0"> 拒絕進一步發展</div>
+                                <div style="float: right;margin-top:8px;"><input name="is_pure_dating" type="checkbox" @if(isset($umeta->is_pure_dating) && $umeta->is_pure_dating != 1) checked @endif value="0"> 拒絕進一步發展</div>
                             @endif
                         </div>
 
