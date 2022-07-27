@@ -53,7 +53,17 @@ class RealAuthMiddleware
 
             }
 
-            if(!$request->ajax() && $last_url_seg!='beauty_auth' && !str_contains(url()->current(), 'dashboard/personalPage')) {
+            if(!$request->ajax() 
+                && $last_url_seg!='beauty_auth' 
+                && $last_url_seg!='logout'             
+                && !str_contains(url()->current(), 'dashboard/personalPage') &&
+                    !str_contains(url()->current(), 'users/switch-back') &&
+                    !str_contains(url()->current(), 'vip') &&
+                    !str_contains(url()->current(), 'member_auth') &&
+                    !str_contains(url()->current(), 'pay') &&
+                    !str_contains(url()->current(), 'dashboard/account_exchange_period') &&
+                    !str_contains(url()->current(), 'dashboard/forum')           
+            ) {
                 if($this->service->isPassedByAuthTypeId(1) 
                     && !$this->service->isPassedByAuthTypeId(2) 
                     && $this->service->getApplyByAuthTypeId(1)->from_auto
@@ -67,11 +77,15 @@ class RealAuthMiddleware
                         )
                     )
                 ) {
-                    return Redirect::route('beauty_auth');
+                    $sess_go_beauty_auth_num = session()->get('redirect_to_beauty_auth_num',0);
+                       if($sess_go_beauty_auth_num<=3) {
+                            session()->put('redirect_to_beauty_auth_num',$sess_go_beauty_auth_num+1);             
+                            return Redirect::route('beauty_auth');
+                       }
                 }
             }
         }
-
+        session()->forget('redirect_to_beauty_auth_num');
         return $next($request);
     }
 
