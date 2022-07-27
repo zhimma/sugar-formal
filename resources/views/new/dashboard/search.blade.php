@@ -1160,7 +1160,7 @@ header("Expires: Fri, 01 Jan 1990 00:00:00 GMT");
                            
                         if(this.userIsVip==1){
                             if(umetaIsHideOccupation==0 && umetaOccupation !== "" && umetaOccupation != 'null' && umetaOccupation != null){
-                                csrData +='<span style="margin-left: 0;">'+umetaOccupation+'</span>';
+                                csrData +='<i class="j_lxx">丨</i><span style="margin-left: 0;">'+umetaOccupation+'</span>';
                             }
                         }else{
                             csrData +='<span style="margin-left: 10px;"><span style="padding-left: 5px;">職業</span><img src="/new/images/icon_35.png" class="nt_img"></span>';
