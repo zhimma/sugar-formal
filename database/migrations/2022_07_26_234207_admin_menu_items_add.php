@@ -18,7 +18,7 @@ class AdminMenuItemsAdd extends Migration
         if(!AdminMenuItems::where('title', '會員檢查 step 3')->first()){
             $record = new AdminMenuItems;
             $record->title = '會員檢查 step 3';
-            $record->url = '/admin/users/message/check';
+            $record->route_path = '/admin/users/message/check';
             $record->status = 1;
             $record->sort = 43;
             $record->save();
@@ -26,7 +26,7 @@ class AdminMenuItemsAdd extends Migration
         if(!AdminMenuItems::where('title', '匿名聊天室')->first()){
             $record = new AdminMenuItems;
             $record->title = '匿名聊天室';
-            $record->url = '/admin/users/anonymousChat';
+            $record->route_path = '/admin/users/anonymousChat';
             $record->status = 1;
             $record->sort = 44;
             $record->save();
