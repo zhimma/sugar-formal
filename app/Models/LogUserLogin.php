@@ -84,6 +84,10 @@ class LogUserLogin extends Model
 
 		//更新最後登入時間
 		$user->last_login = $now_time;
+
+		//更新登入次數
+		$user->login_times = $user->login_times +1;
+
 		$user->save();
 
 		if($cfp_hash && strlen($cfp_hash) == 50)

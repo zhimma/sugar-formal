@@ -29,9 +29,9 @@ class LogSuccessfulLoginListener
     {
         Log::info('start_LogSuccessfulLoginListener');
 
-        $cfp_hash = $this->request->cfp_hash;
+        $cfp_hash = $this->request->cfp_hash??'';
         $user = $event->user;
-        $debug = $this->request->debug;
+        $debug = $this->request->debug??'';
 
         //新增登入紀錄
         LogUserLogin::recordLoginData($user, $cfp_hash);

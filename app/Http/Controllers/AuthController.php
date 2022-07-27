@@ -59,9 +59,13 @@ class AuthController extends Controller
 
     public function login(Request $request)
     {
+        Log::info('start_AuthController_login');
         $credentials = request(['email', 'password']);
         if ($token = auth('api')->attempt($credentials)) {
             $user = User::select('id', 'last_login')->withOut(['vip', 'user_meta'])->where('email', $request->email)->get()->first();
+
+            //移至LogSuccessfulLoginListener
+            /*
             // 更新 login_times
             User::where('id', $user->id)->update(['login_times'=>$user->login_times + 1]);
             // 新增登入紀錄
@@ -71,6 +75,8 @@ class AuthController extends Controller
                 'ip' => $request->ip(), 
                 'created_at' => date('Y-m-d H:i:s')]
             );
+            */
+            
             return response()->json(['status' => 0, 'token' => $token]);
         }
         return response()->json(['status' => 1, 'message' => 'invalid credentials'], 401);
