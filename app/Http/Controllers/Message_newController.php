@@ -28,6 +28,7 @@ use App\Services\AdminService;
 use Session;
 use App\Models\InboxRefuseSet;
 use App\Models\Pr_log;
+use YlsIdeas\FeatureFlags\Facades\Features;
 
 class Message_newController extends BaseController {
     public function __construct(UserService $userService) {
