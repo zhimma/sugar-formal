@@ -5049,12 +5049,7 @@ box-shadow:3px 5px 9px rgba(64,106,250,0.5); border-radius:5px; padding:8px 0; f
   
   .ju_pjckbox{width: 100%; background: rgba(255,255,255,0.4); padding:10px 10px 5px 10px; border-radius: 5px; margin-top: 10px; color: #8a9fef; border: #8a9fef 1px dashed;}
   .ju_pjckbox span{width: 100%; padding:0px 0px; display: table; color: #8a9fef; line-height:20px;}
-
-
-/*滚动条整体样式*/
-width :4px;  /*高宽分别对应横竖滚动条的尺寸*/
-height: 1px;
-}
+  
 .ju_pic::-webkit-scrollbar-thumb {
 /*滚动条里面小方块*/
 border-radius: 100px;
@@ -5391,4 +5386,14 @@ line-height:26px; box-shadow: 0 5px 5px #ffc1cd;}
 .zhu_y img{width:18px; float: left;}
 .xh_font{width: calc(100% - 25px); float: right; color: #f00; font-weight: bold;}
 .te_tlh_n{width: 100%;background: #f1f1f1;margin-top: 10px;color: #999999;line-height: 22px;display: table; padding:10px;border-radius: 5px;}
+
+.fk_viplist{width:96%;margin: 0 auto;  display:table; margin-top:30px !important; margin-bottom:10px !important;}
+.fk_viplist ul{width:100%;}
+.fk_viplist ul li{width:48%; float: left;color:#fd8cb4; position:relative;}
+.fk_viplist ul li:last-child{ float: right;}
+
+@media (max-width:450px){
+    .fk_viplist{width:95%; margin: 0 auto; display: table;}
+    .fk_viplist ul li{width: 100%;}
+}
 

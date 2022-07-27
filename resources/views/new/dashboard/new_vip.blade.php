@@ -22,6 +22,7 @@
                             <a  onclick='changediv("vip2")' id="vip2_a" target=_parent>取消VIP</a>
                         </div>
                         <div class="n_sjvip"  id="vip">
+                            <div class="main_vip">
                             @if($user->engroup==2)
                             <div class="new_syfont">上傳大頭貼+三張生活照,即可免費成為VIP</div>
                             @endif
@@ -41,6 +42,8 @@
                                             <input type="hidden" name="userId" value="{{$user->id}}">
                                             <input type="hidden" name="type" value="cc_quarterly_payment">
                                             <input type="hidden" name="remainDays" value="@if($user->isVipOnePaymentNotExpire() && $days>0){{$days}}@endif">
+                                            <input type="hidden" name="paymentFlow" value="cc_quarterly_payment">
+                                            <input type="hidden" name="choosePaymentFlow" value="">
                                             <button type="submit" class="new_gvip_input cc_quarterly_payment paySubmit" style="border-style: none; outline: none;">信用卡</button>
                                         </form>
                                     </li>
@@ -55,6 +58,7 @@
                                             <input type="hidden" name="userId" value="{{$user->id}}">
                                             <input type="hidden" name="type" value="cc_monthly_payment">
                                             <input type="hidden" name="remainDays" value="@if($user->isVipOnePaymentNotExpire() && $days>0){{$days}}@endif">
+                                            <input type="hidden" name="choosePaymentFlow" value="">
                                             <button type="submit" class="new_gvip_input cc_monthly_payment paySubmit" style="border-style: none; outline: none;">信用卡</button>
                                         </form>
                                     </li>
@@ -86,6 +90,7 @@
                                                         <input type="hidden" name="userId" value="{{$user->id}}">
                                                         <input type="hidden" name="type" value="one_quarter_payment">
                                                         <input type="hidden" name="choosePayment" value="Credit">
+                                                        <input type="hidden" name="choosePaymentFlow" value="">
                                                         <button type="submit" class="new_vpadd one_quarter_payment paySubmit" style="border-style: none; outline: none;">信用卡</button>
                                                     </form>
                                                 </span>
@@ -138,6 +143,7 @@
                                                         <input type="hidden" name="userId" value="{{$user->id}}">
                                                         <input type="hidden" name="type" value="one_month_payment">
                                                         <input type="hidden" name="choosePayment" value="Credit">
+                                                        <input type="hidden" name="choosePaymentFlow" value="">
                                                         <button class="new_vpadd one_month_payment paySubmit" style="border-style: none; outline: none;">信用卡</button>
                                                     </form>
                                                 </span>
@@ -171,6 +177,27 @@
                                     </li>
                                 </ul>
                             </div>
+                            </div>
+                            <div class="paymentFlowChoose" style="display: none;">
+                                <div class="vipline"><img src="/new/images/VIP_05.png"></div>
+                                <div class="dq_fangan">請選擇付款方式1 或 2</div>
+                                <div class="fk_viplist" style="margin-bottom: 10px;">
+                                    <ul>
+                                        <li>
+                                            <a onclick="chooseFlow('funpoint');" class="gg_zh_li"><span><img src="/new/images/zh12.png"></span>
+                                                <font>付款方式1</font>
+                                            </a>
+                                        </li>
+                                        <li>
+                                            <a onclick="chooseFlow('ecpay');" class="gg_zh_li"><span><img src="/new/images/zh13.png"></span>
+                                                <font>付款方式2</font>
+                                            </a>
+                                        </li>
+                                    </ul>
+                                </div>
+                                <input type="hidden" name="temp_form_id" value="">
+                            </div>
+
                             <div class="vipline matop20"><img src="/new/images/VIP_05.png"></div>
                         </div>
                         <div class="vipbongn">
@@ -216,6 +243,11 @@
 
 @section('javascript')
     <script>
+
+        function chooseFlow(paymentFlow){
+            $("*[name='choosePaymentFlow']").val(paymentFlow);
+            $($("input[name='temp_form_id']").val()).submit();
+        }
 
         function changediv(id){
             document.getElementById("vip").style.display="none";
@@ -288,7 +320,12 @@
                     @endif
 
                     $(".n_left").on('click', function() {
-                        $('#'+id+choosePayment+'Form').submit();
+                        $(".blbg").hide();
+                        $('#common_confirm').hide();
+                        $('.paymentFlowChoose').show();
+                        $('.main_vip').hide();
+                        $("input[name='temp_form_id']").val('#'+id+choosePayment+'Form');
+                        // $('#'+id+choosePayment+'Form').submit();
                     });
 
                 }else if($(this).hasClass("cc_quarterly_payment")){
@@ -303,7 +340,12 @@
                     @endif
 
                     $(".n_left").on('click', function() {
-                        $('#'+id+choosePayment+'Form').submit();
+                        $(".blbg").hide();
+                        $('#common_confirm').hide();
+                        $('.paymentFlowChoose').show();
+                        $('.main_vip').hide();
+                        $("input[name='temp_form_id']").val('#'+id+choosePayment+'Form');
+                        // $('#'+id+choosePayment+'Form').submit();
                     });
 
                 }else if($(this).hasClass("one_month_payment")){
@@ -325,7 +367,15 @@
                             });
                         }else {
                             $(".n_left").on('click', function () {
-                                $('#' + id + choosePayment + 'Form').submit();
+                                if(choosePayment=='Credit'){
+                                    $(".blbg").hide();
+                                    $('#common_confirm').hide();
+                                    $('.paymentFlowChoose').show();
+                                    $('.main_vip').hide();
+                                    $("input[name='temp_form_id']").val('#'+id+choosePayment+'Form');
+                                }else {
+                                    $('#' + id + choosePayment + 'Form').submit();
+                                }
                             });
                         }
                     @endif
@@ -350,7 +400,15 @@
                             });
                         }else {
                             $(".n_left").on('click', function () {
-                                $('#' + id + choosePayment + 'Form').submit();
+                                if(choosePayment=='Credit'){
+                                    $(".blbg").hide();
+                                    $('#common_confirm').hide();
+                                    $('.paymentFlowChoose').show();
+                                    $('.main_vip').hide();
+                                    $("input[name='temp_form_id']").val('#'+id+choosePayment+'Form');
+                                }else {
+                                    $('#' + id + choosePayment + 'Form').submit();
+                                }
                             });
                         }
                     @endif
