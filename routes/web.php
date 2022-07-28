@@ -172,6 +172,7 @@ Route::group(['middleware' => ['auth', 'global','SessionExpired']], function () 
     Route::post('/check-cfp', 'PagesController@checkcfp')->name('checkcfp');
 });
 Route::post('/dashboard/faq_reply', 'PagesController@checkFaqAnswer')->middleware('auth')->name('checkFaqAnswer');
+Route::get('/dashboard/faq_check', 'PagesController@checkIsForceShowFaq')->middleware('auth')->name('checkIsForceShowFaq');
 Route::get('/advance_auth_activate/token/{token}', 'PagesController@advance_auth_email_activate')->name('advance_auth_email_activate');
 
 Route::group(['middleware' => ['auth', 'global', 'active', 'femaleActive', 'vipCheck', 'newerManual', 'CheckAccountStatus', 'AdjustedPeriodCheck', 'SessionExpired','FaqCheck']], function () {
