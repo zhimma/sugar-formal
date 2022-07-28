@@ -8748,6 +8748,11 @@ class PagesController extends BaseController
 
     }
     
+    public function checkIsForceShowFaq(Request $request,FaqUserService $fuService) 
+    {
+        return intval($fuService->riseByUserEntry($request->user())->isForceShowFaqPopup());
+    }
+    
     public function checkFaqAnswer(Request $request,FaqUserService $fuService) 
     {        
 

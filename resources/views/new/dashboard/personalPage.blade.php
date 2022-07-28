@@ -611,16 +611,16 @@
     
     @if($isForceShowFaqPopup)
     <div class="faq_announce_bg" id="faq_announce_bg" onclick="leave_faq_msg()"></div>
-    <div class="bl bl_tab" id="faq_msg_tab">
+    <div class="bl bl_tab" id="faq_msg_tab" style="display:none;">
         <div class="bltitle">提示</div>
         <div class="n_blnr01 matop10">
         <div class="blnr bltext">恭喜答對！</div>
         <a class="n_bllbut matop30" onclick="leave_faq_msg()">確定</a>
         </div>
-        <a id="" onclick="gmBtnNoReload()" class="bl_gb"><img src="/new/images/gb_icon.png"></a>
+        <a id="" onclick="gmBtnNoReload();leave_faq_msg();" class="bl_gb"><img src="/new/images/gb_icon.png"></a>
     </div>    
     <div class="faq_blbg"></div>
-    <div class="bl_tab dati" id="faq_tab" style=" display: block;">
+    <div class="bl_tab dati" id="faq_tab" style=" display: none;">
         <div class="dati_tit">常見問題</div>
         <a id="" class="gub_cld"><img src="{{asset('new/images/cc_02.png')}}"></a>
         <div class="dati_text"><img src="{{asset('new/images/cc_03.png')}}">
@@ -1301,6 +1301,7 @@ display: flex;-webkit-box-pack: center;-ms-flex-pack: center;-webkit-justify-con
 		 $(".faq_blbg").hide();
          $("#faq_tab").hide();
          $('body').css("overflow", "auto");
+        window.history.replaceState( {} , $('title').html(), '{{url("/dashboard/personalPage?")}}{{csrf_token()}}='+(new Date().getTime()) );
     }
     
     function getFaqActiveSlide() {
@@ -1318,13 +1319,22 @@ display: flex;-webkit-box-pack: center;-ms-flex-pack: center;-webkit-justify-con
     }
     
     $(function(){   
+        window.history.replaceState( {} , $('title').html(), '{{url("/dashboard/personalPage?")}}{{csrf_token()}}='+(new Date().getTime()) );
+
         $('#faq_tab .gub_cld').on('click',function(){
             return check_empty(true);
         });         
+
+        $.get( "{{route('checkIsForceShowFaq',[csrf_token()=>time()])}}"+(new Date().getTime()), function( data ) {
+                if(data!=1) {
+                    wdt();
+                }
+            });    
     });
     if(get_faq_error_state()==1) {
         wdt();
     } else {
+        $('#faq_tab').show();
         swiper = swiper_initial({{$faqUserService->getReplyedBreakIndex()}});
     }
    
