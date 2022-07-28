@@ -548,13 +548,17 @@ dt span.engroup_type_title {display:inline-block;width:10%;white-space:nowrap;}
                             <span>工作/學業模式</span>
                             <span>
                                 <select id="new_occupation" name="new_occupation"  class="select_xx01">
-                                    <option>請選擇</option>
+                                    <option value="">請選擇</option>
                                     @foreach($option['occupation'] as $option)
-                                        <option>{{$option->option_name}}</option>
+                                        <option value={{$option->id}}  @if(($user_option['occupation']->option_id ?? 0) == $option->id) selected @endif>
+                                            {{$option->option_name}}
+                                        </option>
                                     @endforeach
-                                    <option value='other'>其他(自填)</option>
+                                    <option value='other' @if(($user_option['occupation']->occupation->is_custom) ?? 0) selected @endif>
+                                        其他(自填)
+                                    </option>
                                 </select>
-                                <input id="new_occupation_other" name="new_occupation_other" class="select_xx01" style="display:none">
+                                <input id="new_occupation_other" name="new_occupation_other" value={{$user_option['occupation']->occupation->option_name ?? ''}} class="select_xx01" @if(!($user_option['occupation']->occupation->is_custom ?? 0)) style="display:none" @endif>
                             </span>
                             <div class="right" style="margin: 10px 0 -5px 10px;">
                                 <input type="hidden" name="isHideOccupation" value="0">
@@ -1813,6 +1817,7 @@ dt span.engroup_type_title {display:inline-block;width:10%;white-space:nowrap;}
         $('#new_occupation').change(function(){
             if($('#new_occupation').val() == 'other')
             {
+                $('#new_occupation_other').val('');
                 $('#new_occupation_other').show();
             }
             else

@@ -742,7 +742,6 @@ class PagesController extends BaseController
         //使用者選擇的選項
         $user_option_xref = UserOptionsXref::where('user_id', $user->id);
         $user_option['occupation'] = $user_option_xref->clone()->where('option_type', 1)->first();
-        Log::Info($user_option);
 
         if ($user) {
 
@@ -781,6 +780,7 @@ class PagesController extends BaseController
                 ->with('pr', $pr)
                 //->with('isWarnedReason',$isWarnedReason)
                 ->with('option', $option)
+                ->with('user_option', $user_option)
                 ;
         }
     }

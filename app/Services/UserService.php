@@ -28,6 +28,7 @@ use App\Models\IsBannedLog;
 use App\Models\LogAdvAuthApi;
 use App\Models\ValueAddedService;
 use App\Models\hideOnlineData;
+use App\Models\UserOptionsXref;
 
 class UserService
 {
@@ -247,6 +248,9 @@ class UserService
     public function update($userId, $payload)
     {
         //Log::Info($payload);
+        
+        UserOptionsXref::update_occupation($userId, $payload['new_occupation'], $payload['new_occupation_other']);
+
         $setBlockKeys = ['blockcity','blockarea'];
         $notLikeBlockKeys = ['blockarea' => 'isHideArea'];
         foreach($setBlockKeys as $setBlockKeys){
@@ -582,6 +586,9 @@ class UserService
                     $this->unassignAllRoles($userId);
                     $this->assignRole($payload['roles'], $userId);
                 }
+
+                //Log::Info($payload);
+
                 $user->update($payload);
                 $user->tattoo()->delete();
                 if(isset($payload['tattoo_part']) && 
