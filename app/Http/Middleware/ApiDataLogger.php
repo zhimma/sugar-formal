@@ -102,14 +102,21 @@ class ApiDataLogger{
                     $envStr = '';
                 }
 
-                // 組合字串
-                $sMacValue = 'HashKey=' . config('ecpay.payment'.$envStr.'.HashKey') ;
+                // 組合字串 funpoint
+                if(str_contains($_SERVER["HTTP_REFERER"], 'ecpay')) {
+                    $sMacValue = 'HashKey=' . config('ecpay.payment' . $envStr . '.HashKey');
+                }elseif(str_contains($_SERVER["HTTP_REFERER"], 'funpoint')){
+                    $sMacValue = 'HashKey=' . config('funpoint.payment' . $envStr . '.HashKey');
+                }
                 foreach($payload as $key => $value)
                 {
                     $sMacValue .= '&' . $key . '=' . $value ;
                 }
-
-                $sMacValue .= '&HashIV=' . config('ecpay.payment'.$envStr.'.HashIV') ;
+                if(str_contains($_SERVER["HTTP_REFERER"], 'ecpay')) {
+                    $sMacValue .= '&HashIV=' . config('ecpay.payment' . $envStr . '.HashIV');
+                }elseif(str_contains($_SERVER["HTTP_REFERER"], 'funpoint')){
+                    $sMacValue .= '&HashIV=' . config('funpoint.payment' . $envStr . '.HashIV');
+                }
 
                 // URL Encode編碼
                 $sMacValue = urlencode($sMacValue);
@@ -229,9 +236,14 @@ class ApiDataLogger{
                         warned_users::where('vip_pass', 1)->where('member_id', $user->id)->delete();
 
                         if(!\App::environment('local')) {
-                            //產生訂單 --正式綠界
-                            Order::addEcPayOrder($payload['MerchantTradeNo'], null);
+                            //產生訂單 --正式環境訂單
+                            if(str_contains($_SERVER["HTTP_REFERER"], 'ecpay')) {
+                                Order::addEcPayOrder($payload['MerchantTradeNo'], null);
+                            }elseif(str_contains($_SERVER["HTTP_REFERER"], 'funpoint')){
+                                Order::addFunPointPayOrder($payload['MerchantTradeNo'], null);
+                            }
                         }
+
 
                         return '1|OK';
                     }
