@@ -410,7 +410,7 @@ class OrderController extends \App\Http\Controllers\BaseController
             ->with('showVipInfo', $showVipInfo);
     }
 
-    public function orderFunPointcPayCheck(Request $request){
+    public function orderFunPointPayCheck(Request $request){
         $order_id = $request->input('order_id');
         if(str_contains($order_id, 'TIP')){
             return back()->with('message', '車馬費訂單不適用此查詢系統');
