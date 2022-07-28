@@ -431,6 +431,142 @@ dt span.engroup_type_title {display:inline-block;width:10%;white-space:nowrap;}
                                 </option>
                             </select>
                         </dt>
+
+                        @if($user->engroup==2)
+                        <dt>
+                            <span>關於我<i>(必填)</i></span>
+
+                            <div class="ka_zli"><i></i>尋找關係</div>
+                            <div id="itemssxN">
+                                <nav class="custom_nav_n">
+                                    @foreach(\DB::table('option_looking_for_relationships')->get() as $option)
+                                    <div class="custom_s a1">{{$option->option_name}}<b class="cr_b">{{$option->option_content}}</b></div>
+                                    @endforeach
+                                </nav>
+                            </div>
+                            <script type="text/javascript">
+                                $(document).ready(function() {
+                                    $("#itemssxN .a1").on("click", function() {
+                                        $(this).toggleClass('cractive');
+                                    });
+                                });
+                                $(function(){
+                                    $('#itemssxN .a1').click(function(){
+                                        if($(this).children().is(':hidden'))
+                                        {
+                                            $(this).children().show();
+                                        }
+                                        else
+                                        {
+                                            $(this).children().hide();
+                                        }
+                                    })
+                                })
+                            </script>
+
+                            <div class="ka_zli cutop"><i></i>對糖爹的期待</div>
+                            <div id="itemssxN1">
+                                <nav class="custom_nav_n">
+                                    @foreach(\DB::table('option_expect')->get() as $option)
+                                        <div class="custom_s a1">{{$option->option_name}}</div>
+                                    @endforeach
+                                </nav>
+                            </div>
+                            <script type="text/javascript">
+                                $(document).ready(function() {
+                                    $("#itemssxN1 .a1").on("click", function() {
+                                        $(this).toggleClass('cractive');
+                                    });
+                                });
+                            </script>
+
+                            <div class="ka_zli cutop"><i></i>或是其他你想說的</div>
+                            <textarea name="about" cols="" rows="3" class="custom_text">{{$umeta->about}}</textarea>
+                        </dt>
+                        <dt>
+                            <span>期待的約會模式<i>(必填)</i></span>
+
+                            <div class="ka_zli"><i></i>喜歡的食物</div>
+                            <div id="itemssxN2">
+                                <nav class="custom_nav_n">
+                                    @foreach(\DB::table('option_favorite_food')->get() as $option)
+                                        <div class="custom_s a1">{{$option->option_name}}</div>
+                                    @endforeach
+                                </nav>
+                            </div>
+                            <script type="text/javascript">
+                                $(document).ready(function() {
+                                    $("#itemssxN2 .a1").on("click", function() {
+                                        $(this).toggleClass('cractive');
+                                    });
+                                });
+                            </script>
+
+                            <div class="ka_zli"><i></i>偏好約會地點</div>
+                            <div id="itemssxN3">
+                                <nav class="custom_nav_n"> 
+                                    @foreach(\DB::table('option_preferred_date_location')->get() as $option)
+                                        <div class="custom_s a1">{{$option->option_name}}</div>
+                                    @endforeach
+                                </nav>
+                            </div>
+                            <script type="text/javascript">
+                                $(document).ready(function() {
+                                    $("#itemssxN3 .a1").on("click", function() {
+                                        $(this).toggleClass('cractive');
+                                    });
+                                });
+                            </script>
+
+                            <div class="ka_zli"><i></i>期望模式</div>
+                            <div id="itemssxb4">
+                                <nav class="custom_nav_n">
+                                    @foreach(\DB::table('option_expected_type')->get() as $option)
+                                        <div class="custom_s b1">{{$option->option_name}}<b class="cr_b">{{$option->option_content}}</b></div>
+                                    @endforeach
+                                </nav>
+                            </div>
+                            <script type="text/javascript">
+                                $(document).ready(function() {
+                                    $("#itemssxb4 .b1").on("click", function() {
+                                        $(this).toggleClass('cractive');
+                                    });
+                                });
+                                $(function(){
+                                    $('#itemssxb4 .b1').click(function(){
+                                        if($(this).children().is(':hidden'))
+                                        {
+                                            $(this).children().show();
+                                        }
+                                        else
+                                        {
+                                            $(this).children().hide();
+                                        }
+                                    })
+                                })
+                            </script>
+
+                            <div class="ka_zli cutop"><i></i>相處的頻率與模式</div>
+                            <div id="itemssxN5">
+                                <nav class="custom_nav_n">
+                                    @foreach(\DB::table('option_frequency_of_getting_along')->get() as $option)
+                                        <div class="custom_s a1">{{$option->option_name}}</div>
+                                    @endforeach
+                                </nav>
+                            </div>
+                            <script type="text/javascript">
+                                $(document).ready(function() {
+                                    $("#itemssxN5 .a1").on("click", function() {
+                                        $(this).toggleClass('cractive');
+                                    });
+                                });
+                            </script>
+
+                            <div class="ka_zli cutop"><i></i>或是其他你想說的</div>
+                            <textarea name="style" cols="" rows="3" class="custom_text">{{$umeta->style}}</textarea>
+                        </dt>
+                        @endif
+
                         <dt>
                             <span>肢體接觸<i>(必填)</i></span>
                             <select name="body_touch" id="body_touch" class="select_xx01">
@@ -507,15 +643,36 @@ dt span.engroup_type_title {display:inline-block;width:10%;white-space:nowrap;}
                             </select>
                         </span>
                     </dt>
-                    <dt>
-                        <span>關於我<i>(必填)</i></span>
-                        <span><textarea data-parsley-errors-messages-disabled name="about" cols="" rows="3" class="select_xx05">{{$umeta->about}}</textarea></span>
-                    </dt>
-                    <dt class="matopj15">
-                        <span>期待的約會模式<i>(必填)</i></span>
-                        <span><textarea data-parsley-errors-messages-disabled name="style" cols="" rows="3" class="select_xx05">{{$umeta->style}}</textarea></span>
-                    </dt>
+                    @if($user->engroup==1)
+                        <dt>
+                            <span>關於我<i>(必填)</i></span>
+                            <span><textarea data-parsley-errors-messages-disabled name="about" cols="" rows="3" class="select_xx05">{{$umeta->about}}</textarea></span>
+                        </dt>
+                        <dt class="matopj15">
+                            <span>期待的約會模式<i>(必填)</i></span>
+                            <span><textarea data-parsley-errors-messages-disabled name="style" cols="" rows="3" class="select_xx05">{{$umeta->style}}</textarea></span>
+                        </dt>
+                    @endif
+
                     @if($user->engroup==2)
+                        <dt>
+                            <span>感情狀況</span>
+                            <div id="itemssxN_RS">
+                                <nav class="custom_nav_n">
+                                    @foreach(\DB::table('option_relationship_status')->get() as $option)
+                                        <div class="custom_s a1">{{$option->option_name}}</div>
+                                    @endforeach
+                                </nav>
+                            </div>
+                            <script type="text/javascript">
+                                $(document).ready(function() {
+                                    $("#itemssxN_RS .a1").on("click", function() {
+                                        $(this).toggleClass('cractive');
+                                    });
+                                });
+                            </script>
+                        </dt>
+                        {{--
                         <dt class="matopj15">
                             <span>現況<i>(必填)</i></span>
                             <span>
@@ -544,21 +701,22 @@ dt span.engroup_type_title {display:inline-block;width:10%;white-space:nowrap;}
                                 </select>
                             </span>
                         </dt>
+                        --}}
                         <dt>
                             <span>工作/學業模式</span>
                             <span>
                                 <select id="new_occupation" name="new_occupation"  class="select_xx01">
                                     <option value="">請選擇</option>
-                                    @foreach($option['occupation'] as $option)
-                                        <option value={{$option->id}}  @if(($user_option['occupation']->option_id ?? 0) == $option->id) selected @endif>
+                                    @foreach(\App\Models\OptionOccupation::where('is_custom',false)->get() as $option)
+                                        <option value={{$option->id}}  @if(($user_option->occupation->option_id ?? 0) == $option->id) selected @endif>
                                             {{$option->option_name}}
                                         </option>
                                     @endforeach
-                                    <option value='other' @if(($user_option['occupation']->occupation->is_custom) ?? 0) selected @endif>
+                                    <option value='other' @if(($user_option->occupation->occupation->is_custom) ?? 0) selected @endif>
                                         其他(自填)
                                     </option>
                                 </select>
-                                <input id="new_occupation_other" name="new_occupation_other" value={{$user_option['occupation']->occupation->option_name ?? ''}} class="select_xx01" @if(!($user_option['occupation']->occupation->is_custom ?? 0)) style="display:none" @endif>
+                                <input id="new_occupation_other" name="new_occupation_other" value={{$user_option->occupation->occupation->option_name ?? ''}} class="select_xx01" @if(!($user_option->occupation->occupation->is_custom ?? 0)) style="display:none" @endif>
                             </span>
                             <div class="right" style="margin: 10px 0 -5px 10px;">
                                 <input type="hidden" name="isHideOccupation" value="0">

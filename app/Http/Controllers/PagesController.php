@@ -737,11 +737,22 @@ class PagesController extends BaseController
         }
 
         //系統固定選項
-        $option['occupation'] = OptionOccupation::where('is_custom',false)->get();
+        /*
+        $option = new \stdClass(); 
+        $option->occupation = OptionOccupation::where('is_custom',false)->get();
+        $option->relationship_status = DB::table('option_relationship_status')->get();
+        $option->looking_for_relationships = DB::table('option_looking_for_relationships')->get();
+        $option->expect = DB::table('option_expect')->get();
+        $option->favorite_food = DB::table('option_favorite_food')->get();
+        $option->preferred_date_location = DB::table('option_preferred_date_location')->get();
+        $option->expected_type = DB::table('option_expected_type')->get();
+        $option->frequency_of_getting_along = DB::table('option_frequency_of_getting_along')->get();
+        */
 
         //使用者選擇的選項
         $user_option_xref = UserOptionsXref::where('user_id', $user->id);
-        $user_option['occupation'] = $user_option_xref->clone()->where('option_type', 1)->first();
+        $user_option = new \stdClass();
+        $user_option->occupation = $user_option_xref->clone()->where('option_type', 1)->first();
 
         if ($user) {
 
@@ -779,7 +790,7 @@ class PagesController extends BaseController
                 ->with('no_avatar', isset($no_avatar)?$no_avatar->content:'')
                 ->with('pr', $pr)
                 //->with('isWarnedReason',$isWarnedReason)
-                ->with('option', $option)
+                //->with('option', $option)
                 ->with('user_option', $user_option)
                 ;
         }
