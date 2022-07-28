@@ -419,8 +419,8 @@ class OrderController extends \App\Http\Controllers\BaseController
         $ecpay = new \App\Services\ECPay_AllInOne();
         $ecpay->MerchantID = '1010336';
         $ecpay->ServiceURL = 'https://payment.funpoint.com.tw/Cashier/QueryTradeInfo/V5';
-        $ecpay->HashIV = 'xcmzAyKJM7I8gssu';
-        $ecpay->HashKey = '7h5B9EIcEWEFIkPW';
+        $ecpay->HashIV = '7h5B9EIcEWEFIkPW';
+        $ecpay->HashKey = 'xcmzAyKJM7I8gssu';
         $ecpay->Query = [
             'MerchantTradeNo' => $order_id,
             'TimeStamp' => time()
