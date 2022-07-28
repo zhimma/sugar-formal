@@ -440,10 +440,11 @@ dt span.engroup_type_title {display:inline-block;width:10%;white-space:nowrap;}
                             <div id="itemssxN">
                                 <nav class="custom_nav_n">
                                     @foreach(\DB::table('option_looking_for_relationships')->get() as $option)
-                                    <div class="custom_s a1">{{$option->option_name}}<b class="cr_b">{{$option->option_content}}</b></div>
+                                        <div class="custom_s a1 option_looking_for_relationships" value={{$option->id}}>{{$option->option_name}}<b class="cr_b">{{$option->option_content}}</b></div>
                                     @endforeach
                                 </nav>
                             </div>
+                            <input id="looking_for_relationships" type="hidden" name="looking_for_relationships" value="">
                             <script type="text/javascript">
                                 $(document).ready(function() {
                                     $("#itemssxN .a1").on("click", function() {
@@ -468,10 +469,11 @@ dt span.engroup_type_title {display:inline-block;width:10%;white-space:nowrap;}
                             <div id="itemssxN1">
                                 <nav class="custom_nav_n">
                                     @foreach(\DB::table('option_expect')->get() as $option)
-                                        <div class="custom_s a1">{{$option->option_name}}</div>
+                                        <div class="custom_s a1 option_expect" value={{$option->id}}>{{$option->option_name}}</div>
                                     @endforeach
                                 </nav>
                             </div>
+                            <input id="expect" type="hidden" name="expect" value="">
                             <script type="text/javascript">
                                 $(document).ready(function() {
                                     $("#itemssxN1 .a1").on("click", function() {
@@ -490,10 +492,11 @@ dt span.engroup_type_title {display:inline-block;width:10%;white-space:nowrap;}
                             <div id="itemssxN2">
                                 <nav class="custom_nav_n">
                                     @foreach(\DB::table('option_favorite_food')->get() as $option)
-                                        <div class="custom_s a1">{{$option->option_name}}</div>
+                                        <div class="custom_s a1 option_favorite_food" value={{$option->id}}>{{$option->option_name}}</div>
                                     @endforeach
                                 </nav>
                             </div>
+                            <input id="favorite_food" type="hidden" name="favorite_food" value="">
                             <script type="text/javascript">
                                 $(document).ready(function() {
                                     $("#itemssxN2 .a1").on("click", function() {
@@ -506,10 +509,11 @@ dt span.engroup_type_title {display:inline-block;width:10%;white-space:nowrap;}
                             <div id="itemssxN3">
                                 <nav class="custom_nav_n"> 
                                     @foreach(\DB::table('option_preferred_date_location')->get() as $option)
-                                        <div class="custom_s a1">{{$option->option_name}}</div>
+                                        <div class="custom_s a1 option_preferred_date_location" value={{$option->id}}>{{$option->option_name}}</div>
                                     @endforeach
                                 </nav>
                             </div>
+                            <input id="preferred_date_location" type="hidden" name="preferred_date_location" value="">
                             <script type="text/javascript">
                                 $(document).ready(function() {
                                     $("#itemssxN3 .a1").on("click", function() {
@@ -522,10 +526,11 @@ dt span.engroup_type_title {display:inline-block;width:10%;white-space:nowrap;}
                             <div id="itemssxb4">
                                 <nav class="custom_nav_n">
                                     @foreach(\DB::table('option_expected_type')->get() as $option)
-                                        <div class="custom_s b1">{{$option->option_name}}<b class="cr_b">{{$option->option_content}}</b></div>
+                                        <div class="custom_s b1 option_expected_type" value={{$option->id}}>{{$option->option_name}}<b class="cr_b">{{$option->option_content}}</b></div>
                                     @endforeach
                                 </nav>
                             </div>
+                            <input id="expected_type" type="hidden" name="expected_type" value="">
                             <script type="text/javascript">
                                 $(document).ready(function() {
                                     $("#itemssxb4 .b1").on("click", function() {
@@ -550,10 +555,11 @@ dt span.engroup_type_title {display:inline-block;width:10%;white-space:nowrap;}
                             <div id="itemssxN5">
                                 <nav class="custom_nav_n">
                                     @foreach(\DB::table('option_frequency_of_getting_along')->get() as $option)
-                                        <div class="custom_s a1">{{$option->option_name}}</div>
+                                        <div class="custom_s a1 option_frequency_of_getting_along" value={{$option->id}}>{{$option->option_name}}</div>
                                     @endforeach
                                 </nav>
                             </div>
+                            <input id="frequency_of_getting_along" type="hidden" name="frequency_of_getting_along" value="">
                             <script type="text/javascript">
                                 $(document).ready(function() {
                                     $("#itemssxN5 .a1").on("click", function() {
@@ -660,10 +666,11 @@ dt span.engroup_type_title {display:inline-block;width:10%;white-space:nowrap;}
                             <div id="itemssxN_RS">
                                 <nav class="custom_nav_n">
                                     @foreach(\DB::table('option_relationship_status')->get() as $option)
-                                        <div class="custom_s a1">{{$option->option_name}}</div>
+                                        <div class="custom_s a1 option_relationship_status" value={{$option->id}}>{{$option->option_name}}</div>
                                     @endforeach
                                 </nav>
                             </div>
+                            <input id="relationship_status" type="hidden" name="relationship_status" value="">
                             <script type="text/javascript">
                                 $(document).ready(function() {
                                     $("#itemssxN_RS .a1").on("click", function() {
@@ -1470,6 +1477,60 @@ dt span.engroup_type_title {display:inline-block;width:10%;white-space:nowrap;}
             });
         @endif
         //計算註冊時間
+
+        //複選選項處理為陣列
+        let option_array = [];
+
+        option_array = [];
+        $('.option_relationship_status.cractive').each(function(){
+            option_array.push($(this).attr('value'));
+        });
+        option_array = JSON.stringify(option_array);
+        $('#relationship_status').val(option_array);
+        
+        option_array = [];
+        $('.option_looking_for_relationships.cractive').each(function(){
+            option_array.push($(this).attr('value'));
+        });
+        option_array = JSON.stringify(option_array);
+        $('#looking_for_relationships').val(option_array);
+        
+        option_array = [];
+        $('.option_expect.cractive').each(function(){
+            option_array.push($(this).attr('value'));
+        });
+        option_array = JSON.stringify(option_array);
+        $('#expect').val(option_array);
+        
+        option_array = [];
+        $('.option_favorite_food.cractive').each(function(){
+            option_array.push($(this).attr('value'));
+        });
+        option_array = JSON.stringify(option_array);
+        $('#favorite_food').val(option_array);
+        
+        option_array = [];
+        $('.option_preferred_date_location.cractive').each(function(){
+            option_array.push($(this).attr('value'));
+        });
+        option_array = JSON.stringify(option_array);
+        $('#preferred_date_location').val(option_array);
+        
+        option_array = [];
+        $('.option_expected_type.cractive').each(function(){
+            option_array.push($(this).attr('value'));
+        });
+        option_array = JSON.stringify(option_array);
+        $('#expected_type').val(option_array);
+        
+        option_array = [];
+        $('.option_frequency_of_getting_along.cractive').each(function(){
+            option_array.push($(this).attr('value'));
+        });
+        option_array = JSON.stringify(option_array);
+        $('#frequency_of_getting_along').val(option_array);
+        
+        //複選選項處理為陣列
 
         e.preventDefault();
         if($(this).parsley().isValid()){
