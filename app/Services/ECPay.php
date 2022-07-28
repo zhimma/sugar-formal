@@ -767,13 +767,12 @@ class ECPay_QueryTradeInfo extends ECPay_Aio
             }
 
             // 驗證檢查碼。
-            // 在新增 FunPoint 後，暫時先註解掉，避免反向查詢時出現錯誤。
-            // if (sizeof($arFeedback) > 0) {
-            //     $szConfirmMacValue = ECPay_CheckMacValue::generate($arConfirmArgs,$HashKey,$HashIV,$EncryptType);
-            //     if ($szCheckMacValue != $szConfirmMacValue) {
-            //         array_push($arErrors, 'CheckMacValue verify fail.');
-            //     }
-            // }
+             if (sizeof($arFeedback) > 0) {
+                 $szConfirmMacValue = ECPay_CheckMacValue::generate($arConfirmArgs,$HashKey,$HashIV,$EncryptType);
+                 if ($szCheckMacValue != $szConfirmMacValue) {
+                     array_push($arErrors, 'CheckMacValue verify fail.');
+                 }
+             }
         }
 
         if (sizeof($arErrors) > 0) {
