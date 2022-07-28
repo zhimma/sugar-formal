@@ -190,6 +190,10 @@ class OrderController extends \App\Http\Controllers\BaseController
             'TimeStamp' => time()
         ];
         $paymentData = $ecpay->QueryTradeInfo();
+        
+        if($paymentData['TradeStatus']==10200047){
+            return back()->with('message','查無此訂單');
+        }
 
         $ecpay->ServiceURL = 'https://payment.ecpay.com.tw/Cashier/QueryCreditCardPeriodInfo';//定期定額查詢
         $paymentPeriodInfo = $ecpay->QueryPeriodCreditCardTradeInfo();
@@ -426,6 +430,10 @@ class OrderController extends \App\Http\Controllers\BaseController
             'TimeStamp' => time()
         ];
         $paymentData = $ecpay->QueryTradeInfo();
+
+        if($paymentData['TradeStatus']==10200047){
+            return back()->with('message','查無此訂單');
+        }
 
         $ecpay->ServiceURL = 'https://payment.funpoint.com.tw/Cashier/QueryCreditCardPeriodInfo';//定期定額查詢
         $paymentPeriodInfo = $ecpay->QueryPeriodCreditCardTradeInfo();
