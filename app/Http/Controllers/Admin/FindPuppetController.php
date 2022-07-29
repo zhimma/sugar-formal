@@ -172,12 +172,47 @@ class FindPuppetController extends \App\Http\Controllers\Controller
                         ,'type'=>''
                         ,'created_at'=>$edate
                         ,'updated_at'=>date('Y-m-d H:i:s')]);
+                    
+                    $exclude_email_arr = [
+                        ' testB01@gmail.com'
+                        ,' testB02@gmail.com'
+                        ,' testB03@gmail.com'
+                        ,' testB04@gmail.com'
+                        ,' testB05@gmail.com'
+                        ,' testB06@gmail.com'
+                        ,' testG01@gmail.com'
+                        ,' testG02@gmail.com'
+                        ,' testG03@gmail.com'
+                        ,' testG04@gmail.com'
+                        ,' testG05@gmail.com'
+                        ,' testG06@gmail.com'
+                        ,' testM1@gmail.com '
+                        ,' testM2@gmail.com '
+                        ,' testM3@gmail.com '
+                        ,' testM4@gmail.com '
+                        ,' testM5@gmail.com '
+                        ,' testM6@gmail.com '
+                        ,' testM7@gmail.com '
+                        ,' testM8@gmail.com '
+                        ,' testW1@gmail.com '
+                        ,' testW2@gmail.com '
+                        ,' testW3@gmail.com '
+                        ,' testW4@gmail.com '
+                        ,' testW5@gmail.com '
+                        ,' testW6@gmail.com '
+                        ,' testW7@gmail.com '
+                        ,' testW8@gmail.com '
+
+                    ];
+                    
+                    
                     $excludeUserId = array_pluck(User::whereHas('roles', function($query){
                         $query->where('name', 'like', '%admin%');
                     })->Select('id')->orwhere('id',1049)->orwhere('id',1)->orwhere('id',2)
                     ->orWhere('email', 'LIKE', 'sandyh.dlc%@gmail.com')
                     ->orWhere('email', 'LIKE', 'TEST%@test.com')
                     ->orWhere('email', 'LIKE', 'lzong.tw%@gmail.com')
+                    ->orWhereIn('email', $exclude_email_arr)
                     ->orwhereHas('meta', function($query){
                         $query->where('is_active', '0');
                     })
@@ -262,13 +297,16 @@ class FindPuppetController extends \App\Http\Controllers\Controller
                                 ->where('ip','NOT LIKE','172.68.%')
                                 ->where('ip','NOT LIKE','108.162.%')
                                 ->where('ip','NOT LIKE','103.22.201.%') 
-                                ->where('ip','NOT LIKE','172.225.%') 
+                                ->where('ip','NOT LIKE','172.225.%')
+                                ->where('ip','NOT LIKE','172.226.%')
+                                /*
                                 ->where('ip','NOT LIKE','172.226.71.%')      
                                 ->where('ip','NOT LIKE','172.226.72.%') 
                                 ->where('ip','NOT LIKE','172.226.73.%')  
                                 ->where('ip','NOT LIKE','172.226.74.31')
                                 ->where('ip','NOT LIKE','172.226.74.30')
-                                ->where('ip','NOT LIKE','172.226.74.%')    
+                                ->where('ip','NOT LIKE','172.226.74.%') 
+                                */
                                 ->where('ip','NOT LIKE','104.28.135.87') 
                                 ->where('ip','NOT LIKE','104.28.135.%') 
                                 ->where('ip','NOT LIKE','104.28.13%.%')

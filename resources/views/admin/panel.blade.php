@@ -64,6 +64,8 @@
 		<a href="{{ route('admin/user_record_view') }}">停留時間</a>
 		<a href="{{ route('admin/getEssenceStatisticsRecord') }}">精華文章統計資料</a>
 
+		<a href="{{ route('admin/feature_flags') }}">Feature Flags</a>
+
 	@elseif (Auth::user()->can('readonly'))
 		<a href="javascript:void(0)" class="closebtn" onclick="closeNav()">&times;</a>
 		<a href="{{ route('users/VIP/ECCancellations/readOnly') }}">綠界 VIP 付費取消資料</a>
