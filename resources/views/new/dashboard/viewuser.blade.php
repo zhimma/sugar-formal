@@ -1018,6 +1018,88 @@
                                             </dt>
                                         @endif
                                         
+                                        @if($to->engroup == 2)
+                                            <dt>
+                                                <span>關於我</span>
+                                                <span>
+                                                    <div class="ka_n">
+                                                        <div class="ka_gx">尋找關係</div>
+                                                        <div class="ka_tubicon">
+                                                            @foreach($looking_for_relationships as $option)
+                                                                @if($option->xref_id ?? false)
+                                                                    <div class="ka_tico_1"><img src="/new/images/zz_zb.png" class="ka_tico_tu01"><i>{{$option->option_name}}</i><img src="/new/images/zz_zb.png" class="ka_tico_tu02"></div>
+                                                                @endif
+                                                            @endforeach
+                                                        </div>
+
+                                                        <div class="ka_gx ka_fwi">對糖爹的期待</div>
+                                                        <div class="ka_tubicon">
+                                                            @foreach($expect as $option)
+                                                                @if($option->xref_id ?? false)
+                                                                    <div class="ka_tico_1"><img src="/new/images/zz_zb.png" class="ka_tico_tu01"><i>{{$option->option_name}}</i><img src="/new/images/zz_zb.png" class="ka_tico_tu02"></div>
+                                                                @endif
+                                                            @endforeach
+                                                        </div>
+
+                                                        <div class="ka_gx ka_fwi">或是其他你想說的</div>
+                                                        <div class="ka_tubicon_text">
+                                                            {{$to->meta->about ?? ''}}
+                                                        </div>
+                                                    </div>
+                                                </span>
+                                            </dt>
+                                        @endif
+
+                                        @if($to->engroup == 2)
+                                            <dt>
+                                                <span>期待的約會模式</span>
+                                                <span>
+                                                    <div class="ka_n">
+                                                        <div class="ka_gx">喜歡的食物</div>
+                                                        <div class="ka_tubicon">
+                                                            @foreach($favorite_food as $option)
+                                                                @if($option->xref_id ?? false)
+                                                                    <div class="ka_tico_1"><img src="/new/images/zz_zb.png" class="ka_tico_tu01"><i>{{$option->option_name}}</i><img src="/new/images/zz_zb.png" class="ka_tico_tu02"></div>
+                                                                @endif
+                                                            @endforeach
+                                                        </div>
+
+                                                        <div class="ka_gx ka_fwi">偏好約會地點</div>
+                                                        <div class="ka_tubicon">
+                                                            @foreach($preferred_date_location as $option)
+                                                                @if($option->xref_id ?? false)
+                                                                    <div class="ka_tico_1"><img src="/new/images/zz_zb.png" class="ka_tico_tu01"><i>{{$option->option_name}}</i><img src="/new/images/zz_zb.png" class="ka_tico_tu02"></div>
+                                                                @endif
+                                                            @endforeach
+                                                        </div>
+
+                                                        <div class="ka_gx ka_fwi">期望模式</div>
+                                                        <div class="ka_tubicon">
+                                                            @foreach($expected_type as $option)
+                                                                @if($option->xref_id ?? false)
+                                                                    <div class="ka_tico_1"><img src="/new/images/zz_zb.png" class="ka_tico_tu01"><i>{{$option->option_name}}</i><img src="/new/images/zz_zb.png" class="ka_tico_tu02"></div>
+                                                                @endif
+                                                            @endforeach
+                                                        </div>
+
+                                                        <div class="ka_gx ka_fwi">相處的頻率與模式</div>
+                                                        <div class="ka_tubicon">
+                                                            @foreach($frequency_of_getting_along as $option)
+                                                                @if($option->xref_id ?? false)
+                                                                    <div class="ka_tico_1"><img src="/new/images/zz_zb.png" class="ka_tico_tu01"><i>{{$option->option_name}}</i><img src="/new/images/zz_zb.png" class="ka_tico_tu02"></div>
+                                                                @endif
+                                                            @endforeach
+                                                        </div>
+
+                                                        <div class="ka_gx ka_fwi">或是其他你想說的</div>
+                                                        <div class="ka_tubicon_text">
+                                                            {{$to->meta->style ?? ''}}
+                                                        </div>
+                                                    </div>
+                                                </span>
+                                            </dt>
+                                        @endif
+
                                         @if(!empty($to->meta->body_touch) && $to->meta->body_touch != 'null' && $to->meta->is_hide_body_touch == '0')
                                             <dt>
                                                 <span>肢體接觸</span>
@@ -1047,7 +1129,7 @@
                                         @endif
                                     @endif
 
-                                    @if(!empty($to->meta->about))
+                                    @if(!empty($to->meta->about) && $to->engroup==1)
                                     <dt>
                                         <span>關於我</span>
                                         <span>
@@ -1056,7 +1138,7 @@
                                     </dt>
                                     @endif
 
-                                    @if(!empty($to->meta->style))
+                                    @if(!empty($to->meta->style) && $to->engroup==1)
                                     <dt>
                                         <span>期待的約會模式</span>
                                         <span>
@@ -1065,6 +1147,20 @@
                                     </dt>
                                     @endif
 
+                                    @if(($relationship_status->first()->xref_id ?? false) && $to->engroup==2)
+                                    <dt>
+                                        <span>感情狀況</span>
+                                        <div class="ka_tubicon">
+                                            @foreach($relationship_status as $option)
+                                                @if($option->xref_id ?? false)
+                                                    <div class="ka_tico_1"><img src="/new/images/zz_zb.png" class="ka_tico_tu01"><i>{{$option->option_name}}</i><img src="/new/images/zz_zb.png" class="ka_tico_tu02"></div>
+                                                @endif
+                                            @endforeach
+                                        </div>
+                                    </dt>
+                                    @endif
+
+                                    {{--
                                     @if(!empty($to->meta->situation) && $to->meta->situation != null && $to->meta->situation != 'null' && $to->engroup==2)
                                         <dt>
                                             <span>現況</span>
@@ -1073,6 +1169,7 @@
                                         </span>
                                         </dt>
                                     @endif
+                                    --}}
 
                                     @if(!empty($to->meta->domainType) && $to->meta->domainType != null && $to->meta->domainType != 'null' )
                                     <dt>
@@ -1083,11 +1180,20 @@
                                     </dt>
                                     @endif
 
-                                    @if(!empty($to->meta->occupation) && $to->meta->isHideOccupation == '0' && $user->isVip() && $to->meta->occupation != 'null')
+                                    @if(!empty($to->meta->occupation) && $to->meta->isHideOccupation == '0' && $user->isVip() && $to->meta->occupation != 'null' && $to->engroup==1)
                                     <dt>
                                         <span>職業</span>
                                         <span>
                                             <div class="select_xx01 senhs hy_new">{{$to->meta->occupation}}</div>
+                                        </span>
+                                    </dt>
+                                    @endif
+
+                                    @if($to->meta->isHideOccupation == '0' && $user->isVip() && ($user_option->occupation->option_id ?? false) && $to->engroup==2)
+                                    <dt>
+                                        <span>工作/學業</span>
+                                        <span>
+                                            <div class="select_xx01 senhs hy_new">{{$user_option->occupation->occupation->option_name}}</div>
                                         </span>
                                     </dt>
                                     @endif
