@@ -62,7 +62,9 @@
     
     function checkNotAcceptEmailMsg(email) {
         rs = true;
-        if(email.match('[^a-zA-Z]tp\.edu\.tw$')) rs=false;
+        //if(email.match('[^a-zA-Z]tp\.edu\.tw$')) rs=false;
+        if(email.match('@tp\.edu\.tw$')) rs=false;
+        if(email.match('\.tp\.edu\.tw$') && !email.match('[^a-zA-Z]cogsh\.tp\.edu\.tw$')) rs=false;
         if(email.match('[^a-zA-Z]educities\.edu\.tw$')) rs=false;
         if(!rs) {
             tabElt = $('#tab_general_confirm');

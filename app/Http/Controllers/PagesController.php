@@ -5050,9 +5050,10 @@ class PagesController extends BaseController
         $check_rs = null;
         
         if(!$email) return [ 'empty'];
-        if($_SERVER['SERVER_ADDR']=='127.0.0.1') return;
+
         if(substr($email,-7)!='.edu.tw' && substr($email,-7)!='@edu.tw') return [ 'not_edu'];
-        if(substr($email,-10)=='.tp.edu.tw' || substr($email,-10)=='@tp.edu.tw') return [ 'not_accept_edu'];
+        if(substr($email,-10)=='@tp.edu.tw') return [ 'not_accept_edu'];
+        if(substr($email,-10)=='.tp.edu.tw' && substr($email,-16)!='.cogsh.tp.edu.tw'  && substr($email,-16)!='@cogsh.tp.edu.tw') return [ 'not_accept_edu'];
         if(substr($email,-17)=='.educities.edu.tw' || substr($email,-17)=='@educities.edu.tw') return [ 'not_accept_edu'];
     }
     
@@ -5100,6 +5101,9 @@ class PagesController extends BaseController
                                                             .'<br>無法通過驗證'])
                     ->with('is_edu_mode', '1');
         } 
+        
+        if(config('memadvauth.user.email_test_send')==1 ) $email = $user->email;        
+        
         $user->advance_auth_email = $email;
         $user->save();        
         $this->service->setAndSendUserAdvAuthEmailToken($user);
