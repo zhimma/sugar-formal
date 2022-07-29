@@ -878,7 +878,8 @@ class PagesController extends BaseController
                 ->with('girl_to_vip', $girl_to_vip->content)
                 ->with('avatar', $avatar)
                 ->with('blurry_avatar', $blurryAvatar)
-                ->with('blurry_life_photo', $blurryLifePhoto);
+                ->with('blurry_life_photo', $blurryLifePhoto)
+                ->with('rap_service',$rap_service);
         }
     }
 
