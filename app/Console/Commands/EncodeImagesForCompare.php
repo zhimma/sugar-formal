@@ -70,7 +70,7 @@ class EncodeImagesForCompare extends Command
             
             if($specific_pic) $memPicQuery->where('pic',$specific_pic);
             else {
-                if(!app()->isProduction() || !app()->isLocal()) {
+                if(!app()->isProduction() && !app()->isLocal()) {
                     echo '本命令只能在正式站或測試環境下執行，已中止';
                     return;
                 }

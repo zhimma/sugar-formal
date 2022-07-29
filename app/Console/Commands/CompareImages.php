@@ -64,7 +64,7 @@ class CompareImages extends Command
             $dsort = $this->option('dsort');
             $force = $this->option('force');
             if(!$specific_pic) {
-                if(!app()->isProduction() || !app()->isLocal()) {
+                if(!app()->isProduction() && !app()->isLocal()) {
                     echo '本命令只能在正式站或測試環境下執行，已中止';
                     Log::info('CompareImages:本命令只能在正式站或測試環境下執行，已中止');
                     return;
