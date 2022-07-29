@@ -1643,17 +1643,17 @@ dt span.engroup_type_title {display:inline-block;width:10%;white-space:nowrap;}
                 c5('請輸入身高140～210');
                 return false;
             }
-            if(about.val().length < 4 || about.val().length > 300) {
-                about.focus();
-                c5('關於我：請輸入4～300個字');
-                return false;
-            }
             @if($user->engroup==1)
-            if(style.val().length < 4 || style.val().length > 300) {
-                style.focus();
-                c5('期待約會模式：請輸入4～300個字');
-                return false;
-            }
+                if(about.val().length < 4 || about.val().length > 300) {
+                    about.focus();
+                    c5('關於我：請輸入4～300個字');
+                    return false;
+                }
+                if(style.val().length < 4 || style.val().length > 300) {
+                    style.focus();
+                    c5('期待約會模式：請輸入4～300個字');
+                    return false;
+                }
             @endif
             if('{{$user->engroup}}' == '2'){
                 if(situation.val() === "") {
