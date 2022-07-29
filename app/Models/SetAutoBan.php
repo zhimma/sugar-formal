@@ -169,8 +169,10 @@ class SetAutoBan extends Model
         $user = User::where('id', $uid)->first();
         $count_of_user_login_with_desktop = LogUserLogin::where('user_id', $uid)
                                                 ->where(function($query){
+                                                    //Windows
                                                     $query->where('userAgent', 'like', '%' . 'Windows' . '%');
-                                                    $query->orwhere('userAgent', 'like', '%' . 'Macintosh' . '%');
+                                                    //Mac
+                                                    //$query->orwhere('userAgent', 'like', '%' . 'Macintosh' . '%');
                                                 })
                                                 ->count();
         if($user->engroup==2 && !$user->isPhoneAuth() && $count_of_user_login_with_desktop>=3 && $user->created_at>\Carbon\Carbon::now()->subDays(10))
