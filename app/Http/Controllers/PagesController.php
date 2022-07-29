@@ -844,31 +844,18 @@ class PagesController extends BaseController
                     ->with('cancel_notice', $cancel_notice)
                     ->with('girl_to_vip', $girl_to_vip->content);
             }
-            if($user->engroup==1){
-                return view('new.dashboard_img')
-                    ->with('user', $user)
-                    ->with('tabName', $tabName)
-                    ->with('cur', $user)
-                    ->with('year', $year)
-                    ->with('month', $month)
-                    ->with('day', $day)
-                    ->with('member_pics', $member_pics)
-                    ->with('girl_to_vip', $girl_to_vip->content)
-                    ->with('avatar', $avatar);
-            }else{
-                return view('new.dashboard_img')
-                    ->with('user', $user)
-                    ->with('tabName', $tabName)
-                    ->with('cur', $user)
-                    ->with('year', $year)
-                    ->with('month', $month)
-                    ->with('day', $day)
-                    ->with('member_pics', $member_pics)
-                    ->with('girl_to_vip', $girl_to_vip->content)
-                    ->with('avatar', $avatar)
-                    ->with('blurry_avatar', $blurryAvatar)
-                    ->with('blurry_life_photo', $blurryLifePhoto);
-            }
+            return view('new.dashboard_img')
+                ->with('user', $user)
+                ->with('tabName', $tabName)
+                ->with('cur', $user)
+                ->with('year', $year)
+                ->with('month', $month)
+                ->with('day', $day)
+                ->with('member_pics', $member_pics)
+                ->with('girl_to_vip', $girl_to_vip->content)
+                ->with('avatar', $avatar)
+                ->with('blurry_avatar', $blurryAvatar)
+                ->with('blurry_life_photo', $blurryLifePhoto);
         }
     }
 

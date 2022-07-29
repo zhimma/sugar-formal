@@ -155,12 +155,16 @@
                             @endif
                             @if($posts_list->total()>0)
                                 @foreach($posts_list as $detail)
+                                    @php
+                                        $uID=\App\Models\User::findById($detail->uid);
+                                        $isBlurAvatar = \App\Services\UserService::isBlurAvatar($uID, $user);
+                                    @endphp
                                     <a href="/dashboard/essence_post_detail/{{ $detail->pid }}">
                                         <li>
                                             <div class="{{ $detail->uid==1049 ? 'jh_blue' : ($detail->verify_status==2 ? 'jh_huise' : 'jh_huise hus_ad') }}">
                                                 <div class="{{ $detail->uid==1049 ? 'jh_biaoq' : ($detail->verify_status==2 ? 'jh_biaoq01' : 'jh_biaoq01 jh_biaoq01_hs') }}"><span><img src="/posts/images/{{ $detail->engroup==1 ? 'jh_03.png' : 'jh_09.png' }}">{{ \App\Models\EssencePosts::CATEGORY[$detail->category] }}</span></div>
                                                 <div class="jh_one">
-                                                    <div class="jh_one_img"><img src="@if(file_exists( public_path().$detail->umpic ) && $detail->umpic != ""){{$detail->umpic}} @elseif($detail->uengroup==2)/new/images/female.png @else/new/images/male.png @endif" class="imgov"></div>
+                                                    <div class="jh_one_img @if($isBlurAvatar) blur_img @endif"><img src="@if(file_exists( public_path().$detail->umpic ) && $detail->umpic != ""){{$detail->umpic}} @elseif($detail->uengroup==2)/new/images/female.png @else/new/images/male.png @endif" class="imgov"></div>
                                                     <div class="jh_fontw">{{ $detail->name }}<span>{{ date('Y-m-d H:i',strtotime($detail->post_updated_at)) }}</span></div>
                                                 </div>
                                                 <div class="jh_two">

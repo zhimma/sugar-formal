@@ -286,7 +286,6 @@ function requestBlurryAvatarDefault() {
                     <h2 class="h5" id="fileuploader-ajax">上傳照片 (點擊圖片可以裁切)<a href="javascript:;"  onclick="tour(fileuploader_ajax_tour)"><i class="ion ion-md-help-circle"></i></a></h2>
                     <h4>如未更新上傳後照片, 請嘗試重新整理<br>
                     如照片無法順利上傳，請點擊頁面最下方聯絡我們加站長 line 洽詢。</h4>
-                    @if($user->engroup==2)
                     <div class="two_container">
                         @php
                             $blurryAvatar = isset($blurry_avatar)? $blurry_avatar : '';
@@ -319,7 +318,6 @@ function requestBlurryAvatarDefault() {
                               <span><input name="picBlurryAvatar" type="checkbox" value="general" @if($isGeneral) checked @endif>普通會員</span>
                           </h4>
                     </div>
-                    @endif
                     
                     <div class="row mb-4 ">
                         <div class="col-sm-12 col-lg-12">
@@ -332,7 +330,6 @@ function requestBlurryAvatarDefault() {
                         </div>
                     </div>
 
-                    @if($user->engroup==2)
                     <div class="two_container" style="margin-top: 3%;">
                         @php
                             $blurryLifePhoto = isset($blurry_life_photo)? $blurry_life_photo : '';
@@ -371,7 +368,6 @@ function requestBlurryAvatarDefault() {
                               @endif
                           </h4>
                     </div>
-                    @endif
 
                     <div class="row mb-4 ">
                         <div class="col-sm-12 col-lg-12">
