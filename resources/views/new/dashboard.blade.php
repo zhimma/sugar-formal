@@ -439,8 +439,8 @@ dt span.engroup_type_title {display:inline-block;width:10%;white-space:nowrap;}
                             <div class="ka_zli"><i></i>尋找關係</div>
                             <div id="itemssxN">
                                 <nav class="custom_nav_n">
-                                    @foreach(\DB::table('option_looking_for_relationships')->get() as $option)
-                                        <div class="custom_s a1 option_looking_for_relationships" value={{$option->id}}>{{$option->option_name}}<b class="cr_b">{{$option->option_content}}</b></div>
+                                    @foreach($looking_for_relationships as $option)
+                                        <div class="custom_s a1 option_looking_for_relationships @if($option->xref_id ?? false) cractive @endif" value={{$option->id}}>{{$option->option_name}}<b class="cr_b" @if($option->xref_id ?? false) style="display: block" @endif>{{$option->option_content}}</b></div>
                                     @endforeach
                                 </nav>
                             </div>
@@ -468,8 +468,8 @@ dt span.engroup_type_title {display:inline-block;width:10%;white-space:nowrap;}
                             <div class="ka_zli cutop"><i></i>對糖爹的期待</div>
                             <div id="itemssxN1">
                                 <nav class="custom_nav_n">
-                                    @foreach(\DB::table('option_expect')->get() as $option)
-                                        <div class="custom_s a1 option_expect" value={{$option->id}}>{{$option->option_name}}</div>
+                                    @foreach($expect as $option)
+                                        <div class="custom_s a1 option_expect @if($option->xref_id ?? false) cractive @endif" value={{$option->id}}>{{$option->option_name}}</div>
                                     @endforeach
                                 </nav>
                             </div>
@@ -491,8 +491,8 @@ dt span.engroup_type_title {display:inline-block;width:10%;white-space:nowrap;}
                             <div class="ka_zli"><i></i>喜歡的食物</div>
                             <div id="itemssxN2">
                                 <nav class="custom_nav_n">
-                                    @foreach(\DB::table('option_favorite_food')->get() as $option)
-                                        <div class="custom_s a1 option_favorite_food" value={{$option->id}}>{{$option->option_name}}</div>
+                                    @foreach($favorite_food as $option)
+                                        <div class="custom_s a1 option_favorite_food @if($option->xref_id ?? false) cractive @endif" value={{$option->id}}>{{$option->option_name}}</div>
                                     @endforeach
                                 </nav>
                             </div>
@@ -508,8 +508,8 @@ dt span.engroup_type_title {display:inline-block;width:10%;white-space:nowrap;}
                             <div class="ka_zli"><i></i>偏好約會地點</div>
                             <div id="itemssxN3">
                                 <nav class="custom_nav_n"> 
-                                    @foreach(\DB::table('option_preferred_date_location')->get() as $option)
-                                        <div class="custom_s a1 option_preferred_date_location" value={{$option->id}}>{{$option->option_name}}</div>
+                                    @foreach($preferred_date_location as $option)
+                                        <div class="custom_s a1 option_preferred_date_location @if($option->xref_id ?? false) cractive @endif" value={{$option->id}}>{{$option->option_name}}</div>
                                     @endforeach
                                 </nav>
                             </div>
@@ -525,8 +525,8 @@ dt span.engroup_type_title {display:inline-block;width:10%;white-space:nowrap;}
                             <div class="ka_zli"><i></i>期望模式</div>
                             <div id="itemssxb4">
                                 <nav class="custom_nav_n">
-                                    @foreach(\DB::table('option_expected_type')->get() as $option)
-                                        <div class="custom_s b1 option_expected_type" value={{$option->id}}>{{$option->option_name}}<b class="cr_b">{{$option->option_content}}</b></div>
+                                    @foreach($expected_type as $option)
+                                        <div class="custom_s b1 option_expected_type @if($option->xref_id ?? false) cractive @endif" value={{$option->id}}>{{$option->option_name}}<b class="cr_b" @if($option->xref_id ?? false) style="display: block" @endif>{{$option->option_content}}</b></div>
                                     @endforeach
                                 </nav>
                             </div>
@@ -554,8 +554,8 @@ dt span.engroup_type_title {display:inline-block;width:10%;white-space:nowrap;}
                             <div class="ka_zli cutop"><i></i>相處的頻率與模式</div>
                             <div id="itemssxN5">
                                 <nav class="custom_nav_n">
-                                    @foreach(\DB::table('option_frequency_of_getting_along')->get() as $option)
-                                        <div class="custom_s a1 option_frequency_of_getting_along" value={{$option->id}}>{{$option->option_name}}</div>
+                                    @foreach($frequency_of_getting_along as $option)
+                                        <div class="custom_s a1 option_frequency_of_getting_along @if($option->xref_id ?? false) cractive @endif" value={{$option->id}}>{{$option->option_name}}</div>
                                     @endforeach
                                 </nav>
                             </div>
@@ -665,8 +665,8 @@ dt span.engroup_type_title {display:inline-block;width:10%;white-space:nowrap;}
                             <span>感情狀況</span>
                             <div id="itemssxN_RS">
                                 <nav class="custom_nav_n">
-                                    @foreach(\DB::table('option_relationship_status')->get() as $option)
-                                        <div class="custom_s a1 option_relationship_status" value={{$option->id}}>{{$option->option_name}}</div>
+                                    @foreach($relationship_status as $option)
+                                        <div class="custom_s a1 option_relationship_status @if($option->xref_id ?? false) cractive @endif" value={{$option->id}}>{{$option->option_name}}</div>
                                     @endforeach
                                 </nav>
                             </div>
@@ -1477,60 +1477,92 @@ dt span.engroup_type_title {display:inline-block;width:10%;white-space:nowrap;}
             });
         @endif
         //計算註冊時間
+        
+        @if($user->engroup==2)
+            //複選選項處理為陣列
+            let option_array = [];
 
-        //複選選項處理為陣列
-        let option_array = [];
+            option_array = [];
+            $('.option_relationship_status.cractive').each(function(){
+                option_array.push($(this).attr('value'));
+            });
+            option_array = JSON.stringify(option_array);
+            $('#relationship_status').val(option_array);
+            
 
-        option_array = [];
-        $('.option_relationship_status.cractive').each(function(){
-            option_array.push($(this).attr('value'));
-        });
-        option_array = JSON.stringify(option_array);
-        $('#relationship_status').val(option_array);
-        
-        option_array = [];
-        $('.option_looking_for_relationships.cractive').each(function(){
-            option_array.push($(this).attr('value'));
-        });
-        option_array = JSON.stringify(option_array);
-        $('#looking_for_relationships').val(option_array);
-        
-        option_array = [];
-        $('.option_expect.cractive').each(function(){
-            option_array.push($(this).attr('value'));
-        });
-        option_array = JSON.stringify(option_array);
-        $('#expect').val(option_array);
-        
-        option_array = [];
-        $('.option_favorite_food.cractive').each(function(){
-            option_array.push($(this).attr('value'));
-        });
-        option_array = JSON.stringify(option_array);
-        $('#favorite_food').val(option_array);
-        
-        option_array = [];
-        $('.option_preferred_date_location.cractive').each(function(){
-            option_array.push($(this).attr('value'));
-        });
-        option_array = JSON.stringify(option_array);
-        $('#preferred_date_location').val(option_array);
-        
-        option_array = [];
-        $('.option_expected_type.cractive').each(function(){
-            option_array.push($(this).attr('value'));
-        });
-        option_array = JSON.stringify(option_array);
-        $('#expected_type').val(option_array);
-        
-        option_array = [];
-        $('.option_frequency_of_getting_along.cractive').each(function(){
-            option_array.push($(this).attr('value'));
-        });
-        option_array = JSON.stringify(option_array);
-        $('#frequency_of_getting_along').val(option_array);
-        
-        //複選選項處理為陣列
+            option_array = [];
+            $('.option_looking_for_relationships.cractive').each(function(){
+                option_array.push($(this).attr('value'));
+            });
+            if(option_array.length === 0) {
+                c5('請輸入尋找關係');
+                return false;
+            }
+            option_array = JSON.stringify(option_array);
+            $('#looking_for_relationships').val(option_array);
+            
+
+            option_array = [];
+            $('.option_expect.cractive').each(function(){
+                option_array.push($(this).attr('value'));
+            });
+            if(option_array.length === 0) {
+                c5('請輸入對糖爹的期待');
+                return false;
+            }
+            option_array = JSON.stringify(option_array);
+            $('#expect').val(option_array);
+            
+
+            option_array = [];
+            $('.option_favorite_food.cractive').each(function(){
+                option_array.push($(this).attr('value'));
+            });
+            if(option_array.length === 0) {
+                c5('請輸入喜歡的食物');
+                return false;
+            }
+            option_array = JSON.stringify(option_array);
+            $('#favorite_food').val(option_array);
+            
+
+            option_array = [];
+            $('.option_preferred_date_location.cractive').each(function(){
+                option_array.push($(this).attr('value'));
+            });
+            if(option_array.length === 0) {
+                c5('請輸入偏好約會地點');
+                return false;
+            }
+            option_array = JSON.stringify(option_array);
+            $('#preferred_date_location').val(option_array);
+            
+
+            option_array = [];
+            $('.option_expected_type.cractive').each(function(){
+                option_array.push($(this).attr('value'));
+            });
+            if(option_array.length === 0) {
+                c5('請輸入期望模式');
+                return false;
+            }
+            option_array = JSON.stringify(option_array);
+            $('#expected_type').val(option_array);
+            
+
+            option_array = [];
+            $('.option_frequency_of_getting_along.cractive').each(function(){
+                option_array.push($(this).attr('value'));
+            });
+            if(option_array.length === 0) {
+                c5('請輸入相處的頻率與模式');
+                return false;
+            }
+            option_array = JSON.stringify(option_array);
+            $('#frequency_of_getting_along').val(option_array);
+            
+            //複選選項處理為陣列
+        @endif
 
         e.preventDefault();
         if($(this).parsley().isValid()){
@@ -1616,11 +1648,13 @@ dt span.engroup_type_title {display:inline-block;width:10%;white-space:nowrap;}
                 c5('關於我：請輸入4～300個字');
                 return false;
             }
+            @if($user->engroup==1)
             if(style.val().length < 4 || style.val().length > 300) {
                 style.focus();
                 c5('期待約會模式：請輸入4～300個字');
                 return false;
             }
+            @endif
             if('{{$user->engroup}}' == '2'){
                 if(situation.val() === "") {
                 situation.focus();

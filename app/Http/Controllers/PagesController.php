@@ -737,17 +737,78 @@ class PagesController extends BaseController
         }
 
         //系統固定選項
-        /*
-        $option = new \stdClass(); 
-        $option->occupation = OptionOccupation::where('is_custom',false)->get();
-        $option->relationship_status = DB::table('option_relationship_status')->get();
-        $option->looking_for_relationships = DB::table('option_looking_for_relationships')->get();
-        $option->expect = DB::table('option_expect')->get();
-        $option->favorite_food = DB::table('option_favorite_food')->get();
-        $option->preferred_date_location = DB::table('option_preferred_date_location')->get();
-        $option->expected_type = DB::table('option_expected_type')->get();
-        $option->frequency_of_getting_along = DB::table('option_frequency_of_getting_along')->get();
-        */
+
+        //$option->occupation = OptionOccupation::where('is_custom',false)->get();
+        $relationship_status = DB::table('option_relationship_status')
+                                    ->leftJoin('user_options_xref', function($join) use($user)
+                                    {
+                                        $join->on('option_relationship_status.id', '=', 'user_options_xref.option_id')
+                                            ->where('user_options_xref.user_id', '=', $user->id)
+                                            ->where('user_options_xref.option_type', '=', 2)
+                                            ;
+                                    })
+                                    ->select('option_relationship_status.*', 'user_options_xref.id as xref_id')
+                                    ->get();
+        $looking_for_relationships = DB::table('option_looking_for_relationships')
+                                    ->leftJoin('user_options_xref', function($join) use($user)
+                                    {
+                                        $join->on('option_looking_for_relationships.id', '=', 'user_options_xref.option_id')
+                                            ->where('user_options_xref.user_id', '=', $user->id)
+                                            ->where('user_options_xref.option_type', '=', 3)
+                                            ;
+                                    })
+                                    ->select('option_looking_for_relationships.*', 'user_options_xref.id as xref_id')
+                                    ->get();
+        $expect = DB::table('option_expect')
+                                    ->leftJoin('user_options_xref', function($join) use($user)
+                                    {
+                                        $join->on('option_expect.id', '=', 'user_options_xref.option_id')
+                                            ->where('user_options_xref.user_id', '=', $user->id)
+                                            ->where('user_options_xref.option_type', '=', 4)
+                                            ;
+                                    })
+                                    ->select('option_expect.*', 'user_options_xref.id as xref_id')
+                                    ->get();
+        $favorite_food = DB::table('option_favorite_food')
+                                    ->leftJoin('user_options_xref', function($join) use($user)
+                                    {
+                                        $join->on('option_favorite_food.id', '=', 'user_options_xref.option_id')
+                                            ->where('user_options_xref.user_id', '=', $user->id)
+                                            ->where('user_options_xref.option_type', '=', 5)
+                                            ;
+                                    })
+                                    ->select('option_favorite_food.*', 'user_options_xref.id as xref_id')
+                                    ->get();
+        $preferred_date_location = DB::table('option_preferred_date_location')
+                                    ->leftJoin('user_options_xref', function($join) use($user)
+                                    {
+                                        $join->on('option_preferred_date_location.id', '=', 'user_options_xref.option_id')
+                                            ->where('user_options_xref.user_id', '=', $user->id)
+                                            ->where('user_options_xref.option_type', '=', 6)
+                                            ;
+                                    })
+                                    ->select('option_preferred_date_location.*', 'user_options_xref.id as xref_id')
+                                    ->get();
+        $expected_type = DB::table('option_expected_type')
+                                    ->leftJoin('user_options_xref', function($join) use($user)
+                                    {
+                                        $join->on('option_expected_type.id', '=', 'user_options_xref.option_id')
+                                            ->where('user_options_xref.user_id', '=', $user->id)
+                                            ->where('user_options_xref.option_type', '=', 7)
+                                            ;
+                                    })
+                                    ->select('option_expected_type.*', 'user_options_xref.id as xref_id')
+                                    ->get();
+        $frequency_of_getting_along = DB::table('option_frequency_of_getting_along')
+                                    ->leftJoin('user_options_xref', function($join) use($user)
+                                    {
+                                        $join->on('option_frequency_of_getting_along.id', '=', 'user_options_xref.option_id')
+                                            ->where('user_options_xref.user_id', '=', $user->id)
+                                            ->where('user_options_xref.option_type', '=', 8)
+                                            ;
+                                    })
+                                    ->select('option_frequency_of_getting_along.*', 'user_options_xref.id as xref_id')
+                                    ->get();
 
         //使用者選擇的選項
         $user_option_xref = UserOptionsXref::where('user_id', $user->id);
@@ -790,8 +851,14 @@ class PagesController extends BaseController
                 ->with('no_avatar', isset($no_avatar)?$no_avatar->content:'')
                 ->with('pr', $pr)
                 //->with('isWarnedReason',$isWarnedReason)
-                //->with('option', $option)
                 ->with('user_option', $user_option)
+                ->with('relationship_status', $relationship_status)
+                ->with('looking_for_relationships', $looking_for_relationships)
+                ->with('expect', $expect)
+                ->with('favorite_food', $favorite_food)
+                ->with('preferred_date_location', $preferred_date_location)
+                ->with('expected_type', $expected_type)
+                ->with('frequency_of_getting_along', $frequency_of_getting_along)
                 ;
         }
     }
