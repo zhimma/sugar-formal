@@ -71,6 +71,10 @@ class Handler extends ExceptionHandler
                     ->withInput($request->except('password', '_token'))
                     ->withError('驗證已過期，請再試一次');
         }
+        // if ($exception->getStatusCode() == 403) {
+        //     return response()->view('errors.exception',[ 'exception' => '網站維護中:']);
+        // }
+        
         // if($exception instanceof \Illuminate\Http\Exceptions\ThrottleRequestsException){
         //     return parent::render($request, $exception);
         // }

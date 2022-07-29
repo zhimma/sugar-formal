@@ -101,5 +101,6 @@ class Kernel extends HttpKernel
         "FaqCheck"=>\App\Http\Middleware\FaqCheck::class,
         //登入三次更新包養關係
         'AdjustedPeriodCheck'=>\App\Http\Middleware\AdjustedPeriodCheck::class,
+        'feature' => \YlsIdeas\FeatureFlags\Middleware\FeatureFlagState::class,
     ];
 }

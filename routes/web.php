@@ -14,7 +14,7 @@ use App\Http\Controllers\Api\CfpController;
 | to using a given Closure or controller and enjoy the fresh air.
 |
 */
-
+// Route::group(['middleware' => ['feature:site-maintenance-mode']], function () {
 
 Route::get('/fingerprint', 'PagesController@fingerprint');
 Route::post('/saveFingerprint', 'PagesController@saveFingerprint')->name('saveFingerprint');
@@ -931,6 +931,13 @@ Route::group(['middleware' => ['auth', 'global', 'active', 'femaleActive', 'vipC
         Route::get('admin/user_visited_time_view', 'UserController@user_visited_time_view')->name('admin/user_visited_time_view');
         Route::get('admin/user_online_time_view', 'UserController@user_online_time_view')->name('admin/user_online_time_view');
         
+        Route::get('global/feature_flags', 'UserController@feature_flags')->name('admin/feature_flags');
+        Route::get('global/feature_flags/create', 'UserController@feature_flags_create');
+        Route::post('global/feature_flags/create', 'UserController@feature_flags_create');
+        Route::get('global/feature_flags/edit/{feature_key}', 'UserController@feature_flags_edit');
+        Route::post('global/feature_flags/edit', 'UserController@feature_flags_edit');
+        Route::post('global/feature_flags/update', 'UserController@feature_flags_update');
+        Route::post('global/feature_flags/delete', 'UserController@feature_flags_delete');
     });
     Route::group(['prefix' => 'admin', 'middleware' => 'Admin'], function () {
         //寄退信Log查詢
@@ -1014,3 +1021,4 @@ Route::group(['middleware' => ['auth', 'global', 'active', 'femaleActive', 'vipC
 Route::get('/test', 'ImageController@deletePictures');
 
 Route::get('/cfp', [CfpController::class, 'cfp']);
+// });
