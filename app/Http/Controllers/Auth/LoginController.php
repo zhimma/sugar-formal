@@ -300,13 +300,15 @@ class LoginController extends \App\Http\Controllers\BaseController
                 }
             }
         }
-        //更新login_times
-        User::where('id',$user->id)->update(['login_times'=>$user->login_times +1]);
         //更新教學<->登入次數
         User::where('id',$user->id)->update(['intro_login_times'=>$user->intro_login_times +1]);
         //更新會員專屬頁通知<->登入次數
         User::where('id',$user->id)->update(['line_notify_alert'=>$user->line_notify_alert +1]);
-
+        
+        //移至LogSuccessfulLoginListener
+        /*
+        //更新login_times
+        User::where('id',$user->id)->update(['login_times'=>$user->login_times +1]);
         if($request->cfp_hash && strlen($request->cfp_hash) == 50){
             $cfp = \App\Services\UserService::checkcfp($request->cfp_hash, $user->id);
             //新增登入紀錄
@@ -376,6 +378,7 @@ class LoginController extends \App\Http\Controllers\BaseController
         catch (\Exception $e){
             logger($e);
         }
+        */
     }
     public function get_mac_address(){
         $string=exec('getmac');
