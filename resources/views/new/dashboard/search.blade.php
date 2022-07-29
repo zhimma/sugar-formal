@@ -835,6 +835,80 @@ header("Expires: Fri, 01 Jan 1990 00:00:00 GMT");
                     "page_pre":"{{$page_pre}}"
                 }
             },
+            methods: {
+                isRealAuthNeedShowTagOnPic(dataRow)
+                {
+                   
+                    var isSelfAuth = dataRow.visitorIsSelfAuth;
+                    var isBeautyAuth = dataRow.visitorIsBeautyAuth;
+                    var isFamousAuth = dataRow.visitorIsFamousAuth;            
+
+                    if(isSelfAuth || isBeautyAuth  || isFamousAuth) {
+                        return true;    
+                    }
+                    
+                    return false;
+                    
+                },
+
+                getTagShowOnPic(dataRow) 
+                {
+                    var tagHtml = '';
+                    var row = dataRow;
+                    var isSelfAuth = row.visitorIsSelfAuth;
+                    var isBeautyAuth = row.visitorIsBeautyAuth;
+                    var isFamousAuth = row.visitorIsFamousAuth; 
+
+                    if(isBeautyAuth || isFamousAuth) {
+                        if(isBeautyAuth) {
+                            tagHtml+=this.getTagShowOnPicByAuthType(2);
+                        }
+                    
+                        if(isFamousAuth) {
+                            tagHtml+=this.getTagShowOnPicByAuthType(3);
+                        }            
+                    }
+                    else if(isSelfAuth) {
+                        tagHtml+=this.getTagShowOnPicByAuthType(1);
+                    }
+
+                    return tagHtml;            
+                },
+
+                getTagShowOnPicByAuthType(auth_type)
+                {
+                    var tagHtml = '';
+                    
+                    switch(auth_type) {
+                        case 1:
+                            tagHtml = this.getSelfAuthTagShowOnPic();
+                        break;
+                        case 2:
+                            tagHtml = this.getBeautyAuthTagShowOnPic();
+                        break;
+                        case 3:
+                            tagHtml = this.getFamousAuthTagShowOnPic();
+                        break; 
+                    }
+                    
+                    return tagHtml;
+                },      
+
+                getSelfAuthTagShowOnPic()
+                {
+                    return '{!!str_replace("\n","'+\n'",str_replace("\r","",$rap_service->getSelfAuthTagShowOnPicLayoutByLoginedUserIsVip($user->isVip(),true))) !!}';
+                },
+
+                getBeautyAuthTagShowOnPic()
+                {
+                    return '{!!str_replace("\n","'+\n'",str_replace("\r","",$rap_service->getBeautyAuthTagShowOnPicLayoutByLoginedUserIsVip($user->isVip(),true))) !!}';
+                },
+
+                getFamousAuthTagShowOnPic()
+                {
+                    return '{!!str_replace("\n","'+\n'",str_replace("\r","",$rap_service->getFamousAuthTagShowOnPicLayoutByLoginedUserIsVip($user->isVip(),true))) !!}';
+                }                 
+            },
         mounted () {
 
              let post_data = {
@@ -896,7 +970,7 @@ header("Expires: Fri, 01 Jan 1990 00:00:00 GMT");
                         }
                     }
                    
-                   
+
                     let arr = [];
                     if(this.dataList.length>=1){                   
                         let csrdDataPre = '';
@@ -983,8 +1057,11 @@ header("Expires: Fri, 01 Jan 1990 00:00:00 GMT");
                                 if(umeta.is_pure_dating==0){
                                     csrData +='<img src="/new/images/zz_02.png" style="float: right;">';
                                 }
+                            }                            
+                            if(this.isRealAuthNeedShowTagOnPic(row)) {
+                                csrData += this.getTagShowOnPic(row);
                             }
-                            if(umetaIsWarned==1 || rowVisitorIsAdminWarned==1){
+                            else if(umetaIsWarned==1 || rowVisitorIsAdminWarned==1){
                                 csrData +='<div class="hoverTip">';
                                     csrData +='<div class="tagText" data-toggle="popover" data-content="此會員為警示會員，與此會員交流務必提高警覺！">';
                                     if(this.userIsVip==1){
@@ -1214,6 +1291,7 @@ header("Expires: Fri, 01 Jan 1990 00:00:00 GMT");
             return (typeof variable !== 'undefined' && typeof variable !== undefined && typeof variable !== 'null' && typeof variable !== null && variable!==undefined && variable !=='undefined' && variable !== null && variable !=='null');
         }
     </script>
+
 @endsection
 
 

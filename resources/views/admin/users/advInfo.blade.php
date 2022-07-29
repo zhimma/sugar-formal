@@ -8,7 +8,10 @@
         max-width: 600px; /* Max Width of the popover (depending on the container!) */
     }
     .gray {color:#C0C0C0;}
-    #adv_auth_block_user.btn-secondary,#adv_auth_warned_user.btn-secondary {
+    #real_auth_actor_container {display:inline;}
+    #real_auth_actor_container .btn-primary {background:#FF44FF;}
+    #real_auth_actor_container .btn-secondary {color:black !important;}
+    #real_auth_actor_container .btn-secondary, #adv_auth_block_user.btn-secondary,#adv_auth_warned_user.btn-secondary {
         cursor: default;
         color: #fff;
         /*
@@ -45,6 +48,7 @@
     #autoban_pic_gather .autoban_pic_unit label {padding:0 10px 10px 10px;} 
     #autoban_pic_gather .autoban_pic_unit label span {display:block;text-align:center;font-size:4px;}
     #autoban_pic_gather .autoban_pic_unit input:checked+label {background:#1E90FF;}
+
 </style>
 
 <body style="padding: 15px;">
@@ -209,9 +213,16 @@
         <input type="hidden" name='user_id' value="{{ $user->id }}">
         <input type="hidden" name='is_real' value="{{ $user->is_real }}">
         <button type="submit" class="btn {{ $user->is_real? 'btn-warning' : 'btn-danger' }}">{{ $user->is_real ? '是本人' : '非本人' }}</button>
-    </form>
-    
+    </form>   
+
     @if($user->engroup==2)
+    <div id="real_auth_actor_container">
+        <a class="btn {{$raa_service->getActorClassAttrByAuthTypeId(1)}}" id="self_auth_actor" href="javascript:void(0)" data-auth_type_id="1" data-auth_name="本人認證" data-user_id="{{ $user['id'] }}"  data-latest_modify_id="{{$raa_service->getLatestUncheckedModifyIdByAuthTypeId(1)}}" >{{$raa_service->getStatusActorPrefixByAuthTypeId(1)}}本人認證</a>
+        <a class="btn {{$raa_service->getActorClassAttrByAuthTypeId(2)}}" id="beauty_auth_actor" href="javascript:void(0)" data-auth_type_id="2" data-auth_name="美顏推薦"  data-user_id="{{ $user['id'] }}"    data-latest_modify_id="{{$raa_service->getLatestUncheckedModifyIdByAuthTypeId(2)}}">{{$raa_service->getStatusActorPrefixByAuthTypeId(2)}}美顏推薦</a>
+        <a class="btn {{$raa_service->getActorClassAttrByAuthTypeId(3)}}" id="famous_auth_actor" href="javascript:void(0)" data-auth_type_id="3" data-auth_name="名人認證"  data-user_id="{{ $user['id'] }}"    data-latest_modify_id="{{$raa_service->getLatestUncheckedModifyIdByAuthTypeId(3)}}">{{$raa_service->getStatusActorPrefixByAuthTypeId(3)}}名人認證</a>
+        <a class="btn {{$raa_service->getModifyCheckActorClassAttr()}}" id="modify_check_actor" href="javascript:void(0)" data-latest_modify_id="{{$user->latest_real_auth_user_modify->id??null}}" data-auth_name="資料異動"  data-user_id="{{ $user['id'] }}" >{{$raa_service->getModifyCheckActorPrefix()}}資料異動</a>
+        <a class="btn btn-info" href="{{route('admin/editRealAuth_sendMsg',['id'=>$user->id])}}">站長補件</a>
+    </div>     
     <form method="POST" id="form_exchange_period" action="{{ route('changeExchangePeriod') }}" style="margin:0px;display:inline;">
         {!! csrf_field() !!}
         <select class="form-control" style="width:auto; display: inline;" name="exchange_period" id="exchange_period">
@@ -586,13 +597,13 @@
         <th>生日</th>
         <td>{{ date('Y-m-d', strtotime($userMeta->birthdate)) }}</td>
         <th>身高</th>
-        <td>{{ $userMeta->height }}</td>
+        <td>{{ $userMeta->height }}{!!$raa_service->getActualUncheckedHeightLayout()!!}</td>
         <th>職業</th>
         <td>{{ $userMeta->occupation }}</td>
     </tr>
     <tr>
         <th>體重</th>
-        <td>{{ $userMeta->weight }}</td>
+        <td>{{ $userMeta->weight }}{!!$raa_service->getActualUncheckedWeightLayout()!!}</td>
         <th>罩杯</th>
         <td>{{ $userMeta->cup }}</td>
         <th>體型</th>
@@ -684,6 +695,44 @@
     }
 
 @endphp
+<br>
+<table class="table table-hover table-bordered" style="width: 60%;">
+    <tr>
+    @if($raa_service->getApplyByAuthTypeId(2))
+       <td>
+            <div class="shou">
+                <h4>
+                    <a href="{{route('admin/checkBeautyAuthForm',['user_id'=>$raa_service->apply_entry()->user->id])}}" target="_blank">{{$raa_service->apply_entry()->real_auth_type->name??null}}</a>
+
+                </h4>
+                @if($raa_service->apply_entry()->status==2)
+                   <div>(已取消認證)</div>
+                @endif        
+            </div>
+        </td>
+    @endif
+    @if($raa_service->getApplyByAuthTypeId(3))
+        <td>
+            <div class="shou">
+                <h4>
+                    <a href="{{route('admin/checkFamousAuthForm',['user_id'=>$raa_service->apply_entry()->user->id])}}" target="_blank">{{$raa_service->apply_entry()->real_auth_type->name??null}}</a>      
+                </h4>
+                @if($raa_service->apply_entry()->status==2)
+                   <div >(已取消認證)</div>
+                @endif         
+            </div>
+        </td>
+    @endif
+    @if($user_video_verify_record->count() || ($raa_service->getApplyByAuthTypeId(1) && $raa_service->apply_entry()->real_auth_user_modify->where('item_id',4)->count()))
+        <td>
+            <div id="video_chat_block">
+                <h4><a href="{{route('users/video_chat_verify_record',['user_id'=>$user->id])}}" target="_blank">視訊歷程紀錄</a></h4>
+            </div>
+        </td>
+    @endif    
+    </tr>
+</table>
+
 <br>
 @if($isEverWarned_log || $isEverBanned_log || $isWarned_show || $isBanned_show)
     <h4>封鎖與警示紀錄</h4>
@@ -1863,6 +1912,7 @@
                     $exchange_period_name = DB::table('exchange_period_name')->where('id',$user->exchange_period)->first();
                 @endphp
                 {{$exchange_period_name->name}}
+                {!!$raa_service->getActualUncheckedExchangePeriodLayout()!!}
             </td>
 
 
@@ -2455,6 +2505,96 @@ $(".unwarned_user").click(function(){
             dataType:"json",
             success: function(res){
                 alert('已解除站方警示');
+                location.reload();
+            }});
+    }
+    else{
+        return false;
+    }
+});
+
+
+$(".real_auth_pass").click(function(){
+    var now_elt = $(this);
+    var data = now_elt.data();
+    var additional_str = '';
+    if(data.auth_type_id=='2'　&& $('#self_auth_actor').hasClass('real_auth_pass')) {
+        additional_str = '\n\n( 本人認證將一併通過 )\n\n';
+    }      
+    if(confirm('確定要通過此會員的'+data.auth_name+'申請?'+additional_str)){
+        $.ajax({
+            type: 'POST',
+            url: "{{route('admin/passRealAuth')}}?{{csrf_token()}}={{now()->timestamp}}",
+            data:{
+                _token: '{{csrf_token()}}',
+                data: data,
+            },
+            dataType:"json",
+            beforeSend: function(){
+                now_elt.html('處理中-'+now_elt.html().replace('處理中-','')).css('color','black');
+            },
+            success: function(res){
+                if(res==1 )alert('已通過'+data.auth_name);
+                else if(res==2) {
+                    alert('無法通過'+data.auth_name+'，發現有新送出的修改，頁面將自動重新整理，請重新審核'+data.auth_name);
+                }
+                else alert('儲存失敗，無法通過此會員的'+data.auth_name+'申請');
+                location.reload();
+            }});
+    }
+    else{
+        return false;
+    }
+});
+
+$(".modify_check_pass").click(function(){
+    var now_elt=$(this),data = $(this).data();
+  
+    if(confirm('確定要通過此會員的'+data.auth_name+'資料異動申請?')){
+        $.ajax({
+            type: 'POST',
+            url: "{{route('admin/passRealAuthModify')}}?{{csrf_token()}}={{now()->timestamp}}",
+            data:{
+                _token: '{{csrf_token()}}',
+                data: data,
+            },
+            dataType:"json",
+            beforeSend: function(){
+                now_elt.html('處理中-'+now_elt.html().replace('處理中-','')).css('color','black');
+            },            
+            success: function(res){
+                if(res==1 )alert('已通過'+data.auth_name);
+                else alert('儲存失敗，無法通過此會員的'+data.auth_name+'申請');
+                location.reload();
+            }});
+    }
+    else{
+        return false;
+    }
+});
+
+
+$(".real_auth_cancel_pass").click(function(){
+    var data = $(this).data(),now_elt=$(this);
+    var additional_str = '';
+    if(data.auth_type_id=='1'　&& $('#beauty_auth_actor').hasClass('real_auth_cancel_pass')) {
+        additional_str = '\n\n( 美顏推薦認證將一併取消 )\n\n';
+    }
+    if(confirm('確定要取消此會員的'+data.auth_name+'?'+additional_str)){
+        $.ajax({
+            type: 'POST',
+            url: "{{route('admin/cancelPassRealAuth')}}?{{csrf_token()}}={{now()->timestamp}}",
+            data:{
+                _token: '{{csrf_token()}}',
+                data: data,
+            },
+            dataType:"json",
+            beforeSend: function(){
+                now_elt.html('處理中-'+now_elt.html().replace('處理中-','')).css('color','black');
+            },             
+            success: function(res){
+                if(res==1 )alert('已取消'+data.auth_name);
+                else alert('儲存失敗，無法取消此會員的'+data.auth_name);
                 location.reload();
             }});
     }

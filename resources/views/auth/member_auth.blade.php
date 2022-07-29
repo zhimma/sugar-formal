@@ -122,6 +122,32 @@
             .n_zybg_right{width:25%;height:40px; line-height:40px; color:#ffffff; text-align:center; background:#fe92a8; border-radius:50px; float:right;box-shadow: 0 0 20px #ffb6c5; cursor: pointer;}
             .n_zybg_right:hover{color:#ffffff;box-shadow:inset 0px 15px 10px -10px #f83964,inset 0px -10px 10px -20px #f83964;}
         </style>
+        @if($rap_service->isInRealAuthProcess())
+        <script>
+    
+            function active_onbeforeunload_hint()
+            {
+                $('body').attr('onbeforeunload',"return '';");
+                $('body').attr('onkeydown',"if (window.event.keyCode == 116) $(this).attr('onbeforeunload','');");    
+            }
+    
+            function real_auth_process_check()
+            {
+                $('body').hide();
+                $.get( "{{route('check_is_in_real_auth_process')}}"+location.search+"&{{csrf_token()}}="+(new Date().getTime()),function(data){
+                    if(data!='1') {
+                        window.history.replaceState( {} , $('title').html(), '{{route("real_auth")}}' );
+                        location.href='{{route("real_auth")}}';
+                    }
+                    else {
+                        $('body').show();
+                    }
+                });
+            }  
+            
+            real_auth_process_check();            
+        </script>
+        @endif         
 	</head>
 	<body>
     @include('new.layouts.navigation')
@@ -149,10 +175,10 @@
 {{--                                    }--}}
 {{--                               @endphp--}}
                                 @if($user->isPhoneAuth() /*or $isAdminWarned*/)
-                                    @if($user->isNeedAdvAuth())
-                                    <div>手機驗證成功，<a href="{!! url('advance_auth') !!}" class="red">按此繼續完成 進階驗證</a></div>
+                                    @if($user->isNeedAdvAuth() || $rap_service->isInRealAuthProcess())
+                                    <div>手機驗證成功，<a href="{!! url('advance_auth') !!}" class="red" {!!$rap_service->getOnClickAttrForNoUnloadConfirm()!!}>按此繼續完成 進階驗證</a></div>
                                     @else
-                                    <div>已完成驗證，<a href="{!! url('dashboard') !!}" class="red">按此開始使用網站</a></div>
+                                    <div>已完成驗證，<a href="{!! url('dashboard') !!}" class="red" {!!$rap_service->getOnClickAttrForNoUnloadConfirm()!!}>按此開始使用網站</a></div>
                                     @endif
                                 @else
                                     <div class="zybg_new_bg">
@@ -262,7 +288,7 @@
     <div class="bltitle"><span>提示</span></div>
     <div class="n_blnr01 matop10">
         <div class="n_fengs" style="text-align:center;width:100%;">手機驗證成功，</div>
-        <div class="n_fengs" style="text-align:center;width:100%;"><a href="{{url('advance_auth')}}" class="red">請按此繼續完成 進階驗證</a></div>
+        <div class="n_fengs" style="text-align:center;width:100%;"><a href="{{url('advance_auth')}}{{count(request()->query())?'?':''}}{{http_build_query(request()->query())}}" class="red" {!!$rap_service->getOnClickAttrForNoUnloadConfirm()!!}>請按此繼續完成 進階驗證</a></div>
         <a class="n_bllbut matop30" id="continue_adv_auth" onclick="gmBtn1OfAdvAuth()" style="cursor:pointer">確定</a>
     </div>
     <a id="#" onclick="gmBtn1OfAdvAuth()" class="bl_gb"><img src="/auth/images/gb_icon.png"></a>
@@ -449,12 +475,20 @@
             function gmBtn1(){
                 $(".blbg").hide();
                 $(".bl").hide();
+                
+                var next_url = '';
+                @if($rap_service->isInRealAuthProcess())
+                next_url = '';
+                @endif
             }
             
             function gmBtn1OfAdvAuth() {
                 $('.blbg_advauth').hide();
                 $('.bl_tab_advauth').hide();
-                location.href='{{url("advance_auth")}}';
+
+                {!!$rap_service->getClearUnloadConfirmJs()!!}
+                
+                location.href='{{url("advance_auth")}}'+location.search;
                 return false;
             }
 
@@ -521,7 +555,7 @@
                         console.log(res);
                         if(res.code=='200'){
                             console.log('123');
-                            @if($user->isNeedAdvAuth())
+                            @if($user->isNeedAdvAuth() || request()->return_aa || $rap_service->isInRealAuthProcess())
                             $(".blbg_advauth").show();               
                             $(".bl_tab_advauth").css('display','block');                               
                             @else                            
@@ -638,7 +672,6 @@
 
                     reader.onload = function(e) {
                         $('#prev_img').attr('src', e.target.result).addClass('upload_width');
-                        //   $(".delBtn").css('display','block');
                     };
 
                     reader.readAsDataURL(input.files[0]);
@@ -660,7 +693,9 @@
                 location.reload();
             });
             $(document).ready(function(){
-                // $(".bot").addClass('chbottom');
+                @if($rap_service->isInRealAuthProcess())
+                active_onbeforeunload_hint();
+                @endif
             });
 
 

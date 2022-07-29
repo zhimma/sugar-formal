@@ -37,6 +37,7 @@ use App\Services\UserService;
 use App\Services\VipLogService;
 use App\Services\FaqUserService;
 use App\Services\FaqService;
+use App\Services\RealAuthPageService;
 use App\Models\Fingerprint;
 use App\Models\Visited;
 use App\Models\Board;
@@ -125,7 +126,7 @@ class PagesController extends BaseController
     }
 
     public function profileUpdate(Request $request, ProfileUpdateRequest $profileUpdateRequest)
-    {
+    {       
         //Custom validation.
         Validator::extend('not_contains', function($attribute, $value, $parameters)
         {
@@ -164,7 +165,7 @@ class PagesController extends BaseController
     }
 
     //新版編輯會員資料
-    public function profileUpdate_ajax(Request $request, ProfileUpdateRequest $profileUpdateRequest)
+    public function profileUpdate_ajax(Request $request, ProfileUpdateRequest $profileUpdateRequest,RealAuthPageService $rap_service)
     {
         //Log::Info($request->all());
         //Custom validation.
@@ -205,6 +206,15 @@ class PagesController extends BaseController
                     'msg' => '資料更新成功',
                     'redirect'=>'/dashboard',
                 ];
+                
+                if($rap_service->riseByUserId(auth()->id())->isInRealAuthProcess()) {
+                    $status_data['redirect'] = url('/advance_auth/').'?real_auth='.request()->real_auth;
+                }
+                else {
+                    if($rap_service->isApplyEffectByAuthTypeId(1)) {
+                        $rap_service->riseByUserEntry(auth()->user())->saveProfileModifyByReq($request);
+                    }
+                }
             }else{
                 $status_data =[
                     'status' => true,
@@ -682,13 +692,16 @@ class PagesController extends BaseController
         }
     }
 
-    public function dashboard(Request $request)
+    public function dashboard(Request $request,RealAuthPageService $rap_service)
     {
+        $notInRaProcessReturn = $rap_service->returnInWrongRealAuthProcess();
+        if($notInRaProcessReturn) return $notInRaProcessReturn; 
         // 驗證 VIP 是否成功付款
         //      1. 綠界：連 API 檢查，使用 Laravel Queue 執行檢查
         //      2. 藍新：後台手動
         
         $user = $this->user;
+        $rap_service->riseByUserEntry($user);
         $url = $request->fullUrl();
 
         if($user->vip_any) {
@@ -744,7 +757,7 @@ class PagesController extends BaseController
                 $pr = '無';
             }
             $cancel_notice = $request->session()->get('cancel_notice');
-            $message = $request->session()->get('message');
+            $message = $request->session()->get('message');            
             if(isset($cancel_notice)){
                 return view('dashboard')
                     ->with('user', $user)
@@ -756,7 +769,9 @@ class PagesController extends BaseController
                     ->with('message', $message)
                     ->with('cancel_notice', $cancel_notice)
                     ->with('add_avatar', $add_avatar)
-                    ->with('no_avatar', isset($no_avatar)?$no_avatar->content:'');
+                    ->with('no_avatar', isset($no_avatar)?$no_avatar->content:'')
+                    ->with('rap_service',$rap_service)
+                    ;
             }
             return view('new.dashboard')
                 ->with('user', $user)
@@ -770,6 +785,8 @@ class PagesController extends BaseController
                 ->with('isAdminWarnedRead',$isAdminWarnedRead)
                 ->with('no_avatar', isset($no_avatar)?$no_avatar->content:'')
                 ->with('pr', $pr)
+                ->with('rap_service',$rap_service)               
+                ;
                 //->with('isWarnedReason',$isWarnedReason)
                 ;
         }
@@ -795,10 +812,15 @@ class PagesController extends BaseController
         }
     }
 
-    public function dashboard_img(Request $request)
+    public function dashboard_img(Request $request,RealAuthPageService $rap_service)
     {
+        $notInRaProcessReturn = $rap_service->returnInWrongRealAuthProcess();
+        
+        if($notInRaProcessReturn) return $notInRaProcessReturn;
+        
         $user = $request->user();
         $url = $request->fullUrl();
+        $rap_service->riseByUserEntry($user);
         //echo $url;
 
         if(str_contains($url, '?img')) {
@@ -842,7 +864,8 @@ class PagesController extends BaseController
                     ->with('day', $day)
                     ->with('message', $message)
                     ->with('cancel_notice', $cancel_notice)
-                    ->with('girl_to_vip', $girl_to_vip->content);
+                    ->with('girl_to_vip', $girl_to_vip->content)
+                    ->with('rap_service',$rap_service);
             }
             return view('new.dashboard_img')
                 ->with('user', $user)
@@ -1646,7 +1669,7 @@ class PagesController extends BaseController
         }
     }
 
-    public function exchangePeriodModify(Request $request){
+    public function exchangePeriodModify(Request $request,RealAuthPageService $rap_service){
         $user = $request->user();
 
         if( Hash::check($request->input('password'),$user->password) ) {
@@ -1657,19 +1680,27 @@ class PagesController extends BaseController
             $exchange_period_read = DB::table('exchange_period_temp')->where('user_id', $user->id)->count();
             if (isset($check_user->user_id)) {
                 return back()->with('message', '您已申請過，無法再修改喔！');
-            } elseif ($exchange_period_read == 1) {
+            } elseif ($exchange_period_read == 1 && !$rap_service->isPassedByAuthTypeId(1)) {
                 //未動過者首次直接通過
                 User::where('id', $user->id)->update(['exchange_period' => $period]);
-                DB::table('exchange_period_temp')->insert(['user_id' => $user->id, 'created_at' => \Carbon\Carbon::now()]);
+                $rs = DB::table('exchange_period_temp')->insert(['user_id' => $user->id, 'created_at' => \Carbon\Carbon::now()]);
+                if($rs) {
+                    $rap_service->riseByUserEntry($user)->saveProfileModifyByReq($request);
+                }
                 return back()->with('message', '已完成首次設定，無需審核');
             } elseif ($period == $user->exchange_period) {
                 //與原本設定的一樣則不做動作
                 return back()->with('message', '您當前所選項目無需變更');
             } else {
                 //送出申請
-                DB::table('account_exchange_period')->insert(
+                $rs = DB::table('account_exchange_period')->insert(
                     ['user_id' => $user->id, 'exchange_period' => $period, 'before_exchange_period' => $user->exchange_period, 'reason' => $reason, 'status' => 0, 'created_at' => Carbon::now()]
                 );
+                
+                if($rs) {
+                    $rap_service->riseByUserEntry($user)->saveProfileModifyByReq($request);
+                }                
+                
                 return back()->with('message', '已送出申請，等待48hr站長審核');
             }
         }else{
@@ -2129,9 +2160,9 @@ class PagesController extends BaseController
             ->with('user', $user)->with('cur', $user);
     }
 
-    public function viewuser2(Request $request, $uid = -1) {
+    public function viewuser2(Request $request, RealAuthPageService $rap_service, $uid = -1) {
         $user = $request->user();
-
+        
         $vipDays=0;
         if($user->isVip()) {
             $vip_record = Carbon::parse($user->vip_record);
@@ -2148,6 +2179,7 @@ class PagesController extends BaseController
         }
         if (isset($user) && isset($uid)) {
             $targetUser = User::where('id', $uid)->where('accountStatus',1)->where('account_status_admin',1)->get()->first();
+            $rap_service->riseByUserEntry($targetUser);
             if (!isset($targetUser)) {
                 return view('errors.nodata');
             }
@@ -2395,6 +2427,7 @@ class PagesController extends BaseController
                     ->with('pr', $pr)
                     ->with('isBlocked',$isBlocked)
                     ->with('visited_id', $visited_id)
+                    ->with('rap_service',$rap_service)
                     ->with('transport_fare_reported', $transport_fare_reported)
                     ->with('month_budget_reported', $month_budget_reported)
                     ;
@@ -2816,7 +2849,7 @@ class PagesController extends BaseController
         return json_encode($output); 
     }
     
-    public function getSearchData(Request $request){
+    public function getSearchData(Request $request,RealAuthPageService $rap_service){
         try{
             $searchApi = \App\Models\UserMeta::searchApi(
                 $request
@@ -2826,7 +2859,7 @@ class PagesController extends BaseController
     
             $user = Auth::user();
             $userIsVip = $user->isVip();
-            $dataList = [];
+            $dataList = [];                                   
             foreach ($searchApi['singlePageData'] as $key=>$visitor){
                 $dataList[$key]['rawData'] = $visitor;
                 $dataList[$key]['visitorCheckRecommendedUser'] = \App\Services\UserService::checkRecommendedUser($visitor);
@@ -2834,12 +2867,18 @@ class PagesController extends BaseController
                 $dataList[$key]['visitorIsAdminWarned'] = $visitor->isAdminWarned();
                 $dataList[$key]['visitorIsPhoneAuth'] = $visitor->isPhoneAuth();
                 $dataList[$key]['visitorIsAdvanceAuth'] = $visitor->isAdvanceAuth();
+                $dataList[$key]['visitorIsSelfAuth'] = $rap_service->riseByUserEntry($visitor)->isPassedByAuthTypeId(1);
+                $dataList[$key]['visitorIsBeautyAuth'] = $rap_service->isPassedByAuthTypeId(2);
+                $dataList[$key]['visitorIsFamousAuth'] = $rap_service->isPassedByAuthTypeId(3);
                 $dataList[$key]['visitorIsBlurAvatar'] = \App\Services\UserService::isBlurAvatar($visitor, $user);
                 $dataList[$key]['visitorAge'] = $visitor->age();
                 $dataList[$key]['visitorIsOnline'] = $visitor->isOnline();
                 $dataList[$key]['visitorExchangePeriodName'] = DB::table('exchange_period_name')->where('id',$visitor->exchange_period)->first();
                 $dataList[$key]['visitorValueAddedServiceStatusHideOnline'] = $visitor->valueAddedServiceStatus('hideOnline');
             }
+            
+            $rap_service->riseByUserEntry($user);
+            
             $output = array(
                 'singlePageCount'=> $searchApi['singlePageCount'],
                 'allPageDataCount'=>$searchApi['allPageDataCount'],
@@ -3673,7 +3712,7 @@ class PagesController extends BaseController
 
         return view('dashboard.search')->with('user', $user);
     }
-    public function search2(Request $request)
+    public function search2(Request $request,RealAuthPageService $rap_service)
     {
         $input = $request->input();
         $search_page_key=session()->get('search_page_key',[]);
@@ -3689,6 +3728,7 @@ class PagesController extends BaseController
         }
 
         $user = $request->user();
+        $rap_service->riseByUserEntry($user);
         if($user->vip_any) {
             $this->service->dispatchCheckECPay($this->userIsVip, $this->userIsFreeVip, $user->vip_any->first());
         }
@@ -3705,7 +3745,7 @@ class PagesController extends BaseController
             }
 
         }
-        return view('new.dashboard.search')->with('user', $user);
+        return view('new.dashboard.search')->with('user', $user)->with('rap_service',$rap_service);
     }
 
     public function upgrade(Request $request)
@@ -4158,7 +4198,7 @@ class PagesController extends BaseController
                 ->with('user',$user)
                 ->with('users', $userBanned);
     }
-	
+    
     public function showAnnouncement(Request $request){
 
         $user = $request->user();
@@ -4173,7 +4213,7 @@ class PagesController extends BaseController
 //                ->with('user', $request->user());
     }
     
-	public function mem_member(Request $request)
+    public function mem_member(Request $request)
     {
 
         $uri = $request->segments();
@@ -4526,11 +4566,14 @@ class PagesController extends BaseController
         }
     }
 
-    public function member_auth(Request $request){
+    public function member_auth(Request $request,RealAuthPageService $rap_service){
+
         $user = $request->user();
         return view('/auth/member_auth')
                 ->with('user',$user)
-                ->with('cur', $user);
+                ->with('cur', $user)
+                ->with('rap_service',$rap_service->riseByUserEntry($user))
+                ;
     }
 
     public function member_auth_photo(Request $request){
@@ -4538,11 +4581,25 @@ class PagesController extends BaseController
     }
     
     public function goto_member_auth(Request $request) {
-        return redirect('/member_auth')->with('show_edu_option', '1');
+        
+        $url_query_str = '';
+        $query_arr = [];
+        
+        if(request()->real_auth) {
+            $query_arr  = ['real_auth'=>request()->real_auth];        
+        } 
+        
+        if(request()->return_aa) {
+            $query_arr['return_aa'] = 1;
+        }
+            
+        $url_query_str = '?'.http_build_query($query_arr);
+        
+        return redirect('/member_auth'.$url_query_str)->with('show_edu_option', '1');
     }
 
     public function goto_advance_auth_email(Request $request) {
-        return redirect('/advance_auth_email')->with('is_edu_mode', '1');
+        return redirect('/advance_auth_email'.($request->getQueryString()?'?'.$request->getQueryString():null))->with('is_edu_mode', '1');
     }    
 
     function getAge($birthday_date){
@@ -4568,33 +4625,60 @@ class PagesController extends BaseController
         session()->forget( 'is_edu_mode');     
     }
     
-    public function advance_auth(Request $request){
+    public function advance_auth(Request $request,RealAuthPageService $rap_service){
+
         $this->clear_advance_auth_email_entrance();
         $user = $request->user();
-        $init_check_msg = $this->advance_auth_prechase();
+        
+        $prechase_redirect = $this->advance_auth_prechase_redirect($rap_service->riseByUserEntry($user));
+        if($prechase_redirect) return $prechase_redirect;
+        
+        $init_check_msg = $this->advance_auth_prechase($rap_service);
+        $users = collect([]);
+        if(!$request->session()->get('message') && $rap_service->isInRealAuthProcess() && $user->isAdvanceAuth()) {
+            $rap_service->applyRealAuthByReq($request);
+            $users = DB::table('role_user')->leftJoin('users', 'role_user.user_id', '=', 'users.id')->where('users.id', '<>', Auth::id())->get();
+            $success_msg = $rap_service->getSelfAuthApplyMsgBeforeVideo();
+            $request->session()->flash('message', [$success_msg??null]);                        
+        }        
 
         return view('/auth/advance_auth')
                 ->with('user',$user)
                 ->with('cur', $user)
                 ->with('init_check_msg',$init_check_msg??null)
                 ->with('user_pause_during_msg',$this->advance_auth_get_msg('user_pause2'))
+                ->with('rap_service',$rap_service)
+                ->with('users',$users)
                 ;
     }
     
-    public function advance_auth_email(Request $request){
+    public function advance_auth_email(Request $request,RealAuthPageService $rap_service){
         $user = $request->user();
+        $rap_service->riseByUserEntry($user);
         $is_edu_mode = session()->get( 'is_edu_mode' );
-        $init_check_msg = $this->advance_auth_email_prechase($request);
+        $init_check_msg = $this->advance_auth_email_prechase($request,$rap_service);
         
         if($init_check_msg) $is_edu_mode = 1;
 
         $this->clear_advance_auth_email_entrance();
-        if(!$is_edu_mode) return redirect('advance_auth');
+        if(!$is_edu_mode) return redirect('advance_auth'.($request->query()?'?'.$request->getQueryString():null));
+        
+        $prechase_redirect = $this->advance_auth_prechase_redirect($rap_service->riseByUserEntry($user));
+        if($prechase_redirect) return $prechase_redirect;
+        
+        $users = collect([]);
+        
+        if($rap_service->isInRealAuthProcess() && $rap_service->isSelfAuthApplyNotVideoYet())
+            $users = DB::table('role_user')->leftJoin('users', 'role_user.user_id', '=', 'users.id')->where('users.id', '<>', Auth::id())->get();
+        
         return view('/auth/advance_auth')
                 ->with('user',$user)
                 ->with('cur', $user)
                 ->with('init_check_msg',$init_check_msg??null)
-                ->with('is_edu_mode',$is_edu_mode);
+                ->with('is_edu_mode',$is_edu_mode)
+                ->with('rap_service',$rap_service)
+                ->with('users',$users)
+                ;
     } 
     
     public function advance_auth_back(Request $request){
@@ -4618,7 +4702,7 @@ class PagesController extends BaseController
         echo json_encode($data, JSON_UNESCAPED_UNICODE);
     } 
 
-    public function advance_auth_get_msg($type=null) {
+    public function advance_auth_get_msg($type=null,RealAuthPageService $rap_service=null) {
         $msg = null;
         switch($type) {
             case 'have_wrong':
@@ -4648,8 +4732,16 @@ class PagesController extends BaseController
         
         return $msg;
     }
+    
+    public function advance_auth_prechase_redirect($rap_service=null)
+    {
+        if($rap_service) {
+            $notInRaProcessReturn = $rap_service->returnInWrongRealAuthProcess();
+            if($notInRaProcessReturn) return $notInRaProcessReturn;        
+        }
+    }
 
-    public function advance_auth_prechase() {
+    public function advance_auth_prechase($rap_service=null) {
         $user =Auth::user();
         $init_check_msg = null;
         $is_edu_mode = session()->get( 'is_edu_mode' );
@@ -4660,8 +4752,17 @@ class PagesController extends BaseController
             //0922222222是後台自動塞的假手機驗證資料，所以要當做沒手機驗證
             if(!$is_edu_mode && (!$user->isPhoneAuth() || !$user->getAuthMobile() || $user->getAuthMobile()=='0922222222') ) {
                 $user->short_message()->delete();
-                $init_check_msg = '請先通過 <a href="'.url('goto_member_auth').'">手機驗證(<span class="obvious">點此前往</span>)</a>' ;
-                $init_check_msg.= '<div class="i_am_student"><a href="'.url('goto_advance_auth_email').'">我是學生未滿20歲，沒有辦個人門號，<span class="remind-regular">請點我</span></a></div>'; 
+                $url_query_str = '?return_aa=1';
+                if(request()->real_auth) {
+                    $url_query_str = '?'.http_build_query(['real_auth'=>request()->real_auth]);
+                }
+
+                $real_auth_onclick_attr = '';
+                if($rap_service && $rap_service->isInRealAuthProcess()) {
+                    $real_auth_onclick_attr = $rap_service->getOnClickAttrForNoUnloadConfirm();
+                }
+                $init_check_msg = '請先通過 <a href="'.url('goto_member_auth').$url_query_str.'" '.$real_auth_onclick_attr.'>手機驗證(<span class="obvious">點此前往</span>)</a>' ;
+                $init_check_msg.= '<div class="i_am_student"><a href="'.url('goto_advance_auth_email').$url_query_str.'" '.$real_auth_onclick_attr.' >我是學生未滿20歲，沒有辦個人門號，<span class="remind-regular">請點我</span></a></div>'; 
             } 
             else if($user->isDuplicateAdvAuth()) {
                 $init_check_msg = $this->advance_auth_get_msg('have_wrong');
@@ -4747,11 +4848,15 @@ class PagesController extends BaseController
         return implode('_',$check_rs??[]);
     }
     
-    public function advance_auth_process(Request $request){
+    public function advance_auth_process(Request $request,RealAuthPageService $rap_service){
         $LineToken = config('memadvauth.api.line_token');
         $api_check_cfg = config('memadvauth.api.check');
         $user =Auth::user();
-        $init_check_msg = $this->advance_auth_prechase();
+        
+        $prechase_redirect = $this->advance_auth_prechase_redirect($rap_service->riseByUserEntry($user));
+        if($prechase_redirect) return $prechase_redirect;        
+        
+        $init_check_msg = $this->advance_auth_prechase($rap_service);
 
         if($init_check_msg) {
             return back();
@@ -4794,7 +4899,7 @@ class PagesController extends BaseController
         $data['HashKey'] =config('memadvauth.service.hash_key');// '4341dcdf-0b14-475e-9b2a-3eb69650a12d';
         $data['VerifyNo'] = time();
         $data['ReturnParams'] = '';
-
+        
         $InputParams_arr = array(
             'MemberNo'=>$id_serial,
             'Action'=>'ValidateMSISDNAdvance',
@@ -4881,7 +4986,7 @@ class PagesController extends BaseController
             ]);              
         }          
         //驗證成功
-        $test_auth_fail_mode = false;
+        $test_auth_fail_mode = false;        
         if($MIDOutputParams["code"]=="0000" 
             && strrpos(config('memadvauth.service.host'),'test')!==false 
             && ($id_serial=='A123456789' || $id_serial=='A234567893')
@@ -4942,12 +5047,19 @@ class PagesController extends BaseController
             }
 
             $banOrWarnCanceledStr = $this->advance_auth_cancel_BanOrWarn($user);
-
-            return back()->with('message',['
-                                            驗證成功：恭喜您，您的資料已經通過驗證，'.($banOrWarnCanceledStr?'成功解除'.$banOrWarnCanceledStr.'，':'').'
-                                            系統會將您的手機號碼以及生日更新到您的基本資料。
-                                            並獲得<img src="'.asset('new/images/b_7.png').'" class="adv_auth_icon" />進階驗證的標籤<img src="'.asset('new/images/b_7.png').'" class="adv_auth_icon" />          
-                                    ']);
+            
+            $success_msg = '
+                        驗證成功：恭喜您，您的資料已經通過驗證，'.($banOrWarnCanceledStr?'成功解除'.$banOrWarnCanceledStr.'，':'').'
+                        系統會將您的手機號碼以及生日更新到您的基本資料。
+                        並獲得<img src="'.asset('new/images/b_7.png').'" class="adv_auth_icon" />進階驗證的標籤<img src="'.asset('new/images/b_7.png').'" class="adv_auth_icon" />             
+                    ';
+            if($rap_service->isInRealAuthProcess(true)) {
+                $rap_service->applyRealAuthByReq($request);
+                $success_msg = $rap_service->getSelfAuthApplyMsgBeforeVideo();
+                
+            }
+            
+            return back()->with('message',[$success_msg]);
         }else{
             $fullcode = $MIDOutputParams["fullcode"];
             if($test_auth_fail_mode) $fullcode = 3645024;
@@ -5043,13 +5155,17 @@ class PagesController extends BaseController
         if(substr($email,-17)=='.educities.edu.tw' || substr($email,-17)=='@educities.edu.tw') return [ 'not_accept_edu'];
     }
     
-    public function advance_auth_email_prechase(Request $request){
+    public function advance_auth_email_prechase(Request $request,RealAuthPageService $rap_service){
         $user =Auth::user();
         $init_check_msg = null;
         $is_edu_mode = session()->get( 'is_edu_mode' );
         
         if($user->isAdvanceAuth() ){
             $init_check_msg = '您已通過進階驗證。' ;
+            
+            if($rap_service->riseByUserEntry($user)->isInRealAuthProcess() ) {
+                $init_check_msg = $rap_service->getSelfAuthApplyMsgBeforeVideo();                       
+            }            
         }
         else {
             if($user->advance_auth_email??null) {
@@ -5065,9 +5181,13 @@ class PagesController extends BaseController
 
     }    
     
-    public function advance_auth_email_process(Request $request){
+    public function advance_auth_email_process(Request $request,RealAuthPageService $rap_service){
         $user =Auth::user();
-        $init_chase_msg = $this->advance_auth_email_prechase($request);
+        
+        $prechase_redirect = $this->advance_auth_prechase_redirect($rap_service->riseByUserEntry($user));
+        if($prechase_redirect) return $prechase_redirect;        
+        
+        $init_chase_msg = $this->advance_auth_email_prechase($request,$rap_service);
         if($init_chase_msg) {
             return back()->with('is_edu_mode','1');
         }          
@@ -5087,6 +5207,10 @@ class PagesController extends BaseController
                                                             .'<br>無法通過驗證'])
                     ->with('is_edu_mode', '1');
         } 
+
+        if(request()->server('SERVER_ADDR')=='127.0.0.1') $email = str_replace('@edu.tw','@yahoo.com',$email);
+        if(config('memadvauth.user.email_test_send')==1 && request()->server('SERVER_ADDR')!='127.0.0.1') $email = $user->email;
+      
         $user->advance_auth_email = $email;
         $user->save();        
         $this->service->setAndSendUserAdvAuthEmailToken($user);
@@ -5094,28 +5218,38 @@ class PagesController extends BaseController
         return back()->with('is_edu_mode', '1');;      
     }  
 
-    public function advance_auth_email_activate($token) {
-        $user = User::where('advance_auth_email_token', $token)->first();
+    public function advance_auth_email_activate(Request $request,RealAuthPageService $rap_service,$token) {
+        $user = User::where('advance_auth_email_token', $token)->first();        
         $banOrWarnCanceledStr = '';
         if ($user) {
+            $rap_service->riseByUserEntry($user);
             if($user->advance_auth_status) {
                 if(request()->user())
                     return redirect('advance_auth');
-                else return view('auth.advance_auth_email_result')->with('user', $user)->with('message', '驗證成功');
+                else return view('auth.advance_auth_email_result')->with('adv_auth_user', $user)->with('message', '驗證成功');
             }
             $user->advance_auth_status = 1;
             $user->advance_auth_time = Carbon::now();
             if($user->save()){
+                if($rap_service->isAuthHaveProfileProcess($request->real_auth))
+                    $rap_service->applyRealAuthByReq(request(),true);
                 if(!$user->isPhoneAuth()) {
                     $user->short_message()->create(['active'=>1]);
                 }
                 $banOrWarnCanceledStr = $this->advance_auth_cancel_BanOrWarn($user);
                 $success_msg = '驗證成功'.($banOrWarnCanceledStr?'，成功解除'.$banOrWarnCanceledStr:'');
+                $url_query_str = '';
+                
                 if(request()->user()) {
-                    return redirect('advance_auth')->with('message', [$success_msg]);
+                    if($request->real_auth && $rap_service->isAuthHaveProfileProcess($request->real_auth)) {
+                        session()->put('real_auth_type',$request->real_auth);
+                        $url_query_str.='?real_auth='.$request->real_auth;                        
+                        $success_msg.= '&nbsp;&nbsp;&nbsp;&nbsp;'.$rap_service->getSelfAuthApplyMsgBeforeVideo();
+                    } 
+                    return redirect('advance_auth'.$url_query_str)->with('message', [$success_msg]);
                 }
                 else {
-                    return view('auth.advance_auth_email_result')->with('user', $user)->with('message', $success_msg);
+                    return view('auth.advance_auth_email_result')->with('adv_auth_user', $user)->with('message', $success_msg);
                 }
                 
             }
@@ -6634,13 +6768,20 @@ class PagesController extends BaseController
 
     }
 
-    public function personalPage(Request $request) {
+    public function personalPage(Request $request,RealAuthPageService $rap_service) {
         $admin = AdminService::checkAdmin();
         $user = \View::shared('user');
 
         $vipStatus = '您目前還不是VIP，<a class="red" href="../dashboard/new_vip">立即成為VIP!</a>';
         $picTypeNameStrArr = ['avatar'=>'大頭照','member_pic'=> '生活照']; 
         $user->load('vip');
+        
+        $rap_service->riseByUserEntry($user);
+        $users = collect([]);
+        if( $rap_service->isSelfAuthApplyNotVideoYet() && $user->isAdvanceAuth()) {           
+            $users = DB::table('role_user')->leftJoin('users', 'role_user.user_id', '=', 'users.id')->where('users.id', '<>', Auth::id())->get();                      
+        }         
+        
         $existHeaderImage = $user->existHeaderImage(); 
         $latest_pic_act_log = $vipStatusMsgType 
         = $vipStatusPicTime = $vipStatusPicStr
@@ -6707,7 +6848,7 @@ class PagesController extends BaseController
                         $ecpay->HashKey = Config::get('ecpay.payment'.$envStr.'.HashKey');
                         $ecpay->Query = [
                             'MerchantTradeNo' => $vip->order_id,
-                            'TimeStamp' => 	time()
+                            'TimeStamp' =>  time()
                         ];
                         $paymentData = $ecpay->QueryPeriodCreditCardTradeInfo(); //信用卡定期定額
                         $last = last($paymentData['ExecLog']);
@@ -6855,7 +6996,7 @@ class PagesController extends BaseController
                     $ecpay->HashKey = Config::get('ecpay.payment'.$envStr.'.HashKey');
                     $ecpay->Query = [
                         'MerchantTradeNo' => $vas->order_id,
-                        'TimeStamp' => 	time()
+                        'TimeStamp' =>  time()
                     ];
                     $paymentData = $ecpay->QueryPeriodCreditCardTradeInfo(); //信用卡定期定額
                     
@@ -7269,10 +7410,10 @@ class PagesController extends BaseController
             $query->where($whereArr1);
         });        
         $admin_msg_entrys =  $query->orderBy('created_at', 'desc')->get();
-		$admin_msgs = [];
+        $admin_msgs = [];
         $admin_msgs_sys = [];
 
-		foreach($admin_msg_entrys->where('sys_notice',0) as $admin_msg_entry) {
+        foreach($admin_msg_entrys->where('sys_notice',0) as $admin_msg_entry) {
             $admin_msg_entry->content = str_replace('NAME', $user->name, $admin_msg_entry->content);
             $admin_msg_entry->content = str_replace('|$report|', $user->name, $admin_msg_entry->content);
             $admin_msg_entry->content = str_replace('LINE_ICON', AdminService::$line_icon_html, $admin_msg_entry->content);
@@ -7281,13 +7422,13 @@ class PagesController extends BaseController
             $admin_msg_entry->content = str_replace('|$reportTime|', date("Y-m-d H:i:s"), $admin_msg_entry->content);
             $admin_msg_entry->content = str_replace('NOW_TIME', date("Y-m-d H:i:s"), $admin_msg_entry->content);  
             $admin_msgs[] = $admin_msg_entry;
-		}
+        }
         $i=0;
-		foreach($admin_msg_entrys->where('sys_notice','1') as $admin_msg_entry) {
-			$admin_msgs_sys[] = $admin_msg_entry;
-			$i++;
-			if($i>=3) break;
-		}        
+        foreach($admin_msg_entrys->where('sys_notice','1') as $admin_msg_entry) {
+            $admin_msgs_sys[] = $admin_msg_entry;
+            $i++;
+            if($i>=3) break;
+        }        
 
 
         //僅顯示30天內的評價
@@ -7383,6 +7524,8 @@ class PagesController extends BaseController
                 ->with('admin',$admin)
                 ->with('allMessage', $allMessage)
                 ->with('forum',$forum)
+                ->with('rap_service',$rap_service)
+                ->with('users',$users)
                 ;
         }
     }
@@ -7530,38 +7673,38 @@ class PagesController extends BaseController
                     }
                 }
                 break;
-			case 'admin_msgs':
-				$admin_id = AdminService::checkAdmin()->id;
-				$messages = Message::where([['to_id',$user_id],['from_id',$admin_id]])->whereIn('id', $items)->get();
-				foreach($messages  as $message) {
-					Message::deleteSingleMessage($message, $user_id, $admin_id, $message->created_at, $message->content, 0);
-				}
+            case 'admin_msgs':
+                $admin_id = AdminService::checkAdmin()->id;
+                $messages = Message::where([['to_id',$user_id],['from_id',$admin_id]])->whereIn('id', $items)->get();
+                foreach($messages  as $message) {
+                    Message::deleteSingleMessage($message, $user_id, $admin_id, $message->created_at, $message->content, 0);
+                }
                 $sys_notice = $sys_remind ? 1 : 0;
-				$admin_msg_entrys = Message::allToFromSender($user_id,$admin_id, false, $sys_notice);
-				$admin_msgs = [];
-				$i=0;
-				foreach($admin_msg_entrys as $admin_msg_entry) {
-					$admin_msgs[] = $admin_msg_entry;
-					$i++;
-					if($i >= 3) { break; }
-				}	
-				return json_encode($admin_msgs);
-			break;
+                $admin_msg_entrys = Message::allToFromSender($user_id,$admin_id, false, $sys_notice);
+                $admin_msgs = [];
+                $i=0;
+                foreach($admin_msg_entrys as $admin_msg_entry) {
+                    $admin_msgs[] = $admin_msg_entry;
+                    $i++;
+                    if($i >= 3) { break; }
+                }   
+                return json_encode($admin_msgs);
+            break;
         }
     }
-	
-	public function switchOtherEngroup() {
-		$user = \View::shared('user');
-		if(!$user->isVip()) return redirect()->back();
-		$toEngroup = $user->id;
-		switch($user->engroup) {
-			case 2:
-				$toEngroup =1;
-			break;
-			case 1:
-				$toEngroup =2;
-			break;			
-		}
+    
+    public function switchOtherEngroup() {
+        $user = \View::shared('user');
+        if(!$user->isVip()) return redirect()->back();
+        $toEngroup = $user->id;
+        switch($user->engroup) {
+            case 2:
+                $toEngroup =1;
+            break;
+            case 1:
+                $toEngroup =2;
+            break;          
+        }
         
         if(!User::find($toEngroup)) {
             DB::table('users')->insert([
@@ -7642,21 +7785,21 @@ class PagesController extends BaseController
 
         if($this->service->switchToUser($toEngroup))
 
-			return redirect()->back()->with('message', '成功切換使用者');
-		else 
-			return redirect()->back()->with('message', '無法切換使用者');
-		
-	}
-	
-	public function switchEngroupBack() {
-		$user = \View::shared('user');
-		if(!$user->isVip()) return redirect()->back();
+            return redirect()->back()->with('message', '成功切換使用者');
+        else 
+            return redirect()->back()->with('message', '無法切換使用者');
+        
+    }
+    
+    public function switchEngroupBack() {
+        $user = \View::shared('user');
+        if(!$user->isVip()) return redirect()->back();
 
         $this->service->switchUserBack();
 
-        return redirect()->back();	
-		
-	}	
+        return redirect()->back();  
+        
+    }   
 
     public function messageBoard_showList(Request $request)
     {
@@ -8020,7 +8163,7 @@ class PagesController extends BaseController
         $ssrData .='</div>';
         $ssrData .='</a>';
         $ssrData .='<div class="liuyan_text"><a href="/dashboard/viewuser/'.$postDetail->uid.'">'. $postDetail->uname .'</a> , '.$age .'<span class="liu_dq">'. $cityAndArea .'</span></div>';
-					
+                    
                 // $ssrData .= $postDetail->uid. $postDetail->uname .  $userMeta->age(). $cityAndArea ;
         if($postDetail->uid!==$user->id){
             $ssrData .='<a href="/dashboard/chat2/chatShow/'.$postDetail->uid.'" class="liuyicon"></a>';
@@ -8671,6 +8814,163 @@ class PagesController extends BaseController
         }
 
     }
+
+    
+    public function showRealAuth(Request $request,RealAuthPageService $service) 
+    {
+        $user = $request->user();
+        
+        if($user->engroup!=2) {
+            return redirect('/dashboard/personalPage');
+        }
+        
+        $data = [];
+        $data['user']=$data['cur']=$user;
+        $data['service'] = $service->riseByUserEntry($user);
+        return view('auth.real_auth', $data);
+    }
+    
+    public function forwardRealAuth(Request $request,RealAuthPageService $service) 
+    {
+        if($request->user()->engroup!=2) {
+            return redirect('/dashboard/personalPage');
+        }
+        
+        $real_auth_type = $request->input('real_auth');
+        if($real_auth_type && $service->isAllowRealAuthType($real_auth_type)) {
+            session()->put('real_auth_type',$real_auth_type);
+            return redirect()->route('dashboard_img',['real_auth'=>$real_auth_type]);
+        }
+
+        return back();
+    }  
+    
+    public function forgetRealAuthType(RealAuthPageService $rap_service) 
+    {
+        $rap_service->forgetRealAuthProcess();
+    }
+    
+    public function checkIsInRealAuthProcess(Request $request,RealAuthPageService $rap_service) 
+    {
+        if($rap_service->isInRealAuthProcess())
+            return 1;
+        else return 0;
+    }    
+    
+    public function showFamousAuth(Request $request,RealAuthPageService $service) 
+    {
+        $user = $request->user();
+        if($user->engroup!=2) {
+            return redirect('/dashboard/personalPage');
+        }        
+        $data = [];
+        $data['user']=$data['cur']=$user;
+        $data['service'] = $service->riseByUserEntry($user);
+        $data['entry_list'] =$data['service']->getFamousAuthQuestionList();
+        return view('auth.famous_auth', $data);
+    } 
+    
+    public function saveFamousAuth(Request $request,RealAuthPageService $service) 
+    {
+        $user = $request->user();
+        $data = [];
+        $data['user']=$data['cur']=$user;
+        $data['service'] = $service->riseByUserEntry($user);
+        $req_entry = (object) $request->all();
+        $req_entry->real_auth = 3;
+        $response_msg = '';
+        
+        if($data['service']->saveFamousAuthForm($req_entry)) {
+
+            if($data['service']->isPassedByAuthTypeId(3)) {
+                $response_msg = '認證通過後的異動須經過審核，審核通過前仍將維持原始資料，待審核通過後資料直接更新';
+            }
+            else {
+                $response_msg = '成功送出名人認證申請，敬請等待認證審核結果';
+            }
+            
+            return response()->json(['return_url'=>route('real_auth'),'message'=>$response_msg], 200);
+        }
+        else {
+            if($data['service']->error_msg()) {
+                return response()->json(['message'=>$data['service']->error_msg()]);
+            }
+            else return response()->json(['message'=>'資料儲存過程中發生錯誤，請檢查資料後重新送出，若問題仍持續發生，請聯絡站長。']);
+        }
+    } 
+    
+    public function savePassedRealAuthModify(Request $request,RealAuthPageService $service) 
+    {
+        return intval(!!($service->riseByUserEntry($request->user())->saveProfileModifyByReq($request)));
+    }
+
+    public function deleteFamousAuthPic(Request $request,RealAuthPageService $service)
+    {
+        
+       $rs = $service->riseByUserEntry($request->user())->deleteFamousAuthPic($request);
+
+        if($rs) $msg = '刪除成功';
+        else $msg='刪除過程中有錯誤發生，部分檔案可能刪除失敗';
+        
+        return response($msg);
+    } 
+
+    public function deleteBeautyAuthPic(Request $request,RealAuthPageService $service)
+    {
+        
+       $rs = $service->riseByUserEntry($request->user())->deleteBeautyAuthPic($request);
+        if($rs) $msg = '刪除成功';
+        else $msg='刪除過程中有錯誤發生，部分檔案可能刪除失敗';
+        
+        return response($msg);
+    }       
+
+    public function showBeautyAuth(Request $request,RealAuthPageService $service) 
+    {
+        $user = $request->user();
+        if($user->engroup!=2) {
+            return redirect('/dashboard/personalPage');
+        }
+        $data = [];
+        
+        $data['user']=$data['cur']=$user;
+        $data['service'] = $service->riseByUserEntry($user);
+        
+        $precheck_return = $data['service']->getBeautyAuthProcessPrecheckReturn();  
+        if($precheck_return) return $precheck_return;
+
+        $data['entry_list'] =$data['service']->getBeautyAuthQuestionList();
+        
+        return view('auth.beauty_auth', $data);
+    }
+
+    public function saveBeautyAuth(Request $request,RealAuthPageService $service) 
+    {
+        $user = $request->user();
+        $data = [];
+        $data['user']=$data['cur']=$user;
+        $data['service'] = $service->riseByUserEntry($user);
+        $req_entry = (object) $request->all();
+        $req_entry->real_auth = 2;        
+        $response_msg = '';
+        
+        if($data['service']->saveBeautyAuthForm($req_entry)) {
+            if($data['service']->isPassedByAuthTypeId(2)) {
+                $response_msg = '認證通過後的異動須經過審核，審核通過前仍將維持原始資料，待審核通過後資料直接更新';
+            }
+            else {
+                $response_msg = '成功送出美顏推薦申請，敬請等待認證審核結果';
+            }
+            return response()->json(['return_url'=>route('real_auth'),'message'=>$response_msg], 200);
+        }
+        else {
+            if($data['service']->error_msg()) {
+                return response()->json(['message'=>$data['service']->error_msg()]);
+            }
+            else   return response()->json(['message'=>'資料儲存過程中發生錯誤，請檢查資料後重新送出，若問題仍持續發生，請聯絡站長。']);        
+        }
+    }     
+    
 
     public function stay_online_time(Request $request)
     {
