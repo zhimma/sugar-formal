@@ -5,6 +5,9 @@ namespace App\Models;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
 use App\Models\OptionOccupation;
+use Illuminate\Support\Facades\Log;
+use DB;
+use Carbon\Carbon;
 
 class UserOptionsXref extends Model
 {
@@ -48,5 +51,35 @@ class UserOptionsXref extends Model
     public function occupation()
     {
         return $this->hasOne(OptionOccupation::class, 'id', 'option_id');
+    }
+
+    public static function update_multiple_option($user_id, $option_array)
+    {
+        $type_list = array_keys($option_array);
+        $type_list_id = [];
+        foreach(DB::table('option_type')->whereIn('type_name', $type_list)->get()->toArray() as $type)
+        {
+            $type_list_id[$type->type_name] = $type->id;
+        }
+        //把所有選項刪除重置
+        UserOptionsXref::where('user_id', $user_id)->whereIn('option_type', $type_list_id)->delete();
+
+        //插入新資料
+        $now_time = Carbon::now();
+        $insert_data = [];
+        foreach($type_list as $type)
+        {
+            foreach($option_array[$type] as $option)
+            {
+                $insert_data[] = [
+                    'user_id' => $user_id, 
+                    'option_type' => $type_list_id[$type], 
+                    'option_id' => $option, 
+                    'created_at' => $now_time,
+                    'updated_at' => $now_time
+                ];
+            }
+        }
+        UserOptionsXref::insert($insert_data);
     }
 }
