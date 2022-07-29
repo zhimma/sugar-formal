@@ -5034,10 +5034,10 @@ background:rgba(255,255,255,0.6);
 
 
 
-        .blur_img {
+        /*.blur_img {
             filter: blur(3px);
             -webkit-filter: blur(3px);
-        }
+        }*/
         .select_xx07{
             /* width: 425px; */
             border-radius: 4px;
