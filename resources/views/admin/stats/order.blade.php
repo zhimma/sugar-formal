@@ -42,6 +42,22 @@
             </div>
         </div>
     </form>
+    <form action="{{ route('order/orderFunPointPayCheck') }}" method='post' target="_blank">
+        {!! csrf_field() !!}
+        <div class="form-row align-items-center">
+            <div class="col-auto">FunPoint訂單反查</div>
+            <div class="col-auto">
+                <label class="sr-only" for="order_id">FunPoint訂單編號</label>
+                <input type="text" class="form-control mb-2" name="order_id" id="order_id" placeholder="輸入FunPoint訂單，例如SG123456" style="width: 220px;">
+            </div>
+            <div class="col-auto">
+                <button type="submit" class="btn btn-primary mb-2">送出</button>
+            </div>
+            <div class="col-auto">
+                此功能用來反查FunPoint訂單資料是否有效
+            </div>
+        </div>
+    </form>
 </div>
 <hr>
 <h1>訂單查詢</h1>

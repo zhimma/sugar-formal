@@ -2,11 +2,6 @@
 
 @section('app-content')
         <style>
-        .blur_img {
-            filter: blur(3px);
-            -webkit-filter: blur(3px);
-        }
-        
         .sjlist li .sjleft font span {margin-left:3%;float:unset;display:unset;} 
         </style>
 
@@ -57,6 +52,8 @@
 @section('javascript')
 <script src="{{asset('/new/js/pick_real_error.js')}}" type="text/javascript"></script>
 <script>
+    // 計算瀏覽時間
+    var page_id = 'browse';
    
 	function cl() {
 		 $(".blbg").show()

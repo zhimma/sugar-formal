@@ -1135,7 +1135,10 @@ class UserService
     }
 
     public static function isBlurAvatar($to, $user) {
-        if($user->engroup == 1 && ($to->id == $user->id)) {
+        if(($to->id == $user->id)) {
+            return false;
+        }
+        if(($to->engroup == $user->engroup)) {
             return false;
         }
         $blurryAvatar = isset($to->meta->blurryAvatar)? $to->meta->blurryAvatar : "";
@@ -1144,10 +1147,7 @@ class UserService
             $isBlurAvatar = true;
         }
         else{
-            if($user->engroup == 2){
-                $isBlurAvatar = false;
-            }
-            else if(sizeof($blurryAvatar)>1){
+            if(sizeof($blurryAvatar)>1){
                 $nowB = $user->isVip()? 'VIP' : 'general';
                 $isBlurAvatar = in_array($nowB, $blurryAvatar);
             }
@@ -1159,7 +1159,7 @@ class UserService
     }
 
     public static function isBlurLifePhoto($to, $user) {
-        if($user->engroup == 1 && ($to->id == $user->id)) {
+        if(($to->id == $user->id)) {
             return false;
         }
         $blurryLifePhoto = isset($to->meta->blurryLifePhoto)? $to->meta->blurryLifePhoto : "";
@@ -1168,10 +1168,7 @@ class UserService
             $isBlurLifePhoto = true;
         }
         else{
-            if($user->engroup == 2){
-                $isBlurLifePhoto = false;
-            }
-            else if(sizeof($blurryLifePhoto)>1){
+            if(sizeof($blurryLifePhoto)>1){
                 $nowB = $user->isVip()? 'VIP' : 'general';
                 $isBlurLifePhoto = in_array($nowB, $blurryLifePhoto);
             }

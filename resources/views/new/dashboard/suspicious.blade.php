@@ -232,6 +232,9 @@
 </style>
 @section('javascript')
 <script>
+    // 計算瀏覽時間
+    var page_id = 'browse';
+
     let sent = false;
     $('.unblock').on('click', function() {
        c4('確定要解除封鎖嗎?')

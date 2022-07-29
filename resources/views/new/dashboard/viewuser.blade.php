@@ -617,12 +617,12 @@
                                                 <img src="/new/images/a8_x.png">
                                             </div>
                                             @elseif(!$to->isAdvanceAuth() && $to->engroup==2)
-                                            <div class="tagText"  data-toggle="popover" data-content="通過本站手機驗證的會員。">
+                                            <div class="tagText"  data-toggle="popover" data-content="以手機門號通過年齡/性別驗證。">
                                                 <img src="/new/images/a6_x.png">
                                             </div>
                                             @endif--}}
                                             @if($to->isAdvanceAuth() && $to->engroup==2)
-                                            <div class="tagText"  data-toggle="popover" data-content="通過本站手機驗證的會員。">
+                                            <div class="tagText"  data-toggle="popover" data-content="以手機門號通過年齡/性別驗證。">
                                                 <img src="/new/images/a6.png">
                                             </div>
                                             @endif
@@ -632,12 +632,12 @@
                                                 <img src="/new/images/b_8x.png">
                                             </div>
                                             @elseif(!$to->isAdvanceAuth() && $to->engroup==2)
-                                            <div class="tagText"  data-toggle="popover" data-content="通過本站手機驗證的會員。">
+                                            <div class="tagText"  data-toggle="popover" data-content="以手機門號通過年齡/性別驗證。">
                                                 <img src="/new/images/b_5x.png">
                                             </div>
                                             @endif--}}
                                             @if($to->isAdvanceAuth() && $to->engroup==2)
-                                            <div class="tagText"  data-toggle="popover" data-content="通過本站手機驗證的會員。">
+                                            <div class="tagText"  data-toggle="popover" data-content="以手機門號通過年齡/性別驗證。">
                                                 <img src="/new/images/b_6.png">
                                             </div>
                                             @endif
@@ -844,7 +844,7 @@
                                         <img src="/new/images/shouru.png">
                                         <div class="she_fontetex">車馬費預算<span>transport fare</span></div>
                                     </div>
-                                    <a class="s_bushi" onclick="jianju_transport_fare()">檢舉不實</a>
+                                    <a class="s_bushi" onclick="jianju_transport_fare()">檢舉</a>
                                     <div class="sh_button_w">
                                         @if(!empty($to->meta->transport_fare_min) && !empty($to->meta->transport_fare_max) && $to->meta->transport_fare_min != -1 && $to->meta->transport_fare_max != -1)
                                             <div class="sh_button_n"> {{round($to->meta->transport_fare_min, -2)}}~{{round($to->meta->transport_fare_max, -2)}}</div>
@@ -861,7 +861,7 @@
                                         <img src="/new/images/zichan.png">
                                         <div class="she_fontetex">每月預算<span>month budget</span></div>
                                     </div>
-                                    <a class="s_bushizz" onclick="jianju_month_budget()">檢舉不實</a>
+                                    <a class="s_bushizz" onclick="jianju_month_budget()">檢舉</a>
                                     <div class="zc_button_w">
                                         @if(!empty($to->meta->budget_per_month_min) && !empty($to->meta->budget_per_month_max) && $to->meta->budget_per_month_min != -1 && $to->meta->budget_per_month_max != -1)
                                             <div class="zc_button_n"> {{round($to->meta->budget_per_month_min, -3)/10000}}萬~{{round($to->meta->budget_per_month_max, -3)/10000}}萬</div>

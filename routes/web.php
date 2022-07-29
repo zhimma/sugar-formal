@@ -14,7 +14,7 @@ use App\Http\Controllers\Api\CfpController;
 | to using a given Closure or controller and enjoy the fresh air.
 |
 */
-
+// Route::group(['middleware' => ['feature:site-maintenance-mode']], function () {
 
 Route::get('/fingerprint', 'PagesController@fingerprint');
 Route::post('/saveFingerprint', 'PagesController@saveFingerprint')->name('saveFingerprint');
@@ -172,6 +172,7 @@ Route::group(['middleware' => ['auth', 'global','SessionExpired']], function () 
     Route::post('/check-cfp', 'PagesController@checkcfp')->name('checkcfp');
 });
 Route::post('/dashboard/faq_reply', 'PagesController@checkFaqAnswer')->middleware('auth')->name('checkFaqAnswer');
+Route::get('/dashboard/faq_check', 'PagesController@checkIsForceShowFaq')->middleware('auth')->name('checkIsForceShowFaq');
 Route::get('/advance_auth_activate/token/{token}', 'PagesController@advance_auth_email_activate')->name('advance_auth_email_activate');
 
 Route::group(['middleware' => ['auth', 'global', 'active', 'femaleActive', 'vipCheck', 'newerManual', 'CheckAccountStatus', 'AdjustedPeriodCheck', 'SessionExpired','FaqCheck']], function () {
@@ -350,6 +351,12 @@ Route::group(['middleware' => ['auth', 'global', 'active', 'femaleActive', 'vipC
 
     Route::get('/dashboard/vipForNewebPay', 'PagesController@viewVipForNewebPay'); //new route
     Route::get('/dashboard/suspicious', 'PagesController@viewSuspicious'); //new route
+    Route::get('/dashboard/suspicious_list', 'PagesController@suspicious_list');
+    Route::get('/dashboard/suspicious_posts', 'PagesController@suspicious_posts');
+    Route::post('/dashboard/suspicious_doPosts', 'PagesController@suspicious_doPosts');
+    Route::get('/dashboard/view_suspicious_edit/{id}', 'PagesController@view_suspicious_edit');
+    Route::post('/dashboard/suspicious_delete/{id}', 'PagesController@suspicious_delete');
+    Route::get('/dashboard/suspicious_count/{id}', 'PagesController@suspicious_count');
     Route::post('/dashboard/suspicious_u_account', 'PagesController@suspiciousUserAccount')->name('suspicious_u_account'); //new route
 
     Route::get('/dashboard/account_manage', 'PagesController@view_account_manage'); //new route
@@ -856,6 +863,8 @@ Route::group(['middleware' => ['auth', 'global', 'active', 'femaleActive', 'vipC
         Route::get('order/list', 'OrderController@getOrderData')->name('order/list');
         Route::post('order/orderGeneratorById', 'OrderController@orderGeneratorById')->name('order/orderGeneratorById');
         Route::post('order/orderEcPayCheck', 'OrderController@orderEcPayCheck')->name('order/orderEcPayCheck');
+        Route::post('order/orderFunPointPayCheck', 'OrderController@orderFunPointPayCheck')->name('order/orderFunPointPayCheck');
+
 
         /*新增、編輯訊息*/
         Route::post('users/getmsglib', 'UserController@getMessageLib');
@@ -922,6 +931,13 @@ Route::group(['middleware' => ['auth', 'global', 'active', 'femaleActive', 'vipC
         Route::get('admin/user_visited_time_view', 'UserController@user_visited_time_view')->name('admin/user_visited_time_view');
         Route::get('admin/user_online_time_view', 'UserController@user_online_time_view')->name('admin/user_online_time_view');
         
+        Route::get('global/feature_flags', 'UserController@feature_flags')->name('admin/feature_flags');
+        Route::get('global/feature_flags/create', 'UserController@feature_flags_create');
+        Route::post('global/feature_flags/create', 'UserController@feature_flags_create');
+        Route::get('global/feature_flags/edit/{feature_key}', 'UserController@feature_flags_edit');
+        Route::post('global/feature_flags/edit', 'UserController@feature_flags_edit');
+        Route::post('global/feature_flags/update', 'UserController@feature_flags_update');
+        Route::post('global/feature_flags/delete', 'UserController@feature_flags_delete');
     });
     Route::group(['prefix' => 'admin', 'middleware' => 'Admin'], function () {
         //寄退信Log查詢
@@ -1005,3 +1021,4 @@ Route::group(['middleware' => ['auth', 'global', 'active', 'femaleActive', 'vipC
 Route::get('/test', 'ImageController@deletePictures');
 
 Route::get('/cfp', [CfpController::class, 'cfp']);
+// });

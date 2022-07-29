@@ -68,6 +68,7 @@ use App\Models\IsBannedLog;
 use App\Models\StayOnlineRecord;
 use App\Models\UserRecord;
 use App\Models\Visited;
+use App\Models\Features;
 
 class UserController extends \App\Http\Controllers\BaseController
 {
@@ -683,6 +684,7 @@ class UserController extends \App\Http\Controllers\BaseController
         $userWarned = new warned_users;
         $userWarned->member_id = $request->user_id;
         $userWarned->expire_date = $expire_date;
+        $userWarned->type = $request->type;
         $userWarned->reason = $reason;
         $userWarned->save();
 
@@ -1060,6 +1062,7 @@ class UserController extends \App\Http\Controllers\BaseController
      */
     public function advInfo(Request $request, $id)
     {
+        set_time_limit(300);
         if (!$id) {
             return redirect(route('users/advSearch'));
         }
@@ -1643,7 +1646,7 @@ class UserController extends \App\Http\Controllers\BaseController
         //正被警示
         $isWarned = warned_users::where('member_id', $user->id)->where('expire_date', null)->orWhere('expire_date', '>', Carbon::now())->where('member_id', $user->id)->orderBy('created_at', 'desc')->paginate(10);
         $is_warned_of_budget = false;
-        if(($isWarned->first()->reason??'') == '每月預算不實' || ($isWarned->first()->reason??'') == '車馬費預算不實')
+        if(($isWarned->first()->type??'') == 'month_budget' || ($isWarned->first()->type??'') == 'transport_fare')
         {
             $is_warned_of_budget = true;
         }
@@ -1672,6 +1675,15 @@ class UserController extends \App\Http\Controllers\BaseController
 
         //使用者紀錄
         $user_record = UserRecord::where('user_id', $user->id)->first();
+
+        //停留時間
+        $pageStay = StayOnlineRecord::select(DB::raw("SUM(browse) as browse"), DB::raw("SUM(newer_manual) as newer_manual"))
+            ->where('user_id', $id)
+            ->where('browse', '>', 0)
+            ->orWhere('newer_manual', '>', 0)
+            ->where('user_id', $id)
+            ->get()
+            ->toArray();
 
         if (str_contains(url()->current(), 'edit')) {
             $birthday = date('Y-m-d', strtotime($userMeta->birthdate));
@@ -1718,6 +1730,7 @@ class UserController extends \App\Http\Controllers\BaseController
                 ->with('hideonline_order', $hideonline_order)
                 ->with('user_record', $user_record)
                 ->with('is_warned_of_budget', $is_warned_of_budget)
+                ->with('pageStay', $pageStay)
                 ;
         }
     }
@@ -4953,6 +4966,9 @@ class UserController extends \App\Http\Controllers\BaseController
         UserMeta::where('user_id', $request->user_id)->update(['phone' => $request->phone]);
         event(new \App\Events\CheckWarnedOfReport($request->user_id));
 
+        //驗證成功解除尚未手機驗證警示
+        SetAutoBan::relieve_mobile_verify_warned($request->user_id);
+
         return back()->with('message', $request->pass ? '已通過手機驗證' : '手機已更新');
     }
 
@@ -6471,4 +6487,102 @@ class UserController extends \App\Http\Controllers\BaseController
 
         return view('admin.users.userMessageCheck', compact('data'));
     }
+
+    public function feature_flags(Request $request){
+        $data['features'] = Features::get()->toArray();
+        return view('admin.users.feature_flags', $data);
+    }
+
+    public function feature_flags_create(Request $request){
+        if($request->method()=='GET'){
+            return view('admin.users.feature_flags_create');
+        }else if($request->method()=='POST'){
+            $feature = $request->feature;
+            $introduction = $request->introduction ?? '';
+            $priority = $request->priority ?? 0;
+    
+            $description_data = array(
+                'introduction'=>$introduction,
+                'priority'=>$priority
+            );
+    
+            $data = array(
+                'key'=>$feature,
+                'feature'=>$feature,
+                'description'=> json_encode($description_data)
+            );
+    
+            Features::insert($data);
+
+            return redirect('/admin/global/feature_flags');
+        }else{
+            return 'method invalid';
+        }
+        
+    }
+
+    public function feature_flags_edit(Request $request){
+        if($request->method()=='GET'){
+            $feature_key = $request->feature_key;
+            
+            $data['feature'] = Features::where('id',$feature_key)->first();
+
+            return view('admin.users.feature_flags_edit', $data);
+        }else if($request->method()=='POST'){
+            $feature_id = $request->feature_id;
+            $feature = $request->feature;
+            $introduction = $request->introduction ?? '';
+            $priority = $request->priority ?? 0;
+    
+            $description_data = array(
+                'introduction'=>$introduction,
+                'priority'=>$priority
+            );
+    
+            $data = array(
+                'key'=>$feature,
+                'feature'=>$feature,
+                'description'=> json_encode($description_data)
+            );
+
+            Features::where('id',$feature_id)->update($data);
+
+            return redirect('/admin/global/feature_flags');
+        }else{
+            return 'method invalid';
+        }
+    }
+
+    public function feature_flags_update(Request $request){
+        $feature_id = $request->feature_id;
+        $feature = $request->feature;
+        $status =  $request->status;
+        if($status=='true'){
+            $active_at = now();
+        }else{
+            $active_at = null;
+        }
+
+        Features::where('id',$feature_id)->update(['active_at'=>$active_at]);
+
+    }
+
+    public function feature_flags_delete(Request $request){
+        $feature_id = $request->feature_id;
+        $status = Features::where('id',$feature_id)->delete();
+        if($status){
+            $data = array(
+                'code'=>200,
+                'message'=>'刪除成功'
+            );  
+        }else{
+            $data = array(
+                'code'=>400,
+                'message'=>'刪除失敗'
+            );
+        }
+
+        return json_encode($data);
+    }
+
 }

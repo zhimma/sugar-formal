@@ -16,6 +16,7 @@ use App\Jobs\AutoBanCaller;
 use App\Jobs\LogoutAutoBan;
 use Carbon\Carbon;
 use App\Services\ImagesCompareService;
+use App\Jobs\BanJob;
 
 class SetAutoBan extends Model
 {
@@ -111,42 +112,8 @@ class SetAutoBan extends Model
             }
 
             if($violation){
-                if($ban_set->set_ban == 1 && banned_users::where('member_id', $uid)->first() == null){
-                    //直接封鎖
-                    $userBanned = new banned_users;
-                    if($user->engroup==2 ) {
-                       if(!($user->advance_auth_status??null)) {
-                           $userBanned->adv_auth=1;
-                       }
-                       else $userBanned=null;
-                    } 
-                    
-                    if($userBanned) {
-                        $userBanned->member_id = $uid;
-                        $userBanned->reason = "系統原因($ban_set->id)";
-                        $userBanned->save();
-                        //寫入log
-                        DB::table('is_banned_log')->insert(['user_id' => $uid, 'reason' => "系統原因($ban_set->id)"]);
-                    }
-                }
-                elseif($ban_set->set_ban == 2 && BannedUsersImplicitly::where('target', $uid)->first() == null){
-                    //隱性封鎖
-                    BannedUsersImplicitly::insert(['fp' => 'Line 79, BannedInUserInfo, ban_set ID: ' . $ban_set->id . ', content: ' . $content, 'user_id' => 0, 'target' => $uid]);
-                }
-                elseif($ban_set->set_ban == 3 && warned_users::where('member_id', $uid)->first() == null){
-                    //警示會員
-                    $userWarned = new warned_users;
-                    $userWarned->member_id = $uid;
-                    $userWarned->reason = "系統原因($ban_set->id)";
-                    if($ban_set->expired_days !=0)
-                    {
-                        $userWarned->expire_date = Carbon::now()->addDays($ban_set->expired_days);
-                    }
-                    $userWarned->save();
-                    //寫入log
-                    DB::table('is_warned_log')->insert(['user_id' => $uid, 'reason' => "系統原因($ban_set->id)"]);
-                    // UserMeta::where('user_id', $uid)->update(['isWarned' => 1]);
-                }
+                $type = 'profile';
+                BanJob::dispatch($uid, $ban_set, $user, $type)->onConnection('ban-job')->onQueue('ban-job');
                 return;
             }
         }
@@ -176,35 +143,8 @@ class SetAutoBan extends Model
                 $violation = true;
             }
             if ($violation) {
-                if($ban_set->set_ban == 1 && banned_users::where('member_id', $uid)->first() == null) {
-                    //直接封鎖
-                    $userBanned = new banned_users;
-                    $userBanned->member_id = $uid;
-                    $userBanned->reason = "系統原因($ban_set->id)";
-                    $userBanned->save();
-                    //寫入log
-                    DB::table('is_banned_log')->insert(['user_id' => $uid, 'reason' => "系統原因($ban_set->id)"]);
-                }
-                elseif($ban_set->set_ban == 2 && BannedUsersImplicitly::where('target', $uid)->first() == null) {
-                    //隱性封鎖
-                    BannedUsersImplicitly::insert(['fp' => 'Line 124, BannedInUserInfo, ban_set ID: ' . $ban_set->id . ', content: ' . $ban_set->content, 'user_id' => 0, 'target' => $uid]);
-                }
-                elseif($ban_set->set_ban == 3 && warned_users::where('member_id', $uid)->first() == null) {
-                    //警示會員
-                    $userWarned = new warned_users;
-                    $userWarned->member_id = $uid;
-                    $userWarned->reason = "系統原因($ban_set->id)";
-
-                    if($ban_set->expired_days !=0)
-                    {
-                        $userWarned->expire_date = Carbon::now()->addDays($ban_set->expired_days);
-                    }
-
-                    $userWarned->save();
-                    //寫入log
-                    DB::table('is_warned_log')->insert(['user_id' => $uid, 'reason' => "系統原因($ban_set->id)"]);
-                    // UserMeta::where('user_id', $uid)->update(['isWarned' => 1]);
-                }
+                $type = 'message';
+                BanJob::dispatch($uid, $ban_set, $user, $type)->onConnection('ban-job')->onQueue('ban-job');
                 return;
             }
         }
@@ -220,6 +160,44 @@ class SetAutoBan extends Model
         }
         else {
             LogoutAutoBan::dispatch($uid)->onConnection('sqs')->onQueue('auto-ban-test')->delay(SetAutoBan::_getDelayTime());
+        }
+    }
+
+    //登入時的警示
+    public static function login_warned($uid)
+    {
+        $user = User::where('id', $uid)->first();
+        $count_of_user_login_with_desktop = LogUserLogin::where('user_id', $uid)
+                                                ->where(function($query){
+                                                    //Windows
+                                                    $query->where('userAgent', 'like', '%' . 'Windows' . '%');
+                                                    //Mac
+                                                    //$query->orwhere('userAgent', 'like', '%' . 'Macintosh' . '%');
+                                                })
+                                                ->count();
+        if($user->engroup==2 && !$user->isPhoneAuth() && $count_of_user_login_with_desktop>=3 && $user->created_at>\Carbon\Carbon::now()->subDays(10))
+        {
+            SetAutoBan::mobile_verify_warned($uid);
+        }
+    }
+
+    public static function mobile_verify_warned($uid)
+    {
+        $reason = '尚未進行手機驗證';
+        $userWarned = new warned_users;
+        $userWarned->member_id = $uid;
+        $userWarned->type = 'no_mobile_verify';
+        $userWarned->reason = $reason;
+        $userWarned->save();
+        //寫入log
+        DB::table('is_warned_log')->insert(['user_id' => $uid, 'reason' => $reason]);
+    }
+
+    public static function relieve_mobile_verify_warned($uid)
+    {
+        if(User::findById($uid)->isPhoneAuth() == true)
+        {
+            warned_users::where('member_id', $uid)->where('type', 'no_mobile_verify')->delete();
         }
     }
 
@@ -304,7 +282,7 @@ class SetAutoBan extends Model
 
                 //20220629新增圖片檔名
                 case 'picname':
-                    Log::info('start_pic_auto_ban');
+                    //Log::info('start_pic_auto_ban');
                     if(UserMeta::where('user_id',$uid)->where('pic_original_name','like','%'.$content.'%')->first() != null) $violation = true;
 
                     //有一筆違規就可以封鎖了
@@ -338,41 +316,8 @@ class SetAutoBan extends Model
             }
 
             if ($violation) {
-                if($ban_set->set_ban == 1 && banned_users::where('member_id', $uid)->first() == null) {
-                    //直接封鎖
-                    $userBanned = new banned_users;
-                    if($user->engroup==2 ) {
-                       if(!($user->advance_auth_status??null)) {
-                           $userBanned->adv_auth=1;
-                       }
-                       else $userBanned=null;
-                    } 
-                    if($userBanned) {
-                        $userBanned->member_id = $uid;
-                        $userBanned->reason = "系統原因($ban_set->id)";
-                        $userBanned->save();
-                        //寫入log
-                        DB::table('is_banned_log')->insert(['user_id' => $uid, 'reason' => "系統原因($ban_set->id)"]);
-                    }
-                }
-                elseif($ban_set->set_ban == 2 && BannedUsersImplicitly::where('target', $uid)->first() == null){
-                    //隱性封鎖
-                    BannedUsersImplicitly::insert(['fp' => 'Line 79, BannedInUserInfo, ban_set ID: ' . $ban_set->id . ', content: ' . $content, 'user_id' => 0, 'target' => $uid]);
-                }
-                elseif($ban_set->set_ban == 3) {
-                    //警示會員
-                    $userWarned = new warned_users;
-                    $userWarned->member_id = $uid;
-                    $userWarned->reason = "系統原因($ban_set->id)";
-                    if($ban_set->expired_days !=0)
-                    {
-                        $userWarned->expire_date = Carbon::now()->addDays($ban_set->expired_days);
-                    }
-                    $userWarned->save();
-                    //寫入log
-                    DB::table('is_warned_log')->insert(['user_id' => $uid, 'reason' => "系統原因($ban_set->id)"]);
-                    // UserMeta::where('user_id', $uid)->update(['isWarned' => 1]);
-                }
+                $type = 'profile';
+                BanJob::dispatch($uid, $ban_set, $user, $type)->onConnection('ban-job')->onQueue('ban-job');
             }
         }
         $msg_auto_ban = $set_auto_ban->where('type', 'msg')->orwhere('type', 'allcheck')->orderBy('id', 'desc')->get();
@@ -388,43 +333,8 @@ class SetAutoBan extends Model
                     $violation = true;
                 }
                 if ($violation) {
-                    if($ban_set->set_ban == 1 && banned_users::where('member_id', $uid)->first() == null) {
-                        //直接封鎖
-                        $userBanned = new banned_users;
-                        if($user->engroup==2 ) {
-                           if(!($user->advance_auth_status??null)) {
-                               $userBanned->adv_auth=1;
-                           }
-                           else $userBanned=null;
-                        }                         
-                        if($userBanned) {
-                            $userBanned->member_id = $uid;
-                            $userBanned->reason = "系統原因($ban_set->id)";
-                            $userBanned->save();
-                            //寫入log
-                            DB::table('is_banned_log')->insert(['user_id' => $uid, 'reason' => "系統原因($ban_set->id)"]);
-                        }
-                    }
-                    elseif($ban_set->set_ban == 2 && BannedUsersImplicitly::where('target', $uid)->first() == null) {
-                        //隱性封鎖
-                        BannedUsersImplicitly::insert(['fp' => 'Line 124, BannedInUserInfo, ban_set ID: ' . $ban_set->id . ', content: ' . $ban_set->content, 'user_id' => 0, 'target' => $uid]);
-                    }
-                    elseif($ban_set->set_ban == 3 && warned_users::where('member_id', $uid)->first() == null) {
-                        //警示會員
-                        $userWarned = new warned_users;
-                        $userWarned->member_id = $uid;
-                        $userWarned->reason = "系統原因($ban_set->id)";
-
-                        if($ban_set->expired_days !=0)
-                        {
-                            $userWarned->expire_date = Carbon::now()->addDays($ban_set->expired_days);
-                        }
-
-                        $userWarned->save();
-                        //寫入log
-                        DB::table('is_warned_log')->insert(['user_id' => $uid, 'reason' => "系統原因($ban_set->id)"]);
-                        // UserMeta::where('user_id', $uid)->update(['isWarned' => 1]);
-                    }
+                    $type = 'message';
+                    BanJob::dispatch($uid, $ban_set, $user, $type)->onConnection('ban-job')->onQueue('ban-job');
                 }
             }
         }

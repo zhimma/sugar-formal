@@ -170,6 +170,8 @@ header("Expires: Fri, 01 Jan 1990 00:00:00 GMT");
                                                         <option value="休學" @if( !empty( $_POST["situation"] ) && $_POST["situation"] == "休學" ) selected @elseif(!empty( $_GET["situation"] ) && $_GET["situation"] == "休學") selected @elseif(!empty( session()->get('search_page_key.situation') ) && session()->get('search_page_key.situation') == "休學") selected @endif>休學</option>
                                                         <option value="打工" @if( !empty( $_POST["situation"] ) && $_POST["situation"] == "打工" ) selected @elseif(!empty( $_GET["situation"] ) && $_GET["situation"] == "打工") selected @elseif(!empty( session()->get('search_page_key.situation') ) && session()->get('search_page_key.situation') == "打工") selected @endif>打工</option>
                                                         <option value="上班族" @if( !empty( $_POST["situation"] ) && $_POST["situation"] == "上班族" ) selected @elseif(!empty( $_GET["situation"] ) && $_GET["situation"] == "上班族") selected @elseif(!empty( session()->get('search_page_key.situation') ) && session()->get('search_page_key.situation') == "上班族") selected @endif>上班族</option>
+                                                        <option value="在家工作" @if( !empty( $_POST["situation"] ) && $_POST["situation"] == "在家工作" ) selected @elseif(!empty( $_GET["situation"] ) && $_GET["situation"] == "在家工作") selected @elseif(!empty( session()->get('search_page_key.situation') ) && session()->get('search_page_key.situation') == "在家工作") selected @endif>在家工作</option>
+                                                        <option value="自行開業" @if( !empty( $_POST["situation"] ) && $_POST["situation"] == "自行開業" ) selected @elseif(!empty( $_GET["situation"] ) && $_GET["situation"] == "自行開業") selected @elseif(!empty( session()->get('search_page_key.situation') ) && session()->get('search_page_key.situation') == "自行開業") selected @endif>自行開業</option>
                                                     </select>
                                                 </div>
                                             @else
@@ -370,22 +372,13 @@ header("Expires: Fri, 01 Jan 1990 00:00:00 GMT");
 
                                         @if ($user_engroup == 1)
                                             <dt class="matopj15">
-                                                <span>是否想進一步發展?<i class="ssrgf">(僅顯示有填寫者)</i></span>
+                                                <span>是否想進一步發展?</span>
                                                 <span class="line20">
                                                     <label class="n_tx">
-                                                        <input type="radio" name="is_pure_dating" value="1" id="is_pure_dating1" {{ 
-                                                            request()->is_pure_dating == "1" || session()->get('search_page_key.is_pure_dating') == "1"
-                                                            ? 'checked' : '' }}><i>是</i>
+                                                        <input type="radio" name="is_pure_dating" value="1" id="is_pure_dating1" {{request()->is_pure_dating == "1" || session()->get('search_page_key.is_pure_dating') =="1" ? 'checked' : '' }}><i>是</i>
                                                     </label>
                                                     <label class="n_tx">
-                                                        <input type="radio" name="is_pure_dating" value="0" id="is_pure_dating0" {{
-                                                            request()->is_pure_dating == "0" ||  session()->get('search_page_key.is_pure_dating') == "0"
-                                                            ? 'checked' : ''}}><i>否</i>
-                                                    </label>
-                                                    <label class="n_tx">
-                                                        <input type="radio" name="is_pure_dating" value='-1' id="is_pure_datingn" {{
-                                                            (request()->is_pure_dating == '-1' || session()->get('search_page_key.is_pure_dating') == '-1') || (request()->is_pure_dating == "" || session()->get('search_page_key.is_pure_dating') == "")
-                                                            ? 'checked' : ''}}><i>不選擇</i>
+                                                        <input type="radio" name="is_pure_dating" value="0" id="is_pure_dating0" {{request()->is_pure_dating == "0" || session()->get('search_page_key.is_pure_dating') =="0" ? 'checked' : ''}}><i>否</i>
                                                     </label>
                                                 </span>
                                             </dt>
@@ -1016,6 +1009,11 @@ header("Expires: Fri, 01 Jan 1990 00:00:00 GMT");
                             }
 
                             csrData +='<div class="n_seicon">';
+                            if(rowEngroup == 2){
+                                if(umeta.is_pure_dating==0){
+                                    csrData +='<img src="/new/images/zz_02.png" style="float: right;">';
+                                }
+                            }
                             if(umetaIsWarned==1 || rowVisitorIsAdminWarned==1)
                             {
                                 csrData +='<div class="hoverTip">';
@@ -1087,14 +1085,14 @@ header("Expires: Fri, 01 Jan 1990 00:00:00 GMT");
 
                                             csrData +='<span>丨</span>';
                                         }else if(rowVisitorIsAdvanceAuth==0 && rowEngroup==2){
-                                            csrData +='<div class="tagText"  data-toggle="popover" data-content="通過本站手機驗證的會員。">';
+                                            csrData +='<div class="tagText"  data-toggle="popover" data-content="以手機門號通過年齡/性別驗證。">';
                                             csrData +='<img src="/new/images/c_09.png">';
                                             csrData +='</div>  ';
 
                                             csrData +='<span>丨</span>';
                                         }*/
                                         if(rowVisitorIsAdvanceAuth==1 && rowEngroup==2){
-                                            csrData +='<div class="tagText"  data-toggle="popover" data-content="通過本站手機驗證的會員。">';
+                                            csrData +='<div class="tagText"  data-toggle="popover" data-content="以手機門號通過年齡/性別驗證。">';
                                             csrData +='<img src="/new/images/c_10.png">';
                                             csrData +='</div>';
                                         }
@@ -1106,12 +1104,12 @@ header("Expires: Fri, 01 Jan 1990 00:00:00 GMT");
                                             csrData +='<img src="/new/images/b_8x.png">';
                                             csrData +='</div> ';
                                         }else if(rowVisitorIsAdvanceAuth==0 && rowEngroup==2 ){
-                                            csrData +='<div class="tagText"  data-toggle="popover" data-content="通過本站手機驗證的會員。">';
+                                            csrData +='<div class="tagText"  data-toggle="popover" data-content="以手機門號通過年齡/性別驗證。">';
                                             csrData +='<img src="/new/images/b_5x.png">';
                                             csrData +='</div>  ';
                                         }*/
                                         if(rowVisitorIsAdvanceAuth==1 && rowEngroup==2) {
-                                            csrData +='<div class="tagText"  data-toggle="popover" data-content="通過本站手機驗證的會員。">';
+                                            csrData +='<div class="tagText"  data-toggle="popover" data-content="以手機門號通過年齡/性別驗證。">';
                                             csrData +='<img src="/new/images/b_6.png">';
                                             csrData +='</div>  ';
                                         }
@@ -1219,7 +1217,7 @@ header("Expires: Fri, 01 Jan 1990 00:00:00 GMT");
                            
                         if(this.userIsVip==1){
                             if(umetaIsHideOccupation==0 && umetaOccupation !== "" && umetaOccupation != 'null' && umetaOccupation != null){
-                                csrData +='<span style="margin-left: 0;">'+umetaOccupation+'</span>';
+                                csrData +='<i class="j_lxx">丨</i><span style="margin-left: 0;">'+umetaOccupation+'</span>';
                             }
                         }else{
                             csrData +='<span style="margin-left: 10px;"><span style="padding-left: 5px;">職業</span><img src="/new/images/icon_35.png" class="nt_img"></span>';
