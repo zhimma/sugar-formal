@@ -71,9 +71,16 @@ class Reported extends Model
 
                 $destinationPath = '/img/Reported/'. substr($input['imagename'], 0, 4) . '/' . substr($input['imagename'], 4, 2) . '/'. substr($input['imagename'], 6, 2) . '/' . $input['imagename'];
 
-                $img = Image::make($file->getRealPath());
-                $img->resize(400, 600, function ($constraint) {
+                $pathname = $file->getRealPath();
+                $imagesize = getimagesize($pathname);
+                $width = $imagesize[0] ?? 1200;
+                $height = $imagesize[1] ?? null;
+
+                $img = Image::make($pathname);
+                $img->resize($width, $height, function ($constraint) {
                     $constraint->aspectRatio();
+                    // 若圖片較小，則不需放大圖片
+                    $constraint->upsize();
                 })->save($tempPath . $input['imagename']);
 
                 //整理images

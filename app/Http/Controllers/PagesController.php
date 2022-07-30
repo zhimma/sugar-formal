@@ -2120,6 +2120,7 @@ class PagesController extends BaseController
                     //->where(function($query){
                         //$query->where('wu.expire_date', '>=', Carbon::now())
                         //->orWhere('wu.expire_date', null); }); })
+                ->whereNull('evaluation.content_violation_processing')
                 ->whereNull('b1.member_id')
                 ->whereNull('b3.target')
                 ->where('um.isWarned',0)
@@ -2128,16 +2129,26 @@ class PagesController extends BaseController
                 //->whereNotNull('u2.id')
                 ->where('u1.accountStatus', 1)
                 ->where('u1.account_status_admin', 1)
+                ->where('evaluation.to_id', $uid)
                 //->where('u2.accountStatus', 1)
                 //->where('u2.account_status_admin', 1)
                 //->whereNull('um.user_id')
                 //->whereNull('wu.member_id')
+                ->orWhereNotNull('evaluation.content_violation_processing')
+                ->where('evaluation.anonymous_content_status', 1)
+                ->whereNull('b1.member_id')
+                ->whereNull('b3.target')
+                ->where('um.isWarned',0)
+                ->whereNull('w2.id')
+                ->whereNotNull('u1.id')
+                ->where('u1.accountStatus', 1)
+                ->where('u1.account_status_admin', 1)
                 ->orderBy('evaluation.created_at','desc')
                 ->where('evaluation.to_id', $uid);
 
             $evaluation_data = $query->paginate(10);
 
-            $evaluation_self = Evaluation::where('to_id',$uid)->where('from_id',$user->id)->first();
+            $evaluation_self = Evaluation::where('to_id',$uid)->where('from_id',$user->id)->whereNull('content_violation_processing')->first();
             /*編輯文案-被封鎖者看不到封鎖者的提示-START*/
             //$user_closed = AdminCommonText::where('alias','user_closed')->get()->first();
             /*編輯文案-被封鎖者看不到封鎖者的提示-END*/
@@ -2190,6 +2201,10 @@ class PagesController extends BaseController
                 session()->forget('via_by_essence_article_enter');
             }
             // die();
+
+            // 進階認證狀態
+            $advance_auth_status = $user->advance_auth_status;
+
             return view('new.dashboard.viewuser', $data ?? [])
                     ->with('user', $user)
                     ->with('blockadepopup', $blockadepopup)
@@ -2221,6 +2236,7 @@ class PagesController extends BaseController
                     ->with('visited_id', $visited_id)
                     ->with('transport_fare_reported', $transport_fare_reported)
                     ->with('month_budget_reported', $month_budget_reported)
+                    ->with('advance_auth_status', $advance_auth_status)
                     ;
             }
 
@@ -2773,21 +2789,19 @@ class PagesController extends BaseController
 
     public function evaluation_save(Request $request)
     {
+        $evaluation=Evaluation::create([
+            'from_id' => $request->input('uid'),
+            'to_id' => $request->input('eid'),
+            'content' => $request->input('content'),
+            'rating' => $request->input('rating'),
+            'read' => 1,
+            'content_violation_processing' => $request->input('content_processing_method'),
+            'created_at' => now(),
+            'updated_at' => now(),
+        ]);
+        //儲存評論照片
+        $this->evaluation_pic_save($evaluation->id, $request->input('uid'), $request->file('images'));
 
-        $evaluation_self = Evaluation::where('to_id',$request->input('eid'))->where('from_id',$request->input('uid'))->first();
-
-        if(isset($evaluation_self)){
-            DB::table('evaluation')->where('to_id',$request->input('eid'))->where('from_id',$request->input('uid'))->update(
-                ['content' => $request->input('content'), 'rating' => $request->input('rating'), 'read' => 1, 'updated_at' => now()]
-            );
-        }else {
-
-            $evaluation=Evaluation::create([
-                'from_id' => $request->input('uid'), 'to_id' => $request->input('eid'), 'content' => $request->input('content'), 'rating' => $request->input('rating'), 'read' => 1, 'created_at' => now(), 'updated_at' => now()
-            ]);
-            //儲存評論照片
-            $this->evaluation_pic_save($evaluation->id, $request->input('uid'), $request->file('images'));
-        }
         if($request->ajax()) {
             echo '評價已完成';
             exit;
@@ -2813,9 +2827,16 @@ class PagesController extends BaseController
 
                 $destinationPath = '/img/Evaluation/'. substr($input['imagename'], 0, 4) . '/' . substr($input['imagename'], 4, 2) . '/'. substr($input['imagename'], 6, 2) . '/' . $input['imagename'];
 
-                $img = Image::make($file->getRealPath());
-                $img->resize(400, 600, function ($constraint) {
+                $pathname = $file->getRealPath();
+                $imagesize = getimagesize($pathname);
+                $width = $imagesize[0] ?? 1200;
+                $height = $imagesize[0] ?? null;
+
+                $img = Image::make($pathname);
+                $img->resize($width, $height, function ($constraint) {
                     $constraint->aspectRatio();
+                    // 若圖片較小，則不需放大圖片
+                    $constraint->upsize();
                 })->save($tempPath . $input['imagename']);
 
                 //新增images到db
@@ -4912,6 +4933,7 @@ class PagesController extends BaseController
                     ->with('is_edu_mode', '1');
         } 
         $user->advance_auth_email = $email;
+        $user->advance_auth_email_at = Carbon::now();
         $user->save();        
         $this->service->setAndSendUserAdvAuthEmailToken($user);
 

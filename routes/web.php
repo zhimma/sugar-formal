@@ -726,6 +726,10 @@ Route::group(['middleware' => ['auth', 'global', 'active', 'femaleActive', 'vipC
             Route::post('delete', 'UserController@deletePhone')->name('phoneDelete');
             Route::post('search', 'UserController@searchPhone');
         });
+        Route::group(['prefix'=>'users/email'], function(){
+            Route::post('modify', 'UserController@modifyEmail')->name('emailModify');
+            Route::post('search', 'UserController@searchEmail');
+        });
 
         Route::get('statistics', 'UserController@statisticsReply')->name("statistics");
         Route::post('statistics', 'UserController@statisticsReply');
@@ -843,6 +847,8 @@ Route::group(['middleware' => ['auth', 'global', 'active', 'femaleActive', 'vipC
         Route::get('checkExchangePeriod', 'UserController@showAdminCheckExchangePeriod')->name('admin/checkExchangePeriod');
 		Route::get('checkPicUpload', 'UserController@showAdminCheckPicUpload')->name('admin/checkPicUpload');
         Route::post('checkExchangePeriod', 'UserController@AdminCheckExchangePeriodSave');
+        Route::get('checkAnonymousContent', 'UserController@showAdminCheckAnonymousContent')->name('admin/checkAnonymousContent');
+        Route::post('checkAnonymousContent', 'UserController@AdminCheckAnonymousContentSave');
         Route::get('roleManage', 'UserController@adminRole')->name('admin/role');
         Route::post('roleEdit', 'UserController@adminRoleEdit')->name('admin/role/edit');
         Route::get('users/picturesSimple', 'UserController@showUserPicturesSimple')->name('users/picturesSimple');

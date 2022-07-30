@@ -4056,10 +4056,15 @@ class UserController extends \App\Http\Controllers\BaseController
         $item_a = DB::table('account_name_change')->where('status', 0)->count();
         $item_b = DB::table('account_gender_change')->where('status', 0)->count();
         $item_c = DB::table('account_exchange_period')->where('status', 0)->count();
+        $item_d = DB::table('evaluation')
+                ->whereNotNull('content_violation_processing')
+                ->where('anonymous_content_status', 0)
+                ->count();
         return view('admin.adminCheck')
             ->with('item_a', $item_a)
             ->with('item_b', $item_b)
-            ->with('item_c', $item_c);
+            ->with('item_c', $item_c)
+            ->with('item_d', $item_d);
     }
 
     public function showAdminCheckNameChange()
@@ -4199,6 +4204,45 @@ class UserController extends \App\Http\Controllers\BaseController
         echo json_encode('ok');
     }
 
+    public function showAdminCheckAnonymousContent()
+    {
+        $data = User::select(
+                    'e.content',
+                    'e.content_violation_processing',
+                    'e.anonymous_content_status',
+                    'e.created_at',
+                    'e.id as evaluation_id',
+                    'to_user.email as to_email',
+                    'to_user.id as to_id',
+                    'users.id',
+                    'users.email',
+                    'users.name',
+                    'users.engroup')
+                ->join('evaluation as e', 'e.from_id', 'users.id')
+                ->join('users as to_user', 'e.to_id', 'to_user.id')
+                ->whereNotNull('e.content_violation_processing')
+                ->orderBy('e.created_at', 'desc')
+                ->get();
+        foreach ($data as $key => $row) {
+            $data[$key]['pic'] = EvaluationPic::select('pic')->where('evaluation_id', $row['evaluation_id'])->where('member_id', $row['id'])->get();
+        }
+
+        return view('admin.adminCheckAnonymousContent')
+            ->with('data', $data);
+    }
+
+    public function AdminCheckAnonymousContentSave(Request $request)
+    {
+        $evaluation_id = $request->evaluation_id;
+        $status = $request->status;
+        DB::table('evaluation')->where('id', $evaluation_id)
+            ->update(['anonymous_content_status' => $status, 'updated_at' => now()]);
+        
+        Session::flash('message', '審核已完成');
+
+        echo json_encode('ok');
+    }
+    
     public function showSpamTextMessage()
     {
         return view('admin.users.searchSpamTextMessage');
@@ -4989,6 +5033,43 @@ class UserController extends \App\Http\Controllers\BaseController
             }
         }
         return response()->json(['hasData' => $result && $request->phone ? 1 : 0, 'data' => $data]);
+    }
+
+    public function modifyEmail(Request $request)
+    {
+        if (User::where('advance_auth_email', $request->email)->first() && $request->email) {
+            return back()->with('error', '已存在資料, Email 重複驗證');
+        }
+        $user = User::where('id', $request->user_id)->first();
+        if ($request->pass) {
+            // 設定通過認證 Email 的時間
+            $user->advance_auth_email_at = Carbon::now();
+            $message = '已通過 Email 驗證';
+        } else if ($request->email) {
+            // 修改 Email  
+            $user->advance_auth_email = $request->email;
+            $message = 'Email 已更新';
+        } else {
+            // 刪除 Email
+            $user->advance_auth_email = null;
+            $user->advance_auth_email_at = null;
+            $message = 'Email 已刪除';
+        }
+        $user->save();
+        // event(new \App\Events\CheckWarnedOfReport($request->user_id));
+
+        return back()->with('message', $message);
+    }
+
+    public function searchEmail(Request $request)
+    {
+        $user = User::where('advance_auth_email', $request->email)->whereNotNull('advance_auth_email_at')->first();
+        $data = array();
+        if ($user) {
+            $data['user_email'] = $user->email;
+            $data['user_info_page'] = '/admin/users/advInfo/' . $user->id;
+        }
+        return response()->json(['hasData' => $user && $request->email ? 1 : 0, 'data' => $data]);
     }
 
     public function multipleLogin(Request $request)

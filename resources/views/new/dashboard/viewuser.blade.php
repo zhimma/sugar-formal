@@ -398,6 +398,9 @@
                 $('.alert_tip').text();
                 $('.alert_tip').text('請勾選同意上述說明');
                 return false;
+            } else if ($('.self_illustrate').is(':hidden') && $('#form1').find('.file-type-image').length == 0) {
+                $('.alert_tip').text();
+                $('.alert_tip').text('請上傳照片');
             }else{
                 $('#form1').submit();
             }
@@ -464,6 +467,12 @@
 			$("#tab_evaluation_reply #eid_reply").val(eid);
 			$('body').css("overflow", "hidden");
 		}        
+
+        function evaluation_description_close(){
+            $(".announce_bg").hide();
+            $("#evaluation_description").hide();
+            $('body').css("overflow", "auto");
+        }
     </script>
     @php
         $isBlurAvatar = \App\Services\UserService::isBlurAvatar($to, $user);
@@ -756,8 +765,18 @@
                                     <span><img src="/new/images/icon_36.png" class="tap-vip"></span>
                                 </li>
                             @endif
-                            <li class="evaluation">
+                            <li class="evaluation" style="position: relative;">
                                 <a><img src="/new/images/icon_14.png" class="tubiao_i"><span>評價</span></a>
+                                <div class="he_tkcn showslide_evaluation" style="z-index:1">
+                                    <ul>
+                                        <a class="myself_evaluation">
+                                            <img src="/new/images/icon_p1.png" class="he_tkcn_img">本人評價
+                                        </a>
+                                        <a class="anonymous_evaluation">
+                                            <img src="/new/images/icon_p2.png" class="he_tkcn_img">匿名評價
+                                        </a>
+                                    </ul>
+                                </div>
                             </li>
 							
                             <li style="position: relative;">
@@ -803,6 +822,11 @@
 					<script>
 						$('.userlogo').click(function() {
 							event.stopPropagation()
+                            var on2 = $('.bottub').find('.on2');
+                            if(on2.length) {
+                                on2.removeClass('on2');
+                                $('.bottub').find('.showslide_evaluation').fadeOut();
+                            }
 							if($(this).hasClass('on1')) {
 								$(this).removeClass('on1')
 								$('.showslide').fadeOut()
@@ -815,6 +839,8 @@
 						$('body').click(function() {
 							$('.userlogo').removeClass('on1')
 							$('.showslide').fadeOut()
+                            $('.evaluation').removeClass('on2')
+                            $('.showslide_evaluation').fadeOut()
 						})
 					</script>	
 
@@ -1328,7 +1354,11 @@
                                                             @endif
                                                         @endfor
                                                     </span>--}}
-                                                    <a href="/dashboard/viewuser/{{ $row_user->id }}">{{ $row->user->name }}</a>
+                                                    @if ($row->content_violation_processing)
+                                                        <span>匿名評價</span><span style="color: red; font-size:12px;">(站方代發)</span>
+                                                    @else
+                                                        <a href="/dashboard/viewuser/{{ $row_user->id }}">{{ $row->user->name }}</a>
+                                                    @endif
                                                     {{--                                <font>{{ substr($row->created_at,0,10)}}</font>--}}
                                                     @if($row_user->id == $user->id)
                                                         <font class="sc content_delete" data-id="{{ $row->id }}" style="padding: 0px 3px;"><img src="/new/images/del_03.png" style="padding: 0px 0px 1px 5px;">刪除</font>
@@ -1443,7 +1473,11 @@
                                                             @endfor
                                                         @endif
                                                     </span>--}}
-                                                    <a href="/dashboard/viewuser/{{$row_user->id}}">{{$row_user->name}}</a>
+                                                    @if ($row->content_violation_processing)
+                                                        <span>匿名評價</span><span style="color: red; font-size:12px;">(站方代發)</span>
+                                                    @else
+                                                        <a href="/dashboard/viewuser/{{$row_user->id}}">{{$row_user->name}}</a>
+                                                    @endif
                                                     @if(isset($warned_users) || isset($hadWarned))
                                                         <img src="/new/images/kul.png" class="sxyh">
                                                     @else
@@ -1597,7 +1631,7 @@
                         </div>
                         <div class="n_bbutton" style="margin-top:10px;">
                             <div style="display: inline-flex;">
-                            <div class="n_right" onclick="reportPostForm_submit()" style="border-style: none; background: #8a9ff0; color:#ffffff; float: unset; margin-left: 0px; margin-right: 20px;">送出</div>
+                            <button type="submit" class="n_right" style="border-style: none; background: #8a9ff0; color:#ffffff;float: unset; margin-left: 0px; margin-right: 20px;">送出</button>
                             <button type="reset" class="n_left" style="border: 1px solid #8a9ff0; background: #ffffff; color:#8a9ff0; float: unset; margin-right: 0px;" onclick="show_banned_close()">返回</button>
                             </div>
                         </div>
@@ -1687,10 +1721,18 @@
                         <textarea id="content" name="content" cols="" rows="" class="n_nutext evaluation_content" style="border-style: none;" maxlength="300" placeholder="請輸入內容(至多300個字元)"></textarea>
                         <input type="hidden" name="uid" value={{$user->id}}>
                         <input type="hidden" name="eid" value={{$to->id}}>
+                        <input type="hidden" name="content_processing_method" value="">
                         <span class="alert_tip" style="color:red;"></span>
                         <input type="file" name="images" >
                         <div class="new_pjckbox">
-                            評價請以敘述<a class="text-danger" style="color: red;">確實發生的事實</a>為主，不要有主觀判斷，盡量附上截圖佐證。若被評價者來申訴，您又沒有附上截圖，評價在驗證屬實前會被隱藏或撤銷。
+                            <div class="anonymous_illustrate">
+                                ● 請上傳可資證明的圖檔，須為高清檔案<br>
+                                ● 若為對話紀錄，須從頭到尾完整截圖，上一句跟著下一句，不可以漏<br>
+                                ● 若對話紀錄過多(超過30頁)，那可以只截相關部分，一樣完整截圖，上一句跟著下一句，不可以漏<br>
+                            </div>
+                            <div class="self_illustrate">
+                                評價請以敘述<a class="text-danger" style="color: red;">確實發生的事實</a>為主，不要有主觀判斷，盡量附上截圖佐證。若被評價者來申訴，您又沒有附上截圖，評價在驗證屬實前會被隱藏或撤銷。
+                            </div>
                             <span><input type="checkbox" name="agree"><label>我同意上述說明</label></span>
                         </div>
                         <div class="n_bbutton" style="margin-top:0px;">
@@ -1732,9 +1774,25 @@
             <div class="new_tablema">
                 <table>
 
-                    <tr>
+                    <tr class="phone_auth">
                         <td class="new_baa new_baa1">女生須通過手機驗證</td>
-                        <td class="new_baa1">@if($auth_check>0)<img src="/new/images/ticon_01.png">@else<img src="/new/images/ticon_02.png">@endif</td>
+                        <td class="new_baa1">
+                            @if($auth_check)
+                                <img src="/new/images/ticon_01.png">
+                            @else
+                                <img src="/new/images/ticon_02.png">
+                            @endif
+                        </td>
+                    </tr>
+                    <tr class="advance_auth">
+                        <td class="new_baa new_baa1">女生須通過進階驗證</td>
+                        <td class="new_baa1">
+                            @if($advance_auth_status)
+                                <img src="/new/images/ticon_01.png">
+                            @else
+                                <img src="/new/images/ticon_02.png">
+                            @endif
+                        </td>
                     </tr>
                     <tr>
                         <td class="new_baa">男方須回覆女方三次以上</td>
@@ -1753,9 +1811,25 @@
             <div class="new_tablema">
                 <table>
 
-                    <tr>
+                    <tr class="vipDays">
                         <td class="new_baa new_baa1">男方須為一個月(不含一個月)以上VIP</td>
-                        <td class="new_baa1">@if($vipDays>=30)<img src="/new/images/ticon_01.png">@else<img src="/new/images/ticon_02.png">@endif</td>
+                        <td class="new_baa1">
+                            @if($vipDays>=30)
+                                <img src="/new/images/ticon_01.png">
+                            @else
+                                <img src="/new/images/ticon_02.png">
+                            @endif
+                        </td>
+                    </tr>
+                    <tr class="need_vip">
+                        <td class="new_baa new_baa1">男生須為VIP</td>
+                        <td class="new_baa1">
+                            @if($isVip)
+                                <img src="/new/images/ticon_01.png">
+                            @else
+                                <img src="/new/images/ticon_02.png">
+                            @endif
+                        </td>
                     </tr>
                     <tr>
                         <td class="new_baa">女方須有回覆男方三次以上</td>
@@ -1765,6 +1839,28 @@
             </div>
         </div>
         <a id="" onClick="gmBtnNoReload()" class="bl_gb"><img src="/new/images/gb_icon.png"></a>
+    </div>
+
+    <div class="bl bl_tab" id="evaluation_description" style="display: none;">
+        <div class="bltitle"><span>匿名評價說明</span></div>
+        <div class="n_blnr01 ">
+            <div class="new_tkfont" style="text-align:left">
+                ● 匿名評價將不會出現你的名字<br>
+                ● 站方有權決定是否代為發布評價<br>
+                ● 請選擇若評價內容不符合站方審核標準的處理方式
+            </div>
+            <select name="message_processing" class="select_xx01">
+                <option value="">請選擇</option>
+                <option value="return">退件重寫(需重新評價)</option>
+                <option value="modify_directly">站方直接修改</option>
+            </select>
+            <div class="n_bbutton" style="margin-top:10px;">
+                <div style="display: inline-flex;">
+                <div class="n_right evaluation_check" style="border-style: none; background: #8a9ff0; color:#ffffff; float: unset; margin-left: 0px; margin-right: 20px;">同意</div>
+                <button type="reset" class="n_left" style="border: 1px solid #8a9ff0; background: #ffffff; color:#8a9ff0; float: unset; margin-right: 0px;" onclick="evaluation_description_close()">取消</button>
+                </div>
+            </div>
+        </div>
     </div>
     </div>
     @endif
@@ -2363,19 +2459,43 @@
     @if(isset($to))
         $('.evaluation').on('click', function() {
 			console.log('evaluation')
+            event.stopPropagation();
+            var on1 = $('.bottub').find('.on1');
+            
+            if(on1.length) {
+                on1.removeClass('on1');
+                $('.bottub').find('.showslide').fadeOut();
+            }
+            if ($(this).hasClass('on2')) {
+                $(this).removeClass('on2');
+                $('.showslide_evaluation').fadeOut();
+            } else {
+                $(this).addClass('on2');
+                $('.showslide_evaluation').fadeIn();
+            }
+        });
+
+        // 本人評價
+        $('.myself_evaluation').click(function() {
+            $('.vipDays').addClass('hide');
+            $('.phone_auth').addClass('hide');
+            $('.need_vip').addClass('hide');
+            $('.advance_auth').addClass('hide');
             @if($user->id != $to->id)
                 @if($user->meta->isWarned == 1 || $isAdminWarned)
                     c5('您目前為警示帳戶，暫不可評價');
                 @elseif($user->engroup==2 && ($isSent3Msg==0 || $auth_check==0))
-                    // alert(1);
                     $('#tab_reject_female').show();
+                    $('.phone_auth').removeClass('hide');
                     $(".announce_bg").show();
-                @elseif($user->engroup==1 && ($isSent3Msg==0 || $vipDays<=30))
-                    //alert(2);
+                @elseif($user->engroup==1 && ($isSent3Msg==0 || $vipDays < 30))
                     $('#tab_reject_male').show();
+                    $('.vipDays').removeClass('hide');
                     $(".announce_bg").show();
                 @elseif(!isset($evaluation_self))
                     $('#tab_evaluation').show();
+                    $('.anonymous_illustrate').hide();
+                    $('.self_illustrate').show();
                     $(".announce_bg").show();
                     $('body').css("overflow", "hidden");
                 @else
@@ -2384,6 +2504,51 @@
             @else
                 c5('不可對自己評價');
             @endif
+        });
+
+        // 匿名評價
+        $('.anonymous_evaluation').click(function() {
+            $('.vipDays').addClass('hide');
+            $('.phone_auth').addClass('hide');
+            $('.need_vip').addClass('hide');
+            $('.advance_auth').addClass('hide');
+            @if($user->id != $to->id)
+                @if($user->meta->isWarned == 1 || $isAdminWarned)
+                    c5('您目前為警示帳戶，暫不可評價');
+                @elseif($user->engroup==2 && ($isSent3Msg==0 || $advance_auth_status==0))
+                    $('#tab_reject_female').show();
+                    $('.new_tkfont').text('您目前未達匿名評價標準，無法使用');
+                    $('.advance_auth').removeClass('hide');
+                    $(".announce_bg").show();
+                @elseif($user->engroup==1 && ($isSent3Msg==0 || $isVip==0))
+                    $('#tab_reject_male').show();
+                    $('.new_tkfont').text('您目前未達匿名評價標準，無法使用');
+                    $('.need_vip').removeClass('hide');
+                    $(".announce_bg").show();
+                @else
+                    // 訊息處理選擇
+                    $('#evaluation_description').show();
+                    $(".announce_bg").show();
+                @endif
+            @else
+                c5('不可對自己評價');
+            @endif
+        });
+
+        // 匿名評價->訊息處理選擇確認
+        $('.evaluation_check').click(function() {
+            select_option = $('select[name=message_processing] option').filter(':selected').val();
+            if (select_option) {
+                $('input[name=content_processing_method]').val(select_option);
+                $('#evaluation_description').hide();
+                $('#tab_evaluation').show();
+                $('.anonymous_illustrate').show();
+                $('.self_illustrate').hide();
+                $(".announce_bg").show();
+                $('body').css("overflow", "hidden");
+            } else {
+                alert('請選擇處理方式');
+            }
         });
     @endif
 
@@ -2758,12 +2923,12 @@
         };
         images_uploader=$('input[name="images"]:not(.reportedUserInput)').fileuploader(images_uploader_options);
 
-        resize_before_upload(images_uploader,400,600,'#tab_evaluation,#tab_evaluation_reply');
+        resize_before_upload(images_uploader,1200,1800,'#tab_evaluation,#tab_evaluation_reply');
         var reportedImages_options = images_uploader_options;
         reportedImages_options.limit = 15;
         
         reportedImages_uploader = $('input[name="reportedImages"],input.reportedUserInput').fileuploader(reportedImages_options);
-        resize_before_upload(reportedImages_uploader,400,600,'#show_banned_ele,#show_reportPic');
+        resize_before_upload(reportedImages_uploader,1200,1800,'#show_banned_ele,#show_reportPic');
         $(".announce_bg").on("click", function() {
             $('.bl_tab_aa').hide();
             $('body').css("overflow", "auto");
@@ -2898,6 +3063,11 @@
 	$(document).ready(function () {
 		$('.userlogo').click(function() {
 			event.stopPropagation()
+            var on2 = $('.bottub').find('.on2');
+            if(on2.length) {
+                on2.removeClass('on2');
+                $('.bottub').find('.showslide_evaluation').fadeOut();
+            }
 			if($(this).hasClass('on1')) {
 				$(this).removeClass('on1')
 				$('.showslide').fadeOut()
@@ -2910,6 +3080,8 @@
 		$('body').click(function() {
 			$('.userlogo').removeClass('on1')
 			$('.showslide').fadeOut()
+            $('.evaluation').removeClass('on2')
+            $('.showslide_evaluation').fadeOut()
 		})
 	})
 </script>	
