@@ -17,6 +17,7 @@ use App\Models\Vip;
 use App\Services\ImagesCompareService;
 use App\Models\SearchIgnore;
 use App\Services\SearchIgnoreService;
+use App\Models\RealAuthUserModifyPic;
 
 class UserMeta extends Model
 {
@@ -504,7 +505,7 @@ class UserMeta extends Model
 
     public static function searchApi($request)
     {
-        Log::Info($request->all());
+        // Log::Info($request->all()); 純測試用
         // $time_start = microtime(true); 
         $city = $request->city;
         $area = $request->area;
@@ -855,7 +856,7 @@ class UserMeta extends Model
             'allPageDataCount'=>$allPageDataCount 
         );
         // dd($output);
-// var_dump($output['singlePageCOunt'], $output['allPageDataCount']);
+        // var_dump($output['singlePageCOunt'], $output['allPageDataCount']);
         return $output;
     }
     
@@ -892,7 +893,12 @@ class UserMeta extends Model
     
     public function isPicNeedCompare() {
         return ImagesCompareService::isNeedCompareByEntry($this);
-    }        
+    } 
+
+    public function actual_unchecked_rau_modify_pic()
+    {
+        return $this->hasOne(RealAuthUserModifyPic::class, 'old_pic', 'pic')->whereHas('real_auth_user_modify',function($q){$q->where([['status',0],['apply_status_shot',1]])->whereHas('real_auth_user_apply',function($qq){$qq->where('status',1);});})->orderByDesc('id')->take(1);
+    }       
 }
 
 

@@ -5,6 +5,60 @@ header("Last-Modified: " . gmdate("D, d M Y H:i:s") . " GMT");
 header("Expires: Fri, 01 Jan 1990 00:00:00 GMT");
 ?>
 @extends('new.layouts.website')
+@section('style')
+<style>
+.real_auth_bg{width:100%; height:100%;width: 100%;height: 100%;position: fixed;top: 0px;left: 0;background: rgba(0,0,0,0.5);z-index: 9;display:none;}
+.real_auth_n_left
+{   
+    float: right;
+    width: 120px;
+    height: 40px;
+    background: #8a9ff0;
+    border-radius: 200px;
+    color: #ffffff;
+    text-align: center;
+    line-height: 40px;
+    font-size: 16px;
+    margin-right: 11px;
+}
+
+a.real_auth_n_left:hover {
+    color: #ffffff;
+    box-shadow: inset 0px 15px 10px -10px #4c6ded, inset 0px -10px 10px -20px #4c6ded;
+}
+
+#real_auth_hint_tab .bltext ol {
+    margin:1em 0 1em 0;
+    list-style:none;
+    background:yellow;
+}
+
+#new_height_input_error_msg,#new_weight_input_error_msg {color:red;font-weight:bold;}
+
+</style>
+<script>
+real_auth_bad_count = 0;
+</script>
+@if($rap_service->isInRealAuthProcess())
+<script>
+    function real_auth_process_check()
+    {
+        $('body').hide();
+        $.get( "{{route('check_is_in_real_auth_process')}}"+location.search+"&{{csrf_token()}}="+(new Date().getTime()),function(data){
+            if(data!='1') {
+                window.history.replaceState( {} , $('title').html(), '{{route("real_auth")}}' );
+                location.href='{{route("real_auth")}}';
+            }
+            else {
+                $('body').show();
+            }
+        });
+    } 
+    
+    real_auth_process_check();
+</script>   
+@endif
+@stop
 @section('app-content')
 
   <?php
@@ -124,6 +178,28 @@ dt span.engroup_type_title {display:inline-block;width:10%;white-space:nowrap;}
                 <input type="hidden" name="_token" value="{{ csrf_token() }}">
                 <input type="hidden" name="userId" value="{{$user->id}}">
                 <div class="n_input">
+                    @if($user->engroup==2 && !$rap_service->isInRealAuthProcess() && !$rap_service->isPassedByAuthTypeId(1))
+                    <dt>
+                        <span>本人驗證</span>
+                        <span>
+                            <div class="select_xx03">
+                                @if($rap_service->isSelfAuthWaitingCheck())
+                                等待審核中
+                                @elseif($rap_service->isSelfAuthApplyNotVideoYet())
+                                尚未與站方視訊
+                                <a class="btn btn-success" href="{{url('user_video_chat_verify')}}">
+                                    前往視訊頁面
+                                </a>                                
+                                @else
+                                尚未認證
+                                <a class="btn btn-success" href="{{route('real_auth')}}">
+                                    立即申請
+                                </a>                            
+                                @endif
+                            </div>
+                        </span>
+                    </dt>                
+                    @endif
                     <dt>
                         <span>LINE 通知</span>
                         <span>
@@ -144,7 +220,14 @@ dt span.engroup_type_title {display:inline-block;width:10%;white-space:nowrap;}
                   </dt>
 
                   <dt>
-                      <span class="engroup_type_title">帳號類型</span>
+                        <div>
+                            <span class="engroup_type_title">帳號類型</span>
+                            @if($user->engroup==2)
+                                <input type="hidden" name="is_pure_dating" value="1">
+                                <div style="float: right;margin-top:8px;"><input name="is_pure_dating" type="checkbox" @if(isset($umeta->is_pure_dating) && $umeta->is_pure_dating != 1) checked @endif value="0"> 拒絕進一步發展</div>
+                            @endif
+                        </div>
+
                         @if($user->isVip() && !Session::has('original_user'))
 {{--                        <a onClick="popSwitchOtherEngroup()"class="zw_dw">模擬{{$user->engroup == 1?'女':'男'}}會員</a>--}}
                         @endif 
@@ -171,15 +254,21 @@ dt span.engroup_type_title {display:inline-block;width:10%;white-space:nowrap;}
 {{--                  </dt>--}}
                     @if($user->engroup==2)
                     <dt>
-                        <span>包養關係</span>
+                        <span style="@if($rap_service->getLatestActualUnchekedExchangePeriodModifyEntry()) display:inline-block;width:51%; @endif" >包養關係</span>
+                        @if($rap_service->modify_entry())
+                        <span style="display:inline-block;width:47%;">正在審核的包養關係異動</span>
+                        @endif                        
                         @php
                             $exchange_period_name = DB::table('exchange_period_name')->where('id',$user->exchange_period)->first();
                         @endphp
                         <span>
 {{--                            <input name="" id="" type="text" class="select_xx01" value="{{$exchange_period_name->name}}" data-parsley-errors-messages-disabled disabled style="background-color: #d2d2d2;">--}}
-                            <div class="select_xx01 senhs hy_new" style="background: #d2d2d2;">{{$exchange_period_name->name}}{{$exchange_period_name->name_explain}}</div>
+                            <div class="select_xx01 senhs hy_new" tabindex="-1" id="exchange_period_readonly_block" style="background: #d2d2d2;@if($rap_service->modify_entry()) display:inline-block;width:50%;  @endif">{{$exchange_period_name->name}}{{$exchange_period_name->name_explain}}</div>
+                            @if($rap_service->isPassedByAuthTypeId(1) && $rap_service->modify_entry())
+                            <div class="select_xx01 senhs hy_new" tabindex="-1" id="new_exchange_period_readonly_block" style="background: #d2d2d2;display:inline-block;width:47%;" >{{$rap_service->modify_entry()->new_exchange_period_name->name}}{{$rap_service->modify_entry()->new_exchange_period_name->name_explain}}</div>        
+                            @endif                            
                         </span>
-                        <input name="exchange_period" id="" type="hidden" class="select_xx01" value="{{$user->exchange_period}}" data-parsley-errors-messages-disabled disabled style="background-color: #d2d2d2;">
+                        <input name="exchange_period" id="" type="hidden" class="select_xx01" value="{{$user->exchange_period}}" data-parsley-errors-messages-disabled disabled style="background-color: #d2d2d2;">                                     
                     </dt>
                     @endif
                   <dt>
@@ -336,15 +425,34 @@ dt span.engroup_type_title {display:inline-block;width:10%;white-space:nowrap;}
                         </div>
                       </span>
                   </dt>
-                  <dt>
-                      <span>身高（cm）<i>(必填)</i></span>
-                      <span><input name="height" id="height" type="number" class="select_xx01"  placeholder="請輸入數字範圍140～210" value="{{$umeta->height}}" title="請輸入140~210範圍"></span>
+                  <dt id="height_container">
+                    <span  style="@if($rap_service->getLatestActualUnchekedHeightModifyEntry()) display:inline-block;width:51%; @endif" >身高（cm）<i>(必填)</i></span>
+                    @if($rap_service->modify_entry())
+                    <span style="display:inline-block;width:47%;">正在審核的身高異動</span>
+                    @endif
+                    @if($rap_service->isPassedByAuthTypeId(1))                      
+                        <div onclick="show_real_auth_new_height_tab();"  class="select_xx01 senhs hy_new" tabindex="-1" id="height_readonly_block" style="background: #d2d2d2;@if($rap_service->modify_entry()) display:inline-block;width:50%;  @endif" onclick="show_real_auth_new_height_tab();">{{$umeta->height}}</div>    
+                        @if($rap_service->modify_entry())
+                        <div class="select_xx01 senhs hy_new" tabindex="-1" id="new_height_readonly_block" style="background: #d2d2d2;display:inline-block;width:47%;" onclick="show_real_auth_new_height_tab();">{{$rap_service->modify_entry()->new_height}}</div>        
+                        @endif
+                    @else  
+                        <span><input name="height" id="height" type="number" class="select_xx01"  placeholder="請輸入數字範圍140～210" value="{{$umeta->height}}" title="請輸入140~210範圍" ></span>
+                    @endif
                   </dt>
                                 
                   <!--新增體重欄位 By Simon-->
                   <dt>
-                      <span>體重（kg）</span>
-                      <span>
+                      <span style="@if($rap_service->getLatestActualUnchekedWeightModifyEntry()) display:inline-block;width:51%; @endif">體重（kg）</span>                     
+                      @if($rap_service->modify_entry())
+                      <span style="display:inline-block;width:47%;">正在審核的體重異動</span>
+                      @endif                    
+                    @if($rap_service->isPassedByAuthTypeId(1))
+                    <div  onclick="show_real_auth_new_weight_tab();"  class="select_xx01 senhs hy_new" tabindex="-1" id="weight_readonly_block" style="background: #d2d2d2;@if($rap_service->modify_entry()) display:inline-block;width:50%;  @endif">{{$umeta->weight?($umeta->weight-4).' ~ '.$umeta->weight:0}}</div>         
+                    @if($rap_service->modify_entry())
+                    <div class="select_xx01 senhs hy_new" tabindex="-1" id="new_weight_readonly_block" style="background: #d2d2d2;display:inline-block;width:47%;" onclick="show_real_auth_new_weight_tab();">{{$rap_service->getProfileWeightWord( $rap_service->modify_entry()->new_weight)}}</div>        
+                    @endif                    
+                    @else
+                      <span>                        
                         <select name="weight"  class="select_xx01">
                           <option value=null>請選擇</option>
                           @for ($i = 1; $i < 21; $i++)
@@ -353,7 +461,8 @@ dt span.engroup_type_title {display:inline-block;width:10%;white-space:nowrap;}
                           </option>
                           @endfor
                         </select>
-                      </span>
+                      </span>                         
+                    @endif                      
                       <div class="n_xqline">
                           <div class="right" style="margin-bottom: 10px;">
                               <input type="hidden" name="isHideWeight" value="0">
@@ -715,24 +824,6 @@ dt span.engroup_type_title {display:inline-block;width:10%;white-space:nowrap;}
                         </select>
                       </span>
                   </dt>
-                    @if($user->engroup==2)
-                        <dt>
-                            <span>希望進一步發展嗎?</span>
-                            <span>
-                                <select data-parsley-errors-messages-disabled name="is_pure_dating"  class="select_xx01">
-                                    <option value="-1"
-                                            @if($umeta->is_pure_dating == "-1") selected @endif>請選擇
-                                    </option>
-                                    <option value="1"
-                                            @if($umeta->is_pure_dating == "1") selected @endif>是
-                                    </option>
-                                    <option value="0"
-                                            @if($umeta->is_pure_dating == "0") selected @endif>否
-                                    </option>
-                                </select>
-                            </span>
-                        </dt>
-                    @endif
                   <dt>
                       <span>喝酒<i>(必填)</i></span>
                       <span>
@@ -824,7 +915,13 @@ dt span.engroup_type_title {display:inline-block;width:10%;white-space:nowrap;}
                         </dt>
                     @endif
                 </div>
-                <a class="dlbut g_inputt20 abtn" onclick="$('form[name=user_data]').submit();">確定更新</a>
+                <a class="dlbut g_inputt20 abtn" onclick="$('body').attr('onbeforeunload','');$('form[name=user_data]').submit();">
+                    @if($rap_service->isInRealAuthProcess())
+                    完成
+                    @else
+                    確定更新
+                    @endif
+                </a>
                 <a href="" class="zcbut matop20">取消</a>
               </form>
             </div>
@@ -962,6 +1059,99 @@ dt span.engroup_type_title {display:inline-block;width:10%;white-space:nowrap;}
       </div>
       <a onclick="gmBtnNoReload()" class="bl_gb"><img src="/new/images/gb_icon.png"></a>
   </div>
+
+    <div class="real_auth_bg" onclick="$(this).hide();gmBtnNoReload()" style="display:none;"></div>
+    <div class="bl bl_tab" id="real_auth_hint_tab" style="display: none;">
+        <div class="bltitle">提示</div>
+        <div class="n_blnr01 matop10">
+            <div class="blnr bltext">
+                請確認以下重要欄位，驗證後若要修改則須向站方申請
+                <ol>
+                    <li>包養關係、身高、體重</li>
+                </ol>
+            </div>
+            <a class="n_bllbut matop30" onclick="real_auth_tab_close(this)">確定</a> 
+        </div>
+        <a onclick="real_auth_tab_close(this);" class="bl_gb"><img src="{{asset('/new/images/gb_icon.png')}}"></a>
+    </div>
+    
+    <div class="bl bl_tab" id="new_height_modify_tab" style="display: none;">
+        <div class="bltitle">提示</div>
+        <div class="n_blnr01 matop10">
+            <div class="blnr bltext">
+                
+                <div id="new_height_confirm_block">
+                    要修改通過本人認證的身高資料，需經過審核。
+                    <br><br>
+                    您確定要申請身高資料異動?
+                </div>
+                <div id="new_height_elt_container" style="display:none;">
+                    <div style="margin-bottom:1%;">請輸入身高（cm）</div>
+                    <span><input name="new_height" id="new_height_elt" type="number" class="select_xx01" max="210" min="140"  placeholder="請輸入數字範圍140～210" value="" title="請輸入140~210範圍" required></span>
+                    <div id="new_height_input_error_msg"></div>
+                </div>
+            </div>
+            <div class="n_bbutton">
+                <span><a class="real_auth_n_left" href="javascript:void(0)" onclick="real_auth_input_new_height_handle();" >確認</a></span>
+                <span><a onclick="real_auth_tab_close(this)" class="n_right" href="javascript:">返回</a></span>
+            </div>            
+        </div>
+        <a onclick="real_auth_tab_close(this);" class="bl_gb"><img src="{{asset('/new/images/gb_icon.png')}}"></a>
+    </div>
+    
+    <div class="bl bl_tab" id="new_weight_modify_tab" style="display: none;">
+        <div class="bltitle">提示</div>
+        <div class="n_blnr01 matop10">
+            <div class="blnr bltext">
+                
+                <div id="new_weight_confirm_block">
+                    要修改通過本人認證的體重資料，需經過審核。
+                    <br><br>
+                    您確定要申請體重資料異動嗎?
+                </div>
+                <div id="new_weight_elt_container" style="display:none;">
+                    <div style="margin-bottom:1%;">請選擇體重選項（kg）</div>
+                    <select name="new_weight" id="new_weight_elt"  class="select_xx01">
+                      <option value="">請選擇</option>
+                      @for ($i = 1; $i < 21; $i++)
+                      <option value="{{$i*5}}">{{$i*5-4}} ~ {{$i*5}}
+                      </option>
+                      @endfor
+                    </select>                
+                
+                </div>
+                <div id="new_weight_input_error_msg"></div>
+            </div>
+            <div class="n_bbutton">
+                <span><a class="real_auth_n_left" href="javascript:void(0)" onclick="real_auth_input_new_weight_handle();" >確認</a></span>
+                <span><a onclick="real_auth_tab_close(this)" class="n_right" href="javascript:">返回</a></span>
+            </div>            
+        </div>
+        <a onclick="real_auth_tab_close(this);" class="bl_gb"><img src="{{asset('/new/images/gb_icon.png')}}"></a>
+    </div>    
+
+    <div class="bl bl_tab" id="real_auth_result_msg_tab" style="display: none;">
+        <div class="bltitle">提示</div>
+        <div class="n_blnr01 matop10">
+            <div class="blnr bltext">            
+            </div>
+            <a class="n_bllbut matop30" onclick="real_auth_tab_close(this)">確定</a> 
+        </div>
+        <a onclick="real_auth_tab_close(this);" class="bl_gb"><img src="{{asset('/new/images/gb_icon.png')}}"></a>
+    </div>
+        
+    <div class="bl bl_tab" id="real_auth_backward_tab" style="display: none;">
+        <div class="bltitle">提示</div>
+        <div class="n_blnr01 matop10">
+            <div class="blnr bltext">
+                您尚未設定頭像，{{$add_avatar}}，並確認照片符合您的現況。         
+            </div>
+            <a class="n_bllbut matop30" onclick="location.href='{{route('dashboard_img',['real_auth'=>request()->real_auth])}}';">確定</a> 
+        </div>
+        <a onclick="real_auth_tab_close(this);" class="bl_gb"><img src="{{asset('/new/images/gb_icon.png')}}"></a>
+    </div>      
+ 
+
 <script>
     function pr() {
         $(".blbg").show();
@@ -1215,7 +1405,11 @@ dt span.engroup_type_title {display:inline-block;width:10%;white-space:nowrap;}
             @if (!$umeta->isAllSet( $user->engroup ))
                 c5('請寫上基本資料。');
             @elseif (empty($umeta->pic))
+                @if($rap_service->isInRealAuthProcess())
+                real_auth_backward_popup();
+                @else
                 c5("{{$add_avatar}}");
+                @endif
             @elseif ($umeta->age()<18)
                 c5('您好，您的年齡低於法定18歲，請至個人基本資料設定修改，否則您的資料將會被限制搜尋。');
             @endif
@@ -1554,7 +1748,7 @@ dt span.engroup_type_title {display:inline-block;width:10%;white-space:nowrap;}
 
         var form = $('form[name=user_data]').serialize();
         $.ajax({
-          url:'{{ route('dashboard2') }}?{{csrf_token()}}={{now()->timestamp}}',
+          url:'{{ route('dashboard2') }}?{{csrf_token()}}={{now()->timestamp}}&{{$rap_service->isInRealAuthProcess()?'real_auth='.request()->real_auth:null}}',
           type: 'POST',
           dataType: 'JSON',
           data: form,
@@ -1562,15 +1756,23 @@ dt span.engroup_type_title {display:inline-block;width:10%;white-space:nowrap;}
               $('#tab04').hide();
             waitingDialog.show();
           },
-          complete: function () {
-
-            window.location.reload();
+          complete: function (xhr) {
+            result = xhr.responseJSON;
+            if(!(!!result.status && !!result.redirect))
+                window.location.reload();
             waitingDialog.hide();
 
           },
           success: function (result) {
+            $('body').attr('onbeforeunload','');
+            console.log(result);
             ResultData(result);
-            window.location.reload();
+
+            if(!!result.status && !!result.redirect) {
+                location.href=result.redirect;
+            }
+            else
+                window.location.reload();         
           }
         });
       });
@@ -1729,5 +1931,186 @@ dt span.engroup_type_title {display:inline-block;width:10%;white-space:nowrap;}
             }
         }
     </script>
+
+<script>
+@if($rap_service->isInRealAuthProcess())
+    $(document).ready(function() {
+        if(real_auth_bad_count==0)
+            real_auth_popup();
+    });   
+
+
+    active_onbeforeunload_hint();
+
+function active_onbeforeunload_hint()
+{
+    $('body').attr('onbeforeunload',"return '';");
+    $('body').attr('onkeydown',"if (window.event.keyCode == 116) $(this).attr('onbeforeunload','');");
+}
+
+function real_auth_popup() {
+    $('#real_auth_hint_tab').show();
+    $(".real_auth_bg").show();
+    $('#exchange_period_readonly_block').focus();
+}
+
+function real_auth_backward_popup() {
+    $('#real_auth_backward_tab').show();
+    $(".real_auth_bg").show();
+    $('body').attr('onbeforeunload','');
+    real_auth_bad_count++;
+}
+@endif
+function real_auth_tab_close(dom) {
+    $(dom).closest('.bl_tab').hide();
+    $(".real_auth_bg").hide();
+}
+
+function show_real_auth_new_height_tab() {
+    $(".real_auth_bg").show();
+    $('#new_height_modify_tab').show();
+}
+
+function show_real_auth_new_weight_tab() {
+    $(".real_auth_bg").show();
+    $('#new_weight_modify_tab').show();
+}
+
+function real_auth_input_new_height_handle() 
+{
+     var elt_container = $('#new_height_elt_container');
+    var input_elt = elt_container.find('input');
+    var confirm_block = $('#new_height_confirm_block');
+    var error_msg_elt = $('#new_height_input_error_msg');
+    error_msg_elt.html('').hide();
+    
+    if(confirm_block.is(':visible')) {
+        confirm_block.hide();
+        elt_container.show();
+    }
+    else {
+        var input_value = input_elt.val();
+        var error_msg = '';
+
+        if(!input_value || input_value==null || input_value==undefined) error_msg='無法送出！請輸入身高';
+        else if(input_value<input_elt.attr('min') || input_value>input_elt.attr('max')) {
+            error_msg = '無法送出！請輸入'+input_elt.attr('min')+'～'+input_elt.attr('max')+'範圍的數字';
+        }
+
+        if(error_msg) {
+            error_msg_elt.show().html(error_msg);
+            return;
+        }
+        
+        $('#new_height_modify_tab').hide();
+        elt_container.hide();
+        confirm_block.show(); 
+
+        $.ajax({
+          url:'{{ route('real_auth_update_profile') }}?{{csrf_token()}}={{now()->timestamp}}&{{$rap_service->isInRealAuthProcess()?'real_auth='.request()->real_auth:null}}',
+          type: 'POST',
+          data: {'new_height':$('#new_height_elt').val(),'_token':'{{csrf_token()}}'},
+          beforeSend: function () {
+            waitingDialog.show();
+          },
+          complete: function (xhr) {
+            waitingDialog.hide();
+            real_auth_tab_end_reload();
+
+          },
+          success: function (result) {
+            rs_msg = '';
+            result_msg_tab = $('#real_auth_result_msg_tab');
+            if(result=='1') {
+                rs_msg = '申請資料異動成功，正在審核中';
+            }
+            else {
+                rs_msg = '申請資料異動失敗，請重新申請。如果問題持續發生，請反應給站方。';
+            }
+            
+            result_msg_tab.show().find('.bltext').html(rs_msg);
+            
+          },
+          error: function() {
+              rs_msg = '申請資料異動失敗，請重新申請。如果問題持續發生，請反應給站方。';
+              $('#real_auth_result_msg_tab').show().find('.bltext').html(rs_msg);
+              real_auth_tab_end_reload();
+          }
+        });        
+    }
+}
+
+function real_auth_input_new_weight_handle() 
+{
+    var elt_container = $('#new_weight_elt_container');
+    var input_elt = elt_container.find('select');
+    var confirm_block = $('#new_weight_confirm_block');
+    var error_msg_elt = $('#new_weight_input_error_msg');
+    error_msg_elt.html('').hide();    
+    
+    if(confirm_block.is(':visible')) {
+        confirm_block.hide();
+        elt_container.show();
+    }
+    else {
+        var input_value = input_elt.val();
+        var error_msg = '';
+
+        if(!input_value || input_value==null || input_value==undefined) error_msg='無法送出！請選擇體重選項';
+
+        if(error_msg) {
+            error_msg_elt.show().html(error_msg);
+            return;
+        }        
+        
+        $('#new_weight_modify_tab').hide();
+        elt_container.hide();
+        confirm_block.show(); 
+
+        $.ajax({
+          url:'{{ route('real_auth_update_profile') }}?{{csrf_token()}}={{now()->timestamp}}&{{$rap_service->isInRealAuthProcess()?'real_auth='.request()->real_auth:null}}',
+          type: 'POST',
+          data: {'new_weight':$('#new_weight_elt').val(),'_token':'{{csrf_token()}}'},
+          beforeSend: function () {
+            waitingDialog.show();
+          },
+          complete: function (xhr) {
+            waitingDialog.hide();
+            real_auth_tab_end_reload();
+
+          },
+          success: function (result) {
+            rs_msg = '';
+            result_msg_tab = $('#real_auth_result_msg_tab');
+            if(result=='1') {
+                rs_msg = '申請資料異動成功，正在審核中';
+            }
+            else {
+                rs_msg = '申請資料異動失敗，請重新申請。如果問題持續發生，請反應給站方。';
+            }
+            
+            result_msg_tab.show().find('.bltext').html(rs_msg);
+          },
+          error: function() {
+              rs_msg = '申請資料異動失敗，請重新申請。如果問題持續發生，請反應給站方。';
+              $('#real_auth_result_msg_tab').show().find('.bltext').html(rs_msg);
+              real_auth_tab_end_reload();
+          }
+        });        
+    }
+}
+
+
+    function real_auth_tab_end_reload() {
+        result_msg_tab = $('#real_auth_result_msg_tab');
+        result_msg_tab.find('a.n_bllbut').attr('onclick','location.reload();');
+        result_msg_tab.find('a.bl_gb').attr('onclick','location.reload();');
+        $('.real_auth_bg').attr('onclick','location.reload();');        
+    }
+
+
+
+</script>
+
 
 @stop

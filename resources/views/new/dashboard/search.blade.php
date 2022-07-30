@@ -350,22 +350,13 @@ header("Expires: Fri, 01 Jan 1990 00:00:00 GMT");
 
                                         @if ($user_engroup == 1)
                                             <dt class="matopj15">
-                                                <span>是否想進一步發展?<i class="ssrgf">(僅顯示有填寫者)</i></span>
+                                                <span>是否想進一步發展?</span>
                                                 <span class="line20">
                                                     <label class="n_tx">
-                                                        <input type="radio" name="is_pure_dating" value="1" id="is_pure_dating1" {{ 
-                                                            request()->is_pure_dating == "1" || session()->get('search_page_key.is_pure_dating') == "1"
-                                                            ? 'checked' : '' }}><i>是</i>
+                                                        <input type="radio" name="is_pure_dating" value="1" id="is_pure_dating1" {{request()->is_pure_dating == "1" || session()->get('search_page_key.is_pure_dating') =="1" ? 'checked' : '' }}><i>是</i>
                                                     </label>
                                                     <label class="n_tx">
-                                                        <input type="radio" name="is_pure_dating" value="0" id="is_pure_dating0" {{
-                                                            request()->is_pure_dating == "0" ||  session()->get('search_page_key.is_pure_dating') == "0"
-                                                            ? 'checked' : ''}}><i>否</i>
-                                                    </label>
-                                                    <label class="n_tx">
-                                                        <input type="radio" name="is_pure_dating" value='-1' id="is_pure_datingn" {{
-                                                            (request()->is_pure_dating == '-1' || session()->get('search_page_key.is_pure_dating') == '-1') || (request()->is_pure_dating == "" || session()->get('search_page_key.is_pure_dating') == "")
-                                                            ? 'checked' : ''}}><i>不選擇</i>
+                                                        <input type="radio" name="is_pure_dating" value="0" id="is_pure_dating0" {{request()->is_pure_dating == "0" || session()->get('search_page_key.is_pure_dating') =="0" ? 'checked' : ''}}><i>否</i>
                                                     </label>
                                                 </span>
                                             </dt>
@@ -844,6 +835,80 @@ header("Expires: Fri, 01 Jan 1990 00:00:00 GMT");
                     "page_pre":"{{$page_pre}}"
                 }
             },
+            methods: {
+                isRealAuthNeedShowTagOnPic(dataRow)
+                {
+                   
+                    var isSelfAuth = dataRow.visitorIsSelfAuth;
+                    var isBeautyAuth = dataRow.visitorIsBeautyAuth;
+                    var isFamousAuth = dataRow.visitorIsFamousAuth;            
+
+                    if(isSelfAuth || isBeautyAuth  || isFamousAuth) {
+                        return true;    
+                    }
+                    
+                    return false;
+                    
+                },
+
+                getTagShowOnPic(dataRow) 
+                {
+                    var tagHtml = '';
+                    var row = dataRow;
+                    var isSelfAuth = row.visitorIsSelfAuth;
+                    var isBeautyAuth = row.visitorIsBeautyAuth;
+                    var isFamousAuth = row.visitorIsFamousAuth; 
+
+                    if(isBeautyAuth || isFamousAuth) {
+                        if(isBeautyAuth) {
+                            tagHtml+=this.getTagShowOnPicByAuthType(2);
+                        }
+                    
+                        if(isFamousAuth) {
+                            tagHtml+=this.getTagShowOnPicByAuthType(3);
+                        }            
+                    }
+                    else if(isSelfAuth) {
+                        tagHtml+=this.getTagShowOnPicByAuthType(1);
+                    }
+
+                    return tagHtml;            
+                },
+
+                getTagShowOnPicByAuthType(auth_type)
+                {
+                    var tagHtml = '';
+                    
+                    switch(auth_type) {
+                        case 1:
+                            tagHtml = this.getSelfAuthTagShowOnPic();
+                        break;
+                        case 2:
+                            tagHtml = this.getBeautyAuthTagShowOnPic();
+                        break;
+                        case 3:
+                            tagHtml = this.getFamousAuthTagShowOnPic();
+                        break; 
+                    }
+                    
+                    return tagHtml;
+                },      
+
+                getSelfAuthTagShowOnPic()
+                {
+                    return '{!!str_replace("\n","'+\n'",str_replace("\r","",$rap_service->getSelfAuthTagShowOnPicLayoutByLoginedUserIsVip($user->isVip(),true))) !!}';
+                },
+
+                getBeautyAuthTagShowOnPic()
+                {
+                    return '{!!str_replace("\n","'+\n'",str_replace("\r","",$rap_service->getBeautyAuthTagShowOnPicLayoutByLoginedUserIsVip($user->isVip(),true))) !!}';
+                },
+
+                getFamousAuthTagShowOnPic()
+                {
+                    return '{!!str_replace("\n","'+\n'",str_replace("\r","",$rap_service->getFamousAuthTagShowOnPicLayoutByLoginedUserIsVip($user->isVip(),true))) !!}';
+                }                 
+            },
         mounted () {
 
              let post_data = {
@@ -905,7 +970,7 @@ header("Expires: Fri, 01 Jan 1990 00:00:00 GMT");
                         }
                     }
                    
-                   
+
                     let arr = [];
                     if(this.dataList.length>=1){                   
                         let csrdDataPre = '';
@@ -988,7 +1053,15 @@ header("Expires: Fri, 01 Jan 1990 00:00:00 GMT");
                             }
 
                             csrData +='<div class="n_seicon">';
-                            if(umetaIsWarned==1 || rowVisitorIsAdminWarned==1){
+                            if(rowEngroup == 2){
+                                if(umeta.is_pure_dating==0){
+                                    csrData +='<img src="/new/images/zz_02.png" style="float: right;">';
+                                }
+                            }                            
+                            if(this.isRealAuthNeedShowTagOnPic(row)) {
+                                csrData += this.getTagShowOnPic(row);
+                            }
+                            else if(umetaIsWarned==1 || rowVisitorIsAdminWarned==1){
                                 csrData +='<div class="hoverTip">';
                                     csrData +='<div class="tagText" data-toggle="popover" data-content="此會員為警示會員，與此會員交流務必提高警覺！">';
                                     if(this.userIsVip==1){
@@ -1038,14 +1111,14 @@ header("Expires: Fri, 01 Jan 1990 00:00:00 GMT");
 
                                             csrData +='<span>丨</span>';
                                         }else if(rowVisitorIsAdvanceAuth==0 && rowEngroup==2){
-                                            csrData +='<div class="tagText"  data-toggle="popover" data-content="通過本站手機驗證的會員。">';
+                                            csrData +='<div class="tagText"  data-toggle="popover" data-content="以手機門號通過年齡/性別驗證。">';
                                             csrData +='<img src="/new/images/c_09.png">';
                                             csrData +='</div>  ';
 
                                             csrData +='<span>丨</span>';
                                         }*/
                                         if(rowVisitorIsAdvanceAuth==1 && rowEngroup==2){
-                                            csrData +='<div class="tagText"  data-toggle="popover" data-content="通過本站手機驗證的會員。">';
+                                            csrData +='<div class="tagText"  data-toggle="popover" data-content="以手機門號通過年齡/性別驗證。">';
                                             csrData +='<img src="/new/images/c_10.png">';
                                             csrData +='</div>';
                                         }
@@ -1055,12 +1128,12 @@ header("Expires: Fri, 01 Jan 1990 00:00:00 GMT");
                                             csrData +='<img src="/new/images/b_8x.png">';
                                             csrData +='</div> ';
                                         }else if(rowVisitorIsAdvanceAuth==0 && rowEngroup==2 ){
-                                            csrData +='<div class="tagText"  data-toggle="popover" data-content="通過本站手機驗證的會員。">';
+                                            csrData +='<div class="tagText"  data-toggle="popover" data-content="以手機門號通過年齡/性別驗證。">';
                                             csrData +='<img src="/new/images/b_5x.png">';
                                             csrData +='</div>  ';
                                         }*/
                                         if(rowVisitorIsAdvanceAuth==1 && rowEngroup==2) {
-                                            csrData +='<div class="tagText"  data-toggle="popover" data-content="通過本站手機驗證的會員。">';
+                                            csrData +='<div class="tagText"  data-toggle="popover" data-content="以手機門號通過年齡/性別驗證。">';
                                             csrData +='<img src="/new/images/b_6.png">';
                                             csrData +='</div>  ';
                                         }
@@ -1164,7 +1237,7 @@ header("Expires: Fri, 01 Jan 1990 00:00:00 GMT");
                            
                         if(this.userIsVip==1){
                             if(umetaIsHideOccupation==0 && umetaOccupation !== "" && umetaOccupation != 'null' && umetaOccupation != null){
-                                csrData +='<span style="margin-left: 0;">'+umetaOccupation+'</span>';
+                                csrData +='<i class="j_lxx">丨</i><span style="margin-left: 0;">'+umetaOccupation+'</span>';
                             }
                         }else{
                             csrData +='<span style="margin-left: 10px;"><span style="padding-left: 5px;">職業</span><img src="/new/images/icon_35.png" class="nt_img"></span>';
@@ -1218,6 +1291,7 @@ header("Expires: Fri, 01 Jan 1990 00:00:00 GMT");
             return (typeof variable !== 'undefined' && typeof variable !== undefined && typeof variable !== 'null' && typeof variable !== null && variable!==undefined && variable !=='undefined' && variable !== null && variable !=='null');
         }
     </script>
+
 @endsection
 
 

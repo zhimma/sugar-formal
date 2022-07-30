@@ -184,6 +184,7 @@
             <p style="font-size: 14px;">1. 本區資料皆由會員自主上傳，採用與否由會員自行決定。資料僅提供給VIP會員參考。</p>
             <p style="font-size: 14px;">2. 本站不對資料正確性做任何保證，也不介入資料的蒐集與驗證。</p>
             <p style="font-size: 14px;">3. 本區資料屬機密資料，請勿外流。隨意外流將面臨法律責任！</p>
+            <p style="font-size: 14px;color: red;">4.  站方對於所有上傳資料擁有編修刪除的權利，不會對會員做任何解釋，不同意者請勿上傳。</p>
         </div>
         <div class="n_bbutton">
             <span><a class="n_left" onclick="$('#popSus').hide();$('.blbg').hide();window.location.replace('?s=false');" >同意</a></span>

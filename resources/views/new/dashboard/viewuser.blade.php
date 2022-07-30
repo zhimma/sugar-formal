@@ -572,7 +572,10 @@
                                 {{--                            <li><img src="/new/images/icon_23.png"><span>{{$money_cert}}</span></li>--}}
 
                                 {{--                            <li><img src="/new/images/icon_27.png"><span>{{$alert_account}}</span></li>--}}
-                                @if($to->meta->isWarned == 1 || $to->aw_relation)
+
+                                @if($rap_service->isNeedShowTagOnPic())
+                                    {!!$rap_service->getTagShowOnPicLayoutByLoginedUserIsVip($user->isVip()) !!}
+                                @elseif($to->meta->isWarned == 1 || $to->aw_relation)
                                     <li>
 
                                         <div class="tagText" data-toggle="popover" data-content="此會員為警示會員，與此會員交流務必提高警覺！">
@@ -616,9 +619,8 @@
                                     @php
                                         $user->isReadIntro = 1;
                                         $introCount++;
-                                    @endphp                          
-                                @endif
-                                    @if($to->isPhoneAuth())
+                                    @endphp 
+                                @elseif($to->isPhoneAuth())
                                     <li>
                                         @if($user->isVip())
                                             {{--@if($to->isAdvanceAuth() && $to->engroup==2)
@@ -626,12 +628,12 @@
                                                 <img src="/new/images/a8_x.png">
                                             </div>
                                             @elseif(!$to->isAdvanceAuth() && $to->engroup==2)
-                                            <div class="tagText"  data-toggle="popover" data-content="通過本站手機驗證的會員。">
+                                            <div class="tagText"  data-toggle="popover" data-content="以手機門號通過年齡/性別驗證。">
                                                 <img src="/new/images/a6_x.png">
                                             </div>
                                             @endif--}}
                                             @if($to->isAdvanceAuth() && $to->engroup==2)
-                                            <div class="tagText"  data-toggle="popover" data-content="通過本站手機驗證的會員。">
+                                            <div class="tagText"  data-toggle="popover" data-content="以手機門號通過年齡/性別驗證。">
                                                 <img src="/new/images/a6.png">
                                             </div>
                                             @endif
@@ -641,12 +643,12 @@
                                                 <img src="/new/images/b_8x.png">
                                             </div>
                                             @elseif(!$to->isAdvanceAuth() && $to->engroup==2)
-                                            <div class="tagText"  data-toggle="popover" data-content="通過本站手機驗證的會員。">
+                                            <div class="tagText"  data-toggle="popover" data-content="以手機門號通過年齡/性別驗證。">
                                                 <img src="/new/images/b_5x.png">
                                             </div>
                                             @endif--}}
                                             @if($to->isAdvanceAuth() && $to->engroup==2)
-                                            <div class="tagText"  data-toggle="popover" data-content="通過本站手機驗證的會員。">
+                                            <div class="tagText"  data-toggle="popover" data-content="以手機門號通過年齡/性別驗證。">
                                                 <img src="/new/images/b_6.png">
                                             </div>
                                             @endif
@@ -656,7 +658,7 @@
                                             $user->isReadIntro = 1;
                                             $introCount++;
                                         @endphp
-                                    @endif
+                                @endif                              
                             </ul>
                         </div>
                         <!--引导弹出层-->

@@ -6,7 +6,6 @@
         <div class="row">
             <div class="col-sm-12 col-xs-12 col-md-12">
                 <div class="shou shou02 sh_line"><span>Email 認證尚未通過</span>
-                    <font>Email confirmation</font>
                 </div>
                 <div class="email">
                 @if(isset($user))
@@ -22,22 +21,22 @@
                     </div>
                     <div class="vipbut1_block mabot_30">
                         <a href="{{ url('activate/send-token') }}" class="n_embut">重新發送</a>
-                        <a href="{{ url('logout') }}" class="n_embut">關閉</a>
+                        <a href="{{ url('logout') }}" class="n_embut" style="width: 150px;">完成驗證重新登入</a>
                     </div>
                     <div class="wxsy_title">站長的話</div>
                     <div class="wxsy_k">
                             <div class="wknr">
                                 @if(Auth::check() && $user->engroup == 2)
                                 <p>歡迎來到甜心花園，美麗的寶貝們都想找到一個大方多金的 Daddy。網路上，誰都不認識誰，有很多機會，但有更多陷阱。站長跟大家提示最重要的二件事。</p>
-                                <h3>1、最重要的第一守則：不論在任何情況下，一定先拿到費用才開始約會。</h3>
+                                    <h3>1、最重要的第一守則：不論在任何情況下，<span style="color: red;font-weight: bold;">一定先拿到費用才開始約會。</span></h3>
                                 <p>在包養網站中，所有詐騙行為第一名就是男方花言巧語哄騙女方先約會，說好約會滿多久以後付款，最後時間快到就失聯。此類詐騙數量占所有詐騙的85%以上，所以記得一定要求先拿零用金。(建議第一次見面請男方使用車馬費邀請)</p>
-                                <h3>2、加入 VIP。</h3>
+                                <h3><span style="color: red;font-weight: bold;">2、加入 VIP。</span></h3>
                                 <p>女生加入VIP很簡單，不用付費。只要上傳頭像照+三張生活照。每周上線一次，就可以保持VIP資格。</p>
                                 <p>獲得 VIP 可以看很多男會員的進階資料，對判斷男會員是真的大方Daddy 或者只是胡說八道的騙子很有幫助。</p>
-                                <h3>
-                                    <a href="{!! url('contact') !!}" style="color: red; font-weight: bold;">3、如果沒收到認證信/認證失敗，請點此聯繫站長。</a>
+                                <h3 style="font-size: 18px;">
+                                    <a href="{!! url('contact') !!}" style="color: red; font-weight: bold;">3、如果沒收到認證信/認證失敗，<span style="color: blue;">請點此聯繫站長。</span></a>
                                 </h3><br>
-                                <h4>建議第一次接觸包養的女孩，看完以下文章</h4><br>
+                                <h4>第一次接觸包養的女孩，請先看完以下文章：</h4><br>
                                 @elseif(Auth::check() && $user->engroup == 1)
                                 <p>歡迎來到甜心花園，多金的Daddy們都想找到一個美麗的 BaBy。</p>
                                 <p>這邊，站長跟各位提點，想找到稱心如意的女伴的幾個重點：</p>
@@ -49,12 +48,13 @@
                                 <p>盡量加入 VIP，這是很多妹子第一個篩選的關卡。再來利用車馬費功能。雖說拒絕預支，但那是指萬計的大筆零用錢，初期千把塊的小額投資絕不可省。</p>
                                 <p>4.<a href="{!! url('contact') !!}" style="color: red; font-weight: bold;">如果沒收到認證信/認證失敗，請點此聯繫站長。</a></p>
 
-                                <h4>建議第一次接觸包養的大叔，看完以下文章</h4>
+                                <h4>第一次接觸包養的大叔，請先看完以下文章：</h4>
                                 @endif
                                 <h4>
-                                    <a style="font-weight: bold" href="{!! url('notification') !!}">站長開講</a>
-                                    <a style="font-weight: bold" href="{!! url('feature') !!}">網站使用</a>
-                                    <a style="font-weight: bold" href="http://blog-tw.net/Sugar/%E5%8C%85%E9%A4%8A%EF%BC%8D%E5%A4%A7%E5%8F%94%E7%AF%87/">站長的碎碎念(完整版)</a>
+                                    <ul>
+                                        <li><a style="font-weight: bold" href="http://blog-tw.net/Sugar/%E5%8C%85%E9%A4%8A%EF%BC%8D%E5%A4%A7%E5%8F%94%E7%AF%87/">站長的碎碎念(經典版)</a></li>
+                                        <li><a style="font-weight: bold" href="https://twlog.org/sugarbaby/">站長的碎碎念(2022版)</a></li>
+                                    </ul>
                                 </h4>
                             </div>
                     </div>
@@ -103,6 +103,13 @@
     @media (max-width:667px) {
         .vipbut1_block{ 
             width: 80%;
+        }
+    }
+    @media (max-width: 450px) {
+        .n_embut{
+            /*width:156px!important;*/
+            margin-left:unset!important;
+            margin-right:unset!important;
         }
     }
 </style>

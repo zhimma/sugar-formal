@@ -515,10 +515,19 @@
                                         return false;
 
 									var m = $(this).closest(n.thumbnails._selectors.item),
+                                        
                                         item = f.files.find(m);
+                                        console.log('var m=');
+                                            console.log(m);
+                                        console.log('var item=');
+                                        console.log(item);
 										c_delete = function(a) {
+                                            console.log('c_delete item=');
+                                            console.log(item);
+                                            console.log('c_delete f.files.find(item)=');
+                                            console.log(f.files.find(item));
 											f.files.remove(item);
-										};
+                                        };
 
                                     if (item) {
                                         if (item.upload && item.upload.status != 'successful') {

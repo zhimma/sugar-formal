@@ -5,7 +5,7 @@
         <span style="color:red">年齡未滿18歲，不得進行驗證</span>
     @endif
 @endif
-<form id="advance_auth_form" name="advance_auth_form" class="m-form m-form--fit" method="POST" action="/advance_auth_process">
+<form id="advance_auth_form" name="advance_auth_form" class="m-form m-form--fit" method="POST" action="/advance_auth_process?{{http_build_query(request()->all())}}">
     <input type="hidden" name="_token" value="{{ csrf_token() }}" >
     <input type="hidden" name="userId" value="{{$user->id}}">
 

@@ -61,10 +61,18 @@ class ECPayment extends BaseController
             }
 
             //服務參數
-            $obj->ServiceURL  = Config::get('ecpay.payment'.$envStr.'.ActionURL');   //服務位置
-            $obj->HashKey     = Config::get('ecpay.payment'.$envStr.'.HashKey');     //測試用Hashkey，請自行帶入ECPay提供的HashKey
-            $obj->HashIV      = Config::get('ecpay.payment'.$envStr.'.HashIV');      //測試用HashIV，請自行帶入ECPay提供的HashIV
-            $obj->MerchantID  = Config::get('ecpay.payment'.$envStr.'.MerchantID');  //測試用MerchantID，請自行帶入ECPay提供的MerchantID
+            if(($request->choosePayment=='Credit' || $request->type == 'cc_quarterly_payment' || $request->type == 'cc_monthly_payment') && $request->choosePaymentFlow=='funpoint'){
+                //信用卡付款導向funpoint金流 && 使用者選擇funpoint付款方式
+                $obj->ServiceURL = Config::get('funpoint.payment' . $envStr . '.ActionURL');   //服務位置
+                $obj->HashKey = Config::get('funpoint.payment' . $envStr . '.HashKey');     //測試用Hashkey
+                $obj->HashIV = Config::get('funpoint.payment' . $envStr . '.HashIV');      //測試用HashIV
+                $obj->MerchantID = Config::get('funpoint.payment' . $envStr . '.MerchantID');  //測試用MerchantID
+            }else {
+                $obj->ServiceURL = Config::get('ecpay.payment' . $envStr . '.ActionURL');   //服務位置
+                $obj->HashKey = Config::get('ecpay.payment' . $envStr . '.HashKey');     //測試用Hashkey，請自行帶入ECPay提供的HashKey
+                $obj->HashIV = Config::get('ecpay.payment' . $envStr . '.HashIV');      //測試用HashIV，請自行帶入ECPay提供的HashIV
+                $obj->MerchantID = Config::get('ecpay.payment' . $envStr . '.MerchantID');  //測試用MerchantID，請自行帶入ECPay提供的MerchantID
+            }
             $obj->EncryptType = '1';                                                 //CheckMacValue加密類型，請固定填入1，使用SHA256加密
 
 
@@ -96,7 +104,11 @@ class ECPayment extends BaseController
                 $obj->Send['PaymentInfoURL'] = Config::get('ecpay.payment' . $envStr . '.PaymentInfoURL');
 
                 if($request->choosePayment=='Credit'){
-                    $obj->Send['IgnorePayment']  = "WebATM#ATM#CVS#BARCODE" ;
+                    if($request->choosePaymentFlow=='funpoint'){
+                        $obj->Send['ChoosePayment'] = ECPay_PaymentMethod::Credit;
+                    }else {
+                        $obj->Send['IgnorePayment'] = "WebATM#ATM#CVS#BARCODE";
+                    }
                 }elseif($request->choosePayment=='ATM'){
                     $obj->Send['IgnorePayment']  = "WebATM#Credit#CVS#BARCODE" ;
                 }elseif($request->choosePayment=='CVS'){

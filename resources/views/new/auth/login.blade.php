@@ -13,8 +13,8 @@
                 <form name="login" action="/login" method="POST" class="dengl"  data-parsley-validate novalidate>
                     <input type="hidden" name="_token" id="token" value="{{ csrf_token() }}">
                     <input type="hidden" name="{{ time() }}" value="{{ time() }}">
-                    <input type="hidden" name="cfp_hash" id="cfp_hash">
-                    <input type="hidden" name="debug" id="debug">
+                    <input type="hidden" name="cfp_hash" class="cfp_hash">
+                    <input type="hidden" name="debug" class="debug">
 
                   {{--  <div class="wknr" style="display: inline-flex">
                         <span style="width: 66px;color: #999999;margin-left:16px;">記住我</span>
@@ -28,6 +28,9 @@
                 @if(isset($_COOKIE['loginAccount']))
                 <form id="login_fast_form" action="/login" method="POST" class="dengl"  data-parsley-validate novalidate>
                     <input type="hidden" name="_token" id="token" value="{{ csrf_token() }}">
+                    <input type="hidden" name="{{ time() }}" value="{{ time() }}">
+                    <input type="hidden" name="cfp_hash" class="cfp_hash">
+                    <input type="hidden" name="debug" class="debug">
                     {{--<a href="javascript:void(0);" class="dlbut" id="btn-login_fast">快速登入</a>--}}
                 </form>
                 @endif
@@ -37,8 +40,8 @@
     </div>
     <script type="text/javascript">
         window.onmessage = function (e) {
-            $('#cfp_hash').attr('value', e.data);
-            $('#debug').attr('value', JSON.stringify(e.data));
+            $('.cfp_hash').attr('value', e.data);
+            $('.debug').attr('value', JSON.stringify(e.data));
         };
     </script>
     <script type="text/javascript">
