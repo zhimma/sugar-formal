@@ -18,6 +18,7 @@ use App\Services\AdminService;
 use Intervention\Image\Facades\Image;
 use App\Models\SimpleTables\banned_users;
 use App\Services\UserService;
+use YlsIdeas\FeatureFlags\Facades\Features;
 
 use function Clue\StreamFilter\fun;
 
@@ -854,7 +855,13 @@ class Message extends Model
                 $count = 0;
                 foreach ($all_msg as $msg)
                 {
-                    $can_pr = UserService::computeCanMessagePercent_7($msg['from_id']);
+                    if(Features::accessible('inbox-7-days')){
+                        $can_pr = UserService::computeCanMessagePercent_7($msg['from_id']);
+                    }else{
+                        $user = new User;
+                        $can_pr = $user->getSpamMessagePercentIn7Days($msg['from_id']);
+                    }
+
                     $can_pr = trim($can_pr,'%');
                     if($can_pr > $inbox_refuse_set->refuse_canned_message_pr)
                     {
@@ -1199,7 +1206,7 @@ class Message extends Model
             }
         }
         else{
-            $room_id = $checkData->first()?->room_id;
+             $room_id = $checkData->first()?->room_id;
         }
 
         return $room_id ?? null;

@@ -14,7 +14,7 @@ use App\Http\Controllers\Api\CfpController;
 | to using a given Closure or controller and enjoy the fresh air.
 |
 */
-
+// Route::group(['middleware' => ['feature:site-maintenance-mode']], function () {
 
 Route::get('/fingerprint', 'PagesController@fingerprint');
 Route::post('/saveFingerprint', 'PagesController@saveFingerprint')->name('saveFingerprint');
@@ -172,9 +172,10 @@ Route::group(['middleware' => ['auth', 'global','SessionExpired']], function () 
     Route::post('/check-cfp', 'PagesController@checkcfp')->name('checkcfp');
 });
 Route::post('/dashboard/faq_reply', 'PagesController@checkFaqAnswer')->middleware('auth')->name('checkFaqAnswer');
+Route::get('/dashboard/faq_check', 'PagesController@checkIsForceShowFaq')->middleware('auth')->name('checkIsForceShowFaq');
 Route::get('/advance_auth_activate/token/{token}', 'PagesController@advance_auth_email_activate')->name('advance_auth_email_activate');
 
-Route::group(['middleware' => ['auth', 'global', 'active', 'femaleActive', 'vipCheck', 'newerManual', 'CheckAccountStatus', 'AdjustedPeriodCheck', 'SessionExpired','FaqCheck']], function () {
+Route::group(['middleware' => ['auth', 'global', 'active', 'femaleActive', 'vipCheck', 'newerManual', 'CheckAccountStatus', 'AdjustedPeriodCheck', 'SessionExpired','FaqCheck','RealAuthMiddleware']], function () {
 
     Route::get('/dashboard/browse', 'PagesController@browse');
     /*
@@ -256,6 +257,18 @@ Route::group(['middleware' => ['auth', 'global', 'active', 'femaleActive', 'vipC
     Route::post('advance_auth_back', 'PagesController@advance_auth_back');
     Route::get('advance_auth_midclause', 'PagesController@advance_auth_midclause');
     /*進階驗證END*/
+
+    //視訊驗證頁面
+    Route::get('user_video_chat_verify', 'VideoChatController@user_video_chat_verify');
+
+    //視訊功能測試
+    Route::get('/video-chat-test', 'VideoChatController@videoChatTest');
+
+    //視訊功能
+    Route::post('/video/call-user', 'VideoChatController@callUser');
+    Route::post('/video/accept-call', 'VideoChatController@acceptCall');
+    Route::get('/video/receive-call-user-signal-data', 'VideoChatController@receiveCallUserSignalData');
+    Route::get('/video/receive-accept-call-signal-data', 'VideoChatController@receiveAcceptCallSignalData');
 
     /*
     |--------------------------------------------------------------------------
@@ -531,7 +544,22 @@ Route::group(['middleware' => ['auth', 'global', 'active', 'femaleActive', 'vipC
         Route::post('/dashboard/anonymousChatReport', 'PagesController@anonymous_chat_report')->name('anonymous_chat_report');
         Route::post('/dashboard/anonymousChatMessage', 'PagesController@anonymous_chat_message')->name('anonymous_chat_message');
         Route::post('/dashboard/anonymousChatSave', 'PagesController@anonymous_chat_save')->name('anonymous_chat_save');
-
+        /*
+        |--------------------------------------------------------------------------
+        | Real Auth
+        |--------------------------------------------------------------------------
+        */
+        Route::get('/dashboard/real_auth', 'PagesController@showRealAuth')->name('real_auth');
+        Route::get('/dashboard/real_auth_break', 'PagesController@forgetRealAuthType')->name('forget_real_auth');
+        Route::get('/dashboard/real_auth_process_check', 'PagesController@checkIsInRealAuthProcess')->name('check_is_in_real_auth_process');
+        Route::post('/dashboard/real_auth_forward', 'PagesController@forwardRealAuth')->name('real_auth_forward');
+        Route::get('/dashboard/famous_auth', 'PagesController@showFamousAuth')->name('famous_auth');
+        Route::post('/dashboard/famous_auth/save', 'PagesController@saveFamousAuth')->name('famous_auth_save');
+        Route::get('/dashboard/famous_auth/delete_pic', 'PagesController@deleteFamousAuthPic')->name('famous_auth_pic_delete');
+        Route::get('/dashboard/beauty_auth', 'PagesController@showBeautyAuth')->name('beauty_auth');
+        Route::post('/dashboard/beauty_auth/save', 'PagesController@saveBeautyAuth')->name('beauty_auth_save');
+        Route::get('/dashboard/beauty_auth/delete_pic', 'PagesController@deleteBeautyAuthPic')->name('beauty_auth_pic_delete');        
+        Route::post('/dashboard/real_auth_update_profile','PagesController@savePassedRealAuthModify')->name('real_auth_update_profile');        
         /*
         |--------------------------------------------------------------------------
         | LINE
@@ -732,6 +760,10 @@ Route::group(['middleware' => ['auth', 'global', 'active', 'femaleActive', 'vipC
             Route::post('delete', 'UserController@deletePhone')->name('phoneDelete');
             Route::post('search', 'UserController@searchPhone');
         });
+        Route::group(['prefix'=>'users/email'], function(){
+            Route::post('modify', 'UserController@modifyEmail')->name('emailModify');
+            Route::post('search', 'UserController@searchEmail');
+        });
 
         Route::get('statistics', 'UserController@statisticsReply')->name("statistics");
         Route::post('statistics', 'UserController@statisticsReply');
@@ -847,8 +879,18 @@ Route::group(['middleware' => ['auth', 'global', 'active', 'femaleActive', 'vipC
         Route::post('checkGenderChange', 'UserController@AdminCheckGenderChangeSave');
         Route::post('checkPicUpload', 'UserController@AdminCheckPicUploadSave');
         Route::get('checkExchangePeriod', 'UserController@showAdminCheckExchangePeriod')->name('admin/checkExchangePeriod');
-		Route::get('checkPicUpload', 'UserController@showAdminCheckPicUpload')->name('admin/checkPicUpload');
+		Route::get('editRealAuth_sendMsg/{id}', 'UserController@editRealAuth_sendMsg')->name('admin/editRealAuth_sendMsg');
+        Route::get('real_auth/msglib/create/editRealAuth_sendMsg/{id?}', 'UserController@addMessageLibRealAuth')->name('admin/addMessageLibRealAuth');
+        Route::get('checkRealAuth', 'UserController@showAdminCheckRealAuth')->name('admin/checkRealAuth');
+        Route::get('checkFamousAuthForm/{user_id}', 'UserController@showAdminCheckFamousAuthForm')->name('admin/checkFamousAuthForm');
+        Route::get('checkBeautyAuthForm/{user_id}', 'UserController@showAdminCheckBeautyAuthForm')->name('admin/checkBeautyAuthForm');
+        Route::post('passRealAuth', 'UserController@passRealAuth')->name('admin/passRealAuth');
+        Route::post('cancelPassRealAuth', 'UserController@cancelPassRealAuth')->name('admin/cancelPassRealAuth');
+        Route::post('passRealAuthModify', 'UserController@passRealAuthModify')->name('admin/passRealAuthModify');
+        Route::get('checkPicUpload', 'UserController@showAdminCheckPicUpload')->name('admin/checkPicUpload');
         Route::post('checkExchangePeriod', 'UserController@AdminCheckExchangePeriodSave');
+        Route::get('checkAnonymousContent', 'UserController@showAdminCheckAnonymousContent')->name('admin/checkAnonymousContent');
+        Route::post('checkAnonymousContent', 'UserController@AdminCheckAnonymousContentSave');
         Route::get('roleManage', 'UserController@adminRole')->name('admin/role');
         Route::post('roleEdit', 'UserController@adminRoleEdit')->name('admin/role/edit');
         Route::get('users/picturesSimple', 'UserController@showUserPicturesSimple')->name('users/picturesSimple');
@@ -862,6 +904,8 @@ Route::group(['middleware' => ['auth', 'global', 'active', 'femaleActive', 'vipC
         Route::get('order/list', 'OrderController@getOrderData')->name('order/list');
         Route::post('order/orderGeneratorById', 'OrderController@orderGeneratorById')->name('order/orderGeneratorById');
         Route::post('order/orderEcPayCheck', 'OrderController@orderEcPayCheck')->name('order/orderEcPayCheck');
+        Route::post('order/orderFunPointPayCheck', 'OrderController@orderFunPointPayCheck')->name('order/orderFunPointPayCheck');
+
 
         /*新增、編輯訊息*/
         Route::post('users/getmsglib', 'UserController@getMessageLib');
@@ -927,13 +971,30 @@ Route::group(['middleware' => ['auth', 'global', 'active', 'femaleActive', 'vipC
         Route::get('admin/user_regist_time_view', 'UserController@user_regist_time_view')->name('admin/user_regist_time_view');
         Route::get('admin/user_visited_time_view', 'UserController@user_visited_time_view')->name('admin/user_visited_time_view');
         Route::get('admin/user_online_time_view', 'UserController@user_online_time_view')->name('admin/user_online_time_view');
-        
+    
+        Route::get('global/feature_flags', 'UserController@feature_flags')->name('admin/feature_flags');
+        Route::get('global/feature_flags/create', 'UserController@feature_flags_create');
+        Route::post('global/feature_flags/create', 'UserController@feature_flags_create');
+        Route::get('global/feature_flags/edit/{feature_key}', 'UserController@feature_flags_edit');
+        Route::post('global/feature_flags/edit', 'UserController@feature_flags_edit');
+        Route::post('global/feature_flags/update', 'UserController@feature_flags_update');
+        Route::post('global/feature_flags/delete', 'UserController@feature_flags_delete');
     });
     Route::group(['prefix' => 'admin', 'middleware' => 'Admin'], function () {
         //寄退信Log查詢
         Route::get('maillog', 'Api\MailController@viewMailLog')->name('maillog');
         Route::get("fakeMail", 'Api\MailController@fakeMail')->name('fakeMail');
         Route::post("sendFakeMail", 'Api\MailController@sendFakeMail')->name('sendFakeMail');
+
+        //視訊驗證功能
+        Route::get('users/video_chat_verify', 'VideoChatController@video_chat_verify')->name('users/video_chat_verify');
+        //視訊驗證上傳影片功能初始化
+        Route::post('users/video_chat_verify_upload_init', 'VideoChatController@video_chat_verify_upload_init')->name('users/video_chat_verify_upload_init');
+        //視訊驗證上傳影片功能
+        Route::post('users/video_chat_verify_upload', 'VideoChatController@video_chat_verify_upload')->name('users/video_chat_verify_upload');
+        //視訊驗證影片紀錄
+        Route::get('users/video_chat_verify_record_list', 'VideoChatController@video_chat_verify_record_list')->name('users/video_chat_verify_record_list');
+        Route::get('users/video_chat_verify_record', 'VideoChatController@video_chat_verify_record')->name('users/video_chat_verify_record');
 
         Route::get("stat_test", 'Api\MailController@test_stat');
 
@@ -1011,3 +1072,4 @@ Route::group(['middleware' => ['auth', 'global', 'active', 'femaleActive', 'vipC
 Route::get('/test', 'ImageController@deletePictures');
 
 Route::get('/cfp', [CfpController::class, 'cfp']);
+// });

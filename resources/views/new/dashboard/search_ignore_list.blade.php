@@ -2,11 +2,6 @@
 
 @section('app-content')
         <style>
-        .blur_img {
-            filter: blur(3px);
-            -webkit-filter: blur(3px);
-        }
-        
         .sjlist li .sjleft font span {margin-left:3%;float:unset;display:unset;} 
         </style>
 

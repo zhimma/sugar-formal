@@ -248,79 +248,88 @@ class FaqUserService {
         $popupQuestionList = $fuService->getPopupQuestionList();
         $popupUserGroupList = $fuService->getPopupUserGroupList();
         $userQuestionList = $faqService->question_entry()->whereIn('group_id',$popupUserGroupList->pluck('group_id'))->get();
-        
-        if($userQuestionList->where('id',$question_id)->count()==0) {
-            $this->recordReply($reply);
-            return ['error'=>'not_user_question'];
-        }
-        
+
         $user_reply_data = ['question_id'=>$question_id];
         $ans_rs_data = [];
         
-        switch($faqService->questionTypeToKey()) {
-            case 0:
-               if(!!$reply===!!($faqService->question_entry()->answer_bit??null)) {
-                   $ans_rs_data['success'] = 1;
-                   $now_reply_entry->is_pass=1;
-               }
-               else {
-                   if($faqService->question_entry()->answer_bit!==null) {
-                       $ans_rs_data['wrong'] = $faqService->question_entry()->answer_bit?'是':'否';
+        if($userQuestionList->where('id',$question_id)->count()==0) {
+            if($this->user()->faq_user_reply->where('question_id',$question_id)->where('is_pass',1)->count())
+            {
+                $ans_rs_data['success'] = 1;
+                $now_reply_entry->is_pass=1;
+            }
+            else {
+                $this->recordReply($reply);
+                return ['error'=>'not_user_question'];
+            }
+        }
+        else {
+            switch($faqService->questionTypeToKey()) {
+                case 0:
+                   if(!!$reply===!!($faqService->question_entry()->answer_bit??null)) {
+                       $ans_rs_data['success'] = 1;
+                       $now_reply_entry->is_pass=1;
                    }
                    else {
-                       $ans_rs_data['error'] = 'no_answer_setting';
+                       if($faqService->question_entry()->answer_bit!==null) {
+                           $ans_rs_data['wrong'] = $faqService->question_entry()->answer_bit?'是':'否';
+                       }
+                       else {
+                           $ans_rs_data['error'] = 'no_answer_setting';
+                       }
                    }
-               }
-            break;
-            case 1:
-                $choice_list = $faqService->fillChoiceList()->choice_list();
-                $answer_list = $choice_list->where('is_answer',1);
-                if($answer_list->where('id',$reply)->count()) {
-                    $fuService->user()->faq_user_reply();
-                    $ans_rs_data['success'] = 1;
-                    $now_reply_entry->is_pass=1;
-                }
-                else {
-                    if(!count($answer_list)) {
-                        $ans_rs_data['error'] = 'no_answer_setting';
-                    }
-                    else {
-                         $ans_rs_data['wrong'] = $answer_list->implode('name','或');
-                    }
-                }
-            break;
-            case 2:
-                $check_reply = is_countable($reply)?$reply:[];
-                $answer_list = $faqService->fillChoiceList()->choice_list()->where('is_answer',1);
-
-                if(!count($answer_list)) {
-                    $ans_rs_data['error'] = 'no_answer_setting';
-                }               
-                else if(count($answer_list)==count($check_reply) && !count($answer_list->pluck('id')->diff($check_reply)->all())) {    
-                    $ans_rs_data['success'] = 1;
-                    $now_reply_entry->is_pass=1;
-                }
-                else {
-                    $ans_rs_data['wrong'] = $answer_list->implode('name', '，');
-                }
-            break;
-            case 3:
-                $answer_context = $faqService->question_entry()->answer_context;
-                if(!$answer_context) {
-                    $ans_rs_data['error'] = 'no_answer_setting';
-                }
-                else {
-                    similar_text($answer_context, $reply, $percent);
-                    if($percent>=70) {
+                break;
+                case 1:
+                    $choice_list = $faqService->fillChoiceList()->choice_list();
+                    $answer_list = $choice_list->where('is_answer',1);
+                    if($answer_list->where('id',$reply)->count()) {
+                        $fuService->user()->faq_user_reply();
                         $ans_rs_data['success'] = 1;
                         $now_reply_entry->is_pass=1;
                     }
                     else {
-                        $ans_rs_data['text_wrong'] = $answer_context;
+                        if(!count($answer_list)) {
+                            $ans_rs_data['error'] = 'no_answer_setting';
+                        }
+                        else {
+                             $ans_rs_data['wrong'] = $answer_list->implode('name','或');
+                        }
                     }
-                }
-            break;
-        }  
+                break;
+                case 2:
+                    $check_reply = is_countable($reply)?$reply:[];
+                    $answer_list = $faqService->fillChoiceList()->choice_list()->where('is_answer',1);
+
+                    if(!count($answer_list)) {
+                        $ans_rs_data['error'] = 'no_answer_setting';
+                    }               
+                    else if(count($answer_list)==count($check_reply) && !count($answer_list->pluck('id')->diff($check_reply)->all())) {    
+                        $ans_rs_data['success'] = 1;
+                        $now_reply_entry->is_pass=1;
+                    }
+                    else {
+                        $ans_rs_data['wrong'] = $answer_list->implode('name', '，');
+                    }
+                break;
+                case 3:
+                    $answer_context = $faqService->question_entry()->answer_context;
+                    if(!$answer_context) {
+                        $ans_rs_data['error'] = 'no_answer_setting';
+                    }
+                    else {
+                        similar_text($answer_context, $reply, $percent);
+                        if($percent>=70) {
+                            $ans_rs_data['success'] = 1;
+                            $now_reply_entry->is_pass=1;
+                        }
+                        else {
+                            $ans_rs_data['text_wrong'] = $answer_context;
+                        }
+                    }
+                break;
+            }  
+            
+        }
 
         if($now_reply_entry->is_pass==1) {
             $now_reply_entry->save();
@@ -363,8 +372,7 @@ class FaqUserService {
     
     public function recordReply($reply=null) {
         if($reply!==null && !is_countable($reply)) $reply = (string) $reply;
-        session()->put('replyed_record.'.$this->faq_service()->question_entry()->id,$reply);        
-        Log::info(session()->get('replyed_record'));        
+        session()->put('replyed_record.'.$this->faq_service()->question_entry()->id,$reply);                
         return $this;
     } 
     

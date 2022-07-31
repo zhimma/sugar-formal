@@ -158,6 +158,114 @@ class Order extends Model
         return false;
     }
 
+    public static function addFunPointPayOrder($order_id, $order_expire_date = null){
+
+        if($order_id != '' && substr($order_id,0,2) == 'SG') {
+            //正式訂單查詢
+            $ecpay = new \App\Services\ECPay_AllInOne();
+            $ecpay->MerchantID = '1010336';
+            $ecpay->ServiceURL = 'https://payment.funpoint.com.tw/Cashier/QueryTradeInfo/V5';
+            $ecpay->HashIV = '7h5B9EIcEWEFIkPW';
+            $ecpay->HashKey = 'xcmzAyKJM7I8gssu';
+            $ecpay->Query = [
+                'MerchantTradeNo' => $order_id,
+                'TimeStamp' => time()
+            ];
+            $paymentData = $ecpay->QueryTradeInfo();
+
+            $ecpay->ServiceURL = 'https://payment.funpoint.com.tw/Cashier/QueryCreditCardPeriodInfo';//定期定額查詢
+            $paymentPeriodInfo = $ecpay->QueryPeriodCreditCardTradeInfo();
+
+            //check order exist
+            $checkOrder = Order::where('order_id', $order_id)->first();
+            if(!$checkOrder && isset($paymentData) && $paymentData['TradeStatus']==1) {
+                if($paymentData['CustomField4']==''){
+                    $service_name = 'VIP';
+                }else{
+                    $service_name = $paymentData['CustomField4'];
+                }
+                if($paymentData['CustomField3']==''){
+                    $payment = 'cc_monthly_payment';//舊訂單歸類定期定額月付
+                }else{
+                    $payment = $paymentData['CustomField3'];
+                }
+                //insert new order
+                $order = new Order;
+                $order->order_id = $order_id;
+                $order->user_id = $paymentData['CustomField1'];
+                $order->order_date = $paymentData['PaymentDate'];
+
+                $order->service_name = $service_name;
+                $order->payment_flow = 'funpoint';
+                $order->payment = $payment;
+                $order->payment_type = $paymentData['PaymentType'];
+                $dateArray = array();
+                if($paymentPeriodInfo['ExecLog']==''){
+                    $dd = str_replace('%20', ' ', $paymentData['PaymentDate']);
+                    $dd = \Carbon\Carbon::createFromFormat('Y/m/d H:i:s', $dd)->toDateTimeString();
+                    array_push($dateArray, array($dd));
+                }else{
+                    foreach($paymentPeriodInfo['ExecLog'] as $data){
+                        if($data['RtnCode']==1) {
+                            $dd = str_replace('%20', ' ', $data['process_date']);
+                            $dd = \Carbon\Carbon::createFromFormat('Y/m/d H:i:s', $dd)->toDateTimeString();
+                            array_push($dateArray, array($dd));
+                        }
+                    }
+
+                    $last = last($paymentPeriodInfo['ExecLog']);
+                    $lastProcessDate = str_replace('%20', ' ', $last['process_date']);
+                    $lastProcessDate = \Carbon\Carbon::createFromFormat('Y/m/d H:i:s', $lastProcessDate);
+                    $lastProcessDateDiffDays = $lastProcessDate->diffInDays(Carbon::now());
+                }
+                $order->pay_date = json_encode($dateArray);
+
+                $PaymentDate =str_replace('%20', ' ', $paymentData['PaymentDate']);
+                $PaymentDate = \Carbon\Carbon::createFromFormat('Y/m/d H:i:s', $PaymentDate);
+
+                if($order_expire_date=='') {
+                    if ($payment == 'one_quarter_payment') {
+                        $order->order_expire_date = $PaymentDate->addMonthsNoOverflow(3);
+                    } elseif ($payment == 'one_month_payment') {
+                        $order->order_expire_date = $PaymentDate->addMonthsNoOverflow(1);
+                    } elseif ($payment == 'cc_quarterly_payment' && $lastProcessDate != '' && $paymentPeriodInfo['ExecStatus'] == 0) {
+                        //ExecStatus=0 定期定額取消直接補上到期日
+                        $order->order_expire_date = $lastProcessDate->addMonthsNoOverflow(3);
+                        if($paymentData['CustomField2'] != '' && $paymentData['CustomField2']>0 && ($service_name == 'VIP' || $service_name == 'hideOnline')){
+                            $temp_day = $order->order_expire_date;
+                            $order->order_expire_date = $temp_day->addDays($paymentData['CustomField2']);
+                        }
+                    } elseif ($payment == 'cc_monthly_payment' && $lastProcessDate != '' && $paymentPeriodInfo['ExecStatus'] == 0) {
+                        //ExecStatus=0 定期定額取消直接補上到期日
+                        $order->order_expire_date = $lastProcessDate->addMonthsNoOverflow(1);
+                        if($paymentData['CustomField2'] != '' && $paymentData['CustomField2']>0 && ($service_name == 'VIP' || $service_name == 'hideOnline')){
+                            $temp_day = $order->order_expire_date;
+                            $order->order_expire_date = $temp_day->addDays($paymentData['CustomField2']);
+                        }
+                    } elseif ($payment == '' && $paymentPeriodInfo['ExecStatus'] == 0) {
+                        //舊式定期定額皆為月繳
+                        //ExecStatus=0 定期定額取消直接補上到期日
+                        $order->order_expire_date = $lastProcessDate->addMonthsNoOverflow(1);
+                    }
+                }else{
+                    $order->order_expire_date = $order_expire_date;
+                }
+
+                $order->amount = $paymentData['TradeAmt'];
+                $order->created_at = Carbon::now();
+                if($paymentData['CustomField2'] != '' && ($paymentData['CustomField4'] == 'VIP' || $paymentData['CustomField4'] == 'hideOnline')) {
+                    $order->remain_days = $paymentData['CustomField2'];
+                }
+                $order->save();
+
+                return true;
+            }
+
+        }
+
+        return false;
+    }
+
     public static function updateEcPayOrder($order_id){
 
         if($order_id != '' && substr($order_id,0,2) == 'SG') {
@@ -174,6 +282,89 @@ class Order extends Model
             $paymentData = $ecpay->QueryTradeInfo();
 
             $ecpay->ServiceURL = 'https://payment.ecpay.com.tw/Cashier/QueryCreditCardPeriodInfo';//定期定額查詢
+            $paymentPeriodInfo = $ecpay->QueryPeriodCreditCardTradeInfo();
+
+            //check order exist
+            $checkOrder = Order::where('order_id', $order_id)->first();
+            if($checkOrder && $paymentData['TradeStatus']==1){
+                if($paymentData['CustomField3']==''){
+                    $payment = 'cc_monthly_payment';//舊訂單歸類定期定額月付
+                }else{
+                    $payment = $paymentData['CustomField3'];
+                }
+                //更新扣款日
+                $dateArray = array();
+                $lastProcessDate = '';
+                $lastProcessDateDiffDays = '';
+                if($paymentPeriodInfo['ExecLog']==''){
+                    $dd = str_replace('%20', ' ', $paymentData['PaymentDate']);
+                    $dd = \Carbon\Carbon::createFromFormat('Y/m/d H:i:s', $dd)->toDateTimeString();
+                    array_push($dateArray, array($dd));
+                }else{
+                    foreach($paymentPeriodInfo['ExecLog'] as $data){
+                        if($data['RtnCode']==1) {
+                            $dd = str_replace('%20', ' ', $data['process_date']);
+                            $dd = \Carbon\Carbon::createFromFormat('Y/m/d H:i:s', $dd)->toDateTimeString();
+                            array_push($dateArray, array($dd));
+                        }
+                    }
+
+                    $last = last($paymentPeriodInfo['ExecLog']);
+                    $lastProcessDate = str_replace('%20', ' ', $last['process_date']);
+                    $lastProcessDate = \Carbon\Carbon::createFromFormat('Y/m/d H:i:s', $lastProcessDate);
+                    $lastProcessDateDiffDays = $lastProcessDate->diffInDays(Carbon::now());
+                }
+                //更新到期日
+                $order_expire_date = null;
+                $PaymentDate =str_replace('%20', ' ', $paymentData['PaymentDate']);
+                $PaymentDate = \Carbon\Carbon::createFromFormat('Y/m/d H:i:s', $PaymentDate);
+                if($payment=='one_quarter_payment'){
+                    $order_expire_date = $PaymentDate->addMonthsNoOverflow(3);
+                }elseif($payment=='one_month_payment'){
+                    $order_expire_date = $PaymentDate->addMonthsNoOverflow(1);
+                }elseif($payment=='cc_quarterly_payment' && $lastProcessDate != '' && $paymentPeriodInfo['ExecStatus'] == 0){
+                    //ExecStatus=0 定期定額取消直接補上到期日
+                    $order_expire_date = $lastProcessDate->addMonthsNoOverflow(3);
+                    if($paymentData['CustomField2'] != '' && ($paymentData['CustomField4'] == 'VIP' || $paymentData['CustomField4'] == 'hideOnline')){
+                        $order_expire_date = $order_expire_date->addDays($paymentData['CustomField2']);
+                    }
+                }elseif($payment=='cc_monthly_payment' && $lastProcessDate != '' && $paymentPeriodInfo['ExecStatus'] == 0){
+                    //ExecStatus=0 定期定額取消直接補上到期日
+                    $order_expire_date = $lastProcessDate->addMonthsNoOverflow(1);
+                    if($paymentData['CustomField2'] != '' && ($paymentData['CustomField4'] == 'VIP' || $paymentData['CustomField4'] == 'hideOnline')){
+                        $order_expire_date = $order_expire_date->addDays($paymentData['CustomField2']);
+                    }
+                }elseif($payment=='' && $paymentPeriodInfo['ExecStatus'] == 0){
+                    //舊式定期定額皆為月繳
+                    //ExecStatus=0 定期定額取消直接補上到期日
+                    $order_expire_date = $lastProcessDate->addMonthsNoOverflow(1);
+                }
+
+                Order::where('order_id', $order_id)->update(['order_expire_date' => $order_expire_date, 'pay_date' => json_encode($dateArray)]);
+
+            }
+
+        }
+
+        return false;
+    }
+
+    public static function updateFunPointPayOrder($order_id){
+
+        if($order_id != '' && substr($order_id,0,2) == 'SG') {
+            //正式訂單查詢
+            $ecpay = new \App\Services\ECPay_AllInOne();
+            $ecpay->MerchantID = '1010336';
+            $ecpay->ServiceURL = 'https://payment.funpoint.com.tw/Cashier/QueryTradeInfo/V5';
+            $ecpay->HashIV = '7h5B9EIcEWEFIkPW';
+            $ecpay->HashKey = 'xcmzAyKJM7I8gssu';
+            $ecpay->Query = [
+                'MerchantTradeNo' => $order_id,
+                'TimeStamp' => time()
+            ];
+            $paymentData = $ecpay->QueryTradeInfo();
+
+            $ecpay->ServiceURL = 'https://payment.funpoint.com.tw/Cashier/QueryCreditCardPeriodInfo';//定期定額查詢
             $paymentPeriodInfo = $ecpay->QueryPeriodCreditCardTradeInfo();
 
             //check order exist

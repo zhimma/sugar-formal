@@ -2,6 +2,7 @@
 
 namespace App\Notifications;
 
+use Illuminate\Http\Request;
 use Illuminate\Notifications\Notification;
 use Illuminate\Notifications\Messages\MailMessage;
 
@@ -13,6 +14,8 @@ class AdvAuthUserEmail extends Notification
      * @var string
      */
     public $token;
+    
+    public $request;
 
     /**
      * Create a notification instance.
@@ -20,9 +23,11 @@ class AdvAuthUserEmail extends Notification
      * @param  string  $token
      * @return void
      */
-    public function __construct($token)
+    public function __construct($token,Request $request)
     {
         $this->token = $token;
+    
+        $this->request = $request;
     }
 
     /**
@@ -49,6 +54,6 @@ class AdvAuthUserEmail extends Notification
         return (new MailMessage)
             ->subject('用戶進階驗證')
             ->line('您收到此電子郵件是因為希望進行 edu.tw 網域的校內信箱進階驗證')
-            ->action('進階驗證', route('advance_auth_email_activate', ['token'=>$this->token]) . "?utm_source=adv_auth_email_confirmation&utm_medium=email&utm_campaign=sugar_garden");
+            ->action('進階驗證', route('advance_auth_email_activate', ['token'=>$this->token]) . "?utm_source=adv_auth_email_confirmation&utm_medium=email&utm_campaign=sugar_garden".(count($this->request->query())?'&'.http_build_query($this->request->query()):''));
     }
 }

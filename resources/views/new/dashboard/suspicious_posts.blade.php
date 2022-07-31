@@ -66,22 +66,21 @@
                                     .sec2{color:#666;}
                                 </style>
                                 <div class="txe_title"><span class="iconfont icon-shangchuan"></span>圖片上傳</div>
-                                <div class="te_tlh" style="text-align: left;height: auto;padding:8px 8px;">
-                                    <span>上傳圖片必須包含以下資訊</span><br>
-                                    <span>1.必須有轉帳紀錄，手機截圖或者轉帳收據</span><br>
-                                    <span>2.必須有對話紀錄，其中數字與轉帳金額相符</span><br>
-                                    <span>3.對話紀錄必須要能把該位使用者與網站暱稱相連接，例如第一句打招呼訊息</span>
+                                <div class="te_tlh_n">上傳圖片必須包含以下資訊
+                                    <h2>1. 必須有轉帳紀錄，手機截圖或者轉帳收據</h2>
+                                    <h2>2. 必須有對話紀錄，其中數字與轉帳金額相符</h2>
+                                    <h2>3. 對話紀錄必須要能把該位使用者與網站暱稱相連接，例如第一句打招呼訊息</h2>
                                 </div>
                                 <div class="zap_photo mabot_10">
                                     <input type="file" name="images" >
                                 </div>
-                                <div style="color: red;">
-                                    請注意，如有偽造圖片上傳，站方後續審核會導致您喪失會員資格，並依情節輕重永鎖相關帳號並不退費，請勿因非詐騙糾紛上傳虛假資訊。
+                                <div class="zhu_y">
+                                    <img src="/new/images/zy_z.png">
+                                    <div class="xh_font">請注意，如有偽造圖片上傳，站方後續審核會導致您喪失會員資格，並依情節輕重永鎖相關帳號並不退費，請勿因非詐騙糾紛上傳虛假資訊。</div>
                                 </div>
-                                <label style="margin:10px 0px;">
-                                    <input type="checkbox" name="agree" style="vertical-align:middle;width:20px;height:20px;"/>
-                                    <sapn style="vertical-align:middle;">我知道了</sapn>
-                                </label>
+                                <div>
+                                    <input type="checkbox" name="agree" style="margin-right: 5px;"><b>我知道了</b>
+                                </div>
                             </div>
                         </div>
                         <!-- end -->

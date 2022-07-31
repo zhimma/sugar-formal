@@ -807,7 +807,7 @@ class UserService
         $receiver->email = $user->advance_auth_email;
         $receiver->name = $user->name;
 
-        $receiver->notify(new AdvAuthUserEmail($token));
+        $receiver->notify(new AdvAuthUserEmail($token,request()));
         
         $user->advance_auth_email_at = Carbon::now();
         $user->save();
@@ -1094,7 +1094,10 @@ class UserService
     }
 
     public static function isBlurAvatar($to, $user) {
-        if($user->engroup == 1 && ($to->id == $user->id)) {
+        if(($to->id == $user->id)) {
+            return false;
+        }
+        if(($to->engroup == $user->engroup)) {
             return false;
         }
         $blurryAvatar = isset($to->meta->blurryAvatar)? $to->meta->blurryAvatar : "";
@@ -1103,10 +1106,7 @@ class UserService
             $isBlurAvatar = true;
         }
         else{
-            if($user->engroup == 2){
-                $isBlurAvatar = false;
-            }
-            else if(sizeof($blurryAvatar)>1){
+            if(sizeof($blurryAvatar)>1){
                 $nowB = $user->isVip()? 'VIP' : 'general';
                 $isBlurAvatar = in_array($nowB, $blurryAvatar);
             }
@@ -1118,7 +1118,7 @@ class UserService
     }
 
     public static function isBlurLifePhoto($to, $user) {
-        if($user->engroup == 1 && ($to->id == $user->id)) {
+        if(($to->id == $user->id)) {
             return false;
         }
         $blurryLifePhoto = isset($to->meta->blurryLifePhoto)? $to->meta->blurryLifePhoto : "";
@@ -1127,10 +1127,7 @@ class UserService
             $isBlurLifePhoto = true;
         }
         else{
-            if($user->engroup == 2){
-                $isBlurLifePhoto = false;
-            }
-            else if(sizeof($blurryLifePhoto)>1){
+            if(sizeof($blurryLifePhoto)>1){
                 $nowB = $user->isVip()? 'VIP' : 'general';
                 $isBlurLifePhoto = in_array($nowB, $blurryLifePhoto);
             }
@@ -1330,7 +1327,47 @@ class UserService
             return $message_percent_7;
     }
     
-    public function riseByUserEntry($userEntry) {
+    public function AdminCheckExchangePeriodSave($request,$raa_service) 
+    {
+        $id = $request->id??null;
+        if(!$id) $id = $this->model->id;
+        $status = $request->status;
+        $reject_content = $request->reject_content??null;
+        DB::table('account_exchange_period')->where('user_id', $id)
+            ->update(['status' => $status, 'passed_at' => now(), 'reject_content' => $reject_content]);
+
+        $current_data = DB::table('account_exchange_period')->where('user_id', $id)->first();
+
+        //notify
+        if ($current_data->reject_content == '') {
+            $text = '無法通過您的申請。';
+        } else {
+            $text = '因 ' . $current_data->reject_content . ' 原因無法通過您的申請。';
+        }
+        $user = User::findById($current_data->user_id);
+        if ($status == 1) {
+            $content = $user->name . ' 您好：<br>您在 ' . $current_data->created_at . ' 申請變更包養關係，經站長審視已通過您的申請';
+            //修改
+            $rs = User::where('id', $current_data->user_id)->update(['exchange_period' => $current_data->exchange_period]);
+            UserMeta::where('user_id', $current_data->user_id)->update(['exchange_period_change' => 1]);
+            
+            if($rs)
+            {
+                $raa_service->riseByUserEntry($user)->passExchangePeriodModify();
+            }
+        } else {
+            $content = $user->name . ' 您好：<br>您在 ' . $current_data->created_at . ' 申請變更包養關係，經站長審視，' . $text;
+            UserMeta::where('user_id', $current_data->user_id)->update(['exchange_period_change' => 1]);
+        }
+
+        //站長系統訊息
+        Message::post(1049, $user->id, $content, true, 1);        
+    
+        return $current_data->status==$status;
+    } 
+    
+    public function riseByUserEntry($userEntry) 
+    {
         $this->model = $userEntry;
         $this->userMeta = $userEntry->meta;
         return $this;

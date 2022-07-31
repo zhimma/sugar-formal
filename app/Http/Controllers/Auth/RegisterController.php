@@ -173,6 +173,8 @@ class RegisterController extends \App\Http\Controllers\BaseController
             $advertise_record->save();
         }
         
+        //移至LogSuccessfulLoginListener
+        /*
         if($request->cfp_hash){
             $cfp = \App\Services\UserService::checkcfp($request->cfp_hash, $user->id);
             $logUserLogin = LogUserLogin::create([
@@ -225,6 +227,7 @@ class RegisterController extends \App\Http\Controllers\BaseController
                 logger($e);
             }
         }
+        */
 
         $record = UserRecord::where('user_id',$user->id)->first();
         if(!($record??false))

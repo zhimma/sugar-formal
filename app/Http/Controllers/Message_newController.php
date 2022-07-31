@@ -28,6 +28,7 @@ use App\Services\AdminService;
 use Session;
 use App\Models\InboxRefuseSet;
 use App\Models\Pr_log;
+use YlsIdeas\FeatureFlags\Facades\Features;
 
 class Message_newController extends BaseController {
     public function __construct(UserService $userService) {
@@ -591,6 +592,9 @@ class Message_newController extends BaseController {
 
     public function chatviewMore(Request $request)
     {
+        // $user = new User;
+        // $can_pr = $user->getSpamMessagePercentIn7Days(15600);
+        // dd($can_pr);
         $user = Auth::user();
         $user_id = $request->uid;
         /**
@@ -691,7 +695,12 @@ class Message_newController extends BaseController {
                     $count = 0;
                     foreach ($data as $d)
                     {
-                        $can_pr = UserService::computeCanMessagePercent_7($d['user_id']);
+                        if(Features::accessible('inbox-7-days')){
+                            $can_pr = UserService::computeCanMessagePercent_7($d['user_id']);
+                        }else{
+                            $user = new User;
+                            $can_pr = $user->getSpamMessagePercentIn7Days($d['user_id']);
+                        }                     
                         $can_pr = trim($can_pr,'%');
                         if($can_pr > $inbox_refuse_set->refuse_canned_message_pr)
                         {

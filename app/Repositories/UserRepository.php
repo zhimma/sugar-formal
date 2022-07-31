@@ -64,5 +64,16 @@ class UserRepository
         $city = str_replace('台', "臺", $city);
         return $this->user->where('city', $city);
     }
+    
+    public static function user($userOrReset=false) {
+        if($userOrReset) {
+            if($userOrReset===true) UserRepository::$user = new User;
+            else if($userOrReset!==false) UserRepository::$user = $userOrReset;
+        }
+        
+        if(!UserRepository::$user) UserRepository::$user = new User;
+        
+        return UserRepository::$user;
+    }  
 }
 ?>
