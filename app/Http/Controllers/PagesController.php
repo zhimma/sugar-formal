@@ -865,8 +865,7 @@ class PagesController extends BaseController
                 ->with('isAdminWarnedRead',$isAdminWarnedRead)
                 ->with('no_avatar', isset($no_avatar)?$no_avatar->content:'')
                 ->with('pr', $pr)
-                ->with('rap_service',$rap_service)               
-                ;
+                ->with('rap_service',$rap_service)
                 //->with('isWarnedReason',$isWarnedReason)
                 ->with('user_option', $user_option)
                 ->with('relationship_status', $relationship_status)

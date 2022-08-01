@@ -230,7 +230,7 @@ class CreateRealAuthTables extends Migration
                 $table->integer('new_video_record_id')->nullable()->index();                
                 $table->boolean('has_reply')->default(0);
                 $table->boolean('is_formal_first')->default(0);
-                $table->boolean('from_auto'->default(0);
+                $table->boolean('from_auto')->default(0);
                 $table->boolean('status')->default(0);
                 $table->timestamp('status_at')->nullable();
                 $table->softDeletes();                
