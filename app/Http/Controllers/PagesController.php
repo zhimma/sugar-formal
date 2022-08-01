@@ -2414,6 +2414,12 @@ class PagesController extends BaseController
             // 進階認證狀態
             $advance_auth_status = $user->advance_auth_status;
 
+            //判斷是否預算不實
+            $bool_value = [];
+            $bool_value['transport_fare_warn'] = warned_users::where('member_id', $uid)->where('type', 'transport_fare')->first();
+            $bool_value['budget_per_month_warn'] = warned_users::where('member_id', $uid)->where('type', 'month_budget')->first();
+
+
             return view('new.dashboard.viewuser', $data ?? [])
                     ->with('user', $user)
                     ->with('blockadepopup', $blockadepopup)
@@ -2447,6 +2453,7 @@ class PagesController extends BaseController
                     ->with('transport_fare_reported', $transport_fare_reported)
                     ->with('month_budget_reported', $month_budget_reported)
                     ->with('advance_auth_status', $advance_auth_status)
+                    ->with('bool_value', $bool_value)
                     ;
             }
 
