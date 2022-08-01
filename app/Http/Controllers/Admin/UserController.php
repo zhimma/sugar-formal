@@ -1200,6 +1200,7 @@ class UserController extends \App\Http\Controllers\BaseController
                 ->groupBy(DB::raw("ip"))->orderBy('loginTime', 'desc')->get();
             $Ip = array();
             foreach ($Ip_group as $Ip_key => $group) {
+                $group['IP_set_auto_ban']=SetAutoBan::where('type','ip')->where('content', $group['ip'])->get()->count();
                 $Ip['Ip_group'][$Ip_key] = $group;
                 $Ip['Ip_group_items'][$Ip_key] = LogUserLogin::where('user_id', $user->id)->where('created_at', 'like', '%' . $value->loginMonth . '%')->where('ip', $group->ip)->orderBy('created_at', 'DESC')->get();
             }
@@ -1213,6 +1214,7 @@ class UserController extends \App\Http\Controllers\BaseController
                 ->groupBy(DB::raw("cfp_id"))->orderBy('loginTime', 'desc')->get();
             $CfpID = array();
             foreach ($CfpID_group as $CfpID_key => $group) {
+                $group['CfpID_set_auto_ban']=SetAutoBan::where('type','cfp_id')->where('content', $group['cfp_id'])->get()->count();
                 $CfpID['CfpID_group'][$CfpID_key] = $group;
                 $CfpID['CfpID_group_items'][$CfpID_key] = LogUserLogin::where('user_id', $user->id)->where('created_at', 'like', '%' . $value->loginMonth . '%')->where('cfp_id', $group->cfp_id)->orderBy('created_at', 'DESC')->get();
             }
