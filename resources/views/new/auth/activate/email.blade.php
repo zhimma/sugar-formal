@@ -37,6 +37,12 @@
                                     <a href="{!! url('contact') !!}" style="color: red; font-weight: bold;">3、如果沒收到認證信/認證失敗，<span style="color: blue;">請點此聯繫站長。</span></a>
                                 </h3><br>
                                 <h4>第一次接觸包養的女孩，請先看完以下文章：</h4><br>
+                                <h4>
+                                    <ul>
+                                        <li><a style="font-weight: bold" href="http://blog-tw.net/Sugar/%E5%8C%85%E9%A4%8A%EF%BC%8D%E5%A4%A7%E5%8F%94%E7%AF%87/">站長的碎碎念(經典版)</a></li>
+                                        <li><a style="font-weight: bold" href="https://twlog.org/sugarbaby/">站長的碎碎念(2022版)</a></li>
+                                    </ul>
+                                </h4>
                                 @elseif(Auth::check() && $user->engroup == 1)
                                 <p>歡迎來到甜心花園，多金的Daddy們都想找到一個美麗的 BaBy。</p>
                                 <p>這邊，站長跟各位提點，想找到稱心如意的女伴的幾個重點：</p>
@@ -48,14 +54,13 @@
                                 <p>盡量加入 VIP，這是很多妹子第一個篩選的關卡。再來利用車馬費功能。雖說拒絕預支，但那是指萬計的大筆零用錢，初期千把塊的小額投資絕不可省。</p>
                                 <p>4.<a href="{!! url('contact') !!}" style="color: red; font-weight: bold;">如果沒收到認證信/認證失敗，請點此聯繫站長。</a></p>
 
-                                <h4>第一次接觸包養的大叔，請先看完以下文章：</h4>
-                                @endif
+                                <h4>建議第一次接觸包養的大叔，看完以下文章</h4>
                                 <h4>
-                                    <ul>
-                                        <li><a style="font-weight: bold" href="http://blog-tw.net/Sugar/%E5%8C%85%E9%A4%8A%EF%BC%8D%E5%A4%A7%E5%8F%94%E7%AF%87/">站長的碎碎念(經典版)</a></li>
-                                        <li><a style="font-weight: bold" href="https://twlog.org/sugarbaby/">站長的碎碎念(2022版)</a></li>
-                                    </ul>
+                                    <a style="font-weight: bold" href="{!! url('notification') !!}">站長開講</a>
+                                    <a style="font-weight: bold" href="{!! url('feature') !!}">網站使用</a>
+                                    <a style="font-weight: bold" href="http://blog-tw.net/Sugar/%E5%8C%85%E9%A4%8A%EF%BC%8D%E5%A4%A7%E5%8F%94%E7%AF%87/">站長的碎碎念(完整版)</a>
                                 </h4>
+                                @endif
                             </div>
                     </div>
                     <div class="yx_k">驗證碼已經寄到你的email : <a style="font-weight: bold">{{ $user->email }} (若Email填寫錯誤，請重新註冊)</a></div>
