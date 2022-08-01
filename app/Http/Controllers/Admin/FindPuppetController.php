@@ -2,6 +2,7 @@
 
 namespace App\Http\Controllers\Admin;
 
+use Illuminate\Support\Facades\DB;
 use Illuminate\Http\Request;
 use App\Http\Requests;
 use App\Models\User;
@@ -10,7 +11,9 @@ use App\Models\PuppetAnalysisCell;
 use App\Models\PuppetAnalysisColumn;
 use App\Models\PuppetAnalysisRow;
 use App\Models\PuppetAnalysisIgnore;
+use App\Models\StayOnlineRecord;
 use Illuminate\Support\Facades\Log;
+use App\Services\UserService;
 
 class FindPuppetController extends \App\Http\Controllers\Controller
 {
@@ -1474,6 +1477,15 @@ class FindPuppetController extends \App\Http\Controllers\Controller
                         $cur_user->tag_class.= 'isClosedByAdmin ';
                         $now_group_adminclosed_count++;
                     }
+
+                    $cur_user->newer_manual_time = StayOnlineRecord::select(DB::raw("SUM(newer_manual) as newer_manual"))
+                                                    ->Where('newer_manual', '>', 0)
+                                                    ->where('user_id', $cur_user->id)
+                                                    ->pluck('newer_manual')->first();
+
+                    $cur_user->register_days = UserService::getRegisterDaysByUser($cur_user);
+                    if($cur_user->register_days>99) $cur_user->register_days=99;
+
                     if(isset($cur_user->email) && strlen($cur_user->email)>$max_email_len) $max_email_len = strlen($cur_user->email);
                     $this->_rowUserId[$rowEntry->group_index][$rowEntry->row_index] = $cur_user;
                     $rowLastLoginArr[$rowEntry->group_index][$rowEntry->row_index] = $cur_user->last_login;
