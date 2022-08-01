@@ -5080,7 +5080,7 @@ class PagesController extends BaseController
             $success_msg = '
                         驗證成功：恭喜您，您的資料已經通過驗證，'.($banOrWarnCanceledStr?'成功解除'.$banOrWarnCanceledStr.'，':'').'
                         系統會將您的手機號碼以及生日更新到您的基本資料。
-                        並獲得<img src="'.asset('new/images/b_7.png').'" class="adv_auth_icon" />進階驗證的標籤<img src="'.asset('new/images/b_7.png').'" class="adv_auth_icon" />             
+                        並獲得<img src="'.asset('new/images/b_6.png').'" class="adv_auth_icon" />進階驗證的標籤<img src="'.asset('new/images/b_6.png').'" class="adv_auth_icon" />             
                     ';
             if($rap_service->isInRealAuthProcess(true)) {
                 $rap_service->applyRealAuthByReq($request);
