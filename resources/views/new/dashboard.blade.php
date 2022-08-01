@@ -553,7 +553,7 @@ dt span.engroup_type_title {display:inline-block;width:10%;white-space:nowrap;}
 
                         @if($user->engroup==2)
                         <dt>
-                            <span style="border-bottom: #eee 1px solid;">關於我<i>(必填)</i></span>
+                            <span id="about_column" style="border-bottom: #eee 1px solid;">關於我<i>(必填)</i></span>
 
                             <div class="ka_zli"><i></i>尋找關係</div>
                             <div id="itemssxN">
@@ -605,7 +605,7 @@ dt span.engroup_type_title {display:inline-block;width:10%;white-space:nowrap;}
                             <textarea id="about_other" name="about" cols="" rows="3" class="custom_text">{{$umeta->about}}</textarea>
                         </dt>
                         <dt>
-                            <span style="border-bottom: #eee 1px solid;">期待的約會模式<i>(必填)</i></span>
+                            <span  id="style_column" style="border-bottom: #eee 1px solid;">期待的約會模式<i>(必填)</i></span>
 
                             <div class="ka_zli"><i></i>喜歡的食物</div>
                             <div id="itemssxN2">
@@ -1740,7 +1740,8 @@ dt span.engroup_type_title {display:inline-block;width:10%;white-space:nowrap;}
             {
                 if($('#about_other').val() === "")
                 {
-                    c5('請輸入關於我');
+                    c5('請選擇關於我的標籤或輸入文字');
+                    return false;
                 }
             }
             
@@ -1795,7 +1796,8 @@ dt span.engroup_type_title {display:inline-block;width:10%;white-space:nowrap;}
             {
                 if($('#style_other').val() === "")
                 {
-                    c5('請輸入期待的約會模式');
+                    c5('請選擇期待的約會模式的標籤或輸入文字');
+                    return false;
                 }
             }
             
