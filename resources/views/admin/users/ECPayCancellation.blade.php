@@ -34,6 +34,7 @@
 		<th>會員 ID</th>
 		<th>訂單編號</th>
 		<th>取消日期</th>
+		<th>金流平台</th>
 	</tr>
 	@forelse ($contents as $key => $c)
 	<tr>
@@ -41,6 +42,7 @@
 		<td><a href="{{ route('users/advInfo', $c[1]) }}" target="_blank">{{ $c[1] }}</a></td>
 		<td>{{ $c[2] }}</td>
 		<td>{{ old('yearMonth', $thisYearMonth) }}-{{ $c[6] }}</td>
+		<td>@if($c[0]=='3137610') ecpay @elseif($c[0]=='1010336') funpoint @endif</td>
 	</tr>
 	@empty
 	<tr>
