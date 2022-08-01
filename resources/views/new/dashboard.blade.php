@@ -602,7 +602,7 @@ dt span.engroup_type_title {display:inline-block;width:10%;white-space:nowrap;}
                             </script>
 
                             <div class="ka_zli cutop"><i></i>或是其他你想說的</div>
-                            <textarea name="about" cols="" rows="3" class="custom_text">{{$umeta->about}}</textarea>
+                            <textarea id="about_other" name="about" cols="" rows="3" class="custom_text">{{$umeta->about}}</textarea>
                         </dt>
                         <dt>
                             <span style="border-bottom: #eee 1px solid;">期待的約會模式<i>(必填)</i></span>
@@ -688,10 +688,11 @@ dt span.engroup_type_title {display:inline-block;width:10%;white-space:nowrap;}
                             </script>
 
                             <div class="ka_zli cutop"><i></i>或是其他你想說的</div>
-                            <textarea name="style" cols="" rows="3" class="custom_text">{{$umeta->style}}</textarea>
+                            <textarea id="style_other" name="style" cols="" rows="3" class="custom_text">{{$umeta->style}}</textarea>
                         </dt>
                         @endif
 
+                        {{--
                         <dt>
                             <span>肢體接觸<i>(必填)</i></span>
                             <select name="body_touch" id="body_touch" class="select_xx01">
@@ -710,6 +711,7 @@ dt span.engroup_type_title {display:inline-block;width:10%;white-space:nowrap;}
                                 </div>
                             </div>
                         </dt>
+                        --}}
                         <dt>
                             <span>有空時段</span>
                             <select name="available_time"  class="select_xx01">
@@ -1060,6 +1062,7 @@ dt span.engroup_type_title {display:inline-block;width:10%;white-space:nowrap;}
                         </span>
                     </dt>
                     @if($user->engroup==2)
+                        {{--
                         <dt>
                             <span>希望進一步發展嗎?</span>
                             <span>
@@ -1076,6 +1079,7 @@ dt span.engroup_type_title {display:inline-block;width:10%;white-space:nowrap;}
                                 </select>
                             </span>
                         </dt>
+                        --}}
                     @endif
                   <dt>
                       <span>喝酒<i>(必填)</i></span>
@@ -1708,13 +1712,15 @@ dt span.engroup_type_title {display:inline-block;width:10%;white-space:nowrap;}
             $('#relationship_status').val(option_array);
             
 
+
+
+            let fill_about = false;
             option_array = [];
             $('.option_looking_for_relationships.cractive').each(function(){
                 option_array.push($(this).attr('value'));
             });
-            if(option_array.length === 0) {
-                c5('請輸入尋找關係');
-                return false;
+            if(option_array.length !== 0) {
+                fill_about = true;
             }
             option_array = JSON.stringify(option_array);
             $('#looking_for_relationships').val(option_array);
@@ -1724,21 +1730,30 @@ dt span.engroup_type_title {display:inline-block;width:10%;white-space:nowrap;}
             $('.option_expect.cractive').each(function(){
                 option_array.push($(this).attr('value'));
             });
-            if(option_array.length === 0) {
-                c5('請輸入對糖爹的期待');
-                return false;
+            if(option_array.length !== 0) {
+                fill_about = true;
             }
             option_array = JSON.stringify(option_array);
             $('#expect').val(option_array);
+
+            if(!fill_about)
+            {
+                if($('#about_other').val() === "")
+                {
+                    c5('請輸入關於我');
+                }
+            }
             
 
+
+
+            let fill_style = false;
             option_array = [];
             $('.option_favorite_food.cractive').each(function(){
                 option_array.push($(this).attr('value'));
             });
-            if(option_array.length === 0) {
-                c5('請輸入喜歡的食物');
-                return false;
+            if(option_array.length !== 0) {
+                fill_style = true;
             }
             option_array = JSON.stringify(option_array);
             $('#favorite_food').val(option_array);
@@ -1748,9 +1763,8 @@ dt span.engroup_type_title {display:inline-block;width:10%;white-space:nowrap;}
             $('.option_preferred_date_location.cractive').each(function(){
                 option_array.push($(this).attr('value'));
             });
-            if(option_array.length === 0) {
-                c5('請輸入偏好約會地點');
-                return false;
+            if(option_array.length !== 0) {
+                fill_style = true;
             }
             option_array = JSON.stringify(option_array);
             $('#preferred_date_location').val(option_array);
@@ -1760,9 +1774,8 @@ dt span.engroup_type_title {display:inline-block;width:10%;white-space:nowrap;}
             $('.option_expected_type.cractive').each(function(){
                 option_array.push($(this).attr('value'));
             });
-            if(option_array.length === 0) {
-                c5('請輸入期望模式');
-                return false;
+            if(option_array.length !== 0) {
+                fill_style = true;
             }
             option_array = JSON.stringify(option_array);
             $('#expected_type').val(option_array);
@@ -1772,12 +1785,19 @@ dt span.engroup_type_title {display:inline-block;width:10%;white-space:nowrap;}
             $('.option_frequency_of_getting_along.cractive').each(function(){
                 option_array.push($(this).attr('value'));
             });
-            if(option_array.length === 0) {
-                c5('請輸入相處的頻率與模式');
-                return false;
+            if(option_array.length !== 0) {
+                fill_style = true;
             }
             option_array = JSON.stringify(option_array);
             $('#frequency_of_getting_along').val(option_array);
+
+            if(!fill_style)
+            {
+                if($('#style_other').val() === "")
+                {
+                    c5('請輸入期待的約會模式');
+                }
+            }
             
             //複選選項處理為陣列
         @endif

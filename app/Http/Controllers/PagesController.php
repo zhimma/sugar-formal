@@ -2507,6 +2507,7 @@ class PagesController extends BaseController
                                                 ;
                                         })
                                         ->select('option_relationship_status.*', 'user_options_xref.id as xref_id')
+                                        ->whereNotNull('user_options_xref.id')
                                         ->get();
             $looking_for_relationships = DB::table('option_looking_for_relationships')
                                         ->leftJoin('user_options_xref', function($join) use($user)

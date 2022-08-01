@@ -304,6 +304,7 @@ header("Expires: Fri, 01 Jan 1990 00:00:00 GMT");
                                                 @endif
                                             </dt>
                                             <dt>
+                                                {{--
                                                 <div class="n_se left">
                                                     <span>肢體接觸</span>
                                                     <select name="body_touch" class="select_xx01">
@@ -316,7 +317,8 @@ header("Expires: Fri, 01 Jan 1990 00:00:00 GMT");
                                                         <option value="拒絕" @if( !empty( $_POST["body_touch"] ) && $_POST["body_touch"] == "拒絕" ) selected @elseif(!empty( $_GET["body_touch"] ) && $_GET["body_touch"] == "拒絕") selected @elseif(!empty( session()->get('search_page_key.body_touch') ) && session()->get('search_page_key.body_touch') == "拒絕") selected @endif>拒絕</option>
                                                     </select>
                                                 </div>
-                                                <div class="n_se right">
+                                                --}}
+                                                <div class="n_se left">
                                                      <span>刺青<i class="ssrgf">(僅顯示有填寫者)</i></span>
                                                       <select name="tattoo" class="select_xx01">
                                                         <option value="">請選擇</option>
@@ -561,11 +563,8 @@ header("Expires: Fri, 01 Jan 1990 00:00:00 GMT");
                         $prRange = search_variable('prRange',"");
                         $situation = search_variable('situation',"");
                         $education = search_variable('education',"");
-                        $body_touch = search_variable('body_touch',"接受");
-                        if($body_touch == '-1')
-                        {
-                            $body_touch = '';
-                        }
+                        $body_touch = search_variable('body_touch',"");
+                        if($body_touch == '-1'){$body_touch = '';}
                         $isVip = search_variable('isVip',"");
                         $isWarned = search_variable('isWarned',"");
                         $isPhoneAuth = search_variable('isPhoneAuth',"");
@@ -1297,7 +1296,7 @@ header("Expires: Fri, 01 Jan 1990 00:00:00 GMT");
                                 csrData +='<i class="j_lxx">丨</i><span style="margin-left: 0;">'+umetaOccupation+'</span>';
                             }
                         }else{
-                            csrData +='<span style="margin-left: 10px;"><span style="padding-left: 5px;">職業</span><img src="/new/images/icon_35.png" class="nt_img"></span>';
+                            csrData +='<span style="margin-left: 10px;"><span style="padding-left: 5px;">工作/學業</span><img src="/new/images/icon_35.png" class="nt_img"></span>';
                         }
                       
                         if(this.user.engroup==1){
