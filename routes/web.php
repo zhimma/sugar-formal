@@ -579,6 +579,7 @@ Route::group(['middleware' => ['auth', 'global', 'active', 'femaleActive', 'vipC
     */
     Route::group(['namespace' => 'Admin', 'middleware' => 'ReadOnly'], function () {
         Route::match(['get', 'post'], 'users/VIP/ECCancellations/readOnly', 'PagesController@showECCancellations')->name('users/VIP/ECCancellations/readOnly');
+        Route::match(['get', 'post'], 'users/VIP/FunPointCancellations/readOnly', 'PagesController@showFunPointCancellations')->name('users/VIP/FunPointCancellations/readOnly');
         Route::get('stats/vip/paid/readOnly', 'StatController@vipPaid')->name('stats/vip/paid/readOnly');
         Route::post('users/VIPToggler/readOnly', 'UserController@toggleVIP')->name('VIPToggler/readOnly');
         Route::post('users/toggleHidden/readOnly', 'UserController@toggleHidden')->name('toggleHidden/readOnly');        
@@ -810,6 +811,7 @@ Route::group(['middleware' => ['auth', 'global', 'active', 'femaleActive', 'vipC
         Route::get('users/customizeMigrationFiles', 'UserController@customizeMigrationFiles')->name('users/customize_migration_files/GET');
         Route::post('users/customizeMigrationFiles', 'UserController@customizeMigrationFiles')->name('users/customize_migration_files');
         Route::match(['get', 'post'], 'users/VIP/ECCancellations', 'PagesController@showECCancellations')->name('users/VIP/ECCancellations');
+        Route::match(['get', 'post'], 'users/VIP/FunPointCancellations', 'PagesController@showFunPointCancellations')->name('users/VIP/FunPointCancellations');
         Route::get('announcement', 'UserController@showAdminAnnouncement')->name('admin/announcement');
         Route::get('announcement/edit/{id}', 'UserController@showAdminAnnouncementEdit')->name('admin/announcement/edit');
         Route::post('announcement/save', 'UserController@saveAdminAnnouncement')->name('admin/announcement/save');
