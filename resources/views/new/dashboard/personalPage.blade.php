@@ -1,8 +1,23 @@
 @extends('new.layouts.website')
+@section('style')
 <meta http-equiv="Cache-Control" content="no-cache" />
 <meta http-equiv="Pragma" content="no-cache" />
 <meta http-equiv="Expires" content="0" />
+<script src="https://sdk.amazonaws.com/js/aws-sdk-2.1.12.min.js"></script>
+<script src="https://unpkg.com/amazon-kinesis-video-streams-webrtc/dist/kvs-webrtc.min.js"></script>
+<script src="/new/js/aws-sdk-2.1143.0.min.js"></script>
+<meta name="csrf-token" content="{{ csrf_token() }}">
 <link rel="stylesheet" href="/new/css/iconfont.css">
+<style>
+    #self_auth_state_block .tabbox_h2 .tu_dfont {min-height:30px;width:100%;}
+    .sa_video_status {cursor: pointer;display:inline-block;}
+    #video_status_text_show_elt {width:calc(100% - 85px);margin-right:20px;}
+    #video_status_show_elt {vertical-align:top;}
+    #self_auth_state_block .tabbox_h2,#self_auth_state_block .tabbox_h2 .tu_dfont {display:block;}
+    #app,#app .btn-success {height:0 !important;width:0 !important;}
+    #app {display:none !important;}
+</style>
+@stop
 @section('app-content')
     <style>
         .table>tbody>tr>td{
@@ -95,8 +110,8 @@
 
     </style>
     <style>
-    #vip_state_block .tu_dfont {width:auto;max-height:unset; -webkit-box-orient: vertical; -webkit-line-clamp:none; -webkit-line-clamp:unset;}
-    #vip_state_block .tabbox_new_dt a.zs_buttonn{font-size: 15px; line-height: 30px;font-weight:normal;margin-right:2%; }
+    #vip_state_block .tu_dfont,#self_auth_state_block .tu_dfont  {width:auto;max-height:unset; -webkit-box-orient: vertical; -webkit-line-clamp:none; -webkit-line-clamp:unset;}
+    #vip_state_block .tabbox_new_dt a.zs_buttonn,#self_auth_state_block  .tabbox_new_dt a.zs_buttonn,#adv_auth_state_block .tabbox_new_dt a.zs_buttonn{font-size: 15px; line-height: 30px;font-weight:normal;margin-right:2%; }
     </style>
     <style>
         span.main_word {color:#fd5678;font-weight:bolder;}
@@ -179,6 +194,7 @@
                             @endif
                         </div>
                     </div>
+                    @if($user->engroup==1)
                     <div class="sys_aa" id="vip_state_block">
                         <div class="tabbox_new_dt"><span>VIP狀態</span>
                             @if(!$user->isVip())
@@ -207,6 +223,45 @@
                             </h2>
                         </div>
                     </div>
+                    @endif
+                    @if($user->engroup==2)
+                    <div class="sys_aa" id="adv_auth_state_block">
+                        <div class="tabbox_new_dt"><span>進階驗證</span>
+                        @if(!$user->isAdvanceAuth())
+                            <a class="zs_buttonn" href="{{url('/advance_auth/')}}">立即驗證</a>
+                        @endif
+                        </div>
+                        <div class="tabbox_new_dd">
+                        @if($user->isAdvanceAuth())
+                            <h2 class="tabbox_h2">已通過</h2>
+                        @else
+                            <h2 class="tabbox_h2"><span class="tu_dfont">尚未通過</span></h2>
+                        @endif
+                        </div>
+                    </div> 
+                    <div class="sys_aa" id="self_auth_state_block">
+                        <div class="tabbox_new_dt"><span>本人認證</span>
+                            <a class="zs_buttonn" href="{{route('real_auth')}}">
+                            @if($rap_service->isNoProgressByAuthTypeId(1))
+                                立即認證
+                            @else
+                                檢視認證
+                            @endif
+                            </a>
+                        </div>
+                        <div class="tabbox_new_dd">
+                        @if($rap_service->isPassedByAuthTypeId(1))
+                            <h2 class="tabbox_h2">已通過</h2>
+                        @elseif($rap_service->isSelfAuthWaitingCheck())
+                            <h2 class="tabbox_h2"><span class="tu_dfont">站方審核中</span></h2>
+                        @elseif($rap_service->isSelfAuthApplyNotVideoYet())
+                            <h2 class="tabbox_h2"><span class="tu_dfont"><span class="sa_video_status video_status_text_show_elt" id="video_status_text_show_elt">前往視訊</span><img id="video_status_show_elt" src="{{ asset('/new/images/guan.png') }}" class="sa_video_status video_status_show_elt"  style="cursor: pointer;height: 30px;display:none;"/></span></h2>
+                        @else
+                            <h2 class="tabbox_h2"><span class="tu_dfont">尚未通過</span></h2>
+                        @endif
+                        </div>
+                    </div>         
+                    @endif
                    <div class="sys_aa" id="vip_state_block">
                         <div class="tabbox_new_dt"><span>隱藏狀態</span>
                             @if($user->valueAddedServiceStatus('hideOnline') == 1)
@@ -618,6 +673,21 @@
          </div>
     </div>
     @endif
+    @if($rap_service->isSelfAuthApplyNotVideoYet())
+    <div style="position:relative;" id="video_app_container">
+        <div id="app" style="display: none;">
+            <video-chat 
+                :allusers="{{ $users }}" 
+                :authUserId="{{ auth()->id() }}" 
+                user_permission = "normal"
+                ice_server_json="" 
+            />
+            
+        </div>
+    </div>
+    @endif
+</div>
+      
 @stop
 
 @section('javascript')
@@ -986,6 +1056,10 @@
 		@if(isset($admin_msgs) && count($admin_msgs))
 		    $('.btn_admin_msgs').show();
 		@endif
+        
+        $('.sa_video_status').click(function(){
+            location.href="{{url('user_video_chat_verify')}}";
+        });        
 	});
 
 </script>
@@ -1389,8 +1463,98 @@ display: flex;-webkit-box-pack: center;-ms-flex-pack: center;-webkit-justify-con
 
         return true;
     }
-
+    
 </script>
 @endif
+@if($rap_service->isSelfAuthApplyNotVideoYet())
+<script>
+    let ice_servers;
+    async function kinesis_init()
+    {
+        // DescribeSignalingChannel API can also be used to get the ARN from a channel name.
+        const channelARN = 'arn:aws:kinesisvideo:ap-southeast-1:428876234027:channel/videos/1653476269290';
 
+        // AWS Credentials
+        const accessKeyId = 'AKIAWHWYD7UVXA6QL2GN';
+        const secretAccessKey = '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';
+        const region = 'ap-southeast-1';
+
+        const kinesisVideoClient = new AWS.KinesisVideo({
+            region,
+            accessKeyId,
+            secretAccessKey,
+            correctClockSkew: true,
+        });
+
+        const getSignalingChannelEndpointResponse = await kinesisVideoClient
+            .getSignalingChannelEndpoint({
+                ChannelARN: channelARN,
+                SingleMasterChannelEndpointConfiguration: {
+                    Protocols: ['WSS', 'HTTPS'],
+                    Role: KVSWebRTC.Role.VIEWER,
+                },
+            })
+            .promise();
+        
+        const endpointsByProtocol = getSignalingChannelEndpointResponse.ResourceEndpointList.reduce((endpoints, endpoint) => {
+            endpoints[endpoint.Protocol] = endpoint.ResourceEndpoint;
+            return endpoints;
+        }, {});
+
+        const kinesisVideoSignalingChannelsClient = new AWS.KinesisVideoSignalingChannels({
+            region,
+            accessKeyId,
+            secretAccessKey,
+            endpoint: endpointsByProtocol.HTTPS,
+            correctClockSkew: true,
+        });
+        
+        const getIceServerConfigResponse = await kinesisVideoSignalingChannelsClient
+            .getIceServerConfig({
+                ChannelARN: channelARN,
+            })
+            .promise();
+
+        const iceServers = [
+            { urls: `stun:stun.kinesisvideo.${region}.amazonaws.com:443` }
+        ];
+
+        getIceServerConfigResponse.IceServerList.forEach(iceServer =>
+            iceServers.push({
+                urls: iceServer.Uris,
+                username: iceServer.Username,
+                credential: iceServer.Password,
+            }),
+        );
+
+        ice_servers = iceServers;
+    }
+
+    kinesis_init().then(function(result){
+        $('#app video-chat').attr('ice_server_json',JSON.stringify(ice_servers));
+        
+        new Vue({
+            el:'#app'
+        });
+    })
+    
+    setTimeout(change_video_status, 3000);
+    setInterval(change_video_status, 10000);
+    
+    function change_video_status() 
+    {
+        var video_state_intro_block = $('#video_status_text_show_elt');
+        var video_status_show_elt = $('.video_status_show_elt');
+        if($('#app .btn-success').length) {
+            if(video_status_show_elt.eq(0).attr('src')!='{{asset("/new/images/kai-1.png")}}')  video_status_show_elt.attr('src','');
+            video_status_show_elt.attr('src','{{asset("/new/images/kai-1.png")}}').show();
+            video_state_intro_block.html('現在可以進行視訊驗證，<span style="color:#e44e71;">點此開始驗證</span>');
+        }
+        else {
+            video_status_show_elt.attr('src','{{asset("/new/images/guan.png")}}').show();
+            video_state_intro_block.html('視訊審核的站方人員不在線，請稍後再試。');
+        }
+    }
+</script>
+@endif
 @stop

@@ -222,7 +222,7 @@ class Message_newController extends BaseController {
         
         if($payload['from']!=$user->id) {
             $already_logout_error_msg='您已登出或基於帳號安全由系統自動登出，請重新登入。';
-            SetAutoBan::logout_warned($user->id);
+            SetAutoBan::logoutWarned($user->id);
             Session::flush();
             $request->session()->forget('announceClose');
             Auth::logout();            

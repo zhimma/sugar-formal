@@ -91,7 +91,6 @@ class Kernel extends HttpKernel
         'CheckDiscussPermissions' => \App\Http\Middleware\CheckDiscussPermissions::class,
 
         'appGlobal' => \App\Http\Middleware\AppGlobalVariables::class,
-
         //一段時間未動作就自動登出
         'SessionExpired'=> \App\Http\Middleware\SessionExpired::class,
 
@@ -99,6 +98,10 @@ class Kernel extends HttpKernel
         "HasReferer"=>HasReferer::class,
         //檢查是否要作答FAQ
         "FaqCheck"=>\App\Http\Middleware\FaqCheck::class,
+
+        //跳離本人認證申請流程後清除流程狀態
+        "RealAuthMiddleware"=>\App\Http\Middleware\RealAuthMiddleware::class,
+
         //登入三次更新包養關係
         'AdjustedPeriodCheck'=>\App\Http\Middleware\AdjustedPeriodCheck::class,
         'feature' => \YlsIdeas\FeatureFlags\Middleware\FeatureFlagState::class,

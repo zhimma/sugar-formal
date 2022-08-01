@@ -11,7 +11,7 @@
             $("#tab_confirm").show().addClass('left').find('.bltext').click().html('您輸入的資料如下'
                 +'<div class="confirm_edu_email_box">校內Email信箱：'+email+'</div>'
                 +'<div>送出後將無法再修改用於進階驗證的校內Email信箱，所以請務必確定資料正確！</div>'
-            ).parent().find('.n_left').blur().html('確定送出').attr('onclick','document.advance_auth_form.submit();this.setAttribute("onclick", "return false;");return false;')
+            ).parent().find('.n_left').blur().html('確定送出').attr('onclick','$("body").attr("onbeforeunload","");document.advance_auth_form.submit();this.setAttribute("onclick", "return false;");return false;')
             .parent().parent().find('.n_right').html('返回修改');   
         }
         else {
@@ -62,7 +62,9 @@
     
     function checkNotAcceptEmailMsg(email) {
         rs = true;
-        if(email.match('[^a-zA-Z]tp\.edu\.tw$')) rs=false;
+        //if(email.match('[^a-zA-Z]tp\.edu\.tw$')) rs=false;
+        if(email.match('@tp\.edu\.tw$')) rs=false;
+        if(email.match('\.tp\.edu\.tw$') && !email.match('[^a-zA-Z]cogsh\.tp\.edu\.tw$')) rs=false;
         if(email.match('[^a-zA-Z]educities\.edu\.tw$')) rs=false;
         if(!rs) {
             tabElt = $('#tab_general_confirm');

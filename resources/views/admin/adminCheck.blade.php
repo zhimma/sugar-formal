@@ -22,6 +22,14 @@
                 <td><a href="{{ route('admin/checkExchangePeriod') }}">包養關係變更申請</a></td>
                 <td><a href="{{ route('admin/checkExchangePeriod') }}">{{$item_c}}</a></td>
             </tr>
+            <tr>
+                <td><a href="{{ route('admin/checkRealAuth') }}">女會員認證</a></td>
+                <td><a href="{{ route('admin/checkRealAuth') }}">{{$item_d}}</a></td>
+            </tr>
+            <tr>
+                <td><a href="{{ route('admin/checkAnonymousContent') }}">匿名評價訊息</a></td>
+                <td><a href="{{ route('admin/checkAnonymousContent') }}">{{$item_e}}</a></td>
+            </tr>
         </tbody>
     </table>
 </body>
