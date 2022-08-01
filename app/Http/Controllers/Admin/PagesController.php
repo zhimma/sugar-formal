@@ -78,36 +78,6 @@ class PagesController extends \App\Http\Controllers\BaseController
              'thisYearMonth' => $thisYear.'-'.$thisMonth]);
     }
 
-    public function showFunPointCancellations(Request $request){
-        $now = Carbon::now();
-        if(isset($request->yearMonth)){
-            $now = Carbon::createFromFormat('Y-m', $request->yearMonth);
-        }
-        $thisYear = $now->year;
-        $thisMonth = $now->month;
-        $days = $now->daysInMonth;
-        $dates = array();
-        for( $i = 1 ; $i < $days + 1 ; ++ $i ) {
-            $dates[] = \Carbon\Carbon::createFromDate($thisYear, $thisMonth, $i)->format('Ymd');
-        }
-
-        $contents = array();
-        foreach ($dates as $d){
-            if(\Storage::exists('RP_1010336_'.$d.'.dat')){
-                $eachLine = explode("\n", \Storage::get('RP_1010336_'.$d.'.dat'));
-                foreach ($eachLine as $line){
-                    if(str_contains($line, 'elete')){
-                        $line = explode(',', $line);
-                        array_push($contents, $line);
-                    }
-                }
-            }
-        }
-        return view('admin.users.FunPointPayCancellation',
-            ['contents' => $contents,
-                'thisYearMonth' => $thisYear.'-'.$thisMonth]);
-    }
-
     public function chat(Request $request, $cid)
     {
         $user = $request->user();
