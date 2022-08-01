@@ -189,195 +189,214 @@ dt span.engroup_type_title {display:inline-block;width:10%;white-space:nowrap;}
                         <input name="exchange_period" id="" type="hidden" class="select_xx01" value="{{$user->exchange_period}}" data-parsley-errors-messages-disabled disabled style="background-color: #d2d2d2;">
                     </dt>
                     @endif
-                  <dt>
-                    <span>地區<i>(必填)</i></span>
-                    <div id="county">
+                    <dt>
+                        <span>地區<i>(必填)</i></span>
+                        <div id="county">
+                        
+                        @if(isset($umeta->city))
+                            @if(is_array($umeta->city))
+                                @foreach($umeta->city as $key => $cityval)
+                                <div class="twzipcode">
+                                    <div class="twzip" data-role="county" data-name="@if($key != 0 )city{{$key}}@else{{'city'}}@endif" data-value="{{$umeta->city[$key]}}">
+                                    </div>
+                                    <div class="twzip right" data-role="district" data-name="@if($key != 0 )area{{$key}}@else{{'area'}}@endif" data-value="{{$umeta->area[$key]}}">
+                                    </div>
+                                </div>
+                                @endforeach
+                            @else
+                            <div class="twzipcode">
+                                <div class="twzip" data-role="county" data-name="city" data-value="{{$umeta->city}}">
+                                </div>
+                                <div class="twzip right" data-role="district" data-name="area" data-value="{{$umeta->area}}">
+                                </div>
+                            </div>
+                            @endif
+                        @else
+                            <div class="twzipcode">
+                                <div class="twzip" data-role="county" data-name="city" data-value="">
+                                </div>
+                                <div class="twzip right" data-role="district" data-name="area" data-value="">
+                                </div>
+                            </div>
+                        @endif
+                        </div>
+                        <div class="n_xqline">
+                        <div class="right" style="margin-bottom: 10px;">
+                            <a href="javascript:" id="add_county"><img src="/new/images/jh.png">新增縣市</a>
+                            <input type="hidden" name="isHideArea" value="0">
+                            <input name="isHideArea" type="checkbox" @if($umeta->isHideArea == true) checked @endif value="1"> 隱藏鄉鎮市區
+                        </div>
+                        </div>
+                        <!-- <span class="matop10">
+                        <select name=""  class="select_xx"><option>連江縣</option><option>B</option></select>
+                        <select name=""  class="select_xx right"><option>南竿鄉</option><option>B</option></select>
+                        </span>-->
+                    </dt>
+                    @if($user->engroup==2)
                     
-                      @if(isset($umeta->city))
-                        @if(is_array($umeta->city))
-                            @foreach($umeta->city as $key => $cityval)
-                              <div class="twzipcode">
-                                <div class="twzip" data-role="county" data-name="@if($key != 0 )city{{$key}}@else{{'city'}}@endif" data-value="{{$umeta->city[$key]}}">
-                                </div>
-                                <div class="twzip right" data-role="district" data-name="@if($key != 0 )area{{$key}}@else{{'area'}}@endif" data-value="{{$umeta->area[$key]}}">
-                                </div>
-                              </div>
-                            @endforeach
-                        @else
-                          <div class="twzipcode">
-                            <div class="twzip" data-role="county" data-name="city" data-value="{{$umeta->city}}">
-                            </div>
-                            <div class="twzip right" data-role="district" data-name="area" data-value="{{$umeta->area}}">
-                            </div>
-                          </div>
-                        @endif
-                      @else
-                          <div class="twzipcode">
-                            <div class="twzip" data-role="county" data-name="city" data-value="">
-                            </div>
-                            <div class="twzip right" data-role="district" data-name="area" data-value="">
-                            </div>
-                          </div>
-                      @endif
-                    </div>
-                    <div class="n_xqline">
-                      <div class="right" style="margin-bottom: 10px;">
-                        <a href="javascript:" id="add_county"><img src="/new/images/jh.png">新增縣市</a>
-                        <input type="hidden" name="isHideArea" value="0">
-                        <input name="isHideArea" type="checkbox" @if($umeta->isHideArea == true) checked @endif value="1"> 隱藏鄉鎮市區
-                      </div>
-                    </div>
-                    <!-- <span class="matop10">
-                      <select name=""  class="select_xx"><option>連江縣</option><option>B</option></select>
-                      <select name=""  class="select_xx right"><option>南竿鄉</option><option>B</option></select>
-                      </span>-->
-                  </dt>
-                  @if($user->engroup==2)
-                   
-                  <dt class="matopj15">
-                      <span>拒絕接受搜索縣市</span>
-                      <div id="block_county">
-                      @if(isset($umeta->blockcity))
-                        @if(is_array($umeta->blockcity))
-                          @foreach($umeta->blockcity as $key => $cityval)
-                              <div class="twzipcode">
-                                <div class="twzip " data-role="county"
-                                    data-name="blockcity{{$key == 0 ? '' : $key}}"
-                                    data-value="{{$umeta->blockcity[$key]}}">
-                                </div>
-                                <div class="twzip right" data-role="district"
-                                    data-name="blockarea{{$key == 0 ? '' : $key}}"
-                                    data-value="{{$umeta->blockarea[$key]}}">
-                                    <?php
-                                        /*if ($key ==0)
-                                            $blockarea_selected = $umeta->blockarea[0];
-                                        else if ($key ==1){
-                                            $blockarea1_selected = $umeta->blockarea[1];
-                                        }else if ($key ==2){
-                                            $blockarea2_selected = $umeta->blockarea[2];
-                                        }*/
+                    <dt class="matopj15">
+                        <span>拒絕接受搜索縣市</span>
+                        <div id="block_county">
+                        @if(isset($umeta->blockcity))
+                            @if(is_array($umeta->blockcity))
+                            @foreach($umeta->blockcity as $key => $cityval)
+                                <div class="twzipcode">
+                                    <div class="twzip " data-role="county"
+                                        data-name="blockcity{{$key == 0 ? '' : $key}}"
+                                        data-value="{{$umeta->blockcity[$key]}}">
+                                    </div>
+                                    <div class="twzip right" data-role="district"
+                                        data-name="blockarea{{$key == 0 ? '' : $key}}"
+                                        data-value="{{$umeta->blockarea[$key]}}">
+                                        <?php
+                                            /*if ($key ==0)
+                                                $blockarea_selected = $umeta->blockarea[0];
+                                            else if ($key ==1){
+                                                $blockarea1_selected = $umeta->blockarea[1];
+                                            }else if ($key ==2){
+                                                $blockarea2_selected = $umeta->blockarea[2];
+                                            }*/
 
-                                    ?>
+                                        ?>
+                                    </div>
                                 </div>
-                              </div>
-                          @endforeach
-                          @for ($i = 0; $i < $blockcity_limit_count; $i++)
-                            <?php
-                                $blockcity_selected[] = isset($umeta->blockcity[$i]) ? $umeta->blockcity[$i] : '';
-                                $blockarea_selected[] = isset($umeta->blockarea[$i]) ? str_replace($umeta->blockcity[$i],'',$umeta->blockarea[$i]) :'';
-                                if($blockcity_selected[$i] == '海外')
-                                {
-                                    if($blockarea_selected[$i] == '全區')
+                            @endforeach
+                            @for ($i = 0; $i < $blockcity_limit_count; $i++)
+                                <?php
+                                    $blockcity_selected[] = isset($umeta->blockcity[$i]) ? $umeta->blockcity[$i] : '';
+                                    $blockarea_selected[] = isset($umeta->blockarea[$i]) ? str_replace($umeta->blockcity[$i],'',$umeta->blockarea[$i]) :'';
+                                    if($blockcity_selected[$i] == '海外')
                                     {
-                                        $blockarea_selected[$i] = '全部';
+                                        if($blockarea_selected[$i] == '全區')
+                                        {
+                                            $blockarea_selected[$i] = '全部';
+                                        }
                                     }
-                                }
-                            ?>
-                          @endfor
+                                ?>
+                            @endfor
+                            @else
+                            <div class="twzipcode">
+                                <div class="twzip" data-role="county" data-name="blockcity" data-value="{{$umeta->blockcity}}">
+                                </div>
+                                <div class="twzip right" data-role="district" data-name="blockarea" data-value="{{$umeta->blockarea}}">
+                                </div>
+                            </div>
+                            @endif
                         @else
-                          <div class="twzipcode">
-                            <div class="twzip" data-role="county" data-name="blockcity" data-value="{{$umeta->blockcity}}">
+                            <div class="twzipcode">
+                                <div class="twzip" data-role="county" data-name="blockcity" data-value="">
+                                </div>
+                                <div class="twzip right" data-role="district" data-name="blockarea" data-value="">
+                                </div>
                             </div>
-                            <div class="twzip right" data-role="district" data-name="blockarea" data-value="{{$umeta->blockarea}}">
-                            </div>
-                          </div>
                         @endif
-                      @else
-                          <div class="twzipcode">
-                            <div class="twzip" data-role="county" data-name="blockcity" data-value="">
+                        </div>
+                        <div class="n_xqline">
+                            <div class="right" style="margin-bottom: 10px;">
+                                <a href="javascript:" id="add_block_county"><img src="/new/images/jh.png">新增縣市</a>
                             </div>
-                            <div class="twzip right" data-role="district" data-name="blockarea" data-value="">
-                            </div>
-                          </div>
-                      @endif
-                      </div>
-                      <div class="n_xqline">
-                          <div class="right" style="margin-bottom: 10px;">
-                              <a href="javascript:" id="add_block_county"><img src="/new/images/jh.png">新增縣市</a>
-                          </div>
-                      </div>
-                  </dt>
-                  @endif
-                  @if($user->engroup==2)
-                        <dt class="">
-                            <span>預算<i>(必填)</i></span>
-                            <span>
-                            <select data-parsley-errors-messages-disabled name="budget"  class="select_xx01">
-                                <option value="">請選擇</option>
-                                <option value="基礎" {{($umeta->budget == '基礎')?"selected":""  }}>基礎</option>
-                                <option value="進階"
-                                        @if($umeta->budget == '進階') selected @endif>進階
-                                </option>
-                                <option value="高級"
-                                        @if($umeta->budget == '高級') selected @endif>高級
-                                </option>
-                                <option value="最高"
-                                        @if($umeta->budget == '最高') selected @endif>最高
-                                </option>
-                                <option value="可商議" {{($umeta->budget == '可商議')?"selected":""  }}>可商議</option>
+                        </div>
+                    </dt>
+                    @endif
+                    @if($user->engroup==2)
+                            <dt class="">
+                                <span>預算<i>(必填)</i></span>
+                                <span>
+                                <select data-parsley-errors-messages-disabled name="budget"  class="select_xx01">
+                                    <option value="">請選擇</option>
+                                    <option value="基礎" {{($umeta->budget == '基礎')?"selected":""  }}>基礎</option>
+                                    <option value="進階"
+                                            @if($umeta->budget == '進階') selected @endif>進階
+                                    </option>
+                                    <option value="高級"
+                                            @if($umeta->budget == '高級') selected @endif>高級
+                                    </option>
+                                    <option value="最高"
+                                            @if($umeta->budget == '最高') selected @endif>最高
+                                    </option>
+                                    <option value="可商議" {{($umeta->budget == '可商議')?"selected":""  }}>可商議</option>
+                                </select>
+                                </span>
+                            </dt>
+                    @endif
+                    <dt>
+                        <span>出生年月<i>(必填)</i></span>
+                        <span>
+                            <input type="hidden" name="day" value="01">
+                            <div class="se_zlman left">
+                            @if(!$user->advance_auth_status??null)
+                            <select data-parsley-errors-messages-disabled name="year"  class="select_xx04 sel_year" data-value="{{ $year }}">
                             </select>
-                            </span>
-                        </dt>
-                  @endif
-                  <dt>
-                      <span>出生年月<i>(必填)</i></span>
-                      <span>
-                        <input type="hidden" name="day" value="01">
-                        <div class="se_zlman left">
-                        @if(!$user->advance_auth_status??null)
-                          <select data-parsley-errors-messages-disabled name="year"  class="select_xx04 sel_year" data-value="{{ $year }}">
-                          </select>
-                        @else
-                            <div class="select_xx01 senhs hy_new select_xx04 birth_lock" style="background: #d2d2d2;">{{ $year }}</div>                            
-                        @endif
-                          <i class="right">年</i>
-                        </div>
-                        <div class="se_zlman right">
-                        @if(!$user->advance_auth_status??null)
-                          <select data-parsley-errors-messages-disabled name="month"  class="select_xx04 sel_month" data-value="{{ $month }}">
-                          </select>
-                        @else
-                            <div class="select_xx01 senhs hy_new select_xx04 birth_lock" style="background: #d2d2d2;">{{ $month }}</div>                            
-                        @endif
-                          <i class="right">月</i>
-                        </div>
-                      </span>
-                  </dt>
-                  <dt>
-                      <span>身高（cm）<i>(必填)</i></span>
-                      <span><input name="height" id="height" type="number" class="select_xx01"  placeholder="請輸入數字範圍140～210" value="{{$umeta->height}}" title="請輸入140~210範圍"></span>
-                  </dt>
+                            @else
+                                <div class="select_xx01 senhs hy_new select_xx04 birth_lock" style="background: #d2d2d2;">{{ $year }}</div>                            
+                            @endif
+                            <i class="right">年</i>
+                            </div>
+                            <div class="se_zlman right">
+                            @if(!$user->advance_auth_status??null)
+                            <select data-parsley-errors-messages-disabled name="month"  class="select_xx04 sel_month" data-value="{{ $month }}">
+                            </select>
+                            @else
+                                <div class="select_xx01 senhs hy_new select_xx04 birth_lock" style="background: #d2d2d2;">{{ $month }}</div>                            
+                            @endif
+                            <i class="right">月</i>
+                            </div>
+                        </span>
+                    </dt>
+                    <dt>
+                        <span>身高（cm）<i>(必填)</i></span>
+                        <span><input name="height" id="height" type="number" class="select_xx01"  placeholder="請輸入數字範圍140～210" value="{{$umeta->height}}" title="請輸入140~210範圍"></span>
+                    </dt>
                                 
-                  <!--新增體重欄位 By Simon-->
-                  <dt>
-                      <span>體重（kg）</span>
-                      <span>
-                        <select name="weight"  class="select_xx01">
-                          <option value=null>請選擇</option>
-                          @for ($i = 1; $i < 21; $i++)
-                          <option value="{{$i*5}}"
-                                  @if($umeta->weight == $i*5) selected @endif>{{$i*5-4}} ~ {{$i*5}}
-                          </option>
-                          @endfor
-                        </select>
-                      </span>
-                      <div class="n_xqline">
-                          <div class="right" style="margin-bottom: 10px;">
-                              <input type="hidden" name="isHideWeight" value="0">
-                              <input name="isHideWeight" type="checkbox" @if($umeta->isHideWeight == true) checked @endif value="1"> 隱藏體重
-                          </div>
-                      </div>
-                      <!--<span>
-                          <input name="weight" id="weight" type="number" class="select_xx01" value="{{$umeta->weight}}">
-                      </span>
-                      <div class="n_xqline">
-                          <div class="right" style="margin-bottom: 10px;">
-                              <input type="hidden" name="isHideWeight" value="0">
-                              <input name="isHideWeight" type="checkbox" @if($umeta->isHideWeight == true) checked @endif value="1"> 隱藏體重
-                          </div>
-                      </div>-->
-                  </dt>
-                  
+                    <!--新增體重欄位 By Simon-->
+                    <dt>
+                        <span>體重（kg）</span>
+                        <span>
+                            <select name="weight"  class="select_xx01">
+                            <option value=null>請選擇</option>
+                            @for ($i = 1; $i < 21; $i++)
+                            <option value="{{$i*5}}"
+                                    @if($umeta->weight == $i*5) selected @endif>{{$i*5-4}} ~ {{$i*5}}
+                            </option>
+                            @endfor
+                            </select>
+                        </span>
+                        <div class="n_xqline">
+                            <div class="right" style="margin-bottom: 10px;">
+                                <input type="hidden" name="isHideWeight" value="0">
+                                <input name="isHideWeight" type="checkbox" @if($umeta->isHideWeight == true) checked @endif value="1"> 隱藏體重
+                            </div>
+                        </div>
+                        <!--<span>
+                            <input name="weight" id="weight" type="number" class="select_xx01" value="{{$umeta->weight}}">
+                        </span>
+                        <div class="n_xqline">
+                            <div class="right" style="margin-bottom: 10px;">
+                                <input type="hidden" name="isHideWeight" value="0">
+                                <input name="isHideWeight" type="checkbox" @if($umeta->isHideWeight == true) checked @endif value="1"> 隱藏體重
+                            </div>
+                        </div>-->
+                    </dt>
+                    <dt>
+                        <span>體型</span>
+                        <span>
+                            <select name="body"  class="select_xx01">
+                            <option value=null>請選擇</option>
+                            <option value="瘦"
+                                    @if($umeta->body == '瘦') selected @endif>瘦
+                            </option>
+                            <option value="標準"
+                                    @if($umeta->body == '標準') selected @endif>標準
+                            </option>
+                            <option value="微胖"
+                                    @if($umeta->body == '微胖') selected @endif>微胖
+                            </option>
+                            <option value="胖"
+                                    @if($umeta->body == '胖') selected @endif>胖
+                            </option>
+                            </select>
+                        </span>
+                    </dt>
                     @if($user->engroup==2)
                         {{--<dt>--}}
                             {{--<span>體重（kg）</span>--}}
@@ -441,7 +460,7 @@ dt span.engroup_type_title {display:inline-block;width:10%;white-space:nowrap;}
 
                         @if($user->engroup==2)
                         <dt>
-                            <span>關於我<i>(必填)</i></span>
+                            <span style="border-bottom: #eee 1px solid;">關於我<i>(必填)</i></span>
 
                             <div class="ka_zli"><i></i>尋找關係</div>
                             <div id="itemssxN">
@@ -493,7 +512,7 @@ dt span.engroup_type_title {display:inline-block;width:10%;white-space:nowrap;}
                             <textarea name="about" cols="" rows="3" class="custom_text">{{$umeta->about}}</textarea>
                         </dt>
                         <dt>
-                            <span>期待的約會模式<i>(必填)</i></span>
+                            <span style="border-bottom: #eee 1px solid;">期待的約會模式<i>(必填)</i></span>
 
                             <div class="ka_zli"><i></i>喜歡的食物</div>
                             <div id="itemssxN2">
@@ -636,26 +655,6 @@ dt span.engroup_type_title {display:inline-block;width:10%;white-space:nowrap;}
                             </font>
                         </dt>                  
                     @endif
-                    <dt>
-                        <span>體型</span>
-                        <span>
-                            <select name="body"  class="select_xx01">
-                            <option value=null>請選擇</option>
-                            <option value="瘦"
-                                    @if($umeta->body == '瘦') selected @endif>瘦
-                            </option>
-                            <option value="標準"
-                                    @if($umeta->body == '標準') selected @endif>標準
-                            </option>
-                            <option value="微胖"
-                                    @if($umeta->body == '微胖') selected @endif>微胖
-                            </option>
-                            <option value="胖"
-                                    @if($umeta->body == '胖') selected @endif>胖
-                            </option>
-                            </select>
-                        </span>
-                    </dt>
                     @if($user->engroup==1)
                         <dt>
                             <span>關於我<i>(必填)</i></span>
