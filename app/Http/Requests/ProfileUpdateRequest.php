@@ -33,8 +33,8 @@ class ProfileUpdateRequest extends FormRequest
             'height' => 'required|digits_between:2,3|numeric',
             'name' => 'required',
             'title' => 'required',
-            'about'=> 'required',
-            'style' => 'required',
+            //'about'=> 'required',
+            //'style' => 'required',
             'assets' => 'required_if:voucher_enabled,1|integer|nullable'
             //'height' => 'required|digits_between:2,3|numeric',
             //'name' => array('required', 'regex:/^[\x{4e00}-\x{9fa5}_a-zA-Z0-9\s\.\,\。\;\'\"\(\)\，\/\-\=\+\?\!\~\>\<\^\、\♥]+$/u'),

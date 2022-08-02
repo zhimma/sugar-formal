@@ -1434,11 +1434,12 @@
 </table>
 
 <br>
-<h4>帳號登入紀錄</h4>
+<h4 id="loginRecord">帳號登入紀錄</h4>
 <div>
     <a id="ip10days" href="/admin/users/ip/不指定/?type=detail&period=10days" target="_blank" class="btn btn-success" style="margin-left: 10px;">10天</a>
     <a id="ip20days" href="/admin/users/ip/不指定/?type=detail&period=20days" target="_blank" class="btn btn-primary">20天</a>
     <a id="ip30days" href="/admin/users/ip/不指定/?type=detail&period=30days" target="_blank" class="btn btn-warning">30天</a>
+    {{--<a id="loading_data" href="/admin/users/advInfo/{{ $user->id }}?loading_data=all#loginRecord" class="btn btn-dark">loading全部登入紀錄</a>--}}
 </div>
 <table id="table_userLogin_log" class="table table-hover table-bordered">
     @foreach($userLogin_log as $logInLog)
@@ -1450,10 +1451,12 @@
                         $CFP_count=count(array_get($logInLog->CfpID,'CfpID_group',[]));
                         $IP_count=count(array_get($logInLog->Ip,'Ip_group',[]));
                     @endphp
+                    <td style="min-width: 100px"></td>
+                    <td style="min-width: 100px"></td>
                     @if($CFP_count>0)
                         @foreach(array_get($logInLog->CfpID,'CfpID_group',[]) as $gpKey =>$group)
                             @if($gpKey<5)
-                                <td class="loginItem" id="showcfpID{{substr($logInLog->loginDate,0,7)}}_group{{$gpKey}}" data-sectionName="cfpID{{substr($logInLog->loginDate,0,7)}}_group{{$gpKey}}" style="margin-left: 20px;min-width: 100px;">{{ $group->cfp_id.'('.$group->dataCount .')' }}</td>
+                                <td class="loginItem" id="showcfpID{{substr($logInLog->loginDate,0,7)}}_group{{$gpKey}}" data-sectionName="cfpID{{substr($logInLog->loginDate,0,7)}}_group{{$gpKey}}" data-assign_user_id="{{ $user->id }}" data-yearMonth="{{substr($logInLog->loginDate,0,7)}}" data-cfpID="{{$group->cfp_id}}" style="margin-left: 20px;min-width: 100px;{{ $group->CfpID_set_auto_ban ? 'background:yellow;' : '' }}">{{ $group->cfp_id.'('.$group->dataCount .')' }}</td>
                             @endif
                         @endforeach
                     @endif
@@ -1469,7 +1472,7 @@
                     @if($IP_count>0)
                         @foreach(array_get($logInLog->Ip,'Ip_group',[]) as $gpKey =>$group)
                             @if($gpKey<10)
-                                <td class="loginItem ipItem" id="showIp{{substr($logInLog->loginDate,0,7)}}_group{{$gpKey}}" data-sectionName="Ip{{substr($logInLog->loginDate,0,7)}}_group{{$gpKey}}" data-ip="{{ $group->ip }}" style="margin-left: 20px;min-width: 150px;">{{ $group->ip.'('.$group->dataCount .')' }}</td>
+                                <td class="loginItem ipItem" id="showIp{{substr($logInLog->loginDate,0,7)}}_group{{$gpKey}}" data-sectionName="Ip{{substr($logInLog->loginDate,0,7)}}_group{{$gpKey}}" data-assign_user_id="{{ $user->id }}" data-yearMonth="{{substr($logInLog->loginDate,0,7)}}" data-ip="{{ $group->ip }}" style="margin-left: 20px;min-width: 150px;{{ $group->IP_set_auto_ban ? 'background:yellow;' : '' }}">{{ $group->ip.'('.$group->dataCount .')' }}</td>
                             @endif
                         @endforeach
                     @endif
@@ -1999,7 +2002,7 @@
                             <label for="ip">IP</label>
                             <table id="table_userLogin_log" class="table table-hover table-bordered">
                                 @foreach($userLogin_log as $logInLog)
-                                    <tr class="loginItem" id="showloginTimeIP{{substr($logInLog->loginDate,0,7)}}" data-sectionName="loginTimeIP{{substr($logInLog->loginDate,0,7)}}">
+                                    <tr class="loginItem_IP" id="showloginTimeIP{{substr($logInLog->loginDate,0,7)}}" data-sectionName="loginTimeIP{{substr($logInLog->loginDate,0,7)}}">
                                         <td>
                                             <span>{{ substr($logInLog->loginDate,0,7) . ' ['. count(array_get($logInLog->Ip,'Ip_group',[])) .']' }}</span>
                                         </td>
@@ -2387,6 +2390,23 @@ jQuery(document).ready(function(){
 
     $('.showLog').hide();
     $('.loginItem').click(function(){
+        var sectionName =$(this).attr('data-sectionName');
+        var assign_user_id=$(this).attr('data-assign_user_id');
+        var yearMonth =$(this).attr('data-yearMonth');
+        var ip =$(this).attr('data-ip');
+        var cfpID =$(this).attr('data-cfpID');
+        if(ip!=='不指定'){
+            if(ip){
+                window.open('/admin/users/ip/'+ip+'?assign_user_id='+ assign_user_id+'&yearMonth='+ yearMonth, '_blank');
+            }else{
+                window.open('/admin/users/ip/不指定?assign_user_id='+ assign_user_id+'&yearMonth='+ yearMonth +'&cfp_id='+ cfpID, '_blank');
+            }
+        }else{
+            $('.showLog').hide();
+            $('#'+sectionName).show();
+        }
+    });
+    $('.loginItem_IP').click(function(){
         var sectionName =$(this).attr('data-sectionName');
         $('.showLog').hide();
         $('#'+sectionName).show();
