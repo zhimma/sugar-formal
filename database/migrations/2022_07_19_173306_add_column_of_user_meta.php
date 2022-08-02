@@ -16,7 +16,6 @@ class AddColumnOfUserMeta extends Migration
         Schema::table('user_meta', function (Blueprint $table) {
             $table->string('family_situation')->nullable()->after('smoking');
             $table->string('available_time')->nullable()->after('smoking');
-            $table->string('body_touch')->nullable()->after('smoking');
         });
     }
 
@@ -30,7 +29,6 @@ class AddColumnOfUserMeta extends Migration
         Schema::table('user_meta', function (Blueprint $table) {
             $table->dropColumn('is_write');
             $table->dropColumn('available_time');
-            $table->dropColumn('body_touch');
         });
     }
 }
