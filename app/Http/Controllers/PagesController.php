@@ -2393,6 +2393,8 @@ class PagesController extends BaseController
             if(isset($_SERVER['HTTP_REFERER'])){
                 if(!str_contains($_SERVER['HTTP_REFERER'],'dashboard/chat2/chatShow') && !str_contains($_SERVER['HTTP_REFERER'],'dashboard/viewuser')){
                     session()->put('goBackPage',$_SERVER['HTTP_REFERER']);
+                } else if (strpos($_SERVER['HTTP_REFERER'], 'dashboard/chat2/chatShow')) {
+                    session()->put('goBackPage',$_SERVER['HTTP_REFERER']);
                 }
             }
 
@@ -2440,6 +2442,7 @@ class PagesController extends BaseController
                     ->with('isReadIntro',$isReadIntro)
                     ->with('auth_check',$auth_check)
                     ->with('is_banned',User::isBanned($user->id))
+                    ->with('is_banned_v2', User::isBanned_v2($user->id))
                     ->with('pr', $pr)
                     ->with('isBlocked',$isBlocked)
                     ->with('visited_id', $visited_id)
@@ -3564,8 +3567,14 @@ class PagesController extends BaseController
 
         //紀錄返回上一頁的url
         if(isset($_SERVER['HTTP_REFERER'])){
-            if(!str_contains($_SERVER['HTTP_REFERER'],'dashboard/chat2/chatShow')){
-                session()->put('goBackPage_chat2',$_SERVER['HTTP_REFERER']);
+            // 從收信夾內點入
+            if (strpos($_SERVER['HTTP_REFERER'], 'dashboard/chat2')) {
+                session()->put('goBackPage_chat2', $_SERVER['HTTP_REFERER']);
+            // 從個資點回 且 上層是收信夾 則繼續使用 goBackPage_chat2
+            } else if (strpos($_SERVER['HTTP_REFERER'], 'dashboard/viewuser') && session()->get('goBackPage_chat2') && empty($request->from_viewuser_page)) {
+            } else if (!str_contains($_SERVER['HTTP_REFERER'],'dashboard/chat2/chatShow')) {
+                session()->forget('goBackPage_chat2');
+                session()->put('goBackPage',$_SERVER['HTTP_REFERER']);
             }
         }
 

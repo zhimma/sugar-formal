@@ -2472,8 +2472,14 @@
                 $(this).removeClass('on2');
                 $('.showslide_evaluation').fadeOut();
             } else {
-                $(this).addClass('on2');
-                $('.showslide_evaluation').fadeIn();
+                @if($user->meta->isWarned == 1 || $isAdminWarned)
+                    c5('您目前為警示帳戶，暫不可評價');
+                @elseif ($is_banned_v2)
+                    c5('您目前為封鎖帳戶，暫不可評價');
+                @else
+                    $(this).addClass('on2');
+                    $('.showslide_evaluation').fadeIn();
+                @endif
             }
         });
 
@@ -2484,9 +2490,7 @@
             $('.need_vip').addClass('hide');
             $('.advance_auth').addClass('hide');
             @if($user->id != $to->id)
-                @if($user->meta->isWarned == 1 || $isAdminWarned)
-                    c5('您目前為警示帳戶，暫不可評價');
-                @elseif($user->engroup==2 && ($isSent3Msg==0 || $auth_check==0))
+                @if($user->engroup==2 && ($isSent3Msg==0 || $auth_check==0))
                     $('#tab_reject_female').show();
                     $('.phone_auth').removeClass('hide');
                     $(".announce_bg").show();
@@ -2515,9 +2519,7 @@
             $('.need_vip').addClass('hide');
             $('.advance_auth').addClass('hide');
             @if($user->id != $to->id)
-                @if($user->meta->isWarned == 1 || $isAdminWarned)
-                    c5('您目前為警示帳戶，暫不可評價');
-                @elseif($user->engroup==2 && ($isSent3Msg==0 || $advance_auth_status==0))
+                @if($user->engroup==2 && ($isSent3Msg==0 || $advance_auth_status==0))
                     $('#tab_reject_female').show();
                     $('.new_tkfont').text('您目前未達匿名評價標準，無法使用');
                     $('.advance_auth').removeClass('hide');
