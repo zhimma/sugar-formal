@@ -2519,6 +2519,7 @@ class PagesController extends BaseController
                                                 ;
                                         })
                                         ->select('option_looking_for_relationships.*', 'user_options_xref.id as xref_id')
+                                        ->whereNotNull('user_options_xref.id')
                                         ->get();
             $expect = DB::table('option_expect')
                                         ->leftJoin('user_options_xref', function($join) use($to)
@@ -2529,6 +2530,7 @@ class PagesController extends BaseController
                                                 ;
                                         })
                                         ->select('option_expect.*', 'user_options_xref.id as xref_id')
+                                        ->whereNotNull('user_options_xref.id')
                                         ->get();
             $favorite_food = DB::table('option_favorite_food')
                                         ->leftJoin('user_options_xref', function($join) use($to)
@@ -2539,6 +2541,7 @@ class PagesController extends BaseController
                                                 ;
                                         })
                                         ->select('option_favorite_food.*', 'user_options_xref.id as xref_id')
+                                        ->whereNotNull('user_options_xref.id')
                                         ->get();
             $preferred_date_location = DB::table('option_preferred_date_location')
                                         ->leftJoin('user_options_xref', function($join) use($to)
@@ -2549,6 +2552,7 @@ class PagesController extends BaseController
                                                 ;
                                         })
                                         ->select('option_preferred_date_location.*', 'user_options_xref.id as xref_id')
+                                        ->whereNotNull('user_options_xref.id')
                                         ->get();
             $expected_type = DB::table('option_expected_type')
                                         ->leftJoin('user_options_xref', function($join) use($to)
@@ -2559,6 +2563,7 @@ class PagesController extends BaseController
                                                 ;
                                         })
                                         ->select('option_expected_type.*', 'user_options_xref.id as xref_id')
+                                        ->whereNotNull('user_options_xref.id')
                                         ->get();
             $frequency_of_getting_along = DB::table('option_frequency_of_getting_along')
                                         ->leftJoin('user_options_xref', function($join) use($to)
@@ -2569,6 +2574,7 @@ class PagesController extends BaseController
                                                 ;
                                         })
                                         ->select('option_frequency_of_getting_along.*', 'user_options_xref.id as xref_id')
+                                        ->whereNotNull('user_options_xref.id')
                                         ->get();
             //工作/學業
             $user_option_xref = UserOptionsXref::where('user_id', $to->id);

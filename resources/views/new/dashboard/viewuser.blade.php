@@ -1050,37 +1050,40 @@
                                             <span>關於我</span>
                                             <span>
                                                 <div class="ka_n">
-                                                    
-                                                    <div class="ka_gx">尋找關係</div>
-                                                    <div class="ka_tubicon">
-                                                        @if($looking_for_relationships->first()->xref_id ?? false)
-                                                            @foreach($looking_for_relationships as $option)
-                                                                @if($option->xref_id ?? false)
-                                                                    <div class="ka_tico_1"><img src="/new/images/zz_zb.png" class="ka_tico_tu01"><i>{{$option->option_name}}</i><img src="/new/images/zz_zb.png" class="ka_tico_tu02"></div>
-                                                                @endif
-                                                            @endforeach
-                                                        @else
-                                                            <div class="ka_tico_1"><img src="/new/images/zz_zb.png" class="ka_tico_tu01"><i>尚未填寫</i><img src="/new/images/zz_zb.png" class="ka_tico_tu02"></div>
-                                                        @endif
-                                                    </div>
-                                                    
-                                                    <div class="ka_gx ka_fwi">對糖爹的期待</div>
-                                                    <div class="ka_tubicon">
-                                                        @if($expect->first()->xref_id ?? false)
-                                                            @foreach($expect as $option)
-                                                                @if($option->xref_id ?? false)
-                                                                    <div class="ka_tico_1"><img src="/new/images/zz_zb.png" class="ka_tico_tu01"><i>{{$option->option_name}}</i><img src="/new/images/zz_zb.png" class="ka_tico_tu02"></div>
-                                                                @endif
-                                                            @endforeach
-                                                        @else
-                                                            <div class="ka_tico_1"><img src="/new/images/zz_zb.png" class="ka_tico_tu01"><i>尚未填寫</i><img src="/new/images/zz_zb.png" class="ka_tico_tu02"></div>
-                                                        @endif
-                                                    </div>
-                                                    
-                                                    <div class="ka_gx ka_fwi">或是其他你想說的</div>
-                                                    <div class="ka_tubicon_text">
-                                                        {{$to->meta->about ?? ''}}
-                                                    </div>
+                                                    @if(($looking_for_relationships->first()->xref_id ?? false))
+                                                        <div class="ka_gx">尋找關係</div>
+                                                        <div class="ka_tubicon">
+                                                            @if($looking_for_relationships->first()->xref_id ?? false)
+                                                                @foreach($looking_for_relationships as $option)
+                                                                    @if($option->xref_id ?? false)
+                                                                        <div class="ka_tico_1"><img src="/new/images/zz_zb.png" class="ka_tico_tu01"><i>{{$option->option_name}}</i><img src="/new/images/zz_zb.png" class="ka_tico_tu02"></div>
+                                                                    @endif
+                                                                @endforeach
+                                                            @else
+                                                                <div class="ka_tico_1"><img src="/new/images/zz_zb.png" class="ka_tico_tu01"><i>尚未填寫</i><img src="/new/images/zz_zb.png" class="ka_tico_tu02"></div>
+                                                            @endif
+                                                        </div>
+                                                    @endif
+                                                    @if(($expect->first()->xref_id ?? false))
+                                                        <div class="ka_gx ka_fwi">對糖爹的期待</div>
+                                                        <div class="ka_tubicon">
+                                                            @if($expect->first()->xref_id ?? false)
+                                                                @foreach($expect as $option)
+                                                                    @if($option->xref_id ?? false)
+                                                                        <div class="ka_tico_1"><img src="/new/images/zz_zb.png" class="ka_tico_tu01"><i>{{$option->option_name}}</i><img src="/new/images/zz_zb.png" class="ka_tico_tu02"></div>
+                                                                    @endif
+                                                                @endforeach
+                                                            @else
+                                                                <div class="ka_tico_1"><img src="/new/images/zz_zb.png" class="ka_tico_tu01"><i>尚未填寫</i><img src="/new/images/zz_zb.png" class="ka_tico_tu02"></div>
+                                                            @endif
+                                                        </div>
+                                                    @endif
+                                                    @if(isset($to->meta->about) && $to->meta->about != '')
+                                                        <div class="ka_gx ka_fwi">或是其他你想說的</div>
+                                                        <div class="ka_tubicon_text">
+                                                            {{$to->meta->about ?? ''}}
+                                                        </div>
+                                                    @endif
                                                 </div>
                                             </span>
                                         </dt>
@@ -1088,62 +1091,68 @@
                                             <span>期待的約會模式</span>
                                             <span>
                                                 <div class="ka_n">
-                                                    <div class="ka_gx">喜歡的食物</div>
-                                                    <div class="ka_tubicon">
-                                                        @if($favorite_food->first()->xref_id ?? false)
-                                                            @foreach($favorite_food as $option)
-                                                                @if($option->xref_id ?? false)
-                                                                    <div class="ka_tico_1"><img src="/new/images/zz_zb.png" class="ka_tico_tu01"><i>{{$option->option_name}}</i><img src="/new/images/zz_zb.png" class="ka_tico_tu02"></div>
-                                                                @endif
-                                                            @endforeach
-                                                        @else
-                                                            <div class="ka_tico_1"><img src="/new/images/zz_zb.png" class="ka_tico_tu01"><i>尚未填寫</i><img src="/new/images/zz_zb.png" class="ka_tico_tu02"></div>
-                                                        @endif
-                                                    </div>
-
-                                                    <div class="ka_gx ka_fwi">偏好約會地點</div>
-                                                    <div class="ka_tubicon">
-                                                        @if($preferred_date_location->first()->xref_id ?? false)
-                                                            @foreach($preferred_date_location as $option)
-                                                                @if($option->xref_id ?? false)
-                                                                    <div class="ka_tico_1"><img src="/new/images/zz_zb.png" class="ka_tico_tu01"><i>{{$option->option_name}}</i><img src="/new/images/zz_zb.png" class="ka_tico_tu02"></div>
-                                                                @endif
-                                                            @endforeach
-                                                        @else
-                                                            <div class="ka_tico_1"><img src="/new/images/zz_zb.png" class="ka_tico_tu01"><i>尚未填寫</i><img src="/new/images/zz_zb.png" class="ka_tico_tu02"></div>
-                                                        @endif
-                                                    </div>
-
-                                                    <div class="ka_gx ka_fwi">期望模式</div>
-                                                    <div class="ka_tubicon">
-                                                        @if($expected_type->first()->xref_id ?? false)
-                                                            @foreach($expected_type as $option)
-                                                                @if($option->xref_id ?? false)
-                                                                    <div class="ka_tico_1"><img src="/new/images/zz_zb.png" class="ka_tico_tu01"><i>{{$option->option_name}}</i><img src="/new/images/zz_zb.png" class="ka_tico_tu02"></div>
-                                                                @endif
-                                                            @endforeach
-                                                        @else
-                                                            <div class="ka_tico_1"><img src="/new/images/zz_zb.png" class="ka_tico_tu01"><i>尚未填寫</i><img src="/new/images/zz_zb.png" class="ka_tico_tu02"></div>
-                                                        @endif
-                                                    </div>
-
-                                                    <div class="ka_gx ka_fwi">相處的頻率與模式</div>
-                                                    <div class="ka_tubicon">
-                                                        @if($frequency_of_getting_along->first()->xref_id ?? false)
-                                                            @foreach($frequency_of_getting_along as $option)
-                                                                @if($option->xref_id ?? false)
-                                                                    <div class="ka_tico_1"><img src="/new/images/zz_zb.png" class="ka_tico_tu01"><i>{{$option->option_name}}</i><img src="/new/images/zz_zb.png" class="ka_tico_tu02"></div>
-                                                                @endif
-                                                            @endforeach
-                                                        @else
-                                                            <div class="ka_tico_1"><img src="/new/images/zz_zb.png" class="ka_tico_tu01"><i>尚未填寫</i><img src="/new/images/zz_zb.png" class="ka_tico_tu02"></div>
-                                                        @endif
-                                                    </div>
-
-                                                    <div class="ka_gx ka_fwi">或是其他你想說的</div>
-                                                    <div class="ka_tubicon_text">
-                                                        {{$to->meta->style ?? ''}}
-                                                    </div>
+                                                    @if(($favorite_food->first()->xref_id ?? false))
+                                                        <div class="ka_gx">喜歡的食物</div>
+                                                        <div class="ka_tubicon">
+                                                            @if($favorite_food->first()->xref_id ?? false)
+                                                                @foreach($favorite_food as $option)
+                                                                    @if($option->xref_id ?? false)
+                                                                        <div class="ka_tico_1"><img src="/new/images/zz_zb.png" class="ka_tico_tu01"><i>{{$option->option_name}}</i><img src="/new/images/zz_zb.png" class="ka_tico_tu02"></div>
+                                                                    @endif
+                                                                @endforeach
+                                                            @else
+                                                                <div class="ka_tico_1"><img src="/new/images/zz_zb.png" class="ka_tico_tu01"><i>尚未填寫</i><img src="/new/images/zz_zb.png" class="ka_tico_tu02"></div>
+                                                            @endif
+                                                        </div>
+                                                    @endif
+                                                    @if(($preferred_date_location->first()->xref_id ?? false))
+                                                        <div class="ka_gx ka_fwi">偏好約會地點</div>
+                                                        <div class="ka_tubicon">
+                                                            @if($preferred_date_location->first()->xref_id ?? false)
+                                                                @foreach($preferred_date_location as $option)
+                                                                    @if($option->xref_id ?? false)
+                                                                        <div class="ka_tico_1"><img src="/new/images/zz_zb.png" class="ka_tico_tu01"><i>{{$option->option_name}}</i><img src="/new/images/zz_zb.png" class="ka_tico_tu02"></div>
+                                                                    @endif
+                                                                @endforeach
+                                                            @else
+                                                                <div class="ka_tico_1"><img src="/new/images/zz_zb.png" class="ka_tico_tu01"><i>尚未填寫</i><img src="/new/images/zz_zb.png" class="ka_tico_tu02"></div>
+                                                            @endif
+                                                        </div>
+                                                    @endif
+                                                    @if($expected_type->first()->xref_id ?? false)
+                                                        <div class="ka_gx ka_fwi">期望模式</div>
+                                                        <div class="ka_tubicon">
+                                                            @if($expected_type->first()->xref_id ?? false)
+                                                                @foreach($expected_type as $option)
+                                                                    @if($option->xref_id ?? false)
+                                                                        <div class="ka_tico_1"><img src="/new/images/zz_zb.png" class="ka_tico_tu01"><i>{{$option->option_name}}</i><img src="/new/images/zz_zb.png" class="ka_tico_tu02"></div>
+                                                                    @endif
+                                                                @endforeach
+                                                            @else
+                                                                <div class="ka_tico_1"><img src="/new/images/zz_zb.png" class="ka_tico_tu01"><i>尚未填寫</i><img src="/new/images/zz_zb.png" class="ka_tico_tu02"></div>
+                                                            @endif
+                                                        </div>
+                                                    @endif
+                                                    @if($frequency_of_getting_along->first()->xref_id ?? false)
+                                                        <div class="ka_gx ka_fwi">相處的頻率與模式</div>
+                                                        <div class="ka_tubicon">
+                                                            @if($frequency_of_getting_along->first()->xref_id ?? false)
+                                                                @foreach($frequency_of_getting_along as $option)
+                                                                    @if($option->xref_id ?? false)
+                                                                        <div class="ka_tico_1"><img src="/new/images/zz_zb.png" class="ka_tico_tu01"><i>{{$option->option_name}}</i><img src="/new/images/zz_zb.png" class="ka_tico_tu02"></div>
+                                                                    @endif
+                                                                @endforeach
+                                                            @else
+                                                                <div class="ka_tico_1"><img src="/new/images/zz_zb.png" class="ka_tico_tu01"><i>尚未填寫</i><img src="/new/images/zz_zb.png" class="ka_tico_tu02"></div>
+                                                            @endif
+                                                        </div>
+                                                    @endif
+                                                    @if(isset($to->meta->style) && $to->meta->style != '')
+                                                        <div class="ka_gx ka_fwi">或是其他你想說的</div>
+                                                        <div class="ka_tubicon_text">
+                                                            {{$to->meta->style ?? ''}}
+                                                        </div>
+                                                    @endif
                                                 </div>
                                             </span>
                                         </dt>
