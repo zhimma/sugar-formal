@@ -880,7 +880,7 @@
                                             <div class="sh_button_n"> 最低 / 未填</div>
                                         @endif
                                     </div>
-                                    @if(!empty($transport_fare_reported)) <img src="/new/images/cm_icon01.png" class="xz_iconp"> @endif
+                                    @if($bool_value['transport_fare_warn']??false) <img src="/new/images/cm_icon01.png" class="xz_iconp"> @endif
                             </div>
                         </div>
                         <div class="hdlist2_right">
@@ -897,7 +897,7 @@
                                             <div class="zc_button_n"> 最低 / 未填</div>
                                         @endif
                                     </div>
-                                    @if(!empty($month_budget_reported)) <img src="/new/images/cm_icon02.png" class="xz_iconp"> @endif
+                                    @if($bool_value['budget_per_month_warn']??false) <img src="/new/images/cm_icon02.png" class="xz_iconp"> @endif
                                 </div>
                         </div>
                     </div>       

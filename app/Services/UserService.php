@@ -1404,7 +1404,16 @@ class UserService
     
         return $current_data->status==$status;
     } 
-    
+
+    public static function getRegisterDaysByUser($userEntry) 
+    {
+        $now = Carbon::now();
+        $register_at = Carbon::parse($userEntry->created_at);
+        $diff_days = $register_at->diffInDays($now);
+        
+        return $diff_days;
+    }      
+
     public function riseByUserEntry($userEntry) 
     {
         $this->model = $userEntry;

@@ -9,7 +9,11 @@
 }
 </style>
 <body>
-<h1>IP: {{$ip}}</h1>
+@if(Request()->get('cfp_id'))
+    <h1>CFP_ID: {{Request()->get('cfp_id')}}</h1>
+@else
+    <h1>IP: {{$ip}}</h1>
+@endif
 
 @if(isset($ipUsersData))
 <div>
@@ -32,23 +36,32 @@
             @foreach ($ipUsersData as $row)
                 @php
                     $user= \App\Models\User::find($row->user_id);
-                    $loginLogs=\App\Models\LogUserLogin::where('user_id',$row->user_id)->where('cfp_id',$row->cfp_id)->where('created_date', $row->created_date)->where('ip', $ip)->orderBy('created_at','desc');
+                    $loginLogs=\App\Models\LogUserLogin::where('user_id',$row->user_id)->where('cfp_id',$row->cfp_id)->where('created_date', $row->created_date)->orderBy('created_at','desc');
                     if($recordType=='detail'){
                         $loginLogs=$loginLogs->get();
                     }else{
                         $loginLogs=$loginLogs->take(1)->get();
                     }
+                    if($ip!=='不指定'){
+                        $loginLogs=$loginLogs->where('ip', $ip);
+                    }
 
                     logger('not find user=>'.$row->user_id);
                     if($user){
                         $isAdminWarned=$user->isAdminWarned();
+                        if(Request()->get('cfp_id')){
+                            $isSetAutoBan=\App\Models\SetAutoBan::whereRaw('(content="'. Request()->get('cfp_id').'" AND expiry >="'. now().'")')->orWhereRaw('(content="'. Request()->get('cfp_id').'" AND expiry="0000-00-00 00:00:00")');
+                        }else{
+                            $isSetAutoBan=\App\Models\SetAutoBan::whereRaw('(content="'. $ip.'" AND expiry >="'. now().'")')->orWhereRaw('(content="'. $ip.'" AND expiry="0000-00-00 00:00:00")');
+                        }
+                        $isSetAutoBan=$isSetAutoBan->get()->count();
                         $isBanned= \App\Models\User::isBanned($user->id);
                     }else{
                         continue;
                     }
                 @endphp
                 @foreach ($loginLogs as $loginLog)
-                    <tr @if($isBanned) style="background: yellow;" @elseif($isAdminWarned) style="background: palegreen;" @endif>
+                    <tr @if($isBanned || $isSetAutoBan) style="background: yellow;" @elseif($isAdminWarned) style="background: palegreen;" @endif>
                         <td>{{$loginLog->ip}}</td>
                         <td><a href="../advInfo/{{ $row->user_id }}" target="_blank">{{$user->email}}</a></td>
                         <td>{{$loginLog->country}}</td>
