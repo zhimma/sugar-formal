@@ -2002,7 +2002,7 @@
                             <label for="ip">IP</label>
                             <table id="table_userLogin_log" class="table table-hover table-bordered">
                                 @foreach($userLogin_log as $logInLog)
-                                    <tr class="loginItem" id="showloginTimeIP{{substr($logInLog->loginDate,0,7)}}" data-sectionName="loginTimeIP{{substr($logInLog->loginDate,0,7)}}">
+                                    <tr class="loginItem_IP" id="showloginTimeIP{{substr($logInLog->loginDate,0,7)}}" data-sectionName="loginTimeIP{{substr($logInLog->loginDate,0,7)}}">
                                         <td>
                                             <span>{{ substr($logInLog->loginDate,0,7) . ' ['. count(array_get($logInLog->Ip,'Ip_group',[])) .']' }}</span>
                                         </td>
@@ -2405,6 +2405,11 @@ jQuery(document).ready(function(){
             $('.showLog').hide();
             $('#'+sectionName).show();
         }
+    });
+    $('.loginItem_IP').click(function(){
+        var sectionName =$(this).attr('data-sectionName');
+        $('.showLog').hide();
+        $('#'+sectionName).show();
     });
 
     $('.showRecord').click(function(){
