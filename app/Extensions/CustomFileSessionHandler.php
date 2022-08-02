@@ -25,7 +25,6 @@ class CustomFileSessionHandler extends FileSessionHandler
                     $user_id = $value;
                 }
             }
-            SetAutoBan::logoutWarned($user_id);
             $this->files->delete($file->getRealPath());
         }
     }
