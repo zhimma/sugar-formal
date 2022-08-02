@@ -1875,8 +1875,8 @@
                 }
             }
         });
-        resize_before_upload($(images_uploader.eq(0)),400,600,'#show_banned_ele');
-        resize_before_upload($(images_uploader.eq(1)),400,600,'#tab_uploadPic','json','c5');
+        resize_before_upload($(images_uploader.eq(0)),1200,1800,'#show_banned_ele');
+        resize_before_upload($(images_uploader.eq(1)),1200,1800,'#tab_uploadPic','json','c5');
         $(".announce_bg").attr('onclick',$(".announce_bg").attr('onclick')+";$('.bl_tab_aa').hide();");
     });
 </script>
