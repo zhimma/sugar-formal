@@ -498,13 +498,21 @@ class UserService
                 }
                 if (isset($payload['about']))
                 {
-                $payload['meta']['about'] = $payload['about'];
-                unset($payload['about']);
+                    $payload['meta']['about'] = $payload['about'];
+                    unset($payload['about']);
+                }
+                else
+                {
+                    $payload['meta']['about'] = '';
                 }
                 if (isset($payload['style']))
                 {
-                $payload['meta']['style'] = $payload['style'];
-                unset($payload['style']);
+                    $payload['meta']['style'] = $payload['style'];
+                    unset($payload['style']);
+                }
+                else
+                {
+                    $payload['meta']['style'] = '';
                 }
                 if (isset($payload['situation']))
                 {
