@@ -1,20 +1,20 @@
 @extends('admin.main')
 @section('app-content')
 <body style="padding: 15px;">
-    <h1>站長審核 - 包養關係變更</h1>
+    <h1>站長審核 - 匿名評價訊息</h1>
     <table class="table-bordered table-hover center-block table" id="table">
         <thead>
             <tr>
-                <th scope="col">email</th>
-                <th scope="col">暱稱</th>
-                <th scope="col">VIP</th>
-                <th scope="col">性別</th>
-                <th scope="col">被檢舉分數</th>
-                <th scope="col">評價對象</th>
-                <th scope="col">評價內容</th>
-                <th scope="col">評價圖片</th>
-                <th scope="col">審核狀態</th>
-                <th scope="col">評價時間</th>
+                <th width="15%" scope="col">email</th>
+                <th width="10%" scope="col">暱稱</th>
+                <th width="5%" scope="col">VIP</th>
+                <th width="5%" scope="col">性別</th>
+                <th width="10%" scope="col">被檢舉分數</th>
+                <th width="15%" scope="col">評價對象</th>
+                <th width="20%" scope="col">評價內容</th>
+                <th width="5%" scope="col">評價圖片</th>
+                <th width="5%" scope="col">審核狀態</th>
+                <th width="10%" scope="col">評價時間</th>
             </tr>
         </thead>
         <tbody>
@@ -39,7 +39,7 @@
                 <td>@if($row->engroup==1)男@else女@endif</td>
                 <td>{{$row->WarnedScore()}}</td>
                 <td scope="row"><a href="users/advInfo/{{$row->to_id}}" target="_blank">{{$row->to_email}}</a></td>
-                <td>{{$row->content}}</td>
+                <td style="word-break: break-all">{{$row->content}}</td>
                 <td class="evaluation_zoomIn">
                     @foreach($row['pic'] as $evaluationPic)
                         <li>
