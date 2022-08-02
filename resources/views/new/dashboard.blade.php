@@ -1827,7 +1827,7 @@ dt span.engroup_type_title {display:inline-block;width:10%;white-space:nowrap;}
             let budget_per_month_max = $('#budget_per_month_max');
             let transport_fare_min = $('#transport_fare_min');
             let transport_fare_max = $('#transport_fare_max');
-            let body_touch = $('#body_touch');
+            //let body_touch = $('#body_touch');
             let new_occupation = $('#new_occupation');
             let new_occupation_other = $('#new_occupation_other');
 

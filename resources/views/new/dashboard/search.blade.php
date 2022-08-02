@@ -573,8 +573,8 @@ header("Expires: Fri, 01 Jan 1990 00:00:00 GMT");
                         $prRange = search_variable('prRange',"");
                         $situation = search_variable('situation',"");
                         $education = search_variable('education',"");
-                        $body_touch = search_variable('body_touch',"");
-                        if($body_touch == '-1'){$body_touch = '';}
+                        //$body_touch = search_variable('body_touch',"");
+                        //if($body_touch == '-1'){$body_touch = '';}
                         $isVip = search_variable('isVip',"");
                         $isWarned = search_variable('isWarned',"");
                         $isPhoneAuth = search_variable('isPhoneAuth',"");
@@ -974,7 +974,7 @@ header("Expires: Fri, 01 Jan 1990 00:00:00 GMT");
                 prRange:"{{$prRange}}",
                 situation:"{{$situation}}",
                 education:"{{$education}}",
-                body_touch:"{{$body_touch}}",
+                //body_touch:"{{$body_touch}}",
                 isVip:"{{$isVip}}",
                 isWarned:"{{$isWarned}}",
                 isPhoneAuth:"{{$isPhoneAuth}}",
