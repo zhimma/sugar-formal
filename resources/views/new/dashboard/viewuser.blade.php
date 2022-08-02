@@ -1157,17 +1157,6 @@
                                             </span>
                                         </dt>
 
-                                        {{--
-                                        @if(!empty($to->meta->body_touch) && $to->meta->body_touch != 'null' && $to->meta->is_hide_body_touch == '0')
-                                            <dt>
-                                                <span>肢體接觸</span>
-                                                <span>
-                                                    <div class="select_xx01 senhs hy_new">{{$to->meta->body_touch}}</div>
-                                                </span>
-                                            </dt>
-                                        @endif
-                                        --}}
-
                                         @if(!empty($to->meta->available_time) && $to->meta->available_time != 'null')
                                             <dt>
                                                 <span>有空時段</span>

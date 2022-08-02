@@ -425,18 +425,6 @@ class UserService
                 $payload['meta']['cup'] = $payload['cup'];
                 unset($payload['cup']);
                 }
-                /*
-                if (isset($payload['body_touch']))
-                {
-                    $payload['meta']['body_touch'] = $payload['body_touch'];
-                    unset($payload['body_touch']);
-                }
-                if (isset($payload['is_hide_body_touch']))
-                {
-                $payload['meta']['is_hide_body_touch'] = $payload['is_hide_body_touch'];
-                unset($payload['is_hide_body_touch']);
-                }
-                */
                 if (isset($payload['available_time']))
                 {
                     $payload['meta']['available_time'] = $payload['available_time'];

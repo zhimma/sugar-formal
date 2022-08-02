@@ -304,20 +304,6 @@ header("Expires: Fri, 01 Jan 1990 00:00:00 GMT");
                                                 @endif
                                             </dt>
                                             <dt>
-                                                {{--
-                                                <div class="n_se left">
-                                                    <span>肢體接觸</span>
-                                                    <select name="body_touch" class="select_xx01">
-                                                        <option value="-1" @if( !empty( $_POST["body_touch"] ) && $_POST["body_touch"] == "-1" ) selected @elseif(!empty( $_GET["body_touch"] ) && $_GET["body_touch"] == "-1") selected @elseif(!empty( session()->get('search_page_key.body_touch') ) && session()->get('search_page_key.body_touch') == "-1") selected @endif>請選擇</option>
-                                                        <option value="接受" @if( empty( $_POST["body_touch"] ) && empty( $_GET["body_touch"] ) && empty( session()->get('search_page_key.body_touch') )) selected 
-                                                                                @elseif( !empty( $_POST["body_touch"] ) && $_POST["body_touch"] == "接受" ) selected 
-                                                                                @elseif(!empty( $_GET["body_touch"] ) && $_GET["body_touch"] == "接受") selected 
-                                                                                @elseif(!empty( session()->get('search_page_key.body_touch') ) && session()->get('search_page_key.body_touch') == "接受") selected 
-                                                                                @endif>接受</option>
-                                                        <option value="拒絕" @if( !empty( $_POST["body_touch"] ) && $_POST["body_touch"] == "拒絕" ) selected @elseif(!empty( $_GET["body_touch"] ) && $_GET["body_touch"] == "拒絕") selected @elseif(!empty( session()->get('search_page_key.body_touch') ) && session()->get('search_page_key.body_touch') == "拒絕") selected @endif>拒絕</option>
-                                                    </select>
-                                                </div>
-                                                --}}
                                                 <div class="n_se left">
                                                     <span>是否想進一步發展?</span>
                                                     <select name="is_pure_dating" class="select_xx01">
@@ -573,8 +559,6 @@ header("Expires: Fri, 01 Jan 1990 00:00:00 GMT");
                         $prRange = search_variable('prRange',"");
                         $situation = search_variable('situation',"");
                         $education = search_variable('education',"");
-                        //$body_touch = search_variable('body_touch',"");
-                        //if($body_touch == '-1'){$body_touch = '';}
                         $isVip = search_variable('isVip',"");
                         $isWarned = search_variable('isWarned',"");
                         $isPhoneAuth = search_variable('isPhoneAuth',"");
@@ -974,7 +958,6 @@ header("Expires: Fri, 01 Jan 1990 00:00:00 GMT");
                 prRange:"{{$prRange}}",
                 situation:"{{$situation}}",
                 education:"{{$education}}",
-                //body_touch:"{{$body_touch}}",
                 isVip:"{{$isVip}}",
                 isWarned:"{{$isWarned}}",
                 isPhoneAuth:"{{$isPhoneAuth}}",
@@ -1203,12 +1186,6 @@ header("Expires: Fri, 01 Jan 1990 00:00:00 GMT");
                                     csrData +='</div>';
                                 }
                             }
-                            /*
-                            if(umeta.body_touch == '接受' && umeta.is_hide_body_touch == '0')
-                            {
-                                csrData +='<img src="/new/images/zz_01.png" style="float: right;">';
-                            }
-                            */
                           
                             if(varCheck(rowPrLog)){
                                 csrVar = rowPrLog.pr+"%;"; 

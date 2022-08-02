@@ -692,26 +692,6 @@ dt span.engroup_type_title {display:inline-block;width:10%;white-space:nowrap;}
                         </dt>
                         @endif
 
-                        {{--
-                        <dt>
-                            <span>肢體接觸<i>(必填)</i></span>
-                            <select name="body_touch" id="body_touch" class="select_xx01">
-                                <option value="">請選擇</option>
-                                <option value="接受"
-                                        @if($umeta->body_touch == '接受') selected @endif>接受
-                                </option>
-                                <option value="拒絕"
-                                        @if($umeta->body_touch == '拒絕') selected @endif>拒絕
-                                </option>
-                            </select>
-                            <div class="n_xqline">
-                                <div class="right" style="margin-bottom: 10px;">
-                                    <input type="hidden" name="is_hide_body_touch" value="0">
-                                    <input name="is_hide_body_touch" type="checkbox" @if($umeta->is_hide_body_touch == true) checked @endif value="1"> 隱藏肢體接觸
-                                </div>
-                            </div>
-                        </dt>
-                        --}}
                         <dt>
                             <span>有空時段</span>
                             <select name="available_time"  class="select_xx01">
@@ -1827,7 +1807,6 @@ dt span.engroup_type_title {display:inline-block;width:10%;white-space:nowrap;}
             let budget_per_month_max = $('#budget_per_month_max');
             let transport_fare_min = $('#transport_fare_min');
             let transport_fare_max = $('#transport_fare_max');
-            //let body_touch = $('#body_touch');
             let new_occupation = $('#new_occupation');
             let new_occupation_other = $('#new_occupation_other');
 
@@ -1933,15 +1912,6 @@ dt span.engroup_type_title {display:inline-block;width:10%;white-space:nowrap;}
                 c5('請選擇刺青面積');
                 return false;
             }  
-
-            {{--
-            if(body_touch.val() == "")
-            {
-                body_touch.focus();
-                c5('請選擇是否接受肢體接觸');
-                return false;
-            }
-            --}}
 
             /*
             if('{{$user->engroup}}' == '1'){
