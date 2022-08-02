@@ -319,6 +319,14 @@ header("Expires: Fri, 01 Jan 1990 00:00:00 GMT");
                                                 </div>
                                                 --}}
                                                 <div class="n_se left">
+                                                    <span>是否想進一步發展?</span>
+                                                    <select name="is_pure_dating" class="select_xx01">
+                                                        <option value="">請選擇</option>
+                                                        <option value="1" @if( request()->is_pure_dating == "1" || session()->get('search_page_key.is_pure_dating') =="1") selected @endif>是</option>
+                                                        <option value="0" @if( request()->is_pure_dating == "0" || session()->get('search_page_key.is_pure_dating') =="0") selected @endif>否</option>
+                                                      </select>
+                                                </div>
+                                                <div class="n_se right">
                                                      <span>刺青<i class="ssrgf">(僅顯示有填寫者)</i></span>
                                                       <select name="tattoo" class="select_xx01">
                                                         <option value="">請選擇</option>
@@ -372,6 +380,7 @@ header("Expires: Fri, 01 Jan 1990 00:00:00 GMT");
                                         {{--</span>--}}
                                         {{--</dt>--}}
 
+                                        {{--
                                         @if ($user_engroup == 1)
                                             <dt class="matopj15">
                                                 <span>是否想進一步發展?</span>
@@ -385,6 +394,7 @@ header("Expires: Fri, 01 Jan 1990 00:00:00 GMT");
                                                 </span>
                                             </dt>
                                         @endif
+                                        --}}
                                         
                                         <dt class="matopj15">
                                             <span>體型<i class="ssrgf">(僅顯示有填寫者)</i></span>
@@ -1193,11 +1203,12 @@ header("Expires: Fri, 01 Jan 1990 00:00:00 GMT");
                                     csrData +='</div>';
                                 }
                             }
-                            
+                            /*
                             if(umeta.body_touch == '接受' && umeta.is_hide_body_touch == '0')
                             {
                                 csrData +='<img src="/new/images/zz_01.png" style="float: right;">';
                             }
+                            */
                           
                             if(varCheck(rowPrLog)){
                                 csrVar = rowPrLog.pr+"%;"; 
@@ -1272,7 +1283,6 @@ header("Expires: Fri, 01 Jan 1990 00:00:00 GMT");
 
                         csrData +='</h2>';
                         csrData +='<h3>';
-                            
                         if(umeta.city !== ""){
                             umeta.city.forEach((row, index) => {
                                 if (index==0){

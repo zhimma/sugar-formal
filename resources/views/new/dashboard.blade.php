@@ -1934,12 +1934,14 @@ dt span.engroup_type_title {display:inline-block;width:10%;white-space:nowrap;}
                 return false;
             }  
 
+            {{--
             if(body_touch.val() == "")
             {
                 body_touch.focus();
                 c5('請選擇是否接受肢體接觸');
                 return false;
             }
+            --}}
 
             /*
             if('{{$user->engroup}}' == '1'){
