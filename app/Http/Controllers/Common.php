@@ -4,6 +4,7 @@ namespace App\Http\Controllers;
 use App\Http\Controllers\PagesController;
 use App\Services\UserService;
 use App\Services\VipLogService;
+use App\Services\ShortMessageService;
 use Illuminate\Http\Request;
 use DB;
 use App\Models\User;
@@ -29,7 +30,14 @@ class Common extends BaseController {
         }        
         
         $adv_auth_exist = User::where([['advance_auth_status',1],['advance_auth_phone',$Mobile_for_auth],['id','<>',$user->id]])->count();
-
+        if(ShortMessageService::isForbiddenByPhoneNumber($Mobile_for_auth)) {
+            $data = array(
+                'code'=>'430',
+                'msg_info'=>'無法使用此手機號碼進行驗證'
+            );
+            return json_encode($data);            
+        }
+        
         if(isset($data_exist) || $adv_auth_exist){
             $data = array(
                 'code'=>'420',
@@ -63,7 +71,9 @@ class Common extends BaseController {
                             'checkcode' => $checkCode,
                             'active' => 0,
                             'member_id' =>  $user->id,
-                            'createdate' =>date("Y-m-d H:i:s")
+                            'createdate' =>date("Y-m-d H:i:s"),
+                            'created_by'=>$user->id,
+                            'created_from'=>request()->path(),
                         ];
             $result = DB::table($Table)->insert(
                         $msg_info    

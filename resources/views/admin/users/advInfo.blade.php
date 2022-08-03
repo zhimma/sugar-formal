@@ -2729,7 +2729,11 @@ $("input[name='phone']").keyup(function(){
                 //門號如果已經註冊過，顯示註冊的email並可以連結到基本資料頁面
                 $('#phoneKeyInAlert').html('<span>該門號已經註冊過</span><br><span>帳號：<a href="'+ res.data.user_info_page +'" target="_blank">' + res.data.user_email + '</a></span>');
                 $('#phoneKeyInAlert').show();
+            }else if(res.is_forbidden==1) {
+                $('#phoneKeyInAlert').html('<span>該門號曾被後台刪除過</span><br><span>帳號：<a href="'+ res.data.user_info_page +'" target="_blank">' + res.data.user_email + '</a></span>');
+                $('#phoneKeyInAlert').show();            
             }else{
+                $('#phoneKeyInAlert').html('');
                 $('#phoneKeyInAlert').hide();
             }
         }
