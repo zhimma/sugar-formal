@@ -24,11 +24,13 @@ use App\Models\ReportedAvatar;
 use App\Models\ReportedPic;
 use App\Models\SetAutoBan;
 use App\Models\SimpleTables\users;
+use App\Models\SimpleTables\short_message;
 use App\Models\SuspiciousUser;
 use Illuminate\Http\Request;
 use App\Services\UserService;
 use App\Services\AdminService;
 use App\Services\FaqService;
+use App\Services\ShortMessageService;
 use App\Http\Requests\UserInviteRequest;
 use App\Models\User;
 use App\Models\UserMeta;
@@ -3700,7 +3702,7 @@ class UserController extends \App\Http\Controllers\BaseController
                 //加入警示流程
                 //清除認證資料
                 //            DB::table('auth_img')->where('user_id',$id)->delete();
-                DB::table('short_message')->where('member_id', $id)->delete();
+                ShortMessageService::deleteShortMessageByQuery(DB::table('short_message')->where('member_id', $id),true);
                 //DB::table('short_message')->where('member_id', $id)->update(['active' =>0]);
             } else if ($status == 0) {
 
@@ -3710,7 +3712,13 @@ class UserController extends \App\Http\Controllers\BaseController
 
                     if ($user->isPhoneAuth() == 0) {
                         DB::table('short_message')->insert(
-                            ['mobile' => '0922222222', 'member_id' => $id, 'active' => 1]
+                            ['mobile' => '0922222222'
+                            , 'member_id' => $id
+                            , 'active' => 1
+                            ,'auto_created'=>1
+                            ,'created_by'=>auth()->id()
+                            ,'created_from'=>request()->path()
+                            ,'createdate'=>Carbon::now()]
                         );
                     }
 
@@ -5123,8 +5131,8 @@ class UserController extends \App\Http\Controllers\BaseController
         //        }
 
         //先刪後增
-        DB::table('short_message')->where('member_id', $request->user_id)->delete();
-        DB::table('short_message')->insert(['member_id' =>  $request->user_id, 'mobile' => $request->phone, 'active' => 1]);
+        ShortMessageService::deleteShortMessageByUserId($request->user_id);
+        DB::table('short_message')->insert(['member_id' =>  $request->user_id, 'mobile' => $request->phone, 'active' => 1,'created_by'=>auth()->id(),'created_from'=>$request->path()]);
 
         UserMeta::where('user_id', $request->user_id)->update(['phone' => $request->phone]);
         event(new \App\Events\CheckWarnedOfReport($request->user_id));
@@ -5138,7 +5146,7 @@ class UserController extends \App\Http\Controllers\BaseController
     public function deletePhone(Request $request)
     {
         //直接刪
-        DB::table('short_message')->where('member_id', $request->user_id)->delete();
+        ShortMessageService::deleteShortMessageByUserId($request->user_id);
         //        DB::table('short_message')->where('member_id', $request->user_id)->update(['active' =>0, ]);
         UserMeta::where('user_id', $request->user_id)->update(['phone' => '']);
         event(new \App\Events\CheckWarnedOfReport($request->user_id));
@@ -5149,6 +5157,7 @@ class UserController extends \App\Http\Controllers\BaseController
     {
         $result = DB::table('short_message')->where('mobile', $request->phone)->where('active', 1)->first();
         $data = array();
+        $f_userInfo = null;
         if ($result) {
             $userInfo = User::findById($result->member_id);
             if ($userInfo) {
@@ -5156,7 +5165,16 @@ class UserController extends \App\Http\Controllers\BaseController
                 $data['user_info_page'] = '/admin/users/advInfo/' . $userInfo->id;
             }
         }
-        return response()->json(['hasData' => $result && $request->phone ? 1 : 0, 'data' => $data]);
+        else {
+            if(ShortMessageService::isForbiddenByPhoneNumber($request->phone)) {
+                $f_userInfo = ShortMessageService::getFirstUserByForbiddenPhoneNumber($request->phone);
+                if ($f_userInfo) {
+                    $data['user_email'] = $f_userInfo->email;
+                    $data['user_info_page'] = '/admin/users/advInfo/' . $f_userInfo->id;
+                }                
+            }
+        }
+        return response()->json(['hasData' => $result && $request->phone ? 1 : 0,'is_forbidden'=>$f_userInfo?1:0, 'data' => $data]);
     }
 
     public function modifyEmail(Request $request)
