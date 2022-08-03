@@ -1478,11 +1478,6 @@ class FindPuppetController extends \App\Http\Controllers\Controller
                         $now_group_adminclosed_count++;
                     }
 
-                    $cur_user->newer_manual_time = StayOnlineRecord::select(DB::raw("SUM(newer_manual) as newer_manual"))
-                                                    ->Where('newer_manual', '>', 0)
-                                                    ->where('user_id', $cur_user->id)
-                                                    ->pluck('newer_manual')->first();
-
                     $cur_user->register_days = UserService::getRegisterDaysByUser($cur_user);
                     if($cur_user->register_days>99) $cur_user->register_days=99;
 
