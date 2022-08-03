@@ -2017,7 +2017,7 @@ dt span.engroup_type_title {display:inline-block;width:10%;white-space:nowrap;}
               $(county).append(county_div)
               $('.twzipcode').twzipcode({
                   'detect': true, 'css':['select_xx2', 'select_xx2', 'd-none'], onCountySelect: function() {
-                      $("select[name='blockarea']").prepend('<option selected value="">全區</option>');
+                      //$("select[name='blockarea']").prepend('<option selected value="">全區</option>');
                   }
               });
           }else{
