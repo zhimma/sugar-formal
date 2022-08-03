@@ -2083,9 +2083,9 @@
         if(is_banned){
             return  c5('您目前被站方封鎖，無檢舉權限');
         }
-       if(is_warned){
-           return  c5('您目前被站方警示，無檢舉權限');
-       }
+        if(is_warned){
+            return  c5('您目前被站方警示，無檢舉權限');
+        }
 
 
         $(".blbg").show();
@@ -2094,6 +2094,7 @@
         // alert($('.swiper-slide-active').data('type'));
         $('input[name="picType"]').val($('.swiper-slide-active').data('type'));
         $('input[name="pic_id"]').val($('.swiper-slide-active').data('pic_id'));
+
     }     
 
     $( document ).ready(function() {
@@ -2608,7 +2609,9 @@
                 $(this).removeClass('on2');
                 $('.showslide_evaluation').fadeOut();
             } else {
-                @if($user->meta->isWarned == 1 || $isAdminWarned)
+                @if($user->id == $to->id)
+                    c5('不可對自己評價');
+                @elseif($user->meta->isWarned == 1 || $isAdminWarned)
                     c5('您目前為警示帳戶，暫不可評價');
                 @elseif ($is_banned_v2)
                     c5('您目前為封鎖帳戶，暫不可評價');
@@ -2625,26 +2628,22 @@
             $('.phone_auth').addClass('hide');
             $('.need_vip').addClass('hide');
             $('.advance_auth').addClass('hide');
-            @if($user->id != $to->id)
-                @if($user->engroup==2 && ($isSent3Msg==0 || $auth_check==0))
-                    $('#tab_reject_female').show();
-                    $('.phone_auth').removeClass('hide');
-                    $(".announce_bg").show();
-                @elseif($user->engroup==1 && ($isSent3Msg==0 || $vipDays < 30))
-                    $('#tab_reject_male').show();
-                    $('.vipDays').removeClass('hide');
-                    $(".announce_bg").show();
-                @elseif(!isset($evaluation_self))
-                    $('#tab_evaluation').show();
-                    $('.anonymous_illustrate').hide();
-                    $('.self_illustrate').show();
-                    $(".announce_bg").show();
-                    $('body').css("overflow", "hidden");
-                @else
-                    c5('您已評價過');
-                @endif
+            @if($user->engroup==2 && ($isSent3Msg==0 || $auth_check==0))
+                $('#tab_reject_female').show();
+                $('.phone_auth').removeClass('hide');
+                $(".announce_bg").show();
+            @elseif($user->engroup==1 && ($isSent3Msg==0 || $vipDays < 30))
+                $('#tab_reject_male').show();
+                $('.vipDays').removeClass('hide');
+                $(".announce_bg").show();
+            @elseif(!isset($evaluation_self))
+                $('#tab_evaluation').show();
+                $('.anonymous_illustrate').hide();
+                $('.self_illustrate').show();
+                $(".announce_bg").show();
+                $('body').css("overflow", "hidden");
             @else
-                c5('不可對自己評價');
+                c5('您已評價過');
             @endif
         });
 
@@ -2654,24 +2653,20 @@
             $('.phone_auth').addClass('hide');
             $('.need_vip').addClass('hide');
             $('.advance_auth').addClass('hide');
-            @if($user->id != $to->id)
-                @if($user->engroup==2 && ($isSent3Msg==0 || $advance_auth_status==0))
-                    $('#tab_reject_female').show();
-                    $('.new_tkfont').text('您目前未達匿名評價標準，無法使用');
-                    $('.advance_auth').removeClass('hide');
-                    $(".announce_bg").show();
-                @elseif($user->engroup==1 && ($isSent3Msg==0 || $isVip==0))
-                    $('#tab_reject_male').show();
-                    $('.new_tkfont').text('您目前未達匿名評價標準，無法使用');
-                    $('.need_vip').removeClass('hide');
-                    $(".announce_bg").show();
-                @else
-                    // 訊息處理選擇
-                    $('#evaluation_description').show();
-                    $(".announce_bg").show();
-                @endif
+            @if($user->engroup==2 && ($isSent3Msg==0 || $advance_auth_status==0))
+                $('#tab_reject_female').show();
+                $('.new_tkfont').text('您目前未達匿名評價標準，無法使用');
+                $('.advance_auth').removeClass('hide');
+                $(".announce_bg").show();
+            @elseif($user->engroup==1 && ($isSent3Msg==0 || $isVip==0))
+                $('#tab_reject_male').show();
+                $('.new_tkfont').text('您目前未達匿名評價標準，無法使用');
+                $('.need_vip').removeClass('hide');
+                $(".announce_bg").show();
             @else
-                c5('不可對自己評價');
+                // 訊息處理選擇
+                $('#evaluation_description').show();
+                $(".announce_bg").show();
             @endif
         });
 
