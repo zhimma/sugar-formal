@@ -36,6 +36,7 @@ use App\Models\IsWarnedLog;
 use App\Models\SimpleTables\short_message;
 use App\Models\LogAdvAuthApi;
 use App\Models\UserTattoo;
+use App\Models\StayOnlineRecord;
 use function Clue\StreamFilter\fun;
 use Tymon\JWTAuth\Contracts\JWTSubject;
 
@@ -175,7 +176,13 @@ class User extends Authenticatable implements JWTSubject
     public function log_adv_auth_api()
     {
         return $this->hasMany(LogAdvAuthApi::class, 'user_id', 'id');
-    }      
+    }
+
+    //新手教學時間
+    public function newer_manual_stay_online_time()
+    {
+        return $this->hasOne(StayOnlineRecord::class, 'user_id', 'id')->select(DB::raw("SUM(newer_manual) as time"));
+    }
 
     //簡易設定 用在簡易量少的設定上
     public function tiny_setting() {

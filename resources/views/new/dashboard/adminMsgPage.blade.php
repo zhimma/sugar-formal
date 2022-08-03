@@ -203,21 +203,32 @@
 
 @section('javascript')
 <script>
-
-    $('.pda_zx').click(function (){
-        $(this).children('span').toggleClass('showText')
-        $(this).children('a').toggle(0)
-    })
-
     $(".text span").each(function(){
         var  h = $(this).innerHeight();
-        if( h > 39){
+        if( h > 20){
+            $(this).addClass('origin_hide_text');
             $(this).addClass('on');
-
         }else{
             $(this).next('a').hide();
         }
     })
+    $('.pda_zx').click(function (){
+        $(this).children('span').toggleClass('showText')
+        $(this).children('a').toggle(0)
+        $(".text span").each(function(){
+            var  h = $(this).innerHeight();
+            if( h > 20){
+                $(this).addClass('origin_hide_text');
+                $(this).addClass('on');
+            }else{
+                if($(this).hasClass('origin_hide_text')==false){
+                    $(this).next('a').hide();
+                }
+            }
+        })
+    })
+
+
     $(function (){
         $(".zhap_new a:first").addClass("zhap_new_hover");
         $(".zap_ullist").hide();

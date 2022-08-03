@@ -38,6 +38,7 @@ use App\Services\VipLogService;
 use App\Services\FaqUserService;
 use App\Services\FaqService;
 use App\Services\RealAuthPageService;
+use App\Services\ShortMessageService;
 use App\Models\Fingerprint;
 use App\Models\Visited;
 use App\Models\Board;
@@ -4967,7 +4968,7 @@ class PagesController extends BaseController
         else if(!$user->isAdvanceAuth()) {
             //0922222222是後台自動塞的假手機驗證資料，所以要當做沒手機驗證
             if(!$is_edu_mode && (!$user->isPhoneAuth() || !$user->getAuthMobile() || $user->getAuthMobile()=='0922222222') ) {
-                $user->short_message()->delete();
+                ShortMessageService::deleteShortMessageByUser($user);
                 $url_query_str = '?return_aa=1';
                 if(request()->real_auth) {
                     $url_query_str = '?'.http_build_query(['real_auth'=>request()->real_auth]);
@@ -5001,7 +5002,7 @@ class PagesController extends BaseController
         $user =$request->user();     
         $check_rs = null;
         if(!$request->id_serial) $check_rs[] = 'i';
-        if(!$request->phone_number) $check_rs[] = 'p';
+        if(!$request->phone_number) $check_rs[] = 'p';       
         if(!($request->year && $request->month && $request->day)) {
             $check_rs[] = 'b';
             $birth = null;
@@ -5039,16 +5040,27 @@ class PagesController extends BaseController
         }
         
         if($request->phone_number) {
-            if(preg_match("/^09[0-9]{8}$/",$request->phone_number)) {
-                if($request->phone_number!=$user->getAuthMobile(true))
-                {
-                    $check_rs[] = 'p';
-                }
+            
+            if($user->getAuthMobile(true)!=$request->phone_number) {
+                $check_rs[] = 'phack';
             }
             else {
-                $check_rs[] = 'p';
+                if(preg_match("/^09[0-9]{8}$/",$request->phone_number)) {
+                    if($request->phone_number!=$user->getAuthMobile(true))
+                    {
+                        $check_rs[] = 'p';
+                    }
+                }
+                else {
+                    $check_rs[] = 'p';
+                }
+                
+                if(ShortMessageService::isForbiddenByPhoneNumber($request->phone_number)) {
+                    $check_rs[] = 'pf';
+                } 
+
             }
-        }  
+        }        
         if($birth) {
             $age = $this->getAge($birth);
             /* 判斷是否小於18歲 */
@@ -5092,7 +5104,7 @@ class PagesController extends BaseController
         }
         else {
             return back()->with('error_code', explode('_',$check_rs))
-                    ->with('error_code_msg',['s'=>'僅供女會員驗證','i'=>'身分證字號','p'=>'門號','b'=>'生日','b18'=>'年齡未滿18歲，不得進行驗證']);
+                    ->with('error_code_msg',['s'=>'僅供女會員驗證','i'=>'身分證字號','p'=>'門號','b'=>'生日','b18'=>'年齡未滿18歲，不得進行驗證','pf'=>'無法使用此手機號碼進行驗證','phack'=>'非通過驗證的手機號碼']);
         }
         
         if(User::where('advance_auth_identity_encode',$encode_id_serial)->where('advance_auth_status',1)->where('advance_auth_phone',$phone_number)->where('advance_auth_birth',$format_birth)->count()) {
@@ -5241,15 +5253,15 @@ class PagesController extends BaseController
             $phone_number_for_sms = substr_replace($phone_number,'+886',0,1);
             if($latest_user_active_mobile) {
                 if($latest_user_active_mobile->mobile && $latest_user_active_mobile->mobile!=$phone_number && $latest_user_active_mobile->mobile!=$phone_number_for_sms){
-                    $user_active_mobile_query->update(['active'=>0,'canceled_date'=>$auth_date,'canceled_by'=>'adv_auth']);
-                    $user->short_message()->create(['mobile'=>$phone_number,'active'=>1]);
+                    ShortMessageService::deleteShortMessageByUser($user,true);
+                    $user->short_message()->create(['mobile'=>$phone_number,'active'=>1,'auto_created'=>1]);
                 }
                 else {
-                    $user_active_mobile_query->where('id','<>',$latest_user_active_mobile->id)->update(['active'=>0,'canceled_date'=>$auth_date,'canceled_by'=>'adv_auth']);
+                    ShortMessageService::deleteShortMessageByQuery($user_active_mobile_query->where('id','<>',$latest_user_active_mobile->id),true);
                 }
             }
             else {
-                $user->short_message()->create(['mobile'=>$phone_number,'active'=>1]);
+                $user->short_message()->create(['mobile'=>$phone_number,'active'=>1,'auto_created'=>1]);
             }
             
             $check_other_user_mobile_query = short_message::where('active',1)->where('member_id','<>',$user->id)
@@ -5259,7 +5271,7 @@ class PagesController extends BaseController
                 });
             
             if($check_other_user_mobile_query->count()) {
-                $check_other_user_mobile_query->update(['active'=>0,'canceled_date'=>$auth_date,'canceled_by'=>'adv_auth']);
+                ShortMessageService::deleteShortMessageByQuery($check_other_user_mobile_query,true);
             }
 
             $banOrWarnCanceledStr = $this->advance_auth_cancel_BanOrWarn($user);
@@ -5452,7 +5464,7 @@ class PagesController extends BaseController
                 if($rap_service->isAuthHaveProfileProcess($request->real_auth))
                     $rap_service->applyRealAuthByReq(request(),true);
                 if(!$user->isPhoneAuth()) {
-                    $user->short_message()->create(['active'=>1]);
+                    $user->short_message()->create(['active'=>1,'auto_created'=>1]);
                 }
                 $banOrWarnCanceledStr = $this->advance_auth_cancel_BanOrWarn($user);
                 $success_msg = '驗證成功'.($banOrWarnCanceledStr?'，成功解除'.$banOrWarnCanceledStr:'');
@@ -7964,6 +7976,9 @@ class PagesController extends BaseController
             ]);
             DB::table('short_message')->insert([
                 'member_id'=>$toEngroup,
+                'auto_created'=>1,
+                'created_from'=>request()->path(),
+                'created_by'=>auth()->id(),
                 'active'=>1,
                 'createdate'=>date('Y-m-d H:i:s'),               
             ]);  
