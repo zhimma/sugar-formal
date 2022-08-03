@@ -337,7 +337,24 @@ class UserService
                 }
             }
         }
-        
+
+        if(isset($payload['city']) && isset($payload['area'])){
+            $city_tmp=explode(',',$payload['city']);
+            $area_tmp=explode(',',$payload['area']);
+            foreach ($city_tmp as $k  =>$city){
+                $city_area[]=$city.','.array_get($area_tmp,$k);
+            }
+            $city_n='';
+            $area_n='';
+            foreach (array_unique($city_area) as $k  =>$cityArea){
+                $city_n.=explode(',',$cityArea)[0].',';
+                $area_n.=explode(',',$cityArea)[1].',';
+            }
+
+            $payload['city']=substr($city_n,0,-1);
+            $payload['area']=substr($area_n,0,-1);
+        }
+
         if (isset($payload['meta']) && ! isset($payload['meta']['terms_and_cond'])) {
             throw new Exception("You must agree to the terms and conditions.", 1);
         }
