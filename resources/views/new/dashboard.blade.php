@@ -602,7 +602,7 @@ dt span.engroup_type_title {display:inline-block;width:10%;white-space:nowrap;}
                             </script>
 
                             <div class="ka_zli cutop"><i></i>或是其他你想說的</div>
-                            <textarea id="about_other" name="about" cols="" rows="3" class="custom_text">{{$umeta->about}}</textarea>
+                            <textarea data-parsley-errors-messages-disabled id="about_other" name="about" cols="" rows="3" class="select_xx05">{{$umeta->about}}</textarea>
                         </dt>
                         <dt>
                             <span  id="style_column" style="border-bottom: #eee 1px solid;">期待的約會模式<i>(必填)</i></span>
@@ -688,7 +688,7 @@ dt span.engroup_type_title {display:inline-block;width:10%;white-space:nowrap;}
                             </script>
 
                             <div class="ka_zli cutop"><i></i>或是其他你想說的</div>
-                            <textarea id="style_other" name="style" cols="" rows="3" class="custom_text">{{$umeta->style}}</textarea>
+                            <textarea data-parsley-errors-messages-disabled id="style_other" name="style" cols="" rows="3" class="select_xx05">{{$umeta->style}}</textarea>
                         </dt>
                         @endif
 
