@@ -1092,6 +1092,12 @@ class UserController extends \App\Http\Controllers\BaseController
             return view('admin.users.advInfo_UserAdvInfo')
                 ->with('userAdvInfo', $userAdvInfo);
         }
+        if ($block == 'advInfoLoginLog') {
+            $userLogin_log= \App\Models\User::userLoginLog($user->id,$request);
+            return view('admin.users.advInfoLoginLog')
+                ->with('user', $user)
+                ->with('userLogin_log', $userLogin_log);
+        }
         $userMessage = Message::where('from_id', $id)->orderBy('created_at', 'desc')->paginate(config('social.admin.showMessageCount'));
         if (!empty($request->get('page'))) {
             //新增Admin操作log
@@ -1184,42 +1190,9 @@ class UserController extends \App\Http\Controllers\BaseController
         $banReason = DB::table('reason_list')->select('content')->where('type', 'ban')->get();
         $implicitly_banReason = DB::table('reason_list')->select('content')->where('type', 'implicitly')->get();
         $warned_banReason = DB::table('reason_list')->select('content')->where('type', 'warned')->get();
-        // $userLogin_log = LogUserLogin::selectRaw('DATE(created_at) as loginDate, user_id as userID, count(*) as dataCount, GROUP_CONCAT(DISTINCT created_at SEPARATOR ",&p,") AS loginDates, GROUP_CONCAT(DISTINCT ip SEPARATOR ",&p,") AS ips, GROUP_CONCAT(DISTINCT userAgent SEPARATOR ",&p,") AS userAgents')->where('user_id', $user->id)->groupBy(DB::raw("DATE(created_at)"))->get();
-        $userLogin_log = LogUserLogin::selectRaw('LEFT(created_at,7) as loginMonth, DATE(created_at) as loginDate, user_id as userID, ip, count(*) as dataCount')
-            ->where('user_id', $user->id)
-            ->groupBy(DB::raw("LEFT(created_at,7)"))
-            ->orderBy('created_at', 'DESC')->get();
-        foreach ($userLogin_log as $key => $value) {
-            $dataLog = LogUserLogin::where('user_id', $user->id)->where('created_at', 'like', '%' . $value->loginMonth . '%')->orderBy('created_at', 'DESC');
-            $userLogin_log[$key]['items'] = $dataLog->get();
 
-            //ip
-            $Ip_group = LogUserLogin::where('user_id', $user->id)->where('created_at', 'like', '%' . $value->loginMonth . '%')
-                ->from('log_user_login as log')
-                ->selectRaw('ip, count(*) as dataCount, (select created_at from log_user_login as s where s.user_id=log.user_id and s.ip=log.ip and s.created_at like "%' . $value->loginMonth . '%" order by created_at desc LIMIT 1 ) as loginTime')
-                ->groupBy(DB::raw("ip"))->orderBy('loginTime', 'desc')->get();
-            $Ip = array();
-            foreach ($Ip_group as $Ip_key => $group) {
-                $group['IP_set_auto_ban']=SetAutoBan::whereRaw('(content="'.$group['ip'].'" AND expiry >="'. now().'")')->orWhereRaw('(content="'.$group['ip'].'" AND expiry="0000-00-00 00:00:00")')->get()->count();
-                $Ip['Ip_group'][$Ip_key] = $group;
-                $Ip['Ip_group_items'][$Ip_key] = LogUserLogin::where('user_id', $user->id)->where('created_at', 'like', '%' . $value->loginMonth . '%')->where('ip', $group->ip)->orderBy('created_at', 'DESC')->get();
-            }
-            $userLogin_log[$key]['Ip'] = $Ip;
-
-            //cfp_id
-            $CfpID_group = LogUserLogin::where('user_id', $user->id)->where('created_at', 'like', '%' . $value->loginMonth . '%')
-                ->from('log_user_login as log')
-                ->selectRaw('cfp_id,count(*) as dataCount, (select created_at from log_user_login as s where s.user_id=log.user_id and s.cfp_id=log.cfp_id and s.created_at like "%' . $value->loginMonth . '%" order by created_at desc LIMIT 1 ) as loginTime')
-                ->whereNotNull('cfp_id')
-                ->groupBy(DB::raw("cfp_id"))->orderBy('loginTime', 'desc')->get();
-            $CfpID = array();
-            foreach ($CfpID_group as $CfpID_key => $group) {
-                $group['CfpID_set_auto_ban']=SetAutoBan::whereRaw('(content="'.$group['cfp_id'].'" AND expiry >="'. now().'")')->orWhereRaw('(content="'.$group['cfp_id'].'" AND expiry="0000-00-00 00:00:00")')->get()->count();
-                $CfpID['CfpID_group'][$CfpID_key] = $group;
-                $CfpID['CfpID_group_items'][$CfpID_key] = LogUserLogin::where('user_id', $user->id)->where('created_at', 'like', '%' . $value->loginMonth . '%')->where('cfp_id', $group->cfp_id)->orderBy('created_at', 'DESC')->get();
-            }
-            $userLogin_log[$key]['CfpID'] = $CfpID;
-        }
+        //帳號登入紀錄
+        $userLogin_log= \App\Models\User::userLoginLog($user->id, $request);
 
         //個人檢舉紀錄
         $reported = Reported::select('reported.id', 'reported.reported_id as rid', 'reported.content as reason', 'reported.pic as pic', 'reported.created_at as reporter_time', 'u.name', 'u.email', 'u.engroup', 'm.isWarned', 'b.id as banned_id', 'b.expire_date as banned_expire_date', 'w.id as warned_id', 'w.expire_date as warned_expire_date')
