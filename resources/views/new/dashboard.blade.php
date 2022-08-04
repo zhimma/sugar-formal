@@ -602,7 +602,7 @@ dt span.engroup_type_title {display:inline-block;width:10%;white-space:nowrap;}
                             </script>
 
                             <div class="ka_zli cutop"><i></i>或是其他你想說的</div>
-                            <textarea id="about_other" name="about" cols="" rows="3" class="custom_text">{{$umeta->about}}</textarea>
+                            <textarea data-parsley-errors-messages-disabled id="about_other" name="about" cols="" rows="3" class="select_xx05">{{$umeta->about}}</textarea>
                         </dt>
                         <dt>
                             <span  id="style_column" style="border-bottom: #eee 1px solid;">期待的約會模式<i>(必填)</i></span>
@@ -688,7 +688,7 @@ dt span.engroup_type_title {display:inline-block;width:10%;white-space:nowrap;}
                             </script>
 
                             <div class="ka_zli cutop"><i></i>或是其他你想說的</div>
-                            <textarea id="style_other" name="style" cols="" rows="3" class="custom_text">{{$umeta->style}}</textarea>
+                            <textarea data-parsley-errors-messages-disabled id="style_other" name="style" cols="" rows="3" class="select_xx05">{{$umeta->style}}</textarea>
                         </dt>
                         @endif
 
@@ -1720,11 +1720,22 @@ dt span.engroup_type_title {display:inline-block;width:10%;white-space:nowrap;}
             {
                 if($('#about_other').val() === "")
                 {
+                    $('#about_other').focus();
                     c5('請選擇關於我的標籤或輸入文字');
                     return false;
                 }
             }
-            
+
+            if($('#about_other').val() !== "")
+            {
+                if($('#about_other').val().length < 4 || $('#about_other').val().length > 300)
+                {
+                    $('#about_other').focus();
+                    c5('關於我：請輸入4～300個字');
+                    return false;
+                }
+            }
+
 
 
 
@@ -1776,7 +1787,18 @@ dt span.engroup_type_title {display:inline-block;width:10%;white-space:nowrap;}
             {
                 if($('#style_other').val() === "")
                 {
+                    $('#style_other').focus();
                     c5('請選擇期待的約會模式的標籤或輸入文字');
+                    return false;
+                }
+            }
+
+            if($('#style_other').val() !== "")
+            {
+                if($('#style_other').val().length < 4 || $('#style_other').val().length > 300)
+                {
+                    $('#style_other').focus();
+                    c5('期待約會模式：請輸入4～300個字');
                     return false;
                 }
             }
@@ -2478,6 +2500,22 @@ function real_auth_input_new_weight_handle()
 
 
 
+</script>
+
+<script>
+    $('#about_other').keyup(function(){
+        if($(this).val().length > 300)
+        {
+            c5('已超過限制字數300字');
+        }
+    });
+
+    $('#style_other').keyup(function(){
+        if($(this).val().length > 300)
+        {
+            c5('已超過限制字數300字');
+        }
+    });
 </script>
 
 

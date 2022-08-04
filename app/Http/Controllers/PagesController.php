@@ -3081,6 +3081,7 @@ class PagesController extends BaseController
                 $dataList[$key]['visitorIsOnline'] = $visitor->isOnline();
                 $dataList[$key]['visitorExchangePeriodName'] = DB::table('exchange_period_name')->where('id',$visitor->exchange_period)->first();
                 $dataList[$key]['visitorValueAddedServiceStatusHideOnline'] = $visitor->valueAddedServiceStatus('hideOnline');
+                $dataList[$key]['new_occupation'] = UserOptionsXref::where('user_id', $visitor->id)->where('option_type', 1)->first()->occupation->option_name ?? '';
             }
             
             $rap_service->riseByUserEntry($user);
