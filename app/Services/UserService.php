@@ -250,18 +250,28 @@ class UserService
         //Log::Info($payload);
 
         //更新職業
-        UserOptionsXref::update_occupation($userId, $payload['new_occupation'], $payload['new_occupation_other']);
+        if(isset($payload['new_occupation']))
+        {
+            UserOptionsXref::update_occupation($userId, $payload['new_occupation'], $payload['new_occupation_other']);
+        }
 
         //更新複選選項(從前端接收到json轉回array)
         //$option_array的key要對應到option_type資料表
         $option_array = [];
-        $option_array['looking_for_relationships'] = json_decode($payload['looking_for_relationships']);
-        $option_array['expect'] = json_decode($payload['expect']);
-        $option_array['favorite_food'] = json_decode($payload['favorite_food']);
-        $option_array['preferred_date_location'] = json_decode($payload['preferred_date_location']);
-        $option_array['expected_type'] = json_decode($payload['expected_type']);
-        $option_array['frequency_of_getting_along'] = json_decode($payload['frequency_of_getting_along']);
-        $option_array['relationship_status'] = json_decode($payload['relationship_status']);
+        if(isset($payload['looking_for_relationships'])){
+            $option_array['looking_for_relationships'] = json_decode($payload['looking_for_relationships']);}
+        if(isset($payload['expect'])){
+            $option_array['expect'] = json_decode($payload['expect']);}
+        if(isset($payload['favorite_food'])){
+            $option_array['favorite_food'] = json_decode($payload['favorite_food']);}
+        if(isset($payload['preferred_date_location'])){
+            $option_array['preferred_date_location'] = json_decode($payload['preferred_date_location']);}
+        if(isset($payload['expected_type'])){
+            $option_array['expected_type'] = json_decode($payload['expected_type']);}
+        if(isset($payload['frequency_of_getting_along'])){
+            $option_array['frequency_of_getting_along'] = json_decode($payload['frequency_of_getting_along']);}
+        if(isset($payload['relationship_status'])){
+            $option_array['relationship_status'] = json_decode($payload['relationship_status']);}
         //Log::Info($option_array);
         UserOptionsXref::update_multiple_option($userId, $option_array);
 
