@@ -1439,7 +1439,7 @@
     <a id="ip10days" href="/admin/users/ip/不指定/?type=detail&period=10days" target="_blank" class="btn btn-success" style="margin-left: 10px;">10天</a>
     <a id="ip20days" href="/admin/users/ip/不指定/?type=detail&period=20days" target="_blank" class="btn btn-primary">20天</a>
     <a id="ip30days" href="/admin/users/ip/不指定/?type=detail&period=30days" target="_blank" class="btn btn-warning">30天</a>
-    {{--<a id="loading_data" href="/admin/users/advInfo/{{ $user->id }}?loading_data=all#loginRecord" class="btn btn-dark">loading全部登入紀錄</a>--}}
+    <div id="loading_data" class="btn btn-dark">loading全部登入紀錄</div>
 </div>
 <table id="table_userLogin_log" class="table table-hover table-bordered">
     @foreach($userLogin_log as $logInLog)
@@ -2251,6 +2251,15 @@
 <script src="/js/vendors.bundle.js" type="text/javascript"></script>
 <script>
 jQuery(document).ready(function(){
+    $('#loading_data').click(function(){
+        $.ajax({
+            type: 'GET',
+            url: location.pathname+'?block=advInfoLoginLog&loading_data=all&{{csrf_token()}}={{now()->timestamp}}',
+            success: function(res){
+                $('#table_userLogin_log').html(res);
+            }
+        });
+    });
 
     //test
     $('.tr_hide').hide();
