@@ -86,7 +86,7 @@
 										</div>
 										<a @if($post->deleted_at && $user->id != 1049) onclick="delete_alert()" @else href="/dashboard/post_detail/{{$post->pid}}" @endif>
 											<div class="tc_text_aa"><span>{{$post->ptitle}}</span></div>
-											<div class="tc_text_bb"><p>{!! \App\Models\Posts::showContent($post->pcontents) !!}</p></div>
+											<div class="tc_text_bb" style="word-break: break-all;"><p>{!! \App\Models\Posts::showContent($post->pcontents) !!}</p></div>
 										</a>
 									</li>
 								@endforeach

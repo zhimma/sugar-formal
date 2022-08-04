@@ -5679,7 +5679,7 @@ class PagesController extends BaseController
 
         $pid = $request->pid;
         //$this->post_views($pid);
-        $postDetail = Posts::withTrashed()->selectraw('posts.top, users.id as uid, users.name as uname, users.engroup as uengroup, posts.is_anonymous as panonymous, posts.views as uviews, user_meta.pic as umpic, posts.id as pid, posts.title as ptitle, posts.contents as pcontents, posts.updated_at as pupdated_at,  posts.created_at as pcreated_at, posts.deleted_at as pdeleted_at')
+        $postDetail = Posts::withTrashed()->selectraw('posts.top, users.id as uid, users.name as uname, users.engroup as uengroup, posts.is_anonymous as panonymous, posts.views as uviews, user_meta.pic as umpic, posts.id as pid, posts.title as ptitle, posts.contents as pcontents, posts.images as pimages, posts.updated_at as pupdated_at,  posts.created_at as pcreated_at, posts.deleted_at as pdeleted_at')
             ->LeftJoin('users', 'users.id','=','posts.user_id')
             ->join('user_meta', 'users.id','=','user_meta.user_id')
             ->where('posts.id', $pid)->first();
@@ -5690,7 +5690,7 @@ class PagesController extends BaseController
             return redirect()->route('posts_list');
         }
 
-        $replyDetail = Posts::selectraw('users.id as uid, users.name as uname, users.engroup as uengroup, posts.is_anonymous as panonymous, posts.views as uviews, user_meta.pic as umpic, posts.id as pid, posts.title as ptitle, posts.contents as pcontents, posts.updated_at as pupdated_at,  posts.created_at as pcreated_at')
+        $replyDetail = Posts::selectraw('users.id as uid, users.name as uname, users.engroup as uengroup, posts.is_anonymous as panonymous, posts.views as uviews, user_meta.pic as umpic, posts.id as pid, posts.title as ptitle, posts.contents as pcontents, posts.images as pimages, posts.updated_at as pupdated_at,  posts.created_at as pcreated_at')
             ->LeftJoin('users', 'users.id','=','posts.user_id')
             ->join('user_meta', 'users.id','=','user_meta.user_id')
             ->orderBy('pcreated_at','desc')
@@ -5783,15 +5783,39 @@ class PagesController extends BaseController
     public function postsEdit($id, $editType='all')
     {
         $postInfo = Posts::find($id);
-        return view('/dashboard/posts_edit',compact('postInfo','editType'));
+        $images=json_decode($postInfo->images, true);
+        $imagesGroup=array();
+        if(!is_null($images) && count($images)){
+            foreach ($images as $key => $path) {
+                if(file_exists(public_path($path))){
+                    $imagePath = $path;
+                    $imagesGroup['type'][$key] = \App\Helpers\fileUploader_helper::mime_content_type(ltrim($imagePath, '/'));
+                    $imagesGroup['name'][$key] = Arr::last(explode('/', $imagePath));
+                    $imagesGroup['size'][$key] = str_starts_with($imagePath, 'http') ? null :filesize(ltrim($imagePath, '/'));
+                    $imagesGroup['local'][$key] = $imagePath;
+                    $imagesGroup['file'][$key] = $imagePath;
+                    $imagesGroup['data'][$key] = [
+                        'url' => $imagePath,
+                        'thumbnail' =>$imagePath,
+                        'renderForce' => true
+                    ];
+                }
+            }
+        }
+        $images=$imagesGroup;
+
+        return view('/dashboard/posts_edit',compact('postInfo','editType', 'images'));
     }
 
     public function doPosts(Request $request)
     {
         $user=$request->user();
 
+        //儲存照片
+        $fileuploaderListImages = $request->get('fileuploader-list-images');
+        $destinationPath=$this->posts_pic_save($request->get('post_id'), $fileuploaderListImages, $request->file('images'));
         if($request->get('action') == 'update'){
-            Posts::find($request->get('post_id'))->update(['title'=>$request->get('title'),'contents'=>$request->get('contents')]);
+            Posts::find($request->get('post_id'))->update(['title'=>$request->get('title'),'contents'=>$request->get('contents'), 'images' => isset($destinationPath) ? $destinationPath : null]);
             return redirect($request->get('redirect_path'))->with('message','修改成功');
 
         }else{
@@ -5800,20 +5824,80 @@ class PagesController extends BaseController
             $posts->title = $request->get('title');
             $posts->type = $request->get('type','main');
             $posts->contents=$request->get('contents');
+            $posts->images=isset($destinationPath) ? $destinationPath : null;
             $posts->save();
             DB::table('posts')->where('id',$posts->id)->update(['article_id'=>$posts->id]);
             return redirect('/dashboard/posts_list')->with('message','發表成功');
         }
     }
 
+    //官方討論區_照片上傳
+    public function posts_pic_save($post_id, $images, $newImages)
+    {
+        $suspicious=Posts::where('id',$post_id)->first();
+        $suspiciousImages=$suspicious && !is_null($suspicious->images)? json_decode($suspicious->images, true) : [];
+        $nowImageList=array();
+        $images=json_decode($images, true);
+        if($images){
+            foreach ($images as $imageList){
+                $nowImageList[]=array_get($imageList,'file');
+            }
+        }
+
+        foreach ($suspiciousImages as $key => $dbImage){
+            if(in_array($dbImage, $nowImageList)){
+                continue;
+            }else{
+                //移除照片
+                if(file_exists(public_path().$dbImage)){
+                    unlink(public_path().$dbImage);
+                }
+                unset($suspiciousImages[$key]);
+            }
+        }
+
+        $destinationPath = [];
+        //新增新加入照片
+        if($files = $newImages)
+        {
+            foreach ($files as $file) {
+                $now = Carbon::now()->format('Ymd');
+                $input['imagename'] = $now . rand(100000000,999999999) . '.' . $file->getClientOriginalExtension();
+
+                $rootPath = public_path('/img/Posts');
+                $tempPath = $rootPath . '/' . substr($input['imagename'], 0, 4) . '/' . substr($input['imagename'], 4, 2) . '/'. substr($input['imagename'], 6, 2) . '/';
+
+                if(!is_dir($tempPath)) {
+                    File::makeDirectory($tempPath, 0777, true);
+                }
+
+                $destinationPath[] = '/img/Posts/'. substr($input['imagename'], 0, 4) . '/' . substr($input['imagename'], 4, 2) . '/'. substr($input['imagename'], 6, 2) . '/' . $input['imagename'];
+
+                $img = Image::make($file->getRealPath());
+                $img->resize(400, 600, function ($constraint) {
+                    $constraint->aspectRatio();
+                })->save($tempPath . $input['imagename']);
+
+            }
+        }
+        //整理images
+        $destinationPath = json_encode(array_merge($suspiciousImages, $destinationPath));
+        return $destinationPath;
+    }
+
     public function posts_reply(Request $request)
     {
+        //儲存照片
+        $fileuploaderListImages = $request->get('fileuploader-list-images');
+        $destinationPath=$this->posts_pic_save($request->get('post_id'), $fileuploaderListImages, $request->file('images'));
+
         $posts = new Posts;
         $posts->article_id = $request->get('article_id');
         $posts->reply_id = $request->get('reply_id');
         $posts->user_id = $request->get('user_id');
         $posts->type = $request->get('type','sub');
         $posts->contents   = str_replace('..','',$request->get('contents'));
+        $posts->images=isset($destinationPath) ? $destinationPath : null;
         $posts->tag_user_id = $request->get('tag_user_id');
         $posts->save();
 

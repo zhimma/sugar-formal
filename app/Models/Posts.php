@@ -32,6 +32,7 @@ class Posts extends Model
         'id',
         'title',
         'contents',
+        'images',
         'anonymous',
         'combine',
         'agreement',
