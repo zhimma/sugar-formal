@@ -752,7 +752,8 @@ class ImageController extends BaseController
         $log_pic_acts_count = $user->log_free_vip_pic_acts->count();  
         $last_mempic_act_log = $user->log_free_vip_member_pic_acts()->orderBy('created_at','DESC')->first();
         $last_mempic_sys_react = $last_mempic_act_log->sys_react??'';
-        $last_mempic_act_time =  isset($last_mempic_act_log->created_at)?Carbon::parse($last_mempic_act_log->created_at):'0000-00-00 00:00:00';        
+        $last_mempic_act_time =  isset($last_mempic_act_log->created_at)?Carbon::parse($last_mempic_act_log->created_at):'0000-00-00 00:00:00';    
+        $before_uploaded_existHeaderImage = $user->existHeaderImage();    
 
         if($user->existHeaderImage() && $user->engroup==2 ){
 
