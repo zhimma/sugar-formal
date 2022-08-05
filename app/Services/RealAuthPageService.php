@@ -324,12 +324,12 @@ class RealAuthPageService {
                     </span>
                     </div>
                     <div class="video_status_online_intro">
-                    請點選綠色按鈕                     
-                        <a href="'.url('user_video_chat_verify').'">
+                      
+                        <a href="'.url('user_video_chat_verify').'" style="color:#e44e71;">
                             
-                            <img src="'.asset('/new/images/kai-1.png').'" class="center line_notify video_status_show_elt" style="height: 30px;cursor: pointer;">
+                            請點此立即進行視訊驗證！
                         </a>
-                        開始進行視訊驗證。         
+                        
                     </div>
                     <div class="video_status_offline_intro">
                     但很抱歉可提供視訊審核的站方人員不在線，
