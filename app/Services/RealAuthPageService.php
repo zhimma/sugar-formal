@@ -897,7 +897,7 @@ class RealAuthPageService {
 
     public function getProfileWeightWord($weight) 
     {
-        return $weight?($weight-4).' ~ '.$weight:0;
+        return $this->user_service()->getOptionWordByWeightValue($weight);
     }
     
     public function forgetRealAuthProcess() 

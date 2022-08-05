@@ -612,7 +612,7 @@
     </tr>
     <tr>
         <th>體重</th>
-        <td>{{ $userMeta->weight }}{!!$raa_service->getActualUncheckedWeightLayout()!!}</td>
+        <td>{{ \App\Services\UserService::getOptionWordByWeightValue($userMeta->weight) }}{!!$raa_service->getActualUncheckedWeightLayout()!!}</td>
         <th>罩杯</th>
         <td>{{ $userMeta->cup }}</td>
         <th>體型</th>

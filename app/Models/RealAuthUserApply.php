@@ -127,7 +127,7 @@ class RealAuthUserApply extends Model
         return $this->latest_unchecked_modify()
                 ->where('item_id',2)
                 ->whereNotNull('new_height')
-                ->where('new_height','>',0);
+                ;
     }
     
     public function latest_unchecked_weight_modify() 
@@ -135,7 +135,7 @@ class RealAuthUserApply extends Model
         return $this->latest_unchecked_modify()
                 ->where('item_id',2)
                 ->whereNotNull('new_weight')
-                ->where('new_weight','>',0);
+                ;
     }  
 
     public function latest_unchecked_exchange_period_modify() 

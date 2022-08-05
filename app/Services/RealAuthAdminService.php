@@ -1187,8 +1187,8 @@ class RealAuthAdminService {
             }
         }
         
-        if($unchecked_weight) {
-            $layout = '<span class="unchecked_value_show">'.$unchecked_weight.'</span>';
+        if($unchecked_weight!==null) {
+            $layout = '<span class="unchecked_value_show">'.$this->user_service()->getOptionWordByWeightValue($unchecked_weight).'</span>';
         }
         
         return $layout;
