@@ -1444,7 +1444,8 @@ class UserService
     public function riseByUserEntry($userEntry) 
     {
         $this->model = $userEntry;
-        $this->userMeta = $userEntry->meta;
+        // 如果目標會員帳號已關閉，則 userEntry 就會是 null
+        $this->userMeta = $userEntry?->meta;
         return $this;
     }
 }
