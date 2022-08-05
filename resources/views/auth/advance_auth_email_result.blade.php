@@ -43,7 +43,6 @@
     <p>{{$message}}</p>
     <p>按<a href="{!! url('login') !!}">這裡登入</a>。</p>
 </div>    
-@endif
 @stop
 <style type="text/css">
     .vipbut1 {
