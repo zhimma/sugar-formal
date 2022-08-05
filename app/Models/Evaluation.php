@@ -16,6 +16,7 @@ class Evaluation extends Model
         'rating',
         'read',
         'admin_comment',
+        'content_violation_processing',
         'deleted_at'
     ];
     public function user(){

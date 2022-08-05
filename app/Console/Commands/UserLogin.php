@@ -41,12 +41,13 @@ class UserLogin extends Command
      */
     public function handle()
     {
+        set_time_limit(0);
         Log::info('start_command_UserLogin');
         $users = User::where('last_login', '>',Carbon::now()->subHour())->get();
         foreach($users as $user)
         {
             Log::info('UserLogin:' . $user->id);
-            SetAutoBan::logout_warned($user->id);
+            SetAutoBan::logoutWarned($user->id);
         }
     }
 }

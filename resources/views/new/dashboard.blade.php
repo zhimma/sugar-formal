@@ -271,559 +271,796 @@ dt span.engroup_type_title {display:inline-block;width:10%;white-space:nowrap;}
                         <input name="exchange_period" id="" type="hidden" class="select_xx01" value="{{$user->exchange_period}}" data-parsley-errors-messages-disabled disabled style="background-color: #d2d2d2;">                                     
                     </dt>
                     @endif
-                  <dt>
-                    <span>地區<i>(必填)</i></span>
-                    <div id="county">
+                    <dt>
+                        <span>地區<i>(必填)</i></span>
+                        <div id="county">
+                        
+                        @if(isset($umeta->city))
+                            @if(is_array($umeta->city))
+                                @foreach($umeta->city as $key => $cityval)
+                                <div class="twzipcode">
+                                    <div class="twzip" data-role="county" data-name="@if($key != 0 )city{{$key}}@else{{'city'}}@endif" data-value="{{$umeta->city[$key]}}">
+                                    </div>
+                                    <div class="twzip right" data-role="district" data-name="@if($key != 0 )area{{$key}}@else{{'area'}}@endif" data-value="{{$umeta->area[$key]}}">
+                                    </div>
+                                </div>
+                                @endforeach
+                            @else
+                            <div class="twzipcode">
+                                <div class="twzip" data-role="county" data-name="city" data-value="{{$umeta->city}}">
+                                </div>
+                                <div class="twzip right" data-role="district" data-name="area" data-value="{{$umeta->area}}">
+                                </div>
+                            </div>
+                            @endif
+                        @else
+                            <div class="twzipcode">
+                                <div class="twzip" data-role="county" data-name="city" data-value="">
+                                </div>
+                                <div class="twzip right" data-role="district" data-name="area" data-value="">
+                                </div>
+                            </div>
+                        @endif
+                        </div>
+                        <div class="n_xqline">
+                        <div class="right" style="margin-bottom: 10px;">
+                            <a href="javascript:" id="add_county"><img src="/new/images/jh.png">新增縣市</a>
+                            <input type="hidden" name="isHideArea" value="0">
+                            <input name="isHideArea" type="checkbox" @if($umeta->isHideArea == true) checked @endif value="1"> 隱藏鄉鎮市區
+                        </div>
+                        </div>
+                        <!-- <span class="matop10">
+                        <select name=""  class="select_xx"><option>連江縣</option><option>B</option></select>
+                        <select name=""  class="select_xx right"><option>南竿鄉</option><option>B</option></select>
+                        </span>-->
+                    </dt>
+                    @if($user->engroup==2)
                     
-                      @if(isset($umeta->city))
-                        @if(is_array($umeta->city))
-                            @foreach($umeta->city as $key => $cityval)
-                              <div class="twzipcode">
-                                <div class="twzip" data-role="county" data-name="@if($key != 0 )city{{$key}}@else{{'city'}}@endif" data-value="{{$umeta->city[$key]}}">
-                                </div>
-                                <div class="twzip right" data-role="district" data-name="@if($key != 0 )area{{$key}}@else{{'area'}}@endif" data-value="{{$umeta->area[$key]}}">
-                                </div>
-                              </div>
-                            @endforeach
-                        @else
-                          <div class="twzipcode">
-                            <div class="twzip" data-role="county" data-name="city" data-value="{{$umeta->city}}">
-                            </div>
-                            <div class="twzip right" data-role="district" data-name="area" data-value="{{$umeta->area}}">
-                            </div>
-                          </div>
-                        @endif
-                      @else
-                          <div class="twzipcode">
-                            <div class="twzip" data-role="county" data-name="city" data-value="">
-                            </div>
-                            <div class="twzip right" data-role="district" data-name="area" data-value="">
-                            </div>
-                          </div>
-                      @endif
-                    </div>
-                    <div class="n_xqline">
-                      <div class="right" style="margin-bottom: 10px;">
-                        <a href="javascript:" id="add_county"><img src="/new/images/jh.png">新增縣市</a>
-                        <input type="hidden" name="isHideArea" value="0">
-                        <input name="isHideArea" type="checkbox" @if($umeta->isHideArea == true) checked @endif value="1"> 隱藏鄉鎮市區
-                      </div>
-                    </div>
-                    <!-- <span class="matop10">
-                      <select name=""  class="select_xx"><option>連江縣</option><option>B</option></select>
-                      <select name=""  class="select_xx right"><option>南竿鄉</option><option>B</option></select>
-                      </span>-->
-                  </dt>
-                  @if($user->engroup==2)
-                   
-                  <dt class="matopj15">
-                      <span>拒絕接受搜索縣市</span>
-                      <div id="block_county">
-                      @if(isset($umeta->blockcity))
-                        @if(is_array($umeta->blockcity))
-                          @foreach($umeta->blockcity as $key => $cityval)
-                              <div class="twzipcode">
-                                <div class="twzip " data-role="county"
-                                    data-name="blockcity{{$key == 0 ? '' : $key}}"
-                                    data-value="{{$umeta->blockcity[$key]}}">
-                                </div>
-                                <div class="twzip right" data-role="district"
-                                    data-name="blockarea{{$key == 0 ? '' : $key}}"
-                                    data-value="{{$umeta->blockarea[$key]}}">
-                                    <?php
-                                        /*if ($key ==0)
-                                            $blockarea_selected = $umeta->blockarea[0];
-                                        else if ($key ==1){
-                                            $blockarea1_selected = $umeta->blockarea[1];
-                                        }else if ($key ==2){
-                                            $blockarea2_selected = $umeta->blockarea[2];
-                                        }*/
+                    <dt class="matopj15">
+                        <span>拒絕接受搜索縣市</span>
+                        <div id="block_county">
+                        @if(isset($umeta->blockcity))
+                            @if(is_array($umeta->blockcity))
+                            @foreach($umeta->blockcity as $key => $cityval)
+                                <div class="twzipcode">
+                                    <div class="twzip " data-role="county"
+                                        data-name="blockcity{{$key == 0 ? '' : $key}}"
+                                        data-value="{{$umeta->blockcity[$key]}}">
+                                    </div>
+                                    <div class="twzip right" data-role="district"
+                                        data-name="blockarea{{$key == 0 ? '' : $key}}"
+                                        data-value="{{$umeta->blockarea[$key]}}">
+                                        <?php
+                                            /*if ($key ==0)
+                                                $blockarea_selected = $umeta->blockarea[0];
+                                            else if ($key ==1){
+                                                $blockarea1_selected = $umeta->blockarea[1];
+                                            }else if ($key ==2){
+                                                $blockarea2_selected = $umeta->blockarea[2];
+                                            }*/
 
-                                    ?>
+                                        ?>
+                                    </div>
                                 </div>
-                              </div>
-                          @endforeach
-                          @for ($i = 0; $i < $blockcity_limit_count; $i++)
-                            <?php
-                                $blockcity_selected[] = isset($umeta->blockcity[$i]) ? $umeta->blockcity[$i] : '';
-                                $blockarea_selected[] = isset($umeta->blockarea[$i]) ? str_replace($umeta->blockcity[$i],'',$umeta->blockarea[$i]) :'';
-                                if($blockcity_selected[$i] == '海外')
-                                {
-                                    if($blockarea_selected[$i] == '全區')
+                            @endforeach
+                            @for ($i = 0; $i < $blockcity_limit_count; $i++)
+                                <?php
+                                    $blockcity_selected[] = isset($umeta->blockcity[$i]) ? $umeta->blockcity[$i] : '';
+                                    $blockarea_selected[] = isset($umeta->blockarea[$i]) ? str_replace($umeta->blockcity[$i],'',$umeta->blockarea[$i]) :'';
+                                    if($blockcity_selected[$i] == '海外')
                                     {
-                                        $blockarea_selected[$i] = '全部';
+                                        if($blockarea_selected[$i] == '全區')
+                                        {
+                                            $blockarea_selected[$i] = '全部';
+                                        }
                                     }
-                                }
-                            ?>
-                          @endfor
+                                ?>
+                            @endfor
+                            @else
+                            <div class="twzipcode">
+                                <div class="twzip" data-role="county" data-name="blockcity" data-value="{{$umeta->blockcity}}">
+                                </div>
+                                <div class="twzip right" data-role="district" data-name="blockarea" data-value="{{$umeta->blockarea}}">
+                                </div>
+                            </div>
+                            @endif
                         @else
-                          <div class="twzipcode">
-                            <div class="twzip" data-role="county" data-name="blockcity" data-value="{{$umeta->blockcity}}">
+                            <div class="twzipcode">
+                                <div class="twzip" data-role="county" data-name="blockcity" data-value="">
+                                </div>
+                                <div class="twzip right" data-role="district" data-name="blockarea" data-value="">
+                                </div>
                             </div>
-                            <div class="twzip right" data-role="district" data-name="blockarea" data-value="{{$umeta->blockarea}}">
-                            </div>
-                          </div>
                         @endif
-                      @else
-                          <div class="twzipcode">
-                            <div class="twzip" data-role="county" data-name="blockcity" data-value="">
+                        </div>
+                        <div class="n_xqline">
+                            <div class="right" style="margin-bottom: 10px;">
+                                <a href="javascript:" id="add_block_county"><img src="/new/images/jh.png">新增縣市</a>
                             </div>
-                            <div class="twzip right" data-role="district" data-name="blockarea" data-value="">
-                            </div>
-                          </div>
-                      @endif
-                      </div>
-                      <div class="n_xqline">
-                          <div class="right" style="margin-bottom: 10px;">
-                              <a href="javascript:" id="add_block_county"><img src="/new/images/jh.png">新增縣市</a>
-                          </div>
-                      </div>
-                  </dt>
-                  @endif
-                  @if($user->engroup==2)
-                        <dt class="">
-                            <span>預算<i>(必填)</i></span>
-                            <span>
-                            <select data-parsley-errors-messages-disabled name="budget"  class="select_xx01">
-                                <option value="">請選擇</option>
-                                <option value="基礎" {{($umeta->budget == '基礎')?"selected":""  }}>基礎</option>
-                                <option value="進階"
-                                        @if($umeta->budget == '進階') selected @endif>進階
-                                </option>
-                                <option value="高級"
-                                        @if($umeta->budget == '高級') selected @endif>高級
-                                </option>
-                                <option value="最高"
-                                        @if($umeta->budget == '最高') selected @endif>最高
-                                </option>
-                                <option value="可商議" {{($umeta->budget == '可商議')?"selected":""  }}>可商議</option>
+                        </div>
+                    </dt>
+                    @endif
+                    @if($user->engroup==2)
+                            <dt class="">
+                                <span>預算<i>(必填)</i></span>
+                                <span>
+                                <select data-parsley-errors-messages-disabled name="budget"  class="select_xx01">
+                                    <option value="">請選擇</option>
+                                    <option value="基礎" {{($umeta->budget == '基礎')?"selected":""  }}>基礎</option>
+                                    <option value="進階"
+                                            @if($umeta->budget == '進階') selected @endif>進階
+                                    </option>
+                                    <option value="高級"
+                                            @if($umeta->budget == '高級') selected @endif>高級
+                                    </option>
+                                    <option value="最高"
+                                            @if($umeta->budget == '最高') selected @endif>最高
+                                    </option>
+                                    <option value="可商議" {{($umeta->budget == '可商議')?"selected":""  }}>可商議</option>
+                                </select>
+                                </span>
+                            </dt>
+                    @endif
+                    <dt>
+                        <span>出生年月<i>(必填)</i></span>
+                        <span>
+                          <input type="hidden" name="day" value="01">
+                          <div class="se_zlman left">
+                          @if(!$user->advance_auth_status??null)
+                            <select data-parsley-errors-messages-disabled name="year"  class="select_xx04 sel_year" data-value="{{ $year }}">
                             </select>
-                            </span>
-                        </dt>
-                  @endif
-                  <dt>
-                      <span>出生年月<i>(必填)</i></span>
-                      <span>
-                        <input type="hidden" name="day" value="01">
-                        <div class="se_zlman left">
-                        @if(!$user->advance_auth_status??null)
-                          <select data-parsley-errors-messages-disabled name="year"  class="select_xx04 sel_year" data-value="{{ $year }}">
-                          </select>
-                        @else
-                            <div class="select_xx01 senhs hy_new select_xx04 birth_lock" style="background: #d2d2d2;">{{ $year }}</div>                            
-                        @endif
-                          <i class="right">年</i>
-                        </div>
-                        <div class="se_zlman right">
-                        @if(!$user->advance_auth_status??null)
-                          <select data-parsley-errors-messages-disabled name="month"  class="select_xx04 sel_month" data-value="{{ $month }}">
-                          </select>
-                        @else
-                            <div class="select_xx01 senhs hy_new select_xx04 birth_lock" style="background: #d2d2d2;">{{ $month }}</div>                            
-                        @endif
-                          <i class="right">月</i>
-                        </div>
-                      </span>
-                  </dt>
-                  <dt id="height_container">
-                    <span  style="@if($rap_service->getLatestActualUnchekedHeightModifyEntry()) display:inline-block;width:51%; @endif" >身高（cm）<i>(必填)</i></span>
-                    @if($rap_service->modify_entry())
-                    <span style="display:inline-block;width:47%;">正在審核的身高異動</span>
-                    @endif
-                    @if($rap_service->isPassedByAuthTypeId(1))                      
-                        <div onclick="show_real_auth_new_height_tab();"  class="select_xx01 senhs hy_new" tabindex="-1" id="height_readonly_block" style="background: #d2d2d2;@if($rap_service->modify_entry()) display:inline-block;width:50%;  @endif" onclick="show_real_auth_new_height_tab();">{{$umeta->height}}</div>    
+                          @else
+                              <div class="select_xx01 senhs hy_new select_xx04 birth_lock" style="background: #d2d2d2;">{{ $year }}</div>                            
+                          @endif
+                            <i class="right">年</i>
+                          </div>
+                          <div class="se_zlman right">
+                          @if(!$user->advance_auth_status??null)
+                            <select data-parsley-errors-messages-disabled name="month"  class="select_xx04 sel_month" data-value="{{ $month }}">
+                            </select>
+                          @else
+                              <div class="select_xx01 senhs hy_new select_xx04 birth_lock" style="background: #d2d2d2;">{{ $month }}</div>                            
+                          @endif
+                            <i class="right">月</i>
+                          </div>
+                        </span>
+                    </dt>
+                    <dt id="height_container">
+                        <span  style="@if($rap_service->getLatestActualUnchekedHeightModifyEntry()) display:inline-block;width:51%; @endif" >身高（cm）<i>(必填)</i></span>
                         @if($rap_service->modify_entry())
-                        <div class="select_xx01 senhs hy_new" tabindex="-1" id="new_height_readonly_block" style="background: #d2d2d2;display:inline-block;width:47%;" onclick="show_real_auth_new_height_tab();">{{$rap_service->modify_entry()->new_height}}</div>        
+                        <span style="display:inline-block;width:47%;">正在審核的身高異動</span>
                         @endif
-                    @else  
-                        <span><input name="height" id="height" type="number" class="select_xx01"  placeholder="請輸入數字範圍140～210" value="{{$umeta->height}}" title="請輸入140~210範圍" ></span>
-                    @endif
-                  </dt>
+                        @if($rap_service->isPassedByAuthTypeId(1))                      
+                            <div onclick="show_real_auth_new_height_tab();"  class="select_xx01 senhs hy_new" tabindex="-1" id="height_readonly_block" style="background: #d2d2d2;@if($rap_service->modify_entry()) display:inline-block;width:50%;  @endif" onclick="show_real_auth_new_height_tab();">{{$umeta->height}}</div>    
+                            @if($rap_service->modify_entry())
+                            <div class="select_xx01 senhs hy_new" tabindex="-1" id="new_height_readonly_block" style="background: #d2d2d2;display:inline-block;width:47%;" onclick="show_real_auth_new_height_tab();">{{$rap_service->modify_entry()->new_height}}</div>        
+                            @endif
+                        @else  
+                            <span><input name="height" id="height" type="number" class="select_xx01"  placeholder="請輸入數字範圍140～210" value="{{$umeta->height}}" title="請輸入140~210範圍" ></span>
+                        @endif
+                    </dt>
                                 
-                  <!--新增體重欄位 By Simon-->
-                  <dt>
-                      <span style="@if($rap_service->getLatestActualUnchekedWeightModifyEntry()) display:inline-block;width:51%; @endif">體重（kg）</span>                     
-                      @if($rap_service->modify_entry())
-                      <span style="display:inline-block;width:47%;">正在審核的體重異動</span>
-                      @endif                    
+                    <!--新增體重欄位 By Simon-->
+                    <dt>
+                        <span style="@if($rap_service->getLatestActualUnchekedWeightModifyEntry()) display:inline-block;width:51%; @endif">體重（kg）</span>                     
+                        @if($rap_service->modify_entry())
+                        <span style="display:inline-block;width:47%;">正在審核的體重異動</span>
+                        @endif                    
                     @if($rap_service->isPassedByAuthTypeId(1))
                     <div  onclick="show_real_auth_new_weight_tab();"  class="select_xx01 senhs hy_new" tabindex="-1" id="weight_readonly_block" style="background: #d2d2d2;@if($rap_service->modify_entry()) display:inline-block;width:50%;  @endif">{{$umeta->weight?($umeta->weight-4).' ~ '.$umeta->weight:0}}</div>         
                     @if($rap_service->modify_entry())
                     <div class="select_xx01 senhs hy_new" tabindex="-1" id="new_weight_readonly_block" style="background: #d2d2d2;display:inline-block;width:47%;" onclick="show_real_auth_new_weight_tab();">{{$rap_service->getProfileWeightWord( $rap_service->modify_entry()->new_weight)}}</div>        
                     @endif                    
                     @else
-                      <span>                        
+                        <span>                        
                         <select name="weight"  class="select_xx01">
-                          <option value=null>請選擇</option>
-                          @for ($i = 1; $i < 21; $i++)
-                          <option value="{{$i*5}}"
-                                  @if($umeta->weight == $i*5) selected @endif>{{$i*5-4}} ~ {{$i*5}}
-                          </option>
-                          @endfor
-                        </select>
-                      </span>                         
-                    @endif                      
-                      <div class="n_xqline">
-                          <div class="right" style="margin-bottom: 10px;">
-                              <input type="hidden" name="isHideWeight" value="0">
-                              <input name="isHideWeight" type="checkbox" @if($umeta->isHideWeight == true) checked @endif value="1"> 隱藏體重
-                          </div>
-                      </div>
-                      <!--<span>
-                          <input name="weight" id="weight" type="number" class="select_xx01" value="{{$umeta->weight}}">
-                      </span>
-                      <div class="n_xqline">
-                          <div class="right" style="margin-bottom: 10px;">
-                              <input type="hidden" name="isHideWeight" value="0">
-                              <input name="isHideWeight" type="checkbox" @if($umeta->isHideWeight == true) checked @endif value="1"> 隱藏體重
-                          </div>
-                      </div>-->
-                  </dt>
-
-                  @if($user->engroup==2)
-{{--                  <dt>--}}
-{{--                      <span>體重（kg）</span>--}}
-{{--                      <span><input minlength="2"  data-parsley-minlength="2" name="weight" type="text" class="select_xx01"  placeholder="請填入體重" value="{{$umeta->weight}}"></span>--}}
-{{--                      <div class="right" style="margin: 10px 0 -5px 10px;">--}}
-{{--                        <input type="hidden" name="isHideWeight" value="0">--}}
-{{--                        <input name="isHideArea" type="checkbox"  @if($umeta->isHideWeight == true) checked--}}
-{{--                                                                       @endif value="1"> 隱藏體重--}}
-{{--                      </div>--}}
-{{--                  </dt>--}}
-                  <dt style="margin-bottom:7px;">
-                      <span>CUP</span>
-                      <span>
-                        <select name="cup"  class="select_xx01" >
-                          <option value=null>請選擇</option>
-                          <option value="A"
-                                  @if($umeta->cup == 'A') selected @endif>A
-                          </option>
-                          <option value="B"
-                                  @if($umeta->cup == 'B') selected @endif>B
-                          </option>
-                          <option value="C"
-                                  @if($umeta->cup == 'C') selected @endif>C
-                          </option>
-                          <option value="D"
-                                  @if($umeta->cup == 'D') selected @endif>D
-                          </option>
-                          <option value="E"
-                                  @if($umeta->cup == 'E') selected @endif>E
-                          </option>
-                          <option value="F"
-                                  @if($umeta->cup == 'F') selected @endif>F
-                          </option>
-                        </select>
-                      </span>
-                      <div class="n_xqline">
-                          <div class="right" style="margin-bottom: 10px;">
-                              <input type="hidden" name="isHideCup" value="0">
-                              <input name="isHideCup" type="checkbox" @if($umeta->isHideCup == true) checked @endif value="1"> 隱藏CUP
-                          </div>
-                      </div>
-                  </dt>
-                <dt>
-                    <span>有刺青</span>
-                    <font>
-                        <select name="tattoo_part" id="tattoo_part" class="select_xx01 new_iptnone select_xx2" style="width: 48%; float: left;color:#666666;">
-                            <option value="">請選擇位置</option>
-                            <option value="四肢" {{$user->isTattooPart('四肢')?'selected':''}}>四肢</option>
-                            <option value="身體" {{$user->isTattooPart('身體')?'selected':''}}>身體</option>
-                        </select>
-                        <select name="tattoo_range" id="tattoo_range" class="select_xx01 new_iptnone select_xx2" style="width: 48%; float: right;color:#666666;">
-                            <option value="">請選擇面積</option>
-                            <option value="大" {{$user->isTattooRange('大')?'selected':''}}>大</option>
-                            <option value="小" {{$user->isTattooRange('小')?'selected':''}}>小</option>
-                        </select>
-                        
-                    </font>
-                </dt>                  
-                  @endif
-                  <dt>
-                      <span>體型</span>
-                      <span>
-                        <select name="body"  class="select_xx01">
-                          <option value=null>請選擇</option>
-                          <option value="瘦"
-                                  @if($umeta->body == '瘦') selected @endif>瘦
-                          </option>
-                          <option value="標準"
-                                  @if($umeta->body == '標準') selected @endif>標準
-                          </option>
-                          <option value="微胖"
-                                  @if($umeta->body == '微胖') selected @endif>微胖
-                          </option>
-                          <option value="胖"
-                                  @if($umeta->body == '胖') selected @endif>胖
-                          </option>
-                        </select>
-                      </span>
-                  </dt>
-                  <dt>
-                      <span>關於我<i>(必填)</i></span>
-                      <span><textarea data-parsley-errors-messages-disabled name="about" cols="" rows="3" class="select_xx05">{{$umeta->about}}</textarea></span>
-                  </dt>
-                  <dt class="matopj15">
-                      <span>期待的約會模式<i>(必填)</i></span>
-                      <span><textarea data-parsley-errors-messages-disabled name="style" cols="" rows="3" class="select_xx05">{{$umeta->style}}</textarea></span>
-                  </dt>
-                  @if($user->engroup==2)
-                  <dt class="matopj15">
-                      <span>現況<i>(必填)</i></span>
-                      <span>
-                        <select data-parsley-errors-messages-disabled name="situation"  class="select_xx01">
-                          <option value="">請選擇</option>
-                          <option value="學生"
-                                  @if($umeta->situation == '學生') selected @endif>
-                              學生
-                          </option>
-                          <option value="待業"
-                                  @if($umeta->situation == '待業') selected @endif>
-                              待業
-                          </option>
-                          <option value="休學"
-                                  @if($umeta->situation == '休學') selected @endif>
-                              休學
-                          </option>
-                          <option value="打工"
-                                  @if($umeta->situation == '打工') selected @endif>
-                              打工
-                          </option>
-                          <option value="上班族"
-                                  @if($umeta->situation == '上班族') selected @endif>
-                              上班族
-                          </option>
-                          <option value="在家工作"
-                                  @if($umeta->situation == '在家工作') selected @endif>
-                              在家工作
-                          </option>
-                          <option value="自行開業"
-                                  @if($umeta->situation == '自行開業') selected @endif>
-                              自行開業
-                          </option>
-                        </select>
-                      </span>
-                  </dt>
-                  <dt>
-                      <span>職業</span>
-                      <span>
-                        <select name="occupation"  class="select_xx01">
-                          <option value=null>請選擇</option>
-                          <option value="學生"
-                                  @if($umeta->occupation == '學生') selected @endif>
-                              學生
-                          </option>
-                          <option value="無業"
-                                  @if($umeta->occupation == '無業') selected @endif>
-                              無業
-                          </option>
-                          <option value="人資"
-                                  @if($umeta->occupation == '人資') selected @endif>
-                              人資
-                          </option>
-                          <option value="業務銷售"
-                                  @if($umeta->occupation == '業務銷售') selected @endif>
-                              業務銷售
-                          </option>
-                          <option value="行銷企劃"
-                                  @if($umeta->occupation == '行銷企劃') selected @endif>
-                              行銷企劃
-                          </option>
-                          <option value="行政助理"
-                                  @if($umeta->occupation == '行政助理') selected @endif>
-                              行政助理
-                          </option>
-                          <option value="專案管理"
-                                  @if($umeta->occupation == '專案管理') selected @endif>
-                              專案管理
-                          </option>
-                          <option value="餐飲類服務業"
-                                  @if($umeta->occupation == '餐飲類服務業') selected @endif>
-                              餐飲類服務業
-                          </option>
-                          <option value="旅遊類服務業"
-                                  @if($umeta->occupation == '旅遊類服務業') selected @endif>
-                              旅遊類服務業
-                          </option>
-                          <option value="美容美髮美甲芳療"
-                                  @if($umeta->occupation == '美容美髮美甲芳療') selected @endif>
-                              美容美髮美甲芳療
-                          </option>
-                          <option value="操作員"
-                                  @if($umeta->occupation == '操作員') selected @endif>
-                              操作員
-                          </option>
-                          <option value="文字工作者"
-                                  @if($umeta->occupation == '文字工作者') selected @endif>
-                              文字工作者
-                          </option>
-                          <option value="學術研究"
-                                  @if($umeta->occupation == '學術研究') selected @endif>
-                              學術研究
-                          </option>
-                          <option value="教育輔導"
-                                  @if($umeta->occupation == '教育輔導') selected @endif>
-                              教育輔導
-                          </option>
-                          <option value="金融營業交易"
-                                  @if($umeta->occupation == '金融營業交易') selected @endif>
-                              金融營業交易
-                          </option>
-                          <option value="財務會計"
-                                  @if($umeta->occupation == '財務會計') selected @endif>
-                              財務會計
-                          </option>
-                          <option value="總機秘書櫃檯"
-                                  @if($umeta->occupation == '總機秘書櫃檯') selected @endif>
-                              總機秘書櫃檯
-                          </option>
-                          <option value="法務記帳代書"
-                                  @if($umeta->occupation == '法務記帳代書') selected @endif>
-                              法務記帳代書
-                          </option>
-                          <option value="資訊軟體"
-                                  @if($umeta->occupation == '資訊軟體') selected @endif>
-                              資訊軟體
-                          </option>
-                          <option value="客服"
-                                  @if($umeta->occupation == '客服') selected @endif>
-                              客服
-                          </option>
-                          <option value="貿易船務"
-                                  @if($umeta->occupation == '貿易船務') selected @endif>
-                              貿易船務
-                          </option>
-                          <option value="交通運輸物流"
-                                  @if($umeta->occupation == '交通運輸物流') selected @endif>
-                              交通運輸物流
-                          </option>
-                          <option value="倉管採購"
-                                  @if($umeta->occupation == '倉管採購') selected @endif>
-                              倉管採購
-                          </option>
-                          <option value="設計美術"
-                                  @if($umeta->occupation == '設計美術') selected @endif>
-                              設計美術
-                          </option>
-                          <option value="模特演員"
-                                  @if($umeta->occupation == '模特演員') selected @endif>
-                              模特演員
-                          </option>
-                          <option value="傳播藝術"
-                                  @if($umeta->occupation == '傳播藝術') selected @endif>
-                              傳播藝術
-                          </option>
-                          <option value="soho"
-                                  @if($umeta->occupation == 'soho') selected @endif>
-                              soho
-                          </option>
-                          <option value="自行創業"
-                                  @if($umeta->occupation == '自行創業') selected @endif>
-                              自行創業
-                          </option>
-                        </select>
-                      </span>
-                      <div class="right" style="margin: 10px 0 -5px 10px;">
-                        <input type="hidden" name="isHideOccupation" value="0">
-                        <input type="checkbox" name="isHideOccupation"  @if($umeta->isHideOccupation == true) checked @endif value="1"> 隱藏職業
-                      </div>
-                  </dt>
-                  @else
-                  <dt class="matopj15">
-                      <span>產業</span>
-                      <span>
-                        <input type="hidden" name="day" value="01">
-                        <div class="se_zlman left">
-                          <select  class="select_xx2 left" name="domainType" id="domainType" onchange="setDomain(0);">
                             <option value=null>請選擇</option>
-                            <option value="資訊科技"
-                                    @if($umeta->domainType == '資訊科技') selected @endif>
-                                資訊科技
+                            @for ($i = 1; $i < 21; $i++)
+                            <option value="{{$i*5}}"
+                                    @if($umeta->weight == $i*5) selected @endif>{{$i*5-4}} ~ {{$i*5}}
                             </option>
-                            <option value="傳產製造"
-                                    @if($umeta->domainType == '傳產製造') selected @endif>
-                                傳產製造
-                            </option>
-                            <option value="工商服務"
-                                    @if($umeta->domainType == '工商服務') selected @endif>
-                                工商服務
-                            </option>
-                            <option value="民生服務"
-                                    @if($umeta->domainType == '民生服務') selected @endif>
-                                民生服務
-                            </option>
-                            <option value="文教傳播"
-                                    @if($umeta->domainType == '文教傳播') selected @endif>
-                                文教傳播
-                            </option>
-                          </select>
-                        </div>
-                        <div class="se_zlman right">
-                          <select class="select_xx2 right" name="domain" id="domain">
-                          </select>
-                        </div>
-                      </span>
-                  </dt>
-                  <dt class="matopj15">
-                      <span>職業<i></i></span>
-                      <span>
-                          <input name="occupation" type="text" class="select_xx01"  placeholder="請填入職業" @if(!empty($umeta->occupation) && $umeta->occupation != 'null')value="{{$umeta->occupation}}" @endif>
-                          <input name="occupation" id="occupation" type="hidden" value=null>
-                      </span>
-                  </dt>
-                  @endif
-                  <dt>
-                      <span>教育<i>(必填)</i></span>
-                      <span>
-                        <select data-parsley-errors-messages-disabled name="education"  class="select_xx01">
-                          <option value="">請選擇</option>
-                          <option value="國中"
-                                  @if($umeta->education == '國中') selected @endif>
-                              國中
-                          </option>
-                          <option value="高中"
-                                  @if($umeta->education == '高中') selected @endif>
-                              高中
-                          </option>
-                          <option value="大學"
-                                  @if($umeta->education == '大學') selected @endif>
-                              大學
-                          </option>
-                          <option value="研究所"
-                                  @if($umeta->education == '研究所') selected @endif>
-                              研究所
-                          </option>
+                            @endfor
                         </select>
-                      </span>
-                  </dt>
-                  <dt>
-                      <span>婚姻<i>(必填)</i></span>
-                      <span>
-                        <select data-parsley-errors-messages-disabled name="marriage"  class="select_xx01">
-                          <option value="">請選擇</option>
-                          <option value="已婚"
-                                  @if($umeta->marriage == '已婚') selected @endif>已婚
-                          </option>
-                          <option value="分居"
-                                  @if($umeta->marriage == '分居') selected @endif>分居
-                          </option>
-                          <option value="單身"
-                                  @if($umeta->marriage == '單身') selected @endif>單身
-                          </option>
-                          @if($user->engroup==1)
-                          <option value="有女友"
-                                      @if($umeta->marriage == '有女友') selected @endif>
-                                  有女友
-                          </option>
-                          @else
-                          <option value="有男友"
-                                      @if($umeta->marriage == '有男友') selected @endif>
-                                  有男友
-                          </option>
-                          @endif
-                        </select>
-                      </span>
-                  </dt>
+                        </span>                         
+                    @endif                      
+                        <div class="n_xqline">
+                            <div class="right" style="margin-bottom: 10px;">
+                                <input type="hidden" name="isHideWeight" value="0">
+                                <input name="isHideWeight" type="checkbox" @if($umeta->isHideWeight == true) checked @endif value="1"> 隱藏體重
+                            </div>
+                        </div>
+                    </dt>
+                    <dt>
+                        <span>體型</span>
+                        <span>
+                            <select name="body"  class="select_xx01">
+                            <option value=null>請選擇</option>
+                            <option value="瘦"
+                                    @if($umeta->body == '瘦') selected @endif>瘦
+                            </option>
+                            <option value="標準"
+                                    @if($umeta->body == '標準') selected @endif>標準
+                            </option>
+                            <option value="微胖"
+                                    @if($umeta->body == '微胖') selected @endif>微胖
+                            </option>
+                            <option value="胖"
+                                    @if($umeta->body == '胖') selected @endif>胖
+                            </option>
+                            </select>
+                        </span>
+                    </dt>
+                    @if($user->engroup==2)
+                        {{--<dt>--}}
+                            {{--<span>體重（kg）</span>--}}
+                            {{--<span><input minlength="2"  data-parsley-minlength="2" name="weight" type="text" class="select_xx01"  placeholder="請填入體重" value="{{$umeta->weight}}"></span>--}}
+                            {{--<div class="right" style="margin: 10px 0 -5px 10px;">--}}
+                                {{--<input type="hidden" name="isHideWeight" value="0">--}}
+                                {{--<input name="isHideArea" type="checkbox"  @if($umeta->isHideWeight == true) checked--}}
+                                {{--@endif value="1"> 隱藏體重--}}
+                            {{--</div>--}}
+                        {{--</dt>--}}
+                        <dt style="margin-bottom:7px;">
+                            <span>CUP</span>
+                            <span>
+                                <select name="cup"  class="select_xx01" >
+                                <option value=null>請選擇</option>
+                                <option value="A"
+                                        @if($umeta->cup == 'A') selected @endif>A
+                                </option>
+                                <option value="B"
+                                        @if($umeta->cup == 'B') selected @endif>B
+                                </option>
+                                <option value="C"
+                                        @if($umeta->cup == 'C') selected @endif>C
+                                </option>
+                                <option value="D"
+                                        @if($umeta->cup == 'D') selected @endif>D
+                                </option>
+                                <option value="E"
+                                        @if($umeta->cup == 'E') selected @endif>E
+                                </option>
+                                <option value="F"
+                                        @if($umeta->cup == 'F') selected @endif>F
+                                </option>
+                                </select>
+                            </span>
+                            <div class="n_xqline">
+                                <div class="right" style="margin-bottom: 10px;">
+                                    <input type="hidden" name="isHideCup" value="0">
+                                    <input name="isHideCup" type="checkbox" @if($umeta->isHideCup == true) checked @endif value="1"> 隱藏CUP
+                                </div>
+                            </div>
+                        </dt>
+                        <dt>
+                            <span>家庭狀況</span>
+                            <select name="family_situation"  class="select_xx01">
+                                <option value=null>請選擇</option>
+                                <option value="有小孩(撫養中)"
+                                        @if($umeta->family_situation == '有小孩(撫養中)') selected @endif>有小孩(撫養中)
+                                </option>
+                                <option value="有小孩(無撫養)"
+                                        @if($umeta->family_situation == '有小孩(無撫養)') selected @endif>有小孩(無撫養)
+                                </option>
+                                <option value="有小孩(輪流養)"
+                                        @if($umeta->family_situation == '有小孩(輪流養)') selected @endif>有小孩(輪流養)
+                                </option>
+                                <option value="單親"
+                                        @if($umeta->family_situation == '單親') selected @endif>單親
+                                </option>
+                            </select>
+                        </dt>
+
+                        @if($user->engroup==2)
+                        <dt>
+                            <span id="about_column" style="border-bottom: #eee 1px solid;">關於我<i>(必填)</i></span>
+
+                            <div class="ka_zli"><i></i>尋找關係</div>
+                            <div id="itemssxN">
+                                <nav class="custom_nav_n">
+                                    @foreach($looking_for_relationships as $option)
+                                        <div class="custom_s a1 option_looking_for_relationships @if($option->xref_id ?? false) cractive @endif" value={{$option->id}}>{{$option->option_name}}<b class="cr_b" @if($option->xref_id ?? false) style="display: block" @endif>{{$option->option_content}}</b></div>
+                                    @endforeach
+                                </nav>
+                            </div>
+                            <input id="looking_for_relationships" type="hidden" name="looking_for_relationships" value="">
+                            <script type="text/javascript">
+                                $(document).ready(function() {
+                                    $("#itemssxN .a1").on("click", function() {
+                                        $(this).toggleClass('cractive');
+                                    });
+                                });
+                                $(function(){
+                                    $('#itemssxN .a1').click(function(){
+                                        if($(this).children().is(':hidden'))
+                                        {
+                                            $(this).children().show();
+                                        }
+                                        else
+                                        {
+                                            $(this).children().hide();
+                                        }
+                                    })
+                                })
+                            </script>
+
+                            <div class="ka_zli cutop"><i></i>對糖爹的期待</div>
+                            <div id="itemssxN1">
+                                <nav class="custom_nav_n">
+                                    @foreach($expect as $option)
+                                        <div class="custom_s a1 option_expect @if($option->xref_id ?? false) cractive @endif" value={{$option->id}}>{{$option->option_name}}</div>
+                                    @endforeach
+                                </nav>
+                            </div>
+                            <input id="expect" type="hidden" name="expect" value="">
+                            <script type="text/javascript">
+                                $(document).ready(function() {
+                                    $("#itemssxN1 .a1").on("click", function() {
+                                        $(this).toggleClass('cractive');
+                                    });
+                                });
+                            </script>
+
+                            <div class="ka_zli cutop"><i></i>或是其他你想說的</div>
+                            <textarea data-parsley-errors-messages-disabled id="about_other" name="about" cols="" rows="3" class="select_xx05">{{$umeta->about}}</textarea>
+                        </dt>
+                        <dt>
+                            <span  id="style_column" style="border-bottom: #eee 1px solid;">期待的約會模式<i>(必填)</i></span>
+
+                            <div class="ka_zli"><i></i>喜歡的食物</div>
+                            <div id="itemssxN2">
+                                <nav class="custom_nav_n">
+                                    @foreach($favorite_food as $option)
+                                        <div class="custom_s a1 option_favorite_food @if($option->xref_id ?? false) cractive @endif" value={{$option->id}}>{{$option->option_name}}</div>
+                                    @endforeach
+                                </nav>
+                            </div>
+                            <input id="favorite_food" type="hidden" name="favorite_food" value="">
+                            <script type="text/javascript">
+                                $(document).ready(function() {
+                                    $("#itemssxN2 .a1").on("click", function() {
+                                        $(this).toggleClass('cractive');
+                                    });
+                                });
+                            </script>
+
+                            <div class="ka_zli"><i></i>偏好約會地點</div>
+                            <div id="itemssxN3">
+                                <nav class="custom_nav_n"> 
+                                    @foreach($preferred_date_location as $option)
+                                        <div class="custom_s a1 option_preferred_date_location @if($option->xref_id ?? false) cractive @endif" value={{$option->id}}>{{$option->option_name}}</div>
+                                    @endforeach
+                                </nav>
+                            </div>
+                            <input id="preferred_date_location" type="hidden" name="preferred_date_location" value="">
+                            <script type="text/javascript">
+                                $(document).ready(function() {
+                                    $("#itemssxN3 .a1").on("click", function() {
+                                        $(this).toggleClass('cractive');
+                                    });
+                                });
+                            </script>
+
+                            <div class="ka_zli"><i></i>期望模式</div>
+                            <div id="itemssxb4">
+                                <nav class="custom_nav_n">
+                                    @foreach($expected_type as $option)
+                                        <div class="custom_s b1 option_expected_type @if($option->xref_id ?? false) cractive @endif" value={{$option->id}}>{{$option->option_name}}<b class="cr_b" @if($option->xref_id ?? false) style="display: block" @endif>{{$option->option_content}}</b></div>
+                                    @endforeach
+                                </nav>
+                            </div>
+                            <input id="expected_type" type="hidden" name="expected_type" value="">
+                            <script type="text/javascript">
+                                $(document).ready(function() {
+                                    $("#itemssxb4 .b1").on("click", function() {
+                                        $(this).toggleClass('cractive');
+                                    });
+                                });
+                                $(function(){
+                                    $('#itemssxb4 .b1').click(function(){
+                                        if($(this).children().is(':hidden'))
+                                        {
+                                            $(this).children().show();
+                                        }
+                                        else
+                                        {
+                                            $(this).children().hide();
+                                        }
+                                    })
+                                })
+                            </script>
+
+                            <div class="ka_zli cutop"><i></i>相處的頻率與模式</div>
+                            <div id="itemssxN5">
+                                <nav class="custom_nav_n">
+                                    @foreach($frequency_of_getting_along as $option)
+                                        <div class="custom_s a1 option_frequency_of_getting_along @if($option->xref_id ?? false) cractive @endif" value={{$option->id}}>{{$option->option_name}}</div>
+                                    @endforeach
+                                </nav>
+                            </div>
+                            <input id="frequency_of_getting_along" type="hidden" name="frequency_of_getting_along" value="">
+                            <script type="text/javascript">
+                                $(document).ready(function() {
+                                    $("#itemssxN5 .a1").on("click", function() {
+                                        $(this).toggleClass('cractive');
+                                    });
+                                });
+                            </script>
+
+                            <div class="ka_zli cutop"><i></i>或是其他你想說的</div>
+                            <textarea data-parsley-errors-messages-disabled id="style_other" name="style" cols="" rows="3" class="select_xx05">{{$umeta->style}}</textarea>
+                        </dt>
+                        @endif
+
+                        <dt>
+                            <span>有空時段</span>
+                            <select name="available_time"  class="select_xx01">
+                                <option value=null>請選擇</option>
+                                <option value="不固定"
+                                        @if($umeta->available_time == '不固定') selected @endif>不固定
+                                </option>
+                                <option value="平日白天"
+                                        @if($umeta->available_time == '平日白天') selected @endif>平日白天
+                                </option>
+                                <option value="平日晚上"
+                                        @if($umeta->available_time == '平日晚上') selected @endif>平日晚上
+                                </option>
+                                <option value="週末白天"
+                                        @if($umeta->available_time == '週末白天') selected @endif>週末白天
+                                </option>
+                                <option value="週末晚上"
+                                        @if($umeta->available_time == '週末晚上') selected @endif>週末晚上
+                                </option>
+                            </select>
+                        </dt>
+                        <dt>
+                            <span>有刺青</span>
+                            <font>
+                                <select name="tattoo_part" id="tattoo_part" class="select_xx01 new_iptnone select_xx2" style="width: 48%; float: left;color:#666666;">
+                                    <option value="">請選擇位置</option>
+                                    <option value="四肢" {{$user->isTattooPart('四肢')?'selected':''}}>四肢</option>
+                                    <option value="身體" {{$user->isTattooPart('身體')?'selected':''}}>身體</option>
+                                </select>
+                                <select name="tattoo_range" id="tattoo_range" class="select_xx01 new_iptnone select_xx2" style="width: 48%; float: right;color:#666666;">
+                                    <option value="">請選擇面積</option>
+                                    <option value="大" {{$user->isTattooRange('大')?'selected':''}}>大</option>
+                                    <option value="小" {{$user->isTattooRange('小')?'selected':''}}>小</option>
+                                </select>
+                                
+                            </font>
+                        </dt>                  
+                    @endif
+                    @if($user->engroup==1)
+                        <dt>
+                            <span>關於我<i>(必填)</i></span>
+                            <span><textarea data-parsley-errors-messages-disabled name="about" cols="" rows="3" class="select_xx05">{{$umeta->about}}</textarea></span>
+                        </dt>
+                        <dt class="matopj15">
+                            <span>期待的約會模式<i>(必填)</i></span>
+                            <span><textarea data-parsley-errors-messages-disabled name="style" cols="" rows="3" class="select_xx05">{{$umeta->style}}</textarea></span>
+                        </dt>
+                    @endif
+
+                    @if($user->engroup==2)
+                        <dt>
+                            <span>感情狀況</span>
+                            <div id="itemssxN_RS">
+                                <nav class="custom_nav_n">
+                                    @foreach($relationship_status as $option)
+                                        <div class="custom_s a1 option_relationship_status @if($option->xref_id ?? false) cractive @endif" value={{$option->id}}>{{$option->option_name}}</div>
+                                    @endforeach
+                                </nav>
+                            </div>
+                            <input id="relationship_status" type="hidden" name="relationship_status" value="">
+                            <script type="text/javascript">
+                                $(document).ready(function() {
+                                    $("#itemssxN_RS .a1").on("click", function() {
+                                        $(this).toggleClass('cractive');
+                                    });
+                                });
+                            </script>
+                        </dt>
+                        {{--
+                        <dt class="matopj15">
+                            <span>現況<i>(必填)</i></span>
+                            <span>
+                                <select data-parsley-errors-messages-disabled name="situation"  class="select_xx01">
+                                <option value="">請選擇</option>
+                                <option value="學生"
+                                        @if($umeta->situation == '學生') selected @endif>
+                                    學生
+                                </option>
+                                <option value="待業"
+                                        @if($umeta->situation == '待業') selected @endif>
+                                    待業
+                                </option>
+                                <option value="休學"
+                                        @if($umeta->situation == '休學') selected @endif>
+                                    休學
+                                </option>
+                                <option value="打工"
+                                        @if($umeta->situation == '打工') selected @endif>
+                                    打工
+                                </option>
+                                <option value="上班族"
+                                        @if($umeta->situation == '上班族') selected @endif>
+                                    上班族
+                                </option>
+                                <option value="在家工作"
+                                  @if($umeta->situation == '在家工作') selected @endif>
+                                    在家工作
+                                </option>
+                                <option value="自行開業"
+                                        @if($umeta->situation == '自行開業') selected @endif>
+                                    自行開業
+                                </option>
+                                </select>
+                            </span>
+                        </dt>
+                        --}}
+                        <dt>
+                            <span>工作/學業模式</span>
+                            <span>
+                                <select id="new_occupation" name="new_occupation"  class="select_xx01">
+                                    <option value="">請選擇</option>
+                                    @foreach(\App\Models\OptionOccupation::where('is_custom',false)->get() as $option)
+                                        <option value={{$option->id}}  @if(($user_option->occupation->option_id ?? 0) == $option->id) selected @endif>
+                                            {{$option->option_name}}
+                                        </option>
+                                    @endforeach
+                                    <option value='other' @if(($user_option->occupation->occupation->is_custom) ?? 0) selected @endif>
+                                        其他(自填)
+                                    </option>
+                                </select>
+                                <input id="new_occupation_other" name="new_occupation_other" value={{$user_option->occupation->occupation->option_name ?? ''}} class="select_xx01" @if(!($user_option->occupation->occupation->is_custom ?? 0)) style="display:none" @endif>
+                            </span>
+                            <div class="right" style="margin: 10px 0 -5px 10px;">
+                                <input type="hidden" name="isHideOccupation" value="0">
+                                <input type="checkbox" name="isHideOccupation"  @if($umeta->isHideOccupation == true) checked @endif value="1"> 隱藏工作/學業模式
+                            </div>
+                        </dt>
+                        {{--
+                        <dt>
+                            <span>職業</span>
+                            <span>
+                                <select name="occupation"  class="select_xx01">
+                                    <option value=null>請選擇</option>
+                                    <option value="學生"
+                                            @if($umeta->occupation == '學生') selected @endif>
+                                        學生
+                                    </option>
+                                    <option value="無業"
+                                            @if($umeta->occupation == '無業') selected @endif>
+                                        無業
+                                    </option>
+                                    <option value="人資"
+                                            @if($umeta->occupation == '人資') selected @endif>
+                                        人資
+                                    </option>
+                                    <option value="業務銷售"
+                                            @if($umeta->occupation == '業務銷售') selected @endif>
+                                        業務銷售
+                                    </option>
+                                    <option value="行銷企劃"
+                                            @if($umeta->occupation == '行銷企劃') selected @endif>
+                                        行銷企劃
+                                    </option>
+                                    <option value="行政助理"
+                                            @if($umeta->occupation == '行政助理') selected @endif>
+                                        行政助理
+                                    </option>
+                                    <option value="專案管理"
+                                            @if($umeta->occupation == '專案管理') selected @endif>
+                                        專案管理
+                                    </option>
+                                    <option value="餐飲類服務業"
+                                            @if($umeta->occupation == '餐飲類服務業') selected @endif>
+                                        餐飲類服務業
+                                    </option>
+                                    <option value="旅遊類服務業"
+                                            @if($umeta->occupation == '旅遊類服務業') selected @endif>
+                                        旅遊類服務業
+                                    </option>
+                                    <option value="美容美髮美甲芳療"
+                                            @if($umeta->occupation == '美容美髮美甲芳療') selected @endif>
+                                        美容美髮美甲芳療
+                                    </option>
+                                    <option value="操作員"
+                                            @if($umeta->occupation == '操作員') selected @endif>
+                                        操作員
+                                    </option>
+                                    <option value="文字工作者"
+                                            @if($umeta->occupation == '文字工作者') selected @endif>
+                                        文字工作者
+                                    </option>
+                                    <option value="學術研究"
+                                            @if($umeta->occupation == '學術研究') selected @endif>
+                                        學術研究
+                                    </option>
+                                    <option value="教育輔導"
+                                            @if($umeta->occupation == '教育輔導') selected @endif>
+                                        教育輔導
+                                    </option>
+                                    <option value="金融營業交易"
+                                            @if($umeta->occupation == '金融營業交易') selected @endif>
+                                        金融營業交易
+                                    </option>
+                                    <option value="財務會計"
+                                            @if($umeta->occupation == '財務會計') selected @endif>
+                                        財務會計
+                                    </option>
+                                    <option value="總機秘書櫃檯"
+                                            @if($umeta->occupation == '總機秘書櫃檯') selected @endif>
+                                        總機秘書櫃檯
+                                    </option>
+                                    <option value="法務記帳代書"
+                                            @if($umeta->occupation == '法務記帳代書') selected @endif>
+                                        法務記帳代書
+                                    </option>
+                                    <option value="資訊軟體"
+                                            @if($umeta->occupation == '資訊軟體') selected @endif>
+                                        資訊軟體
+                                    </option>
+                                    <option value="客服"
+                                            @if($umeta->occupation == '客服') selected @endif>
+                                        客服
+                                    </option>
+                                    <option value="貿易船務"
+                                            @if($umeta->occupation == '貿易船務') selected @endif>
+                                        貿易船務
+                                    </option>
+                                    <option value="交通運輸物流"
+                                            @if($umeta->occupation == '交通運輸物流') selected @endif>
+                                        交通運輸物流
+                                    </option>
+                                    <option value="倉管採購"
+                                            @if($umeta->occupation == '倉管採購') selected @endif>
+                                        倉管採購
+                                    </option>
+                                    <option value="設計美術"
+                                            @if($umeta->occupation == '設計美術') selected @endif>
+                                        設計美術
+                                    </option>
+                                    <option value="模特演員"
+                                            @if($umeta->occupation == '模特演員') selected @endif>
+                                        模特演員
+                                    </option>
+                                    <option value="傳播藝術"
+                                            @if($umeta->occupation == '傳播藝術') selected @endif>
+                                        傳播藝術
+                                    </option>
+                                    <option value="soho"
+                                            @if($umeta->occupation == 'soho') selected @endif>
+                                        soho
+                                    </option>
+                                    <option value="自行創業"
+                                            @if($umeta->occupation == '自行創業') selected @endif>
+                                        自行創業
+                                    </option>
+                                </select>
+                            </span>
+                            <div class="right" style="margin: 10px 0 -5px 10px;">
+                                <input type="hidden" name="isHideOccupation" value="0">
+                                <input type="checkbox" name="isHideOccupation"  @if($umeta->isHideOccupation == true) checked @endif value="1"> 隱藏職業
+                            </div>
+                        </dt>
+                        --}}
+                    @else
+                        <dt class="matopj15">
+                            <span>產業</span>
+                            <span>
+                                <input type="hidden" name="day" value="01">
+                                <div class="se_zlman left">
+                                <select  class="select_xx2 left" name="domainType" id="domainType" onchange="setDomain(0);">
+                                    <option value=null>請選擇</option>
+                                    <option value="資訊科技"
+                                            @if($umeta->domainType == '資訊科技') selected @endif>
+                                        資訊科技
+                                    </option>
+                                    <option value="傳產製造"
+                                            @if($umeta->domainType == '傳產製造') selected @endif>
+                                        傳產製造
+                                    </option>
+                                    <option value="工商服務"
+                                            @if($umeta->domainType == '工商服務') selected @endif>
+                                        工商服務
+                                    </option>
+                                    <option value="民生服務"
+                                            @if($umeta->domainType == '民生服務') selected @endif>
+                                        民生服務
+                                    </option>
+                                    <option value="文教傳播"
+                                            @if($umeta->domainType == '文教傳播') selected @endif>
+                                        文教傳播
+                                    </option>
+                                </select>
+                                </div>
+                                <div class="se_zlman right">
+                                <select class="select_xx2 right" name="domain" id="domain">
+                                </select>
+                                </div>
+                            </span>
+                        </dt>
+                        <dt class="matopj15">
+                            <span>職業<i></i></span>
+                            <span>
+                                <input name="occupation" type="text" class="select_xx01"  placeholder="請填入職業" @if(!empty($umeta->occupation) && $umeta->occupation != 'null')value="{{$umeta->occupation}}" @endif>
+                                <input name="occupation" id="occupation" type="hidden" value=null>
+                            </span>
+                        </dt>
+                    @endif
+                    <dt>
+                        <span>教育<i>(必填)</i></span>
+                        <span>
+                            <select data-parsley-errors-messages-disabled name="education"  class="select_xx01">
+                            <option value="">請選擇</option>
+                            <option value="國中"
+                                    @if($umeta->education == '國中') selected @endif>
+                                國中
+                            </option>
+                            <option value="高中"
+                                    @if($umeta->education == '高中') selected @endif>
+                                高中
+                            </option>
+                            <option value="大學"
+                                    @if($umeta->education == '大學') selected @endif>
+                                大學
+                            </option>
+                            <option value="研究所"
+                                    @if($umeta->education == '研究所') selected @endif>
+                                研究所
+                            </option>
+                            </select>
+                        </span>
+                    </dt>
+                    <dt>
+                        <span>婚姻<i>(必填)</i></span>
+                        <span>
+                            <select data-parsley-errors-messages-disabled name="marriage"  class="select_xx01">
+                            <option value="">請選擇</option>
+                            <option value="已婚"
+                                    @if($umeta->marriage == '已婚') selected @endif>已婚
+                            </option>
+                            <option value="分居"
+                                    @if($umeta->marriage == '分居') selected @endif>分居
+                            </option>
+                            <option value="單身"
+                                    @if($umeta->marriage == '單身') selected @endif>單身
+                            </option>
+                            @if($user->engroup==1)
+                            <option value="有女友"
+                                        @if($umeta->marriage == '有女友') selected @endif>
+                                    有女友
+                            </option>
+                            @else
+                            <option value="有男友"
+                                        @if($umeta->marriage == '有男友') selected @endif>
+                                    有男友
+                            </option>
+                            @endif
+                            </select>
+                        </span>
+                    </dt>
+                    @if($user->engroup==2)
+                        {{--
+                        <dt>
+                            <span>希望進一步發展嗎?</span>
+                            <span>
+                                <select data-parsley-errors-messages-disabled name="is_pure_dating"  class="select_xx01">
+                                    <option value="-1"
+                                            @if($umeta->is_pure_dating == "-1") selected @endif>請選擇
+                                    </option>
+                                    <option value="1"
+                                            @if($umeta->is_pure_dating == "1") selected @endif>是
+                                    </option>
+                                    <option value="0"
+                                            @if($umeta->is_pure_dating == "0") selected @endif>否
+                                    </option>
+                                </select>
+                            </span>
+                        </dt>
+                        --}}
+                    @endif
                   <dt>
                       <span>喝酒<i>(必填)</i></span>
                       <span>
@@ -1442,137 +1679,277 @@ dt span.engroup_type_title {display:inline-block;width:10%;white-space:nowrap;}
             });
         @endif
         //計算註冊時間
+        
+        @if($user->engroup==2)
+            //複選選項處理為陣列
+            let option_array = [];
+
+            option_array = [];
+            $('.option_relationship_status.cractive').each(function(){
+                option_array.push($(this).attr('value'));
+            });
+            option_array = JSON.stringify(option_array);
+            $('#relationship_status').val(option_array);
+            
+
+
+
+            let fill_about = false;
+            option_array = [];
+            $('.option_looking_for_relationships.cractive').each(function(){
+                option_array.push($(this).attr('value'));
+            });
+            if(option_array.length !== 0) {
+                fill_about = true;
+            }
+            option_array = JSON.stringify(option_array);
+            $('#looking_for_relationships').val(option_array);
+            
+
+            option_array = [];
+            $('.option_expect.cractive').each(function(){
+                option_array.push($(this).attr('value'));
+            });
+            if(option_array.length !== 0) {
+                fill_about = true;
+            }
+            option_array = JSON.stringify(option_array);
+            $('#expect').val(option_array);
+
+            if(!fill_about)
+            {
+                if($('#about_other').val() === "")
+                {
+                    $('#about_other').focus();
+                    c5('請選擇關於我的標籤或輸入文字');
+                    return false;
+                }
+            }
+
+            if($('#about_other').val() !== "")
+            {
+                if($('#about_other').val().length < 4 || $('#about_other').val().length > 300)
+                {
+                    $('#about_other').focus();
+                    c5('關於我：請輸入4～300個字');
+                    return false;
+                }
+            }
+
+
+
+
+            let fill_style = false;
+            option_array = [];
+            $('.option_favorite_food.cractive').each(function(){
+                option_array.push($(this).attr('value'));
+            });
+            if(option_array.length !== 0) {
+                fill_style = true;
+            }
+            option_array = JSON.stringify(option_array);
+            $('#favorite_food').val(option_array);
+            
+
+            option_array = [];
+            $('.option_preferred_date_location.cractive').each(function(){
+                option_array.push($(this).attr('value'));
+            });
+            if(option_array.length !== 0) {
+                fill_style = true;
+            }
+            option_array = JSON.stringify(option_array);
+            $('#preferred_date_location').val(option_array);
+            
+
+            option_array = [];
+            $('.option_expected_type.cractive').each(function(){
+                option_array.push($(this).attr('value'));
+            });
+            if(option_array.length !== 0) {
+                fill_style = true;
+            }
+            option_array = JSON.stringify(option_array);
+            $('#expected_type').val(option_array);
+            
+
+            option_array = [];
+            $('.option_frequency_of_getting_along.cractive').each(function(){
+                option_array.push($(this).attr('value'));
+            });
+            if(option_array.length !== 0) {
+                fill_style = true;
+            }
+            option_array = JSON.stringify(option_array);
+            $('#frequency_of_getting_along').val(option_array);
+
+            if(!fill_style)
+            {
+                if($('#style_other').val() === "")
+                {
+                    $('#style_other').focus();
+                    c5('請選擇期待的約會模式的標籤或輸入文字');
+                    return false;
+                }
+            }
+
+            if($('#style_other').val() !== "")
+            {
+                if($('#style_other').val().length < 4 || $('#style_other').val().length > 300)
+                {
+                    $('#style_other').focus();
+                    c5('期待約會模式：請輸入4～300個字');
+                    return false;
+                }
+            }
+            
+            //複選選項處理為陣列
+        @endif
 
         e.preventDefault();
         if($(this).parsley().isValid()){
-          let birth = $('select[name=year]').val()+'/'+$('select[name=month]').val()+'/'+$('input[name=day]').val();
-          let age = getAge(birth);
-          let title = $('input[name=title]');
-          let about = $('textarea[name=about]');
-          let style = $('textarea[name=style]');
-          let budget = $('select[name=budget]');
-          let assets = $('#assets');
-          let height = $('#height');
-          let income = $('select[name=income]');
-          let marriage = $('select[name=marriage]');
-          let education = $('select[name=education]');
-          let drinking = $('select[name=drinking]');
-          let smoking = $('select[name=smoking]');
-          let county = $("#county");
-          let situation = $('select[name=situation]');
-          let tattoo_part = $('#tattoo_part');
-          let tattoo_range = $('#tattoo_range');
-          let budget_per_month_min = $('#budget_per_month_min');
-          let budget_per_month_max = $('#budget_per_month_max');
-          let transport_fare_min = $('#transport_fare_min');
-          let transport_fare_max = $('#transport_fare_max');
+            let birth = $('select[name=year]').val()+'/'+$('select[name=month]').val()+'/'+$('input[name=day]').val();
+            let age = getAge(birth);
+            let title = $('input[name=title]');
+            let about = $('textarea[name=about]');
+            let style = $('textarea[name=style]');
+            let budget = $('select[name=budget]');
+            let assets = $('#assets');
+            let height = $('#height');
+            let income = $('select[name=income]');
+            let marriage = $('select[name=marriage]');
+            let education = $('select[name=education]');
+            let drinking = $('select[name=drinking]');
+            let smoking = $('select[name=smoking]');
+            let county = $("#county");
+            let situation = $('select[name=situation]');
+            let tattoo_part = $('#tattoo_part');
+            let tattoo_range = $('#tattoo_range');
+            let budget_per_month_min = $('#budget_per_month_min');
+            let budget_per_month_max = $('#budget_per_month_max');
+            let transport_fare_min = $('#transport_fare_min');
+            let transport_fare_max = $('#transport_fare_max');
+            let new_occupation = $('#new_occupation');
+            let new_occupation_other = $('#new_occupation_other');
 
-          if(title.val() === "") {
-            title.focus();
-            c5('請輸入一句話形容自己');
-            return false;
-          }
-          if($(county).find('.twzipcode').length == 0) {
-            c5('請選擇地區');
-            return false;
-          } else {
-            $(county).find('.twzipcode').each(function(index, element) {
-                if(index == 0 && $(element).find('select').val() === ""){
-                  c5('請選擇地區');
-                  return false;
+            if(new_occupation.val() === "other")
+            {
+                if(new_occupation_other.val() === "")
+                {
+                    new_occupation_other.focus();
+                    c5('請輸入自填內容');
+                    return false;
                 }
-            })
-              if($('select[name=city]').val() === ""){
-                  c5('請選擇地區');
-                  return false;
-              }
-          }
-          
-          @if($user->engroup==2)
-            if(budget.val() === "") {
-                budget.focus();
-                c5('請選擇預算');
+            }
+
+            if(title.val() === "") {
+                title.focus();
+                c5('請輸入一句話形容自己');
                 return false;
             }
-          @endif
-
-          if($('select[name=year]').val() == "" || $('select[name=month]').val() == "" || age < 18){
-            c5('您的年齡低於法定18歲，請於基本資料設定修改，否則您的資料將會被限制搜尋。');
-            // swal({
-            //     title:'您的年齡低於法定18歲，請於基本資料設定修改，否則您的資料將會被限制搜尋。',
-            //     type:'warning'
-            // });
-            return false;
-          }
-          if(height.val() == '' || height.val().charAt(0)==0 || height.val() < 140 || height.val() > 210) {
-            height.focus();
-            c5('請輸入身高140～210');
-            return false;
-          }
-          if(about.val().length < 4 || about.val().length > 300) {
-            about.focus();
-            c5('關於我：請輸入4～300個字');
-            return false;
-          }
-          if(style.val().length < 4 || style.val().length > 300) {
-            style.focus();
-            c5('期待約會模式：請輸入4～300個字');
-            return false;
-          }
-          if('{{$user->engroup}}' == '2'){
-            if(situation.val() === "") {
-              situation.focus();
-              c5('請選擇現況');
-              return false;
-            };
-          }
-          if(education.val() === "") {
-            education.focus();
-            c5('請選擇教育');
-            return false;
-          }
-          if(marriage.val() === "") {
-            marriage.focus();
-            c5('請選擇婚姻');
-            return false;
-          }
-          if(drinking.val() === "") {
-            drinking.focus();
-            c5('請選擇喝酒');
-            return false;
-          }
-          if(smoking.val() === "") {
-            smoking.focus();
-            c5('請選擇抽煙');
-            return false;
-          }
-          if(tattoo_part.val()=='' && tattoo_range.val()!='') {
-              tattoo_part.focus();
-              c5('請選擇刺青位置');
-              return false;
-          } 
-          
-          if(tattoo_range.val()=='' && tattoo_part.val()!='') {
-              tattoo_range.focus();
-              c5('請選擇刺青面積');
-              return false;
-          }  
-
-          /*
-          if('{{$user->engroup}}' == '1'){
-            console.log(income.val())
-            if(income.val() === "") {
-              income.focus();
-              c5('請選擇年收');
-              return false;
+            if($(county).find('.twzipcode').length == 0) {
+                c5('請選擇地區');
+                return false;
+            } else {
+                $(county).find('.twzipcode').each(function(index, element) {
+                    if(index == 0 && $(element).find('select').val() === ""){
+                    c5('請選擇地區');
+                    return false;
+                    }
+                })
+                if($('select[name=city]').val() === ""){
+                    c5('請選擇地區');
+                    return false;
+                }
             }
-            if(assets.val() == '' || assets.val() < 0 || assets.val() > 10000000000) {
-              assets.focus();
-              c5('請輸入資產數字範圍0～10000000000');
-              return false;
+            
+            @if($user->engroup==2)
+                if(budget.val() === "") {
+                    budget.focus();
+                    c5('請選擇預算');
+                    return false;
+                }
+            @endif
+
+            if($('select[name=year]').val() == "" || $('select[name=month]').val() == "" || age < 18){
+                c5('您的年齡低於法定18歲，請於基本資料設定修改，否則您的資料將會被限制搜尋。');
+                // swal({
+                //     title:'您的年齡低於法定18歲，請於基本資料設定修改，否則您的資料將會被限制搜尋。',
+                //     type:'warning'
+                // });
+                return false;
             }
-          }
-          */
+            if(height.val() == '' || height.val().charAt(0)==0 || height.val() < 140 || height.val() > 210) {
+                height.focus();
+                c5('請輸入身高140～210');
+                return false;
+            }
+            @if($user->engroup==1)
+                if(about.val().length < 4 || about.val().length > 300) {
+                    about.focus();
+                    c5('關於我：請輸入4～300個字');
+                    return false;
+                }
+                if(style.val().length < 4 || style.val().length > 300) {
+                    style.focus();
+                    c5('期待約會模式：請輸入4～300個字');
+                    return false;
+                }
+            @endif
+            if('{{$user->engroup}}' == '2'){
+                if(situation.val() === "") {
+                situation.focus();
+                c5('請選擇現況');
+                return false;
+                };
+            }
+            if(education.val() === "") {
+                education.focus();
+                c5('請選擇教育');
+                return false;
+            }
+            if(marriage.val() === "") {
+                marriage.focus();
+                c5('請選擇婚姻');
+                return false;
+            }
+            if(drinking.val() === "") {
+                drinking.focus();
+                c5('請選擇喝酒');
+                return false;
+            }
+            if(smoking.val() === "") {
+                smoking.focus();
+                c5('請選擇抽煙');
+                return false;
+            }
+            if(tattoo_part.val()=='' && tattoo_range.val()!='') {
+                tattoo_part.focus();
+                c5('請選擇刺青位置');
+                return false;
+            } 
+            
+            if(tattoo_range.val()=='' && tattoo_part.val()!='') {
+                tattoo_range.focus();
+                c5('請選擇刺青面積');
+                return false;
+            }  
+
+            /*
+            if('{{$user->engroup}}' == '1'){
+                console.log(income.val())
+                if(income.val() === "") {
+                income.focus();
+                c5('請選擇年收');
+                return false;
+                }
+                if(assets.val() == '' || assets.val() < 0 || assets.val() > 10000000000) {
+                assets.focus();
+                c5('請輸入資產數字範圍0～10000000000');
+                return false;
+                }
+            }
+            */
 
             if(budget_per_month_min.val()!='' || budget_per_month_max.val()!='')
             {
@@ -1617,33 +1994,33 @@ dt span.engroup_type_title {display:inline-block;width:10%;white-space:nowrap;}
                 transport_fare_max.val(-1);
             }
 
-          var form_dump = $(this);
-          c4('確定要變更會員資料嗎?');
-          // swal({
-          //     title: '確定要變更會員資料嗎？',
-          //     text: "",
-          //     type: 'warning',
-          //     showCancelButton: true,
-          //     confirmButtonText: '確定'
-          // }).then(function (isConfirm) {
-          //   if (isConfirm.value) {
-          //     $.ajax({
-          //       url:'{{ route('dashboard2') }}',
-          //       type: 'POST',
-          //       dataType: 'JSON',
-          //       data: form,
-          //       beforeSend: function () {
-          //         waitingDialog.show();
-          //       },
-          //       complete: function () {
-          //         waitingDialog.hide();
-          //       },
-          //       success: function (result) {
-          //         ResultData(result);
-          //       }
-          //     });
-          //   }
-          // });
+            var form_dump = $(this);
+            c4('確定要變更會員資料嗎?');
+            // swal({
+            //     title: '確定要變更會員資料嗎？',
+            //     text: "",
+            //     type: 'warning',
+            //     showCancelButton: true,
+            //     confirmButtonText: '確定'
+            // }).then(function (isConfirm) {
+            //   if (isConfirm.value) {
+            //     $.ajax({
+            //       url:'{{ route('dashboard2') }}',
+            //       type: 'POST',
+            //       dataType: 'JSON',
+            //       data: form,
+            //       beforeSend: function () {
+            //         waitingDialog.show();
+            //       },
+            //       complete: function () {
+            //         waitingDialog.hide();
+            //       },
+            //       success: function (result) {
+            //         ResultData(result);
+            //       }
+            //     });
+            //   }
+            // });
         }
         return false;
       });
@@ -1662,7 +2039,7 @@ dt span.engroup_type_title {display:inline-block;width:10%;white-space:nowrap;}
               $(county).append(county_div)
               $('.twzipcode').twzipcode({
                   'detect': true, 'css':['select_xx2', 'select_xx2', 'd-none'], onCountySelect: function() {
-                      $("select[name='blockarea']").prepend('<option selected value="">全區</option>');
+                      //$("select[name='blockarea']").prepend('<option selected value="">全區</option>');
                   }
               });
           }else{
@@ -1931,6 +2308,19 @@ dt span.engroup_type_title {display:inline-block;width:10%;white-space:nowrap;}
             }
         }
     </script>
+    <script>
+        $('#new_occupation').change(function(){
+            if($('#new_occupation').val() == 'other')
+            {
+                $('#new_occupation_other').val('');
+                $('#new_occupation_other').show();
+            }
+            else
+            {
+                $('#new_occupation_other').hide();
+            }
+        });
+    </script>
 
 <script>
 @if($rap_service->isInRealAuthProcess())
@@ -2110,6 +2500,22 @@ function real_auth_input_new_weight_handle()
 
 
 
+</script>
+
+<script>
+    $('#about_other').keyup(function(){
+        if($(this).val().length > 300)
+        {
+            c5('已超過限制字數300字');
+        }
+    });
+
+    $('#style_other').keyup(function(){
+        if($(this).val().length > 300)
+        {
+            c5('已超過限制字數300字');
+        }
+    });
 </script>
 
 

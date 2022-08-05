@@ -303,8 +303,26 @@ header("Expires: Fri, 01 Jan 1990 00:00:00 GMT");
                                                 </div>
                                                 @endif
                                             </dt>
+                                            <dt>
+                                                <div class="n_se left">
+                                                    <span>是否想進一步發展?</span>
+                                                    <select name="is_pure_dating" class="select_xx01">
+                                                        <option value="">請選擇</option>
+                                                        <option value="1" @if( request()->is_pure_dating == "1" || session()->get('search_page_key.is_pure_dating') =="1") selected @endif>是</option>
+                                                        <option value="0" @if( request()->is_pure_dating == "0" || session()->get('search_page_key.is_pure_dating') =="0") selected @endif>否</option>
+                                                      </select>
+                                                </div>
+                                                <div class="n_se right">
+                                                     <span>刺青<i class="ssrgf">(僅顯示有填寫者)</i></span>
+                                                      <select name="tattoo" class="select_xx01">
+                                                        <option value="">請選擇</option>
+                                                        <option value="1" @if( !empty( $_POST["tattoo"] ) && $_POST["tattoo"] == "1" ) selected @elseif(!empty( $_GET["tattoo"] ) && $_GET["tattoo"] == "1") selected @elseif(!empty( session()->get('search_page_key.tattoo') ) && session()->get('search_page_key.tattoo') == "1") selected @endif>有</option>
+                                                        <option value="-1" @if( !empty( $_POST["tattoo"] ) && $_POST["tattoo"] == "-1" ) selected @elseif(!empty( $_GET["tattoo"] ) && $_GET["tattoo"] == "-1") selected @elseif(!empty( session()->get('search_page_key.tattoo') ) && session()->get('search_page_key.tattoo') == "-1") selected @endif>無</option>
+                                                      </select>
+                                                </div>
+                                           </dt>
                                         @endif
-
+                                        
                                         <dt>
                                             {{--<div class="n_se right">--}}
                                             {{--<span>喝酒</span>--}}
@@ -348,6 +366,7 @@ header("Expires: Fri, 01 Jan 1990 00:00:00 GMT");
                                         {{--</span>--}}
                                         {{--</dt>--}}
 
+                                        {{--
                                         @if ($user_engroup == 1)
                                             <dt class="matopj15">
                                                 <span>是否想進一步發展?</span>
@@ -361,6 +380,7 @@ header("Expires: Fri, 01 Jan 1990 00:00:00 GMT");
                                                 </span>
                                             </dt>
                                         @endif
+                                        --}}
                                         
                                         <dt class="matopj15">
                                             <span>體型<i class="ssrgf">(僅顯示有填寫者)</i></span>
@@ -384,6 +404,7 @@ header("Expires: Fri, 01 Jan 1990 00:00:00 GMT");
                                                     <label class="n_tx"><input type="checkbox" name="cup[5]" value="F" id="Check5" @if( !empty( $_POST["cup"][5] ) && $_POST["cup"][5] == "F" ) checked @elseif(!empty( $_GET["cup"][5] ) && $_GET["cup"][5] == "F") checked @elseif(isset( session()->get('search_page_key.cup')[5] ) && session()->get('search_page_key.cup')[5] == "F") checked @endif><i>F</i></label>
                                                 </span>
                                             </dt>
+                                            {{--
                                             <dt class="matopj15">
                                                 <span>有無刺青<i class="ssrgf">(僅顯示有填寫者)</i></span>
                                                 <span class="line20">
@@ -391,6 +412,7 @@ header("Expires: Fri, 01 Jan 1990 00:00:00 GMT");
                                                     <label class="n_tx"><input type="radio" name="tattoo" value="-1" id="tattoo0" {{(request()->tattoo==-1 ||  session()->get('search_page_key.tattoo')==-1)?'checked':''}}><i>無</i></label>
                                                 </span>
                                             </dt>
+                                            --}}
                                         @endif
 
                                         <dt class="b_nsead matopjf10">
@@ -1040,6 +1062,8 @@ header("Expires: Fri, 01 Jan 1990 00:00:00 GMT");
                             let rowVisitorValueAddedServiceStatusHideOnline = row.visitorValueAddedServiceStatusHideOnline;
                             let rowHideOnlineTime = row.rawData.hide_online_time;
                             let rowLastLogin = row.rawData.last_login;
+
+                            let new_occupation = row.new_occupation;
                             
                             // csrData +='<li class="nt_fg">';
                             if(rowEngroup==2){
@@ -1061,49 +1085,70 @@ header("Expires: Fri, 01 Jan 1990 00:00:00 GMT");
                             if(this.isRealAuthNeedShowTagOnPic(row)) {
                                 csrData += this.getTagShowOnPic(row);
                             }
-                            else if(umetaIsWarned==1 || rowVisitorIsAdminWarned==1){
+                            else if(umetaIsWarned==1 || rowVisitorIsAdminWarned==1)
+                            {
                                 csrData +='<div class="hoverTip">';
                                     csrData +='<div class="tagText" data-toggle="popover" data-content="此會員為警示會員，與此會員交流務必提高警覺！">';
-                                    if(this.userIsVip==1){
+                                    if(this.userIsVip==1)
+                                    {
                                         csrData +='<img src="/new/images/a5.png">';
-                                    }else{
+                                    }
+                                    else
+                                    {
                                         csrData +='<img src="/new/images/b_5.png">';
                                     }
                                 
                                     csrData +='</div>';
                                 csrData +='</div>';
                                 
-                            }else if(varCheck(rowVisitorCheckRecommendedUser['description']) && rowVisitorCheckRecommendedUser['description'] !== null && rowEngroup == 2){
+                            }
+                            else if(varCheck(rowVisitorCheckRecommendedUser['description']) && rowVisitorCheckRecommendedUser['description'] !== null && rowEngroup == 2)
+                            {
                                 csrData +='<div class="hoverTip">';
                                     csrData +='<div class="tagText" data-toggle="popover" data-content="新進甜心是指註冊未滿30天的新進會員，建議男會員可以多多接觸，不過要注意是否為八大行業人員。">';
-                                        if(this.userIsVip==1){
+                                        if(this.userIsVip==1)
+                                        {
                                             csrData +='<img src="/new/images/a1.png">';
-                                        }else{
+                                        }
+                                        else
+                                        {
                                             csrData +='<img src="/new/images/b_1.png">';
                                         }
 
                                     csrData +='</div>';
                                 csrData +='</div>';
-                            }else if(rowVisitorIsVip && rowEngroup == 1){
+                            }
+                            else if(rowVisitorIsVip && rowEngroup == 1)
+                            {
                                 csrData +='<div class="hoverTip">';
                                     csrData +='<div class="tagText" data-toggle="popover" data-content="本站的付費會員。">';
-                                        if(this.userIsVip==1){
+                                        if(this.userIsVip==1)
+                                        {
                                             csrData +='<img src="/new/images/a4.png">';
-                                        }else{
+                                        }
+                                        else
+                                        {
                                             csrData +='<img src="/new/images/b_4.png">';
                                         }
                                     csrData +='</div>';
                                 csrData +='</div>';
-                            }else{
-                                if(this.userIsVip){
+                            }
+                            else
+                            {
+                                if(this.userIsVip)
+                                {
                                     csrVar = 'xa_ssbg';
-                                }else{
+                                }
+                                else
+                                {
                                     csrVar = '';
                                 }
                                
-                                if(rowVisitorIsPhoneAuth==true ){          
+                                if(rowVisitorIsPhoneAuth==true )
+                                {          
                                     csrData +='<div class="hoverTip '+csrVar+'">';     
-                                    if(this.userIsVip==1){
+                                    if(this.userIsVip==1)
+                                    {
                                         /*if(rowVisitorIsAdvanceAuth==1 && rowEngroup==2){
                                             csrData +='<div class="tagText"  data-toggle="popover" data-content="本站的進階認證會員，本會員通過本站的嚴格驗證，基本資料正確無誤。">';
                                             csrData +='<img src="/new/images/c_03.png">';
@@ -1122,7 +1167,9 @@ header("Expires: Fri, 01 Jan 1990 00:00:00 GMT");
                                             csrData +='<img src="/new/images/c_10.png">';
                                             csrData +='</div>';
                                         }
-                                    }else{
+                                    }
+                                    else
+                                    {
                                         /*if(rowVisitorIsAdvanceAuth==1 && rowEngroup==2 ){
                                             csrData +='<div class="tagText"  data-toggle="popover" data-content="本站的進階認證會員，本會員通過本站的嚴格驗證，基本資料正確無誤。">';
                                             csrData +='<img src="/new/images/b_8x.png">';
@@ -1140,7 +1187,6 @@ header("Expires: Fri, 01 Jan 1990 00:00:00 GMT");
                                     }
                                     csrData +='</div>';
                                 }
-                            
                             }
                           
                             if(varCheck(rowPrLog)){
@@ -1216,7 +1262,6 @@ header("Expires: Fri, 01 Jan 1990 00:00:00 GMT");
 
                         csrData +='</h2>';
                         csrData +='<h3>';
-                            
                         if(umeta.city !== ""){
                             umeta.city.forEach((row, index) => {
                                 if (index==0){
@@ -1236,11 +1281,20 @@ header("Expires: Fri, 01 Jan 1990 00:00:00 GMT");
                         
                            
                         if(this.userIsVip==1){
-                            if(umetaIsHideOccupation==0 && umetaOccupation !== "" && umetaOccupation != 'null' && umetaOccupation != null){
-                                csrData +='<i class="j_lxx">丨</i><span style="margin-left: 0;">'+umetaOccupation+'</span>';
+                            if(rowEngroup == 2)
+                            {
+                                if(umetaIsHideOccupation==0 && new_occupation !== "" && new_occupation != 'null' && new_occupation != null){
+                                    csrData +='<i class="j_lxx">丨</i><span style="margin-left: 0;">'+new_occupation+'</span>';
+                                }
+                            }
+                            else
+                            {
+                                if(umetaIsHideOccupation==0 && umetaOccupation !== "" && umetaOccupation != 'null' && umetaOccupation != null){
+                                    csrData +='<i class="j_lxx">丨</i><span style="margin-left: 0;">'+umetaOccupation+'</span>';
+                                }
                             }
                         }else{
-                            csrData +='<span style="margin-left: 10px;"><span style="padding-left: 5px;">職業</span><img src="/new/images/icon_35.png" class="nt_img"></span>';
+                            csrData +='<span style="margin-left: 10px;"><span style="padding-left: 5px;">工作/學業</span><img src="/new/images/icon_35.png" class="nt_img"></span>';
                         }
                       
                         if(this.user.engroup==1){

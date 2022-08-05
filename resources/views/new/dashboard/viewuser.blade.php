@@ -398,6 +398,9 @@
                 $('.alert_tip').text();
                 $('.alert_tip').text('請勾選同意上述說明');
                 return false;
+            } else if ($('.self_illustrate').is(':hidden') && $('#form1').find('.file-type-image').length == 0) {
+                $('.alert_tip').text();
+                $('.alert_tip').text('請上傳照片');
             }else{
                 $('#form1').submit();
             }
@@ -464,6 +467,12 @@
 			$("#tab_evaluation_reply #eid_reply").val(eid);
 			$('body').css("overflow", "hidden");
 		}        
+
+        function evaluation_description_close(){
+            $(".announce_bg").hide();
+            $("#evaluation_description").hide();
+            $('body').css("overflow", "auto");
+        }
     </script>
     @php
         $isBlurAvatar = \App\Services\UserService::isBlurAvatar($to, $user);
@@ -758,8 +767,18 @@
                                     <span><img src="/new/images/icon_36.png" class="tap-vip"></span>
                                 </li>
                             @endif
-                            <li class="evaluation">
+                            <li class="evaluation" style="position: relative;">
                                 <a><img src="/new/images/icon_14.png" class="tubiao_i"><span>評價</span></a>
+                                <div class="he_tkcn showslide_evaluation" style="z-index:1">
+                                    <ul>
+                                        <a class="myself_evaluation">
+                                            <img src="/new/images/icon_p1.png" class="he_tkcn_img">本人評價
+                                        </a>
+                                        <a class="anonymous_evaluation">
+                                            <img src="/new/images/icon_p2.png" class="he_tkcn_img">匿名評價
+                                        </a>
+                                    </ul>
+                                </div>
                             </li>
 							
                             <li style="position: relative;">
@@ -805,6 +824,11 @@
 					<script>
 						$('.userlogo').click(function() {
 							event.stopPropagation()
+                            var on2 = $('.bottub').find('.on2');
+                            if(on2.length) {
+                                on2.removeClass('on2');
+                                $('.bottub').find('.showslide_evaluation').fadeOut();
+                            }
 							if($(this).hasClass('on1')) {
 								$(this).removeClass('on1')
 								$('.showslide').fadeOut()
@@ -817,6 +841,8 @@
 						$('body').click(function() {
 							$('.userlogo').removeClass('on1')
 							$('.showslide').fadeOut()
+                            $('.evaluation').removeClass('on2')
+                            $('.showslide_evaluation').fadeOut()
 						})
 					</script>	
 
@@ -854,7 +880,7 @@
                                             <div class="sh_button_n"> 最低 / 未填</div>
                                         @endif
                                     </div>
-                                    @if(!empty($transport_fare_reported)) <img src="/new/images/cm_icon01.png" class="xz_iconp"> @endif
+                                    @if($bool_value['transport_fare_warn']??false) <img src="/new/images/cm_icon01.png" class="xz_iconp"> @endif
                             </div>
                         </div>
                         <div class="hdlist2_right">
@@ -871,7 +897,7 @@
                                             <div class="zc_button_n"> 最低 / 未填</div>
                                         @endif
                                     </div>
-                                    @if(!empty($month_budget_reported)) <img src="/new/images/cm_icon02.png" class="xz_iconp"> @endif
+                                    @if($bool_value['budget_per_month_warn']??false) <img src="/new/images/cm_icon02.png" class="xz_iconp"> @endif
                                 </div>
                         </div>
                     </div>       
@@ -990,13 +1016,6 @@
                                             <div class="select_xx01 senhs hy_new">{{$to->meta->weight-4}} ~ {{$to->meta->weight}}</div>
                                         </span>
                                     </dt>
-                                    {{--@else--}}
-                                    {{--<dt>--}}
-                                        {{--<span>體重（kg）</span>--}}
-                                        {{--<span>--}}
-                                            {{--<div class="select_xx01 senhs hy_new">未填寫</div>--}}
-                                        {{--</span>--}}
-                                    {{--</dt>--}}
                                     @endif
 
                                     @if(!empty($to->meta->body) && $to->meta->body != null && $to->meta->body != 'null')
@@ -1006,41 +1025,175 @@
                                             <div class="select_xx01 senhs hy_new">{{$to->meta->body}}</div>
                                         </span>
                                     </dt>
-                                    {{--@else--}}
-                                        {{--<dt>--}}
-                                            {{--<span>體型</span>--}}
-                                            {{--<span>--}}
-                                                {{--<div class="select_xx01 senhs hy_new">未填寫</div>--}}
-                                            {{--</span>--}}
-                                        {{--</dt>--}}
+                                    @endif
+                                    
+                                    @if($to->engroup == 2)
+                                        @if((!empty($to->meta->cup) && $to->meta->isHideCup == '0' && ($to->meta->cup == 'A' || $to->meta->cup == 'B' ||$to->meta->cup == 'C' || $to->meta->cup == 'D' || $to->meta->cup == 'E' || $to->meta->cup == 'F')))
+                                            <dt>
+                                                <span>CUP</span>
+                                                <span>
+                                                    <div class="select_xx01 senhs hy_new">{{$to->meta->cup}}</div>
+                                                </span>
+                                            </dt>
+                                        @endif
+                                        
+                                        @if(!empty($to->meta->family_situation) && $to->meta->family_situation != 'null')
+                                            <dt>
+                                                <span>家庭狀況</span>
+                                                <span>
+                                                    <div class="select_xx01 senhs hy_new">{{$to->meta->family_situation}}</div>
+                                                </span>
+                                            </dt>
+                                        @endif
+                                        
+                                        <dt>
+                                            <span>關於我</span>
+                                            @if(($looking_for_relationships->first()->xref_id ?? false) || ($expect->first()->xref_id ?? false))
+                                                <span>
+                                                    <div class="ka_n">
+                                                        @if(($looking_for_relationships->first()->xref_id ?? false))
+                                                            <div class="ka_gx">尋找關係</div>
+                                                            <div class="ka_tubicon">
+                                                                @if($looking_for_relationships->first()->xref_id ?? false)
+                                                                    @foreach($looking_for_relationships as $option)
+                                                                        @if($option->xref_id ?? false)
+                                                                            <div class="ka_tico_1"><img src="/new/images/zz_zb.png" class="ka_tico_tu01"><i>{{$option->option_name}}</i><img src="/new/images/zz_zb.png" class="ka_tico_tu02"></div>
+                                                                        @endif
+                                                                    @endforeach
+                                                                @else
+                                                                    <div class="ka_tico_1"><img src="/new/images/zz_zb.png" class="ka_tico_tu01"><i>尚未填寫</i><img src="/new/images/zz_zb.png" class="ka_tico_tu02"></div>
+                                                                @endif
+                                                            </div>
+                                                        @endif
+                                                        @if(($expect->first()->xref_id ?? false))
+                                                            <div class="ka_gx ka_fwi">對糖爹的期待</div>
+                                                            <div class="ka_tubicon">
+                                                                @if($expect->first()->xref_id ?? false)
+                                                                    @foreach($expect as $option)
+                                                                        @if($option->xref_id ?? false)
+                                                                            <div class="ka_tico_1"><img src="/new/images/zz_zb.png" class="ka_tico_tu01"><i>{{$option->option_name}}</i><img src="/new/images/zz_zb.png" class="ka_tico_tu02"></div>
+                                                                        @endif
+                                                                    @endforeach
+                                                                @else
+                                                                    <div class="ka_tico_1"><img src="/new/images/zz_zb.png" class="ka_tico_tu01"><i>尚未填寫</i><img src="/new/images/zz_zb.png" class="ka_tico_tu02"></div>
+                                                                @endif
+                                                            </div>
+                                                        @endif
+                                                        @if(isset($to->meta->about) && $to->meta->about != '')
+                                                            <div class="ka_gx ka_fwi">或是其他你想說的</div>
+                                                            <div class="ka_tubicon_text">
+                                                                {{$to->meta->about ?? ''}}
+                                                            </div>
+                                                        @endif
+                                                    </div>
+                                                </span>
+                                            @else
+                                                <span>
+                                                    <div class="ka_tubicon_text">
+                                                        {{$to->meta->about ?? ''}}
+                                                    </div>
+                                                </span>
+                                            @endif
+                                        </dt>
+                                        <dt>
+                                            <span>期待的約會模式</span>
+                                            @if(($favorite_food->first()->xref_id ?? false) || ($preferred_date_location->first()->xref_id ?? false) || ($expected_type->first()->xref_id ?? false) || ($frequency_of_getting_along->first()->xref_id ?? false))
+                                                <span>
+                                                    <div class="ka_n">
+                                                        @if(($favorite_food->first()->xref_id ?? false))
+                                                            <div class="ka_gx">喜歡的食物</div>
+                                                            <div class="ka_tubicon">
+                                                                @if($favorite_food->first()->xref_id ?? false)
+                                                                    @foreach($favorite_food as $option)
+                                                                        @if($option->xref_id ?? false)
+                                                                            <div class="ka_tico_1"><img src="/new/images/zz_zb.png" class="ka_tico_tu01"><i>{{$option->option_name}}</i><img src="/new/images/zz_zb.png" class="ka_tico_tu02"></div>
+                                                                        @endif
+                                                                    @endforeach
+                                                                @else
+                                                                    <div class="ka_tico_1"><img src="/new/images/zz_zb.png" class="ka_tico_tu01"><i>尚未填寫</i><img src="/new/images/zz_zb.png" class="ka_tico_tu02"></div>
+                                                                @endif
+                                                            </div>
+                                                        @endif
+                                                        @if(($preferred_date_location->first()->xref_id ?? false))
+                                                            <div class="ka_gx ka_fwi">偏好約會地點</div>
+                                                            <div class="ka_tubicon">
+                                                                @if($preferred_date_location->first()->xref_id ?? false)
+                                                                    @foreach($preferred_date_location as $option)
+                                                                        @if($option->xref_id ?? false)
+                                                                            <div class="ka_tico_1"><img src="/new/images/zz_zb.png" class="ka_tico_tu01"><i>{{$option->option_name}}</i><img src="/new/images/zz_zb.png" class="ka_tico_tu02"></div>
+                                                                        @endif
+                                                                    @endforeach
+                                                                @else
+                                                                    <div class="ka_tico_1"><img src="/new/images/zz_zb.png" class="ka_tico_tu01"><i>尚未填寫</i><img src="/new/images/zz_zb.png" class="ka_tico_tu02"></div>
+                                                                @endif
+                                                            </div>
+                                                        @endif
+                                                        @if($expected_type->first()->xref_id ?? false)
+                                                            <div class="ka_gx ka_fwi">期望模式</div>
+                                                            <div class="ka_tubicon">
+                                                                @if($expected_type->first()->xref_id ?? false)
+                                                                    @foreach($expected_type as $option)
+                                                                        @if($option->xref_id ?? false)
+                                                                            <div class="ka_tico_1"><img src="/new/images/zz_zb.png" class="ka_tico_tu01"><i>{{$option->option_name}}</i><img src="/new/images/zz_zb.png" class="ka_tico_tu02"></div>
+                                                                        @endif
+                                                                    @endforeach
+                                                                @else
+                                                                    <div class="ka_tico_1"><img src="/new/images/zz_zb.png" class="ka_tico_tu01"><i>尚未填寫</i><img src="/new/images/zz_zb.png" class="ka_tico_tu02"></div>
+                                                                @endif
+                                                            </div>
+                                                        @endif
+                                                        @if($frequency_of_getting_along->first()->xref_id ?? false)
+                                                            <div class="ka_gx ka_fwi">相處的頻率與模式</div>
+                                                            <div class="ka_tubicon">
+                                                                @if($frequency_of_getting_along->first()->xref_id ?? false)
+                                                                    @foreach($frequency_of_getting_along as $option)
+                                                                        @if($option->xref_id ?? false)
+                                                                            <div class="ka_tico_1"><img src="/new/images/zz_zb.png" class="ka_tico_tu01"><i>{{$option->option_name}}</i><img src="/new/images/zz_zb.png" class="ka_tico_tu02"></div>
+                                                                        @endif
+                                                                    @endforeach
+                                                                @else
+                                                                    <div class="ka_tico_1"><img src="/new/images/zz_zb.png" class="ka_tico_tu01"><i>尚未填寫</i><img src="/new/images/zz_zb.png" class="ka_tico_tu02"></div>
+                                                                @endif
+                                                            </div>
+                                                        @endif
+                                                        @if(isset($to->meta->style) && $to->meta->style != '')
+                                                            <div class="ka_gx ka_fwi">或是其他你想說的</div>
+                                                            <div class="ka_tubicon_text">
+                                                                {{$to->meta->style ?? ''}}
+                                                            </div>
+                                                        @endif
+                                                    </div>
+                                                </span>
+                                            @else
+                                                <span>
+                                                    <div class="ka_tubicon_text">
+                                                        {{$to->meta->style ?? ''}}
+                                                    </div>
+                                                </span>
+                                            @endif
+                                        </dt>
+
+                                        @if(!empty($to->meta->available_time) && $to->meta->available_time != 'null')
+                                            <dt>
+                                                <span>有空時段</span>
+                                                <span>
+                                                    <div class="select_xx01 senhs hy_new">{{$to->meta->available_time}}</div>
+                                                </span>
+                                            </dt>
+                                        @endif
+
+                                        @if($to->tattoo->count())
+                                            <dt>
+                                                <span>刺青</span>                                    
+                                                <span>
+                                                    <font class="select_xx senhs left hy_new">{{$to->tattoo->first()->part}}</font>
+                                                    <font class="select_xx senhs right hy_new">{{$to->tattoo->first()->range}}</font>
+                                                </span>                                    
+                                            </dt>
+                                        @endif
                                     @endif
 
-                                    @if($to->engroup == 2 && (!empty($to->meta->cup) && $to->meta->isHideCup == '0' && ($to->meta->cup == 'A' || $to->meta->cup == 'B' ||$to->meta->cup == 'C' || $to->meta->cup == 'D' || $to->meta->cup == 'E' || $to->meta->cup == 'F')))
-                                    <dt>
-                                        <span>CUP</span>
-                                        <span>
-                                            <div class="select_xx01 senhs hy_new">{{$to->meta->cup}}</div>
-                                        </span>
-                                    </dt>
-                                    {{--@elseif($to->engroup == 2)--}}
-                                        {{--<dt>--}}
-                                            {{--<span>CUP</span>--}}
-                                            {{--<span>--}}
-                                                {{--<div class="select_xx01 senhs hy_new">未填寫</div>--}}
-                                            {{--</span>--}}
-                                        {{--</dt>--}}
-                                    @endif
-
-                                    @if($to->engroup == 2 && $to->tattoo->count())
-                                    <dt>
-                                        <span>刺青</span>                                    
-                                        <span>
-                                            <font class="select_xx senhs left hy_new">{{$to->tattoo->first()->part}}</font>
-                                            <font class="select_xx senhs right hy_new">{{$to->tattoo->first()->range}}</font>
-                                        </span>                                    
-                                    </dt>
-                                    @endif
-                                    @if(!empty($to->meta->about))
+                                    @if(!empty($to->meta->about) && $to->engroup==1)
                                     <dt>
                                         <span>關於我</span>
                                         <span>
@@ -1049,7 +1202,7 @@
                                     </dt>
                                     @endif
 
-                                    @if(!empty($to->meta->style))
+                                    @if(!empty($to->meta->style) && $to->engroup==1)
                                     <dt>
                                         <span>期待的約會模式</span>
                                         <span>
@@ -1058,6 +1211,21 @@
                                     </dt>
                                     @endif
 
+                                    @if(($relationship_status->first()->xref_id ?? false) && $to->engroup==2)
+                                    <dt>
+                                        <span>感情狀況</span>
+                                        <div class="ka_tubicon ka_n">
+                                            <br>
+                                            @foreach($relationship_status as $option)
+                                                @if($option->xref_id ?? false)
+                                                    <div class="ka_tico_1"><img src="/new/images/zz_zb.png" class="ka_tico_tu01"><i>{{$option->option_name}}</i><img src="/new/images/zz_zb.png" class="ka_tico_tu02"></div>
+                                                @endif
+                                            @endforeach
+                                        </div>
+                                    </dt>
+                                    @endif
+
+                                    {{--
                                     @if(!empty($to->meta->situation) && $to->meta->situation != null && $to->meta->situation != 'null' && $to->engroup==2)
                                         <dt>
                                             <span>現況</span>
@@ -1066,6 +1234,7 @@
                                         </span>
                                         </dt>
                                     @endif
+                                    --}}
 
                                     @if(!empty($to->meta->domainType) && $to->meta->domainType != null && $to->meta->domainType != 'null' )
                                     <dt>
@@ -1076,11 +1245,20 @@
                                     </dt>
                                     @endif
 
-                                    @if(!empty($to->meta->occupation) && $to->meta->isHideOccupation == '0' && $user->isVip() && $to->meta->occupation != 'null')
+                                    @if(!empty($to->meta->occupation) && $to->meta->isHideOccupation == '0' && $user->isVip() && $to->meta->occupation != 'null' && $to->engroup==1)
                                     <dt>
                                         <span>職業</span>
                                         <span>
                                             <div class="select_xx01 senhs hy_new">{{$to->meta->occupation}}</div>
+                                        </span>
+                                    </dt>
+                                    @endif
+
+                                    @if($to->meta->isHideOccupation == '0' && $user->isVip() && ($user_option->occupation->option_id ?? false) && $to->engroup==2)
+                                    <dt>
+                                        <span>工作/學業</span>
+                                        <span>
+                                            <div class="select_xx01 senhs hy_new">{{$user_option->occupation->occupation->option_name}}</div>
                                         </span>
                                     </dt>
                                     @endif
@@ -1330,7 +1508,11 @@
                                                             @endif
                                                         @endfor
                                                     </span>--}}
-                                                    <a href="/dashboard/viewuser/{{ $row_user->id }}">{{ $row->user->name }}</a>
+                                                    @if ($row->content_violation_processing)
+                                                        <span>匿名評價</span><span style="color: red; font-size:12px;">(站方代發)</span>
+                                                    @else
+                                                        <a href="/dashboard/viewuser/{{ $row_user->id }}">{{ $row->user->name }}</a>
+                                                    @endif
                                                     {{--                                <font>{{ substr($row->created_at,0,10)}}</font>--}}
                                                     @if($row_user->id == $user->id)
                                                         <font class="sc content_delete" data-id="{{ $row->id }}" style="padding: 0px 3px;"><img src="/new/images/del_03.png" style="padding: 0px 0px 1px 5px;">刪除</font>
@@ -1445,7 +1627,11 @@
                                                             @endfor
                                                         @endif
                                                     </span>--}}
-                                                    <a href="/dashboard/viewuser/{{$row_user->id}}">{{$row_user->name}}</a>
+                                                    @if ($row->content_violation_processing)
+                                                        <span>匿名評價</span><span style="color: red; font-size:12px;">(站方代發)</span>
+                                                    @else
+                                                        <a href="/dashboard/viewuser/{{$row_user->id}}">{{$row_user->name}}</a>
+                                                    @endif
                                                     @if(isset($warned_users) || isset($hadWarned))
                                                         <img src="/new/images/kul.png" class="sxyh">
                                                     @else
@@ -1599,7 +1785,7 @@
                         </div>
                         <div class="n_bbutton" style="margin-top:10px;">
                             <div style="display: inline-flex;">
-                            <div class="n_right" onclick="reportPostForm_submit()" style="border-style: none; background: #8a9ff0; color:#ffffff; float: unset; margin-left: 0px; margin-right: 20px;">送出</div>
+                            <button type="submit" class="n_right" style="border-style: none; background: #8a9ff0; color:#ffffff;float: unset; margin-left: 0px; margin-right: 20px;">送出</button>
                             <button type="reset" class="n_left" style="border: 1px solid #8a9ff0; background: #ffffff; color:#8a9ff0; float: unset; margin-right: 0px;" onclick="show_banned_close()">返回</button>
                             </div>
                         </div>
@@ -1689,10 +1875,18 @@
                         <textarea id="content" name="content" cols="" rows="" class="n_nutext evaluation_content" style="border-style: none;" maxlength="300" placeholder="請輸入內容(至多300個字元)"></textarea>
                         <input type="hidden" name="uid" value={{$user->id}}>
                         <input type="hidden" name="eid" value={{$to->id}}>
+                        <input type="hidden" name="content_processing_method" value="">
                         <span class="alert_tip" style="color:red;"></span>
                         <input type="file" name="images" >
                         <div class="new_pjckbox">
-                            評價請以敘述<a class="text-danger" style="color: red;">確實發生的事實</a>為主，不要有主觀判斷，盡量附上截圖佐證。若被評價者來申訴，您又沒有附上截圖，評價在驗證屬實前會被隱藏或撤銷。
+                            <div class="anonymous_illustrate">
+                                ● 請上傳可資證明的圖檔，須為高清檔案<br>
+                                ● 若為對話紀錄，須從頭到尾完整截圖，上一句跟著下一句，不可以漏<br>
+                                ● 若對話紀錄過多(超過30頁)，那可以只截相關部分，一樣完整截圖，上一句跟著下一句，不可以漏<br>
+                            </div>
+                            <div class="self_illustrate">
+                                評價請以敘述<a class="text-danger" style="color: red;">確實發生的事實</a>為主，不要有主觀判斷，盡量附上截圖佐證。若被評價者來申訴，您又沒有附上截圖，評價在驗證屬實前會被隱藏或撤銷。
+                            </div>
                             <span><input type="checkbox" name="agree"><label>我同意上述說明</label></span>
                         </div>
                         <div class="n_bbutton" style="margin-top:0px;">
@@ -1734,9 +1928,25 @@
             <div class="new_tablema">
                 <table>
 
-                    <tr>
+                    <tr class="phone_auth">
                         <td class="new_baa new_baa1">女生須通過手機驗證</td>
-                        <td class="new_baa1">@if($auth_check>0)<img src="/new/images/ticon_01.png">@else<img src="/new/images/ticon_02.png">@endif</td>
+                        <td class="new_baa1">
+                            @if($auth_check)
+                                <img src="/new/images/ticon_01.png">
+                            @else
+                                <img src="/new/images/ticon_02.png">
+                            @endif
+                        </td>
+                    </tr>
+                    <tr class="advance_auth">
+                        <td class="new_baa new_baa1">女生須通過進階驗證</td>
+                        <td class="new_baa1">
+                            @if($advance_auth_status)
+                                <img src="/new/images/ticon_01.png">
+                            @else
+                                <img src="/new/images/ticon_02.png">
+                            @endif
+                        </td>
                     </tr>
                     <tr>
                         <td class="new_baa">男方須回覆女方三次以上</td>
@@ -1755,9 +1965,25 @@
             <div class="new_tablema">
                 <table>
 
-                    <tr>
+                    <tr class="vipDays">
                         <td class="new_baa new_baa1">男方須為一個月(不含一個月)以上VIP</td>
-                        <td class="new_baa1">@if($vipDays>=30)<img src="/new/images/ticon_01.png">@else<img src="/new/images/ticon_02.png">@endif</td>
+                        <td class="new_baa1">
+                            @if($vipDays>=30)
+                                <img src="/new/images/ticon_01.png">
+                            @else
+                                <img src="/new/images/ticon_02.png">
+                            @endif
+                        </td>
+                    </tr>
+                    <tr class="need_vip">
+                        <td class="new_baa new_baa1">男生須為VIP</td>
+                        <td class="new_baa1">
+                            @if($isVip)
+                                <img src="/new/images/ticon_01.png">
+                            @else
+                                <img src="/new/images/ticon_02.png">
+                            @endif
+                        </td>
                     </tr>
                     <tr>
                         <td class="new_baa">女方須有回覆男方三次以上</td>
@@ -1767,6 +1993,28 @@
             </div>
         </div>
         <a id="" onClick="gmBtnNoReload()" class="bl_gb"><img src="/new/images/gb_icon.png"></a>
+    </div>
+
+    <div class="bl bl_tab" id="evaluation_description" style="display: none;">
+        <div class="bltitle"><span>匿名評價說明</span></div>
+        <div class="n_blnr01 ">
+            <div class="new_tkfont" style="text-align:left">
+                ● 匿名評價將不會出現你的名字<br>
+                ● 站方有權決定是否代為發布評價<br>
+                ● 請選擇若評價內容不符合站方審核標準的處理方式
+            </div>
+            <select name="message_processing" class="select_xx01">
+                <option value="">請選擇</option>
+                <option value="return">退件重寫(需重新評價)</option>
+                <option value="modify_directly">站方直接修改</option>
+            </select>
+            <div class="n_bbutton" style="margin-top:10px;">
+                <div style="display: inline-flex;">
+                <div class="n_right evaluation_check" style="border-style: none; background: #8a9ff0; color:#ffffff; float: unset; margin-left: 0px; margin-right: 20px;">同意</div>
+                <button type="reset" class="n_left" style="border: 1px solid #8a9ff0; background: #ffffff; color:#8a9ff0; float: unset; margin-right: 0px;" onclick="evaluation_description_close()">取消</button>
+                </div>
+            </div>
+        </div>
     </div>
     </div>
     @endif
@@ -1851,9 +2099,9 @@
         if(is_banned){
             return  c5('您目前被站方封鎖，無檢舉權限');
         }
-       if(is_warned){
-           return  c5('您目前被站方警示，無檢舉權限');
-       }
+        if(is_warned){
+            return  c5('您目前被站方警示，無檢舉權限');
+        }
 
 
         $(".blbg").show();
@@ -1862,6 +2110,7 @@
         // alert($('.swiper-slide-active').data('type'));
         $('input[name="picType"]').val($('.swiper-slide-active').data('type'));
         $('input[name="pic_id"]').val($('.swiper-slide-active').data('pic_id'));
+
     }     
 
     $( document ).ready(function() {
@@ -2365,27 +2614,92 @@
     @if(isset($to))
         $('.evaluation').on('click', function() {
 			console.log('evaluation')
-            @if($user->id != $to->id)
-                @if($user->meta->isWarned == 1 || $isAdminWarned)
+            event.stopPropagation();
+            var on1 = $('.bottub').find('.on1');
+            
+            if(on1.length) {
+                on1.removeClass('on1');
+                $('.bottub').find('.showslide').fadeOut();
+            }
+            if ($(this).hasClass('on2')) {
+                $(this).removeClass('on2');
+                $('.showslide_evaluation').fadeOut();
+            } else {
+                @if($user->id == $to->id)
+                    c5('不可對自己評價');
+                @elseif($user->meta->isWarned == 1 || $isAdminWarned)
                     c5('您目前為警示帳戶，暫不可評價');
-                @elseif($user->engroup==2 && ($isSent3Msg==0 || $auth_check==0))
-                    // alert(1);
-                    $('#tab_reject_female').show();
-                    $(".announce_bg").show();
-                @elseif($user->engroup==1 && ($isSent3Msg==0 || $vipDays<=30))
-                    //alert(2);
-                    $('#tab_reject_male').show();
-                    $(".announce_bg").show();
-                @elseif(!isset($evaluation_self))
-                    $('#tab_evaluation').show();
-                    $(".announce_bg").show();
-                    $('body').css("overflow", "hidden");
+                @elseif ($is_banned_v2)
+                    c5('您目前為封鎖帳戶，暫不可評價');
                 @else
-                    c5('您已評價過');
+                    $(this).addClass('on2');
+                    $('.showslide_evaluation').fadeIn();
                 @endif
+            }
+        });
+
+        // 本人評價
+        $('.myself_evaluation').click(function() {
+            $('.vipDays').addClass('hide');
+            $('.phone_auth').addClass('hide');
+            $('.need_vip').addClass('hide');
+            $('.advance_auth').addClass('hide');
+            @if($user->engroup==2 && ($isSent3Msg==0 || $auth_check==0))
+                $('#tab_reject_female').show();
+                $('.phone_auth').removeClass('hide');
+                $(".announce_bg").show();
+            @elseif($user->engroup==1 && ($isSent3Msg==0 || $vipDays < 30))
+                $('#tab_reject_male').show();
+                $('.vipDays').removeClass('hide');
+                $(".announce_bg").show();
+            @elseif(!isset($evaluation_self))
+                $('#tab_evaluation').show();
+                $('.anonymous_illustrate').hide();
+                $('.self_illustrate').show();
+                $(".announce_bg").show();
+                $('body').css("overflow", "hidden");
             @else
-                c5('不可對自己評價');
+                c5('您已評價過');
             @endif
+        });
+
+        // 匿名評價
+        $('.anonymous_evaluation').click(function() {
+            $('.vipDays').addClass('hide');
+            $('.phone_auth').addClass('hide');
+            $('.need_vip').addClass('hide');
+            $('.advance_auth').addClass('hide');
+            @if($user->engroup==2 && ($isSent3Msg==0 || $advance_auth_status==0))
+                $('#tab_reject_female').show();
+                $('.new_tkfont').text('您目前未達匿名評價標準，無法使用');
+                $('.advance_auth').removeClass('hide');
+                $(".announce_bg").show();
+            @elseif($user->engroup==1 && ($isSent3Msg==0 || $isVip==0))
+                $('#tab_reject_male').show();
+                $('.new_tkfont').text('您目前未達匿名評價標準，無法使用');
+                $('.need_vip').removeClass('hide');
+                $(".announce_bg").show();
+            @else
+                // 訊息處理選擇
+                $('#evaluation_description').show();
+                $(".announce_bg").show();
+            @endif
+        });
+
+        // 匿名評價->訊息處理選擇確認
+        $('.evaluation_check').click(function() {
+            select_option = $('select[name=message_processing] option').filter(':selected').val();
+            if (select_option) {
+                $('input[name=content_processing_method]').val(select_option);
+                $('#evaluation_description').hide();
+                $('#tab_evaluation').show();
+                $('.anonymous_illustrate').show();
+                $('.self_illustrate').hide();
+                $(".announce_bg").show();
+                $('body').css("overflow", "hidden");
+            } else {
+                alert('請選擇處理方式');
+            }
         });
     @endif
 
@@ -2760,12 +3074,12 @@
         };
         images_uploader=$('input[name="images"]:not(.reportedUserInput)').fileuploader(images_uploader_options);
 
-        resize_before_upload(images_uploader,400,600,'#tab_evaluation,#tab_evaluation_reply');
+        resize_before_upload(images_uploader,1200,1800,'#tab_evaluation,#tab_evaluation_reply');
         var reportedImages_options = images_uploader_options;
         reportedImages_options.limit = 15;
         
         reportedImages_uploader = $('input[name="reportedImages"],input.reportedUserInput').fileuploader(reportedImages_options);
-        resize_before_upload(reportedImages_uploader,400,600,'#show_banned_ele,#show_reportPic');
+        resize_before_upload(reportedImages_uploader,1200,1800,'#show_banned_ele,#show_reportPic');
         $(".announce_bg").on("click", function() {
             $('.bl_tab_aa').hide();
             $('body').css("overflow", "auto");
@@ -2900,6 +3214,11 @@
 	$(document).ready(function () {
 		$('.userlogo').click(function() {
 			event.stopPropagation()
+            var on2 = $('.bottub').find('.on2');
+            if(on2.length) {
+                on2.removeClass('on2');
+                $('.bottub').find('.showslide_evaluation').fadeOut();
+            }
 			if($(this).hasClass('on1')) {
 				$(this).removeClass('on1')
 				$('.showslide').fadeOut()
@@ -2912,6 +3231,8 @@
 		$('body').click(function() {
 			$('.userlogo').removeClass('on1')
 			$('.showslide').fadeOut()
+            $('.evaluation').removeClass('on2')
+            $('.showslide_evaluation').fadeOut()
 		})
 	})
 </script>	

@@ -52,6 +52,8 @@ class UserMeta extends Model
         'weight',
         'isHideWeight',
         'cup',
+        'available_time',
+        'family_situation',
         'isHideCup',
         'body',
         'about',

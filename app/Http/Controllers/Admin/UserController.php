@@ -24,11 +24,13 @@ use App\Models\ReportedAvatar;
 use App\Models\ReportedPic;
 use App\Models\SetAutoBan;
 use App\Models\SimpleTables\users;
+use App\Models\SimpleTables\short_message;
 use App\Models\SuspiciousUser;
 use Illuminate\Http\Request;
 use App\Services\UserService;
 use App\Services\AdminService;
 use App\Services\FaqService;
+use App\Services\ShortMessageService;
 use App\Http\Requests\UserInviteRequest;
 use App\Models\User;
 use App\Models\UserMeta;
@@ -1092,6 +1094,12 @@ class UserController extends \App\Http\Controllers\BaseController
             return view('admin.users.advInfo_UserAdvInfo')
                 ->with('userAdvInfo', $userAdvInfo);
         }
+        if ($block == 'advInfoLoginLog') {
+            $userLogin_log= \App\Models\User::userLoginLog($user->id,$request);
+            return view('admin.users.advInfoLoginLog')
+                ->with('user', $user)
+                ->with('userLogin_log', $userLogin_log);
+        }
         $userMessage = Message::where('from_id', $id)->orderBy('created_at', 'desc')->paginate(config('social.admin.showMessageCount'));
         if (!empty($request->get('page'))) {
             //新增Admin操作log
@@ -1184,40 +1192,9 @@ class UserController extends \App\Http\Controllers\BaseController
         $banReason = DB::table('reason_list')->select('content')->where('type', 'ban')->get();
         $implicitly_banReason = DB::table('reason_list')->select('content')->where('type', 'implicitly')->get();
         $warned_banReason = DB::table('reason_list')->select('content')->where('type', 'warned')->get();
-        // $userLogin_log = LogUserLogin::selectRaw('DATE(created_at) as loginDate, user_id as userID, count(*) as dataCount, GROUP_CONCAT(DISTINCT created_at SEPARATOR ",&p,") AS loginDates, GROUP_CONCAT(DISTINCT ip SEPARATOR ",&p,") AS ips, GROUP_CONCAT(DISTINCT userAgent SEPARATOR ",&p,") AS userAgents')->where('user_id', $user->id)->groupBy(DB::raw("DATE(created_at)"))->get();
-        $userLogin_log = LogUserLogin::selectRaw('LEFT(created_at,7) as loginMonth, DATE(created_at) as loginDate, user_id as userID, ip, count(*) as dataCount')
-            ->where('user_id', $user->id)
-            ->groupBy(DB::raw("LEFT(created_at,7)"))
-            ->orderBy('created_at', 'DESC')->get();
-        foreach ($userLogin_log as $key => $value) {
-            $dataLog = LogUserLogin::where('user_id', $user->id)->where('created_at', 'like', '%' . $value->loginMonth . '%')->orderBy('created_at', 'DESC');
-            $userLogin_log[$key]['items'] = $dataLog->get();
 
-            //ip
-            $Ip_group = LogUserLogin::where('user_id', $user->id)->where('created_at', 'like', '%' . $value->loginMonth . '%')
-                ->from('log_user_login as log')
-                ->selectRaw('ip, count(*) as dataCount, (select created_at from log_user_login as s where s.user_id=log.user_id and s.ip=log.ip and s.created_at like "%' . $value->loginMonth . '%" order by created_at desc LIMIT 1 ) as loginTime')
-                ->groupBy(DB::raw("ip"))->orderBy('loginTime', 'desc')->get();
-            $Ip = array();
-            foreach ($Ip_group as $Ip_key => $group) {
-                $Ip['Ip_group'][$Ip_key] = $group;
-                $Ip['Ip_group_items'][$Ip_key] = LogUserLogin::where('user_id', $user->id)->where('created_at', 'like', '%' . $value->loginMonth . '%')->where('ip', $group->ip)->orderBy('created_at', 'DESC')->get();
-            }
-            $userLogin_log[$key]['Ip'] = $Ip;
-
-            //cfp_id
-            $CfpID_group = LogUserLogin::where('user_id', $user->id)->where('created_at', 'like', '%' . $value->loginMonth . '%')
-                ->from('log_user_login as log')
-                ->selectRaw('cfp_id,count(*) as dataCount, (select created_at from log_user_login as s where s.user_id=log.user_id and s.cfp_id=log.cfp_id and s.created_at like "%' . $value->loginMonth . '%" order by created_at desc LIMIT 1 ) as loginTime')
-                ->whereNotNull('cfp_id')
-                ->groupBy(DB::raw("cfp_id"))->orderBy('loginTime', 'desc')->get();
-            $CfpID = array();
-            foreach ($CfpID_group as $CfpID_key => $group) {
-                $CfpID['CfpID_group'][$CfpID_key] = $group;
-                $CfpID['CfpID_group_items'][$CfpID_key] = LogUserLogin::where('user_id', $user->id)->where('created_at', 'like', '%' . $value->loginMonth . '%')->where('cfp_id', $group->cfp_id)->orderBy('created_at', 'DESC')->get();
-            }
-            $userLogin_log[$key]['CfpID'] = $CfpID;
-        }
+        //帳號登入紀錄
+        $userLogin_log= \App\Models\User::userLoginLog($user->id, $request);
 
         //個人檢舉紀錄
         $reported = Reported::select('reported.id', 'reported.reported_id as rid', 'reported.content as reason', 'reported.pic as pic', 'reported.created_at as reporter_time', 'u.name', 'u.email', 'u.engroup', 'm.isWarned', 'b.id as banned_id', 'b.expire_date as banned_expire_date', 'w.id as warned_id', 'w.expire_date as warned_expire_date')
@@ -3698,7 +3675,7 @@ class UserController extends \App\Http\Controllers\BaseController
                 //加入警示流程
                 //清除認證資料
                 //            DB::table('auth_img')->where('user_id',$id)->delete();
-                DB::table('short_message')->where('member_id', $id)->delete();
+                ShortMessageService::deleteShortMessageByQuery(DB::table('short_message')->where('member_id', $id),true);
                 //DB::table('short_message')->where('member_id', $id)->update(['active' =>0]);
             } else if ($status == 0) {
 
@@ -3708,7 +3685,13 @@ class UserController extends \App\Http\Controllers\BaseController
 
                     if ($user->isPhoneAuth() == 0) {
                         DB::table('short_message')->insert(
-                            ['mobile' => '0922222222', 'member_id' => $id, 'active' => 1]
+                            ['mobile' => '0922222222'
+                            , 'member_id' => $id
+                            , 'active' => 1
+                            ,'auto_created'=>1
+                            ,'created_by'=>auth()->id()
+                            ,'created_from'=>request()->path()
+                            ,'createdate'=>Carbon::now()]
                         );
                     }
 
@@ -4165,12 +4148,16 @@ class UserController extends \App\Http\Controllers\BaseController
         $item_b = DB::table('account_gender_change')->where('status', 0)->count();
         $item_c = DB::table('account_exchange_period')->where('status', 0)->count();
         $item_d = $this->raa_service->getAdminCheckNum();
+        $item_e = DB::table('evaluation')
+                ->whereNotNull('content_violation_processing')
+                ->where('anonymous_content_status', 0)
+                ->count();
         return view('admin.adminCheck')
             ->with('item_a', $item_a)
             ->with('item_b', $item_b)
             ->with('item_c', $item_c)
             ->with('item_d', $item_d)
-            ;
+            ->with('item_e', $item_e);
     }
 
     public function showAdminCheckNameChange()
@@ -4319,6 +4306,45 @@ class UserController extends \App\Http\Controllers\BaseController
         echo json_encode('ok');
     }
 
+    public function showAdminCheckAnonymousContent()
+    {
+        $data = User::select(
+                    'e.content',
+                    'e.content_violation_processing',
+                    'e.anonymous_content_status',
+                    'e.created_at',
+                    'e.id as evaluation_id',
+                    'to_user.email as to_email',
+                    'to_user.id as to_id',
+                    'users.id',
+                    'users.email',
+                    'users.name',
+                    'users.engroup')
+                ->join('evaluation as e', 'e.from_id', 'users.id')
+                ->join('users as to_user', 'e.to_id', 'to_user.id')
+                ->whereNotNull('e.content_violation_processing')
+                ->orderBy('e.created_at', 'desc')
+                ->get();
+        foreach ($data as $key => $row) {
+            $data[$key]['pic'] = EvaluationPic::select('pic')->where('evaluation_id', $row['evaluation_id'])->where('member_id', $row['id'])->get();
+        }
+
+        return view('admin.adminCheckAnonymousContent')
+            ->with('data', $data);
+    }
+
+    public function AdminCheckAnonymousContentSave(Request $request)
+    {
+        $evaluation_id = $request->evaluation_id;
+        $status = $request->status;
+        DB::table('evaluation')->where('id', $evaluation_id)
+            ->update(['anonymous_content_status' => $status, 'updated_at' => now()]);
+        
+        Session::flash('message', '審核已完成');
+
+        echo json_encode('ok');
+    }
+    
     public function showSpamTextMessage()
     {
         return view('admin.users.searchSpamTextMessage');
@@ -5078,8 +5104,8 @@ class UserController extends \App\Http\Controllers\BaseController
         //        }
 
         //先刪後增
-        DB::table('short_message')->where('member_id', $request->user_id)->delete();
-        DB::table('short_message')->insert(['member_id' =>  $request->user_id, 'mobile' => $request->phone, 'active' => 1]);
+        ShortMessageService::deleteShortMessageByUserId($request->user_id);
+        DB::table('short_message')->insert(['member_id' =>  $request->user_id, 'mobile' => $request->phone, 'active' => 1,'created_by'=>auth()->id(),'created_from'=>$request->path()]);
 
         UserMeta::where('user_id', $request->user_id)->update(['phone' => $request->phone]);
         event(new \App\Events\CheckWarnedOfReport($request->user_id));
@@ -5093,7 +5119,7 @@ class UserController extends \App\Http\Controllers\BaseController
     public function deletePhone(Request $request)
     {
         //直接刪
-        DB::table('short_message')->where('member_id', $request->user_id)->delete();
+        ShortMessageService::deleteShortMessageByUserId($request->user_id);
         //        DB::table('short_message')->where('member_id', $request->user_id)->update(['active' =>0, ]);
         UserMeta::where('user_id', $request->user_id)->update(['phone' => '']);
         event(new \App\Events\CheckWarnedOfReport($request->user_id));
@@ -5104,6 +5130,7 @@ class UserController extends \App\Http\Controllers\BaseController
     {
         $result = DB::table('short_message')->where('mobile', $request->phone)->where('active', 1)->first();
         $data = array();
+        $f_userInfo = null;
         if ($result) {
             $userInfo = User::findById($result->member_id);
             if ($userInfo) {
@@ -5111,7 +5138,53 @@ class UserController extends \App\Http\Controllers\BaseController
                 $data['user_info_page'] = '/admin/users/advInfo/' . $userInfo->id;
             }
         }
-        return response()->json(['hasData' => $result && $request->phone ? 1 : 0, 'data' => $data]);
+        else {
+            if(ShortMessageService::isForbiddenByPhoneNumber($request->phone)) {
+                $f_userInfo = ShortMessageService::getFirstUserByForbiddenPhoneNumber($request->phone);
+                if ($f_userInfo) {
+                    $data['user_email'] = $f_userInfo->email;
+                    $data['user_info_page'] = '/admin/users/advInfo/' . $f_userInfo->id;
+                }                
+            }
+        }
+        return response()->json(['hasData' => $result && $request->phone ? 1 : 0,'is_forbidden'=>$f_userInfo?1:0, 'data' => $data]);
+    }
+
+    public function modifyEmail(Request $request)
+    {
+        if (User::where('advance_auth_email', $request->email)->first() && $request->email) {
+            return back()->with('error', '已存在資料, Email 重複驗證');
+        }
+        $user = User::where('id', $request->user_id)->first();
+        if ($request->pass) {
+            // 設定通過認證 Email 的時間
+            $user->advance_auth_email_at = Carbon::now();
+            $message = '已通過 Email 驗證';
+        } else if ($request->email) {
+            // 修改 Email  
+            $user->advance_auth_email = $request->email;
+            $message = 'Email 已更新';
+        } else {
+            // 刪除 Email
+            $user->advance_auth_email = null;
+            $user->advance_auth_email_at = null;
+            $message = 'Email 已刪除';
+        }
+        $user->save();
+        // event(new \App\Events\CheckWarnedOfReport($request->user_id));
+
+        return back()->with('message', $message);
+    }
+
+    public function searchEmail(Request $request)
+    {
+        $user = User::where('advance_auth_email', $request->email)->whereNotNull('advance_auth_email_at')->first();
+        $data = array();
+        if ($user) {
+            $data['user_email'] = $user->email;
+            $data['user_info_page'] = '/admin/users/advInfo/' . $user->id;
+        }
+        return response()->json(['hasData' => $user && $request->email ? 1 : 0, 'data' => $data]);
     }
 
     public function multipleLogin(Request $request)
@@ -5447,6 +5520,21 @@ class UserController extends \App\Http\Controllers\BaseController
             }
             $getIpUsersData = $getIpUsersData->where('g.created_date', '>=', $date);
         }
+
+        $assign_user_id=$request->assign_user_id;
+        if($assign_user_id){
+            $getIpUsersData = $getIpUsersData->where('g.user_id', $assign_user_id);
+        }
+        $yearMonth=$request->yearMonth;
+        if($yearMonth){
+            $getIpUsersData = $getIpUsersData->where('g.created_date', 'like', '%' . $yearMonth . '%');
+        }
+        $cfp_id=$request->cfp_id;
+        if($cfp_id){
+            $getIpUsersData = $getIpUsersData->where('g.cfp_id', $cfp_id);
+
+        }
+
         $getIpUsersData = $getIpUsersData->paginate(200);
 
         return view('admin.users.ipUsersList')

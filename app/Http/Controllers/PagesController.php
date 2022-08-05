@@ -38,6 +38,7 @@ use App\Services\VipLogService;
 use App\Services\FaqUserService;
 use App\Services\FaqService;
 use App\Services\RealAuthPageService;
+use App\Services\ShortMessageService;
 use App\Models\Fingerprint;
 use App\Models\Visited;
 use App\Models\Board;
@@ -81,6 +82,8 @@ use Illuminate\Support\Facades\Http;
 use App\Services\SearchIgnoreService;
 use \FileUploader;
 use App\Models\UserRecord;
+use App\Models\OptionOccupation;
+use App\Models\UserOptionsXref;
 
 class PagesController extends BaseController
 {
@@ -167,6 +170,7 @@ class PagesController extends BaseController
     //新版編輯會員資料
     public function profileUpdate_ajax(Request $request, ProfileUpdateRequest $profileUpdateRequest,RealAuthPageService $rap_service)
     {
+        //Log::Info('profileUpdate_ajax');
         //Log::Info($request->all());
         //Custom validation.
         Validator::extend('not_contains', function($attribute, $value, $parameters)
@@ -748,6 +752,84 @@ class PagesController extends BaseController
             $year=$month=$day='';
         }
 
+        //系統固定選項
+        //$option->occupation = OptionOccupation::where('is_custom',false)->get();
+        $relationship_status = DB::table('option_relationship_status')
+                                    ->leftJoin('user_options_xref', function($join) use($user)
+                                    {
+                                        $join->on('option_relationship_status.id', '=', 'user_options_xref.option_id')
+                                            ->where('user_options_xref.user_id', '=', $user->id)
+                                            ->where('user_options_xref.option_type', '=', 2)
+                                            ;
+                                    })
+                                    ->select('option_relationship_status.*', 'user_options_xref.id as xref_id')
+                                    ->get();
+        $looking_for_relationships = DB::table('option_looking_for_relationships')
+                                    ->leftJoin('user_options_xref', function($join) use($user)
+                                    {
+                                        $join->on('option_looking_for_relationships.id', '=', 'user_options_xref.option_id')
+                                            ->where('user_options_xref.user_id', '=', $user->id)
+                                            ->where('user_options_xref.option_type', '=', 3)
+                                            ;
+                                    })
+                                    ->select('option_looking_for_relationships.*', 'user_options_xref.id as xref_id')
+                                    ->get();
+        $expect = DB::table('option_expect')
+                                    ->leftJoin('user_options_xref', function($join) use($user)
+                                    {
+                                        $join->on('option_expect.id', '=', 'user_options_xref.option_id')
+                                            ->where('user_options_xref.user_id', '=', $user->id)
+                                            ->where('user_options_xref.option_type', '=', 4)
+                                            ;
+                                    })
+                                    ->select('option_expect.*', 'user_options_xref.id as xref_id')
+                                    ->get();
+        $favorite_food = DB::table('option_favorite_food')
+                                    ->leftJoin('user_options_xref', function($join) use($user)
+                                    {
+                                        $join->on('option_favorite_food.id', '=', 'user_options_xref.option_id')
+                                            ->where('user_options_xref.user_id', '=', $user->id)
+                                            ->where('user_options_xref.option_type', '=', 5)
+                                            ;
+                                    })
+                                    ->select('option_favorite_food.*', 'user_options_xref.id as xref_id')
+                                    ->get();
+        $preferred_date_location = DB::table('option_preferred_date_location')
+                                    ->leftJoin('user_options_xref', function($join) use($user)
+                                    {
+                                        $join->on('option_preferred_date_location.id', '=', 'user_options_xref.option_id')
+                                            ->where('user_options_xref.user_id', '=', $user->id)
+                                            ->where('user_options_xref.option_type', '=', 6)
+                                            ;
+                                    })
+                                    ->select('option_preferred_date_location.*', 'user_options_xref.id as xref_id')
+                                    ->get();
+        $expected_type = DB::table('option_expected_type')
+                                    ->leftJoin('user_options_xref', function($join) use($user)
+                                    {
+                                        $join->on('option_expected_type.id', '=', 'user_options_xref.option_id')
+                                            ->where('user_options_xref.user_id', '=', $user->id)
+                                            ->where('user_options_xref.option_type', '=', 7)
+                                            ;
+                                    })
+                                    ->select('option_expected_type.*', 'user_options_xref.id as xref_id')
+                                    ->get();
+        $frequency_of_getting_along = DB::table('option_frequency_of_getting_along')
+                                    ->leftJoin('user_options_xref', function($join) use($user)
+                                    {
+                                        $join->on('option_frequency_of_getting_along.id', '=', 'user_options_xref.option_id')
+                                            ->where('user_options_xref.user_id', '=', $user->id)
+                                            ->where('user_options_xref.option_type', '=', 8)
+                                            ;
+                                    })
+                                    ->select('option_frequency_of_getting_along.*', 'user_options_xref.id as xref_id')
+                                    ->get();
+
+        //使用者選擇的選項
+        $user_option_xref = UserOptionsXref::where('user_id', $user->id);
+        $user_option = new \stdClass();
+        $user_option->occupation = $user_option_xref->clone()->where('option_type', 1)->first();
+
         if ($user) {
 
             $pr = DB::table('pr_log')->where('user_id',$user->id)->where('active',1)->first();
@@ -785,9 +867,16 @@ class PagesController extends BaseController
                 ->with('isAdminWarnedRead',$isAdminWarnedRead)
                 ->with('no_avatar', isset($no_avatar)?$no_avatar->content:'')
                 ->with('pr', $pr)
-                ->with('rap_service',$rap_service)               
-                ;
+                ->with('rap_service',$rap_service)
                 //->with('isWarnedReason',$isWarnedReason)
+                ->with('user_option', $user_option)
+                ->with('relationship_status', $relationship_status)
+                ->with('looking_for_relationships', $looking_for_relationships)
+                ->with('expect', $expect)
+                ->with('favorite_food', $favorite_food)
+                ->with('preferred_date_location', $preferred_date_location)
+                ->with('expected_type', $expected_type)
+                ->with('frequency_of_getting_along', $frequency_of_getting_along)
                 ;
         }
     }
@@ -867,34 +956,19 @@ class PagesController extends BaseController
                     ->with('girl_to_vip', $girl_to_vip->content)
                     ->with('rap_service',$rap_service);
             }
-            if($user->engroup==1){
-                return view('new.dashboard_img')
-                    ->with('user', $user)
-                    ->with('tabName', $tabName)
-                    ->with('cur', $user)
-                    ->with('year', $year)
-                    ->with('month', $month)
-                    ->with('day', $day)
-                    ->with('member_pics', $member_pics)
-                    ->with('girl_to_vip', $girl_to_vip->content)
-                    ->with('avatar', $avatar)
-                    ->with('rap_service',$rap_service);
-            }else{
-                return view('new.dashboard_img')
-                    ->with('user', $user)
-                    ->with('tabName', $tabName)
-                    ->with('cur', $user)
-                    ->with('year', $year)
-                    ->with('month', $month)
-                    ->with('day', $day)
-                    ->with('member_pics', $member_pics)
-                    ->with('girl_to_vip', $girl_to_vip->content)
-                    ->with('avatar', $avatar)
-                    ->with('blurry_avatar', $blurryAvatar)
-                    ->with('blurry_life_photo', $blurryLifePhoto)
-                    ->with('rap_service',$rap_service)
-                    ;
-            }
+            return view('new.dashboard_img')
+                ->with('user', $user)
+                ->with('tabName', $tabName)
+                ->with('cur', $user)
+                ->with('year', $year)
+                ->with('month', $month)
+                ->with('day', $day)
+                ->with('member_pics', $member_pics)
+                ->with('girl_to_vip', $girl_to_vip->content)
+                ->with('avatar', $avatar)
+                ->with('blurry_avatar', $blurryAvatar)
+                ->with('blurry_life_photo', $blurryLifePhoto)
+                ->with('rap_service',$rap_service);
         }
     }
 
@@ -2344,6 +2418,7 @@ class PagesController extends BaseController
                     //->where(function($query){
                         //$query->where('wu.expire_date', '>=', Carbon::now())
                         //->orWhere('wu.expire_date', null); }); })
+                ->whereNull('evaluation.content_violation_processing')
                 ->whereNull('b1.member_id')
                 ->whereNull('b3.target')
                 ->where('um.isWarned',0)
@@ -2352,16 +2427,26 @@ class PagesController extends BaseController
                 //->whereNotNull('u2.id')
                 ->where('u1.accountStatus', 1)
                 ->where('u1.account_status_admin', 1)
+                ->where('evaluation.to_id', $uid)
                 //->where('u2.accountStatus', 1)
                 //->where('u2.account_status_admin', 1)
                 //->whereNull('um.user_id')
                 //->whereNull('wu.member_id')
+                ->orWhereNotNull('evaluation.content_violation_processing')
+                ->where('evaluation.anonymous_content_status', 1)
+                ->whereNull('b1.member_id')
+                ->whereNull('b3.target')
+                ->where('um.isWarned',0)
+                ->whereNull('w2.id')
+                ->whereNotNull('u1.id')
+                ->where('u1.accountStatus', 1)
+                ->where('u1.account_status_admin', 1)
                 ->orderBy('evaluation.created_at','desc')
                 ->where('evaluation.to_id', $uid);
 
             $evaluation_data = $query->paginate(10);
 
-            $evaluation_self = Evaluation::where('to_id',$uid)->where('from_id',$user->id)->first();
+            $evaluation_self = Evaluation::where('to_id',$uid)->where('from_id',$user->id)->whereNull('content_violation_processing')->first();
             /*編輯文案-被封鎖者看不到封鎖者的提示-START*/
             //$user_closed = AdminCommonText::where('alias','user_closed')->get()->first();
             /*編輯文案-被封鎖者看不到封鎖者的提示-END*/
@@ -2397,6 +2482,8 @@ class PagesController extends BaseController
             if(isset($_SERVER['HTTP_REFERER'])){
                 if(!str_contains($_SERVER['HTTP_REFERER'],'dashboard/chat2/chatShow') && !str_contains($_SERVER['HTTP_REFERER'],'dashboard/viewuser')){
                     session()->put('goBackPage',$_SERVER['HTTP_REFERER']);
+                } else if (strpos($_SERVER['HTTP_REFERER'], 'dashboard/chat2/chatShow')) {
+                    session()->put('goBackPage',$_SERVER['HTTP_REFERER']);
                 }
             }
 
@@ -2414,6 +2501,98 @@ class PagesController extends BaseController
                 session()->forget('via_by_essence_article_enter');
             }
             // die();
+            //關於我,期待的約會模式
+            $relationship_status = DB::table('option_relationship_status')
+                                        ->leftJoin('user_options_xref', function($join) use($to)
+                                        {
+                                            $join->on('option_relationship_status.id', '=', 'user_options_xref.option_id')
+                                                ->where('user_options_xref.user_id', '=', $to->id)
+                                                ->where('user_options_xref.option_type', '=', 2)
+                                                ;
+                                        })
+                                        ->select('option_relationship_status.*', 'user_options_xref.id as xref_id')
+                                        ->whereNotNull('user_options_xref.id')
+                                        ->get();
+            $looking_for_relationships = DB::table('option_looking_for_relationships')
+                                        ->leftJoin('user_options_xref', function($join) use($to)
+                                        {
+                                            $join->on('option_looking_for_relationships.id', '=', 'user_options_xref.option_id')
+                                                ->where('user_options_xref.user_id', '=', $to->id)
+                                                ->where('user_options_xref.option_type', '=', 3)
+                                                ;
+                                        })
+                                        ->select('option_looking_for_relationships.*', 'user_options_xref.id as xref_id')
+                                        ->whereNotNull('user_options_xref.id')
+                                        ->get();
+            $expect = DB::table('option_expect')
+                                        ->leftJoin('user_options_xref', function($join) use($to)
+                                        {
+                                            $join->on('option_expect.id', '=', 'user_options_xref.option_id')
+                                                ->where('user_options_xref.user_id', '=', $to->id)
+                                                ->where('user_options_xref.option_type', '=', 4)
+                                                ;
+                                        })
+                                        ->select('option_expect.*', 'user_options_xref.id as xref_id')
+                                        ->whereNotNull('user_options_xref.id')
+                                        ->get();
+            $favorite_food = DB::table('option_favorite_food')
+                                        ->leftJoin('user_options_xref', function($join) use($to)
+                                        {
+                                            $join->on('option_favorite_food.id', '=', 'user_options_xref.option_id')
+                                                ->where('user_options_xref.user_id', '=', $to->id)
+                                                ->where('user_options_xref.option_type', '=', 5)
+                                                ;
+                                        })
+                                        ->select('option_favorite_food.*', 'user_options_xref.id as xref_id')
+                                        ->whereNotNull('user_options_xref.id')
+                                        ->get();
+            $preferred_date_location = DB::table('option_preferred_date_location')
+                                        ->leftJoin('user_options_xref', function($join) use($to)
+                                        {
+                                            $join->on('option_preferred_date_location.id', '=', 'user_options_xref.option_id')
+                                                ->where('user_options_xref.user_id', '=', $to->id)
+                                                ->where('user_options_xref.option_type', '=', 6)
+                                                ;
+                                        })
+                                        ->select('option_preferred_date_location.*', 'user_options_xref.id as xref_id')
+                                        ->whereNotNull('user_options_xref.id')
+                                        ->get();
+            $expected_type = DB::table('option_expected_type')
+                                        ->leftJoin('user_options_xref', function($join) use($to)
+                                        {
+                                            $join->on('option_expected_type.id', '=', 'user_options_xref.option_id')
+                                                ->where('user_options_xref.user_id', '=', $to->id)
+                                                ->where('user_options_xref.option_type', '=', 7)
+                                                ;
+                                        })
+                                        ->select('option_expected_type.*', 'user_options_xref.id as xref_id')
+                                        ->whereNotNull('user_options_xref.id')
+                                        ->get();
+            $frequency_of_getting_along = DB::table('option_frequency_of_getting_along')
+                                        ->leftJoin('user_options_xref', function($join) use($to)
+                                        {
+                                            $join->on('option_frequency_of_getting_along.id', '=', 'user_options_xref.option_id')
+                                                ->where('user_options_xref.user_id', '=', $to->id)
+                                                ->where('user_options_xref.option_type', '=', 8)
+                                                ;
+                                        })
+                                        ->select('option_frequency_of_getting_along.*', 'user_options_xref.id as xref_id')
+                                        ->whereNotNull('user_options_xref.id')
+                                        ->get();
+            //工作/學業
+            $user_option_xref = UserOptionsXref::where('user_id', $to->id);
+            $user_option = new \stdClass();
+            $user_option->occupation = $user_option_xref->clone()->where('option_type', 1)->first();
+
+            // 進階認證狀態
+            $advance_auth_status = $user->advance_auth_status;
+
+            //判斷是否預算不實
+            $bool_value = [];
+            $bool_value['transport_fare_warn'] = warned_users::where('member_id', $uid)->where('type', 'transport_fare')->first();
+            $bool_value['budget_per_month_warn'] = warned_users::where('member_id', $uid)->where('type', 'month_budget')->first();
+
+
             return view('new.dashboard.viewuser', $data ?? [])
                     ->with('user', $user)
                     ->with('blockadepopup', $blockadepopup)
@@ -2440,14 +2619,25 @@ class PagesController extends BaseController
                     ->with('isReadIntro',$isReadIntro)
                     ->with('auth_check',$auth_check)
                     ->with('is_banned',User::isBanned($user->id))
+                    ->with('is_banned_v2', User::isBanned_v2($user->id))
                     ->with('pr', $pr)
                     ->with('isBlocked',$isBlocked)
                     ->with('visited_id', $visited_id)
                     ->with('rap_service',$rap_service)
                     ->with('transport_fare_reported', $transport_fare_reported)
                     ->with('month_budget_reported', $month_budget_reported)
+                    ->with('user_option', $user_option)
+                    ->with('relationship_status', $relationship_status)
+                    ->with('looking_for_relationships', $looking_for_relationships)
+                    ->with('expect', $expect)
+                    ->with('favorite_food', $favorite_food)
+                    ->with('preferred_date_location', $preferred_date_location)
+                    ->with('expected_type', $expected_type)
+                    ->with('frequency_of_getting_along', $frequency_of_getting_along)
+                    ->with('advance_auth_status', $advance_auth_status)
+                    ->with('bool_value', $bool_value)
                     ;
-            }
+        }
 
     }
 
@@ -2891,6 +3081,7 @@ class PagesController extends BaseController
                 $dataList[$key]['visitorIsOnline'] = $visitor->isOnline();
                 $dataList[$key]['visitorExchangePeriodName'] = DB::table('exchange_period_name')->where('id',$visitor->exchange_period)->first();
                 $dataList[$key]['visitorValueAddedServiceStatusHideOnline'] = $visitor->valueAddedServiceStatus('hideOnline');
+                $dataList[$key]['new_occupation'] = UserOptionsXref::where('user_id', $visitor->id)->where('option_type', 1)->first()->occupation->option_name ?? '';
             }
             
             $rap_service->riseByUserEntry($user);
@@ -3004,21 +3195,19 @@ class PagesController extends BaseController
 
     public function evaluation_save(Request $request)
     {
+        $evaluation=Evaluation::create([
+            'from_id' => $request->input('uid'),
+            'to_id' => $request->input('eid'),
+            'content' => $request->input('content'),
+            'rating' => $request->input('rating'),
+            'read' => 1,
+            'content_violation_processing' => $request->input('content_processing_method'),
+            'created_at' => now(),
+            'updated_at' => now(),
+        ]);
+        //儲存評論照片
+        $this->evaluation_pic_save($evaluation->id, $request->input('uid'), $request->file('images'));
 
-        $evaluation_self = Evaluation::where('to_id',$request->input('eid'))->where('from_id',$request->input('uid'))->first();
-
-        if(isset($evaluation_self)){
-            DB::table('evaluation')->where('to_id',$request->input('eid'))->where('from_id',$request->input('uid'))->update(
-                ['content' => $request->input('content'), 'rating' => $request->input('rating'), 'read' => 1, 'updated_at' => now()]
-            );
-        }else {
-
-            $evaluation=Evaluation::create([
-                'from_id' => $request->input('uid'), 'to_id' => $request->input('eid'), 'content' => $request->input('content'), 'rating' => $request->input('rating'), 'read' => 1, 'created_at' => now(), 'updated_at' => now()
-            ]);
-            //儲存評論照片
-            $this->evaluation_pic_save($evaluation->id, $request->input('uid'), $request->file('images'));
-        }
         if($request->ajax()) {
             echo '評價已完成';
             exit;
@@ -3044,9 +3233,16 @@ class PagesController extends BaseController
 
                 $destinationPath = '/img/Evaluation/'. substr($input['imagename'], 0, 4) . '/' . substr($input['imagename'], 4, 2) . '/'. substr($input['imagename'], 6, 2) . '/' . $input['imagename'];
 
-                $img = Image::make($file->getRealPath());
-                $img->resize(400, 600, function ($constraint) {
+                $pathname = $file->getRealPath();
+                $imagesize = getimagesize($pathname);
+                $width = $imagesize[0] ?? 1200;
+                $height = $imagesize[0] ?? null;
+
+                $img = Image::make($pathname);
+                $img->resize($width, $height, function ($constraint) {
                     $constraint->aspectRatio();
+                    // 若圖片較小，則不需放大圖片
+                    $constraint->upsize();
                 })->save($tempPath . $input['imagename']);
 
                 //新增images到db
@@ -3558,8 +3754,14 @@ class PagesController extends BaseController
 
         //紀錄返回上一頁的url
         if(isset($_SERVER['HTTP_REFERER'])){
-            if(!str_contains($_SERVER['HTTP_REFERER'],'dashboard/chat2/chatShow')){
-                session()->put('goBackPage_chat2',$_SERVER['HTTP_REFERER']);
+            // 從收信夾內點入
+            if (strpos($_SERVER['HTTP_REFERER'], 'dashboard/chat2')) {
+                session()->put('goBackPage_chat2', $_SERVER['HTTP_REFERER']);
+            // 從個資點回 且 上層是收信夾 則繼續使用 goBackPage_chat2
+            } else if (strpos($_SERVER['HTTP_REFERER'], 'dashboard/viewuser') && session()->get('goBackPage_chat2') && empty($request->from_viewuser_page)) {
+            } else if (!str_contains($_SERVER['HTTP_REFERER'],'dashboard/chat2/chatShow')) {
+                session()->forget('goBackPage_chat2');
+                session()->put('goBackPage',$_SERVER['HTTP_REFERER']);
             }
         }
 
@@ -4767,7 +4969,7 @@ class PagesController extends BaseController
         else if(!$user->isAdvanceAuth()) {
             //0922222222是後台自動塞的假手機驗證資料，所以要當做沒手機驗證
             if(!$is_edu_mode && (!$user->isPhoneAuth() || !$user->getAuthMobile() || $user->getAuthMobile()=='0922222222') ) {
-                $user->short_message()->delete();
+                ShortMessageService::deleteShortMessageByUser($user);
                 $url_query_str = '?return_aa=1';
                 if(request()->real_auth) {
                     $url_query_str = '?'.http_build_query(['real_auth'=>request()->real_auth]);
@@ -4801,7 +5003,7 @@ class PagesController extends BaseController
         $user =$request->user();     
         $check_rs = null;
         if(!$request->id_serial) $check_rs[] = 'i';
-        if(!$request->phone_number) $check_rs[] = 'p';
+        if(!$request->phone_number) $check_rs[] = 'p';       
         if(!($request->year && $request->month && $request->day)) {
             $check_rs[] = 'b';
             $birth = null;
@@ -4839,16 +5041,27 @@ class PagesController extends BaseController
         }
         
         if($request->phone_number) {
-            if(preg_match("/^09[0-9]{8}$/",$request->phone_number)) {
-                if($request->phone_number!=$user->getAuthMobile(true))
-                {
-                    $check_rs[] = 'p';
-                }
+            
+            if($user->getAuthMobile(true)!=$request->phone_number) {
+                $check_rs[] = 'phack';
             }
             else {
-                $check_rs[] = 'p';
+                if(preg_match("/^09[0-9]{8}$/",$request->phone_number)) {
+                    if($request->phone_number!=$user->getAuthMobile(true))
+                    {
+                        $check_rs[] = 'p';
+                    }
+                }
+                else {
+                    $check_rs[] = 'p';
+                }
+                
+                if(ShortMessageService::isForbiddenByPhoneNumber($request->phone_number)) {
+                    $check_rs[] = 'pf';
+                } 
+
             }
-        }  
+        }        
         if($birth) {
             $age = $this->getAge($birth);
             /* 判斷是否小於18歲 */
@@ -4892,7 +5105,7 @@ class PagesController extends BaseController
         }
         else {
             return back()->with('error_code', explode('_',$check_rs))
-                    ->with('error_code_msg',['s'=>'僅供女會員驗證','i'=>'身分證字號','p'=>'門號','b'=>'生日','b18'=>'年齡未滿18歲，不得進行驗證']);
+                    ->with('error_code_msg',['s'=>'僅供女會員驗證','i'=>'身分證字號','p'=>'門號','b'=>'生日','b18'=>'年齡未滿18歲，不得進行驗證','pf'=>'無法使用此手機號碼進行驗證','phack'=>'非通過驗證的手機號碼']);
         }
         
         if(User::where('advance_auth_identity_encode',$encode_id_serial)->where('advance_auth_status',1)->where('advance_auth_phone',$phone_number)->where('advance_auth_birth',$format_birth)->count()) {
@@ -5041,15 +5254,15 @@ class PagesController extends BaseController
             $phone_number_for_sms = substr_replace($phone_number,'+886',0,1);
             if($latest_user_active_mobile) {
                 if($latest_user_active_mobile->mobile && $latest_user_active_mobile->mobile!=$phone_number && $latest_user_active_mobile->mobile!=$phone_number_for_sms){
-                    $user_active_mobile_query->update(['active'=>0,'canceled_date'=>$auth_date,'canceled_by'=>'adv_auth']);
-                    $user->short_message()->create(['mobile'=>$phone_number,'active'=>1]);
+                    ShortMessageService::deleteShortMessageByUser($user,true);
+                    $user->short_message()->create(['mobile'=>$phone_number,'active'=>1,'auto_created'=>1]);
                 }
                 else {
-                    $user_active_mobile_query->where('id','<>',$latest_user_active_mobile->id)->update(['active'=>0,'canceled_date'=>$auth_date,'canceled_by'=>'adv_auth']);
+                    ShortMessageService::deleteShortMessageByQuery($user_active_mobile_query->where('id','<>',$latest_user_active_mobile->id),true);
                 }
             }
             else {
-                $user->short_message()->create(['mobile'=>$phone_number,'active'=>1]);
+                $user->short_message()->create(['mobile'=>$phone_number,'active'=>1,'auto_created'=>1]);
             }
             
             $check_other_user_mobile_query = short_message::where('active',1)->where('member_id','<>',$user->id)
@@ -5059,7 +5272,7 @@ class PagesController extends BaseController
                 });
             
             if($check_other_user_mobile_query->count()) {
-                $check_other_user_mobile_query->update(['active'=>0,'canceled_date'=>$auth_date,'canceled_by'=>'adv_auth']);
+                ShortMessageService::deleteShortMessageByQuery($check_other_user_mobile_query,true);
             }
 
             $banOrWarnCanceledStr = $this->advance_auth_cancel_BanOrWarn($user);
@@ -5067,7 +5280,7 @@ class PagesController extends BaseController
             $success_msg = '
                         驗證成功：恭喜您，您的資料已經通過驗證，'.($banOrWarnCanceledStr?'成功解除'.$banOrWarnCanceledStr.'，':'').'
                         系統會將您的手機號碼以及生日更新到您的基本資料。
-                        並獲得<img src="'.asset('new/images/b_7.png').'" class="adv_auth_icon" />進階驗證的標籤<img src="'.asset('new/images/b_7.png').'" class="adv_auth_icon" />             
+                        並獲得<img src="'.asset('new/images/b_6.png').'" class="adv_auth_icon" />進階驗證的標籤<img src="'.asset('new/images/b_6.png').'" class="adv_auth_icon" />             
                     ';
             if($rap_service->isInRealAuthProcess(true)) {
                 $rap_service->applyRealAuthByReq($request);
@@ -5165,9 +5378,10 @@ class PagesController extends BaseController
         $check_rs = null;
         
         if(!$email) return [ 'empty'];
-        if($_SERVER['SERVER_ADDR']=='127.0.0.1') return;
+
         if(substr($email,-7)!='.edu.tw' && substr($email,-7)!='@edu.tw') return [ 'not_edu'];
-        if(substr($email,-10)=='.tp.edu.tw' || substr($email,-10)=='@tp.edu.tw') return [ 'not_accept_edu'];
+        if(substr($email,-10)=='@tp.edu.tw') return [ 'not_accept_edu'];
+        if(substr($email,-10)=='.tp.edu.tw' && substr($email,-16)!='.cogsh.tp.edu.tw'  && substr($email,-16)!='@cogsh.tp.edu.tw') return [ 'not_accept_edu'];
         if(substr($email,-17)=='.educities.edu.tw' || substr($email,-17)=='@educities.edu.tw') return [ 'not_accept_edu'];
     }
     
@@ -5228,6 +5442,7 @@ class PagesController extends BaseController
         if(config('memadvauth.user.email_test_send')==1 && request()->server('SERVER_ADDR')!='127.0.0.1') $email = $user->email;
       
         $user->advance_auth_email = $email;
+        $user->advance_auth_email_at = Carbon::now();
         $user->save();        
         $this->service->setAndSendUserAdvAuthEmailToken($user);
 
@@ -5250,7 +5465,7 @@ class PagesController extends BaseController
                 if($rap_service->isAuthHaveProfileProcess($request->real_auth))
                     $rap_service->applyRealAuthByReq(request(),true);
                 if(!$user->isPhoneAuth()) {
-                    $user->short_message()->create(['active'=>1]);
+                    $user->short_message()->create(['active'=>1,'auto_created'=>1]);
                 }
                 $banOrWarnCanceledStr = $this->advance_auth_cancel_BanOrWarn($user);
                 $success_msg = '驗證成功'.($banOrWarnCanceledStr?'，成功解除'.$banOrWarnCanceledStr:'');
@@ -5465,7 +5680,7 @@ class PagesController extends BaseController
 
         $pid = $request->pid;
         //$this->post_views($pid);
-        $postDetail = Posts::withTrashed()->selectraw('posts.top, users.id as uid, users.name as uname, users.engroup as uengroup, posts.is_anonymous as panonymous, posts.views as uviews, user_meta.pic as umpic, posts.id as pid, posts.title as ptitle, posts.contents as pcontents, posts.updated_at as pupdated_at,  posts.created_at as pcreated_at, posts.deleted_at as pdeleted_at')
+        $postDetail = Posts::withTrashed()->selectraw('posts.top, users.id as uid, users.name as uname, users.engroup as uengroup, posts.is_anonymous as panonymous, posts.views as uviews, user_meta.pic as umpic, posts.id as pid, posts.title as ptitle, posts.contents as pcontents, posts.images as pimages, posts.updated_at as pupdated_at,  posts.created_at as pcreated_at, posts.deleted_at as pdeleted_at')
             ->LeftJoin('users', 'users.id','=','posts.user_id')
             ->join('user_meta', 'users.id','=','user_meta.user_id')
             ->where('posts.id', $pid)->first();
@@ -5476,7 +5691,7 @@ class PagesController extends BaseController
             return redirect()->route('posts_list');
         }
 
-        $replyDetail = Posts::selectraw('users.id as uid, users.name as uname, users.engroup as uengroup, posts.is_anonymous as panonymous, posts.views as uviews, user_meta.pic as umpic, posts.id as pid, posts.title as ptitle, posts.contents as pcontents, posts.updated_at as pupdated_at,  posts.created_at as pcreated_at')
+        $replyDetail = Posts::selectraw('users.id as uid, users.name as uname, users.engroup as uengroup, posts.is_anonymous as panonymous, posts.views as uviews, user_meta.pic as umpic, posts.id as pid, posts.title as ptitle, posts.contents as pcontents, posts.images as pimages, posts.updated_at as pupdated_at,  posts.created_at as pcreated_at')
             ->LeftJoin('users', 'users.id','=','posts.user_id')
             ->join('user_meta', 'users.id','=','user_meta.user_id')
             ->orderBy('pcreated_at','desc')
@@ -5569,15 +5784,39 @@ class PagesController extends BaseController
     public function postsEdit($id, $editType='all')
     {
         $postInfo = Posts::find($id);
-        return view('/dashboard/posts_edit',compact('postInfo','editType'));
+        $images=json_decode($postInfo->images, true);
+        $imagesGroup=array();
+        if(!is_null($images) && count($images)){
+            foreach ($images as $key => $path) {
+                if(file_exists(public_path($path))){
+                    $imagePath = $path;
+                    $imagesGroup['type'][$key] = \App\Helpers\fileUploader_helper::mime_content_type(ltrim($imagePath, '/'));
+                    $imagesGroup['name'][$key] = Arr::last(explode('/', $imagePath));
+                    $imagesGroup['size'][$key] = str_starts_with($imagePath, 'http') ? null :filesize(ltrim($imagePath, '/'));
+                    $imagesGroup['local'][$key] = $imagePath;
+                    $imagesGroup['file'][$key] = $imagePath;
+                    $imagesGroup['data'][$key] = [
+                        'url' => $imagePath,
+                        'thumbnail' =>$imagePath,
+                        'renderForce' => true
+                    ];
+                }
+            }
+        }
+        $images=$imagesGroup;
+
+        return view('/dashboard/posts_edit',compact('postInfo','editType', 'images'));
     }
 
     public function doPosts(Request $request)
     {
         $user=$request->user();
 
+        //儲存照片
+        $fileuploaderListImages = $request->get('fileuploader-list-images');
+        $destinationPath=$this->posts_pic_save($request->get('post_id'), $fileuploaderListImages, $request->file('images'));
         if($request->get('action') == 'update'){
-            Posts::find($request->get('post_id'))->update(['title'=>$request->get('title'),'contents'=>$request->get('contents')]);
+            Posts::find($request->get('post_id'))->update(['title'=>$request->get('title'),'contents'=>$request->get('contents'), 'images' => isset($destinationPath) ? $destinationPath : null]);
             return redirect($request->get('redirect_path'))->with('message','修改成功');
 
         }else{
@@ -5586,20 +5825,80 @@ class PagesController extends BaseController
             $posts->title = $request->get('title');
             $posts->type = $request->get('type','main');
             $posts->contents=$request->get('contents');
+            $posts->images=isset($destinationPath) ? $destinationPath : null;
             $posts->save();
             DB::table('posts')->where('id',$posts->id)->update(['article_id'=>$posts->id]);
             return redirect('/dashboard/posts_list')->with('message','發表成功');
         }
     }
 
+    //官方討論區_照片上傳
+    public function posts_pic_save($post_id, $images, $newImages)
+    {
+        $suspicious=Posts::where('id',$post_id)->first();
+        $suspiciousImages=$suspicious && !is_null($suspicious->images)? json_decode($suspicious->images, true) : [];
+        $nowImageList=array();
+        $images=json_decode($images, true);
+        if($images){
+            foreach ($images as $imageList){
+                $nowImageList[]=array_get($imageList,'file');
+            }
+        }
+
+        foreach ($suspiciousImages as $key => $dbImage){
+            if(in_array($dbImage, $nowImageList)){
+                continue;
+            }else{
+                //移除照片
+                if(file_exists(public_path().$dbImage)){
+                    unlink(public_path().$dbImage);
+                }
+                unset($suspiciousImages[$key]);
+            }
+        }
+
+        $destinationPath = [];
+        //新增新加入照片
+        if($files = $newImages)
+        {
+            foreach ($files as $file) {
+                $now = Carbon::now()->format('Ymd');
+                $input['imagename'] = $now . rand(100000000,999999999) . '.' . $file->getClientOriginalExtension();
+
+                $rootPath = public_path('/img/Posts');
+                $tempPath = $rootPath . '/' . substr($input['imagename'], 0, 4) . '/' . substr($input['imagename'], 4, 2) . '/'. substr($input['imagename'], 6, 2) . '/';
+
+                if(!is_dir($tempPath)) {
+                    File::makeDirectory($tempPath, 0777, true);
+                }
+
+                $destinationPath[] = '/img/Posts/'. substr($input['imagename'], 0, 4) . '/' . substr($input['imagename'], 4, 2) . '/'. substr($input['imagename'], 6, 2) . '/' . $input['imagename'];
+
+                $img = Image::make($file->getRealPath());
+                $img->resize(400, 600, function ($constraint) {
+                    $constraint->aspectRatio();
+                })->save($tempPath . $input['imagename']);
+
+            }
+        }
+        //整理images
+        $destinationPath = json_encode(array_merge($suspiciousImages, $destinationPath));
+        return $destinationPath;
+    }
+
     public function posts_reply(Request $request)
     {
+        //儲存照片
+        $fileuploaderListImages = $request->get('fileuploader-list-images');
+        $destinationPath=$this->posts_pic_save($request->get('post_id'), $fileuploaderListImages, $request->file('images'));
+
         $posts = new Posts;
         $posts->article_id = $request->get('article_id');
         $posts->reply_id = $request->get('reply_id');
         $posts->user_id = $request->get('user_id');
         $posts->type = $request->get('type','sub');
         $posts->contents   = str_replace('..','',$request->get('contents'));
+        $posts->images=isset($destinationPath) ? $destinationPath : null;
         $posts->tag_user_id = $request->get('tag_user_id');
         $posts->save();
 
@@ -7762,6 +8061,9 @@ class PagesController extends BaseController
             ]);
             DB::table('short_message')->insert([
                 'member_id'=>$toEngroup,
+                'auto_created'=>1,
+                'created_from'=>request()->path(),
+                'created_by'=>auth()->id(),
                 'active'=>1,
                 'createdate'=>date('Y-m-d H:i:s'),               
             ]);  

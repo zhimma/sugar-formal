@@ -153,9 +153,6 @@
                     if('{{$user->meta->isWarned == 1 || $user->aw_relation}}' == true){
                         // console.log("1")
                         isBlur = true;
-                    }else if ('{{$user->engroup == 2}}' == true){
-                        // console.log("2")
-                        isBlur = false;
                     }else{
                         console.log(e.blurry_avatar)
                         if(e.blurry_avatar){

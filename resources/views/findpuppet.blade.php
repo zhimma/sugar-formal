@@ -5,7 +5,6 @@
     body div.top_head_title_info {text-align:center;}
     body div.top_head_title_info div.group_cat_info {margin-top:20px;}
     body div.top_head_title_info div.group_cat_info  a.jump_to_all_handled_group{text-decoration: underline;}
-	body table.table-hover tr th.col_user_id {padding-left:106px;padding-right:106px;}
 	img.ignore_switch_off {display:none;}
 	img.ignore_switch_on {display:inline-block;}
 	/*img.ignore_switch_off,img.ignore_switch_on {float:right;}*/
@@ -416,9 +415,10 @@
 	@endif
     <table class="table-hover table table-bordered {{isset($groupInfo[$g]['cutData'])?'ignore_msg':''}}">
         <tr>
-            <th class="col_user_id">&nbsp;&nbsp;User id&nbsp;&nbsp;</th>
+            <th class="col_user_id">&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;</th>
 			<th>{!!str_repeat('&nbsp;',ceil(($max_email_len-5)/2)*2)!!}Email{!!str_repeat('&nbsp;',floor(($max_email_len-5)/2)*2)!!}</th>
-			<th>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;暱稱&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;</th>
+			<th>新手教學時間</th>
+            <th>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;暱稱&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;</th>
 			<th>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;一句話&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;</th>
 			<th>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;關於我&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;</th>
 			<th>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;約會模式&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;</th>
@@ -470,8 +470,11 @@
         <tr class="{{$user->tag_class}}">
             <th class="col-1st">
 	{{--		<a target="_blank" href="showLog?user_id={{$user->id}}{{request()->mon?'&mon='.request()->mon:''}}">   --}}
-				<a target="_blank" class="user_id"  href="{{route('getUsersLog')}}?user_id={{$user->id}}">{{$user->id ?? ''}}@if($user->engroup == 1 && $user->isVip()) <i class="m-nav__link-icon fa fa-diamond"></i> @endif </a>
-				@if ($user->email)
+				@if($user->engroup == 1 && $user->isVip()) <i class="m-nav__link-icon fa fa-diamond"></i> @endif
+                @if($user->is_real==0) (本) @endif
+                @if($user->advance_auth_status) (驗) @endif
+                ({{$user->register_days}})
+                @if ($user->email)
 				<button type="button" class="btn btn_admin_close  @if($user->account_status_admin==1) btn-danger @else btn-success @endif">站方@if($user->account_status_admin==1)關閉@else開啟@endif</button>
 				@if (Auth::user()->can('admin') || Auth::user()->can('juniorAdmin'))
 					<a href="{{ route('AdminMessage', $user->id) }}" target="_blank" class='btn btn-dark'>站長訊息</a>
@@ -499,7 +502,10 @@
 				<th  class="col-2nd"  style="color: {{ $user->engroup == 1 ? 'blue' : 'red' }}; @if($bgColor) background-color: {{ $bgColor }} @endif">
 					<a href="{!!route('users/advInfo',$user->id)!!}"  target="_blank">{{ $user->email }}</a>
 				</th>
-				<th  class="col-3rd" style="color: {{ $user->engroup == 1 ? 'blue' : 'red' }}; @if($bgColor) background-color: {{ $bgColor }} @endif">
+                <th  class="col-3rd" style="color: {{ $user->engroup == 1 ? 'blue' : 'red' }}; @if($bgColor) background-color: {{ $bgColor }} @endif">
+                    {{$user->newer_manual_stay_online_time->time??'無'}}
+                </th>
+				<th  class="col-most" style="color: {{ $user->engroup == 1 ? 'blue' : 'red' }}; @if($bgColor) background-color: {{ $bgColor }} @endif">
 					<a href="#" class="user user_name" title="{{$user->name}}" onclick="return false;">{{ mb_strlen($user->name)>8?mb_substr($user->name,0,9).'...':$user->name }}</a>
 				</th>				
 				<th class="col-most" style="color: {{ $user->engroup == 1 ? 'blue' : 'red' }}; @if($bgColor) background-color: {{ $bgColor }} @endif">
@@ -520,7 +526,8 @@
 				<th class="col-most" ></th>
 				<th class="col-most" ></th>
 				<td class="col-most" ></td>
-				<td class="col-most" td>
+				<td class="col-most"></td>
+                <td class="col-most"></td>
 			@endif
 			@foreach ($colIdxOfVid[$g] as $n)
 				<td @if($user) style="color: {{ $user->engroup == 1 ? 'blue' : 'red' }}; @if($bgColor) background-color: {{ $bgColor }} @endif" @endif class=" @if($groupInfo[$g]['last_time']===$cellValue[$g][$r][$n]->time) group_last_time @endif @if($cellValue[$g][$r][$n]->ignoreEntry) ignore_cell  @endif  col-most">

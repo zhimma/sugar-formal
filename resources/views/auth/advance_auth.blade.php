@@ -265,16 +265,22 @@
     <div class="n_blnr01 matop10">
         <div class="n_fengs" >
             @if(Session::has('error_code'))
-                @if(implode('_',Session::get('error_code')??[])!='b18')請輸入正確@endif
+                @if(substr(implode('_',Session::get('error_code')??[]),1,1)=='_')請輸入正確@endif
                 @for($i=0;$i<count(Session::get('error_code'));$i++)
-                @if(Session::get('error_code')[$i]!='b18')
+                @if(Session::get('error_code')[$i]!='b18' && Session::get('error_code')[$i]!='pf' && Session::get('error_code')[$i]!='phack')
                 {{$i?'/':''}}{!!Session::get('error_code_msg')[Session::get('error_code')[$i]]!!}
                 @endif
                 @endfor
-                @if(implode('_',Session::get('error_code')??[])!='b18')<br>@endif
+                @if(substr(implode('_',Session::get('error_code')??[]),1,1)=='_')<br>@endif
                 @if(in_array('b18',Session::get('error_code')))
-                年齡未滿18歲，不得進行驗證
+                {!!Session::get('error_code_msg')['b18']??null!!}
                 @endif
+                @if(in_array('pf',Session::get('error_code')))
+                {!!Session::get('error_code_msg')['pf']??null!!}
+                @endif 
+                @if(in_array('phack',Session::get('error_code')))
+                {!!Session::get('error_code_msg')['phack']??null!!}
+                @endif                 
                 @php Session::forget('error_code')  @endphp
                 @php Session::forget('error_code_msg')  @endphp         
             @elseif(request()->msg=='canceled_ban' && $user->isAdvanceAuth())     
@@ -286,7 +292,7 @@
             {!!$init_check_msg!!}
             @elseif(!$user->isAdvanceAuth())
                 您好，您即將進入本站的進階身分驗證資訊系統。
-                通過驗證將獲得本站的<img src="{{asset('new/images/b_7.png')}}" class="adv_auth_icon" />進階驗證標籤<img src="{{asset('new/images/b_7.png')}}"  class="adv_auth_icon" />               
+                通過驗證將獲得本站的<img src="{{asset('new/images/b_6.png')}}" class="adv_auth_icon" />進階驗證標籤<img src="{{asset('new/images/b_6.png')}}"  class="adv_auth_icon" />               
                 @if($rap_service->isInRealAuthProcess())
                 ，並可進行與站長的視訊。
                 @endif            

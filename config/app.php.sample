@@ -186,7 +186,9 @@ return [
         Yajra\DataTables\DataTablesServiceProvider::class,
         App\Providers\CustomSessionServiceProvider::class,
         App\Providers\RealAuthServiceProvider::class,        
-    ],
+        App\Providers\ShortMessageServiceProvider::class,
+    ]
+    ,
 
     /*
     |--------------------------------------------------------------------------
