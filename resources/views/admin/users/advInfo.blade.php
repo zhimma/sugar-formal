@@ -48,7 +48,12 @@
     #autoban_pic_gather .autoban_pic_unit label {padding:0 10px 10px 10px;} 
     #autoban_pic_gather .autoban_pic_unit label span {display:block;text-align:center;font-size:4px;}
     #autoban_pic_gather .autoban_pic_unit input:checked+label {background:#1E90FF;}
-
+    span.unchecked_value_show {text-align:center;color:red;font-weight:bolder;background:yellow;}
+    .unchecked_value_show {width:45%;display:inline-block;margin-left:10%;vertical-align:top;margin-bottom:10px;}
+    .unchecked_value_show > div {display:inline-block;background:yellow;padding:15px;}
+    .has_unchecked_compare_origin_show {display:inline-block;width:45%;}
+    #form_exchange_period_container {display:inline-block;vertical-align:top;}
+    #form_exchange_period_container .unchecked_value_show {font-size:14px;white-space:nowrap;}
 </style>
 
 <body style="padding: 15px;">
@@ -222,7 +227,8 @@
         <a class="btn {{$raa_service->getActorClassAttrByAuthTypeId(3)}}" id="famous_auth_actor" href="javascript:void(0)" data-auth_type_id="3" data-auth_name="名人認證"  data-user_id="{{ $user['id'] }}"    data-latest_modify_id="{{$raa_service->getLatestUncheckedModifyIdByAuthTypeId(3)}}">{{$raa_service->getStatusActorPrefixByAuthTypeId(3)}}名人認證</a>
         <a class="btn {{$raa_service->getModifyCheckActorClassAttr()}}" id="modify_check_actor" href="javascript:void(0)" data-latest_modify_id="{{$user->latest_real_auth_user_modify->id??null}}" data-auth_name="資料異動"  data-user_id="{{ $user['id'] }}" >{{$raa_service->getModifyCheckActorPrefix()}}資料異動</a>
         <a class="btn btn-info" href="{{route('admin/editRealAuth_sendMsg',['id'=>$user->id])}}">站長補件</a>
-    </div>     
+    </div> 
+    <div id="form_exchange_period_container">
     <form method="POST" id="form_exchange_period" action="{{ route('changeExchangePeriod') }}" style="margin:0px;display:inline;">
         {!! csrf_field() !!}
         <select class="form-control" style="width:auto; display: inline;" name="exchange_period" id="exchange_period">
@@ -235,6 +241,9 @@
         </select>
         <input type="hidden" name="id" value="{{$user->id}}">
     </form>
+    <br>
+    {!!$raa_service->getActualUncheckedExchangePeriodLayout()!!}
+    </div>
     @endif
 
     @if(isset($posts_forum))

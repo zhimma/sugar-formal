@@ -1761,6 +1761,7 @@ class PagesController extends BaseController
 
     public function exchangePeriodModify(Request $request,RealAuthPageService $rap_service){
         $user = $request->user();
+        $rap_service->riseByUserEntry($user);
 
         if( Hash::check($request->input('password'),$user->password) ) {
             //檢查是否申請過
