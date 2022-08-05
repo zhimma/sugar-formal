@@ -1439,7 +1439,12 @@ class UserService
         $diff_days = $register_at->diffInDays($now);
         
         return $diff_days;
-    }      
+    } 
+
+    public static function getOptionWordByWeightValue($weight)
+    {
+        return $weight?($weight-4).' ~ '.$weight:str_replace('0','不填寫',$weight);
+    }
 
     public function riseByUserEntry($userEntry) 
     {

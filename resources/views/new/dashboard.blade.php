@@ -447,7 +447,7 @@ dt span.engroup_type_title {display:inline-block;width:10%;white-space:nowrap;}
                         <span style="display:inline-block;width:47%;">正在審核的體重異動</span>
                         @endif                    
                     @if($rap_service->isPassedByAuthTypeId(1))
-                    <div  onclick="show_real_auth_new_weight_tab();"  class="select_xx01 senhs hy_new" tabindex="-1" id="weight_readonly_block" style="background: #d2d2d2;@if($rap_service->modify_entry()) display:inline-block;width:50%;  @endif">{{$umeta->weight?($umeta->weight-4).' ~ '.$umeta->weight:0}}</div>         
+                    <div  onclick="show_real_auth_new_weight_tab();"  class="select_xx01 senhs hy_new" tabindex="-1" id="weight_readonly_block" style="background: #d2d2d2;@if($rap_service->modify_entry()) display:inline-block;width:50%;  @endif">{{$umeta->weight?($umeta->weight-4).' ~ '.$umeta->weight:str_replace('0','不填寫',$umeta->weight)}}</div>         
                     @if($rap_service->modify_entry())
                     <div class="select_xx01 senhs hy_new" tabindex="-1" id="new_weight_readonly_block" style="background: #d2d2d2;display:inline-block;width:47%;" onclick="show_real_auth_new_weight_tab();">{{$rap_service->getProfileWeightWord( $rap_service->modify_entry()->new_weight)}}</div>        
                     @endif                    
@@ -1349,7 +1349,7 @@ dt span.engroup_type_title {display:inline-block;width:10%;white-space:nowrap;}
                 <div id="new_weight_elt_container" style="display:none;">
                     <div style="margin-bottom:1%;">請選擇體重選項（kg）</div>
                     <select name="new_weight" id="new_weight_elt"  class="select_xx01">
-                      <option value="">請選擇</option>
+                      <option value="0">不填寫</option>
                       @for ($i = 1; $i < 21; $i++)
                       <option value="{{$i*5}}">{{$i*5-4}} ~ {{$i*5}}
                       </option>
@@ -2435,23 +2435,13 @@ function real_auth_input_new_weight_handle()
     var elt_container = $('#new_weight_elt_container');
     var input_elt = elt_container.find('select');
     var confirm_block = $('#new_weight_confirm_block');
-    var error_msg_elt = $('#new_weight_input_error_msg');
-    error_msg_elt.html('').hide();    
-    
+
     if(confirm_block.is(':visible')) {
         confirm_block.hide();
         elt_container.show();
     }
     else {
-        var input_value = input_elt.val();
-        var error_msg = '';
-
-        if(!input_value || input_value==null || input_value==undefined) error_msg='無法送出！請選擇體重選項';
-
-        if(error_msg) {
-            error_msg_elt.show().html(error_msg);
-            return;
-        }        
+        var input_value = input_elt.val();      
         
         $('#new_weight_modify_tab').hide();
         elt_container.hide();
