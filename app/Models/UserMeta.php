@@ -555,6 +555,8 @@ class UserMeta extends Model
 
         $xref_option_search_switch = false;
 
+        //如果xref type有在搜尋選項裡就開啟
+        //type於option_type資料表內
         if($relationship_status)
         {
             $xref_option_search_switch = true;
