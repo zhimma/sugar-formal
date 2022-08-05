@@ -507,7 +507,7 @@ class UserMeta extends Model
 
     public static function searchApi($request)
     {
-        // Log::Info($request->all()); 純測試用
+        //Log::Info($request->all()); //純測試用
         // $time_start = microtime(true); 
         $city = $request->city;
         $area = $request->area;
@@ -551,6 +551,14 @@ class UserMeta extends Model
         $weight = $request->weight ?? '';
         // 是否想進一步發展
         $is_pure_dating = $request->is_pure_dating ?? null;
+        $relationship_status = $request->relationship_status ?? false;
+
+        $xref_option_search_switch = false;
+
+        if($relationship_status)
+        {
+            $xref_option_search_switch = true;
+        }
 
         if ($engroup == 1) { 
             $engroup = 2; 
@@ -698,6 +706,13 @@ class UserMeta extends Model
             return $query->where('is_active', 1);
         };
 
+        $xref_constraint = function ($query) use ($relationship_status){
+            if($relationship_status)
+            {
+                $query->where('option_type', 2)->where('option_id', $relationship_status);
+            }
+        };
+
         /**
          * 為加速效能，此三句功能以 subquery 形式在下方被替換，並以註解形式保留以利後續維護。
          * $bannedUsers = \App\Services\UserService::getBannedId();
@@ -751,6 +766,10 @@ class UserMeta extends Model
                     ->from(with(new blocked)->getTable())
                     ->where('blocked_id', $userid);}) */
             ;
+            if($xref_option_search_switch)
+            {
+                $query = $query->whereHas('user_options_xref', $xref_constraint);
+            }
         }
         if (isset($exchange_period) && $exchange_period != '' && count($exchange_period)>0) {
                 $query->whereIn('exchange_period', $exchange_period);

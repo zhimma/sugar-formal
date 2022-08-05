@@ -267,6 +267,10 @@ class User extends Authenticatable implements JWTSubject
         return $this->hasOne('App\Models\UserMeta');
     }
 
+    public function user_options_xref(){
+        return $this->hasMany(UserOptionsXref::class, 'user_id', 'id');
+    }
+
     public function banned(){
         return $this->hasOne(banned_users::class, 'member_id', 'id');
     }

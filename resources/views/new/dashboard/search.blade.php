@@ -162,6 +162,14 @@ header("Expires: Fri, 01 Jan 1990 00:00:00 GMT");
                                             </div>
                                             @if ($user_engroup == 1)
                                                 <div class="n_se right">
+                                                    <span>感情狀況</span>
+                                                    <select name="relationship_status" class="select_xx01">
+                                                        <option value="">請選擇</option>
+                                                        @foreach(\DB::table('option_relationship_status')->get() as $option)
+                                                            <option value={{$option->id}} @if( !empty( $_POST["relationship_status"] ) && $_POST["relationship_status"] == $option->id ) selected @elseif(!empty( $_GET["relationship_status"] ) && $_GET["relationship_status"] == $option->id) selected @elseif(!empty( session()->get('search_page_key.relationship_status') ) && session()->get('search_page_key.relationship_status') == $option->id) selected @endif>{{$option->option_name}}</option>
+                                                        @endforeach
+                                                    </select>
+                                                    {{--
                                                     <span>現況</span>
                                                     <select name="situation" class="select_xx01">
                                                         <option value="">請選擇</option>
@@ -173,6 +181,7 @@ header("Expires: Fri, 01 Jan 1990 00:00:00 GMT");
                                                         <option value="在家工作" @if( !empty( $_POST["situation"] ) && $_POST["situation"] == "在家工作" ) selected @elseif(!empty( $_GET["situation"] ) && $_GET["situation"] == "在家工作") selected @elseif(!empty( session()->get('search_page_key.situation') ) && session()->get('search_page_key.situation') == "在家工作") selected @endif>在家工作</option>
                                                         <option value="自行開業" @if( !empty( $_POST["situation"] ) && $_POST["situation"] == "自行開業" ) selected @elseif(!empty( $_GET["situation"] ) && $_GET["situation"] == "自行開業") selected @elseif(!empty( session()->get('search_page_key.situation') ) && session()->get('search_page_key.situation') == "自行開業") selected @endif>自行開業</option>
                                                     </select>
+                                                    --}}
                                                 </div>
                                             @else
                                                 <div class="n_se right">
@@ -569,6 +578,7 @@ header("Expires: Fri, 01 Jan 1990 00:00:00 GMT");
                         $county3 = search_variable("county3","");
                         $district2 = search_variable("district2","");
                         $district3 = search_variable("district3","");
+                        $relationship_status = search_variable('relationship_status',"");
 
                         $userIsAdvanceAuth = search_variable("isAdvanceAuth", 0);
                     }
@@ -972,7 +982,7 @@ header("Expires: Fri, 01 Jan 1990 00:00:00 GMT");
                 area3:"{{$district3  ?? null}}",
                 //新增體重
                 weight:"{{$weight}}",
-
+                relationship_status:"{{$relationship_status}}",
                 perPageCount:perPageCount
             };
             axios.post('/getSearchData', post_data)
