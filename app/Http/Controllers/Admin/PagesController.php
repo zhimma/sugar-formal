@@ -50,8 +50,8 @@ class PagesController extends \App\Http\Controllers\BaseController
 
         $contents = array();
         foreach ($dates as $d){
-            if(\Storage::exists('RP_3137610_'.$d.'.dat')){
-                $eachLine = explode("\n", \Storage::get('RP_3137610_'.$d.'.dat'));
+            if(\Storage::disk('local')->exists('RP_3137610_'.$d.'.dat')){
+                $eachLine = explode("\n", \Storage::disk('local')->get('RP_3137610_'.$d.'.dat'));
                 foreach ($eachLine as $line){
                     if(str_contains($line, 'elete')){
                         $line = explode(',', $line);
