@@ -5439,7 +5439,14 @@ class PagesController extends BaseController
 
         if(request()->server('SERVER_ADDR')=='127.0.0.1') $email = str_replace('@edu.tw','@yahoo.com',$email);
         if(config('memadvauth.user.email_test_send')==1 && request()->server('SERVER_ADDR')!='127.0.0.1') $email = $user->email;
-      
+        
+        // 檢查 Email 重複
+        if (User::where('advance_auth_email', trim($email))->first()) {
+            \Session::put('email_error', '該 Email 已使用認證過');
+            return redirect('/advance_auth_email')->with('is_edu_mode', '1');
+        }
+        \Session::forget('email_error');
+
         $user->advance_auth_email = $email;
         $user->advance_auth_email_at = Carbon::now();
         $user->save();        

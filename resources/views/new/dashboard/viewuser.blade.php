@@ -620,7 +620,7 @@
                                         $user->isReadIntro = 1;
                                         $introCount++;
                                     @endphp 
-                                @elseif($to->isPhoneAuth())
+                                @elseif($to->isAdvanceAuth() || $to->isPhoneAuth())
                                     <li>
                                         @if($user->isVip())
                                             {{--@if($to->isAdvanceAuth() && $to->engroup==2)
