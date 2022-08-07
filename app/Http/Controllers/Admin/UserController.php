@@ -5156,17 +5156,26 @@ class UserController extends \App\Http\Controllers\BaseController
             return back()->with('error', '已存在資料, Email 重複驗證');
         }
         $user = User::where('id', $request->user_id)->first();
+
+        $token = md5(str_random(40));
+
         if ($request->pass) {
             // 設定通過認證 Email 的時間
+            $user->advance_auth_status = 1;
+            $user->advance_auth_email_token = $token;
             $user->advance_auth_email_at = Carbon::now();
             $message = '已通過 Email 驗證';
         } else if ($request->email) {
             // 修改 Email  
             $user->advance_auth_email = $request->email;
+            $user->advance_auth_email_token = $token;
+            $user->advance_auth_email_at = Carbon::now();
             $message = 'Email 已更新';
         } else {
             // 刪除 Email
+            $user->advance_auth_status = 0;
             $user->advance_auth_email = null;
+            $user->advance_auth_email_token = null;
             $user->advance_auth_email_at = null;
             $message = 'Email 已刪除';
         }
@@ -5178,7 +5187,7 @@ class UserController extends \App\Http\Controllers\BaseController
 
     public function searchEmail(Request $request)
     {
-        $user = User::where('advance_auth_email', $request->email)->whereNotNull('advance_auth_email_at')->first();
+        $user = User::where('advance_auth_email', $request->email)->first();
         $data = array();
         if ($user) {
             $data['user_email'] = $user->email;
