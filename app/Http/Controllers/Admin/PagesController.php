@@ -53,12 +53,23 @@ class PagesController extends \App\Http\Controllers\BaseController
             if(\Storage::disk('local')->exists('RP_3137610_'.$d.'.dat')){
                 $eachLine = explode("\n", \Storage::disk('local')->get('RP_3137610_'.$d.'.dat'));
                 foreach ($eachLine as $line){
-                    if(str_contains($line, 'elete')){
+                    if(str_contains($line, 'Delete')){
                         $line = explode(',', $line);
                         array_push($contents, $line);
                     }
                 }
             }
+            
+            if(\Storage::exists('RP_1010336_'.$d.'.dat')) {
+                $eachLine2 = explode("\n", \Storage::get('RP_1010336_' . $d . '.dat'));
+                foreach ($eachLine2 as $line) {
+                    if (str_contains($line, 'Delete')) {
+                        $line = explode(',', $line);
+                        array_push($contents, $line);
+                    }
+                }
+            }
+
         }
         return view('admin.users.ECPayCancellation',
             ['contents' => $contents,
