@@ -178,7 +178,7 @@ dt span.engroup_type_title {display:inline-block;width:10%;white-space:nowrap;}
                 <input type="hidden" name="_token" value="{{ csrf_token() }}">
                 <input type="hidden" name="userId" value="{{$user->id}}">
                 <div class="n_input">
-                    @if($user->engroup==2 && !$rap_service->isInRealAuthProcess() && !$rap_service->isPassedByAuthTypeId(1))
+                    @if($user->engroup==2 && !$rap_service->isInRealAuthProcess() )
                     <dt>
                         <span>本人驗證</span>
                         <span>
@@ -189,7 +189,11 @@ dt span.engroup_type_title {display:inline-block;width:10%;white-space:nowrap;}
                                 尚未與站方視訊
                                 <a class="btn btn-success" href="{{url('user_video_chat_verify')}}">
                                     前往視訊頁面
-                                </a>                                
+                                </a>
+                                @elseif($rap_service->isPassedByAuthTypeId(1))
+                                <a class="btn btn-success" href="{{route('real_auth')}}">
+                                    請點此檢視認證
+                                </a>
                                 @else
                                 尚未認證
                                 <a class="btn btn-success" href="{{route('real_auth')}}">
