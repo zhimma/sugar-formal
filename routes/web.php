@@ -647,6 +647,10 @@ Route::group(['middleware' => ['auth', 'global', 'active', 'femaleActive', 'vipC
         Route::post('dashboard/accessPermission/edit', 'DashboardController@juniorAdminEdit')->name('juniorAdminEdit');
         Route::post('dashboard/accessPermission/delete/{userid}', 'DashboardController@juniorAdminDelete')->name('juniorAdminDelete');
 
+        Route::get('dashboard/paymentFlowChoose', 'DashboardController@paymentFlowChoose')->name('paymentFlowChoose');
+        Route::get('dashboard/paymentFlowChoose/show', 'DashboardController@showPaymentFlowChoose')->name('showPaymentFlowChoose');
+        Route::post('dashboard/paymentFlowChoose/edit', 'DashboardController@paymentFlowChooseEdit')->name('paymentFlowChooseEdit');
+
         Route::get('dashboard', 'DashboardController@index');
 
         Route::get('opcacheStatus', 'PagesController@opcacheStatus');
