@@ -3,6 +3,7 @@
 namespace App\Http\Requests;
 
 use Auth;
+use App\Services\RealAuthPageService;
 use Illuminate\Foundation\Http\FormRequest;
 
 class ProfileUpdateRequest extends FormRequest
@@ -27,10 +28,10 @@ class ProfileUpdateRequest extends FormRequest
      *
      * @return array
      */
-    public function rules()
+    public function rules(RealAuthPageService $rap_service)
     {
         return [
-            'height' => 'required|digits_between:2,3|numeric',
+            'height' => $rap_service->riseByUserEntry(request()->user())->isPassedByAuthTypeId(1)?'':'required|digits_between:2,3|numeric',
             'name' => 'required',
             'title' => 'required',
             //'about'=> 'required',

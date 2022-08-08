@@ -1883,10 +1883,14 @@ dt span.engroup_type_title {display:inline-block;width:10%;white-space:nowrap;}
                 // });
                 return false;
             }
-            if(height.val() == '' || height.val().charAt(0)==0 || height.val() < 140 || height.val() > 210) {
-                height.focus();
-                c5('請輸入身高140～210');
-                return false;
+            
+            
+            if(height.val()!=undefined) {
+                if(height.val() == '' || height.val().charAt(0)==0 || height.val() < 140 || height.val() > 210) {
+                    height.focus();
+                    c5('請輸入身高140～210');
+                    return false;
+                }
             }
             @if($user->engroup==1)
                 if(about.val().length < 4 || about.val().length > 300) {
