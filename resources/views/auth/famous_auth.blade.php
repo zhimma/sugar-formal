@@ -52,7 +52,7 @@
                         @include('auth.real_auth_question_tpl')
 					
                         <div class="n_txbut g_inputt40">
-                              <a href="javascript:void(0);" class="se_but1" onclick="return is_form_have_any_change(this) && document.famous_auth_form.requestSubmit();">
+                              <a href="javascript:void(0);" class="se_but1" onclick="return is_form_have_any_change(this) && document.getElementById('famous_auth_submit').click();">
                               @if($service->isPassedByAuthTypeId(3))
                                 送出異動申請
                               @else
@@ -61,7 +61,8 @@
                               </a>
                               <a href="{{route('real_auth')}}" class="se_but2">放棄</a>
                         </div>
-					</form>
+                        <input type="submit" style="display:none;" id="famous_auth_submit" />					
+                        </form>
 					
 					    
 					</div>

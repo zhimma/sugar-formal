@@ -3,6 +3,7 @@
 		<a href="javascript:void(0)" class="closebtn" onclick="closeNav()">&times;</a>
 		<a href="{{ route('users/video_chat_verify') }}">視訊驗證</a>
 		<a href="{{ route('order') }}">訂單查詢</a>
+		<a href="{{ route('paymentFlowChoose') }}">付款方式管理</a>
 		<a href="{{ route('accessPermission') }}">初階站長權限管理</a>
 {{--		<a href="{{ route('stats/date_file_log') }}">異動檔上傳/檢查記錄</a>--}}
 		<a href="{{ route('stats/set_autoBan') }}">自動封鎖警示設定</a>
