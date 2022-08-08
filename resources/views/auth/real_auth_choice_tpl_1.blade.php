@@ -8,9 +8,9 @@
                 value="{{$tpl_choice_entry->id}}" 
                 style="margin-top: 2px; margin-right: 5px;" 
                 data-form_org_ans="{{$service->getQuValueAttrByEntry($tpl_question_entry,$tpl_choice_entry->id)}}"
-                class="{{$service->getQuValueAttrByEntry($tpl_question_entry,$tpl_choice_entry->id,'form_org_ans_reply_'.$tpl_question_entry->id.'_')}}"
+                class="{{$question_entry->required?'required':null}} {{$service->getQuValueAttrByEntry($tpl_question_entry,$tpl_choice_entry->id,'form_org_ans_reply_'.$tpl_question_entry->id.'_')}}"
                 {{$service->getQuValueAttrByEntry($tpl_question_entry,$tpl_choice_entry->id,'checked')}} 
-                {{$question_entry->required?'required':null}}
+                
         >{{$tpl_choice_entry->name}}
         </label>
     </span>
@@ -24,10 +24,9 @@
                 id="choice_{{$tpl_choice_entry->id}}" 
                 value="{{$tpl_choice_entry->id}}" 
                 style="margin-top: 2px; margin-right: 5px;"  
-                class="{{$service->getQuValueAttrByEntry($tpl_question_entry,$tpl_choice_entry->id,'form_org_ans_reply_'.$tpl_question_entry->id.'_')}}"  
+                class="{{$question_entry->required?'required':null}} {{$service->getQuValueAttrByEntry($tpl_question_entry,$tpl_choice_entry->id,'form_org_ans_reply_'.$tpl_question_entry->id.'_')}}"  
                 data-form_org_ans="{{$service->getQuValueAttrByEntry($tpl_question_entry,$tpl_choice_entry->id)}}"
-                {{$service->getQuValueAttrByEntry($tpl_question_entry,$tpl_choice_entry->id,'checked')}} 
-                {{$question_entry->required?'required':null}}
+                 {{$service->getQuValueAttrByEntry($tpl_question_entry,$tpl_choice_entry->id,'checked')}}
             >{{$tpl_choice_entry->name}}
         </label>
         @if($tpl_question_entry->real_auth_choice->where('parent_id',$tpl_choice_entry->id)->count())

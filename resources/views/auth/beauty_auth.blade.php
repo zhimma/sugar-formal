@@ -49,12 +49,12 @@ background: #eee; border: #eee 1px solid;
 						<div class="gjr_nr01">
 							 <h2>將請您填提供部分個人資料(資料僅供站方審核，審核完三天內即會刪除不做保留)。收到資料後站方會將派人透過 line與妳連絡，通過驗證後將獲得認證。未通過將由系統訊息通知。</h2>
 						</div>
-                        <form method="post" name="beauty_auth_form" action="{{route('beauty_auth_save')}}" enctype="multipart/form-data">
+                        <form method="post" name="beauty_auth_form" action="{{route('beauty_auth_save')}}" enctype="multipart/form-data" novalidate>
                         {!! csrf_field() !!}
                         @include('auth.real_auth_question_tpl')
 					
                         <div class="n_txbut g_inputt40">
-						  <a href="javascript:void(0);" class="se_but1" onclick="return is_form_have_any_change(this) && document.beauty_auth_form.requestSubmit();">
+						  <a href="javascript:void(0);" class="se_but1" onclick="return form_validation(this) && document.getElementById('beauty_auth_submit').click();">
                           @if($service->isPassedByAuthTypeId(2))  
                             送出異動申請
                           @else
@@ -63,7 +63,7 @@ background: #eee; border: #eee 1px solid;
                           </a>
 						  <a href="{{route('real_auth')}}" class="se_but2">放棄</a>
                         </div>
-                    
+                        <input type="submit" style="display:none;" id="beauty_auth_submit" />					
                     </form>
 					
 					
@@ -95,17 +95,34 @@ background: #eee; border: #eee 1px solid;
     }
 </script>
 <script>
-    function is_form_have_any_change(dom) {
+    function form_validation(dom) {
         var nowElt = $(dom);
         var nowFormElt = nowElt.closest('form');
         var check_rs = false;
         var ans_chain_str = '';
         
+        var required_formElt = nowFormElt.find('.required');
+        var required_field = {};
+        
+        required_formElt.each(function(){
+            var nowEachElt = $(this);
+            if(nowEachElt.attr('disabled')!=undefined) return; 
+            if(required_field[nowEachElt.attr('name')]==undefined) {
+                required_field[nowEachElt.attr('name')] = 0;
+            }
+        })
+        
+        
         $.each(nowFormElt.serializeArray(), function( index, value ) {
                 if(value.name=='_token') return;
                 if(value.name.indexOf('reply_pic_')>=0) return;
                 ans_chain_str+=value.value;
-                if(check_rs) return;                
+
+                if(required_field[value.name]!=undefined && value.value!='' ) 
+                {
+                    required_field[value.name] = 1;
+                }
+                
                 var now_form_org_ans = nowFormElt.find('.form_org_ans_'+value.name.replaceAll(']','_').replaceAll('[','_')).data('form_org_ans');
      
                 if(now_form_org_ans==undefined) now_form_org_ans='';
@@ -123,12 +140,26 @@ background: #eee; border: #eee 1px solid;
             }
         });
 
-        if(check_rs==false &&  ans_chain_str!='') {
+       if(check_rs==false) {
             c5('無法送出！您尚未'+(ans_chain_str==''?'填寫':'修改')+'任何答案。');
-        }
-        else if(ans_chain_str=='') {
-            check_rs = true;
-        }
+       }
+       else {
+           for(var rf in required_field) {
+               if(!required_field[rf] ) {
+                   var required_first_elt = $('[name="'+rf+'"]').eq(0);
+                   if(required_first_elt.attr('placeholder')!=undefined && required_first_elt.attr('placeholder')!='') {
+                       c5('無法送出！'+required_first_elt.attr('placeholder')+'。');
+                   }
+                   else {
+                       var question_str = required_first_elt.closest('.rzmatop_5').prev().html().replace('(必填)','');
+                       c5('無法送出！請回答必填題：'+question_str.replace('(必填)','')+'。');
+                       
+                   }
+                   required_first_elt.focus();
+                   return false;
+               }
+           }
+       }
 
         return check_rs;
     }
