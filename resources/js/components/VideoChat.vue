@@ -24,6 +24,7 @@
       <div class="row mt-5" id="video-row">
         <div class="col-12 video-container" v-if="callPlaced">
           <video
+            id="user_video_screen"
             ref="userVideo"
             muted
             playsinline
@@ -32,7 +33,15 @@
             :class="isFocusMyself === true ? 'user-video' : 'partner-video'"
             @click=""
           />
+
+          <img 
+            id="none_partner_video"
+            src="/new/images/sg_admin.jpg"
+            style="display: none; position: absolute; top: 50%; left: 50%; transform: translate(-50%, -50%);"
+          />
+
           <video
+            id="partner_video_screen"
             ref="partnerVideo"
             playsinline
             autoplay
@@ -41,6 +50,7 @@
             @click=""
             v-if="videoCallParams.callAccepted"
           />
+
           <div class="partner-video" v-else>
             <div v-if="callPartner" class="column items-center q-pt-xl">
               <div class="col q-gutter-y-md text-center">
@@ -134,6 +144,7 @@ export default {
         channel: null,
         peer1: null,
         peer2: null,
+        connecting_peer: null,
       },
       mediaRecorder: null,
       mediaRecorder2: null,
@@ -313,6 +324,17 @@ export default {
           });
           this.startRecording();
         }
+        this.videoCallParams.connecting_peer = this.videoCallParams.peer1;
+        if(this.user_permission == 'normal')
+        {
+          $('#partner_video_screen').hide();
+          $('#none_partner_video').show();
+        }
+      });
+
+      this.videoCallParams.peer1.on("data", (data) => {
+        console.log('peer1 receive data:');
+        this.receive_data(data);
       });
 
       this.videoCallParams.peer1.on("error", (err) => {
@@ -388,6 +410,7 @@ export default {
           iceServers: [iceserver[0],iceserver[1]],
         },
       });
+
       this.videoCallParams.receivingCall = false;
       this.videoCallParams.peer2.on("signal", (data) => {
         //console.log(data);
@@ -426,6 +449,12 @@ export default {
           });
           this.startRecording();
         }
+        this.videoCallParams.connecting_peer = this.videoCallParams.peer2;
+      });
+
+      this.videoCallParams.peer2.on("data", (data) => {
+        console.log('peer2 receive data:');
+        this.receive_data(data);
       });
 
       this.videoCallParams.peer2.on("error", (err) => {
@@ -441,6 +470,11 @@ export default {
       if(this.user_permission == 'admin')
       {
         if (!this.mutedVideo) this.toggleMuteVideo();
+      }
+      if(this.user_permission == 'normal')
+      {
+        $('#partner_video_screen').hide();
+        $('#none_partner_video').show();
       }
     },
 
@@ -478,9 +512,32 @@ export default {
       if (this.mutedVideo) {
         this.$refs.userVideo.srcObject.getVideoTracks()[0].enabled = true;
         this.mutedVideo = false;
+        if(this.videoCallParams.connecting_peer ?? false)
+        {
+          this.videoCallParams.connecting_peer.send('mutedVideo_false');
+        }
       } else {
         this.$refs.userVideo.srcObject.getVideoTracks()[0].enabled = false;
         this.mutedVideo = true;
+        if(this.videoCallParams.connecting_peer ?? false)
+        {
+          this.videoCallParams.connecting_peer.send('mutedVideo_true');
+        }
+      }
+    },
+
+    receive_data(data) {
+      if(new TextDecoder('utf-8').decode(data) === 'mutedVideo_false')
+      {
+        console.log('Log_mutedVideo_false');
+        $('#partner_video_screen').show();
+        $('#none_partner_video').hide();
+      }
+      else if(new TextDecoder('utf-8').decode(data) === 'mutedVideo_true')
+      {
+        console.log('Log_mutedVideo_true');
+        $('#partner_video_screen').hide();
+        $('#none_partner_video').show();
       }
     },
 
@@ -520,6 +577,7 @@ export default {
           console.log('peer has destroy');
         }
       }
+      this.videoCallParams.connecting_peer = null;
       this.videoCallParams.channel.pusher.channels.channels[
         "presence-presence-video-channel"
       ].disconnect();
