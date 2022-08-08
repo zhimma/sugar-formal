@@ -843,7 +843,9 @@
 							$('.showslide').fadeOut()
                             $('.evaluation').removeClass('on2')
                             $('.showslide_evaluation').fadeOut()
-						})
+                            $('.showslide_evaluation2').removeClass('on3')
+                            $('.showslide_evaluation2').fadeOut()
+                        })
 					</script>	
 
                     <!-- Swiper JS -->
@@ -1465,7 +1467,36 @@
                     <div class="line"></div>
 
                     <div id="hash_evaluation" class="ziliao ziliao3">
-                        <div class="ztitle"><span>會員評價</span>Evaluation<a onClick="popEvaluation()" class="zw_dw">請按我</a></div>
+                        <div class="ztitle"><span>會員評價</span>Evaluation<a class="zw_dw click_me">請按我</a>
+                            <div id="click_me" class="he_tkcn showslide_evaluation2" style="top:unset;z-index:1;">
+                                <ul>
+                                    <a class="myself_evaluation">
+                                        <img src="/new/images/icon_p1.png" class="he_tkcn_img">本人評價
+                                    </a>
+                                    <a class="anonymous_evaluation">
+                                        <img src="/new/images/icon_p2.png" class="he_tkcn_img">匿名評價
+                                    </a>
+                                </ul>
+                            </div>
+                        </div>
+                        <script>
+                            $('.click_me').click(function() {
+                                event.stopPropagation()
+                                var on3 = $('.bottub').find('.on3');
+                                if(on3.length) {
+                                    on3.removeClass('on3');
+                                    $('.bottub').find('.showslide_evaluation2').fadeOut();
+                                }
+                                if($(this).hasClass('on3')) {
+                                    $(this).removeClass('on3')
+                                    $('.showslide_evaluation2').fadeOut()
+                                } else {
+                                    $(this).addClass('on3')
+                                    $('.fadeinboxs').fadeIn()
+                                    $('.showslide_evaluation2').fadeIn()
+                                }
+                            })
+                        </script>
                         <div class="xiliao_input">
                             <div class="xl_text">
                                 <div class="pjliuyan02 amar15 mohu_li" style=" min-height: auto; margin-bottom: 0;">
@@ -1924,7 +1955,7 @@
     <div class="bl bl_tab" id="tab_reject_female" style="display: none;">
         <div class="bltitle"><span>提示</span></div>
         <div class="n_blnr01 ">
-            <div class="new_tkfont">您目前未達評價標準<br>不可對此會員評價</div>
+            {{--<div class="new_tkfont">您目前未達評價標準<br>不可對此會員評價</div>--}}
             <div class="new_tablema">
                 <table>
 
@@ -1954,6 +1985,21 @@
                     </tr>
                 </table>
             </div>
+            <div class="new_tkfont" style="text-align: left;margin-top: 10px;">
+                <span>1:請盡量附上證據(對話截圖或其他)，若無相關證據有可能被移除。</span><br>
+                <span>2:請平鋪直敘事情經過，<span style="color: red;">禁止人身攻擊，情緒性發言</span>。</span><br>
+                <span>3:相關證據請保留兩周，供站方查核</span>
+            </div>
+            <div class="n_bbutton" style="margin-top:10px;">
+                <div style="display: inline-flex;">
+                    @if($auth_check>0 && $isSent3Msg)
+                        <div class="n_right enter_tab_evaluation" style="border-style: none; background: #8a9ff0; color:#ffffff; float: unset; margin-left: 0px; margin-right: 20px;" onclick="show_tab_evaluation()">進入評價</div>
+                        <div class="n_left" style="border: 1px solid #8a9ff0; background: #ffffff; color:#8a9ff0; float: unset; margin-right: 0px;" onclick="tab_cancel();" >取消</div>
+                    @else
+                        <div class="n_left" style="border: 1px solid #8a9ff0; color:#ffffff; float: unset; margin-right: 0px;background: rgb(138, 159, 240);" onclick="tab_cancel();" >取消</div>
+                    @endif
+                </div>
+            </div>
         </div>
         <a id="" onclick="gmBtnNoReload()" class="bl_gb"><img src="/new/images/gb_icon.png"></a>
     </div>
@@ -1961,7 +2007,7 @@
     <div class="bl bl_tab" id="tab_reject_male" style="display: none;">
         <div class="bltitle"><span>提示</span></div>
         <div class="n_blnr01 ">
-            <div class="new_tkfont">您目前未達評價標準<br>不可對此會員評價</div>
+            {{--<div class="new_tkfont">您目前未達評價標準<br>不可對此會員評價</div>--}}
             <div class="new_tablema">
                 <table>
 
@@ -1990,6 +2036,21 @@
                         <td class="">@if(!$isSent3Msg)<img src="/new/images/ticon_02.png">@else<img src="/new/images/ticon_01.png">@endif</td>
                     </tr>
                 </table>
+            </div>
+            <div class="new_tkfont" style="text-align: left;margin-top: 10px;">
+                <span>1:請盡量附上證據(對話截圖或其他)，若無相關證據有可能被移除。</span><br>
+                <span>2:請平鋪直敘事情經過，<span style="color: red;">禁止人身攻擊，情緒性發言</span>。</span><br>
+                <span>3:相關證據請保留兩周，供站方查核</span>
+            </div>
+            <div class="n_bbutton" style="margin-top:10px;">
+                <div style="display: inline-flex;">
+                    @if($vipDays>=30 && $isSent3Msg)
+                        <div class="n_right enter_tab_evaluation" style="border-style: none; background: #8a9ff0; color:#ffffff; float: unset; margin-left: 0px; margin-right: 20px;" onclick="show_tab_evaluation()">進入評價</div>
+                        <div class="n_left" style="border: 1px solid #8a9ff0; background: #ffffff; color:#8a9ff0; float: unset; margin-right: 0px;" onclick="tab_cancel();">取消</div>
+                    @else
+                        <div class="n_left" style="border: 1px solid #8a9ff0; color:#ffffff; float: unset; margin-right: 0px;background: rgb(138, 159, 240);" onclick="tab_cancel();" >取消</div>
+                    @endif
+                </div>
             </div>
         </div>
         <a id="" onClick="gmBtnNoReload()" class="bl_gb"><img src="/new/images/gb_icon.png"></a>
@@ -2637,6 +2698,18 @@
                 @endif
             }
         });
+        $('.click_me').on('click', function() {
+            event.stopPropagation();
+            @if($user->id == $to->id)
+                c5('不可對自己評價');
+            @else
+                if($('.showslide_evaluation2').css('display')=='block'){
+                    $('.showslide_evaluation2').fadeOut();
+                }else{
+                    $('.showslide_evaluation2').fadeIn();
+                }
+            @endif
+        });
 
         // 本人評價
         $('.myself_evaluation').click(function() {
@@ -2644,14 +2717,18 @@
             $('.phone_auth').addClass('hide');
             $('.need_vip').addClass('hide');
             $('.advance_auth').addClass('hide');
-            @if($user->engroup==2 && ($isSent3Msg==0 || $auth_check==0))
+            $('.enter_tab_evaluation').removeClass('evaluation_type_anonymous');
+            $('.enter_tab_evaluation').removeClass('evaluation_type_myself');
+            @if($user->engroup==2)
                 $('#tab_reject_female').show();
                 $('.phone_auth').removeClass('hide');
                 $(".announce_bg").show();
-            @elseif($user->engroup==1 && ($isSent3Msg==0 || $vipDays < 30))
+                $('.enter_tab_evaluation').addClass('evaluation_type_myself');
+            @elseif($user->engroup==1)
                 $('#tab_reject_male').show();
                 $('.vipDays').removeClass('hide');
                 $(".announce_bg").show();
+                $('.enter_tab_evaluation').addClass('evaluation_type_myself');
             @elseif(!isset($evaluation_self))
                 $('#tab_evaluation').show();
                 $('.anonymous_illustrate').hide();
@@ -2669,20 +2746,24 @@
             $('.phone_auth').addClass('hide');
             $('.need_vip').addClass('hide');
             $('.advance_auth').addClass('hide');
-            @if($user->engroup==2 && ($isSent3Msg==0 || $advance_auth_status==0))
+            $('.enter_tab_evaluation').removeClass('evaluation_type_anonymous');
+            $('.enter_tab_evaluation').removeClass('evaluation_type_myself');
+            @if($user->engroup==2)
                 $('#tab_reject_female').show();
-                $('.new_tkfont').text('您目前未達匿名評價標準，無法使用');
+                //$('.new_tkfont').text('您目前未達匿名評價標準，無法使用');
                 $('.advance_auth').removeClass('hide');
                 $(".announce_bg").show();
-            @elseif($user->engroup==1 && ($isSent3Msg==0 || $isVip==0))
+                $('.enter_tab_evaluation').addClass('evaluation_type_anonymous');
+            @elseif($user->engroup==1)
                 $('#tab_reject_male').show();
-                $('.new_tkfont').text('您目前未達匿名評價標準，無法使用');
+                //$('.new_tkfont').text('您目前未達匿名評價標準，無法使用');
                 $('.need_vip').removeClass('hide');
                 $(".announce_bg").show();
+                $('.enter_tab_evaluation').addClass('evaluation_type_anonymous');
             @else
                 // 訊息處理選擇
-                $('#evaluation_description').show();
-                $(".announce_bg").show();
+                // $('#evaluation_description').show();
+                // $(".announce_bg").show();
             @endif
         });
 
@@ -3233,6 +3314,8 @@
 			$('.showslide').fadeOut()
             $('.evaluation').removeClass('on2')
             $('.showslide_evaluation').fadeOut()
+            $('.showslide_evaluation2').removeClass('on3')
+            $('.showslide_evaluation2').fadeOut()
 		})
 	})
 </script>	
@@ -3396,6 +3479,34 @@
             button();
             c5("檢舉預算不實一定要附上證據，例如轉帳截圖、對話記錄等");
         }
+    }
+
+    function show_tab_evaluation(){
+        @if($user->id == $to->id)
+            c5('不可對自己評價');
+        @endif
+
+        var type='';
+        if($('.enter_tab_evaluation').hasClass('evaluation_type_myself')){
+            type='myself';
+        }else{
+            type='anonymous';
+        }
+
+        $('#tab_reject_male, #tab_reject_female').hide();
+        $(".announce_bg").show();
+        $('body').css("overflow", "hidden");
+        if(type=='anonymous'){
+            $('#evaluation_description').show();
+        }else{
+            $('#tab_evaluation').show();
+        }
+    }
+
+    function tab_cancel(){
+        $('#tab_reject_male, #tab_reject_female').hide();
+        $(".announce_bg").hide();
+        $('body').css("overflow", "auto");
     }
     
 </script>
