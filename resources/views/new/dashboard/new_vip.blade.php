@@ -181,7 +181,6 @@
                             <div class="paymentFlowChoose" style="display: none;">
                                 <div class="vipline"><img src="/new/images/VIP_05.png"></div>
                                 <div class="dq_fangan">請選擇付款方式1 或 2</div>
-                                <div style="text-align: center; color:rgb(253, 140, 180);">方式 1 額度已滿，建議使用方式 2</div>
                                 <div class="fk_viplist" style="margin-bottom: 10px;">
                                     <ul>
                                         @foreach(\App\Models\PaymentFlowChoose::where('status', 1)->get() as $paymentInfo)
