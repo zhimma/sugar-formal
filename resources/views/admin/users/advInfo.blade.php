@@ -452,8 +452,8 @@
     <tr>
         <form action="{{ route('users/save', $user->id) }}" method='POST'>
             {!! csrf_field() !!}
-            <th>站長註解<div><button type="submit" class="text-white btn btn-primary">修改</button></div></th>
-            <td><textarea class="form-control m-input" type="textarea" name="adminNote" rows="3" maxlength="300">{{ $userMeta->adminNote }}</textarea></td>
+            <th rowspan="2">站長註解<div><button type="submit" class="text-white btn btn-primary">修改</button></div></th>
+            <td rowspan="2"><textarea class="form-control m-input" type="textarea" name="adminNote" rows="3" maxlength="300">{{ $userMeta->adminNote }}</textarea></td>
         </form>
 
         <th>手機驗證
@@ -512,7 +512,7 @@
                 @endif
             </form>
         </td>
-        <td colspan="2">
+        <td colspan="2" rowspan="2">
             <h4>停留時間</h4>
             <table class="table table-bordered">
                 <thead>
@@ -585,6 +585,44 @@
             </table>
         </td>
         -->
+    </tr>
+    <tr>
+        @if($user->engroup == 2)
+            <th>Email 驗證
+                <div style="display: flex;">
+                    <form action="{{ route('emailModify') }}" method='POST'>
+                        {!! csrf_field() !!}
+                        <input type="hidden" name="user_id" value="{{ $user->id }}">
+                        <button type="submit" class="text-white btn btn-danger delete_email_submit" style="float: right;">刪除</button>
+                    </form>
+                    <form action="{{ route('emailModify') }}" method='POST'>
+                        {!! csrf_field() !!}
+                        <input type="hidden" name="user_id" value="{{ $user->id }}">
+                        @if ($user->advance_auth_status)
+                            <input type="hidden" name="fail" value="1">
+                            <button type="submit" class="text-white btn btn btn-success" style="float: right;">不通過</button>
+                        @else
+                            <input type="hidden" name="pass" value="1">
+                            <button type="submit" class="text-white btn btn btn-success" style="float: right;">通過</button>
+                        @endif
+                    </form>
+                </div>
+            </th>
+            <td>
+                <form action="{{ route('emailModify') }}" method='POST'>
+                    {!! csrf_field() !!}
+                    <input type="hidden" name="user_id" value="{{ $user->id }}">
+                    <input class="form-control m-input emailInput" type=text name="email" value="{{ $user->advance_auth_status && $user->advance_auth_email ? $user->advance_auth_email : ($user->advance_auth_status ? '已認證,尚未填寫 Email' : '尚未認證 Email') }}" readonly="readonly" autocomplete="off">
+                    <div id="emailKeyInAlert"></div>
+                    <div>@if($userMeta->isWarnedTime !='')警示用戶時間：{{ $userMeta->isWarnedTime }}@endif</div>
+                    <div>@if($user->advance_auth_status && $user->advance_auth_email_at)Email驗證時間：{{ $user->advance_auth_email_at }}@endif</div>
+                    @if($user->advance_auth_status)
+                        <div class="text-white btn btn-primary test" onclick="showEmailInput()">修改</div>
+                        <button type="submit" class="text-white btn btn-primary modify_email_submit" style="display: none;">確認修改</button>
+                    @endif
+                </form>
+            </td>
+        @endif
     </tr>
     <tr>
         <th>會員ID</th>
@@ -2753,6 +2791,45 @@ $("input[name='phone']").keyup(function(){
             }else{
                 $('#phoneKeyInAlert').html('');
                 $('#phoneKeyInAlert').hide();
+            }
+        }
+    });
+});
+
+function showEmailInput(){
+    $('.modify_email_submit').show();
+    $("input[name='email']").val('');
+    $('.emailInput').removeAttr('readonly');
+    $('.test').hide();
+}
+$('.modify_email_submit').on('click',function(e){
+
+    if(!confirm('確定要修改 Email ?')){
+        e.preventDefault();
+    }
+});
+$('.delete_email_submit').on('click',function(e){
+    if(!confirm('確定要刪除 Email ?')){
+        e.preventDefault();
+    }
+});
+
+$("input[name='email']").keyup(function(){
+    $.ajax({
+        type: 'POST',
+        url: "/admin/users/email/search?{{csrf_token()}}={{now()->timestamp}}",
+        data: {
+            _token: '{{csrf_token()}}',
+            email: $(this).val(),
+        },
+        dataType: "json",
+        success: function (res) {
+            console.log(res.hasData);
+            if (res.hasData == 1) {
+                $('#emailKeyInAlert').html('<span>該 Email 已經認證過</span><br><span>帳號：<a href="'+ res.data.user_info_page +'" target="_blank">' + res.data.user_email + '</a></span>');
+                $('#emailKeyInAlert').show();
+            } else {
+                $('#emailKeyInAlert').hide();
             }
         }
     });

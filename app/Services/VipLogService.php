@@ -72,7 +72,7 @@ class VipLogService {
         }
         $fileContent = $this->business_id . ',' . $this->user_id . ',' . $this->order_id . ',,,' . intval($this->amount) . ',' . $today . ',' . $this->action . ',' . $this->status . ',' . $this->mode;
 
-        Storage::append($fileName, $fileContent);
+        Storage::disk('local')->append($fileName, $fileContent);
         return array($fileName, $fileContent);
     }
 
@@ -86,7 +86,7 @@ class VipLogService {
         $fileName = 'RP_761404_'. $fileDate->format('Ymd') .'.dat';
         $fileContent = '761404,' . $user_id . ',' . $order_id . ',,,888,' . $day . ',' . $action . ',01,0';
 
-        return Storage::append($fileName, $fileContent);
+        return Storage::disk('local')->append($fileName, $fileContent);
     }
 
     public function writeLogToDB() {

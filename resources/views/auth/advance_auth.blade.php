@@ -290,12 +290,14 @@
                 @php Session::forget('message')  @endphp
             @elseif($init_check_msg??null)
             {!!$init_check_msg!!}
-            @elseif(!$user->isAdvanceAuth())
+            @elseif(!$user->isAdvanceAuth() && !Session::has('email_error'))
                 您好，您即將進入本站的進階身分驗證資訊系統。
                 通過驗證將獲得本站的<img src="{{asset('new/images/b_6.png')}}" class="adv_auth_icon" />進階驗證標籤<img src="{{asset('new/images/b_6.png')}}"  class="adv_auth_icon" />               
                 @if($rap_service->isInRealAuthProcess())
                 ，並可進行與站長的視訊。
                 @endif            
+            @elseif(Session::has('email_error'))
+                {{Session::get('email_error')}}
             @endif 
         </div>
         <div class="n_bbutton">

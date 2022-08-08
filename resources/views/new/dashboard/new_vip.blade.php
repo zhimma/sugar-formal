@@ -181,10 +181,16 @@
                             <div class="paymentFlowChoose" style="display: none;">
                                 <div class="vipline"><img src="/new/images/VIP_05.png"></div>
                                 <div class="dq_fangan">請選擇付款方式1 或 2</div>
-                                <div style="text-align: center; color:rgb(253, 140, 180);">方式 1 額度已滿，建議使用方式 2</div>
                                 <div class="fk_viplist" style="margin-bottom: 10px;">
                                     <ul>
-                                        <li>
+                                        @foreach(\App\Models\PaymentFlowChoose::where('status', 1)->get() as $paymentInfo)
+                                            <li>
+                                                <a onclick="chooseFlow('{{ $paymentInfo->payment}}');" class="gg_zh_li"><span><img src="{{ $paymentInfo->icon}}"></span>
+                                                    <font>{{ $paymentInfo->payment_text }}</font>
+                                                </a>
+                                            </li>
+                                        @endforeach
+                                        {{--<li>
                                             <a onclick="chooseFlow('funpoint');" class="gg_zh_li"><span><img src="/new/images/zh12.png"></span>
                                                 <font>付款方式1</font>
                                             </a>
@@ -193,7 +199,7 @@
                                             <a onclick="chooseFlow('ecpay');" class="gg_zh_li"><span><img src="/new/images/zh13.png"></span>
                                                 <font>付款方式2</font>
                                             </a>
-                                        </li>
+                                        </li>--}}
                                     </ul>
                                 </div>
                                 <input type="hidden" name="temp_form_id" value="">

@@ -4,6 +4,7 @@ namespace App\Http\Controllers\Admin;
 
 use App\Http\Requests;
 use App\Models\AdminMenuItems;
+use App\Models\PaymentFlowChoose;
 use App\Models\User;
 use Illuminate\Http\Request;
 use App\Http\Controllers\Controller;
@@ -69,5 +70,28 @@ class DashboardController extends \App\Http\Controllers\BaseController
 
     public function showGlobalVariables(){
         return view('admin.dashboard.globalVariables');
+    }
+
+    public function paymentFlowChoose(Request $request)
+    {
+        $paymentList = PaymentFlowChoose::where('status', 1)->get();
+        return view('admin.payment_flow_choose',compact('paymentList'));
+    }
+
+    public function showPaymentFlowChoose(Request $request)
+    {
+        $paymentInfo = PaymentFlowChoose::where('id', $request->id)->first();
+        return view('admin.showPaymentFlowChoose',compact('paymentInfo'));
+    }
+
+    public function paymentFlowChooseEdit(Request $request)
+    {
+        $paymentInfo = PaymentFlowChoose::where('id', $request->id)->first();
+        if($paymentInfo){
+            $paymentInfo->payment=$request->payment;
+            $paymentInfo->save();
+        }
+
+        return redirect('admin/dashboard/paymentFlowChoose')->with('message','修改成功');
     }
 }
