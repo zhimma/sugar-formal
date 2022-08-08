@@ -447,6 +447,7 @@ class FindPuppetController extends \App\Http\Controllers\Controller
                                 ->where('ip','NOT LIKE','103.22.201.%') 
                                 ->where('ip','NOT LIKE','172.225.%')
                                 ->where('ip','NOT LIKE','172.226.%')
+                                ->where('cfp_id','!=','40788')
                                 /*
                                 ->where('ip','NOT LIKE','172.226.71.%')      
                                 ->where('ip','NOT LIKE','172.226.72.%') 

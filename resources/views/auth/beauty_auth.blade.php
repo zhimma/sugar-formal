@@ -141,27 +141,40 @@ background: #eee; border: #eee 1px solid;
         });
 
        if(check_rs==false) {
-            c5('無法送出！您尚未'+(ans_chain_str==''?'填寫':'修改')+'任何答案。');
+            var no_ans_present_question_elt = nowFormElt.find('h2.gjr_nr02_h2').eq(0);
+            var no_ans_present_question_str = get_question_str_for_popup(no_ans_present_question_elt.html());
+            c5('請選擇'+no_ans_present_question_str+'。');
+            no_ans_present_question_elt.next().find('input,textarea,select').focus();
        }
        else {
            for(var rf in required_field) {
                if(!required_field[rf] ) {
                    var required_first_elt = $('[name="'+rf+'"]').eq(0);
                    if(required_first_elt.attr('placeholder')!=undefined && required_first_elt.attr('placeholder')!='') {
-                       c5('無法送出！'+required_first_elt.attr('placeholder')+'。');
+                       c5(required_first_elt.attr('placeholder')+'。');
                    }
                    else {
-                       var question_str = required_first_elt.closest('.rzmatop_5').prev().html().replace('(必填)','');
-                       c5('無法送出！請回答必填題：'+question_str.replace('(必填)','')+'。');
-                       
+                       var please_str = '';
+                       var question_str = get_question_str_for_popup(required_first_elt.closest('.rzmatop_5').prev().html());
+                       if(required_first_elt.attr('type')=='radio')  please_str='請選擇';
+                       else if(required_first_elt.attr('type')=='text' || required_first_elt.attr('type')=='textarea' || required_first_elt.attr('type')=='' || required_first_elt.attr('type')==undefined)  please_str='請填寫';
+                       c5(please_str+question_str.replace('(必填)','')+'。');  
                    }
                    required_first_elt.focus();
                    return false;
                }
            }
        }
-
+        
         return check_rs;
+    }
+    
+    function get_question_str_for_popup(question_str)
+    {
+        var question_str = question_str.replace('(必填)','');
+        if(question_str.indexOf(':')>=0)
+            question_str = question_str.replace(question_str.substring(0,question_str.indexOf(':')+1),'');        
+        return question_str;
     }
     
 
