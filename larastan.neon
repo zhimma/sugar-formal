@@ -1,0 +1,18 @@
+includes:
+    - ./vendor/nunomaduro/larastan/extension.neon
+
+parameters:
+
+    paths:
+        - /app/Http/Controllers
+        - /app/Models
+        - /resources/views
+
+    # The level 9 is the highest level
+    level: 1
+
+
+    excludePaths:
+        - ./vendor
+
+    checkMissingIterableValueType: false
