@@ -1091,9 +1091,9 @@ class RealAuthAdminService {
             $layout.='</a>';
         }
         
-        if($apply_entry->auth_type_id==1 && $apply_entry->from_auto && $modify_entry->item_id==1)
+        if($apply_entry->auth_type_id==1 && $apply_entry->from_auto && $modify_entry->is_formal_first==1)
         {
-            $layout.= ' ( 美顏推薦 ) ';
+            $layout.= ' (美顏) ';
         } 
         
         return $layout;

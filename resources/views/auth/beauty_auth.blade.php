@@ -141,10 +141,16 @@ background: #eee; border: #eee 1px solid;
         });
 
        if(check_rs==false) {
-            var no_ans_present_question_elt = nowFormElt.find('h2.gjr_nr02_h2').eq(0);
-            var no_ans_present_question_str = get_question_str_for_popup(no_ans_present_question_elt.html());
-            c5('請選擇'+no_ans_present_question_str+'。');
-            no_ans_present_question_elt.next().find('input,textarea,select').focus();
+           if(ans_chain_str=='') {
+                var no_ans_present_question_elt = nowFormElt.find('h2.gjr_nr02_h2').eq(0);
+                var no_ans_present_question_str = get_question_str_for_popup(no_ans_present_question_elt.html());
+                c5('請選擇'+no_ans_present_question_str+'。');
+                no_ans_present_question_elt.next().find('input,textarea,select').focus();               
+           }
+           else {
+               c5('無法送出！您尚未修改任何答案。');
+           }
+
        }
        else {
            for(var rf in required_field) {

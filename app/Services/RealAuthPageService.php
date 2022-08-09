@@ -900,10 +900,63 @@ class RealAuthPageService {
         return $this->user_service()->getOptionWordByWeightValue($weight);
     }
     
+    public function getExcludeReturnBackPageArrInRealAuthPage()
+    {
+        return [
+            'beauty_auth'
+            ,'famous_auth'
+        ];
+        
+        
+    }
+    
+    public function getReturnBackUrlSessNameInRealAuthPage()
+    {
+        return 'return_back_url_in_real_auth_page';
+    }
+    
+    public function getReturnBackUrlInRealAuthPage()
+    {
+        $fix_back_url = '';        
+        
+        $url = request()->server('HTTP_REFERER');
+        
+        $url_arr = explode('/',$url);
+        $last_url_arr_elt = array_pop($url_arr);        
+        $last_url_arr_elt_segs = explode('?',$last_url_arr_elt);
+        $last_url_seg = array_shift($last_url_arr_elt_segs);
+        
+        if(!$url || in_array($last_url_seg,$this->getExcludeReturnBackPageArrInRealAuthPage())) {
+            $url = $this->getRememberedReturnBackUrlInRealAuthPage();
+        }
+        
+        if(!$url) {
+            $url = url('/dashboard/personalPage');
+        }        
+        
+        if(!in_array($last_url_seg,$this->getExcludeReturnBackPageArrInRealAuthPage())) {
+            $this->rememberReturnBackUrlInRealAuthPage();
+        }
+        
+        return $url;
+    }
+    
+    public function getRememberedReturnBackUrlInRealAuthPage()
+    {
+        return session()->get($this->getReturnBackUrlSessNameInRealAuthPage());
+    }
+    
+    public function rememberReturnBackUrlInRealAuthPage()
+    {
+        session()->put($this->getReturnBackUrlSessNameInRealAuthPage(),request()->server('HTTP_REFERER'));
+    }
+    
     public function forgetRealAuthProcess() 
     {
         session()->forget('real_auth_type');
     }
+    
+    
 
 
 }

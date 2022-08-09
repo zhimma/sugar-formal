@@ -31,7 +31,7 @@
             </div>
             <div class="col-sm-12 col-xs-12 col-md-10">
                 <div class="shou"><span>本人認證/美顏推薦/名人認證</span>
-                    <a href="{{request()->server('HTTP_REFERER')?request()->server('HTTP_REFERER'):url('/dashboard/personalPage')}}" class="toug_back btn_img" style=" position: absolute; right:20px;">
+                    <a href="{{$service->getReturnBackUrlInRealAuthPage()}}" class="toug_back btn_img" style=" position: absolute; right:20px;">
                         <div class="btn_back"></div>
                     </a>
                 </div>
@@ -87,7 +87,6 @@
                     
                 
                 </div>
-                {{-- 暫不開放 2022-07-27
                 <div class="gaoji_rz">
                     <img src="{{asset('alert/images/renz_23.png')}}" class="gao_bitaoti">
                     <div class="gao_font">這是專門為符合條件，尋找高素質高收入daddy的妳所安排，請先確認妳符合以下條件：</div>
@@ -146,7 +145,6 @@
                     @endif                    
                     </div>
                 </div>
-                --}}
                 <div class="gaoji_rz ga_top40 ga_bot70">
                         <img src="{{asset('new/images/mrrenz_25.png')}}" class="gao_bitaoti ga_top">
                         <div class="gao_font">如果你是特殊人物/具有公開身分。想尋找優質daddy不想曝光者。</div>
