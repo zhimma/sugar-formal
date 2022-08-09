@@ -725,6 +725,8 @@ Route::group(['middleware' => ['auth', 'global', 'active', 'femaleActive', 'vipC
 
         Route::get('users/ip/{ip}', 'UserController@getIpUsers')->name('getIpUsers');
 		Route::get('users/getLog', 'UserController@getUsersLog')->name('getUsersLog');
+        Route::post('users/logUserLoginHide', 'UserController@logUserLoginHide')->name('logUserLoginHide');
+
         Route::group(['prefix'=>'users/message'], function(){
             Route::get('showBetween/{id1}/{id2}', 'UserController@showMessagesBetween')->name('admin/showMessagesBetween');
             Route::get('to/{id}', 'UserController@showAdminMessenger')->name('AdminMessage');

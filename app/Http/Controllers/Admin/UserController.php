@@ -5544,10 +5544,24 @@ class UserController extends \App\Http\Controllers\BaseController
 
         }
 
+        $getIpUsersData_origin=$getIpUsersData->get();
+        $getIpUsersData = $getIpUsersData->where('g.log_hide', 0);
+
         $getIpUsersData = $getIpUsersData->paginate(200);
 
+        $isSetAutoBan_cfp_id=null;
+        $isSetAutoBan_ip=null;
+        if(Request()->get('cfp_id')){
+            $isSetAutoBan_cfp_id = \App\Models\SetAutoBan::whereRaw('(content="'. Request()->get('cfp_id').'" AND expiry >="'. now().'")')->orWhereRaw('(content="'. Request()->get('cfp_id').'" AND expiry="0000-00-00 00:00:00")')->get();
+        }else{
+            $isSetAutoBan_ip = \App\Models\SetAutoBan::whereRaw('(content="'. Request()->get('ip').'" AND expiry >="'. now().'")')->orWhereRaw('(content="'. Request()->get('ip').'" AND expiry="0000-00-00 00:00:00")')->get();
+        }
+        $male_user_list=User::where('engroup', 1)->whereIn('id', array_keys($getIpUsersData_origin->groupBy('user_id')->toArray()))->get()->pluck('id')->toArray();
         return view('admin.users.ipUsersList')
             ->with('ipUsersData', $getIpUsersData)
+            ->with('isSetAutoBan_cfp_id', $isSetAutoBan_cfp_id)
+            ->with('isSetAutoBan_ip', $isSetAutoBan_ip)
+            ->with('male_user_list', $male_user_list)
             ->with('ip', $ip)
             ->with('recordType', $request->type);
     }
@@ -5588,6 +5602,14 @@ class UserController extends \App\Http\Controllers\BaseController
         return view('admin.users.getUsersLogList')
             ->with('getUsersLogData', $getUsersLogData)
             ->with('curLogUser', $curLogUser);
+    }
+
+    public function logUserLoginHide(Request $request){
+        $user_id_list=$request->get('user_id_list').',';
+        $log_hide=$request->get('log_hide');
+        LogUserLogin::whereIn('user_id', explode(',',$user_id_list))->update(['log_hide'=>$log_hide]);
+
+        return back();
     }
 
     public function accountStatus_admin(Request $request)
