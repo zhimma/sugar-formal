@@ -8,6 +8,17 @@
     text-align: center;
 }
 </style>
+<link rel="stylesheet" href="https://cdn.datatables.net/1.11.3/css/jquery.dataTables.min.css">
+<script src="https://code.jquery.com/jquery-3.5.1.js"></script>
+<script src="https://cdn.datatables.net/1.11.3/js/jquery.dataTables.min.js" defer=""></script>
+<script>
+    $(function() {
+        $('#datatable').DataTable({
+            pageLength: 200,
+            bLengthChange: false,
+        });
+    })
+</script>
 <body>
 @if(Request()->get('cfp_id'))
     <h1>CFP_ID: {{Request()->get('cfp_id')}}</h1>
@@ -17,7 +28,7 @@
 
 @if(isset($ipUsersData))
 <div>
-    <table class="table-hover table table-bordered">
+    <table id="datatable" class="table-hover table table-bordered display">
         <thead>
         <tr>
             <th width="%">IP</th>
@@ -68,7 +79,11 @@
                         <td><a href="../advInfo/{{ $row->user_id }}" target="_blank">{{$user->email}}</a></td>
                         <td>{{$loginLog->country}}</td>
                         <td>{{$row->cfp_id}}</td>
-                        <td>@if($user->engroup==1)男@else 女@endif</td>
+                        @if($user->engroup==1)
+                            <td style="color: blue;">男</td>
+                        @else
+                            <td style="color: red;">女</td>
+                        @endif
                         <td>{{$user->name}}</td>
                         <td>{{$user->title}}</td>
                         <td>{{$loginLog->created_at}}
