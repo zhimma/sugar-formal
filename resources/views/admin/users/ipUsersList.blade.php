@@ -21,11 +21,28 @@
 </script>
 <body>
 @if(Request()->get('cfp_id'))
-    <h1>CFP_ID: {{Request()->get('cfp_id')}}</h1>
+    <h1 @if($isSetAutoBan_cfp_id->count()) style="background: yellow;width: fit-content;" @endif>CFP_ID: {{Request()->get('cfp_id')}}</h1>
 @else
-    <h1>IP: {{$ip}}</h1>
+    <h1 @if($isSetAutoBan_ip->count()) style="background: yellow;width: fit-content;" @endif>IP: {{$ip}}</h1>
 @endif
-
+<div style="margin: 20px 0px;">
+    <form action="{{ route('logUserLoginHide') }}" method='POST'>
+        {!! csrf_field() !!}
+        <input type="hidden" name="user_id_list" value="{{ implode(',', $male_user_list) }}">
+        @php
+            $log_hide_count=\App\Models\LogUserLogin::whereIn('user_id', $male_user_list)->where('log_hide', 1)->get()->count();
+        @endphp
+        @if(count($male_user_list)>0)
+            @if($log_hide_count>0)
+                <input type="hidden" name="log_hide" value="0">
+                <button type="submit" class="btn btn-primary">顯示男會員</button>
+            @else
+                <input type="hidden" name="log_hide" value="1">
+                <button type="submit" class="btn btn-primary">隱藏男會員</button>
+            @endif
+        @endif
+    </form>
+</div>
 @if(isset($ipUsersData))
 <div>
     <table id="datatable" class="table-hover table table-bordered display">

@@ -21,7 +21,7 @@ class LogUserLogin extends Model
      *
      * @var array
      */
-    protected $fillable = ['user_id', 'cfp_id', 'userAgent', 'ip', 'created_date', 'created_at'];
+    protected $fillable = ['user_id', 'cfp_id', 'userAgent', 'ip', 'created_date', 'created_at', 'log_hide'];
 
     public function setReadOnly() {
         $this->guarded =  ['*'];
