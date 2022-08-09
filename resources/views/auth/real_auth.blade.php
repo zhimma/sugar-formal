@@ -31,7 +31,7 @@
             </div>
             <div class="col-sm-12 col-xs-12 col-md-10">
                 <div class="shou"><span>本人認證/美顏推薦/名人認證</span>
-                    <a href="{{request()->server('HTTP_REFERER')?request()->server('HTTP_REFERER'):url('/dashboard/personalPage')}}" class="toug_back btn_img" style=" position: absolute; right:20px;">
+                    <a href="{{$service->getReturnBackUrlInRealAuthPage()}}" class="toug_back btn_img" style=" position: absolute; right:20px;">
                         <div class="btn_back"></div>
                     </a>
                 </div>
