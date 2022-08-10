@@ -47,7 +47,7 @@ class UserLogin extends Command
         foreach($users as $user)
         {
             Log::info('UserLogin:' . $user->id);
-            SetAutoBan::logoutWarned($user->id);
+            SetAutoBan::logout_warned($user->id);
         }
     }
 }
