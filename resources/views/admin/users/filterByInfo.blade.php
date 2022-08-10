@@ -174,6 +174,12 @@
 							@if(isset($info->user) && $info->user->engroup == 1 && $info->user->isVip()) 
 							<i class="m-nav__link-icon fa fa-diamond"></i>						
 							@endif
+							<br>
+							<span>
+								@if($info->user->isPhoneAuth()) (手機) @endif
+								@if($info->user->advance_auth_status) (進階) @endif
+								@if($info->user->is_real==0) (本人) @endif
+							</span>
                             @if(!($info->ignore??false))
                             <div class="user_go_to_end_op_block">
                                 <span>
