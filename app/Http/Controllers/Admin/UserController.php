@@ -5656,6 +5656,9 @@ class UserController extends \App\Http\Controllers\BaseController
         if ($admin) {
             $error_msg = [];
             $en_group = $request->en_group;
+
+            $newer_manual_gt_num = $request->newer_manual_gt_num;
+            $register_gt_num = $request->register_gt_num;
             $msg_gt_visit_7days = $request->msg_gt_visit_7days;
             $msg_gt_visit = $request->msg_gt_visit;
 
@@ -5663,6 +5666,8 @@ class UserController extends \App\Http\Controllers\BaseController
             $blocked_gt_num = $request->blocked_gt_num;
             $block_other_gt_num = $request->block_other_gt_num;
 
+            $newerManualGtNum = $request->newerManualGtNum;
+            $registerGtNum = $request->registerGtNum;
             $reportedGtNum = $request->reportedGtNum;
             $blockedGtNum = $request->blockedGtNum;
             $blockOtherGtNum = $request->blockOtherGtNum;
@@ -5688,6 +5693,32 @@ class UserController extends \App\Http\Controllers\BaseController
                     ->leftJoin('data_for_filter_by_info_ignores', 'data_for_filter_by_info_ignores.user_id', '=', 'data_for_filter_by_info.user_id')
                     ->where('users.engroup', ($en_group ?? 2));
 
+                if ($newer_manual_gt_num) {
+                    $qstrArr['newer_manual_gt_num'] = $newer_manual_gt_num;
+                    $qstrArr['newerManualGtNum'] = $newerManualGtNum;
+                    switch ($newer_manual_gt_num) {
+                        case 'and':
+                            $whereRawArr[] = '(select SUM(newer_manual) from stay_online_record where stay_online_record.user_id=data_for_filter_by_info.user_id) >='.$newerManualGtNum;
+                            break;
+                        case 'or':
+                            //$orwhereRawArr[] = '(select SUM(newer_manual) from stay_online_record where stay_online_record.user_id=data_for_filter_by_info.user_id) >='.$newerManualGtNum;
+                            break;
+                    }
+                }
+
+                if ($register_gt_num) {
+                    $qstrArr['register_gt_num'] = $register_gt_num;
+                    $qstrArr['registerGtNum'] = $registerGtNum;
+                    $date_default= date('Y-m-d H:i:s', strtotime('-'.$registerGtNum.' days')); // ($registerGtNum ?? 0)
+                    switch ($register_gt_num) {
+                        case 'and':
+                            $whereArr[] = ['users.created_at', '<=', $date_default];
+                            break;
+                        case 'or':
+                            $orwhereArr[] = ['users.created_at', '<=', $date_default];
+                            break;
+                    }
+                }
                 if ($msg_gt_visit_7days) {
                     $qstrArr['msg_gt_visit_7days'] = $msg_gt_visit_7days;
                     switch ($msg_gt_visit_7days) {
