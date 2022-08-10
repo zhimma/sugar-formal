@@ -37,6 +37,7 @@ use App\Models\SimpleTables\short_message;
 use App\Models\LogAdvAuthApi;
 use App\Models\UserTattoo;
 use App\Models\StayOnlineRecord;
+use App\Models\PuppetAnalysisRow;
 use function Clue\StreamFilter\fun;
 use Tymon\JWTAuth\Contracts\JWTSubject;
 
@@ -183,7 +184,22 @@ class User extends Authenticatable implements JWTSubject
     {
         return $this->hasOne(StayOnlineRecord::class, 'user_id', 'id')->select(DB::raw("SUM(newer_manual) as time"));
     }
-
+    
+    //多重帳號row
+    public function puppet_analysis_row()
+    {
+        return $this->hasMany(PuppetAnalysisRow::class, 'name', 'id');
+    }
+    
+    public function puppet_analysis_row_standard()
+    {
+        return $this->puppet_analysis_row()->where('cat','');
+    }    
+    
+    public function puppet_analysis_row_only_cfpid()
+    {
+        return $this->puppet_analysis_row()->where('cat','only_cfpid');
+    } 
     //簡易設定 用在簡易量少的設定上
     public function tiny_setting() {
         return $this->hasMany(UserTinySetting::class, 'user_id', 'id');

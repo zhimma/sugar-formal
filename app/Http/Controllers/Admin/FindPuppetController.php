@@ -14,6 +14,7 @@ use App\Models\PuppetAnalysisIgnore;
 use App\Models\StayOnlineRecord;
 use Illuminate\Support\Facades\Log;
 use App\Services\UserService;
+use App\Services\PuppetAnalysisAdminService;
 
 class FindPuppetController extends \App\Http\Controllers\Controller
 {
@@ -52,7 +53,8 @@ class FindPuppetController extends \App\Http\Controllers\Controller
         $this->defaultSdateOfVid = null;              
     }    
     
-    public function entrance(Request $request) {          
+    public function entrance(Request $request) 
+    {          
         ini_set("max_execution_time",'0');
         ini_set('memory_limit','-1'); 
         set_time_limit(0);
@@ -1113,7 +1115,8 @@ class FindPuppetController extends \App\Http\Controllers\Controller
 
     }
     
-    private function _findMultiUserIdFromIp($check_val,$type='ip') {
+    private function _findMultiUserIdFromIp($check_val,$type='ip') 
+    {
         $groupIdx = $this->_groupIdx;
         
         switch($type) {
@@ -1255,7 +1258,8 @@ class FindPuppetController extends \App\Http\Controllers\Controller
         }   
     }
     
-    public function display(Request $request) {
+    public function display(Request $request) 
+    {
         if($request->ajax()) exit;
         ini_set("max_execution_time",'0');
         ini_set('memory_limit','-1');
@@ -1729,7 +1733,8 @@ class FindPuppetController extends \App\Http\Controllers\Controller
     
     }
     
-    public function switchIgnore(Request $request) {
+    public function switchIgnore(Request $request) 
+    {
         $value = $request->value;
         $cat_type = $request->cat_type;
         if(!$value) return;
@@ -1771,7 +1776,8 @@ class FindPuppetController extends \App\Http\Controllers\Controller
         }
     }
     
-    private function _getSimpleTableHead($colnames) {
+    private function _getSimpleTableHead($colnames) 
+    {
         
         $colshow = '<tr>';
         foreach($colnames  as $colname) {
@@ -1785,7 +1791,8 @@ class FindPuppetController extends \App\Http\Controllers\Controller
 
     }
     
-    private function _getSimpleStyle() {
+    private function _getSimpleStyle() 
+    {
         return ' <style>      
                     a, a:visited, a:hover, a:active {
                         text-decoration: underline;
@@ -1795,18 +1802,21 @@ class FindPuppetController extends \App\Http\Controllers\Controller
                     ."\n\r";
     }
 
-    private function _isIpChecked($ip) {
+    private function _isIpChecked($ip) 
+    {
         foreach($this->_columnIp  as $groupIpArr) {
             if(array_search($ip ,$groupIpArr)!==false) return true;
             else continue;
         }
     }
     
-    private function _isColumnChecked($check_val) {
+    private function _isColumnChecked($check_val) 
+    {
         if(array_search($check_val ,array_dot($this->_columnIp))!==false) return true;
     } 
     
-    private function _havePuppetUserId($check_val=null,$login_data=[]) {
+    private function _havePuppetUserId($check_val=null,$login_data=[]) 
+    {
         $multiUserIds = $login_data[$check_val]??[];
         
         if(!$multiUserIds || count($multiUserIds)<=1) {
@@ -1814,5 +1824,53 @@ class FindPuppetController extends \App\Http\Controllers\Controller
         }
         else return true;        
     }
+    
+    public function compare_login_time_show(Request $request,PuppetAnalysisAdminService $service) 
+    {
+        $data['service'] = $service;
+        $group_index = $request->group_index;
+        $only = $request->only;
+       
+        
+        switch($only) {
+            case 'cfpid':
+                $row_list = $service->getRowListOnlyCfpIdFromGroupIndex($group_index);
+            break;
+            default:
+                $row_list = $service->getRowListStandardFromGroupIndex($group_index);
+            break;
+        }
+        
+        
+        $data['row_list'] = $row_list;
+        return view('admin.users.findpuppet_compare_login_time_show',$data)
+                ->with('data',$data); 
+    }
+    
+    public function compare_login_time(Request $request,PuppetAnalysisAdminService $service) 
+    {
+        $data['service'] = $service;
+        
+        if($request->compare_interval??null) {
+            $service->compare_interval = $request->compare_interval;
+        }          
+        
+        $data['target_service']= unserialize(serialize($service));
+        $group_index = $request->group_index;
+        $only = $request->only;
+        $master = $request->master;
+        $target = $request->target;
+        $before_period = $request->before_period;
+        $compare_interval = $request->compare_interval;
+        
+        if(!$master || !$target)  return back();
+        $date_filter_arr['before_period'] = $before_period;
+        $date_list = $service->riseByUserId($master)->getUserLoginDateList($date_filter_arr);
+        $data['date_list'] = $date_list;
+        $data['target'] = $target;
+ 
+        return view('admin.users.findpuppet_compare_login_time',$data)
+                ->with('data',$data); 
+    }    
       
 }

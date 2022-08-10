@@ -51,6 +51,7 @@
 		color: inherit;
 	}
     .show {margin-top:50px;maring-bottom:10px;}
+    .show h2 a:visited {color:#fff;}
     /*table,tr,td,th {border-width:3px; border-style:solid;border-collapse: collapse;border-spacing:0;}*/
     .error {color:red;font-weight:bolder;}
     td, th{ padding:5px;text-align: center;vertical-align: middle;}
@@ -400,7 +401,7 @@
 <br><br>
 <div class="show"  @if($group_count>=count($groupOrderArr[0]) && !$gidx)id="g{{ $group_count }}"@endif>
 	
-    <h2>第 {{ $group_count }} 組</h2>
+    <h2>第 {{ $group_count }} 組 <a href="{{url('admin/users/compare_login_time').'?group_index='.$g.'&group_no='.$group_count.'&only='.request()->only}}" class="btn btn-primary" target="_blank">比對上線時間</a></h2>
 	@if ($groupInfo[$g]['cutData'])
 	<div class="attentioninfo">
 		<h3>請注意!!!</h3>

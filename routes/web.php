@@ -939,6 +939,8 @@ Route::group(['middleware' => ['auth', 'global', 'active', 'femaleActive', 'vipC
 		Route::get('users/showDuplicate', 'FindPuppetController@display');
         Route::get('users/checkDuplicate', 'FindPuppetController@entrance');
         Route::get('users/showLogBk', 'FindPuppetController@displayDetail');
+        Route::get('users/compare_login_time', 'FindPuppetController@compare_login_time_show');
+        Route::post('users/compare_login_time', 'FindPuppetController@compare_login_time');
         Route::get('too_many_requests', 'PagesController@tooManyRequests')->name('tooMantRequests');
 
 
