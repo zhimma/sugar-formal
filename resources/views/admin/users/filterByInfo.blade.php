@@ -65,7 +65,33 @@
 							<input type="radio" name="en_group" value="2" @if(request()->en_group=='2' || !request()->en_group) checked @endif> 女</input>
 							<div class="error_msg">{{$errors->first('en_group') ?? ''}}</div>
 						</td>
-					</tr>					
+					</tr>
+					<tr>
+						<th>新手教學時間</th>
+						<td>
+							<label>大於</label><input type="number" name="newerManualGtNum" min="0"  value="{{request()->newerManualGtNum ?? 0}}"  class="number_input"/><label>秒</label>
+							<input type="radio" name="newer_manual_gt_num" id="newer_manual_gt_num_default" value="" @if(request()->newer_manual_gt_num=='') checked @endif >
+							<label for="newer_manual_gt_num_default">不選擇</label>
+							<input type="radio" name="newer_manual_gt_num" id="newer_manual_gt_num_and" value="and" @if(request()->newer_manual_gt_num=='and') checked @endif >
+							<label for="register_days_num_and">and</label>
+							<input type="radio" name="newer_manual_gt_num" id="newer_manual_gt_num_or" value="or" @if(request()->newer_manual_gt_num=='or') checked @endif >
+							<label for="newer_manual_gt_num_or">or</label>
+							<div class="error_msg">{{$errors->first('info_filter') ?? ''}}</div>
+						</td>
+					</tr>
+					<tr>
+						<th>註冊時間</th>
+						<td>
+							<label>大於</label><input type="number" name="registerGtNum" min="0"  value="{{request()->registerGtNum ?? 0}}"  class="number_input"/><label>天</label>
+							<input type="radio" name="register_gt_num" id="register_gt_num_default" value="" @if(request()->register_gt_num=='') checked @endif >
+							<label for="register_gt_num_default">不選擇</label>
+							<input type="radio" name="register_gt_num" id="register_gt_num_and" value="and" @if(request()->register_gt_num=='and') checked @endif >
+							<label for="register_gt_num_and">and</label>
+							<input type="radio" name="register_gt_num" id="register_gt_num_or" value="or" @if(request()->register_gt_num=='or') checked @endif >
+							<label for="register_gt_num_or">or</label>
+							<div class="error_msg">{{$errors->first('info_filter') ?? ''}}</div>
+						</td>
+					</tr>
                     <tr>
                         <th>"過去7天發信次數"大於"過去7天瀏覽其他會員次數"</th>
                         <td>
@@ -156,7 +182,9 @@
                         <th nowrap>照片</th>
                         <th nowrap>ip/cfp</th>
                         <th nowrap>上線位置</th>
-						<th nowrap>被檢舉次數</th>					
+						<th nowrap>被檢舉次數</th>
+						<th nowrap>新手教學時間</th>
+						<th nowrap>註冊時間</th>
                     </tr>
                     @foreach( $data as  $info)
 					@php if(!isset($info->user)) $info->user = new \App\Models\User; @endphp
@@ -256,8 +284,14 @@
 						</td> 
 						<td >
 							{{$info->be_reported_other_count ?? 0}}
-						</td>                        
-                    </tr>
+						</td>
+						<td >
+							{{$info->user->newer_manual_stay_online_time->time ?? 0}}
+						</td>
+						<td >
+							{{$info->user->created_at}}
+						</td>
+					</tr>
                     @endforeach
                 </table>
 				
