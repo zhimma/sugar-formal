@@ -49,7 +49,7 @@ class Kernel extends ConsoleKernel
             $schedule->call('\App\Http\Controllers\Admin\FindPuppetController@entrance',['request'=>$puppetReq])->timezone('Asia/Taipei')->dailyAt('15:00');
             //$schedule->call('\App\Http\Controllers\Admin\FindPuppetController@entrance',['request'=>$puppetReq])->timezone('Asia/Taipei')->dailyAt('21:00');
         }
-        if(app()->isProduction() || app()->isLocal()){
+        if(app()->isProduction() || app()->isLocal() || app()->environment('simon-test')){
             $schedule->command('FillDataForFilterByInfo')->timezone('Asia/Taipei')->dailyAt('01:00');
             $schedule->call(function (){
                 $this->checkECPayVip();
