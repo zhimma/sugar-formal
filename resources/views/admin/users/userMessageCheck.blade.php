@@ -78,6 +78,14 @@
             border: 1px solid #e9ecef;
             align-self: stretch;
         }
+
+         .text-box{
+             width: fit-content;
+             overflow: hidden;
+             display: -webkit-box;
+             -webkit-line-clamp: 1;   /*省略第n行後的文字*/
+             -webkit-box-orient: vertical;  /*設定元素是垂直布局*/
+         }
     </style>
 
     <body style="padding: 15px;">
@@ -176,20 +184,23 @@
                                     href="{{ route('users/advInfo', ['id' => $fromUser->id]) }}"
                                     target="_blank">{{ $fromUser->email }}<a>
                                         <br>
-                                        暱稱: {{ $fromUser->name }}
+                                        暱稱: {{ $fromUser->name  }} (已註冊天數: {{ floor(( strtotime(date('Y-m-d H:i:s')) - strtotime($fromUser->created_at)) / (60 * 60 * 24)) }})
                                         <br>
                                         抬頭: {{ $fromUser->title }}
-                                        {!! $fromUser->isPhoneAuth() ? '<br>通過手機驗證' : '' !!}
-                                        {!! $fromUser->is_real ? '' : '<br>是本人' !!}
-                                        {!! $fromUser->isAdvAuthUsable ? '' : '<br>進階驗證' !!}
+                                        <br>
+                                        @if($fromUser->isPhoneAuth()) (手機) @endif
+                                        @if($fromUser->is_real==0) (本人) @endif
+                                        @if($fromUser->isAdvAuthUsable==0) (進階) @endif
                                         <br>
                                         總訊息數: {{ $fromUser->messageCount }}
+                                        <br>
+                                        新手教學時間: {{ $fromUser->newer_manual_stay_online_time->time }}
                             </td>
                             <td>
-                                <p class="about-me" title="{{ $fromUser->user_meta->about }}">關於我:
+                                <p class="about-me text-box" title="{{ $fromUser->user_meta->about }}">關於我:
                                     {{ strLimit($fromUser->user_meta->about, 20) }}</p>
                                 <br>
-                                <p class="date-mode" title="{{ $fromUser->user_meta->style }}">約會模式:
+                                <p class="date-mode text-box" title="{{ $fromUser->user_meta->style }}">約會模式:
                                     {{ strLimit($fromUser->user_meta->style, 20) }}</p>
                             </td>
                             <td>
