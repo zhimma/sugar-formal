@@ -184,7 +184,7 @@
                                     href="{{ route('users/advInfo', ['id' => $fromUser->id]) }}"
                                     target="_blank">{{ $fromUser->email }}<a>
                                         <br>
-                                        暱稱: {{ $fromUser->name  }} (已註冊天數: {{ floor(( strtotime(date('Y-m-d H:i:s')) - strtotime($fromUser->created_at)) / (60 * 60 * 24)) }})
+                                        暱稱: {{ $fromUser->name  }} ({{ floor(( strtotime(date('Y-m-d H:i:s')) - strtotime($fromUser->created_at)) / (60 * 60 * 24)) }})
                                         <br>
                                         抬頭: {{ $fromUser->title }}
                                         <br>
