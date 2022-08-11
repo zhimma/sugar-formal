@@ -1961,13 +1961,13 @@ dt span.engroup_type_title {display:inline-block;width:10%;white-space:nowrap;}
 
             if(budget_per_month_min.val()!='' || budget_per_month_max.val()!='')
             {
-                if(budget_per_month_max.val() > budget_per_month_min.val() * 2)
+                if(parseInt(budget_per_month_max.val()) > parseInt(budget_per_month_min.val()) * 2)
                 {
                     budget_per_month_max.focus();
                     c5('您好，每月預算上下限最大差異不得超過 100%，您的下限為' + budget_per_month_min.val() + '，則必須降低上限最多至' + budget_per_month_min.val() * 2);
                     return false;
                 }
-                if(budget_per_month_min.val() > budget_per_month_max.val())
+                if(parseInt(budget_per_month_min.val()) > parseInt(budget_per_month_max.val()))
                 {
                     budget_per_month_max.focus();
                     c5('每月預算下限不可大於上限');
@@ -1977,13 +1977,13 @@ dt span.engroup_type_title {display:inline-block;width:10%;white-space:nowrap;}
 
             if(transport_fare_min.val()!='' || transport_fare_max.val()!='')
             {
-                if(transport_fare_max.val() > transport_fare_min.val() * 2)
+                if(parseInt(transport_fare_max.val()) > parseInt(transport_fare_min.val()) * 2)
                 {
                     transport_fare_max.focus();
                     c5('您好，車馬費預算上下限最大差異不得超過 100%，您的下限為' + transport_fare_min.val() + '，則必須降低上限最多至' + transport_fare_min.val() * 2);
                     return false;
                 }
-                if(transport_fare_min.val() > transport_fare_max.val())
+                if(parseInt(transport_fare_min.val()) > parseInt(transport_fare_max.val()))
                 {
                     transport_fare_max.focus();
                     c5('車馬費預算下限不可大於上限');
