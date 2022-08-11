@@ -48,7 +48,7 @@ class CheckDiscussPermissions
         if($this->auth->user()->access_posts==1 && str_contains(url()->current(), 'dashboard/post')){
             return redirect('/dashboard/forum')->with('message', '您好，您目前被站方限制使用討論區，若有疑問請點右下角，聯繫站長Line@');
         }
-        if (!$this->auth->user()->isVip()) {
+        if (!$this->auth->user()->isVip() && !$this->auth->user()->isVVIP()) {
             return redirect('/dashboard/new_vip')->with('message', '請先升級VIP，加入即時討論');
 
         }

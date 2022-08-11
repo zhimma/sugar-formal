@@ -17,16 +17,41 @@
                     </div>
                     <div class="awlist">
                         <li>
-                            <a href="{!! url('dashboard/new_vip') !!}" class="aw_hdtab">
-                                <img src="/new/images/VIPicon_01.png">
-                                <h2>VIP</h2>
-                            </a>
+                            @if($user->isVVIP())
+                                <a class="aw_hdtab cantVIP">
+                                    <img src="/new/images/VIPicon_01.png">
+                                    <h2>VIP</h2>
+                                </a>
+                            @else
+                                <a href="{!! url('dashboard/new_vip') !!}" class="aw_hdtab">
+                                    <img src="/new/images/VIPicon_01.png">
+                                    <h2>VIP</h2>
+                                </a>
+                            @endif
                         </li>
                         <li>
                             <a href="{!! url('dashboard/valueAddedHideOnline') !!}"class="aw_hdtab">
                                 <img src="/new/images/VIPicon_02.png">
-                                <h2>付費隱藏</h2>
+                                <h2>付費隱藏<span>上線資訊</span></h2>
                             </a>
+                        </li>
+                        <li>
+                            @if(($user->applyingVVIP() || $user->applyingVVIP_getDeadline() != 0) && $user->engroup==1 )
+                                <a class="aw_hdtab" href="{{ url('/dashboard/vvipPassSelect') }}">
+                                    <img src="/new/images/VIPicon_03.png">
+                                    <h2>VVIP升級</h2>
+                                </a>
+                            @elseif($user->engroup==1)
+                                <a class="aw_hdtab" href="@if($user->passVVIP()){{ url('/dashboard/vvipPassSelect') }}@else{{ url('/dashboard/vvipSelect') }}@endif">
+                                    <img src="/new/images/VIPicon_03.png">
+                                    <h2>@if($user->isVVIP()) VVIP專區 @else VVIP升級 @endif</h2>
+                                </a>
+                            @else
+                                <a class="aw_hdtab aw_hdtab_h cantVVIP">
+                                    <img src="/new/images/VIPicon_03-h.png">
+                                    <h2>VVIP升級</h2>
+                                </a>
+                            @endif
                         </li>
                     </div>
 
@@ -38,4 +63,17 @@
 @stop
 
 @section('javascript')
+    <script>
+
+        $('.cantVIP').on('click',function () {
+            c5('您已經是最高等級VVIP');
+        });
+
+        @if($user->engroup == 2)
+        $('.cantVVIP').on('click',function () {
+            c5('此為男會員的專屬升級方案');
+        });
+        @endif
+
+    </script>
 @stop

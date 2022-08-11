@@ -30,6 +30,10 @@ use App\Models\ReportedMessageBoard;
 use App\Models\SimpleTables\warned_users;
 use App\Models\Suspicious;
 use App\Models\VipLog;
+use App\Models\VvipApplication;
+use App\Models\VipLog;
+use App\Models\VvipInfo;
+use App\Notifications\BannedUserImplicitly;
 use Auth;
 use Carbon\Carbon;
 use Illuminate\Http\Request;
@@ -1527,7 +1531,7 @@ class PagesController extends BaseController
                 $waitDay = round((strtotime($baseDay)-strtotime($nowDay))/3600/24);
             }
 
-            if(auth()->user()->isVip() || $waitDay <=0){
+            if((auth()->user()->isVip() || auth()->user()->isVVIP()) || $waitDay <=0){
                 if($user->email == $input['email']){
                     if(Auth::attempt(array('email' => $input['email'], 'password' => $input['password'])) ){
                         //驗證成功
@@ -2217,6 +2221,8 @@ class PagesController extends BaseController
                         $date = date('Y年m月d日', strtotime($data->expiry));
                         if($payload['service_name'] == 'hideOnline') {
                             $offVIP = '您已成功取消付費隱藏功能，下個月起將不再繼續扣款，目前的付費功能權限可以維持到 ' . $date;
+                        }elseif($payload['service_name'] == 'VVIP') {
+                            $offVIP = '您已成功取消VVIP，下個月起將不再繼續扣款，目前的付費功能權限可以維持到 ' . $date;
                         }
                         logger('$expiry: ' . $data->expiry);
                         logger('base day: ' . $date);
@@ -2227,6 +2233,9 @@ class PagesController extends BaseController
                     $request->session()->save();
                     if($payload['service_name']=='hideOnline') {
                         return redirect('/dashboard/valueAddedHideOnline#valueAddedServiceCanceled')->with('user', $user)->with('message', $offVIP);
+                    }
+                    if($payload['service_name']=='VVIP') {
+                        return redirect('/dashboard/vvipCancel#valueAddedServiceCanceled')->with('user', $user)->with('message', $offVIP);
                     }
                 }
                 else{
@@ -2255,7 +2264,7 @@ class PagesController extends BaseController
         $user = $request->user();
         
         $vipDays=0;
-        if($user->isVip()) {
+        if($user->isVip()||$user->isVVIP()) {
             $vip_record = Carbon::parse($user->vip_record);
             $vipDays = $vip_record->diffInDays(Carbon::now());
         }
@@ -2346,7 +2355,7 @@ class PagesController extends BaseController
 
             $member_pic = MemberPic::where('member_id', $uid)->where('pic', '<>', $targetUser->meta->pic)->whereNull('deleted_at')->orderByDesc('created_at')->get();
 
-            if($user->isVip()){
+            if($user->isVip() || $user->isVVIP()){
                 $vipLevel = 1;
             }else{
                 $vipLevel = 0;
@@ -2362,7 +2371,7 @@ class PagesController extends BaseController
                 $data['countSet'] = (int)$basic_setting['countSet'];
             }
             $blockadepopup = AdminCommonText::getCommonText(5);//id5封鎖說明popup
-            $isVip = $user->isVip() ? '1':'0';
+            $isVip = ( $user->isVip() || $user->isVVIP() ) ? '1':'0';
 
             $adminCommonTexts = AdminCommonText::whereIn('alias', ['report_reason', 'report_member', 'report_avatar', 'new_sweet', 'well_member', 'money_cert', 'alert_account', 'label_vip'])->get();
             $adminCommonTextArray = array();
@@ -2645,7 +2654,7 @@ class PagesController extends BaseController
     public function getHideData(Request $request){
             
             $user = $request->user();
-            $is_vip = $user->isVip();
+            $is_vip = ($user->isVip()||$user->isVVIP());
             $uid = $request->uid;
             $targetUser = User::where('id', $uid)->where('accountStatus',1)->where('account_status_admin',1)->get()->first();
             /*七天前*/
@@ -2942,8 +2951,7 @@ class PagesController extends BaseController
 
     public function getBlockUser(Request $request) {
         $user = $request->user();
-        $is_vip = $user->isVip();
-//        $is_vip = ($user->isVip()||$user->isVVIP());
+        $is_vip = ($user->isVip()||$user->isVVIP());
         if($is_vip) {
             $uid = $request->uid;
             $target_user = User::find($uid);
@@ -3001,7 +3009,7 @@ class PagesController extends BaseController
 
     public function getFavCount(Request $request){
         $user = $request->user();
-        $is_vip = $user->isVip();
+        $is_vip = ($user->isVip()||$user->isVVIP());
         if($is_vip){
             $uid = $request->uid;
             $target_user = User::find($uid);
@@ -3065,12 +3073,14 @@ class PagesController extends BaseController
             // $ssrData = '';
     
             $user = Auth::user();
-            $userIsVip = $user->isVip();
-            $dataList = [];                                   
+            $userIsVip =($user->isVip()||$user->isVVIP());
+            $dataList = [];
             foreach ($searchApi['singlePageData'] as $key=>$visitor){
                 $dataList[$key]['rawData'] = $visitor;
                 $dataList[$key]['visitorCheckRecommendedUser'] = \App\Services\UserService::checkRecommendedUser($visitor);
                 $dataList[$key]['visitorIsVip'] = $visitor->isVip();
+                $dataList[$key]['visitorIsVVIP'] = $visitor->isVVIP();
+                $dataList[$key]['visitorVvipInfoStatus'] = $visitor->VvipInfoStatus();
                 $dataList[$key]['visitorIsAdminWarned'] = $visitor->isAdminWarned();
                 $dataList[$key]['visitorIsPhoneAuth'] = $visitor->isPhoneAuth();
                 $dataList[$key]['visitorIsAdvanceAuth'] = $visitor->isAdvanceAuth();
@@ -3157,7 +3167,7 @@ class PagesController extends BaseController
     {
         $user = $request->user();
         $vipDays=0;
-        if($user->isVip()) {
+        if($user->isVip()||$user->isVVIP()) {
             $vip_record = Carbon::parse($user->vip_record);
             $vipDays = $vip_record->diffInDays(Carbon::now());
         }
@@ -3347,7 +3357,7 @@ class PagesController extends BaseController
         }
         Reported::report($request->aid, $request->uid, $request->content, $request->file('reportedImages'));
         $user = $request->user();
-        if($user->isVip()){
+        if($user->isVip()||$user->isVVIP()){
             $showMsg = '站務人員會檢視檢舉，可在瀏覽資料/封鎖名單查看被封鎖會員，若有其他狀況將以站內訊息通知檢舉人。';
         }else{
             $showMsg = '站務人員會檢視檢舉，可在瀏覽資料/封鎖名單查看被封鎖會員。';
@@ -3793,7 +3803,7 @@ class PagesController extends BaseController
             $is_banned = User::isBanned($user->id);
             $is_warned = warned_users::where('member_id', $user->id)->first();
             $toUserIsBanned = User::isBanned($cid);
-            $isVip = $user->isVip();
+            $isVip = ($user->isVip()||$user->isVVIP());
             $tippopup = AdminCommonText::getCommonText(3);//id3車馬費popup說明
             $messages = Message::allToFromSender($user->id, $cid,true);
             $c_user_meta = UserMeta::where('user_id', $cid)->get()->first();
@@ -3823,7 +3833,7 @@ class PagesController extends BaseController
                 $cid_recommend_data = [];
                 $forbid_msg_data = UserService::checkNewSugarForbidMsg($cid_user,$user);
 
-                if(!$user->isVip() && $user->engroup == 1){
+                if((!$user->isVip() && !$user->isVVIP() )&& $user->engroup == 1){
                     $m_time = Message::select('created_at')->
                     where('from_id', $user->id)->
                     orderBy('created_at', 'desc')->first();
@@ -3870,9 +3880,9 @@ class PagesController extends BaseController
         $user = $request->user();
         $m_time = '';
         if (isset($user)) {
-            $isVip = $user->isVip();
+            $isVip = ($user->isVip() || $user->isVVIP());
             if (isset($cid)) {
-                if(!$user->isVip() && $user->engroup == 1){
+                if((!$user->isVip() && !$user->isVVIP()) && $user->engroup == 1){
                     $m_time = Message::select('created_at')->
                     where('from_id', $user->id)->
                     orderBy('created_at', 'desc')->first();
@@ -4297,7 +4307,7 @@ class PagesController extends BaseController
 
     public function showCheckAccount(Request $request) {
         $user = $request->user();
-        if(!$user->isVip()){
+        if(!$user->isVip() && !$user->isVVIP()){
             return back()->withErrors(['很抱歉，您目前還不是本站VIP，因此無法執行這個步驟。']);
         }
         else if($user->isFreeVip()){
@@ -4421,7 +4431,7 @@ class PagesController extends BaseController
     public function showAnnouncement(Request $request){
 
         $user = $request->user();
-        $isVip = $user->isVip();
+        $isVip = ($user->isVip()||$user->isVVIP());
         $announcement = AdminAnnounce::where('en_group',$user->engroup)->orderBy('sequence','ASC')->get();
 
         return view('new.dashboard.announcement')
@@ -5673,6 +5683,9 @@ class PagesController extends BaseController
                 $checkUserVip=1;
             }
         }
+        if($user->isVVIP()){
+            $checkUserVip=1;
+        }
 
         return view('/dashboard/posts_list', $data)
         ->with('checkUserVip', $checkUserVip)
@@ -5713,6 +5726,9 @@ class PagesController extends BaseController
             if($months>=2 || $isVip->payment=='cc_quarterly_payment' || $isVip->payment=='one_quarter_payment'){
                 $checkUserVip=1;
             }
+        }
+        if($user->isVVIP()){
+            $checkUserVip=1;
         }
         return view('/dashboard/post_detail', compact('postDetail','replyDetail', 'checkUserVip'))->with('user', $user);
     }
@@ -6076,7 +6092,9 @@ class PagesController extends BaseController
                 $checkUserVip=1;
 //            }
         }
-
+        if($user->isVVIP()){
+            $checkUserVip=1;
+        }
         //判斷個人討論區加入人數
         $forum_member_count = ForumManage::selectRaw('forum_id,count(*) as forum_member_count')
                                         ->where('status',1)
@@ -6297,6 +6315,9 @@ class PagesController extends BaseController
                 $checkUserVip=1;
 //            }
         }
+        if($user->isVVIP()){
+            $checkUserVip=1;
+        }
         return view('/dashboard/forum_personal', compact('posts_personal_all','forum', 'checkUserVip', 'checkForumMangeStatus', 'lastest_color'))->with('user', $user);
     }
 
@@ -6328,6 +6349,9 @@ class PagesController extends BaseController
 //            if($months>=2 || $isVip->payment=='cc_quarterly_payment' || $isVip->payment=='one_quarter_payment'){
                 $checkUserVip=1;
 //            }
+        }
+        if($user->isVVIP()){
+            $checkUserVip=1;
         }
 
         return view('/dashboard/forum_manage', compact( 'posts_manage_users', 'forum', 'checkUserVip'))->with('user', $user);
@@ -6504,6 +6528,9 @@ class PagesController extends BaseController
                 $checkUserVip=1;
 //            }
         }
+        if($user->isVVIP()){
+            $checkUserVip=1;
+        }
 
         return view('/dashboard/forum_manage_chat', compact('checkStatus', 'forumInfo', 'uidInfo', 'checkUserVip'))->with('user', $user);
     }
@@ -6556,6 +6583,9 @@ class PagesController extends BaseController
             //if($months>=2 || $isVip->payment=='cc_quarterly_payment' || $isVip->payment=='one_quarter_payment'){
             $checkUserVip=1;
             //}
+        }
+        if($user->isVVIP()){
+            $checkUserVip=1;
         }
         return view('/dashboard/forum_post_detail', compact('postDetail','replyDetail','forum', 'checkUserVip'))->with('user', $user);
     }
@@ -7242,6 +7272,58 @@ class PagesController extends BaseController
                     
             
                  }   
+            }
+        }
+        else if( $user->isVVIP() ) {
+            $vipStatus = '您已是 VVIP';
+            $vvip = $user->vvip->first();
+            if ($vvip->payment) {
+                if (\App::environment('local')) {
+                    $envStr = '_test';
+                } else {
+                    $envStr = '';
+                }
+                if (substr($vvip->payment, 0, 3) == 'cc_' && $vvip->business_id == Config::get('ecpay.payment' . $envStr . '.MerchantID')) {
+
+                    $ecpay = new \App\Services\ECPay_AllInOne();
+                    $ecpay->MerchantID = Config::get('ecpay.payment' . $envStr . '.MerchantID');
+                    $ecpay->ServiceURL = Config::get('ecpay.payment' . $envStr . '.ServiceURL');//定期定額查詢
+                    $ecpay->HashIV = Config::get('ecpay.payment' . $envStr . '.HashIV');
+                    $ecpay->HashKey = Config::get('ecpay.payment' . $envStr . '.HashKey');
+                    $ecpay->Query = [
+                        'MerchantTradeNo' => $vvip->order_id,
+                        'TimeStamp' => time()
+                    ];
+                    $paymentData = $ecpay->QueryPeriodCreditCardTradeInfo(); //信用卡定期定額
+                    $last = last($paymentData['ExecLog']);
+                    $lastProcessDate = str_replace('%20', ' ', $last['process_date']);
+                    $lastProcessDate = \Carbon\Carbon::createFromFormat('Y/m/d H:i:s', $lastProcessDate);
+
+                    //計算下次扣款日
+                    if ($vvip->payment == 'cc_quarterly_payment') {
+                        $periodRemained = 92;
+                    } else {
+                        $periodRemained = 30;
+                    }
+                    $nextProcessDate = substr($lastProcessDate->addDays($periodRemained), 0, 10);
+                }
+                $last_vvip_log = null;
+
+                switch ($vvip->payment) {
+                    case 'cc_quarterly_payment':
+                        if (!$vvip->isPaidCanceled() && ($nextProcessDate ?? null)) {
+                            $vipStatus = '您目前是每季持續付費的VVIP，下次付費時間是' . $nextProcessDate . '。';
+                        } else if ($vvip->isPaidCanceled()) {
+                            $cancel_str = '';
+                            $latest_vvip_log = $user->getLatestVasLog();
+                            if ($latest_vvip_log->isCancel()) {
+                                $cancel_str = '已於 ' . substr($latest_vvip_log->created_at, 0, 10) . ' 申請取消，';
+                            }
+
+                            $vipStatus = '您目前是每季持續付費的VVIP，' . $cancel_str . 'VVIP到期日為 ' . substr($vvip->expiry, 0, 10) . '。';
+                        }
+                        break;
+                }
             }
         }
         else if($user->engroup==2) //不是VIP的女性會員 
@@ -8015,19 +8097,19 @@ class PagesController extends BaseController
             break;
         }
     }
-    
-    public function switchOtherEngroup() {
-        $user = \View::shared('user');
-        if(!$user->isVip()) return redirect()->back();
-        $toEngroup = $user->id;
-        switch($user->engroup) {
-            case 2:
-                $toEngroup =1;
-            break;
-            case 1:
-                $toEngroup =2;
-            break;          
-        }
+	
+	public function switchOtherEngroup() {
+		$user = \View::shared('user');
+		if(!$user->isVip() && !$user->isVVIP()) return redirect()->back();
+		$toEngroup = $user->id;
+		switch($user->engroup) {
+			case 2:
+				$toEngroup =1;
+			break;
+			case 1:
+				$toEngroup =2;
+			break;			
+		}
         
         if(!User::find($toEngroup)) {
             DB::table('users')->insert([
@@ -8110,16 +8192,15 @@ class PagesController extends BaseController
         }
 
         if($this->service->switchToUser($toEngroup))
-
-            return redirect()->back()->with('message', '成功切換使用者');
-        else 
-            return redirect()->back()->with('message', '無法切換使用者');
-        
-    }
-    
-    public function switchEngroupBack() {
-        $user = \View::shared('user');
-        if(!$user->isVip()) return redirect()->back();
+			return redirect()->back()->with('message', '成功切換使用者');
+		else 
+			return redirect()->back()->with('message', '無法切換使用者');
+		
+	}
+	
+	public function switchEngroupBack() {
+		$user = \View::shared('user');
+		if( !$user->isVip() && !$user->isVVIP()) return redirect()->back();
 
         $this->service->switchUserBack();
 
@@ -8133,7 +8214,7 @@ class PagesController extends BaseController
         $entrance=true;
         if($user->engroup==2 && ( !$user->isVip() || !$user->isPhoneAuth() )){
             $entrance=false;
-        }elseif($user->engroup==1 && !$user->isVip()){
+        }elseif($user->engroup==1 && (!$user->isVip() && !$user->isVVIP()) ){
             $entrance=false;
         }
 
@@ -8197,7 +8278,7 @@ class PagesController extends BaseController
         $entrance=true;
         if($user->engroup==2 && ( !$user->isVip() || !$user->isPhoneAuth() )){
             $entrance=false;
-        }elseif($user->engroup==1 && !$user->isVip()){
+        }elseif($user->engroup==1 && (!$user->isVip() && !$user->isVVIP()) ){
             $entrance=false;
         }
 
@@ -8318,7 +8399,7 @@ class PagesController extends BaseController
         $entrance=true;
         if($user->engroup==2 && ( !$user->isVip() || !$user->isPhoneAuth() )){
             $entrance=false;
-        }elseif($user->engroup==1 && !$user->isVip()){
+        }elseif($user->engroup==1 && (!$user->isVip() && !$user->isVVIP()) ){
             $entrance=false;
         }
 
@@ -8905,7 +8986,7 @@ class PagesController extends BaseController
         if($isWarned){
             return redirect('/dashboard/personalPage')->with('message', '您已被站方警示，禁止使用聊天室。');
         }
-        if($user->engroup==1 && !$user->isVip()){
+        if($user->engroup==1 && ( !$user->isVip() && !$user->isVVIP() )){
             $message = '目前僅提供給VIP會員使用，若欲前往使用，<a href="/dashboard/new_vip" class="red">請點此立即升級VIP！</a>';
             return redirect('/dashboard/personalPage')->with('message', $message);
         }else if($user->engroup==2 && (!$user->isVip() || !$user->isPhoneAuth())){
@@ -9346,7 +9427,796 @@ class PagesController extends BaseController
     {
         $request->session()->put('first_exchange_period_modify_next_time', true);
     }
-    
+
+    //vvip
+    public function view_vvipSelect(Request $request)
+    {
+        $user = auth()->user();
+        return view('new.dashboard.vvipSelect')
+            ->with('user', $user);
+    }
+
+    public function view_vvipSelect_a(Request $request)
+    {
+        $user = auth()->user();
+        $refund='';
+        $vip_text='';
+
+        if($user->isVip() && !$user->isFreeVip()) {
+            $vip_record = Carbon::parse($user->vip_record);
+            $vipDays = $vip_record->diffInDays(Carbon::now());
+            $vip = $user->vip->first();
+
+            if(\App::environment('local')){
+                $envStr = '_test';
+            }
+            else{
+                $envStr = '';
+            }
+            $envStr = '_test';
+            if(substr($vip->payment,0,3) == 'cc_' && $vip->business_id == Config::get('ecpay.payment'.$envStr.'.MerchantID')){
+
+                $ecpay = new \App\Services\ECPay_AllInOne();
+                $ecpay->MerchantID = Config::get('ecpay.payment'.$envStr.'.MerchantID');
+                $ecpay->ServiceURL = Config::get('ecpay.payment'.$envStr.'.ServiceURL');//定期定額查詢
+                $ecpay->HashIV = Config::get('ecpay.payment'.$envStr.'.HashIV');
+                $ecpay->HashKey = Config::get('ecpay.payment'.$envStr.'.HashKey');
+                $ecpay->Query = [
+                    'MerchantTradeNo' => $vip->order_id,
+                    'TimeStamp' => 	time()
+                ];
+                $paymentData = $ecpay->QueryPeriodCreditCardTradeInfo(); //信用卡定期定額
+                $last = last($paymentData['ExecLog']);
+                $lastProcessDate_o='';
+                $nextProcessDate='';
+                if($last['RtnCode']==1) {
+                    $lastProcessDate = str_replace('%20', ' ', $last['process_date']);
+                    $lastProcessDate_o = \Carbon\Carbon::createFromFormat('Y/m/d H:i:s', $lastProcessDate);
+                    $lastProcessDate = \Carbon\Carbon::createFromFormat('Y/m/d H:i:s', $lastProcessDate);
+
+//                    //計算下次扣款日
+                    if($vip->payment == 'cc_quarterly_payment'){
+                        $periodRemained = 92;
+                    }else {
+                        $periodRemained = 30;
+                    }
+                    $nextProcessDate = $lastProcessDate->addDays($periodRemained);
+                    $current_vip_days = $lastProcessDate_o->diffInDays(Carbon::now());
+                    $current_vip_remain_days = $periodRemained - $current_vip_days;
+                    $refund = ( $paymentData['amount'] / $periodRemained ) * $current_vip_remain_days;
+                }
+                $vip_text = '您原先 VIP 扣款自 '.substr($lastProcessDate_o,0,10).'~'.substr($nextProcessDate,0,10).'，您確認升級 VVIP 後，將依照比例刷退您 '.round($refund).' 元';
+            }else{
+
+
+                if($vip->payment=='one_month_payment'){
+                    $used_vipDays = $vip->updated_at->diffInDays(Carbon::now());
+                    $current_vip_remain_days = Carbon::now()->diffInDays($vip->expiry) - $used_vipDays;
+                    $refund = ( $vip->amount / 30 ) * $current_vip_remain_days;
+                    $vip_text = '您原先 VIP 扣款自 '.substr($vip->updated_at,0,10).'~'.substr($vip->expiry,0,10).'，您確認升級 VVIP 後，將依照比例刷退您 '.round($refund).' 元';
+                }elseif($vip->payment=='one_quarter_payment'){
+                    $current_vip_remain_days = Carbon::now()->diffInDays($vip->expiry);
+                    $refund = ( $vip->amount / 92 ) * $current_vip_remain_days;
+                    $vip_text = '您原先 VIP 扣款自 '.substr($vip->updated_at,0,10).'~'.substr($vip->expiry,0,10).'，您確認升級 VVIP 後，將依照比例刷退您 '.round($refund).' 元';
+                }
+            }
+        }
+
+
+        return view('new.dashboard.vvipSelectA')
+            ->with('user', $user)
+            ->with('vip_text', $vip_text);
+    }
+
+    public function view_vvipSelect_b(Request $request)
+    {
+        $user = auth()->user();
+        $refund='';
+        $vip_text='';
+
+        if($user->isVip() && !$user->isFreeVip()) {
+            $vip_record = Carbon::parse($user->vip_record);
+            $vipDays = $vip_record->diffInDays(Carbon::now());
+            $vip = $user->vip->first();
+
+            if(\App::environment('local')){
+                $envStr = '_test';
+            }
+            else{
+                $envStr = '';
+            }
+            $envStr = '_test';
+            if(substr($vip->payment,0,3) == 'cc_' && $vip->business_id == Config::get('ecpay.payment'.$envStr.'.MerchantID')){
+
+                $ecpay = new \App\Services\ECPay_AllInOne();
+                $ecpay->MerchantID = Config::get('ecpay.payment'.$envStr.'.MerchantID');
+                $ecpay->ServiceURL = Config::get('ecpay.payment'.$envStr.'.ServiceURL');//定期定額查詢
+                $ecpay->HashIV = Config::get('ecpay.payment'.$envStr.'.HashIV');
+                $ecpay->HashKey = Config::get('ecpay.payment'.$envStr.'.HashKey');
+                $ecpay->Query = [
+                    'MerchantTradeNo' => $vip->order_id,
+                    'TimeStamp' => 	time()
+                ];
+                $paymentData = $ecpay->QueryPeriodCreditCardTradeInfo(); //信用卡定期定額
+                $last = last($paymentData['ExecLog']);
+                $lastProcessDate_o='';
+                $nextProcessDate='';
+                if($last['RtnCode']==1) {
+                    $lastProcessDate = str_replace('%20', ' ', $last['process_date']);
+                    $lastProcessDate_o = \Carbon\Carbon::createFromFormat('Y/m/d H:i:s', $lastProcessDate);
+                    $lastProcessDate = \Carbon\Carbon::createFromFormat('Y/m/d H:i:s', $lastProcessDate);
+
+//                    //計算下次扣款日
+                    if($vip->payment == 'cc_quarterly_payment'){
+                        $periodRemained = 92;
+                    }else {
+                        $periodRemained = 30;
+                    }
+                    $nextProcessDate = $lastProcessDate->addDays($periodRemained);
+                    $current_vip_days = $lastProcessDate_o->diffInDays(Carbon::now());
+                    $current_vip_remain_days = $periodRemained - $current_vip_days;
+                    $refund = ( $paymentData['amount'] / $periodRemained ) * $current_vip_remain_days;
+                }
+                $vip_text = '您原先 VIP 扣款自 '.substr($lastProcessDate_o,0,10).'~'.substr($nextProcessDate,0,10).'，您確認升級 VVIP 後，將依照比例刷退您 '.round($refund).' 元';
+            }else{
+                if($vip->payment=='one_month_payment'){
+                    $used_vipDays = $vip->updated_at->diffInDays(Carbon::now());
+                    $current_vip_remain_days = Carbon::now()->diffInDays($vip->expiry) - $used_vipDays;
+                    $refund = ( $vip->amount / 30 ) * $current_vip_remain_days;
+                    $vip_text = '您原先 VIP 扣款自 '.substr($vip->updated_at,0,10).'~'.substr($vip->expiry,0,10).'，您確認升級 VVIP 後，將依照比例刷退您 '.round($refund).' 元';
+                }elseif($vip->payment=='one_quarter_payment'){
+                    $current_vip_remain_days = Carbon::now()->diffInDays($vip->expiry);
+                    $refund = ( $vip->amount / 92 ) * $current_vip_remain_days;
+                    $vip_text = '您原先 VIP 扣款自 '.substr($vip->updated_at,0,10).'~'.substr($vip->expiry,0,10).'，您確認升級 VVIP 後，將依照比例刷退您 '.round($refund).' 元';
+                }
+            }
+        }
+
+        return view('new.dashboard.vvipSelectB')
+            ->with('user', $user)
+            ->with('vip_text', $vip_text);
+    }
+
+    public function view_vvipPassSelect(Request $request)
+    {
+        $user = auth()->user();
+        return view('new.dashboard.vvipPassSelect')
+            ->with('user', $user);
+    }
+
+    public function view_vvipPassPay(Request $request)
+    {
+        $user = auth()->user();
+        return view('new.dashboard.vvipPassPay')
+            ->with('user', $user);
+    }
+
+    public function view_vvipExclusivePre(Request $request)
+    {
+        $user = auth()->user();
+        return view('new.dashboard.vvipExclusive_pre')
+            ->with('user', $user);
+    }
+
+    public function view_vvipExclusive(Request $request)
+    {
+        $user = auth()->user();
+        return view('new.dashboard.vvipExclusive')
+            ->with('user', $user);
+    }
+
+    public function view_vvipCancel(Request $request)
+    {
+        $user = auth()->user();
+
+        //vvip data
+        $vvipData = ValueAddedService::where('member_id', $user->id)->where('service_name', 'VVIP')->first();
+        //取預備金 VVIP_B
+        $reserve_fund = VvipApplication::select('member_value_added_service.amount')
+            ->leftJoin('users','users.id','vvip_application.user_id')
+            ->leftJoin('member_value_added_service','member_value_added_service.order_id','vvip_application.order_id')
+            ->where('users.id', $user->id)
+            ->where('member_value_added_service.service_name', 'VVIP_B_reserve')
+            ->where('vvip_application.status', 1)
+            ->sum('member_value_added_service.amount');
+
+        return view('new.dashboard.vvipCancel')
+            ->with('user', $user)
+            ->with('vvipData', $vvipData)
+            ->with('reserve_fund', $reserve_fund);
+    }
+
+    public function vvipUserNoteEdit(Request $request)
+    {
+        $user = auth()->user();
+        $new_user_note = $request->input('user_note');
+        $old_user_note = $user->applyVVIP_getData()->user_note;
+        $br = '';
+        if($old_user_note != ''){
+            $br = '<br>';
+        }
+        $user_note  = $old_user_note.$br.$new_user_note .' ('. Carbon::now() .')';
+        $action = VvipApplication::where('id', $request->input('id'))->update(['user_note'=>$user_note]);
+        if($action) {
+            return back()->with('message', '資料已送出');
+        }
+        return back()->with('message', '發送失敗');
+
+    }
+
+    public function view_vvipInfo(Request $request)
+    {
+        $user = auth()->user();
+        $vvipInfo = VvipInfo::where('user_id', $user->id)->first();
+
+        return view('new.dashboard.vvipInfo')
+            ->with('user', $user)
+            ->with('vvipInfo', $vvipInfo);
+    }
+
+    public function edit_vvipInfo(Request $request)
+    {
+
+        //dd($request->input('assets_image'));
+        $user = auth()->user();
+
+        //point
+        $point_array = array();
+        foreach ($request->input('point') as $key => $value){
+            if(isset($value['top']) && $value['top'] != '') {
+                //dd($value['bottom']);
+                if(!empty(($value['bottom'])) && $value['bottom'] != '') {
+                    array_push($point_array, array($value['top'], $value['bottom']));
+                }else{
+                    array_push($point_array, array($value['top']));
+                }
+            }
+        }
+
+        //date_trend
+        $date_trend_array = array();
+        foreach($request->input('date_trend') as $value){
+            if(!empty($value) && $value !='' && $value != null) {
+                array_push($date_trend_array, array($value));
+            }
+        }
+
+        //assets
+        $assets_array = array();
+        foreach($request->input('assets') as $key => $value){
+            if(!empty($value['top']) && $value['top'] != '' && $value['top'] != null) {
+                if(!empty($value['bottom']) && $value['bottom'] != '' && $value['bottom'] != null) {
+                    if(is_array($value['bottom'])) {
+                        $assets_bottom_array = array();
+                            foreach ($value['bottom'] as $bottom_key => $bottom_value) {
+                                if (!empty($bottom_value['name']) && $bottom_value['name'] != '' && $bottom_value['name'] != null) {
+                                    if (!empty($bottom_value['content']) && $bottom_value['content'] != '' && $bottom_value['content'] != null) {
+                                        array_push($assets_bottom_array, array($bottom_value['name'], $bottom_value['content']));
+                                    } else {
+                                        array_push($assets_bottom_array, array($bottom_value['name']));
+                                    }
+                                }else{
+                                    if(!array_column($value['bottom'], "content")){
+                                        array_push($assets_bottom_array, $bottom_value);
+                                    }
+                                }
+                            }
+                        //dd($value['bottom']);
+                        array_push($assets_array, array($value['top'], $assets_bottom_array));
+                    }else {
+                        array_push($assets_array, array($value['top'], $value['bottom']));
+                    }
+                }else{
+                    array_push($assets_array, array($value['top']));
+                }
+            }
+        }
+
+        //extra_care
+        $extra_care_array = array();
+        foreach($request->input('extra_care') as $key => $value){
+            if(!empty($value['top']) && $value['top'] != '') {
+                if(!empty($value['bottom']) && $value['bottom'] != '') {
+                    if(!empty($value['level']) && $value['level'] != '') {
+                        if (is_array($value['bottom'])) {
+                            $extra_care_bottom_array = array();
+                            foreach ($value['bottom'] as $bottom_value) {
+                                    array_push($extra_care_bottom_array, array($bottom_value));
+                            }
+                            array_push($extra_care_array, array($value['top'], $extra_care_bottom_array, $value['level']));
+                        } else {
+                            array_push($extra_care_array, array($value['top'], $value['bottom'], $value['level']));
+                        }
+                    }else{
+                        if (is_array($value['bottom'])) {
+                            $extra_care_bottom_array = array();
+                            foreach ($value['bottom'] as $bottom_value) {
+                                array_push($extra_care_bottom_array, array($bottom_value));
+                            }
+                            array_push($extra_care_array, array($value['top'], $extra_care_bottom_array));
+                        }else{
+                            array_push($extra_care_array, array($value['top'], $value['bottom']));
+                        }
+                    }
+                }else{
+                    array_push($extra_care_array, array($value['top']));
+                }
+            }
+        }
+
+        //date_expect
+        $date_expect_array = array();
+        foreach($request->input('date_expect') as $value){
+            if(!empty($value) && $value !='' && $value != null) {
+                array_push($date_expect_array, array($value));
+            }
+        }
+
+        //assets_image
+        $assets_image_array = array();
+
+        foreach($request->input('assets_image') as $key => $value) {
+
+            if($value['top']!='' && isset($value['top']) && !empty($value['top'])) {
+
+                $pic_array = array();
+                $exist_file = "";
+
+                if(!empty(json_decode($request->input('assets_image_'.$key)))){
+
+                    foreach (json_decode($request->input('assets_image_'.$key)) as $pic){
+                        $exist_file = $pic->file;
+                    }
+
+                    if(file_exists(public_path($exist_file))){
+                        array_push($pic_array, $exist_file);
+                    }else {
+                        $rootPath = public_path('/img/vvipInfo');
+                        $tempPath = $rootPath . '/' . Carbon::now()->format('Ymd') . '/';
+
+                        if (!is_dir($tempPath)) {
+                            File::makeDirectory($tempPath, 0777, true);
+                        }
+                        $fileUploader = new FileUploader('assets_image_' . $key, array(
+                            'extensions' => null,
+                            'required' => false,
+                            'uploadDir' => $tempPath,
+                            'title' => '{random}',
+                            'replace' => false,
+                            'editor' => true,
+                            'listInput' => true
+                        ));
+
+                        $upload = $fileUploader->upload();
+
+                        if ($upload) {
+                            foreach ($fileUploader->getUploadedFiles() as $key => $pic) {
+                                $path = substr($pic['file'], strlen($rootPath));
+                                array_push($pic_array, '/img/vvipInfo' . $path);
+                            }
+                        }
+                    }
+                }else{
+                    if(!empty($value['sys_images'])) {
+                        array_push($pic_array, $value['sys_images']);
+                    }
+                }
+
+                array_push($assets_image_array, array($value['top'], $pic_array));
+            }
+        }
+
+        //life
+        $life_array = array();
+
+        foreach($request->input('life') as $key => $value) {
+
+            if($value['top']!='' && isset($value['top']) && !empty($value['top'])) {
+
+                $pic_array = array();
+                $exist_file = "";
+
+                if(!empty(json_decode($request->input('life_'.$key)))){
+
+                    foreach (json_decode($request->input('life_'.$key)) as $pic){
+                        $exist_file = $pic->file;
+                    }
+
+
+                    if(file_exists(public_path($exist_file))){
+                        array_push($pic_array, $exist_file);
+                    }else {
+                        $rootPath = public_path('/img/vvipInfo');
+                        $tempPath = $rootPath . '/' . Carbon::now()->format('Ymd') . '/';
+
+                        if (!is_dir($tempPath)) {
+                            File::makeDirectory($tempPath, 0777, true);
+                        }
+
+                        $fileUploader = new FileUploader('life_' . $key, array(
+                            'extensions' => null,
+                            'required' => false,
+                            'uploadDir' => $tempPath,
+                            'title' => '{random}',
+                            'replace' => false,
+                            'editor' => true,
+                            'listInput' => true
+                        ));
+
+                        $upload = $fileUploader->upload();
+
+                        if ($upload) {
+                            foreach ($fileUploader->getUploadedFiles() as $key => $pic) {
+                                $path = substr($pic['file'], strlen($rootPath));
+                                array_push($pic_array, '/img/vvipInfo' . $path);
+                            }
+                        }
+                    }
+                }else{
+                    if(!empty($value['sys_images'])) {
+                        array_push($pic_array, $value['sys_images']);
+                    }
+                }
+
+                array_push($life_array, array($value['top'], $pic_array));
+            }
+        }
+
+
+        if(empty($point_array)){
+            $point_array = NULL;
+        }else{
+            $point_array = json_encode($point_array);
+        }
+
+        if(empty($date_trend_array)){
+            $date_trend_array = NULL;
+        }else{
+            $date_trend_array = json_encode($date_trend_array);
+        }
+
+        if(empty($assets_array)){
+            $assets_array = NULL;
+        }else{
+            $assets_array = json_encode($assets_array);
+        }
+
+        if(empty($extra_care_array)){
+            $extra_care_array = NULL;
+        }else{
+            $extra_care_array = json_encode($extra_care_array);
+        }
+
+        if(empty($date_expect_array)){
+            $date_expect_array = NULL;
+        }else{
+            $date_expect_array = json_encode($date_expect_array);
+        }
+
+        if(empty($assets_image_array)){
+            $assets_image_array = NULL;
+        }else{
+            $assets_image_array = json_encode($assets_image_array);
+        }
+
+        if(empty($life_array)){
+            $life_array = NULL;
+        }else{
+            $life_array = json_encode($life_array);
+        }
+
+        $vvipInfo = VvipInfo::where('user_id', $user->id)->first();
+        if(!$vvipInfo) {
+            $vvipInfo = new VvipInfo();
+            $vvipInfo->user_id = $user->id;
+        }
+        $vvipInfo->point = $point_array;
+        $vvipInfo->date_trend = $date_trend_array;
+        $vvipInfo->assets = $assets_array;
+        $vvipInfo->extra_care = $extra_care_array;
+        $vvipInfo->date_expect = $date_expect_array;
+        $vvipInfo->assets_image = $assets_image_array;
+        $vvipInfo->life = $life_array;
+        $vvipInfo->save();
+
+//        $user = auth()->user();
+//        return view('new.dashboard.vvipInfo')
+//            ->with('user', $user);
+        return back()->with('message', '資料已更新');
+    }
+
+    public function viewuser_vvip(Request $request, $uid = -1) {
+        //vvipInfo
+        $vvipInfo = VvipInfo::where('user_id', $uid)->first();
+        if(!$vvipInfo){
+            return redirect()->route('listSeatch2');
+        }
+
+        $user = $request->user();
+
+        $vipDays=0;
+        if($user->isVip()||$user->isVVIP()) {
+            $vip_record = Carbon::parse($user->vip_record);
+            $vipDays = $vip_record->diffInDays(Carbon::now());
+        }
+
+        $auth_check=0;
+        if($user->isPhoneAuth()==1){
+            $auth_check=1;
+        }
+
+        if($user->id==$uid){
+            $request->merge(['page_mode'=>'edit']);
+        }
+        if (isset($user) && isset($uid)) {
+            $targetUser = User::where('id', $uid)->where('accountStatus',1)->where('account_status_admin',1)->get()->first();
+            if (!isset($targetUser)) {
+                return view('errors.nodata');
+            }
+            // if(User::isBanned($uid)){
+            // Session::flash('closed', true);
+            // Session::flash('message', '此用戶已關閉資料');
+            // return view('new.dashboard.viewuser', compact('user'));
+            // }
+
+            //check forum manage users
+            //apply_user_id = manager
+
+            //$canViewUsers = ForumManage::where('apply_user_id', $user->id)->where('user_id',$targetUser->id)->first();
+            //
+            //$forum = Forum::where('user_id', $user->id)->orderBy('id','desc')->first();
+            //if($forum??false)
+            //{
+            //$canViewUsers = ForumManage::where('forum_id', $forum->id)->where('user_id',$targetUser->id)->first();
+            //}
+
+
+            $forum = Forum::where('user_id', $user->id)->where('status', 1)->orderBy('id','desc')->first();
+            if(isset($forum)) {
+                $canViewUsers = ForumManage::where('forum_id', $forum->id)
+                    ->where('user_id', $targetUser->id)
+                    ->where('apply_user_id', $user->id)
+                    ->whereNotIn('status', [2, 3])
+                    ->first();
+            }
+
+            $visited_id = 0;
+            if ($user->id != $uid) {
+                if(isset($canViewUsers)){
+                    if( $user->is_hide_online != 1 ) {
+                        $visited_id = Visited::visit($user->id, $targetUser);
+                    }
+                }
+//                elseif(
+//                    //檢查性別
+//                    $user->engroup == $targetUser->engroup
+//                    //檢查是否被封鎖
+//                    //|| User::isBanned($user->id)
+//                ){
+//                    return redirect()->route('listSeatch2');
+//                }
+                else{
+                    if( $user->is_hide_online != 1 ) {
+                        $visited_id = Visited::visit($user->id, $targetUser);
+                    }
+                }
+            }
+
+            $line_notify_user_list = lineNotifyChatSet::select('line_notify_chat_set.user_id')
+                ->selectRaw('users.line_notify_token')
+                ->leftJoin('line_notify_chat','line_notify_chat.id', 'line_notify_chat_set.line_notify_chat_id')
+                ->leftJoin('users','users.id', 'line_notify_chat_set.user_id')
+                ->where('line_notify_chat.active',1)
+                ->where('line_notify_chat_set.line_notify_chat_id',9)
+                ->where('line_notify_chat_set.user_id',$targetUser->id)
+                ->where('line_notify_chat_set.user_id','!=',$user->id)
+                ->where('line_notify_chat_set.deleted_at',null)
+                ->whereRaw('(select count(*) from banned_users where banned_users.member_id='.$user->id.') =0')
+                ->whereRaw('(select count(*) from blocked where blocked.member_id='.$targetUser->id.' and blocked.blocked_id='.$user->id.') =0')
+                ->groupBy('line_notify_chat_set.user_id')->get();
+            foreach ($line_notify_user_list as $notify_user){
+                if($notify_user->line_notify_token != null){
+                    $url = url('/dashboard/visited');
+                    //send notify
+                    // ＸＸＸ 正在瀏覽您的檔案 https://minghua.test-tw.icu/dashboard/visited
+                    $message = $user->name.' 正在瀏覽您的檔案 '.$url;
+                    User::sendLineNotify($notify_user->line_notify_token, $message);
+                }
+            }
+
+            $member_pic = MemberPic::where('member_id', $uid)->where('pic', '<>', $targetUser->meta->pic)->whereNull('deleted_at')->orderByDesc('created_at')->get();
+
+            if($user->isVip() || $user->isVVIP()){
+                $vipLevel = 1;
+            }else{
+                $vipLevel = 0;
+            }
+
+            $basic_setting = BasicSetting::where('vipLevel',$vipLevel)->where('gender',$user->engroup)->get()->first();
+
+            if(isset($basic_setting['countSet'])){
+                if($basic_setting['countSet']==-1){
+                    $basic_setting['countSet'] = 10000;
+                }
+                $data['timeSet']  = (int)$basic_setting['timeSet'];
+                $data['countSet'] = (int)$basic_setting['countSet'];
+            }
+            $blockadepopup = AdminCommonText::getCommonText(5);//id5封鎖說明popup
+            $isVip = ( $user->isVip() || $user->isVVIP() ) ? '1':'0';
+
+            $adminCommonTexts = AdminCommonText::whereIn('alias', ['report_reason', 'report_member', 'report_avatar', 'new_sweet', 'well_member', 'money_cert', 'alert_account', 'label_vip'])->get();
+            $adminCommonTextArray = array();
+            foreach($adminCommonTexts as $adminCommonText){
+                $adminCommonTextArray[$adminCommonText->alias] = $adminCommonText;
+            }
+
+            /*編輯文案-檢舉會員訊息-START*/
+            $report_reason = $adminCommonTextArray['report_reason'];
+            /*編輯文案-檢舉會員訊息-END*/
+            /*編輯文案-檢舉會員-START*/
+            $report_member = $adminCommonTextArray['report_member'];
+            /*編輯文案-檢舉會員-END*/
+            /*編輯文案-檢舉大頭照-START*/
+            $report_avatar = $adminCommonTextArray['report_avatar'];
+            /*編輯文案-檢舉大頭照-END*/
+            /*編輯文案-new_sweet-START*/
+            $new_sweet = $adminCommonTextArray['new_sweet'];
+            /*編輯文案-new_sweet-END*/
+            /*編輯文案-well_member-START*/
+            $well_member = $adminCommonTextArray['well_member'];
+            /*編輯文案-well_member-END*/
+            /*編輯文案-money_cert-START*/
+            $money_cert = $adminCommonTextArray['money_cert'];
+            /*編輯文案-money_cert-END*/
+            /*編輯文案-alert_account-START*/
+            $alert_account = $adminCommonTextArray['alert_account'];
+            /*編輯文案-alert_account-END*/
+            /*編輯文案-label_vip-START*/
+            $label_vip = $adminCommonTextArray['label_vip'];
+            /*編輯文案-label_vip-END*/
+
+
+
+            /**
+             * 效能調整：使用左結合以大幅降低處理時間，並且減少 query 次數，進一步降低時間及程式碼複雜度
+             *
+             * @author LZong <lzong.tw@gmail.com>
+             */
+
+
+            $query = \App\Models\Evaluation::select('evaluation.*')->from('evaluation as evaluation')->with('user')
+                ->leftJoin('banned_users as b1', 'b1.member_id', '=', 'evaluation.from_id')
+                ->leftJoin('banned_users_implicitly as b3', 'b3.target', '=', 'evaluation.from_id')
+                ->leftJoin('users as u1', 'u1.id', '=', 'evaluation.from_id')
+                ->leftJoin('user_meta as um', 'um.user_id', '=', 'evaluation.from_id')
+                ->leftJoin('warned_users as w2', 'w2.member_id', '=', 'evaluation.from_id')
+                //->leftJoin('users as u2', 'u2.id', '=', 'evaluation.from_id')
+                //->leftJoin('user_meta as um', function($join) {
+                //$join->on('um.user_id', '=', 'evaluation.from_id')
+                //->where('isWarned', 1); })
+                //->leftJoin('warned_users as wu', function($join) {
+                //$join->on('wu.member_id', '=', 'evaluation.from_id')
+                //->where(function($query){
+                //$query->where('wu.expire_date', '>=', Carbon::now())
+                //->orWhere('wu.expire_date', null); }); })
+                ->whereNull('b1.member_id')
+                ->whereNull('b3.target')
+                ->where('um.isWarned',0)
+                ->whereNull('w2.id')
+                ->whereNotNull('u1.id')
+                //->whereNotNull('u2.id')
+                ->where('u1.accountStatus', 1)
+                ->where('u1.account_status_admin', 1)
+                //->where('u2.accountStatus', 1)
+                //->where('u2.account_status_admin', 1)
+                //->whereNull('um.user_id')
+                //->whereNull('wu.member_id')
+                ->orderBy('evaluation.created_at','desc')
+                ->where('evaluation.to_id', $uid);
+
+            $evaluation_data = $query->paginate(10);
+
+            $evaluation_self = Evaluation::where('to_id',$uid)->where('from_id',$user->id)->first();
+            /*編輯文案-被封鎖者看不到封鎖者的提示-START*/
+            //$user_closed = AdminCommonText::where('alias','user_closed')->get()->first();
+            /*編輯文案-被封鎖者看不到封鎖者的提示-END*/
+
+            // todo: 此處程式碼有誤，應檢查檢視者是否被被檢視者封鎖，若是，才存入變數
+            //if(User::isBanned($uid)){
+            //Session::flash('message', $user_closed->content);
+            //}
+            if($uid == $user->id) {
+                \App\Models\Evaluation::where('to_id',$uid)->update(['read'=>0]);
+            }
+
+            $to = $targetUser;
+            $valueAddedServicesStatus['hideOnline'] = 0;
+            $valueAddedServicesStatusRows = $to->valueAddedServiceStatus();
+            if($valueAddedServicesStatusRows){
+                foreach($valueAddedServicesStatusRows as $valueAddedServicesStatusRow){
+                    $valueAddedServicesStatus[$valueAddedServicesStatusRow->service_name] = 1;
+                }
+            }
+            $isSent3Msg = $user->isSent3Msg($uid);
+
+            $isReadIntro = $user->isReadIntro;
+
+            $pr = DB::table('pr_log')->where('user_id',$to->id)->where('active',1)->first();
+            if(isset($pr)){
+                $pr = $pr->pr;
+            }else{
+                $pr = '0';
+            }
+
+            //紀錄返回上一頁的url,避免發信後,按返回還在發信頁面
+            if(isset($_SERVER['HTTP_REFERER'])){
+                if(!str_contains($_SERVER['HTTP_REFERER'],'dashboard/chat2/chatShow') && !str_contains($_SERVER['HTTP_REFERER'],'dashboard/viewuser')){
+                    session()->put('goBackPage',$_SERVER['HTTP_REFERER']);
+                }
+            }
+
+            //判斷自己是否封鎖該用戶
+            $isBlocked = \App\Models\Blocked::isBlocked($user->id, $uid);
+
+            //預算被檢舉紀錄
+            $transport_fare_reported = Reported::where('reported_id', $uid)->where('content', '車馬費預算不實')->first();
+            $month_budget_reported = Reported::where('reported_id', $uid)->where('content', '每月預算不實')->first();
+
+
+            // die();
+            return view('new.dashboard.viewuser_vvip', $data ?? [])
+                ->with('user', $user)
+                ->with('blockadepopup', $blockadepopup)
+                ->with('to', $to)
+                ->with('valueAddedServiceStatus', $valueAddedServicesStatus)
+                ->with('isSent3Msg', $isSent3Msg)
+                ->with('cur', $user)
+                ->with('member_pic',$member_pic)
+                ->with('isVip', $isVip)
+                ->with('engroup', $user->engroup)
+                ->with('report_reason',$report_reason->content)
+                ->with('report_member',$report_member->content)
+                ->with('report_avatar',$report_avatar->content)
+                ->with('new_sweet',$new_sweet->content)
+                ->with('well_member',$well_member->content)
+                ->with('money_cert',$money_cert->content)
+                ->with('alert_account',$alert_account->content)
+                ->with('label_vip',$label_vip->content)
+                // ->with('rating_avg',$rating_avg)
+                //->with('user_closed',$user_closed->content)
+                ->with('evaluation_self',$evaluation_self)
+                ->with('evaluation_data',$evaluation_data)
+                ->with('vipDays',$vipDays)
+                ->with('isReadIntro',$isReadIntro)
+                ->with('auth_check',$auth_check)
+                ->with('is_banned',User::isBanned($user->id))
+                ->with('pr', $pr)
+                ->with('isBlocked',$isBlocked)
+                ->with('visited_id', $visited_id)
+                ->with('transport_fare_reported', $transport_fare_reported)
+                ->with('month_budget_reported', $month_budget_reported)
+                ->with('vvipInfo', $vvipInfo)
+                ;
+        }
+
+    }
+
+//    public function VVIPisInvitedUpdateStatus(Request $request)
+//    {
+//        $user_id = $request->uid;
+//        $status = $request->status;
+//        $exist = VvipInvite::where('invite_user_id', $user_id)->where('status', 0)->first();
+//        if(isset($exist)){
+//            VvipInvite::where('invite_user_id', $user_id)->where('status', 0)->update(['status' => $status]);
+//            return response()->json(array(
+//                'status' => 1,
+//                'msg' => 'ok',
+//            ), 200);
+//        }
+//    }
+
+    //vvip end
+
 }
 
 

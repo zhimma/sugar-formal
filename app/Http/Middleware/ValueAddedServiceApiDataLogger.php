@@ -10,7 +10,7 @@ use App\Models\Order;
 use App\Models\Tip;
 use App\Models\ValueAddedService;
 use App\Models\Visited;
-//use App\Models\VvipApplication;
+use App\Models\VvipApplication;
 use Carbon\Carbon;
 use Closure;
 use Illuminate\Support\Facades\Log;
@@ -164,14 +164,15 @@ class ValueAddedServiceApiDataLogger{
                             Order::addEcPayOrder($payload['MerchantTradeNo'], null);
                         }
 
-                        //vvip 申請付款時存入申請表
-//                        if (substr($payload['CustomField4'], 0, 4) == 'VVIP' && strlen($payload['CustomField4']) == 6) {
-//                            $addData = new VvipApplication;
-//                            $addData->user_id = $user->id;
-//                            $addData->order_id = $payload['MerchantTradeNo'];
-//                            $addData->created_at = Carbon::now();
-//                            $addData->save();
-//                        }
+                        //VVIP定期定額繳費成功後 存入申請表
+                        if($payload['CustomField4'] == 'VVIP'){
+                            $addData = new VvipApplication;
+                            $addData->user_id = $user->id;
+                            $addData->order_id = $payload['MerchantTradeNo'];
+                            $addData->plan =$payload['CustomField2'];
+                            $addData->created_at = Carbon::now();
+                            $addData->save();
+                        }
 
                         if ($payload['CustomField4'] == 'hideOnline') {
                             ValueAddedService::addHideOnlineData($user->id);

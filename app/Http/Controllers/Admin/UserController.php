@@ -26,6 +26,12 @@ use App\Models\SetAutoBan;
 use App\Models\SimpleTables\users;
 use App\Models\SimpleTables\short_message;
 use App\Models\SuspiciousUser;
+use App\Models\VvipApplication;
+use App\Models\VvipInfo;
+use App\Models\VvipProveImg;
+use App\Notifications\AccountConsign;
+use App\Notifications\BannedUserImplicitly;
+use Illuminate\Database\Eloquent\Collection;
 use Illuminate\Http\Request;
 use App\Services\UserService;
 use App\Services\AdminService;
@@ -6889,4 +6895,109 @@ class UserController extends \App\Http\Controllers\BaseController
 
         return json_encode($data);
     }
+
+    //vvip
+    public function viewVvipApplication() {
+        $applicationData = VvipApplication::select(
+            'users.name',
+            'users.email',
+            'vvip_application.*',
+            'member_value_added_service.service_name',
+            'member_value_added_service.active as service_status',
+            'member_value_added_service.expiry',
+            'vvip_info.status as vvip_info_status',
+            'vvip_info.about',
+            'vvip_info.user_id as vvip_user_id'
+        )
+            ->leftJoin('users','users.id','vvip_application.user_id')
+            ->leftJoin('member_value_added_service','member_value_added_service.order_id','vvip_application.order_id')
+            ->leftJoin('vvip_info', 'vvip_info.user_id', 'vvip_application.user_id')
+            ->paginate(20);
+        return view('admin.users.vvipApplication', compact('applicationData'));
+    }
+
+    public function editVvipApplication(Request $request) {
+        $id = $request->input('id');
+        $user_id = $request->input('user_id');
+        $user = User::find($user_id);
+        $status = $request->input('status');
+        $note = $request->input('note');
+
+        if($status == 3){
+            $deadline = $request->input('deadline');
+            if($deadline==''){
+                return back()->with('message', '未填寫補件期限');
+            }
+            VvipApplication::where('id', $id)->update(['status' => $status, 'deadline' => $deadline." 23:59:59", 'note' => $note]);
+        }else if($status != ''){
+            VvipApplication::where('id', $id)->update(['status' => $status, 'note' => $note]);
+            if($status==1){
+                //VVIP付款中 經通過則取消原VIP
+                $vvipStatus = ValueAddedService::where('service_name', 'VVIP')->where('member_id', $user_id)->where('active', 1)->orderBy('created_at', 'desc')->first();
+                if(isset($vvipStatus)){
+                    VipLog::addToLog($user_id, 'Upgrade VVIP, system auto cancel VIP pay.', 'XXXXXXXXX', 0, 0);
+                    $userVIP = $user->getVipData(true);
+                    $userVIP->removeVIP();
+                }
+            }
+        }else{
+            VvipApplication::where('id', $id)->update(['note' => $note]);
+        }
+
+
+        return back()->with('message', '資料已更新');
+    }
+
+    public function vvip_get_prove_img(Request $request) {
+        $user_id = $request->user_id;
+        $imgData = VvipProveImg::where('user_id',$user_id)->orderBy('created_at','desc')->get();
+        return response()->json(array(
+            'imgData' => $imgData,
+        ), 200);
+    }
+
+    public function vvipInfo_admin_edit(Request $request) {
+        $user_id = $request->input('user_id');
+        $vvipInfo = VvipInfo::where('user_id', $user_id)->first();
+        if($vvipInfo) {
+//            $vvipInfo = new VvipInfo();
+//            $vvipInfo->user_id = $user_id;
+            $vvipInfo->about = $request->input('about');
+            $vvipInfo->save();
+            return back()->with('message', '資料已更新');
+        }
+        return back()->with('message', '尚未產生會員頁資料');
+
+    }
+
+    public function vvipInfo_status_toggle(Request $request)
+    {
+        $user_id = $request->user_id;
+        $status = $request->status;
+        $vvipInfo = VvipInfo::where('user_id', $user_id)->first();
+        if($vvipInfo) {
+            $vvipInfo->status = $status;
+            $vvipInfo->save();
+            if($status == 1) {
+                $msg = '會員頁已啟用';
+            }else if($status == 0){
+                $msg = '會員頁已關閉';
+            }
+        }else{
+            $msg = '尚未產生會員頁資料';
+        }
+
+        echo json_encode(['msg' => $msg]);
+    }
+
+//    public function viewVvipInvite() {
+//        $inviteData = VvipInvite::select('a.name','a.email','vvip_invite.*', 'b.name as invite_name', 'b.email as invite_email')
+//            ->leftJoin('users as a','a.id','vvip_invite.user_id')
+//            ->leftJoin('users as b','b.id','vvip_invite.invite_user_id')
+//            ->paginate(20);
+//        return view('admin.users.vvipInvite', compact('inviteData'));
+//    }
+
+    //vvip end
+
 }

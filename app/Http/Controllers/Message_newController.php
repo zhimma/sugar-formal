@@ -256,7 +256,7 @@ class Message_newController extends BaseController {
         //$user = Auth::user();
         // 非 VIP: 一律限 8 秒發一次。
         // 女會員: 無論是否 VIP，一律限 8 秒發一次。
-        if(!$user->isVIP()){
+        if( !$user->isVIP() && !$user->isVVIP() ){
             $m_time = Message::select('created_at')->
             where('from_id', $user->id)->
             orderBy('created_at', 'desc')->first();
@@ -481,10 +481,10 @@ class Message_newController extends BaseController {
                 $line_notify_send = true;
             }
         }else{
-            if(in_array(5, $line_notify_chat_id_ary) && $user->isVip()){
+            if(in_array(5, $line_notify_chat_id_ary) && ($user->isVip() || $user->isVVIP()) ){
                 $line_notify_send = true;
             }
-            if(in_array(6, $line_notify_chat_id_ary) && !$user->isVip()){
+            if(in_array(6, $line_notify_chat_id_ary) && ($user->isVip() || $user->isVVIP()) ){
                 $line_notify_send = true;
             }
             if(in_array(8, $line_notify_chat_id_ary) && memberFav::where('member_id', $to_user->id)->where('member_fav_id', $user->id)->first()){
@@ -557,7 +557,7 @@ class Message_newController extends BaseController {
         $m_time = '';
         if (isset($user)) {
             $this->service->dispatchCheckECPay($this->userIsVip, $this->userIsFreeVip, $this->userVipData);
-            $isVip = $user->isVip();
+            $isVip = ($user->isVip()||$user->isVVIP());
             /*編輯文案-檢舉大頭照-START*/
             $vip_member = AdminCommonText::where('alias','vip_member')->get()->first();
             /*編輯文案-檢舉大頭照-END*/
@@ -917,7 +917,7 @@ class Message_newController extends BaseController {
         $unsend_client_id = $payload['unsend_msg_client']??null;
         $user = Auth::user();
 
-        if($user->isVIP() &&  !isset($user->banned ) && !isset($user->implicitlyBanned)){
+        if(( $user->isVip() || $user->isVVIP() ) &&  !isset($user->banned ) && !isset($user->implicitlyBanned)){
             if($unsend_id)
                 $msg = Message::find($unsend_id);
             else if($unsend_client_id)

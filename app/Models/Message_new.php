@@ -597,6 +597,7 @@ class Message_new extends Model
                 }
                 $messages[$key]['read_n'] = $mm[$msgUser->id] ?? 0;
                 $messages[$key]['isVip'] = $msgUser->isVip();
+                $messages[$key]['isVVIP'] = $msgUser->isVVIP();
                 //$messages[$key]['isWarned']=$msgUser->meta_()->isWarned;
                 if(($msgUser->user_meta->isWarned==1 || $msgUser->aw_relation ) && $msgUser->id != 1049){
                     $messages[$key]['isWarned']=1;

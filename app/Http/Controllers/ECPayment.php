@@ -413,6 +413,10 @@ class ECPayment extends BaseController
             if($request->remainDays){
                 $obj->Send['CustomField2']  = $request->remainDays;
             }
+            //VVIP定期定額紀錄申請方案
+            if($request->plan){
+                $obj->Send['CustomField2']  = $request->plan;
+            }
             //訂單的商品資料
             array_push($obj->Send['Items'], array('Name' => "SG-".$request->service_name."(".$request->userId.")", 'Price' => (int)$amount, 'Currency' => "元", 'Quantity' => (int) "1", 'URL' => ""));
 

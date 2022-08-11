@@ -12,7 +12,7 @@
 		{{-- <a href="{{ route('stats/vip/paid') }}">付費 VIP 會員訂單資料</a> --}}
 		<a href="{{ route('stats/vip/other/GET') }}">其他 VIP 相關統計資料</a>
 		<a href="{{ route('users/VIP/ECCancellations') }}">綠界 VIP 付費取消資料</a>
-{{--		<a href="{{ route('users/VVIP') }}">VVIP申請管理</a>--}}
+		<a href="{{ route('users/VVIP') }}">VVIP申請管理</a>
 {{--		<a href="{{ route('users/customize_migration_files') }}">異動檔手動修改</a>--}}
 		<a href="{{ route('users/picMemberList') }}?reset=1">照片會員列表</a>
 		<a href="{{ route('users/memberList') }}">會員列表</a>

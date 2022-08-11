@@ -650,7 +650,7 @@ class UserService
         $button = null;
         $height = null;
         $now = \Carbon\Carbon::now();
-        if($targetUser->engroup == 1 && $targetUser->isVip()){
+        if($targetUser->engroup == 1 && ($targetUser->isVip() || $targetUser->isVVIP()) ){
             $vip_date = Vip::select('id', 'updated_at')->where('member_id', $targetUser->id)->orderBy('updated_at', 'desc')->get()->first();
             if(!isset($vip_date->updated_at)){
                 return ['description' => $description,

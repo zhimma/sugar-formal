@@ -496,7 +496,7 @@
                 </a>
                 <span style="flex: 6; text-align: center;">
                     @if($to->id != $admin->id)
-                    <a href="/dashboard/viewuser/{{$to->id}}" style="color: #fd5678;">{{$to->name}}</a>
+                    <a href="/dashboard/@if($to->isVVIP() && $to->VvipInfoStatus())viewuser_vvip @else viewuser @endif/{{$to->id}}" style="color: #fd5678;">{{$to->name}}</a>
                     @else
                     <span style="color: #fd5678;">系統來訊通知</span>
                     @endif
@@ -511,7 +511,7 @@
                     @if($toUserIsBanned)
                         <a type="button" style="color: #fd5678;" onclick="c5('{{'此人已被站方封鎖'}}'),setTimeout(function(){window.location.href = ' {{ !empty(session()->get	('goBackPage_chat2')) ? session()->get('goBackPage_chat2') : \Illuminate\Support\Facades\URL::previous() }} '},3000)">{{$to->name}}</a>
                     @else
-                        <a href="/dashboard/viewuser/{{$to->id}}" style="color: #fd5678;">
+                        <a href="/dashboard/@if($to->isVVIP() && $to->VvipInfoStatus())viewuser_vvip @else viewuser @endif/{{$to->id}}" style="color: #fd5678;">
                             <span class="se_rea">{{$to->name}}
                                 @if($isVip)
                                     @if($to->isOnline() && $to->is_hide_online==0)
@@ -602,7 +602,11 @@
                                 @if($toUserIsBanned)
                                     <a type="button" style="color: #fd5678;" onclick="c5('{{'此人已被站方封鎖'}}'),setTimeout(function(){window.location.href = ' {{ !empty(session()->get	('goBackPage_chat2')) ? session()->get('goBackPage_chat2') : \Illuminate\Support\Facades\URL::previous() }} '},3000)">{{$to->name}}</a>
                                 @else
-                                    <a class="chatWith" href="{{ url('/dashboard/viewuser/' . $msgUser->id ) }}">
+                                    @if($to->isVVIP() && $to->VvipInfoStatus())
+                                        <a class="chatWith" href="{{ url('/dashboard/viewuser_vvip/' . $msgUser->id ) }}">
+                                    @else
+                                        <a class="chatWith" href="{{ url('/dashboard/viewuser/' . $msgUser->id ) }}">
+                                    @endif
                                 @endif
                                     <img class="@if($isBlurAvatar) blur_img @endif"
                                         src="@if(file_exists( public_path().$msgUser->meta->pic ) && $msgUser->meta->pic != ""){{$msgUser->meta->pic}} @elseif($msgUser->engroup==2)/new/images/female.png @else/new/images/male.png  @endif">
@@ -919,7 +923,7 @@
                 @endif
                 <tr>
                     <td class="new_baa">需為VIP會員</td>
-                    <td class="">@if(!$user->isVip())<img src="/new/images/ticon_02.png">@else<img
+                    <td class="">@if(!$user->isVip() && !$user->isVVIP())<img src="/new/images/ticon_02.png">@else<img
                             src="/new/images/ticon_01.png">@endif</td>
                 </tr>
             </table>
