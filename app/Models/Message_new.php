@@ -392,6 +392,29 @@ class Message_new extends Model
         }
         //return Message::where([['to_id', $uid],['from_id', '!=' ,$uid]])->whereRaw('id IN (select MAX(id) FROM message GROUP BY from_id)')->orderBy('created_at', 'desc')->take(Config::get('social.limit.show-chat'))->get();
     }
+    
+    public static function deleteAutoDestroyMessageByUserId($uid)
+    {
+        
+        
+        $query = Message::where(function ($q) use ($uid) {
+                    $admin_id = AdminService::checkAdmin()->id;
+                    $q->where([['message.to_id', $uid], ['message.from_id', '!=', $uid],['message.from_id','!=',$admin_id]])
+                        ->orWhere([['message.from_id', $uid], ['message.to_id', '!=',$uid],['message.from_id','!=',$admin_id]]);
+                });
+                
+        $d_query = clone $query;
+        
+        $query = Message::addAutoDestroyWhereToQuery($query);
+
+        $alive_msg_id_list = $query->pluck('id');
+
+        $d_query->where(function($q){
+            $q->where('views_count_quota','>','0')->orWhere('show_time_limit','>',0);
+        })
+        ->whereNotIn('id',$alive_msg_id_list)
+        ->delete();
+    }
 
     public static function allSendersAJAX($uid, $isVip, $d = 7,$forEventSenders=false)
     {
@@ -408,7 +431,10 @@ class Message_new extends Model
 				return false;
 			}
 		}
-		$admin_id = AdminService::checkAdmin()->id;
+		
+        self::deleteAutoDestroyMessageByUserId($user->id);
+        
+        $admin_id = AdminService::checkAdmin()->id;
         /**
          * 效能調整：使用左結合取代 where in 以取得更好的效能
          *
