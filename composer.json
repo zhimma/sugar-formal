@@ -41,7 +41,8 @@
         "barryvdh/laravel-ide-helper": "^2.12",
         "dietercoopman/laravel-showsql": "^1.1",
         "filp/whoops": "^2.14",
-        "mockery/mockery": "^1.4.4"
+        "mockery/mockery": "^1.4.4",
+        "nunomaduro/larastan": "1.0"
     },
     "autoload": {
         "files": [
