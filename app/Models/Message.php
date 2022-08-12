@@ -631,6 +631,26 @@ class Message extends Model
 
         return $theMessage;
     }
+    
+    public static function addAutoDestroyWhereToQuery($query)
+    {
+        return $query
+                ->where(function($q){
+                    $q->where('views_count_quota','>',0)
+                        ->whereRaw('views_count < views_count_quota')
+                        ->orWhere('views_count_quota',0)
+                        ->orWhereNull('views_count_quota')
+                        ;   
+                }) 
+                ->where(function($q){
+                    $q->where(function($q2) {
+                        $q2->where('show_time_limit','>',0)
+                            ->whereRaw('ADDTIME(created_at,show_time_limit) > DATE_ADD(now(), INTERVAL 8 HOUR)');
+                            // ADD 8 HOUR 暫時寫死，未來可能需要使用浮動時間
+                    })->orWhere('show_time_limit',0)
+                      ->orWhereNull('show_time_limit');
+                }) ;       
+    }
 
     public static function allToFromSender($uid, $sid, $includeDeleted = false, $sys_notice = NULL) {
         $user = \View::shared('user');
@@ -647,22 +667,9 @@ class Message extends Model
                 self::$date = \Carbon\Carbon::parse("30 days ago")->toDateTimeString();
             }   
            
-            $query = Message::where('created_at','>=',self::$date)
-                        ->Where(function($q){
-                            $q->where('views_count_quota','>',0)
-                                ->whereRaw('views_count < views_count_quota')
-                                ->orWhere('views_count_quota',0)
-                                ->orWhereNull('views_count_quota')
-                                ;   
-                        }) 
-                        ->where(function($q){
-                            $q->where(function($q2) {
-                                $q2->where('show_time_limit','>',0)
-                                    ->whereRaw('ADDTIME(created_at,show_time_limit) > DATE_ADD(now(), INTERVAL 8 HOUR)');
-                                    // ADD 8 HOUR 暫時寫死，未來可能需要使用浮動時間
-                            })->orWhere('show_time_limit',0)
-                              ->orWhereNull('show_time_limit');
-                        });
+            $query = Message::where('created_at','>=',self::$date);
+                     
+            $query = self::addAutoDestroyWhereToQuery($query);
             
             if($includeUnsend) { 
                 $query->withTrashed()->where(function ($q) {
