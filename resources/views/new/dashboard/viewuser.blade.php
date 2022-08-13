@@ -1084,7 +1084,7 @@
                                                         @if(isset($to->meta->about) && $to->meta->about != '')
                                                             <div class="ka_gx ka_fwi">或是其他你想說的</div>
                                                             <div class="ka_tubicon_text">
-                                                                {{$to->meta->about ?? ''}}
+                                                                {!! nl2br($to->meta->about ?? '') !!}
                                                             </div>
                                                         @endif
                                                     </div>
@@ -1092,7 +1092,7 @@
                                             @else
                                                 <span>
                                                     <div class="ka_tubicon_text">
-                                                        {{$to->meta->about ?? ''}}
+                                                        {!! nl2br($to->meta->about ?? '') !!}
                                                     </div>
                                                 </span>
                                             @endif
@@ -1161,7 +1161,7 @@
                                                         @if(isset($to->meta->style) && $to->meta->style != '')
                                                             <div class="ka_gx ka_fwi">或是其他你想說的</div>
                                                             <div class="ka_tubicon_text">
-                                                                {{$to->meta->style ?? ''}}
+                                                                {!! nl2br($to->meta->style ?? '') !!}
                                                             </div>
                                                         @endif
                                                     </div>
@@ -1169,7 +1169,7 @@
                                             @else
                                                 <span>
                                                     <div class="ka_tubicon_text">
-                                                        {{$to->meta->style ?? ''}}
+                                                        {!! nl2br($to->meta->style ?? '') !!}
                                                     </div>
                                                 </span>
                                             @endif
