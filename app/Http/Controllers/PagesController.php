@@ -31,7 +31,6 @@ use App\Models\SimpleTables\warned_users;
 use App\Models\Suspicious;
 use App\Models\VipLog;
 use App\Models\VvipApplication;
-use App\Models\VipLog;
 use App\Models\VvipInfo;
 use App\Notifications\BannedUserImplicitly;
 use Auth;
