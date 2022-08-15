@@ -40,7 +40,7 @@
                             <div class="quxiao_qb">
                                 <h2 class="qxfa_title">b: 收件夾特色介紹</h2>
                                 <div class="qx_fbt">
-                                    女會員有單獨的VVIP收件夾</div>
+                                    女會員有單獨的 VVIP 收件夾，並置頂於收件夾第一列</div>
                                 <div class="qx_imgpic">
                                     <img src="/new/images/fangan_qx_2a.png">
                                 </div>
