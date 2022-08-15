@@ -1251,7 +1251,7 @@ header("Expires: Fri, 01 Jan 1990 00:00:00 GMT");
                             }
                             else
                             {
-                                csrData +='<div class="nt_bot vvip_bgco2">';
+                                csrData +='<div class="nt_bot vvip_bgco2" style="color: #ff7575;">';
                             }
                         }
                         else
