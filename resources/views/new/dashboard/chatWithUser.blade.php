@@ -496,7 +496,11 @@
                 </a>
                 <span style="flex: 6; text-align: center;">
                     @if($to->id != $admin->id)
-                    <a href="/dashboard/@if($to->isVVIP() && $to->VvipInfoStatus())viewuser_vvip @else viewuser @endif/{{$to->id}}" style="color: #fd5678;">{{$to->name}}</a>
+                        @if($to->isVVIP() && $to->VvipInfoStatus())
+                            <a href="/dashboard/viewuser_vvip/{{$to->id}}" style="color: #fd5678;">{{$to->name}}</a>
+                        @else
+                            <a href="dashboard/viewuser/{{$to->id}}" style="color: #fd5678;">{{$to->name}}</a>
+                        @endif   
                     @else
                     <span style="color: #fd5678;">系統來訊通知</span>
                     @endif
@@ -511,7 +515,11 @@
                     @if($toUserIsBanned)
                         <a type="button" style="color: #fd5678;" onclick="c5('{{'此人已被站方封鎖'}}'),setTimeout(function(){window.location.href = ' {{ !empty(session()->get	('goBackPage_chat2')) ? session()->get('goBackPage_chat2') : \Illuminate\Support\Facades\URL::previous() }} '},3000)">{{$to->name}}</a>
                     @else
-                        <a href="/dashboard/@if($to->isVVIP() && $to->VvipInfoStatus())viewuser_vvip @else viewuser @endif/{{$to->id}}" style="color: #fd5678;">
+                        @if($to->isVVIP() && $to->VvipInfoStatus())
+                            <a href="/dashboard/viewuser_vvip/{{$to->id}}" style="color: #fd5678;">
+                        @else
+                            <a href="/dashboard/viewuser/{{$to->id}}" style="color: #fd5678;">
+                        @endif
                             <span class="se_rea">{{$to->name}}
                                 @if($isVip)
                                     @if($to->isOnline() && $to->is_hide_online==0)
