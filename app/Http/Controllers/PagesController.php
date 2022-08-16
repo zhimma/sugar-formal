@@ -2481,11 +2481,21 @@ class PagesController extends BaseController
 
             //紀錄返回上一頁的url,避免發信後,按返回還在發信頁面
             if(isset($_SERVER['HTTP_REFERER'])){
+                if(!str_contains($_SERVER['HTTP_REFERER'],'dashboard/chat2/chatShow') && !str_contains($_SERVER['HTTP_REFERER'],'dashboard/viewuser') && str_contains($_SERVER['REQUEST_URI'],'dashboard/viewuser')){
+                    session()->put('viewuser_page_enter_root',$_SERVER['HTTP_REFERER']);
+                    session()->forget('chat2_page_enter_root');
+                    session()->forget('goBackPage_chat2');
+                }
                 if(!str_contains($_SERVER['HTTP_REFERER'],'dashboard/chat2/chatShow') && !str_contains($_SERVER['HTTP_REFERER'],'dashboard/viewuser')){
                     session()->put('goBackPage',$_SERVER['HTTP_REFERER']);
-                } else if (strpos($_SERVER['HTTP_REFERER'], 'dashboard/chat2/chatShow')) {
-                    session()->put('goBackPage',$_SERVER['HTTP_REFERER']);
                 }
+            }
+            if(str_contains(session()->get('goBackPage'), 'dashboard/viewuser')){
+                session()->put('goBackPage',  session()->get('viewuser_page_enter_root'));
+            }
+            //會員頁->聊天頁, 避免Loop
+            if(str_contains($_SERVER['HTTP_REFERER'], 'dashboard/viewuser') && str_contains($_SERVER['REQUEST_URI'], 'chatShow')){
+                session()->put('goBackPage',  session()->get('chat2_page_enter_root'));
             }
 
             //判斷自己是否封鎖該用戶
@@ -3756,14 +3766,19 @@ class PagesController extends BaseController
         //紀錄返回上一頁的url
         if(isset($_SERVER['HTTP_REFERER'])){
             // 從收信夾內點入
-            if (strpos($_SERVER['HTTP_REFERER'], 'dashboard/chat2')) {
-                session()->put('goBackPage_chat2', $_SERVER['HTTP_REFERER']);
-            // 從個資點回 且 上層是收信夾 則繼續使用 goBackPage_chat2
-            } else if (strpos($_SERVER['HTTP_REFERER'], 'dashboard/viewuser') && session()->get('goBackPage_chat2') && empty($request->from_viewuser_page)) {
-            } else if (!str_contains($_SERVER['HTTP_REFERER'],'dashboard/chat2/chatShow')) {
-                session()->forget('goBackPage_chat2');
-                session()->put('goBackPage',$_SERVER['HTTP_REFERER']);
+            if (strpos($_SERVER['HTTP_REFERER'], 'dashboard/chat2') && !str_contains($_SERVER['HTTP_REFERER'],'dashboard/chat2/chatShow') ) {
+                session()->put('chat2_page_enter_root', $_SERVER['HTTP_REFERER']);
+                session()->put('goBackPage', $_SERVER['REQUEST_URI']);
             }
+        }
+        //會員頁->聊天頁, 避免Loop
+        if(str_contains($_SERVER['HTTP_REFERER'], 'dashboard/viewuser') && str_contains($_SERVER['REQUEST_URI'], 'chatShow')){
+            session()->put('goBackPage_chat2',  session()->get('chat2_page_enter_root'));
+
+        }
+        if(str_contains(session()->get('chat2_page_enter_root'),'/dashboard/chat2')  && str_contains($_SERVER['REQUEST_URI'], 'viewuser') ){
+            session()->put('viewuser_page_enter_root',session()->get('chat2_page_enter_root'));
+            session()->put('goBackPage', $_SERVER['HTTP_REFERER']);
         }
 
         $first_send_messenge = false;
