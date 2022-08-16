@@ -122,7 +122,7 @@
                                 <a class="c_but01 right favIcon removeFav">
                                     <div class="c_but01_1">
                                         <font>移除收藏</font>
-                                        <span><img src="/new/images/zb_4.png"></span>
+                                        <span><img src="/new/images/icon_08.png"></span>
                                     </div>
                                 </a>
                             @else
@@ -897,7 +897,7 @@
                     }
                     if (is_success) {
                         $(".favIcon font").text('移除收藏');
-                        // $(".favIcon img").attr('src', '/new/images/icon_08_.png');
+                        $(".favIcon img").attr('src', '/new/images/icon_08_.png');
                         $(".favIcon").removeClass('addFav').addClass('removeFav');
                     }
                 });
@@ -917,8 +917,8 @@
             }, function (data) {
                 if (data.status == true) {
                     c5('移除成功');
-                    $(".favIcon span").text('收藏');
-                    $(".favIcon img").attr('src', '/new/images/icon_08.png');
+                    $(".favIcon font").text('立即收藏');
+                    $(".favIcon img").attr('src', '/new/images/zb_4.png');
                     $(".favIcon").removeClass('removeFav').addClass('addFav');
                 } else {
                     c5('移除失敗');
