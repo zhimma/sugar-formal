@@ -814,7 +814,9 @@
                 <td>{{ array_get($isWarned_show,'created_at') }}</td>
             @endif
             @if(count($isEverBanned_log)>0)
-                <td>{{ array_get($isEverBanned_log,'0.created_at') }}</td>
+                @if(!is_null(array_get($isEverBanned_log,'0')))
+                    <td>{{ array_get($isEverBanned_log,'0.created_at') }}</td>
+                @endif
             @endif
             @if(count($isEverWarned_log)>0)
                 @if(!is_null(array_get($isEverWarned_log,'0')))
@@ -827,10 +829,14 @@
             <td>@if(count($isBanned)>0){{ array_get($isBanned_show,'cancal_time') }}@endif</td>
             <td>@if(count($isWarned)>0){{ array_get($isWarned_show,'cancal_time') }}@endif</td>
             @if(count($isEverBanned_log)>0)
-                <td>{{ array_get($isEverBanned_log,'0.cancal_time') }}</td>
+                @if(!is_null(array_get($isEverBanned_log,'0')))
+                    <td>{{ array_get($isEverBanned_log,'0.cancal_time') }}</td>
+                @endif
             @endif
             @if(count($isEverWarned_log)>0)
-                <td>{{ array_get($isEverWarned_log,'0.cancal_time') }}</td>
+                @if(!is_null(array_get($isEverWarned_log,'0')))
+                    <td>{{ array_get($isEverWarned_log,'0.cancal_time') }}</td>
+                @endif
             @endif
         </tr>
         <tr>
@@ -848,7 +854,9 @@
                 <td></td>
             @endif
             @if(count($isEverBanned_log)>0)
-                <td>{{ array_get($isEverBanned_log,'0.reason') }}</td>
+                @if(!is_null(array_get($isEverBanned_log,'0')))
+                    <td>{{ array_get($isEverBanned_log,'0.reason') }}</td>
+                @endif
             @endif
             @if(count($isEverWarned_log)>0)
                 @if(!is_null(array_get($isEverWarned_log,'0')))
@@ -894,6 +902,8 @@
                     {{ array_get($isWarned_show,'vip_pass')==1  ? '付費警示' : '' }}
                     {{ array_get($isWarned_show,'adv_auth')==1  ? '驗證警示' : '' }}
                 </td>
+            @else
+                <td></td>
             @endif
             @if(count($isEverBanned_log)>0)
                 @if(!is_null(array_get($isEverBanned_log,'0')))
@@ -952,13 +962,11 @@
             @endif
             @if(count($isWarned)>0 &&$isWarned_admin)
                 <td><a href="{{ route('users/advInfo', $isWarned_admin->id) }}" target='_blank' @if($isWarned_admin->engroup == '2') style="color: #F00;" @else  style="color: #5867DD;"  @endif>{{ $isWarned_admin->name }}</a></td>
-            @elseif($isEverBanned_admin)
+            @else
             <td></td>
             @endif
             @if($isEverBanned_admin)
                 <td><a href="{{ route('users/advInfo', $isEverBanned_admin->id) }}" target='_blank' @if($isEverBanned_admin->engroup == '2') style="color: #F00;" @else  style="color: #5867DD;"  @endif>{{ $isEverBanned_admin->name }}</a></td>
-            @elseif($isEverBanned_admin)
-            <td></td>
             @endif
             @if($isEverWarned_admin)
                 <td><a href="{{ route('users/advInfo', $isEverWarned_admin->id) }}" target='_blank' @if($isEverWarned_admin->engroup == '2') style="color: #F00;" @else  style="color: #5867DD;"  @endif>{{ $isEverWarned_admin->name }}</a></td>
@@ -2905,6 +2913,7 @@ function show_re_content(id){
                 placement: 'top',
                 //trigger: 'click',
                 trigger: 'hover',
+                sanitize: false,
                 html: true,
                 content: function () { return $('#showMore_banned_log').html(); }
             });
@@ -2916,6 +2925,7 @@ function show_re_content(id){
                 placement: 'top',
                 //trigger: 'click',
                 trigger: 'hover',
+                sanitize: false,
                 html: true,
                 content: function () { return $('#showMore_warned_log').html(); }
             });
