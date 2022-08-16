@@ -231,6 +231,10 @@
                                     @endif
                                 </div>
                                 <div class="tabbox_new_dd">
+                                    @if($user->applyingVVIP_getDeadline() != 0)
+                                        <h2 class="tabbox_h2" style="color:red;">您於 {{$user->applyVVIP_getData()->created_at}} 申請本站VVIP，站方審核仍需更多財力文件，請您於 {{$user->applyingVVIP_getDeadline()}} 前補交文件</h2>
+                                    @endif
+                                    
                                     @if($user->valueAddedServiceStatus('VVIP') == 1 && $user->passVVIP())
                                         <h2 class="tabbox_h2">您已完成VVIP會員費</h2>
                                     @elseif($user->valueAddedServiceStatus('VVIP') == 1 && !$user->passVVIP())
@@ -246,10 +250,6 @@
                                             </span></h2>
                                     @else
                                         <h2 class="tabbox_h2"><span class="tu_dfont">您尚未購買VVIP會員費</span></h2>
-                                    @endif
-
-                                    @if($user->applyingVVIP_getDeadline() != 0)
-                                        <h2 class="tabbox_h2">您於 {{$user->applyVVIP_getData()->created_at}} 申請本站VVIP，站方審核仍需更多財力文件，請您於 {{$user->applyingVVIP_getDeadline()}} 前補交文件</h2>
                                     @endif
 
                                     @if($user->applyingVVIP())
