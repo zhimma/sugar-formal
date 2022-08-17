@@ -2,6 +2,7 @@
 namespace App\Models;
 
 use App\Models\User;
+use Carbon\Carbon;
 use Illuminate\Database\Eloquent\Model;
 
 class MemberFav extends Model
@@ -42,14 +43,17 @@ class MemberFav extends Model
         $bannedUsers = \App\Services\UserService::getBannedId();
         $fav = Visited::unique(
             MemberFav::select('member_fav.*')->from('member_fav')
+                ->selectRaw('users.last_login, users.is_hide_online')
+                ->selectRaw('IF((select count(*) from member_value_added_service as p where p.member_id=users.id and p.service_name="hideOnline" and p.active=1 and (p.expiry = "0000-00-00 00:00:00" OR p.expiry >= "'.Carbon::now().'") and users.is_hide_online=1)>0 , (select login_time from hide_online_data  where hide_online_data.user_id=users.id and deleted_at is null order by id desc limit 1 ), users.last_login) as last_login_new')
                 ->leftJoin('users', 'users.id', 'member_fav.member_fav_id')
+                ->leftJoin('hide_online_data', 'hide_online_data.user_id', 'member_fav.member_fav_id')
                 ->where('users.accountStatus', 1)
                 ->where('users.account_status_admin', 1)
                 ->where([['member_fav.member_id', $uid],['member_fav.member_fav_id', '!=', $uid]])
                 ->whereNotIn('member_fav.member_fav_id',$blocks)
                 ->whereNotIn('member_fav.member_fav_id',$bannedUsers)
                 ->distinct()
-                ->orderBy('member_fav.created_at', 'desc')
+                ->orderBy('last_login_new' ,'desc')
                 ->get(),
             "member_fav_id");
         foreach ($fav as $k => $f) {

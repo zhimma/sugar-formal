@@ -63,14 +63,18 @@ class Visited extends Model
     public static function findBySelf($uid)
     {
         return Visited::withoutGlobalScopes()->select(\DB::raw('v.*, IF(u.is_hide_online = 1 or u.is_hide_online = 2, u.hide_online_time, max(v.created_at)) as latest_visited'))
+            ->selectRaw('u2.last_login, u2.is_hide_online')
+            ->selectRaw('IF((select count(*) from member_value_added_service as p where p.member_id=v.member_id and p.service_name="hideOnline" and p.active=1 and (p.expiry = "0000-00-00 00:00:00" OR p.expiry >= "'.Carbon::now().'") and u2.is_hide_online=1)>0 , (select login_time from hide_online_data  where hide_online_data.user_id=u2.id and deleted_at is null order by id desc limit 1 ), u2.last_login) as last_login_new')
             ->with(['user'])
             ->implicitWhere('v')
             ->from('visited as v')
             ->leftJoin('users as u', 'u.id', '=', 'v.member_id')
+            ->leftJoin('users as u2', 'u2.id', '=', 'v.member_id')
             ->leftJoin('banned_users as b1', 'b1.member_id', '=', 'v.member_id')
             ->leftJoin('banned_users as b2', 'b2.member_id', '=', 'v.member_id')
             ->leftJoin('banned_users_implicitly as b3', 'b3.target', '=', 'v.member_id')
             ->leftJoin('banned_users_implicitly as b4', 'b4.target', '=', 'v.member_id')
+            ->leftJoin('hide_online_data', 'hide_online_data.user_id', 'v.member_id')
             ->leftJoin('blocked as b5', function($join) use($uid) {
                 $join->on('b5.blocked_id', '=', 'v.member_id')
                     ->where('b5.member_id', $uid); })
@@ -96,7 +100,8 @@ class Visited extends Model
             ->where('u.account_status_admin', 1)
             ->where('v.visited_id', $uid)
             ->groupBy('v.member_id')
-            ->orderBy('latest_visited', 'desc')->get();
+            ->orderBy('last_login_new' ,'desc')
+            ->get();
     }
 
     public static function visit($member_id, $curUser)
