@@ -201,7 +201,7 @@ class SetAutoBan extends Model
         }
     }
 
-    public static function logoutWarned($uid)
+    public static function logoutWarned($uid, $probing = false)
     {
         Log::info('start_LogoutAutoBan_logoutWarned');
         $user = User::findById($uid);
@@ -228,19 +228,34 @@ class SetAutoBan extends Model
             $violation = false;
             switch ($ban_set->type) {
                 case 'name':
-                    if (User::where('id', $uid)->where('name', 'like', '%' . $content . '%')->first() != null) $violation = true;
+                    if (User::where('id', $uid)->where('name', 'like', '%' . $content . '%')->first() != null) {
+                        $violation = true;
+                        $caused_by = 'name';
+                    }
                     break;
                 case 'email':
-                    if (User::where('id', $uid)->where('email', 'like', '%' . $content . '%')->first() != null) $violation = true;
+                    if (User::where('id', $uid)->where('email', 'like', '%' . $content . '%')->first() != null) {
+                        $violation = true;
+                        $caused_by = 'email';
+                    }
                     break;
                 case 'title':
-                    if (User::where('id', $uid)->where('title', 'like', '%' . $content . '%')->first() != null) $violation = true;
+                    if (User::where('id', $uid)->where('title', 'like', '%' . $content . '%')->first() != null) {
+                        $violation = true;
+                        $caused_by = 'title';
+                    }
                     break;
                 case 'about':
-                    if (UserMeta::where('user_id', $uid)->where('about', 'like', '%' . $content . '%')->first() != null) $violation = true;
+                    if (UserMeta::where('user_id', $uid)->where('about', 'like', '%' . $content . '%')->first() != null) {
+                        $violation = true;
+                        $caused_by = 'about';
+                    }
                     break;
                 case 'style':
-                    if (UserMeta::where('user_id', $uid)->where('style', 'like', '%' . $content . '%')->first() != null) $violation = true;
+                    if (UserMeta::where('user_id', $uid)->where('style', 'like', '%' . $content . '%')->first() != null) {
+                        $violation = true;
+                        $caused_by = 'style';
+                    }
                     break;
                 case 'allcheck':
                     //全檢查判斷user與user_meta的內容 若有一個違規 就設定true
@@ -253,10 +268,14 @@ class SetAutoBan extends Model
                                     ->orwhere('style', 'like', '%' . $content . '%');
                             })->first() != null)) {
                         $violation = true;
+                        $caused_by = 'allcheck';
                     }
                     break;
                 case 'cfp_id':
-                    if(LogUserLogin::where('user_id',$uid)->where('cfp_id', $content)->first() != null) $violation = true;
+                    if(LogUserLogin::where('user_id',$uid)->where('cfp_id', $content)->first() != null) {
+                        $violation = true;
+                        $caused_by = 'cfp_id';
+                    }
                     break;
                 case 'ip':
 					if($ban_set->expiry=='0000-00-00 00:00:00') {
@@ -277,16 +296,25 @@ class SetAutoBan extends Model
 					}
                     break;
                 case 'userAgent':
-                    if(LogUserLogin::where('user_id',$uid)->where('userAgent', 'like','%'.$content.'%')->first() != null) $violation = true;
+                    if(LogUserLogin::where('user_id',$uid)->where('userAgent', 'like','%'.$content.'%')->first() != null) {
+                        $violation = true;
+                        $caused_by = 'userAgent';
+                    }
                     break;
 
                 //20220629新增圖片檔名
                 case 'picname':
                     //Log::info('start_pic_auto_ban');
-                    if(UserMeta::where('user_id',$uid)->where('pic_original_name','like','%'.$content.'%')->first() != null) $violation = true;
+                    if(UserMeta::where('user_id',$uid)->where('pic_original_name','like','%'.$content.'%')->first() != null) { 
+                        $violation = true;
+                        $caused_by = 'picname';
+                    }
 
                     //有一筆違規就可以封鎖了
-                    if(MemberPic::where('member_id',$uid)->where('original_name','like','%'.$content.'%')->first() != null) $violation = true;
+                    if(MemberPic::where('member_id',$uid)->where('original_name','like','%'.$content.'%')->first() != null) {
+                        $violation = true;
+                        $caused_by = 'picname';
+                    }
                     break;
                 //20220629新增圖片檔名   
 
@@ -296,18 +324,25 @@ class SetAutoBan extends Model
                     if(($ban_encode_entry??null) && $ban_encode_entry->file_md5??'') {
                         if(($user->meta->pic??null) && $ban_encode_entry->file_md5==(ImagesCompareService::getCompareEncodeByPic($user->meta->pic)->file_md5??null)) {
                             $violation = true;
+                            $caused_by = 'pic';
                         }
                         
                         if(!$violation) {
                             $memPics = $user->pic_withTrashed()->pluck('pic')->all();
                             $memPicMd5s =  ImagesCompareService::getFileMd5ArrByPicArr($memPics); 
-                            if(in_array($ban_encode_entry->file_md5,$memPicMd5s)) $violation = true;                         
+                            if(in_array($ban_encode_entry->file_md5,$memPicMd5s)) { 
+                                $violation = true;
+                                $caused_by = 'pic';
+                            }
                         }                                           
                         
                         if(!$violation) {
                             $delAvatars = $user->avatar_deleted()->pluck('pic')->all();
                             $delAvatarMd5s =  ImagesCompareService::getFileMd5ArrByPicArr($delAvatars); 
-                            if(in_array($ban_encode_entry->file_md5,$delAvatarMd5s)) $violation = true;
+                            if(in_array($ban_encode_entry->file_md5,$delAvatarMd5s)) {
+                                $violation = true;
+                                $caused_by = 'pic';
+                            }
                         }
                     }
                 break;
@@ -316,7 +351,13 @@ class SetAutoBan extends Model
             }
 
             if ($violation) {
-                $type = 'profile';
+                $type = 'profile';                
+                if($probing) {
+                    echo $caused_by;
+                }
+                else {
+                    logger("User $uid is banned by $caused_by");
+                }
                 BanJob::dispatch($uid, $ban_set, $user, $type)->onConnection('ban-job')->onQueue('ban-job');
             }
         }

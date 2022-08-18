@@ -2487,11 +2487,21 @@ class PagesController extends BaseController
 
             //紀錄返回上一頁的url,避免發信後,按返回還在發信頁面
             if(isset($_SERVER['HTTP_REFERER'])){
+                if(!str_contains($_SERVER['HTTP_REFERER'],'dashboard/chat2/chatShow') && !str_contains($_SERVER['HTTP_REFERER'],'dashboard/viewuser') && str_contains($_SERVER['REQUEST_URI'],'dashboard/viewuser')){
+                    session()->put('viewuser_page_enter_root',$_SERVER['HTTP_REFERER']);
+                    session()->forget('chat2_page_enter_root');
+                    session()->forget('goBackPage_chat2');
+                }
                 if(!str_contains($_SERVER['HTTP_REFERER'],'dashboard/chat2/chatShow') && !str_contains($_SERVER['HTTP_REFERER'],'dashboard/viewuser')){
                     session()->put('goBackPage',$_SERVER['HTTP_REFERER']);
-                } else if (strpos($_SERVER['HTTP_REFERER'], 'dashboard/chat2/chatShow')) {
-                    session()->put('goBackPage',$_SERVER['HTTP_REFERER']);
                 }
+            }
+            if(str_contains(session()->get('goBackPage'), 'dashboard/viewuser')){
+                session()->put('goBackPage',  session()->get('viewuser_page_enter_root'));
+            }
+            //會員頁->聊天頁, 避免Loop
+            if(str_contains($_SERVER['HTTP_REFERER'], 'dashboard/viewuser') && str_contains($_SERVER['REQUEST_URI'], 'chatShow')){
+                session()->put('goBackPage',  session()->get('chat2_page_enter_root'));
             }
 
             //判斷自己是否封鎖該用戶
@@ -3763,14 +3773,19 @@ class PagesController extends BaseController
         //紀錄返回上一頁的url
         if(isset($_SERVER['HTTP_REFERER'])){
             // 從收信夾內點入
-            if (strpos($_SERVER['HTTP_REFERER'], 'dashboard/chat2')) {
-                session()->put('goBackPage_chat2', $_SERVER['HTTP_REFERER']);
-            // 從個資點回 且 上層是收信夾 則繼續使用 goBackPage_chat2
-            } else if (strpos($_SERVER['HTTP_REFERER'], 'dashboard/viewuser') && session()->get('goBackPage_chat2') && empty($request->from_viewuser_page)) {
-            } else if (!str_contains($_SERVER['HTTP_REFERER'],'dashboard/chat2/chatShow')) {
-                session()->forget('goBackPage_chat2');
-                session()->put('goBackPage',$_SERVER['HTTP_REFERER']);
+            if (strpos($_SERVER['HTTP_REFERER'], 'dashboard/chat2') && !str_contains($_SERVER['HTTP_REFERER'],'dashboard/chat2/chatShow') ) {
+                session()->put('chat2_page_enter_root', $_SERVER['HTTP_REFERER']);
+                session()->put('goBackPage', $_SERVER['REQUEST_URI']);
             }
+            //會員頁->聊天頁, 避免Loop
+            if(str_contains($_SERVER['HTTP_REFERER'], 'dashboard/viewuser') && str_contains($_SERVER['REQUEST_URI'], 'chatShow')){
+                session()->put('goBackPage_chat2',  session()->get('chat2_page_enter_root'));
+            }
+        }
+
+        if(str_contains(session()->get('chat2_page_enter_root'),'/dashboard/chat2')  && str_contains($_SERVER['REQUEST_URI'], 'viewuser') ){
+            session()->put('viewuser_page_enter_root',session()->get('chat2_page_enter_root'));
+            session()->put('goBackPage', $_SERVER['HTTP_REFERER'] ?? null);
         }
 
         $first_send_messenge = false;
@@ -6119,6 +6134,8 @@ class PagesController extends BaseController
 
         $essence_posts_num=EssencePosts::where('essence_posts.verify_status', 2);
         if($user->id!=1049){
+            //排除被站方封鎖的帳號
+            $essence_posts_num->whereRaw('(select count(*) from banned_users where member_id=essence_posts.user_id)=0');
             $essence_posts_num->where('essence_posts.share_with', $user->engroup);
         }
         $essence_posts_num=$essence_posts_num->get()->count();
@@ -6716,7 +6733,7 @@ class PagesController extends BaseController
             $update_ary=[
                 'title'=>$request->get('title'),
                 'contents'=>$request->get('contents'),
-                'verify_status'=>$user->id==1049 ? EssencePosts::STATUS_PASSED : EssencePosts::STATUS_PENDING,
+                'verify_status'=>EssencePosts::STATUS_PENDING,
             ];
 
             if($user->id==1049){
@@ -6773,7 +6790,7 @@ class PagesController extends BaseController
                 }
             }
 
-            return redirect('/dashboard/essence_list')->with('message','修改成功'.($user->id==1049 ? '':'，待站長審核後則會自動發布'));
+            return redirect('/dashboard/essence_post_detail/'.$posts->id)->with('message','修改成功'.($user->id==1049 ? '':'，待站長審核後則會自動發布'));
 
         }else{
             $posts = new EssencePosts();
@@ -6789,7 +6806,7 @@ class PagesController extends BaseController
             $posts->save();
 
             DB::table('essence_posts')->where('id',$posts->id)->update(['article_id'=>$posts->id]);
-            return redirect('/dashboard/essence_list')->with('message','投稿成功'.($user->id==1049 ? '':'，待站長審核後則會自動發布'));
+            return redirect('/dashboard/essence_post_detail/'.$posts->id)->with('message','投稿成功'.($user->id==1049 ? '':'，待站長審核後則會自動發布'));
         }
     }
 
@@ -6807,9 +6824,10 @@ class PagesController extends BaseController
             return  redirect('/dashboard/essence_list');
         }
 
+        session()->forget('goBackPage_essence');
         //紀錄返回上一頁的url
         if(isset($_SERVER['HTTP_REFERER'])){
-            if(!str_contains($_SERVER['HTTP_REFERER'],'essence_postsEdit') && !str_contains($_SERVER['HTTP_REFERER'],'essence_post_detail') && !str_contains($_SERVER['HTTP_REFERER'],'viewuser')){
+            if(!str_contains($_SERVER['HTTP_REFERER'],'essence_posts') && !str_contains($_SERVER['HTTP_REFERER'],'essence_postsEdit') && !str_contains($_SERVER['HTTP_REFERER'],'essence_post_detail') && !str_contains($_SERVER['HTTP_REFERER'],'viewuser')){
                 session()->put('goBackPage_essence',$_SERVER['HTTP_REFERER']);
             }
         }
