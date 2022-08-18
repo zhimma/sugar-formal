@@ -6717,7 +6717,7 @@ class PagesController extends BaseController
             $update_ary=[
                 'title'=>$request->get('title'),
                 'contents'=>$request->get('contents'),
-                'verify_status'=>$user->id==1049 ? EssencePosts::STATUS_PASSED : EssencePosts::STATUS_PENDING,
+                'verify_status'=>EssencePosts::STATUS_PENDING,
             ];
 
             if($user->id==1049){
@@ -6774,7 +6774,7 @@ class PagesController extends BaseController
                 }
             }
 
-            return redirect('/dashboard/essence_list')->with('message','修改成功'.($user->id==1049 ? '':'，待站長審核後則會自動發布'));
+            return redirect('/dashboard/essence_post_detail/'.$posts->id)->with('message','修改成功'.($user->id==1049 ? '':'，待站長審核後則會自動發布'));
 
         }else{
             $posts = new EssencePosts();
@@ -6790,7 +6790,7 @@ class PagesController extends BaseController
             $posts->save();
 
             DB::table('essence_posts')->where('id',$posts->id)->update(['article_id'=>$posts->id]);
-            return redirect('/dashboard/essence_list')->with('message','投稿成功'.($user->id==1049 ? '':'，待站長審核後則會自動發布'));
+            return redirect('/dashboard/essence_post_detail/'.$posts->id)->with('message','投稿成功'.($user->id==1049 ? '':'，待站長審核後則會自動發布'));
         }
     }
 
