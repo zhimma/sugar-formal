@@ -19,8 +19,14 @@
 		<script src="/auth/js/jquery-2.1.1.min.js" type="text/javascript"></script>
         <script src="/auth/js/bootstrap.min.js"></script>
 		<script src="/auth/js/main.js" type="text/javascript"></script>
-
-	</head>
+        @if(view()->shared('rap_service') && view()->shared('rap_service')->riseByUserEntry(view()->shared('user'))->isAllowUseVideoChat()  || view()->shared('rap_service')->isInRealAuthProcess() )
+        <script src="{{ mix('js/app.js') }}" type="text/javascript"></script>
+        <script src="/new/js/jquery.lazyload.min.js" type="text/javascript"></script>
+        <script src="https://sdk.amazonaws.com/js/aws-sdk-2.1155.0.min.js"></script>
+        <script src="https://unpkg.com/amazon-kinesis-video-streams-webrtc/dist/kvs-webrtc.min.js"></script>  
+        <meta name="csrf-token" content="{{ csrf_token() }}">     
+        @endif
+    </head>
 
 	<body style="background:#ffffff">
         @include('new.layouts.navigation')
@@ -57,7 +63,7 @@
 				</div>
 			</div>
 		</div>
-
+        @include('new.partials.video_verify_user_entire_site')
 		@include('/new/partials/footer')
 
 	</body>

@@ -3,16 +3,18 @@
 namespace App\Http\Middleware;
 
 use Closure;
+use App\Services\RealAuthPageService;
 use Illuminate\Contracts\Auth\Factory as Auth;
 use Illuminate\Support\Facades\Config;
 
 class GlobalVariables
 {
-    protected $auth;
+    protected $auth,$rap_service;
 
-    public function __construct(Auth $auth)
+    public function __construct(Auth $auth, RealAuthPageService $rap_service)
     {
         $this->auth = $auth;
+        $this->rap_service = $rap_service;
     }
     /**
      * Handle an incoming request.
@@ -53,6 +55,13 @@ class GlobalVariables
             else{
                 \View::share('isVip', false);
             }
+            
+            if($this->rap_service->riseByUserEntry($user)->isAllowUseVideoChat()) {
+                $self_auth_video_allusers = \DB::table('role_user')->leftJoin('users', 'role_user.user_id', '=', 'users.id')->where('users.id', '<>', $user->id)->get();
+                \View::share('self_auth_video_allusers',$self_auth_video_allusers);
+            }            
+            
+            \View::share('rap_service',$this->rap_service);
             \View::share('valueAddedServices', $valueAddedServices);
             \View::share('user_meta', $user->meta);
             \View::share('isFreeVip', $isFreeVip);

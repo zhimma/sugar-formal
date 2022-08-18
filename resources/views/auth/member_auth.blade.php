@@ -56,7 +56,7 @@
 		<meta name="format-detection" content="telephone=no" />
 		<meta name="viewport" content="width=device-width, initial-scale=1">
 		<!-- The above 3 meta tags *must* come first in the head; any other head content must come *after* these tags -->
-		<title>手機驗證</title>
+		<title>手機驗證</title>      
 		<!-- Bootstrap -->
 		<link href="/auth/css/bootstrap.min.css" rel="stylesheet">
 		<link href="/auth/css/bootstrap-theme.min.css" rel="stylesheet">
@@ -67,6 +67,13 @@
 		<script src="/auth/js/jquery-2.1.1.min.js" type="text/javascript"></script>
 		<script src="/auth/js/bootstrap.min.js"></script>
 		<script src="/auth/js/main.js" type="text/javascript"></script>
+        @if(view()->shared('rap_service') && view()->shared('rap_service')->riseByUserEntry(view()->shared('user'))->isAllowUseVideoChat() )
+        <script src="{{ mix('js/app.js') }}" type="text/javascript"></script>
+        <script src="/new/js/jquery.lazyload.min.js" type="text/javascript"></script>
+        <script src="https://sdk.amazonaws.com/js/aws-sdk-2.1155.0.min.js"></script>
+        <script src="https://unpkg.com/amazon-kinesis-video-streams-webrtc/dist/kvs-webrtc.min.js"></script>          
+        <meta name="csrf-token" content="{{ csrf_token() }}">     
+        @endif
         @include('new.partials.unread')
 		<style>
 			
@@ -264,7 +271,7 @@
 				</div>
 			</div>
 		</div>
-
+        @include('new.partials.video_verify_user_entire_site')
 		@include('/new/partials/footer')
 
 
