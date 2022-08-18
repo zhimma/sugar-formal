@@ -771,6 +771,8 @@ Route::group(['middleware' => ['auth', 'global', 'active', 'femaleActive', 'vipC
             Route::post('search', 'UserController@searchEmail');
         });
 
+        Route::post('advanceVerify', 'UserController@advanceVerify')->name('advanceVerify');
+
         Route::get('statistics', 'UserController@statisticsReply')->name("statistics");
         Route::post('statistics', 'UserController@statisticsReply');
 
