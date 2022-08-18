@@ -6808,9 +6808,10 @@ class PagesController extends BaseController
             return  redirect('/dashboard/essence_list');
         }
 
+        session()->forget('goBackPage_essence');
         //紀錄返回上一頁的url
         if(isset($_SERVER['HTTP_REFERER'])){
-            if(!str_contains($_SERVER['HTTP_REFERER'],'essence_postsEdit') && !str_contains($_SERVER['HTTP_REFERER'],'essence_post_detail') && !str_contains($_SERVER['HTTP_REFERER'],'viewuser')){
+            if(!str_contains($_SERVER['HTTP_REFERER'],'essence_posts') && !str_contains($_SERVER['HTTP_REFERER'],'essence_postsEdit') && !str_contains($_SERVER['HTTP_REFERER'],'essence_post_detail') && !str_contains($_SERVER['HTTP_REFERER'],'viewuser')){
                 session()->put('goBackPage_essence',$_SERVER['HTTP_REFERER']);
             }
         }
