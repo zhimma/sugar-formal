@@ -3770,15 +3770,15 @@ class PagesController extends BaseController
                 session()->put('chat2_page_enter_root', $_SERVER['HTTP_REFERER']);
                 session()->put('goBackPage', $_SERVER['REQUEST_URI']);
             }
+            //會員頁->聊天頁, 避免Loop
+            if(str_contains($_SERVER['HTTP_REFERER'], 'dashboard/viewuser') && str_contains($_SERVER['REQUEST_URI'], 'chatShow')){
+                session()->put('goBackPage_chat2',  session()->get('chat2_page_enter_root'));
+            }
         }
-        //會員頁->聊天頁, 避免Loop
-        if(str_contains($_SERVER['HTTP_REFERER'], 'dashboard/viewuser') && str_contains($_SERVER['REQUEST_URI'], 'chatShow')){
-            session()->put('goBackPage_chat2',  session()->get('chat2_page_enter_root'));
 
-        }
         if(str_contains(session()->get('chat2_page_enter_root'),'/dashboard/chat2')  && str_contains($_SERVER['REQUEST_URI'], 'viewuser') ){
             session()->put('viewuser_page_enter_root',session()->get('chat2_page_enter_root'));
-            session()->put('goBackPage', $_SERVER['HTTP_REFERER']);
+            session()->put('goBackPage', $_SERVER['HTTP_REFERER'] ?? null);
         }
 
         $first_send_messenge = false;
