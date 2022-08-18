@@ -6120,6 +6120,8 @@ class PagesController extends BaseController
 
         $essence_posts_num=EssencePosts::where('essence_posts.verify_status', 2);
         if($user->id!=1049){
+            //排除被站方封鎖的帳號
+            $essence_posts_num->whereRaw('(select count(*) from banned_users where member_id=essence_posts.user_id)=0');
             $essence_posts_num->where('essence_posts.share_with', $user->engroup);
         }
         $essence_posts_num=$essence_posts_num->get()->count();
