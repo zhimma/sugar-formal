@@ -623,6 +623,23 @@
                 </form>
             </td>
         @endif
+        @if($user->engroup == 1)
+            <th>進階驗證 :@if($user->advance_auth_status) 已通過進階驗證 @else 尚未通過進階驗證 @endif
+                <div style="display: flex;">
+                    <form action="{{ route('advanceVerify') }}" method='POST'>
+                        {!! csrf_field() !!}
+                        <input type="hidden" name="user_id" value="{{ $user->id }}">
+                        @if ($user->advance_auth_status)
+                            <input type="hidden" name="fail" value="1">
+                            <button type="submit" class="text-white btn btn btn-success" style="float: right;">不通過</button>
+                        @else
+                            <input type="hidden" name="pass" value="1">
+                            <button type="submit" class="text-white btn btn btn-success" style="float: right;">通過</button>
+                        @endif
+                    </form>
+                </div>
+            </th>
+        @endif
     </tr>
     <tr>
         <th>會員ID</th>

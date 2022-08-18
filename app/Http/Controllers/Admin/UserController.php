@@ -6889,4 +6889,24 @@ class UserController extends \App\Http\Controllers\BaseController
 
         return json_encode($data);
     }
+
+    public function advanceVerify(Request $request){
+        $user = User::where('id', $request->user_id)->first();
+
+        if($request->pass) 
+        {
+            $user->advance_auth_status = 1;
+            DB::table("banned_users")->where("member_id",$user->id)->where("adv_auth",1)->delete();
+            $message = '已通過進階驗證並移除驗證封鎖';
+        }
+        else 
+        {
+            $user->advance_auth_status = 0;
+            $message = '已移除進階驗證';
+        }
+
+        $user->save();
+
+        return back()->with('message', $message);
+    }
 }
