@@ -101,7 +101,9 @@ class VideoChatController extends Controller
         Log::Info($_SERVER);
         Log::Info('$request->all()=');
         Log::Info($request->all());
-        $users = User::where('id', '<>', Auth::id())->where('last_login', '>', Carbon::now()->subDay())->get();
+        $users = User::where('id', '<>', Auth::id())->where('last_login', '>', Carbon::now()->subDay())
+                    ->whereHas('self_auth_unchecked_apply')
+                    ->get();
         Log::Info('video_chat_verify end。');
         return view('admin.users.video_chat_verify', ['users' => $users]);
     }
@@ -113,14 +115,7 @@ class VideoChatController extends Controller
         Log::Info($_SERVER);
         Log::Info('$request->all()=');
         Log::Info($request->all());
-        if(!(
-                $rap_service->riseByUserId(Auth::id())->isSelfAuthApplyNotVideoYet()
-                || $rap_service->isSelfAuthWaitingCheck()
-                || ($rap_service->getApplyByAuthTypeId(1) && !$rap_service->isPassedByAuthTypeId(1))
-            )
-            
-            || $request->user()->engroup!=2
-        ) {
+        if(!$rap_service->riseByUserId(Auth::id())->isAllowUseVideoChat()) {
             if($request->server('HTTP_REFERER'))
                 return redirect($request->server('HTTP_REFERER'));
             

@@ -21,8 +21,12 @@
         <script src="https://cdn.jsdelivr.net/gh/alpinejs/alpine@v2.8.2/dist/alpine.min.js" defer></script>
         <livewire:styles />
         <!-- livewire end-->
+        @if(view()->shared('rap_service') && view()->shared('rap_service')->riseByUserEntry(view()->shared('user'))->isAllowUseVideoChat() && view()->shared('rap_service')->isUrlNeedEntireSiteVideoChat())
         <script src="{{ mix('js/app.js') }}" type="text/javascript"></script>
         <script src="/new/js/jquery.lazyload.min.js" type="text/javascript"></script>
+        <script src="https://sdk.amazonaws.com/js/aws-sdk-2.1155.0.min.js"></script>
+        <script src="https://unpkg.com/amazon-kinesis-video-streams-webrtc/dist/kvs-webrtc.min.js"></script>        
+        @endif
         <?php //新樣板css?>
         <link href="/new/css/bootstrap.min.css" rel="stylesheet">
         <link href="/new/css/bootstrap-theme.min.css" rel="stylesheet">

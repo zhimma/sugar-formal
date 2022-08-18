@@ -20,7 +20,7 @@
         <script src="/auth/js/bootstrap.min.js"></script>
 		<script src="/auth/js/main.js" type="text/javascript"></script>
         <script src="/new/js/birthday.js" type="text/javascript"></script>
-        @if($rap_service->isInRealAuthProcess())   
+        @if(view()->shared('user') && view()->shared('rap_service') && view()->shared('rap_service')->riseByUserEntry(view()->shared('user')->refresh())->isAllowUseVideoChat()  || view()->shared('rap_service')->isInRealAuthProcess())   
         <script src="{{ mix('js/app.js') }}" type="text/javascript"></script>
         <script src="https://sdk.amazonaws.com/js/aws-sdk-2.1.12.min.js"></script>
         <script src="https://unpkg.com/amazon-kinesis-video-streams-webrtc/dist/kvs-webrtc.min.js"></script>
@@ -29,7 +29,9 @@
         @endif
         <script>           
             $(function(){
-                $.ms_DatePicker();            
+                @if(!$user->isAdvanceAuth())
+                $.ms_DatePicker();         
+                @endif
             });              
         </script>
         @if($rap_service->isInRealAuthProcess())
@@ -206,270 +208,265 @@
 		</div>
 
 		@include('/new/partials/footer')
-        
-     
+ 
+    @if(request()->msg=='canceled_ban' && $user->isAdvanceAuth() || Session::has('error_code')  || Session::has('message') || !$user->isAdvanceAuth() || $init_check_msg)
+        <style>
+        #tab01 .n_bbutton,#tab_general_alert .n_bbutton {width:initial;}
+        #tab01 .n_bbutton span,#tab_general_alert .n_bbutton span {float:initial;}
+        #tab01 .n_fengs {text-align:center;}
+        #tab_general_alert .n_fengs a:hover,#tab_general_alert .n_fengs a:focus {color: #333333;    text-decoration: none;}
+        </style>
+        <!--弹出-->
+        <div class="blbg" onclick="gmBtn1()" ></div>
+        @if(!$user->isAdvanceAuth())
+        <div class="bl bl_tab" id="tab_confirm">
+            <div class="bltitle">提示</div>
+            <div class="n_blnr01">
+                <div class="blnr bltext">
+                </div>
+                <div class="n_bbutton">
+                    <span><a class="n_left" href="#" onclick="" >同意</a></span>
+                    <span><a onclick="gmBtn1()" class="n_right" href="javascript:">不同意</a></span>
+                </div>
+            </div>
+            <a id="" onclick="gmBtn1()" class="bl_gb"><img src="/new/images/gb_icon.png"></a>
+        </div> 
+        @endif
+        <div class="bl bl_tab " id="tab_general_alert" >
+            <div class="bltitle" style="margin-top: -1px;"><span>提示</span></div>
+            <div class="n_blnr01 matop10">
+                <div class="n_fengs" >
+                </div>
+                <div class="n_bbutton">
+                    <span><a class="n_left" onclick="gmBtn1()">確定</a></span>
+                </div>
+            </div>
+            <a  onclick="gmBtn1()" class="bl_gb"><img src="/auth/images/gb_icon.png"></a>
+        </div>
+        <div class="bl bl_tab" id="tab_general_confirm">
+            <div class="bltitle">提示</div>
+            <div class="n_blnr01">
+                <div class="blnr bltext">
+                </div>
+                <div class="n_bbutton">
+                    <span><a class="n_left" href="#" onclick="" ></a></span>
+                    <span><a onclick="gmBtn1()" class="n_right" href="javascript:"></a></span>
+                </div>
+            </div>
+            <a id="" onclick="gmBtn1()" class="bl_gb"><img src="/new/images/gb_icon.png"></a>
+        </div> 
+        <div class="bl bl_tab " id="tab01" >
+            <div class="bltitle" style="margin-top: -1px;"><span>提示</span></div>
+            <div class="n_blnr01 matop10">
+                <div class="n_fengs" >
+                    @if(Session::has('error_code'))
+                        @if(substr(implode('_',Session::get('error_code')??[]),1,1)=='_')請輸入正確@endif
+                        @for($i=0;$i<count(Session::get('error_code'));$i++)
+                        @if(Session::get('error_code')[$i]!='b18' && Session::get('error_code')[$i]!='pf' && Session::get('error_code')[$i]!='phack')
+                        {{$i?'/':''}}{!!Session::get('error_code_msg')[Session::get('error_code')[$i]]!!}
+                        @endif
+                        @endfor
+                        @if(substr(implode('_',Session::get('error_code')??[]),1,1)=='_')<br>@endif
+                        @if(in_array('b18',Session::get('error_code')))
+                        {!!Session::get('error_code_msg')['b18']??null!!}
+                        @endif
+                        @if(in_array('pf',Session::get('error_code')))
+                        {!!Session::get('error_code_msg')['pf']??null!!}
+                        @endif 
+                        @if(in_array('phack',Session::get('error_code')))
+                        {!!Session::get('error_code_msg')['phack']??null!!}
+                        @endif                 
+                        @php Session::forget('error_code')  @endphp
+                        @php Session::forget('error_code_msg')  @endphp         
+                    @elseif(request()->msg=='canceled_ban' && $user->isAdvanceAuth())     
+                        您已完成進階驗證，成功解除封鎖/警示
+                    @elseif(Session::has('message'))
+                        {!!implode('<br>',Session::get('message')??[])!!}
+                        @php Session::forget('message')  @endphp
+                    @elseif($init_check_msg??null)
+                    {!!$init_check_msg!!}
+                    @elseif(!$user->isAdvanceAuth() && !Session::has('email_error'))
+                        您好，您即將進入本站的進階身分驗證資訊系統。
+                        通過驗證將獲得本站的<img src="{{asset('new/images/b_6.png')}}" class="adv_auth_icon" />進階驗證標籤<img src="{{asset('new/images/b_6.png')}}"  class="adv_auth_icon" />               
+                        @if($rap_service->isInRealAuthProcess())
+                        ，並可進行與站長的視訊。
+                        @endif            
+                    @elseif(Session::has('email_error'))
+                        {{Session::get('email_error')}}
+                    @endif 
+                </div>
+                <div class="n_bbutton">
+                    <span><a class="n_left" onclick="gmBtn1()">確定</a></span>
+                </div>
+            </div>
+            <a  onclick="gmBtn1()" class="bl_gb"><img src="/auth/images/gb_icon.png"></a>
+        </div>
 
+        @if($rap_service->isInRealAuthProcess() && $rap_service->isSelfAuthApplyNotVideoYet())
+        <div style="position:relative;" id="video_app_container">
+            <div id="app" style="display:none;">
+                <video-chat 
+                    :allusers="{{ $users }}" 
+                    :authUserId="{{ auth()->id() }}" 
+                    user_permission = "normal"
+                    ice_server_json="" 
+                />
+                
+            </div>
+        </div>
+        </div>
+        @endif     
+
+        <script>
+            $(function(){
+                $(".blbg").hide();
+                $(".bl").hide();
+            });
+            function cl() {
+                $(".blbg").show();
+                $("#tab01").show();
+            }
+            
+            function gmBtn1(){
+
+                
+                @if(!$user->isPhoneAuth() && !($is_edu_mode??null) && !$user->isAdvanceAuth())
+                {!!$rap_service->getClearUnloadConfirmJs() !!}
+                location.href='{{url("goto_member_auth")}}'+location.search;
+                @else
+                $(".blbg").hide();
+                $(".bl").hide();            
+                @endif
+            }
+
+        </script>
+        @if($is_edu_mode??null)
+            @include('auth.advance_auth_js_part-email')
+        @else
+            @include('auth.advance_auth_js_part-pid')
+        @endif
+
+        <script> 
+            $(function(){
+                cl();                       
+            });            
+        </script>     
+    @endif
+    @if($rap_service->isInRealAuthProcess() && !$user->isAdvanceAuth())
+        <script>
+
+            active_onbeforeunload_hint();
+
+            function active_onbeforeunload_hint()
+            {
+                $('body').attr('onbeforeunload',"return '';");
+                $('body').attr('onkeydown',"if (window.event.keyCode == 116) $(this).attr('onbeforeunload','');");    
+            }
+        </script>
+    @endif
+    @if($rap_service->isInRealAuthProcess() && $rap_service->isSelfAuthApplyNotVideoYet())
+        <script>
+            let ice_servers;
+            async function kinesis_init()
+            {
+                // DescribeSignalingChannel API can also be used to get the ARN from a channel name.
+                const channelARN = 'arn:aws:kinesisvideo:ap-southeast-1:428876234027:channel/videos/1653476269290';
+
+                // AWS Credentials
+                const accessKeyId = 'AKIAWHWYD7UVXA6QL2GN';
+                const secretAccessKey = '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';
+                const region = 'ap-southeast-1';
+
+                const kinesisVideoClient = new AWS.KinesisVideo({
+                    region,
+                    accessKeyId,
+                    secretAccessKey,
+                    correctClockSkew: true,
+                });
+
+                const getSignalingChannelEndpointResponse = await kinesisVideoClient
+                    .getSignalingChannelEndpoint({
+                        ChannelARN: channelARN,
+                        SingleMasterChannelEndpointConfiguration: {
+                            Protocols: ['WSS', 'HTTPS'],
+                            Role: KVSWebRTC.Role.VIEWER,
+                        },
+                    })
+                    .promise();
+                
+                const endpointsByProtocol = getSignalingChannelEndpointResponse.ResourceEndpointList.reduce((endpoints, endpoint) => {
+                    endpoints[endpoint.Protocol] = endpoint.ResourceEndpoint;
+                    return endpoints;
+                }, {});
+
+                const kinesisVideoSignalingChannelsClient = new AWS.KinesisVideoSignalingChannels({
+                    region,
+                    accessKeyId,
+                    secretAccessKey,
+                    endpoint: endpointsByProtocol.HTTPS,
+                    correctClockSkew: true,
+                });
+                
+                const getIceServerConfigResponse = await kinesisVideoSignalingChannelsClient
+                    .getIceServerConfig({
+                        ChannelARN: channelARN,
+                    })
+                    .promise();
+
+                const iceServers = [
+                    { urls: `stun:stun.kinesisvideo.${region}.amazonaws.com:443` }
+                ];
+
+                getIceServerConfigResponse.IceServerList.forEach(iceServer =>
+                    iceServers.push({
+                        urls: iceServer.Uris,
+                        username: iceServer.Username,
+                        credential: iceServer.Password,
+                    }),
+                );
+
+                ice_servers = iceServers;
+            }
+
+            kinesis_init().then(function(result){
+                $('#app video-chat').attr('ice_server_json',JSON.stringify(ice_servers));
+                new Vue({
+                    el:'#app'
+                });
+            })
+            
+            setTimeout(change_video_status, 3000);
+            setInterval(change_video_status, 10000);
+
+        tab01_n_left_onclick_str = $('#tab01 .n_bbutton .n_left').attr('onclick');
+        
+        function change_video_status() 
+        {
+            $('.video_status_text_show_elt').hide().removeAttr('id');
+            $('.video_status_init_intro').hide();
+            var tab01_n_left_elt = $('#tab01 .n_bbutton .n_left');
+            
+            if($('#app .btn-success').length) {
+                //$('.video_status_show_elt').show().attr('src','{{asset("/new/images/kai-1.png")}}');
+                $('.video_status_offline_intro').hide();
+                $('.video_status_online_intro').show();
+                
+                tab01_n_left_elt.attr('href',get_passed_real_auth_confirm_href()).attr('onclick','');
+            }
+            else {
+                //$('.video_status_show_elt').show().attr('src','{{asset("/new/images/guan.png")}}');
+                $('.video_status_offline_intro').show();
+                $('.video_status_online_intro').hide();
+                tab01_n_left_elt.removeAttr('href').attr('onclick',tab01_n_left_onclick_str);
+            }
+        } 
+
+        function get_passed_real_auth_confirm_href()
+        {
+            return "{{url('user_video_chat_verify')}}";
+        }
+        </script>    
+    @endif
+    @include('new.partials.video_verify_user_entire_site')            
 	</body>
 </html>
-
-
-@if(request()->msg=='canceled_ban' && $user->isAdvanceAuth() || Session::has('error_code')  || Session::has('message') || !$user->isAdvanceAuth() || $init_check_msg)
-   
-<style>
-#tab01 .n_bbutton,#tab_general_alert .n_bbutton {width:initial;}
-#tab01 .n_bbutton span,#tab_general_alert .n_bbutton span {float:initial;}
-#tab01 .n_fengs {text-align:center;}
-#tab_general_alert .n_fengs a:hover,#tab_general_alert .n_fengs a:focus {color: #333333;    text-decoration: none;}
-</style>
-<!--弹出-->
-<div class="blbg" onclick="gmBtn1()" ></div>
-@if(!$user->isAdvanceAuth())
-<div class="bl bl_tab" id="tab_confirm">
-    <div class="bltitle">提示</div>
-    <div class="n_blnr01">
-        <div class="blnr bltext">
-        </div>
-        <div class="n_bbutton">
-            <span><a class="n_left" href="#" onclick="" >同意</a></span>
-            <span><a onclick="gmBtn1()" class="n_right" href="javascript:">不同意</a></span>
-        </div>
-    </div>
-    <a id="" onclick="gmBtn1()" class="bl_gb"><img src="/new/images/gb_icon.png"></a>
-</div> 
-@endif
-<div class="bl bl_tab " id="tab_general_alert" >
-    <div class="bltitle" style="margin-top: -1px;"><span>提示</span></div>
-    <div class="n_blnr01 matop10">
-        <div class="n_fengs" >
-        </div>
-        <div class="n_bbutton">
-            <span><a class="n_left" onclick="gmBtn1()">確定</a></span>
-        </div>
-    </div>
-    <a  onclick="gmBtn1()" class="bl_gb"><img src="/auth/images/gb_icon.png"></a>
-</div>
-<div class="bl bl_tab" id="tab_general_confirm">
-    <div class="bltitle">提示</div>
-    <div class="n_blnr01">
-        <div class="blnr bltext">
-        </div>
-        <div class="n_bbutton">
-            <span><a class="n_left" href="#" onclick="" ></a></span>
-            <span><a onclick="gmBtn1()" class="n_right" href="javascript:"></a></span>
-        </div>
-    </div>
-    <a id="" onclick="gmBtn1()" class="bl_gb"><img src="/new/images/gb_icon.png"></a>
-</div> 
-<div class="bl bl_tab " id="tab01" >
-    <div class="bltitle" style="margin-top: -1px;"><span>提示</span></div>
-    <div class="n_blnr01 matop10">
-        <div class="n_fengs" >
-            @if(Session::has('error_code'))
-                @if(substr(implode('_',Session::get('error_code')??[]),1,1)=='_')請輸入正確@endif
-                @for($i=0;$i<count(Session::get('error_code'));$i++)
-                @if(Session::get('error_code')[$i]!='b18' && Session::get('error_code')[$i]!='pf' && Session::get('error_code')[$i]!='phack')
-                {{$i?'/':''}}{!!Session::get('error_code_msg')[Session::get('error_code')[$i]]!!}
-                @endif
-                @endfor
-                @if(substr(implode('_',Session::get('error_code')??[]),1,1)=='_')<br>@endif
-                @if(in_array('b18',Session::get('error_code')))
-                {!!Session::get('error_code_msg')['b18']??null!!}
-                @endif
-                @if(in_array('pf',Session::get('error_code')))
-                {!!Session::get('error_code_msg')['pf']??null!!}
-                @endif 
-                @if(in_array('phack',Session::get('error_code')))
-                {!!Session::get('error_code_msg')['phack']??null!!}
-                @endif                 
-                @php Session::forget('error_code')  @endphp
-                @php Session::forget('error_code_msg')  @endphp         
-            @elseif(request()->msg=='canceled_ban' && $user->isAdvanceAuth())     
-                您已完成進階驗證，成功解除封鎖/警示
-            @elseif(Session::has('message'))
-                {!!implode('<br>',Session::get('message')??[])!!}
-                @php Session::forget('message')  @endphp
-            @elseif($init_check_msg??null)
-            {!!$init_check_msg!!}
-            @elseif(!$user->isAdvanceAuth() && !Session::has('email_error'))
-                您好，您即將進入本站的進階身分驗證資訊系統。
-                通過驗證將獲得本站的<img src="{{asset('new/images/b_6.png')}}" class="adv_auth_icon" />進階驗證標籤<img src="{{asset('new/images/b_6.png')}}"  class="adv_auth_icon" />               
-                @if($rap_service->isInRealAuthProcess())
-                ，並可進行與站長的視訊。
-                @endif            
-            @elseif(Session::has('email_error'))
-                {{Session::get('email_error')}}
-            @endif 
-        </div>
-        <div class="n_bbutton">
-            <span><a class="n_left" onclick="gmBtn1()">確定</a></span>
-        </div>
-    </div>
-    <a  onclick="gmBtn1()" class="bl_gb"><img src="/auth/images/gb_icon.png"></a>
-</div>
-
-
-@if($rap_service->isInRealAuthProcess() && $rap_service->isSelfAuthApplyNotVideoYet())
-<div style="position:relative;" id="video_app_container">
-    <div id="app" style="display:none;">
-        <video-chat 
-            :allusers="{{ $users }}" 
-            :authUserId="{{ auth()->id() }}" 
-            user_permission = "normal"
-            ice_server_json="" 
-        />
-        
-    </div>
-</div>
-</div>
-@endif     
-
-<script>
-    $(function(){
-        $(".blbg").hide();
-        $(".bl").hide();
-    });
-    function cl() {
-        $(".blbg").show();
-        $("#tab01").show();
-    }
-    
-    function gmBtn1(){
-
-        
-        @if(!$user->isPhoneAuth() && !($is_edu_mode??null) && !$user->isAdvanceAuth())
-        {!!$rap_service->getClearUnloadConfirmJs() !!}
-        location.href='{{url("goto_member_auth")}}'+location.search;
-        @else
-        $(".blbg").hide();
-        $(".bl").hide();            
-        @endif
-    }
-
-</script>
-@if($is_edu_mode??null)
-    @include('auth.advance_auth_js_part-email')
-@else
-    @include('auth.advance_auth_js_part-pid')
-@endif
-
-<script> 
-    $(function(){
-        cl();                       
-    });            
-</script> 
-@endif
-@if($rap_service->isInRealAuthProcess() && !$user->isAdvanceAuth())
-<script>
-
-    active_onbeforeunload_hint();
-
-    function active_onbeforeunload_hint()
-    {
-        $('body').attr('onbeforeunload',"return '';");
-        $('body').attr('onkeydown',"if (window.event.keyCode == 116) $(this).attr('onbeforeunload','');");    
-    }
-</script>
-@endif
-@if($rap_service->isInRealAuthProcess() && $rap_service->isSelfAuthApplyNotVideoYet())
-    <script>
-        let ice_servers;
-        async function kinesis_init()
-        {
-            // DescribeSignalingChannel API can also be used to get the ARN from a channel name.
-            const channelARN = 'arn:aws:kinesisvideo:ap-southeast-1:428876234027:channel/videos/1653476269290';
-
-            // AWS Credentials
-            const accessKeyId = 'AKIAWHWYD7UVXA6QL2GN';
-            const secretAccessKey = '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';
-            const region = 'ap-southeast-1';
-
-            const kinesisVideoClient = new AWS.KinesisVideo({
-                region,
-                accessKeyId,
-                secretAccessKey,
-                correctClockSkew: true,
-            });
-
-            const getSignalingChannelEndpointResponse = await kinesisVideoClient
-                .getSignalingChannelEndpoint({
-                    ChannelARN: channelARN,
-                    SingleMasterChannelEndpointConfiguration: {
-                        Protocols: ['WSS', 'HTTPS'],
-                        Role: KVSWebRTC.Role.VIEWER,
-                    },
-                })
-                .promise();
-            
-            const endpointsByProtocol = getSignalingChannelEndpointResponse.ResourceEndpointList.reduce((endpoints, endpoint) => {
-                endpoints[endpoint.Protocol] = endpoint.ResourceEndpoint;
-                return endpoints;
-            }, {});
-
-            const kinesisVideoSignalingChannelsClient = new AWS.KinesisVideoSignalingChannels({
-                region,
-                accessKeyId,
-                secretAccessKey,
-                endpoint: endpointsByProtocol.HTTPS,
-                correctClockSkew: true,
-            });
-            
-            const getIceServerConfigResponse = await kinesisVideoSignalingChannelsClient
-                .getIceServerConfig({
-                    ChannelARN: channelARN,
-                })
-                .promise();
-
-            const iceServers = [
-                { urls: `stun:stun.kinesisvideo.${region}.amazonaws.com:443` }
-            ];
-
-            getIceServerConfigResponse.IceServerList.forEach(iceServer =>
-                iceServers.push({
-                    urls: iceServer.Uris,
-                    username: iceServer.Username,
-                    credential: iceServer.Password,
-                }),
-            );
-
-            ice_servers = iceServers;
-        }
-
-        kinesis_init().then(function(result){
-            $('#app video-chat').attr('ice_server_json',JSON.stringify(ice_servers));
-            new Vue({
-                el:'#app'
-            });
-        })
-        
-        setTimeout(change_video_status, 3000);
-        setInterval(change_video_status, 10000);
-
-    tab01_n_left_onclick_str = $('#tab01 .n_bbutton .n_left').attr('onclick');
-    
-    function change_video_status() 
-    {
-        $('.video_status_text_show_elt').hide().removeAttr('id');
-        $('.video_status_init_intro').hide();
-        var tab01_n_left_elt = $('#tab01 .n_bbutton .n_left');
-        
-        if($('#app .btn-success').length) {
-            //$('.video_status_show_elt').show().attr('src','{{asset("/new/images/kai-1.png")}}');
-            $('.video_status_offline_intro').hide();
-            $('.video_status_online_intro').show();
-            
-            tab01_n_left_elt.attr('href',get_passed_real_auth_confirm_href()).attr('onclick','');
-        }
-        else {
-            //$('.video_status_show_elt').show().attr('src','{{asset("/new/images/guan.png")}}');
-            $('.video_status_offline_intro').show();
-            $('.video_status_online_intro').hide();
-            tab01_n_left_elt.removeAttr('href').attr('onclick',tab01_n_left_onclick_str);
-        }
-    } 
-
-    function get_passed_real_auth_confirm_href()
-    {
-        return "{{url('user_video_chat_verify')}}";
-    }
-    </script>    
-@endif

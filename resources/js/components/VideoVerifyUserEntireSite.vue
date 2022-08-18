@@ -3,27 +3,6 @@
     <div class="container">
       <div class="row">
         <div class="col">
-          <div class="btn-group" role="group" style="flex-wrap:wrap;display:inline-block;" v-for="user in allusers">
-            <button
-              type="button"
-              class="btn mr-2"
-              :key="user.id"
-              :class="generateBtnClass(getUserOnlineStatus(user.id))"
-              :style="generateBtnStyle(getUserOnlineStatus(user.id))"
-              @click="getUserOnlineStatus(user.id) ? placeVideoCall(user.id, user.name) : null"
-            >
-              {{ user.id }} {{ user.name }}
-              <span v-if=getUserOnlineStatus(user.id) class="badge badge-light">上線中</span>
-              <span v-else class="badge badge-light">下線</span>
-            </button>
-            <div style="text-align:center;">
-                <a             
-                target="_blank"
-                :href="generateBtnUserAdvInfoUrl(user.id)"  
-                :style="generateBtnStyle(getUserOnlineStatus(user.id))"
-                >{{ user.id }} {{ user.name }}</a>
-            </div>
-          </div>
         </div>
       </div>
       <!--Placing Video Call-->
@@ -57,28 +36,7 @@
             v-if="videoCallParams.callAccepted"
           />
 
-          <div class="partner-video" v-else>
-            <div v-if="callPartner" class="column items-center q-pt-xl">
-              <div class="col q-gutter-y-md text-center">
-                <p class="q-pt-md">
-                  <strong>{{ callPartner }}</strong>
-                </p>
-                <p>撥打中...</p>
-              </div>
-            </div>
-          </div>
           <div class="action-btns">
-            <button v-if="this.user_permission == 'admin'" type="button" class="btn btn-info" @click="toggleMuteAudio">
-              {{ mutedAudio ? "關閉靜音" : "開啟靜音" }}
-            </button>
-            <button
-              v-if="this.user_permission == 'admin'"
-              type="button"
-              class="btn btn-primary mx-4"
-              @click="toggleMuteVideo"
-            >
-              {{ mutedVideo ? "顯示畫面" : "隱藏畫面" }}
-            </button>
             <button type="button" class="btn btn-danger" @click="endCall">
               結束視訊通話
             </button>
@@ -113,7 +71,9 @@
         </div>
       </div>
       <!-- End of Incoming Call  -->
+      
     </div>
+    <div class="real_auth_video_entire_site_bg" ></div>
   </div>
 </template>
 
@@ -170,6 +130,8 @@ export default {
         this.videoCallParams.receivingCall &&
         this.videoCallParams.caller !== this.authuserid
       ) {
+        $('.real_auth_video_entire_site_bg').show();
+        $('#entire_site_video_app > div > .container').css('z-index',39).css('position','fixed');
         return true;
       }
       return false;
@@ -405,7 +367,7 @@ export default {
         this.callPlaced = false;
         return;
       }
-      //console.log("iceserver_json: " + this.ice_server_json);
+      console.log("iceserver_json: " + this.ice_server_json);
       const iceserver = JSON.parse(this.ice_server_json.trim());
       //console.log("iceserver: " + iceserver);
       this.videoCallParams.peer2 = new Peer({
@@ -501,6 +463,8 @@ export default {
     },
 
     declineCall() {
+      $('.real_auth_video_entire_site_bg').hide();
+      $('#entire_site_video_app > div > .container').css('z-index',0).css('position','');    
       this.videoCallParams.receivingCall = false;
     },
 
@@ -558,6 +522,8 @@ export default {
 
     endCall() {
       // if video or audio is muted, enable it so that the stopStreamedVideo method will work
+      $('.real_auth_video_entire_site_bg').hide();
+      $('#entire_site_video_app > div > .container').css('z-index',0).css('position','');
       if (this.mutedVideo) this.toggleMuteVideo();
       if (this.mutedAudio) this.toggleMuteAudio();
       this.stopStreamedVideo(this.$refs.userVideo);
@@ -619,10 +585,6 @@ export default {
         return 'display:none;'
       }
     },
-    
-    generateBtnUserAdvInfoUrl(userid) {
-        return './advInfo/'+userid;
-    },    
 
     //video record
     startRecording() {
@@ -819,7 +781,7 @@ export default {
   bottom: 10px;
   border: 1px solid #fff;
   border-radius: 6px;
-  z-index: 2;
+  z-index: 32;
 }
 
 .video-container .partner-video {
@@ -830,7 +792,7 @@ export default {
   right: 0;
   bottom: 0;
   top: 0;
-  z-index: 1;
+  z-index: 31;
   margin: 0;
   padding: 0;
 }
@@ -840,7 +802,7 @@ export default {
   bottom: 20px;
   left: 50%;
   margin-left: -50px;
-  z-index: 3;
+  z-index: 33;
   display: flex;
   flex-direction: row;
 }
@@ -850,5 +812,18 @@ export default {
   .video-container {
     height: 50vh;
   }
+}
+
+.real_auth_video_entire_site_bg {
+    width: 100%;
+    height: 100%;
+    width: 100%;
+    height: 100%;
+    position: fixed;
+    top: 0px;
+    left: 0;
+    background: rgba(0,0,0,0.5);
+    z-index: 30;
+    display: none;
 }
 </style>
