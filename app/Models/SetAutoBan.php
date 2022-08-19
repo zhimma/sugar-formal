@@ -221,6 +221,9 @@ class SetAutoBan extends Model
         //執行時間預設是30秒改為無上限
         set_time_limit(-1);
 
+        $ban_set_type = ['name', 'email', 'title'];
+        $ban_meta_set_type = ['about', 'style'];
+
         $set_auto_ban = SetAutoBan::select('type', 'set_ban', 'id', 'content','expiry', 'expired_days')->orderBy('id', 'desc');
         $auto_ban = $set_auto_ban->get();
         foreach ($auto_ban as $ban_set) {
@@ -279,7 +282,7 @@ class SetAutoBan extends Model
 						$ban_set->delete();
 						break;
 					}					
-                    $ip = $user->log_user_login->orderBy('created_at','desc')->first();
+                    $ip = $user->log_user_login->sortByDesc('created_at')->first();
                     if($ip?->ip == $content) {
 						$violation = true;
 						$ban_set->expiry = \Carbon\Carbon::now()->addMonths(1)->format('Y-m-d H:i:s');
