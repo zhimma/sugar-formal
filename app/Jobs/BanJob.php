@@ -42,12 +42,16 @@ class BanJob implements ShouldQueue
         Log::info('start_jobs_BanJob');
         Log::Info(Carbon::now());
         $that = $this;
-        $user_had_been_banned = banned_users::where('member_id', $this->uid)->get();
-        $user_had_been_implicitly_banned = BannedUsersImplicitly::where('target', $this->uid)->get();
-        $user_had_been_warned = warned_users::where('member_id', $this->uid)->get();
-        if($this->ban_set->set_ban == 1 && !$user_had_been_banned->first(function($item) use ($that) {
+        $user_had_been_banned_by_ban_set = banned_users::where('member_id', $this->uid)->get()->first(function($item) use ($that) {
             return $item->reason == "系統原因(".$that->ban_set->id.")";
-        }))
+        });
+        $user_had_been_implicitly_banned_by_ban_set = BannedUsersImplicitly::where('target', $this->uid)->get()->first(function($item) use ($that) {
+            return $item->reason == "系統原因(".$that->ban_set->id.")";
+        });
+        $user_had_been_warned_by_ban_set = warned_users::where('member_id', $this->uid)->get()->first(function($item) use ($that) {
+            return $item->reason == "系統原因(".$that->ban_set->id.")";
+        });
+        if($this->ban_set->set_ban == 1 && !$user_had_been_banned_by_ban_set)
         {
             //直接封鎖
             $userBanned = new banned_users;
@@ -65,9 +69,7 @@ class BanJob implements ShouldQueue
                 DB::table('is_banned_log')->insert(['user_id' => $this->uid, 'reason' => "系統原因(".$this->ban_set->id.")"]);
             }
         }
-        elseif($this->ban_set->set_ban == 2 && !$user_had_been_implicitly_banned->first(function($item) use ($that) {
-            return $item->reason == "系統原因(".$that->ban_set->id.")";
-        }))
+        elseif($this->ban_set->set_ban == 2 && !$user_had_been_implicitly_banned_by_ban_set)
         {
             //隱性封鎖
             $Line = 0;
@@ -83,9 +85,7 @@ class BanJob implements ShouldQueue
             }
             BannedUsersImplicitly::insert(['fp' => 'Line ' . $Line . ', BannedInUserInfo, ban_set ID: ' . $this->ban_set->id . ', content: ' . $this->ban_set->content, 'user_id' => 0, 'target' => $this->uid]);
         }
-        elseif($this->ban_set->set_ban == 3 && !$user_had_been_warned->first(function($item) use ($that) {
-            return $item->reason == "系統原因(".$that->ban_set->id.")";
-        }))
+        elseif($this->ban_set->set_ban == 3 && !$user_had_been_warned_by_ban_set)
         {
             //警示會員
             $userWarned = new warned_users;
