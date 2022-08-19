@@ -54,6 +54,11 @@ class CreateOptionLifeStyleAndOptionPersonalityTraitsTable extends Migration
             ['option_name' => '無主見'],
             ['option_name' => '主導性強'],
         ]);
+
+        DB::table('option_type')->insert([
+            ['type_name' => 'personality_traits'],
+            ['type_name' => 'life_style'],
+        ]);
     }
 
     /**
