@@ -279,7 +279,7 @@ class SetAutoBan extends Model
 						$ban_set->delete();
 						break;
 					}					
-                    $ip = LogUserLogin::where('user_id', $uid)->orderBy('created_at','desc')->first();
+                    $ip = $user->log_user_login->orderBy('created_at','desc')->first();
                     if($ip?->ip == $content) {
 						$violation = true;
 						$ban_set->expiry = \Carbon\Carbon::now()->addMonths(1)->format('Y-m-d H:i:s');
@@ -288,7 +288,7 @@ class SetAutoBan extends Model
 					}
                     break;
                 case 'userAgent':
-                    if(LogUserLogin::where('user_id',$uid)->where('userAgent', 'like','%'.$content.'%')->first() != null) {
+                    if($user->log_user_login->first(function ($log) use ($content) { return str_contains($log->userAgent, $content); })) {
                         $violation = true;
                         $caused_by = 'userAgent';
                     }
