@@ -828,6 +828,32 @@ class PagesController extends BaseController
                                     })
                                     ->select('option_frequency_of_getting_along.*', 'user_options_xref.id as xref_id')
                                     ->get();
+        $personality_traits = DB::table('option_personality_traits')
+                                    ->leftJoin('user_options_xref', function($join) use($user)
+                                    {
+                                        $join->on('option_personality_traits.id', '=', 'user_options_xref.option_id')
+                                            ->where('user_options_xref.user_id', '=', $user->id)
+                                            ->where('user_options_xref.option_type', '=', 9)
+                                        ;
+                                    })
+                                    ->select('option_personality_traits.*', 'user_options_xref.id as xref_id')
+                                    ->where('option_personality_traits.is_custom', 0)
+                                    ->orderBy('option_personality_traits.id')
+                                    ->get();
+        $personality_traits_other=UserOptionsXref::get_user_option($user->id, 'personality_traits');
+        $life_style = DB::table('option_life_style')
+                                    ->leftJoin('user_options_xref', function($join) use($user)
+                                    {
+                                        $join->on('option_life_style.id', '=', 'user_options_xref.option_id')
+                                            ->where('user_options_xref.user_id', '=', $user->id)
+                                            ->where('user_options_xref.option_type', '=', 10)
+                                        ;
+                                    })
+                                    ->where('option_life_style.is_custom', 0)
+                                    ->select('option_life_style.*', 'user_options_xref.id as xref_id')
+                                    ->orderBy('option_life_style.id')
+                                    ->get();
+        $life_style_other=UserOptionsXref::get_user_option($user->id, 'life_style');
 
         //使用者選擇的選項
         $user_option_xref = UserOptionsXref::where('user_id', $user->id);
@@ -881,6 +907,10 @@ class PagesController extends BaseController
                 ->with('preferred_date_location', $preferred_date_location)
                 ->with('expected_type', $expected_type)
                 ->with('frequency_of_getting_along', $frequency_of_getting_along)
+                ->with('personality_traits', $personality_traits)
+                ->with('personality_traits_other', $personality_traits_other)
+                ->with('life_style', $life_style)
+                ->with('life_style_other',$life_style_other)
                 ;
         }
     }
@@ -2596,6 +2626,26 @@ class PagesController extends BaseController
                                         ->select('option_frequency_of_getting_along.*', 'user_options_xref.id as xref_id')
                                         ->whereNotNull('user_options_xref.id')
                                         ->get();
+            $personality_traits = DB::table('option_personality_traits')
+                                        ->leftJoin('user_options_xref', function($join) use($user)
+                                        {
+                                            $join->on('option_personality_traits.id', '=', 'user_options_xref.option_id')
+                                                ->where('user_options_xref.user_id', '=', $user->id)
+                                                ->where('user_options_xref.option_type', '=', 9)
+                                            ;
+                                        })
+                                        ->select('option_personality_traits.*', 'user_options_xref.id as xref_id')
+                                        ->get();
+            $life_style = DB::table('option_life_style')
+                                        ->leftJoin('user_options_xref', function($join) use($user)
+                                        {
+                                            $join->on('option_life_style.id', '=', 'user_options_xref.option_id')
+                                                ->where('user_options_xref.user_id', '=', $user->id)
+                                                ->where('user_options_xref.option_type', '=', 10)
+                                            ;
+                                        })
+                                        ->select('option_life_style.*', 'user_options_xref.id as xref_id')
+                                        ->get();
             //工作/學業
             $user_option_xref = UserOptionsXref::where('user_id', $to->id);
             $user_option = new \stdClass();
@@ -2651,6 +2701,8 @@ class PagesController extends BaseController
                     ->with('preferred_date_location', $preferred_date_location)
                     ->with('expected_type', $expected_type)
                     ->with('frequency_of_getting_along', $frequency_of_getting_along)
+                    ->with('personality_traits', $personality_traits)
+                    ->with('life_style', $life_style)
                     ->with('advance_auth_status', $advance_auth_status)
                     ->with('bool_value', $bool_value)
                     ;
