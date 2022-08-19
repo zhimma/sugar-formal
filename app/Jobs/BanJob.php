@@ -41,7 +41,7 @@ class BanJob implements ShouldQueue
     {
         Log::info('start_jobs_BanJob');
         Log::Info(Carbon::now());
-        if($this->ban_set->set_ban == 1 && banned_users::where('member_id', $this->uid)->first() == null)
+        if($this->ban_set->set_ban == 1)
         {
             //直接封鎖
             $userBanned = new banned_users;
