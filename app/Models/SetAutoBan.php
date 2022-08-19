@@ -263,7 +263,7 @@ class SetAutoBan extends Model
                     break;
                 case 'cfp_id':
                     $user->log_user_login->each(function ($log) use ($content, &$violation, &$caused_by) {
-                        if (str_contains($log->cfp_id, $content)) {
+                        if ($log->cfp_id == $content) {
                             $violation = true;
                             $caused_by = 'cfp_id';
                         }
