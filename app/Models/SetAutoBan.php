@@ -371,6 +371,8 @@ class SetAutoBan extends Model
                 }
             }
         }
+
+        return 0;
     }
 
     public static function setAutoBanAdd($type, $content, $set_ban, $cuz_user_set = null, $expiry = '0000-00-00 00:00:00', $host = null)
