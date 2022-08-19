@@ -105,5 +105,7 @@ class BanJob implements ShouldQueue
         //sleep(90);
         Log::info('end_jobs_BanJob');
         Log::Info(Carbon::now());
+        
+        return 0;
     }
 }
