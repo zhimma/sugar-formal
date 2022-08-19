@@ -1227,6 +1227,34 @@
                                     </dt>
                                     @endif
 
+                                    @if(($personality_traits->first()->xref_id ?? false) && $to->engroup==2)
+                                        <dt>
+                                            <span>人格特質</span>
+                                            <div class="ka_tubicon ka_n">
+                                                <br>
+                                                @foreach($personality_traits as $option)
+                                                    @if($option->xref_id ?? false)
+                                                        <div class="ka_tico_1"><img src="/new/images/zz_zb.png" class="ka_tico_tu01"><i>{{$option->option_name}}</i><img src="/new/images/zz_zb.png" class="ka_tico_tu02"></div>
+                                                    @endif
+                                                @endforeach
+                                            </div>
+                                        </dt>
+                                    @endif
+
+                                    @if(($life_style->first()->xref_id ?? false) && $to->engroup==2)
+                                        <dt>
+                                            <span>生活型態</span>
+                                            <div class="ka_tubicon ka_n">
+                                                <br>
+                                                @foreach($life_style as $option)
+                                                    @if($option->xref_id ?? false)
+                                                        <div class="ka_tico_1"><img src="/new/images/zz_zb.png" class="ka_tico_tu01"><i>{{$option->option_name}}</i><img src="/new/images/zz_zb.png" class="ka_tico_tu02"></div>
+                                                    @endif
+                                                @endforeach
+                                            </div>
+                                        </dt>
+                                    @endif
+
                                     {{--
                                     @if(!empty($to->meta->situation) && $to->meta->situation != null && $to->meta->situation != 'null' && $to->engroup==2)
                                         <dt>

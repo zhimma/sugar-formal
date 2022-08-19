@@ -764,6 +764,94 @@ dt span.engroup_type_title {display:inline-block;width:10%;white-space:nowrap;}
                                 });
                             </script>
                         </dt>
+                        <dt>
+                            <span>人格特質</span>
+                            <div id="itemssxN_PT">
+                                <nav class="custom_nav_n">
+                                    @foreach($personality_traits as $option)
+                                        <div class="custom_s a1 option_personality_traits @if($option->xref_id ?? false) cractive @endif" value={{$option->id}}>{{$option->option_name}}</div>
+                                    @endforeach
+                                    @foreach($personality_traits_other as $option)
+                                        <div class="custom_s a1 option_personality_traits cractive" value={{$option->id}}>{{$option->option_name}}</div>
+                                    @endforeach
+                                    <div class="user_defined_area"></div>
+                                </nav>
+                                <div style="margin-top:-10px;margin-bottom: 12px;">
+                                    <div class="ka_zli cutop"><i></i>或自行輸入</div>
+                                    <span class="huinput" style="width: 180px;margin-left:16px;">
+                                        <input id="personality_traits_tag_input" class="hf_i xin_input_qq" placeholder="請輸入">
+                                    </span>
+                                    <div class="re_area">
+                                        <a class="hf_but tag_submit" >送出</a>
+                                    </div>
+                                </div>
+                            </div>
+                            <input id="personality_traits" type="hidden" name="personality_traits" value="">
+                            <input id="personality_traits_user_defined_tag" type="hidden" name="personality_traits_user_defined_tag" value="">
+                            <script type="text/javascript">
+                                $(document).ready(function() {
+                                    $("#itemssxN_PT .a1").on("click", function() {
+                                        $(this).toggleClass('cractive');
+                                    });
+                                    $("#itemssxN_PT .tag_submit").on("click", function() {
+                                        if($('#personality_traits_tag_input').val()==''){
+                                            c5('請輸入選項');
+                                            return false;
+                                        }
+                                        $('#itemssxN_PT .user_defined_area').append('<div class="custom_s a1 personality_traits_user_defined_tag cractive">'+$('#personality_traits_tag_input').val()+'</div>');
+                                        $('#personality_traits_tag_input').val('');
+                                    });
+                                    $(document).on("click", ".personality_traits_user_defined_tag", function(e) {
+                                        e.preventDefault();
+                                        $(this).toggleClass('cractive');
+                                    });
+                                });
+                            </script>
+                        </dt>
+                        <dt>
+                            <span>生活型態</span>
+                            <div id="itemssxN_LS">
+                                <nav class="custom_nav_n">
+                                    @foreach($life_style as $option)
+                                        <div class="custom_s a1 option_life_style @if($option->xref_id ?? false) cractive @endif" value={{$option->id}}>{{$option->option_name}}</div>
+                                    @endforeach
+                                    @foreach($life_style_other as $option)
+                                        <div class="custom_s a1 option_life_style cractive" value={{$option->id}}>{{$option->option_name}}</div>
+                                    @endforeach
+                                    <div class="user_defined_area"></div>
+                                </nav>
+                                <div style="margin-top:-10px;margin-bottom: 12px;">
+                                    <div class="ka_zli cutop"><i></i>或自行輸入</div>
+                                    <span class="huinput" style="width: 180px;margin-left:16px;">
+                                        <input id="life_style_tag_input" class="hf_i xin_input_qq" placeholder="請輸入">
+                                    </span>
+                                    <div class="re_area">
+                                        <a class="hf_but tag_submit" >送出</a>
+                                    </div>
+                                </div>
+                            </div>
+                            <input id="life_style" type="hidden" name="life_style" value="">
+                            <input id="life_style_user_defined_tag" type="hidden" name="life_style_user_defined_tag" value="">
+                            <script type="text/javascript">
+                                $(document).ready(function() {
+                                    $("#itemssxN_LS .a1").on("click", function() {
+                                        $(this).toggleClass('cractive');
+                                    });
+                                });
+                                $("#itemssxN_LS .tag_submit").on("click", function() {
+                                    if($('#life_style_tag_input').val()==''){
+                                        c5('請輸入選項');
+                                        return false;
+                                    }
+                                    $('#itemssxN_LS .user_defined_area').append('<div class="custom_s a1 life_style_user_defined_tag cractive">'+$('#life_style_tag_input').val()+'</div>');
+                                    $('#life_style_tag_input').val('');
+                                });
+                                $(document).on("click", ".life_style_user_defined_tag", function(e) {
+                                    e.preventDefault();
+                                    $(this).toggleClass('cractive');
+                                });
+                            </script>
+                        </dt>
                         {{--
                         <dt class="matopj15">
                             <span>現況<i>(必填)</i></span>
@@ -1787,6 +1875,47 @@ dt span.engroup_type_title {display:inline-block;width:10%;white-space:nowrap;}
             option_array = JSON.stringify(option_array);
             $('#frequency_of_getting_along').val(option_array);
 
+
+            option_array = [];
+            $('.option_personality_traits.cractive').each(function(){
+                option_array.push($(this).attr('value'));
+            });
+            if(option_array.length !== 0) {
+                fill_style = true;
+            }
+            option_array = JSON.stringify(option_array);
+            $('#personality_traits').val(option_array);
+            //自行輸入tag
+            option_array = [];
+            $('.personality_traits_user_defined_tag.cractive').each(function(){
+                option_array.push($(this).text());
+            });
+            if(option_array.length !== 0) {
+                fill_style = true;
+            }
+            option_array = JSON.stringify(option_array);
+            $('#personality_traits_user_defined_tag').val(option_array);
+
+            option_array = [];
+            $('.option_life_style.cractive').each(function(){
+                option_array.push($(this).attr('value'));
+            });
+            if(option_array.length !== 0) {
+                fill_style = true;
+            }
+            option_array = JSON.stringify(option_array);
+            $('#life_style').val(option_array);
+            //自行輸入tag
+            option_array = [];
+            $('.life_style_user_defined_tag.cractive').each(function(){
+            option_array.push($(this).text());
+            });
+            if(option_array.length !== 0) {
+            fill_style = true;
+            }
+            option_array = JSON.stringify(option_array);
+            $('#life_style_user_defined_tag').val(option_array);
+
             if(!fill_style)
             {
                 if($('#style_other').val() === "")
@@ -1835,6 +1964,10 @@ dt span.engroup_type_title {display:inline-block;width:10%;white-space:nowrap;}
             let transport_fare_max = $('#transport_fare_max');
             let new_occupation = $('#new_occupation');
             let new_occupation_other = $('#new_occupation_other');
+            let personality_traits = $('#personality_traits');
+            let personality_traits_other = $('#personality_traits_other');
+            let life_style = $('#life_style');
+            let life_style_other = $('#life_style_other');
 
             if(new_occupation.val() === "other")
             {
