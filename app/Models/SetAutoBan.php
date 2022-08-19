@@ -228,54 +228,46 @@ class SetAutoBan extends Model
             $violation = false;
             switch ($ban_set->type) {
                 case 'name':
-                    if (User::where('id', $uid)->where('name', 'like', '%' . $content . '%')->first() != null) {
-                        $violation = true;
-                        $caused_by = 'name';
-                    }
-                    break;
                 case 'email':
-                    if (User::where('id', $uid)->where('email', 'like', '%' . $content . '%')->first() != null) {
+                case 'title':                               
+                    $ban_set_type = $ban_set->type;
+                    if (str_contains($user->$ban_set_type, $content)) {
                         $violation = true;
-                        $caused_by = 'email';
-                    }
-                    break;
-                case 'title':
-                    if (User::where('id', $uid)->where('title', 'like', '%' . $content . '%')->first() != null) {
-                        $violation = true;
-                        $caused_by = 'title';
+                        $caused_by = $ban_set_type;
                     }
                     break;
                 case 'about':
-                    if (UserMeta::where('user_id', $uid)->where('about', 'like', '%' . $content . '%')->first() != null) {
+                case 'style':                               
+                    $ban_set_type = $ban_set->type;
+                    if (str_contains($user->user_meta->$ban_set_type, $content)) {
                         $violation = true;
-                        $caused_by = 'about';
-                    }
-                    break;
-                case 'style':
-                    if (UserMeta::where('user_id', $uid)->where('style', 'like', '%' . $content . '%')->first() != null) {
-                        $violation = true;
-                        $caused_by = 'style';
+                        $caused_by = $ban_set_type;
                     }
                     break;
                 case 'allcheck':
                     //全檢查判斷user與user_meta的內容 若有一個違規 就設定true
-                    if ((User::where('id', $uid)->where(function ($query) use ($content) {
-                                $query->where('name', 'like', '%' . $content . '%')
-                                    ->orwhere('title', 'like', '%' . $content . '%');
-                            })->first() != null)
-                        or (UserMeta::where('user_id', $uid)->where(function ($query) use ($content) {
-                                $query->where('about', 'like', '%' . $content . '%')
-                                    ->orwhere('style', 'like', '%' . $content . '%');
-                            })->first() != null)) {
-                        $violation = true;
-                        $caused_by = 'allcheck';
-                    }
+                    $ban_set_type = ['name', 'email', 'title'];
+                    collect($ban_set_type)->each(function ($type) use ($user, $content, &$violation, &$caused_by) {
+                        if (str_contains($user->$type, $content)) {
+                            $violation = true;
+                            $caused_by = $type;
+                        }
+                    });
+                    $ban_meta_set_type = ['about', 'style'];
+                    collect($ban_meta_set_type)->each(function ($type) use ($user, $content, &$violation, &$caused_by) {
+                        if (str_contains($user->user_meta->$type, $content)) {
+                            $violation = true;
+                            $caused_by = $type;
+                        }
+                    });
                     break;
                 case 'cfp_id':
-                    if(LogUserLogin::where('user_id',$uid)->where('cfp_id', $content)->first() != null) {
-                        $violation = true;
-                        $caused_by = 'cfp_id';
-                    }
+                    $user->log_user_login->each(function ($log) use ($content, &$violation, &$caused_by) {
+                        if (str_contains($log->cfp_id, $content)) {
+                            $violation = true;
+                            $caused_by = 'cfp_id';
+                        }
+                    });
                     break;
                 case 'ip':
 					if($ban_set->expiry=='0000-00-00 00:00:00') {
@@ -287,7 +279,7 @@ class SetAutoBan extends Model
 						$ban_set->delete();
 						break;
 					}					
-                    $ip = LogUserLogin::where('user_id',$uid)->orderBy('created_at','desc')->first();
+                    $ip = LogUserLogin::where('user_id', $uid)->orderBy('created_at','desc')->first();
                     if($ip?->ip == $content) {
 						$violation = true;
 						$ban_set->expiry = \Carbon\Carbon::now()->addMonths(1)->format('Y-m-d H:i:s');
@@ -305,13 +297,13 @@ class SetAutoBan extends Model
                 //20220629新增圖片檔名
                 case 'picname':
                     //Log::info('start_pic_auto_ban');
-                    if(UserMeta::where('user_id',$uid)->where('pic_original_name','like','%'.$content.'%')->first() != null) { 
+                    if(UserMeta::where('user_id', $uid)->where('pic_original_name','like','%'.$content.'%')->first() != null) { 
                         $violation = true;
                         $caused_by = 'picname';
                     }
 
                     //有一筆違規就可以封鎖了
-                    if(MemberPic::where('member_id',$uid)->where('original_name','like','%'.$content.'%')->first() != null) {
+                    if(MemberPic::where('member_id', $uid)->where('original_name','like','%'.$content.'%')->first() != null) {
                         $violation = true;
                         $caused_by = 'picname';
                     }
