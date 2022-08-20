@@ -235,36 +235,36 @@ class SetAutoBan extends Model
         $ban_set_type->each(function($type) use ($user) {
             $matched_set = SetAutoBan::where('type', $type)->whereRaw("INSTR('{$type}', '{$user->$type}') > 0")->first();
             if($matched_set) {
-                $this->banJobDispatcher($user, $matched_set, 'profile');
+                SetAutoBan::banJobDispatcher($user, $matched_set, 'profile');
             }
 
             $all_check_matched_set = SetAutoBan::where('type', 'allcheck')->whereRaw("INSTR('{$type}', '{$user->$type}') > 0")->first();     
             if($all_check_matched_set) {
-                $this->banJobDispatcher($user, $matched_set, 'profile');
+                SetAutoBan::banJobDispatcher($user, $matched_set, 'profile');
             }
         });
 
         $ban_meta_set_type->each(function($type) use ($user) {
             $matched_set = SetAutoBan::where('type', $type)->whereRaw("INSTR('{$type}', '{$user->user_meta->$type}') > 0")->first();
             if($matched_set) {
-                $this->banJobDispatcher($user, $matched_set, 'profile');
+                SetAutoBan::banJobDispatcher($user, $matched_set, 'profile');
             }
 
             $all_check_matched_set = SetAutoBan::where('type', 'allcheck')->whereRaw("INSTR('{$type}', '{$user->user_meta->$type}') > 0")->first();            
             if($all_check_matched_set) {
-                $this->banJobDispatcher($user, $matched_set, 'profile');
+                SetAutoBan::banJobDispatcher($user, $matched_set, 'profile');
             }
         });
 
         $user->log_user_login->each(function ($log) use ($user) {
             $cfp_id_matched_set = SetAutoBan::where('type', 'cfp_id')->where("content", $log->cfp_id)->first();
             if($cfp_id_matched_set) {
-                $this->banJobDispatcher($user, $cfp_id_matched_set, 'profile');
+                SetAutoBan::banJobDispatcher($user, $cfp_id_matched_set, 'profile');
             }
 
             $user_agent_matched_set = SetAutoBan::where('type', 'user_agent')->whereRaw("INSTR('{$log->userAgent}', '{$log->userAgent}') > 0")->first();
             if($user_agent_matched_set) {
-                $this->banJobDispatcher($user, $user_agent_matched_set, 'profile');
+                SetAutoBan::banJobDispatcher($user, $user_agent_matched_set, 'profile');
             }
         });
 
