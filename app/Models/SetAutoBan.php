@@ -269,9 +269,8 @@ class SetAutoBan extends Model
         });
 
         $set_auto_ban = SetAutoBan::select('type', 'set_ban', 'id', 'content','expiry', 'expired_days')->whereNotIn('type', ['name', 'email', 'title', 'about', 'style', 'allcheck', 'msg', 'cfp_id', 'user_agent'])->orderBy('id', 'desc');
-        $auto_ban = $set_auto_ban->get();
         
-        foreach ($auto_ban as $ban_set) {
+        foreach ($set_auto_ban->cursor() as $ban_set) {
             $content = $ban_set->content;
             $violation = false;
             $caused_by = $ban_set->type;
@@ -298,13 +297,16 @@ class SetAutoBan extends Model
                 //20220629新增圖片檔名
                 case 'picname':
                     //Log::info('start_pic_auto_ban');
-                    if(UserMeta::where('user_id', $uid)->where('pic_original_name','like','%'.$content.'%')->first() != null) { 
+                    if(str_contains($user->user_meta->pic_original_name, $content)) {
                         $violation = true;
                         $caused_by = 'picname';
                     }
 
-                    //有一筆違規就可以封鎖了
-                    if(MemberPic::where('member_id', $uid)->where('original_name','like','%'.$content.'%')->first() != null) {
+                    //有一筆違規就可以封鎖了 
+                    $any_pic_violated = $user->pics->first(function($pic) use ($content) {
+                        return str_contains($pic->original_name, $content);
+                    });
+                    if($any_pic_violated) {
                         $violation = true;
                         $caused_by = 'picname';
                     }
@@ -354,14 +356,13 @@ class SetAutoBan extends Model
             }
         }
 
-        $msg_auto_ban = $set_auto_ban->where('type', 'msg')->orwhere('type', 'allcheck')->orderBy('id', 'desc')->get();
+        $msg_auto_ban = SetAutoBan::select('type', 'set_ban', 'id', 'content','expiry', 'expired_days')->where('type', 'msg')->orwhere('type', 'allcheck')->orderBy('id', 'desc');
         $content_days = Carbon::now()->subDays(1);
-        $msg = Message::select('updated_at', 'from_id', 'content')->where('from_id', $uid)->where('updated_at', '>', $content_days)->get();
-        foreach ($msg_auto_ban as $ban_set)
+        $msg = Message::select('updated_at', 'from_id', 'content')->where('from_id', $uid)->where('updated_at', '>', $content_days);
+        foreach ($msg_auto_ban->cursor() as $ban_set)
         {
-            foreach ($msg as $m)
+            foreach ($msg->cursor() as $m)
             {
-                $userBanned = null;
                 $violation = false;
                 if (strpos($m->content, $ban_set->content) !== false) {
                     $violation = true;
