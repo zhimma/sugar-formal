@@ -273,9 +273,9 @@ class SetAutoBan extends Model
             }
         });
 
-        $set_auto_ban = SetAutoBan::select('type', 'set_ban', 'id', 'content','expiry', 'expired_days')->whereNotIn('type', ['name', 'email', 'title', 'about', 'style', 'allcheck', 'msg', 'cfp_id', 'user_agent'])->orderBy('id', 'desc');
+        $set_auto_ban = SetAutoBan::select('type', 'set_ban', 'id', 'content','expiry', 'expired_days')->whereNotIn('type', ['name', 'email', 'title', 'about', 'style', 'allcheck', 'msg', 'cfp_id', 'user_agent'])->orderBy('id', 'desc')->get();
         
-        foreach ($set_auto_ban->cursor() as $ban_set) {
+        foreach ($set_auto_ban as $ban_set) {
             $content = $ban_set->content;
             $violation = false;
             $caused_by = $ban_set->type;
@@ -361,13 +361,11 @@ class SetAutoBan extends Model
             }
         }
 
-        $msg_auto_ban = SetAutoBan::select('type', 'set_ban', 'id', 'content','expiry', 'expired_days')->where('type', 'msg')->orwhere('type', 'allcheck')->orderBy('id', 'desc');
+        $msg_auto_ban = SetAutoBan::select('type', 'set_ban', 'id', 'content','expiry', 'expired_days')->where('type', 'msg')->orwhere('type', 'allcheck')->orderBy('id', 'desc')->get();
         $content_days = Carbon::now()->subDays(1);
-        $msg = Message::select('updated_at', 'from_id', 'content')->where('from_id', $uid)->where('updated_at', '>', $content_days);
-        foreach ($msg_auto_ban->cursor() as $ban_set)
-        {
-            foreach ($msg->cursor() as $m)
-            {
+        $msg = Message::select('updated_at', 'from_id', 'content')->where('from_id', $uid)->where('updated_at', '>', $content_days)->get();
+        foreach ($msg_auto_ban as $ban_set) {
+            foreach ($msg as $m) {
                 $violation = false;
                 if (strpos($m->content, $ban_set->content) !== false) {
                     $violation = true;
