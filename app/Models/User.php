@@ -154,7 +154,7 @@ class User extends Authenticatable implements JWTSubject
 
     public function pics()
     {
-        return $this->pic();
+        return $this->hasMany(MemberPic::class, 'member_id', 'id');
     }
     
     //免費VIP照片管理log
