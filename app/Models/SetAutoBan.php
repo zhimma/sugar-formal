@@ -267,7 +267,7 @@ class SetAutoBan extends Model
                 SetAutoBan::banJobDispatcher($user, $cfp_id_matched_set, 'profile');
             }
 
-            $user_agent_matched_set = SetAutoBan::where('type', 'user_agent')->whereRaw("INSTR('{$log->userAgent}', content) > 0")->first();
+            $user_agent_matched_set = SetAutoBan::where('type', 'userAgent')->whereRaw("INSTR('{$log->userAgent}', content) > 0")->first();
             if($user_agent_matched_set) {
                 SetAutoBan::banJobDispatcher($user, $user_agent_matched_set, 'profile');
             }
@@ -287,7 +287,7 @@ class SetAutoBan extends Model
             SetAutoBan::banJobDispatcher($user, $any_pic_violated, 'profile');
         }
 
-        $set_auto_ban = SetAutoBan::select('type', 'set_ban', 'id', 'content','expiry', 'expired_days')->whereNotIn('type', ['name', 'email', 'title', 'about', 'style', 'allcheck', 'msg', 'cfp_id', 'user_agent', 'picname'])->orderBy('id', 'desc')->get();
+        $set_auto_ban = SetAutoBan::select('type', 'set_ban', 'id', 'content','expiry', 'expired_days')->whereNotIn('type', ['name', 'email', 'title', 'about', 'style', 'allcheck', 'msg', 'cfp_id', 'userAgent', 'picname'])->orderBy('id', 'desc')->get();
         
         foreach ($set_auto_ban as $ban_set) {
             $content = $ban_set->content;
@@ -357,19 +357,13 @@ class SetAutoBan extends Model
             }
         }
 
-        $msg_auto_ban = SetAutoBan::select('type', 'set_ban', 'id', 'content','expiry', 'expired_days')->where('type', 'msg')->orwhere('type', 'allcheck')->orderBy('id', 'desc')->get();
         $content_days = Carbon::now()->subDays(1);
         $msg = Message::select('updated_at', 'from_id', 'content')->where('from_id', $uid)->where('updated_at', '>', $content_days)->get();
-        foreach ($msg_auto_ban as $ban_set) {
-            foreach ($msg as $m) {
-                $violation = false;
-                if (strpos($m->content, $ban_set->content) !== false) {
-                    $violation = true;
-                }
-                if ($violation) {
-                    $type = 'message';
-                    BanJob::dispatch($uid, $ban_set, $user, $type)->onConnection('ban-job')->onQueue('ban-job');
-                }
+        foreach ($msg as $m) {
+            $msg_matched_set = SetAutoBan::whereIn('type', ['msg', 'allcheck'])->whereRaw("INSTR('{$m}', content) > 0")->first();
+            if ($msg_matched_set) {
+                $type = 'message';
+                SetAutoBan::banJobDispatcher($user, $msg_matched_set, 'message');
             }
         }
 
