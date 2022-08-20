@@ -201,6 +201,14 @@ class SetAutoBan extends Model
         }
     }
 
+    public static function banJobDispatcher($user, $matched_set, $data_type)
+    {
+        logger("User $user->id is banned by $matched_set->type");
+        BanJob::dispatch($user->id, $matched_set, $user, $data_type)->onConnection('ban-job')->onQueue('ban-job');
+
+        return 0;
+    }
+
     public static function logoutWarned($uid, $probing = false)
     {
         Log::info('start_LogoutAutoBan_logoutWarned');
@@ -221,57 +229,53 @@ class SetAutoBan extends Model
         //執行時間預設是30秒改為無上限
         set_time_limit(-1);
 
-        $ban_set_type = ['name', 'email', 'title'];
-        $ban_meta_set_type = ['about', 'style'];
+        $ban_set_type = collect(['name', 'email', 'title']);
+        $ban_meta_set_type = collect(['about', 'style']);
 
-        $set_auto_ban = SetAutoBan::select('type', 'set_ban', 'id', 'content','expiry', 'expired_days')->orderBy('id', 'desc');
+        $ban_set_type->each(function($type) use ($user) {
+            $matched_set = SetAutoBan::where('type', $type)->whereRaw("INSTR('{$type}', {$user->$type}) > 0")->first();
+            if($matched_set) {
+                $this->banJobDispatcher($user, $matched_set, 'profile');
+            }
+
+            $all_check_matched_set = SetAutoBan::where('type', 'allcheck')->whereRaw("INSTR('{$type}', {$user->$type}) > 0")->first();     
+            if($all_check_matched_set) {
+                $this->banJobDispatcher($user, $matched_set, 'profile');
+            }
+        });
+
+        $ban_meta_set_type->each(function($type) use ($user) {
+            $matched_set = SetAutoBan::where('type', $type)->whereRaw("INSTR('{$type}', {$user->user_meta->$type}) > 0")->first();
+            if($matched_set) {
+                $this->banJobDispatcher($user, $matched_set, 'profile');
+            }
+
+            $all_check_matched_set = SetAutoBan::where('type', 'allcheck')->whereRaw("INSTR('{$type}', {$user->user_meta->$type}) > 0")->first();            
+            if($all_check_matched_set) {
+                $this->banJobDispatcher($user, $matched_set, 'profile');
+            }
+        });
+
+        $user->log_user_login->each(function ($log) use ($user) {
+            $cfp_id_matched_set = SetAutoBan::where('type', 'cfp_id')->where("content", $log->cfp_id)->first();
+            if($cfp_id_matched_set) {
+                $this->banJobDispatcher($user, $cfp_id_matched_set, 'profile');
+            }
+
+            $user_agent_matched_set = SetAutoBan::where('type', 'user_agent')->whereRaw("INSTR('{$log->userAgent}', {$log->userAgent}) > 0")->first();
+            if($user_agent_matched_set) {
+                $this->banJobDispatcher($user, $user_agent_matched_set, 'profile');
+            }
+        });
+
+        $set_auto_ban = SetAutoBan::select('type', 'set_ban', 'id', 'content','expiry', 'expired_days')->whereNotIn('type', ['name', 'email', 'title', 'about', 'style', 'allcheck', 'msg', 'cfp_id', 'user_agent'])->orderBy('id', 'desc');
         $auto_ban = $set_auto_ban->get();
+        
         foreach ($auto_ban as $ban_set) {
             $content = $ban_set->content;
             $violation = false;
+            $caused_by = $ban_set->type;
             switch ($ban_set->type) {
-                case 'name':
-                case 'email':
-                case 'title':                               
-                    $ban_set_type = $ban_set->type;
-                    if (str_contains($user->$ban_set_type, $content)) {
-                        $violation = true;
-                        $caused_by = $ban_set_type;
-                    }
-                    break;
-                case 'about':
-                case 'style':                               
-                    $ban_set_type = $ban_set->type;
-                    if (str_contains($user->user_meta->$ban_set_type, $content)) {
-                        $violation = true;
-                        $caused_by = $ban_set_type;
-                    }
-                    break;
-                case 'allcheck':
-                    //全檢查判斷user與user_meta的內容 若有一個違規 就設定true
-                    $ban_set_type = ['name', 'email', 'title'];
-                    collect($ban_set_type)->each(function ($type) use ($user, $content, &$violation, &$caused_by) {
-                        if (str_contains($user->$type, $content)) {
-                            $violation = true;
-                            $caused_by = $type;
-                        }
-                    });
-                    $ban_meta_set_type = ['about', 'style'];
-                    collect($ban_meta_set_type)->each(function ($type) use ($user, $content, &$violation, &$caused_by) {
-                        if (str_contains($user->user_meta->$type, $content)) {
-                            $violation = true;
-                            $caused_by = $type;
-                        }
-                    });
-                    break;
-                case 'cfp_id':
-                    $user->log_user_login->each(function ($log) use ($content, &$violation, &$caused_by) {
-                        if ($log->cfp_id == $content) {
-                            $violation = true;
-                            $caused_by = 'cfp_id';
-                        }
-                    });
-                    break;
                 case 'ip':
 					if($ban_set->expiry=='0000-00-00 00:00:00') {
 						$ban_set->expiry = \Carbon\Carbon::now()->addMonths(1)->format('Y-m-d H:i:s');
@@ -290,12 +294,6 @@ class SetAutoBan extends Model
 						$ban_set->save();						
 					}
                     break;
-                case 'userAgent':
-                    if($user->log_user_login->first(function ($log) use ($content) { return str_contains($log->userAgent, $content); })) {
-                        $violation = true;
-                        $caused_by = 'userAgent';
-                    }
-                    break;
 
                 //20220629新增圖片檔名
                 case 'picname':
@@ -312,7 +310,6 @@ class SetAutoBan extends Model
                     }
                     break;
                 //20220629新增圖片檔名   
-
                 case 'pic':
                     $ban_encode_entry = ImagesCompareService::getCompareEncodeByPic($content);
 
@@ -356,6 +353,7 @@ class SetAutoBan extends Model
                 BanJob::dispatch($uid, $ban_set, $user, $type)->onConnection('ban-job')->onQueue('ban-job');
             }
         }
+
         $msg_auto_ban = $set_auto_ban->where('type', 'msg')->orwhere('type', 'allcheck')->orderBy('id', 'desc')->get();
         $content_days = Carbon::now()->subDays(1);
         $msg = Message::select('updated_at', 'from_id', 'content')->where('from_id', $uid)->where('updated_at', '>', $content_days)->get();
