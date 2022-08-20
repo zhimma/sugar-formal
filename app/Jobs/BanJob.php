@@ -41,15 +41,25 @@ class BanJob implements ShouldQueue
     {
         Log::info('start_jobs_BanJob');
         Log::Info(Carbon::now());
-        if($this->ban_set->set_ban == 1 && banned_users::where('member_id', $this->uid)->first() == null)
+        $that = $this;
+        $user_had_been_banned_by_ban_set = banned_users::where('member_id', $this->uid)->get()->first(function($item) use ($that) {
+            return $item->reason == "系統原因(".$that->ban_set->id.")";
+        });
+        $user_had_been_implicitly_banned_by_ban_set = BannedUsersImplicitly::where('target', $this->uid)->get()->first(function($item) use ($that) {
+            return $item->reason == "系統原因(".$that->ban_set->id.")";
+        });
+        $user_had_been_warned_by_ban_set = warned_users::where('member_id', $this->uid)->get()->first(function($item) use ($that) {
+            return $item->reason == "系統原因(".$that->ban_set->id.")";
+        });
+        if($this->ban_set->set_ban == 1 && !$user_had_been_banned_by_ban_set)
         {
             //直接封鎖
             $userBanned = new banned_users;
-            if($this->user->engroup==2 ) {
-               if(!($this->user->advance_auth_status??null)) {
+            if($this->user->engroup==2) {
+               if(!($this->user->advance_auth_status ?? null)) {
                    $userBanned->adv_auth=1;
                }
-               else $userBanned=null;
+               else $userBanned = null;
             }                         
             if($userBanned) {
                 $userBanned->member_id = $this->uid;
@@ -59,7 +69,7 @@ class BanJob implements ShouldQueue
                 DB::table('is_banned_log')->insert(['user_id' => $this->uid, 'reason' => "系統原因(".$this->ban_set->id.")"]);
             }
         }
-        elseif($this->ban_set->set_ban == 2 && BannedUsersImplicitly::where('target', $this->uid)->first() == null)
+        elseif($this->ban_set->set_ban == 2 && !$user_had_been_implicitly_banned_by_ban_set)
         {
             //隱性封鎖
             $Line = 0;
@@ -75,7 +85,7 @@ class BanJob implements ShouldQueue
             }
             BannedUsersImplicitly::insert(['fp' => 'Line ' . $Line . ', BannedInUserInfo, ban_set ID: ' . $this->ban_set->id . ', content: ' . $this->ban_set->content, 'user_id' => 0, 'target' => $this->uid]);
         }
-        elseif($this->ban_set->set_ban == 3 && warned_users::where('member_id', $this->uid)->first() == null)
+        elseif($this->ban_set->set_ban == 3 && !$user_had_been_warned_by_ban_set)
         {
             //警示會員
             $userWarned = new warned_users;
@@ -95,5 +105,7 @@ class BanJob implements ShouldQueue
         //sleep(90);
         Log::info('end_jobs_BanJob');
         Log::Info(Carbon::now());
+        
+        return 0;
     }
 }
