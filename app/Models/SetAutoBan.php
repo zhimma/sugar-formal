@@ -203,8 +203,13 @@ class SetAutoBan extends Model
 
     public static function banJobDispatcher($user, $matched_set, $data_type)
     {
-        logger("User $user->id is banned by $matched_set->type");
-        BanJob::dispatch($user->id, $matched_set, $user, $data_type)->onConnection('ban-job')->onQueue('ban-job');
+        if($matched_set) {
+            logger("User $user->id is banned by $matched_set->type");
+            BanJob::dispatch($user->id, $matched_set, $user, $data_type)->onConnection('ban-job')->onQueue('ban-job');
+        }
+        else {
+            logger("Ban job dispatcher called but no matched set, user: $user->id.");
+        }
 
         return 0;
     }
