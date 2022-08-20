@@ -273,7 +273,21 @@ class SetAutoBan extends Model
             }
         });
 
-        $set_auto_ban = SetAutoBan::select('type', 'set_ban', 'id', 'content','expiry', 'expired_days')->whereNotIn('type', ['name', 'email', 'title', 'about', 'style', 'allcheck', 'msg', 'cfp_id', 'user_agent'])->orderBy('id', 'desc')->get();
+        //20220629新增圖片檔名
+        $pic_matched_set = SetAutoBan::where('type', 'picname')->whereRaw("INSTR('{$user->user_meta->pic_original_name}', content) > 0")->first();
+        if($pic_matched_set) {
+            SetAutoBan::banJobDispatcher($user, $pic_matched_set, 'profile');
+        }
+
+        //有一筆違規就可以封鎖了 
+        $any_pic_violated = $user->pics->first(function($pic) {
+            return SetAutoBan::where('type', 'picname')->whereRaw("INSTR('{$pic->original_name}', content) > 0")->first();
+        });
+        if($any_pic_violated) {
+            SetAutoBan::banJobDispatcher($user, $any_pic_violated, 'profile');
+        }
+
+        $set_auto_ban = SetAutoBan::select('type', 'set_ban', 'id', 'content','expiry', 'expired_days')->whereNotIn('type', ['name', 'email', 'title', 'about', 'style', 'allcheck', 'msg', 'cfp_id', 'user_agent', 'picname'])->orderBy('id', 'desc')->get();
         
         foreach ($set_auto_ban as $ban_set) {
             $content = $ban_set->content;
@@ -297,24 +311,6 @@ class SetAutoBan extends Model
                         $ban_set->updated_at = now();
 						$ban_set->save();						
 					}
-                    break;
-
-                //20220629新增圖片檔名
-                case 'picname':
-                    //Log::info('start_pic_auto_ban');
-                    if(str_contains($user->user_meta->pic_original_name, $content)) {
-                        $violation = true;
-                        $caused_by = 'picname';
-                    }
-
-                    //有一筆違規就可以封鎖了 
-                    $any_pic_violated = $user->pics->first(function($pic) use ($content) {
-                        return str_contains($pic->original_name, $content);
-                    });
-                    if($any_pic_violated) {
-                        $violation = true;
-                        $caused_by = 'picname';
-                    }
                     break;
                 //20220629新增圖片檔名   
                 case 'pic':
