@@ -10,6 +10,6 @@ class Sentry
     {
         // The code you would have placed in the closure...
         // logger(print_r($context, true));
-        return 0.01;
+        return 0.05;
     }
 }

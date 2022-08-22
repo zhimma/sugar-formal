@@ -42,12 +42,15 @@ class LogoutAutoBan implements ShouldQueue
      */
     public function handle()
     {
-        Log::info('start_jobs_LogoutAutoBan');
-        Log::info($this->uid);
+        $timeStart = microtime(true);
+        Log::info('start_jobs_LogoutAutoBan, uid: '.$this->uid);
         if($this->uid != 0)
         {
             SetAutoBan::logoutWarned($this->uid);
         }
+        $diff = microtime(true) - $timeStart;
+        Log::info('end_jobs_LogoutAutoBan, uid: ' . $this->uid . ', time elapsed: ' . $diff);
+        return 0;
     }
 
     /**
@@ -57,6 +60,6 @@ class LogoutAutoBan implements ShouldQueue
      */
     public function retryUntil()
     {
-        return now()->addMinutes(30);
+        return now()->addMinutes(120);
     }
 }

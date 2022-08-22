@@ -272,9 +272,20 @@ class UserService
             $option_array['frequency_of_getting_along'] = json_decode($payload['frequency_of_getting_along']);}
         if(isset($payload['relationship_status'])){
             $option_array['relationship_status'] = json_decode($payload['relationship_status']);}
+        if(isset($payload['personality_traits'])){
+            $option_array['personality_traits'] = json_decode($payload['personality_traits']);}
+        if(isset($payload['life_style'])){
+            $option_array['life_style'] = json_decode($payload['life_style']);}
         //Log::Info($option_array);
         UserOptionsXref::update_multiple_option($userId, $option_array);
-
+        //更新人格特質(自行輸入)
+        if(isset($payload['personality_traits_user_defined_tag'])) {
+            UserOptionsXref::update_option_user_defined($userId, 'personality_traits', $payload['personality_traits_user_defined_tag']);
+        }
+        //更新生活型態(自行輸入)
+        if(isset($payload['life_style_user_defined_tag'])) {
+            UserOptionsXref::update_option_user_defined($userId, 'life_style', $payload['life_style_user_defined_tag']);
+        }
         $setBlockKeys = ['blockcity','blockarea'];
         $notLikeBlockKeys = ['blockarea' => 'isHideArea'];
         foreach($setBlockKeys as $setBlockKeys){
@@ -1448,6 +1459,12 @@ class UserService
 
     public function riseByUserEntry($userEntry) 
     {
+        if(!$userEntry) {
+            $this->model = new User;
+            $this->userMeta = new UserMeta;
+            return $this;
+        }
+        
         $this->model = $userEntry;
         // 如果目標會員帳號已關閉，則 userEntry 就會是 null
         $this->userMeta = $userEntry?->meta;

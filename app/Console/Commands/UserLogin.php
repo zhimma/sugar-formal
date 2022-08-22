@@ -43,7 +43,7 @@ class UserLogin extends Command
     {
         set_time_limit(0);
         Log::info('start_command_UserLogin');
-        $users = User::where('last_login', '>',Carbon::now()->subHour())->get();
+        $users = User::where('last_login', '>', Carbon::now()->subMinutes(31))->get();
         foreach($users as $user)
         {
             Log::info('UserLogin:' . $user->id);

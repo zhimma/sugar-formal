@@ -26,7 +26,7 @@
                 </div>
                 <div style="position:relative;" id="video_app_container">
                     <div id="app" style="z-index: 9;">
-                        <video-chat 
+                        <video-verify-user 
                             :allusers="{{ $users }}" 
                             :authUserId="{{ auth()->id() }}" 
                             user_permission = "normal"
@@ -107,7 +107,7 @@
         }
 
         kinesis_init().then(function(result){
-            $('#app video-chat').attr('ice_server_json',JSON.stringify(ice_servers));
+            $('#app video-verify-user').attr('ice_server_json',JSON.stringify(ice_servers));
             new Vue({
                 el:'#app'
             });

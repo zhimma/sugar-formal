@@ -88,7 +88,7 @@ use App\Models\UserOptionsXref;
 class PagesController extends BaseController
 {
     protected $suspiciousRepo = null;
-    public function __construct(UserService $userService, VipLogService $logService, SuspiciousRepository $suspiciousRepo)
+    public function __construct(UserService $userService, VipLogService $logService, SuspiciousRepository $suspiciousRepo,RealAuthPageService $rap_service)
     {
         parent::__construct();
         $this->service = $userService;
@@ -96,6 +96,8 @@ class PagesController extends BaseController
         $this->suspiciousRepo = $suspiciousRepo;
         $this->middleware('throttle:140,1');
         $this->middleware('pseudoThrottle:100,1');
+        $this->rap_service = $rap_service;        
+        \View::share('rap_service',$this->rap_service);
     }
 
     public function error() {
@@ -168,8 +170,9 @@ class PagesController extends BaseController
     }
 
     //新版編輯會員資料
-    public function profileUpdate_ajax(Request $request, ProfileUpdateRequest $profileUpdateRequest,RealAuthPageService $rap_service)
+    public function profileUpdate_ajax(Request $request, ProfileUpdateRequest $profileUpdateRequest)
     {
+        $rap_service = $this->rap_service;
         //Log::Info('profileUpdate_ajax');
         //Log::Info($request->all());
         //Custom validation.
@@ -696,8 +699,9 @@ class PagesController extends BaseController
         }
     }
 
-    public function dashboard(Request $request,RealAuthPageService $rap_service)
+    public function dashboard(Request $request)
     {
+        $rap_service = $this->rap_service;
         $notInRaProcessReturn = $rap_service->returnInWrongRealAuthProcess();
         if($notInRaProcessReturn) return $notInRaProcessReturn; 
         // 驗證 VIP 是否成功付款
@@ -824,6 +828,32 @@ class PagesController extends BaseController
                                     })
                                     ->select('option_frequency_of_getting_along.*', 'user_options_xref.id as xref_id')
                                     ->get();
+        $personality_traits = DB::table('option_personality_traits')
+                                    ->leftJoin('user_options_xref', function($join) use($user)
+                                    {
+                                        $join->on('option_personality_traits.id', '=', 'user_options_xref.option_id')
+                                            ->where('user_options_xref.user_id', '=', $user->id)
+                                            ->where('user_options_xref.option_type', '=', 9)
+                                        ;
+                                    })
+                                    ->select('option_personality_traits.*', 'user_options_xref.id as xref_id')
+                                    ->where('option_personality_traits.is_custom', 0)
+                                    ->orderBy('option_personality_traits.id')
+                                    ->get();
+        $personality_traits_other=UserOptionsXref::get_user_option($user->id, 'personality_traits');
+        $life_style = DB::table('option_life_style')
+                                    ->leftJoin('user_options_xref', function($join) use($user)
+                                    {
+                                        $join->on('option_life_style.id', '=', 'user_options_xref.option_id')
+                                            ->where('user_options_xref.user_id', '=', $user->id)
+                                            ->where('user_options_xref.option_type', '=', 10)
+                                        ;
+                                    })
+                                    ->where('option_life_style.is_custom', 0)
+                                    ->select('option_life_style.*', 'user_options_xref.id as xref_id')
+                                    ->orderBy('option_life_style.id')
+                                    ->get();
+        $life_style_other=UserOptionsXref::get_user_option($user->id, 'life_style');
 
         //使用者選擇的選項
         $user_option_xref = UserOptionsXref::where('user_id', $user->id);
@@ -877,6 +907,10 @@ class PagesController extends BaseController
                 ->with('preferred_date_location', $preferred_date_location)
                 ->with('expected_type', $expected_type)
                 ->with('frequency_of_getting_along', $frequency_of_getting_along)
+                ->with('personality_traits', $personality_traits)
+                ->with('personality_traits_other', $personality_traits_other)
+                ->with('life_style', $life_style)
+                ->with('life_style_other',$life_style_other)
                 ;
         }
     }
@@ -901,8 +935,9 @@ class PagesController extends BaseController
         }
     }
 
-    public function dashboard_img(Request $request,RealAuthPageService $rap_service)
+    public function dashboard_img(Request $request)
     {
+        $rap_service = $this->rap_service;
         $notInRaProcessReturn = $rap_service->returnInWrongRealAuthProcess();
         
         if($notInRaProcessReturn) return $notInRaProcessReturn;
@@ -1759,9 +1794,9 @@ class PagesController extends BaseController
         }
     }
 
-    public function exchangePeriodModify(Request $request,RealAuthPageService $rap_service){
+    public function exchangePeriodModify(Request $request){
         $user = $request->user();
-        $rap_service->riseByUserEntry($user);
+        $rap_service = $this->rap_service->riseByUserEntry($user);
 
         if( Hash::check($request->input('password'),$user->password) ) {
             //檢查是否申請過
@@ -2251,8 +2286,9 @@ class PagesController extends BaseController
             ->with('user', $user)->with('cur', $user);
     }
 
-    public function viewuser2(Request $request, RealAuthPageService $rap_service, $uid = -1) {
+    public function viewuser2(Request $request, $uid = -1) {
         $user = $request->user();
+        $rap_service = $this->rap_service;
         
         $vipDays=0;
         if($user->isVip()) {
@@ -2481,11 +2517,21 @@ class PagesController extends BaseController
 
             //紀錄返回上一頁的url,避免發信後,按返回還在發信頁面
             if(isset($_SERVER['HTTP_REFERER'])){
+                if(!str_contains($_SERVER['HTTP_REFERER'],'dashboard/chat2/chatShow') && !str_contains($_SERVER['HTTP_REFERER'],'dashboard/viewuser') && str_contains($_SERVER['REQUEST_URI'],'dashboard/viewuser')){
+                    session()->put('viewuser_page_enter_root',$_SERVER['HTTP_REFERER']);
+                    session()->forget('chat2_page_enter_root');
+                    session()->forget('goBackPage_chat2');
+                }
                 if(!str_contains($_SERVER['HTTP_REFERER'],'dashboard/chat2/chatShow') && !str_contains($_SERVER['HTTP_REFERER'],'dashboard/viewuser')){
                     session()->put('goBackPage',$_SERVER['HTTP_REFERER']);
-                } else if (strpos($_SERVER['HTTP_REFERER'], 'dashboard/chat2/chatShow')) {
-                    session()->put('goBackPage',$_SERVER['HTTP_REFERER']);
                 }
+            }
+            if(str_contains(session()->get('goBackPage'), 'dashboard/viewuser')){
+                session()->put('goBackPage',  session()->get('viewuser_page_enter_root'));
+            }
+            //會員頁->聊天頁, 避免Loop
+            if(str_contains($_SERVER['HTTP_REFERER'], 'dashboard/viewuser') && str_contains($_SERVER['REQUEST_URI'], 'chatShow')){
+                session()->put('goBackPage',  session()->get('chat2_page_enter_root'));
             }
 
             //判斷自己是否封鎖該用戶
@@ -2580,6 +2626,26 @@ class PagesController extends BaseController
                                         ->select('option_frequency_of_getting_along.*', 'user_options_xref.id as xref_id')
                                         ->whereNotNull('user_options_xref.id')
                                         ->get();
+            $personality_traits = DB::table('option_personality_traits')
+                                        ->leftJoin('user_options_xref', function($join) use($user)
+                                        {
+                                            $join->on('option_personality_traits.id', '=', 'user_options_xref.option_id')
+                                                ->where('user_options_xref.user_id', '=', $user->id)
+                                                ->where('user_options_xref.option_type', '=', 9)
+                                            ;
+                                        })
+                                        ->select('option_personality_traits.*', 'user_options_xref.id as xref_id')
+                                        ->get();
+            $life_style = DB::table('option_life_style')
+                                        ->leftJoin('user_options_xref', function($join) use($user)
+                                        {
+                                            $join->on('option_life_style.id', '=', 'user_options_xref.option_id')
+                                                ->where('user_options_xref.user_id', '=', $user->id)
+                                                ->where('user_options_xref.option_type', '=', 10)
+                                            ;
+                                        })
+                                        ->select('option_life_style.*', 'user_options_xref.id as xref_id')
+                                        ->get();
             //工作/學業
             $user_option_xref = UserOptionsXref::where('user_id', $to->id);
             $user_option = new \stdClass();
@@ -2635,6 +2701,8 @@ class PagesController extends BaseController
                     ->with('preferred_date_location', $preferred_date_location)
                     ->with('expected_type', $expected_type)
                     ->with('frequency_of_getting_along', $frequency_of_getting_along)
+                    ->with('personality_traits', $personality_traits)
+                    ->with('life_style', $life_style)
                     ->with('advance_auth_status', $advance_auth_status)
                     ->with('bool_value', $bool_value)
                     ;
@@ -3056,7 +3124,7 @@ class PagesController extends BaseController
         return json_encode($output); 
     }
     
-    public function getSearchData(Request $request,RealAuthPageService $rap_service){
+    public function getSearchData(Request $request){
         try{
             $searchApi = \App\Models\UserMeta::searchApi(
                 $request
@@ -3066,7 +3134,8 @@ class PagesController extends BaseController
     
             $user = Auth::user();
             $userIsVip = $user->isVip();
-            $dataList = [];                                   
+            $dataList = []; 
+            $rap_service = $this->rap_service;
             foreach ($searchApi['singlePageData'] as $key=>$visitor){
                 $dataList[$key]['rawData'] = $visitor;
                 $dataList[$key]['visitorCheckRecommendedUser'] = \App\Services\UserService::checkRecommendedUser($visitor);
@@ -3756,14 +3825,19 @@ class PagesController extends BaseController
         //紀錄返回上一頁的url
         if(isset($_SERVER['HTTP_REFERER'])){
             // 從收信夾內點入
-            if (strpos($_SERVER['HTTP_REFERER'], 'dashboard/chat2')) {
-                session()->put('goBackPage_chat2', $_SERVER['HTTP_REFERER']);
-            // 從個資點回 且 上層是收信夾 則繼續使用 goBackPage_chat2
-            } else if (strpos($_SERVER['HTTP_REFERER'], 'dashboard/viewuser') && session()->get('goBackPage_chat2') && empty($request->from_viewuser_page)) {
-            } else if (!str_contains($_SERVER['HTTP_REFERER'],'dashboard/chat2/chatShow')) {
-                session()->forget('goBackPage_chat2');
-                session()->put('goBackPage',$_SERVER['HTTP_REFERER']);
+            if (strpos($_SERVER['HTTP_REFERER'], 'dashboard/chat2') && !str_contains($_SERVER['HTTP_REFERER'],'dashboard/chat2/chatShow') ) {
+                session()->put('chat2_page_enter_root', $_SERVER['HTTP_REFERER']);
+                session()->put('goBackPage', $_SERVER['REQUEST_URI']);
             }
+            //會員頁->聊天頁, 避免Loop
+            if(str_contains($_SERVER['HTTP_REFERER'], 'dashboard/viewuser') && str_contains($_SERVER['REQUEST_URI'], 'chatShow')){
+                session()->put('goBackPage_chat2',  session()->get('chat2_page_enter_root'));
+            }
+        }
+
+        if(str_contains(session()->get('chat2_page_enter_root'),'/dashboard/chat2')  && str_contains($_SERVER['REQUEST_URI'], 'viewuser') ){
+            session()->put('viewuser_page_enter_root',session()->get('chat2_page_enter_root'));
+            session()->put('goBackPage', $_SERVER['HTTP_REFERER'] ?? null);
         }
 
         $first_send_messenge = false;
@@ -3931,10 +4005,12 @@ class PagesController extends BaseController
 
         return view('dashboard.search')->with('user', $user);
     }
-    public function search2(Request $request,RealAuthPageService $rap_service)
+    public function search2(Request $request)
     {
         $input = $request->input();
         $search_page_key=session()->get('search_page_key',[]);
+        $rap_service = $this->rap_service;
+        
         if(!isset($input['page'])){
             foreach ($input as $key =>$value){
                 session()->put('search_page_key.'.$key,array_get($input,$key,null));
@@ -4785,13 +4861,13 @@ class PagesController extends BaseController
         }
     }
 
-    public function member_auth(Request $request,RealAuthPageService $rap_service){
+    public function member_auth(Request $request){
 
         $user = $request->user();
         return view('/auth/member_auth')
                 ->with('user',$user)
                 ->with('cur', $user)
-                ->with('rap_service',$rap_service->riseByUserEntry($user))
+                ->with('rap_service',$this->rap_service->riseByUserEntry($user))
                 ;
     }
 
@@ -4844,10 +4920,11 @@ class PagesController extends BaseController
         session()->forget( 'is_edu_mode');     
     }
     
-    public function advance_auth(Request $request,RealAuthPageService $rap_service){
+    public function advance_auth(Request $request){
 
         $this->clear_advance_auth_email_entrance();
         $user = $request->user();
+        $rap_service = $this->rap_service;
         
         $prechase_redirect = $this->advance_auth_prechase_redirect($rap_service->riseByUserEntry($user));
         if($prechase_redirect) return $prechase_redirect;
@@ -4871,9 +4948,9 @@ class PagesController extends BaseController
                 ;
     }
     
-    public function advance_auth_email(Request $request,RealAuthPageService $rap_service){
+    public function advance_auth_email(Request $request){
         $user = $request->user();
-        $rap_service->riseByUserEntry($user);
+        $rap_service = $this->rap_service->riseByUserEntry($user);
         $is_edu_mode = session()->get( 'is_edu_mode' );
         $init_check_msg = $this->advance_auth_email_prechase($request,$rap_service);
         
@@ -4921,8 +4998,10 @@ class PagesController extends BaseController
         echo json_encode($data, JSON_UNESCAPED_UNICODE);
     } 
 
-    public function advance_auth_get_msg($type=null,RealAuthPageService $rap_service=null) {
+    public function advance_auth_get_msg($type=null) {
         $msg = null;
+        $rap_service = $this->rap_service;
+        
         switch($type) {
             case 'have_wrong':
                 $msg='您的進階驗證功能有誤，請加站長 line 與站長聯絡<a href="https://lin.ee/rLqcCns" target="_blank"> <img src="https://scdn.line-apps.com/n/line_add_friends/btn/zh-Hant.png" alt="加入好友" height="26" border="0" style="height: 26px; float: unset;"></a>';
@@ -5078,10 +5157,11 @@ class PagesController extends BaseController
         return implode('_',$check_rs??[]);
     }
     
-    public function advance_auth_process(Request $request,RealAuthPageService $rap_service){
+    public function advance_auth_process(Request $request){
         $LineToken = config('memadvauth.api.line_token');
         $api_check_cfg = config('memadvauth.api.check');
         $user =Auth::user();
+        $rap_service = $this->rap_service;
         
         $prechase_redirect = $this->advance_auth_prechase_redirect($rap_service->riseByUserEntry($user));
         if($prechase_redirect) return $prechase_redirect;        
@@ -5386,10 +5466,11 @@ class PagesController extends BaseController
         if(substr($email,-17)=='.educities.edu.tw' || substr($email,-17)=='@educities.edu.tw') return [ 'not_accept_edu'];
     }
     
-    public function advance_auth_email_prechase(Request $request,RealAuthPageService $rap_service){
+    public function advance_auth_email_prechase(Request $request){
         $user =Auth::user();
         $init_check_msg = null;
         $is_edu_mode = session()->get( 'is_edu_mode' );
+        $rap_service = $this->rap_service;
         
         if($user->isAdvanceAuth() ){
             $init_check_msg = '您已通過進階驗證。' ;
@@ -5412,9 +5493,9 @@ class PagesController extends BaseController
 
     }    
     
-    public function advance_auth_email_process(Request $request,RealAuthPageService $rap_service){
+    public function advance_auth_email_process(Request $request){
         $user =Auth::user();
-        
+        $rap_service = $this->rap_service;
         $prechase_redirect = $this->advance_auth_prechase_redirect($rap_service->riseByUserEntry($user));
         if($prechase_redirect) return $prechase_redirect;        
         
@@ -5457,11 +5538,11 @@ class PagesController extends BaseController
         return back()->with('is_edu_mode', '1');;      
     }  
 
-    public function advance_auth_email_activate(Request $request,RealAuthPageService $rap_service,$token) {
+    public function advance_auth_email_activate(Request $request,$token) {
         $user = User::where('advance_auth_email_token', $token)->first();        
         $banOrWarnCanceledStr = '';
         if ($user) {
-            $rap_service->riseByUserEntry($user);
+            $rap_service = $this->rap_service->riseByUserEntry($user);
             if($user->advance_auth_status) {
                 if(request()->user())
                     return redirect('advance_auth');
@@ -6105,6 +6186,8 @@ class PagesController extends BaseController
 
         $essence_posts_num=EssencePosts::where('essence_posts.verify_status', 2);
         if($user->id!=1049){
+            //排除被站方封鎖的帳號
+            $essence_posts_num->whereRaw('(select count(*) from banned_users where member_id=essence_posts.user_id)=0');
             $essence_posts_num->where('essence_posts.share_with', $user->engroup);
         }
         $essence_posts_num=$essence_posts_num->get()->count();
@@ -6702,7 +6785,7 @@ class PagesController extends BaseController
             $update_ary=[
                 'title'=>$request->get('title'),
                 'contents'=>$request->get('contents'),
-                'verify_status'=>$user->id==1049 ? EssencePosts::STATUS_PASSED : EssencePosts::STATUS_PENDING,
+                'verify_status'=>EssencePosts::STATUS_PENDING,
             ];
 
             if($user->id==1049){
@@ -6759,7 +6842,7 @@ class PagesController extends BaseController
                 }
             }
 
-            return redirect('/dashboard/essence_list')->with('message','修改成功'.($user->id==1049 ? '':'，待站長審核後則會自動發布'));
+            return redirect('/dashboard/essence_post_detail/'.$posts->id)->with('message','修改成功'.($user->id==1049 ? '':'，待站長審核後則會自動發布'));
 
         }else{
             $posts = new EssencePosts();
@@ -6775,7 +6858,7 @@ class PagesController extends BaseController
             $posts->save();
 
             DB::table('essence_posts')->where('id',$posts->id)->update(['article_id'=>$posts->id]);
-            return redirect('/dashboard/essence_list')->with('message','投稿成功'.($user->id==1049 ? '':'，待站長審核後則會自動發布'));
+            return redirect('/dashboard/essence_post_detail/'.$posts->id)->with('message','投稿成功'.($user->id==1049 ? '':'，待站長審核後則會自動發布'));
         }
     }
 
@@ -6793,9 +6876,10 @@ class PagesController extends BaseController
             return  redirect('/dashboard/essence_list');
         }
 
+        session()->forget('goBackPage_essence');
         //紀錄返回上一頁的url
         if(isset($_SERVER['HTTP_REFERER'])){
-            if(!str_contains($_SERVER['HTTP_REFERER'],'essence_postsEdit') && !str_contains($_SERVER['HTTP_REFERER'],'essence_post_detail') && !str_contains($_SERVER['HTTP_REFERER'],'viewuser')){
+            if(!str_contains($_SERVER['HTTP_REFERER'],'essence_posts') && !str_contains($_SERVER['HTTP_REFERER'],'essence_postsEdit') && !str_contains($_SERVER['HTTP_REFERER'],'essence_post_detail') && !str_contains($_SERVER['HTTP_REFERER'],'viewuser')){
                 session()->put('goBackPage_essence',$_SERVER['HTTP_REFERER']);
             }
         }
@@ -7091,7 +7175,7 @@ class PagesController extends BaseController
 
     }
 
-    public function personalPage(Request $request,RealAuthPageService $rap_service) {
+    public function personalPage(Request $request) {
         $admin = AdminService::checkAdmin();
         $user = \View::shared('user');
 
@@ -7099,7 +7183,7 @@ class PagesController extends BaseController
         $picTypeNameStrArr = ['avatar'=>'大頭照','member_pic'=> '生活照']; 
         $user->load('vip');
         
-        $rap_service->riseByUserEntry($user);
+        $rap_service = $this->rap_service->riseByUserEntry($user);
         $users = collect([]);
         if( $rap_service->isSelfAuthApplyNotVideoYet() && $user->isAdvanceAuth()) {           
             $users = DB::table('role_user')->leftJoin('users', 'role_user.user_id', '=', 'users.id')->where('users.id', '<>', Auth::id())->get();                      
@@ -9171,14 +9255,14 @@ class PagesController extends BaseController
         return back();
     }  
     
-    public function forgetRealAuthType(RealAuthPageService $rap_service) 
+    public function forgetRealAuthType() 
     {
-        $rap_service->forgetRealAuthProcess();
+        $this->rap_service->forgetRealAuthProcess();
     }
     
-    public function checkIsInRealAuthProcess(Request $request,RealAuthPageService $rap_service) 
+    public function checkIsInRealAuthProcess(Request $request) 
     {
-        if($rap_service->isInRealAuthProcess())
+        if($this->rap_service->isInRealAuthProcess())
             return 1;
         else return 0;
     }    

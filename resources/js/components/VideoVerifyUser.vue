@@ -3,10 +3,11 @@
     <div class="container">
       <div class="row">
         <div class="col">
-          <div class="btn-group" role="group" style="flex-wrap:wrap;display:inline-block;" v-for="user in allusers">
+          <div class="btn-group" role="group" style="flex-wrap:wrap">
             <button
               type="button"
               class="btn mr-2"
+              v-for="user in allusers"
               :key="user.id"
               :class="generateBtnClass(getUserOnlineStatus(user.id))"
               :style="generateBtnStyle(getUserOnlineStatus(user.id))"
@@ -16,13 +17,6 @@
               <span v-if=getUserOnlineStatus(user.id) class="badge badge-light">上線中</span>
               <span v-else class="badge badge-light">下線</span>
             </button>
-            <div style="text-align:center;">
-                <a             
-                target="_blank"
-                :href="generateBtnUserAdvInfoUrl(user.id)"  
-                :style="generateBtnStyle(getUserOnlineStatus(user.id))"
-                >{{ user.id }} {{ user.name }}</a>
-            </div>
           </div>
         </div>
       </div>
@@ -619,10 +613,6 @@ export default {
         return 'display:none;'
       }
     },
-    
-    generateBtnUserAdvInfoUrl(userid) {
-        return './advInfo/'+userid;
-    },    
 
     //video record
     startRecording() {

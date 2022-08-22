@@ -707,6 +707,30 @@ class RealAuthPageService {
         
     }
     
+    public function isAllowUseVideoChat()
+    {
+        if($this->user()->engroup!=2) return false;
+        
+        if($this->isSelfAuthApplyNotVideoYet()) return true;
+        
+        if($this->isSelfAuthWaitingCheck()) return true;
+        
+        if($this->getApplyByAuthTypeId(1) && !$this->isPassedByAuthTypeId(1)) return true;
+    
+        return false;
+    }
+    
+    public function isUrlNeedEntireSiteVideoChat()
+    {
+        if( request()->ajax()) return false;
+        
+        $url_arr = explode('/',url()->current());
+        $last_url_seg = array_pop($url_arr);
+        $first_url_seg = array_shift($url_arr);        
+    
+        if($last_url_seg!='user_video_chat_verify')  return true;
+    }
+    
     public function getTagShowOnPicLayoutByLoginedUserIsVip($is_vip)
     {
        $layout =''; 

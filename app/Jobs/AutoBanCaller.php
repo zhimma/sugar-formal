@@ -56,6 +56,6 @@ class AutoBanCaller implements ShouldQueue
             }     
         }
         
-        return;
+        return 0;
     }
 }

@@ -5,6 +5,8 @@ namespace App\Models;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
 use App\Models\OptionOccupation;
+use App\Models\OptionPersonalityTraits;
+use App\Models\OptionLifeStyle;
 use Illuminate\Support\Facades\Log;
 use DB;
 use Carbon\Carbon;
@@ -81,5 +83,54 @@ class UserOptionsXref extends Model
             }
         }
         UserOptionsXref::insert($insert_data);
+    }
+
+    public static function update_option_user_defined($user_id, $type_name, $tag_option_name)
+    {
+        switch ($type_name){
+            case 'personality_traits' :
+                $option_model = new OptionPersonalityTraits();
+                break;
+            case 'life_style' :
+                $option_model = new OptionLifeStyle();
+                break;
+        }
+        foreach (json_decode($tag_option_name) as $option_name){
+            $option_data = $option_model->firstOrNew(['option_name' => $option_name], ['is_custom' => 1]);
+            $option_data->option_name = $option_name;
+            $option_data->is_custom = 1;
+            $option_data->save();
+
+
+            $option_type=OptionType::where('type_name', $type_name)->first();
+            if($option_type){
+                //插入新資料
+                $now_time = Carbon::now();
+                $insert_data= [
+                    'user_id' => $user_id,
+                    'option_type' => $option_type->id,
+                    'option_id' => $option_data->id,
+                    'created_at' => $now_time,
+                    'updated_at' => $now_time
+                ];
+                UserOptionsXref::insert($insert_data);
+            }
+        }
+    }
+
+    public static function get_user_option($user_id, $type_name)
+    {
+        $option_type=OptionType::where('type_name', $type_name)->first();
+        if($option_type){
+            $table='option_'.$type_name;
+            return UserOptionsXref::leftJoin($table, $table.'.id', 'user_options_xref.option_id')
+                ->leftJoin('option_type', 'option_type.id', 'user_options_xref.option_type')
+                ->where('user_options_xref.user_id', $user_id)
+                ->where('user_options_xref.option_type', $option_type->id)
+                ->where($table.'.is_custom', 1)
+                ->get();
+        }else{
+            return null;
+        }
     }
 }
