@@ -160,6 +160,12 @@
                     </td>
                 </tr>
                 <tr>
+                    <th>訊息統計</th>
+                    <td>
+                        <input type="text" name="message_count_by_total" value="{{ request()->get('message_count_by_total') ?? 1 }}">
+                    </td>
+                </tr>
+                <tr>
                     <td colspan="2">
                         <button type="submit" class="btn btn-primary">查詢</button> 或
                         <!-- <button type="submit" class="btn btn-info" name="hidden" value="1">查詢並顯示隱藏的照片</button> -->
@@ -195,6 +201,8 @@
                                         總訊息數: {{ $fromUser->messageCount }}
                                         <br>
                                         新手教學時間: {{ $fromUser->newer_manual_stay_online_time->time }}
+                                        <br>
+                                        訊息統計: {{ $fromUser->messageCountByTotal}} / {{ $fromUser->messageCountByTotalPeople }}
                             </td>
                             <td>
                                 <p class="about-me text-box" title="{{ $fromUser->user_meta->about }}">關於我:
