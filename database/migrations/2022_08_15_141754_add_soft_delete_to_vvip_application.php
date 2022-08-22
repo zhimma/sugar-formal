@@ -12,10 +12,12 @@ class AddSoftDeleteToVvipApplication extends Migration
      * @return void
      */
     public function up()
-    {
-        Schema::table('vvip_application', function (Blueprint $table) {
-            $table->softDeletes();
-        });
+    {   
+        if(!Schema::hasColumn('vvip_application', 'deleted_at')) {
+            Schema::table('vvip_application', function (Blueprint $table) {
+                $table->softDeletes();
+            });
+        }
     }
 
     /**
