@@ -1688,6 +1688,10 @@ class User extends Authenticatable implements JWTSubject
                 $group['IP_set_auto_ban']=SetAutoBan::whereRaw('(content="'.$group['ip'].'" AND expiry >="'. now().'")')->orWhereRaw('(content="'.$group['ip'].'" AND expiry="0000-00-00 00:00:00")')->get()->count();
                 $Ip['Ip_group'][$Ip_key] = $group;
                 $Ip['Ip_group_items'][$Ip_key] = LogUserLogin::where('user_id', $user_id)->where('created_at', 'like', '%' . $value->loginMonth . '%')->where('ip', $group->ip)->orderBy('created_at', 'DESC')->get();
+                $IpUsers = LogUserLogin::where('ip',$group->ip)->distinct('user_id')->groupBy('user_id')->get()->toarray();
+                $IpUsers = array_column($IpUsers,'user_id');
+                $Ip['Ip_online_people'][$Ip_key] = LogUserLogin::where('ip',$group->ip)->distinct('user_id')->count();
+                $Ip['Ip_blocked_people'][$Ip_key] = banned_users::whereIn('member_id',$IpUsers)->get()->count();
             }
             $userLogin_log[$key]['Ip'] = $Ip;
 
@@ -1702,6 +1706,11 @@ class User extends Authenticatable implements JWTSubject
                 $group['CfpID_set_auto_ban']=SetAutoBan::whereRaw('(content="'.$group['cfp_id'].'" AND expiry >="'. now().'")')->orWhereRaw('(content="'.$group['cfp_id'].'" AND expiry="0000-00-00 00:00:00")')->get()->count();
                 $CfpID['CfpID_group'][$CfpID_key] = $group;
                 $CfpID['CfpID_group_items'][$CfpID_key] = LogUserLogin::where('user_id', $user_id)->where('created_at', 'like', '%' . $value->loginMonth . '%')->where('cfp_id', $group->cfp_id)->orderBy('created_at', 'DESC')->get();
+                $CfpIDUsers = LogUserLogin::where('cfp_id',$group->cfp_id)->distinct('user_id')->groupBy('user_id')->get()->toarray();
+                $CfpIDUsers = array_column($CfpIDUsers,'user_id');
+                $CfpID['CfpID_online_people'][$CfpID_key] = count($CfpIDUsers);
+                $CfpID['CfpID_blocked_people'][$CfpID_key] = banned_users::whereIn('member_id',$CfpIDUsers)->get()->count();
+
             }
             $userLogin_log[$key]['CfpID'] = $CfpID;
         }
