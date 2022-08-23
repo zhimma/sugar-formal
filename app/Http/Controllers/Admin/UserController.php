@@ -1635,10 +1635,37 @@ class UserController extends \App\Http\Controllers\BaseController
         $isBanned = banned_users::where('member_id', $user->id)->where('expire_date', null)->orWhere('expire_date', '>', Carbon::now())->where('member_id', $user->id)->orderBy('created_at', 'desc')->paginate(10);
 
         //cfp_id distinct
-        $cfp_id = LogUserLogin::select('cfp_id')->selectRaw('MAX(created_at) AS last_tiime')->orderByDesc('last_tiime')->where('user_id', $user->id)->groupBy('cfp_id')->get();
-
+        $cfp_id = LogUserLogin::select('cfp_id')
+                ->selectRaw('MAX(created_at) AS last_tiime')
+                ->orderByDesc('last_tiime')
+                ->where('user_id', $user->id)
+                ->groupBy('cfp_id')
+                ->get()
+                ->filter(function ($model) {
+                    if ($model->cfp_id) {
+                        $getUseUser = LogUserLogin::where('cfp_id',$model->cfp_id)->distinct('user_id')->groupBy('user_id')->get()->toarray();
+                        $getUseUser = array_column($getUseUser,'user_id');
+                        $model->UseOnlinePeople = count($getUseUser);
+                        $model->UseBlockedPeople = banned_users::whereIn('member_id',$getUseUser)->get()->count();
+                    }
+                    return $model;
+                });
         //ip distinct
-        $ip = LogUserLogin::select('ip')->selectRaw('MAX(created_at) AS last_tiime')->orderByDesc('last_tiime')->where('user_id', $user->id)->groupBy('ip')->get();
+        $ip = LogUserLogin::select('ip')
+            ->selectRaw('MAX(created_at) AS last_tiime')
+            ->orderByDesc('last_tiime')
+            ->where('user_id', $user->id)
+            ->groupBy('ip')
+            ->get()
+            ->filter(function ($model) {
+                if ($model->ip) {
+                    $getUseUser = LogUserLogin::where('ip',$model->ip)->distinct('user_id')->groupBy('user_id')->get()->toarray();
+                    $getUseUser = array_column($getUseUser,'user_id');
+                    $model->UseOnlinePeople = count($getUseUser);
+                    $model->UseBlockedPeople = banned_users::whereIn('member_id',$getUseUser)->get()->count();
+                }
+                return $model;
+            });
 
         //userAgent distinct
         $userAgent = LogUserLogin::select('userAgent')->selectRaw('MAX(created_at) AS last_tiime')->orderByDesc('last_tiime')->where('user_id', $user->id)->groupBy('userAgent')->get();
