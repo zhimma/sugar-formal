@@ -2055,6 +2055,16 @@ class User extends Authenticatable implements JWTSubject
         return 0;
     }
 
+    public function VvipInfo()
+    {
+        return $this->hasOne(VvipInfo::class, 'user_id', 'id');
+    }    
+
+    public function VvipExtraCares()
+    {
+        return $this->hasManyThrough(VvipExtraCare::class, VvipOptionXref::class, 'user_id', 'id', 'id', 'option_id');
+    }
+
 //    public function VVIPisInvite()
 //    {
 //        $VVIPisInvite = VvipInvite::where('user_id', $this->id)->where('deadline','>',Carbon::now())->first();

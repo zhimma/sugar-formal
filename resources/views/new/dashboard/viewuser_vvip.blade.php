@@ -186,9 +186,9 @@
                         <span style="font-size: 18px;">Daddy溫情照顧</span>
                         <font>Warm care</font>
                     </div>
-                    @if(isset($vvipInfo) && !empty(json_decode($vvipInfo->extra_care, true)))
+                    @if(isset($vvipInfo) && !empty($user->VvipExtraCares))
                     <div class="nn_zeng">
-                            @foreach( json_decode($vvipInfo->extra_care, true) as $key => $value)
+                            @foreach( $user->VvipExtraCares as $key => $value)
                                 <div class="nzhaog @if($key != 0)matop13 @endif">
                                     <div class="zhg_but"><span>{{$value[0]}}</span></div>
                                     @if(!empty($value[1]))
