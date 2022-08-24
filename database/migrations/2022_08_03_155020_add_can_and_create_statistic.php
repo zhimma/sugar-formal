@@ -13,9 +13,11 @@ class AddCanAndCreateStatistic extends Migration
      */
     public function up()
     {
-        Schema::table('message', function (Blueprint $table) {
-            DB::statement('ALTER TABLE `message` ADD `is_can` BOOLEAN DEFAULT 0 AFTER `content`, ALGORITHM = INPLACE, LOCK=NONE;');
-        });
+        if(!Schema::hasColumn('message', 'is_can')) {
+            Schema::table('message', function (Blueprint $table) {
+                DB::statement('ALTER TABLE `message` ADD `is_can` BOOLEAN DEFAULT 0 AFTER `content`, ALGORITHM = INPLACE, LOCK=NONE;');
+            });
+        }
         Schema::create('log_system_day_statistic', function (Blueprint $table) {
             $table->id();
             $table->timestamp('date')->nullable();
