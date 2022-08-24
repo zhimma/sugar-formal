@@ -49,8 +49,8 @@
                 </td>
                 <td>@switch($row->anonymous_content_status)
                         @case(0)
-                            <button type="button" class="btn btn-primary" onclick="checkAction({{$row->evaluation_id}},1)" >通過</button>
-                            <button type="button" class="btn btn-danger reject_button" onclick="checkAction({{$row->evaluation_id}},2)" >不通過</button>
+                            <button type="button" class="btn btn-primary" onclick="checkAction({{$row->evaluation_id}},1,{{ $row->id }})" >通過</button>
+                            <button type="button" class="btn btn-danger reject_button" onclick="checkAction({{$row->evaluation_id}},2,{{ $row->id }})" >不通過</button>
                             @if ($row->content_violation_processing != 'return')
                             <form method="POST" action="{{ route('evaluationModifyContent', $row->evaluation_id) }}" style="margin:0px;display:inline;">
                                 {!! csrf_field() !!}
@@ -139,7 +139,7 @@
 <link rel="stylesheet" type="text/css" href="/new/css/swiper2.min.css"/>
 <script type="text/javascript" src="/new/js/swiper.min.js"></script>
 <script>
-    function checkAction(evaluation_id, status){
+    function checkAction(evaluation_id, status, user_id){
         $.ajax({
             type: 'POST',
             url: "/admin/checkAnonymousContent?{{csrf_token()}}={{now()->timestamp}}",
@@ -150,8 +150,9 @@
             },
             dataType:"json",
             success: function(res){
-                location.reload();
-        }});
+                //location.reload();
+                window.open('/admin/users/message/to/'+user_id, '_blank');
+            }});
     }
 
     function showTextArea(evaluation_id){
