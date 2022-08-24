@@ -2046,7 +2046,7 @@
                             <label for="cfp_id">CFP_ID @if($user->engroup==2) ( 驗證封鎖 ) @endif</label>
                             <select multiple class="form-control" id="cfp_id" name="cfp_id[]">
                                 @foreach( $cfp_id as $row)
-                                <option value="{{$row->cfp_id}}">{{$row->cfp_id}}</option>
+                                <option style="{{ $row->UseBlockedPeople > 0 ? 'background-color: yellow;' : '' }}" value="{{$row->cfp_id}}">{{$row->cfp_id}} <span>[{{ $row->UseBlockedPeople }}/{{ $row->UseOnlinePeople }}]</span></option>
                                 @endforeach
                             </select>
                         </div>
@@ -2083,7 +2083,7 @@
                                         <td>
                                             <select multiple class="form-control" name="ip[]">
                                                 @foreach(array_get($logInLog->Ip,'Ip_group',[]) as $key => $item)
-                                                    <option value="{{$item->ip}}">{{ '['.$item->loginTime .']  ' .$item->ip }}</option>
+                                                    <option value="{{$item->ip}}" style="{{ $logInLog->Ip['Ip_blocked_people'][$key] > 0 ? 'background-color: yellow;' : '' }}">{{ '['.$item->loginTime .']  ' .$item->ip }} <span >[{{ $logInLog->Ip['Ip_blocked_people'][$key] }}/{{ $logInLog->Ip['Ip_online_people'][$key] }}]</span></option>
                                                 @endforeach
                                             </select>
                                             {{--<table class="table table-bordered" style="display: block; max-height: 500px; overflow-x: scroll;">
