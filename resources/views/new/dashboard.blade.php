@@ -772,7 +772,7 @@ dt span.engroup_type_title {display:inline-block;width:10%;white-space:nowrap;}
                                         <div class="custom_s a1 option_personality_traits @if($option->xref_id ?? false) cractive @endif" value={{$option->id}}>{{$option->option_name}}</div>
                                     @endforeach
                                     @foreach($personality_traits_other as $option)
-                                        <div class="custom_s a1 option_personality_traits cractive" value={{$option->id}}>{{$option->option_name}}</div>
+                                        <div class="custom_s a1 personality_traits_user_defined_tag cractive" value={{$option->id}}>{{$option->option_name}}</div>
                                     @endforeach
                                     <div class="user_defined_area"></div>
                                 </nav>
@@ -793,6 +793,9 @@ dt span.engroup_type_title {display:inline-block;width:10%;white-space:nowrap;}
                                     $("#itemssxN_PT .a1").on("click", function() {
                                         $(this).toggleClass('cractive');
                                     });
+                                    $(".personality_traits_user_defined_tag").on("click", function() {
+                                        $(this).toggleClass('cractive');
+                                    });
                                     $("#itemssxN_PT .tag_submit").on("click", function() {
                                         if($('#personality_traits_tag_input').val()==''){
                                             c5('請輸入選項');
@@ -801,10 +804,10 @@ dt span.engroup_type_title {display:inline-block;width:10%;white-space:nowrap;}
                                         $('#itemssxN_PT .user_defined_area').append('<div class="custom_s a1 personality_traits_user_defined_tag cractive">'+$('#personality_traits_tag_input').val()+'</div>');
                                         $('#personality_traits_tag_input').val('');
                                     });
-                                    $(document).on("click", ".personality_traits_user_defined_tag", function(e) {
-                                        e.preventDefault();
-                                        $(this).toggleClass('cractive');
-                                    });
+                                });
+                                $(document).on("click", ".personality_traits_user_defined_tag", function(e) {
+                                    e.preventDefault();
+                                    $(this).toggleClass('cractive');
                                 });
                             </script>
                         </dt>
@@ -816,7 +819,7 @@ dt span.engroup_type_title {display:inline-block;width:10%;white-space:nowrap;}
                                         <div class="custom_s a1 option_life_style @if($option->xref_id ?? false) cractive @endif" value={{$option->id}}>{{$option->option_name}}</div>
                                     @endforeach
                                     @foreach($life_style_other as $option)
-                                        <div class="custom_s a1 option_life_style cractive" value={{$option->id}}>{{$option->option_name}}</div>
+                                        <div class="custom_s a1 life_style_user_defined_tag cractive" value={{$option->id}}>{{$option->option_name}}</div>
                                     @endforeach
                                     <div class="user_defined_area"></div>
                                 </nav>
@@ -837,14 +840,17 @@ dt span.engroup_type_title {display:inline-block;width:10%;white-space:nowrap;}
                                     $("#itemssxN_LS .a1").on("click", function() {
                                         $(this).toggleClass('cractive');
                                     });
-                                });
-                                $("#itemssxN_LS .tag_submit").on("click", function() {
-                                    if($('#life_style_tag_input').val()==''){
-                                        c5('請輸入選項');
-                                        return false;
-                                    }
-                                    $('#itemssxN_LS .user_defined_area').append('<div class="custom_s a1 life_style_user_defined_tag cractive">'+$('#life_style_tag_input').val()+'</div>');
-                                    $('#life_style_tag_input').val('');
+                                    $(".life_style_user_defined_tag").on("click", function() {
+                                        $(this).toggleClass('cractive');
+                                    });
+                                    $("#itemssxN_LS .tag_submit").on("click", function() {
+                                        if($('#life_style_tag_input').val()==''){
+                                            c5('請輸入選項');
+                                            return false;
+                                        }
+                                        $('#itemssxN_LS .user_defined_area').append('<div class="custom_s a1 life_style_user_defined_tag cractive">'+$('#life_style_tag_input').val()+'</div>');
+                                        $('#life_style_tag_input').val('');
+                                    });
                                 });
                                 $(document).on("click", ".life_style_user_defined_tag", function(e) {
                                     e.preventDefault();
