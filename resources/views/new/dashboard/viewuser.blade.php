@@ -1940,13 +1940,13 @@
                         <div class="new_pjckbox">
                             <div class="anonymous_illustrate">
                                 ● 請上傳可資證明的圖檔，須為高清檔案<br>
-                                ● 若為對話紀錄，須從頭到尾完整截圖，上一句跟著下一句，不可以漏<br>
+                                ● 若為對話紀錄，須從頭到尾<a style="color:red;">完整截圖，上一句跟著下一句，不可以漏</a><br>
                                 ● 若對話紀錄過多(超過30頁)，那可以只截相關部分，一樣完整截圖，上一句跟著下一句，不可以漏<br>
                             </div>
                             <div class="self_illustrate">
                                 評價請以敘述<a class="text-danger" style="color: red;">確實發生的事實</a>為主，不要有主觀判斷，盡量附上截圖佐證。若被評價者來申訴，您又沒有附上截圖，評價在驗證屬實前會被隱藏或撤銷。
                             </div>
-                            <span><input type="checkbox" name="agree"><label>我同意上述說明</label></span>
+                            <span><input type="checkbox" name="agree"><label style="color:black;">我同意上述說明</label></span>
                         </div>
                         <div class="n_bbutton" style="margin-top:0px;">
                             <a class="n_bllbut" onclick="form_submit()">送出</a>
@@ -2090,13 +2090,16 @@
             <div class="new_tkfont" style="text-align:left">
                 ● 匿名評價將不會出現你的名字<br>
                 ● 站方有權決定是否代為發布評價<br>
-                ● 請選擇若評價內容不符合站方審核標準的處理方式
+                <span>
+                    <input type="checkbox" name="message_processing" value="modify_directly">若評價不符合審查標準，我願意接受站方修改。
+                </span>
+                <br><span class="evaluation_check_alert_tip" style="color:red;"></span>
             </div>
-            <select name="message_processing" class="select_xx01">
+         {{--   <select name="message_processing" class="select_xx01">
                 <option value="">請選擇</option>
                 <option value="return">退件重寫(需重新評價)</option>
                 <option value="modify_directly">站方直接修改</option>
-            </select>
+            </select>--}}
             <div class="n_bbutton" style="margin-top:10px;">
                 <div style="display: inline-flex;">
                 <div class="n_right evaluation_check" style="border-style: none; background: #8a9ff0; color:#ffffff; float: unset; margin-left: 0px; margin-right: 20px;">同意</div>
@@ -2797,8 +2800,13 @@
 
         // 匿名評價->訊息處理選擇確認
         $('.evaluation_check').click(function() {
-            select_option = $('select[name=message_processing] option').filter(':selected').val();
-            if (select_option) {
+            if($('[name=message_processing]').prop("checked")==true){
+                $('[name=message_processing]').val('modify_directly');
+            }else{
+                $('[name=message_processing]').val('return');
+            }
+            select_option = $('[name=message_processing]').val();
+            if (select_option=='modify_directly') {
                 $('input[name=content_processing_method]').val(select_option);
                 $('#evaluation_description').hide();
                 $('#tab_evaluation').show();
@@ -2806,8 +2814,9 @@
                 $('.self_illustrate').hide();
                 $(".announce_bg").show();
                 $('body').css("overflow", "hidden");
-            } else {
-                alert('請選擇處理方式');
+            }
+            else {
+                $('.evaluation_check_alert_tip').text('請勾選同意上述說明');
             }
         });
     @endif
