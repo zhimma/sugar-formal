@@ -14,7 +14,7 @@ class AddCanAndCreateStatistic extends Migration
     public function up()
     {
         Schema::table('message', function (Blueprint $table) {
-            $table->boolean('is_can')->default(0)->after('content');
+            DB::statement('ALTER TABLE `message` ADD `is_can` BOOLEAN DEFAULT 0 AFTER `content`, ALGORITHM = INPLACE, LOCK=NONE;');
         });
         Schema::create('log_system_day_statistic', function (Blueprint $table) {
             $table->id();
