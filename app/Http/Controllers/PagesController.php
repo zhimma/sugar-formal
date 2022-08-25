@@ -87,6 +87,8 @@ use \FileUploader;
 use App\Models\UserRecord;
 use App\Models\OptionOccupation;
 use App\Models\UserOptionsXref;
+use App\Models\VvipOptionXref;
+use App\Models\VvipSubOptionXref;
 
 class PagesController extends BaseController
 {
@@ -9646,281 +9648,107 @@ class PagesController extends BaseController
     public function view_vvipInfo(Request $request)
     {
         $user = auth()->user();
-        $vvipInfo = VvipInfo::where('user_id', $user->id)->first();
+
+        $point_information = VvipOptionXref::getOptionInfo('point_information', $user);
+        $date_trend = VvipOptionXref::getOptionInfo('date_trend', $user);
+        $background_and_assets = VvipOptionXref::getOptionInfo('background_and_assets', $user);
+        $extra_care = VvipOptionXref::getOptionInfo('extra_care', $user);
+        $assets_image = VvipOptionXref::getOptionInfo('assets_image', $user);
+        $quality_life_image = VvipOptionXref::getOptionInfo('quality_life_image', $user);
+        $expect_date = VvipOptionXref::getOptionInfo('expect_date', $user);
+
+        $high_assets = VvipSubOptionXref::getSubOptionInfo('high_assets', $user);
+        $ceo_title = VvipSubOptionXref::getSubOptionInfo('ceo_title', $user);
+        $professional = VvipSubOptionXref::getSubOptionInfo('professional', $user);
+        $high_net_worth = VvipSubOptionXref::getSubOptionInfo('high_net_worth', $user);
+        $entrepreneur = VvipSubOptionXref::getSubOptionInfo('entrepreneur', $user);
+        $professional_network = VvipSubOptionXref::getSubOptionInfo('professional_network', $user);
+        $life_care = VvipSubOptionXref::getSubOptionInfo('life_care', $user);
+        $special_problem_handling = VvipSubOptionXref::getSubOptionInfo('special_problem_handling', $user);
 
         return view('new.dashboard.vvipInfo')
             ->with('user', $user)
-            ->with('vvipInfo', $vvipInfo);
+
+            ->with('point_information', $point_information)
+            ->with('date_trend', $date_trend)
+            ->with('background_and_assets', $background_and_assets)
+            ->with('extra_care', $extra_care)
+            ->with('assets_image', $assets_image)
+            ->with('quality_life_image', $quality_life_image)
+            ->with('expect_date', $expect_date)
+
+            ->with('high_assets', $high_assets)
+            ->with('ceo_title', $ceo_title)
+            ->with('professional', $professional)
+            ->with('high_net_worth', $high_net_worth)
+            ->with('entrepreneur', $entrepreneur)
+            ->with('professional_network', $professional_network)
+            ->with('life_care', $life_care)
+            ->with('special_problem_handling', $special_problem_handling)
+            ;
     }
 
     public function edit_vvipInfo(Request $request)
     {
+        Log::Info($request);
 
-        //dd($request->input('assets_image'));
         $user = auth()->user();
 
-        //point
-        $point_array = array();
-        foreach ($request->input('point') as $key => $value){
-            if(isset($value['top']) && $value['top'] != '') {
-                //dd($value['bottom']);
-                if(!empty(($value['bottom'])) && $value['bottom'] != '') {
-                    array_push($point_array, array($value['top'], $value['bottom']));
-                }else{
-                    array_push($point_array, array($value['top']));
-                }
-            }
-        }
+        if($request->point_information ?? false)
+        {$option_array['point_information'] = json_decode($request->point_information);}
+        if($request->date_trend ?? false)
+        {$option_array['date_trend'] = json_decode($request->date_trend);}
+        if($request->background_and_assets ?? false)
+        {$option_array['background_and_assets'] = json_decode($request->background_and_assets);}
+        if($request->extra_care ?? false)
+        {$option_array['extra_care'] = json_decode($request->extra_care);}
+        if($request->assets_image ?? false)
+        {$option_array['assets_image'] = json_decode($request->assets_image);}
+        if($request->quality_life_image ?? false)
+        {$option_array['quality_life_image'] = json_decode($request->quality_life_image);}
+        if($request->expect_date ?? false)
+        {$option_array['expect_date'] = json_decode($request->expect_date);}
 
-        //date_trend
-        $date_trend_array = array();
-        foreach($request->input('date_trend') as $value){
-            if(!empty($value) && $value !='' && $value != null) {
-                array_push($date_trend_array, array($value));
-            }
-        }
+        if($request->point_information_other ?? false)
+        {$option_array_other['point_information_other'] = json_decode($request->point_information_other);}
+        if($request->date_trend_other ?? false)
+        {$option_array_other['date_trend_other'] = json_decode($request->date_trend_other);}
+        if($request->background_and_assets_other ?? false)
+        {$option_array_other['background_and_assets_other'] = json_decode($request->background_and_assets_other);}
+        if($request->extra_care_other ?? false)
+        {$option_array_other['extra_care_other'] = json_decode($request->extra_care_other);}
+        if($request->assets_image_other ?? false)
+        {$option_array_other['assets_image_other'] = json_decode($request->assets_image_other);}
+        if($request->quality_life_image_other ?? false)
+        {$option_array_other['quality_life_image_other'] = json_decode($request->quality_life_image_other);}
+        if($request->expect_date_other ?? false)
+        {$option_array_other['expect_date_other'] = json_decode($request->expect_date_other);}
 
-        //assets
-        $assets_array = array();
-        foreach($request->input('assets') as $key => $value){
-            if(!empty($value['top']) && $value['top'] != '' && $value['top'] != null) {
-                if(!empty($value['bottom']) && $value['bottom'] != '' && $value['bottom'] != null) {
-                    if(is_array($value['bottom'])) {
-                        $assets_bottom_array = array();
-                            foreach ($value['bottom'] as $bottom_key => $bottom_value) {
-                                if (!empty($bottom_value['name']) && $bottom_value['name'] != '' && $bottom_value['name'] != null) {
-                                    if (!empty($bottom_value['content']) && $bottom_value['content'] != '' && $bottom_value['content'] != null) {
-                                        array_push($assets_bottom_array, array($bottom_value['name'], $bottom_value['content']));
-                                    } else {
-                                        array_push($assets_bottom_array, array($bottom_value['name']));
-                                    }
-                                }else{
-                                    if(!array_column($value['bottom'], "content")){
-                                        array_push($assets_bottom_array, $bottom_value);
-                                    }
-                                }
-                            }
-                        //dd($value['bottom']);
-                        array_push($assets_array, array($value['top'], $assets_bottom_array));
-                    }else {
-                        array_push($assets_array, array($value['top'], $value['bottom']));
-                    }
-                }else{
-                    array_push($assets_array, array($value['top']));
-                }
-            }
-        }
-
-        //extra_care
-        $extra_care_array = array();
-        foreach($request->input('extra_care') as $key => $value){
-            if(!empty($value['top']) && $value['top'] != '') {
-                if(!empty($value['bottom']) && $value['bottom'] != '') {
-                    if(!empty($value['level']) && $value['level'] != '') {
-                        if (is_array($value['bottom'])) {
-                            $extra_care_bottom_array = array();
-                            foreach ($value['bottom'] as $bottom_value) {
-                                    array_push($extra_care_bottom_array, array($bottom_value));
-                            }
-                            array_push($extra_care_array, array($value['top'], $extra_care_bottom_array, $value['level']));
-                        } else {
-                            array_push($extra_care_array, array($value['top'], $value['bottom'], $value['level']));
-                        }
-                    }else{
-                        if (is_array($value['bottom'])) {
-                            $extra_care_bottom_array = array();
-                            foreach ($value['bottom'] as $bottom_value) {
-                                array_push($extra_care_bottom_array, array($bottom_value));
-                            }
-                            array_push($extra_care_array, array($value['top'], $extra_care_bottom_array));
-                        }else{
-                            array_push($extra_care_array, array($value['top'], $value['bottom']));
-                        }
-                    }
-                }else{
-                    array_push($extra_care_array, array($value['top']));
-                }
-            }
-        }
-
-        //date_expect
-        $date_expect_array = array();
-        foreach($request->input('date_expect') as $value){
-            if(!empty($value) && $value !='' && $value != null) {
-                array_push($date_expect_array, array($value));
-            }
-        }
-
-        //assets_image
-        $assets_image_array = array();
-
-        foreach($request->input('assets_image') as $key => $value) {
-
-            if($value['top']!='' && isset($value['top']) && !empty($value['top'])) {
-
-                $pic_array = array();
-                $exist_file = "";
-
-                if(!empty(json_decode($request->input('assets_image_'.$key)))){
-
-                    foreach (json_decode($request->input('assets_image_'.$key)) as $pic){
-                        $exist_file = $pic->file;
-                    }
-
-                    if(file_exists(public_path($exist_file))){
-                        array_push($pic_array, $exist_file);
-                    }else {
-                        $rootPath = public_path('/img/vvipInfo');
-                        $tempPath = $rootPath . '/' . Carbon::now()->format('Ymd') . '/';
-
-                        if (!is_dir($tempPath)) {
-                            File::makeDirectory($tempPath, 0777, true);
-                        }
-                        $fileUploader = new FileUploader('assets_image_' . $key, array(
-                            'extensions' => null,
-                            'required' => false,
-                            'uploadDir' => $tempPath,
-                            'title' => '{random}',
-                            'replace' => false,
-                            'editor' => true,
-                            'listInput' => true
-                        ));
-
-                        $upload = $fileUploader->upload();
-
-                        if ($upload) {
-                            foreach ($fileUploader->getUploadedFiles() as $key => $pic) {
-                                $path = substr($pic['file'], strlen($rootPath));
-                                array_push($pic_array, '/img/vvipInfo' . $path);
-                            }
-                        }
-                    }
-                }else{
-                    if(!empty($value['sys_images'])) {
-                        array_push($pic_array, $value['sys_images']);
-                    }
-                }
-
-                array_push($assets_image_array, array($value['top'], $pic_array));
-            }
-        }
-
-        //life
-        $life_array = array();
-
-        foreach($request->input('life') as $key => $value) {
-
-            if($value['top']!='' && isset($value['top']) && !empty($value['top'])) {
-
-                $pic_array = array();
-                $exist_file = "";
-
-                if(!empty(json_decode($request->input('life_'.$key)))){
-
-                    foreach (json_decode($request->input('life_'.$key)) as $pic){
-                        $exist_file = $pic->file;
-                    }
+        VvipOptionXref::update_multiple_option($user->id, $option_array, $option_array_other);
 
 
-                    if(file_exists(public_path($exist_file))){
-                        array_push($pic_array, $exist_file);
-                    }else {
-                        $rootPath = public_path('/img/vvipInfo');
-                        $tempPath = $rootPath . '/' . Carbon::now()->format('Ymd') . '/';
 
-                        if (!is_dir($tempPath)) {
-                            File::makeDirectory($tempPath, 0777, true);
-                        }
-
-                        $fileUploader = new FileUploader('life_' . $key, array(
-                            'extensions' => null,
-                            'required' => false,
-                            'uploadDir' => $tempPath,
-                            'title' => '{random}',
-                            'replace' => false,
-                            'editor' => true,
-                            'listInput' => true
-                        ));
-
-                        $upload = $fileUploader->upload();
-
-                        if ($upload) {
-                            foreach ($fileUploader->getUploadedFiles() as $key => $pic) {
-                                $path = substr($pic['file'], strlen($rootPath));
-                                array_push($pic_array, '/img/vvipInfo' . $path);
-                            }
-                        }
-                    }
-                }else{
-                    if(!empty($value['sys_images'])) {
-                        array_push($pic_array, $value['sys_images']);
-                    }
-                }
-
-                array_push($life_array, array($value['top'], $pic_array));
-            }
-        }
+        VvipSubOptionXref::reset($user->id);
+        VvipSubOptionXref::updateHighAssets($user->id, $request->high_assets, $request->high_assets_other);
+        VvipSubOptionXref::updateCeoTitle($user->id, $request->ceo_title);
+        $professional = json_decode($request->professional);
+        VvipSubOptionXref::updateMultipleOption($user->id, $professional, 'professional');
+        $high_net_worth = json_decode($request->high_net_worth);
+        VvipSubOptionXref::updateMultipleOptionAndRemark($user->id, $high_net_worth, 'high_net_worth');
+        $entrepreneur = json_decode($request->entrepreneur);
+        VvipSubOptionXref::updateOptionAndRemark($user->id, $entrepreneur, 'entrepreneur');
+        $professional_network = json_decode($request->professional_network);
+        VvipSubOptionXref::updateOptionAndCustomAndRemark($user->id, $professional_network, 'professional_network');
+        $life_care = json_decode($request->life_care);
+        VvipSubOptionXref::updateMultipleOption($user->id, $life_care, 'life_care');
+        $special_problem_handling = json_decode($request->special_problem_handling);
+        VvipSubOptionXref::updateMultipleOption($user->id, $special_problem_handling, 'special_problem_handling');
+        
 
 
-        if(empty($point_array)){
-            $point_array = NULL;
-        }else{
-            $point_array = json_encode($point_array);
-        }
 
-        if(empty($date_trend_array)){
-            $date_trend_array = NULL;
-        }else{
-            $date_trend_array = json_encode($date_trend_array);
-        }
 
-        if(empty($assets_array)){
-            $assets_array = NULL;
-        }else{
-            $assets_array = json_encode($assets_array);
-        }
 
-        if(empty($extra_care_array)){
-            $extra_care_array = NULL;
-        }else{
-            $extra_care_array = json_encode($extra_care_array);
-        }
-
-        if(empty($date_expect_array)){
-            $date_expect_array = NULL;
-        }else{
-            $date_expect_array = json_encode($date_expect_array);
-        }
-
-        if(empty($assets_image_array)){
-            $assets_image_array = NULL;
-        }else{
-            $assets_image_array = json_encode($assets_image_array);
-        }
-
-        if(empty($life_array)){
-            $life_array = NULL;
-        }else{
-            $life_array = json_encode($life_array);
-        }
-
-        $vvipInfo = VvipInfo::where('user_id', $user->id)->first();
-        if(!$vvipInfo) {
-            $vvipInfo = new VvipInfo();
-            $vvipInfo->user_id = $user->id;
-        }
-        $vvipInfo->point = $point_array;
-        $vvipInfo->date_trend = $date_trend_array;
-        $vvipInfo->assets = $assets_array;
-        $vvipInfo->extra_care = $extra_care_array;
-        $vvipInfo->date_expect = $date_expect_array;
-        $vvipInfo->assets_image = $assets_image_array;
-        $vvipInfo->life = $life_array;
-        $vvipInfo->save();
-
-//        $user = auth()->user();
-//        return view('new.dashboard.vvipInfo')
-//            ->with('user', $user);
         return back()->with('message', '資料已更新');
     }
 
