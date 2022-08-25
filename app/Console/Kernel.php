@@ -549,7 +549,7 @@ class Kernel extends ConsoleKernel
             ->whereBetween('created_at', [$date_2days_ago, $date_2days_ago . ' 23:59:59'])
             ->get();
         $two_days_ago_male_count = $two_days_ago_male->count();
-        $two_days_ago_male_count_with_banned = \App\Models\SimpleTables\banned_users::whereIn('member_id', $two_days_ago_male)->count();
+        $two_days_ago_male_count_with_banned = \App\Models\SimpleTables\banned_users::whereIn('member_id', $two_days_ago_male)->groupBy('member_id')->count();
         $two_days_ago_male_count_without_banned = $two_days_ago_male_count - $two_days_ago_male_count_with_banned;
 
         // 前日女會員、人數統計
@@ -559,7 +559,7 @@ class Kernel extends ConsoleKernel
             ->whereBetween('created_at', [$date_2days_ago, $date_2days_ago . ' 23:59:59'])
             ->get();
         $two_days_ago_womale_count = $two_days_ago_womale->count();
-        $two_days_ago_womale_count_with_banned = \App\Models\SimpleTables\banned_users::whereIn('member_id', $two_days_ago_womale)->count();
+        $two_days_ago_womale_count_with_banned = \App\Models\SimpleTables\banned_users::whereIn('member_id', $two_days_ago_womale)->groupBy('member_id')->count();
         $two_days_ago_womale_count_without_banned = $two_days_ago_womale_count - $two_days_ago_womale_count_with_banned;
     
         $date_3days_ago = Carbon::today()->subDays(3)->toDateString();
@@ -570,7 +570,7 @@ class Kernel extends ConsoleKernel
             ->whereBetween('created_at', [$date_3days_ago, $date_3days_ago . ' 23:59:59'])
             ->get();
         $three_days_ago_male_count = $three_days_ago_male->count();
-        $three_days_ago_male_count_with_banned = \App\Models\SimpleTables\banned_users::whereIn('member_id', $three_days_ago_male)->count();
+        $three_days_ago_male_count_with_banned = \App\Models\SimpleTables\banned_users::whereIn('member_id', $three_days_ago_male)->groupBy('member_id')->count();
         $three_days_ago_male_count_without_banned = $three_days_ago_male_count - $three_days_ago_male_count_with_banned;
 
         // 大前日女會員、人數統計
@@ -580,7 +580,7 @@ class Kernel extends ConsoleKernel
             ->whereBetween('created_at', [$date_3days_ago, $date_3days_ago . ' 23:59:59'])
             ->get();
         $three_days_ago_womale_count = $three_days_ago_womale->count();
-        $three_days_ago_womale_count_with_banned = \App\Models\SimpleTables\banned_users::whereIn('member_id', $three_days_ago_womale)->count();
+        $three_days_ago_womale_count_with_banned = \App\Models\SimpleTables\banned_users::whereIn('member_id', $three_days_ago_womale)->groupBy('member_id')->count();
         $three_days_ago_womale_count_without_banned = $three_days_ago_womale_count - $three_days_ago_womale_count_with_banned;
     
         $message  = "\n昨日註冊男會員: $yesterdayMaleCount 人";
