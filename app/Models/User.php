@@ -2062,7 +2062,17 @@ class User extends Authenticatable implements JWTSubject
 
     public function VvipExtraCares()
     {
-        return $this->hasManyThrough(VvipExtraCare::class, VvipOptionXref::class, 'user_id', 'id', 'id', 'option_id');
+        return $this->hasManyThrough(VvipExtraCare::class, VvipOptionXref::class, 'user_id', 'id', 'id', 'option_id')->where('option_type', 'ExtraCare');
+    }
+
+    public function VvipPointInfos()
+    {
+        return $this->hasManyThrough(VvipPointInfo::class, VvipOptionXref::class, 'user_id', 'id', 'id', 'option_id')->where('option_type', 'OptionInfo');
+    }
+
+    public function VvipDataTrends()
+    {
+        return $this->hasManyThrough(VvipDataTrend::class, VvipOptionXref::class, 'user_id', 'id', 'id', 'option_id')->where('option_type', 'DataTrend');
     }
 
 //    public function VVIPisInvite()

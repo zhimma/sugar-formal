@@ -73,12 +73,12 @@
                             </div>
                             <div class="ci_kborder">
                                 <div class="cl_liswidt">
-                                    @if(isset($vvipInfo) && !empty(json_decode($vvipInfo->point, true)))
-                                        @foreach( json_decode($vvipInfo->point, true) as $key => $value)
+                                    @if(isset($vvipInfo) && !empty($user->VvipPointInfos))
+                                        @foreach($user->VvipPointInfos as $key => $value)
                                             <li class="c_mr6 ">
                                                 <div class="c_hlist01">
                                                     <div class="c_hlist02 c_pr6">
-                                                        <div class="c_hfont01">{{$value[0]}}</div>
+                                                        <div class="c_hfont01">{{ $value->option_name }}</div>
                                                     </div>
                                                 </div>
                                             </li>
@@ -93,16 +93,16 @@
                             </div>
                             <div class="ci_kborder">
                                 <div class="cl_liswidt">
-                                    @if(isset($vvipInfo) && !empty(json_decode($vvipInfo->date_trend, true)))
-                                    @foreach( json_decode($vvipInfo->date_trend, true) as $key => $value)
-                                        <li class="c_mr6 ">
-                                            <div class="c_hlist01">
-                                                <div class="c_hlist02 c_pr6">
-                                                    <div class="c_hfont01">{{$value[0]}}</div>
+                                    @if(isset($vvipInfo) && !empty($user->VvipDataTrends))
+                                        @foreach($user->VvipDataTrends as $key => $value)
+                                            <li class="c_mr6 ">
+                                                <div class="c_hlist01">
+                                                    <div class="c_hlist02 c_pr6">
+                                                        <div class="c_hfont01">{{ $value->option_name }}</div>
+                                                    </div>
                                                 </div>
-                                            </div>
-                                        </li>
-                                    @endforeach
+                                            </li>
+                                        @endforeach
                                     @endif
                                 </div>
                             </div>
