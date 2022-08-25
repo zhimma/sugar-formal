@@ -78,19 +78,23 @@ class VvipOption extends Migration
         Schema::create('vvip_sub_option_ceo_title', function (Blueprint $table) {
             $table->id();
             $table->string('option_name');
+            $table->boolean('is_custom')->default(false);
         });
         Schema::create('vvip_sub_option_professional', function (Blueprint $table) {
             $table->id();
             $table->string('option_name');
+            $table->boolean('is_custom')->default(false);
         });
         Schema::create('vvip_sub_option_high_net_worth', function (Blueprint $table) {
             $table->id();
             $table->string('option_name');
+            $table->boolean('is_custom')->default(false);
         });
         Schema::create('vvip_sub_option_entrepreneur', function (Blueprint $table) {
             $table->id();
             $table->string('option_name');
             $table->string('option_content');
+            $table->boolean('is_custom')->default(false);
         });
         Schema::create('vvip_sub_option_professional_network', function (Blueprint $table) {
             $table->id();
@@ -100,10 +104,12 @@ class VvipOption extends Migration
         Schema::create('vvip_sub_option_life_care', function (Blueprint $table) {
             $table->id();
             $table->string('option_name');
+            $table->boolean('is_custom')->default(false);
         });
         Schema::create('vvip_sub_option_special_problem_handling', function (Blueprint $table) {
             $table->id();
             $table->string('option_name');
+            $table->boolean('is_custom')->default(false);
         });
     }
 
