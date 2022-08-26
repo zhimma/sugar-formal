@@ -45,8 +45,8 @@
 @section('app-content')
 
 {{--    @php--}}
-{{--        $isBlurAvatar = \App\Services\UserService::isBlurAvatar($to, $user);--}}
-{{--        $isBlurLifePhoto = \App\Services\UserService::isBlurLifePhoto($to, $user);--}}
+{{--        $isBlurAvatar = \App\Services\UserService::isBlurAvatar($targetUser, $user);--}}
+{{--        $isBlurLifePhoto = \App\Services\UserService::isBlurLifePhoto($targetUser, $user);--}}
 {{--    @endphp--}}
     <div id="app">
     <div class="container matop80">
@@ -60,12 +60,12 @@
                         <a href="{!! url('dashboard') !!}" class="zh_shed" style="z-index: 6;"></a>
                     @endif
                     <div class="v_tx">
-                        <div class="c_toux"><img src="@if(file_exists( public_path().$to->meta->pic ) && $to->meta->pic != ""){{$to->meta->pic}} @elseif($to->engroup==2)/new/images/female.png @else/new/images/male.png @endif" class="hycov"></div>
+                        <div class="c_toux"><img src="@if(file_exists( public_path().$targetUser->meta->pic ) && $targetUser->meta->pic != ""){{$targetUser->meta->pic}} @elseif($targetUser->engroup==2)/new/images/female.png @else/new/images/male.png @endif" class="hycov"></div>
                         <div class="c_tfontright">
-                            <h1><span>{{$to->name}}</span><span class="ci_tub"></span></h1>
+                            <h1><span>{{$targetUser->name}}</span><span class="ci_tub">{{$targetUser->VvipSubOptionEntrepreneur->first()->option_name}} {{$targetUser->VvipSubOptionEntrepreneurCeoTitle->first()->option_name}}</span></h1>
                         </div>
                     </div>
-                    <div class="ci_jianjie"><span>{!! nl2br($to->title)!!}</span></div>
+                    <div class="ci_jianjie"><span>{!! nl2br($targetUser->title)!!}</span></div>
                     <div class="ci_beij" style="margin-top:35px;">
                         <div class="ci_beij_1">
                             <div class="ci_kuang">
@@ -73,17 +73,15 @@
                             </div>
                             <div class="ci_kborder">
                                 <div class="cl_liswidt">
-                                    @if(isset($vvipInfo) && !empty($user->VvipPointInfos))
-                                        @foreach($user->VvipPointInfos as $key => $value)
-                                            <li class="c_mr6 ">
-                                                <div class="c_hlist01">
-                                                    <div class="c_hlist02 c_pr6">
-                                                        <div class="c_hfont01">{{ $value->option_name }}</div>
-                                                    </div>
+                                    @foreach($targetUser->VvipPointInformation as $option)
+                                        <li class="c_mr6 ">
+                                            <div class="c_hlist01">
+                                                <div class="c_hlist02 c_pr6">
+                                                    <div class="c_hfont01">{{$option->option_name}}</div>
                                                 </div>
-                                            </li>
-                                        @endforeach
-                                    @endif
+                                            </div>
+                                        </li>
+                                    @endforeach
                                 </div>
                             </div>
 
@@ -93,30 +91,28 @@
                             </div>
                             <div class="ci_kborder">
                                 <div class="cl_liswidt">
-                                    @if(isset($vvipInfo) && !empty($user->VvipDateTrend))
-                                        @foreach($user->VvipDateTrend as $key => $value)
-                                            <li class="c_mr6 ">
-                                                <div class="c_hlist01">
-                                                    <div class="c_hlist02 c_pr6">
-                                                        <div class="c_hfont01">{{ $value->option_name }}</div>
-                                                    </div>
+                                    @foreach($targetUser->VvipDateTrend as $option)
+                                        <li class="c_mr6 ">
+                                            <div class="c_hlist01">
+                                                <div class="c_hlist02 c_pr6">
+                                                    <div class="c_hfont01">{{$option->option_name}}</div>
                                                 </div>
-                                            </li>
-                                        @endforeach
-                                    @endif
+                                            </div>
+                                        </li>
+                                    @endforeach
                                 </div>
                             </div>
                         </div>
                     </div>
                     <div class="c_button">
 
-                        <a @if($to->id==$user->id)onclick="show_chat()" @else @if($isBlocked) onclick="messenge_show_block()" @else href="/dashboard/chat2/chatShow/{{ $to->id }}?from_viewuser_page=1" @endif @endif class="c_but01 left">
+                        <a @if($targetUser->id==$user->id)onclick="show_chat()" @else @if($isBlocked) onclick="messenge_show_block()" @else href="/dashboard/chat2/chatShow/{{ $targetUser->id }}?from_viewuser_page=1" @endif @endif class="c_but01 left">
                             <div class="c_but01_1"><font>發訊互動</font><span><img src="/new/images/zb_3.png"></span></div>
                         </a>
 
                         @if($user->isVip() || $user->isVVIP())
                             @php
-                                $isFav = \App\Models\MemberFav::where('member_id', $user->id)->where('member_fav_id',$to->id)->count();
+                                $isFav = \App\Models\MemberFav::where('member_id', $user->id)->where('member_fav_id',$targetUser->id)->count();
                             @endphp
                             @if($isFav)
                                 <a class="c_but01 right favIcon removeFav">
@@ -143,37 +139,29 @@
                         <span style="font-size: 18px;">Daddy背景與資產</span>
                         <font>Wealth background</font>
                     </div>
-                    @if(isset($vvipInfo) && !empty(json_decode($vvipInfo->assets, true)))
-                    <div class="nn_zeng">
-                        @foreach( json_decode($vvipInfo->assets, true) as $key => $value)
-                            <div class="nn_listleft @if($key==0)left @elseif($key==1)right @elseif($key==2)left matop25 @elseif($key==3)right matop25 @endif">
-                                <div class="nn_li_01"><span>{{$value[0]}}</span></div>
-                                @if(!empty($value[1]))
-                                    <div class="nn_li_02 @if($value[0]=="企業家") append_title @endif">
-                                        @if(is_array($value[1]) && !empty($value[1]))
-                                            @foreach($value[1] as $key2 => $value2)
-                                                @if(is_array($value2) && !empty($value2[0]))
-                                                    @if(!is_numeric($value2[0])){{trim(explode("：", $value2[0])[0])}}
-                                                    @else{{$value2[0]}}
-                                                    @endif
-                                                        @if(!empty($value2[1]))
-                                                        {{$value2[1]}}
-                                                        @if(is_numeric($value2[1]))%@endif
-                                                        @if(!$loop->last)、@endif
-                                                        @endif
-                                                @else
-                                                    @if(!is_array($value2))
-                                                    {{$value2}}
-                                                    @endif
-                                                        @if(!$loop->last)、@endif
-                                                @endif
+                    @if($targetUser->VvipBackgroundAndAssets->first() ?? false)
+                        <div class="nn_zeng">
+                            @foreach($targetUser->VvipBackgroundAndAssets as $key => $option)
+                                <div class="nn_listleft @if($key % 2 == 0) left @else right @endif matop25">
+                                    <div class="nn_li_01"><span>{{$option->option_name}}</span></div>
+                                    <div class="nn_li_02">
+                                        @if($option->option_name == '專業人士')
+                                            @foreach($targetUser->VvipSubOptionProfessional as $sub_option)
+                                                {{$sub_option->option_name}}、
                                             @endforeach
+                                        @elseif($option->option_name == '高資產人士')
+                                            @foreach($targetUser->VvipSubOptionHighNetWorth as $sub_option)
+                                                {{$sub_option->option_name}}
+                                                {{DB::table('vvip_sub_option_xref')->where('user_id', $targetUser->id)->where('option_type', 'high_net_worth')->where('option_id', $sub_option->id)->first()->option_remark}}
+                                                %、
+                                            @endforeach
+                                        @elseif($option->option_name == '企業家')
+                                            {{$targetUser->VvipSubOptionEntrepreneur->first()->option_name}}{{$targetUser->VvipSubOptionEntrepreneurCeoTitle->first()->option_name}}
                                         @endif
                                     </div>
-                                @endif
-                            </div>
-                        @endforeach
-                    </div>
+                                </div>
+                            @endforeach
+                        </div>
                     @else
                         <div class="ci_ddbg" style="margin-bottom: -20px;">
                             <div class="ci_lidw"><h2>尚無資料</h2></div>
@@ -186,24 +174,36 @@
                         <span style="font-size: 18px;">Daddy溫情照顧</span>
                         <font>Warm care</font>
                     </div>
-                    @if(isset($vvipInfo) && !empty($user->VvipExtraCares))
-                    <div class="nn_zeng">
-                            @foreach( $user->VvipExtraCares as $key => $value)
-                                <div class="nzhaog @if($key != 0)matop13 @endif">
-                                    <div class="zhg_but"><span>{{ $value->option_name }}</span></div>
-                                    @if(!empty($value->SubOptions))
+                    @if($targetUser->VvipExtraCare->first() ?? false)
+                        <div class="nn_zeng">
+                            @foreach($targetUser->VvipExtraCare as $option)
+                                <div class="nzhaog matop13">
+                                    <div class="zhg_but"><span>{{ $option->option_name }}</span></div>
                                     <div class="zh_text">
-                                        @if($value->SubOptions)
-                                            @foreach($value->SubOptions as $key2 => $value2)
-                                                {{ $value2->option_name }}
-                                                @if(!$loop->last)、@endif
+                                        @if($option->option_name == '專業人脈')
+                                            @php
+                                                $network_depth = DB::table('vvip_sub_option_xref')->where('user_id', $targetUser->id)->where('option_type', 'professional_network')->first()->option_remark;
+                                            @endphp
+                                            {{$targetUser->VvipSubOptionProfessionalNetwork->first()->option_name}}
+                                            、
+                                            @if($network_depth == 'high')
+                                                可視情況幫baby安排實習/正式職務
+                                            @elseif($network_depth == 'low')
+                                                只能提供顧問以及諮詢
+                                            @endif
+                                        @elseif($option->option_name == '生活照顧')
+                                            @foreach($targetUser->VvipSubOptionLifeCare as $sub_option)
+                                                {{$sub_option->option_name}}、
+                                            @endforeach
+                                        @elseif($option->option_name == '特殊問題處理')
+                                            @foreach($targetUser->VvipSubOptionSpecialProblemHandling as $sub_option)
+                                                {{$sub_option->option_name}}、
                                             @endforeach
                                         @endif
                                     </div>
-                                    @endif
                                 </div>
                             @endforeach
-                    </div>
+                        </div>
                     @else
                         <div class="ci_ddbg" style="margin-bottom: -20px;">
                             <div class="ci_lidw"><h2>尚無資料</h2></div>
@@ -217,32 +217,25 @@
                         <span style="font-size: 18px;">Daddy 財富資產</span>
                         <font>Wealth asset</font>
                     </div>
-                    @if(isset($vvipInfo) && !empty(json_decode($vvipInfo->assets_image, true)))
-                    <div style="width: 93%; margin: 0 auto;">
-
-                        <div class="swiper-container wip01">
-                            <div class="swiper-wrapper">
-
-                                    @foreach( json_decode($vvipInfo->assets_image, true) as $key => $value)
-                                        <div class="swiper-slide sild">
-                                            <div class="cbg_ont">
-                                                @if(is_array($value[1]) && isset($value[1][0]) && !is_null($value[1][0]))
-                                                    <img src="{{$value[1][0]}}">
-                                                @else
-                                                    <img src="/new/images/zb_17.png">
-                                                @endif
-                                                <div class="cb_bg">
-                                                    <h2>{{$value[0]}}</h2>
-{{--                                                    <h3>帶著寶貝到處旅遊</h3>--}}
+                    @if($assets_image->first() ?? false)
+                        <div style="width: 93%; margin: 0 auto;">
+                            <div class="swiper-container wip01">
+                                <div class="swiper-wrapper">
+                                        @foreach($assets_image as $option)
+                                            <div class="swiper-slide sild">
+                                                <div class="cbg_ont">
+                                                    <img src={{$option->option_name}}>
+                                                    <div class="cb_bg">
+                                                        <h2>{{$option->option_remark}}</h2>
+                                                    </div>
                                                 </div>
                                             </div>
-                                        </div>
-                                    @endforeach
+                                        @endforeach
                                         <div class="swiper-button-next next01" style="right:15px;"></div>
                                         <div class="swiper-button-prev prev01" style="left: 10px;"></div>
+                                </div>
                             </div>
                         </div>
-                    </div>
                     @else
                         <div class="ci_ddbg" style="margin-bottom: 20px;">
                         <div class="ci_lidw"><h2>尚無資料</h2></div>
@@ -256,42 +249,19 @@
                         <font>The quality of life</font>
                     </div>
                     <div class="ci_ddbg">
-                        @if(isset($vvipInfo) && !empty(json_decode($vvipInfo->life, true)))
-                            @foreach( json_decode($vvipInfo->life, true) as $key => $value)
-                                <div class="ci_lidw @if($key==0)left @elseif($key==1)right @endif">
-                                    @if(is_array($value[1]) && isset($value[1][0]) && !is_null($value[1][0]))
-                                        <img src="{{$value[1][0]}}" class="ci_img">
-                                    @else
-                                        <img src="@if($key==0)/new/images/zb_9.png @else/new/images/zb_10.png @endif" class="ci_img">
-                                    @endif
-
-{{--                                    <img src="/new/images/zb_9.png" class="ci_img">--}}
+                        @if($quality_life_image->first() ?? false)
+                            @foreach($quality_life_image as $key => $option)
+                                <div class="ci_lidw @if($key % 2 == 0) left @else right @endif">
+                                    <img src={{$option->option_name}}>
                                     <div class="ci_ifont">
-                                        <div class="ci_div01">{{$value[0]}}</div>
-{{--                                        <div class="ci_div01">品尝美酒<img src="/new/images/zb_5.png"></div>--}}
-{{--                                        <div class="ci_div02">一个人酿出怎么的酒 ，取决于他的品味</div>--}}
+                                        <div class="ci_div01">{{$option->option_remark}}</div>
                                     </div>
                                 </div>
                             @endforeach
                         @else
                             <div class="ci_lidw left">尚無資料</div>
                         @endif
-{{--                        <div class="ci_lidw left">--}}
-{{--                            <img src="/new/images/zb_9.png" class="ci_img">--}}
-{{--                            <div class="ci_ifont">--}}
-{{--                                <div class="ci_div01">品尝美酒<img src="/new/images/zb_5.png"></div>--}}
-{{--                                <div class="ci_div02">一个人酿出怎么的酒 ，取决于他的品味</div>--}}
-{{--                            </div>--}}
-{{--                        </div>--}}
-{{--                        <div class="ci_lidw right">--}}
-{{--                            <img src="/new/images/zb_10.png" class="ci_img">--}}
-{{--                            <div class="ci_ifont">--}}
-{{--                                <div class="ci_div01">名表典藏<img src="/new/images/zb_6.png"></div>--}}
-{{--                                <div class="ci_div02">人生的第一信念就是准时</div>--}}
-{{--                            </div>--}}
-{{--                        </div>--}}
                     </div>
-                    <!--  -->
 
                     <div class="shou" style="border-bottom: none; margin-bottom:5px; margin-top:20px;">
                         <span style="font-size: 18px;">關於我</span>
@@ -302,11 +272,6 @@
                         @if(!empty($vvipInfo->about))
                         <h3>{!! nl2br($vvipInfo->about) !!}</h3>
                         @endif
-{{--                        <h3>妳好，我叫Darren，-家位於彰化製造業的經理。</h3>--}}
-{{--                        <h3>看到這裡或許你會想「彰化的製造業」?那有保障嗎?能幫忙甜心實現夢想嗎?</h3>--}}
-{{--                        <h3>但你知道彰化是水五金的大宗嗎?年產值超過500多億元。</h3>--}}
-{{--                        <h3>我不知道其他男生是怎麼認證的,但我對於夢想網對於金牌老爹要求的財力證明,我是直接提出超過三千萬的存款作為依據。</h3>--}}
-{{--                        <h3>我40歲、身高170以,中等身材,貨真實且保養得宜的Daddy，歡迎符合我所需條件的「妳」，勇敢地來認識我。</h3>--}}
                     </div>
                     <!--  -->
                     <div class="dlxbolv">
@@ -316,14 +281,12 @@
                             <font>Dating patterns</font>
                         </div>
                         <div class="yuehuims">
-                            @if(isset($vvipInfo) && !empty(json_decode($vvipInfo->date_expect, true)))
-                                @foreach( json_decode($vvipInfo->date_expect, true) as $key => $value)
-                                    <a href="javascript:void(0);" class="ck_wileft01 left">
-                                        <img src="@if($key==0)/new/images/zb_11.png @elseif($key==1)/new/images/zb_12.png @elseif($key==2)/new/images/zb_15.png @elseif($key==3)/new/images/zb_16.png @endif" class="ck_wileft01_img">
-                                        <div class="ck_biaoq">{{$value[0]}}</div>
-                                    </a>
-                                @endforeach
-                            @endif
+                            @foreach($targetUser->VvipExpectDate as $key => $option)
+                                <a href="javascript:void(0);" class="ck_wileft01 left">
+                                    <img src="@if($key==0)/new/images/zb_11.png @elseif($key==1)/new/images/zb_12.png @elseif($key==2)/new/images/zb_15.png @elseif($key==3)/new/images/zb_16.png @endif" class="ck_wileft01_img">
+                                    <div class="ck_biaoq">{{$option->option_name}}</div>
+                                </a>
+                            @endforeach
                         </div>
                     </div>
                     <!--  -->
@@ -333,27 +296,27 @@
                             <font>Basic information</font>
                         </div>
                         <div class="ci_ddbg">
-                            <div class="zlys_aa">註冊時間 @if($user->isVip() || $user->isVVIP())<font>{{substr($to->created_at,0,10)}}</font>@else <span class="mtop"><img src="/new/images/icon_35.png"></span> @endif</div>
-                            <div class="xzl_left">年齡 <span>{{$to->meta->age()}}</span></div>
-                            <div class="xzl_left">身高 <span>{{$to->meta->height}}</span></div>
+                            <div class="zlys_aa">註冊時間 @if($user->isVip() || $user->isVVIP())<font>{{substr($targetUser->created_at,0,10)}}</font>@else <span class="mtop"><img src="/new/images/icon_35.png"></span> @endif</div>
+                            <div class="xzl_left">年齡 <span>{{$targetUser->meta->age()}}</span></div>
+                            <div class="xzl_left">身高 <span>{{$targetUser->meta->height}}</span></div>
                             <div class="xzl_left">包月預算 <span>
-                                    @if(!empty($to->meta->budget_per_month_min) && !empty($to->meta->budget_per_month_max) && $to->meta->budget_per_month_min != -1 && $to->meta->budget_per_month_max != -1)
-                                    {{round($to->meta->budget_per_month_min, -3)/10000}}萬~{{round($to->meta->budget_per_month_max, -3)/10000}}萬
+                                    @if(!empty($targetUser->meta->budget_per_month_min) && !empty($targetUser->meta->budget_per_month_max) && $targetUser->meta->budget_per_month_min != -1 && $targetUser->meta->budget_per_month_max != -1)
+                                    {{round($targetUser->meta->budget_per_month_min, -3)/10000}}萬~{{round($targetUser->meta->budget_per_month_max, -3)/10000}}萬
                                     @else
                                     未填
                                     @endif
                                 </span></div>
                             <div class="xzl_left">車馬費預算 <span>
-                                    @if(!empty($to->meta->transport_fare_min) && !empty($to->meta->transport_fare_max) && $to->meta->transport_fare_min != -1 && $to->meta->transport_fare_max != -1)
-                                    {{round($to->meta->transport_fare_min, -2)}}~{{round($to->meta->transport_fare_max, -2)}}
+                                    @if(!empty($targetUser->meta->transport_fare_min) && !empty($targetUser->meta->transport_fare_max) && $targetUser->meta->transport_fare_min != -1 && $targetUser->meta->transport_fare_max != -1)
+                                    {{round($targetUser->meta->transport_fare_min, -2)}}~{{round($targetUser->meta->transport_fare_max, -2)}}
                                     @else
                                     未填
                                     @endif
                                 </span></div>
-                            <div class="xzl_left">婚姻  <span>{{$to->meta->marriage}}</span></div>
+                            <div class="xzl_left">婚姻  <span>{{$targetUser->meta->marriage}}</span></div>
                             <div class="xzl_left">體型 <span>
-                                    @if(!empty($to->meta->body) && $to->meta->body != null && $to->meta->body != 'null')
-                                    {{$to->meta->body}}
+                                    @if(!empty($targetUser->meta->body) && $targetUser->meta->body != null && $targetUser->meta->body != 'null')
+                                    {{$targetUser->meta->body}}
                                     @else
                                     未填
                                     @endif
@@ -383,15 +346,15 @@
         </div>
     </div>
     
-    @if(isset($to))
+    @if(isset($targetUser))
     <div class="bl bl_tab" id="show_chat_ele">
-        <div class="bltitle"><span>發送給{{$to->name}}</span></div>
+        <div class="bltitle"><span>發送給{{$targetUser->name}}</span></div>
         <div class="n_blnr01 ">
 
             <form class="m-form m-form--fit m-form--label-align-right" method="POST" action="/dashboard/chat2/{{ \Carbon\Carbon::now()->timestamp }}" id="chatForm">
                 <input type="hidden" name="_token" value="{{ csrf_token() }}" >
                 <input type="hidden" name="userId" id="userId" value="{{$user->id}}">
-                <input type="hidden" name="to" id="to" value="{{$to->id}}">
+                <input type="hidden" name="to" id="to" value="{{$targetUser->id}}">
                 <input type="hidden" name="{{ \Carbon\Carbon::now()->timestamp }}" value="{{ \Carbon\Carbon::now()->timestamp }}">
                 <textarea name="msg" id="msg" cols="" rows="" class="n_nutext" placeholder="請輸入內容" required></textarea>
                 <input type="submit" class="n_bllbut msgsnd" value="發信件" style="border-style: none;">
@@ -403,13 +366,13 @@
 
     <div class="bl_tab_aa" id="show_banned_ele" style="display: none;">
         <div class="bl_tab_bb">
-            <div class="bltitle"><span style="text-align: center; float: none;">檢舉 {{$to->name}}</span></div>
+            <div class="bltitle"><span style="text-align: center; float: none;">檢舉 {{$targetUser->name}}</span></div>
             <div class="new_pot new_poptk_nn new_pot001">
                 <div class="fpt_pic new_po000">
                     <form id="reportPostForm" action="{{ route('reportPost') }}" method="post" enctype="multipart/form-data">
                         <input type="hidden" name="_token" value="{{ csrf_token() }}">
                         <input type="hidden" name="aid" value="{{$user->id}}">
-                        <input type="hidden" name="uid" value="{{$to->id}}">
+                        <input type="hidden" name="uid" value="{{$targetUser->id}}">
                         <textarea name="content" cols="" rows="" class="n_nutext" style="border-style: none;" maxlength="300" placeholder="{{$report_member}}" required></textarea>
                         <span class="alert_tip" style="color:red;"></span>
                         <input type="file" name="reportedImages">
@@ -430,7 +393,7 @@
         </div>
     </div>
     
-    @if($to->engroup==1)
+    @if($targetUser->engroup==1)
         <div class="bl_tab_aa" id="jianju" style="display: none;">
             <div class="bl_tab_bb">
                 <div class="bltitle"><span id="jianju_title" style="text-align: center; float: none;">預算不實</span></div>
@@ -442,7 +405,7 @@
                         <form id="budget_jianju_form" action="{{ route('reportPost') }}" method="post" enctype="multipart/form-data">
                             <input type="hidden" name="_token" value="{{ csrf_token() }}">
                             <input type="hidden" name="aid" value="{{$user->id}}">
-                            <input type="hidden" name="uid" value="{{$to->id}}">
+                            <input type="hidden" name="uid" value="{{$targetUser->id}}">
                             <input type="hidden" id="jianju_content" name="content" value="預算不實">
                             <span class="alert_tip" style="color:red;"></span>
                             <input type="file" id="budget_jianju_file" name="reportedImages">
@@ -462,13 +425,13 @@
 
     <div class="bl_tab_aa reportPic_aa" id="show_reportPic" style="display: none;">
         <div class="bl_tab_bb">
-            <div class="bltitle"><span>檢舉{{$to->name}}</span></div>
+            <div class="bltitle"><span>檢舉{{$targetUser->name}}</span></div>
             <div class="new_pot new_poptk_nn new_pot001 reportPic_new">
                 <div class="fpt_pic new_po000 reportPic_new">
                     <form id="reportPicNextNewForm"  method="POST" action="{{ route('reportPicNextNew') }}" enctype="multipart/form-data" style="margin-bottom:20px;">
                         {!! csrf_field() !!}
                         <input type="hidden" name="aid" value="{{$user->id}}">
-                        <input type="hidden" name="uid" value="{{$to->id}}">
+                        <input type="hidden" name="uid" value="{{$targetUser->id}}">
                         <input type="hidden" name="picType" value="">
                         <input type="hidden" name="pic_id" value="">
                         <textarea name="content" cols="" rows="" class="n_nutext" placeholder="{{$report_avatar}}" required></textarea>
@@ -486,7 +449,7 @@
 
     <div class="bl bl_tab_aa" id="tab_evaluation" style="display: none;">
         <div class="bl_tab_bb">
-            <div class="bltitle"><span style="text-align: center; float: none;">評價 {{$to->name}}</span></div>
+            <div class="bltitle"><span style="text-align: center; float: none;">評價 {{$targetUser->name}}</span></div>
             <div class="new_pot new_poptk_nn">
                 <div class="fpt_pic">
                     <form id="form1" action="{{ route('evaluation')."?n=".time() }}" method="post" enctype="multipart/form-data">
@@ -508,7 +471,7 @@
                         </div>--}}
                         <textarea id="content" name="content" cols="" rows="" class="n_nutext evaluation_content" style="border-style: none;" maxlength="300" placeholder="請輸入內容(至多300個字元)"></textarea>
                         <input type="hidden" name="uid" value={{$user->id}}>
-                        <input type="hidden" name="eid" value={{$to->id}}>
+                        <input type="hidden" name="eid" value={{$targetUser->id}}>
                         <span class="alert_tip" style="color:red;"></span>
                         <input type="file" name="images" >
                         <div class="new_pjckbox">
@@ -641,7 +604,7 @@
 
         //$(".blbg").show();
         var uid='{{ $user->id }}';
-        var to='{{$to->id}}';
+        var to='{{$targetUser->id}}';
         if(uid != to){
             $(".announce_bg").show();
             $("#show_banned_ele").show();
@@ -675,7 +638,7 @@
     function show_chat() {
         //$(".blbg").show();
         var uid='{{ $user->id }}';
-        var to='{{$to->id}}';
+        var to='{{$targetUser->id}}';
         if(uid != to){
             $(".announce_bg").show();
             $("#show_chat_ele").show();
@@ -823,10 +786,10 @@
         });
         @endif
 
-        @if(isset($to))
+        @if(isset($targetUser))
         $(".but_block").on('click', function () {
             let uid = '{{ $user->id }}';
-            let to = '{{$to->id}}';
+            let to = '{{$targetUser->id}}';
             if (uid != to) {
                 $.post('{{ route('postBlockAJAX') }}', {
                     uid: uid,
@@ -848,7 +811,7 @@
         $('.unblock').on('click', function () {
             c4('確定要解除封鎖嗎?');
             var uid = '{{ $user->id }}';
-            var to = '{{$to->id}}';
+            var to = '{{$targetUser->id}}';
             if (uid != to) {
                 $(".n_left").on('click', function () {
                     $.post('{{ route('unblockAJAX') }}', {
@@ -875,7 +838,7 @@
 
         function addFav() {
             var uid = '{{ $user->id }}';
-            var to = '{{$to->id}}';
+            var to = '{{$targetUser->id}}';
             if (uid != to) {
                 $.post('{{ route('postfavAJAX') }}', {
                     uid: uid,
@@ -908,7 +871,7 @@
 
         function removeFav() {
             var uid = '{{ $user->id }}';
-            var to = '{{$to->id}}';
+            var to = '{{$targetUser->id}}';
             $.post('{{ route('fav/remove_ajax') }}', {
                 userId: uid,
                 favUserId: to,
@@ -1082,7 +1045,7 @@
         {
             return c5('您目前被站方警示，無檢舉權限');
         }
-        @if($user->id != $to->id)
+        @if($user->id != $targetUser->id)
             $("#jianju_title").text('車馬費預算不實');
             $("#jianju_content").val('車馬費預算不實');
             $(".blbg").show()
@@ -1102,7 +1065,7 @@
         {
             return c5('您目前被站方警示，無檢舉權限');
         }
-        @if($user->id != $to->id)
+        @if($user->id != $targetUser->id)
             $("#jianju_title").text('每月預算不實');
             $("#jianju_content").val('每月預算不實');
             $(".blbg").show()
@@ -1125,12 +1088,6 @@
             button();
             c5("檢舉預算不實一定要附上證據，例如轉帳截圖、對話記錄等");
         }
-    }
-
-    if($('.append_title').text() != '') {
-        $('.ci_tub').html($('.append_title').text());
-    }else{
-        $('.ci_tub').hide();
     }
 </script>
 <script src="/new/js/swiper.min.js"></script>

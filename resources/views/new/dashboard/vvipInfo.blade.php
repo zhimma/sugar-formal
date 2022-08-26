@@ -1001,10 +1001,10 @@
                     $(".input_field_6").append('<div class="custom matop10">' +
                         '<input type="text" placeholder="請輸入至多18個字" class="msinput life_top" name="life_image_content[' + add_life_image_id + ']" maxlength="18">' +
                         '<ul class="n_ulpic" style="margin-bottom: 0;">' +
-                            '<input type="file" id="quality_life_image_' + add_life_image_id + '" name="quality_life_image_' + add_life_image_id + '" class="files life" data-fileuploader-files="" data-fileuploader-listInput="quality_life_image_' + add_life_image_id + '">' +
+                            '<input type="file" id="quality_life_image_' + add_life_image_id + '" name="quality_life_image_' + add_life_image_id + '" class="files quality_life_image" data-fileuploader-files="" data-fileuploader-listInput="quality_life_image_' + add_life_image_id + '">' +
                         '</ul><a href="#" class="remove_field_2"><img src="/new/images/del_03n.png"></a></div>');
 
-                    uploaderFunction($(".input_field_6").find('.life').last());
+                    uploaderFunction($(".input_field_6").find('.quality_life_image').last());
                 }
             });
 

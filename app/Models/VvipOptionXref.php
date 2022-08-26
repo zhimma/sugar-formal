@@ -53,6 +53,15 @@ class VvipOptionXref extends Model
                     ->get();
     }
 
+    public static function viewSelectOptionInfo($type_name, $user_id)
+    {
+        $table_name = 'vvip_option_'.$type_name;
+        return VvipOptionXref::leftJoin($table_name, $table_name.'.id', '=', 'option_id')
+                                ->where('user_id', $user_id)
+                                ->where('option_type', $type_name)
+                                ->get();
+    }
+
     public static function update_multiple_option($user_id, $option_array, $option_array_other)
     {
         $type_list = array_keys($option_array);

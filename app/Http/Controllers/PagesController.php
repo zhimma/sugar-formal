@@ -9997,10 +9997,14 @@ class PagesController extends BaseController
 
 
             // die();
+
+            $assets_image = VvipOptionXref::viewSelectOptionInfo('assets_image', $to->id);
+            $quality_life_image = VvipOptionXref::viewSelectOptionInfo('quality_life_image', $to->id);
+
             return view('new.dashboard.viewuser_vvip', $data ?? [])
                 ->with('user', $user)
                 ->with('blockadepopup', $blockadepopup)
-                ->with('to', $to)
+                ->with('targetUser', $to)
                 ->with('valueAddedServiceStatus', $valueAddedServicesStatus)
                 ->with('isSent3Msg', $isSent3Msg)
                 ->with('cur', $user)
@@ -10029,6 +10033,8 @@ class PagesController extends BaseController
                 ->with('transport_fare_reported', $transport_fare_reported)
                 ->with('month_budget_reported', $month_budget_reported)
                 ->with('vvipInfo', $vvipInfo)
+                ->with('assets_image', $assets_image)
+                ->with('quality_life_image', $quality_life_image)
                 ;
         }
 

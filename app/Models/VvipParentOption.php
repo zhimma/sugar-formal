@@ -18,6 +18,7 @@ class VvipParentOption extends Model
         parent::__construct($attributes);
         $this->optionsMapping = [
             'ExtraCare' => new VvipSubOptionLifeCare,
+            'PointInfo' => new VvipSubOptionHighAssets
         ];
         $this->currentOption = str_replace('App\Models\Vvip', '', get_class($this));
     }
