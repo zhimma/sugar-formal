@@ -7,6 +7,9 @@ use Illuminate\Database\Eloquent\Model;
 use DB;
 use Carbon\Carbon;
 use Illuminate\Support\Facades\Log;
+use Illuminate\Support\Facades\File;
+use \FileUploader;
+use Storage;
 
 class VvipOptionXref extends Model
 {
@@ -98,6 +101,62 @@ class VvipOptionXref extends Model
             }
         }
         
+        VvipOptionXref::insert($insert_data);
+    }
+
+    public static function uploadImage($user_id, $type_name, $image_array, $image_content_array)
+    {
+        VvipOptionXref::where('user_id', $user_id)->where('option_type', $type_name)->delete();
+        $insert_data = [];
+        $now_time = Carbon::now();
+        foreach($image_array as $key => $image)
+        {
+            $file_name = uniqid();
+            $file_path = '';
+            $content = $image_content_array[$key];
+
+            //上傳圖片
+            $rootPath = public_path('/img/vvipInfo');
+            $tempPath = $rootPath . '/' . $now_time->format('Ymd') . '/';
+            if(!is_dir($tempPath)) 
+            {
+                File::makeDirectory($tempPath, 0777, true);
+            }
+
+            $fileUploader = new FileUploader($type_name, array(
+                'extensions' => null,
+                'required' => false,
+                'uploadDir' => $tempPath,
+                'title' => '{random}',
+                'replace' => false,
+                'editor' => true,
+                'listInput' => true
+            ));
+
+            $upload = $fileUploader->upload();
+
+            Log::Info($upload);
+
+            if ($upload) {
+                foreach ($fileUploader->getUploadedFiles() as $key => $pic) {
+                    $path = substr($pic['file'], strlen($rootPath));
+                    $file_path = '/img/vvipInfo' . $path;
+                }
+            }
+
+            //上傳圖片相關資料
+            $custom_option_id = DB::table('vvip_option_' . $type_name)->insertGetId(['option_name' => $file_path, 'is_custom' => 1]);
+
+            //更新xref
+            $insert_data[] = [
+                'user_id' => $user_id, 
+                'option_type' => $type_name, 
+                'option_id' => $custom_option_id, 
+                'option_remark' => $content, 
+                'created_at' => $now_time,
+                'updated_at' => $now_time
+            ];
+        }
         VvipOptionXref::insert($insert_data);
     }
     
