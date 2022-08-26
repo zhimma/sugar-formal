@@ -2060,20 +2060,41 @@ class User extends Authenticatable implements JWTSubject
         return $this->hasOne(VvipInfo::class, 'user_id', 'id');
     }    
 
-    public function VvipExtraCares()
+    public function VvipAssetsImage()
     {
-        return $this->hasManyThrough(VvipExtraCare::class, VvipOptionXref::class, 'user_id', 'id', 'id', 'option_id')->where('option_type', 'ExtraCare');
+        return $this->hasManyThrough(VvipAssetsImage::class, VvipOptionXref::class, 'user_id', 'id', 'id', 'option_id')->where('option_type', 'assets_image');
     }
 
-    public function VvipPointInfos()
+    public function VvipBackgroundAndAssets()
     {
-        return $this->hasManyThrough(VvipPointInfo::class, VvipOptionXref::class, 'user_id', 'id', 'id', 'option_id')->where('option_type', 'OptionInfo');
+        return $this->hasManyThrough(VvipBackgroundAndAssets::class, VvipOptionXref::class, 'user_id', 'id', 'id', 'option_id')->where('option_type', 'background_and_assets');
     }
 
-    public function VvipDataTrends()
+    public function VvipDateTrend()
     {
-        return $this->hasManyThrough(VvipDataTrend::class, VvipOptionXref::class, 'user_id', 'id', 'id', 'option_id')->where('option_type', 'DataTrend');
+        return $this->hasManyThrough(VvipDateTrend::class, VvipOptionXref::class, 'user_id', 'id', 'id', 'option_id')->where('option_type', 'date_trend');
     }
+
+    public function VvipExpectDate()
+    {
+        return $this->hasManyThrough(VvipExpectDate::class, VvipOptionXref::class, 'user_id', 'id', 'id', 'option_id')->where('option_type', 'expect_date');
+    }
+
+    public function VvipExtraCare()
+    {
+        return $this->hasManyThrough(VvipExtraCare::class, VvipOptionXref::class, 'user_id', 'id', 'id', 'option_id')->where('option_type', 'extra_care');
+    }
+
+    public function VvipPointInformation()
+    {
+        return $this->hasManyThrough(VvipPointInfo::class, VvipOptionXref::class, 'user_id', 'id', 'id', 'option_id')->where('option_type', 'point_information');
+    }
+
+    public function VvipQualityLifeImage()
+    {
+        return $this->hasManyThrough(VvipQualityLifeImage::class, VvipOptionXref::class, 'user_id', 'id', 'id', 'option_id')->where('option_type', 'quality_life_image');
+    }
+
 
 //    public function VVIPisInvite()
 //    {
