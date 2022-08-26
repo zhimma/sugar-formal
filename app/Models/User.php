@@ -2058,7 +2058,9 @@ class User extends Authenticatable implements JWTSubject
     public function VvipInfo()
     {
         return $this->hasOne(VvipInfo::class, 'user_id', 'id');
-    }    
+    } 
+    
+    //VvipOption
 
     public function VvipAssetsImage()
     {
@@ -2093,6 +2095,53 @@ class User extends Authenticatable implements JWTSubject
     public function VvipQualityLifeImage()
     {
         return $this->hasManyThrough(VvipQualityLifeImage::class, VvipOptionXref::class, 'user_id', 'id', 'id', 'option_id')->where('option_type', 'quality_life_image');
+    }
+
+    //VvipSubOption
+
+    public function VvipSubOptionCeoTitle()
+    {
+        return $this->hasOneThrough(VvipSubOptionCeoTitle::class, VvipSubOptionXref::class, 'user_id', 'id', 'id', 'option_id')->where('option_type', 'ceo_title');
+    }
+
+    public function VvipSubOptionEntrepreneur()
+    {
+        return $this->hasOneThrough(VvipSubOptionEntrepreneur::class, VvipSubOptionXref::class, 'user_id', 'id', 'id', 'option_id')->where('option_type', 'entrepreneur');
+    }
+
+    public function VvipSubOptionEntrepreneurCeoTitle()
+    {
+        return $this->hasOneThrough(VvipSubOptionCeoTitle::class, VvipSubOptionXref::class, 'user_id', 'id', 'id', 'option_remark')->where('option_type', 'entrepreneur');
+    }
+
+    public function VvipSubOptionHighAssets()
+    {
+        return $this->hasOneThrough(VvipSubOptionHighAssets::class, VvipSubOptionXref::class, 'user_id', 'id', 'id', 'option_id')->where('option_type', 'high_assets');
+    }
+
+    public function  VvipSubOptionHighNetWorth()
+    {
+        return $this->hasManyThrough( VvipSubOptionHighNetWorth::class, VvipSubOptionXref::class, 'user_id', 'id', 'id', 'option_id')->where('option_type', 'high_net_worth');
+    }
+
+    public function VvipSubOptionLifeCare()
+    {
+        return $this->hasManyThrough(VvipSubOptionLifeCare::class, VvipSubOptionXref::class, 'user_id', 'id', 'id', 'option_id')->where('option_type', 'life_care');
+    }
+
+    public function VvipSubOptionProfessional()
+    {
+        return $this->hasManyThrough(VvipSubOptionProfessional::class, VvipSubOptionXref::class, 'user_id', 'id', 'id', 'option_id')->where('option_type', 'professional');
+    }
+
+    public function VvipSubOptionProfessionalNetwork()
+    {
+        return $this->hasOneThrough(VvipSubOptionProfessionalNetwork::class, VvipSubOptionXref::class, 'user_id', 'id', 'id', 'option_id')->where('option_type', 'professional_network');
+    }
+
+    public function VvipSubOptionSpecialProblemHandling()
+    {
+        return $this->hasManyThrough(VvipSubOptionSpecialProblemHandling::class, VvipSubOptionXref::class, 'user_id', 'id', 'id', 'option_id')->where('option_type', 'special_problem_handling');
     }
 
 

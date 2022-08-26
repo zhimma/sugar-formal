@@ -93,8 +93,8 @@
                             </div>
                             <div class="ci_kborder">
                                 <div class="cl_liswidt">
-                                    @if(isset($vvipInfo) && !empty($user->VvipDataTrends))
-                                        @foreach($user->VvipDataTrends as $key => $value)
+                                    @if(isset($vvipInfo) && !empty($user->VvipDateTrend))
+                                        @foreach($user->VvipDateTrend as $key => $value)
                                             <li class="c_mr6 ">
                                                 <div class="c_hlist01">
                                                     <div class="c_hlist02 c_pr6">
