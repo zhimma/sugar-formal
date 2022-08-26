@@ -4,7 +4,7 @@
     <link rel="stylesheet" href="/new/css/swiper.min2.css">
     <link rel="stylesheet" href="/new/css/rangeslider.css">
     <style>
-        .out{ border-radius: 10px; padding: 0 10px;position: absolute; right: 0; top: 0; background: #eee;line-height: 35px;}
+        .out{ border-radius: 10px; padding: 0 10px;float: right; margin-top: -50px; background: #eee;line-height: 35px;}
         .out span{ float: left;line-height: 35px;color: #555; }
         output{display: block;padding-top:0px;font-size: 14px; float: left;line-height: 35px;color: #555;}
         .swiper-container {}
@@ -512,7 +512,7 @@
             });
             option_array = JSON.stringify(option_array);
             $('#background_and_assets_other').val(option_array);
-
+            
             //檢查背景與資產數量
             if(option_count > 4)
             {

@@ -4449,8 +4449,7 @@ border-radius:100px;margin-top:5px;font-weight:normal;font-size:18px;padding:15p
 .remove_field_1:active{background: linear-gradient(to left,#e894a5,#e894a5);box-shadow:0px 6px 4px inset rgba(212,39,75,.6)!important; }
 
 
-.remove_field_2{background-image: linear-gradient(to right, #fe92a9 0%, #ffc3d0 100%);position: absolute;color: #fff;
-    right:-4px;border-radius: 100px;height:28px;width:28px;top:4px;box-shadow: 3px 7px 7px rgba(254,146,168,0.5);}
+.remove_field_2{background-image: linear-gradient(to right, #fe92a9 0%, #ffc3d0 100%);float: right;color: #fff;margin-top: -206px; border-radius: 100px;height:28px;width:28px;box-shadow: 3px 7px 7px rgba(254,146,168,0.5);}
 .remove_field_2 img{ height:17px; margin: 0 auto; display: table; margin-top:6px;}
 .remove_field_2:active{background: linear-gradient(to left,#e894a5,#e894a5);box-shadow:0px 6px 4px inset rgba(212,39,75,.6)!important; }
 
