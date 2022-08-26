@@ -5,9 +5,11 @@ namespace App\Models;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
 
-class VvipExtraCare extends VvipParentOption
+class VvipSubOptionLifeCare extends Model
 {
     use HasFactory;
 
-    protected $table = 'vvip_option_extra_care';
+    protected $table = 'vvip_sub_option_life_care';
+
+    public $type = 'life_care';
 }

@@ -191,14 +191,13 @@
                             @foreach( $user->VvipExtraCares as $key => $value)
                                 <div class="nzhaog @if($key != 0)matop13 @endif">
                                     <div class="zhg_but"><span>{{ $value->option_name }}</span></div>
-                                    @if(!empty($value[1]))
+                                    @if(!empty($value->SubOptions))
                                     <div class="zh_text">
-                                        @if(is_array($value[1]))
-                                            @foreach($value[1] as $key2 => $value2)
-                                                @if(is_array($value2)){{$value2[0]}}@else{{$value2}}@endif
+                                        @if($value->SubOptions)
+                                            @foreach($value->SubOptions as $key2 => $value2)
+                                                {{ $value2->option_name }}
                                                 @if(!$loop->last)、@endif
                                             @endforeach
-                                            @if(!empty($value[2])){{$value[2]}}@endif
                                         @endif
                                     </div>
                                     @endif
