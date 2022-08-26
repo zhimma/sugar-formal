@@ -417,6 +417,9 @@
                             <input id="life_care" type="hidden" name="life_care" value="">
                             <input id="special_problem_handling" type="hidden" name="special_problem_handling" value="">
 
+                            <input id="system_image_assets" type="hidden" name="system_image_assets" value="">
+                            <input id="system_image_life" type="hidden" name="system_image_life" value="">
+
                             {{--複選選項--}}
 
                             <div class="n_txbut matop40">
@@ -443,6 +446,28 @@
     <script src="{{ asset('js/jquery.fileuploader.js') }}" type="text/javascript"></script>
 
     <script>
+        $(document).ready(function(){
+            @foreach($assets_image as $option)
+                @if($option->xref_id ?? false)
+                    $('.input_field_5').first().append('<div class="system_image matop10">' +
+                        '<input type="text" placeholder="請輸入至多18個字" class="msinput assets_image_top" maxlength="18" value={{$option->option_remark}}>' +
+                        '<ul class="n_ulpic" style="margin-bottom: 0;">' +
+                            '<img class="sys-img" src={{$option->option_name}} value={{$option->id}}>' +
+                        '</ul><a href="#" class="remove_field_2"><img src="/new/images/del_03n.png"></a></div>');
+                @endif
+            @endforeach
+
+            @foreach($quality_life_image as $option)
+                @if($option->xref_id ?? false)
+                    $('.input_field_6').first().append('<div class="system_image matop10">' +
+                        '<input type="text" placeholder="請輸入至多18個字" class="msinput life_top" maxlength="18" value={{$option->option_remark}}>' +
+                        '<ul class="n_ulpic" style="margin-bottom: 0;">' +
+                            '<img class="sys-img" src={{$option->option_name}} value={{$option->id}}>' +
+                        '</ul><a href="#" class="remove_field_2"><img src="/new/images/del_03n.png"></a></div>');
+                @endif
+            @endforeach
+        });
+
         $('.vvipInfo_submit').on('click',function (e) {
 
             let option_array = [];
@@ -718,9 +743,22 @@
                 }
             }
 
-            //您的財富資產
-            //您的品質生活
+            //您的財富資產-預設圖片
+            option_array = [];
+            $('.input_field_5').first().children('.system_image').each(function(){
+                option_array.push([$(this).find('.sys-img').attr('value'),$(this).children('input').val()]);
+            });
+            option_array = JSON.stringify(option_array);
+            $('#system_image_assets').val(option_array);
 
+            //您的品質生活-預設圖片
+            option_array = [];
+            $('.input_field_6').first().children('.system_image').each(function(){
+                option_array.push([$(this).find('.sys-img').attr('value'),$(this).children('input').val()]);
+            });
+            option_array = JSON.stringify(option_array);
+            $('#system_image_life').val(option_array);
+            
 
 
             $('#form_vvipEdit').submit();
@@ -954,8 +992,6 @@
                 $(this).parent('div').remove();
             });
 
-            /////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////   
-
             let add_assets_image_id = 0;
             let add_life_image_id = 0;
 
@@ -971,6 +1007,7 @@
                         '<ul class="n_ulpic" style="margin-bottom: 0;">' +
                             '<input type="file" class="files assets_image" data-fileuploader-files="" data-fileuploader-listInput="assets_image[' + add_assets_image_id + ']">' +
                         '</ul><a href="#" class="remove_field_2"><img src="/new/images/del_03n.png"></a></div>');
+
                         uploaderFunction($(".input_field_5").find('.assets_image').last());
                 }
             });
@@ -992,6 +1029,7 @@
                         '<ul class="n_ulpic" style="margin-bottom: 0;">' +
                             '<input type="file" class="files life" data-fileuploader-files="" data-fileuploader-listInput="quality_life_image[' + add_life_image_id + ']">' +
                         '</ul><a href="#" class="remove_field_2"><img src="/new/images/del_03n.png"></a></div>');
+
                     uploaderFunction($(".input_field_6").find('.life').last());
                 }
             });
@@ -1011,7 +1049,7 @@
                     $('.input_field_5').first().append('<div class="system_image matop10">' +
                         '<input type="text" placeholder="請輸入至多18個字" class="msinput assets_image_top" maxlength="18">' +
                         '<ul class="n_ulpic" style="margin-bottom: 0;">' +
-                            '<img src=' + $(this).attr('src') + ' value=' + $(this).attr('value') + '>' +
+                            '<img class="sys-img" src=' + $(this).attr('src') + ' value=' + $(this).attr('value') + '>' +
                         '</ul><a href="#" class="remove_field_2"><img src="/new/images/del_03n.png"></a></div>');
                 }
             });
@@ -1027,7 +1065,7 @@
                     $('.input_field_6').first().append('<div class="system_image matop10">' +
                         '<input type="text" placeholder="請輸入至多18個字" class="msinput life_top" maxlength="18">' +
                         '<ul class="n_ulpic" style="margin-bottom: 0;">' +
-                            '<img src=' + $(this).attr('src') + ' value=' + $(this).attr('value') + '>' +
+                            '<img class="sys-img" src=' + $(this).attr('src') + ' value=' + $(this).attr('value') + '>' +
                         '</ul><a href="#" class="remove_field_2"><img src="/new/images/del_03n.png"></a></div>');
                 }
             });
