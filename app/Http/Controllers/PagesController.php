@@ -9716,8 +9716,15 @@ class PagesController extends BaseController
         if($request->expect_date_other ?? false)
         {$option_array_other['expect_date_other'] = json_decode($request->expect_date_other);}
 
+        //重置選項
+        VvipOptionXref::reset($user->id);
+        //插入選項
         VvipOptionXref::update_multiple_option($user->id, $option_array, $option_array_other);
-
+        //預設圖片處理
+        $system_image_assets = json_decode($request->system_image_assets);
+        VvipOptionXref::updateMultipleOptionAndRemark($user->id, $system_image_assets, 'assets_image');
+        $system_image_life = json_decode($request->system_image_life);
+        VvipOptionXref::updateMultipleOptionAndRemark($user->id, $system_image_life, 'quality_life_image');
 
         //圖片上傳處理
         if($request->assets_image ?? false || $request->assets_image_content ?? false)
@@ -9725,8 +9732,9 @@ class PagesController extends BaseController
         if($request->life ?? false || $request->life_content ?? false)
         {VvipOptionXref::uploadImage($user->id, 'quality_life_image', $request->quality_life_image, $request->life_image_content);}
 
-
+        //重置選項
         VvipSubOptionXref::reset($user->id);
+        //插入選項
         VvipSubOptionXref::updateHighAssets($user->id, $request->high_assets, $request->high_assets_other);
         VvipSubOptionXref::updateCeoTitle($user->id, $request->ceo_title);
         $professional = json_decode($request->professional);
