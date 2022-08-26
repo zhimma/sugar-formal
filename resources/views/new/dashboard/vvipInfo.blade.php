@@ -308,11 +308,11 @@
                             <div class="ziliao_1" style="margin-top: 25px;">
                                 <div class="zlsapn_1">五、您的財富資產<span><img src="/new/images/zhy_5.png">至多選四個</span></div>
 
-                                <div class="xl_system system">
+                                <div id="assets_image_input_field" class="xl_system system">
                                     <div class="qingx">請輸入您最象徵性的財富資產。Ex. ROLEX名錶、獨棟豪宅、BMW/賓士等各式名車等</div>
                                     <div class="red">※優先使用上傳圖檔，如已選擇系統圖片將不會被存取</div>
                                     <div class="miaoshu">
-                                        <div class="input_field_5 matop10">
+                                        <div class="input_field_5 matop10 image_input_field">
                                         </div>
                                     </div>
                                     <a href="javascript:void(0)" type="button" id="add_image_5" class="ms_xinz mabot_20 matop20"><img src="/new/images/zhy_1.png">新增</a>
@@ -325,7 +325,7 @@
                                                 <div class="swiper-wrapper">
                                                     @foreach($assets_image as $option)
                                                         <div class="swiper-slide sild">
-                                                            <div class="cbg_ont"><img src={{$option->option_name}}></div>
+                                                            <div class="cbg_ont"><img src={{$option->option_name}} value={{$option->id}}></div>
                                                         </div>
                                                     @endforeach
                                                 </div>
@@ -343,11 +343,12 @@
                             <!-- 六、您的品質生活 -->
                             <div class="ziliao_1" style="margin-top: 25px;">
                                 <div class="zlsapn_1">六、您的品質生活<span><img src="/new/images/zhy_5.png">至多選兩個</span></div>
-                                <div class="xl_system system">
+                                
+                                <div id="life_image_input_field" class="xl_system system">
                                     <div class="qingx">輸入您喜愛的生活體驗或事物。Ex. 喜愛的餐廳：高級日式料理、出國旅遊、休閒娛樂：打高爾夫等。</div>
                                     <div class="red">※優先使用上傳圖檔，如已選擇系統圖片將不會被存取</div>
                                     <div class="miaoshu">
-                                        <div class="input_field_6 matop10">
+                                        <div class="input_field_6 matop10 image_input_field">
                                         </div>
                                     </div>
                                     <a href="javascript:void(0)" type="button" id="add_image_6" class="ms_xinz mabot_20 matop20"><img src="/new/images/zhy_1.png">新增</a>
@@ -359,7 +360,7 @@
                                                 <div class="swiper-wrapper">
                                                     @foreach($quality_life_image as $option)
                                                         <div class="swiper-slide sild">
-                                                            <div class="cbg_ont"><img src={{$option->option_name}}></div>
+                                                            <div class="cbg_ont"><img src={{$option->option_name}} value={{$option->id}}></div>
                                                         </div>
                                                     @endforeach
                                                 </div>
@@ -399,16 +400,12 @@
                             <input id="date_trend" type="hidden" name="date_trend" value="">
                             <input id="background_and_assets" type="hidden" name="background_and_assets" value="">
                             <input id="extra_care" type="hidden" name="extra_care" value="">
-                            <input id="assets_image" type="hidden" name="assets_image" value="">
-                            <input id="quality_life_image" type="hidden" name="quality_life_image" value="">
                             <input id="expect_date" type="hidden" name="expect_date" value="">
 
                             <input id="point_information_other" type="hidden" name="point_information_other" value="">
                             <input id="date_trend_other" type="hidden" name="date_trend_other" value="">
                             <input id="background_and_assets_other" type="hidden" name="background_and_assets_other" value="">
                             <input id="extra_care_other" type="hidden" name="extra_care_other" value="">
-                            <input id="assets_image_other" type="hidden" name="assets_image_other" value="">
-                            <input id="quality_life_image_other" type="hidden" name="quality_life_image_other" value="">
                             <input id="expect_date_other" type="hidden" name="expect_date_other" value="">
 
                             <input id="high_assets" type="hidden" name="high_assets" value="">
@@ -721,6 +718,9 @@
                 }
             }
 
+            //您的財富資產
+            //您的品質生活
+
 
 
             $('#form_vvipEdit').submit();
@@ -956,16 +956,20 @@
 
             /////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////   
 
+            let add_assets_image_id = 0;
+            let add_life_image_id = 0;
+
             $("#add_image_5").click(function(e) {
+                add_assets_image_id = add_assets_image_id + 1;
                 if($('.assets_image_top:last').val()==''){
                     c5('您尚未輸入文字');
                     return false;
                 }else {
                     e.preventDefault();
                     $(".input_field_5").append('<div class="custom matop10">' +
-                        '<input type="text" placeholder="請輸入至多18個字" class="msinput assets_image_top" maxlength="18">' +
+                        '<input type="text" placeholder="請輸入至多18個字" class="msinput assets_image_top" name="assets_image_content[' + add_assets_image_id + ']" maxlength="18">' +
                         '<ul class="n_ulpic" style="margin-bottom: 0;">' +
-                            '<input type="file" class="files assets_image" data-fileuploader-files="" data-fileuploader-listInput=""><img class="demo"/>' +
+                            '<input type="file" class="files assets_image" data-fileuploader-files="" data-fileuploader-listInput="assets_image[' + add_assets_image_id + ']">' +
                         '</ul><a href="#" class="remove_field_2"><img src="/new/images/del_03n.png"></a></div>');
                         uploaderFunction($(".input_field_5").find('.assets_image').last());
                 }
@@ -977,15 +981,16 @@
             });
 
             $("#add_image_6").click(function(e) {
+                add_life_image_id = add_life_image_id + 1;
                 if($('.life_top:last').val()==''){
                     c5('您尚未輸入文字');
                     return false;
                 }else {
                     e.preventDefault();
                     $(".input_field_6").append('<div class="custom matop10">' +
-                        '<input type="text" placeholder="請輸入至多18個字" class="msinput life_top" maxlength="18">' +
+                        '<input type="text" placeholder="請輸入至多18個字" class="msinput life_top" name="life_image_content[' + add_life_image_id + ']" maxlength="18">' +
                         '<ul class="n_ulpic" style="margin-bottom: 0;">' +
-                            '<input type="file" class="files life" data-fileuploader-files="" data-fileuploader-listInput=""><img class="demo"/>' +
+                            '<input type="file" class="files life" data-fileuploader-files="" data-fileuploader-listInput="quality_life_image[' + add_life_image_id + ']">' +
                         '</ul><a href="#" class="remove_field_2"><img src="/new/images/del_03n.png"></a></div>');
                     uploaderFunction($(".input_field_6").find('.life').last());
                 }
@@ -995,8 +1000,36 @@
                 $(this).parent('div').remove();
             });
 
-            $('.cbg_ont img').click(function(e) {
-                
+            $('#assets_image_input_field').find('.cbg_ont').children('img').click(function(e) {
+                if($('.assets_image_top:last').val()=='')
+                {
+                    c5('您尚未輸入文字');
+                    return false;
+                }
+                else
+                {
+                    $('.input_field_5').first().append('<div class="system_image matop10">' +
+                        '<input type="text" placeholder="請輸入至多18個字" class="msinput assets_image_top" maxlength="18">' +
+                        '<ul class="n_ulpic" style="margin-bottom: 0;">' +
+                            '<img src=' + $(this).attr('src') + ' value=' + $(this).attr('value') + '>' +
+                        '</ul><a href="#" class="remove_field_2"><img src="/new/images/del_03n.png"></a></div>');
+                }
+            });
+
+            $('#life_image_input_field').find('.cbg_ont').children('img').click(function(e) {
+                if($('.life_top:last').val()=='')
+                {
+                    c5('您尚未輸入文字');
+                    return false;
+                }
+                else
+                {
+                    $('.input_field_6').first().append('<div class="system_image matop10">' +
+                        '<input type="text" placeholder="請輸入至多18個字" class="msinput life_top" maxlength="18">' +
+                        '<ul class="n_ulpic" style="margin-bottom: 0;">' +
+                            '<img src=' + $(this).attr('src') + ' value=' + $(this).attr('value') + '>' +
+                        '</ul><a href="#" class="remove_field_2"><img src="/new/images/del_03n.png"></a></div>');
+                }
             });
         });
     </script>

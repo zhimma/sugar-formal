@@ -9702,10 +9702,6 @@ class PagesController extends BaseController
         {$option_array['background_and_assets'] = json_decode($request->background_and_assets);}
         if($request->extra_care ?? false)
         {$option_array['extra_care'] = json_decode($request->extra_care);}
-        if($request->assets_image ?? false)
-        {$option_array['assets_image'] = json_decode($request->assets_image);}
-        if($request->quality_life_image ?? false)
-        {$option_array['quality_life_image'] = json_decode($request->quality_life_image);}
         if($request->expect_date ?? false)
         {$option_array['expect_date'] = json_decode($request->expect_date);}
 
@@ -9717,15 +9713,17 @@ class PagesController extends BaseController
         {$option_array_other['background_and_assets_other'] = json_decode($request->background_and_assets_other);}
         if($request->extra_care_other ?? false)
         {$option_array_other['extra_care_other'] = json_decode($request->extra_care_other);}
-        if($request->assets_image_other ?? false)
-        {$option_array_other['assets_image_other'] = json_decode($request->assets_image_other);}
-        if($request->quality_life_image_other ?? false)
-        {$option_array_other['quality_life_image_other'] = json_decode($request->quality_life_image_other);}
         if($request->expect_date_other ?? false)
         {$option_array_other['expect_date_other'] = json_decode($request->expect_date_other);}
 
         VvipOptionXref::update_multiple_option($user->id, $option_array, $option_array_other);
 
+
+        //圖片上傳處理
+        if($request->assets_image ?? false || $request->assets_image_content ?? false)
+        {VvipOptionXref::uploadImage($user->id, 'assets_image', $request->assets_image, $request->assets_image_content);}
+        if($request->life ?? false || $request->life_content ?? false)
+        {VvipOptionXref::uploadImage($user->id, 'quality_life_image', $request->quality_life_image, $request->life_image_content);}
 
 
         VvipSubOptionXref::reset($user->id);
