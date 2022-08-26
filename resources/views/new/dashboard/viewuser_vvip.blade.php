@@ -62,7 +62,16 @@
                     <div class="v_tx">
                         <div class="c_toux"><img src="@if(file_exists( public_path().$targetUser->meta->pic ) && $targetUser->meta->pic != ""){{$targetUser->meta->pic}} @elseif($targetUser->engroup==2)/new/images/female.png @else/new/images/male.png @endif" class="hycov"></div>
                         <div class="c_tfontright">
-                            <h1><span>{{$targetUser->name}}</span><span class="ci_tub">{{$targetUser->VvipSubOptionEntrepreneur->first()->option_name}} {{$targetUser->VvipSubOptionEntrepreneurCeoTitle->first()->option_name}}</span></h1>
+                            <h1>
+                                <span>
+                                    {{$targetUser->name}}
+                                </span>
+                                @if($targetUser->VvipSubOptionEntrepreneur ?? false)
+                                <span class="ci_tub">
+                                    {{$targetUser->VvipSubOptionEntrepreneur->first()->option_name}} {{$targetUser->VvipSubOptionEntrepreneurCeoTitle->first()->option_name}}
+                                </span>
+                                @endif
+                            </h1>
                         </div>
                     </div>
                     <div class="ci_jianjie"><span>{!! nl2br($targetUser->title)!!}</span></div>
