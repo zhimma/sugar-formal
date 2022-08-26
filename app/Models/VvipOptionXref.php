@@ -111,11 +111,10 @@ class VvipOptionXref extends Model
     {
         $insert_data = [];
         $now_time = Carbon::now();
-        foreach($image_array as $key => $image)
+        foreach($image_content_array as $key => $content)
         {
             $file_name = uniqid();
             $file_path = '';
-            $content = $image_content_array[$key];
 
             //上傳圖片
             $rootPath = public_path('/img/vvipInfo');
@@ -125,8 +124,7 @@ class VvipOptionXref extends Model
                 File::makeDirectory($tempPath, 0777, true);
             }
 
-            /*
-            $fileUploader = new FileUploader($type_name, array(
+            $fileUploader = new FileUploader($type_name.'_'.$key, array(
                 'extensions' => null,
                 'required' => false,
                 'uploadDir' => $tempPath,
@@ -145,9 +143,6 @@ class VvipOptionXref extends Model
                     $file_path = '/img/vvipInfo' . $path;
                 }
             }
-            */
-
-            Storage::put($file_name, $tempPath);
 
             //上傳圖片相關資料
             $custom_option_id = DB::table('vvip_option_' . $type_name)->insertGetId(['option_name' => $file_path, 'is_custom' => 1]);
