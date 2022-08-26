@@ -190,7 +190,7 @@
                     <div class="nn_zeng">
                             @foreach( $user->VvipExtraCares as $key => $value)
                                 <div class="nzhaog @if($key != 0)matop13 @endif">
-                                    <div class="zhg_but"><span>{{$value[0]}}</span></div>
+                                    <div class="zhg_but"><span>{{ $value->option_name }}</span></div>
                                     @if(!empty($value[1]))
                                     <div class="zh_text">
                                         @if(is_array($value[1]))
