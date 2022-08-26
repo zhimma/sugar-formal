@@ -73,12 +73,12 @@
                             </div>
                             <div class="ci_kborder">
                                 <div class="cl_liswidt">
-                                    @if(isset($vvipInfo) && !empty(json_decode($vvipInfo->point, true)))
-                                        @foreach( json_decode($vvipInfo->point, true) as $key => $value)
+                                    @if(isset($vvipInfo) && !empty($user->VvipPointInfos))
+                                        @foreach($user->VvipPointInfos as $key => $value)
                                             <li class="c_mr6 ">
                                                 <div class="c_hlist01">
                                                     <div class="c_hlist02 c_pr6">
-                                                        <div class="c_hfont01">{{$value[0]}}</div>
+                                                        <div class="c_hfont01">{{ $value->option_name }}</div>
                                                     </div>
                                                 </div>
                                             </li>
@@ -93,16 +93,16 @@
                             </div>
                             <div class="ci_kborder">
                                 <div class="cl_liswidt">
-                                    @if(isset($vvipInfo) && !empty(json_decode($vvipInfo->date_trend, true)))
-                                    @foreach( json_decode($vvipInfo->date_trend, true) as $key => $value)
-                                        <li class="c_mr6 ">
-                                            <div class="c_hlist01">
-                                                <div class="c_hlist02 c_pr6">
-                                                    <div class="c_hfont01">{{$value[0]}}</div>
+                                    @if(isset($vvipInfo) && !empty($user->VvipDataTrends))
+                                        @foreach($user->VvipDataTrends as $key => $value)
+                                            <li class="c_mr6 ">
+                                                <div class="c_hlist01">
+                                                    <div class="c_hlist02 c_pr6">
+                                                        <div class="c_hfont01">{{ $value->option_name }}</div>
+                                                    </div>
                                                 </div>
-                                            </div>
-                                        </li>
-                                    @endforeach
+                                            </li>
+                                        @endforeach
                                     @endif
                                 </div>
                             </div>
@@ -186,19 +186,18 @@
                         <span style="font-size: 18px;">Daddy溫情照顧</span>
                         <font>Warm care</font>
                     </div>
-                    @if(isset($vvipInfo) && !empty(json_decode($vvipInfo->extra_care, true)))
+                    @if(isset($vvipInfo) && !empty($user->VvipExtraCares))
                     <div class="nn_zeng">
-                            @foreach( json_decode($vvipInfo->extra_care, true) as $key => $value)
+                            @foreach( $user->VvipExtraCares as $key => $value)
                                 <div class="nzhaog @if($key != 0)matop13 @endif">
-                                    <div class="zhg_but"><span>{{$value[0]}}</span></div>
-                                    @if(!empty($value[1]))
+                                    <div class="zhg_but"><span>{{ $value->option_name }}</span></div>
+                                    @if(!empty($value->SubOptions))
                                     <div class="zh_text">
-                                        @if(is_array($value[1]))
-                                            @foreach($value[1] as $key2 => $value2)
-                                                @if(is_array($value2)){{$value2[0]}}@else{{$value2}}@endif
+                                        @if($value->SubOptions)
+                                            @foreach($value->SubOptions as $key2 => $value2)
+                                                {{ $value2->option_name }}
                                                 @if(!$loop->last)、@endif
                                             @endforeach
-                                            @if(!empty($value[2])){{$value[2]}}@endif
                                         @endif
                                     </div>
                                     @endif
