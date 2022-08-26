@@ -446,27 +446,6 @@
     <script src="{{ asset('js/jquery.fileuploader.js') }}" type="text/javascript"></script>
 
     <script>
-        $(document).ready(function(){
-            @foreach($assets_image as $option)
-                @if($option->xref_id ?? false)
-                    $('.input_field_5').first().append('<div class="system_image matop10">' +
-                        '<input type="text" placeholder="請輸入至多18個字" class="msinput assets_image_top" maxlength="18" value={{$option->option_remark}}>' +
-                        '<ul class="n_ulpic" style="margin-bottom: 0;">' +
-                            '<img class="sys-img" src={{$option->option_name}} value={{$option->id}}>' +
-                        '</ul><a href="#" class="remove_field_2"><img src="/new/images/del_03n.png"></a></div>');
-                @endif
-            @endforeach
-
-            @foreach($quality_life_image as $option)
-                @if($option->xref_id ?? false)
-                    $('.input_field_6').first().append('<div class="system_image matop10">' +
-                        '<input type="text" placeholder="請輸入至多18個字" class="msinput life_top" maxlength="18" value={{$option->option_remark}}>' +
-                        '<ul class="n_ulpic" style="margin-bottom: 0;">' +
-                            '<img class="sys-img" src={{$option->option_name}} value={{$option->id}}>' +
-                        '</ul><a href="#" class="remove_field_2"><img src="/new/images/del_03n.png"></a></div>');
-                @endif
-            @endforeach
-        });
 
         $('.vvipInfo_submit').on('click',function (e) {
 
@@ -1005,16 +984,11 @@
                     $(".input_field_5").append('<div class="custom matop10">' +
                         '<input type="text" placeholder="請輸入至多18個字" class="msinput assets_image_top" name="assets_image_content[' + add_assets_image_id + ']" maxlength="18">' +
                         '<ul class="n_ulpic" style="margin-bottom: 0;">' +
-                            '<input type="file" class="files assets_image" data-fileuploader-files="" data-fileuploader-listInput="assets_image[' + add_assets_image_id + ']">' +
+                            '<input type="file" id="assets_image_' + add_assets_image_id + '" name="assets_image_' + add_assets_image_id + '" class="files assets_image" data-fileuploader-files="" data-fileuploader-listInput="assets_image_' + add_assets_image_id + '">' +
                         '</ul><a href="#" class="remove_field_2"><img src="/new/images/del_03n.png"></a></div>');
 
                         uploaderFunction($(".input_field_5").find('.assets_image').last());
                 }
-            });
-            
-            $(".input_field_5").on("click", ".remove_field_2", function(e) {
-                e.preventDefault();
-                $(this).parent('div').remove();
             });
 
             $("#add_image_6").click(function(e) {
@@ -1027,15 +1001,11 @@
                     $(".input_field_6").append('<div class="custom matop10">' +
                         '<input type="text" placeholder="請輸入至多18個字" class="msinput life_top" name="life_image_content[' + add_life_image_id + ']" maxlength="18">' +
                         '<ul class="n_ulpic" style="margin-bottom: 0;">' +
-                            '<input type="file" class="files life" data-fileuploader-files="" data-fileuploader-listInput="quality_life_image[' + add_life_image_id + ']">' +
+                            '<input type="file" id="quality_life_image_' + add_life_image_id + '" name="quality_life_image_' + add_life_image_id + '" class="files life" data-fileuploader-files="" data-fileuploader-listInput="quality_life_image_' + add_life_image_id + '">' +
                         '</ul><a href="#" class="remove_field_2"><img src="/new/images/del_03n.png"></a></div>');
 
                     uploaderFunction($(".input_field_6").find('.life').last());
                 }
-            });
-            $(".input_field_6").on("click", ".remove_field_2", function(e) {
-                e.preventDefault();
-                $(this).parent('div').remove();
             });
 
             $('#assets_image_input_field').find('.cbg_ont').children('img').click(function(e) {
@@ -1068,6 +1038,36 @@
                             '<img class="sys-img" src=' + $(this).attr('src') + ' value=' + $(this).attr('value') + '>' +
                         '</ul><a href="#" class="remove_field_2"><img src="/new/images/del_03n.png"></a></div>');
                 }
+            });
+
+            @foreach($assets_image as $option)
+                @if($option->xref_id ?? false)
+                    $('.input_field_5').first().append('<div class="system_image matop10">' +
+                        '<input type="text" placeholder="請輸入至多18個字" class="msinput assets_image_top" maxlength="18" value={{$option->option_remark}}>' +
+                        '<ul class="n_ulpic" style="margin-bottom: 0;">' +
+                            '<img class="sys-img" src={{$option->option_name}} value={{$option->id}}>' +
+                        '</ul><a href="#" class="remove_field_2"><img src="/new/images/del_03n.png"></a></div>');
+                @endif
+            @endforeach
+
+            @foreach($quality_life_image as $option)
+                @if($option->xref_id ?? false)
+                    $('.input_field_6').first().append('<div class="system_image matop10">' +
+                        '<input type="text" placeholder="請輸入至多18個字" class="msinput life_top" maxlength="18" value={{$option->option_remark}}>' +
+                        '<ul class="n_ulpic" style="margin-bottom: 0;">' +
+                            '<img class="sys-img" src={{$option->option_name}} value={{$option->id}}>' +
+                        '</ul><a href="#" class="remove_field_2"><img src="/new/images/del_03n.png"></a></div>');
+                @endif
+            @endforeach
+
+            $(".input_field_5").on("click", ".remove_field_2", function(e) {
+                e.preventDefault();
+                $(this).parent('div').remove();
+            });
+
+            $(".input_field_6").on("click", ".remove_field_2", function(e) {
+                e.preventDefault();
+                $(this).parent('div').remove();
             });
         });
     </script>
