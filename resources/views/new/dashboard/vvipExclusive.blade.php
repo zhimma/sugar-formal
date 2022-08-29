@@ -44,7 +44,7 @@
                             </div>
                             <div class="fenye mabot30">
                                 <a href="javascript:void(0);" class="tour" id="page01">上一頁</a>
-                                <span class="new_page">2/8</span>
+                                <span class="new_page">2/7</span>
                                 <a href="javascript:void(0);" class="tour" id="page03">下一頁</a>
                             </div>
                         </div>
@@ -64,11 +64,12 @@
                             </div>
                             <div class="fenye mabot30">
                                 <a href="javascript:void(0);" class="tour" id="page02">上一頁</a>
-                                <span class="new_page">3/8</span>
-                                <a href="javascript:void(0);" class="tour" id="page04">下一頁</a>
+                                <span class="new_page">3/7</span>
+                                <a href="javascript:void(0);" class="tour" id="page05">下一頁</a>
                             </div>
                         </div>
 
+                        {{--
                         <div class="vvip_page page04" style="display: none;">
                             <div class="quxiao_qb">
                                 <h2 class="qxfa_title">d: VVIP訊息專屬特別提示</h2>
@@ -142,10 +143,11 @@
                                 <a href="javascript:void(0);" class="tour" id="page05">下一頁</a>
                             </div>
                         </div>
+                        --}}
 
                         <div class="vvip_page page05" style="display: none;">
                             <div class="quxiao_qb">
-                                <h2 class="qxfa_title">e: 專屬客服</h2>
+                                <h2 class="qxfa_title">d: 專屬客服</h2>
                                 <div class="qx_fbt">
                                     vvip 將有最快速的客服服務，現場客服無法處理的問題會快速直達站長。
                                 </div>
@@ -167,15 +169,15 @@
 {{--                            </div>--}}
 
                             <div class="fenye mabot30">
-                                <a href="javascript:void(0);" class="tour" id="page04">上一頁</a>
-                                <span class="new_page">5/8</span>
+                                <a href="javascript:void(0);" class="tour" id="page03">上一頁</a>
+                                <span class="new_page">4/7</span>
                                 <a href="javascript:void(0);" class="tour" id="page06">下一頁</a>
                             </div>
                         </div>
 
                         <div class="vvip_page page06" style="display: none;">
                             <div class="quxiao_qb">
-                                <h2 class="qxfa_title">f: 站方認證高級女會員</h2>
+                                <h2 class="qxfa_title">e: 站方認證高級女會員</h2>
                                 <div class="qx_fbt">
                                     站方為您把關，以真人視訊方式進行驗證
                                 </div>
@@ -236,14 +238,14 @@
 
                             <div class="fenye mabot30">
                                 <a href="javascript:void(0);" class="tour" id="page05">上一頁</a>
-                                <span class="new_page">6/8</span>
+                                <span class="new_page">5/7</span>
                                 <a href="javascript:void(0);" class="tour" id="page07">下一頁</a>
                             </div>
                         </div>
 
                         <div class="vvip_page page07" style="display: none;">
                             <div class="quxiao_qb">
-                                <h2 class="qxfa_title">g: 名人專屬</h2>
+                                <h2 class="qxfa_title">f: 名人專屬</h2>
                                 <div class="qx_fbt">
                                     站方認證的特殊/具知名度女會員，將依照女會員的意願，優先開放給 vvip
                                 </div>
@@ -263,7 +265,7 @@
 {{--                            </div>--}}
                             <div class="fenye mabot30">
                                 <a href="javascript:void(0);" class="tour" id="page06">上一頁</a>
-                                <span class="new_page">7/8</span>
+                                <span class="new_page">6/7</span>
                                 <a href="javascript:void(0);" class="tour" id="page08">下一頁</a>
                             </div>
                         </div>
