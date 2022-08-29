@@ -365,6 +365,7 @@
                                     class="loading_text">loading</span></div>
                             <ul class="sjlist sjlist_alert">
                             </ul>
+                            <div class="page page_warned fenye" style="text-align: center;"></div>
                         </dd>
                         @if(($user->isVip() && ($user->engroup==1 || $user->engroup==2)) || (!$user->isVip() &&
                         $user->engroup==2))
@@ -378,6 +379,7 @@
                                     class="loading_text">loading</span></div>
                             <ul class="sjlist sjlist_banned">
                             </ul>
+                            <div class="page page_banned fenye" style="text-align: center;"></div>
                         </dd>
                     </dl>
                 </div>
@@ -680,11 +682,11 @@
                     date= $("#daysSelect option:selected").val();
 
                     if(date==7) {
-                        $('.sjlist_alert>.date7.novipMember').slice((Page_warned.page - 1) * Page_warned.row, Page_warned.page * Page_warned.row).css('display', '');
+                        $('.sjlist_alert>.date7.alertMember').slice((Page_warned.page - 1) * Page_warned.row, Page_warned.page * Page_warned.row).css('display', '');
                     }else if(date==30){
-                        $('.sjlist_alert>.common30.novipMember').slice((Page_warned.page - 1) * Page_warned.row, Page_warned.page * Page_warned.row).css('display', '');
+                        $('.sjlist_alert>.common30.alertMember').slice((Page_warned.page - 1) * Page_warned.row, Page_warned.page * Page_warned.row).css('display', '');
                     }else{
-                        $('.sjlist_alert>.novipMember').slice((Page_warned.page - 1) * Page_warned.row, Page_warned.page * Page_warned.row).css('display', '');
+                        $('.sjlist_alert>.alertMember').slice((Page_warned.page - 1) * Page_warned.row, Page_warned.page * Page_warned.row).css('display', '');
                     }
 
                     $('.sjlist_alert>.li_no_data').remove();
@@ -745,11 +747,11 @@
                     date= $("#daysSelect option:selected").val();
 
                     if(date==7) {
-                        $('.sjlist_banned>.date7.novipMember').slice((Page_banned.page - 1) * Page_banned.row, Page_banned.page * Page_banned.row).css('display', '');
+                        $('.sjlist_banned>.date7.bannedMember').slice((Page_banned.page - 1) * Page_banned.row, Page_banned.page * Page_banned.row).css('display', '');
                     }else if(date==30){
-                        $('.sjlist_banned>.common30.novipMember').slice((Page_banned.page - 1) * Page_banned.row, Page_banned.page * Page_banned.row).css('display', '');
+                        $('.sjlist_banned>.common30.bannedMember').slice((Page_banned.page - 1) * Page_banned.row, Page_banned.page * Page_banned.row).css('display', '');
                     }else{
-                        $('.sjlist_banned>.novipMember').slice((Page_banned.page - 1) * Page_banned.row, Page_banned.page * Page_banned.row).css('display', '');
+                        $('.sjlist_banned>.bannedMember').slice((Page_banned.page - 1) * Page_banned.row, Page_banned.page * Page_banned.row).css('display', '');
                     }
 
                     $('.sjlist_banned>.li_no_data').remove();
@@ -971,6 +973,11 @@
                         $('.sjlist_novip').html('');
                         $('.page_vip').hide();
                         $('.page_novip').hide();
+                        
+                        $('.sjlist_alert').html('');
+                        $('.sjlist_banned').html('');
+                        $('.page_warned').hide();
+                        $('.page_banned').hide();                        
                     @elseif($user->engroup==1)
                         @php
                             $exchange_period_name = DB::table('exchange_period_name')->get();
@@ -1576,6 +1583,9 @@
                 Page_noVip.page=1;
                 $('.page_vip').hide();
                 $('.page_novip').hide();
+                
+                $('.page_warned').hide();
+                $('.page_banned').hide();                
             @endif
 
             $('.warning').show();
