@@ -499,10 +499,6 @@
             //背景與資產-自填
             option_array = [];
             option_array.push($('.input_field_3').children().first().val());
-            if($('.input_field_3').children().first().val() != '')
-            {
-                option_count = option_count + 1;
-            }
             $('.input_field_3').children('.custom').each(function(){
                 option_array.push($(this).children('.msinput').val());
                 if($(this).children('.msinput').val() != '')
@@ -533,10 +529,6 @@
             //額外照顧-自填
             option_array = [];
             option_array.push($('.input_field_4').children().first().val());
-            if($('.input_field_4').children().first().val() != '')
-            {
-                option_count = option_count + 1;
-            }
             $('.input_field_4').children('.custom').each(function(){
                 option_array.push($(this).children('.msinput').val());
                 if($(this).children('.msinput').val() != '')
@@ -567,10 +559,6 @@
             //期待的約會模式-自填
             option_array = [];
             option_array.push($('.input_field_7').children().first().val());
-            if($('.input_field_7').children().first().val() != '')
-            {
-                option_count = option_count + 1;
-            }
             $('.input_field_7').children('.custom').each(function(){
                 option_array.push($(this).children('.msinput').val());
                 if($(this).children('.msinput').val() != '')
@@ -737,6 +725,20 @@
             });
             option_array = JSON.stringify(option_array);
             $('#system_image_life').val(option_array);
+
+            //檢查您的財富資產數量
+            if($('.input_field_5').children('div').length > 4)
+            {
+                c5('您的財富資產至多選擇四個')
+                    return false;
+            }
+
+            //檢查您的品質生活數量
+            if($('.input_field_6').children('div').length > 2)
+            {
+                c5('您的品質生活至多選擇兩個')
+                    return false;
+            }
             
 
 

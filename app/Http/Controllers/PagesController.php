@@ -9728,9 +9728,9 @@ class PagesController extends BaseController
         VvipOptionXref::updateMultipleOptionAndRemark($user->id, $system_image_life, 'quality_life_image');
 
         //圖片上傳處理
-        if($request->assets_image ?? false || $request->assets_image_content ?? false)
+        if($request->assets_image_content ?? false)
         {VvipOptionXref::uploadImage($user->id, 'assets_image', $request->assets_image, $request->assets_image_content);}
-        if($request->life ?? false || $request->life_content ?? false)
+        if($request->life_image_content ?? false)
         {VvipOptionXref::uploadImage($user->id, 'quality_life_image', $request->quality_life_image, $request->life_image_content);}
 
         //重置選項

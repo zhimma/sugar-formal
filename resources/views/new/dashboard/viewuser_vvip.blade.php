@@ -155,14 +155,20 @@
                                     <div class="nn_li_01"><span>{{$option->option_name}}</span></div>
                                     <div class="nn_li_02">
                                         @if($option->option_name == '專業人士')
-                                            @foreach($targetUser->VvipSubOptionProfessional as $sub_option)
-                                                {{$sub_option->option_name}}、
+                                            @foreach($targetUser->VvipSubOptionProfessional as $key => $sub_option)
+                                                @if($key !== 0)
+                                                、
+                                                @endif
+                                                {{$sub_option->option_name}}
                                             @endforeach
                                         @elseif($option->option_name == '高資產人士')
-                                            @foreach($targetUser->VvipSubOptionHighNetWorth as $sub_option)
+                                            @foreach($targetUser->VvipSubOptionHighNetWorth as $key => $sub_option)
+                                                @if($key !== 0)
+                                                、
+                                                @endif
                                                 {{$sub_option->option_name}}
                                                 {{DB::table('vvip_sub_option_xref')->where('user_id', $targetUser->id)->where('option_type', 'high_net_worth')->where('option_id', $sub_option->id)->first()->option_remark}}
-                                                %、
+                                                %
                                             @endforeach
                                         @elseif($option->option_name == '企業家')
                                             {{$targetUser->VvipSubOptionEntrepreneur->first()->option_name}}{{$targetUser->VvipSubOptionEntrepreneurCeoTitle->first()->option_name}}
@@ -193,20 +199,25 @@
                                             @php
                                                 $network_depth = DB::table('vvip_sub_option_xref')->where('user_id', $targetUser->id)->where('option_type', 'professional_network')->first()->option_remark;
                                             @endphp
-                                            {{$targetUser->VvipSubOptionProfessionalNetwork->first()->option_name}}
-                                            、
+                                            {{$targetUser->VvipSubOptionProfessionalNetwork->first()->option_name}}、
                                             @if($network_depth == 'high')
                                                 可視情況幫baby安排實習/正式職務
                                             @elseif($network_depth == 'low')
                                                 只能提供顧問以及諮詢
                                             @endif
                                         @elseif($option->option_name == '生活照顧')
-                                            @foreach($targetUser->VvipSubOptionLifeCare as $sub_option)
-                                                {{$sub_option->option_name}}、
+                                            @foreach($targetUser->VvipSubOptionLifeCare as $key => $sub_option)
+                                                @if($key !== 0)
+                                                、
+                                                @endif
+                                                {{$sub_option->option_name}}
                                             @endforeach
                                         @elseif($option->option_name == '特殊問題處理')
-                                            @foreach($targetUser->VvipSubOptionSpecialProblemHandling as $sub_option)
-                                                {{$sub_option->option_name}}、
+                                            @foreach($targetUser->VvipSubOptionSpecialProblemHandling as $key => $sub_option)
+                                                @if($key !== 0)
+                                                、
+                                                @endif
+                                                {{$sub_option->option_name}}
                                             @endforeach
                                         @endif
                                     </div>

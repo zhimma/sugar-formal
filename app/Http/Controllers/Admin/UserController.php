@@ -6937,7 +6937,10 @@ class UserController extends \App\Http\Controllers\BaseController
                 if(isset($vvipStatus)){
                     VipLog::addToLog($user_id, 'Upgrade VVIP, system auto cancel VIP pay.', 'XXXXXXXXX', 0, 0);
                     $userVIP = $user->getVipData(true);
-                    $userVIP->removeVIP();
+                    if($userVIP ?? false)
+                    {
+                        $userVIP->removeVIP();
+                    }
                 }
             }
         }else{
