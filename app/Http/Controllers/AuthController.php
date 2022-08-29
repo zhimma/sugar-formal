@@ -42,6 +42,7 @@ use App\Models\BannedUsersImplicitly;
 use App\Models\AdminAnnounce;
 use App\Models\AnnouncementRead;
 use Session;
+use App\Services\EnvironmentService;
 
 class AuthController extends Controller
 {
@@ -1446,7 +1447,7 @@ class AuthController extends Controller
                         default:
                             $payment = '';
                     }
-                    if (\App::environment('local')) {
+                    if (EnvironmentService::isLocalOrTestMachine()) {
                         $envStr = '_test';
                     }
                     else {
@@ -1594,7 +1595,7 @@ class AuthController extends Controller
             $vasStatus = '您目前已購買隱藏功能。';
             $vas = $user->vas->where('service_name','hideOnline')->first();
             if ($vas->payment) {
-                if (\App::environment('local')) {
+                if (EnvironmentService::isLocalOrTestMachine()) {
                     $envStr = '_test';
                 }
                 else {

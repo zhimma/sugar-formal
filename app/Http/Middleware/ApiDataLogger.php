@@ -10,6 +10,7 @@ use Closure;
 use Illuminate\Support\Facades\Log;
 use App\Services\VipLogService;
 use Illuminate\Support\Facades\DB;
+use App\Services\EnvironmentService;
 
 class ApiDataLogger{
     private $startTime;
@@ -95,7 +96,7 @@ class ApiDataLogger{
                 unset($payload['CheckMacValue']);
                 uksort($payload, array('\App\Http\Middleware\ApiDataLogger','merchantSort'));
 
-                if(\App::environment('local')){
+                if(EnvironmentService::isLocalOrTestMachine()){
                     $envStr = '_test';
                 }
                 else{
@@ -235,7 +236,7 @@ class ApiDataLogger{
                         banned_users::where('vip_pass', 1)->where('member_id', $user->id)->delete();
                         warned_users::where('vip_pass', 1)->where('member_id', $user->id)->delete();
 
-                        if(!\App::environment('local')) {
+                        if(!(EnvironmentService::isLocalOrTestMachine())) {
                             //產生訂單 --正式環境訂單
                             if(str_contains($_SERVER["HTTP_REFERER"], 'ecpay')) {
                                 Order::addEcPayOrder($payload['MerchantTradeNo'], null);

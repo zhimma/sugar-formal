@@ -10,6 +10,7 @@ use Illuminate\Support\Facades\Config;
 use App\Notifications\CancelVipEmail;
 use App\Notifications\NewVipEmail;
 use Carbon\Carbon;
+use App\Services\EnvironmentService;
 
 class Vip extends Model
 {
@@ -241,7 +242,7 @@ class Vip extends Model
             }
 
 
-            if(!\App::environment('local')) {
+            if(!(EnvironmentService::isLocalOrTestMachine())) {
                 //訂單更新到期日 //此段在測試機無法測試
                 $order = Order::where('order_id', $user[0]->order_id)->get()->first();
                 if (strpos($user[0]->order_id, 'SG') !== false && isset($order)) {

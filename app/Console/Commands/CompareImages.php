@@ -14,6 +14,7 @@ use Illuminate\Console\Command;
 use Illuminate\Support\Carbon;
 use Illuminate\Support\Facades\Log;
 use App\Jobs\CompareSingleImageJob;
+use App\Services\EnvironmentService;
 
 class CompareImages extends Command
 {
@@ -64,7 +65,7 @@ class CompareImages extends Command
             $dsort = $this->option('dsort');
             $force = $this->option('force');
             if(!$specific_pic) {
-                if(!app()->isProduction() && !app()->isLocal()) {
+                if(!app()->isProduction() && !(EnvironmentService::isLocalOrTestMachine())) {
                     echo '本命令只能在正式站或測試環境下執行，已中止';
                     Log::info('CompareImages:本命令只能在正式站或測試環境下執行，已中止');
                     return;

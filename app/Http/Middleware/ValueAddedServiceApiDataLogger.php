@@ -14,6 +14,7 @@ use App\Models\VvipApplication;
 use Carbon\Carbon;
 use Closure;
 use Illuminate\Support\Facades\Log;
+use App\Services\EnvironmentService;
 
 class ValueAddedServiceApiDataLogger{
     private $startTime;
@@ -95,7 +96,7 @@ class ValueAddedServiceApiDataLogger{
                 unset($payload['CheckMacValue']);
                 uksort($payload, array('\App\Http\Middleware\ValueAddedServiceApiDataLogger','merchantSort'));
 
-                if(\App::environment('local')){
+                if(EnvironmentService::isLocalOrTestMachine()){
                     $envStr = '_test';
                 }
                 else{
@@ -159,7 +160,7 @@ class ValueAddedServiceApiDataLogger{
                         $remain_days = $payload['CustomField2'];
                         ValueAddedService::upgrade($user->id, $payload['CustomField4'], $payload['MerchantID'], $payload['MerchantTradeNo'], $payload['TradeAmt'], '', 1, $payload['CustomField3'], $remain_days);
 
-                        if(!\App::environment('local')) {
+                        if(!(EnvironmentService::isLocalOrTestMachine())) {
                             //產生訂單 --正式綠界
                             Order::addEcPayOrder($payload['MerchantTradeNo'], null);
                         }

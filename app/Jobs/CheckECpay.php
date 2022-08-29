@@ -14,6 +14,7 @@ use Illuminate\Support\Facades\Config;
 use Illuminate\Support\Facades\Log;
 use App\Models\User;
 use Illuminate\Queue\Middleware\WithoutOverlapping;
+use App\Services\EnvironmentService;
 
 class CheckECpay implements ShouldQueue
 {
@@ -48,7 +49,7 @@ class CheckECpay implements ShouldQueue
     public function handle()
     {
         //
-        if(\App::environment('local')){
+        if(EnvironmentService::isLocalOrTestMachine()){
             $envStr = '_test';
         }
         else{
@@ -185,7 +186,7 @@ class CheckECpay implements ShouldQueue
                         $vipData->removeVIP();
                     }
 
-                    if(!\App::environment('local')) {
+                    if(!(EnvironmentService::isLocalOrTestMachine())) {
                         //更新訂單 --正式綠界
                         Order::updateEcPayOrder($this->vipData->order_id);
                     }
@@ -214,7 +215,7 @@ class CheckECpay implements ShouldQueue
                         ->where('member_id', $this->vipData->member_id)
                         ->update(array('active' => 1, 'expiry' => '0000-00-00 00:00:00'));
 
-                    if(!\App::environment('local')) {
+                    if(!(EnvironmentService::isLocalOrTestMachine())) {
                         //更新訂單 --正式綠界
                         Order::updateEcPayOrder($this->vipData->order_id);
                     }
@@ -241,7 +242,7 @@ class CheckECpay implements ShouldQueue
                     $user = User::findById($this->vipData->member_id);
                     $user->getVipData(true)->removeVIP();
 
-                    if(!\App::environment('local')) {
+                    if(!(EnvironmentService::isLocalOrTestMachine())) {
                         //更新訂單 --正式綠界
                         Order::updateEcPayOrder($this->vipData->order_id);
                     }
@@ -389,7 +390,7 @@ class CheckECpay implements ShouldQueue
                         $vipData->removeVIP();
                     }
 
-                    if(!\App::environment('local')) {
+                    if(!(EnvironmentService::isLocalOrTestMachine())) {
                         //更新訂單 --正式
                         Order::updateFunPointPayOrder($this->vipData->order_id);
                     }
@@ -418,7 +419,7 @@ class CheckECpay implements ShouldQueue
                         ->where('member_id', $this->vipData->member_id)
                         ->update(array('active' => 1, 'expiry' => '0000-00-00 00:00:00'));
 
-                    if(!\App::environment('local')) {
+                    if(!(EnvironmentService::isLocalOrTestMachine())) {
                         //更新訂單 --正式
                         Order::updateFunPointPayOrder($this->vipData->order_id);
                     }
@@ -445,7 +446,7 @@ class CheckECpay implements ShouldQueue
                     $user = User::findById($this->vipData->member_id);
                     $user->getVipData(true)->removeVIP();
 
-                    if(!\App::environment('local')) {
+                    if(!(EnvironmentService::isLocalOrTestMachine())) {
                         //更新訂單 --正式
                         Order::updateFunPointPayOrder($this->vipData->order_id);
                     }

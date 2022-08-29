@@ -5,6 +5,7 @@ use Closure;
 use Illuminate\Support\Facades\Config;
 use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\Log;
+use App\Services\EnvironmentService;
 
 class MobileVerifyApiDataLogger{
     private $startTime;
@@ -27,7 +28,7 @@ class MobileVerifyApiDataLogger{
     }
 
     public function terminate($request, $response){
-        if(\App::environment('local')){
+        if(EnvironmentService::isLocalOrTestMachine()){
             $envStr = '_test';
         }
         else{

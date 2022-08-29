@@ -12,6 +12,7 @@ use Illuminate\Support\Facades\Config;
 use Illuminate\Support\Facades\Log;
 use App\Models\User;
 use Illuminate\Queue\Middleware\WithoutOverlapping;
+use App\Services\EnvironmentService;
 
 class CheckECpayForValueAddedService implements ShouldQueue
 {
@@ -40,7 +41,7 @@ class CheckECpayForValueAddedService implements ShouldQueue
     public function handle()
     {
         //
-        if(\App::environment('local')){
+        if(EnvironmentService::isLocalOrTestMachine()){
             $envStr = '_test';
         }
         else{

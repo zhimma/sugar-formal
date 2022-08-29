@@ -89,6 +89,7 @@ use App\Models\OptionOccupation;
 use App\Models\UserOptionsXref;
 use App\Models\VvipOptionXref;
 use App\Models\VvipSubOptionXref;
+use App\Services\EnvironmentService;
 
 class PagesController extends BaseController
 {
@@ -6914,7 +6915,7 @@ class PagesController extends BaseController
                     $vipData->expiry= $expire_date;
                     $vipData->save();
                 }else if($vipData->payment=='cc_quarterly_payment' || $vipData->payment=='cc_monthly_payment'){
-                    if(!\App::environment('local')) {
+                    if(!(EnvironmentService::isLocalOrTestMachine())) {
                         $order_user = Vip::select('id', 'expiry', 'created_at', 'updated_at','payment','business_id', 'order_id','remain_days')
                             ->where('member_id', $user->id)
                             ->orderBy('created_at', 'desc')->get();
@@ -6929,7 +6930,7 @@ class PagesController extends BaseController
                         $vipData->save();
                     }
 
-                    if(!\App::environment('local')) {
+                    if(!(EnvironmentService::isLocalOrTestMachine())) {
                         $order = Order::where('order_id', $vipData->order_id)->get()->first();
                         $base_date=$order? $order->order_expire_date : null;
                         if(is_null($base_date)){
@@ -7187,7 +7188,7 @@ class PagesController extends BaseController
                         default:
                             $payment = '';
                     }
-                    if(\App::environment('local')){
+                    if(EnvironmentService::isLocalOrTestMachine()){
                         $envStr = '_test';
                     }
                     else{
@@ -7279,7 +7280,7 @@ class PagesController extends BaseController
             $vipStatus = '您已是 VVIP';
             $vvip = $user->vvip->first();
             if ($vvip->payment) {
-                if (\App::environment('local')) {
+                if (EnvironmentService::isLocalOrTestMachine()) {
                     $envStr = '_test';
                 } else {
                     $envStr = '';
@@ -7387,7 +7388,7 @@ class PagesController extends BaseController
             $vasStatus = '您目前已購買隱藏功能。';
             $vas = $user->vas->where('service_name','hideOnline')->first();
             if($vas->payment){
-                if(\App::environment('local')){
+                if(EnvironmentService::isLocalOrTestMachine()){
                     $envStr = '_test';
                 }
                 else{
@@ -9448,7 +9449,7 @@ class PagesController extends BaseController
             $vipDays = $vip_record->diffInDays(Carbon::now());
             $vip = $user->vip->first();
 
-            if(\App::environment('local')){
+            if(EnvironmentService::isLocalOrTestMachine()){
                 $envStr = '_test';
             }
             else{
@@ -9520,7 +9521,7 @@ class PagesController extends BaseController
             $vipDays = $vip_record->diffInDays(Carbon::now());
             $vip = $user->vip->first();
 
-            if(\App::environment('local')){
+            if(EnvironmentService::isLocalOrTestMachine()){
                 $envStr = '_test';
             }
             else{
