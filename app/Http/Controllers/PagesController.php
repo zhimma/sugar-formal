@@ -9757,6 +9757,7 @@ class PagesController extends BaseController
             $vvipInfo->user_id = $user->id;
             $vvipInfo->status = 1;
         }
+        $vvipInfo->has_writed = 1;
         $vvipInfo->save();
 
 

@@ -175,7 +175,7 @@ Route::post('/dashboard/faq_reply', 'PagesController@checkFaqAnswer')->middlewar
 Route::get('/dashboard/faq_check', 'PagesController@checkIsForceShowFaq')->middleware('auth')->name('checkIsForceShowFaq');
 Route::get('/advance_auth_activate/token/{token}', 'PagesController@advance_auth_email_activate')->name('advance_auth_email_activate');
 
-Route::group(['middleware' => ['auth', 'global', 'active', 'femaleActive', 'vipCheck', 'newerManual', 'CheckAccountStatus', 'AdjustedPeriodCheck', 'SessionExpired','FaqCheck','RealAuthMiddleware']], function () {
+Route::group(['middleware' => ['auth', 'global', 'active', 'femaleActive', 'vipCheck', 'VvipCheck', 'newerManual', 'CheckAccountStatus', 'AdjustedPeriodCheck', 'SessionExpired','FaqCheck','RealAuthMiddleware']], function () {
 
     Route::get('/dashboard/browse', 'PagesController@browse');
     /*
@@ -404,8 +404,8 @@ Route::group(['middleware' => ['auth', 'global', 'active', 'femaleActive', 'vipC
     Route::get('/dashboard/vvipCancel', 'PagesController@view_vvipCancel'); //new route
     Route::post('/dashboard/vvipCancel', 'PagesController@vvipCancel'); //new route
     Route::post('/dashboard/vvipUserNoteEdit', 'PagesController@vvipUserNoteEdit'); //new route
-    Route::get('/dashboard/vvipInfo', 'PagesController@view_vvipInfo'); //new route
-    Route::post('/dashboard/vvipInfoEdit', 'PagesController@edit_vvipInfo')->name('vvipInfoEdit'); //new route
+    Route::get('/dashboard/vvipInfo', 'PagesController@view_vvipInfo')->name('vvipInfo')->withoutMiddleware('VvipCheck'); //new route
+    Route::post('/dashboard/vvipInfoEdit', 'PagesController@edit_vvipInfo')->name('vvipInfoEdit')->withoutMiddleware('VvipCheck'); //new route
 //    Route::post('/dashboard/VVIPisInvitedUpdateStatus', 'PagesController@VVIPisInvitedUpdateStatus')->name('VVIPisInvitedUpdateStatus');
     //--vvip end--//
 
