@@ -9751,7 +9751,13 @@ class PagesController extends BaseController
         $special_problem_handling = json_decode($request->special_problem_handling);
         VvipSubOptionXref::updateMultipleOption($user->id, $special_problem_handling, 'special_problem_handling');
         
-
+        $vvipInfo = VvipInfo::where('user_id', $user->id)->first();
+        if(!$vvipInfo) {
+            $vvipInfo = new VvipInfo();
+            $vvipInfo->user_id = $user->id;
+            $vvipInfo->status = 1;
+        }
+        $vvipInfo->save();
 
 
 
