@@ -28,9 +28,16 @@ class VvipCheck
     {
         $user = $this->auth->user();
 
-        if($user->isVVIP() && !VvipInfo::where('user_id', $user->id)->first()->has_writed)
+        if($user->isVVIP())
         {
-            return Redirect('/dashboard/vvipInfo');
+            if(!(VvipInfo::where('user_id', $user->id)->first() ?? false))
+            {
+                return Redirect('/dashboard/vvipInfo');
+            }
+            elseif(!VvipInfo::where('user_id', $user->id)->first()->has_writed)
+            {
+                return Redirect('/dashboard/vvipInfo');
+            }
         }
 
         return $next($request);
