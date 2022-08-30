@@ -6,13 +6,14 @@
                 top: 20%;
                 left: 2%;
                 width: 96%;
-                padding: 10px;
                 text-align: center;
                 border-radius: 5px;                
                 
             }
             
             #entire_site_video_app > div > .container > .row {margin:auto;}
+            #entire_site_video_app > div > .container > .row:last-child > .col {margin:10px;}
+            #entire_site_video_app > div > .container > .row:first-child > .col {margin:0 !important;}
             
           
         </style>

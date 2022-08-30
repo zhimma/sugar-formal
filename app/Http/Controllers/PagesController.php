@@ -218,7 +218,7 @@ class PagesController extends BaseController
                     $status_data['redirect'] = url('/advance_auth/').'?real_auth='.request()->real_auth;
                 }
                 else {
-                    if($rap_service->isApplyEffectByAuthTypeId(1)) {
+                    if($rap_service->isApplyEffectByAuthTypeId(1) && !$rap_service->isPassedByAuthTypeId(1)) {
                         $rap_service->riseByUserEntry(auth()->user())->saveProfileModifyByReq($request);
                     }
                 }

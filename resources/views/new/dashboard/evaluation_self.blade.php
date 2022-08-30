@@ -41,6 +41,11 @@
         @media (min-width:992px){
             .sc_cc{margin-right:-14px;}
         }
+        
+        .pjliuyan02 .con .many-txt {
+            word-wrap:break-word;
+            word-break:break-all;
+        }
     </style>
 <div class="container matop70">
     <div class="row">
