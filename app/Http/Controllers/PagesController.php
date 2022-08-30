@@ -87,7 +87,9 @@ use \FileUploader;
 use App\Models\UserRecord;
 use App\Models\OptionOccupation;
 use App\Models\UserOptionsXref;
+use App\Models\VvipAssetsImage;
 use App\Models\VvipOptionXref;
+use App\Models\VvipQualityLifeImage;
 use App\Models\VvipSubOptionXref;
 use App\Services\EnvironmentService;
 
@@ -9667,6 +9669,10 @@ class PagesController extends BaseController
         $life_care = VvipSubOptionXref::getSubOptionInfo('life_care', $user);
         $special_problem_handling = VvipSubOptionXref::getSubOptionInfo('special_problem_handling', $user);
 
+        //系統預設圖片
+        $system_assets_image = VvipAssetsImage::where('is_custom', 0)->get();
+        $system_quality_life_image = VvipQualityLifeImage::where('is_custom', 0)->get();
+
         return view('new.dashboard.vvipInfo')
             ->with('user', $user)
 
@@ -9686,6 +9692,9 @@ class PagesController extends BaseController
             ->with('professional_network', $professional_network)
             ->with('life_care', $life_care)
             ->with('special_problem_handling', $special_problem_handling)
+
+            ->with('system_assets_image', $system_assets_image)
+            ->with('system_quality_life_image', $system_quality_life_image)
             ;
     }
 

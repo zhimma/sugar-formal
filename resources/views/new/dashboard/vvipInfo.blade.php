@@ -323,7 +323,7 @@
                                         <div style="width:100%; margin: 0 auto;">
                                             <div class="swiper-container wip01">
                                                 <div class="swiper-wrapper">
-                                                    @foreach($assets_image as $option)
+                                                    @foreach($system_assets_image as $option)
                                                         <div class="swiper-slide sild">
                                                             <div class="cbg_ont"><img src={{$option->option_name}} value={{$option->id}}></div>
                                                         </div>
@@ -358,7 +358,7 @@
                                         <div style="width:100%; margin: 0 auto;">
                                             <div class="swiper-container wip02">
                                                 <div class="swiper-wrapper">
-                                                    @foreach($quality_life_image as $option)
+                                                    @foreach($system_quality_life_image as $option)
                                                         <div class="swiper-slide sild">
                                                             <div class="cbg_ont"><img src={{$option->option_name}} value={{$option->id}}></div>
                                                         </div>
@@ -726,19 +726,31 @@
             option_array = JSON.stringify(option_array);
             $('#system_image_life').val(option_array);
 
-            //檢查您的財富資產數量
+            //檢查您的財富資產
             if($('.input_field_5').children('div').length > 4)
             {
                 c5('您的財富資產至多選擇四個')
                     return false;
             }
+            $('.assets_image_top').each(function(){
+                if($(this).val()==''){
+                    c5('請填寫您的財富資產說明')
+                    return false;
+                }
+            });
 
-            //檢查您的品質生活數量
+            //檢查您的品質生活
             if($('.input_field_6').children('div').length > 2)
             {
                 c5('您的品質生活至多選擇兩個')
                     return false;
             }
+            $('.life_top').each(function(){
+                if($(this).val()==''){
+                    c5('請填寫您的品質生活說明')
+                    return false;
+                }
+            });
             
 
 
