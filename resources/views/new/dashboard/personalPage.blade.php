@@ -413,7 +413,7 @@
                             <div class="tabbox_h3 sys_remind">
                                 <div class="tabbox_new_dt tabbox_new_ss"><span>其他</span>
                                 @if(isset($admin_msgs_sys) && count($admin_msgs_sys))
-                                <div class="right btn01 btn_admin_msgs"><span class="zixu_cs"></span></div>
+                                <div class="right btn01 btn_admin_msgs">{{--<span class="zixu_cs"></span>--}}</div>
                                 <div class="btn02 sx_ment fr_nbj">
                                 </div>
                                 @endif
