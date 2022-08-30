@@ -86,7 +86,14 @@
                                         <li class="c_mr6 ">
                                             <div class="c_hlist01">
                                                 <div class="c_hlist02 c_pr6">
-                                                    <div class="c_hfont01">{{$option->option_name}}</div>
+                                                    <div class="c_hfont01">
+                                                        {{$option->option_name}}
+                                                        @if($option->option_name == '高資產')
+                                                            : {{$targetUser->VvipSubOptionHighAssets->first()->option_name}}
+                                                        @elseif($option->option_name == '企業負責人')
+                                                            : {{$targetUser->VvipSubOptionCeoTitle->first()->option_name}}
+                                                        @endif
+                                                    </div>
                                                 </div>
                                             </div>
                                         </li>
@@ -241,19 +248,19 @@
                         <div style="width: 93%; margin: 0 auto;">
                             <div class="swiper-container wip01">
                                 <div class="swiper-wrapper">
-                                        @foreach($assets_image as $option)
-                                            <div class="swiper-slide sild">
-                                                <div class="cbg_ont">
-                                                    <img src={{$option->option_name}}>
-                                                    <div class="cb_bg">
-                                                        <h2>{{$option->option_remark}}</h2>
-                                                    </div>
+                                    @foreach($assets_image as $option)
+                                        <div class="swiper-slide sild">
+                                            <div class="cbg_ont">
+                                                <img src={{$option->option_name}}>
+                                                <div class="cb_bg">
+                                                    <h2>{{$option->option_remark}}</h2>
                                                 </div>
                                             </div>
-                                        @endforeach
-                                        <div class="swiper-button-next next01" style="right:15px;"></div>
-                                        <div class="swiper-button-prev prev01" style="left: 10px;"></div>
+                                        </div>
+                                    @endforeach
                                 </div>
+                                <div class="swiper-button-next next01" style="right:15px;"></div>
+                                <div class="swiper-button-prev prev01" style="left: 10px;"></div>
                             </div>
                         </div>
                     @else
@@ -319,20 +326,20 @@
                             <div class="zlys_aa">註冊時間 @if($user->isVip() || $user->isVVIP())<font>{{substr($targetUser->created_at,0,10)}}</font>@else <span class="mtop"><img src="/new/images/icon_35.png"></span> @endif</div>
                             <div class="xzl_left">年齡 <span>{{$targetUser->meta->age()}}</span></div>
                             <div class="xzl_left">身高 <span>{{$targetUser->meta->height}}</span></div>
-                            <div class="xzl_left">包月預算 <span>
-                                    @if(!empty($targetUser->meta->budget_per_month_min) && !empty($targetUser->meta->budget_per_month_max) && $targetUser->meta->budget_per_month_min != -1 && $targetUser->meta->budget_per_month_max != -1)
-                                    {{round($targetUser->meta->budget_per_month_min, -3)/10000}}萬~{{round($targetUser->meta->budget_per_month_max, -3)/10000}}萬
-                                    @else
-                                    未填
-                                    @endif
-                                </span></div>
-                            <div class="xzl_left">車馬費預算 <span>
-                                    @if(!empty($targetUser->meta->transport_fare_min) && !empty($targetUser->meta->transport_fare_max) && $targetUser->meta->transport_fare_min != -1 && $targetUser->meta->transport_fare_max != -1)
-                                    {{round($targetUser->meta->transport_fare_min, -2)}}~{{round($targetUser->meta->transport_fare_max, -2)}}
-                                    @else
-                                    未填
-                                    @endif
-                                </span></div>
+                            <div class="xzl_left">包月預算 
+                                @if(!empty($targetUser->meta->budget_per_month_min) && !empty($targetUser->meta->budget_per_month_max) && $targetUser->meta->budget_per_month_min != -1 && $targetUser->meta->budget_per_month_max != -1)
+                                <div style='text-align:center;'>{{round($targetUser->meta->budget_per_month_min, -3)/10000}}萬~{{round($targetUser->meta->budget_per_month_max, -3)/10000}}萬</div>
+                                @else
+                                <div style='text-align:center;'>未填</div>
+                                @endif
+                            </div>
+                            <div class="xzl_left">車馬費預算 
+                                @if(!empty($targetUser->meta->transport_fare_min) && !empty($targetUser->meta->transport_fare_max) && $targetUser->meta->transport_fare_min != -1 && $targetUser->meta->transport_fare_max != -1)
+                                <div style='text-align:center;'>{{round($targetUser->meta->transport_fare_min, -2)}}~{{round($targetUser->meta->transport_fare_max, -2)}}</div>
+                                @else
+                                <div style='text-align:center;'>未填</div>
+                                @endif
+                            </div>
                             <div class="xzl_left">婚姻  <span>{{$targetUser->meta->marriage}}</span></div>
                             <div class="xzl_left">體型 <span>
                                     @if(!empty($targetUser->meta->body) && $targetUser->meta->body != null && $targetUser->meta->body != 'null')
