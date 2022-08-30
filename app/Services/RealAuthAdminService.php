@@ -637,7 +637,22 @@ class RealAuthAdminService {
             $class_attr = 'btn-secondary disabled';
         }
         return $class_attr;
-    } 
+    }
+
+    public function addModifyFilterPartToListQueryInAdminCheck($query)
+    {
+        $query->where('real_auth_user_modify.apply_status_shot',1)
+            ->orWhere('is_formal_first',1)
+            ->orWhere(function($qq)
+              {
+                $qq->where('real_auth_user_modify.apply_status_shot','!=',1)
+                   ->whereNotNull('patch_id_shot')
+                   ;
+              })
+            ;
+
+        return $query;
+    }
 
     public function getListQueryInAdminCheck($countNum=false) 
     {     
@@ -647,8 +662,12 @@ class RealAuthAdminService {
 
         if($countNum) {
             $query->whereHas('real_auth_user_modify',function($q){
-                $q->where('real_auth_user_modify.status',0);
-                $q->where('real_auth_user_modify.item_id','!=',1);
+                $q->where('real_auth_user_modify.status',0)
+                    ->where('real_auth_user_modify.item_id','!=',1)
+                    ->where(function($q1) {
+                        $this->addModifyFilterPartToListQueryInAdminCheck($q1);
+                    });
+                
             });
         }
         else {
@@ -658,15 +677,7 @@ class RealAuthAdminService {
                     {
                         $q->where('real_auth_user_modify.item_id','!=',1)
                           ->where(function($q) {
-                              $q->where('real_auth_user_modify.apply_status_shot',1)
-                                ->orWhere('is_formal_first',1)
-                                ->orWhere(function($qq)
-                                  {
-                                    $qq->where('real_auth_user_modify.apply_status_shot','!=',1)
-                                       ->whereNotNull('patch_id_shot')
-                                       ;
-                                  })
-                               ;
+                              $this->addModifyFilterPartToListQueryInAdminCheck($q);
                           })  
                             
                         ;
