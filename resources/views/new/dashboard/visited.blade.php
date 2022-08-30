@@ -58,7 +58,7 @@
                                             </a>
                                             <div class="sjright">
 {{--                                                <h3>@if($visitor->is_hide_online==1 || $visitor->is_hide_online==2){{ substr($visitor->hide_online_time,0,16) }}@else{{ substr($visitor->latest_visited,0,16) }}@endif</h3>--}}
-                                                <h3>{{ substr($visitor->last_login_new,0,16) }}</h3>
+                                                <h3>{{ substr($visitor->latest_visited,0,16) }}</h3>
                                             </div>
                                         </div>
                                     </li>
