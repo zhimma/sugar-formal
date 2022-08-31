@@ -1065,6 +1065,11 @@
             });
 
             $('#assets_image_input_field').find('.cbg_ont').children('img').click(function(e) {
+                if($('.input_field_5').first().children('div').last().children('ul').children('div').children('input').first().val() === '[]')
+                {
+                    $('.input_field_5').first().children('div').last().remove();
+                }
+                
                 if($('.assets_image_top:last').val()=='')
                 {
                     c5('您尚未輸入文字');
@@ -1081,6 +1086,11 @@
             });
 
             $('#life_image_input_field').find('.cbg_ont').children('img').click(function(e) {
+                if($('.input_field_6').first().children('div').last().children('ul').children('div').children('input').first().val() === '[]')
+                {
+                    $('.input_field_6').first().children('div').last().remove();
+                }
+
                 if($('.life_top:last').val()=='')
                 {
                     c5('您尚未輸入文字');
