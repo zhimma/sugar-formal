@@ -2045,6 +2045,11 @@ class User extends Authenticatable implements JWTSubject
             VvipApplication::where('user_id', $this->id)->where('status',1)->first() !== null;
     }
 
+    public function isVipOrIsVvip()
+    {
+        return $this->isVVIP() || $this->isVip();
+    }
+
     public function VvipInfoStatus()
     {
         $vvipInfo = VvipInfo::where('user_id', $this->id)->orderBy('created_at', 'desc')->first();
