@@ -807,7 +807,7 @@ class User extends Authenticatable implements JWTSubject
                         $score = $score + 3.5;
                     }
                 }else if($user->engroup==1){
-                    if($user->isVip()){
+                    if($user->isVipOrIsVvip()){
                         $score = $score + 5;
                     }else{
                         $score = $score + 3.5;
@@ -827,7 +827,7 @@ class User extends Authenticatable implements JWTSubject
 //                        $score = $score + 3.5;
 //                    }
 //                }else if($user->engroup==1){
-//                    if($user->isVip()){
+//                    if($user->isVipOrIsVvip()){
 //                        $score = $score + 5;
 //                    }else{
 //                        $score = $score + 3.5;
@@ -847,7 +847,7 @@ class User extends Authenticatable implements JWTSubject
 //                        $score = $score + 3.5;
 //                    }
 //                }else if(isset($user->engroup) && $user->engroup==1){
-//                    if($user->isVip()){
+//                    if($user->isVipOrIsVvip()){
 //                        $score = $score + 5;
 //                    }else{
 //                        $score = $score + 3.5;
@@ -921,7 +921,7 @@ class User extends Authenticatable implements JWTSubject
 
         //註冊後如無任何傳訊紀錄 + 不是 vip 則顯示 無
         $checkMessages = Message::where('from_id', $uid)->get()->count();
-        if($checkMessages==0 && !$user->isVip() && count($order)==0){
+        if($checkMessages==0 && !$user->isVipOrIsVvip() && count($order)==0){
             $pr = '無';
             $pr_log = '註冊後如無任何傳訊紀錄+不是vip';
             //舊紀錄刪除
@@ -1041,7 +1041,7 @@ class User extends Authenticatable implements JWTSubject
         }
 
         //非VIP 扣分 每位通訊人數扣0.2
-        if(!$user->isVip()) {
+        if(!$user->isVipOrIsVvip()) {
             $checkMessageUsers = Message::select('to_id')->where('from_id', $uid)->distinct()->get()->count();
             if($checkMessageUsers>0){
                 $pr = $pr - ($checkMessageUsers * 0.2);

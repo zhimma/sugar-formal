@@ -321,7 +321,7 @@ function requestBlurryAvatarDefault() {
                                 <img src="/new/images/ph_03.png">
                             </div>
                             @php
-                                $defaultAvatar = $user->isVip() ? '/new/images/ph_12.png' : '/new/images/ph_11.png';
+                                $defaultAvatar = $user->isVipOrIsVvip() ? '/new/images/ph_12.png' : '/new/images/ph_11.png';
                                 // 添加日期參數, 讓圖片不使用快取機制
                                 // $avatar = isset($avatar->pic) ? $avatar->pic . '?' . \Carbon\Carbon::now() : null;
 
@@ -355,7 +355,7 @@ function requestBlurryAvatarDefault() {
                             @php
                                 $ImgCount+=1;
                                 $default = '/new/images/';
-                                if(!$user->isVip() and $key < 3)
+                                if(!$user->isVipOrIsVvip() and $key < 3)
                                     $default .= 'ph_10.png';
                                 else
                                     $default .= 'ph_12.png';
@@ -600,7 +600,7 @@ function requestBlurryAvatarDefault() {
 
         
         @if(Session::has('message'))
-            @if(Session::get('message')=='上傳成功' && $user->existHeaderImage() && $user->engroup==2 && !$user->isVip())//防呆
+            @if(Session::get('message')=='上傳成功' && $user->existHeaderImage() && $user->engroup==2 && !$user->isVipOrIsVvip())//防呆
                 @php
                     $vip_record = \Carbon\Carbon::parse($user->vip_record);
                 @endphp

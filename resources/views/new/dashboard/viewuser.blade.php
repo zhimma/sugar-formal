@@ -556,7 +556,7 @@
 {{--                                @if(isset($data['description']) && $to->engroup == 1)--}}
 {{--                                    <li>--}}
 {{--                                        <div class="tagText" data-toggle="popover" data-content="優質會員是願意長期付費的VIP，或者常用車馬費邀請的男會員，建議女會員優先考慮。" style="width: 100%">--}}
-{{--                                            @if($user->isVip())--}}
+{{--                                            @if($user->isVipOrIsVvip())--}}
 {{--                                                <img src="/new/images/a2.png">--}}
 {{--                                            @else--}}
 {{--                                                <img src="/new/images/b_2.png" style="height: 50px;">--}}
@@ -574,7 +574,7 @@
                                 {{--                            <li><img src="/new/images/icon_27.png"><span>{{$alert_account}}</span></li>--}}
 
                                 @if($rap_service->isNeedShowTagOnPic())
-                                    {!!$rap_service->getTagShowOnPicLayoutByLoginedUserIsVip($user->isVip()) !!}
+                                    {!!$rap_service->getTagShowOnPicLayoutByLoginedUserIsVip($user->isVipOrIsVvip()) !!}
                                 @elseif($to->meta->isWarned == 1 || $to->aw_relation)
                                     <li>
 
@@ -937,7 +937,7 @@
                                     </dt>
 
                                     {{--
-                                    @if(!empty($to->exchange_period) && $to->engroup==2 && $user->isVip())
+                                    @if(!empty($to->exchange_period) && $to->engroup==2 && $user->isVipOrIsVvip())
                                         <dt>
                                             <span>包養關係</span>
                                             <span>
@@ -1256,7 +1256,7 @@
                                     </dt>
                                     @endif
 
-                                    @if($to->meta->isHideOccupation == '0' && $user->isVip() && ($user_option->occupation->option_id ?? false) && $to->engroup==2)
+                                    @if($to->meta->isHideOccupation == '0' && $user->isVipOrIsVvip() && ($user_option->occupation->option_id ?? false) && $to->engroup==2)
                                     <dt>
                                         <span>工作/學業</span>
                                         <span>
@@ -1361,7 +1361,7 @@
                                         <span class="mtop" v-else><img src="/new/images/icon_35.png" /></span>
                                     </dt>
 {{--                                    <dt><span>使用者評價</span>--}}
-{{--                                        @if($user->isVip())--}}
+{{--                                        @if($user->isVipOrIsVvip())--}}
 {{--                                            <font>--}}
 {{--                                                <div class="star_new">--}}
 {{--                                                    @for ($i = 1; $i <= 5; $i++)--}}

@@ -6907,7 +6907,7 @@ class PagesController extends BaseController
         $update_posts=EssencePosts::withTrashed()->where('id',$request->get('pid'))->first();
         if( $update_posts->verify_status==2 && $update_posts->reward==0){
             $user=User::findById($posts->user_id);
-            if($user->isVip()){
+            if($user->isVipOrIsVvip()){
                 //已是VIP會員
                 $vipData = $user->getVipData(true);
                 $expire_origin=$vipData->expiry;
@@ -7770,7 +7770,7 @@ class PagesController extends BaseController
             ->get();
 
         //msg
-        $msgMemberCount = Message_new::allSenders($user->id, $user->isVip(), 'all');
+        $msgMemberCount = Message_new::allSenders($user->id, $user->isVipOrIsVvip(), 'all');
 
         $queryBE = \App\Models\Evaluation::select('evaluation.*')->from('evaluation as evaluation')->with('user')
                 ->leftJoin('blocked as b1', 'b1.blocked_id', '=', 'evaluation.from_id')

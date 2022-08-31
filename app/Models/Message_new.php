@@ -152,13 +152,13 @@ class Message_new extends Model
 
     // show message setting
     public static function onlyShowVip($user, $msgUser, $isVip = false) {
-        //return $user->isVip() && !$msgUser->isVip() && $user->meta_()->notifhistory == '顯示VIP會員信件';
-        return $isVip && !$msgUser->isVip() && $user->meta_('notifhistory')->notifhistory == '顯示VIP會員信件';
+        //return $user->isVipOrIsVvip() && !$msgUser->isVipOrIsVvip() && $user->meta_()->notifhistory == '顯示VIP會員信件';
+        return $isVip && !$msgUser->isVipOrIsVvip() && $user->meta_('notifhistory')->notifhistory == '顯示VIP會員信件';
     }
 
     public static function showNoVip($user, $msgUser, $isVip = false) {
-        //return $user->isVip() && !$msgUser->isVip() && ($user->meta_()->notifhistory == '顯示普通會員信件' || $user->meta_()->notifhistory == '');
-        return $isVip && !$msgUser->isVip() && ($user->meta_('notifhistory')->notifhistory == '顯示普通會員信件' || $user->meta_()->notifhistory == '');
+        //return $user->isVipOrIsVvip() && !$msgUser->isVipOrIsVvip() && ($user->meta_()->notifhistory == '顯示普通會員信件' || $user->meta_()->notifhistory == '');
+        return $isVip && !$msgUser->isVipOrIsVvip() && ($user->meta_('notifhistory')->notifhistory == '顯示普通會員信件' || $user->meta_()->notifhistory == '');
     }
 
     public static function getLastSender($uid, $sid) {

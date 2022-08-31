@@ -1174,7 +1174,7 @@
             @else
     let m_time = '';
     @endif
-        let isVip = '{{$user->isVip()}}';
+        let isVip = '{{$user->isVipOrIsVvip()}}';
     if(isVip==0){
         $( ".message_fixed" ).append( "<div><a href='{!! url('dashboard/new_vip') !!}' style='color: red;' class='tips'>成為VIP即可知道對方是否讀取信件哦！</a></div>" );
     }

@@ -120,7 +120,7 @@ class MessageController extends BaseController {
         $user = $request->user();
         $m_time = '';
         if (isset($user)) {
-            $isVip = $user->isVip();
+            $isVip = $user->isVipOrIsVvip();
             return view('dashboard.chat')
                 ->with('user', $user)
                 ->with('m_time', $m_time)

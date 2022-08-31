@@ -39,7 +39,7 @@
                                 </div>
                             </div>
                         @elseif($user->accountStatus == 0)
-                            @if ($user->isVip())
+                            @if ($user->isVipOrIsVvip())
                                 <div class="n_shtab">
                                     <?php
                                     $dbCloseDay = \App\Models\AccountStatusLog::where('user_id',$user->id)->orderBy('created_at', 'desc')->first();

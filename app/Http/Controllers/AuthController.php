@@ -201,7 +201,7 @@ class AuthController extends Controller
     public function me()
     {
         $user = auth('api')->user();
-        $user->isVip = $user->isVip();
+        $user->isVip = $user->isVipOrIsVvip();
         $user->notifyMessage = $user->meta_()->notifmessage;
         $user->notifyHistory = $user->meta_()->notifhistory;
         return response()->json($user);
@@ -349,7 +349,7 @@ class AuthController extends Controller
                 Log::debug('checkRecommendedUser() failed, $targetUser: '.$targetUser);
             }
             $v['checkRecommendedUser'] = $checkRecommendedUser;
-            $v['isVIP'] = $targetUser->isVip();
+            $v['isVIP'] = $targetUser->isVipOrIsVvip();
             $v['isAdminWarned'] = $targetUser->isAdminWarned();
             $v['isPhoneAuth'] = $targetUser->isPhoneAuth(); // 是否手機認證
             $v['isAdvanceAuth'] = $targetUser->isAdvanceAuth(); // 是否進階認證
@@ -736,7 +736,7 @@ class AuthController extends Controller
                 $cur->visitCount = $hideData["visit_other_count"]; // 瀏覽其他會員次數
                 $cur->visitedCount = $hideData["be_visit_other_count"]; // 被瀏覽次數
                 $cur->visitedsevenCount = $hideData["be_visit_other_count_7"]; // 過去7天被瀏覽次數
-                $cur->isVIP = $cur->isVip(); // 是否為 VIP
+                $cur->isVIP = $cur->isVipOrIsVvip(); // 是否為 VIP
                 $cur->isAdminWarned = $cur->isAdminWarned(); // 是否為警示帳戶
                 $cur->isPhoneAuth = $cur->isPhoneAuth(); // 是否手機認證
                 $cur->isAdvanceAuth = $cur->isAdvanceAuth(); // 是否進階認證
@@ -832,9 +832,9 @@ class AuthController extends Controller
                     }
                     $user->user_meta->isPhoneAuth = $user->isPhoneAuth(); // 是否手機認證
                     $user->user_meta->isAdvanceAuth = $user->isAdvanceAuth(); // 是否進階認證
-                    $user->user_meta->isVIP = $user->isVip();
+                    $user->user_meta->isVIP = $user->isVipOrIsVvip();
                     $vipDays = 0;
-                    if ($user->isVip()) {
+                    if ($user->isVipOrIsVvip()) {
                         $vip_record = Carbon::parse($user->vip_record);
                         $vipDays = $vip_record->diffInDays(Carbon::now());
                     }
@@ -855,7 +855,7 @@ class AuthController extends Controller
     {
         $user = $request->user();
 
-        $isVip = $user->isVip();
+        $isVip = $user->isVipOrIsVvip();
 
         $data = null;
         if ($type == 1) {
@@ -948,7 +948,7 @@ class AuthController extends Controller
             if (isset($to_user)) {
                 $to_user_pic = $to_user->meta_()->pic;
             }
-            $isVip = $user->isVip();
+            $isVip = $user->isVipOrIsVvip();
             $messages = Message::allToFromSender($user->id, $cid, true);
 
             foreach ($messages as $msg) {
@@ -975,7 +975,7 @@ class AuthController extends Controller
             if (isset($cid)) {
                 $to = $this->service->find($cid);
                 $isBlurAvatar = \App\Services\UserService::isBlurAvatar($to, $user);
-                if (!$user->isVip() && $user->engroup == 1) {
+                if (!$user->isVipOrIsVvip() && $user->engroup == 1) {
                     $m_time = Message::select('created_at')->
                     where('from_id', $user->id)->
                     orderBy('created_at', 'desc')->first();
@@ -1424,7 +1424,7 @@ class AuthController extends Controller
             }
         }
 
-        if ($user->isVip()) {
+        if ($user->isVipOrIsVvip()) {
             $vipStatus = '您已是 VIP';
             $vip_record = Carbon::parse($user->vip_record);
             $vipDays = $vip_record->diffInDays(Carbon::now());
@@ -1922,7 +1922,7 @@ class AuthController extends Controller
             ->get();
 
         // msg
-        $msgMemberCount = Message_new::allSenders($user->id, $user->isVip(), 'all');
+        $msgMemberCount = Message_new::allSenders($user->id, $user->isVipOrIsVvip(), 'all');
 
         $queryBE = \App\Models\Evaluation::select('evaluation.*')->from('evaluation as evaluation')->with('user')
                 ->leftJoin('blocked as b1', 'b1.blocked_id', '=', 'evaluation.from_id')

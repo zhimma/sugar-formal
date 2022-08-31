@@ -130,7 +130,7 @@
                 let users_leaving = null;
                 let BreakException = [];
                 {{-- Echo.join('Online'); --}}
-                @if(($isVip ?? false) || $user->isVip())
+                @if(($isVip ?? false) || $user->isVipOrIsVvip())
                     @if(str_contains(url()->current(), 'search') || request()->route()->getName() == 'chat2View')
                         {{-- $(document).ready(() => {
                             Echo.join('Online').here((users) => {

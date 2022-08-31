@@ -27,7 +27,7 @@ if(Auth::user()) $login_user = Auth::user();
 					</div>
 				</div>
 				<div class="m-card-profile__details">
-					<span class="m-card-profile__name">@if (str_contains(url()->current(), 'dashboard')) {{ $user->name }} @elseif (isset($cur)) {{ $cur->name }} @endif @if (((isset($cur) && $cur->isVip() && $cur->engroup == '1')) || ($user->isVip() && str_contains(url()->current(), 'dashboard'))) (VIP) @endif</span>
+					<span class="m-card-profile__name">@if (str_contains(url()->current(), 'dashboard')) {{ $user->name }} @elseif (isset($cur)) {{ $cur->name }} @endif @if (((isset($cur) && $cur->isVipOrIsVvip() && $cur->engroup == '1')) || ($user->isVipOrIsVvip() && str_contains(url()->current(), 'dashboard'))) (VIP) @endif</span>
 				</div>
 			</div>
 
@@ -73,7 +73,7 @@ if(Auth::user()) $login_user = Auth::user();
 							<span class="m-nav__link-text">收件夾 <span class="m-nav__link-badge"><span class="m-badge m-badge--danger">{{ \App\Models\Message::unread($user->id) }}</span></span>  </span>
 						</a>
 					</li>
-					@if ($user->isVip())
+					@if ($user->isVipOrIsVvip())
 					<li class="m-nav__item">
 						<a href="{!! url('dashboard/history') !!}" class="m-nav__link">
 						<i class="m-nav__link-icon flaticon-share"></i>
@@ -87,7 +87,7 @@ if(Auth::user()) $login_user = Auth::user();
 							<span class="m-nav__link-text">留言版</span>
 						</a>
 					</li>
-					@if (!$user->isVip())
+					@if (!$user->isVipOrIsVvip())
 						<li class="m-nav__item">
 							<a href="{!! url('dashboard/upgrade_esafe') !!}" class="m-nav__link">
 								<i class="m-nav__link-icon fa fa-diamond"></i>
@@ -138,7 +138,7 @@ if(Auth::user()) $login_user = Auth::user();
 		                </li>
 					@endif
 
-				@if (isset($cur) && $user->isVip() && $login_user->id != $cur->id)
+				@if (isset($cur) && $user->isVipOrIsVvip() && $login_user->id != $cur->id)
 				<li class="m-nav__item">
 					<form action="{!! url('dashboard/fav') !!}" class="m-nav__link" method="POST">
 					<input type="hidden" name="_token" value="{{ csrf_token() }}" >
@@ -198,7 +198,7 @@ if(Auth::user()) $login_user = Auth::user();
 			@endif
 
             @if ($user->engroup == 1 && isset($cur) && $login_user->id != $cur->id)
-				@if(!\App\Models\Tip::isComment($user->id, $cur->id) && $user->isVip() && \App\Models\Tip::isCommentNoEnd($user->id, $cur->id))
+				@if(!\App\Models\Tip::isComment($user->id, $cur->id) && $user->isVipOrIsVvip() && \App\Models\Tip::isCommentNoEnd($user->id, $cur->id))
 	                <li class="m-nav__item">
 						@include('partials.tip-comment')
 	                </li>

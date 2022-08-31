@@ -928,17 +928,17 @@ header("Expires: Fri, 01 Jan 1990 00:00:00 GMT");
 
                 getSelfAuthTagShowOnPic()
                 {
-                    return '{!!str_replace("\n","'+\n'",str_replace("\r","",$rap_service->getSelfAuthTagShowOnPicLayoutByLoginedUserIsVip($user->isVip(),true))) !!}';
+                    return '{!!str_replace("\n","'+\n'",str_replace("\r","",$rap_service->getSelfAuthTagShowOnPicLayoutByLoginedUserIsVip($user->isVipOrIsVvip(),true))) !!}';
                 },
 
                 getBeautyAuthTagShowOnPic()
                 {
-                    return '{!!str_replace("\n","'+\n'",str_replace("\r","",$rap_service->getBeautyAuthTagShowOnPicLayoutByLoginedUserIsVip($user->isVip(),true))) !!}';
+                    return '{!!str_replace("\n","'+\n'",str_replace("\r","",$rap_service->getBeautyAuthTagShowOnPicLayoutByLoginedUserIsVip($user->isVipOrIsVvip(),true))) !!}';
                 },
 
                 getFamousAuthTagShowOnPic()
                 {
-                    return '{!!str_replace("\n","'+\n'",str_replace("\r","",$rap_service->getFamousAuthTagShowOnPicLayoutByLoginedUserIsVip($user->isVip(),true))) !!}';
+                    return '{!!str_replace("\n","'+\n'",str_replace("\r","",$rap_service->getFamousAuthTagShowOnPicLayoutByLoginedUserIsVip($user->isVipOrIsVvip(),true))) !!}';
                 }                 
             },
         mounted () {
