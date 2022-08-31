@@ -66,7 +66,7 @@
                                 <span>
                                     {{$targetUser->name}}
                                 </span>
-                                @if($targetUser->VvipSubOptionEntrepreneur ?? false)
+                                @if($targetUser->VvipSubOptionEntrepreneur->first() ?? false)
                                 <span class="ci_tub">
                                     {{$targetUser->VvipSubOptionEntrepreneur->first()->option_name}} {{$targetUser->VvipSubOptionEntrepreneurCeoTitle->first()->option_name}}
                                 </span>
