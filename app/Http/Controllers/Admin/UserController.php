@@ -2575,6 +2575,58 @@ class UserController extends \App\Http\Controllers\BaseController
     }
 
     /**
+     * Show the admin messenger after anonymous content checked.
+     * 
+     * @param  string  $id
+     * @param  string  $evaluationId
+     * @return \Illumninate\Http\Response
+     */
+    public function showAdminMessengerAfterAnonymousContentChecked($id, $evaluationId)
+    {
+        if (! $admin = $this->admin->checkAdmin()) {
+            return back()->withErrors(['找不到暱稱含有「站長」的使用者！請先新增再執行此步驟']);
+        }
+
+        $evaluation = Evaluation::findOrFail($evaluationId);
+        $user = $this->service->find($evaluation->from_id);
+        $toUser = $this->service->find($evaluation->to_id);
+
+        $msglibs = Msglib::kind(Msglib::KIND_ANONYMOUS)->get();
+
+        $msglibs->each(function (Msglib $msglib) use ($user, $toUser, $evaluation) {
+            $msglib->msg = $this->simpleRender($msglib->msg, [
+                'NOW_TIME' => date("Y-m-d H:i:s"),
+                'TIME' => $evaluation->created_at->format('Y-m-d H:i:s'),
+                'TO_NAME' => $toUser->name,
+                'NAME' => $user->name,
+                'LINE_ICON' => AdminService::$line_icon_html,
+            ]);
+        });
+
+        return view('admin.users.adminMessenger', [
+            'admin' => $admin,
+            'user' => $user,
+            'from_user' => $user,
+            'msglib' => $msglibs,
+            'msglib_msg' => $msglibs->pluck('msg'),
+        ]);
+    }
+
+    /**
+     * @param  string  $template
+     * @param  array  $data
+     * @return string
+     */
+    private function simpleRender(string $template, array $data): string
+    {
+        foreach ($data as $key => $value) {
+            $template = str_replace($key, $value, $template);
+        }
+
+        return $template;
+    }
+
+    /**
      * Message to a member.
      *
      * @return \Illuminate\Http\Response
