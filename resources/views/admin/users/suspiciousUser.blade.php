@@ -90,8 +90,8 @@
                             </p>
                         </a>
                     </td>
-                    <td>{{$row->about}}</td>
-                    <td>{{$row->style }}</td>
+                    <td style="word-break: break-word;">{{$row->about}}</td>
+                    <td style="word-break: break-word;">{{$row->style }}</td>
                     <td><img src="{{$row->pic}}" style="width: 100px;"></td>
                     <td>
                         <button class="btn_sid btn btn-danger" data-sid="{{$row->id}}" data-uid="{{$row->id}}">移除</button>
