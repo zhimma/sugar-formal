@@ -512,7 +512,7 @@
             //檢查背景與資產數量
             if(option_count > 4)
             {
-                c5('背景與資產至多選擇四個')
+                c5('背景與資產至多選擇四個');
                     return false;
             }
 
@@ -542,7 +542,7 @@
             //檢查額外照顧數量
             if(option_count > 4)
             {
-                c5('額外照顧至多選擇四個')
+                c5('額外照顧至多選擇四個');
                     return false;
             }
 
@@ -572,7 +572,7 @@
             //檢查期待的約會模式數量
             if(option_count > 4)
             {
-                c5('期待的約會模式至多選擇四個')
+                c5('期待的約會模式至多選擇四個');
                     return false;
             }
 
@@ -584,7 +584,7 @@
             {
                 if($('#high_assets').val() == '' && $('#uc_1_point1_input').val() == '')
                 {
-                    c5('請選擇高資產')
+                    c5('請選擇高資產');
                     return false;
                 }
             }
@@ -597,7 +597,7 @@
             {
                 if($('#ceo_title').val() == '')
                 {
-                    c5('請選擇企業負責人')
+                    c5('請選擇企業負責人');
                     return false;
                 }
             }
@@ -615,7 +615,7 @@
             {
                 if(option_array == '[]')
                 {
-                    c5('請選擇專業人士')
+                    c5('請選擇專業人士');
                     return false;
                 }
             }
@@ -633,7 +633,7 @@
             {
                 if(option_array == '[]')
                 {
-                    c5('請選擇高資產人士')
+                    c5('請選擇高資產人士');
                     return false;
                 }
             }
@@ -649,7 +649,7 @@
             {
                 if(option_array.length < 2)
                 {
-                    c5('請選擇企業家')
+                    c5('請選擇企業家');
                     return false;
                 }
             }
@@ -667,7 +667,7 @@
             {
                 if(option_array[2] == null || (option_array[0] == null && option_array[1] == ''))
                 {
-                    c5('請選擇專業人脈')
+                    c5('請選擇專業人脈');
                     return false;
                 }
             }
@@ -687,7 +687,7 @@
             {
                 if(option_array == '[]')
                 {
-                    c5('請選擇生活照顧')
+                    c5('請選擇生活照顧');
                     return false;
                 }
             }
@@ -705,7 +705,7 @@
             {
                 if(option_array == '[]')
                 {
-                    c5('請選擇特殊問題處理')
+                    c5('請選擇特殊問題處理');
                     return false;
                 }
             }
@@ -729,28 +729,70 @@
             //檢查您的財富資產
             if($('.input_field_5').children('div').length > 4)
             {
-                c5('您的財富資產至多選擇四個')
-                    return false;
+                c5('您的財富資產至多選擇四個');
+                return false;
             }
+
+            check_bool = false;
             $('.assets_image_top').each(function(){
                 if($(this).val()==''){
-                    c5('請填寫您的財富資產說明')
+                    check_bool = true;
                     return false;
                 }
             });
+            if(check_bool)
+            {
+                c5('請填寫您的財富資產說明');
+                return false;
+            }
+
+            check_bool = false;
+            $('.input_field_5').children('div').each(function(){
+                if($(this).children('ul').children('div').children('input').first().val() === '[]')
+                {
+                    check_bool = true;
+                    return false;
+                }
+            });
+            if(check_bool)
+            {
+                c5('您的財富資產請上傳圖片or點選預設圖片');
+                return false;
+            }
 
             //檢查您的品質生活
             if($('.input_field_6').children('div').length > 2)
             {
-                c5('您的品質生活至多選擇兩個')
-                    return false;
+                c5('您的品質生活至多選擇兩個');
+                return false;
             }
+
+            check_bool = false;
             $('.life_top').each(function(){
                 if($(this).val()==''){
-                    c5('請填寫您的品質生活說明')
+                    check_bool = true;
                     return false;
                 }
             });
+            if(check_bool)
+            {
+                c5('請填寫您的品質生活說明');
+                return false;
+            }
+
+            check_bool = false;
+            $('.input_field_6').children('div').each(function(){
+                if($(this).children('ul').children('div').children('input').first().val() === '[]')
+                {
+                    check_bool = true;
+                    return false;
+                }
+            });
+            if(check_bool)
+            {
+                c5('您的品質生活請上傳圖片or點選預設圖片');
+                return false;
+            }
             
 
 
