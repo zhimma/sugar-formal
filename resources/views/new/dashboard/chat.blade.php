@@ -186,8 +186,8 @@
             <div class="n_shtab">
 
                 {{-- <h2><span>您目前為高級會員</span>訊息可保存天數：30，可通訊人數:無限</h2>--}}
-                {{-- @if($user->isVip())--}}
-                {{-- <h2><span>{{$letter_vip}}</span>訊息可保存天數：180，可通訊人數:無限</h2>--}}
+                {{-- @if($isVip)--}}
+                {{-- <h2><span>@if($user->isVVip()){{$letter_vvip}}@else{{$letter_vip}}@endif</span>訊息可保存天數：180，可通訊人數:無限</h2>--}}
                 {{-- @else--}}
                 {{-- <h2><span>{{$letter_normal_member}}</span>訊息可保存天數：7，可通訊人數:10</h2>--}}
                 {{-- @endif--}}
@@ -195,9 +195,9 @@
                     data-intro="<p>不同等級會員可以有不同的信件讀取權限。</p>
                         <p>普通會員：信件可保存30天，通訊人數限制10人。</p>
                         <p>VIP 會員：信件可保存180天，無限制通訊人數。</p>
-                        <h2>@if($user->isVip())您目前是 {{$letter_vip}}，所以不限制通訊人數，且信件可保存180天。@else您目前是 {{$letter_normal_member}}，所以限制通訊人數10，且信件保存30天。 @endif</h2><em></em><em></em>">
-                    @if($user->isVip())
-                    <span>您目前為{{$letter_vip}}</span>訊息可保存天數：180，可通訊人數:無限數
+                        <h2>@if($isVip)您目前是 @if($user->isVVip()){{$letter_vvip}}@else{{$letter_vip}}@endif，所以不限制通訊人數，且信件可保存180天。@else您目前是 {{$letter_normal_member}}，所以限制通訊人數10，且信件保存30天。 @endif</h2><em></em><em></em>">
+                    @if($isVip)
+                    <span>您目前為@if($user->isVVip()){{$letter_vvip}}@else{{$letter_vip}}@endif</span>訊息可保存天數：180，可通訊人數:無限數
                     @else
                     <span>您目前為{{$letter_normal_member}}</span>訊息可保存天數：30，可通訊人數:10
                     @endif
@@ -219,7 +219,7 @@
                         $exchange_period_name = DB::table('exchange_period_name')->get();
                         @endphp
                         <!--男性介面-->
-                            @if($user->isVip())
+                            @if($isVip)
                                 <span class="exchange_period_delete_{{$exchange_period_name[0]->id}} shou_but">全部刪除</span>
                             @endif
                             <dt class="lebox1 lebox_exchange_period_{{$exchange_period_name[0]->id}}" data-step="{{2+$exchange_period_name[0]->id}}"
@@ -237,7 +237,7 @@
                                 <div class="page page_exchange_period_{{$exchange_period_name[0]->id}} fenye" style="text-align: center;"></div>
                             </dd>
 
-                            @if($user->isVip())
+                            @if($isVip)
                                 <span class="exchange_period_delete_{{$exchange_period_name[2]->id}} shou_but">全部刪除</span>
                             @endif
                             <dt class="lebox2 lebox_exchange_period_{{$exchange_period_name[2]->id}}" data-step="{{2+$exchange_period_name[2]->id}}"
@@ -255,7 +255,7 @@
                                 <div class="page page_exchange_period_{{$exchange_period_name[2]->id}} fenye" style="text-align: center;"></div>
                             </dd>
 
-                            @if($user->isVip())
+                            @if($isVip)
                                 <span class="exchange_period_delete_{{$exchange_period_name[1]->id}} shou_but">全部刪除</span>
                             @endif
                             <dt class="lebox3 lebox_exchange_period_{{$exchange_period_name[1]->id}}" data-step="{{2+$exchange_period_name[1]->id}}"
@@ -274,7 +274,7 @@
                             </dd>
                         <!--男性介面-->
 
-                        {{-- @if(($user->isVip() && ($user->engroup==1 || $user->engroup==2)) || (!$user->isVip() &&
+                        {{-- @if(($isVip && ($user->engroup==1 || $user->engroup==2)) || (!$isVip &&
                         $user->engroup==2))--}}
                         {{-- <span class="alert_delete shou_but">全部刪除</span>--}}
                         {{-- @endif--}}
@@ -294,7 +294,7 @@
 
                         @if($user->engroup==2)
                         <!--女性介面-->
-                        @if(($user->isVip() && ($user->engroup==1 || $user->engroup==2)) || (!$user->isVip() &&
+                        @if(($isVip && ($user->engroup==1 || $user->engroup==2)) || (!$isVip &&
                         $user->engroup==2))
                             <span class="vvip_delete shou_but">全部刪除</span>
                         @endif
@@ -313,7 +313,7 @@
                             <div class="page page_vvip fenye" style="text-align: center;"></div>
                         </dd>
 
-                        @if(($user->isVip() && ($user->engroup==1 || $user->engroup==2)) || (!$user->isVip() &&
+                        @if(($isVip && ($user->engroup==1 || $user->engroup==2)) || (!$isVip &&
                         $user->engroup==2))
                         <span class="vip_delete shou_but">全部刪除</span>
                         @endif
@@ -332,7 +332,7 @@
                             <div class="page page_vip fenye" style="text-align: center;"></div>
                         </dd>
 
-                        @if(($user->isVip() && ($user->engroup==1 || $user->engroup==2)) || (!$user->isVip() &&
+                        @if(($isVip && ($user->engroup==1 || $user->engroup==2)) || (!$isVip &&
                         $user->engroup==2))
                         <span class="novip_delete shou_but">全部刪除</span>
                         @endif
@@ -350,7 +350,7 @@
                         </dd>
                         <!--女性介面 END -->
 
-                        {{-- @if(($user->isVip() && ($user->engroup==1 || $user->engroup==2)) || (!$user->isVip() &&
+                        {{-- @if(($isVip && ($user->engroup==1 || $user->engroup==2)) || (!$isVip &&
                         $user->engroup==2))--}}
                         {{-- <span class="alert_delete shou_but">全部刪除</span>--}}
                         {{-- @endif--}}
@@ -369,7 +369,7 @@
                         @endif
 
 
-                        @if(($user->isVip() && ($user->engroup==1 || $user->engroup==2)) || (!$user->isVip() &&
+                        @if(($isVip && ($user->engroup==1 || $user->engroup==2)) || (!$isVip &&
                         $user->engroup==2))
                         <span class="alert_delete shou_but">全部刪除</span>
                         @endif
@@ -386,7 +386,7 @@
                             <ul class="sjlist sjlist_alert">
                             </ul>
                         </dd>
-                        @if(($user->isVip() && ($user->engroup==1 || $user->engroup==2)) || (!$user->isVip() &&
+                        @if(($isVip && ($user->engroup==1 || $user->engroup==2)) || (!$isVip &&
                         $user->engroup==2))
                         <span class="banned_delete shou_but">全部刪除</span>
                         @endif
@@ -1110,7 +1110,7 @@
                         }else{
                             var blurryAvatar = e.blurry_avatar? e.blurry_avatar.split(',') : '';
                             if(blurryAvatar.length > 1){
-                                var nowB = '{{$user->isVip()? "VIP" : "general"}}';
+                                var nowB = '{{$isVip? "VIP" : "general"}}';
                                 if( blurryAvatar.indexOf(nowB) != -1){
                                     // console.log(blurryAvatar);
                                     isBlur = true;

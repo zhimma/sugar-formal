@@ -576,6 +576,8 @@ class Message_newController extends BaseController {
 
             /*編輯文案-檢舉大頭照-START*/
             $letter_vip = AdminCommonText::where('category_alias','letter_text')->where('alias','vip')->get()->first();
+
+            $letter_vvip = AdminCommonText::where('category_alias','letter_text')->where('alias','vvip')->get()->first();
             /*編輯文案-檢舉大頭照-END*/
             return view('new.dashboard.chat')
                 ->with('user', $user)
@@ -585,7 +587,9 @@ class Message_newController extends BaseController {
                 ->with('normal_member', $normal_member->content)
                 ->with('alert_member', $alert_member->content)
                 ->with('letter_normal_member', $letter_normal_member->content)
-                ->with('letter_vip', $letter_vip->content);
+                ->with('letter_vip', $letter_vip->content)
+                ->with('letter_vvip', $letter_vvip->content);
+                ;
         }
     }
 
