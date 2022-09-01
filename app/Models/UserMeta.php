@@ -63,6 +63,7 @@ class UserMeta extends Model
         'education',
         'marriage',
         'is_pure_dating',
+        'is_dating_other_county',
         'drinking',
         'smoking',
         'isHideOccupation',
@@ -551,6 +552,8 @@ class UserMeta extends Model
         $weight = $request->weight ?? '';
         // 是否想進一步發展
         $is_pure_dating = $request->is_pure_dating ?? null;
+        // 是否接受約外縣市
+        $is_dating_other_county = $request->is_dating_other_county ?? 0;
         $relationship_status = $request->relationship_status ?? false;
 
         $xref_option_search_switch = false;
@@ -582,6 +585,7 @@ class UserMeta extends Model
             $ageto,
             $marriage,
             $is_pure_dating,
+            $is_dating_other_county,
             $budget,
             $income,
             $smoking,
@@ -657,6 +661,15 @@ class UserMeta extends Model
                 }
                 else if($is_pure_dating=="0") {
                     $query->where('is_pure_dating', 0);
+                }
+            }
+            if (isset($is_dating_other_county) && strlen($is_dating_other_county) != 0)
+            {
+                if($is_dating_other_county=="1") {
+                    $query->where('is_dating_other_county', 1);
+                }
+                else if($is_dating_other_county=="0") {
+                    $query->where('is_dating_other_county', 0);
                 }
             }
             if (isset($budget) && strlen($budget) != 0) $query->where('budget', $budget);

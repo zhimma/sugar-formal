@@ -562,6 +562,11 @@ class UserService
                 $payload['meta']['is_pure_dating'] = $payload['is_pure_dating'];
                 unset($payload['is_pure_dating']);
                 }
+                if (isset($payload['is_dating_other_county']))
+                {
+                $payload['meta']['is_dating_other_county'] = $payload['is_dating_other_county'];
+                unset($payload['is_dating_other_county']);
+                }
                 if (isset($payload['drinking']))
                 {
                 $payload['meta']['drinking'] = $payload['drinking'];
@@ -1467,7 +1472,7 @@ class UserService
         
         $this->model = $userEntry;
         // 如果目標會員帳號已關閉，則 userEntry 就會是 null
-        $this->userMeta = $userEntry?->meta;
+        $this->userMeta = $userEntry->meta;
         return $this;
     }
 }

@@ -276,7 +276,14 @@ dt span.engroup_type_title {display:inline-block;width:10%;white-space:nowrap;}
                     </dt>
                     @endif
                     <dt>
-                        <span>地區<i>(必填)</i></span>
+                        <div>
+                            <span class="engroup_type_title">地區<i>(必填)</i></span>
+                            @if($user->engroup==2)
+                                <input type="hidden" name="is_dating_other_county" value="0">
+                                <div style="float: right;margin-top:8px;"><input name="is_dating_other_county" type="checkbox" @if(isset($umeta->is_dating_other_county) && $umeta->is_dating_other_county == true) checked @endif value="1"> 是否接受約外縣市</div>
+                            @endif
+                        </div>
+                        
                         <div id="county">
                         
                         @if(isset($umeta->city))
