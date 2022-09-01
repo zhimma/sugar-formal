@@ -330,6 +330,16 @@ header("Expires: Fri, 01 Jan 1990 00:00:00 GMT");
                                                       </select>
                                                 </div>
                                            </dt>
+                                           <dt>
+                                                <div class="n_se left">
+                                                    <span>是否接受約外縣市?</span>
+                                                    <select name="is_dating_other_county" class="select_xx01">
+                                                        <option value="">請選擇</option>
+                                                        <option value="1" @if( request()->is_dating_other_county == "1" || session()->get('search_page_key.is_dating_other_county') =="1") selected @endif>是</option>
+                                                        <option value="0" @if( request()->is_dating_other_county == "0" || session()->get('search_page_key.is_dating_other_county') =="0") selected @endif>否</option>
+                                                      </select>
+                                                </div>
+                                           </dt>
                                         @endif
                                         
                                         <dt>
@@ -573,6 +583,7 @@ header("Expires: Fri, 01 Jan 1990 00:00:00 GMT");
                         $isPhoneAuth = search_variable('isPhoneAuth',"");
                         $weight = search_variable('weight',"");
                         $is_pure_dating = search_variable("is_pure_dating","");
+                        $is_dating_other_county = search_variable("is_dating_other_county","");
                         $tattoo = search_variable("tattoo","");
                         $county2 = search_variable("county2","");
                         $county3 = search_variable("county3","");
@@ -975,6 +986,7 @@ header("Expires: Fri, 01 Jan 1990 00:00:00 GMT");
                 userIsAdvanceAuth:"{{$userIsAdvanceAuth}}",  
                 page:"{{$page ?? 1}}",
                 is_pure_dating:"{{$is_pure_dating ?? null}}",
+                is_dating_other_county:"{{$is_dating_other_county}}",
                 tattoo:"{{$tattoo ?? null}}",
                 city2:"{{$county2  ?? null}}",
                 area2:"{{$district2  ?? null}}",
