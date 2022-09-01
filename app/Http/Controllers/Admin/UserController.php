@@ -289,7 +289,7 @@ class UserController extends \App\Http\Controllers\BaseController
         } else {
             //提供隱藏權限
             $sethideOnline = 1;
-            $tmpsql = ValueAddedService::select('expiry')->where('member_id', $request->user_id)->get()->first();
+            $tmpsql = ValueAddedService::select('expiry')->where('member_id', $request->user_id)->where('service_name', 'hideOnline')->get()->first();
             if (isset($tmpsql)) {
                 $user = ValueAddedService::select('member_id', 'active')
                     ->where('member_id', $request->user_id)
