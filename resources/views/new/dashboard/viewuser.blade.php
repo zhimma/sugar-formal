@@ -983,6 +983,21 @@
                                         @endif
                                     </dt>
                                     @endif
+                                    
+                                    @if($to->engroup==2 && isset($to->meta->is_dating_other_county))
+                                        <dt>
+                                            <span>是否接受約外縣市?</span>
+                                            <span>
+                                                <div class="select_xx01 senhs hy_new">
+                                                @if($to->meta->is_dating_other_county == 1)
+                                                是
+                                                @elseif($to->meta->is_dating_other_county == 0)
+                                                否
+                                                @endif
+                                                </div>
+                                            </span>
+                                        </dt>
+                                    @endif
 
                                     @if($to->engroup == 2 && !empty($to->meta->budget))
                                     <dt>
