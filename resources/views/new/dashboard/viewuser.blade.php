@@ -2748,6 +2748,9 @@
 
         // 本人評價
         $('.myself_evaluation').click(function() {
+            $('.alert_tip').text('');
+            $('.self_illustrate').find('input[name="agree"]').prop('checked', false); // 清除偽裝的犯罪現場
+
             $('.vipDays').addClass('hide');
             $('.phone_auth').addClass('hide');
             $('.need_vip').addClass('hide');
@@ -2780,6 +2783,7 @@
             // 首先清除狀態
             $('#evaluation_description').find('input[name="message_processing"]').prop('checked', false);
             $('#evaluation_description').find('.evaluation_check_alert_tip').text('');
+            $('.alert_tip').text('');
 
             $('.vipDays').addClass('hide');
             $('.phone_auth').addClass('hide');
@@ -2834,6 +2838,7 @@
                 $('#tab_evaluation').show();
                 $('.anonymous_illustrate').show();
                 $('.self_illustrate').hide();
+                $('.self_illustrate').find('input[name="agree"]').prop('checked', true); // 偽裝成勾選讓表單驗證通過
                 $(".announce_bg").show();
                 $('body').css("overflow", "hidden");
             });
