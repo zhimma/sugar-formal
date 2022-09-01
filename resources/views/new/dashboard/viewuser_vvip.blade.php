@@ -49,7 +49,7 @@
 {{--        $isBlurLifePhoto = \App\Services\UserService::isBlurLifePhoto($targetUser, $user);--}}
 {{--    @endphp--}}
     <div id="app">
-    <div class="container matop80">
+    <div class="container matop70">
         <div class="row">
             <div class="col-sm-2 col-xs-2 col-md-2 dinone">
                 @include('new.dashboard.panel')
@@ -57,7 +57,7 @@
             <div class="col-sm-12 col-xs-12 col-md-10">
                 <div class="v_bg_vv">
                     @if(Request()->get('page_mode')=='edit')
-                        <a href="{!! url('dashboard') !!}" class="zh_shed" style="z-index: 6;"></a>
+                        <a href="{!! url('dashboard') !!}" class="zh_shed_right" style="z-index: 6;"></a>
                     @endif
                     <div class="v_tx">
                         <div class="c_toux"><img src="@if(file_exists( public_path().$targetUser->meta->pic ) && $targetUser->meta->pic != ""){{$targetUser->meta->pic}} @elseif($targetUser->engroup==2)/new/images/female.png @else/new/images/male.png @endif" class="hycov"></div>
