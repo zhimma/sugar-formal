@@ -2214,14 +2214,18 @@
             return  c5('您目前被站方警示，無檢舉權限');
         }
 
-
-        $(".blbg").show();
-        $("#show_reportPic").show();
-        $('body').css("overflow", "hidden");
-        // alert($('.swiper-slide-active').data('type'));
-        $('input[name="picType"]').val($('.swiper-slide-active').data('type'));
-        $('input[name="pic_id"]').val($('.swiper-slide-active').data('pic_id'));
-
+        var uid='{{ $user->id }}';
+        var to='{{$to->id}}';
+        if(uid != to){
+            $(".blbg").show();
+            $("#show_reportPic").show();
+            $('body').css("overflow", "hidden");
+            // alert($('.swiper-slide-active').data('type'));
+            $('input[name="picType"]').val($('.swiper-slide-active').data('type'));
+            $('input[name="pic_id"]').val($('.swiper-slide-active').data('pic_id'));
+        }else{
+            c5('不可檢舉自己');
+        }
     }     
 
     $( document ).ready(function() {
