@@ -137,6 +137,8 @@
                                 @endfor
                             </p>
                         </a>
+                        <br>
+                        新手教學時間: {{ $d->newer_manual_stay_online_time->time }}
                     </td>
                     <td>
                         <table class="evaluation_zoomIn">
