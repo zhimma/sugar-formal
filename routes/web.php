@@ -732,6 +732,7 @@ Route::group(['middleware' => ['auth', 'global', 'active', 'femaleActive', 'vipC
             Route::get('to/{id}', 'UserController@showAdminMessenger')->name('AdminMessage');
             Route::get('to/{id}/{mid}', 'UserController@showAdminMessengerWithMessageId')->name('AdminMessengerWithMessageId');
             Route::get('unreported/to/{id}/{reported_id}/{pic_id?}/{isPic?}/{isReported?}', 'UserController@showAdminMessengerWithReportedId')->name('AdminMessengerWithReportedId');
+            Route::get('anonymous-checked/to/{id}/{evaluation_id}', 'UserController@showAdminMessengerAfterAnonymousContentChecked');
             Route::post('send/{id}', 'UserController@sendAdminMessage')->name('admin/send');
             Route::post('multiple/send', 'UserController@sendAdminMessageMultiple')->name('admin/send/multiple');
             Route::get('search', 'UserController@showMessageSearchPage')->name('users/message/search');

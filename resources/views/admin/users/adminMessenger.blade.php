@@ -22,7 +22,11 @@
         @if(!isset($msgs))
             @if(isset($msglib))
                 <table class="table table-bordered table-hover 11">
+                    @if(str_contains(url()->current(), 'anonymous-checked'))
+                    <h1 class="message_block">訊息範本列表</h1><a href="/admin/users/message/msglib/create/editPic_sendMsg?kind=anonymous" target="_blank"><div class="btn btn-success message_block">新增</div></a>
+                    @else
                     <h1 class="message_block">訊息範本列表</h1><a href="/admin/users/message/msglib/create/editPic_sendMsg" target="_blank"><div class="btn btn-success message_block">新增</div></a>
+                    @endif
                     <br>
                     <tr>
                         <td>範本選項標題</td>

@@ -151,7 +151,7 @@
             dataType:"json",
             success: function(res){
                 //location.reload();
-                window.open('/admin/users/message/to/'+user_id, '_blank');
+                window.open(`/admin/users/message/anonymous-checked/to/${user_id}/${evaluation_id}`, '_blank');
             }});
     }
 

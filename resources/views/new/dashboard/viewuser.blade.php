@@ -1956,12 +1956,16 @@
                             <div class="anonymous_illustrate">
                                 ● 請上傳可資證明的圖檔，須為高清檔案<br>
                                 ● 若為對話紀錄，須從頭到尾<a style="color:red;">完整截圖，上一句跟著下一句，不可以漏</a><br>
+                                ● 對話記錄請<a style="color:red">依照順序上傳，順序錯誤會被退件</a><br>
                                 ● 若對話紀錄過多(超過30頁)，那可以只截相關部分，一樣完整截圖，上一句跟著下一句，不可以漏<br>
                             </div>
                             <div class="self_illustrate">
+                                ● 請上傳可資證明的圖檔，須為高清檔案<br>
+                                ● 若為對話紀錄，須從頭到尾<a style="color:red;">完整截圖，上一句跟著下一句，不可以漏</a><br>
+                                ● 若對話紀錄過多(超過30頁)，那可以只截相關部分，一樣完整截圖，上一句跟著下一句，不可以漏<br>
                                 評價請以敘述<a class="text-danger" style="color: red;">確實發生的事實</a>為主，不要有主觀判斷，盡量附上截圖佐證。若被評價者來申訴，您又沒有附上截圖，評價在驗證屬實前會被隱藏或撤銷。
+                                <span><input type="checkbox" name="agree"><label style="color:black;">我同意上述說明</label></span>
                             </div>
-                            <span><input type="checkbox" name="agree"><label style="color:black;">我同意上述說明</label></span>
                         </div>
                         <div class="n_bbutton" style="margin-top:0px;">
                             <a class="n_bllbut" onclick="form_submit()">送出</a>
@@ -2105,16 +2109,16 @@
             <div class="new_tkfont" style="text-align:left">
                 ● 匿名評價將不會出現你的名字<br>
                 ● 站方有權決定是否代為發布評價<br>
-                <span>
-                    <input type="checkbox" name="message_processing" value="modify_directly">若評價不符合審查標準，我願意接受站方修改。
-                </span>
-                <br><span class="evaluation_check_alert_tip" style="color:red;"></span>
+                <label style="margin-buttom: 0; font-weight: normal; cursor: pointer;">
+                    <input type="checkbox" name="message_processing" value="modify_directly" />
+                    <span>若評價不符合審查標準，我願意接受站方修改。</span>
+                </label>
+                <label style="margin-buttom: 0; font-weight: normal; cursor: pointer;">
+                    <input type="checkbox" name="message_processing" value="return" />
+                    <span>若評價不符合審查標準，我不願意接受站方修改。將直接退件處理。</span>
+                </label>
+                <span class="evaluation_check_alert_tip" style="color:red;"></span>
             </div>
-         {{--   <select name="message_processing" class="select_xx01">
-                <option value="">請選擇</option>
-                <option value="return">退件重寫(需重新評價)</option>
-                <option value="modify_directly">站方直接修改</option>
-            </select>--}}
             <div class="n_bbutton" style="margin-top:10px;">
                 <div style="display: inline-flex;">
                 <div class="n_right evaluation_check" style="border-style: none; background: #8a9ff0; color:#ffffff; float: unset; margin-left: 0px; margin-right: 20px;">同意</div>
@@ -2759,12 +2763,17 @@
 
         // 本人評價
         $('.myself_evaluation').click(function() {
+            $('.alert_tip').text('');
+            $('.self_illustrate').find('input[name="agree"]').prop('checked', false); // 清除偽裝的犯罪現場
+
             $('.vipDays').addClass('hide');
             $('.phone_auth').addClass('hide');
             $('.need_vip').addClass('hide');
             $('.advance_auth').addClass('hide');
             $('.enter_tab_evaluation').removeClass('evaluation_type_anonymous');
             $('.enter_tab_evaluation').removeClass('evaluation_type_myself');
+            $('.anonymous_illustrate').hide();
+            $('.self_illustrate').show();
             @if($user->engroup==2)
                 $('#tab_reject_female').show();
                 $('.phone_auth').removeClass('hide');
@@ -2777,8 +2786,6 @@
                 $('.enter_tab_evaluation').addClass('evaluation_type_myself');
             @elseif(!isset($evaluation_self))
                 $('#tab_evaluation').show();
-                $('.anonymous_illustrate').hide();
-                $('.self_illustrate').show();
                 $(".announce_bg").show();
                 $('body').css("overflow", "hidden");
             @else
@@ -2788,6 +2795,11 @@
 
         // 匿名評價
         $('.anonymous_evaluation').click(function() {
+            // 首先清除狀態
+            $('#evaluation_description').find('input[name="message_processing"]').prop('checked', false);
+            $('#evaluation_description').find('.evaluation_check_alert_tip').text('');
+            $('.alert_tip').text('');
+
             $('.vipDays').addClass('hide');
             $('.phone_auth').addClass('hide');
             $('.need_vip').addClass('hide');
@@ -2813,27 +2825,39 @@
             @endif
         });
 
-        // 匿名評價->訊息處理選擇確認
-        $('.evaluation_check').click(function() {
-            if($('[name=message_processing]').prop("checked")==true){
-                $('[name=message_processing]').val('modify_directly');
-            }else{
-                $('[name=message_processing]').val('return');
-            }
-            select_option = $('[name=message_processing]').val();
-            if (select_option=='modify_directly') {
-                $('input[name=content_processing_method]').val(select_option);
+        // 處理匿名評價說明
+        (function () {
+            const $dialog = $('#evaluation_description');
+
+            // 這邊我們處理 checkbox 的二選一切換
+            $dialog.find('input[name="message_processing"]').click((event) => {
+                $dialog.find('input[name="message_processing"]')
+                    .not(event.target)
+                    .prop('checked', false);
+
+                $(event.target).prop('checked', true);
+            });
+
+            // 這邊我們處理送出按鈕的動作
+            $dialog.find('.evaluation_check').click((event) => {
+                let value = $dialog.find('input[name="message_processing"]:checked').val();
+
+                if (!value) {
+                    $dialog.find('.evaluation_check_alert_tip').text('上面兩個二選一');
+
+                    return false;
+                }
+
+                $('input[name=content_processing_method]').val(value);
                 $('#evaluation_description').hide();
                 $('#tab_evaluation').show();
                 $('.anonymous_illustrate').show();
                 $('.self_illustrate').hide();
+                $('.self_illustrate').find('input[name="agree"]').prop('checked', true); // 偽裝成勾選讓表單驗證通過
                 $(".announce_bg").show();
                 $('body').css("overflow", "hidden");
-            }
-            else {
-                $('.evaluation_check_alert_tip').text('請勾選同意上述說明');
-            }
-        });
+            });
+        })();
     @endif
 
 
