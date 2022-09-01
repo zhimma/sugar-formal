@@ -135,7 +135,7 @@
 {{--                <h2 class="matop00">●若審核未通過，退刷手續費 5000 元 + 第一季會員費 10000 元。並保持原先的VIP扣款方式。</h2>--}}
 {{--                <h2 class="matop00">●申請後無法取消申請。</h2>--}}
 {{--                <h2 class="matop00">●準核與否由站方全權決定，亦無說明義務。刷卡人絕無異議。</h2>--}}
-                @if($user->isVip())
+                @if($user->isVip() && !$user->isFreeVip())
                     <h2 class="matop00">●{{ $vip_text }}</h2>
                 @endif
                 <h2 class="matop00">●VVIP 季費 9888 元。</h2>

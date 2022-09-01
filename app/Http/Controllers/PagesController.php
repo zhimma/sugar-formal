@@ -9478,7 +9478,7 @@ class PagesController extends BaseController
                     $lastProcessDate_o = \Carbon\Carbon::createFromFormat('Y/m/d H:i:s', $lastProcessDate);
                     $lastProcessDate = \Carbon\Carbon::createFromFormat('Y/m/d H:i:s', $lastProcessDate);
 
-//                    //計算下次扣款日
+                    //計算下次扣款日
                     if($vip->payment == 'cc_quarterly_payment'){
                         $periodRemained = 92;
                     }else {
