@@ -2769,6 +2769,7 @@
         $('.myself_evaluation').click(function() {
             $('.alert_tip').text('');
             $('.self_illustrate').find('input[name="agree"]').prop('checked', false); // 清除偽裝的犯罪現場
+            resetImageUploader(document.querySelector('#form1'));
 
             $('.vipDays').addClass('hide');
             $('.phone_auth').addClass('hide');
@@ -2803,6 +2804,7 @@
             $('#evaluation_description').find('input[name="message_processing"]').prop('checked', false);
             $('#evaluation_description').find('.evaluation_check_alert_tip').text('');
             $('.alert_tip').text('');
+            resetImageUploader(document.querySelector('#form1'));
 
             $('.vipDays').addClass('hide');
             $('.phone_auth').addClass('hide');
@@ -3099,6 +3101,33 @@
 <script src="{{ asset('js/jquery.fileuploader.js') }}" type="text/javascript"></script>
 <script src="{{ asset('new/js/heic2any.min.js') }}" type="text/javascript"></script>
 <script src="{{ asset('new/js/resize_before_upload.js') }}" type="text/javascript"></script>
+<style>
+
+#form1 ul.fileuploader-items-list {
+    margin-bottom: -3px;
+}
+
+#form1 .fileuploader-item,
+#form1 .fileuploader-thumbnails-input {
+    margin-bottom: 20px;
+}
+
+#form1 .fileuploader-item::after,
+#form1 .fileuploader-thumbnails-input::after {
+    content: attr(data-nth-text);
+    display: block;
+    position: absolute;
+    left: 0;
+    right: 0;
+    bottom: -24px;
+    height: 20px;
+    line-height: 20px;
+    color: #555;
+    font-size: 14px;
+    text-align: center;
+    letter-spacing: 0.1em;
+}
+</style>
 <script type="application/javascript">
 
     $(document).ready(function () {  
@@ -3166,6 +3195,8 @@
                     if (api.getListEl().length > 0) {
                         $('.fileuploader-thumbnails-input-inner').css('background-image', 'url({{ asset("new/images/addpic.png") }})');
                     }
+
+                    rendorItemNthText(parentEl);
                 },
                 onItemRemove: function(html, listEl, parentEl, newInputEl, inputEl) {
                     var plusInput = listEl.find('.fileuploader-thumbnails-input'),
@@ -3174,8 +3205,11 @@
                     html.children().animate({'opacity': 0}, 200, function() {
                         html.remove();
 
-                        if (api.getOptions().limit && api.getChoosedFiles().length - 1 < api.getOptions().limit)
+                        if (api.getOptions().limit && api.getChoosedFiles().length - 1 < api.getOptions().limit) {
                             plusInput.show();
+                        }
+
+                        setTimeout(() => rendorItemNthText(parentEl), 100);
                     });
 
                     if (api.getFiles().length == 1) {
@@ -3200,6 +3234,7 @@
                 });
 
                 api.getOptions().dragDrop.container = plusInput;
+                rendorItemNthText(parentEl);
             },
             editor: {
                 cropper: {
@@ -3248,6 +3283,32 @@
 
     });
 
+/**
+ * @param {jQuery} parentEl
+ * @returns {void}
+ */
+function resetImageUploader(form) {
+    const uploader = $.fileuploader.getInstance($(form).find('input[type="file"]'));
+
+    if (uploader && !uploader.isEmpty()) {
+        uploader.reset();
+        rendorItemNthText(uploader.getParentEl());
+    }
+}
+
+/**
+ * @param {jQuery} parentEl
+ * @returns {void}
+ */
+function rendorItemNthText(parentEl) {
+    parentEl.find('.fileuploader-item, .fileuploader-thumbnails-input').each(function (i) {
+        let nthText = rendorItemNthText.nthEnum[i] || 'N';
+
+        this.setAttribute('data-nth-text', `第${nthText}張`);
+    });
+}
+
+rendorItemNthText.nthEnum = '一二三四五六七八九十'.split('');
 </script>
 
 <link type="text/css" rel="stylesheet" href="/new/css/app.css">
