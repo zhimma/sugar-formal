@@ -279,7 +279,7 @@
                         @if($quality_life_image->first() ?? false)
                             @foreach($quality_life_image as $key => $option)
                                 <div class="ci_lidw @if($key % 2 == 0) left @else right @endif">
-                                    <img src={{$option->option_name}}>
+                                    <img src={{$option->option_name}} class="ci_img">
                                     <div class="ci_ifont">
                                         <div class="ci_div01">{{$option->option_remark}}</div>
                                     </div>
