@@ -278,6 +278,7 @@ class UserController extends \App\Http\Controllers\BaseController
             $sethideOnline = 0;
             $user = ValueAddedService::select('member_id', 'active')
                 ->where('member_id', $request->user_id)
+                ->where('service_name', 'hideOnline')
                 ->update(array(
                     'active' => $sethideOnline,
                     'expiry' => '0000-00-00 00:00:00',
@@ -292,6 +293,7 @@ class UserController extends \App\Http\Controllers\BaseController
             if (isset($tmpsql)) {
                 $user = ValueAddedService::select('member_id', 'active')
                     ->where('member_id', $request->user_id)
+                    ->where('service_name', 'hideOnline')
                     ->update(array(
                         'active' => $sethideOnline,
                         'business_id' => 'BackendFree',
