@@ -1037,7 +1037,7 @@
                     return false;
                 }else {
                     e.preventDefault();
-                    $(".input_field_5").append('<div class="custom matop10">' +
+                    $(".input_field_5").append('<div class="custom matop10" style="width: 100%;">' +
                         '<input type="text" placeholder="請輸入至多18個字" class="msinput assets_image_top" name="assets_image_content[' + add_assets_image_id + ']" maxlength="18">' +
                         '<ul class="n_ulpic" style="margin-bottom: 0;">' +
                             '<input type="file" id="assets_image_' + add_assets_image_id + '" name="assets_image_' + add_assets_image_id + '" class="files assets_image" data-fileuploader-files="" data-fileuploader-listInput="assets_image_' + add_assets_image_id + '">' +
@@ -1054,7 +1054,7 @@
                     return false;
                 }else {
                     e.preventDefault();
-                    $(".input_field_6").append('<div class="custom matop10">' +
+                    $(".input_field_6").append('<div class="custom matop10" style="width: 100%;">' +
                         '<input type="text" placeholder="請輸入至多18個字" class="msinput life_top" name="life_image_content[' + add_life_image_id + ']" maxlength="18">' +
                         '<ul class="n_ulpic" style="margin-bottom: 0;">' +
                             '<input type="file" id="quality_life_image_' + add_life_image_id + '" name="quality_life_image_' + add_life_image_id + '" class="files quality_life_image" data-fileuploader-files="" data-fileuploader-listInput="quality_life_image_' + add_life_image_id + '">' +
@@ -1080,7 +1080,7 @@
                     $('.input_field_5').first().append('<div class="system_image matop10">' +
                         '<input type="text" placeholder="請輸入至多18個字" class="msinput assets_image_top" maxlength="18">' +
                         '<ul class="n_ulpic" style="margin-bottom: 0;">' +
-                            '<img class="sys-img" src=' + $(this).attr('src') + ' value=' + $(this).attr('value') + '>' +
+                            '<img style="width: 50%;" class="sys-img" src=' + $(this).attr('src') + ' value=' + $(this).attr('value') + '>' +
                         '</ul><a href="#" class="remove_field_2"><img src="/new/images/del_03n.png"></a></div>');
                 }
             });
@@ -1101,7 +1101,7 @@
                     $('.input_field_6').first().append('<div class="system_image matop10">' +
                         '<input type="text" placeholder="請輸入至多18個字" class="msinput life_top" maxlength="18">' +
                         '<ul class="n_ulpic" style="margin-bottom: 0;">' +
-                            '<img class="sys-img" src=' + $(this).attr('src') + ' value=' + $(this).attr('value') + '>' +
+                            '<img style="width: 50%;" class="sys-img" src=' + $(this).attr('src') + ' value=' + $(this).attr('value') + '>' +
                         '</ul><a href="#" class="remove_field_2"><img src="/new/images/del_03n.png"></a></div>');
                 }
             });
@@ -1111,7 +1111,7 @@
                     $('.input_field_5').first().append('<div class="system_image matop10">' +
                         '<input type="text" placeholder="請輸入至多18個字" class="msinput assets_image_top" maxlength="18" value={{$option->option_remark}}>' +
                         '<ul class="n_ulpic" style="margin-bottom: 0;">' +
-                            '<img class="sys-img" src={{$option->option_name}} value={{$option->id}}>' +
+                            '<img style="width: 50%;" class="sys-img" src={{$option->option_name}} value={{$option->id}}>' +
                         '</ul><a href="#" class="remove_field_2"><img src="/new/images/del_03n.png"></a></div>');
                 @endif
             @endforeach
@@ -1121,7 +1121,7 @@
                     $('.input_field_6').first().append('<div class="system_image matop10">' +
                         '<input type="text" placeholder="請輸入至多18個字" class="msinput life_top" maxlength="18" value={{$option->option_remark}}>' +
                         '<ul class="n_ulpic" style="margin-bottom: 0;">' +
-                            '<img class="sys-img" src={{$option->option_name}} value={{$option->id}}>' +
+                            '<img style="width: 50%;" class="sys-img" src={{$option->option_name}} value={{$option->id}}>' +
                         '</ul><a href="#" class="remove_field_2"><img src="/new/images/del_03n.png"></a></div>');
                 @endif
             @endforeach
