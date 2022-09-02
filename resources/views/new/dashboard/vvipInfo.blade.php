@@ -1036,7 +1036,7 @@
                     c5('您尚未輸入文字');
                     return false;
                 }
-                else if($('.input_field_5').children('div').length > 4) {
+                else if($('.input_field_5').children('div').length > 3) {
                     c5('您的財富資產至多只能選擇四個');
                     return false;
                 }
