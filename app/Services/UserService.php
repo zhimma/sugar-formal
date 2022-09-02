@@ -666,7 +666,7 @@ class UserService
         $button = null;
         $height = null;
         $now = \Carbon\Carbon::now();
-        if($targetUser->engroup == 1 && $targetUser->isVip()){
+        if($targetUser->engroup == 1 && ($targetUser->isVipOrIsVvip() || $targetUser->isVVIP()) ){
             $vip_date = Vip::select('id', 'updated_at')->where('member_id', $targetUser->id)->orderBy('updated_at', 'desc')->get()->first();
             if(!isset($vip_date->updated_at)){
                 return ['description' => $description,
@@ -752,7 +752,7 @@ class UserService
                 $button = "../../img/member_tags/rcmd_daddy.png";
             }
         }
-        //elseif ($targetUser->engroup == 2 && $targetUser->isVip() && isset($targetUser->created_at)){
+        //elseif ($targetUser->engroup == 2 && $targetUser->isVipOrIsVvip() && isset($targetUser->created_at)){
         //210914 新進甜心移除VIP條件 改成「30天內註冊的女會員」
         elseif ($targetUser->engroup == 2 && isset($targetUser->created_at)){
             $registration_date = \Carbon\Carbon::createFromFormat('Y-m-d H:s:i', $targetUser->created_at);
@@ -1189,7 +1189,7 @@ class UserService
         }
         else{
             if(sizeof($blurryAvatar)>1){
-                $nowB = $user->isVip()? 'VIP' : 'general';
+                $nowB = $user->isVipOrIsVvip()? 'VIP' : 'general';
                 $isBlurAvatar = in_array($nowB, $blurryAvatar);
             }
             else {
@@ -1210,7 +1210,7 @@ class UserService
         }
         else{
             if(sizeof($blurryLifePhoto)>1){
-                $nowB = $user->isVip()? 'VIP' : 'general';
+                $nowB = $user->isVipOrIsVvip()? 'VIP' : 'general';
                 $isBlurLifePhoto = in_array($nowB, $blurryLifePhoto);
             }
             else {
@@ -1257,7 +1257,7 @@ class UserService
 
         if($femaleUser->engroup==1) return false;
         if(!($recommend_data['description']??null)) return false;
-        if($maleUser->isVip() && $new_sugar_no_msg_days == 7) return false;
+        if($maleUser->isVipOrIsVvip() && $new_sugar_no_msg_days == 7) return false;
         if($femaleUser_cdate->diffInDays(Carbon::now())>=$new_sugar_no_msg_days ) return false;
         if($femaleUser->sentMessages()->where('to_id',$maleUser->id)->count()>0) return false;
         if($new_sugar_no_msg_days == 7 && (($femaleUser->tiny_setting()->where('cat','new_sugar_chat_with_notvip')->first()->value)??null))  return false;

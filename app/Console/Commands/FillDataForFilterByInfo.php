@@ -57,7 +57,7 @@ class FillDataForFilterByInfo extends Command
             $date_end = \Carbon\Carbon::now()->format('Y-m-d H:i:s');
             $whereDateArr = [['created_at', '>=', $date_start],['created_at', '<=', $date_end]];
 /*
-            if(\App::environment('local')){
+            if(EnvironmentService::isLocalOrTestMachine()){
                 if(LogUserLogin::where($whereDateArr)->count()<1000) {
                     $date_start = \Carbon\Carbon::now()->subDays(3)->format('Y-m-d H:i:s');
                     $whereDateArr = [['created_at', '>=', $date_start],['created_at', '<=', $date_end]];

@@ -230,11 +230,11 @@ class Message extends Model
         if (!isset($msgUser)){
             return false;
         }
-        return $isVip && !$msgUser->isVip() && $user->user_meta->notifhistory == '顯示VIP會員信件';
+        return $isVip && !$msgUser->isVipOrIsVvip() && $user->user_meta->notifhistory == '顯示VIP會員信件';
     }
 
     public static function showNoVip($user, $msgUser, $isVip = false) {
-        return $isVip && !$msgUser->isVip() && ($user->user_meta->notifhistory == '顯示普通會員信件' || $user->user_meta->notifhistory == '');
+        return $isVip && !$msgUser->isVipOrIsVvip() && ($user->user_meta->notifhistory == '顯示普通會員信件' || $user->user_meta->notifhistory == '');
     }
 
     public static function getLastSender($uid, $sid) {
@@ -528,7 +528,7 @@ class Message extends Model
         $block_people =  Config::get('social.block.block-people');
         $userBlockList = \App\Models\Blocked::select('blocked_id')->where('member_id', $user->id)->get();
         $banned_users = \App\Services\UserService::getBannedId($user->id);
-        $isVip = $user->isVip();
+        $isVip = $user->isVipOrIsVvip();
         foreach ($messages as $key => &$message){
             $to_id = isset($message["to_id"]) ? $message["to_id"] : null;
             $from_id = isset($message["from_id"]) ? $message["from_id"] : null;
@@ -661,7 +661,7 @@ class Message extends Model
 		if(!$isAdminSender) 
         {
             $includeUnsend = $includeDeleted;
-            if($user->isVip()) {
+            if($user->isVip() || $user->isVVIP()) {
                 self::$date =\Carbon\Carbon::parse("180 days ago")->toDateTimeString();
             }else {
                 self::$date = \Carbon\Carbon::parse("30 days ago")->toDateTimeString();
@@ -752,7 +752,7 @@ class Message extends Model
         if((isset($banned_users) && ($banned_users->expire_date == null || $banned_users->expire_date >= Carbon::now())) || isset($BannedUsersImplicitly)){
             return 0;
         }
-        if($user->isVip()) {
+        if($user->isVip() || $user->isVVIP()) {
             self::$date =\Carbon\Carbon::parse("180 days ago")->toDateTimeString();
         }else {
             self::$date = \Carbon\Carbon::parse("30 days ago")->toDateTimeString();
@@ -920,7 +920,7 @@ class Message extends Model
             return false;
         }
 
-        if($user->isVip()) {
+        if($user->isVip() || $user->isVVIP()) {
             self::$date =\Carbon\Carbon::parse("180 days ago")->toDateTimeString();
         }else {
             self::$date = \Carbon\Carbon::parse("30 days ago")->toDateTimeString();

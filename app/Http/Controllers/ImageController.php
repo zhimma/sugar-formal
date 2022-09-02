@@ -3,6 +3,7 @@
 namespace App\Http\Controllers;
 
 use App\Models\AdminDeleteImageLog;
+use App\Models\VvipProveImg;
 use Illuminate\Http\Request;
 use Illuminate\Http\Response;
 use App\Http\Requests\ImageRequest;
@@ -1091,5 +1092,65 @@ class ImageController extends BaseController
 
         return back()->with($msg_type, $msg_content);
 
+    }
+
+    public function uploadImages_VVIP(Request $request)
+    {
+        $user=$request->user();
+        $preloadedFiles = $this->getPictures($request)->content();
+        $preloadedFiles = json_decode($preloadedFiles, true);
+        $hash = $request->input('mode');
+
+        $fileUploader = new FileUploader('files', array(
+            'fileMaxSize' => 8,
+            'extensions' => ['jpg', 'jpeg', 'png', 'gif'],
+            'required' => true,
+            'uploadDir' => $this->uploadDir,
+            'title' => function(){
+                $now = Carbon::now()->format('Ymd');
+                return $now . rand(100000000,999999999);
+            },
+            'replace' => false,
+            'editor' => true,
+            'files' => $preloadedFiles
+        ));
+
+        $upload = $fileUploader->upload();
+
+        if($upload)
+        {
+            $publicPath = public_path();
+            foreach($fileUploader->getUploadedFiles() as $uploadedFile)
+            {
+                $path = substr($uploadedFile['file'], strlen($publicPath));
+                $path[0] = "/";
+                //存入VVIP證明文件資料表
+                $addImages = new VvipProveImg;
+                $addImages->user_id = $user->id;
+                $addImages->path = $path;
+                $addImages->created_at = Carbon::now();
+                $addImages->save();
+            }
+        }
+
+        if($hash=='refill') {
+            $msg = "補件上傳成功";
+        }else{
+            $msg = "";
+        }
+
+        //$previous = redirect()->back('#refill')->with('message', $msg);
+        //$previous = redirect()->route('vvipSelectA', [ '#refill' ])->with('message', '補件上傳成功');
+        //非補件 導向付款提示
+        if($hash =='refill'){
+            $previous = redirect()->route('vvipSelectA', [ '#'.$hash ])->with('message', $msg);
+        }elseif($hash =='pay'){
+            $previous = redirect()->route('vvipSelectA', [ '#'.$hash ]);
+        }else{
+            $previous = redirect()->route('vvipSelectA');
+        }
+
+
+        return $upload['isSuccess'] ? $previous : $previous->withErrors($upload['warnings']);
     }
 }

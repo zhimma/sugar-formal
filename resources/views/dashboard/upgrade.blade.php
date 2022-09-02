@@ -20,7 +20,7 @@ $code = Config::get('social.payment.code');
 
 <div class="m-portlet__body">
 
-@if(!$user->isVip() && $user->engroup == 1)
+@if(!$user->isVipOrIsVvip() && $user->engroup == 1)
 <div class="row">
    	<div class="col-lg-12">
    		<div class="m-portlet m-portlet--mobile">
@@ -75,7 +75,7 @@ $code = Config::get('social.payment.code');
 	</div>
 </div>
 
-@elseif(!$user->isVip() && $user->engroup == 2)
+@elseif(!$user->isVipOrIsVvip() && $user->engroup == 2)
 <div class="row">
    	<div class="col-lg-6">
         <div class="m-form__actions">

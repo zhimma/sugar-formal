@@ -72,7 +72,7 @@ class MemberFav extends Model
                 }
                 $fav[$k]['city'] = (!empty($favUser->city))?$favUser->city:'';
                 $fav[$k]['area'] = (!empty($favUser->area) && $favUser->meta_()->isHideArea == '0')?$favUser->area:'';
-                $fav[$k]['vip'] = $favUser->isVip();
+                $fav[$k]['vip'] = $favUser->isVipOrIsVvip();
             }
         }
         return $fav;

@@ -752,7 +752,8 @@ class UserMeta extends Model
                     // $bannedUsers
                     $query->select('member_id')
                         ->from(with(new banned_users)->getTable());
-                });
+                })
+                ->orderBy('is_vvip','desc');
         }else {
             $query = User::with(['user_meta' => $constraint, 'vip', 'vas', 'aw_relation', 'fa_relation'])
                 ->select('*', \DB::raw("IF(is_hide_online = 1, hide_online_time, last_login) as last_login"))

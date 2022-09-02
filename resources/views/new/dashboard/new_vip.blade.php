@@ -9,7 +9,7 @@
             <div class="col-sm-12 col-xs-12 col-md-10">
                 <div class="g_password">
                     <div class="g_pwicon">
-                        <li><a href="/dashboard/viewuser/{{$user->id}}" class="g_pwicon_t5 "><span>自我預覽</span></a></li>
+                        <li><a href="@if($user->isVVIP()) /dashboard/viewuser_vvip/{{$user->id}} @else /dashboard/viewuser/{{$user->id}} @endif" class="g_pwicon_t5 "><span>自我預覽</span></a></li>
                         <li><a href="{!! url('dashboard') !!}" class="g_pwicon_t "><span>基本資料</span></a></li>
                         <li><a href="{!! url('dashboard_img') !!}" class="g_pwicon_t2"><span>照片管理</span></a></li>
                         <li><a href="{!! url('dashboard/account_manage') !!}" class="g_pwicon_t3 "><span>帳號設定</span></a></li>
@@ -216,7 +216,7 @@
                             <div class="fi_xq">
                                 <img src="/new/images/vip_xq.png" class="fi_xqicon">
                                 <div class="fi_text">
-                                    <h2>@if(!$user->isVip())您目前尚未成為VIP會員 @elseif($user->isVipNotCanceledNotOnePayment() == false && !$user->isVipOnePaymentNotExpire())已經取消VIP @elseif($user->isVipOnePaymentNotExpire())單次VIP會員@endif</h2>
+                                    <h2>@if(!$user->isVipOrIsVvip())您目前尚未成為VIP會員 @elseif($user->isVipNotCanceledNotOnePayment() == false && !$user->isVipOnePaymentNotExpire())已經取消VIP @elseif($user->isVipOnePaymentNotExpire())單次VIP會員@endif</h2>
                                     <h3>
                                         @if(($user->isVipNotCanceledNotOnePayment() == false || $user->isVipOnePaymentNotExpire() )&& $days>0)
                                             還剩{{$days}}天可使用
@@ -228,7 +228,7 @@
                         </div>
 
                         <div class="de_input n_viptop20 n_viphig"  id="vip2" style="display:none">
-                            @if ($user->isVip() && !$user->isVipOnePaymentNotExpire())
+                            @if ($user->isVipOrIsVvip() && !$user->isVipOnePaymentNotExpire())
                             <form class="m-login__form m-form" method="POST" action="/dashboard/cancelpay">
                                 {!! csrf_field() !!}
                             <div class="de_input01 dlmarbot"><div class="de_img"><img src="/new/images/lo_03.png"></div><input name="email" type="text" class="d_input" placeholder="帳號 (您的Email)"></div>
@@ -268,7 +268,7 @@
             if(id === 'vip2'){
                 $('.vipbongn').hide();
                 $('.n_vipbotf').hide();
-                @if (!$user->isVip() && !$user->isFreeVip())
+                @if (!$user->isVipOrIsVvip() && !$user->isFreeVip())
                 c5('您目前尚未成為VIP會員');
                 @elseif($user->isFreeVip())
                 show_pop_message('您是免費VIP，刪除您的大頭照或生活照少於三張就會取消VIP');
@@ -433,7 +433,7 @@
                 @if(isset($vipLessThan7days) && $vipLessThan7days && $user->isVipNotCanceledNotOnePayment())
                     common_confirm("{{$cancel_vip}}");
                     // var r= confirm('123');
-                @elseif($user->isVip() && $user->isVipNotCanceledNotOnePayment() && !$user->isVipOnePaymentNotExpire())
+                @elseif($user->isVipOrIsVvip() && $user->isVipNotCanceledNotOnePayment() && !$user->isVipOnePaymentNotExpire())
                     common_confirm("{{$cancel_vip}}");
             // var r= confirm('123');
                 @endif

@@ -99,7 +99,7 @@ class CheckIsWarned
 
         //vip_pass and vip
         //check is ever vip_pass and now not vip
-        if(!$user->isVip() && !$user->isFreeVip() && $user->engroup == 1){
+        if(!$user->isVip() && !$user->isVVIP() && !$user->isFreeVip() && $user->engroup == 1){
 
             if(count($isBanned)==0){
                 //if ever banned by vip_pass then reBanned
@@ -150,7 +150,7 @@ class CheckIsWarned
                     ]);
                 }
             }
-        }else if($user->isVip() && !$user->isFreeVip() && $user->engroup == 1){
+        }else if(($user->isVip() || $user->isVVIP()) && !$user->isFreeVip() && $user->engroup == 1){
             //防呆 當有VIP 則取消VIP_PASS
             banned_users::where('member_id',$user->id)->where('vip_pass', 1)->delete();
             warned_users::where('member_id',$user->id)->where('vip_pass', 1)->delete();

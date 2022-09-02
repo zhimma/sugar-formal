@@ -72,6 +72,34 @@
 	</tr>
 	@endforelse
 </table>
+
+<table class='table table-bordered table-hover'>
+	<tr>
+		<th>動作</th>
+		<th>服務項目</th>
+		<th>訂單編號</th>
+		<th>TXN ID</th>
+		<th>Action</th>
+		<th>資料建立時間</th>
+		<th>資料建立時間</th>
+	</tr>
+	@forelse ($vvip_log_data as $row)
+		<tr>
+			<td>{{ $row->content }}</td>
+			<td>{{ $row->service_name }}</td>
+			<td>{{ $row->order_id }}</td>
+			<td>{{ $result->txn_id }}</td>
+			<td>{{ $result->action }}</td>
+			<td>{{ $result->created_at }}</td>
+			<td>{{ $result->updated_at }}</td>
+		</tr>
+	@empty
+		<tr>
+			找不到資料
+		</tr>
+	@endforelse
+</table>
+
 </body>
 </html>
 @stop

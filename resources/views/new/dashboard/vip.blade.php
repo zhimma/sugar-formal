@@ -140,7 +140,7 @@
                         <div class="fi_xq">
                             <img src="/new/images/vip_xq.png" class="fi_xqicon">
                             <div class="fi_text">
-                                <h2>@if(!$user->isVip())您目前尚未成為VIP會員 @elseif($user->isVipNotCanceledORCanceledButNotExpire() == false)已經取消VIP @endif</h2>
+                                <h2>@if(!$user->isVipOrIsVvip())您目前尚未成為VIP會員 @elseif($user->isVipNotCanceledORCanceledButNotExpire() == false)已經取消VIP @endif</h2>
                                 <h3>
                                     @if($user->isVipNotCanceledORCanceledButNotExpire() == false && $days>0)
                                         還剩{{$days}}天可使用
@@ -152,7 +152,7 @@
                     </div>
 
                     <div class="de_input n_viptop20 n_viphig"  id="vip2" style="display:none">
-                        @if ($user->isVip())
+                        @if ($user->isVipOrIsVvip())
                         <form class="m-login__form m-form" method="POST" action="/dashboard/cancelpay">
                             {!! csrf_field() !!}
                         <div class="de_input01 dlmarbot"><div class="de_img"><img src="/new/images/lo_03.png"></div><input name="email" type="text" class="d_input" placeholder="帳號 (您的Email)"></div>
@@ -249,7 +249,7 @@
             document.getElementById(id+"_a").className="n_viphover";
             $('#vip_cancel').hide();
             if(id === 'vip2'){
-                @if (!$user->isVip() && !$user->isFreeVip())
+                @if (!$user->isVipOrIsVvip() && !$user->isFreeVip())
                 c5('您目前尚未成為VIP會員');
                 @elseif($user->isFreeVip())
                 show_pop_message('您是免費VIP，刪除您的大頭照或生活照少於三張就會取消VIP');

@@ -471,7 +471,7 @@
         <tr class="{{$user->tag_class}}">
             <th class="col-1st">
 	{{--		<a target="_blank" href="showLog?user_id={{$user->id}}{{request()->mon?'&mon='.request()->mon:''}}">   --}}
-				@if($user->engroup == 1 && $user->isVip()) <i class="m-nav__link-icon fa fa-diamond"></i> @endif
+				@if($user->engroup == 1 && $user->isVipOrIsVvip()) <i class="m-nav__link-icon fa fa-diamond"></i> @endif
                 @if($user->is_real==0) (本) @endif
                 @if($user->advance_auth_status) (驗) @endif
                 ({{$user->register_days}})

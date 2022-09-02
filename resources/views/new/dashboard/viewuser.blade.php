@@ -248,7 +248,7 @@
         @media (max-width:450px) {
            .huiyoic{ height:118px;}
         }
-        @if(!$user->isVip())
+        @if(!$user->isVip()&&!$user->isVVIP())
             .tubiao ul li img {height:50px !important;}
         @endif
 
@@ -532,31 +532,31 @@
                             $isBlocked = \App\Models\Blocked::isBlocked($user->id, $to->id);
                             $data = \App\Services\UserService::checkRecommendedUser($to);
                             $introCount = 0;
-                            $introMinDiv = $user->isVip()? '111px' : '85px';
+                            $introMinDiv = ($user->isVip()||$user->isVVIP())? '111px' : '85px';
                         @endphp
                         <div class="tubiao" data-step="1" data-position="top" data-highlightClass="yindao2" data-tooltipClass="yindao1" data-intro="<ul>
                                 @if(isset($data['description']) && $to->engroup == 2)
-                                <li><div style='min-width:{{$introMinDiv}};text-align: center;'><img @if($user->isVip())width='85px'@endif src='@if($user->isVip())/new/images/a1.png @else/new/images/b_1.png @endif'></div> <span>註冊未滿30天的新進會員</span></li>
+                                <li><div style='min-width:{{$introMinDiv}};text-align: center;'><img @if($user->isVip()||$user->isVVIP())width='85px'@endif src='@if($user->isVip()||$user->isVVIP())/new/images/a1.png @else/new/images/b_1.png @endif'></div> <span>註冊未滿30天的新進會員</span></li>
                                 @endif
                         @if($to->isVip() && $to->engroup == 1)
-                                <li><div style='min-width: {{$introMinDiv}};text-align: center;'><img @if($user->isVip())width='65px'@endif src='@if($user->isVip())/new/images/a4.png @else/new/images/b_4.png @endif'></div> <span>本站付費會員</span></li>
+                                <li><div style='min-width: {{$introMinDiv}};text-align: center;'><img @if($user->isVip()||$user->isVVIP())width='65px'@endif src='@if($user->isVip()||$user->isVVIP())/new/images/a4.png @else/new/images/b_4.png @endif'></div> <span>本站付費會員</span></li>
                                 @endif
                         @if(isset($data['description']) && $to->engroup == 1)
-                                <li><div style='min-width: {{$introMinDiv}};text-align: center;'><img @if($user->isVip())width='85px'@endif src='@if($user->isVip())/new/images/a2.png @else/new/images/b_2.png @endif'></div> <span>長期付費的VIP，或者常用車馬費邀請的男會員</span></li>
+                                <li><div style='min-width: {{$introMinDiv}};text-align: center;'><img @if($user->isVip()||$user->isVVIP())width='85px'@endif src='@if($user->isVip()||$user->isVVIP())/new/images/a2.png @else/new/images/b_2.png @endif'></div> <span>長期付費的VIP，或者常用車馬費邀請的男會員</span></li>
                                 @endif
                         @if($to->meta->isWarned == 1 || $to->aw_relation)
-                                <li><div style='min-width: {{$introMinDiv}};text-align: center;'><img @if($user->isVip())width='85px'@endif src='@if($user->isVip())/new/images/a5.png @else/new/images/b_5.png @endif'></div> <span>被多人檢舉或被網站評為可疑的會員</span></li>
+                                <li><div style='min-width: {{$introMinDiv}};text-align: center;'><img @if($user->isVip()||$user->isVVIP())width='85px'@endif src='@if($user->isVip()||$user->isVVIP())/new/images/a5.png @else/new/images/b_5.png @endif'></div> <span>被多人檢舉或被網站評為可疑的會員</span></li>
                                 @endif
                         @if($to->isPhoneAuth())
-                                <li><div style='min-width: {{$introMinDiv}};text-align: center;'><img @if($user->isVip())width='85px'@endif src='@if($user->isVip())/new/images/a6.png @else/new/images/b_6.png @endif'></div> <span>通過手機認證的會員</span></li>
+                                <li><div style='min-width: {{$introMinDiv}};text-align: center;'><img @if($user->isVip()||$user->isVVIP())width='85px'@endif src='@if($user->isVip()||$user->isVVIP())/new/images/a6.png @else/new/images/b_6.png @endif'></div> <span>通過手機認證的會員</span></li>
                                 @endif
                                 </ul>">
-                            <ul @if(!$user->isVip())style="margin-top: -5px;"@endif class="@if(!$user->isVip()) not_vip  @endif">
+                            <ul @if(!$user->isVip() && !$user->isVVIP())style="margin-top: -5px;"@endif class="@if(!$user->isVip() && !$user->isVVIP()) not_vip  @endif">
 
 {{--                                @if(isset($data['description']) && $to->engroup == 1)--}}
 {{--                                    <li>--}}
 {{--                                        <div class="tagText" data-toggle="popover" data-content="優質會員是願意長期付費的VIP，或者常用車馬費邀請的男會員，建議女會員優先考慮。" style="width: 100%">--}}
-{{--                                            @if($user->isVip())--}}
+{{--                                            @if($user->isVipOrIsVvip())--}}
 {{--                                                <img src="/new/images/a2.png">--}}
 {{--                                            @else--}}
 {{--                                                <img src="/new/images/b_2.png" style="height: 50px;">--}}
@@ -574,12 +574,12 @@
                                 {{--                            <li><img src="/new/images/icon_27.png"><span>{{$alert_account}}</span></li>--}}
 
                                 @if($rap_service->isNeedShowTagOnPic())
-                                    {!!$rap_service->getTagShowOnPicLayoutByLoginedUserIsVip($user->isVip()) !!}
+                                    {!!$rap_service->getTagShowOnPicLayoutByLoginedUserIsVip($user->isVipOrIsVvip()) !!}
                                 @elseif($to->meta->isWarned == 1 || $to->aw_relation)
                                     <li>
 
                                         <div class="tagText" data-toggle="popover" data-content="此會員為警示會員，與此會員交流務必提高警覺！">
-                                            @if($user->isVip())
+                                            @if($user->isVip() || $user->isVVIP())
                                                 <img src="/new/images/a5.png">
                                             @else
                                                 <img src="/new/images/b_5.png" style="height: 50px;">
@@ -593,7 +593,7 @@
                                 @elseif(isset($data['description']) && $to->engroup == 2)
                                     <li>
                                         <div class="tagText" data-toggle="popover" data-content="新進甜心是指註冊未滿30天的新進會員，建議男會員可以多多接觸，不過要注意是否為八大行業人員。" style="width: 100%">
-                                            @if($user->isVip())
+                                            @if($user->isVip() || $user->isVVIP())
                                                 <img src="/new/images/a1.png">
                                             @else
                                                 <img src="/new/images/b_1.png" style="height: 50px;">
@@ -605,10 +605,10 @@
                                         $user->isReadIntro = 1;
                                         $introCount++;
                                     @endphp
-                                @elseif($to->isVip() && $to->engroup == 1)
+                                @elseif(($to->isVip() || $to->isVVIP()) && $to->engroup == 1)
                                     <li>
                                         <div class="tagText" data-toggle="popover" data-content="本站的付費會員。" style="width: 100%">
-                                            @if($user->isVip())
+                                            @if($user->isVip() || $user->isVVIP())
                                                 <img src="/new/images/a4.png">
                                             @else
                                                 <img src="/new/images/b_4.png" style="height: 50px;">
@@ -622,7 +622,7 @@
                                     @endphp 
                                 @elseif($to->isAdvanceAuth() || $to->isPhoneAuth())
                                     <li>
-                                        @if($user->isVip())
+                                        @if($user->isVip() || $user->isVVIP())
                                             {{--@if($to->isAdvanceAuth() && $to->engroup==2)
                                             <div class="tagText"  data-toggle="popover" data-content="本站的進階認證會員，本會員通過本站的嚴格驗證，基本資料正確無誤。">
                                                 <img src="/new/images/a8_x.png">
@@ -750,7 +750,7 @@
                                     @endif
                                 </li>
 {{--                            @endif--}}
-                            @if($user->isVip())
+                            @if($user->isVip() || $user->isVVIP())
                                 <li>
                                     @php
                                         $isFav = \App\Models\MemberFav::where('member_id', $user->id)->where('member_fav_id',$to->id)->count();
@@ -785,7 +785,7 @@
                                 <div class="userlogo"><img src="/new/images/icon_15.png" class="tubiao_i"><span>更多</span></div>
                                 <div class="he_tkcn showslide" style="z-index:1">
                                     <ul>
-                                        @if($user->isVip())
+                                        @if($user->isVip() || $user->isVVIP())
                                             @if($isBlocked)
                                                 <a class="unblock"><img src="/new/images/icon_12_h.png" class="tubiao_i he_tkcn_img"><span>解除封鎖</span></a>
                                             @else
@@ -801,10 +801,10 @@
                                                 <span class="vip_space"><img src="/new/images/icon_36.png" class="tap-vip"></span>
                                                 </a>
                                         @endif
-                                        <a href="javascript:void(0);" class="@if($user->isVip()) skip_search @endif">
+                                        <a href="javascript:void(0);" class="@if($user->isVip() || $user->isVVIP()) skip_search @endif">
                                             <img src="/new/images/icon_17.png" class="he_tkcn_img">
                                             <span>{{$user->search_ignore()->where('ignore_id',$to->id)->count()?'解除略過':'略過'}}</span>
-                                            @if(!$user->isVip())
+                                            @if(!$user->isVip() && !$user->isVVIP())
                                             <span class="vip_space"><img src="/new/images/icon_36.png" class="tap-vip"></span>
                                             @endif
                                         </a>
@@ -919,7 +919,7 @@
                                         <span>
                                             <div class="select_xx01 senhs hy_new">
                                                 <font class="left">{{$to->name}}</font>
-                                                @if($user->isVip())
+                                                @if($user->isVip() || $user->isVVIP())
                                                     @if($to->isOnline() && $to->is_hide_online==0)
                                                         <font id="onlineStatus2" style="display: block;">上線中</font>
                                                     @endif
@@ -937,7 +937,7 @@
                                     </dt>
 
                                     {{--
-                                    @if(!empty($to->exchange_period) && $to->engroup==2 && $user->isVip())
+                                    @if(!empty($to->exchange_period) && $to->engroup==2 && $user->isVipOrIsVvip())
                                         <dt>
                                             <span>包養關係</span>
                                             <span>
@@ -1290,7 +1290,7 @@
                                     </dt>
                                     @endif
 
-                                    @if(!empty($to->meta->occupation) && $to->meta->isHideOccupation == '0' && $user->isVip() && $to->meta->occupation != 'null' && $to->engroup==1)
+                                    @if(!empty($to->meta->occupation) && $to->meta->isHideOccupation == '0' && ($user->isVip() || $user->isVVIP()) && $to->meta->occupation != 'null' && $to->engroup==1)
                                     <dt>
                                         <span>職業</span>
                                         <span>
@@ -1299,7 +1299,7 @@
                                     </dt>
                                     @endif
 
-                                    @if($to->meta->isHideOccupation == '0' && $user->isVip() && ($user_option->occupation->option_id ?? false) && $to->engroup==2)
+                                    @if($to->meta->isHideOccupation == '0' && $user->isVipOrIsVvip() && ($user_option->occupation->option_id ?? false) && $to->engroup==2)
                                     <dt>
                                         <span>工作/學業</span>
                                         <span>
@@ -1394,7 +1394,7 @@
                             <div class="xiliao_input">
                                 <div class="xl_text">
                                     
-                                    <dt><span>註冊時間</span>@if($user->isVip())<font>{{substr($to->created_at,0,10)}}</font>@else <span class="mtop"><img src="/new/images/icon_35.png"></span> @endif</dt>
+                                    <dt><span>註冊時間</span>@if($user->isVip() || $user->isVVIP())<font>{{substr($to->created_at,0,10)}}</font>@else <span class="mtop"><img src="/new/images/icon_35.png"></span> @endif</dt>
                                     <dt><span>最後上線時間</span>
                                         <span v-if="is_vip"><font>@{{last_login}}</font></span>
                                         <span class="mtop" v-else><img src="/new/images/icon_35.png" /></span>
@@ -1404,7 +1404,7 @@
                                         <span class="mtop" v-else><img src="/new/images/icon_35.png" /></span>
                                     </dt>
 {{--                                    <dt><span>使用者評價</span>--}}
-{{--                                        @if($user->isVip())--}}
+{{--                                        @if($user->isVipOrIsVvip())--}}
 {{--                                            <font>--}}
 {{--                                                <div class="star_new">--}}
 {{--                                                    @for ($i = 1; $i <= 5; $i++)--}}
@@ -1547,7 +1547,7 @@
                                         // print_r($evaluation_data);
                                          $showCount = 0;
                                          $blockMidList = array();
-                                         $isVip=$user->isVip();
+                                         $isVip=($user->isVip() || $user->isVVIP());
                                     @endphp
                                     @if((!$isVip && $user->id!=$to->id) && sizeof($evaluation_data) > 0)<div class="mohu_icon" id="mohu_icon"><img src="/new/images/icon_36.png"></div>@endif
                                     @if(sizeof($evaluation_data) > 0)
@@ -2261,7 +2261,7 @@
         //     $(this).popover('toggle');
         });
 
-        var vipDiff = parseInt('{{$user->isVip()? '6' : '0'}}');
+        var vipDiff = parseInt('{{ ($user->isVip() || $user->isVVIP()) ? '6' : '0'}}');
 
         if(window.matchMedia("(min-width: 992px)").matches && window.matchMedia("(max-width: 1599px)").matches){
             $(".swiper-container").css('height',$(".metx").height()- 56);
@@ -3364,7 +3364,7 @@ rendorItemNthText.nthEnum = '一二三四五六七八九十'.split('');
             });
         });
         
-        @if($user->isVip())
+        @if($user->isVip() || $user->isVVIP())
         $('.he_tkcn .skip_search').click(function () { toogelSearchDiscard('{{$to->id}}',$(this));})
         
         function toogelSearchDiscard(id,qelt,recall=false) {
@@ -3466,7 +3466,7 @@ rendorItemNthText.nthEnum = '一二三四五六七八九十'.split('');
             el: '#app',
             data () {
                 return {
-                    "is_vip": "{{$user->isVip()}}",
+                    "is_vip": "{{($user->isVip() || $user->isVVIP())}}",
                     "faved":"loading...",
                     "be_faved":"loading...",
                     "blocked_other_count":"loading...",

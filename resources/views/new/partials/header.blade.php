@@ -145,26 +145,12 @@
                             if(showedUsers.length > 0){
                                 userList = showedUsers
                             }
-                            else{
-                                userList = chatUsers;
-                            }
-                            users.forEach(function (user) {
-                                $(userList).each((i, userListed) =>{
-                                    if (user['id'] == userListed.id) {
-                                        setUserOnlineStatus(1, user['id']);
-                                        throw BreakException;
-                                    }
-                                })
-                            });
-                        } catch (e) {
-                            if (e !== BreakException) throw e;
-                        }
-                    }).joining((user) => {
-                        setUserOnlineStatus(1, user.id);
-                    }).leaving((user) => {
-                        setUserOnlineStatus(0, user.id);
-                    });
-                }); --}}
+                        });
+                    }
+                }
+                let users = null;
+                let users_leaving = null;
+                let BreakException = [];
             @elseif(str_contains(url()->current(), 'viewuser') || request()->route()->getName() == 'chat2WithUser')
                 {{-- Echo.join('Online')
                     .here((users) => {

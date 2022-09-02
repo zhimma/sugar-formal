@@ -20,7 +20,7 @@ class BadUserCommon
         $relateUserIds = [];
         $admin_id = AdminService::checkAdmin()->id;
         $bad_user = User::findById($bad_user_id);
-        $msgOfBannedUser = Message_new::allSendersAJAX($bad_user->id,$bad_user->isVip(),'curMon',true);
+        $msgOfBannedUser = Message_new::allSendersAJAX($bad_user->id,$bad_user->isVipOrIsVvip(),'curMon',true);
         if($msgOfBannedUser){
             foreach($msgOfBannedUser  as $msg) {
                 if(($msg['to_id'] ?? null)==$bad_user_id && !in_array(($msg['from_id'] ?? null),$relateUserIds) && !($msg['isBanned'] ?? null)) $relateUserIds[] = $msg['from_id'];
@@ -36,7 +36,7 @@ class BadUserCommon
                 {
                     continue;
                 }
-                $msgOfRelateUser = Message_new::allSendersAJAX($relate_user->id,$relate_user->isVip(),'curMon',true);
+                $msgOfRelateUser = Message_new::allSendersAJAX($relate_user->id,$relate_user->isVipOrIsVvip(),'curMon',true);
                 foreach($msgOfRelateUser  as $rmsg) {
                     if(($rmsg['to_id'] ?? null)==$relateUserId && !in_array(($rmsg['from_id'] ?? null),$relateRUserIds)) $relateRUserIds[] = $rmsg['from_id'];
                     if(($rmsg['from_id'] ?? null)==$relateUserId && !in_array(($rmsg['to_id'] ?? null),$relateRUserIds)) $relateRUserIds[] = $rmsg['to_id'];

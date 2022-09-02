@@ -62,7 +62,7 @@ class FaqUserService {
         $gEntry_where_arr[] = ['engroup',$this->user()->engroup];        
         if($this->user()->engroup!=2)
         {
-            $gEntry_where_arr[] = ['is_vip',$this->user()->isVip()];
+            $gEntry_where_arr[] = ['is_vip',$this->user()->isVipOrIsVvip()];
         }
         $gEntry_where_arr[] = ['act',1];
         $gEntry_where_arr[] = ['has_answer',1];

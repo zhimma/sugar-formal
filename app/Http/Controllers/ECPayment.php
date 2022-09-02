@@ -8,6 +8,7 @@ use App\Services\ECPay_AllInOne;
 use App\Services\ECPay_PaymentMethod;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Config;
+use App\Services\EnvironmentService;
 
 class ECPayment extends BaseController
 {
@@ -53,7 +54,7 @@ class ECPayment extends BaseController
         try {
             $obj = new ECPay_AllInOne();
 
-            if(\App::environment('local')){
+            if(EnvironmentService::isLocalOrTestMachine()){
                 $envStr = '_test';
             }
             else{
@@ -187,7 +188,7 @@ class ECPayment extends BaseController
         try {
             $obj = new ECPay_AllInOne();
 
-            if (\App::environment('local')) {
+            if (EnvironmentService::isLocalOrTestMachine()) {
                 $envStr = '_test';
             } else {
                 $envStr = '';
@@ -260,7 +261,7 @@ class ECPayment extends BaseController
         try {
             $obj = new ECPay_AllInOne();
 
-            if (\App::environment('local')) {
+            if (EnvironmentService::isLocalOrTestMachine()) {
                 $envStr = '_test';
             } else {
                 $envStr = '';
@@ -348,7 +349,7 @@ class ECPayment extends BaseController
         try {
             $obj = new ECPay_AllInOne();
 
-            if(\App::environment('local')){
+            if(EnvironmentService::isLocalOrTestMachine()){
                 $envStr = '_test';
             }
             else{
@@ -413,6 +414,10 @@ class ECPayment extends BaseController
             if($request->remainDays){
                 $obj->Send['CustomField2']  = $request->remainDays;
             }
+            //VVIP定期定額紀錄申請方案
+            if($request->plan){
+                $obj->Send['CustomField2']  = $request->plan;
+            }
             //訂單的商品資料
             array_push($obj->Send['Items'], array('Name' => "SG-".$request->service_name."(".$request->userId.")", 'Price' => (int)$amount, 'Currency' => "元", 'Quantity' => (int) "1", 'URL' => ""));
 
@@ -432,7 +437,7 @@ class ECPayment extends BaseController
         try {
             $obj = new ECPay_AllInOne();
 
-            if (\App::environment('local')) {
+            if (EnvironmentService::isLocalOrTestMachine()) {
                 $envStr = '_test';
             } else {
                 $envStr = '';
