@@ -1032,10 +1032,15 @@
 
             $("#add_image_5").click(function(e) {
                 add_assets_image_id = add_assets_image_id + 1;
-                if($('.assets_image_top:last').val()==''){
+                if($('.assets_image_top:last').val()=='') {
                     c5('您尚未輸入文字');
                     return false;
-                }else {
+                }
+                else if($('.input_field_5').children('div').length > 4) {
+                    c5('您的財富資產至多只能選擇四個');
+                    return false;
+                }
+                else {
                     e.preventDefault();
                     $(".input_field_5").append('<div class="custom matop10" style="width: 100%;">' +
                         '<input type="text" placeholder="請輸入至多18個字" class="msinput assets_image_top" name="assets_image_content[' + add_assets_image_id + ']" maxlength="18">' +
