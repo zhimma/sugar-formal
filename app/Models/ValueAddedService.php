@@ -2,6 +2,8 @@
 
 namespace App\Models;
 
+use App\Events\UserVvipRemoved;
+use App\Events\UserVvipUpgraded;
 use Illuminate\Database\Eloquent\Model;
 use App\Models\User;
 use Carbon\Carbon;
@@ -168,13 +170,17 @@ class ValueAddedService extends Model
         }
 
 
-        if($service_name=='hideOnline'){
+        if($service_name == 'hideOnline') {
             $HideOnlineData = hideOnlineData::where('user_id', $member_id)->first();
             if(isset($HideOnlineData)) {
                 User::where('id', $member_id)->update(['is_hide_online' => 1, 'hide_online_time' => $HideOnlineData->login_time]);
             }else{
                 User::where('id', $member_id)->update(['is_hide_online' => 1]);
             }
+        }
+
+        if($service_name == 'VVIP') {
+            event(new UserVvipUpgraded(User::find($member_id)));
         }
 
         ValueAddedServiceLog::addToLog($member_id, $service_name,'Upgrade, payment: ' . $payment . ', service: ' . $service_name, $order_id, $txn_id, 0);
@@ -261,6 +267,10 @@ class ValueAddedService extends Model
             foreach ($user as $u){
                 $u->expiry = $expiryDate->startOfDay()->toDateTimeString();
                 $u->save();
+            }
+
+            if($service_name == 'VVIP') {
+                event(new UserVvipRemoved($curUser));
             }
 
             ValueAddedServiceLog::addToLog($member_id, $service_name,'Cancelled, expiry: ' . $expiryDate, $user[0]->order_id, $user[0]->txn_id,0);

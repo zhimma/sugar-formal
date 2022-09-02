@@ -9543,7 +9543,6 @@ class PagesController extends BaseController
             }
             $envStr = '_test';
             if(substr($vip->payment,0,3) == 'cc_' && $vip->business_id == Config::get('ecpay.payment'.$envStr.'.MerchantID')){
-
                 $ecpay = new \App\Services\ECPay_AllInOne();
                 $ecpay->MerchantID = Config::get('ecpay.payment'.$envStr.'.MerchantID');
                 $ecpay->ServiceURL = Config::get('ecpay.payment'.$envStr.'.ServiceURL');//定期定額查詢
