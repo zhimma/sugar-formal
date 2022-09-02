@@ -1014,10 +1014,72 @@
                 $(this).parent('div').remove();
             });
 
+            $(".option_expect_date ").click(function () {
+                option_array = [];
+                option_count = 0;
+                $('.option_expect_date.cractive_a').each(function(){
+                    option_array.push($(this).attr('value'));
+                    option_count = option_count + 1;
+                });
+                option_array = JSON.stringify(option_array);
+                $('#expect_date').val(option_array);
+
+                //期待的約會模式-自填
+                option_array = [];
+                option_array.push($('.input_field_7').children().first().val());
+                $('.input_field_7').children('.custom').each(function(){
+                    option_array.push($(this).children('.msinput').val());
+                    if($(this).children('.msinput').val() != '')
+                    {
+                        option_count = option_count + 1;
+                    }
+                });
+                option_array = JSON.stringify(option_array);
+                $('#expect_date_other').val(option_array);
+
+                //檢查期待的約會模式數量
+                if(option_count > 3)
+                {
+                    c5('期待的約會模式至多只能選擇四個');
+                    return false;
+                }
+            });
+
             $("#add_image_7").click(function(e) {
                 if($('.date_expect:last').val()==''){
                     c5('您尚未輸入文字');
-                }else {
+                }
+                else if {                   //期待的約會模式
+                    option_array = [];
+                    option_count = 0;
+                    $('.option_expect_date.cractive_a').each(function(){
+                        option_array.push($(this).attr('value'));
+                        option_count = option_count + 1;
+                    });
+                    option_array = JSON.stringify(option_array);
+                    $('#expect_date').val(option_array);
+
+                    //期待的約會模式-自填
+                    option_array = [];
+                    option_array.push($('.input_field_7').children().first().val());
+                    $('.input_field_7').children('.custom').each(function(){
+                        option_array.push($(this).children('.msinput').val());
+                        if($(this).children('.msinput').val() != '')
+                        {
+                            option_count = option_count + 1;
+                        }
+                    });
+                    option_array = JSON.stringify(option_array);
+                    $('#expect_date_other').val(option_array);
+
+                    //檢查期待的約會模式數量
+                    if(option_count > 3)
+                    {
+                        c5('期待的約會模式至多只能選擇四個');
+                        return false;
+                    }
+                }
+                else {
                     e.preventDefault();
                     $(".input_field_7").append('<div class="custom"><input type="text" placeholder="請輸入至多10個字" class="msinput date_expect date_expect_text" maxlength="10"><a href="#" class="remove_field_1"><img src="/new/images/del_03n.png"></a></div>'); //add input box
                 }
@@ -1054,10 +1116,15 @@
 
             $("#add_image_6").click(function(e) {
                 add_life_image_id = add_life_image_id + 1;
-                if($('.life_top:last').val()==''){
+                if($('.life_top:last').val()=='') {
                     c5('您尚未輸入文字');
                     return false;
-                }else {
+                }
+                else if($('.input_field_6').children('div').length > 1) {
+                    c5('您的品質生活至多只能選擇兩個');
+                    return false;
+                }
+                else {
                     e.preventDefault();
                     $(".input_field_6").append('<div class="custom matop10" style="width: 100%;">' +
                         '<input type="text" placeholder="請輸入至多18個字" class="msinput life_top" name="life_image_content[' + add_life_image_id + ']" maxlength="18">' +
