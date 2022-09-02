@@ -48,10 +48,10 @@
                 @endif
             @endif
             
-            @if (isset($user) && ($user->isVip()|| $user->isVVIP()))
+            @if (isset($user) && ($user->isVip() || $user->isVVIP()))
                 <a class="item" href="{!! url('/dashboard/search_discard/list') !!}"><li style="float:@if($user->engroup == 1) right; @else left; @endif"><img src="/new/images/z_12.png"><span class="n_zylg">略過名單</span></li></a>
             @else
-                <a class="item" href="javascript:void(0);"><li style="float: left;"><img src="/new/images/z_12.png"><span class="n_zylg">略過名單</span><span class="vipOnly"><img src="/new/images/icon_36.png" style="height: auto;width:120px;"></span></li></a>
+                <a class="item" href="javascript:void(0);"><li style="float: right;"><img src="/new/images/z_12.png"><span class="n_zylg">略過名單</span><span class="vipOnly"><img src="/new/images/icon_36.png" style="height: auto;width:120px;"></span></li></a>
             @endif 
            
         </div>
