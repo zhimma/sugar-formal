@@ -5547,8 +5547,13 @@ line-height:26px; box-shadow: 0 5px 5px #ffc1cd; cursor: pointer;}
 .zh_shed{ background:url(../images/shed.png) no-repeat;width:80px; height:80px;position: absolute;left: 10px;top: -10px; background-size: 100%; z-index:5}
 .zh_shed:hover{background:url(../images/shed_1.png) no-repeat;width:80px; height:80px;background-size: 100%;}
 
+.zh_shed_right{ background:url(../images/shed.png) no-repeat;width:80px; height:80px;position: absolute;right: 40px;top: 10px; background-size: 100%; z-index:5}
+.zh_shed_right:hover{background:url(../images/shed_1.png) no-repeat;width:80px; height:80px;background-size: 100%;}
+
+@media (max-width:993px){
 .zh_shed_right{ background:url(../images/shed.png) no-repeat;width:80px; height:80px;position: absolute;right: 10px;top: 10px; background-size: 100%; z-index:5}
 .zh_shed_right:hover{background:url(../images/shed_1.png) no-repeat;width:80px; height:80px;background-size: 100%;}
+}
 
 .mtop{
     margin-top:6px;
