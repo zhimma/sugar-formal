@@ -70,7 +70,8 @@ class User extends Authenticatable implements JWTSubject
         'exchange_period',
         'line_notify_switch',
         'is_hide_online',
-        'hide_online_time'
+        'hide_online_time',
+        'is_vvip'
         ];
 
     /**
@@ -811,7 +812,7 @@ class User extends Authenticatable implements JWTSubject
                         $score = $score + 3.5;
                     }
                 }else if($user->engroup==1){
-                    if($user->isVip()){
+                    if($user->isVipOrIsVvip()){
                         $score = $score + 5;
                     }else{
                         $score = $score + 3.5;
@@ -831,7 +832,7 @@ class User extends Authenticatable implements JWTSubject
 //                        $score = $score + 3.5;
 //                    }
 //                }else if($user->engroup==1){
-//                    if($user->isVip()){
+//                    if($user->isVipOrIsVvip()){
 //                        $score = $score + 5;
 //                    }else{
 //                        $score = $score + 3.5;
@@ -851,7 +852,7 @@ class User extends Authenticatable implements JWTSubject
 //                        $score = $score + 3.5;
 //                    }
 //                }else if(isset($user->engroup) && $user->engroup==1){
-//                    if($user->isVip()){
+//                    if($user->isVipOrIsVvip()){
 //                        $score = $score + 5;
 //                    }else{
 //                        $score = $score + 3.5;
@@ -925,7 +926,7 @@ class User extends Authenticatable implements JWTSubject
 
         //註冊後如無任何傳訊紀錄 + 不是 vip 則顯示 無
         $checkMessages = Message::where('from_id', $uid)->get()->count();
-        if($checkMessages==0 && !$user->isVip() && count($order)==0){
+        if($checkMessages==0 && !$user->isVipOrIsVvip() && count($order)==0){
             $pr = '無';
             $pr_log = '註冊後如無任何傳訊紀錄+不是vip';
             //舊紀錄刪除
@@ -1045,7 +1046,7 @@ class User extends Authenticatable implements JWTSubject
         }
 
         //非VIP 扣分 每位通訊人數扣0.2
-        if(!$user->isVip()) {
+        if(!$user->isVipOrIsVvip()) {
             $checkMessageUsers = Message::select('to_id')->where('from_id', $uid)->distinct()->get()->count();
             if($checkMessageUsers>0){
                 $pr = $pr - ($checkMessageUsers * 0.2);
@@ -1805,7 +1806,15 @@ class User extends Authenticatable implements JWTSubject
                 $checkUserVip=1;
             }
         }
-        return $checkUserVip;
+        $isVVIP = ValueAddedService::select('active')
+                ->where('member_id', $this->id)
+                ->where('active', 1)
+                ->where('service_name', 'VVIP')
+                ->where(function($query) {
+                    $query->where('expiry', '0000-00-00 00:00:00')
+                        ->orwhere('expiry', '>=', Carbon::now());}
+                )->orderBy('created_at', 'desc')->first() !== null;
+        return ($checkUserVip||$isVVIP);
     }
 
     public function isEverBanned() {
@@ -1815,7 +1824,14 @@ class User extends Authenticatable implements JWTSubject
     public function isEverWarned() {
         return IsWarnedLog::where('user_id', $this->id)->orderBy('created_at', 'desc')->first();
     }
-    
+
+    public function isEverWarnedAndBanned() {
+        return IsWarnedLog::where('user_id', $this->id)->orderBy('created_at', 'desc')->first() !== null ||
+            IsBannedLog::where('user_id', $this->id)->orderBy('created_at', 'desc')->first() !== null ||
+            banned_users::where('member_id', $this->id)->orderBy('created_at', 'desc')->first() !== null ||
+            warned_users::where('member_id', $this->id)->orderBy('created_at', 'desc')->first() !== null;
+    }
+
     //略過搜尋
     public function search_ignore()
     {
@@ -1899,4 +1915,275 @@ class User extends Authenticatable implements JWTSubject
     {
         return [];
     }
+
+    //--VVIP--//
+    public function VVIP()
+    {
+        return $this->hasMany(ValueAddedService::class, 'member_id', 'id')->where('service_name','VVIP')->where('active', 1)->orderBy('created_at', 'desc');
+    }
+
+    public function is3MonthsVip()
+    {
+        //三個月以上(不含三個月)"信用卡"付費的 vip
+        $vip = Vip::where('member_id', $this->id)->where('active',1)->where('free',0)->whereIn('payment_method', ['CREDIT', null])->first();
+        if(isset($vip)){
+            $months = Carbon::parse($vip->created_at)->diffInMonths(Carbon::now());
+            if($months <= 3){ return 0;}
+            return 1;
+        }
+    }
+
+    public function is6MonthsVip()
+    {
+        $currentMonths = 0;
+        $months = 0;
+        $order_id = '';
+        //6個月以上連續信用卡付費的 vip
+        $vip = Vip::where('member_id', $this->id)->where('free',0)
+                ->whereIn('payment_method', ['CREDIT', null])
+                ->first();
+        if(isset($vip)) {
+            if ($vip->expiry == '0000-00-00 00:00:00') {
+                $currentMonths = Carbon::parse($vip->created_at)->diffInMonths(Carbon::now());
+            } else {
+                $currentMonths = Carbon::parse($vip->created_at)->diffInMonths($vip->expiry);
+            }
+            $order_id = $vip->order_id;
+        }
+
+        $getOrderData = Order::where('user_id', $this->id)
+            ->where('order_id', '<>', $order_id)
+            ->where('payment_type', 'Credit_CreditCard')
+            ->get();
+        if(count($getOrderData)>0) {
+            foreach ($getOrderData as $row) {
+                if($row->order_expire_date != ''){
+                    $months = Carbon::parse($row->order_date)->diffInMonths(Carbon::parse($row->order_expire_date));
+                    if($months > 6){ break; }
+                }
+            }
+        }
+
+        if( $currentMonths > 6 || $months > 6 ){ return 1;}
+        return 0;
+    }
+
+    public function is12MonthsVip()
+    {
+        //12個月以上累計付費的 vip
+        $currentMonths = 0;
+        $months = 0;
+        $order_id = '';
+
+        $vip = Vip::where('member_id', $this->id)->where('active',1)->where('free',0)->first();
+        if(isset($vip)){
+            $currentMonths = Carbon::parse($vip->created_at)->diffInMonths(Carbon::now());
+            $order_id = $vip->order_id;
+        }
+
+        $getOrderData = Order::where('user_id', $this->id)->where('order_id', '<>', $order_id)->get();
+        if(count($getOrderData)>0) {
+            foreach ($getOrderData as $row) {
+                if($row->order_expire_date==''){
+                    $months += Carbon::parse($row->order_date)->diffInMonths(Carbon::now());
+                }else{
+                    $months += Carbon::parse($row->order_date)->diffInMonths(Carbon::parse($row->order_expire_date));
+                }
+            }
+        }
+
+        $months += $currentMonths;
+        if($months > 12){ return 1;}
+        return 0;
+    }
+
+    public function canVVIP()
+    {
+        $user = $this;
+        if(( $user->is6MonthsVip() || $user->is12MonthsVip()) && !$user->isEverWarnedAndBanned() ){
+            return 1;
+        }else{
+            return 0;
+        }
+    }
+
+    public function applyingVVIP()
+    {
+        $applyingVVIP = VvipApplication::where('user_id', $this->id)->where('status',0)->orderBy('created_at', 'desc')->first();
+        if(isset($applyingVVIP)){ return 1;}
+        return 0;
+    }
+
+    public function applyingVVIP_getDeadline()
+    {
+        $applyingVVIP = VvipApplication::where('user_id', $this->id)->where('status',3)->orderBy('created_at', 'desc')->first();
+        if(isset($applyingVVIP)){ return substr($applyingVVIP->deadline, 0, 10);}
+        return 0;
+    }
+
+    public function applyVVIP_getData()
+    {
+        $applyVVIP = VvipApplication::where('user_id', $this->id)->orderBy('created_at', 'desc')->first();
+        if(isset($applyVVIP)){ return $applyVVIP;}
+        return 0;
+    }
+
+    public function passVVIP()
+    {
+        $passVVIP = VvipApplication::where('user_id', $this->id)->where('status',1)->orderBy('created_at', 'desc')->first();
+        if(isset($passVVIP)){ return 1;}
+        return 0;
+    }
+
+    public function cancelVVIP()
+    {
+        $cancelVVIP = VvipApplication::where('user_id', $this->id)->where('status',4)->orderBy('created_at', 'desc')->first();
+        if(isset($cancelVVIP)){ return 1;}
+        return 0;
+    }
+
+    public function isVVIP()
+    {
+        //拿掉VVIP功能
+        //return 0;
+
+        //VVIP有效狀態
+        return ValueAddedService::select('active')
+                ->where('member_id', $this->id)
+                ->where('active', 1)
+                ->where('service_name', 'VVIP')
+                ->where(function($query) {
+                    $query->where('expiry', '0000-00-00 00:00:00')
+                        ->orWhere('expiry', '>=', Carbon::now());}
+                )->orderBy('created_at', 'desc')->first() !== null &&
+            VvipApplication::where('user_id', $this->id)->where('status',1)->first() !== null;
+    }
+
+    public function isVipOrIsVvip()
+    {
+        return $this->isVVIP() || $this->isVip();
+    }
+
+    public function VvipInfoStatus()
+    {
+        $vvipInfo = VvipInfo::where('user_id', $this->id)->orderBy('created_at', 'desc')->first();
+        if($vvipInfo && $vvipInfo->status==1){
+            return 1;
+        }
+
+        return 0;
+    }
+
+    public function VvipInfo()
+    {
+        return $this->hasOne(VvipInfo::class, 'user_id', 'id');
+    } 
+    
+    //VvipOption
+
+    public function VvipAssetsImage()
+    {
+        return $this->hasManyThrough(VvipAssetsImage::class, VvipOptionXref::class, 'user_id', 'id', 'id', 'option_id')->where('option_type', 'assets_image');
+    }
+
+    public function VvipBackgroundAndAssets()
+    {
+        return $this->hasManyThrough(VvipBackgroundAndAssets::class, VvipOptionXref::class, 'user_id', 'id', 'id', 'option_id')->where('option_type', 'background_and_assets');
+    }
+
+    public function VvipDateTrend()
+    {
+        return $this->hasManyThrough(VvipDateTrend::class, VvipOptionXref::class, 'user_id', 'id', 'id', 'option_id')->where('option_type', 'date_trend');
+    }
+
+    public function VvipExpectDate()
+    {
+        return $this->hasManyThrough(VvipExpectDate::class, VvipOptionXref::class, 'user_id', 'id', 'id', 'option_id')->where('option_type', 'expect_date');
+    }
+
+    public function VvipExtraCare()
+    {
+        return $this->hasManyThrough(VvipExtraCare::class, VvipOptionXref::class, 'user_id', 'id', 'id', 'option_id')->where('option_type', 'extra_care');
+    }
+
+    public function VvipPointInformation()
+    {
+        return $this->hasManyThrough(VvipPointInfo::class, VvipOptionXref::class, 'user_id', 'id', 'id', 'option_id')->where('option_type', 'point_information');
+    }
+
+    public function VvipQualityLifeImage()
+    {
+        return $this->hasManyThrough(VvipQualityLifeImage::class, VvipOptionXref::class, 'user_id', 'id', 'id', 'option_id')->where('option_type', 'quality_life_image');
+    }
+
+    //VvipSubOption
+
+    public function VvipSubOptionCeoTitle()
+    {
+        return $this->hasManyThrough(VvipSubOptionCeoTitle::class, VvipSubOptionXref::class, 'user_id', 'id', 'id', 'option_id')->where('option_type', 'ceo_title');
+    }
+
+    public function VvipSubOptionEntrepreneur()
+    {
+        return $this->hasManyThrough(VvipSubOptionEntrepreneur::class, VvipSubOptionXref::class, 'user_id', 'id', 'id', 'option_id')->where('option_type', 'entrepreneur');
+    }
+
+    public function VvipSubOptionEntrepreneurCeoTitle()
+    {
+        return $this->hasManyThrough(VvipSubOptionCeoTitle::class, VvipSubOptionXref::class, 'user_id', 'id', 'id', 'option_remark')->where('option_type', 'entrepreneur');
+    }
+
+    public function VvipSubOptionHighAssets()
+    {
+        return $this->hasManyThrough(VvipSubOptionHighAssets::class, VvipSubOptionXref::class, 'user_id', 'id', 'id', 'option_id')->where('option_type', 'high_assets');
+    }
+
+    public function  VvipSubOptionHighNetWorth()
+    {
+        return $this->hasManyThrough( VvipSubOptionHighNetWorth::class, VvipSubOptionXref::class, 'user_id', 'id', 'id', 'option_id')->where('option_type', 'high_net_worth');
+    }
+
+    public function VvipSubOptionLifeCare()
+    {
+        return $this->hasManyThrough(VvipSubOptionLifeCare::class, VvipSubOptionXref::class, 'user_id', 'id', 'id', 'option_id')->where('option_type', 'life_care');
+    }
+
+    public function VvipSubOptionProfessional()
+    {
+        return $this->hasManyThrough(VvipSubOptionProfessional::class, VvipSubOptionXref::class, 'user_id', 'id', 'id', 'option_id')->where('option_type', 'professional');
+    }
+
+    public function VvipSubOptionProfessionalNetwork()
+    {
+        return $this->hasManyThrough(VvipSubOptionProfessionalNetwork::class, VvipSubOptionXref::class, 'user_id', 'id', 'id', 'option_id')->where('option_type', 'professional_network');
+    }
+
+    public function VvipSubOptionSpecialProblemHandling()
+    {
+        return $this->hasManyThrough(VvipSubOptionSpecialProblemHandling::class, VvipSubOptionXref::class, 'user_id', 'id', 'id', 'option_id')->where('option_type', 'special_problem_handling');
+    }
+
+
+//    public function VVIPisInvite()
+//    {
+//        $VVIPisInvite = VvipInvite::where('user_id', $this->id)->where('deadline','>',Carbon::now())->first();
+//        if(isset($VVIPisInvite)){ return 1;}
+//        return 0;
+//    }
+//
+//    public function VVIPisBeInvited()
+//    {
+//        $VVIPisBeInvited = VvipInvite::where('invite_user_id', $this->id)->where('deadline','>',Carbon::now())->first();
+//        if(isset($VVIPisBeInvited)){ return 1;}
+//        return 0;
+//    }
+//
+//    public function VVIPisBeInvitedCheckStatus()
+//    {
+//        $VVIPisBeInvitedCheckStatus = VvipInvite::where('invite_user_id', $this->id)->where('deadline','<',Carbon::now())->where('status', 0)->first();
+//        if(isset($VVIPisBeInvitedCheckStatus)){ return 1;}
+//        return 0;
+//    }
+
+    //--VVIP END--//
 }

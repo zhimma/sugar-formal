@@ -44,6 +44,7 @@ class NewerManual
 
             if( $this->auth->user()->engroup==1 &&
                 !$this->auth->user()->isVip() &&
+                !$this->auth->user()->isVVIP() &&
                 !$this->auth->user()->isPhoneAuth() &&
                 !str_contains(url()->current(), 'vip') &&
                 !str_contains(url()->current(), 'member_auth') &&

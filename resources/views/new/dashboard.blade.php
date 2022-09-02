@@ -133,14 +133,14 @@ dt span.engroup_type_title {display:inline-block;width:10%;white-space:nowrap;}
       <div class="col-sm-12 col-xs-12 col-md-10">
         <div class="g_password">
           <div class="g_pwicon">
-              <li><a href="/dashboard/viewuser/{{$user->id}}" class="g_pwicon_t5 "><span>自我預覽</span></a></li>
+              <li><a href="@if($user->isVVIP()) /dashboard/viewuser_vvip/{{$user->id}} @else /dashboard/viewuser/{{$user->id}} @endif" class="g_pwicon_t5 "><span>自我預覽</span></a></li>
               <li><a href="{!! url('dashboard') !!}" class="g_pwicon_t g_hicon1"><span>基本資料</span></a></li>
               <li><a href="{!! url('dashboard_img') !!}" class="g_pwicon_t2"><span>照片管理</span></a></li>
               <li><a href="{!! url('dashboard/account_manage') !!}" class="g_pwicon_t3"><span>帳號設定</span></a></li>
 {{--              <li><a href="{!! url('dashboard/vipSelect') !!}" class="g_pwicon_t4"><span>升級付費</span></a></li>--}}
           </div>
           <div class="addpic g_inputt">
-                    @if($user->isVip() && !Session::has('original_user'))
+                    @if($user->isVipOrIsVvip() && !Session::has('original_user'))
 {{--                    <a onClick="popSwitchOtherEngroup()" class="zw_dw zw_dw_left">模擬{{$user->engroup == 1?'女':'男'}}會員</a>--}}
                     @endif  
                     @if(Session::has('original_user'))  
@@ -232,7 +232,7 @@ dt span.engroup_type_title {display:inline-block;width:10%;white-space:nowrap;}
                             @endif
                         </div>
 
-                        @if($user->isVip() && !Session::has('original_user'))
+                        @if($user->isVipOrIsVvip() && !Session::has('original_user'))
 {{--                        <a onClick="popSwitchOtherEngroup()"class="zw_dw">模擬{{$user->engroup == 1?'女':'男'}}會員</a>--}}
                         @endif 
                         @if(Session::has('original_user'))  
@@ -1386,7 +1386,7 @@ dt span.engroup_type_title {display:inline-block;width:10%;white-space:nowrap;}
                   @endif
                   <tr>
                       <td class="new_baa">需為VIP會員</td>
-                      <td class="">@if(!$user->isVip())<img src="/new/images/ticon_02.png">@else<img src="/new/images/ticon_01.png">@endif</td>
+                      <td class="">@if(!$user->isVipOrIsVvip())<img src="/new/images/ticon_02.png">@else<img src="/new/images/ticon_01.png">@endif</td>
                   </tr>
               </table>
           </div>
@@ -1737,7 +1737,7 @@ dt span.engroup_type_title {display:inline-block;width:10%;white-space:nowrap;}
                 if(warned_vip_pass){
                     c5('您已成功解除警示');
                 }
-            @elseif($ckBarCodeLog>0 && !$user->isVip())
+            @elseif($ckBarCodeLog>0 && !$user->isVipOrIsVvip())
                 $('#isGetBarCodeNotVIP').show();
                 $('#announce_bg').show();
                 @php
@@ -2377,7 +2377,7 @@ dt span.engroup_type_title {display:inline-block;width:10%;white-space:nowrap;}
     });
 
     $(".line_notify").on('click', function() {
-        @if($user->isVip())
+        @if($user->isVipOrIsVvip())
         show_line_notify_set_alert();
         @else
         show_onlyForVipPleaseUpgrade();
@@ -2406,7 +2406,7 @@ dt span.engroup_type_title {display:inline-block;width:10%;white-space:nowrap;}
             window.location.href = URL;
         });
     });
-    @if($user->isVip() && !Session::has('original_user'))
+    @if($user->isVipOrIsVvip() && !Session::has('original_user'))
     function popSwitchOtherEngroup() {
         c4('此功能可切換成{{$user->engroup == 1?'女':'男'}}會員的角度瀏覽網站。是否要切換成{{$user->engroup == 1?'女':'男'}}會員的角度?');
         $('#tab04 .n_bbutton .n_left').html('是');

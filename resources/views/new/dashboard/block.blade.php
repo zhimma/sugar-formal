@@ -40,9 +40,9 @@
                         @endphp
                     <li>
                         <div class="si_bg leftb5">
-                            <div class="sjpic @if($isBlurAvatar) blur_img @endif"><a href="/dashboard/viewuser/{{$blockedUser->id}}"><img src="@if($blockedUser->meta_()->isAvatarHidden) {{ 'makesomeerror' }} @else {{$blockedUser->meta_()->pic}} @endif" @if ($blockedUser->engroup == 1) onerror="this.src='/new/images/male.png'" @else onerror="this.src='/new/images/female.png'" @endif></a></div>
+                            <div class="sjpic @if($isBlurAvatar) blur_img @endif"><a href="@if($blockedUser->isVVIP()) /dashboard/viewuser_vvip/{{$blockedUser->id}} @else /dashboard/viewuser/{{$blockedUser->id}} @endif"><img src="@if($blockedUser->meta_()->isAvatarHidden) {{ 'makesomeerror' }} @else {{$blockedUser->meta_()->pic}} @endif" @if ($blockedUser->engroup == 1) onerror="this.src='/new/images/male.png'" @else onerror="this.src='/new/images/female.png'" @endif></a></div>
                             <div class="sjleft">
-                                <div class="sjtable"><a href="/dashboard/viewuser/{{$blockedUser->id}}"><span>{{$blockedUser->name}}<!-- <i class="cicd">●</i>{{ $blockedUser->meta->age() }}--></span></a></div>
+                                <div class="sjtable"><a href="@if($blockedUser->isVVIP()) /dashboard/viewuser_vvip/{{$blockedUser->id}} @else /dashboard/viewuser/{{$blockedUser->id}} @endif"><span>{{$blockedUser->name}}<!-- <i class="cicd">●</i>{{ $blockedUser->meta->age() }}--></span></a></div>
                                 <font>
                                     @if (is_array($umeta->city) || is_object($umeta->city))
                                         @foreach($umeta->city as $key => $cityval)

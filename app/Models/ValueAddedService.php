@@ -5,6 +5,7 @@ namespace App\Models;
 use Illuminate\Database\Eloquent\Model;
 use App\Models\User;
 use Carbon\Carbon;
+use App\Services\EnvironmentService;
 
 class ValueAddedService extends Model
 {
@@ -232,7 +233,7 @@ class ValueAddedService extends Model
                 }
             }
 
-            if(!\App::environment('local')) {
+            if(!(EnvironmentService::isLocalOrTestMachine())) {
                 //訂單更新到期日
                 $order = Order::where('order_id', $user[0]->order_id)->get()->first();
                 if (strpos($user[0]->order_id, 'SG') !== false && isset($order)) {

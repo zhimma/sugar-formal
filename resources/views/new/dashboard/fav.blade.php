@@ -85,7 +85,7 @@
     var total = 0;//總筆數
     var date=7;
 
-    function liContent(e,i,isBlur=false){
+    function liContent(e,i,isBlur=false,vvipInfo=false){
         var li='',k;
         var ss =((i+1)>Page.row)?'display:none;':'display:none;';
         var c = (e.vip)?'hy_bg01':'';
@@ -106,7 +106,15 @@
 
         var styBlur = isBlur? "blur_img" : "";
         var url = '{!! url("/dashboard/viewuser/:uid") !!}';
-        url = url.replace(':uid', e.member_fav_id);
+        var vvip_url = '{!! url("/dashboard/viewuser_vvip/:uid") !!}';
+        if(vvipInfo)
+        {
+            url = vvip_url.replace(':uid', e.member_fav_id);
+        }
+        else
+        {
+            url = url.replace(':uid', e.member_fav_id);
+        }
 
         li +=`
             <li  style="${ss}" class="${c}">
@@ -150,6 +158,7 @@
                 var li = '';//樣板容器
                 $.each(res.msg,function(i,e){
                     var isBlur = true;
+                    var vvipInfo = '{{$user->VvipInfoStatus()}}';
                     if('{{$user->meta->isWarned == 1 || $user->aw_relation}}' == true){
                         // console.log("1")
                         isBlur = true;
@@ -158,7 +167,7 @@
                         if(e.blurry_avatar){
                             var blurryAvatar = e.blurry_avatar.split(',');
                             if(blurryAvatar.length > 1){
-                                var nowB = '{{$user->isVip()? "VIP" : "general"}}';
+                                var nowB = '{{$user->isVip() || $user->isVVIP() ? "VIP" : "general"}}';
                                 console.log(e)
                                 console.log(nowB);
                                 if( blurryAvatar.indexOf(nowB) != -1){
@@ -176,7 +185,7 @@
                     
 
                     nn++;
-                    li = liContent(e,i,isBlur);
+                    li = liContent(e,i,isBlur,vvipInfo);
                     if(typeof e.name !== 'undefined')
                     $('.sjlist>ul').append(li)
                 });

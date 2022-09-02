@@ -61,7 +61,7 @@ if (!empty($line_notify_chat_set_data)) {
     } elseif (
       $row->gender == 0 &&
       $row->name == '收藏會員' &&
-      $to_user->isVip()
+      $to_user->isVipOrIsVvip()
     ) {
       //收藏者通知
       $line_notify_send = MemberFav::where('member_id', $to_user->id)
@@ -71,7 +71,7 @@ if (!empty($line_notify_chat_set_data)) {
     } elseif (
       $row->gender == 0 &&
       $row->name == '誰來看我' &&
-      $to_user->isVip()
+      $to_user->isVipOrIsVvip()
     ) {
       //誰來看我通知
       $line_notify_send = Visited::where('visited_id', $user->id)
@@ -81,7 +81,7 @@ if (!empty($line_notify_chat_set_data)) {
     } elseif (
       $row->gender == 0 &&
       $row->name == '收藏我的會員' &&
-      $to_user->isVip()
+      $to_user->isVipOrIsVvip()
     ) {
       //收藏我的會員通知
       $line_notify_send = MemberFav::where('member_id', $user->id)

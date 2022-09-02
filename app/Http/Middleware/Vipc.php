@@ -35,7 +35,7 @@ class Vipc
      */
     public function handle($request, Closure $next)
     {
-        if (!$this->auth->user()->isVip()) {
+        if (!$this->auth->user()->isVip() && !$this->auth->user()->isVVIP()) {
             return redirect('/dashboard/vipSelect');
         }
 

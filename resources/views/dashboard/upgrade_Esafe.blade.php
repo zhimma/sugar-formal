@@ -83,7 +83,7 @@
         </div>
     </div>
 </div>
-    @if(!$user->isVip() && $user->engroup == 2)
+    @if(!$user->isVipOrIsVvip() && $user->engroup == 2)
         <div class="row">
             <div class="col-lg-6">
                 <div class="m-portlet m-portlet--mobile">

@@ -396,7 +396,7 @@ $code = Config::get('social.payment.code');
                         發信件
                     </a>
                 </li>
-                @if (isset($cur) && $user->isVip() && $user->id == $cur->id)
+                @if (isset($cur) && $user->isVipOrIsVvip() && $user->id == $cur->id)
                     <li class="nav-item m-tabs__item d-md-none showli">
                         <form action="{!! url('dashboard/fav') !!}" class="nav-link m-tabs__link" method="POST">
                             <input type="hidden" name="_token" value="{{ csrf_token() }}">
@@ -429,7 +429,7 @@ $code = Config::get('social.payment.code');
                     </form>
                 </li>
             
-                @if (isset($cur) && $user->isVip() && $user->id != $cur->id)
+                @if (isset($cur) && $user->isVipOrIsVvip() && $user->id != $cur->id)
                     <li class="nav-item m-tabs__item d-md-none">
                         <form action="{!! url('dashboard/fav') !!}" class="m-nav__link nav-link m-tabs__link"
                                 method="POST">
@@ -471,7 +471,7 @@ $code = Config::get('social.payment.code');
                     @endif
 
                     @if ($user->engroup == 1 && isset($cur) && $user->id != $cur->id)
-                        @if(!\App\Models\Tip::isComment($user->id, $cur->id) && $user->isVip() && \App\Models\Tip::isCommentNoEnd($user->id, $cur->id))
+                        @if(!\App\Models\Tip::isComment($user->id, $cur->id) && $user->isVipOrIsVvip() && \App\Models\Tip::isCommentNoEnd($user->id, $cur->id))
                             <li class="nav-item m-tabs__item d-md-none">
                                 @include('partials.tip-comment')
                             </li>
@@ -1417,7 +1417,7 @@ $code = Config::get('social.payment.code');
                                                 </div>
                                             @endif
 
-                                            @if(!str_contains(url()->current(), 'dashboard') && !$user->isVip())
+                                            @if(!str_contains(url()->current(), 'dashboard') && !$user->isVipOrIsVvip())
                                                 <div class="form-group m-form__group row">
                                                     <button id="more-information"
                                                             class="btn btn-danger m-btn m-btn--air m-btn--custom"
@@ -1427,7 +1427,7 @@ $code = Config::get('social.payment.code');
                                                 </div>
                                             @endif
 
-                                            @if ($user->isVip() && (!str_contains(url()->current(), 'dashboard') && isset($cur) && $user->id !== $cur->id))
+                                            @if ($user->isVipOrIsVvip() && (!str_contains(url()->current(), 'dashboard') && isset($cur) && $user->id !== $cur->id))
                                                 <div class="form-group m-form__group row">
                                                     <button class="btn btn-danger m-btn m-btn--air m-btn--custom"
                                                             id="vipadditional" onclick="vipadditional()">進階資料
@@ -1531,7 +1531,7 @@ $code = Config::get('social.payment.code');
                                                     </div>
                                                 </div>
 
-                                                @if ($female && $user->isVip() && isset($cur) && ($user->id != $cur->id))
+                                                @if ($female && $user->isVipOrIsVvip() && isset($cur) && ($user->id != $cur->id))
                                                     <div class="form-group m-form__group row vipadd"
                                                          style="display:none">
                                                         <label class="col-form-label col-lg-2 col-sm-12">評價</label>
@@ -1754,7 +1754,7 @@ $code = Config::get('social.payment.code');
                                     </select>
                                 </div>
                             </div>
-                            @if ($user->isVip())
+                            @if ($user->isVipOrIsVvip())
                                 <div class="form-group m-form__group row">
                                     <label for="example-text-input"
                                            class="col-lg-2 col-md-3 col-form-label">足跡通知</label>

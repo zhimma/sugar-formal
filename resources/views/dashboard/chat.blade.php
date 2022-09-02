@@ -309,7 +309,7 @@ $code = Config::get('social.payment.code');
                     $msgUser =  \App\Models\User::findById($message['to_id']);
                 }
 
-                //($isVip && !$msgUser->isVip() && ($user->meta_()->notifhistory == '顯示VIP會員信件' || $user->meta_()->notifhistory == NULL)) || (!$isVip && $msgUser->isVip())
+                //($isVip && !$msgUser->isVipOrIsVvip() && ($user->meta_()->notifhistory == '顯示VIP會員信件' || $user->meta_()->notifhistory == NULL)) || (!$isVip && $msgUser->isVipOrIsVvip())
                 // 收件通知
 //                if(\App\Models\Message::onlyShowVip($user, $msgUser) || \App\Models\Message::showNoVip($user, $msgUser)) {
 //                    continue;

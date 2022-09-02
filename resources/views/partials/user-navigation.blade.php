@@ -18,14 +18,14 @@
 <li class="m-nav__item m-topbar__notifications m-topbar__notifications--img m-dropdown m-dropdown--large m-dropdown--header-bg-fill m-dropdown--arrow m-dropdown--align-center	m-dropdown--mobile-full-width">
     <a href="{!! url('dashboard/chat/') !!}" class="m-nav__link m-dropdown__toggle" id="m_topbar_notification_icon">
         <span class="m-nav__link-badge"><span
-                    class="m-badge m-badge--danger">@if(!$user->isVip()) @if(\App\Models\Message::unread($user->id) >= 10) {{ \App\Models\Message::unread($user->id)-10 }}  @else {{ \App\Models\Message::unread($user->id) }} @endif
+                    class="m-badge m-badge--danger">@if(!$user->isVipOrIsVvip()) @if(\App\Models\Message::unread($user->id) >= 10) {{ \App\Models\Message::unread($user->id)-10 }}  @else {{ \App\Models\Message::unread($user->id) }} @endif
                 /{{ \App\Models\Message::unread($user->id) }} @else{{ \App\Models\Message::unread($user->id) }}@endif</span></span>
         <span class="m-nav__link-icon">
 			<i class="flaticon-chat-1"></i>
 		</span>
     </a>
 </li>
-@if(!$user->isVip() && $user->noticeRead == 0)
+@if(!$user->isVipOrIsVvip() && $user->noticeRead == 0)
     <li class="m-nav__item m-topbar__notifications m-topbar__notifications--img m-dropdown m-dropdown--large m-dropdown--header-bg-fill m-dropdown--arrow m-dropdown--align-center	m-dropdown--mobile-full-width" style="padding: 0 0 0 0; margin: 0 0 0 -8px">
         <a href="#" class="m-nav__link notice__toggle" id="notVIP">
             <img src="/img/question.png" class="question" style="padding: 14px 0 -10px 0; width: 20px">
@@ -56,7 +56,7 @@
 	        <i class="flaticon-user"></i>
 		</span>
         <span class="m-topbar__username m--hide">
-		{{ $user->name }} @if ($user->isVip()) (VIP) @endif
+		{{ $user->name }} @if ($user->isVipOrIsVvip()) (VIP) @endif
 		</span>
     </a>
     <div class="m-dropdown__wrapper">
@@ -98,7 +98,7 @@
 								</span>
                             </a>
                         </li>
-                        @if ($user->isVip())
+                        @if ($user->isVipOrIsVvip())
                             <li class="m-nav__item">
                                 <a href="{!! url('dashboard/history') !!}" class="m-nav__link">
                                     <i class="m-nav__link-icon flaticon-share"></i>

@@ -4,7 +4,7 @@
         <div class="leftimg">
             <img src="@if(file_exists( public_path().$user->meta->pic ) && $user->meta->pic != ""){{$user->meta->pic}} @elseif($user->engroup==2)/new/images/female.png @else/new/images/male.png @endif">
             <h2 style="word-break: break-word;">@if (str_contains(url()->current(), 'dashboard') || str_contains(url()->current(), 'MessageBoard')) {{ $user->name }} @elseif (isset($cur)) {{ $cur->name }} @endif
-                @if (((isset($cur) && $cur->isVip() && $cur->engroup == '1')) || isset($user) && ($user->isVip() && str_contains(url()->current(), 'dashboard'))) (VIP) @endif @if((view()->shared('valueAddedServices')['hideOnline'] ?? 0) == 1)<br>(隱藏) @endif</h2>
+                @if(isset($user) && ($user->isVVIP()))(VVIP)@elseif (((isset($cur) && $cur->isVip() && $cur->engroup == '1')) || isset($user) && ($user->isVip() && str_contains(url()->current(), 'dashboard'))) (VIP) @endif @if((view()->shared('valueAddedServices')['hideOnline'] ?? 0) == 1)<br>(隱藏) @endif</h2>
         </div>
         <div class="leul">
             <ul>
@@ -13,7 +13,12 @@
                 </li>
                 <li>
 {{--                    <a href="{!! url('dashboard') !!}"><img src="/new/images/icon_48.png">個人資料</a>--}}
-                    <a href="/dashboard/viewuser/{{$user->id}}?page_mode=edit"><img src="/new/images/icon_48.png">個人資料</a>
+                    @if($user->isVVIP() && $user->VvipInfoStatus())
+                        <a href="/dashboard/viewuser_vvip/{{$user->id}}?page_mode=edit"><img src="/new/images/icon_48.png">個人資料</a>
+                    @else
+                        <a href="/dashboard/viewuser/{{$user->id}}?page_mode=edit"><img src="/new/images/icon_48.png">個人資料</a>
+                    @endif
+{{--                    <a href="/dashboard/viewuser/{{$user->id}}?page_mode=edit"><img src="/new/images/icon_48.png">個人資料</a>--}}
                 </li>
 {{--                @if($user->meta->isConsign == 0 && ($user->meta->consign_expiry_date == null||$user->meta->consign_expiry_date <= \Carbon\Carbon::now()))--}}
                 <li>
@@ -32,7 +37,7 @@
                         $banImplicitly = \App\Models\BannedUsersImplicitly::where('target', $user->id)->first();
                     @endphp
                    <li>
-                       @if($user->isVip())
+                       @if($user->isVip()||$user->isVVIP())
                            <a href="javascript:void(0);" onclick="CheckEnterPopOK()" class="forum_pass"><img src="/new/images/tlq.png">討論區</a>
                        @elseif(!$user->isVip())
                            <a href="javascript:void(0);" onclick="CheckEnterPop2()"><img src="/new/images/tlq.png">討論區</a>

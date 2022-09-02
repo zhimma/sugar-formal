@@ -96,12 +96,12 @@
                 </div>
                 <div class="twzip" data-role="district" data-name="district">
                 </div>
-                 @if ($user->isVip())
+                 @if ($user->isVipOrIsVvip())
                 <div class="twzip"><input class="m-input" type="checkbox" id="pic" name="pic"> 照片</div>
                  @endif
             </div>
             </div>
-            @if ($user->isVip())
+            @if ($user->isVipOrIsVvip())
             <div class="form-group m-form__group row">
                 <label for="agefrom" class="col-lg-2 col-md-3 col-form-label">年齡</label>
                  <div class="col-lg-3 col-md-5 col-sm-6">
@@ -298,7 +298,7 @@
                     @if ($visitor !== null && $visitor->engroup != $user->engroup && $visitor->meta_() !== null)
                     <?php $vmeta = $visitor->meta_(); ?>
                     <? $data = \App\Services\UserService::checkRecommendedUser($visitor);?>
-                        @if($visitor->isVip())
+                        @if($visitor->isVipOrIsVvip())
                             <div class="MW4BW_">
                                 @if ($visitor->engroup == 1) <a class="_3BQlNg bgXBUk"  style="color: white; font-weight: bold; font-size: 16px;">&nbsp;VIP&nbsp;</a> @endif @if(isset($data['description']))
                                 <img src="{{ $data['button'] }}" alt="" height="30px" class="{{ (($visitor->engroup == 1)?'preferred':'') }}">
@@ -353,7 +353,7 @@
             @if ($visitor !== null && $visitor->meta_() !== null)
                 <div class="col-md-3 m-widget3__item" style="border-bottom: none; margin:50px 0;">
                     <? $data = \App\Services\UserService::checkRecommendedUser($visitor); ?>
-                        @if($visitor->isVip())
+                        @if($visitor->isVipOrIsVvip())
                             <div class="MW4BW_">
                                 @if ($visitor->engroup == 1) <a class="_3BQlNg bgXBUk"  style="color: white; font-weight: bold; font-size: 16px;">&nbsp;VIP&nbsp;</a> @endif @if(isset($data['description'])) <img src="{{ $data['button'] }}" alt="" height="30px" class="{{ (($visitor->engroup == 1)?'preferred':'') }}"> @endif
                             </div>

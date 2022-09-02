@@ -186,8 +186,8 @@
             <div class="n_shtab">
 
                 {{-- <h2><span>您目前為高級會員</span>訊息可保存天數：30，可通訊人數:無限</h2>--}}
-                {{-- @if($user->isVip())--}}
-                {{-- <h2><span>{{$letter_vip}}</span>訊息可保存天數：180，可通訊人數:無限</h2>--}}
+                {{-- @if($isVip)--}}
+                {{-- <h2><span>@if($user->isVVip()){{$letter_vvip}}@else{{$letter_vip}}@endif</span>訊息可保存天數：180，可通訊人數:無限</h2>--}}
                 {{-- @else--}}
                 {{-- <h2><span>{{$letter_normal_member}}</span>訊息可保存天數：7，可通訊人數:10</h2>--}}
                 {{-- @endif--}}
@@ -195,9 +195,9 @@
                     data-intro="<p>不同等級會員可以有不同的信件讀取權限。</p>
                         <p>普通會員：信件可保存30天，通訊人數限制10人。</p>
                         <p>VIP 會員：信件可保存180天，無限制通訊人數。</p>
-                        <h2>@if($user->isVip())您目前是 {{$letter_vip}}，所以不限制通訊人數，且信件可保存180天。@else您目前是 {{$letter_normal_member}}，所以限制通訊人數10，且信件保存30天。 @endif</h2><em></em><em></em>">
-                    @if($user->isVip())
-                    <span>您目前為{{$letter_vip}}</span>訊息可保存天數：180，可通訊人數:無限數
+                        <h2>@if($isVip)您目前是 @if($user->isVVip()){{$letter_vvip}}@else{{$letter_vip}}@endif，所以不限制通訊人數，且信件可保存180天。@else您目前是 {{$letter_normal_member}}，所以限制通訊人數10，且信件保存30天。 @endif</h2><em></em><em></em>">
+                    @if($isVip)
+                    <span>您目前為@if($user->isVVip()){{$letter_vvip}}@else{{$letter_vip}}@endif</span>訊息可保存天數：180，可通訊人數:無限數
                     @else
                     <span>您目前為{{$letter_normal_member}}</span>訊息可保存天數：30，可通訊人數:10
                     @endif
@@ -219,7 +219,7 @@
                         $exchange_period_name = DB::table('exchange_period_name')->get();
                         @endphp
                         <!--男性介面-->
-                            @if($user->isVip())
+                            @if($isVip)
                                 <span class="exchange_period_delete_{{$exchange_period_name[0]->id}} shou_but">全部刪除</span>
                             @endif
                             <dt class="lebox1 lebox_exchange_period_{{$exchange_period_name[0]->id}}" data-step="{{2+$exchange_period_name[0]->id}}"
@@ -237,7 +237,7 @@
                                 <div class="page page_exchange_period_{{$exchange_period_name[0]->id}} fenye" style="text-align: center;"></div>
                             </dd>
 
-                            @if($user->isVip())
+                            @if($isVip)
                                 <span class="exchange_period_delete_{{$exchange_period_name[2]->id}} shou_but">全部刪除</span>
                             @endif
                             <dt class="lebox2 lebox_exchange_period_{{$exchange_period_name[2]->id}}" data-step="{{2+$exchange_period_name[2]->id}}"
@@ -255,7 +255,7 @@
                                 <div class="page page_exchange_period_{{$exchange_period_name[2]->id}} fenye" style="text-align: center;"></div>
                             </dd>
 
-                            @if($user->isVip())
+                            @if($isVip)
                                 <span class="exchange_period_delete_{{$exchange_period_name[1]->id}} shou_but">全部刪除</span>
                             @endif
                             <dt class="lebox3 lebox_exchange_period_{{$exchange_period_name[1]->id}}" data-step="{{2+$exchange_period_name[1]->id}}"
@@ -274,7 +274,7 @@
                             </dd>
                         <!--男性介面-->
 
-                        {{-- @if(($user->isVip() && ($user->engroup==1 || $user->engroup==2)) || (!$user->isVip() &&
+                        {{-- @if(($isVip && ($user->engroup==1 || $user->engroup==2)) || (!$isVip &&
                         $user->engroup==2))--}}
                         {{-- <span class="alert_delete shou_but">全部刪除</span>--}}
                         {{-- @endif--}}
@@ -294,7 +294,26 @@
 
                         @if($user->engroup==2)
                         <!--女性介面-->
-                        @if(($user->isVip() && ($user->engroup==1 || $user->engroup==2)) || (!$user->isVip() &&
+                        @if(($isVip && ($user->engroup==1 || $user->engroup==2)) || (!$isVip &&
+                        $user->engroup==2))
+                            <span class="vvip_delete shou_but">全部刪除</span>
+                        @endif
+                        <dt class="leboxVVIP" data-position="top" data-highlightClass="yd4a"
+                            data-tooltipClass="yd4" data-intro="<p>站方建議盡量多與
+                        VVIP 會員互動。本區會員的素質最佳，投訴率低於 0.1%。</p>
+                                <em></em><em></em>">
+
+                            VVIP會員
+                        </dt>
+                        <dd>
+                            <div class="loading warning" id="sjlist_vvip_warning"><span
+                                        class="loading_text">loading</span></div>
+                            <ul class="sjlist sjlist_vvip">
+                            </ul>
+                            <div class="page page_vvip fenye" style="text-align: center;"></div>
+                        </dd>
+
+                        @if(($isVip && ($user->engroup==1 || $user->engroup==2)) || (!$isVip &&
                         $user->engroup==2))
                         <span class="vip_delete shou_but">全部刪除</span>
                         @endif
@@ -312,7 +331,8 @@
                             </ul>
                             <div class="page page_vip fenye" style="text-align: center;"></div>
                         </dd>
-                        @if(($user->isVip() && ($user->engroup==1 || $user->engroup==2)) || (!$user->isVip() &&
+
+                        @if(($isVip && ($user->engroup==1 || $user->engroup==2)) || (!$isVip &&
                         $user->engroup==2))
                         <span class="novip_delete shou_but">全部刪除</span>
                         @endif
@@ -330,7 +350,7 @@
                         </dd>
                         <!--女性介面 END -->
 
-                        {{-- @if(($user->isVip() && ($user->engroup==1 || $user->engroup==2)) || (!$user->isVip() &&
+                        {{-- @if(($isVip && ($user->engroup==1 || $user->engroup==2)) || (!$isVip &&
                         $user->engroup==2))--}}
                         {{-- <span class="alert_delete shou_but">全部刪除</span>--}}
                         {{-- @endif--}}
@@ -349,7 +369,7 @@
                         @endif
 
 
-                        @if(($user->isVip() && ($user->engroup==1 || $user->engroup==2)) || (!$user->isVip() &&
+                        @if(($isVip && ($user->engroup==1 || $user->engroup==2)) || (!$isVip &&
                         $user->engroup==2))
                         <span class="alert_delete shou_but">全部刪除</span>
                         @endif
@@ -367,7 +387,7 @@
                             </ul>
                             <div class="page page_warned fenye" style="text-align: center;"></div>
                         </dd>
-                        @if(($user->isVip() && ($user->engroup==1 || $user->engroup==2)) || (!$user->isVip() &&
+                        @if(($isVip && ($user->engroup==1 || $user->engroup==2)) || (!$isVip &&
                         $user->engroup==2))
                         <span class="banned_delete shou_but">全部刪除</span>
                         @endif
@@ -444,6 +464,69 @@
         no_row_li = '<li class="li_no_data"><div class="listicon02 nodata"><img src="/new/images/xj.png" class="list_img"><span>您目前尚無訊息</span></div></li>';
         var userIsVip = '{{ $isVip }}';
         var userGender = '{{ $user->engroup }}';
+
+    //vvip
+    var Page_vvip = {
+        page : 1,
+        row  : 10,
+        DrawPage:function(total){
+            var total_page  = Math.ceil(total/Page_vvip.row) == 0 ? 1 : Math.ceil(total/Page_vvip.row);
+            var span_u      = 0;
+            var str         = '';
+            var i,active,prev_active,last_active;
+
+            if(total_page==1){
+                str   = '';
+            }else if(Page_vvip.page==1){
+                str =`<a href="javascript:" class="" data-p="next">上一頁</a>
+                    <span class="new_page">${Page_vvip.page}/${total_page}</span>
+                    <a href="javascript:" class="page-link" data-p="last">下一頁</a>`;
+            }else if(Page_vvip.page==total_page){
+                str =`<a href="javascript:" class="page-link" data-p="next">上一頁</a>
+                    <span class="new_page">${Page_vvip.page}/${total_page}</span>
+                    <a href="javascript:" class="" data-p="last">下一頁</a>`;
+            }else{
+                str = `
+                    <a href="javascript:" class="page-link" data-p="next">上一頁</a>
+                    <span class="new_page">${Page_vvip.page}/${total_page}</span>
+                    <a href="javascript:" class="page-link" data-p="last">下一頁</a>
+                `;
+            }
+
+            $('.page_vvip').html(str);
+            $('.warning').hide();
+
+            $('.page_vvip a.page-link').click(function(){
+                $('.warning').show();
+                $('.sjlist_vvip').children().css('display', 'none');
+
+                switch($(this).data('p')) {
+                    case 'next': Page_vvip.page = parseInt(Page_vvip.page) - 1; break;
+                    case 'last': Page_vvip.page = parseInt(Page_vvip.page) + 1; break;
+                    default: Page_vvip.page = parseInt($(this).data('p'));
+                }
+                Page_vvip.DrawPage(total);
+
+                // date= $('input[name=RadioGroup1]:checked').val();
+                date= $("#daysSelect option:selected").val();
+
+                if(date==7){
+                    $('.sjlist_vvip>.date7.vvipMember').slice((Page_vvip.page-1)*Page_vvip.row, Page_vvip.page*Page_vvip.row).css('display', '');
+                }else if(date==30){
+                    $('.sjlist_vvip>.common30.vvipMember').slice((Page_vvip.page-1)*Page_vvip.row, Page_vvip.page*Page_vvip.row).css('display', '');
+                }else{
+                    $('.sjlist_vvip>.vvipMember').slice((Page_vvip.page-1)*Page_vvip.row, Page_vvip.page*Page_vvip.row).css('display', '');
+                }
+
+                $('.sjlist_vvip>.li_no_data').remove();
+
+                if($('.sjlist_vvip>li:visible').length == 0 && isLoading == 0){
+                    $('#sjlist_vvip_warning').hide();
+                    $('.sjlist_vvip').append(no_row_li);
+                }
+            });
+        }
+    };
 
         //vip
         var Page = {
@@ -969,8 +1052,10 @@
                 beforeSend:function(){//表單發送前做的事
                     isLoading = 1;
                     @if($user->engroup==2)
+                        $('.sjlist_vvip').html('');
                         $('.sjlist_vip').html('');
                         $('.sjlist_novip').html('');
+                        $('.page_vvip').hide();
                         $('.page_vip').hide();
                         $('.page_novip').hide();
                         
@@ -1032,7 +1117,7 @@
                         }else{
                             var blurryAvatar = e.blurry_avatar? e.blurry_avatar.split(',') : '';
                             if(blurryAvatar.length > 1){
-                                var nowB = '{{$user->isVip()? "VIP" : "general"}}';
+                                var nowB = '{{$isVip? "VIP" : "general"}}';
                                 if( blurryAvatar.indexOf(nowB) != -1){
                                     // console.log(blurryAvatar);
                                     isBlur = true;
@@ -1065,6 +1150,8 @@
                                 }
                                 else if (e.isWarned==1) {
                                     $('.sjlist_alert').append(li).find('.row_data').addClass('date7 alertMember common30');
+                                }else if (e.isVVIP == 1 && userGender==2) {
+                                    $('.sjlist_vvip').append(li).find('.row_data').addClass('date7 vvipMember common30');
                                 }else if (e.isVip == 1 && userGender==2) {
                                     $('.sjlist_vip').append(li).find('.row_data').addClass('date7 vipMember common30');
                                 }else if (e.isVip == 0 && userGender==2) {
@@ -1091,6 +1178,8 @@
                                 }
                                 else if (e.isWarned==1){
                                     $('.sjlist_alert').append(li).find('.row_data').addClass('date30 alertMember common30');
+                                }else if (e.isVVIP == 1 && userGender==2) {
+                                    $('.sjlist_vvip').append(li).find('.row_data').addClass('date30 vvipMember common30');
                                 }else if (e.isVip == 1 && userGender==2) {
                                     $('.sjlist_vip').append(li).find('.row_data').addClass('date30 vipMember common30');
                                 }else if (e.isVip == 0 && userGender==2)  {
@@ -1117,6 +1206,8 @@
                                 }
                                 else if (e.isWarned==1) {
                                     $('.sjlist_alert').append(li).find('.row_data').addClass('dateAll alertMember');
+                                }else if (e.isVVIP == 1 && userGender==2) {
+                                    $('.sjlist_vvip').append(li).find('.row_data').addClass('dateAll vvipMember');
                                 }else if (e.isVip == 1 && userGender==2) {
                                     $('.sjlist_vip').append(li).find('.row_data').addClass('dateAll vipMember');
                                 }else if (e.isVip == 0 && userGender==2)  {
@@ -1172,6 +1263,13 @@
 
                                 @if($user->engroup==2)
 
+                                    let vvip_counts = $('.date7.vvipMember').length;
+                                    if (vvip_counts > 10) {
+                                        $('.page_vvip').show();
+                                    }
+                                    Page.DrawPage(vvip_counts);
+                                    $('.sjlist_vvip>.date7.vvipMember').slice((Page.page - 1) * Page.row, Page.page * Page.row).css('display', '');
+
                                     let vip_counts = $('.date7.vipMember').length;
                                     if (vip_counts > 10) {
                                         $('.page_vip').show();
@@ -1218,6 +1316,13 @@
                                 $('.sjlist_banned>.date7.bannedMember').slice((Page_banned.page - 1) * Page_banned.row, Page_banned.page * Page_banned.row).css('display', '');
                             }else if(hash==30){
                                 @if($user->engroup==2)
+
+                                    let vvip_counts = $('.common30.vvipMember').length;
+                                    if (vvip_counts > 10) {
+                                        $('.page_vvip').show();
+                                    }
+                                    Page.DrawPage(vip_counts);
+                                    $('.sjlist_vvip>.common30.vvipMember').slice((Page.page - 1) * Page.row, Page.page * Page.row).css('display', '');
 
                                     let vip_counts = $('.common30.vipMember').length;
                                     if (vip_counts > 10) {
@@ -1266,19 +1371,26 @@
                                 $('.sjlist_banned>.common30.bannedMember').slice((Page_banned.page - 1) * Page_banned.row, Page_banned.page * Page_banned.row).css('display', '');
                             }else if(hash=='all'){
                                 @if($user->engroup==2)
-                                let vip_counts = $('.vipMember').length;
-                                if (vip_counts > 10) {
-                                    $('.page_vip').show();
-                                }
-                                Page.DrawPage(vip_counts);
-                                $('.sjlist_vip>.vipMember').slice((Page.page - 1) * Page.row, Page.page * Page.row).css('display', '');
+                                    let vvip_counts = $('.vvipMember').length;
+                                    if (vvip_counts > 10) {
+                                        $('.page_vvip').show();
+                                    }
+                                    Page.DrawPage(vip_counts);
+                                    $('.sjlist_vvip>.vvipMember').slice((Page.page - 1) * Page.row, Page.page * Page.row).css('display', '');
 
-                                let novip_counts = $('.novipMember').length;
-                                if (novip_counts > 10) {
-                                    $('.page_novip').show();
-                                }
-                                Page_noVip.DrawPage(novip_counts);
-                                $('.sjlist_novip>.novipMember').slice((Page_noVip.page - 1) * Page_noVip.row, Page_noVip.page * Page_noVip.row).css('display', '');
+                                    let vip_counts = $('.vipMember').length;
+                                    if (vip_counts > 10) {
+                                        $('.page_vip').show();
+                                    }
+                                    Page.DrawPage(vip_counts);
+                                    $('.sjlist_vip>.vipMember').slice((Page.page - 1) * Page.row, Page.page * Page.row).css('display', '');
+
+                                    let novip_counts = $('.novipMember').length;
+                                    if (novip_counts > 10) {
+                                        $('.page_novip').show();
+                                    }
+                                    Page_noVip.DrawPage(novip_counts);
+                                    $('.sjlist_novip>.novipMember').slice((Page_noVip.page - 1) * Page_noVip.row, Page_noVip.page * Page_noVip.row).css('display', '');
 
                                 @elseif($user->engroup==1)
                                         @php
@@ -1316,6 +1428,13 @@
                                 $('.row_data').hide();
 
                                 @if($user->engroup==2)
+                                    let vvip_counts = $('.date7.vvipMember').length;
+                                    if (vvip_counts > 10) {
+                                        $('.page_vvip').show();
+                                    }
+                                    Page.DrawPage(vvip_counts);
+                                    $('.sjlist_vvip>.date7.vvipMember').slice((Page.page - 1) * Page.row, Page.page * Page.row).css('display', '');
+
                                     let vip_counts = $('.date7.vipMember').length;
                                     if (vip_counts > 10) {
                                         $('.page_vip').show();
@@ -1363,6 +1482,14 @@
                                 $('.row_data').hide();
 
                                 @if($user->engroup==2)
+
+                                    let vvip_counts = $('.common30.vvipMember').length;
+                                    if (vvip_counts > 10) {
+                                        $('.page_vvip').show();
+                                    }
+                                    Page.DrawPage(vvip_counts);
+                                    $('.sjlist_vvip>.common30.vvipMember').slice((Page.page - 1) * Page.row, Page.page * Page.row).css('display', '');
+
                                     let vip_counts = $('.common30.vipMember').length;
                                     if (vip_counts > 10) {
                                         $('.page_vip').show();
@@ -1410,19 +1537,26 @@
                             } else {
 
                                 @if($user->engroup==2)
-                                let vip_counts = $('.vipMember').length;
-                                if (vip_counts > 10) {
-                                    $('.page_vip').show();
-                                }
-                                Page.DrawPage(vip_counts);
-                                $('.sjlist_vip>.vipMember').slice((Page.page - 1) * Page.row, Page.page * Page.row).css('display', '');
+                                    let vvip_counts = $('.vvipMember').length;
+                                    if (vvip_counts > 10) {
+                                        $('.page_vvip').show();
+                                    }
+                                    Page.DrawPage(vvip_counts);
+                                    $('.sjlist_vvip>.vvipMember').slice((Page.page - 1) * Page.row, Page.page * Page.row).css('display', '');
 
-                                let novip_counts = $('.novipMember').length;
-                                if (novip_counts > 10) {
-                                    $('.page_novip').show();
-                                }
-                                Page_noVip.DrawPage(novip_counts);
-                                $('.sjlist_novip>.novipMember').slice((Page_noVip.page - 1) * Page_noVip.row, Page_noVip.page * Page_noVip.row).css('display', '');
+                                    let vip_counts = $('.vipMember').length;
+                                    if (vip_counts > 10) {
+                                        $('.page_vip').show();
+                                    }
+                                    Page.DrawPage(vip_counts);
+                                    $('.sjlist_vip>.vipMember').slice((Page.page - 1) * Page.row, Page.page * Page.row).css('display', '');
+
+                                    let novip_counts = $('.novipMember').length;
+                                    if (novip_counts > 10) {
+                                        $('.page_novip').show();
+                                    }
+                                    Page_noVip.DrawPage(novip_counts);
+                                    $('.sjlist_novip>.novipMember').slice((Page_noVip.page - 1) * Page_noVip.row, Page_noVip.page * Page_noVip.row).css('display', '');
 
                                 @elseif($user->engroup==1)
                                     @php
@@ -1461,9 +1595,14 @@
                         $('.warning').hide();
 
                         @if($user->engroup==2)
+                            $('.sjlist_vvip>.li_no_data').remove();
                             $('.sjlist_vip>.li_no_data').remove();
                             $('.sjlist_novip>.li_no_data').remove();
                             $('.sjlist_alert>.li_no_data').remove();
+                            if ($('.sjlist_vvip>li:visible').length == 0) {
+                                $('#sjlist_vvip_warning').hide();
+                                $('.sjlist_vvip').append(no_row_li);
+                            }
                             if ($('.sjlist_vip>li:visible').length == 0) {
                                 $('#sjlist_vip_warning').hide();
                                 $('.sjlist_vip').append(no_row_li);
@@ -1597,19 +1736,26 @@
                     $('.row_data').hide();
                  @if($user->engroup==2)
 
-                        let vip_counts = $('.date7.vipMember').length;
-                        if (vip_counts > 10) {
-                            $('.page_vip').show();
-                        }
-                        Page.DrawPage(vip_counts);
-                        $('.sjlist_vip>.date7.vipMember').slice((Page.page - 1) * Page.row, Page.page * Page.row).css('display', '');
+                     let vvip_counts = $('.date7.vvipMember').length;
+                     if (vvip_counts > 10) {
+                         $('.page_vvip').show();
+                     }
+                     Page.DrawPage(vvip_counts);
+                     $('.sjlist_vvip>.date7.vvipMember').slice((Page.page - 1) * Page.row, Page.page * Page.row).css('display', '');
 
-                        let novip_counts = $('.date7.novipMember').length;
-                        if (novip_counts > 10) {
-                            $('.page_novip').show();
-                        }
-                        Page_noVip.DrawPage(novip_counts);
-                        $('.sjlist_novip>.date7.novipMember').slice((Page_noVip.page - 1) * Page_noVip.row, Page_noVip.page * Page_noVip.row).css('display', '');
+                     let vip_counts = $('.date7.vipMember').length;
+                     if (vip_counts > 10) {
+                        $('.page_vip').show();
+                     }
+                     Page.DrawPage(vip_counts);
+                     $('.sjlist_vip>.date7.vipMember').slice((Page.page - 1) * Page.row, Page.page * Page.row).css('display', '');
+
+                     let novip_counts = $('.date7.novipMember').length;
+                     if (novip_counts > 10) {
+                        $('.page_novip').show();
+                     }
+                     Page_noVip.DrawPage(novip_counts);
+                     $('.sjlist_novip>.date7.novipMember').slice((Page_noVip.page - 1) * Page_noVip.row, Page_noVip.page * Page_noVip.row).css('display', '');
 
                  @elseif($user->engroup==1)
                          @php
@@ -1644,19 +1790,26 @@
                     $('.row_data').hide();
 
                      @if($user->engroup==2)
-                        let vip_counts = $('.common30.vipMember').length;
-                        if (vip_counts > 10) {
-                            $('.page_vip').show();
-                        }
-                        Page.DrawPage(vip_counts);
-                        $('.sjlist_vip>.common30.vipMember').slice((Page.page - 1) * Page.row, Page.page * Page.row).css('display', '');
+                         let vvip_counts = $('.common30.vvipMember').length;
+                         if (vvip_counts > 10) {
+                             $('.page_vvip').show();
+                         }
+                         Page.DrawPage(vvip_counts);
+                         $('.sjlist_vvip>.common30.vvipMember').slice((Page.page - 1) * Page.row, Page.page * Page.row).css('display', '');
 
-                        let novip_counts = $('.common30.novipMember').length;
-                        if (novip_counts > 10) {
+                         let vip_counts = $('.common30.vipMember').length;
+                         if (vip_counts > 10) {
+                            $('.page_vip').show();
+                         }
+                         Page.DrawPage(vip_counts);
+                         $('.sjlist_vip>.common30.vipMember').slice((Page.page - 1) * Page.row, Page.page * Page.row).css('display', '');
+
+                         let novip_counts = $('.common30.novipMember').length;
+                         if (novip_counts > 10) {
                             $('.page_novip').show();
-                        }
-                        Page_noVip.DrawPage(novip_counts);
-                        $('.sjlist_novip>.common30.novipMember').slice((Page_noVip.page - 1) * Page_noVip.row, Page_noVip.page * Page_noVip.row).css('display', '');
+                         }
+                         Page_noVip.DrawPage(novip_counts);
+                         $('.sjlist_novip>.common30.novipMember').slice((Page_noVip.page - 1) * Page_noVip.row, Page_noVip.page * Page_noVip.row).css('display', '');
                      @elseif($user->engroup==1)
                          @php
                              $exchange_period_name = DB::table('exchange_period_name')->get();
@@ -1686,6 +1839,13 @@
                     $('.sjlist_banned>.common30.bannedMember').slice((Page_banned.page - 1) * Page_banned.row, Page_banned.page * Page_banned.row).css('display', '');
                  }else{
                      @if($user->engroup==2)
+                         let vvip_counts = $('.vvipMember').length;
+                         if (vvip_counts > 10) {
+                             $('.page_vvip').show();
+                         }
+                         Page.DrawPage(vvip_counts);
+                         $('.sjlist_vvip>.vvipMember').slice((Page.page - 1) * Page.row, Page.page * Page.row).css('display', '');
+
                          let vip_counts = $('.vipMember').length;
                          if (vip_counts > 10) {
                              $('.page_vip').show();
@@ -1730,9 +1890,14 @@
                     $('.warning').hide();
 
                     @if($user->engroup==2)
+                        $('.sjlist_vvip>.li_no_data').remove();
                         $('.sjlist_vip>.li_no_data').remove();
                         $('.sjlist_novip>.li_no_data').remove();
                         $('.sjlist_alert>.li_no_data').remove();
+                        if ($('.sjlist_vvip>li:visible').length == 0 && isLoading == 0) {
+                            $('#sjlist_vvip_warning').hide();
+                            $('.sjlist_vvip').append(no_row_li);
+                        }
                         if ($('.sjlist_vip>li:visible').length == 0 && isLoading == 0) {
                             $('#sjlist_vip_warning').hide();
                             $('.sjlist_vip').append(no_row_li);
@@ -1804,6 +1969,20 @@
             $(".announce_bg").show();
             $("#show_banned_ele").show();
         }
+
+        $('.vvip_delete').on('click', function() {
+
+            var IDs = [];
+            $(".sjlist_vvip").find("li").each(function(){ IDs.push(this.id); });
+            // alert(IDs);
+            // alert($('.sjlist_vip.row_data>li:visible').length);
+            if($.trim(IDs) !== '') {
+                c8('確定要全部刪除嗎?');
+                deleteRowAll(IDs);
+            }else{
+                c5('沒有可刪除資料');
+            }
+        });
 
         $('.vip_delete').on('click', function() {
 
@@ -2014,10 +2193,10 @@
         //
         //
 
-                $('.lebox1,.lebox2,.lebox3,.lebox_alert,.lebox5').toggleClass('off');
-                $('.lebox1,.lebox2,.lebox3,.lebox_alert,.lebox5').next('dd').slideToggle("slow");
+                $('.leboxVVIP,.lebox1,.lebox2,.lebox3,.lebox_alert,.lebox5').toggleClass('off');
+                $('.leboxVVIP,.lebox1,.lebox2,.lebox3,.lebox_alert,.lebox5').next('dd').slideToggle("slow");
 
-        $('.lebox1,.lebox2,.lebox3,.lebox_alert,.lebox5').click(function(e) {
+        $('.leboxVVIP,.lebox1,.lebox2,.lebox3,.lebox_alert,.lebox5').click(function(e) {
             if ($(this).hasClass('off')) {
                 $(this).removeClass('off');
                 $(this).toggleClass('on');
@@ -2028,9 +2207,14 @@
 
             $(this).next('dd').slideToggle("slow");
             @if($user->engroup==2)
+            $('.sjlist_vvip>.li_no_data').remove();
             $('.sjlist_vip>.li_no_data').remove();
             $('.sjlist_novip>.li_no_data').remove();
 
+            if ($('.sjlist_vvip>li:visible').length == 0 && isLoading == 0) {
+                $('#sjlist_vvip_warning').hide();
+                $('.sjlist_vvip').append(no_row_li);
+            }
             if ($('.sjlist_vip>li:visible').length == 0 && isLoading == 0) {
                 $('#sjlist_vip_warning').hide();
                 $('.sjlist_vip').append(no_row_li);

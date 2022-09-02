@@ -145,14 +145,23 @@
                             if(showedUsers.length > 0){
                                 userList = showedUsers
                             }
-                            else{
-                                userList = chatUsers;
-                            }
-                            users.forEach(function (user) {
-                                $(userList).each((i, userListed) =>{
-                                    if (user['id'] == userListed.id) {
-                                        setUserOnlineStatus(1, user['id']);
-                                        throw BreakException;
+                        });
+                    }
+                }
+                let users = null;
+                let users_leaving = null;
+                let BreakException = [];
+                {{-- Echo.join('Online'); --}}
+                @if(($isVip ?? false) || $user->isVipOrIsVvip())
+                    @if(str_contains(url()->current(), 'search') || request()->route()->getName() == 'chat2View')
+                        {{-- $(document).ready(() => {
+                            Echo.join('Online').here((users) => {
+                                try {
+                                    let showedUsers = $(".searchStatus");
+                                    let chatUsers = $(".sjpic.shanx");
+                                    let userList;
+                                    if(showedUsers.length > 0){
+                                        userList = showedUsers
                                     }
                                 })
                             });

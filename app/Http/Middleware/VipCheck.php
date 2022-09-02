@@ -118,6 +118,13 @@ class VipCheck
 //        }elseif(view()->shared('valueAddedServices')['VVIP'] == 0) {
 //            User::where('id', $user->id)->update(['is_vvip' => 0]);
 //        }
-            return $next($request);
+
+        if($user->is_vvip==0 && $user->isVVIP()){
+            User::where('id', $user->id)->update(['is_vvip' => 1]);
+        }else{
+            User::where('id', $user->id)->update(['is_vvip' => 0]);
+        }
+
+        return $next($request);
     }
 }
