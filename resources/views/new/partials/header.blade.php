@@ -151,29 +151,6 @@
                 let users = null;
                 let users_leaving = null;
                 let BreakException = [];
-                {{-- Echo.join('Online'); --}}
-                @if(($isVip ?? false) || $user->isVipOrIsVvip())
-                    @if(str_contains(url()->current(), 'search') || request()->route()->getName() == 'chat2View')
-                        {{-- $(document).ready(() => {
-                            Echo.join('Online').here((users) => {
-                                try {
-                                    let showedUsers = $(".searchStatus");
-                                    let chatUsers = $(".sjpic.shanx");
-                                    let userList;
-                                    if(showedUsers.length > 0){
-                                        userList = showedUsers
-                                    }
-                                })
-                            });
-                        } catch (e) {
-                            if (e !== BreakException) throw e;
-                        }
-                    }).joining((user) => {
-                        setUserOnlineStatus(1, user.id);
-                    }).leaving((user) => {
-                        setUserOnlineStatus(0, user.id);
-                    });
-                }); --}}
             @elseif(str_contains(url()->current(), 'viewuser') || request()->route()->getName() == 'chat2WithUser')
                 {{-- Echo.join('Online')
                     .here((users) => {
