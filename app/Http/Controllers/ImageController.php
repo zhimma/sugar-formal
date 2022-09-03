@@ -1145,7 +1145,10 @@ class ImageController extends BaseController
         if($hash =='refill'){
             $previous = redirect()->route('vvipSelectA', [ '#'.$hash ])->with('message', $msg);
         }elseif($hash =='pay'){
-            $previous = redirect()->route('vvipSelectA', [ '#'.$hash ]);
+            if($upload['isSuccess'] ?? false)
+            {$previous = redirect()->route('vvipSelectA', [ '#'.$hash ]);}
+            else
+            {$previous = redirect()->route('vvipSelectA');}
         }else{
             $previous = redirect()->route('vvipSelectA');
         }
