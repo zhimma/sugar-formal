@@ -1148,7 +1148,7 @@ class ImageController extends BaseController
             if($upload['isSuccess'] ?? false)
             {$previous = redirect()->route('vvipSelectA', [ '#'.$hash ]);}
             else
-            {$previous = redirect()->route('vvipSelectA');}
+            {$previous = redirect()->route('vvipSelectA', [ '#file_error' ]);}
         }else{
             $previous = redirect()->route('vvipSelectA');
         }
