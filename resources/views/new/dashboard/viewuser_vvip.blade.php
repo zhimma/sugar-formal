@@ -323,9 +323,9 @@
                             <font>Basic information</font>
                         </div>
                         <div class="ci_ddbg">
-                            <div class="zlys_aa">註冊時間 @if($user->isVip() || $user->isVVIP())<font>{{substr($targetUser->created_at,0,10)}}</font>@else <span class="mtop"><img src="/new/images/icon_35.png"></span> @endif</div>
+                            <div class="zlys_aa">註冊時間 @if($user->isVip() || $user->isVVIP())<span>{{$targetUser->created_at}}</span>@else <span class="mtop"><img src="/new/images/icon_35.png"></span> @endif</div>
                             <div class="xzl_left">年齡 <span>{{$targetUser->meta->age()}}</span></div>
-                            <div class="xzl_left">身高 <span>{{$targetUser->meta->height}}</span></div>
+                            <div class="xzl_left">身高 <span>{{$targetUser->meta->height}}cm</span></div>
                             <div class="xzl_left">包月預算 
                                 @if(!empty($targetUser->meta->budget_per_month_min) && !empty($targetUser->meta->budget_per_month_max) && $targetUser->meta->budget_per_month_min != -1 && $targetUser->meta->budget_per_month_max != -1)
                                 <div style='text-align:center;'>{{round($targetUser->meta->budget_per_month_min, -3)/10000}}萬~{{round($targetUser->meta->budget_per_month_max, -3)/10000}}萬</div>

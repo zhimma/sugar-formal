@@ -4150,6 +4150,12 @@ border-radius:100px;margin-top:5px;font-weight:normal;font-size:18px;padding:15p
 .xzl_left span{ float: right; color: #666;}
 .xzl_left:nth-child(odd){ float: right;}
 
+@media (max-width:450px){
+.xzl_left{ font-size: 12px;}
+.zlys_aa{ padding:10px 5px;}
+.xzl_left{ padding:10px 5px;}
+}
+
 
 /* VVIP发布新功能 */
 .v_bg_fb{width: 94%;margin: 0 auto; display: table; display: block; padding-bottom:20px; margin-bottom:30px;background: linear-gradient(180deg,#fac3cf, #fef9fa); min-height: 100px;}
