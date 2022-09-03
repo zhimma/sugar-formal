@@ -328,16 +328,16 @@
                             <div class="xzl_left">身高 <span>{{$targetUser->meta->height}}cm</span></div>
                             <div class="xzl_left">包月預算 
                                 @if(!empty($targetUser->meta->budget_per_month_min) && !empty($targetUser->meta->budget_per_month_max) && $targetUser->meta->budget_per_month_min != -1 && $targetUser->meta->budget_per_month_max != -1)
-                                <div style='text-align:center;'>{{round($targetUser->meta->budget_per_month_min, -3)/10000}}萬~{{round($targetUser->meta->budget_per_month_max, -3)/10000}}萬</div>
+                                <span>{{round($targetUser->meta->budget_per_month_min, -3)/10000}}萬~{{round($targetUser->meta->budget_per_month_max, -3)/10000}}萬</span>
                                 @else
-                                <div style='text-align:center;'>未填</div>
+                                <span>未填</span>
                                 @endif
                             </div>
                             <div class="xzl_left">車馬費預算 
                                 @if(!empty($targetUser->meta->transport_fare_min) && !empty($targetUser->meta->transport_fare_max) && $targetUser->meta->transport_fare_min != -1 && $targetUser->meta->transport_fare_max != -1)
-                                <div style='text-align:center;'>{{round($targetUser->meta->transport_fare_min, -2)}}~{{round($targetUser->meta->transport_fare_max, -2)}}</div>
+                                <span>{{round($targetUser->meta->transport_fare_min, -2)}}~{{round($targetUser->meta->transport_fare_max, -2)}}</span>
                                 @else
-                                <div style='text-align:center;'>未填</div>
+                                <span>未填</span>
                                 @endif
                             </div>
                             <div class="xzl_left">婚姻  <span>{{$targetUser->meta->marriage}}</span></div>
