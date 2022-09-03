@@ -1081,13 +1081,15 @@
                     $('.input_field_5').first().children('div').last().remove();
                 }
                 
-                if($('.assets_image_top:last').val()=='')
-                {
+                if($('.assets_image_top:last').val()=='') {
                     c5('您尚未輸入文字');
                     return false;
                 }
-                else
-                {
+                else if($('.input_field_5').children('div').length > 3) {
+                    c5('您的財富資產至多只能選擇四個');
+                    return false;
+                }
+                else {
                     $('.input_field_5').first().append('<div class="system_image matop10">' +
                         '<input type="text" placeholder="請輸入至多18個字" class="msinput assets_image_top" maxlength="18">' +
                         '<ul class="n_ulpic" style="margin-bottom: 0;">' +
@@ -1102,13 +1104,15 @@
                     $('.input_field_6').first().children('div').last().remove();
                 }
 
-                if($('.life_top:last').val()=='')
-                {
+                if($('.life_top:last').val()=='') {
                     c5('您尚未輸入文字');
                     return false;
                 }
-                else
-                {
+                else if($('.input_field_6').children('div').length > 1) {
+                    c5('您的品質生活至多只能選擇兩個');
+                    return false;
+                }
+                else {
                     $('.input_field_6').first().append('<div class="system_image matop10">' +
                         '<input type="text" placeholder="請輸入至多18個字" class="msinput life_top" maxlength="18">' +
                         '<ul class="n_ulpic" style="margin-bottom: 0;">' +
