@@ -92,7 +92,7 @@
                                                             @foreach($high_assets as $sub_option)
                                                                 <li @if($sub_option->xref_id ?? false) class="selected" @endif value={{$sub_option->id}}>{{$sub_option->option_name}}</li>
                                                             @endforeach
-                                                            <input type="text" id="uc_1_point1_input" placeholder="自填" name="high_assets_other" class="left cu_input">
+                                                            <input type="text" id="uc_1_point1_input" placeholder="自填" name="high_assets_other" class="left cu_input" maxlength="10">
                                                         </ul>
                                                     </div>
                                                 @elseif($option->option_name == '高收入')

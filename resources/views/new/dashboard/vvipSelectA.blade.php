@@ -227,6 +227,11 @@
                 $('#form2').submit();
             }
 
+            if(hash=='file_error'){
+                $('.vvip_a_2').show();
+                $('.vvip_a_1').hide();
+            }
+
             @if(Session::has('message') && Session::get('message') != '')
             c5("{{ Session::get('message') }}");
             @endif
