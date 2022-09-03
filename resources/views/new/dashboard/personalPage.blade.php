@@ -234,8 +234,14 @@
                                     @if($user->applyingVVIP_getDeadline() != 0)
                                         <h2 class="tabbox_h2" style="color:red;">您於 {{$user->applyVVIP_getData()->created_at}} 申請本站VVIP，站方審核仍需更多財力文件，請您於 {{$user->applyingVVIP_getDeadline()}} 前補交文件</h2>
                                     @endif
+
+                                    @if($user->applyVVIP_getData()->status == 2)
+                                        <h2 class="tabbox_h2">您於 {{$user->applyVVIP_getData()->created_at}} 申請本站VVIP，未通過站方審核。</h2>
+
+                                    @elseif($user->cancelVVIP())
+                                        <h2 class="tabbox_h2">您於 {{$user->applyVVIP_getData()->created_at}} 申請本站VVIP，已取消申請。</h2>
                                     
-                                    @if($user->valueAddedServiceStatus('VVIP') == 1 && $user->passVVIP())
+                                    @elseif($user->valueAddedServiceStatus('VVIP') == 1 && $user->passVVIP())
                                         <h2 class="tabbox_h2">您已完成VVIP會員費</h2>
                                     @elseif($user->valueAddedServiceStatus('VVIP') == 1 && !$user->passVVIP())
                                         <h2 class="tabbox_h2">
@@ -254,14 +260,6 @@
 
                                     @if($user->applyingVVIP())
                                         <h2 class="tabbox_h2">您於 {{$user->applyVVIP_getData()->created_at}} 申請本站VVIP，目前還在審核中，最慢於五個工作天通知結果。</h2>
-                                    @endif
-
-                                    @if($user->applyVVIP_getData()->status == 2)
-                                        <h2 class="tabbox_h2">您於 {{$user->applyVVIP_getData()->created_at}} 申請本站VVIP，未通過站方審核。</h2>
-                                    @endif
-
-                                    @if($user->cancelVVIP())
-                                        <h2 class="tabbox_h2">您於 {{$user->applyVVIP_getData()->created_at}} 申請本站VVIP，已取消申請。</h2>
                                     @endif
 
                                     @if($user->passVVIP())
