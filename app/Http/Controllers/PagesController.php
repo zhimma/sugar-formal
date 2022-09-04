@@ -9530,17 +9530,28 @@ class PagesController extends BaseController
     {
         
         $user = auth()->user();
-        $warn_ban_reason = false;
+        $warn_ban_reason = null;
         if($user->isEverWarnedAndBanned())
         {
-            $temp = IsWarnedLog::where('user_id', $user->id)->orderBy('created_at', 'desc')->first() ?? false;
-            $warn_ban_reason = $temp;
-            $temp = IsBannedLog::where('user_id', $user->id)->orderBy('created_at', 'desc')->first() ?? false;
-            if($temp && $temp->created_at > $warn_ban_reason->created_at){$warn_ban_reason = $temp;}
-            $temp = banned_users::where('member_id', $user->id)->orderBy('created_at', 'desc')->first() ?? false;
-            if($temp && $temp->created_at > $warn_ban_reason->created_at){$warn_ban_reason = $temp;}
-            $temp = warned_users::where('member_id', $user->id)->orderBy('created_at', 'desc')->first() ?? false;
-            if($temp && $temp->created_at > $warn_ban_reason->created_at){$warn_ban_reason = $temp;}
+            $temp = IsWarnedLog::where('user_id', $user->id)->orderBy('created_at', 'desc')->first();
+            if($temp && $temp->created_at > $warn_ban_reason?->created_at){
+                $warn_ban_reason = $temp;
+            }
+
+            $temp = IsBannedLog::where('user_id', $user->id)->orderBy('created_at', 'desc')->first();
+            if($temp && $temp->created_at > $warn_ban_reason?->created_at){
+                $warn_ban_reason = $temp;
+            }
+
+            $temp = banned_users::where('member_id', $user->id)->orderBy('created_at', 'desc')->first();
+            if($temp && $temp->created_at > $warn_ban_reason?->created_at){
+                $warn_ban_reason = $temp;
+            }
+
+            $temp = warned_users::where('member_id', $user->id)->orderBy('created_at', 'desc')->first();
+            if($temp && $temp->created_at > $warn_ban_reason?->created_at){
+                $warn_ban_reason = $temp;
+            }
         }
         return view('new.dashboard.vvipSelect')
             ->with('user', $user)
