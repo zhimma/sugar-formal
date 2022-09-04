@@ -23,30 +23,32 @@
                     <div class="zhapian vvip_hg">
                         <div class="vip_bt">花園網VVIP方案</div>
                         <div class="vip_bg">
-                            <div class="vip_title02">隱私方案</div>
+                            <div class="vip_title02">隱私方案</div>                            
                             <div class="vip_font">
-                                <div class="vip_h3"><i>●</i><font>未曾受到警示/封鎖處分</font></div>
+                                <div class="vip_h3"><font>1:未曾受到警示/封鎖處分</font></div>
                             </div>
-                            <div class="vip_font">
-                                <div class="vip_h3"><font>1:VVIP 一率季繳 9888 元。</font></div>
-                                <div class="vip_h3"><font>2:無償贈與 5 萬元予站方作為入會費。</font></div>
-                                {{--<div class="vip_h3"><font>3:入會費用途：此帳號所有爭議處理費用皆由入會費扣除。</font></div>--}}
-                                <div class="vip_h3"><font>3:入會費保留：若帳號暫停使用，不支付 VVIP 會費。入會費保留，願意支付 VVIP 會費時會繼續享有 VVIP 權益。</font></div>
-                                <div class="vip_h3"><font>4:帳號/入會費不得轉讓他人使用。</font></div>
-                                <div class="vip_h3"><font>5:帳號停止使用：若不再使用本站，入會費不退還。</font></div>
-                                {{--<div class="vip_h3"><font>7:入會費不足額：入會費低於 2 萬時須補足到 5 萬，否則取消 VVIP 權限。取消VVIP權限時，入會費不退還。已繳之VVIP費用依照使用比例天數退還。</font></div>--}}
-                                <div class="vip_h3"><font>6:若違反本網站用戶規定，被申訴次數達一定次數，造成站方管理上困難，<r>本網站有權取消用戶 VVIP 之身份。</r></font></div>
-                                <div class="vip_h3"><font>7:又，上述申訴不僅以次數作為判定標準，亦依情節嚴重性而認定。<r>上述所提及之認定資格在站方，站方亦無說明義務。</r></font></div>
-                                <div class="vip_h3"><font>8:<r>被申訴次數過多會造成帳號被取消</r>，申請用戶需三思。</font></div>
-                                <div class="vip_h3"><font>9:若本網站自行斟酌後認為您的個人檔案內容或您在本網站中之行為違反使用條款，或您違反本協議，或因任何其他理由，本網站得暫停或終止您在本網站中使用者帳戶，以及您於本網站中全部或部分之使用。本網站亦得隨時移除您使用者帳戶之全部或部分或任何使用者內容。</font></div>
-                                <div class="vip_h3"><font>10:您同意上述終止事項無需事前通知即逕行生效，且本網站不需對您或任何第三方負責。</font></div>
-                                <div class="vip_h3"><font>11:若您欲取消申請、訂閱，您得隨時依照本協議之條款取消您的 VVIP 服務。您必須依照本網站服務內提供之說明取消，取消額外服務之說明如上所述。</font></div>
-                                <div class="vip_h3"><font>12:本網站保留權利更正錯誤（無論是透過更改本網站之服務內資訊、或是將錯誤通知於您並提供您取消訂購的機會，此外本站亦擁有不經通知下隨時更新資訊之權利）</font></div>
-                                <div class="vip_h3" style="color: #f00;background-color: yellow;"><i>★</i><font>以上若有爭議由站方全權決定，站方亦無說明義務，申請人絕無異議。</font></div>
-                                <br>
-                                <input type="checkbox" id="i_agree">我同意
-                            </div>
-
+                            <div class="vvip_tab matop10">
+                                <div class="vvip_sq"><img src="/new/images/v1_05.png">申請流程</div>
+                                <div class="vip_font">
+                                    <div class="vip_h3"><font>1:VVIP 一率季繳 9888 元。</font></div>
+                                    <div class="vip_h3"><font>2:無償贈與 5 萬元予站方作為入會費。</font></div>
+                                    {{--<div class="vip_h3"><font>3:入會費用途：此帳號所有爭議處理費用皆由入會費扣除。</font></div>--}}
+                                    <div class="vip_h3"><font>3:入會費保留：若帳號暫停使用，不支付 VVIP 會費。入會費保留，願意支付 VVIP 會費時會繼續享有 VVIP 權益。</font></div>
+                                    <div class="vip_h3"><font>4:帳號/入會費不得轉讓他人使用。</font></div>
+                                    <div class="vip_h3"><font>5:帳號停止使用：若不再使用本站，入會費不退還。</font></div>
+                                    {{--<div class="vip_h3"><font>7:入會費不足額：入會費低於 2 萬時須補足到 5 萬，否則取消 VVIP 權限。取消VVIP權限時，入會費不退還。已繳之VVIP費用依照使用比例天數退還。</font></div>--}}
+                                    <div class="vip_h3"><font>6:若違反本網站用戶規定，被申訴次數達一定次數，造成站方管理上困難，<r>本網站有權取消用戶 VVIP 之身份。</r></font></div>
+                                    <div class="vip_h3"><font>7:又，上述申訴不僅以次數作為判定標準，亦依情節嚴重性而認定。<r>上述所提及之認定資格在站方，站方亦無說明義務。</r></font></div>
+                                    <div class="vip_h3"><font>8:<r>被申訴次數過多會造成帳號被取消</r>，申請用戶需三思。</font></div>
+                                    <div class="vip_h3"><font>9:若本網站自行斟酌後認為您的個人檔案內容或您在本網站中之行為違反使用條款，或您違反本協議，或因任何其他理由，本網站得暫停或終止您在本網站中使用者帳戶，以及您於本網站中全部或部分之使用。本網站亦得隨時移除您使用者帳戶之全部或部分或任何使用者內容。</font></div>
+                                    <div class="vip_h3"><font>10:您同意上述終止事項無需事前通知即逕行生效，且本網站不需對您或任何第三方負責。</font></div>
+                                    <div class="vip_h3"><font>11:若您欲取消申請、訂閱，您得隨時依照本協議之條款取消您的 VVIP 服務。您必須依照本網站服務內提供之說明取消，取消額外服務之說明如上所述。</font></div>
+                                    <div class="vip_h3"><font>12:本網站保留權利更正錯誤（無論是透過更改本網站之服務內資訊、或是將錯誤通知於您並提供您取消訂購的機會，此外本站亦擁有不經通知下隨時更新資訊之權利）</font></div>
+                                    <div class="vip_h3" style="color: #f00;background-color: yellow;"><i>★</i><font>以上若有爭議由站方全權決定，站方亦無說明義務，申請人絕無異議。</font></div>
+                                    <br>
+                                    <input type="checkbox" id="i_agree">我同意
+                                </div>
+                            </div>  
                         </div>
                         <a onclick="cl()" class="zpback zp_bbut mabot50">申請購買</a>
                     </div>

@@ -36,7 +36,7 @@
                             </a>
                         </li>
                         <li>
-                            @if(($user->applyingVVIP()|| $user->applyingVVIP_getDeadline() != 0) && $user->engroup==1 )
+                            @if(($user->applyingVVIP() || $user->applyingVVIP_getDeadline() != 0) && $user->engroup==1 )
                                 <a class="aw_hdtab" href="{{ url('/dashboard/vvipPassSelect') }}">
                                     <img src="/new/images/VIPicon_03.png">
                                     <h2>VVIP升級</h2>
