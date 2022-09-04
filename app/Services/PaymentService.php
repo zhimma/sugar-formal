@@ -3,6 +3,7 @@
 namespace App\Services;
 
 use App\Models\Order;
+use App\Models\User;
 use App\Models\ValueAddedService;
 use App\Services\EnvironmentService;
 use Carbon\Carbon;
@@ -10,21 +11,26 @@ use Illuminate\Support\Facades\Config;
 
 class PaymentService
 {
-    public function caculatesRefund($type)
+    public static function calculatesRefund($user, $type)
     {
         $refund = 0;
+        $user = is_numeric($user) ? User::find($user) : $user;
+        $vip_text = null;
 
         //vvip72小時內未匯款退費
         if($type == 'vvip_without_remittance')
         {
-            $refund = 9888-4000;
+            $refund = 9888 - 4000;
         }
 
         //vip依照剩餘天數退費
         if($type == 'vip_refund')
         {
-            $user = auth()->user();
-            $vip = $user->vip->first();
+            $vip = $user->vip?->first();
+
+            if(!$vip) {
+                return null;
+            }
 
             if(EnvironmentService::isLocalOrTestMachine()){
                 $envStr = '_test';
@@ -32,6 +38,7 @@ class PaymentService
             else{
                 $envStr = '';
             }
+
             if(substr($vip->payment,0,3) == 'cc_' && $vip->business_id == Config::get('ecpay.payment'.$envStr.'.MerchantID')){
                 $ecpay = new \App\Services\ECPay_AllInOne();
                 $ecpay->MerchantID = Config::get('ecpay.payment'.$envStr.'.MerchantID');
@@ -44,7 +51,8 @@ class PaymentService
                 ];
                 $paymentData = $ecpay->QueryPeriodCreditCardTradeInfo(); //信用卡定期定額
                 $last = last($paymentData['ExecLog']);
-                $lastProcessDate_o='';
+                $lastProcessDate_o = '';
+                $nextProcessDate = '';
                 if($last['RtnCode']==1) {
                     $lastProcessDate = str_replace('%20', ' ', $last['process_date']);
                     $lastProcessDate_o = \Carbon\Carbon::createFromFormat('Y/m/d H:i:s', $lastProcessDate);
@@ -60,18 +68,28 @@ class PaymentService
                     $current_vip_remain_days = $periodRemained - $current_vip_days;
                     $refund = ( $paymentData['amount'] / $periodRemained ) * $current_vip_remain_days;
                 }
+                $vip_text = '您原先 VIP 扣款自 '.substr($lastProcessDate_o,0,10).'~'.substr($nextProcessDate,0,10).'，您確認升級 VVIP 後，將依照比例刷退您 '.round($refund).' 元';
             }else{
                 if($vip->payment=='one_month_payment'){
                     $used_vipDays = $vip->updated_at->diffInDays(Carbon::now());
                     $current_vip_remain_days = Carbon::now()->diffInDays($vip->expiry) - $used_vipDays;
                     $refund = ( $vip->amount / 30 ) * $current_vip_remain_days;
+                    $vip_text = '您原先 VIP 扣款自 '.substr($vip->updated_at,0,10).'~'.substr($vip->expiry,0,10).'，您確認升級 VVIP 後，將依照比例刷退您 '.round($refund).' 元';
                 }elseif($vip->payment=='one_quarter_payment'){
                     $current_vip_remain_days = Carbon::now()->diffInDays($vip->expiry);
                     $refund = ( $vip->amount / 92 ) * $current_vip_remain_days;
+                    $vip_text = '您原先 VIP 扣款自 '.substr($vip->updated_at,0,10).'~'.substr($vip->expiry,0,10).'，您確認升級 VVIP 後，將依照比例刷退您 '.round($refund).' 元';
                 }
             }
         }
 
-        return $refund;
+        if($type == 'VVIP_B') {
+            
+        }
+
+        return [
+            'refund' => $refund,
+            'vip_text' => $vip_text
+        ];
     }
 }

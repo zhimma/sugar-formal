@@ -255,7 +255,7 @@
 
             // enable fileuploader plugin
             $('input[name="files"]').fileuploader({
-                extensions: null,
+                extensions: ['image/*'],
                 changeInput: ' ',
                 theme: 'thumbnails',
                 enableApi: true,

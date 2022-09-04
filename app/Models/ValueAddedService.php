@@ -8,6 +8,7 @@ use Illuminate\Database\Eloquent\Model;
 use App\Models\User;
 use Carbon\Carbon;
 use App\Services\EnvironmentService;
+use App\Services\PaymentService;
 
 class ValueAddedService extends Model
 {
@@ -180,7 +181,8 @@ class ValueAddedService extends Model
         }
 
         if($service_name == 'VVIP') {
-            event(new UserVvipUpgraded(User::find($member_id)));
+            $user = User::find($member_id);
+            event(new UserVvipUpgraded($user));
         }
 
         ValueAddedServiceLog::addToLog($member_id, $service_name,'Upgrade, payment: ' . $payment . ', service: ' . $service_name, $order_id, $txn_id, 0);
