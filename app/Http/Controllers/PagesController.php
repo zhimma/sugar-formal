@@ -9559,7 +9559,7 @@ class PagesController extends BaseController
             if($refund) {
                 $record = ValueAddedService::where('member_id', $user->id)
                                                 ->where('service_name', 'VVIP')
-                                                ->where('order_id', $user->VVIP->order_id)
+                                                ->where('order_id', $user->VVIP->first()->order_id)
                                                 ->first(); 
                 $record->need_to_refund = 1;
                 $record->refund_amount = $refund;
@@ -9583,7 +9583,7 @@ class PagesController extends BaseController
             if($refund) {
                 $record = ValueAddedService::where('member_id', $user->id)
                                                 ->where('service_name', 'VVIP')
-                                                ->where('order_id', $user->VVIP->order_id)
+                                                ->where('order_id', $user->VVIP->first()->order_id)
                                                 ->first(); 
                 $record->need_to_refund = 1;
                 $record->refund_amount = $refund;

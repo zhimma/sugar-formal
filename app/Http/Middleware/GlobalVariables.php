@@ -40,12 +40,10 @@ class GlobalVariables
                 $isFreeVip = $user->isFreeVip();
 
                 if($user->isVVIP()){
-                    $vipData = $user->VVIP->sortByDesc("created_at")->first();
+                    $vipData = $user->VVIP->first();
                 }else {
-                    $vipData = $user->vip->sortByDesc("created_at")->first();
+                    $vipData = $user->vip->first();
                 }
-//                $vipData = $user->vip->sortByDesc("created_at")->first();
-
                 // 全域 VIP 資料
                 \View::share('vipData', $vipData);
                 if (isset($vipData->updated_at)) {    //有的優選資格被拔掉的會員不會有 updated_at 的值

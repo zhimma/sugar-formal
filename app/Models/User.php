@@ -98,7 +98,7 @@ class User extends Authenticatable implements JWTSubject
     //Vip
     public function vip()
     {
-        return $this->hasMany(Vip::class, 'member_id', 'id')->where('active', 1)->orderBy('created_at', 'desc');
+        return $this->hasMany(Vip::class, 'member_id', 'id')->where('active', 1)->orderBy('id', 'desc');
     }
 
     public function vip_any()
@@ -1919,7 +1919,7 @@ class User extends Authenticatable implements JWTSubject
     //--VVIP--//
     public function VVIP()
     {
-        return $this->hasMany(ValueAddedService::class, 'member_id', 'id')->where('service_name','VVIP')->where('active', 1)->orderBy('created_at', 'desc')->first();
+        return $this->hasMany(ValueAddedService::class, 'member_id', 'id')->where('service_name','VVIP')->where('active', 1)->orderBy('id', 'desc');
     }
 
     public function is3MonthsVip()
