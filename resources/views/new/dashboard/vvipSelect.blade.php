@@ -368,7 +368,7 @@
         });
         @elseif($user->isEverWarnedAndBanned())
         $('.cantVVIP').on('click',function () {
-            str = '您好，您曾因為違反{{$warn_ban_reason->reason}}遭受警示/封鎖，故無法線上申請。如需申請請，請點此加站長<a href="https://lin.ee/rLqcCns" target="_blank"> <img src="https://scdn.line-apps.com/n/line_add_friends/btn/zh-Hant.png" alt="加入好友" height="26" border="0" style="height: 26px; float: unset;"></a>進行人工申請。';
+            str = '您好，您曾因為違反 [{{$warn_ban_reason->reason}}] 遭受警示/封鎖，故無法線上申請。如需申請，請點此加站長<a href="https://lin.ee/rLqcCns" target="_blank"> <img src="https://scdn.line-apps.com/n/line_add_friends/btn/zh-Hant.png" alt="加入好友" height="26" border="0" style="height: 26px; float: unset;"></a>進行人工申請。';
             $(".announce_bg").show();
             $("#tab05").show();
             $("#tab05 .bltext").html(str);
