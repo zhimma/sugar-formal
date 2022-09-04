@@ -28,5 +28,6 @@ class UserVvipRemovedListener
     {
         //
         $event->user->is_vvip = 0;
+        $event->user->save();
     }
 }

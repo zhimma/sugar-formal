@@ -28,5 +28,6 @@ class UserVvipUpgradedListener
     {
         //
         $event->user->is_vvip = 1;
+        $event->user->save();
     }
 }
