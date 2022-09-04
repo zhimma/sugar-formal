@@ -29,7 +29,7 @@ class PaymentService
             $vip = $user->vip?->first();
 
             if(!$vip) {
-                return null;
+                return [null, null];
             }
 
             if(EnvironmentService::isLocalOrTestMachine()){
@@ -84,8 +84,7 @@ class PaymentService
         }
         
         return [
-            'refund' => $refund,
-            'vip_text' => $vip_text
+            $refund, $vip_text
         ];
     }
 }
