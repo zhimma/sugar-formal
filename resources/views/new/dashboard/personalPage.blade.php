@@ -266,7 +266,7 @@
                                         <h2 class="tabbox_h2"><span class="tu_dfont">您尚未購買VVIP會員費</span></h2>
                                     @endif
 
-                                    @if($user->applyingVVIP)
+                                    @if($user->applyingVVIP())
                                         <h2 class="tabbox_h2">您於 {{$user->applyVVIP_getData()->created_at}} 申請本站VVIP，目前還在審核中，最慢於五個工作天通知結果。</h2>
                                     @endif
 
