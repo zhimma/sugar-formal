@@ -856,6 +856,8 @@ Route::group(['middleware' => ['auth', 'global', 'active', 'femaleActive', 'vipC
         Route::get('users/VVIP_margin_deposit', 'VvipController@viewVvipMarginDeposit')->name('users/VVIP_margin_deposit');
         Route::get('users/VVIP_margin_deposit/edit/{user_id}', 'VvipController@editVvipMarginDeposit')->name('users/VVIP_margin_deposit/edit');
         Route::post('users/VVIP_margin_deposit/save/{user_id}', 'VvipController@uodateVvipMarginDeposit')->name('users/VVIP_margin_deposit/save');
+        Route::get('users/VVIP_cancellation_list', 'VvipController@viewVvipCancellationList')->name('users/VVIP_cancellation_list');
+        Route::post('users/VVIP_cancellation/save', 'VvipController@updateVvipCancellation')->name('users/VVIP_cancellation/save');
 //        Route::get('users/VVIP_invite', 'UserController@viewVvipInvite')->name('users/VVIP_invite');
 
         Route::get('faq', 'UserController@showFaq')->name('admin/faq');
