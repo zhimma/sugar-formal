@@ -158,7 +158,7 @@ class ValueAddedServiceApiDataLogger{
                 if (isset($payload['RtnCode'])) {
                     if($payload['RtnCode'] == 1) {
                         $remain_days = $payload['CustomField2'];
-                        ValueAddedService::upgrade($user->id, $payload['CustomField4'], $payload['MerchantID'], $payload['MerchantTradeNo'], $payload['TradeAmt'], '', 1, $payload['CustomField3'], $remain_days);
+                        $valueAddedServiceData = ValueAddedService::upgrade($user->id, $payload['CustomField4'], $payload['MerchantID'], $payload['MerchantTradeNo'], $payload['TradeAmt'], '', 1, $payload['CustomField3'], $remain_days);
 
                         if(!(EnvironmentService::isLocalOrTestMachine())) {
                             //產生訂單 --正式綠界
@@ -173,6 +173,14 @@ class ValueAddedServiceApiDataLogger{
                             $addData->plan =$payload['CustomField2'];
                             $addData->created_at = Carbon::now();
                             $addData->save();
+
+                            [$refund, $vip_text] = \App\Services\PaymentService::calculatesRefund($user, 'vip_refund');
+                            if($refund) {
+                                $record = $valueAddedServiceData;
+                                $record->need_to_refund = 1;
+                                $record->refund_amount = $refund;
+                                $record->saveOrFail();
+                            } 
                         }
 
                         if ($payload['CustomField4'] == 'hideOnline') {

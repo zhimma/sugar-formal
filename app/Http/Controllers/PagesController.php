@@ -9555,16 +9555,7 @@ class PagesController extends BaseController
         $vip_text='';
 
         if($user->isVip() && !$user->isFreeVip()) {
-            [$refund, $vip_text] = PaymentService::calculatesRefund($user, 'vip_refund');
-            if($refund) {
-                $record = ValueAddedService::where('member_id', $user->id)
-                                                ->where('service_name', 'VVIP')
-                                                ->where('order_id', $user->VVIP->first()->order_id)
-                                                ->first(); 
-                $record->need_to_refund = 1;
-                $record->refund_amount = $refund;
-                $record->saveOrFail();
-            } 
+            [, $vip_text] = PaymentService::calculatesRefund($user, 'vip_refund');
         }
 
         return view('new.dashboard.vvipSelectA')
@@ -9579,16 +9570,7 @@ class PagesController extends BaseController
         $vip_text='';
 
         if($user->isVip() && !$user->isFreeVip()) {
-            [$refund, $vip_text] = PaymentService::calculatesRefund($user, 'vip_refund');
-            if($refund) {
-                $record = ValueAddedService::where('member_id', $user->id)
-                                                ->where('service_name', 'VVIP')
-                                                ->where('order_id', $user->VVIP->first()->order_id)
-                                                ->first(); 
-                $record->need_to_refund = 1;
-                $record->refund_amount = $refund;
-                $record->saveOrFail();
-            } 
+            [, $vip_text] = PaymentService::calculatesRefund($user, 'vip_refund');
         }
 
         return view('new.dashboard.vvipSelectB')

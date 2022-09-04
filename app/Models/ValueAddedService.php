@@ -186,6 +186,7 @@ class ValueAddedService extends Model
         }
 
         ValueAddedServiceLog::addToLog($member_id, $service_name,'Upgrade, payment: ' . $payment . ', service: ' . $service_name, $order_id, $txn_id, 0);
+        return $valueAddedServiceData;
     }
 
     public static function findByIdAndServiceNameWithDateDesc($member_id,$service_name) {
