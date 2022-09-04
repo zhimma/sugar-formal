@@ -82,11 +82,7 @@ class PaymentService
                 }
             }
         }
-
-        if($type == 'VVIP_B') {
-            
-        }
-
+        
         return [
             'refund' => $refund,
             'vip_text' => $vip_text
