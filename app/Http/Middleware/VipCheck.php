@@ -112,7 +112,7 @@ class VipCheck
 //                \App\Models\ValueAddedServiceLog::addToLog($user->id, $userValueAddedService->service_name, 'Expired, system auto cancellation.', $userValueAddedService->order_id, $userValueAddedService->txn_id, 0);
 //            }
 //
-//            if($user->is_vvip==0 && $user->passVVIP()){
+//            if($user->is_vvip==0 && $user->passVVIP){
 //                User::where('id', $user->id)->update(['is_vvip' => 1]);
 //            }
 //        }elseif(view()->shared('valueAddedServices')['VVIP'] == 0) {

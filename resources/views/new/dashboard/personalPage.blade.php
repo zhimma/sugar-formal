@@ -243,9 +243,9 @@
                                     @elseif($user->cancelVVIP())
                                         <h2 class="tabbox_h2">您於 {{$user->applyVVIP_getData()->created_at}} 申請本站VVIP，已取消申請。</h2>
                                     
-                                    @elseif($user->valueAddedServiceStatus('VVIP') == 1 && $user->passVVIP())
+                                    @elseif($user->valueAddedServiceStatus('VVIP') == 1 && $user->passVVIP)
                                         <h2 class="tabbox_h2">您已完成VVIP會員費</h2>
-                                    @elseif($user->valueAddedServiceStatus('VVIP') == 1 && !$user->passVVIP())
+                                    @elseif($user->valueAddedServiceStatus('VVIP') == 1 && !$user->passVVIP)
                                         <h2 class="tabbox_h2">
                                             <span class="tu_dfont">
                                                 @if($user->applyVVIP_getData()->plan == 'VVIP_A')
@@ -266,11 +266,11 @@
                                         <h2 class="tabbox_h2"><span class="tu_dfont">您尚未購買VVIP會員費</span></h2>
                                     @endif
 
-                                    @if($user->applyingVVIP())
+                                    @if($user->applyingVVIP)
                                         <h2 class="tabbox_h2">您於 {{$user->applyVVIP_getData()->created_at}} 申請本站VVIP，目前還在審核中，最慢於五個工作天通知結果。</h2>
                                     @endif
 
-                                    @if($user->passVVIP())
+                                    @if($user->passVVIP)
                                         <h2 class="tabbox_h2">
                                             您於 {{$user->applyVVIP_getData()->created_at}} 申請本站VVIP，恭喜您！已成為本站審核通過的高級VVIP會員。現在就加入VVIP專屬LINE@, 享受您的專屬客服服務!
                                             <a href="https://line.me/ti/p/~@953wkgjq" target="_blank"> <img src="https://scdn.line-apps.com/n/line_add_friends/btn/zh-Hant.png" alt="加入好友" height="26" border="0" style="height: 26px; float: unset;"></a>
