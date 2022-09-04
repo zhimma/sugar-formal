@@ -773,6 +773,17 @@
     }
 
     $(function() {
+        $('#user_note').keypress(function(e) {
+            var a = [];
+            var k = e.which;
+
+            for (i = 48; i < 58; i++)
+                a.push(i);
+
+            if (!(a.indexOf(k)>=0))
+                e.preventDefault();
+        });
+
         $(".sys_log1").parent('.tabbox_new_ss').next('dd').hide();
         $(".btn01").hide();
         $(".btn02").hide();
