@@ -2266,10 +2266,7 @@ class PagesController extends BaseController
                         }elseif($payload['service_name'] == 'VVIP') {
                             $type = $user->applyVVIP_getData()->plan;
                             if($type == 'VVIP_B') {
-                                $begin_date = $data->created_at;
-                                $diff = abs(Carbon::parse($begin_date)->diffInDays(Carbon::now()));
-                                // $ratio = round($diff / 30, 2);
-                                $offVIP = '您已成功取消 VVIP，下個月起將不再繼續扣款，目前的付費功能權限可以維持到 ' . $date . '，您的預備金還剩';
+                                $offVIP = '您已成功取消 VVIP，下個月起將不再繼續扣款，目前的付費功能權限可以維持到 ' . $date . '，您的預備金還剩' . $user->VvipMargin->balance .  '元';
                             }
                             else {
                                 $offVIP = '您已成功取消 VVIP，下個月起將不再繼續扣款，目前的付費功能權限可以維持到 ' . $date;

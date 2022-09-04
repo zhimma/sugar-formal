@@ -2080,8 +2080,18 @@ class User extends Authenticatable implements JWTSubject
 
     public function VvipInfo()
     {
-        return $this->hasOne(VvipInfo::class, 'user_id', 'id');
+        return $this->hasOne(VvipInfo::class);
     } 
+
+    public function VvipMargin()
+    {
+        return $this->hasOne(VvipMargin::class);
+    }
+
+    public function VvipMarginLog()
+    {
+        return $this->hasMany(VvipMarginLog::class);
+    }
     
     //VvipOption
 
