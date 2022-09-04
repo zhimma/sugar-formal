@@ -27,7 +27,7 @@
                         <div class="vip_bt xq_v_bt">VVIP專區</div>
                         <div class="zhuanxiangy">
                                     <div class="xh_left50 xh_liner xh_liner_l xhp">
-                                        <a @if(view()->shared('valueAddedServices')['VVIP'] == 1) onclick="vvip_alert()" @elseif(($user->passVVIP || $user->cancelVVIP() || $user->applyingVVIP || $user->applyingVVIP_getDeadline() != 0) && !$user->isVVIP()) href="{!! url('dashboard/vvipPassPay') !!}" @endif>
+                                        <a @if(view()->shared('valueAddedServices')['VVIP'] == 1) onclick="vvip_alert()" @elseif(($user->passVVIP() || $user->cancelVVIP() || $user->applyingVVIP()|| $user->applyingVVIP_getDeadline() != 0) && !$user->isVVIP()) href="{!! url('dashboard/vvipPassPay') !!}" @endif>
                                         <div class="xh_span"><img src="/new/images/quxiao_3.png"></div>
                                         <h2>VVIP付費專區</h2>
                                         </a>
@@ -69,7 +69,7 @@
 {{--                                </div>--}}
 {{--                            @endif    --}}
 {{--                            <div class="xh_left50 xh_liner">--}}
-{{--                                @if(($user->passVVIP || $user->cancelVVIP() || $user->applyingVVIP || $user->applyingVVIP_getDeadline() != 0) && !$user->isVVIP())--}}
+{{--                                @if(($user->passVVIP() || $user->cancelVVIP() || $user->applyingVVIP()|| $user->applyingVVIP_getDeadline() != 0) && !$user->isVVIP())--}}
 {{--                                <a href="{!! url('dashboard/vvipPassPay') !!}">--}}
 {{--                                    <div class="xh_span">--}}
 {{--                                        <img src="/new/images/quxiao_3.png">--}}

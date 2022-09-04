@@ -2007,13 +2007,18 @@ class User extends Authenticatable implements JWTSubject
         }
     }
 
+    public function VvipApplication()
+    {
+        return $this->hasMany(VvipApplication::class);
+    }
+
     public function applyingVVIP()
     {
         // $applyingVVIP = VvipApplication::where('user_id', $this->id)->where('status',0)->orderBy('created_at', 'desc')->first();
         // if(isset($applyingVVIP)){ return 1;}
         // return 0;
 
-        return $this->hasMany(VvipApplication::class, 'user_id', 'id')->where('status', 0)->get() ?? false;
+        return $this->VvipApplication()->where('status', 0)->count() > 0;
     }
 
     public function applyingVVIP_getDeadline()
@@ -2036,7 +2041,7 @@ class User extends Authenticatable implements JWTSubject
         // if(isset($passVVIP)){ return 1;}
         // return 0;
         
-        return $this->hasMany(VvipApplication::class, 'user_id', 'id')->where('status', 1)->get() ?? false;
+        return $this->VvipApplication()->where('status', 1)->count() > 0;
     }
 
     public function cancelVVIP()
