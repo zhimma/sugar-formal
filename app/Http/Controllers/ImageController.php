@@ -1103,7 +1103,7 @@ class ImageController extends BaseController
 
         $fileUploader = new FileUploader('files', array(
             'fileMaxSize' => 8,
-            'extensions' => ['jpg', 'jpeg', 'png', 'gif'],
+            'extensions' => ['jpg', 'jpeg', 'png', 'gif', 'pdf'],
             'required' => true,
             'uploadDir' => $this->uploadDir,
             'title' => function(){

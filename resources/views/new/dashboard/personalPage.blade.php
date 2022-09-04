@@ -195,34 +195,36 @@
                         </div>
                     </div>
                     @if($user->engroup==1)
-                        <div class="sys_aa" id="vip_state_block">
-                            <div class="tabbox_new_dt"><span>VIP狀態</span>
-                                @if(!$user->isVip() && !$user->isVVIP())
-                                    @if($user->engroup==2)
-                                        <a class="zs_buttonn" href="{{url('/dashboard_img')}}">立即上傳照片</a>
-                                    @else
-                                        <a class="zs_buttonn" href="{{url('/dashboard/new_vip')}}">立即成為VIP</a>
+                        @if(!(isset($user->applyVVIP_getData()->created_at) && $user->applyVVIP_getData()->created_at != ''))
+                            <div class="sys_aa" id="vip_state_block">
+                                <div class="tabbox_new_dt"><span>VIP狀態</span>
+                                    @if(!$user->isVip() && !$user->isVVIP())
+                                        @if($user->engroup==2)
+                                            <a class="zs_buttonn" href="{{url('/dashboard_img')}}">立即上傳照片</a>
+                                        @else
+                                            <a class="zs_buttonn" href="{{url('/dashboard/new_vip')}}">立即成為VIP</a>
+                                        @endif
                                     @endif
-                                @endif
+                                </div>
+                                <div class="tabbox_new_dd">
+                                    @if($user->isVip()||$user->isVVIP())
+                                        <h2 class="tabbox_h2">{!! $vipStatus !!}</h2>
+                                    @else
+                                    <h2 class="tabbox_h2"><span class="tu_dfont">{!! $vipStatus??'您目前還不是VIP' !!}</span></h2>
+                                    @endif
+                                    @php
+                                        $essence_posts_reward_log=\App\Models\EssencePostsRewardLog::where('user_id', $user->id)->get();
+                                    @endphp
+                                    <h2 class="tabbox_h2 ta_l">
+                                        @foreach ($essence_posts_reward_log as $reward_log)
+                                            <span class="tu_dfont" style="border-top: #eee 1px dashed;">
+                                                您的精華文章 {{$reward_log->title}} 已於 {{ substr($reward_log->verify_time,0,10) }} 通過審核，已贈予本站VIP一個月。
+                                            </span>
+                                        @endforeach
+                                    </h2>
+                                </div>
                             </div>
-                            <div class="tabbox_new_dd">
-                                @if($user->isVip()||$user->isVVIP())
-                                    <h2 class="tabbox_h2">{!! $vipStatus !!}</h2>
-                                @else
-                                <h2 class="tabbox_h2"><span class="tu_dfont">{!! $vipStatus??'您目前還不是VIP' !!}</span></h2>
-                                @endif
-                                @php
-                                    $essence_posts_reward_log=\App\Models\EssencePostsRewardLog::where('user_id', $user->id)->get();
-                                @endphp
-                                <h2 class="tabbox_h2 ta_l">
-                                    @foreach ($essence_posts_reward_log as $reward_log)
-                                        <span class="tu_dfont" style="border-top: #eee 1px dashed;">
-                                            您的精華文章 {{$reward_log->title}} 已於 {{ substr($reward_log->verify_time,0,10) }} 通過審核，已贈予本站VIP一個月。
-                                        </span>
-                                    @endforeach
-                                </h2>
-                            </div>
-                        </div>
+                        @endif
                         @if(isset($user->applyVVIP_getData()->created_at) && $user->applyVVIP_getData()->created_at != '')
                             <div class="sys_aa" id="vip_state_block">
                                 <div class="tabbox_new_dt"><span>VVIP狀態</span>
@@ -247,11 +249,17 @@
                                         <h2 class="tabbox_h2">
                                             <span class="tu_dfont">
                                                 @if($user->applyVVIP_getData()->plan == 'VVIP_A')
-                                                    您好，您在 {{$user->applyVVIP_getData()->created_at}} 升級 VVIP 已經成功，請於 {{$user->applyVVIP_getData()->created_at->addDays(3)}} 之前，將本帳號贈與與本站的預備金 20000 元匯入此帳號(301)國泰世華銀行2440001123。完成後請將帳號後五碼 <a onclick="vvipUserNoteEdit_show()" class='btn btn-primary' style="height: 30px; line-height: 15px;">輸入於此</a><br>
-                                                    <font color="red">注意：須於 {{$user->applyVVIP_getData()->created_at->addDays(3)}} 之前匯入，否則將取消此次 VVIP 申請。9888元費用不退還，VVIP 改為普通VIP 一季。</font>
+                                                    您好，您在 {{$user->applyVVIP_getData()->created_at}} 申請 VVIP 已完成，請於 {{$user->applyVVIP_getData()->created_at->addDays(3)}} 之前，將本帳號贈與與本站的入會費 20000 元匯入此帳號
+                                                    國泰世華銀行(013)
+                                                    帳號015035004430
+                                                    完成後請保留收據並將帳號後五碼 <a onclick="vvipUserNoteEdit_show()" class='btn btn-primary' style="height: 30px; line-height: 15px;">輸入於此</a><br>
+                                                    <font color="red">注意：須於 {{$user->applyVVIP_getData()->created_at->addDays(3)}} 之前匯入，否則將取消此次 VVIP 申請。9888元扣除手續費4000，剩餘刷退。</font>
                                                 @elseif($user->applyVVIP_getData()->plan == 'VVIP_B')
-                                                    您好，您在 {{$user->applyVVIP_getData()->created_at}} 升級 VVIP 已經成功，請於 {{$user->applyVVIP_getData()->created_at->addDays(3)}} 之前，將本帳號贈與與本站的預備金 50000 元匯入此帳號(301)國泰世華銀行2440001123。完成後請將帳號後五碼 <a onclick="vvipUserNoteEdit_show()" class='btn btn-primary' style="height: 30px; line-height: 15px;">輸入於此</a><br>
-                                                    <font color="red">注意：須於 {{$user->applyVVIP_getData()->created_at->addDays(3)}} 之前匯入，否則將取消此次 VVIP 申請。9888元費用不退還，VVIP 改為普通VIP 一季。</font>
+                                                    您好，您在 {{$user->applyVVIP_getData()->created_at}} 申請 VVIP 已完成，請於 {{$user->applyVVIP_getData()->created_at->addDays(3)}} 之前，將本帳號贈與與本站的入會費 50000 元匯入此帳號
+                                                    國泰世華銀行(013)
+                                                    帳號015035004430
+                                                    完成後請保留收據並將帳號後五碼 <a onclick="vvipUserNoteEdit_show()" class='btn btn-primary' style="height: 30px; line-height: 15px;">輸入於此</a><br>
+                                                    <font color="red">注意：須於 {{$user->applyVVIP_getData()->created_at->addDays(3)}} 之前匯入，否則將取消此次 VVIP 申請。9888元扣除手續費4000，剩餘刷退。</font>
                                                 @endif
                                             </span></h2>
                                     @else

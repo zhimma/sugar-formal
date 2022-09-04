@@ -20,7 +20,7 @@ return [
         'postChatpayReturnURL' => "https://www.sugar-garden.org/dashboard/postChatpayEC",  //背景傳送車馬費付款結果的網址
         'PeriodReturnURL' => "https://www.sugar-garden.org/dashboard/upgradepayEC",  //背景傳送定期定額付款交易結果的網址
  	    'ClientChatpayBackURL' => "https:///www.sugar-garden.org/dashboard/chat2", //返回商店的網址
-        'ClientBackURL' => "https://www.sugar-garden.org/dashboard", //返回商店的網址
+        'ClientBackURL' => "https://www.sugar-garden.org/dashboard/personalPage", //返回商店的網址
         'ServiceURL' => "https://payment.ecpay.com.tw/Cashier/QueryCreditCardPeriodInfo", //定期定額查詢訂單(測試用)
         'PaymentInfoURL' => "https://www.sugar-garden.org/dashboard/paymentInfoEC",	
         // 'OrderResultURL' => "http://www.sugar-garden.org/dashboard/upgradepay",  //付款結果的網址，若不設則會使用綠界的付款結果
@@ -39,7 +39,7 @@ return [
         'postChatpayReturnURL' => "https://sg-aws.test-tw.icu/dashboard/postChatpayEC",  //背景傳送車馬費付款結果的網址
         'PeriodReturnURL' => "https://sg-aws.test-tw.icu/dashboard/upgradepayEC",  //背景傳送定期定額付款交易結果的網址
         'ClientChatpayBackURL' => "https://sg-aws.test-tw.icu/dashboard/chat2", //返回商店的網址
-        'ClientBackURL' => "https://sg-aws.test-tw.icu/dashboard", //返回商店的網址
+        'ClientBackURL' => "https://sg-aws.test-tw.icu/dashboard/personalPage", //返回商店的網址
         'ServiceURL' => "https://payment-stage.ecpay.com.tw/Cashier/QueryCreditCardPeriodInfo",//定期定額查詢訂單
         'PaymentInfoURL' => "https://sg-aws.test-tw.icu/dashboard/paymentInfoEC",
         // 'OrderResultURL' => "http://fixedip.lzong.tw/dashboard/upgradepay",  //付款結果的網址，若不設則會使用綠界的付款結果

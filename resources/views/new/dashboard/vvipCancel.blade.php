@@ -42,7 +42,7 @@
                         <div class="bo_dx"></div>
 
                         @if($reserve_fund)
-                        <div class="beiyongjin"><img src="/new/images/beiyongjin.png">剩餘預備金：<span>{{$reserve_fund}}元</span></div>
+                        <div class="beiyongjin"><img src="/new/images/beiyongjin.png">剩餘入會費：<span>{{$reserve_fund}}元</span></div>
                         @endif
 
                     </div>

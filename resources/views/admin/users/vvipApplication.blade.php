@@ -43,7 +43,7 @@
                     <td>{{$row->user_id}}</td>
                     <td>{{$row->name}}</td>
                     <td><a href="advInfo/{{ $row->user_id }}" target="_blank">{{$row->email}}</a></td>
-                    <td>@if($row->plan=='VVIP_A')A方案@elseif($row->plan=='VVIP_B')B方案@endif
+                    <td>@if($row->plan=='VVIP_A')老會員優惠方案@elseif($row->plan=='VVIP_B')隱私方案@endif
                         @if($row->plan=='VVIP_A')
                             <br><a href="javascript:void(0);" class="get_prove_img" data-user_id="{{ $row->user_id }}" data-name="{{$row->name}}" data-updated_at="{{$row->updated_at}}" data-deadline="{{$row->deadline}}" data-toggle="modal" data-target="#exampleModalLong">證明文件</a>
                         @endif

@@ -16,12 +16,32 @@
 {{--                        <li><a href="{!! url('dashboard/vipSelect') !!}" class="g_pwicon_t4 g_hicon4"><span>升級付費</span></a></li>--}}
                     </div>
 
+                    <div class="vv_tit"><img src="/new/images/ggx.png">選擇方案<img src="/new/images/ggx.png"></div>
+                    <div class="vv_sez ga_w">
+                        <li>
+                            <a @if($user->canVVIP()) href="{{ url('/dashboard/vvipSelectA') }}" @else class="cantVVIP" @endif>
+                                <h2>老會員優惠方案</h2>
+                                <img src="/new/images/v1_02.png" class="vvpimg">
+                                <h3>證明文件</h3>
+                            </a>
+                        </li>
+                        <li>
+                            <a href="{{ url('/dashboard/vvipSelectB') }}">
+                                <h2>隱私方案</h2>
+                                <img src="/new/images/v1_03.png" class="vvpimg">
+                                <h3>提供保證金</h3>
+                            </a>
+                        </li>
+                    </div>
+
                     <div class="new_viphig">
+                        {{--
                         <div class="wlujing">
                             <img src="/new/images/dd.png"><span><a href="">升级付费</a></span><font>-</font>
                             <img src="/new/images/dd.png"><span><a href="">VVIP專區</a></span><font>-</font>
                             <img src="/new/images/dd.png"><span><a href="">VVIP專屬功能</a></span>
                         </div>
+                        --}}
                         <div class="vip_bt">VVIP功能特色說明</div>
 
                         <div class="vvip_page vvip_page01">
@@ -231,24 +251,6 @@
                             <a onclick="goToVvipPage('vvip_page07')" class="qxz_fenye">上一頁</a>
                         </div>
                     </div>
-
-                    <div class="vv_tit"><img src="/new/images/ggx.png">選擇方案<img src="/new/images/ggx.png"></div>
-                    <div class="vv_sez ga_w">
-                        <li>
-                            <a @if($user->canVVIP()) href="{{ url('/dashboard/vvipSelectA') }}" @else class="cantVVIP" @endif>
-                                <h2>A方案</h2>
-                                <img src="/new/images/v1_02.png" class="vvpimg">
-                                <h3>證明文件</h3>
-                            </a>
-                        </li>
-                        <li>
-                            <a href="{{ url('/dashboard/vvipSelectB') }}">
-                                <h2>B方案</h2>
-                                <img src="/new/images/v1_03.png" class="vvpimg">
-                                <h3>提供保證金</h3>
-                            </a>
-                        </li>
-                    </div>
 {{--                    <div class="zhapian g_pnr">--}}
 {{--                        <div class="vip_title vip_title_f"><img src="/new/images/v1_01.png">VVIP權益</div>--}}
 
@@ -326,14 +328,14 @@
 {{--                        <div class="vv_sez">--}}
 {{--                            <li>--}}
 {{--                                <a href="{{ url('/dashboard/vvipSelectA') }}">--}}
-{{--                                    <h2>A方案</h2>--}}
+{{--                                    <h2>老會員優惠方案</h2>--}}
 {{--                                    <img src="/new/images/v1_02.png" class="vvpimg">--}}
 {{--                                    <h3>證明文件</h3>--}}
 {{--                                </a>--}}
 {{--                            </li>--}}
 {{--                            <li>--}}
 {{--                                <a href="{{ url('/dashboard/vvipSelectB') }}">--}}
-{{--                                    <h2>B方案</h2>--}}
+{{--                                    <h2>隱私方案</h2>--}}
 {{--                                    <img src="/new/images/v1_03.png" class="vvpimg">--}}
 {{--                                    <h3>提供保證金</h3>--}}
 {{--                                </a>--}}
@@ -366,7 +368,7 @@
         });
         @elseif($user->isEverWarnedAndBanned())
         $('.cantVVIP').on('click',function () {
-            c5('您曾受過警示/封鎖之處分');
+            c5('您好，您曾因為違反{{$warn_ban_reason->reason}}遭受警示/封鎖，故無法線上申請。如需申請請，請點此加站長<a href="https://lin.ee/rLqcCns" target="_blank"> <img src="https://scdn.line-apps.com/n/line_add_friends/btn/zh-Hant.png" alt="加入好友" height="26" border="0" style="height: 26px; float: unset;"></a>進行人工申請。');
         });
         @endif
 {{--        @if(!$user->is12MonthsVip())--}}

@@ -91,14 +91,14 @@
                         <div class="vv_sez">
                             <li>
                                 <a href="{{ url('/dashboard/vvipSelectA') }}">
-                                    <h2>A方案</h2>
+                                    <h2>老會員優惠方案</h2>
                                     <img src="/new/images/v1_02.png" class="vvpimg">
                                     <h3>證明文件</h3>
                                 </a>
                             </li>
                             <li>
                                 <a href="{{ url('/dashboard/vvipSelectB') }}">
-                                    <h2>B方案</h2>
+                                    <h2>隱私方案</h2>
                                     <img src="/new/images/v1_03.png" class="vvpimg">
                                     <h3>提供保證金</h3>
                                 </a>

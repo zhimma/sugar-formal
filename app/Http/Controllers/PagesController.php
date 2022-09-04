@@ -77,6 +77,8 @@ use App\Models\UserTinySetting;
 use App\Http\Controllers\Admin\UserController;
 use App\Models\CheckPointUser;
 use App\Models\ComeFromAdvertise;
+use App\Models\IsBannedLog;
+use App\Models\IsWarnedLog;
 use App\Models\SimpleTables\short_message;
 use App\Models\LogAdvAuthApi;
 use App\Models\StayOnlineRecord;
@@ -9519,9 +9521,24 @@ class PagesController extends BaseController
     //vvip
     public function view_vvipSelect(Request $request)
     {
+        
         $user = auth()->user();
+        $warn_ban_reason = false;
+        if($user->isEverWarnedAndBanned())
+        {
+            $temp = IsWarnedLog::where('user_id', $user->id)->orderBy('created_at', 'desc')->first() ?? false;
+            $warn_ban_reason = $temp;
+            $temp = IsBannedLog::where('user_id', $user->id)->orderBy('created_at', 'desc')->first() ?? false;
+            if($temp && $temp->created_at > $warn_ban_reason->created_at){$warn_ban_reason = $temp;}
+            $temp = banned_users::where('member_id', $user->id)->orderBy('created_at', 'desc')->first() ?? false;
+            if($temp && $temp->created_at > $warn_ban_reason->created_at){$warn_ban_reason = $temp;}
+            $temp = warned_users::where('member_id', $user->id)->orderBy('created_at', 'desc')->first() ?? false;
+            if($temp && $temp->created_at > $warn_ban_reason->created_at){$warn_ban_reason = $temp;}
+        }
         return view('new.dashboard.vvipSelect')
-            ->with('user', $user);
+            ->with('user', $user)
+            ->with('warn_ban_reason', $warn_ban_reason)
+            ;
     }
 
     public function view_vvipSelect_a(Request $request)
@@ -9698,7 +9715,7 @@ class PagesController extends BaseController
 
         //vvip data
         $vvipData = ValueAddedService::where('member_id', $user->id)->where('service_name', 'VVIP')->first();
-        //取預備金 VVIP_B
+        //取入會費 VVIP_B
         $reserve_fund = VvipApplication::select('member_value_added_service.amount')
             ->leftJoin('users','users.id','vvip_application.user_id')
             ->leftJoin('member_value_added_service','member_value_added_service.order_id','vvip_application.order_id')

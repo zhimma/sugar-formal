@@ -310,7 +310,7 @@
 
                                 <div id="assets_image_input_field" class="xl_system system">
                                     <div class="qingx">請輸入您最象徵性的財富資產。Ex. ROLEX名錶、獨棟豪宅、BMW/賓士等各式名車等</div>
-                                    <div class="red">※優先使用上傳圖檔，如已選擇系統圖片將不會被存取</div>
+                                    <div class="red">※可自行上傳圖片或選取下方預設圖使用</div>
                                     <div class="miaoshu">
                                         <div class="input_field_5 matop10 image_input_field">
                                         </div>
@@ -346,7 +346,7 @@
                                 
                                 <div id="life_image_input_field" class="xl_system system">
                                     <div class="qingx">輸入您喜愛的生活體驗或事物。Ex. 喜愛的餐廳：高級日式料理、出國旅遊、休閒娛樂：打高爾夫等。</div>
-                                    <div class="red">※優先使用上傳圖檔，如已選擇系統圖片將不會被存取</div>
+                                    <div class="red">※可自行上傳圖片或選取下方預設圖使用</div>
                                     <div class="miaoshu">
                                         <div class="input_field_6 matop10 image_input_field">
                                         </div>
