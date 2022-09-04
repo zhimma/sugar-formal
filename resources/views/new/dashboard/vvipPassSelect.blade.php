@@ -27,7 +27,7 @@
                         <div class="vip_bt xq_v_bt">VVIP專區</div>
                         <div class="zhuanxiangy">
                                     <div class="xh_left50 xh_liner xh_liner_l xhp">
-                                        <a @if(view()->shared('valueAddedServices')['VVIP'] == 1) onclick="vvip_alert()" @elseif(($user->passVVIP() || $user->cancelVVIP() || $user->applyingVVIP()|| $user->applyingVVIP_getDeadline() != 0) && !$user->isVVIP()) href="{!! url('dashboard/vvipPassPay') !!}" @endif>
+                                        <a @if($user->applyingVVIP()) onclick="vvip_applying_alert()" @elseif(view()->shared('valueAddedServices')['VVIP'] == 1) onclick="vvip_alert()" @elseif(($user->passVVIP() || $user->cancelVVIP() || $user->applyingVVIP_getDeadline() != 0) && !$user->isVVIP()) href="{!! url('dashboard/vvipPassPay') !!}" @endif>
                                         <div class="xh_span"><img src="/new/images/quxiao_3.png"></div>
                                         <h2>VVIP付費專區</h2>
                                         </a>
@@ -105,13 +105,16 @@
 @section('javascript')
 
     <script>
+        function vvip_applying_alert(){
+            c5('您的 VVIP 狀態審核中');
+        }
 
         function vvip_alert(){
-            c5('您已是VVIP付費狀態');
+            c5('您已是 VVIP 付費狀態');
         }
 
         function vvip_cancel_alert(){
-            c5('您尚未成為VVIP付費會員');
+            c5('您尚未成為 VVIP 付費會員');
         }
     </script>
 
