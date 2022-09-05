@@ -41,20 +41,27 @@
 		<th>額度</th>
         <th>動作</th>
 	</tr>
-    @forelse($list as $item)
-	<tr>
-        <td>{{ $item->user->id }}</td>
-		<td>{{ $item->user->email }}</td>
-		<td>{{ $item->user->name }}</td>
-        <td>{{ $item->user->VvipDeposit?->balance ?? 0 }}</td>
-		<td>
-            <a href="{{ route('users/VVIP_margin_deposit/edit', $user->id) }}" class="btn btn-success">修改</a>
-		</td>
-	</tr>
+    @forelse($list as $item)    
+        @if(!$item->user)
+            <tr>
+                <td>{{ $item->user_id }}</td>
+                <td colspan="4">會員資料已刪除</td>
+            </tr>
+            @continue
+        @endif
+        <tr>
+            <td>{{ $item->user->id }}</td>
+            <td>{{ $item->user->email }}</td>
+            <td>{{ $item->user->name }}</td>
+            <td>{{ $item->user->VvipDeposit?->balance ?? 0 }}</td>
+            <td>
+                <a href="{{ route('users/VVIP_margin_deposit/edit', $item->user->id) }}" class="btn btn-success">修改</a>
+            </td>
+        </tr>
     @empty
-    <tr>
-        無資料
-    </tr>
+        <tr>
+            無資料
+        </tr>
     @endforelse
 </table>
 </body>
