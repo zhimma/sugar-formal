@@ -53,7 +53,7 @@
             <td>{{ $item->user->id }}</td>
             <td>{{ $item->user->email }}</td>
             <td>{{ $item->user->name }}</td>
-            <td>{{ $item->user->VvipDeposit?->balance ?? 0 }}</td>
+            <td>{{ $item->user->VvipMargin?->balance ?? 0 }}</td>
             <td>
                 <a href="{{ route('users/VVIP_margin_deposit/edit', $item->user->id) }}" class="btn btn-success">修改</a>
             </td>
