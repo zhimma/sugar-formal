@@ -19,7 +19,8 @@ class VvipMarginDeposit extends Model
     {
         DB::transaction(function () use ($before, $after) {
             $this->balance = $after;
-            $this->user()->VvipMarginLog()->create([
+            $this->user()->first()->VvipMarginLog()->create([
+                "user_id" => $this->user_id,
                 "balance_before" => $before,
                 "balance_after" => $after
             ]);

@@ -26,9 +26,9 @@ class VvipController extends \App\Http\Controllers\BaseController
     public function updateVvipMarginDeposit($user_id, Request $request)
     {
         $deposit = VvipMarginDeposit::where('user_id', $user_id)->first();
-        $deposit->updateBalance($deposit->balance, $request->balance);
+        $deposit->updateBalance($request->balance_before, $request->balance_after);
         $request->session()->flash('success', '成功調整 ' . $deposit->user->name . ' 的保證金');
-        return redirect()->route('admin.view_vvip_margin_deposit');
+        return redirect()->route('users/VVIP_margin_deposit');
     }
 
     public function viewVvipCancellationList()
@@ -47,6 +47,6 @@ class VvipController extends \App\Http\Controllers\BaseController
         $item->refund_amount = null;
         $item->saveOrFail();
         $request->session()->flash('success', '成功更新 ' . $item->user->name . ' 的退款狀態');
-        return redirect()->route('admin.view_vvip_cancellation_list');
+        return redirect()->route('users/VVIP_cancellation_list');
     }
 }

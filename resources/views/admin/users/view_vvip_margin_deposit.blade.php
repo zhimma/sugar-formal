@@ -6,7 +6,7 @@
     }
 </style>
 <body style="padding: 15px;">
-<h1>VVIP 入會員 / 保證金清單</h1>
+<h1>VVIP 入會費 / 保證金清單</h1>
 {{-- <form method="POST" action="{{ route('users/switch/search') }}" class="search_form">
 	{!! csrf_field() !!}
 	<table class="table table-bordered table-hover" style="width: 50%">
