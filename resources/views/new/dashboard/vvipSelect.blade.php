@@ -26,7 +26,7 @@
                             </a>
                         </li>
                         <li>
-                            <a id="vvip_plan_b" href="{{ url('/dashboard/vvipSelectB') }}">
+                            <a id="vvip_plan_b" @if(!$user->isEverWarnedAndBanned()) href="{{ url('/dashboard/vvipSelectB') }}" @endif>
                                 <h2>隱私方案</h2>
                                 <img src="/new/images/v1_03.png" class="vvpimg">
                                 <h3>提供保證金</h3>

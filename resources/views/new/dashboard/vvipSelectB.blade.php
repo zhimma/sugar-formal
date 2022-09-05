@@ -30,7 +30,7 @@
                             <div class="vvip_tab matop10">
                                 <div class="vvip_sq"><img src="/new/images/v1_05.png">申請流程</div>
                                 <div class="vip_font">
-                                    <div class="vip_h3"><font>1:VVIP 一率季繳 9888 元。</font></div>
+                                    <div class="vip_h3"><font>1:VVIP 一律季繳 9888 元。</font></div>
                                     <div class="vip_h3"><font>2:無償贈與 5 萬元予站方作為入會費。</font></div>
                                     {{--<div class="vip_h3"><font>3:入會費用途：此帳號所有爭議處理費用皆由入會費扣除。</font></div>--}}
                                     <div class="vip_h3"><font>3:入會費保留：若帳號暫停使用，不支付 VVIP 會費。入會費保留，願意支付 VVIP 會費時會繼續享有 VVIP 權益。</font></div>
@@ -63,7 +63,7 @@
         <div class="bltitle"><font>隱私方案</font></div>
         <div class="new_poptk" style="width: 90%">
             <div class="viptkft">
-                @if($user->isVip() && $vip_text != '')<h2 class="matop00">●{{ $vip_text }}</h2>@endif
+                {{--@if($user->isVip() && $vip_text != '')<h2 class="matop00">●{{ $vip_text }}</h2>@endif--}}
                 <h2 class="matop00">●VVIP 季費 9888 元。</h2>
                 <h2 class="matop00">●刷卡完成後，須於72小時內匯50000元入指定帳戶，否則將取消此次 VVIP 申請。9888 元扣除手續費4000，剩餘刷退。</h2>
                 {{--<h3>以上任一點不同意請按取消!</h3>--}}
