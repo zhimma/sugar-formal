@@ -34,7 +34,7 @@ class Order extends Model
     }
 
     public function user(){
-        return $this->belongsTo(User::class, 'user_id', 'id')->first();
+        return $this->belongsTo(User::class);
     }
 
     public static function addEcPayOrder($order_id, $order_expire_date = null){

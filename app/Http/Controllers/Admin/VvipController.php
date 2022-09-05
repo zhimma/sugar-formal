@@ -36,8 +36,8 @@ class VvipController extends \App\Http\Controllers\BaseController
 
     public function viewVvipCancellationList()
     {
-        $planA = VvipApplication::where([['plan', 'VVIP_A'], ['created_at', '>', now()->addDays(3)]])->orderBy('id', 'desc')->get();
-        $planA->each(function ($item) {
+        $VVIPplanA = VvipApplication::where([['plan', 'VVIP_A'], ['created_at', '>', now()->addDays(3)]])->orderBy('id', 'desc')->get();
+        $VVIPplanA->each(function ($item) {
             if($item->user->VvipMargin?->balance < 20000) {
                 [$refund, ] = PaymentService::calculatesRefund($item->user, 'vvip_without_remittance');
                 if($refund) {
@@ -49,8 +49,8 @@ class VvipController extends \App\Http\Controllers\BaseController
             }
         });
         
-        $planB = VvipApplication::where([['plan', 'VVIP_B'], ['created_at', '>', now()->addDays(3)]])->orderBy('id', 'desc')->get();
-        $planB->each(function ($item) {
+        $VVIPplanB = VvipApplication::where([['plan', 'VVIP_B'], ['created_at', '>', now()->addDays(3)]])->orderBy('id', 'desc')->get();
+        $VVIPplanB->each(function ($item) {
             if($item->user->VvipMargin?->balance < 50000) {
                 [$refund, ] = PaymentService::calculatesRefund($item->user, 'vvip_without_remittance');
                 if($refund) {
@@ -62,10 +62,12 @@ class VvipController extends \App\Http\Controllers\BaseController
             }
         });
         
-        $list = Order::where([
-            ['service_name', 'VVIP'],
+        $VIPlist = Order::where([
+            ['service_name', 'VIP'],
             ['need_to_refund', 1]
         ])->get();
+
+        $list = $VIPlist->merge($VVIPplanA)->merge($VVIPplanB);
 
         return view('admin.users.view_vvip_cancellation_list', compact('list'));
     }
