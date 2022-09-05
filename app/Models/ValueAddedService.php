@@ -34,7 +34,9 @@ class ValueAddedService extends Model
         'expiry',
         'active',
         'payment',
-        'created_at'
+        'created_at',
+        'need_to_refund',
+        'refund_amount'
     ];
 
     /*
