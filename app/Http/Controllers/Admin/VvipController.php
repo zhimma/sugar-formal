@@ -41,7 +41,7 @@ class VvipController extends \App\Http\Controllers\BaseController
             if(($item->user->VvipMargin ?? true) || $item->user->VvipMargin?->balance < 20000) {
                 [$refund, ] = PaymentService::calculatesRefund($item->user, 'vvip_without_remittance');
                 if($refund) {
-                    $record = ValueAddedService::where('order_id', $item->order_id);
+                    $record = ValueAddedService::where('order_id', $item->order_id)->first();
                     $record->need_to_refund = 1;
                     $record->refund_amount = $refund;
                     $record->saveOrFail();
@@ -54,7 +54,7 @@ class VvipController extends \App\Http\Controllers\BaseController
             if(($item->user->VvipMargin ?? true) || $item->user->VvipMargin?->balance < 50000) {
                 [$refund, ] = PaymentService::calculatesRefund($item->user, 'vvip_without_remittance');
                 if($refund) {
-                    $record = ValueAddedService::where('order_id', $item->order_id);
+                    $record = ValueAddedService::where('order_id', $item->order_id)->first();
                     $record->need_to_refund = 1;
                     $record->refund_amount = $refund;
                     $record->saveOrFail();
