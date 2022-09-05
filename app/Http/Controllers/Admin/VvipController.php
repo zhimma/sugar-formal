@@ -38,7 +38,7 @@ class VvipController extends \App\Http\Controllers\BaseController
     {
         $VVIPplanA = VvipApplication::where([['plan', 'VVIP_A'], ['created_at', '<', now()->subDays(3)]])->orderBy('id', 'desc')->get();
         $VVIPplanA->each(function ($item) {
-            if($item->user->VvipMargin?->balance < 20000) {
+            if(($item->user->VvipMargin ?? true) || $item->user->VvipMargin?->balance < 20000) {
                 [$refund, ] = PaymentService::calculatesRefund($item->user, 'vvip_without_remittance');
                 if($refund) {
                     $record = ValueAddedService::find($item->order_id);
@@ -51,7 +51,7 @@ class VvipController extends \App\Http\Controllers\BaseController
         
         $VVIPplanB = VvipApplication::where([['plan', 'VVIP_B'], ['created_at', '<', now()->subDays(3)]])->orderBy('id', 'desc')->get();
         $VVIPplanB->each(function ($item) {
-            if($item->user->VvipMargin?->balance < 50000) {
+            if(($item->user->VvipMargin ?? true) || $item->user->VvipMargin?->balance < 50000) {
                 [$refund, ] = PaymentService::calculatesRefund($item->user, 'vvip_without_remittance');
                 if($refund) {
                     $record = ValueAddedService::find($item->order_id);
