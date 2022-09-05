@@ -13,4 +13,8 @@ class VvipApplication extends Model
 
     protected $table = 'vvip_application';
 
+    public function user()
+    {
+        return $this->belongsTo(User::class);
+    }
 }

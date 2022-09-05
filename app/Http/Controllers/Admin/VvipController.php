@@ -67,7 +67,12 @@ class VvipController extends \App\Http\Controllers\BaseController
             ['need_to_refund', 1]
         ])->get();
 
-        $list = $VIPlist->merge($VVIPplanA)->merge($VVIPplanB);
+        $VVIPlist = ValueAddedService::where([
+            ['service_name', 'VVIP'],
+            ['need_to_refund', 1]
+        ])->get();
+
+        $list = $VIPlist->merge($VVIPlist);
 
         return view('admin.users.view_vvip_cancellation_list', compact('list'));
     }
