@@ -38,6 +38,8 @@
         <th>ID</th>
 		<th>Email</th>
 		<th>名稱</th>
+        <th>類型</th>
+        <th>訂單編號</th>
 		<th>待刷退金額</th>
         <th>動作</th>
 	</tr>
@@ -53,6 +55,8 @@
             <td>{{ $item->user->id }}</td>
             <td>{{ $item->user->email }}</td>
             <td>{{ $item->user->name }}</td>
+            <td>{{ $item->service_name }}</td>
+            <td>{{ $item->order_id }}</td>
             <td>{{ $item->refund_amount }}</td>
             <td>
                 <form action="{{ route('users/VVIP_cancellation/save') }}" method="post">
