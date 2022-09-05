@@ -3,6 +3,7 @@
 namespace App\Http\Controllers\Admin;
 
 use App\Http\Controllers\Controller;
+use App\Services\PaymentService;
 use App\Models\ValueAddedService;
 use App\Models\VvipMarginDeposit;
 use App\Models\VvipApplication;
@@ -38,9 +39,9 @@ class VvipController extends \App\Http\Controllers\BaseController
         $planA = VvipApplication::where([['plan', 'VVIP_A'], ['created_at', '>', now()->addDays(3)]])->orderBy('id', 'desc')->get();
         $planA->each(function ($item) {
             if($item->user->VvipMargin?->balance < 20000) {
-                [$refund, ] = \App\Services\PaymentService::calculatesRefund($item->user, 'vip_refund');
+                [$refund, ] = PaymentService::calculatesRefund($item->user, 'vvip_without_remittance');
                 if($refund) {
-                    $record = Order::find($item->order_id);
+                    $record = ValueAddedService::find($item->order_id);
                     $record->need_to_refund = 1;
                     $record->refund_amount = $refund;
                     $record->saveOrFail();
@@ -51,9 +52,9 @@ class VvipController extends \App\Http\Controllers\BaseController
         $planB = VvipApplication::where([['plan', 'VVIP_B'], ['created_at', '>', now()->addDays(3)]])->orderBy('id', 'desc')->get();
         $planB->each(function ($item) {
             if($item->user->VvipMargin?->balance < 50000) {
-                [$refund, ] = \App\Services\PaymentService::calculatesRefund($item->user, 'vip_refund');
+                [$refund, ] = PaymentService::calculatesRefund($item->user, 'vvip_without_remittance');
                 if($refund) {
-                    $record = Order::find($item->order_id);
+                    $record = ValueAddedService::find($item->order_id);
                     $record->need_to_refund = 1;
                     $record->refund_amount = $refund;
                     $record->saveOrFail();
