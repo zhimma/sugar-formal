@@ -6,7 +6,7 @@
     }
 </style>
 <body style="padding: 15px;">
-<h1>VVIP 待取消清單</h1>
+<h1>VVIP 待取消名單</h1>
 <form method="POST" action="{{ route('users/switch/search') }}" class="search_form">
 	{!! csrf_field() !!}
 	<table class="table table-bordered table-hover" style="width: 50%">
@@ -38,27 +38,38 @@
         <th>ID</th>
 		<th>Email</th>
 		<th>名稱</th>
+        <th>類型</th>
+        <th>訂單編號</th>
 		<th>待刷退金額</th>
         <th>動作</th>
 	</tr>
     @forelse($list as $item)
-	<tr>
-        <td>{{ $item->user->id }}</td>
-		<td>{{ $item->user->email }}</td>
-		<td>{{ $item->user->name }}</td>
-        <td>{{ $item->refund_amount }}</td>
-		<td>
-            <form action="{{ route('users/VVIP_cancellation/save') }}" method="post">
-                @csrf
-                <input type="hidden" name="item_id" value="{{ $item->id }}">
-                <input type="submit" class="btn btn-success" value="已完成取消">
-            </form>
-		</td>
-	</tr>
+        @if(!$item->user)
+            <tr>
+                <td>{{ $item->member_id }}</td>
+                <td colspan="4">會員資料已刪除</td>
+            </tr>
+            @continue
+        @endif
+        <tr>
+            <td>{{ $item->user->id }}</td>
+            <td>{{ $item->user->email }}</td>
+            <td>{{ $item->user->name }}</td>
+            <td>{{ $item->service_name }}</td>
+            <td>{{ $item->order_id }}</td>
+            <td>{{ $item->refund_amount }}</td>
+            <td>
+                <form action="{{ route('users/VVIP_cancellation/save') }}" method="post">
+                    @csrf
+                    <input type="hidden" name="item_id" value="{{ $item->id }}">
+                    <input type="submit" class="btn btn-success" value="已完成取消">
+                </form>
+            </td>
+        </tr>
     @empty
-    <tr>
-        無資料
-    </tr>
+        <tr>
+            無資料
+        </tr>
     @endforelse
 </table>
 </body>

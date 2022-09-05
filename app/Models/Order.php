@@ -25,8 +25,16 @@ class Order extends Model
         'amount',
     ];
 
+    protected $primaryKey = 'order_id';
+
+    protected $keyType = 'string';
+
     public function users(){
         return $this->belongsTo(User::class, 'user_id', 'id');
+    }
+
+    public function user(){
+        return $this->belongsTo(User::class);
     }
 
     public static function addEcPayOrder($order_id, $order_expire_date = null){

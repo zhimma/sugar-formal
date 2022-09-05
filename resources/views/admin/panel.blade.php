@@ -14,7 +14,7 @@
 		<a href="{{ route('users/VIP/ECCancellations') }}">綠界 VIP 付費取消資料</a>
 		<a href="{{ route('users/VVIP') }}">VVIP 申請管理</a>
 		<a href="{{ route('users/VVIP_cancellation_list') }}">VVIP 待取消名單</a>
-		<a href="{{ route('users/VVIP_margin_deposit') }}">VVIP 保證金管理</a>
+		<a href="{{ route('users/VVIP_margin_deposit') }}">VVIP 入會費 / 保證金管理</a>
 {{--		<a href="{{ route('users/customize_migration_files') }}">異動檔手動修改</a>--}}
 		<a href="{{ route('users/picMemberList') }}?reset=1">照片會員列表</a>
 		<a href="{{ route('users/memberList') }}">會員列表</a>

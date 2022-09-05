@@ -247,21 +247,25 @@
                                         <h2 class="tabbox_h2">您已完成VVIP會員費</h2>
                                     @elseif($user->valueAddedServiceStatus('VVIP') == 1 && !$user->passVVIP())
                                         <h2 class="tabbox_h2">
-                                            <span class="tu_dfont">
+                                            <span class="tu_dfont">                                                
                                                 @if($user->applyVVIP_getData()->plan == 'VVIP_A')
-                                                    您好，您在 {{$user->applyVVIP_getData()->created_at}} 申請 VVIP 已完成，請於 {{$user->applyVVIP_getData()->created_at->addDays(3)}} 之前， <br>
-                                                    將本帳號贈與與本站的入會費 20000 元匯入此帳號 <br>
-                                                    國泰世華銀行(013) <br>
-                                                    帳號015035004430 <br>
-                                                    完成後請保留收據並將帳號後五碼 <a onclick="vvipUserNoteEdit_show()" class='btn btn-primary' style="height: 30px; line-height: 15px;">輸入於此</a><br>
-                                                    <font color="red">注意：須於 {{$user->applyVVIP_getData()->created_at->addDays(3)}} 之前匯入，否則將取消此次 VVIP 申請。9888元<br>扣除手續費4000，剩餘刷退。</font>
+                                                    @if($user->VvipMargin?->balance < 20000 && now()->lte(\Carbon\Carbon::parse($user->VvipMargin?->updated_at)->addDays(3)))                                                        
+                                                        您好，您在 {{$user->applyVVIP_getData()->created_at}} 申請 VVIP 已完成，請於 {{$user->applyVVIP_getData()->created_at->addDays(3)}} 之前， <br>
+                                                        將本帳號贈與與本站的入會費 20000 元匯入此帳號 <br>
+                                                        國泰世華銀行(013) <br>
+                                                        帳號015035004430 <br>
+                                                        完成後請<font color="red">保留收據</font>並將帳號後五碼 <a onclick="vvipUserNoteEdit_show()" class='btn btn-primary' style="height: 30px; line-height: 15px;">輸入於此</a><br>
+                                                        <font color="red">注意：須於 {{$user->applyVVIP_getData()->created_at->addDays(3)}} 之前匯入，否則將取消此次 VVIP 申請。9888元<br>扣除手續費4000，剩餘刷退。</font>
+                                                    @endif
                                                 @elseif($user->applyVVIP_getData()->plan == 'VVIP_B')
-                                                    您好，您在 {{$user->applyVVIP_getData()->created_at}} 申請 VVIP 已完成，請於 {{$user->applyVVIP_getData()->created_at->addDays(3)}} 之前， <br>
-                                                    將本帳號贈與與本站的入會費 50000 元匯入此帳號 <br>
-                                                    國泰世華銀行(013) <br>
-                                                    帳號015035004430 <br>
-                                                    完成後請保留收據並將帳號後五碼 <a onclick="vvipUserNoteEdit_show()" class='btn btn-primary' style="height: 30px; line-height: 15px;">輸入於此</a><br>
-                                                    <font color="red">注意：須於 {{$user->applyVVIP_getData()->created_at->addDays(3)}} 之前匯入，否則將取消此次 VVIP 申請。9888元<br>扣除手續費4000，剩餘刷退。</font>
+                                                    @if($user->VvipMargin?->balance < 50000 && now()->lte(\Carbon\Carbon::parse($user->VvipMargin?->updated_at)->addDays(3)))  
+                                                        您好，您在 {{$user->applyVVIP_getData()->created_at}} 申請 VVIP 已完成，請於 {{$user->applyVVIP_getData()->created_at->addDays(3)}} 之前， <br>
+                                                        將本帳號贈與與本站的入會費 50000 元匯入此帳號 <br>
+                                                        國泰世華銀行(013) <br>
+                                                        帳號015035004430 <br>
+                                                        完成後請<font color="red">保留收據</font>並將帳號後五碼 <a onclick="vvipUserNoteEdit_show()" class='btn btn-primary' style="height: 30px; line-height: 15px;">輸入於此</a><br>
+                                                        <font color="red">注意：須於 {{$user->applyVVIP_getData()->created_at->addDays(3)}} 之前匯入，否則將取消此次 VVIP 申請。9888元<br>扣除手續費4000，剩餘刷退。</font>
+                                                    @endif
                                                 @endif
                                             </span></h2>
                                     @else
@@ -753,7 +757,7 @@
                 <form class="m-form m-form--fit m-form--label-align-right" method="POST" action="{{ url('/dashboard/vvipUserNoteEdit') }}" id="">
                     <input type="hidden" name="_token" value="{{ csrf_token() }}" >
                     <input type="hidden" name="id" id="id" value="{{ $user->applyVVIP_getData()->id }}">
-                    <textarea name="user_note" id="user_note" cols="" rows="" class="n_nutext" placeholder="請輸入內容" required></textarea>
+                    <textarea onkeyup="value=value.replace(/[^\d]/g,'') " name="user_note" id="user_note" cols="" rows="" class="n_nutext" placeholder="請輸入內容" required></textarea>
                     <input type="submit" class="n_bllbut msgsnd" value="送出" style="border-style: none;">
                 </form>
             </div>

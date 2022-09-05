@@ -9623,19 +9623,13 @@ class PagesController extends BaseController
 
         //vvip data
         $vvipData = ValueAddedService::where('member_id', $user->id)->where('service_name', 'VVIP')->first();
-        //取入會費 VVIP_B
-        $reserve_fund = VvipApplication::select('member_value_added_service.amount')
-            ->leftJoin('users','users.id','vvip_application.user_id')
-            ->leftJoin('member_value_added_service','member_value_added_service.order_id','vvip_application.order_id')
-            ->where('users.id', $user->id)
-            ->where('member_value_added_service.service_name', 'VVIP_B_reserve')
-            ->where('vvip_application.status', 1)
-            ->sum('member_value_added_service.amount');
+        //取入會費
+        $vvip_margin_balance = $user->VvipMargin->balance ?? 0;
 
         return view('new.dashboard.vvipCancel')
             ->with('user', $user)
             ->with('vvipData', $vvipData)
-            ->with('reserve_fund', $reserve_fund);
+            ->with('vvip_margin_balance', $vvip_margin_balance);
     }
 
     public function vvipUserNoteEdit(Request $request)

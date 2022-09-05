@@ -41,8 +41,8 @@
                         </div>
                         <div class="bo_dx"></div>
 
-                        @if($reserve_fund)
-                        <div class="beiyongjin"><img src="/new/images/beiyongjin.png">剩餘入會費：<span>{{$reserve_fund}}元</span></div>
+                        @if($vvip_margin_balance)
+                            <div class="beiyongjin"><img src="/new/images/beiyongjin.png">剩餘入會費：<span>{{ $vvip_margin_balance }}元</span></div>
                         @endif
 
                     </div>
