@@ -176,7 +176,7 @@ class ValueAddedServiceApiDataLogger{
 
                             [$refund, $vip_text] = \App\Services\PaymentService::calculatesRefund($user, 'vip_refund');
                             if($refund) {
-                                $record = $valueAddedServiceData;
+                                $record = Order::find($valueAddedServiceData->order_id);
                                 $record->need_to_refund = 1;
                                 $record->refund_amount = $refund;
                                 $record->saveOrFail();

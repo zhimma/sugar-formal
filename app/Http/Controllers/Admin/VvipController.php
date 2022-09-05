@@ -5,6 +5,8 @@ namespace App\Http\Controllers\Admin;
 use App\Http\Controllers\Controller;
 use App\Models\ValueAddedService;
 use App\Models\VvipMarginDeposit;
+use App\Models\VvipApplication;
+use App\Models\Order;
 use Illuminate\Http\Request;
 
 class VvipController extends \App\Http\Controllers\BaseController
@@ -33,16 +35,43 @@ class VvipController extends \App\Http\Controllers\BaseController
 
     public function viewVvipCancellationList()
     {
-        $list = ValueAddedService::where([
+        $planA = VvipApplication::where([['plan', 'VVIP_A'], ['created_at', '>', now()->addDays(3)]])->orderBy('id', 'desc')->get();
+        $planA->each(function ($item) {
+            if($item->user->VvipMargin?->balance < 20000) {
+                [$refund, ] = \App\Services\PaymentService::calculatesRefund($item->user, 'vip_refund');
+                if($refund) {
+                    $record = Order::find($item->order_id);
+                    $record->need_to_refund = 1;
+                    $record->refund_amount = $refund;
+                    $record->saveOrFail();
+                }
+            }
+        });
+        
+        $planB = VvipApplication::where([['plan', 'VVIP_B'], ['created_at', '>', now()->addDays(3)]])->orderBy('id', 'desc')->get();
+        $planB->each(function ($item) {
+            if($item->user->VvipMargin?->balance < 50000) {
+                [$refund, ] = \App\Services\PaymentService::calculatesRefund($item->user, 'vip_refund');
+                if($refund) {
+                    $record = Order::find($item->order_id);
+                    $record->need_to_refund = 1;
+                    $record->refund_amount = $refund;
+                    $record->saveOrFail();
+                }
+            }
+        });
+        
+        $list = Order::where([
             ['service_name', 'VVIP'],
             ['need_to_refund', 1]
         ])->get();
+
         return view('admin.users.view_vvip_cancellation_list', compact('list'));
     }
 
     public function updateVvipCancellation(Request $request)
     {
-        $item = ValueAddedService::find($request->item_id);
+        $item = Order::find($request->item_id);
         $item->need_to_refund = 0;
         $item->refund_amount = null;
         $item->saveOrFail();
