@@ -364,7 +364,7 @@
 
         @if(!$user->is6MonthsVip() && !$user->is12MonthsVip())
         $('.cantVVIP').on('click',function () {
-            c5('您還需要連續半年的信用卡付費VIP，或累計一年以上的VIP才可申請');
+            c5('您好，此方案為針對老會員優惠方案，須為本站老會員方可線上申請。如需申請，請選隱私方案。');
         });
         @elseif($user->isEverWarnedAndBanned())
         $('.cantVVIP').on('click',function () {
