@@ -19,7 +19,7 @@ class VvipController extends \App\Http\Controllers\BaseController
 
     public function editVvipMarginDeposit($user_id, Request $request)
     {
-        $deposit = VvipMarginDeposit::where('user_id', $user_id)->first();
+        $deposit = VvipMarginDeposit::where('user_id', $user_id)->firstOrCreate(['user_id' => $user_id]);
         return view('admin.users.edit_vvip_margin_deposit', compact('deposit'));
     }
 
