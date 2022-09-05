@@ -1074,11 +1074,11 @@
                                                                 @if($looking_for_relationships->first()->xref_id ?? false)
                                                                     @foreach($looking_for_relationships as $option)
                                                                         @if($option->xref_id ?? false)
-                                                                            <div class="ka_tico_1"><img src="/new/images/zz_zb.png" class="ka_tico_tu01"><i>{{$option->option_name}}</i><img src="/new/images/zz_zb.png" class="ka_tico_tu02"></div>
+                                                                            <div class="ka_tico_1"><i>{{$option->option_name}}</i></div>
                                                                         @endif
                                                                     @endforeach
                                                                 @else
-                                                                    <div class="ka_tico_1"><img src="/new/images/zz_zb.png" class="ka_tico_tu01"><i>尚未填寫</i><img src="/new/images/zz_zb.png" class="ka_tico_tu02"></div>
+                                                                    <div class="ka_tico_1"><i>尚未填寫</i></div>
                                                                 @endif
                                                             </div>
                                                         @endif
@@ -1088,11 +1088,11 @@
                                                                 @if($expect->first()->xref_id ?? false)
                                                                     @foreach($expect as $option)
                                                                         @if($option->xref_id ?? false)
-                                                                            <div class="ka_tico_1"><img src="/new/images/zz_zb.png" class="ka_tico_tu01"><i>{{$option->option_name}}</i><img src="/new/images/zz_zb.png" class="ka_tico_tu02"></div>
+                                                                            <div class="ka_tico_1"><i>{{$option->option_name}}</i></div>
                                                                         @endif
                                                                     @endforeach
                                                                 @else
-                                                                    <div class="ka_tico_1"><img src="/new/images/zz_zb.png" class="ka_tico_tu01"><i>尚未填寫</i><img src="/new/images/zz_zb.png" class="ka_tico_tu02"></div>
+                                                                    <div class="ka_tico_1"><i>尚未填寫</i></div>
                                                                 @endif
                                                             </div>
                                                         @endif
@@ -1123,11 +1123,11 @@
                                                                 @if($favorite_food->first()->xref_id ?? false)
                                                                     @foreach($favorite_food as $option)
                                                                         @if($option->xref_id ?? false)
-                                                                            <div class="ka_tico_1"><img src="/new/images/zz_zb.png" class="ka_tico_tu01"><i>{{$option->option_name}}</i><img src="/new/images/zz_zb.png" class="ka_tico_tu02"></div>
+                                                                            <div class="ka_tico_1"><i>{{$option->option_name}}</i></div>
                                                                         @endif
                                                                     @endforeach
                                                                 @else
-                                                                    <div class="ka_tico_1"><img src="/new/images/zz_zb.png" class="ka_tico_tu01"><i>尚未填寫</i><img src="/new/images/zz_zb.png" class="ka_tico_tu02"></div>
+                                                                    <div class="ka_tico_1"><i>尚未填寫</i></div>
                                                                 @endif
                                                             </div>
                                                         @endif
@@ -1137,11 +1137,11 @@
                                                                 @if($preferred_date_location->first()->xref_id ?? false)
                                                                     @foreach($preferred_date_location as $option)
                                                                         @if($option->xref_id ?? false)
-                                                                            <div class="ka_tico_1"><img src="/new/images/zz_zb.png" class="ka_tico_tu01"><i>{{$option->option_name}}</i><img src="/new/images/zz_zb.png" class="ka_tico_tu02"></div>
+                                                                            <div class="ka_tico_1"><i>{{$option->option_name}}</i></div>
                                                                         @endif
                                                                     @endforeach
                                                                 @else
-                                                                    <div class="ka_tico_1"><img src="/new/images/zz_zb.png" class="ka_tico_tu01"><i>尚未填寫</i><img src="/new/images/zz_zb.png" class="ka_tico_tu02"></div>
+                                                                    <div class="ka_tico_1"><i>尚未填寫</i></div>
                                                                 @endif
                                                             </div>
                                                         @endif
@@ -1151,11 +1151,11 @@
                                                                 @if($expected_type->first()->xref_id ?? false)
                                                                     @foreach($expected_type as $option)
                                                                         @if($option->xref_id ?? false)
-                                                                            <div class="ka_tico_1"><img src="/new/images/zz_zb.png" class="ka_tico_tu01"><i>{{$option->option_name}}</i><img src="/new/images/zz_zb.png" class="ka_tico_tu02"></div>
+                                                                            <div class="ka_tico_1"><i>{{$option->option_name}}</i></div>
                                                                         @endif
                                                                     @endforeach
                                                                 @else
-                                                                    <div class="ka_tico_1"><img src="/new/images/zz_zb.png" class="ka_tico_tu01"><i>尚未填寫</i><img src="/new/images/zz_zb.png" class="ka_tico_tu02"></div>
+                                                                    <div class="ka_tico_1"><i>尚未填寫</i></div>
                                                                 @endif
                                                             </div>
                                                         @endif
@@ -1165,11 +1165,11 @@
                                                                 @if($frequency_of_getting_along->first()->xref_id ?? false)
                                                                     @foreach($frequency_of_getting_along as $option)
                                                                         @if($option->xref_id ?? false)
-                                                                            <div class="ka_tico_1"><img src="/new/images/zz_zb.png" class="ka_tico_tu01"><i>{{$option->option_name}}</i><img src="/new/images/zz_zb.png" class="ka_tico_tu02"></div>
+                                                                            <div class="ka_tico_1"><i>{{$option->option_name}}</i></div>
                                                                         @endif
                                                                     @endforeach
                                                                 @else
-                                                                    <div class="ka_tico_1"><img src="/new/images/zz_zb.png" class="ka_tico_tu01"><i>尚未填寫</i><img src="/new/images/zz_zb.png" class="ka_tico_tu02"></div>
+                                                                    <div class="ka_tico_1"><i>尚未填寫</i></div>
                                                                 @endif
                                                             </div>
                                                         @endif
@@ -1235,7 +1235,7 @@
                                             <br>
                                             @foreach($relationship_status as $option)
                                                 @if($option->xref_id ?? false)
-                                                    <div class="ka_tico_1"><img src="/new/images/zz_zb.png" class="ka_tico_tu01"><i>{{$option->option_name}}</i><img src="/new/images/zz_zb.png" class="ka_tico_tu02"></div>
+                                                    <div class="ka_tico_1"><i>{{$option->option_name}}</i></div>
                                                 @endif
                                             @endforeach
                                         </div>
@@ -1249,7 +1249,7 @@
                                                 <br>
                                                 @foreach($personality_traits as $option)
                                                     @if($option->xref_id ?? false)
-                                                        <div class="ka_tico_1"><img src="/new/images/zz_zb.png" class="ka_tico_tu01"><i>{{$option->option_name}}</i><img src="/new/images/zz_zb.png" class="ka_tico_tu02"></div>
+                                                        <div class="ka_tico_1"><i>{{$option->option_name}}</i></div>
                                                     @endif
                                                 @endforeach
                                             </div>
@@ -1263,7 +1263,7 @@
                                                 <br>
                                                 @foreach($life_style as $option)
                                                     @if($option->xref_id ?? false)
-                                                        <div class="ka_tico_1"><img src="/new/images/zz_zb.png" class="ka_tico_tu01"><i>{{$option->option_name}}</i><img src="/new/images/zz_zb.png" class="ka_tico_tu02"></div>
+                                                        <div class="ka_tico_1"><i>{{$option->option_name}}</i></div>
                                                     @endif
                                                 @endforeach
                                             </div>
