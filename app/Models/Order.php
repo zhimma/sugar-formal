@@ -23,6 +23,8 @@ class Order extends Model
         'payment_type',
         'pay_date',
         'amount',
+        'need_to_refund',
+        'refund_amount'
     ];
 
     protected $primaryKey = 'order_id';
