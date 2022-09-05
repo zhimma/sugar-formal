@@ -9623,7 +9623,7 @@ class PagesController extends BaseController
 
         //vvip data
         $vvipData = ValueAddedService::where('member_id', $user->id)->where('service_name', 'VVIP')->first();
-        //取入會費 VVIP_B
+        //取入會費
         $vvip_margin_balance = $user->VvipMargin->balance ?? 0;
 
         return view('new.dashboard.vvipCancel')
