@@ -6,8 +6,8 @@
     }
 </style>
 <body style="padding: 15px;">
-<h1>VVIP 保證金清單</h1>
-<form method="POST" action="{{ route('users/switch/search') }}" class="search_form">
+<h1>VVIP 入會員 / 保證金清單</h1>
+{{-- <form method="POST" action="{{ route('users/switch/search') }}" class="search_form">
 	{!! csrf_field() !!}
 	<table class="table table-bordered table-hover" style="width: 50%">
         <tr>
@@ -32,7 +32,7 @@
             </td>
         </tr>
     </table>
-</form><br>
+</form><br> --}}
 <table class='table table-hover table-bordered'>
 	<tr>
         <th>ID</th>
@@ -41,12 +41,12 @@
 		<th>額度</th>
         <th>動作</th>
 	</tr>
-    @forelse($list as $deposit)
+    @forelse($list as $item)
 	<tr>
-        <td>{{ $deposit->user->id }}</td>
-		<td>{{ $deposit->user->email }}</td>
-		<td>{{ $deposit->user->name }}</td>
-        <td>{{ $deposit->balance }}</td>
+        <td>{{ $item->user->id }}</td>
+		<td>{{ $item->user->email }}</td>
+		<td>{{ $item->user->name }}</td>
+        <td>{{ $item->user->VvipDeposit->balance }}</td>
 		<td>
             <a href="{{ route('users/VVIP_margin_deposit/edit', $user->id) }}" class="btn btn-success">修改</a>
 		</td>

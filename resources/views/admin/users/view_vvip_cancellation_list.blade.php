@@ -6,7 +6,7 @@
     }
 </style>
 <body style="padding: 15px;">
-<h1>VVIP 待取消清單</h1>
+<h1>VVIP 待取消名單</h1>
 <form method="POST" action="{{ route('users/switch/search') }}" class="search_form">
 	{!! csrf_field() !!}
 	<table class="table table-bordered table-hover" style="width: 50%">

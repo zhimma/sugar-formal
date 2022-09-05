@@ -2090,7 +2090,7 @@ class User extends Authenticatable implements JWTSubject
 
     public function VvipMargin()
     {
-        return $this->hasOne(VvipMargin::class);
+        return $this->hasOne(VvipMarginDeposit::class);
     }
 
     public function VvipMarginLog()

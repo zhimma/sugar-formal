@@ -48,12 +48,12 @@ class ValueAddedService extends Model
         return $this->belongsTo(User::class, 'member_id', 'id');
     }
 
-    public static function getData($member_id,$service_name)
+    public static function getData($member_id, $service_name)
     {
         return ValueAddedService::where('member_id', $member_id)->where('service_name', $service_name)->where('active', 1)->orderBy('created_at', 'desc')->first();
     }
 
-    public static function status($member_id,$service_name)
+    public static function status($member_id, $service_name)
     {
         $status = ValueAddedService::where('member_id', $member_id)->where('service_name', $service_name)->first();
 

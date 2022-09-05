@@ -13,7 +13,7 @@ class VvipController extends \App\Http\Controllers\BaseController
 
     public function viewVvipMarginDeposit()
     {
-        $list = VvipMarginDeposit::with('user')->get();
+        $list = ValueAddedService::with('user', 'user.VvipMargin')->where('service_name', 'VVIP')->orderByDesc('id')->get();
         return view('admin.users.view_vvip_margin_deposit', compact('list'));
     }
 
