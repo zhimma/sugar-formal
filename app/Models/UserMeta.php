@@ -548,6 +548,10 @@ class UserMeta extends Model
         $area2 = $request->area2 ?? null; 
         $city3 = $request->city3 ?? null;
         $area3 = $request->area3 ?? null;
+        $city4 = $request->city4 ?? null;
+        $area4 = $request->area4 ?? null;
+        $city5 = $request->city5 ?? null;
+        $area5 = $request->area5 ?? null;
         // 新增體重
         $weight = $request->weight ?? '';
         // 是否想進一步發展
@@ -603,10 +607,14 @@ class UserMeta extends Model
             $area2,
             $city3,
             $area3,
+            $city4,
+            $area4,
+            $city5,
+            $area5,
             $weight){
             $query->select('*')->where('user_meta.birthdate', '<', Carbon::now()->subYears(18));
-            if($city || $city2 || $city3) {
-                $query->where(function($q) use ($city,$city2,$city3,$area,$area2,$area3) {
+            if($city || $city2 || $city3 || $city4 || $city5) {
+                $query->where(function($q) use ($city,$city2,$city3,$city4,$city5,$area,$area2,$area3,$area4,$area5) {
                     if($city) {
                         $q->orWhere(function($qq) use ($city,$area) {
                             $qq->where('city','like','%'.$city.'%');
@@ -635,6 +643,23 @@ class UserMeta extends Model
                         });
                     }                    
                     
+                    if($city4) {
+                        $q->orWhere(function($qq) use ($city4,$area4) {
+                            $qq->where('city','like','%'.$city4.'%');
+                            if($area4) {
+                                $qq->where('area','like','%'.$area4.'%');
+                            }
+                        });
+                    }  
+                    
+                    if($city5) {
+                        $q->orWhere(function($qq) use ($city5,$area5) {
+                            $qq->where('city','like','%'.$city5.'%');
+                            if($area5) {
+                                $qq->where('area','like','%'.$area5.'%');
+                            }
+                        });
+                    }  
                 });
             }            
 
@@ -739,10 +764,10 @@ class UserMeta extends Model
             $query = User::with(['user_meta' => $constraint, 'vip', 'vas', 'aw_relation', 'fa_relation', 'pr_log'])
                 ->select('*', \DB::raw("IF(is_hide_online = 1, hide_online_time, last_login) as last_login"))
                 ->whereHas('user_meta', $constraint)
-                ->where('engroup', $engroup)
-                ->where('accountStatus', 1)
-                ->where('account_status_admin', 1)
-                ->where('is_hide_online', '<>', 2)
+                // ->where('engroup', $engroup)
+                // ->where('accountStatus', 1)
+                // ->where('account_status_admin', 1)
+                // ->where('is_hide_online', '<>', 2)
                 ->whereNotIn('users.id', function ($query) {
                     // $bannedUsers
                     $query->select('target')
