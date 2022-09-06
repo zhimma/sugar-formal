@@ -240,6 +240,9 @@
                                     @if($user->applyVVIP_getData()->status == 2)
                                         <h2 class="tabbox_h2">您於 {{$user->applyVVIP_getData()->created_at->format("Y-m-d H:i")}} 申請本站VVIP，未通過站方審核。</h2>
 
+                                    @elseif($user->applyVVIP_getData()->status == 3)
+                                        <h2 class="tabbox_h2">{{$user->applyVVIP_getData()->supplement_notice}}</h2>
+
                                     @elseif($user->cancelVVIP())
                                         <h2 class="tabbox_h2">您於 {{$user->applyVVIP_getData()->created_at->format("Y-m-d H:i")}} 申請本站VVIP，已取消申請。</h2>
                                     

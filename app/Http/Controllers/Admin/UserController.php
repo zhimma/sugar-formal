@@ -79,6 +79,7 @@ use App\Models\Visited;
 use App\Services\RealAuthAdminService;
 use App\Models\UserVideoVerifyRecord;
 use App\Models\Features;
+use Illuminate\Support\Facades\Log;
 
 
 class UserController extends \App\Http\Controllers\BaseController
@@ -7027,6 +7028,7 @@ class UserController extends \App\Http\Controllers\BaseController
     }
 
     public function editVvipApplication(Request $request) {
+        Log::Info($request);
         $id = $request->input('id');
         $user_id = $request->input('user_id');
         $user = User::find($user_id);
@@ -7035,10 +7037,11 @@ class UserController extends \App\Http\Controllers\BaseController
 
         if($status == 3){
             $deadline = $request->input('deadline');
+            $supplement_notice = $request->supplement_notice;
             if($deadline==''){
                 return back()->with('message', '未填寫補件期限');
             }
-            VvipApplication::where('id', $id)->update(['status' => $status, 'deadline' => $deadline." 23:59:59", 'note' => $note]);
+            VvipApplication::where('id', $id)->update(['status' => $status, 'deadline' => $deadline." 23:59:59", 'note' => $note, 'supplement_notice' => $supplement_notice]);
         }else if($status != ''){
             VvipApplication::where('id', $id)->update(['status' => $status, 'note' => $note]);
             if($status==1){
@@ -7056,7 +7059,6 @@ class UserController extends \App\Http\Controllers\BaseController
         }else{
             VvipApplication::where('id', $id)->update(['note' => $note]);
         }
-
 
         return back()->with('message', '資料已更新');
     }
