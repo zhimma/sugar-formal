@@ -79,7 +79,8 @@ class VvipController extends \App\Http\Controllers\BaseController
 
     public function updateVvipCancellation(Request $request)
     {
-        $item = "\\" . $request->class::find($request->item_id);
+        $class = "\\" . $request->class;
+        $item = $class::find($request->item_id);
         $item->need_to_refund = 0;
         $item->refund_amount = null;
         $item->saveOrFail();
