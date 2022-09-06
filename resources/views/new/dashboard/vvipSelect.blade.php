@@ -22,7 +22,7 @@
                             <a @if($user->canVVIP()) href="{{ url('/dashboard/vvipSelectA') }}" @else class="cantVVIP" @endif>
                                 <h2>老會員優惠方案</h2>
                                 <img src="/new/images/v1_02.png" class="vvpimg">
-                                <h3>證明文件</h3>
+                                <h3>提供證明文件</h3>
                             </a>
                         </li>
                         <li>
