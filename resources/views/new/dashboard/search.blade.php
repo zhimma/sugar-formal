@@ -50,6 +50,16 @@ header("Expires: Fri, 01 Jan 1990 00:00:00 GMT");
                                     <div class="sew6" style="width:13%"></div>
                                     <div class="select_xx08 right" data-role="district" data-name="district3" data-value="{{ request()->district3??session()->get('search_page_key.district3')  }}" style=""></div>
                                     </span>  
+                                    <span class="twzipcode" id="twzipcode4" style="display:inline-flex">
+                                    <div class="select_xx08 left" data-role="county" data-name="county4" data-value="{{ request()->county4??session()->get('search_page_key.county4')  }}" style=""></div>
+                                    <div class="sew6" style="width:13%"></div>
+                                    <div class="select_xx08 right" data-role="district" data-name="district4" data-value="{{ request()->district4??session()->get('search_page_key.district4')  }}" style=""></div>
+                                    </span>  
+                                    <span class="twzipcode" id="twzipcode5" style="display:inline-flex">
+                                    <div class="select_xx08 left" data-role="county" data-name="county5" data-value="{{ request()->county5??session()->get('search_page_key.county5')  }}" style=""></div>
+                                    <div class="sew6" style="width:13%"></div>
+                                    <div class="select_xx08 right" data-role="district" data-name="district5" data-value="{{ request()->district5??session()->get('search_page_key.district5')  }}" style=""></div>
+                                    </span>  
                                     @endif
                                 </dt>
 
@@ -587,8 +597,12 @@ header("Expires: Fri, 01 Jan 1990 00:00:00 GMT");
                         $tattoo = search_variable("tattoo","");
                         $county2 = search_variable("county2","");
                         $county3 = search_variable("county3","");
+                        $county4 = search_variable("county4","");
+                        $county5 = search_variable("county5","");
                         $district2 = search_variable("district2","");
                         $district3 = search_variable("district3","");
+                        $district4 = search_variable("district4","");
+                        $district5 = search_variable("district5","");
                         $relationship_status = search_variable('relationship_status',"");
 
                         $userIsAdvanceAuth = search_variable("isAdvanceAuth", 0);
@@ -819,17 +833,27 @@ header("Expires: Fri, 01 Jan 1990 00:00:00 GMT");
             
 
             $('.twzipcode').eq(1).twzipcode({
-                'detect': true, 'css': ['select_xx08','select_xx08'],countyName : 'country2',districtName : 'district2', onCountySelect: function() {
+                'detect': true, 'css': ['select_xx08','select_xx08'],countyName : 'county2',districtName : 'district2', onCountySelect: function() {
                     $("select[name='district2']").prepend('<option selected value="">全部</option>');
                 }
             });
             $('input[name="zipcode"]').remove();
             
             $('.twzipcode').eq(2).twzipcode({
-                'detect': true, 'css': ['select_xx08','select_xx08'],countyName : 'country3',districtName : 'district3', onCountySelect: function() {
+                'detect': true, 'css': ['select_xx08','select_xx08'],countyName : 'county3',districtName : 'district3', onCountySelect: function() {
                     $("select[name='district3']").prepend('<option selected value="">全部</option>');
                 }
-            });            
+            });
+            $('.twzipcode').eq(3).twzipcode({
+                'detect': true, 'css': ['select_xx08','select_xx08'],countyName : 'county4',districtName : 'district4', onCountySelect: function() {
+                    $("select[name='district4']").prepend('<option selected value="">全部</option>');
+                }
+            });    
+            $('.twzipcode').eq(4).twzipcode({
+                'detect': true, 'css': ['select_xx08','select_xx08'],countyName : 'county5',districtName : 'district5', onCountySelect: function() {
+                    $("select[name='district5']").prepend('<option selected value="">全部</option>');
+                }
+            });                
             $('input[name="zipcode"]').remove();
             
             // $('[data-toggle="popover"]').popover({
@@ -992,6 +1016,10 @@ header("Expires: Fri, 01 Jan 1990 00:00:00 GMT");
                 area2:"{{$district2  ?? null}}",
                 city3:"{{$county3  ?? null}}",
                 area3:"{{$district3  ?? null}}",
+                city4:"{{$county4  ?? null}}",
+                area4:"{{$district4  ?? null}}",
+                city5:"{{$county5  ?? null}}",
+                area5:"{{$district5  ?? null}}",
                 //新增體重
                 weight:"{{$weight}}",
                 relationship_status:"{{$relationship_status}}",
