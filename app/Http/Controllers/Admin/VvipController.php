@@ -36,12 +36,12 @@ class VvipController extends \App\Http\Controllers\BaseController
 
     public function viewVvipCancellationList()
     {
-        $VVIPplanA = VvipApplication::where([['plan', 'VVIP_A'], ['created_at', '<', now()->subDays(3)], ['refunded_at', \DB::raw("NULL")]])->orderBy('id', 'desc')->get();
+        $VVIPplanA = VvipApplication::where([['plan', 'VVIP_A'], ['created_at', '<', now()->subDays(3)]])->orderBy('id', 'desc')->get();
         $VVIPplanA->each(function ($item) {
             if(($item->user->VvipMargin ?? true) || $item->user->VvipMargin?->balance < 20000) {
                 [$refund, ] = PaymentService::calculatesRefund($item->user, 'vvip_without_remittance');
-                if($refund) {
-                    $record = ValueAddedService::where('order_id', $item->order_id)->first();
+                $record = ValueAddedService::where([['order_id', $item->order_id], ['refunded_at', \DB::raw("NULL")]])->first();
+                if($refund && $record) {
                     $record->need_to_refund = 1;
                     $record->refund_amount = $refund;
                     $record->saveOrFail();
@@ -49,12 +49,12 @@ class VvipController extends \App\Http\Controllers\BaseController
             }
         });
         
-        $VVIPplanB = VvipApplication::where([['plan', 'VVIP_B'], ['created_at', '<', now()->subDays(3)], ['refunded_at', \DB::raw("NULL")]])->orderBy('id', 'desc')->get();
+        $VVIPplanB = VvipApplication::where([['plan', 'VVIP_B'], ['created_at', '<', now()->subDays(3)]])->orderBy('id', 'desc')->get();
         $VVIPplanB->each(function ($item) {
             if(($item->user->VvipMargin ?? true) || $item->user->VvipMargin?->balance < 50000) {
                 [$refund, ] = PaymentService::calculatesRefund($item->user, 'vvip_without_remittance');
-                if($refund) {
-                    $record = ValueAddedService::where('order_id', $item->order_id)->first();
+                $record = ValueAddedService::where([['order_id', $item->order_id], ['refunded_at', \DB::raw("NULL")]])->first();
+                if($refund && $record) {
                     $record->need_to_refund = 1;
                     $record->refund_amount = $refund;
                     $record->saveOrFail();
