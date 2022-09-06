@@ -23,14 +23,22 @@
                                 <h2>老會員優惠方案</h2>
                                 <img src="/new/images/v1_02.png" class="vvpimg">
                                 <h3>提供證明文件</h3>
-                            </a>
+                            </a>                            
+                            <div class="vip_font">
+                                <div class="vip_h3"><font>1:連續半年以上"信用卡"付費的 VIP</font></div>
+                                <div class="vip_h3"><font>2:或累積一年以上的 VIP 會員</font></div>
+                                <div class="vip_h3"><font>3:未曾受到警示/封鎖處分</font></div>
+                            </div>
                         </li>
                         <li>
                             <a id="vvip_plan_b" @if(!$user->isEverWarnedAndBanned()) href="{{ url('/dashboard/vvipSelectB') }}" @endif>
                                 <h2>隱私方案</h2>
                                 <img src="/new/images/v1_03.png" class="vvpimg">
                                 <h3>提供保證金</h3>
-                            </a>
+                            </a>                          
+                            <div class="vip_font">
+                                <div class="vip_h3"><font>1:未曾受到警示/封鎖處分</font></div>
+                            </div>
                         </li>
                     </div>
 
