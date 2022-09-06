@@ -23,10 +23,7 @@
                     <div class="zhapian vvip_hg">
                         <div class="vip_bt">花園網VVIP方案</div>
                         <div class="vip_bg">
-                            <div class="vip_title02">隱私方案</div>                            
-                            <div class="vip_font">
-                                <div class="vip_h3"><font>1:未曾受到警示/封鎖處分</font></div>
-                            </div>
+                            <div class="vip_title02">隱私方案</div>  
                             <div class="vvip_tab matop10">
                                 <div class="vvip_sq"><img src="/new/images/v1_05.png">申請流程</div>
                                 <div class="vip_font">

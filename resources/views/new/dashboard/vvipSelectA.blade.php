@@ -52,11 +52,6 @@
                         <div class="vvip_a_1">
                             <div class="vip_bg">
                                 <div class="vip_title02">老會員優惠方案</div>
-                                <div class="vip_font">
-                                    <div class="vip_h3"><font>1:連續半年以上"信用卡"付費的 VIP</font></div>
-                                    <div class="vip_h3"><font>2:或累積一年以上的 VIP 會員</font></div>
-                                    <div class="vip_h3"><font>3:未曾受到警示/封鎖處分</font></div>
-                                </div>
                                 <div class="vvip_tab matop10">
                                     <div class="vvip_sq"><img src="/new/images/v1_05.png">申請流程</div>
                                     <div class="vvip_tfont">
