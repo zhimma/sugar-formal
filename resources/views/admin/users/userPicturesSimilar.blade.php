@@ -169,7 +169,6 @@
                                             <textarea type="text" class="form-control form-control-sm form-control-plaintext mr-sm-2" name="about">{{ $user->meta_()->about }}</textarea>
                                         </span>
                                         <br>
-                                        
                                         <span>
                                             期待的約會模式: 
                                             <textarea type="text" class="form-control form-control-sm form-control-plaintext mr-sm-2" name="style">{{ $user->meta_()->style }}</textarea>
