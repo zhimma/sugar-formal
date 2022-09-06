@@ -4033,7 +4033,34 @@ class PagesController extends BaseController
         $input = $request->input();
         $search_page_key=session()->get('search_page_key',[]);
         $rap_service = $this->rap_service;
-        
+
+        $county_array = ['county', 'county2', 'county3', 'county4', 'county5'];
+        foreach ($input as $key =>$value){
+            if(isset($input['county5']) && $key =='county5'){
+                if($input['county4'] == $input['county5'] || $input['county3'] == $input['county5'] || $input['county2'] == $input['county5'] || $input['county'] == $input['county5']){
+                    request()->county5 = null;
+                    $input['county5'] = null;
+                }
+            }
+            if(isset($input['county4']) && $key =='county4'){
+                if($input['county3'] == $input['county4'] || $input['county2'] == $input['county4'] || $input['county'] == $input['county4']){
+                    request()->county4 = null;
+                    $input['county4'] = null;
+                }
+            }
+            if(isset($input['county3']) && $key =='county3'){
+                if($input['county2'] == $input['county3'] || $input['county'] == $input['county3']){
+                    request()->county3 = null;
+                    $input['county3'] = null;
+                }
+            }
+            if(isset($input['county2']) && $key =='county2'){
+                if($input['county'] == $input['county2']){
+                    request()->county2 = null;
+                    $input['county2'] = null;
+                }
+            }
+        }
         if(!isset($input['page'])){
             foreach ($input as $key =>$value){
                 session()->put('search_page_key.'.$key,array_get($input,$key,null));
