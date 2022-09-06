@@ -174,7 +174,7 @@
             });
 
             $('.submit_next').on('click',function () {
-                if(document.getElementById("files").files.length==0){
+                if($('input[name="fileuploader-list-files"]').val()=='[]'){
                     c5('您尚未選擇任何檔案');
                 }else {
                     if(hash == 'refill') {
