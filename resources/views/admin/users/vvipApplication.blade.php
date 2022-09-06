@@ -105,10 +105,12 @@
                                 </div>
                                 --}}
 
-                                <div class="form-group supplement_notice_{{$row->id}}" style="display: none;">
+                                <div class="form-group supplement_notice_{{$row->id}}" @if($row->status!=3) style="display: none;" @endif>
                                     <label>補件通知：</label><br>
-                                    <textarea class="form-control" rows="3" name="supplement_notice">{{$row->name}} 您好，您於 {{$row->created_at->format("Y-m-d H:i")}} 申請本站VVIP，經站方審核，補件期限為 {{Carbon\Carbon::now()->addDays(7)." 23:59:59"}} 。</textarea>
-                                    <input type="hidden" name="deadline" value={{Carbon\Carbon::now()->addDays(7)." 23:59:59"}}>
+                                    <textarea class="form-control" rows="3" name="supplement_notice">
+                                        @if($row->supplement_notice ?? false){{$row->supplement_notice}}@else{{$row->name}} 您好，您於 {{$row->created_at->format("Y-m-d H:i")}} 申請本站VVIP，經站方審核，補件期限為 {{Carbon\Carbon::now()->addDays(7)->format("Y-m-d")." 23:59"}} 。@endif
+                                    </textarea>
+                                    <input type="hidden" name="deadline" value={{Carbon\Carbon::now()->addDays(7)->format("Y-m-d")." 23:59:59"}}>
                                 </div>
 
                                 @endif
