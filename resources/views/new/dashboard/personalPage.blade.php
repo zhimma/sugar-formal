@@ -253,7 +253,7 @@
                                             <span class="tu_dfont">                                                
                                                 @if($user->applyVVIP_getData()->plan == 'VVIP_A')
                                                     @if($user->VvipMargin?->balance < 20000 && now()->lte(\Carbon\Carbon::parse($user->VvipMargin?->updated_at)->addDays(3)))                                                        
-                                                        您好，您在 {{$user->applyVVIP_getData()->format("Y-m-d H:i")}} 申請 VVIP 已完成，請於 {{$user->applyVVIP_getData()->created_at->addDays(3)->format("Y-m-d H:i")}} 之前， <br>
+                                                        您好，您在 {{$user->applyVVIP_getData()->created_at->format("Y-m-d H:i")}} 申請 VVIP 已完成，請於 {{$user->applyVVIP_getData()->created_at->addDays(3)->format("Y-m-d H:i")}} 之前， <br>
                                                         將本帳號繳交與本站的入會費 20000 元匯入此帳號 <br>
                                                         國泰世華銀行(013) <br>
                                                         帳號015035004430 <br>
