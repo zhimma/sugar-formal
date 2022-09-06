@@ -764,10 +764,10 @@ class UserMeta extends Model
             $query = User::with(['user_meta' => $constraint, 'vip', 'vas', 'aw_relation', 'fa_relation', 'pr_log'])
                 ->select('*', \DB::raw("IF(is_hide_online = 1, hide_online_time, last_login) as last_login"))
                 ->whereHas('user_meta', $constraint)
-                // ->where('engroup', $engroup)
-                // ->where('accountStatus', 1)
-                // ->where('account_status_admin', 1)
-                // ->where('is_hide_online', '<>', 2)
+                ->where('engroup', $engroup)
+                ->where('accountStatus', 1)
+                ->where('account_status_admin', 1)
+                ->where('is_hide_online', '<>', 2)
                 ->whereNotIn('users.id', function ($query) {
                     // $bannedUsers
                     $query->select('target')
