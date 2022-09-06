@@ -814,6 +814,21 @@ header("Expires: Fri, 01 Jan 1990 00:00:00 GMT");
             }
         }
 
+        function checkCountyIsRepeat(county,district, val){
+            var array = ['county','county2','county3','county4','county5'];
+            for (let index = 0; index < array.length; index++) {
+                if(array[index] != county){
+                    var arrayVal = $('select[name="'+ array[index] +'"] option:selected').val();
+                    if(arrayVal == val){
+                        $('select[name="'+ county +'"] option:eq(0)').prop("selected", true);
+                        $('select[name="'+ district +'"]').children().remove().end().prepend('<option selected value="">鄉鎮市區</option>');
+                        return false;
+                    }
+                }           
+            }
+            return true;
+        }
+
         $(document).ready(function(){
 
             $('.se_nvd').hide();
@@ -826,32 +841,42 @@ header("Expires: Fri, 01 Jan 1990 00:00:00 GMT");
             // var BootstrapSelect=function(){var t=function(){$(".m_selectpicker").selectpicker()};return{init:function(){t()}}}();jQuery(document).ready(function(){BootstrapSelect.init()});
             $('.twzipcode').eq(0).twzipcode({
                 'detect': true, 'css': ['select_xx08','select_xx08'], onCountySelect: function() {
-                    $("select[name='district']").prepend('<option selected value="">全部</option>');
+                    var isTrue = checkCountyIsRepeat('county','district',$(this).val());
+                    if(isTrue)
+                        $("select[name='district']").prepend('<option selected value="">全部</option>');
                 }
             });
             $('input[name="zipcode"]').remove();
             
 
             $('.twzipcode').eq(1).twzipcode({
-                'detect': true, 'css': ['select_xx08','select_xx08'],countyName : 'country2',districtName : 'district2', onCountySelect: function() {
-                    $("select[name='district2']").prepend('<option selected value="">全部</option>');
+                'detect': true, 'css': ['select_xx08','select_xx08'],countyName : 'county2',districtName : 'district2', onCountySelect: function() {
+                    var isTrue = checkCountyIsRepeat('county2','district2',$(this).val());
+                    if(isTrue)
+                        $("select[name='district2']").prepend('<option selected value="">全部</option>');
                 }
             });
             $('input[name="zipcode"]').remove();
             
             $('.twzipcode').eq(2).twzipcode({
-                'detect': true, 'css': ['select_xx08','select_xx08'],countyName : 'country3',districtName : 'district3', onCountySelect: function() {
-                    $("select[name='district3']").prepend('<option selected value="">全部</option>');
+                'detect': true, 'css': ['select_xx08','select_xx08'],countyName : 'county3',districtName : 'district3', onCountySelect: function() {
+                    var isTrue = checkCountyIsRepeat('county3','district3',$(this).val());
+                    if(isTrue)
+                        $("select[name='district3']").prepend('<option selected value="">全部</option>');
                 }
             });
             $('.twzipcode').eq(3).twzipcode({
-                'detect': true, 'css': ['select_xx08','select_xx08'],countyName : 'country4',districtName : 'district4', onCountySelect: function() {
-                    $("select[name='district4']").prepend('<option selected value="">全部</option>');
+                'detect': true, 'css': ['select_xx08','select_xx08'],countyName : 'county4',districtName : 'district4', onCountySelect: function() {
+                    var isTrue = checkCountyIsRepeat('county4','district4',$(this).val());
+                    if(isTrue)
+                        $("select[name='district4']").prepend('<option selected value="">全部</option>');
                 }
             });    
             $('.twzipcode').eq(4).twzipcode({
-                'detect': true, 'css': ['select_xx08','select_xx08'],countyName : 'country5',districtName : 'district5', onCountySelect: function() {
-                    $("select[name='district5']").prepend('<option selected value="">全部</option>');
+                'detect': true, 'css': ['select_xx08','select_xx08'],countyName : 'county5',districtName : 'district5', onCountySelect: function() {
+                    var isTrue = checkCountyIsRepeat('county5','district5',$(this).val());
+                    if(isTrue)
+                        $("select[name='district5']").prepend('<option selected value="">全部</option>');
                 }
             });                
             $('input[name="zipcode"]').remove();
