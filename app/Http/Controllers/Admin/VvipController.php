@@ -83,7 +83,7 @@ class VvipController extends \App\Http\Controllers\BaseController
         $item = $class::find($request->item_id);
         $item->need_to_refund = 0;
         $item->refund_amount = null;
-        $item->saveOrFail();
+        $item->save();
         $request->session()->flash('success', '成功更新 ' . $item->user->name . ' 的退款狀態');
         return redirect()->route('users/VVIP_cancellation_list');
     }
