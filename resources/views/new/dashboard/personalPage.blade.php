@@ -234,14 +234,14 @@
                                 </div>
                                 <div class="tabbox_new_dd">
                                     @if($user->applyingVVIP_getDeadline() != 0)
-                                        <h2 class="tabbox_h2" style="color:red;">您於 {{$user->applyVVIP_getData()->created_at}} 申請本站VVIP，站方審核仍需更多財力文件，請您於 {{$user->applyingVVIP_getDeadline()}} 前補交文件</h2>
+                                        <h2 class="tabbox_h2" style="color:red;">您於 {{$user->applyVVIP_getData()->created_at->format("Y-m-d H:i")}} 申請本站VVIP，站方審核仍需更多財力文件，請您於 {{$user->applyingVVIP_getDeadline()}} 前補交文件</h2>
                                     @endif
 
                                     @if($user->applyVVIP_getData()->status == 2)
-                                        <h2 class="tabbox_h2">您於 {{$user->applyVVIP_getData()->created_at}} 申請本站VVIP，未通過站方審核。</h2>
+                                        <h2 class="tabbox_h2">您於 {{$user->applyVVIP_getData()->created_at->format("Y-m-d H:i")}} 申請本站VVIP，未通過站方審核。</h2>
 
                                     @elseif($user->cancelVVIP())
-                                        <h2 class="tabbox_h2">您於 {{$user->applyVVIP_getData()->created_at}} 申請本站VVIP，已取消申請。</h2>
+                                        <h2 class="tabbox_h2">您於 {{$user->applyVVIP_getData()->created_at->format("Y-m-d H:i")}} 申請本站VVIP，已取消申請。</h2>
                                     
                                     @elseif($user->valueAddedServiceStatus('VVIP') == 1 && $user->passVVIP())
                                         <h2 class="tabbox_h2">您已完成VVIP會員費</h2>
@@ -250,21 +250,21 @@
                                             <span class="tu_dfont">                                                
                                                 @if($user->applyVVIP_getData()->plan == 'VVIP_A')
                                                     @if($user->VvipMargin?->balance < 20000 && now()->lte(\Carbon\Carbon::parse($user->VvipMargin?->updated_at)->addDays(3)))                                                        
-                                                        您好，您在 {{$user->applyVVIP_getData()->created_at}} 申請 VVIP 已完成，請於 {{$user->applyVVIP_getData()->created_at->addDays(3)}} 之前， <br>
-                                                        將本帳號贈與與本站的入會費 20000 元匯入此帳號 <br>
+                                                        您好，您在 {{$user->applyVVIP_getData()->->format("Y-m-d H:i")}} 申請 VVIP 已完成，請於 {{$user->applyVVIP_getData()->created_at->addDays(3)->format("Y-m-d H:i")}} 之前， <br>
+                                                        將本帳號繳交與本站的入會費 20000 元匯入此帳號 <br>
                                                         國泰世華銀行(013) <br>
                                                         帳號015035004430 <br>
                                                         完成後請<font color="red">保留收據</font>並將帳號後五碼 <a onclick="vvipUserNoteEdit_show()" class='btn btn-primary' style="height: 30px; line-height: 15px;">輸入於此</a><br>
-                                                        <font color="red">注意：須於 {{$user->applyVVIP_getData()->created_at->addDays(3)}} 之前匯入，否則將取消此次 VVIP 申請。9888元<br>扣除手續費4000，剩餘刷退。</font>
+                                                        <font color="red">注意：須於 {{$user->applyVVIP_getData()->created_at->addDays(3)->format("Y-m-d H:i")}} 之前匯入，否則將取消此次 VVIP 申請。9888元<br>扣除手續費4000，剩餘刷退。</font>
                                                     @endif
                                                 @elseif($user->applyVVIP_getData()->plan == 'VVIP_B')
                                                     @if($user->VvipMargin?->balance < 50000 && now()->lte(\Carbon\Carbon::parse($user->VvipMargin?->updated_at)->addDays(3)))  
-                                                        您好，您在 {{$user->applyVVIP_getData()->created_at}} 申請 VVIP 已完成，請於 {{$user->applyVVIP_getData()->created_at->addDays(3)}} 之前， <br>
-                                                        將本帳號贈與與本站的入會費 50000 元匯入此帳號 <br>
+                                                        您好，您在 {{$user->applyVVIP_getData()->created_at->format("Y-m-d H:i")}} 申請 VVIP 已完成，請於 {{$user->applyVVIP_getData()->created_at->addDays(3)->format("Y-m-d H:i")}} 之前， <br>
+                                                        將本帳號繳交與本站的入會費 50000 元匯入此帳號 <br>
                                                         國泰世華銀行(013) <br>
                                                         帳號015035004430 <br>
                                                         完成後請<font color="red">保留收據</font>並將帳號後五碼 <a onclick="vvipUserNoteEdit_show()" class='btn btn-primary' style="height: 30px; line-height: 15px;">輸入於此</a><br>
-                                                        <font color="red">注意：須於 {{$user->applyVVIP_getData()->created_at->addDays(3)}} 之前匯入，否則將取消此次 VVIP 申請。9888元<br>扣除手續費4000，剩餘刷退。</font>
+                                                        <font color="red">注意：須於 {{$user->applyVVIP_getData()->created_at->addDays(3)->format("Y-m-d H:i")}} 之前匯入，否則將取消此次 VVIP 申請。9888元<br>扣除手續費4000，剩餘刷退。</font>
                                                     @endif
                                                 @endif
                                             </span></h2>
@@ -273,12 +273,12 @@
                                     @endif
 
                                     @if($user->applyingVVIP())
-                                        <h2 class="tabbox_h2">您於 {{$user->applyVVIP_getData()->created_at}} 申請本站VVIP，目前還在審核中，最慢於五個工作天通知結果。</h2>
+                                        <h2 class="tabbox_h2">VVIP審核，自匯款完成並輸入帳號後五碼起計算，五個工作天內通知結果。</h2>
                                     @endif
 
                                     @if($user->passVVIP())
                                         <h2 class="tabbox_h2">
-                                            您於 {{$user->applyVVIP_getData()->created_at}} 申請本站VVIP，恭喜您！已成為本站審核通過的高級VVIP會員。現在就加入VVIP專屬LINE@, 享受您的專屬客服服務!
+                                            您於 {{$user->applyVVIP_getData()->created_at->format("Y-m-d H:i")}} 申請本站VVIP，恭喜您！已成為本站審核通過的高級VVIP會員。現在就加入VVIP專屬LINE@, 享受您的專屬客服服務!
                                             <a href="https://line.me/ti/p/~@953wkgjq" target="_blank"> <img src="https://scdn.line-apps.com/n/line_add_friends/btn/zh-Hant.png" alt="加入好友" height="26" border="0" style="height: 26px; float: unset;"></a>
                                         </h2>
                                     @endif
