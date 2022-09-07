@@ -27,6 +27,42 @@ class VvipSeeder extends Seeder
     public function run()
     {
         $users = \App\Models\User::whereIn('email', $this->emails_non_credit_card_continues_6months)->get();
+        foreach ($users as $user) {
+            $user->vip()->delete();
+            $user->vip_log()->delete();
+        }
+
+        $users = \App\Models\User::whereIn('email', $this->emails_credit_card_continues_6months)->get();
+        foreach ($users as $user) {
+            $user->vip()->delete();
+            $user->vip_log()->delete();
+        }
+
+        $users = \App\Models\User::whereIn('email', $this->emails_credit_card_had_continues_6months_current_not_vip)->get();
+        foreach ($users as $user) {
+            $user->vip()->delete();
+            $user->vip_log()->delete();
+        }
+
+        $users = \App\Models\User::whereIn('email', $this->emails_credit_card_had_below_6months_current_not_vip)->get();
+        foreach ($users as $user) {
+            $user->vip()->delete();
+            $user->vip_log()->delete();
+        }
+
+        $users = \App\Models\User::whereIn('email', $this->emails_non_credit_card_accumulated_18months_with_spans)->get();
+        foreach ($users as $user) {
+            $user->vip()->delete();
+            $user->vip_log()->delete();
+        }
+
+        $users = \App\Models\User::whereIn('email', $this->emails_non_credit_card_accumulated_18months_with_spans_not_vip)->get();
+        foreach ($users as $user) {
+            $user->vip()->delete();
+            $user->vip_log()->delete();
+        }        
+
+        $users = \App\Models\User::whereIn('email', $this->emails_non_credit_card_continues_6months)->get();
         $users->each(function ($user) {
             Vip::upgrade($user->id, "3137610", "TEST" . $user->id . time(), 666, '', 1, 0, 'atm');
             $vip = $user->vip->first();
