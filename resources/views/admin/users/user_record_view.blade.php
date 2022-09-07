@@ -25,6 +25,13 @@
                     </a>
                 </td>
             </tr>
+            <tr>
+                <td>
+                    <a href="{{route('admin/user_page_online_time_view')}}">
+                        <h3>頁面停留時間</h3>
+                    </a>
+                </td>
+            </tr>            
         </table>
     </body>
 @stop

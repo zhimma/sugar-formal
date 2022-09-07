@@ -65,7 +65,7 @@
 		</div>
         @include('new.partials.video_verify_user_entire_site')
 		@include('/new/partials/footer')
-
+        @include('new.partials.stay_online_record')
 	</body>
 </html>
 

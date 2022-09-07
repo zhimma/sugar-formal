@@ -468,5 +468,6 @@
         </script>    
     @endif
     @include('new.partials.video_verify_user_entire_site')            
-	</body>
+	@include('new.partials.stay_online_record')
+    </body>
 </html>

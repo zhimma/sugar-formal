@@ -9537,21 +9537,49 @@ class PagesController extends BaseController
         $second = $request->stay_second;
         $stay_online_record_id = $request->stay_online_record_id??0;
         $page_id = $request->page_id;
+        $page_uid = $request->page_uid;
+        $page_url = $request->page_url;
+        $page_title = $request->page_title;
         $user = auth()->user();
+        $is_need_create = false;
+        $no_storage_record_id = false;
+        
         if($user??false)
         {
             $stay_online_record = StayOnlineRecord::where('id', $stay_online_record_id)->where('user_id', $user->id)->first();
             if(!$stay_online_record)
             {
+                $is_need_create = true;
+                $no_storage_record_id = true;
+            }
+            else {
+                $stay_online_record = StayOnlineRecord::where('client_storage_record_id', $stay_online_record_id)->where('page_uid',$page_uid)->where('user_id', $user->id)->first();
+            
+                if(!$stay_online_record) {
+                    $is_need_create = true;
+                }
+            }
+            
+            if($is_need_create) {
                 $stay_online_record = new StayOnlineRecord();
                 $stay_online_record->user_id = $user->id;
+                $stay_online_record->url = $page_url;
+                $stay_online_record->title = $page_title;
+                $stay_online_record->ip = $request->ip();
+                $stay_online_record->userAgent = $request->server('HTTP_USER_AGENT');                
             }
+            
+            $stay_online_record->page_uid = $page_uid;
+            if(!$no_storage_record_id) $stay_online_record->client_storage_record_id = $stay_online_record_id;
+                
             $stay_online_record->stay_online_time = ($stay_online_record->stay_online_time ?? 0) + $second;
             if ($page_id) {
                 $stay_online_record->{$page_id} = ($stay_online_record->{$page_id} ?? 0) + $second;
             }
             $stay_online_record->save();
-            $stay_online_record_id = $stay_online_record->id;
+            if($no_storage_record_id && $is_need_create) $stay_online_record->client_storage_record_id = $stay_online_record->id;
+            $stay_online_record->save();
+            $stay_online_record_id = $stay_online_record->client_storage_record_id?$stay_online_record->client_storage_record_id:$stay_online_record->id;
         }
         
         return response()->json(['stay_online_record_id' => $stay_online_record_id]);
