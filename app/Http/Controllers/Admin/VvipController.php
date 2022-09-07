@@ -40,8 +40,8 @@ class VvipController extends \App\Http\Controllers\BaseController
         $VVIPplanA->each(function ($item) {
             if(($item->user->VvipMargin ?? true) || $item->user->VvipMargin?->balance < 20000) {
                 [$refund, ] = PaymentService::calculatesRefund($item->user, 'vvip_without_remittance');
-                if($refund) {
-                    $record = ValueAddedService::where('order_id', $item->order_id)->first();
+                $record = ValueAddedService::where([['order_id', $item->order_id], ['refunded_at', \DB::raw("NULL")]])->first();
+                if($refund && $record) {
                     $record->need_to_refund = 1;
                     $record->refund_amount = $refund;
                     $record->saveOrFail();
@@ -53,8 +53,8 @@ class VvipController extends \App\Http\Controllers\BaseController
         $VVIPplanB->each(function ($item) {
             if(($item->user->VvipMargin ?? true) || $item->user->VvipMargin?->balance < 50000) {
                 [$refund, ] = PaymentService::calculatesRefund($item->user, 'vvip_without_remittance');
-                if($refund) {
-                    $record = ValueAddedService::where('order_id', $item->order_id)->first();
+                $record = ValueAddedService::where([['order_id', $item->order_id], ['refunded_at', \DB::raw("NULL")]])->first();
+                if($refund && $record) {
                     $record->need_to_refund = 1;
                     $record->refund_amount = $refund;
                     $record->saveOrFail();
@@ -79,9 +79,11 @@ class VvipController extends \App\Http\Controllers\BaseController
 
     public function updateVvipCancellation(Request $request)
     {
-        $item = Order::find($request->item_id);
+        $class = "\\" . $request->class;
+        $item = $class::find($request->item_id);
         $item->need_to_refund = 0;
         $item->refund_amount = null;
+        $item->refunded_at = now();
         $item->saveOrFail();
         $request->session()->flash('success', '成功更新 ' . $item->user->name . ' 的退款狀態');
         return redirect()->route('users/VVIP_cancellation_list');

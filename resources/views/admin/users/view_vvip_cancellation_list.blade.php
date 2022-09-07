@@ -62,6 +62,7 @@
                 <form action="{{ route('users/VVIP_cancellation/save') }}" method="post">
                     @csrf
                     <input type="hidden" name="item_id" value="{{ $item->id }}">
+                    <input type="hidden" name="class" value="{{ get_class($item) }}">
                     <input type="submit" class="btn btn-success" value="已完成取消">
                 </form>
             </td>

@@ -90,7 +90,7 @@
                                     </label>
                                 </div>
                                 @endif
-                                @if($row->plan=='VVIP_A' && $row->status != 3)
+                                @if($row->plan=='VVIP_A')
                                 <div class="form-check">
                                     <input class="form-check-input" type="radio" name="status" value="3" data-id="{{$row->id}}" @if($row->status==3) checked @endif>
                                     <label class="form-check-label" for="status">
@@ -98,10 +98,21 @@
                                     </label>
                                 </div>
 
+                                {{--
                                 <div class="form-group deadline_{{$row->id}}" style="display: none;">
                                     <label for="datepicker">補件期限：</label><br>
                                     <input id="datepicker" data-date-format='yyyy-mm-dd' type="text" name="deadline">
                                 </div>
+                                --}}
+
+                                <div class="form-group supplement_notice_{{$row->id}}" @if($row->status!=3) style="display: none;" @endif>
+                                    <label>補件通知：</label><br>
+                                    <textarea class="form-control" rows="3" name="supplement_notice">
+                                        @if($row->supplement_notice ?? false){{$row->supplement_notice}}@else{{$row->name}} 您好，您於 {{$row->created_at->format("Y-m-d H:i")}} 申請本站VVIP，經站方審核，補件期限為 {{Carbon\Carbon::now()->addDays(7)->format("Y-m-d")." 23:59"}} 。@endif
+                                    </textarea>
+                                    <input type="hidden" name="deadline" value={{Carbon\Carbon::now()->addDays(7)->format("Y-m-d")." 23:59:59"}}>
+                                </div>
+
                                 @endif
                                 @if($row->status != 4)
                                     <div class="form-check">
@@ -187,7 +198,16 @@
             startDate: "today"
         }).val();
     });
-
+    
+    $("input[name='status']").change(function(){
+        if($(this).val()==3){
+            $('.supplement_notice_' + $(this).data('id')).show();
+        }else{
+            $('.supplement_notice_' + $(this).data('id')).hide();
+        }
+    });
+    
+    {{--
     $("input[name='status']").change(function(){
         if($(this).val()==3){
             $('.deadline_' + $(this).data('id')).show();
@@ -195,6 +215,7 @@
             $('.deadline_' + $(this).data('id')).hide();
         }
     });
+    --}}
 
     $('.get_prove_img').on('click', function(){
        var user_id = $(this).data('user_id'),
