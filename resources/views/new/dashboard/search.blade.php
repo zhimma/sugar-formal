@@ -1078,6 +1078,8 @@ header("Expires: Fri, 01 Jan 1990 00:00:00 GMT");
                             let umeta = row.rawData.user_meta;
                             if(varCheck(umeta.city)){
                                 umeta.city = umeta.city.split(",");
+                            }
+                            if(varCheck(umeta.area)){
                                 umeta.area = umeta.area.split(",");
                             }
 
