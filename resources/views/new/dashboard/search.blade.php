@@ -1048,9 +1048,21 @@ header("Expires: Fri, 01 Jan 1990 00:00:00 GMT");
                         $("#content_a").removeClass("n_sepeop");
                         this.dataList.forEach((row, index) => {
                             let umeta = row.rawData.user_meta;
-                            if(varCheck(umeta.city)){
+                            if(varCheck(umeta.city))
+                            {
                                 umeta.city = umeta.city.split(",");
+                            }
+                            else
+                            {
+                                umeta.city = [];
+                            }
+                            if(varCheck(umeta.area))
+                            {
                                 umeta.area = umeta.area.split(",");
+                            }
+                            else
+                            {
+                                umeta.area = [];
                             }
 
                           
