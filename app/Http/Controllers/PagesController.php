@@ -7315,13 +7315,13 @@ class PagesController extends BaseController
         
         if($user->isVip()) {
             $vipStatus='您已是 VIP';
-	    $vip_record = Carbon::parse($user->vip_record);
-	    $nextProcessDate = null;
+            $vip_record = Carbon::parse($user->vip_record);
+            $nextProcessDate = null;
             $vipDays = $vip_record->diffInDays(Carbon::now());
             $nextProcessDate = null;
             if(!$user->isFreeVip()) {               
                 $vip = $user->vip->first();               
-                if($vip->payment){
+                if($vip->payment && !str_contains($vip->order_id, 'TEST')){
 
                     switch ($vip->payment_method){
                         case 'CREDIT':
