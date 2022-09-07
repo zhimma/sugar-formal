@@ -30,6 +30,10 @@ class VvipSeeder extends Seeder
         $users->each(function ($user) {
             Vip::upgrade($user->id, "3137610", "TEST" . $user->id . time(), 666, '', 1, 0, 'atm');
             $vip = $user->vip->first();
+            if (!$vip) {
+                echo "User {$user->id} has no vip\n";
+                return;
+            }
             $vip->created_at = \Carbon\Carbon::now()->subMonths(7);
             $vip->save();
         });
@@ -38,6 +42,10 @@ class VvipSeeder extends Seeder
         $users->each(function ($user) {
             Vip::upgrade($user->id, "3137610", "TEST" . $user->id . time(), 666, '', 1, 0, 'cc_monthly_payment');
             $vip = $user->vip->first();
+            if (!$vip) {
+                echo "User {$user->id} has no vip\n";
+                return;
+            }
             $vip->created_at = \Carbon\Carbon::now()->subMonths(7);
             $vip->save();
         });
