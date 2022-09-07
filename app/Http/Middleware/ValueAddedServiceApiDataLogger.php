@@ -158,7 +158,7 @@ class ValueAddedServiceApiDataLogger{
                 if (isset($payload['RtnCode'])) {
                     if($payload['RtnCode'] == 1) {
                         $remain_days = $payload['CustomField2'];
-                        $valueAddedServiceData = ValueAddedService::upgrade($user->id, $payload['CustomField4'], $payload['MerchantID'], $payload['MerchantTradeNo'], $payload['TradeAmt'], '', 1, $payload['CustomField3'], $remain_days);
+                        ValueAddedService::upgrade($user->id, $payload['CustomField4'], $payload['MerchantID'], $payload['MerchantTradeNo'], $payload['TradeAmt'], '', 1, $payload['CustomField3'], $remain_days);
 
                         if(!(EnvironmentService::isLocalOrTestMachine())) {
                             //產生訂單 --正式綠界
