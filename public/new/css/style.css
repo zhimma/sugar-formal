@@ -3639,10 +3639,16 @@ border-radius:100px;margin-top:5px;font-weight:normal;font-size:18px;padding:15p
     .ne_tops_2{margin-top:-20px;}
     .ne_tops {margin-top: -50px;}
 }
+
 @media (max-width:667px){
     .n_searchtit_a{min-height: 180px;}
     .ne_bgnn{background:url(../images/pc_lbgbot.png) no-repeat bottom #ffeef0; background-size: 100%;display: table; padding-bottom: 133px;}
 }
+
+@media (max-width:600px){
+    .ne_bgnn{background:url(../images/pc_lbgbot.png) no-repeat bottom #ffeef0; background-size: 100%;display: table; padding-bottom: 115px;}
+}
+
 @media (max-width:568px){
     .n_searchtit_a{min-height: 160px;}
     .ne_titleimg {height: 90px;}
