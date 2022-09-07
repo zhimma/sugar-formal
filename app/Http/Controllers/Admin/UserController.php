@@ -74,6 +74,7 @@ use App\Models\CheckPointUser;
 use App\Models\ComeFromAdvertise;
 use App\Models\IsBannedLog;
 use App\Models\StayOnlineRecord;
+use App\Models\StayOnlineRecordPageName;
 use App\Models\UserRecord;
 use App\Models\Visited;
 use App\Services\RealAuthAdminService;
@@ -6799,10 +6800,81 @@ class UserController extends \App\Http\Controllers\BaseController
 
     public function user_online_time_view(Request $request)
     {
-        $user_online_record = StayOnlineRecord::leftJoin('users', 'users.id', '=', 'stay_online_record.user_id')->whereNotNull('stay_online_time')->orderBy('stay_online_record.id', 'desc')->paginate(200);
+        $user_online_record = StayOnlineRecord::with('user')->selectRaw('user_id,client_storage_record_id,SUM(stay_online_time) AS stay_online_time')->whereNotNull('stay_online_time')->groupBy('user_id','stay_online_record.client_storage_record_id')->orderByDesc('stay_online_record.client_storage_record_id')->paginate(200);
         return view('admin.users.user_online_time_view')
             ->with('user_online_record', $user_online_record);
     }
+    
+    public function user_page_online_time_view(Request $request)
+    {      
+        $user_online_record = StayOnlineRecord::with('user')->whereNotNull('stay_online_time')->whereNotNull('url')->selectRaw('user_id,max(created_at) as created_at')->groupBy('user_id')->orderByDesc('created_at')->get();//->whereNotNull('user');        
+
+        return view('admin.users.user_page_online_time_view')
+            ->with('user_online_record', $user_online_record);
+    } 
+
+    public function stay_online_record_page_name_view() 
+    {
+        $record_query = StayOnlineRecord::doesntHave('page_name')->selectRaw("'',url,''")->whereNotNull('stay_online_time')->whereNotNull('url')->orderByDesc('id')->distinct('url')
+                            ->where(function($q){
+                                $q->whereNull('title')->orWhere('title','');
+                            });
+        $page_name_list = StayOnlineRecordPageName::select('id','url','name')->whereNotNull('url')->where('url','!=','')
+                            ->union($record_query)
+                            ->orderBy('url')
+                            ->get()
+                            ;
+        return view('admin.users.stay_online_record_page_name_view')
+            ->with('row_list', $page_name_list);        
+    }
+    
+    public function stay_online_record_page_name_delete($id)
+    {
+        StayOnlineRecordPageName::where('id',$id)->delete();
+        return back()->with('message','頁面名稱刪除成功');
+    }  
+
+    public function stay_online_record_page_name_form(Request $request)
+    {
+        $entry = StayOnlineRecordPageName::where('id',$request->id)->firstOrNew();
+        return view('admin.users.stay_online_record_page_name_form')
+            ->with('entry', $entry); 
+    }
+
+    public function stay_online_record_page_name_switch(Request $request)
+    {
+        if(!$request->url)  return back();
+        $entry = StayOnlineRecordPageName::where('url',$request->url)->firstOrNew();
+        
+        if(!$entry->id) {
+            $entry->url = $request->url;
+            $entry->save();
+        }
+        $arr = ['id'=>$entry->id];
+        if($request->rtn) $arr['rtn'] = $request->rtn;
+        return redirect()->route('admin/stay_online_record_page_name_form',$arr); 
+    }      
+
+    public function stay_online_record_page_name_save(Request $request)
+    {
+        $entry = StayOnlineRecordPageName::where('id',$request->id)->firstOrNew();
+        $entry->url = $request->url;
+        $entry->name = $request->name;
+        $entry->save();
+        
+        if($request->id) {
+            $route_name = 'admin/stay_online_record_page_name_view';
+            
+            if($request->rtn=='record') {
+                $route_name = 'admin/user_page_online_time_view';
+            }
+            
+            return redirect()->route($route_name)
+                ->with('message','修改成功');
+        }
+        else
+            return back()->with('message','新增成功');
+    }        
 
     public function messageCheck(IndexRequest $request)
     {

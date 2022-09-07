@@ -191,6 +191,17 @@ class User extends Authenticatable implements JWTSubject
         return $this->hasOne(StayOnlineRecord::class, 'user_id', 'id')->select(DB::raw("SUM(newer_manual) as time"));
     }
     
+    //停留時間
+    public function stay_online_record()
+    {
+        return $this->hasMany(StayOnlineRecord::class, 'user_id', 'id');
+    }
+
+    public function stay_online_record_only_page()
+    {
+        return $this->stay_online_record()->whereNotNull('stay_online_time')->whereNotNull('url');
+    }     
+    
     //多重帳號row
     public function puppet_analysis_row()
     {
