@@ -3155,27 +3155,56 @@ class PagesController extends BaseController
     
             $user = Auth::user();
             $userIsVip =($user->isVip()||$user->isVVIP());
-            $dataList = [];            
+            $dataList_vvip = [];
+            $dataList_normal = [];
             $rap_service = $this->rap_service;
             foreach ($searchApi['singlePageData'] as $key=>$visitor){
-                $dataList[$key]['rawData'] = $visitor;
-                $dataList[$key]['visitorCheckRecommendedUser'] = \App\Services\UserService::checkRecommendedUser($visitor);
-                $dataList[$key]['visitorIsVip'] = $visitor->isVip();
-                $dataList[$key]['visitorIsVVIP'] = $visitor->isVVIP();
-                $dataList[$key]['visitorVvipInfoStatus'] = $visitor->VvipInfoStatus();
-                $dataList[$key]['visitorIsAdminWarned'] = $visitor->isAdminWarned();
-                $dataList[$key]['visitorIsPhoneAuth'] = $visitor->isPhoneAuth();
-                $dataList[$key]['visitorIsAdvanceAuth'] = $visitor->isAdvanceAuth();
-                $dataList[$key]['visitorIsSelfAuth'] = $rap_service->riseByUserEntry($visitor)->isPassedByAuthTypeId(1);
-                $dataList[$key]['visitorIsBeautyAuth'] = $rap_service->isPassedByAuthTypeId(2);
-                $dataList[$key]['visitorIsFamousAuth'] = $rap_service->isPassedByAuthTypeId(3);
-                $dataList[$key]['visitorIsBlurAvatar'] = \App\Services\UserService::isBlurAvatar($visitor, $user);
-                $dataList[$key]['visitorAge'] = $visitor->age();
-                $dataList[$key]['visitorIsOnline'] = $visitor->isOnline();
-                $dataList[$key]['visitorExchangePeriodName'] = DB::table('exchange_period_name')->where('id',$visitor->exchange_period)->first();
-                $dataList[$key]['visitorValueAddedServiceStatusHideOnline'] = $visitor->valueAddedServiceStatus('hideOnline');
-                $dataList[$key]['new_occupation'] = UserOptionsXref::where('user_id', $visitor->id)->where('option_type', 1)->first()->occupation->option_name ?? '';
+                if($visitor->isVVIP())
+                {
+                    $temp_array = [];
+                    $temp_array['rawData'] = $visitor;
+                    $temp_array['visitorCheckRecommendedUser'] = \App\Services\UserService::checkRecommendedUser($visitor);
+                    $temp_array['visitorIsVip'] = $visitor->isVip();
+                    $temp_array['visitorIsVVIP'] = $visitor->isVVIP();
+                    $temp_array['visitorVvipInfoStatus'] = $visitor->VvipInfoStatus();
+                    $temp_array['visitorIsAdminWarned'] = $visitor->isAdminWarned();
+                    $temp_array['visitorIsPhoneAuth'] = $visitor->isPhoneAuth();
+                    $temp_array['visitorIsAdvanceAuth'] = $visitor->isAdvanceAuth();
+                    $temp_array['visitorIsSelfAuth'] = $rap_service->riseByUserEntry($visitor)->isPassedByAuthTypeId(1);
+                    $temp_array['visitorIsBeautyAuth'] = $rap_service->isPassedByAuthTypeId(2);
+                    $temp_array['visitorIsFamousAuth'] = $rap_service->isPassedByAuthTypeId(3);
+                    $temp_array['visitorIsBlurAvatar'] = \App\Services\UserService::isBlurAvatar($visitor, $user);
+                    $temp_array['visitorAge'] = $visitor->age();
+                    $temp_array['visitorIsOnline'] = $visitor->isOnline();
+                    $temp_array['visitorExchangePeriodName'] = DB::table('exchange_period_name')->where('id',$visitor->exchange_period)->first();
+                    $temp_array['visitorValueAddedServiceStatusHideOnline'] = $visitor->valueAddedServiceStatus('hideOnline');
+                    $temp_array['new_occupation'] = UserOptionsXref::where('user_id', $visitor->id)->where('option_type', 1)->first()->occupation->option_name ?? '';
+                    $dataList_vvip[] = $temp_array;
+                }
+                else
+                {
+                    $temp_array = [];
+                    $temp_array['rawData'] = $visitor;
+                    $temp_array['visitorCheckRecommendedUser'] = \App\Services\UserService::checkRecommendedUser($visitor);
+                    $temp_array['visitorIsVip'] = $visitor->isVip();
+                    $temp_array['visitorIsVVIP'] = $visitor->isVVIP();
+                    $temp_array['visitorVvipInfoStatus'] = $visitor->VvipInfoStatus();
+                    $temp_array['visitorIsAdminWarned'] = $visitor->isAdminWarned();
+                    $temp_array['visitorIsPhoneAuth'] = $visitor->isPhoneAuth();
+                    $temp_array['visitorIsAdvanceAuth'] = $visitor->isAdvanceAuth();
+                    $temp_array['visitorIsSelfAuth'] = $rap_service->riseByUserEntry($visitor)->isPassedByAuthTypeId(1);
+                    $temp_array['visitorIsBeautyAuth'] = $rap_service->isPassedByAuthTypeId(2);
+                    $temp_array['visitorIsFamousAuth'] = $rap_service->isPassedByAuthTypeId(3);
+                    $temp_array['visitorIsBlurAvatar'] = \App\Services\UserService::isBlurAvatar($visitor, $user);
+                    $temp_array['visitorAge'] = $visitor->age();
+                    $temp_array['visitorIsOnline'] = $visitor->isOnline();
+                    $temp_array['visitorExchangePeriodName'] = DB::table('exchange_period_name')->where('id',$visitor->exchange_period)->first();
+                    $temp_array['visitorValueAddedServiceStatusHideOnline'] = $visitor->valueAddedServiceStatus('hideOnline');
+                    $temp_array['new_occupation'] = UserOptionsXref::where('user_id', $visitor->id)->where('option_type', 1)->first()->occupation->option_name ?? '';
+                    $dataList_normal[] = $temp_array;
+                } 
             }
+            $dataList = array_merge($dataList_vvip,$dataList_normal);
             
             $rap_service->riseByUserEntry($user);
             
