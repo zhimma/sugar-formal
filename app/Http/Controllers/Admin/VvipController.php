@@ -8,6 +8,7 @@ use App\Models\ValueAddedService;
 use App\Models\VvipMarginDeposit;
 use App\Models\VvipApplication;
 use App\Models\Order;
+use App\Models\Vip;
 use Illuminate\Http\Request;
 
 class VvipController extends \App\Http\Controllers\BaseController
@@ -85,6 +86,12 @@ class VvipController extends \App\Http\Controllers\BaseController
         $item->refund_amount = null;
         $item->refunded_at = now();
         $item->saveOrFail();
+        if($request->class == "App\Models\Order") {
+            Vip::cancel($item->user_id, 0);
+        }
+        elseif($request->class == "App\Models\ValueAddedService" && $item->service_name == "VVIP") {
+            ValueAddedService::cancel($item->member_id, "VVIP");
+        }
         $request->session()->flash('success', '成功更新 ' . $item->user->name . ' 的退款狀態');
         return redirect()->route('users/VVIP_cancellation_list');
     }

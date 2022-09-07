@@ -182,7 +182,7 @@ class ValueAddedService extends Model
             }
         }
 
-        if($service_name == 'VVIP') {
+        if(str_contains($service_name, 'VVIP')) {
             $user = User::find($member_id);
             event(new UserVvipUpgraded($user));
         }
@@ -274,7 +274,7 @@ class ValueAddedService extends Model
                 $u->save();
             }
 
-            if($service_name == 'VVIP') {
+            if(str_contains($service_name, 'VVIP')) {
                 event(new UserVvipRemoved($curUser));
             }
 
