@@ -5961,7 +5961,9 @@ class UserController extends \App\Http\Controllers\BaseController
                 $query->where('name', 'step_2_ischecked');
             })
             ->whereHas('user_meta', function ($query) {
-                $query->where('is_active', true);
+                $query->where('is_active', true)->whereNotNull('smoking')->whereNotNull('drinking')
+                ->whereNotNull('marriage')->whereNotNull('education')->whereNotNull('about')->whereNotNull('style')
+                ->whereNotNull('birthdate')->whereNotNull('area')->whereNotNull('city');
             });
 
         // 開始日期
