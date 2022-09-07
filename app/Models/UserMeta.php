@@ -753,7 +753,7 @@ class UserMeta extends Model
                     $query->select('member_id')
                         ->from(with(new banned_users)->getTable());
                 })
-                ->orderBy('is_vvip','desc');
+                ;
         }else {
             $query = User::with(['user_meta' => $constraint, 'vip', 'vas', 'aw_relation', 'fa_relation'])
                 ->select('*', \DB::raw("IF(is_hide_online = 1, hide_online_time, last_login) as last_login"))
@@ -882,9 +882,32 @@ class UserMeta extends Model
         
         // $execution_time = ($time_end - $time_start);
         // echo '<b>Total Execution Time:</b> '.($execution_time*1000).'Milliseconds';
+
+        $VvipDataQuery = $DataQuery->clone()->where('users.is_vvip',1);
+        $NormalDataQuery = $DataQuery->clone()->where('users.is_vvip',0);
+        $VvipDataQueryCount = $DataQuery->clone()->where('users.is_vvip',1)->count();
+
+        if($start < $VvipDataQueryCount && ($start + $count) > $VvipDataQueryCount)
+        {
+            $VvipPageData = $VvipDataQuery->skip($start)->take($VvipDataQueryCount - $start)->get();
+            $NormalPageData = $NormalDataQuery->skip(0)->take($count - ($VvipDataQueryCount - $start))->get();
+            $singlePageData = $VvipPageData->merge($NormalPageData);
+        }
+        else if($start < $VvipDataQueryCount)
+        {
+            $singlePageData = $VvipDataQuery->skip($start)->take($count)->get();
+        }
+        else
+        {
+            $singlePageData = $NormalDataQuery->skip($start - $VvipDataQueryCount)->take($count)->get();
+        }
+
+
+
+
         
-        $singlePageDataQuery = $DataQuery->skip($start)->take($count);
-        $singlePageData = $singlePageDataQuery->get();
+        //$singlePageDataQuery = $DataQuery->skip($start)->take($count);
+        //$singlePageData = $singlePageDataQuery->get();
         $singlePageCount = $singlePageData->count();
         
         $output = array(
