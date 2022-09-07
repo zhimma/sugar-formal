@@ -23,8 +23,8 @@ class AddColumnsStayOnlineRecordTable extends Migration
         
         if(!Schema::hasColumn('stay_online_record', 'url')) {
             Schema::table('stay_online_record', function (Blueprint $table) {
-                $table->text('url')->nullable()->after('client_storage_record_id')->index();
-
+                $table->text('url')->nullable()->after('client_storage_record_id');
+                DB::unprepared('ALTER TABLE stay_online_record ADD INDEX url url');
             });
         }
         
