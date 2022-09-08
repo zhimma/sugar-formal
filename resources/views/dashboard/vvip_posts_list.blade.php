@@ -81,12 +81,12 @@
 											</a>
 											<a href="/dashboard/viewuser/{{$post->uid}}"><span>{{ $post->uname }}<i>{{ date('Y-m-d', strtotime($post->pcreated_at)) }}</i></span></a>
 											<a @if($post->deleted_at && $user->id != 1049) onclick="delete_alert()" @else href="/dashboard/post_detail_VVIP/{{$post->pid}}" @endif>
-												<font><i class="ne_talicon"><img src="/posts/images/tl_icon.png">{{ \App\Models\Posts::where('reply_id',$post->pid)->get()->count() }}</i></font>
+												<font><i class="ne_talicon"><img src="/posts/images/tl_icon.png">{{ \App\Models\PostsVvip::where('reply_id',$post->pid)->get()->count() }}</i></font>
 											</a>
 										</div>
 										<a @if($post->deleted_at && $user->id != 1049) onclick="delete_alert()" @else href="/dashboard/post_detail_VVIP/{{$post->pid}}" @endif>
 											<div class="tc_text_aa"><span>{{$post->ptitle}}</span></div>
-											<div class="tc_text_bb" style="word-break: break-all;"><p>{!! \App\Models\Posts::showContent($post->pcontents) !!}</p></div>
+											<div class="tc_text_bb" style="word-break: break-all;"><p>{!! \App\Models\PostsVvip::showContent($post->pcontents) !!}</p></div>
 										</a>
 									</li>
 								@endforeach
