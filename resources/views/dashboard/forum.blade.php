@@ -37,9 +37,9 @@
 						   class="xinzeng_but" style="font-size: 12px;"><img src="/posts/images/liuyan_03.png" style="height:15px;">個人討論區</a>
 					</div>
 
-					@if($user->isVVIP())
+					@if($user->isVipOrIsVvip())
 					<div class="tl_bbg_2">
-						<a href="/dashboard/posts_list_VVIP">
+						<a @if($user->isVVIP()) href="/dashboard/posts_list_VVIP" @else onclick="c5('您好，此專屬討論區為 VVIP 會員才可使用')" @endif>
 							<img src="/posts/images/taolq02_VVIP.png" class="tl_bbg_img">
 							{{-- <div style="text-align: center;padding: 10px;font-size:20px;">VVIP官方討論區</div> --}}
 							<div class="te_ins">
