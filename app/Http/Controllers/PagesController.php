@@ -6548,7 +6548,7 @@ class PagesController extends BaseController
          posts_vvip.id as pid
          ')->selectRaw('
             (select count(*) from posts_vvip left join users on users.id = posts_vvip.user_id where (posts_vvip.type="main")) as posts_num, 
-            (select count(*) from posts_vvip where (type="sub" and reply_id in (select id from posts_vvip where (type="main") ) )) as posts_reply_num
+            (select count(*) from posts_vvip where (type="sub" and reply_id in (select id from posts_vvip where (type="main") ) and deleted_at is null )) as posts_reply_num
             ')
             ->LeftJoin('users', 'users.id','=','posts_vvip.user_id')
             ->join('user_meta', 'users.id','=','user_meta.user_id')
