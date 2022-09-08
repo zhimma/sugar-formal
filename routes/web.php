@@ -1015,7 +1015,13 @@ Route::group(['middleware' => ['auth', 'global', 'active', 'femaleActive', 'vipC
         Route::get('admin/user_regist_time_view', 'UserController@user_regist_time_view')->name('admin/user_regist_time_view');
         Route::get('admin/user_visited_time_view', 'UserController@user_visited_time_view')->name('admin/user_visited_time_view');
         Route::get('admin/user_online_time_view', 'UserController@user_online_time_view')->name('admin/user_online_time_view');
-    
+        Route::get('admin/user_page_online_time_view', 'UserController@user_page_online_time_view')->name('admin/user_page_online_time_view');
+        Route::get('admin/stay_online_record_page_name_view', 'UserController@stay_online_record_page_name_view')->name('admin/stay_online_record_page_name_view');
+        Route::get('admin/stay_online_record_page_name_form', 'UserController@stay_online_record_page_name_form')->name('admin/stay_online_record_page_name_form');
+        Route::post('admin/stay_online_record_page_name_form', 'UserController@stay_online_record_page_name_save')->name('admin/stay_online_record_page_name_save');
+        Route::get('admin/stay_online_record_page_name_delete/{id}', 'UserController@stay_online_record_page_name_delete')->name('admin/stay_online_record_page_name_delete');
+        Route::get('admin/stay_online_record_page_name_switch', 'UserController@stay_online_record_page_name_switch')->name('admin/stay_online_record_page_name_switch');
+        
         Route::get('global/feature_flags', 'UserController@feature_flags')->name('admin/feature_flags');
         Route::get('global/feature_flags/create', 'UserController@feature_flags_create');
         Route::post('global/feature_flags/create', 'UserController@feature_flags_create');

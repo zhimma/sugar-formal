@@ -4062,7 +4062,34 @@ class PagesController extends BaseController
         $input = $request->input();
         $search_page_key=session()->get('search_page_key',[]);
         $rap_service = $this->rap_service;
-        
+
+        $county_array = ['county', 'county2', 'county3', 'county4', 'county5'];
+        foreach ($input as $key =>$value){
+            if(isset($input['county5']) && $key =='county5'){
+                if(($input['county4'] == $input['county5'] || $input['county3'] == $input['county5'] || $input['county2'] == $input['county5'] || $input['county'] == $input['county5']) && ($input['county4'] ==$input['district5'] || $input['district3'] == $input['district5'] || $input['district2'] == $input['district5'] || $input['district'] == $input['district5'])){
+                    request()->county5 = null;
+                    $input['county5'] = null;
+                }
+            }
+            if(isset($input['county4']) && $key =='county4'){
+                if(($input['county3'] == $input['county4'] || $input['county2'] == $input['county4'] || $input['county'] == $input['county4']) && ($input['district3'] == $input['district4'] || $input['district2'] == $input['district4'] || $input['district'] == $input['district4'])){
+                    request()->county4 = null;
+                    $input['county4'] = null;
+                }
+            }
+            if(isset($input['county3']) && $key =='county3'){
+                if(($input['county2'] == $input['county3'] || $input['county'] == $input['county3']) && ($input['district2'] == $input['district3'] || $input['district'] == $input['district3'])){
+                    request()->county3 = null;
+                    $input['county3'] = null;
+                }
+            }
+            if(isset($input['county2']) && $key =='county2'){
+                if(($input['county'] == $input['county2']) && ($input['district'] == $input['district2'])){
+                    request()->county2 = null;
+                    $input['county2'] = null;
+                }
+            }
+        }
         if(!isset($input['page'])){
             foreach ($input as $key =>$value){
                 session()->put('search_page_key.'.$key,array_get($input,$key,null));
@@ -7288,13 +7315,13 @@ class PagesController extends BaseController
         
         if($user->isVip()) {
             $vipStatus='您已是 VIP';
-	    $vip_record = Carbon::parse($user->vip_record);
-	    $nextProcessDate = null;
+            $vip_record = Carbon::parse($user->vip_record);
+            $nextProcessDate = null;
             $vipDays = $vip_record->diffInDays(Carbon::now());
             $nextProcessDate = null;
             if(!$user->isFreeVip()) {               
                 $vip = $user->vip->first();               
-                if($vip->payment){
+                if($vip->payment && !str_contains($vip->order_id, 'TEST')){
 
                     switch ($vip->payment_method){
                         case 'CREDIT':
@@ -9510,21 +9537,49 @@ class PagesController extends BaseController
         $second = $request->stay_second;
         $stay_online_record_id = $request->stay_online_record_id??0;
         $page_id = $request->page_id;
+        $page_uid = $request->page_uid;
+        $page_url = $request->page_url;
+        $page_title = $request->page_title;
         $user = auth()->user();
+        $is_need_create = false;
+        $no_storage_record_id = false;
+        
         if($user??false)
         {
             $stay_online_record = StayOnlineRecord::where('id', $stay_online_record_id)->where('user_id', $user->id)->first();
             if(!$stay_online_record)
             {
+                $is_need_create = true;
+                $no_storage_record_id = true;
+            }
+            else {
+                $stay_online_record = StayOnlineRecord::where('client_storage_record_id', $stay_online_record_id)->where('page_uid',$page_uid)->where('user_id', $user->id)->first();
+            
+                if(!$stay_online_record) {
+                    $is_need_create = true;
+                }
+            }
+            
+            if($is_need_create) {
                 $stay_online_record = new StayOnlineRecord();
                 $stay_online_record->user_id = $user->id;
+                $stay_online_record->url = $page_url;
+                $stay_online_record->title = $page_title;
+                $stay_online_record->ip = $request->ip();
+                $stay_online_record->userAgent = $request->server('HTTP_USER_AGENT');                
             }
+            
+            $stay_online_record->page_uid = $page_uid;
+            if(!$no_storage_record_id) $stay_online_record->client_storage_record_id = $stay_online_record_id;
+                
             $stay_online_record->stay_online_time = ($stay_online_record->stay_online_time ?? 0) + $second;
             if ($page_id) {
                 $stay_online_record->{$page_id} = ($stay_online_record->{$page_id} ?? 0) + $second;
             }
             $stay_online_record->save();
-            $stay_online_record_id = $stay_online_record->id;
+            if($no_storage_record_id && $is_need_create) $stay_online_record->client_storage_record_id = $stay_online_record->id;
+            $stay_online_record->save();
+            $stay_online_record_id = $stay_online_record->client_storage_record_id?$stay_online_record->client_storage_record_id:$stay_online_record->id;
         }
         
         return response()->json(['stay_online_record_id' => $stay_online_record_id]);
