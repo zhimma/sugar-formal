@@ -5121,6 +5121,7 @@ class PagesController extends BaseController
 
     public function advance_auth_prechase($rap_service=null) {
         $user =Auth::user();
+        ShortMessageService::deleteOldNotActShortMessageByUser($user,true);
         $init_check_msg = null;
         $is_edu_mode = session()->get( 'is_edu_mode' );
         if($user->engroup!=2) {
@@ -5129,7 +5130,7 @@ class PagesController extends BaseController
         else if(!$user->isAdvanceAuth()) {
             //0922222222是後台自動塞的假手機驗證資料，所以要當做沒手機驗證
             if(!$is_edu_mode && (!$user->isPhoneAuth() || !$user->getAuthMobile() || $user->getAuthMobile()=='0922222222') ) {
-                ShortMessageService::deleteShortMessageByUser($user);
+                if($user->getAuthMobile()=='0922222222') ShortMessageService::deleteShortMessageByUser($user,true);
                 $url_query_str = '?return_aa=1';
                 if(request()->real_auth) {
                     $url_query_str = '?'.http_build_query(['real_auth'=>request()->real_auth]);
