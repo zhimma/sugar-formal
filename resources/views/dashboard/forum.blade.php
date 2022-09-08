@@ -37,7 +37,41 @@
 						   class="xinzeng_but" style="font-size: 12px;"><img src="/posts/images/liuyan_03.png" style="height:15px;">個人討論區</a>
 					</div>
 
-					<div class="tl_bbg">
+					@if(!$user->isVVIP())
+					<div class="tl_bbg_2">
+						<a href="/dashboard/posts_list_VVIP">
+							<img src="/posts/images/taolq02_VVIP.png" class="tl_bbg_img">
+							<div class="te_ins">
+								<div class="ta_wdka_text te_incob">主題數<span>{{ isset($posts_list_vvip[0]) ? $posts_list_vvip[0]->posts_num : 0}}</span><i>丨</i>回覆數<span>{{ isset($posts_list_vvip[0]) ? $posts_list_vvip[0]->posts_reply_num : 0}}</span></div>
+								<div class="ta_witx_rig">
+									<div class="wt_txb">
+										@foreach($posts_list_vvip as $key=>$row)
+											@if(count($posts_list_vvip)>5)
+												@once
+												<span class="ta_toxmr">
+												<img src="/posts/images/imor.png" class="hycov">
+											</span>
+												@endonce
+											@endif
+
+											@if($key==0)
+												<span class="ta_toxmr @if(count($posts_list_vvip)>5) xa_rig10 @endif">
+												<img src="@if(file_exists( public_path().$row->umpic ) && $row->umpic != ""){{$row->umpic}} @elseif($row->engroup==2)/new/images/female.png @else/new/images/male.png @endif" class="hycov">
+											</span>
+											@elseif($key>0 && $key<5)
+												<span class="ta_toxmr xa_rig10">
+												<img src="@if(file_exists( public_path().$row->umpic ) && $row->umpic != ""){{$row->umpic}} @elseif($row->engroup==2)/new/images/female.png @else/new/images/male.png @endif" class="hycov">
+											</span>
+											@endif
+										@endforeach
+									</div>
+								</div>
+							</div>
+						</a>
+					</div>
+					@endif
+
+					<div class="tl_bbg" style="margin-top: 15px;">
 						<a href="/dashboard/posts_list">
 						<img src="/posts/images/taolq02.png" class="tl_bbg_img">
 						<div class="te_ins_2">
