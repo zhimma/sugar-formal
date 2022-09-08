@@ -62,11 +62,13 @@
                         <li><a href="{!! url('dashboard/account_manage') !!}" class="g_pwicon_t3 "><span>帳號設定</span></a></li>
                     </div>
 
+                    {{--
                     <div class="wlujing">
                         <img src="/new/images/dd.png"><span><a href="">升级付费</a></span><font>-</font>
                         <img src="/new/images/dd.png"><span><a href="">VVIP專區</a></span><font>-</font>
                         <img src="/new/images/dd.png"><span><a href="">VVIP會員必填</a></span>
                     </div>
+                    --}}
 
                     <div class="zhapian vvip_hg">
                         <div class="vip_bt xq_v_bt">VVIP會員必填</div>

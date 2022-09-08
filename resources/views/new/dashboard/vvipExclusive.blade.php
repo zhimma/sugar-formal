@@ -16,11 +16,13 @@
                     </div>
 
                     <div class="new_viphig">
+                        {{--
                         <div class="wlujing">
                             <img src="/new/images/dd.png"><span><a href="">升级付费</a></span><font>-</font>
                             <img src="/new/images/dd.png"><span><a href="">VVIP專區</a></span><font>-</font>
                             <img src="/new/images/dd.png"><span><a href="">VVIP專屬功能</a></span>
                         </div>
+                        --}}
                         <div class="vip_bt">VVIP功能特色說明</div>
 
                         <div class="vvip_page page01">
