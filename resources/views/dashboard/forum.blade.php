@@ -37,10 +37,11 @@
 						   class="xinzeng_but" style="font-size: 12px;"><img src="/posts/images/liuyan_03.png" style="height:15px;">個人討論區</a>
 					</div>
 
-					@if(!$user->isVVIP())
+					@if($user->isVVIP())
 					<div class="tl_bbg_2">
 						<a href="/dashboard/posts_list_VVIP">
-							<img src="/posts/images/taolq02_VVIP.png" class="tl_bbg_img">
+							{{--<img src="/posts/images/taolq02_VVIP.png" class="tl_bbg_img">--}}
+							<div style="text-align: center;padding: 10px;font-size:20px;">VVIP官方討論區</div>
 							<div class="te_ins">
 								<div class="ta_wdka_text te_incob">主題數<span>{{ isset($posts_list_vvip[0]) ? $posts_list_vvip[0]->posts_num : 0}}</span><i>丨</i>回覆數<span>{{ isset($posts_list_vvip[0]) ? $posts_list_vvip[0]->posts_reply_num : 0}}</span></div>
 								<div class="ta_witx_rig">
