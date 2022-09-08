@@ -4940,7 +4940,13 @@ class UserController extends \App\Http\Controllers\BaseController
             })
             ->whereDoesntHave('check_point_name', function ($query) {
                 $query->where('name', 'step_1_ischecked');
-            });;
+            })
+            ->whereHas('user_meta', function ($query) {
+                $query->whereNotNull('smoking')->whereNotNull('drinking')
+                ->whereNotNull('marriage')->whereNotNull('education')->whereNotNull('about')->whereNotNull('style')
+                ->whereNotNull('birthdate')->whereNotNull('area')->whereNotNull('city');
+            });
+
 
         if ($request->date_start) {
             $datastart = $request->date_start;
@@ -5962,7 +5968,9 @@ class UserController extends \App\Http\Controllers\BaseController
                 $query->where('name', 'step_2_ischecked');
             })
             ->whereHas('user_meta', function ($query) {
-                $query->where('is_active', true);
+                $query->where('is_active', true)->whereNotNull('smoking')->whereNotNull('drinking')
+                ->whereNotNull('marriage')->whereNotNull('education')->whereNotNull('about')->whereNotNull('style')
+                ->whereNotNull('birthdate')->whereNotNull('area')->whereNotNull('city');
             });
 
         // 開始日期
