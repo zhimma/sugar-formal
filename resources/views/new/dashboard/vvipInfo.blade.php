@@ -397,6 +397,15 @@
                             </div>
                             <!-- 七、期待的約會模式 -->
 
+                            <!-- 八、關於我 -->
+                            <div class="ziliao_1" style="margin-top: 25px;">
+                                <div class="zlsapn_1">八、關於我<span><img src="/new/images/zhy_5.png">必填</span></div>
+                                <div class="xl_system system">
+                                    <textarea id="about" type="text" class="select_xx05" style="border: #ffc2c9 1px solid; border-radius: 10px; outline:none;" name="about" cols="" rows="3">{{$user->meta->about}}</textarea>
+                                </div>
+                            </div>
+                            <!-- 八、關於我 -->
+
                             {{--複選選項--}}
                             <input id="point_information" type="hidden" name="point_information" value="">
                             <input id="date_trend" type="hidden" name="date_trend" value="">
@@ -793,6 +802,12 @@
             if(check_bool)
             {
                 c5('您的品質生活請上傳圖片or點選預設圖片');
+                return false;
+            }
+
+            //檢查關於我
+            if($('#about').val()=='') {
+                c5('您尚未輸入關於我');
                 return false;
             }
             

@@ -9855,6 +9855,8 @@ class PagesController extends BaseController
         $vvipInfo->has_writed = 1;
         $vvipInfo->save();
 
+        //更新關於我
+        UserMeta::where('user_id',$user->id)->update(['about' => $request->about]);
 
 
 
