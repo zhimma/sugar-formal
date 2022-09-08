@@ -26,6 +26,7 @@ use App\Models\MessageBoard;
 use App\Models\MessageBoardPic;
 use App\Models\Forum;
 use App\Models\Order;
+use App\Models\PostsVvip;
 use App\Models\ReportedMessageBoard;
 use App\Models\SimpleTables\warned_users;
 use App\Models\Suspicious;
@@ -6177,6 +6178,344 @@ class PagesController extends BaseController
         }
     }
 
+    public function posts_list_VVIP(Request $request)
+    {
+        $user = $this->user;
+        if ($user && $user->engroup == 2){
+            return back();
+        }
+
+//        $ban = banned_users::where('member_id', $user->id)->first();
+//        $banImplicitly = \App\Models\BannedUsersImplicitly::where('target', $user->id)->first();
+//        if($ban || $banImplicitly){
+//            return back();
+//        }
+
+        $posts = PostsVvip::selectraw('posts_vvip.top, users.id as uid, users.name as uname, users.engroup as uengroup, posts_vvip.is_anonymous as panonymous, user_meta.pic as umpic, posts_vvip.id as pid, posts_vvip.title as ptitle, posts_vvip.contents as pcontents, posts_vvip.updated_at as pupdated_at, posts_vvip.created_at as pcreated_at, posts_vvip.deleted_by, posts_vvip.deleted_at, posts_vvip.article_id as aid')
+            ->selectRaw('(select updated_at from posts_vvip where (id=aid or reply_id=aid ) order by updated_at desc limit 1) as currentReplyTime')
+            ->selectRaw('(case when users.id=1049 then 1 else 0 end) as adminFlag')
+            ->LeftJoin('users', 'users.id', '=', 'posts_vvip.user_id')
+            ->join('user_meta', 'users.id', '=', 'user_meta.user_id')
+            ->where('posts_vvip.type', 'main')
+            ->orderBy('posts_vvip.deleted_at', 'asc')
+            ->orderBy('posts_vvip.top', 'desc')
+            ->orderBy('adminFlag', 'desc')
+            ->orderBy('currentReplyTime', 'desc')
+            ->orderBy('pcreated_at', 'desc')
+            ->withTrashed()
+            ->paginate(10);
+
+        $data = array(
+//            'posts' => null
+            'posts' => $posts
+        );
+
+        if ($user)
+        {
+            // blocked by user->id
+            $blocks = \App\Models\Blocked::where('member_id', $user->id)->paginate(15);
+
+            $usersInfo = array();
+            foreach($blocks as $blockUser){
+                $id = $blockUser->blocked_id;
+                $usersInfo[$id] = User::findById($id);
+            }
+
+        }
+
+        //檢查是否為連續兩個月以上的VIP會員
+        $checkUserVip=0;
+        $isVip =Vip::where('member_id',auth()->user()->id)->where('active',1)->where('free',0)->first();
+        if($isVip){
+            $months = Carbon::parse($isVip->created_at)->diffInMonths(Carbon::now());
+            if($months>=2 || $isVip->payment=='cc_quarterly_payment' || $isVip->payment=='one_quarter_payment'){
+                $checkUserVip=1;
+            }
+        }
+        if($user->isVVIP()){
+            $checkUserVip=1;
+        }
+
+        return view('/dashboard/vvip_posts_list', $data)
+            ->with('checkUserVip', $checkUserVip)
+            ->with('blocks', $blocks)
+            ->with('users', $usersInfo)
+            ->with('user', $user);
+    }
+
+    public function post_detail_VVIP(Request $request)
+    {
+        //return redirect(url('/dashboard/posts_list'));
+        $user = $request->user();
+
+        $pid = $request->pid;
+        //$this->post_views($pid);
+        $postDetail = PostsVvip::withTrashed()->selectraw('posts_vvip.top, users.id as uid, users.name as uname, users.engroup as uengroup, posts_vvip.is_anonymous as panonymous, posts_vvip.views as uviews, user_meta.pic as umpic, posts_vvip.id as pid, posts_vvip.title as ptitle, posts_vvip.contents as pcontents, posts_vvip.images as pimages, posts_vvip.updated_at as pupdated_at,  posts_vvip.created_at as pcreated_at, posts_vvip.deleted_at as pdeleted_at')
+            ->LeftJoin('users', 'users.id','=','posts_vvip.user_id')
+            ->join('user_meta', 'users.id','=','user_meta.user_id')
+            ->where('posts_vvip.id', $pid)->first();
+
+        if(!$postDetail) {
+            $request->session()->flash('message', '找不到文章：' . $pid);
+            $request->session()->reflash();
+            return redirect()->route('posts_list');
+        }
+
+        $replyDetail = PostsVvip::selectraw('users.id as uid, users.name as uname, users.engroup as uengroup, posts_vvip.is_anonymous as panonymous, posts_vvip.views as uviews, user_meta.pic as umpic, posts_vvip.id as pid, posts_vvip.title as ptitle, posts_vvip.contents as pcontents, posts_vvip.images as pimages, posts_vvip.updated_at as pupdated_at,  posts_vvip.created_at as pcreated_at')
+            ->LeftJoin('users', 'users.id','=','posts_vvip.user_id')
+            ->join('user_meta', 'users.id','=','user_meta.user_id')
+            ->orderBy('pcreated_at','desc')
+            ->where('posts_vvip.reply_id', $pid)->get();
+
+        //檢查是否為連續兩個月以上的VIP會員
+        $checkUserVip=0;
+        $isVip =Vip::where('member_id',auth()->user()->id)->where('active',1)->where('free',0)->first();
+        if($isVip){
+            $months = Carbon::parse($isVip->created_at)->diffInMonths(Carbon::now());
+            if($months>=2 || $isVip->payment=='cc_quarterly_payment' || $isVip->payment=='one_quarter_payment'){
+                $checkUserVip=1;
+            }
+        }
+        if($user->isVVIP()){
+            $checkUserVip=1;
+        }
+        return view('/dashboard/vvip_post_detail', compact('postDetail','replyDetail', 'checkUserVip'))->with('user', $user);
+    }
+
+    public function getPosts_VVIP(Request $request)
+    {
+        $page = $request->page;
+        $perPage = 10;
+        $startPost = $page*$perPage;
+
+        /*撈取資料*/
+    }
+
+    public function posts_VVIP(Request $request)
+    {
+//        return redirect(url('/dashboard/posts_list'));
+        $user = $this->user;
+        if ($user && $user->engroup == 2){
+            return back();
+        }
+        $url = $request->fullUrl();
+        //echo $url;
+
+        if(str_contains($url, '?img')) {
+            $tabName = 'm_user_profile_tab_4';
+        }
+        else {
+            $tabName = 'm_user_profile_tab_1';
+        }
+
+        $member_pics = DB::table('member_pic')->select('*')->where('member_id',$user->id)->get()->take(6);
+
+        $birthday = date('Y-m-d', strtotime($user->meta_()->birthdate));
+        $birthday = explode('-', $birthday);
+        $year = $birthday[0];
+        $month = $birthday[1];
+        $day = $birthday[2];
+        if($year=='1970'){
+            $year=$month=$day='';
+        }
+        if ($user) {
+            $cancel_notice = $request->session()->get('cancel_notice');
+            $message = $request->session()->get('message');
+            if(isset($cancel_notice)){
+                return view('/dashboard/vvip_posts')
+                    ->with('user', $user)
+                    ->with('tabName', $tabName)
+                    ->with('cur', $user)
+                    ->with('year', $year)
+                    ->with('month', $month)
+                    ->with('day', $day)
+                    ->with('message', $message)
+                    ->with('cancel_notice', $cancel_notice);
+            }
+            if($user->engroup==1){
+                return view('/dashboard/vvip_posts')
+                    ->with('user', $user)
+                    ->with('tabName', $tabName)
+                    ->with('cur', $user)
+                    ->with('year', $year)
+                    ->with('month', $month)
+                    ->with('day', $day)
+                    ->with('member_pics', $member_pics);
+            }else{
+                return view('/dashboard/vvip_posts')
+                    ->with('user', $user)
+                    ->with('tabName', $tabName)
+                    ->with('cur', $user)
+                    ->with('year', $year)
+                    ->with('month', $month)
+                    ->with('day', $day)
+                    ->with('member_pics', $member_pics);
+            }
+        }
+    }
+
+    public function postsEdit_VVIP($id, $editType='all')
+    {
+        $postInfo = PostsVvip::find($id);
+        $images=json_decode($postInfo->images, true);
+        $imagesGroup=array();
+        if(!is_null($images) && count($images)){
+            foreach ($images as $key => $path) {
+                if(file_exists(public_path($path))){
+                    $imagePath = $path;
+                    $imagesGroup['type'][$key] = \App\Helpers\fileUploader_helper::mime_content_type(ltrim($imagePath, '/'));
+                    $imagesGroup['name'][$key] = Arr::last(explode('/', $imagePath));
+                    $imagesGroup['size'][$key] = str_starts_with($imagePath, 'http') ? null :filesize(ltrim($imagePath, '/'));
+                    $imagesGroup['local'][$key] = $imagePath;
+                    $imagesGroup['file'][$key] = $imagePath;
+                    $imagesGroup['data'][$key] = [
+                        'url' => $imagePath,
+                        'thumbnail' =>$imagePath,
+                        'renderForce' => true
+                    ];
+                }
+            }
+        }
+        $images=$imagesGroup;
+
+        return view('/dashboard/vvip_posts_edit',compact('postInfo','editType', 'images'));
+    }
+
+    public function doPosts_VVIP(Request $request)
+    {
+        $user=$request->user();
+
+        //儲存照片
+        $fileuploaderListImages = $request->get('fileuploader-list-images');
+        $destinationPath=$this->posts_pic_save($request->get('post_id'), $fileuploaderListImages, $request->file('images'));
+        if($request->get('action') == 'update'){
+            PostsVvip::find($request->get('post_id'))->update(['title'=>$request->get('title'),'contents'=>$request->get('contents'), 'images' => isset($destinationPath) ? $destinationPath : null]);
+            return redirect($request->get('redirect_path'))->with('message','修改成功');
+
+        }else{
+            $posts = new PostsVvip;
+            $posts->user_id = $user->id;
+            $posts->title = $request->get('title');
+            $posts->type = $request->get('type','main');
+            $posts->contents=$request->get('contents');
+            $posts->images=isset($destinationPath) ? $destinationPath : null;
+            $posts->save();
+            DB::table('posts')->where('id',$posts->id)->update(['article_id'=>$posts->id]);
+            return redirect('/dashboard/posts_list_VVIP')->with('message','發表成功');
+        }
+    }
+
+    //官方討論區_照片上傳
+    public function posts_pic_save_VVIP($post_id, $images, $newImages)
+    {
+        $suspicious=PostsVvip::where('id',$post_id)->first();
+        $suspiciousImages=$suspicious && !is_null($suspicious->images)? json_decode($suspicious->images, true) : [];
+        $nowImageList=array();
+        $images=json_decode($images, true);
+        if($images){
+            foreach ($images as $imageList){
+                $nowImageList[]=array_get($imageList,'file');
+            }
+        }
+
+        foreach ($suspiciousImages as $key => $dbImage){
+            if(in_array($dbImage, $nowImageList)){
+                continue;
+            }else{
+                //移除照片
+                if(file_exists(public_path().$dbImage)){
+                    unlink(public_path().$dbImage);
+                }
+                unset($suspiciousImages[$key]);
+            }
+        }
+
+        $destinationPath = [];
+        //新增新加入照片
+        if($files = $newImages)
+        {
+            foreach ($files as $file) {
+                $now = Carbon::now()->format('Ymd');
+                $input['imagename'] = $now . rand(100000000,999999999) . '.' . $file->getClientOriginalExtension();
+
+                $rootPath = public_path('/img/Posts');
+                $tempPath = $rootPath . '/' . substr($input['imagename'], 0, 4) . '/' . substr($input['imagename'], 4, 2) . '/'. substr($input['imagename'], 6, 2) . '/';
+
+                if(!is_dir($tempPath)) {
+                    File::makeDirectory($tempPath, 0777, true);
+                }
+
+                $destinationPath[] = '/img/Posts/'. substr($input['imagename'], 0, 4) . '/' . substr($input['imagename'], 4, 2) . '/'. substr($input['imagename'], 6, 2) . '/' . $input['imagename'];
+
+                $img = Image::make($file->getRealPath());
+                $img->resize(400, 600, function ($constraint) {
+                    $constraint->aspectRatio();
+                })->save($tempPath . $input['imagename']);
+
+            }
+        }
+        //整理images
+        $destinationPath = json_encode(array_merge($suspiciousImages, $destinationPath));
+        return $destinationPath;
+    }
+
+    public function posts_reply_VVIP(Request $request)
+    {
+        //儲存照片
+        $fileuploaderListImages = $request->get('fileuploader-list-images');
+        $destinationPath=$this->posts_pic_save($request->get('post_id'), $fileuploaderListImages, $request->file('images'));
+
+        $posts = new PostsVvip();
+        $posts->article_id = $request->get('article_id');
+        $posts->reply_id = $request->get('reply_id');
+        $posts->user_id = $request->get('user_id');
+        $posts->type = $request->get('type','sub');
+        $posts->contents   = str_replace('..','',$request->get('contents'));
+        $posts->images=isset($destinationPath) ? $destinationPath : null;
+        $posts->tag_user_id = $request->get('tag_user_id');
+        $posts->save();
+
+        return back()->with('message', '留言成功!');
+    }
+
+    public function posts_delete_VVIP(Request $request)
+    {
+        $posts = PostsVvip::where('id',$request->get('pid'))->first();
+        if($posts->user_id!== auth()->user()->id && auth()->user()->id != 1049){
+            return response()->json(['msg'=>'留言刪除失敗 不可刪除別人的留言!']);
+        }else{
+            $postsType = $posts->type;
+            PostsVvip::where('id',$request->get('pid'))->update(['deleted_by'=>auth()->user()->id]);
+            $posts->delete();
+
+            if($postsType=='main')
+                return response()->json(['msg'=>'刪除成功!','postType'=>'main','redirectTo'=>'/dashboard/posts_list_VVIP']);
+            else
+                return response()->json(['msg'=>'留言刪除成功!','postType'=>'sub']);
+        }
+    }
+
+    public function posts_recover_VVIP(Request $request)
+    {
+        $posts = PostsVvip::withTrashed()->where('id',$request->get('pid'))->first();
+        $postsType = $posts->type;
+        PostsVvip::withTrashed()->where('id',$request->get('pid'))->update(['deleted_at'=> null, 'deleted_by' => null ]);
+        if($postsType=='main')
+            return response()->json(['msg'=>'回復成功!','postType'=>'main','redirectTo'=>'/dashboard/posts_list_VVIP']);
+        else
+            return response()->json(['msg'=>'留言回復成功!','postType'=>'sub']);
+    }
+
+    public function post_views_VVIP($pid)
+    {
+        $views = PostsVvip::where('id', $pid)->first()->views;
+        $update = array(
+            'views'=>$views+1,
+        );
+        PostsVvip::where('id', $pid)->update($update);
+    }
+
+
     public function forum(Request $request)
     {
         $user=$request->user();
@@ -6196,6 +6535,21 @@ class PagesController extends BaseController
             (select count(*) from posts where (type="sub" and reply_id in (select id from posts where (type="main") ) )) as posts_reply_num
             ')
             ->LeftJoin('users', 'users.id','=','posts.user_id')
+            ->join('user_meta', 'users.id','=','user_meta.user_id')
+            // ->groupBy('users.id')
+            ->take(6)->get();
+
+        $posts_list_vvip = PostsVvip::selectraw('
+         posts_vvip.id as pid,
+         users.id as uid,
+         users.engroup,
+         user_meta.pic as umpic,
+         posts_vvip.id as pid
+         ')->selectRaw('
+            (select count(*) from posts_vvip left join users on users.id = posts_vvip.user_id where (posts_vvip.type="main")) as posts_num, 
+            (select count(*) from posts_vvip where (type="sub" and reply_id in (select id from posts_vvip where (type="main") ) )) as posts_reply_num
+            ')
+            ->LeftJoin('users', 'users.id','=','posts_vvip.user_id')
             ->join('user_meta', 'users.id','=','user_meta.user_id')
             // ->groupBy('users.id')
             ->take(6)->get();
@@ -6230,7 +6584,8 @@ class PagesController extends BaseController
             //            'posts' => null
             'posts' => $posts,
             'forum' => $forum,
-            'posts_list' => $posts_list
+            'posts_list' => $posts_list,
+            'posts_list_vvip' => $posts_list_vvip
         );
 
         //檢查是否為連續兩個月以上的VIP會員

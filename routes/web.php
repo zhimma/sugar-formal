@@ -308,6 +308,17 @@ Route::group(['middleware' => ['auth', 'global', 'active', 'femaleActive', 'vipC
         Route::post('/dashboard/posts_recover', 'PagesController@posts_recover');/*討論區留言恢復*/
         Route::post('/dashboard/post_views', 'PagesController@post_views');
 
+        //VVIP官方討論區
+        Route::get('/dashboard/posts_list_VVIP', 'PagesController@posts_list_VVIP')->name('posts_list_VVIP');/*投稿列表功能*/
+        Route::get('/dashboard/post_detail_VVIP/{pid}', 'PagesController@post_detail_VVIP');
+        Route::post('/dashboard/getPosts_VVIP', 'PagesController@getPosts_VVIP');/*動態取得列表資料*/
+        Route::get('/dashboard/posts_VVIP', 'PagesController@posts_VVIP');/*投稿功能*/
+        Route::get('/dashboard/postsEdit_VVIP/{id}/{editType}', 'PagesController@postsEdit_VVIP');/*投稿修改功能*/
+        Route::post('/dashboard/doPosts_VVIP', 'PagesController@doPosts_VVIP');/*投稿功能*/
+        Route::post('/dashboard/posts_reply_VVIP', 'PagesController@posts_reply_VVIP');/*討論區留言回覆*/
+        Route::post('/dashboard/posts_delete_VVIP', 'PagesController@posts_delete_VVIP');/*討論區留言刪除*/
+        Route::post('/dashboard/posts_recover_VVIP', 'PagesController@posts_recover_VVIP');/*討論區留言恢復*/
+        Route::post('/dashboard/post_views_VVIP', 'PagesController@post_views_VVIP');
 
         //精華討論區
         Route::get('/dashboard/essence_enter_intro', 'PagesController@essence_enter_intro');
