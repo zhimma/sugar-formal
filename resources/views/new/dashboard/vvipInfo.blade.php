@@ -62,11 +62,13 @@
                         <li><a href="{!! url('dashboard/account_manage') !!}" class="g_pwicon_t3 "><span>帳號設定</span></a></li>
                     </div>
 
+                    {{--
                     <div class="wlujing">
                         <img src="/new/images/dd.png"><span><a href="">升级付费</a></span><font>-</font>
                         <img src="/new/images/dd.png"><span><a href="">VVIP專區</a></span><font>-</font>
                         <img src="/new/images/dd.png"><span><a href="">VVIP會員必填</a></span>
                     </div>
+                    --}}
 
                     <div class="zhapian vvip_hg">
                         <div class="vip_bt xq_v_bt">VVIP會員必填</div>
@@ -1090,7 +1092,7 @@
                     return false;
                 }
                 else {
-                    $('.input_field_5').first().append('<div class="system_image matop10">' +
+                    $('.input_field_5').first().append('<div class="system_image matop10" style="position: relative;">' +
                         '<input type="text" placeholder="請輸入至多18個字" class="msinput assets_image_top" maxlength="18">' +
                         '<ul class="n_ulpic" style="margin-bottom: 0;">' +
                             '<img style="width: 50%;" class="sys-img" src=' + $(this).attr('src') + ' value=' + $(this).attr('value') + '>' +
@@ -1113,7 +1115,7 @@
                     return false;
                 }
                 else {
-                    $('.input_field_6').first().append('<div class="system_image matop10">' +
+                    $('.input_field_6').first().append('<div class="system_image matop10" style="position: relative;">' +
                         '<input type="text" placeholder="請輸入至多18個字" class="msinput life_top" maxlength="18">' +
                         '<ul class="n_ulpic" style="margin-bottom: 0;">' +
                             '<img style="width: 50%;" class="sys-img" src=' + $(this).attr('src') + ' value=' + $(this).attr('value') + '>' +
@@ -1123,7 +1125,7 @@
 
             @foreach($assets_image as $option)
                 @if($option->xref_id ?? false)
-                    $('.input_field_5').first().append('<div class="system_image matop10">' +
+                    $('.input_field_5').first().append('<div class="system_image matop10" style="position: relative;">' +
                         '<input type="text" placeholder="請輸入至多18個字" class="msinput assets_image_top" maxlength="18" value={{$option->option_remark}}>' +
                         '<ul class="n_ulpic" style="margin-bottom: 0;">' +
                             '<img style="width: 50%;" class="sys-img" src={{$option->option_name}} value={{$option->id}}>' +
@@ -1133,7 +1135,7 @@
 
             @foreach($quality_life_image as $option)
                 @if($option->xref_id ?? false)
-                    $('.input_field_6').first().append('<div class="system_image matop10">' +
+                    $('.input_field_6').first().append('<div class="system_image matop10" style="position: relative;">' +
                         '<input type="text" placeholder="請輸入至多18個字" class="msinput life_top" maxlength="18" value={{$option->option_remark}}>' +
                         '<ul class="n_ulpic" style="margin-bottom: 0;">' +
                             '<img style="width: 50%;" class="sys-img" src={{$option->option_name}} value={{$option->id}}>' +
