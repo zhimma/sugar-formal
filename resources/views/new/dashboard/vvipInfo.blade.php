@@ -401,7 +401,7 @@
                             <div class="ziliao_1" style="margin-top: 25px;">
                                 <div class="zlsapn_1">八、關於我<span><img src="/new/images/zhy_5.png">必填</span></div>
                                 <div class="xl_system system">
-                                    <input id="about" type="text" class="msinput date_expect" name="about" value={{$user->meta->about}}>
+                                    <textarea id="about" type="text" class="select_xx05" style="border: #ffc2c9 1px solid; border-radius: 10px; outline:none;" name="about" cols="" rows="3">{{$user->meta->about}}</textarea>
                                 </div>
                             </div>
                             <!-- 八、關於我 -->
