@@ -295,10 +295,12 @@
                         <font>About me</font>
                     </div>
                     <div class="ci_ddbg01">
-                        <div class="ci_ddbg01_b" style="border-bottom: #d2d2d2 1px solid;">Daddy期許的包養條件，請客服了解客人需求後，讓寫手潤稿</div>
+                        <div class="ci_ddbg01_b" style="border-bottom: #d2d2d2 1px solid;">{{$targetUser->meta->about}}</div>
+                        {{--
                         @if(!empty($vvipInfo->about))
                         <h3>{!! nl2br($vvipInfo->about) !!}</h3>
                         @endif
+                        --}}
                     </div>
                     <!--  -->
                     <div class="dlxbolv">
