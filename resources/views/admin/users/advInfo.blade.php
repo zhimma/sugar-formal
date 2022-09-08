@@ -689,6 +689,7 @@
     $isEverWarned_log['warned_admin']=null;
     if(isset($isEverWarned) && count($isEverWarned)>0){
         foreach($isEverWarned as $key =>$row){
+            $isEverWarned_log[$key]['id']=$row->id;
             $isEverWarned_log[$key]['created_at']=$row->created_at;
             $isEverWarned_log[$key]['reason']=$row->reason;
             $isEverWarned_log[$key]['vip_pass']=$row->vip_pass;
@@ -705,6 +706,7 @@
     $isEverBanned_log['banneder_admin']= null;
     if(isset($isEverBanned) && count($isEverBanned)>0){
         foreach($isEverBanned as $key =>$row){
+            $isEverBanned_log[$key]['id']=$row->id;
             $isEverBanned_log[$key]['created_at']=$row->created_at;
             $isEverBanned_log[$key]['reason']=$row->reason;
             $isEverBanned_log[$key]['expire_date']=$row->expire_date;
@@ -872,12 +874,24 @@
             @endif
             @if(count($isEverBanned_log)>0)
                 @if(!is_null(array_get($isEverBanned_log,'0')))
-                    <td>{{ array_get($isEverBanned_log,'0.reason') }}</td>
+                    <td>{{ array_get($isEverBanned_log,'0.reason') }}
+                        <form action="{{ route('bannedLogDelete') }}" method='POST'  style="float:right;">
+                            {!! csrf_field() !!}
+                            <input type="hidden" name="ban_id" value="{{ array_get($isEverBanned_log,'0.id') }}">
+                            <button type="submit" class="text-white btn btn-danger delete_banned_log_submit" style="float: right;">刪除</button>
+                        </form>                
+                    </td>
                 @endif
             @endif
             @if(count($isEverWarned_log)>0)
                 @if(!is_null(array_get($isEverWarned_log,'0')))
-                    <td>{{ array_get($isEverWarned_log,'0.reason') }}</td>
+                    <td>{{ array_get($isEverWarned_log,'0.reason') }}
+                        <form action="{{ route('warnedLogDelete') }}" method='POST' style="float:right;">
+                            {!! csrf_field() !!}
+                            <input type="hidden" name="warn_id" value="{{ array_get($isEverWarned_log,'0.id') }}">
+                            <button type="submit" class="text-white btn btn-danger delete_warned_log_submit" style="float: right;">刪除</button>
+                        </form>                
+                    </td>
                 @endif
             @endif
         </tr>
@@ -2789,6 +2803,16 @@ $('.modify_phone_submit').on('click',function(e){
 });
 $('.delete_phone_submit').on('click',function(e){
     if(!confirm('確定要刪除手機?')){
+        e.preventDefault();
+    }
+});
+$('.delete_banned_log_submit').on('click',function(e){
+    if(!confirm('確定要刪除此筆過往封鎖紀錄?')){
+        e.preventDefault();
+    }
+});
+$('.delete_warned_log_submit').on('click',function(e){
+    if(!confirm('確定要刪除此筆過往警示紀錄?')){
         e.preventDefault();
     }
 });

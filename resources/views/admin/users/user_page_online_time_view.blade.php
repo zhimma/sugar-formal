@@ -47,6 +47,7 @@
             tr.isWarned:hover th.col-1st ,tr.isWarned:hover th.col-2nd,     tr.isWarned:hover td.col-1st ,tr.isWarned:hover td.col-2nd {background-color:rgba(0, 0, 0, .075) !important;}        
         
             #setting_empty_page_name_container {margin-bottom:10px;text-align:right;}
+            .showLog {display:none;}
         </style>
         <h1>頁面停留時間</h1>
         <br>
@@ -72,7 +73,7 @@
                                             <th width="5%">ip</th>
                                             <th width="45%">User Agent</th>
                                             <th width="5%">停留時間(秒)</th>
-                                            <th width="10%">開始時間</th>
+                                            <th width="10%" nowrap>開始時間</th>
                                         </tr>
                                         </thead>
                                         <tbody>
@@ -104,6 +105,7 @@
                 目前暫時無資料
             @endif
         </table>
+        {!! $user_online_record->appends(request()->input())->links('pagination::sg-pages') !!}
         <script>
         $('.showLog').hide();
         $('.btn_showLogUser').click(function(){

@@ -791,6 +791,9 @@ Route::group(['middleware' => ['auth', 'global', 'active', 'femaleActive', 'vipC
             Route::post('modify', 'UserController@modifyEmail')->name('emailModify');
             Route::post('search', 'UserController@searchEmail');
         });
+        
+        Route::post('users/bannedLog/delete', 'UserController@deleteBannedLog')->name('bannedLogDelete');
+        Route::post('users/warnedLog/delete', 'UserController@deleteWarnedLog')->name('warnedLogDelete');
 
         Route::post('advanceVerify', 'UserController@advanceVerify')->name('advanceVerify');
 

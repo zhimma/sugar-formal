@@ -5214,6 +5214,22 @@ class UserController extends \App\Http\Controllers\BaseController
         event(new \App\Events\CheckWarnedOfReport($request->user_id));
         return back()->with('message', '手機已刪除');
     }
+    
+    public function deleteBannedLog(Request $request)
+    {
+        $ban_id = $request->ban_id;
+        //直接刪
+        DB::table('is_banned_log')->where('id',$ban_id)->delete();
+        return back()->with('message', '該筆過往封鎖紀錄已刪除');
+    } 
+
+    public function deleteWarnedLog(Request $request)
+    {
+        $warn_id = $request->warn_id;
+        //直接刪
+        DB::table('is_warned_log')->where('id',$warn_id)->delete();
+        return back()->with('message', '該筆過往警示紀錄已刪除');
+    }     
 
     public function searchPhone(Request $request)
     {
@@ -6807,7 +6823,7 @@ class UserController extends \App\Http\Controllers\BaseController
     
     public function user_page_online_time_view(Request $request)
     {      
-        $user_online_record = StayOnlineRecord::with('user')->whereNotNull('stay_online_time')->whereNotNull('url')->selectRaw('user_id,max(created_at) as created_at')->groupBy('user_id')->orderByDesc('created_at')->get();//->whereNotNull('user');        
+        $user_online_record = StayOnlineRecord::with('user')->whereNotNull('stay_online_time')->whereNotNull('url')->selectRaw('user_id,max(created_at) as created_at')->groupBy('user_id')->orderByDesc('created_at')->paginate(200);
 
         return view('admin.users.user_page_online_time_view')
             ->with('user_online_record', $user_online_record);
