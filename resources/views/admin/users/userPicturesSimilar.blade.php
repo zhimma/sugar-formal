@@ -174,6 +174,12 @@
                                             <textarea type="text" class="form-control form-control-sm form-control-plaintext mr-sm-2" name="style">{{ $user->meta_()->style }}</textarea>
                                         </span>
                                         <br>
+                                        <span>
+                                            教學時間: 
+                                            <textarea type="text" class="form-control form-control-sm form-control-plaintext mr-sm-2" name="time">{{ $user->newer_manual_stay_online_time->time }}</textarea>
+                                            <input type="hidden" value="{{ $user->newer_manual_stay_online_time->time }}" name="oTime">
+                                        </span>
+                                        <br>
                                         <button type="submit" class="btn btn-sm btn-primary">修改資料</button>
                                     </form>
                                     <br>
