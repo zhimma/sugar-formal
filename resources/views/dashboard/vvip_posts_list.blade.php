@@ -59,7 +59,7 @@
 							<div class="btn_back"></div>
 						</a>
 						<div style="position: absolute; left:45px;">
-							<span>官方討論區</span>
+							<span>VVIP 討論區</span>
 							<font>Discussion</font>
 						</div>
 						<a onclick="checkUserVip();" class="aid_but"><img src="/posts/images/tg_03.png">我要發表</a>
