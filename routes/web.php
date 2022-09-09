@@ -404,7 +404,7 @@ Route::group(['middleware' => ['auth', 'global', 'active', 'femaleActive', 'vipC
     Route::post('/dashboard/hideOnlineSwitch', 'PagesController@hideOnlineSwitch')->name('hideOnlineSwitch'); //new route
 
     //--vvip--//
-    Route::get('/dashboard/vvipSelect', 'PagesController@view_vvipSelect'); //new route
+    Route::get('/dashboard/vvipSelect', 'PagesController@view_vvipSelect')->name('vvipUpgradePortal'); //new route
     Route::get('/dashboard/vvipSelectA', 'PagesController@view_vvipSelect_a')->name('vvipSelectA'); //new route
     Route::get('/dashboard/vvipSelectB', 'PagesController@view_vvipSelect_b'); //new route
     Route::post('/dashboard/vvipImages/upload','ImageController@uploadImages_VVIP')->name('uploadImages_VVIP');
