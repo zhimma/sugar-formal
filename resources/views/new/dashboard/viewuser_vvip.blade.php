@@ -295,7 +295,7 @@
                         <font>About me</font>
                     </div>
                     <div class="ci_ddbg01">
-                        <div class="ci_ddbg01_b" style="border-bottom: #d2d2d2 1px solid;">{{$targetUser->meta->about}}</div>
+                        <div class="ci_ddbg01_b" style="border-bottom: #d2d2d2 1px solid;">{{ nl2br($targetUser->meta->about) }}</div>
                         {{--
                         @if(!empty($vvipInfo->about))
                         <h3>{!! nl2br($vvipInfo->about) !!}</h3>
