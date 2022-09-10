@@ -60,8 +60,8 @@ class PagesController extends \App\Http\Controllers\BaseController
                 }
             }
             
-            if(\Storage::exists('RP_1010336_'.$d.'.dat')) {
-                $eachLine2 = explode("\n", \Storage::get('RP_1010336_' . $d . '.dat'));
+            if(\Storage::disk('local')->exists('RP_1010336_'.$d.'.dat')) {
+                $eachLine2 = explode("\n", \Storage::disk('local')->get('RP_1010336_' . $d . '.dat'));
                 foreach ($eachLine2 as $line) {
                     if (str_contains($line, 'Delete')) {
                         $line = explode(',', $line);
