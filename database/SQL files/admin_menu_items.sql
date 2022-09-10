@@ -21,7 +21,7 @@ INSERT INTO `admin_menu_items` (`id`, `title`, `route_path`, `created_at`, `upda
 (2, 'VIP會員統計資料', '/admin/stats/vip', '2021-06-04 06:53:43', '2021-06-04 06:53:43'),
 (3, '付費 VIP 會員訂單資料', '/admin/stats/vip/paid', '2021-06-04 06:53:43', '2021-06-04 06:53:43'),
 (4, '其他 VIP 相關統計資料', '/admin/stats/other', '2021-06-04 06:53:43', '2021-06-04 06:53:43'),
-(5, '綠界 VIP 付費取消資料', '/admin/users/VIP/ECCancellations', '2021-06-04 06:53:43', '2021-06-04 06:53:43'),
+(5, '綠界 / FunPoint VIP 付費取消資料', '/admin/users/VIP/ECCancellations', '2021-06-04 06:53:43', '2021-06-04 06:53:43'),
 (6, '會員列表查詢', '/admin/users/memberList', '2021-06-04 06:53:43', '2021-06-04 06:53:43'),
 (7, '會員搜尋(變更男女、VIP資料)', '/admin/users/search', '2021-06-04 06:53:43', '2021-06-04 06:53:43'),
 (8, '進階會員搜尋', '/admin/users/advSearch', '2021-06-04 06:53:43', '2021-06-04 06:53:43'),
