@@ -557,7 +557,7 @@ class UserMeta extends Model
         // 是否想進一步發展
         $is_pure_dating = $request->is_pure_dating ?? null;
         // 是否接受約外縣市
-        $is_dating_other_county = $request->is_dating_other_county ?? true;
+        $is_dating_other_county = $request->is_dating_other_county ?? null;
         $relationship_status = $request->relationship_status ?? false;
 
         $xref_option_search_switch = false;
