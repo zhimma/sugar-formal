@@ -924,7 +924,7 @@ class UserMeta extends Model
         }
         else
         {
-            $singlePageData = $NormalDataQuery->skip($start - $VvipDataQueryCount)->take($count)->showSql()->get();
+            $singlePageData = $NormalDataQuery->skip($start - $VvipDataQueryCount)->take($count)->get();
         }
 
 
