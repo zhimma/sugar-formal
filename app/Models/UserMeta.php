@@ -557,7 +557,7 @@ class UserMeta extends Model
         // 是否想進一步發展
         $is_pure_dating = $request->is_pure_dating ?? null;
         // 是否接受約外縣市
-        $is_dating_other_county = $request->is_dating_other_county ?? 0;
+        $is_dating_other_county = $request->is_dating_other_county ?? true;
         $relationship_status = $request->relationship_status ?? false;
 
         $xref_option_search_switch = false;
@@ -924,7 +924,7 @@ class UserMeta extends Model
         }
         else
         {
-            $singlePageData = $NormalDataQuery->skip($start - $VvipDataQueryCount)->take($count)->get();
+            $singlePageData = $NormalDataQuery->skip($start - $VvipDataQueryCount)->take($count)->showSql()->get();
         }
 
 
