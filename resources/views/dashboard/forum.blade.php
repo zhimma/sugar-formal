@@ -39,7 +39,7 @@
 
 					@if($user->isVipOrIsVvip())
 					<div class="tl_bbg_2">
-						<a @if($user->isVVIP()) href="/dashboard/posts_list_VVIP" @else onclick="c5html('{{ $user->name }}您好，此討論區只開放 VVIP 會員。若想加入 VVIP 會員請到升級付費 → <a href=\'{{ route('vvipUpgradePortal') }}\' style=\'color: red; font-weight: bold;\'>VVIP 申請</a>，謝謝！')" @endif>
+						<a @if($user->isVVIP() || $user->id == 1049) href="/dashboard/posts_list_VVIP" @else onclick="c5html('{{ $user->name }}您好，此討論區只開放 VVIP 會員。若想加入 VVIP 會員請到升級付費 → <a href=\'{{ route('vvipUpgradePortal') }}\' style=\'color: red; font-weight: bold;\'>VVIP 申請</a>，謝謝！')" @endif>
 							<img src="/posts/images/taolq02_VVIP.png" class="tl_bbg_img">
 							{{-- <div style="text-align: center;padding: 10px;font-size:20px;">VVIP官方討論區</div> --}}
 							<div class="te_ins">
