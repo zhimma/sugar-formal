@@ -257,6 +257,7 @@
                         $data = \App\Models\SimpleTables\warned_users::where('member_id', $result['to_id'])->first();
                         $messageInfo = \App\Models\User::findById($result['to_id']);
                         $banned_users =  \App\Models\SimpleTables\banned_users::where('member_id', 'like', $result['to_id'])->get()->first();
+                        $implicitly_users = \App\Models\BannedUsersImplicitly::where('target', $result['to_id'])->get()->first();
                         $isBlocked = is_null($banned_users) && is_null($implicitly_users) ? 0 : 1;
 
                         $isWomanWarned = 0;
