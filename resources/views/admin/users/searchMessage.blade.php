@@ -253,7 +253,30 @@
                     </a>
                 </td>
                 <td>
+                    @php
+                        $data = \App\Models\SimpleTables\warned_users::where('member_id', $result['to_id'])->first();
+                        $messageInfo = \App\Models\User::findById($result['to_id']);
+                        $banned_users =  \App\Models\SimpleTables\banned_users::where('member_id', 'like', $result['to_id'])->get()->first();
+                        $isBlocked = is_null($banned_users) && is_null($implicitly_users) ? 0 : 1;
+
+                        $isWomanWarned = 0;
+
+                        if (isset($data) && ($data->expire_date == null || $data->expire_date >= \Carbon\Carbon::now())) {
+                            $isAdminWarned = 1;
+
+                            if ($messageInfo->engroup != 2) {
+                                $isWomanWarned = 1;
+                            }
+                        } else {
+                            $isAdminWarned = 0;
+                        }
+                    @endphp
                     <a href="{{ route('AdminMessengerWithMessageId', [$result->to_id, $result->id]) }}" target="_blank" class='btn btn-dark'>撰寫</a>
+                    @if ($result->is_write == 1 || (!$messageInfo || $messageInfo && ($isBlocked == 1 || ($isAdminWarned == 1 && $isWomanWarned == 1))))
+                    <a href="javascript:void(0);" data-id="{{ $result->id }}" data-toid = "{{ $result->to_id }}" data-fromid = "{{ $result->from_id }}" class='btn btn-success handle_status_btn' data-handlestatus="1">已處理</a>
+                    @else
+                    <a href="javascript:void(0);" data-id="{{ $result->id }}" data-toid = "{{ $result->to_id }}" data-fromid = "{{ $result->from_id }}" class='btn btn-dark handle_status_btn' data-handlestatus="0">未處理</a>
+                    @endif
                 </td>
 {{--                @if(isset($reported) && $reported == 1)--}}
 {{--                <td>--}}
@@ -1060,6 +1083,43 @@
                 $('.m-reason').val(clickval);
             });
         });
+
+        $(".handle_status_btn").click(function () {
+            const _self = $(this),
+                toId = _self.data('toid'),
+                fromId = _self.data('fromid'),
+                status = _self.data('handlestatus'),
+                handleStatus = status == 1 ? "未處理" : "已處理",
+                messageIndexId = _self.data('id');
+
+            $.ajax({
+                url : `{{ route('users.message.isWrite') }}`,
+                type: "POST",
+                data: {
+                    _token: '{{csrf_token()}}',
+                    toId: toId,
+                    fromId: fromId,
+                    messageIndexId: messageIndexId,
+                },
+                success: res => {
+                    _self.data('handlestatus', status == 1 ? 0 : 1);
+
+                    _self.text(handleStatus);
+
+                    if (status == 1) {
+                        _self.removeClass('btn-success');
+                        _self.addClass('btn-dark');
+                    } else {
+                        _self.removeClass('btn-dark');
+                        _self.addClass('btn-success');
+                    }
+                },
+                error: error => {
+                    console.log(error.responseJSON.message);
+                }
+            });
+        });
+
     });
 
     

@@ -820,6 +820,7 @@ Route::group(['middleware' => ['auth', 'global', 'active', 'femaleActive', 'vipC
         Route::get('users/reported/{date_start?}/{date_end?}/{reported_id?}', 'UserController@showReportedUsersList')->name('users/reported/EXTRA');
         Route::get('users/message/search/reported/{date_start?}/{date_end?}/{reported_id?}', 'UserController@showReportedMessages')->name('users/message/search/reported');
         Route::post('users/reported/handle/status', 'UserController@reportedIsWrite')->name('users.reported.isWrite');
+        Route::post('users/message/handle/status', 'UserController@messageIsWrite')->name('users.message.isWrite');
 
         Route::post('users/pics/reported', 'UserController@searchReportedPics')->name('users/pics/reported');
         Route::get('users/basic_setting', 'UserController@basicSetting')->name('users/basic_setting/GET');

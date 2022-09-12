@@ -3314,6 +3314,41 @@ class UserController extends \App\Http\Controllers\BaseController
         return response('', 201);
     }
 
+    public function messageIsWrite(Request $request)
+    {
+        $admin = $this->admin->checkAdmin();
+
+        if (!$admin) {
+            return response()->json([
+                'message' => '找不到暱稱含有「站長」的使用者！請先新增再執行此步驟'
+            ], 403);
+        }
+
+        $toId = $request->toId;
+        $fromId   = $request->fromId;
+        $messageIndexId   = $request->messageIndexId;
+
+        $message = Message::where([
+            'to_id'     => $toId,
+            'from_id'   => $fromId,
+            'id'          => $messageIndexId
+        ])->first();
+
+        if (!$message) {
+            return response()->json([
+                'message' => '找不到此檢舉'
+            ], 403);
+        }
+
+        Message::where([
+            'id'          => $messageIndexId
+        ])->update([
+            'is_write'      => $message->is_write == 0 ? 1 : 0,
+        ]);
+
+        return response('', 201);
+    }
+
     public function showReportedPicsPage()
     {
         $admin = $this->admin->checkAdmin();
