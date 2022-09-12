@@ -2767,6 +2767,16 @@
 
         // 本人評價
         $('.myself_evaluation').click(function() {
+
+            @if(!isset($evaluation_self))
+                // $('#tab_evaluation').show();
+                // $(".announce_bg").show();
+                // $('body').css("overflow", "hidden");
+            @else
+                c5('您已評價過');
+                return false;
+            @endif
+
             $('.alert_tip').text('');
             $('.self_illustrate').find('input[name="agree"]').prop('checked', false); // 清除偽裝的犯罪現場
             resetImageUploader(document.querySelector('#form1'));
@@ -2779,6 +2789,7 @@
             $('.enter_tab_evaluation').removeClass('evaluation_type_myself');
             $('.anonymous_illustrate').hide();
             $('.self_illustrate').show();
+            $('input[name=content_processing_method]').val('');
             @if($user->engroup==2)
                 $('#tab_reject_female').show();
                 $('.phone_auth').removeClass('hide');
@@ -2789,12 +2800,6 @@
                 $('.vipDays').removeClass('hide');
                 $(".announce_bg").show();
                 $('.enter_tab_evaluation').addClass('evaluation_type_myself');
-            @elseif(!isset($evaluation_self))
-                $('#tab_evaluation').show();
-                $(".announce_bg").show();
-                $('body').css("overflow", "hidden");
-            @else
-                c5('您已評價過');
             @endif
         });
 

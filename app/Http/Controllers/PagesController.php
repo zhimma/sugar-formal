@@ -8354,8 +8354,11 @@ class PagesController extends BaseController
             ->leftJoin('users as b','evaluation.from_id','b.id')
             ->orderBy('evaluation.created_at','desc')
             ->where('evaluation.to_id', $uid)
-            ->where('evaluation.created_at', '>=', Carbon::now()->subDays(30));
-
+            ->where('evaluation.created_at', '>=', Carbon::now()->subDays(30))
+            ->where(function($query) {
+                $query->whereRaw('(evaluation.content_violation_processing is not null AND evaluation.anonymous_content_status=1)')
+                    ->orWhereRaw('evaluation.content_violation_processing IS NULL');}
+            );
         $evaluation_30days_list=$evaluation_30days->where('evaluation.hide_evaluation_to_id', 0)->get();
         $evaluation_30days_unread_count=$evaluation_30days->where('evaluation.read', 1)->get()->count();
 
