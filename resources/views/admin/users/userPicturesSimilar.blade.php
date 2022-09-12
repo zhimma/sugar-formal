@@ -177,7 +177,7 @@
                                         <span>
                                             教學時間:{{ $user->newer_manual_stay_online_time->time }}
                                         </span>
-                                        <br>
+                                        <br><br>
                                         <button type="submit" class="btn btn-sm btn-primary">修改資料</button>
                                     </form>
                                     <br>
