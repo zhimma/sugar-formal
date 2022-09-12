@@ -2192,7 +2192,7 @@ class UserController extends \App\Http\Controllers\BaseController
                 $temp = $results->get()->toArray();
                 //Rearranges the messages query results.
                 $results = array();
-                array_walk($temp, function (&$value, &$key) use (&$results) {
+                array_walk($temp, function (&$value) use (&$results) {
                     $results[$value['id']] = $value;
                 });
                 //Senders' id.
