@@ -2768,7 +2768,7 @@
         // 本人評價
         $('.myself_evaluation').click(function() {
 
-            @if(isset($evaluation_self))
+            @if(!isset($evaluation_self))
                 // $('#tab_evaluation').show();
                 // $(".announce_bg").show();
                 // $('body').css("overflow", "hidden");
