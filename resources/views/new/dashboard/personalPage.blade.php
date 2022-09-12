@@ -1033,22 +1033,6 @@
             lineNotifyPopUp();
         }
     }else{
-
-        //popup評價通知優先高於公告
-        @if($evaluation_30days_unread_count && $user->notice_has_new_evaluation)
-            $('#announcement').hide();
-            $('.announce_bg').hide();
-            $('#show_new_evalucation_popup').show();
-            $(".evaluation_bg").show();
-            $("#show_new_evalucation_popup, .evaluation_bg").on('click', function() {
-
-                if($('#show_new_evalucation_popup').css('display') == 'none'){
-                    $('#announcement').show();
-                    $('.announce_bg').show();
-                    $(".evaluation_bg").hide();
-                }
-            });
-        @endif
         $("#announcement, .gg_butnew, .announce_bg").on('click', function() {
             if($('#announcement').css('display') == 'none'){
                 if(showLineNotifyPop){
@@ -1057,6 +1041,22 @@
             }
         });
     }
+
+    //popup評價通知優先高於公告
+    @if($evaluation_30days_unread_count && $user->notice_has_new_evaluation)
+    $('#announcement').hide();
+    $('#announce_bg').hide();
+    $('#show_new_evalucation_popup').show();
+    $(".evaluation_bg").show();
+    $("#show_new_evalucation_popup, .evaluation_bg").on('click', function() {
+
+        if($('#show_new_evalucation_popup').css('display') == 'none'){
+            $('#announcement').show();
+            $('.announce_bg').hide();
+            $(".evaluation_bg").hide();
+        }
+    });
+    @endif
 
     $("#announce_bg").on('click', function() {
         lineNotifyPopUp_close();
