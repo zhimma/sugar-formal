@@ -6547,13 +6547,6 @@ class UserController extends \App\Http\Controllers\BaseController
         $user_meta->style = $request->style;
         $user_meta->save();
 
-        $stay_online_record = new StayOnlineRecord;
-        $time = $request->time - $request->oTime;
-        $stay_online_record->user_id = $request->user_id;
-        $stay_online_record->newer_manual = $time;
-        $stay_online_record->stay_online_time = 0;
-        $stay_online_record->save();
-
         return redirect()->back();
     }
 
