@@ -195,10 +195,10 @@
 										</div>
 										<!--  -->
 										@php
-											$subDetails = \App\Models\Posts::selectraw('users.id as uid, users.name as uname, users.engroup as uengroup, posts.tag_user_id as tagid, posts.is_anonymous as panonymous, posts.views as uviews, user_meta.pic as umpic, posts.id as pid, posts.title as ptitle, posts.contents as pcontents, posts.updated_at as pupdated_at,  posts.created_at as pcreated_at')
-														->LeftJoin('users', 'users.id','=','posts.user_id')
+											$subDetails = \App\Models\PostsVvip::selectraw('users.id as uid, users.name as uname, users.engroup as uengroup, posts_vvip.tag_user_id as tagid, posts_vvip.is_anonymous as panonymous, posts_vvip.views as uviews, user_meta.pic as umpic, posts_vvip.id as pid, posts_vvip.title as ptitle, posts_vvip.contents as pcontents, posts_vvip.updated_at as pupdated_at,  posts_vvip.created_at as pcreated_at')
+														->LeftJoin('users', 'users.id','=','posts_vvip.user_id')
 														->join('user_meta', 'users.id','=','user_meta.user_id')
-														->where('posts.reply_id', $reply->pid)->get();
+														->where('posts_vvip.reply_id', $reply->pid)->get();
 										@endphp
 										@if(count($subDetails)>0)
 											<div class="tw_bgxx" @if(count($subDetails)>1) style="padding: unset;margin-bottom: 18px;" @else  style="margin-bottom: 18px;" @endif>
@@ -235,7 +235,7 @@
 																	<p style="word-break: break-all;">
 																		<a href="/dashboard/viewuser/{{$tag_userid}}">
 																			<span class="blue">{{ $tag_username }}</span>
-																		</a> {!! \App\Models\Posts::showContent($subReply->pcontents) !!}
+																		</a> {!! \App\Models\PostsVvip::showContent($subReply->pcontents) !!}
 																	</p>
 																	<div class="zap_bb zapbot">
 																		<ul class="zap_photo zap_photo_aa">
