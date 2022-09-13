@@ -4067,41 +4067,25 @@ class PagesController extends BaseController
         $county_array = ['county', 'county2', 'county3', 'county4', 'county5'];
         foreach ($input as $key =>$value){
             if(isset($input['county5']) && $key =='county5'){
-<<<<<<< HEAD
                 if(($input['county4'] == $input['county5'] || $input['county3'] == $input['county5'] || $input['county2'] == $input['county5'] || $input['county'] == $input['county5']) && ($input['county4'] ==$input['district5'] || $input['district3'] == $input['district5'] || $input['district2'] == $input['district5'] || $input['district'] == $input['district5'])){
-=======
-                if($input['county4'] == $input['county5'] || $input['county3'] == $input['county5'] || $input['county2'] == $input['county5'] || $input['county'] == $input['county5']){
->>>>>>> ad599e3339685206716391c36c9466be0af072a7
                     request()->county5 = null;
                     $input['county5'] = null;
                 }
             }
             if(isset($input['county4']) && $key =='county4'){
-<<<<<<< HEAD
                 if(($input['county3'] == $input['county4'] || $input['county2'] == $input['county4'] || $input['county'] == $input['county4']) && ($input['district3'] == $input['district4'] || $input['district2'] == $input['district4'] || $input['district'] == $input['district4'])){
-=======
-                if($input['county3'] == $input['county4'] || $input['county2'] == $input['county4'] || $input['county'] == $input['county4']){
->>>>>>> ad599e3339685206716391c36c9466be0af072a7
                     request()->county4 = null;
                     $input['county4'] = null;
                 }
             }
             if(isset($input['county3']) && $key =='county3'){
-<<<<<<< HEAD
                 if(($input['county2'] == $input['county3'] || $input['county'] == $input['county3']) && ($input['district2'] == $input['district3'] || $input['district'] == $input['district3'])){
-=======
-                if($input['county2'] == $input['county3'] || $input['county'] == $input['county3']){
->>>>>>> ad599e3339685206716391c36c9466be0af072a7
                     request()->county3 = null;
                     $input['county3'] = null;
                 }
             }
             if(isset($input['county2']) && $key =='county2'){
-<<<<<<< HEAD
                 if(($input['county'] == $input['county2']) && ($input['district'] == $input['district2'])){
-=======
-                if($input['county'] == $input['county2']){
->>>>>>> ad599e3339685206716391c36c9466be0af072a7
                     request()->county2 = null;
                     $input['county2'] = null;
                 }
