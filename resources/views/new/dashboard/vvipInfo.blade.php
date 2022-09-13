@@ -1063,7 +1063,7 @@
                     $(".input_field_5").append('<div class="custom matop10" style="width: 100%;">' +
                         '<input type="text" placeholder="請輸入至多18個字" class="msinput assets_image_top" name="assets_image_content[' + add_assets_image_id + ']" maxlength="18">' +
                         '<ul class="n_ulpic" style="margin-bottom: 0;">' +
-                            '<input type="file" id="assets_image_' + add_assets_image_id + '" name="assets_image_' + add_assets_image_id + '" class="files assets_image" data-fileuploader-files="" data-fileuploader-listInput="assets_image_' + add_assets_image_id + '">' +
+                            '<input type="file" id="assets_image_' + add_assets_image_id + '" name="assets_image_' + add_assets_image_id + '" class="files assets_image" data-fileuploader-files="" data-fileuploader-listInput="assets_image_detail[' + add_assets_image_id + ']">' +
                         '</ul><a href="#" class="remove_field_2"><img src="/new/images/del_03n.png"></a></div>');
 
                         uploaderFunction($(".input_field_5").find('.assets_image').last());
@@ -1085,7 +1085,7 @@
                     $(".input_field_6").append('<div class="custom matop10" style="width: 100%;">' +
                         '<input type="text" placeholder="請輸入至多18個字" class="msinput life_top" name="life_image_content[' + add_life_image_id + ']" maxlength="18">' +
                         '<ul class="n_ulpic" style="margin-bottom: 0;">' +
-                            '<input type="file" id="quality_life_image_' + add_life_image_id + '" name="quality_life_image_' + add_life_image_id + '" class="files quality_life_image" data-fileuploader-files="" data-fileuploader-listInput="quality_life_image_' + add_life_image_id + '">' +
+                            '<input type="file" id="quality_life_image_' + add_life_image_id + '" name="quality_life_image_' + add_life_image_id + '" class="files quality_life_image" data-fileuploader-files="" data-fileuploader-listInput="quality_life_image_detail[' + add_life_image_id + ']">' +
                         '</ul><a href="#" class="remove_field_2"><img src="/new/images/del_03n.png"></a></div>');
 
                     uploaderFunction($(".input_field_6").find('.quality_life_image').last());
@@ -1182,6 +1182,7 @@
     <script>
 
         //default
+        /*
         $('.files').fileuploader({
             extensions: ['jpg', 'png', 'jpeg'],
             changeInput: '<a class="img dt_heght write_img dt_pa0" style="background: #fff !important; border: #fe92a9 1px solid; height: unset;"><img src="/new/images/shangc_zp.png" class="hycov" style="cursor: pointer;"></a>',
@@ -1304,6 +1305,7 @@
                 }
             }
         });
+        */
 
         function uploaderFunction(object) {
             object.fileuploader({
@@ -1315,7 +1317,7 @@
                 limit: 1,
                 editor: {
                     cropper: {
-                        ratio: null,
+                        ratio: '1:1',
                         minWidth: null,
                         minHeight: null,
                         showGrid: true

@@ -10183,9 +10183,9 @@ class PagesController extends BaseController
 
         //圖片上傳處理
         if($request->assets_image_content ?? false)
-        {VvipOptionXref::uploadImage($user->id, 'assets_image', $request->assets_image, $request->assets_image_content);}
+        {VvipOptionXref::uploadImage($user->id, 'assets_image', $request->assets_image, $request->assets_image_content, $request->assets_image_detail);}
         if($request->life_image_content ?? false)
-        {VvipOptionXref::uploadImage($user->id, 'quality_life_image', $request->quality_life_image, $request->life_image_content);}
+        {VvipOptionXref::uploadImage($user->id, 'quality_life_image', $request->quality_life_image, $request->life_image_content, $request->quality_life_image_detail);}
 
         //重置選項
         VvipSubOptionXref::reset($user->id);

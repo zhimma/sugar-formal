@@ -116,7 +116,7 @@ class VvipOptionXref extends Model
         VvipOptionXref::insert($insert_data);
     }
 
-    public static function uploadImage($user_id, $type_name, $image_array, $image_content_array)
+    public static function uploadImage($user_id, $type_name, $image_array, $image_content_array, $image_detail_array)
     {
         $insert_data = [];
         $now_time = Carbon::now();
@@ -124,6 +124,7 @@ class VvipOptionXref extends Model
         {
             $file_name = uniqid();
             $file_path = '';
+            $image_detail = json_decode($image_detail_array[$key], true);
 
             //上傳圖片
             $rootPath = public_path('/img/vvipInfo');
@@ -139,7 +140,7 @@ class VvipOptionXref extends Model
                 'uploadDir' => $tempPath,
                 'title' => '{random}',
                 'replace' => false,
-                'editor' => true,
+                'editor' => $image_detail[0]["editor"],
                 'listInput' => true
             ));
 
