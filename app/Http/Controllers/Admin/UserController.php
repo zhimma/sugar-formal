@@ -6005,7 +6005,7 @@ class UserController extends \App\Http\Controllers\BaseController
             '*,
             @meta_update := (SELECT `updated_at` FROM `user_meta` WHERE `user_meta`.`user_id` = `users`.`id`) AS `meta_update`,
             @pic_update  := (SELECT max(`updated_at`) FROM `member_pic` WHERE `member_pic`.`member_id` = `users`.`id` AND `member_pic`.`deleted_at` IS NULL) AS `pic_update`,
-            @last_update := IF(@meta_update > @pic_update, @meta_update, @pic_update) AS `last_update`'
+            @last_update := IF(@meta_update > @pic_update, IFNULL(@meta_update, @pic_update), IFNULL(@pic_update, @meta_update)) AS `last_update`'
         );
 
         $users = $users->whereDoesntHave('suspicious')
