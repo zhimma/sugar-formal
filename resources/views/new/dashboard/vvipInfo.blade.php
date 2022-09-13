@@ -1182,7 +1182,7 @@
     <script>
 
         //default
-        /*
+        {{--
         $('.files').fileuploader({
             extensions: ['jpg', 'png', 'jpeg'],
             changeInput: '<a class="img dt_heght write_img dt_pa0" style="background: #fff !important; border: #fe92a9 1px solid; height: unset;"><img src="/new/images/shangc_zp.png" class="hycov" style="cursor: pointer;"></a>',
@@ -1305,7 +1305,7 @@
                 }
             }
         });
-        */
+        --}}
 
         function uploaderFunction(object) {
             object.fileuploader({
@@ -1388,7 +1388,20 @@
                             if (api.getOptions().limit && api.getChoosedFiles().length - 1 < api.getOptions().limit)
                                 plusInput.show();
                         });
-                    }
+                    },
+                    onImageLoaded: function(item, listEl, parentEl, newInputEl, inputEl) {
+                        if (item.reader.ratio != '1:1') {
+                            console.log(item);
+                            //跳出圖片編輯框
+                            if (item.popup)
+                                item.popup.open();
+                            if (item.editor)
+                                item.editor.cropper();
+                            $('[data-action="cancel"]').on('click',function(){
+                                return false;
+                            });
+                        }
+                    },
                 },
                 dragDrop: {
                     container: '.fileuploader-thumbnails-input'
