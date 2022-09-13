@@ -617,46 +617,120 @@ class UserMeta extends Model
                 $query->where(function($q) use ($city,$city2,$city3,$city4,$city5,$area,$area2,$area3,$area4,$area5) {
                     if($city) {
                         $q->orWhere(function($qq) use ($city,$area) {
-                            $qq->where('city','like','%'.$city.'%');
                             if($area) {
-                                $qq->where('area','like','%'.$area.'%');
+                                $qq->whereRaw('SUBSTRING_INDEX(city,",", 1) like "%'.$city.'%" AND SUBSTRING_INDEX(area,",", 1) like "%'.$area.'%"');
+                            }else{
+                                $qq->where('city','like','%'.$city.'%');
+                            }
+                        });
+                        $q->orWhere(function($qq) use ($city,$area) {
+                            if($area) {
+                                $qq->whereRaw('SUBSTRING_INDEX(SUBSTRING_INDEX(city,",", 2),",",-1) like "%'.$city.'%" AND SUBSTRING_INDEX(SUBSTRING_INDEX(area,",", 2),",",-1) like "%'.$area.'%"');
+                            }else{
+                                $qq->where('city','like','%'.$city.'%');
+                            }
+                        });
+                        $q->orWhere(function($qq) use ($city,$area) {
+                            if($area) {
+                                $qq->whereRaw('SUBSTRING_INDEX(city,",", -1) like "%'.$city.'%" AND SUBSTRING_INDEX(area,",", -1) like "%'.$area.'%"');
+                            }else{
+                                $qq->where('city','like','%'.$city.'%');
                             }
                         });
                     }
-                    
-                    
+
                     if($city2) {
                         $q->orWhere(function($qq) use ($city2,$area2) {
-                            $qq->where('city','like','%'.$city2.'%');
                             if($area2) {
-                                $qq->where('area','like','%'.$area2.'%');
+                                $qq->whereRaw('SUBSTRING_INDEX(city,",", 1) like "%'.$city2.'%" AND SUBSTRING_INDEX(area,",", 1) like "%'.$area2.'%"');
+                            }else{
+                                $qq->where('city','like','%'.$city2.'%');
+                            }
+                        });
+                        $q->orWhere(function($qq) use ($city2,$area2) {
+                            if($area2) {
+                                $qq->whereRaw('SUBSTRING_INDEX(SUBSTRING_INDEX(city,",", 2),",",-1) like "%'.$city2.'%" AND SUBSTRING_INDEX(SUBSTRING_INDEX(area,",", 2),",",-1) like "%'.$area2.'%"');
+                            }else{
+                                $qq->where('city','like','%'.$city2.'%');
+                            }
+                        });
+                        $q->orWhere(function($qq) use ($city2,$area2) {
+                            if($area2) {
+                                $qq->whereRaw('SUBSTRING_INDEX(city,",", -1) like "%'.$city2.'%" AND SUBSTRING_INDEX(area,",", -1) like "%'.$area2.'%"');
+                            }else{
+                                $qq->where('city','like','%'.$city2.'%');
                             }
                         });
                     }
 
                     if($city3) {
                         $q->orWhere(function($qq) use ($city3,$area3) {
-                            $qq->where('city','like','%'.$city3.'%');
                             if($area3) {
-                                $qq->where('area','like','%'.$area3.'%');
+                                $qq->whereRaw('SUBSTRING_INDEX(city,",", 1) like "%'.$city3.'%" AND SUBSTRING_INDEX(area,",", 1) like "%'.$area3.'%"');
+                            }else{
+                                $qq->where('city','like','%'.$city3.'%');
+                            }
+                        });
+                        $q->orWhere(function($qq) use ($city3,$area3) {
+                            if($area3) {
+                                $qq->whereRaw('SUBSTRING_INDEX(SUBSTRING_INDEX(city,",", 2),",",-1) like "%'.$city3.'%" AND SUBSTRING_INDEX(SUBSTRING_INDEX(area,",", 2),",",-1) like "%'.$area3.'%"');
+                            }else{
+                                $qq->where('city','like','%'.$city3.'%');
+                            }
+                        });
+                        $q->orWhere(function($qq) use ($city3,$area3) {
+                            if($area3) {
+                                $qq->whereRaw('SUBSTRING_INDEX(city,",", -1) like "%'.$city3.'%" AND SUBSTRING_INDEX(area,",", -1) like "%'.$area3.'%"');
+                            }else{
+                                $qq->where('city','like','%'.$city3.'%');
                             }
                         });
                     }                    
                     
                     if($city4) {
                         $q->orWhere(function($qq) use ($city4,$area4) {
-                            $qq->where('city','like','%'.$city4.'%');
                             if($area4) {
-                                $qq->where('area','like','%'.$area4.'%');
+                                $qq->whereRaw('SUBSTRING_INDEX(city,",", 1) like "%'.$city4.'%" AND SUBSTRING_INDEX(area,",", 1) like "%'.$area4.'%"');
+                            }else{
+                                $qq->where('city','like','%'.$city4.'%');
+                            }
+                        });
+                        $q->orWhere(function($qq) use ($city4,$area4) {
+                            if($area4) {
+                                $qq->whereRaw('SUBSTRING_INDEX(SUBSTRING_INDEX(city,",", 2),",",-1) like "%'.$city4.'%" AND SUBSTRING_INDEX(SUBSTRING_INDEX(area,",", 2),",",-1) like "%'.$area4.'%"');
+                            }else{
+                                $qq->where('city','like','%'.$city4.'%');
+                            }
+                        });
+                        $q->orWhere(function($qq) use ($city4,$area4) {
+                            if($area4) {
+                                $qq->whereRaw('SUBSTRING_INDEX(city,",", -1) like "%'.$city4.'%" AND SUBSTRING_INDEX(area,",", -1) like "%'.$area4.'%"');
+                            }else{
+                                $qq->where('city','like','%'.$city4.'%');
                             }
                         });
                     }  
                     
                     if($city5) {
                         $q->orWhere(function($qq) use ($city5,$area5) {
-                            $qq->where('city','like','%'.$city5.'%');
                             if($area5) {
-                                $qq->where('area','like','%'.$area5.'%');
+                                $qq->whereRaw('SUBSTRING_INDEX(city,",", 1) like "%'.$city5.'%" AND SUBSTRING_INDEX(area,",", 1) like "%'.$area5.'%"');
+                            }else{
+                                $qq->where('city','like','%'.$city5.'%');
+                            }
+                        });
+                        $q->orWhere(function($qq) use ($city5,$area5) {
+                            if($area5) {
+                                $qq->whereRaw('SUBSTRING_INDEX(SUBSTRING_INDEX(city,",", 2),",",-1) like "%'.$city5.'%" AND SUBSTRING_INDEX(SUBSTRING_INDEX(area,",", 2),",",-1) like "%'.$area5.'%"');
+                            }else{
+                                $qq->where('city','like','%'.$city5.'%');
+                            }
+                        });
+                        $q->orWhere(function($qq) use ($city5,$area5) {
+                            if($area5) {
+                                $qq->whereRaw('SUBSTRING_INDEX(city,",", -1) like "%'.$city5.'%" AND SUBSTRING_INDEX(area,",", -1) like "%'.$area5.'%"');
+                            }else{
+                                $qq->where('city','like','%'.$city5.'%');
                             }
                         });
                     }  
