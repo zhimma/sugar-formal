@@ -6024,6 +6024,7 @@ class UserController extends \App\Http\Controllers\BaseController
                 ->whereNotNull('birthdate')->whereNotNull('area')->whereNotNull('city');
             });
 
+
         // 開始日期
         if ($request->date_start) {
 
