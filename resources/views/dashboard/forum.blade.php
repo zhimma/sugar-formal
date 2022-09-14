@@ -40,14 +40,13 @@
 					@if($user->isVipOrIsVvip())
 					<div class="tl_bbg_2">
 						<a @if($user->isVVIP() || $user->id == 1049) href="/dashboard/posts_list_VVIP" @else onclick="c5html('{{ $user->name }}您好，此討論區只開放 VVIP 會員。若想加入 VVIP 會員請到升級付費 → <a href=\'{{ route('vvipUpgradePortal') }}\' style=\'color: red; font-weight: bold;\'>VVIP 申請</a>，謝謝！')" @endif>
-							<img src="/posts/images/taolq02_VVIP.png" class="tl_bbg_img">
-							{{-- <div style="text-align: center;padding: 10px;font-size:20px;">VVIP官方討論區</div> --}}
+							<img src="/posts/images/taolq05-a.png" class="tl_bbg_img">
 							<div class="te_ins">
 								<div class="ta_wdka_text te_incob">主題數<span>{{ isset($posts_list_vvip[0]) ? $posts_list_vvip[0]->posts_num : 0}}</span><i>丨</i>回覆數<span>{{ isset($posts_list_vvip[0]) ? $posts_list_vvip[0]->posts_reply_num : 0}}</span></div>
 								<div class="ta_witx_rig">
 									<div class="wt_txb">
-										@foreach($posts_list_vvip as $key=>$row)
-											@if(count($posts_list_vvip)>5)
+										@foreach($posts_list_vvip_user_list as $key=>$row)
+											@if(count($posts_list_vvip_user_list)>5)
 												@once
 												<span class="ta_toxmr">
 												<img src="/posts/images/imor.png" class="hycov">
@@ -56,7 +55,7 @@
 											@endif
 
 											@if($key==0)
-												<span class="ta_toxmr @if(count($posts_list_vvip)>5) xa_rig10 @endif">
+												<span class="ta_toxmr @if(count($posts_list_vvip_user_list)>5) xa_rig10 @endif">
 												<img src="@if(file_exists( public_path().$row->umpic ) && $row->umpic != ""){{$row->umpic}} @elseif($row->engroup==2)/new/images/female.png @else/new/images/male.png @endif" class="hycov">
 											</span>
 											@elseif($key>0 && $key<5)
@@ -65,6 +64,17 @@
 											</span>
 											@endif
 										@endforeach
+										@if($posts_list_vvip_user_list->count())
+											@if($posts_list_vvip_user_list->count()>1)
+												@if($posts_list_vvip_user_list->count() >= 100)
+													<div class="ta_sz_hundred" style="background: #ff7d97;">{{ $posts_list_vvip_user_list->count() }}</div>
+												@elseif($posts_list_vvip_user_list->count() >= 10)
+													<div class="ta_sz_ten" style="background: #ff7d97;">{{ $posts_list_vvip_user_list->count() }}</div>
+												@else
+													<div class="ta_sz" style="background: #ff7d97;">{{ $posts_list_vvip_user_list->count() }}</div>
+												@endif
+											@endif
+										@endif
 									</div>
 								</div>
 							</div>
@@ -72,15 +82,15 @@
 					</div>
 					@endif
 
-					<div class="tl_bbg" style="margin-top: 15px;">
+					<div class="tl_bbg_5" style="margin-top: 15px;">
 						<a href="/dashboard/posts_list">
 						<img src="/posts/images/taolq02.png" class="tl_bbg_img">
-						<div class="te_ins_2">
-							<div class="ta_wdka_text te_incob">主題數<span class="te_clo">{{$posts_list[0]->posts_num}}</span><i>丨</i>回覆數<span class="te_clo">{{$posts_list[0]->posts_reply_num}}</span></div>
+						<div class="te_ins">
+							<div class="ta_wdka_text te_incob">主題數<span>{{$posts_list[0]->posts_num}}</span><i>丨</i>回覆數<span>{{$posts_list[0]->posts_reply_num}}</span></div>
 							<div class="ta_witx_rig">
 								<div class="wt_txb">
-									@foreach($posts_list as $key=>$row)
-										@if(count($posts_list)>5)
+									@foreach($posts_list_user_list as $key=>$row)
+										@if(count($posts_list_user_list)>5)
 											@once
 											<span class="ta_toxmr">
 												<img src="/posts/images/imor.png" class="hycov">
@@ -89,7 +99,7 @@
 										@endif
 
 										@if($key==0)
-											<span class="ta_toxmr @if(count($posts_list)>5) xa_rig10 @endif">
+											<span class="ta_toxmr @if(count($posts_list_user_list)>5) xa_rig10 @endif">
 												<img src="@if(file_exists( public_path().$row->umpic ) && $row->umpic != ""){{$row->umpic}} @elseif($row->engroup==2)/new/images/female.png @else/new/images/male.png @endif" class="hycov">
 											</span>
 										@elseif($key>0 && $key<5)
@@ -98,6 +108,17 @@
 											</span>
 										@endif
 									@endforeach
+									@if($posts_list_user_list->count())
+										@if($posts_list_user_list->count()>1)
+											@if($posts_list_user_list->count() >= 100)
+												<div class="ta_sz_hundred" style="background: #ffa4b7;">{{ $posts_list_user_list->count() }}</div>
+											@elseif($posts_list_user_list->count() >= 10)
+												<div class="ta_sz_ten" style="background: #ffa4b7;">{{ $posts_list_user_list->count() }}</div>
+											@else
+												<div class="ta_sz" style="background: #ffa4b7;">{{ $posts_list_user_list->count() }}</div>
+											@endif
+										@endif
+									@endif
 								</div>
 							</div>
 						</div>
@@ -147,11 +168,11 @@
 						</a>
 					</div>
 
-					<div class="tl_bbg_2" style="margin-top: 15px;">
+					<div class="tl_bbg" style="margin-top: 15px;">
 						<a href="/dashboard/essence_enter_intro">
 							<img src="/posts/images/taolq02-a.png" class="tl_bbg_img">
-							<div class="te_ins">
-								<div class="ta_wdka_text te_incob">主題數<span>{{ $essence_posts_num }}</span></div>
+							<div class="te_ins_2">
+								<div class="ta_wdka_text te_incob">主題數<span class="te_clo">{{ $essence_posts_num }}</span></div>
 								<div class="ta_witx_rig">
 									<div class="wt_txb">
 										@foreach($essence_posts_list as $key=>$row)
@@ -176,11 +197,11 @@
 										@if($essence_posts_list->count())
 											@if($essence_posts_list->count()>1)
 												@if($essence_posts_list->count() >= 100)
-													<div class="ta_sz_hundred" style="background: #ff7d97;">{{ $essence_posts_list->count() }}</div>
+													<div class="ta_sz_hundred">{{ $essence_posts_list->count() }}</div>
 												@elseif($essence_posts_list->count() >= 10)
-													<div class="ta_sz_ten" style="background: #ff7d97;">{{ $essence_posts_list->count() }}</div>
+													<div class="ta_sz_ten">{{ $essence_posts_list->count() }}</div>
 												@else
-													<div class="ta_sz" style="background: #ff7d97;">{{ $essence_posts_list->count() }}</div>
+													<div class="ta_sz">{{ $essence_posts_list->count() }}</div>
 												@endif
 											@endif
 										@endif
