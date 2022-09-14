@@ -3314,6 +3314,41 @@ class UserController extends \App\Http\Controllers\BaseController
         return response('', 201);
     }
 
+    public function messageIsWrite(Request $request)
+    {
+        $admin = $this->admin->checkAdmin();
+
+        if (!$admin) {
+            return response()->json([
+                'message' => '找不到暱稱含有「站長」的使用者！請先新增再執行此步驟'
+            ], 403);
+        }
+
+        $toId = $request->toId;
+        $fromId   = $request->fromId;
+        $messageIndexId   = $request->messageIndexId;
+
+        $message = Message::where([
+            'to_id'     => $toId,
+            'from_id'   => $fromId,
+            'id'          => $messageIndexId
+        ])->first();
+
+        if (!$message) {
+            return response()->json([
+                'message' => '找不到此檢舉'
+            ], 403);
+        }
+
+        Message::where([
+            'id'          => $messageIndexId
+        ])->update([
+            'is_write'      => $message->is_write == 0 ? 1 : 0,
+        ]);
+
+        return response('', 201);
+    }
+
     public function showReportedPicsPage()
     {
         $admin = $this->admin->checkAdmin();
@@ -4940,7 +4975,13 @@ class UserController extends \App\Http\Controllers\BaseController
             })
             ->whereDoesntHave('check_point_name', function ($query) {
                 $query->where('name', 'step_1_ischecked');
-            });;
+            })
+            ->whereHas('user_meta', function ($query) {
+                $query->whereNotNull('smoking')->whereNotNull('drinking')
+                ->whereNotNull('marriage')->whereNotNull('education')->whereNotNull('about')->whereNotNull('style')
+                ->whereNotNull('birthdate')->whereNotNull('area')->whereNotNull('city');
+            });
+
 
         if ($request->date_start) {
             $datastart = $request->date_start;
@@ -5964,7 +6005,7 @@ class UserController extends \App\Http\Controllers\BaseController
             '*,
             @meta_update := (SELECT `updated_at` FROM `user_meta` WHERE `user_meta`.`user_id` = `users`.`id`) AS `meta_update`,
             @pic_update  := (SELECT max(`updated_at`) FROM `member_pic` WHERE `member_pic`.`member_id` = `users`.`id` AND `member_pic`.`deleted_at` IS NULL) AS `pic_update`,
-            @last_update := IF(@meta_update > @pic_update, @meta_update, @pic_update) AS `last_update`'
+            @last_update := IF(@meta_update > @pic_update, IFNULL(@meta_update, @pic_update), IFNULL(@pic_update, @meta_update)) AS `last_update`'
         );
 
         $users = $users->whereDoesntHave('suspicious')
@@ -5978,8 +6019,11 @@ class UserController extends \App\Http\Controllers\BaseController
                 $query->where('name', 'step_2_ischecked');
             })
             ->whereHas('user_meta', function ($query) {
-                $query->where('is_active', true);
+                $query->where('is_active', true)->whereNotNull('smoking')->whereNotNull('drinking')
+                ->whereNotNull('marriage')->whereNotNull('education')->whereNotNull('about')->whereNotNull('style')
+                ->whereNotNull('birthdate')->whereNotNull('area')->whereNotNull('city');
             });
+
 
         // 開始日期
         if ($request->date_start) {
