@@ -274,7 +274,7 @@
                                                             @endphp
                                                             <span class="custom_s a1 left @if($sub_option->xref_id ?? false) cractive_a @endif" value={{$sub_option->id}}>{{$sub_option->option_name}}</span>
                                                         @endforeach
-                                                        <input placeholder="輸入人脈屬性(至多8個中文字)" class="msinput" style=" margin-bottom:10px;">
+                                                        <input placeholder="輸入人脈屬性(至多8個中文字)" class="msinput" style=" margin-bottom:10px;" maxlength="8">
                                                         <div class="cr_ad">-人脈可用程度：<i class="nn_shoc_r">(必填)</i></div>
                                                         <h2 class="us_da_1"><input type="radio" @if(($depth ?? false) == 'high') checked @endif name="network_depth" style="margin-right:4px;" value='high'>高：可視情況幫baby安排實習/正式職務</h2>
                                                         <h2 class="us_da_1"><input type="radio" @if(($depth ?? false) == 'low') checked @endif name="network_depth" style="margin-right:4px;" value='low'>低：只能提供顧問以及諮詢</h2>
