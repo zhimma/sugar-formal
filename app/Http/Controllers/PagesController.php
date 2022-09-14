@@ -6529,8 +6529,7 @@ class PagesController extends BaseController
          posts.id as pid,
          users.id as uid,
          users.engroup,
-         user_meta.pic as umpic,
-         posts.id as pid
+         user_meta.pic as umpic
          ')->selectRaw('
             (select count(*) from posts left join users on users.id = posts.user_id where (posts.type="main")) as posts_num, 
             (select count(*) from posts where (type="sub" and reply_id in (select id from posts where (type="main") ) )) as posts_reply_num
@@ -6539,13 +6538,18 @@ class PagesController extends BaseController
             ->join('user_meta', 'users.id','=','user_meta.user_id')
             // ->groupBy('users.id')
             ->take(6)->get();
+        $posts_list_user_list = Posts::selectraw('users.id as uid, users.engroup, user_meta.pic as umpic, posts.id as pid')
+            ->LeftJoin('users', 'users.id','=','posts.user_id')
+            ->join('user_meta', 'users.id','=','user_meta.user_id')
+            ->where('posts.type', 'main')
+            ->groupBy('users.id')
+            ->get();
 
         $posts_list_vvip = PostsVvip::selectraw('
          posts_vvip.id as pid,
          users.id as uid,
          users.engroup,
-         user_meta.pic as umpic,
-         posts_vvip.id as pid
+         user_meta.pic as umpic
          ')->selectRaw('
             (select count(*) from posts_vvip left join users on users.id = posts_vvip.user_id where (posts_vvip.type="main")) as posts_num, 
             (select count(*) from posts_vvip where (type="sub" and reply_id in (select id from posts_vvip where (type="main") ) and deleted_at is null )) as posts_reply_num
@@ -6554,7 +6558,12 @@ class PagesController extends BaseController
             ->join('user_meta', 'users.id','=','user_meta.user_id')
             // ->groupBy('users.id')
             ->take(6)->get();
-
+        $posts_list_vvip_user_list = PostsVvip::selectraw('users.id as uid, users.engroup, user_meta.pic as umpic, posts_vvip.id as pid')
+            ->LeftJoin('users', 'users.id','=','posts_vvip.user_id')
+            ->join('user_meta', 'users.id','=','user_meta.user_id')
+            ->where('posts_vvip.type', 'main')
+            ->groupBy('users.id')
+            ->get();
         $forum = Forum::where('user_id', $user->id)->first();
 
         $get_delete_forum_post_id_ary=ForumPosts::withTrashed()->whereNotNull('deleted_at')->get()->pluck('id')->toArray();
@@ -6586,7 +6595,9 @@ class PagesController extends BaseController
             'posts' => $posts,
             'forum' => $forum,
             'posts_list' => $posts_list,
-            'posts_list_vvip' => $posts_list_vvip
+            'posts_list_user_list' => $posts_list_user_list,
+            'posts_list_vvip' => $posts_list_vvip,
+            'posts_list_vvip_user_list' => $posts_list_vvip_user_list,
         );
 
         //檢查是否為連續兩個月以上的VIP會員
