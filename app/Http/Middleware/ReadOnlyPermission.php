@@ -34,7 +34,8 @@ class ReadOnlyPermission {
      */
     public function handle($request, Closure $next)
     {
-        if (Gate::allows('readonly', $this->auth->user())) {
+        if (Gate::allows('readonly', $this->auth->user()) || 
+            Gate::allows('juniorAdmin', $this->auth->user())) {
             return $next($request);
         }
 
