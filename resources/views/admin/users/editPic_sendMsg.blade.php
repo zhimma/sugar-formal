@@ -60,7 +60,7 @@ td.real_auth_user_modify_pic_col img {margin:auto;}
             </td>
         </tr>
     </table>
-    @if (Auth::user()->can('readonly'))
+    @if (Auth::user()->can('readonly') || Auth::user()->can('juniorAdmin'))
         <form action="{{ route('admin/send/readOnly', (!isset($isReported))? $user->id : $isReportedId ) }}" id='message' method='POST'>
     @else
         <form action="{{ route('admin/send', (!isset($isReported))? $user->id : $isReportedId ) }}" id='message' method='POST'>
@@ -184,7 +184,7 @@ td.real_auth_user_modify_pic_col img {margin:auto;}
                 </td>
     		</form>
     		<td>
-                @if (Auth::user()->can('readonly'))
+                @if (Auth::user()->can('readonly') || Auth::user()->can('juniorAdmin'))
                     <form action="{{ route('users/pictures/modify/readOnly') }}" method="POST" target="_blank">
                 @else
                     <form action="/admin/users/pictures/modify" method="POST" target="_blank">
