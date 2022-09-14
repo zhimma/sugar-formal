@@ -1389,19 +1389,16 @@
                                 plusInput.show();
                         });
                     },
-                    onImageLoaded: function(item, listEl, parentEl, newInputEl, inputEl) {
-                        if (item.reader.ratio != '1:1') {
-                            console.log(item);
-                            //跳出圖片編輯框
-                            if (item.popup)
-                                item.popup.open();
-                            if (item.editor)
-                                item.editor.cropper();
-                            $('[data-action="cancel"]').on('click',function(){
-                                return false;
-                            });
-                        }
-                    },
+                },
+                onFileRead: function(item, listEl, parentEl, newInputEl, inputEl) {
+                    //自動跳出圖片編輯框
+                    if (item.popup)
+                        item.popup.open();
+                    if (item.editor)
+                        item.editor.cropper();
+                    $('[data-action="cancel"]').on('click',function(){
+                        return false;
+                    });
                 },
                 dragDrop: {
                     container: '.fileuploader-thumbnails-input'
