@@ -608,7 +608,7 @@ Route::group(['middleware' => ['auth', 'global', 'active', 'femaleActive', 'vipC
     | Admin
     |--------------------------------------------------------------------------
     */
-    Route::group(['namespace' => 'Admin', 'middleware' => 'ReadOnly'], function () {
+    Route::group(['namespace' => 'Admin', 'middleware' => ['ReadOnly', 'Admin']], function () {
         Route::match(['get', 'post'], 'users/VIP/ECCancellations/readOnly', 'PagesController@showECCancellations')->name('users/VIP/ECCancellations/readOnly');
         Route::get('stats/vip/paid/readOnly', 'StatController@vipPaid')->name('stats/vip/paid/readOnly');
         Route::post('users/VIPToggler/readOnly', 'UserController@toggleVIP')->name('VIPToggler/readOnly');
