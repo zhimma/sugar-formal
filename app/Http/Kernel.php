@@ -80,7 +80,7 @@ class Kernel extends HttpKernel
         'throttle' => \Illuminate\Routing\Middleware\ThrottleRequests::class,
         'pseudoThrottle' => \App\Http\Middleware\PseudoThrottle::class,
         'Admin' => \App\Http\Middleware\Admin::class,
-        'ReadOnly' => \App\Http\Middleware\ReadOnly::class,
+        'ReadOnly' => \App\Http\Middleware\ReadOnlyPermission::class,
         'vipc' => \App\Http\Middleware\Vipc::class,
         'filled' => \App\Http\Middleware\Filled::class,
         'newerManual' => \App\Http\Middleware\NewerManual::class,

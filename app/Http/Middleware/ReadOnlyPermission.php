@@ -6,8 +6,7 @@ use Gate;
 use Closure;
 use Illuminate\Contracts\Auth\Guard;
 
-class ReadOnly
-{
+class ReadOnlyPermission {
     /**
      * The Guard implementation.
      *
