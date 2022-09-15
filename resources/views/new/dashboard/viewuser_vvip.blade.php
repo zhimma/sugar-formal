@@ -189,8 +189,8 @@
                             <div class="ci_lidw"><h2>尚無資料</h2></div>
                         </div>
                     @endif
+                    <!-- 背景與資產 -->
 
-                    <!--  -->
                     <!-- 溫情照顧 -->
                     <div class="shou" style="border-bottom: none; margin-bottom:5px; margin-top:20px;">
                         <span style="font-size: 18px;">Daddy溫情照顧</span>
@@ -236,8 +236,8 @@
                             <div class="ci_lidw"><h2>尚無資料</h2></div>
                         </div>
                     @endif
+                    <!-- 溫情照顧 -->
 
-                    <!--  -->
 
                     <!-- 財富資產 -->
                     <div class="shou" style="border-bottom: none; margin-bottom:5px; margin-top: 20px;">
@@ -268,7 +268,7 @@
                         <div class="ci_lidw"><h2>尚無資料</h2></div>
                         </div>
                     @endif
-
+                    <!-- 財富資產 -->
 
                     <!-- Daddy的品質生活 -->
                     <div class="shou" style="border-bottom: none; margin-bottom:5px; margin-top: -30px;">
@@ -289,7 +289,9 @@
                             <div class="ci_lidw left">尚無資料</div>
                         @endif
                     </div>
+                    <!-- Daddy的品質生活 -->
 
+                    <!-- 關於我 -->
                     <div class="shou" style="border-bottom: none; margin-bottom:5px; margin-top:20px;">
                         <span style="font-size: 18px;">關於我</span>
                         <font>About me</font>
@@ -302,9 +304,10 @@
                         @endif
                         --}}
                     </div>
-                    <!--  -->
-                    <div class="dlxbolv">
+                    <!-- 關於我 -->
 
+                    <!-- 期待的約會模式 -->
+                    <div class="dlxbolv">
                         <div class="shou" style="border-bottom: none; margin-bottom:5px; margin-top:20px;">
                             <span style="font-size: 18px;">期待的約會模式</span>
                             <font>Dating patterns</font>
@@ -318,7 +321,8 @@
                             @endforeach
                         </div>
                     </div>
-                    <!--  -->
+                    <!-- 期待的約會模式 -->
+
                     <div class="ziliao_dbn">
                         <div class="shou" style="border-bottom: none; margin-bottom:5px; margin-top:20px;">
                             <span style="font-size: 18px;">基本資料</span>
@@ -368,9 +372,8 @@
                                 <span class="mtop" v-else><img src="/new/images/icon_35.png" /></span></div>
                         </div>
                     </div>
-                    <!--  -->
-                </div>
 
+                </div>
             </div>
         </div>
     </div>
