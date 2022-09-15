@@ -1396,9 +1396,12 @@
                         item.popup.open();
                     if (item.editor)
                         item.editor.cropper();
+                    /*
                     $('[data-action="cancel"]').on('click',function(){
                         return false;
                     });
+                    */
+                    $('[data-action="cancel"]').hide();
                 },
                 dragDrop: {
                     container: '.fileuploader-thumbnails-input'
