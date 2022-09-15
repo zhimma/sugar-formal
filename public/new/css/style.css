@@ -4154,7 +4154,7 @@ border-radius:100px;margin-top:5px;font-weight:normal;font-size:18px;padding:15p
     .ziliao_dbn{width: 100%; }
 }
 
-.zlys_aa{width: 100%; background: #fbfbfb; border-radius:7px; padding:5px 0; margin-bottom:10px;box-shadow:inset 1px 4px 6px 1px #dbdbdb; padding:10px 10px;}
+.zlys_aa{width: 100%; background: #ffe2e2; border-radius:7px; padding:5px 0; margin-bottom:10px;box-shadow:inset 1px 4px 6px 1px rgba(240,153,130,0.5); padding:10px 10px;}
 .zlys_aa span{ float: right; color: #666;}
 
 .xzl_left{width: 48%;background: #fbfbfb; border-radius:7px; padding:5px 0; margin-bottom:10px;box-shadow:inset 1px 4px 6px 1px #dbdbdb; padding:10px 10px; float: left;}
