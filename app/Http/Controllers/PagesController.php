@@ -8883,7 +8883,12 @@ class PagesController extends BaseController
                 $ssrData .='<div class="liuyan_img"><img class="hycov '.$is_blur.'" src="'.$umpic.'"></div>';
                 $ssrData .='</a>';
                 $ssrData .='<a href="/MessageBoard/post_detail/'. $list->mid.'">';
-                $ssrData .='<div class="liuyan_prilist">';
+                if($msgUser->isVVIP()){
+                    $ssrData .='<div class="liuyan_prilist liuy_vvip">';
+                }
+                else{
+                    $ssrData .='<div class="liuyan_prilist">';
+                }
                 $ssrData .='<div class="liuyfont">';
                 $ssrData .='<div class="liu_name">'.$list->uname.' , '. $age .'<span>'. substr($list->mcreated_at,0,10) .'</span></div>';
                 $ssrData .='<div class="liu_dq">'. $cityAndArea .'</div>';
@@ -9006,7 +9011,12 @@ class PagesController extends BaseController
                 $ssrData .='<div class="liuyan_img"><img class="hycov '.$is_blur.'" src="'.$umpic.'"></div>';
                 $ssrData .='</a>';
                 $ssrData .='<a href="/MessageBoard/post_detail/'. $list->mid.'">';
-                $ssrData .='<div class="liuyan_prilist">';
+                if($msgUser->isVVIP()){
+                    $ssrData .='<div class="liuyan_prilist liuy_vvip">';
+                }
+                else{
+                    $ssrData .='<div class="liuyan_prilist">';
+                }
                 $ssrData .='<div class="liuyfont">';
                 $ssrData .='<div class="liu_name">'.$list->uname.' , '.$age .'<span>'. substr($list->mcreated_at,0,10) .'</span></div>';
                 $ssrData .='<div class="liu_dq">'. $cityAndArea .'</div>';

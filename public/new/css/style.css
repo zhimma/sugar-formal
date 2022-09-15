@@ -6231,3 +6231,7 @@ line-height:26px; box-shadow: 0 5px 5px #ffc1cd;}
 }
 
 .liaot_tx_l{position: absolute; top: -10px; left:18px;width: 34px !important; height:20px !important;;}
+.liuy_vvip{ background: linear-gradient(60deg,#fde8e6, #fab4b4) ;}
+.sm_vvip{width: 94%; margin: 0 auto; display:table; color: #666;}
+.shuo_nr{width: calc(100% - 30px); float: right; border-top: #eee 1px solid; padding-top:10px; margin-top: 10px;}
+.shuo_vip{background: linear-gradient(60deg,#fde8e6, #fab4b4) ;width: 20px; height:20px; border-radius: 5px; display: table; float: left; margin-right:6px; }
