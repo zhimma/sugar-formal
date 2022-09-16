@@ -411,7 +411,7 @@
                             <font>Basic information</font>
                         </div>
                         <div class="ci_ddbg">
-                            <div class="zlys_aa">註冊時間 @if($user->isVip() || $user->isVVIP())<span>{{$targetUser->created_at}}</span>@else <span class="mtop"><img src="/new/images/icon_35.png"></span> @endif</div>
+                            <div class="zlys_aa">註冊時間 @if($user->isVip() || $user->isVVIP())<span>{{$targetUser->created_at->toDateString()}}</span>@else <span class="mtop"><img src="/new/images/icon_35.png"></span> @endif</div>
                             <div class="zlys_aa">年齡 <span>{{$targetUser->meta->age()}}</span></div>
                             <div class="zlys_aa">身高 <span>{{$targetUser->meta->height}}cm</span></div>
                             <div class="zlys_aa">婚姻  <span>{{$targetUser->meta->marriage}}</span></div>

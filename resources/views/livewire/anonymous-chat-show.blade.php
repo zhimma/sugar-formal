@@ -38,13 +38,17 @@
                     @if($row->user_id != auth()->user()->id)
                     style="cursor: pointer;" wire:click="chat_message('{{$row->anonymous}}', {{$row->id}}, {{$row->engroup}})"
                     @endif>
-                    @php
-                        $reply_data = \App\Models\AnonymousChat::where('id', $row->reply_id)->first();
-                        $msg_user = \App\Models\User::where('id', $row->user_id)->first();
-                    @endphp
-                @if($msg_user->isVVIP())
+                @php
+                    $reply_data = \App\Models\AnonymousChat::where('id', $row->reply_id)->first();
+                    $msg_user = \App\Models\User::where('id', $row->user_id)->first();
+                @endphp
+                
+                @if($row->user_id != auth()->user()->id && $msg_user->isVVIP())
                     <img src="/new/images/v1_08.png" class="liaot_tx_l">
+                @elseif($msg_user->isVVIP())
+                    <img src="/new/images/v1_08.png" class="liaot_tx_r">
                 @endif
+                
                 <p @if(isset($row->reply_id)) class="msg_has_parent" @endif @if($row->anonymous=='站長' && $row->user_id != auth()->user()->id)style="background: #ddf3ff;"@endif>
                     <span class="nickname @if($row->user_id != auth()->user()->id) left @endif" @if($row->user_id == auth()->user()->id) style="float: right; left: unset; right: 10px;" @endif>{{$row->anonymous}}</span>
                     @if(isset($row->reply_id))
