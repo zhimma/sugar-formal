@@ -579,8 +579,11 @@ class Message_newController extends BaseController {
 
             $letter_vvip = AdminCommonText::where('category_alias','letter_text')->where('alias','vvip')->get()->first();
             /*編輯文案-檢舉大頭照-END*/
+
+            $message_with_user_count=count(Message::showAllMsgWithinTimeRange($user->id, 'oneWeek'));
             return view('new.dashboard.chat')
                 ->with('user', $user)
+                ->with('message_with_user_count', $message_with_user_count)
                 ->with('m_time', $m_time)
                 ->with('isVip', $isVip)
                 ->with('vip_member', $vip_member->content)
@@ -980,5 +983,36 @@ class Message_newController extends BaseController {
             session()->forget('via_by_essence_article_enter');
 
         }
+    }
+
+    public function deleteMutipleMessages(Request $request) {
+
+        $user=auth()->user();
+
+        $oneWeekList=Message::showAllMsgWithinTimeRange($user->id, 'oneWeek');
+        foreach ($oneWeekList as $key =>$value){
+            $item_user=\App\Models\User::findById($value['user_id']);
+            $oneWeekList[$key]['isBlurAvatar']= \App\Services\UserService::isBlurAvatar($item_user, $user);
+        }
+
+        $twoWeekList = collect($oneWeekList)->filter(function($item){
+            return $item['last_msg_created_at']<=date('Y-m-d H:i:s', strtotime('-2 weeks'));
+        });
+        $oneMonthList = collect($oneWeekList)->filter(function($item){
+            return $item['last_msg_created_at']<=date('Y-m-d H:i:s', strtotime('-1 months'));
+        });
+
+        return view('/new/dashboard/deleteMutipleMessages',compact('oneWeekList', 'twoWeekList', 'oneMonthList'))
+            ->with('user', $user);
+    }
+
+    public function deleteBetweenMsg_multiple(Request $request) {
+        $uid= auth()->user()->id;
+        $sList=$request->sList;
+        foreach ($sList as $key => $sid){
+            Message::deleteBetween($uid, $sid);
+            //logger('deleteBetween=>$uid'.$uid. ' $sid=>'.$sid);
+        }
+        return response()->json(['save' => 'ok']);
     }
 }
