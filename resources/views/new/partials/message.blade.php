@@ -230,6 +230,17 @@
     <a id="" onclick="gmBtnNoReload()" class="bl_gb"><img src="/new/images/gb_icon.png"></a>
 </div>
 
+<div class="bl bl_tab" id="deleteMutipleMessagePopUp">
+    <div class="bltitle">提示</div>
+    <div class="n_blnr01">
+        <p>您好，您的累積通訊人數已經超過<span id="more_people_cnt">60</span>人，會使得讀取訊息速度緩慢，建議您刪除部分訊息以提高讀取速度。<a href="/dashboard/chat2/deleteMutipleMessages" style="color: red;">(點我進入大量刪除頁面)</a></p>
+        <div class="n_bbutton">
+            <span><a onclick="$('#deleteMutipleMessagePopUp').hide();$('#announce_bg').hide()" class="n_left" href="javascript:" >離開</a></span>
+            <span><a onclick="$('#deleteMutipleMessagePopUp').hide();$('#announce_bg').hide()" class="n_right" href="javascript:">不再顯示</a></span>
+        </div>
+    </div>
+    <a id="" onclick="gmBtnNoReload()" class="bl_gb"><img src="/new/images/gb_icon.png"></a>
+</div>
 @php
     $anonymous_chat_announcement = \App\Models\AdminCommonText::where('category_alias', 'anonymous_chat')->where('alias', 'announcement')->first();
     if($anonymous_chat_announcement) {

@@ -2396,7 +2396,18 @@
 
         @endif
 
+        @if($message_with_user_count>60 || $message_with_user_count>150 || $message_with_user_count>250)
+            @if($message_with_user_count>250)
+                $('#more_people_cnt').text('250');
+            @elseif($message_with_user_count>150)
+                $('#more_people_cnt').text('150');
+            @elseif($message_with_user_count>60)
+                $('#more_people_cnt').text('60');
+            @endif
 
+            $('#deleteMutipleMessagePopUp').show();
+            $('#announce_bg').show();
+        @endif
 
 </script>
 @stop

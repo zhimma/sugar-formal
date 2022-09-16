@@ -1235,4 +1235,40 @@ class Message extends Model
     {
         return $this->belongsTo(User::class, 'to_id');
     }
+
+    public static function showAllMsgWithinTimeRange($user_id, $timeRange)
+    {
+        $user=auth()->user();
+        $data_all = Message_new::allSendersAJAX($user->id, $user->isVip(),'all');
+        switch ($timeRange){
+            case 'oneWeek':
+                $time=date('Y-m-d H:i:s', strtotime('-1 week'));
+                break;
+            case 'twoWeek':
+                $time=date('Y-m-d H:i:s', strtotime('-2 weeks'));
+                break;
+            case 'oneMonth':
+                $time=date('Y-m-d H:i:s', strtotime('-1 months'));
+                break;
+            default:
+                $time='';
+                break;
+        }
+
+        $result=array();
+        if(array_get($data_all,'0')!=='No data'){
+            foreach ($data_all as $key =>$data){
+                if($data['created_at'] <= $time){
+                    $msg_user=$data['from_id']==$user->id ? $data['to_id'] : $data['from_id'];
+                    $result[$msg_user]['last_msg_content']=$data['content'];
+                    $result[$msg_user]['last_msg_created_at']=$data['created_at'];
+                    $result[$msg_user]['user_id']=$data['user_id'];
+                    $result[$msg_user]['user_name']=$data['user_name'];
+                    $result[$msg_user]['user_engroup']=$data['engroup'];
+                    $result[$msg_user]['user_pic']=$data['pic'];
+                }
+            }
+        }
+        return $result;
+    }
 }
