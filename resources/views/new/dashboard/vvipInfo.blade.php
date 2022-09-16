@@ -1402,6 +1402,7 @@
                     });
                     */
                     $('[data-action="cancel"]').hide();
+                    $('[data-action="rotate-cw"]').hide();
                 },
                 dragDrop: {
                     container: '.fileuploader-thumbnails-input'
