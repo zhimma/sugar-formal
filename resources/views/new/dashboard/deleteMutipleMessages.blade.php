@@ -137,7 +137,7 @@
                 }
             });
             sList_array=removeDuplicates(sList_array);
-            alert('delete user array->'+sList_array  + '總共刪除：'+sList_array.length+'筆資料');
+            //alert('delete user array->'+sList_array  + '總共刪除：'+sList_array.length+'筆資料');
             if(sList_array.length==0){
                 c5('目前暫無訊息可供刪除！')
                 return false;
