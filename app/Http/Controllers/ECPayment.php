@@ -26,25 +26,25 @@ class ECPayment extends BaseController
 
         //new payment
         if($request->type == 'cc_quarterly_payment'){
-            $amount = 2964;
+            $amount = 3988;
             $PeriodType = 'M';
             $Frequency = '3';
-            $PeriodAmount = '2964';
+            $PeriodAmount = '3988';
             $ExecTimes = '99';
         }else if($request->type == 'cc_monthly_payment'){
-            $amount = 1388;
+            $amount = 1899;
             $PeriodType = 'M';
             $Frequency = '1';
-            $PeriodAmount = '1388';
+            $PeriodAmount = '1899';
             $ExecTimes = '99';
         }else if($request->type == 'one_quarter_payment'){
-            $amount = 2964;
+            $amount = 3988;
             $PeriodType = '';
             $Frequency = '';
             $PeriodAmount = '';
             $ExecTimes = '';
         }else if($request->type == 'one_month_payment'){
-            $amount = 1388;
+            $amount = 1899;
             $PeriodType = '';
             $Frequency = '';
             $PeriodAmount = '';

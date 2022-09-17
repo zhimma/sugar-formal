@@ -34,7 +34,7 @@
                                     <li><div class="vipcion"><img src="/new/images/bicontop.png"></div>
                                         <div class="new_fa">每季支付</div>
                                         <div class="new_fanext">
-                                            <h2>NT$988/月</h2>
+                                            <h2>NT$3988/季</h2>
                                             <h2>每季自動扣款</h2>
                                         </div>
                                         <form id="cc_quarterly_paymentForm" class="m-form m-form--fit" action="{{ route('upgradepay_ec') }}" method=post>
@@ -50,7 +50,7 @@
                                     <li>
                                         <div class="new_fa">每月支付</div>
                                         <div class="new_fanext">
-                                            <h2>NT$1388/月</h2>
+                                            <h2>NT$1899/月</h2>
                                             <h2>每月自動扣款</h2>
                                         </div>
                                         <form id="cc_monthly_paymentForm" class="m-form m-form--fit" action="{{ route('upgradepay_ec') }}" method=post>
@@ -72,7 +72,7 @@
                                     <li>
                                         <div class="new_fa">單季支付</div>
                                         <div class="new_fanext">
-                                            <h2>NT$988/月</h2>
+                                            <h2>NT$3988/季</h2>
                                             <h2>單季體驗</h2>
                                             <div class="new_abg">
                                                 <span>
@@ -125,7 +125,7 @@
                                     <li>
                                         <div class="new_fa">單月支付</div>
                                         <div class="new_fanext">
-                                            <h2>NT$1388/月</h2>
+                                            <h2>NT$1899/月</h2>
                                             <h2>單月體驗</h2>
                                             <div class="new_abg">
                                                 <span>
