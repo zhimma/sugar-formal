@@ -532,9 +532,9 @@ class Message_new extends Model
         else
 			$user = Auth::user();
         $block_people =  Config::get('social.block.block-people');
-        $isVip = $user->isVip();
-        $aa=[];
-		$admin_id = AdminService::checkAdmin()->id;
+        // $isVip = $user->isVip();
+        // $aa=[];
+		// $admin_id = AdminService::checkAdmin()->id;
         foreach ($messages as $key => &$message){
 			
             if($message['sender']->engroup==$message['receiver']->engroup){
