@@ -1238,7 +1238,7 @@ class Message extends Model
 
     public static function showAllMsgWithinTimeRange($user_id, $timeRange)
     {
-        $user = auth()->user() ? auth()->user() : User::find($user_id);
+        $user = auth()->user() ?? User::find($user_id);
         $data_all = Message_new::allSendersAJAX($user->id, $user->isVip(),'all');
         switch ($timeRange){
             case 'oneWeek':
