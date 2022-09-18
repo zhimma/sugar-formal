@@ -553,7 +553,7 @@ class Message_new extends Model
             }
             unset($message['sender']);
             unset($message['receiver']);
-            if(!$msgUser){
+            if(!($msgUser ?? false )){
                 unset($messages[$key]);
                 continue;
             }
