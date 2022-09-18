@@ -335,7 +335,7 @@ class ValueAddedService extends Model
 
 //        $be_fav_count = MemberFav::where('member_fav_id', $user->id)->get()->count();
 //        $fav_count = MemberFav::where('member_id', $user->id)->get()->count();
-        $tip_count = Tip::where('from_id', $user->id)->get()->count();
+        $tip_count = Tip::where('member_id', $user->id)->get()->count();
         /*七天前*/
         $date = date('Y-m-d H:m:s', strtotime('-7 days'));
         /*發信＆回信次數統計*/
