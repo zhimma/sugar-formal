@@ -34,21 +34,26 @@ class MessageFiller extends Seeder
                 'count' => 250
             ]
         ];
+        $to_users = User::inRandomOrder()->take(250)->get();
         foreach ($users as $u) {
-            $user = User::create([
-                'name' => $u['name'],
-                'email' => $u['email'],
-                'password' => bcrypt('123123'),
-                'engroup' => 2
-            ]);
+            $user = User::firstOrCreate(
+                ['name' => $u['name'],],
+                [
+                    'name' => $u['name'],
+                    'email' => $u['email'],
+                    'password' => bcrypt('123123'),
+                    'engroup' => 2
+                ]);
     
-            $user_meta = UserMeta::create([
-                'user_id' => $user->id,
-                'is_active' => 1
-            ]);
+            $user_meta = UserMeta::firstOrCreate(
+                ['user_id' => $user->id],
+                [
+                    'user_id' => $user->id,
+                    'is_active' => 1
+                ]);
 
             for ($i = 0; $i < $u['count']; $i++) {
-                Message::post($user->id, 15601, '測試刪除訊息');
+                Message::post($user->id, $to_users[$i]->id, '測試刪除訊息');
             }
         }
         
