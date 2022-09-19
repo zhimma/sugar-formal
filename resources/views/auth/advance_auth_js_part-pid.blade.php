@@ -70,12 +70,16 @@
             var now = new Date();
             nowyear=now.getFullYear();
             
-            nowmonth=now.getMonth();
+            nowmonth=now.getMonth()+1;
             nowday = now.getDate();
             
             age=nowyear-year;
-            
-            if(month>nowmonth || month==nowmonth && day>nowday){
+            console.log('age='+age);
+            console.log('month='+month);
+            console.log('nowmonth='+nowmonth);
+            console.log('day='+day);
+            console.log('nowday='+nowday);
+            if(month>nowmonth || (month==nowmonth && day>nowday)){
                 age--;
             }  
 
