@@ -4990,7 +4990,7 @@ class PagesController extends BaseController
         //開始計算年齡
         $age=$tyear-$byear;
 
-        if($bmonth>$tmonth || $bmonth==$tmonth && $bday>$tday){
+        if($bmonth>$tmonth || ($bmonth==$tmonth && $bday>$tday)){
             $age--;
         }
         return $age;
