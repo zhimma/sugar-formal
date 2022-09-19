@@ -21,18 +21,18 @@ class MessageFiller extends Seeder
             [
                 'name' => '測試刪 60 條訊息',
                 'email' => 'sandyh.dlc+60@gmail.com',
-                'count' => 60
+                'count' => 10
             ],
-            [
-                'name' => '測試刪 150 條訊息',
-                'email' => 'sandyh.dlc+150@gmail.com',
-                'count' => 150
-            ],
-            [
-                'name' => '測試刪 250 條訊息',
-                'email' => 'sandyh.dlc+250@gmail.com',
-                'count' => 250
-            ]
+            // [
+            //     'name' => '測試刪 150 條訊息',
+            //     'email' => 'sandyh.dlc+150@gmail.com',
+            //     'count' => 150
+            // ],
+            // [
+            //     'name' => '測試刪 250 條訊息',
+            //     'email' => 'sandyh.dlc+250@gmail.com',
+            //     'count' => 250
+            // ]
         ];
         $to_users = User::inRandomOrder()->take(250)->get();
         foreach ($users as $u) {
