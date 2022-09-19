@@ -6030,7 +6030,7 @@ class UserController extends \App\Http\Controllers\BaseController
 
             $users = $users->whereRaw(
                 "IF(
-                    (SELECT `updated_at` FROM `user_meta` WHERE `user_meta`.`user_id` = `users`.`id`) > (SELECT max(`updated_at`) FROM `member_pic` WHERE `member_pic`.`member_id` = `users`.`id` AND `member_pic`.`deleted_at` IS NULL),
+                    (SELECT `updated_at` FROM `user_meta` WHERE `user_meta`.`user_id` = `users`.`id`) > (SELECT IF(max(`updated_at`)=NULL,  max(`updated_at`), '0000-00-00') FROM `member_pic` WHERE `member_pic`.`member_id` = `users`.`id` AND `member_pic`.`deleted_at` IS NULL),
                     (SELECT `updated_at` FROM `user_meta` WHERE `user_meta`.`user_id` = `users`.`id`),
                     (SELECT max(`updated_at`) FROM `member_pic` WHERE `member_pic`.`member_id` = `users`.`id` AND `member_pic`.`deleted_at` IS NULL)
                 ) >= '$request->date_start'"
@@ -6042,7 +6042,7 @@ class UserController extends \App\Http\Controllers\BaseController
 
             $users = $users->whereRaw(
                 "IF(
-                    (SELECT `updated_at` FROM `user_meta` WHERE `user_meta`.`user_id` = `users`.`id`) > (SELECT max(`updated_at`) FROM `member_pic` WHERE `member_pic`.`member_id` = `users`.`id` AND `member_pic`.`deleted_at` IS NULL),
+                    (SELECT `updated_at` FROM `user_meta` WHERE `user_meta`.`user_id` = `users`.`id`) > (SELECT IF(max(`updated_at`)=NULL,  max(`updated_at`), '0000-00-00') FROM `member_pic` WHERE `member_pic`.`member_id` = `users`.`id` AND `member_pic`.`deleted_at` IS NULL),
                     (SELECT `updated_at` FROM `user_meta` WHERE `user_meta`.`user_id` = `users`.`id`),
                     (SELECT max(`updated_at`) FROM `member_pic` WHERE `member_pic`.`member_id` = `users`.`id` AND `member_pic`.`deleted_at` IS NULL)
                 ) <= '$request->date_end 23:59:59'"
@@ -6074,22 +6074,22 @@ class UserController extends \App\Http\Controllers\BaseController
         // 照片是否隱藏
         if ($request->hidden) {
 
-            $users = $users->whereHas('pic', function ($query) {
-                $query->where('isHidden', 1);
-            });
-
             $users = $users->whereHas('meta', function ($query) {
                 $query->where('isAvatarHidden', 1);
             });
+            //$users = $users->whereHas('pic', function ($query) {
+            //    $query->where('isHidden', 1);
+            //});
+            $users = $users->whereRaw('((select count(*) from `member_pic` where `users`.`id` = `member_pic`.`member_id` and `isHidden` = 1 and `member_pic`.`deleted_at` is null)>0 OR (select count(*) from `member_pic` where `users`.`id` = `member_pic`.`member_id`  and `member_pic`.`deleted_at` is null)=0)');
         } else {
-
-            $users = $users->whereHas('pic', function ($query) {
-                $query->where('isHidden', 0);
-            });
 
             $users = $users->whereHas('meta', function ($query) {
                 $query->where('isAvatarHidden', 0);
             });
+            //$users = $users->whereHas('pic', function ($query) {
+            //    $query->where('isHidden', 0);
+            //});
+            $users = $users->whereRaw('((select count(*) from `member_pic` where `users`.`id` = `member_pic`.`member_id` and `isHidden` = 0 and `member_pic`.`deleted_at` is null)>0 OR (select count(*) from `member_pic` where `users`.`id` = `member_pic`.`member_id`  and `member_pic`.`deleted_at` is null)=0)');
         }
 
         if ($request->order_by == 'last_login') {
