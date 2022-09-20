@@ -17,6 +17,10 @@ use App\Jobs\LogoutAutoBan;
 use Carbon\Carbon;
 use App\Services\ImagesCompareService;
 use App\Jobs\BanJob;
+use App\Models\IntensiveCached\User as CachedUser;
+use App\Models\IntensiveCached\UserMeta as CachedUserMeta;
+use App\Models\IntensiveCached\Message as CachedMessage;
+use App\Models\IntensiveCached\AutoBanSetting as CachedAutoBanSetting;
 
 class SetAutoBan extends Model
 {
@@ -217,7 +221,7 @@ class SetAutoBan extends Model
     public static function logoutWarned($uid, $probing = false)
     {
         Log::info('start_LogoutAutoBan_logoutWarned');
-        $user = User::findById($uid);
+        $user = CachedUser::findById($uid);
         try {
             if(isset($user) && $user->can('admin')){
                 return;
@@ -238,56 +242,56 @@ class SetAutoBan extends Model
         $ban_meta_set_type = collect(['about', 'style']);
 
         $ban_set_type->each(function($type) use ($user) {
-            $matched_set = SetAutoBan::where('type', $type)->whereRaw("INSTR('{$user->$type}', content) > 0")->first();
+            $matched_set = CachedAutoBanSetting::where('type', $type)->whereRaw("INSTR('{$user->$type}', content) > 0")->first();
             if($matched_set) {
                 SetAutoBan::banJobDispatcher($user, $matched_set, 'profile');
             }
 
-            $all_check_matched_set = SetAutoBan::where('type', 'allcheck')->whereRaw("INSTR('{$user->$type}', content) > 0")->first();     
+            $all_check_matched_set = CachedAutoBanSetting::where('type', 'allcheck')->whereRaw("INSTR('{$user->$type}', content) > 0")->first();     
             if($all_check_matched_set) {
                 SetAutoBan::banJobDispatcher($user, $matched_set, 'profile');
             }
         });
 
         $ban_meta_set_type->each(function($type) use ($user) {
-            $matched_set = SetAutoBan::where('type', $type)->whereRaw("INSTR('{$user->user_meta->$type}', content) > 0")->first();
+            $matched_set = CachedAutoBanSetting::where('type', $type)->whereRaw("INSTR('{$user->user_meta->$type}', content) > 0")->first();
             if($matched_set) {
                 SetAutoBan::banJobDispatcher($user, $matched_set, 'profile');
             }
 
-            $all_check_matched_set = SetAutoBan::where('type', 'allcheck')->whereRaw("INSTR('{$user->user_meta->$type}', content) > 0")->first();            
+            $all_check_matched_set = CachedAutoBanSetting::where('type', 'allcheck')->whereRaw("INSTR('{$user->user_meta->$type}', content) > 0")->first();            
             if($all_check_matched_set) {
                 SetAutoBan::banJobDispatcher($user, $matched_set, 'profile');
             }
         });
 
         $user->log_user_login->each(function ($log) use ($user) {
-            $cfp_id_matched_set = SetAutoBan::where('type', 'cfp_id')->where("content", $log->cfp_id)->first();
+            $cfp_id_matched_set = CachedAutoBanSetting::where('type', 'cfp_id')->where("content", $log->cfp_id)->first();
             if($cfp_id_matched_set) {
                 SetAutoBan::banJobDispatcher($user, $cfp_id_matched_set, 'profile');
             }
 
-            $user_agent_matched_set = SetAutoBan::where('type', 'userAgent')->whereRaw("INSTR('{$log->userAgent}', content) > 0")->first();
+            $user_agent_matched_set = CachedAutoBanSetting::where('type', 'userAgent')->whereRaw("INSTR('{$log->userAgent}', content) > 0")->first();
             if($user_agent_matched_set) {
                 SetAutoBan::banJobDispatcher($user, $user_agent_matched_set, 'profile');
             }
         });
 
         //20220629新增圖片檔名
-        $pic_matched_set = SetAutoBan::where('type', 'picname')->whereRaw("INSTR('{$user->user_meta->pic_original_name}', content) > 0")->first();
+        $pic_matched_set = CachedAutoBanSetting::where('type', 'picname')->whereRaw("INSTR('{$user->user_meta->pic_original_name}', content) > 0")->first();
         if($pic_matched_set) {
             SetAutoBan::banJobDispatcher($user, $pic_matched_set, 'profile');
         }
 
         //有一筆違規就可以封鎖了 
         $any_pic_violated = $user->pics->first(function($pic) {
-            return SetAutoBan::where('type', 'picname')->whereRaw("INSTR('{$pic->original_name}', content) > 0")->first();
+            return CachedAutoBanSetting::where('type', 'picname')->whereRaw("INSTR('{$pic->original_name}', content) > 0")->first();
         });
         if($any_pic_violated) {
             SetAutoBan::banJobDispatcher($user, $any_pic_violated, 'profile');
         }
 
-        $set_auto_ban = SetAutoBan::select('type', 'set_ban', 'id', 'content','expiry', 'expired_days')->whereNotIn('type', ['name', 'email', 'title', 'about', 'style', 'allcheck', 'msg', 'cfp_id', 'userAgent', 'picname'])->orderBy('id', 'desc')->get();
+        $set_auto_ban = CachedAutoBanSetting::select('type', 'set_ban', 'id', 'content','expiry', 'expired_days')->whereNotIn('type', ['name', 'email', 'title', 'about', 'style', 'allcheck', 'msg', 'cfp_id', 'userAgent', 'picname'])->orderBy('id', 'desc')->get();
         
         foreach ($set_auto_ban as $ban_set) {
             $content = $ban_set->content;
@@ -358,9 +362,9 @@ class SetAutoBan extends Model
         }
 
         $content_days = Carbon::now()->subDays(1);
-        $msg = Message::select('updated_at', 'from_id', 'content')->where('from_id', $uid)->where('updated_at', '>', $content_days)->get();
+        $msg = CachedMessage::select('updated_at', 'from_id', 'content')->where('from_id', $uid)->where('updated_at', '>', $content_days)->get();
         foreach ($msg as $m) {
-            $msg_matched_set = SetAutoBan::whereIn('type', ['msg', 'allcheck'])->whereRaw("INSTR('{$m}', content) > 0")->first();
+            $msg_matched_set = CachedAutoBanSetting::whereIn('type', ['msg', 'allcheck'])->whereRaw("INSTR('{$m}', content) > 0")->first();
             if ($msg_matched_set) {
                 $type = 'message';
                 SetAutoBan::banJobDispatcher($user, $msg_matched_set, 'message');
