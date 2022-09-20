@@ -34,8 +34,8 @@ class Message_newController extends BaseController {
     public function __construct(UserService $userService) {
         parent::__construct();
         $this->service = $userService;
-        $this->middleware('throttle:140,1');
-        $this->middleware('pseudoThrottle:100,1');
+        $this->middleware('throttle:400,1');
+        $this->middleware('pseudoThrottle:250,1');
     }
 
     // handle delete message

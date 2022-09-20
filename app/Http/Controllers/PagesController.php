@@ -106,8 +106,8 @@ class PagesController extends BaseController
         $this->service = $userService;
         $this->logService = $logService;
         $this->suspiciousRepo = $suspiciousRepo;
-        $this->middleware('throttle:140,1');
-        $this->middleware('pseudoThrottle:100,1');
+        $this->middleware('throttle:400,1');
+        $this->middleware('pseudoThrottle:250,1');
         $this->rap_service = $rap_service;        
         \View::share('rap_service',$this->rap_service);
     }
