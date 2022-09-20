@@ -5278,23 +5278,7 @@ class UserController extends \App\Http\Controllers\BaseController
         //直接刪
         DB::table('is_warned_log')->where('id',$warn_id)->delete();
         return back()->with('message', '該筆過往警示紀錄已刪除');
-    }     
-
-    public function deleteBannedLog(Request $request)
-    {
-        $ban_id = $request->ban_id;
-        //直接刪
-        DB::table('is_banned_log')->where('id',$ban_id)->delete();
-        return back()->with('message', '該筆過往封鎖紀錄已刪除');
-    } 
-
-    public function deleteWarnedLog(Request $request)
-    {
-        $warn_id = $request->warn_id;
-        //直接刪
-        DB::table('is_warned_log')->where('id',$warn_id)->delete();
-        return back()->with('message', '該筆過往警示紀錄已刪除');
-    }     
+    }      
 
     public function searchPhone(Request $request)
     {
