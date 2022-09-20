@@ -298,6 +298,7 @@ class Message_newController extends BaseController {
                 'parent_client_id' => ($payload['parent_client']??null),
                 'views_count_quota' => ($payload['views_count_quota']??0),
                 'show_time_limit' => ($payload['show_time_limit']??0),
+                'is_truth' => $payload['is_truth'] ?? 0,
             ]);
 
             $messagePosted = $this->message_pic_save($messageInfo->id, $request->file('images'));

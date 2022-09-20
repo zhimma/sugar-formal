@@ -51,19 +51,82 @@
         </style>
         <h1>頁面停留時間</h1>
         <br>
+<form method="get" class="search_form">
+	{!! csrf_field() !!}
+	<div class="form-group">
+		<table class="table table-bordered table-hover">
+            <tr>
+                <th>
+                    <label for="email" class="">Email</label>
+                </th>
+                <td>
+                    <input type="email" name='email' class="" style="width:300px;" id="email" value="{{ request()->email }}">
+                </td>
+            </tr>
+            <tr>
+                <th>
+                    <label for="name" class="">暱稱</label>
+                </th>
+                <td>
+                    <input type="text" name='name' class="" style="width:300px;" id="name" value="{{ request()->name }}">
+                </td>
+            </tr>
+            <tr>
+                <th>
+                    <label for="keyword" class="">關鍵字</label><!--(關於我、約會模式)-->
+                </th>
+                <td>
+                    <input type="text" name='keyword' class="" style="width:300px;" id="keyword" value="{{ request()->keyword }}" autocomplete="off">
+                </td>
+            </tr>
+            <tr>
+                <th>
+                    <label for="phone" class="">註冊手機</label>
+                </th>
+                <td>
+                    <input type="text" name='phone' class="" style="width:300px;" id="phone" value="{{ request()->phone }}">
+                </td>
+            </tr>
+            <tr>
+                <th>
+                    <label for="title" class="">一句話</label>
+                </th>
+                <td>
+                    <input type="text" name='title' class="" style="width:300px;" id="title" value="{{ request()->title }}">
+                </td>
+            </tr>
+            <tr>
+                <th>
+                    <label for="order_no" class="">帳單查詢</label>
+                </th>
+                <td>
+                    <input type="text" name='order_no' class="" style="width:300px;" id="title" value="{{ request()->order_no }}">
+                </td>
+            </tr>
+            <tr>
+                <td colspan="2">
+                    <button type="button" class="btn btn-primary" onclick="$('.search_form').submit()">送出</button>
+                    <button type="button" class="btn btn-info" onclick="location.href=location.origin+location.pathname">重置</button>
+                </td>
+            </tr>
+        </table>
+    </div>
+</form><br>
+        
+        
         <div id="setting_empty_page_name_container"><a href="{{ route('admin/stay_online_record_page_name_view') }}" class='new text-white btn btn-success'>空白頁面名稱設定</a></div>           
-            
+@if($user_online_record)
         <table id="table_userLogin_log" class="table table-hover table-bordered">
-            @foreach($user_online_record as $key => $record)
-                @if(!$record->user) 
+            @foreach($user_online_record as $key => $uRecord)
+                @if(!$uRecord->user) 
                     @continue
                 @endif    
                 <tr>
                     <td>
-                        <span id="btn_showDetail_{{ $record->user['id'] }}" class="btn_showLogUser btn btn-primary" data-sectionName="showDetail_{{ $record->user['id'] }}">+</span>
-                        <a href="/admin/users/advInfo/{{ $record->user['id'] }}" target="_blank"><span>帳號：{{  $record->user['name'] }}</span></a>
+                        <span id="btn_showDetail_{{ $uRecord->user['id'] }}" class="btn_showLogUser btn btn-primary" data-sectionName="showDetail_{{ $uRecord->user['id'] }}">+</span>
+                        <a href="/admin/users/advInfo/{{ $uRecord->user['id'] }}" target="_blank"><span>帳號：{{  $uRecord->user['name'] }}</span></a>
                     <table>
-                            <tr class="showLog" id="showDetail_{{ $record->user['id'] }}">
+                            <tr class="showLog" id="showDetail_{{ $uRecord->user['id'] }}">
                                 <td>
                                     <table class="table table-bordered  table-hover" style="display: block; max-height: 500px; overflow-x: scroll;">
                                         <thead>
@@ -77,7 +140,7 @@
                                         </tr>
                                         </thead>
                                         <tbody>
-                                        @foreach($record->user->stay_online_record_only_page->sortByDesc('created_at') as $record)
+                                        @foreach($uRecord->getUserDescRecordsPaginate() as $record)                                        
                                             <tr  class="{{$record->user->banned?'banned':''}} 
                                                         {{$record->user->implicitlyBanned?'implicitlyBanned':''}} 
                                                         {{(isset($record->user->user_meta->isWarned) && $record->user->user_meta->isWarned) || $record->user->aw_relation?'isWarned':''}}
@@ -91,10 +154,18 @@
                                                 <td class="col-most">{{$record->userAgent}}</td>
                                                 <td class="col-most" nowrap>{{$record->stay_online_time}} 秒</td>
                                                 <td class="col-most">{{$record->created_at}}</td>
-                                            </tr>
+                                            </tr>                                            
                                         @endforeach
                                         </tbody>
                                     </table>
+                                    {!!$uRecord->paginate->appends(request()->input())->links('pagination::sg-pages') !!}
+                                    <script>
+                                        @if(request()->input('pageU'.$uRecord->user->id))
+                                        $(function(){
+                                            $("#btn_showDetail_{{ $uRecord->user['id'] }}").focus().click();    
+                                        });
+                                        @endif
+                                    </script>
                                 </td>
                             </tr>
                         </table>
@@ -115,8 +186,23 @@
                 $('#'+sectionName).show();
                 $('#btn_'+sectionName).text('-');
             }else{
+                var now_id = $(this).attr('id');
+                var now_search = location.search.replace('?','');
+                var query_segment = now_search.split('&');
+                var target_segment = '';
+                for(var segment_idx in query_segment) {
+                    var q_param = query_segment[segment_idx].split('=');
+                    if(q_param[0]=='pageU'+now_id.replace('btn_showDetail_','')) {
+                        target_segment = query_segment[segment_idx];
+                    }
+                }
+            
                 $('#'+sectionName).hide();
                 $('#btn_'+sectionName).text('+');
+
+                if(target_segment!='') {
+                    $('.pagination > li >a').attr('href',function(i,val){return val.replace('?'+target_segment+'&','?').replace('&'+target_segment+'&','&').replace('?'+target_segment,'?').replace('&'+target_segment,'')});
+                }
             }
         });        
         

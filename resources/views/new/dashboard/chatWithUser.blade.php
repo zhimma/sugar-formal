@@ -193,7 +193,7 @@
         /*滚动条里面小方块*/
         border-radius: 100px;
         background: #8a9fef;
-    }
+    } 
 
     .new_pot1 ::-webkit-scrollbar-track {
         /*滚动条里面轨道*/
@@ -363,6 +363,39 @@
     .uplaod_pic_restrict_left {float:left;text-align:left;padding-left:3%;}
     .uplaod_pic_restrict_right {float:right;text-align:right;padding-right:3%;}
 </style>
+                
+<style>
+    .fa_backicon {
+        height: 13px;
+        margin-left: -5px;
+        margin-right:2px; margin-top:-2px; font-size: 13px;
+    }
+    @media (max-width:450px){
+        .shouxq span{ font-size: 16px;}
+    }
+    .sx_cent {
+        width: 12px;
+        height: 12px;
+        background: #17bb4a;
+        border-radius: 100px;
+        position: absolute;
+        border: #ffffff 2px solid;
+        right: -12px;
+        top: 8px;
+        bottom: 0;
+        display: block;
+        z-index: 5;
+    }
+    .fa_adbut1{ background:url({{asset('/new/images/1_03nn.png')}}) no-repeat;width:60px; height:28px; line-height:25px; text-align:center;display:table; margin-top:7px; 
+    color:#ffffff; cursor: pointer;background-size: cover !important;}
+    .fa_adbut1:hover{color:#ffffff !important} 
+    .fa_adbut1:active,.fa_adbut1.adbut_on{background:url({{asset('/new/images/1_03nn_h.png')}}) no-repeat !important;width:60px; height:28px; line-height:25px; text-align:center;display:table; margin-top:7px;
+    color:#ffffff; cursor: pointer;background-size: cover !important;
+    }
+    
+    div.onlineStatus {top:6px;}
+    
+</style>
 <script>
     receive_pic_views_count_gather = {};
     function banned(id,sid,name){
@@ -488,13 +521,13 @@
         <div class="col-sm-12 col-xs-12 col-md-10">
             @if(isset($to))
             {{-- <div class="fbuttop"></div>--}}
-            <div class="shouxq" style="display: flex;">
+            <div class="shouxq  te_ce" >
                 @if(isset($admin))
                 @if($to->id == $admin->id)
-                <a class="nnn_adbut" href="{!! url('dashboard/personalPage') !!}">
-                    <img class="nnn_adbut_img" src="{{ asset('/new/images/back_icon.png') }}" style="height: 15px;">返回
+                <a class="fa_adbut1 left" href="{!! url('dashboard/personalPage') !!}">
+                    <img class="fa_backicon" src="{{ asset('/new/images/back_icon.png') }}" >返回
                 </a>
-                <span style="flex: 6; text-align: center;">
+                <span class="se_rea">
                     @if($to->id != $admin->id)
                         @if($to->isVVIP() && $to->VvipInfoStatus())
                             <a href="/dashboard/viewuser_vvip/{{$to->id}}" style="color: #fd5678;">{{$to->name}}</a>
@@ -507,11 +540,10 @@
                 </span>
                 @else
 
-                <a class="nnn_adbut"
+                <a class="fa_adbut1 left"
                     href="{{ !empty(session()->get('goBackPage_chat2')) ? session()->get('goBackPage_chat2') : \Illuminate\Support\Facades\URL::previous() }}"><img
-                        class="nnn_adbut_img" src="{{ asset('/new/images/back_icon.png') }}"
-                        style="height: 15px;">返回</a>
-                <span style="flex: 6; text-align: center;">
+                        class="fa_backicon" src="{{ asset('/new/images/back_icon.png') }}">返回</a>
+                <span style="se_rea">
                     @if($toUserIsBanned)
                         <a type="button" style="color: #fd5678;" onclick="c5('{{'此人已被站方封鎖'}}'),setTimeout(function(){window.location.href = ' {{ !empty(session()->get	('goBackPage_chat2')) ? session()->get('goBackPage_chat2') : \Illuminate\Support\Facades\URL::previous() }} '},3000)">{{$to->name}}</a>
                     @else
@@ -532,19 +564,29 @@
                         </a>
                     @endif
                 </span>
-                @if($user->engroup==1)
-                <form class="" style="float: right; position: relative; text-align: right;"
+                @if($user->engroup==1)     
+                    <a  class="fa_adbut1 right" onclick="checkPay('ecpay');switch_adbut_on(this);">
+                         <form class="" 
                     action="{{ route('chatpay_ec') }}" method=post id="ecpay">
-                    <input type="hidden" name="_token" value="{{ csrf_token() }}">
-                    <input type="hidden" name="userId" value="{{ $user->id }}">
-                    <input type="hidden" name="to" value="@if(isset($to)) {{ $to->id }} @endif">
-                    <button type="button" class="paypay" onclick="checkPay('ecpay')"><a
-                            class="nnn_adbut">車馬費</a></button>
-                </form>
+                        <input type="hidden" name="_token" value="{{ csrf_token() }}">
+                        <input type="hidden" name="userId" value="{{ $user->id }}">
+                        <input type="hidden" name="to" value="@if(isset($to)) {{ $to->id }} @endif">
+                        車馬費
+                        </form>   
+                    </a>
+                    <a  id="truth_actor" style="position:relative;"
+                        @if($user->isVip()) data-truth_active="0" @endif 
+                            onclick="do_is_truth_action();"
+                        class="fa_adbut1 right
+                        @if($is_truth_state) adbut_on @endif
+                        "
+                    >真心話                 
+                    @if(!$user->isVip())
+                        <img src="{{asset('/new/images/icon_35.png')}}" style="position: absolute;float: left;left: 0px; top:3px;-moz-transform:rotate(-25deg);-webkit-transform:rotate(-30deg);">
+                    @endif 
+                    </a> 
                 @else
-                <button style="float: right; position: relative;" type="button" class="paypay"
-                    onclick="c5('這是Daddy主動發起的，請提醒Daddy按此按紐發動車馬費邀請！')"><a class="nnn_adbut"
-                        style="margin-top: -15px">車馬費</a></button>
+                <a class="fa_adbut1 right" onclick="c5('這是Daddy主動發起的，請提醒Daddy按此按紐發動車馬費邀請！')">車馬費</a>
                 @endif
                 @endif
                 @endif
@@ -1005,6 +1047,61 @@
         </div>
     </form>
 </div>
+<style>
+.giti{width:85%; background: #f3f6ff; margin: 0 auto; display: table; border-radius: 10px; padding-top: 10px; padding-bottom: 10px;}
+.t_iphoto{width:95%; margin: 0 auto; border-radius: 10px; border: #eee 2px solid; box-shadow:rgba(138,159,239,0.5) 0 10px 10px; overflow: hidden; margin-bottom: 15px;}
+.t_iphoto img{width: 100%;}
+.t_list{width: 93%; margin: 0 auto; display: table; font-size: 15px; padding-bottom: 5px;}
+.t_list img{width: 8px;;}
+.t_list font{width: calc(100% - 12px); float: right;}
+
+@media (max-width:768px){
+#tab_truth .new_poptk{height:auto;}
+}
+@media (max-width:760px){
+#tab_truth .new_poptk{height:175px;}
+}
+
+@media (max-width:450px){
+#tab_truth .new_poptk{height:auto;}
+}
+
+#tab_truth .new_poptk::-webkit-scrollbar-thumb {
+    background: transparent !important;
+}   
+</style>
+<div class="blbg" id="blbg_truth" style="display: none;"></div>
+<div class="bl bl_tab " id="tab_truth" style="display: none;">
+<div class="bltitle"><font>真心話說明</font></div>
+<div class="new_poptk">
+	<div class="n_heighnn">
+		 <div class="n_gd"><div class="n_gd_t"></div></div>
+			<div class="yidy_tk">
+				<div class="giti">
+                    <div class="t_iphoto" style="margin-top: 10px;"><img src="{{asset('new/images/zz_pt.jpg')}}"></div>
+                    <h2 class="t_list"><img src="{{asset('new/images/ciicon_h.png')}}"><font>真心話會在女會員對話欄中置頂，如上圖</font></h2>
+                    <h2 class="t_list"><img src="{{asset('new/images/ciicon_h.png')}}"><font>真心話一天只能發一次</font></h2>
+                    @if(!$user->isVip())
+                    <h2 class="t_list"><img src="{{asset('new/images/ciicon_h.png')}}"><font>成為VIP即可發送真心話</font></h2>    
+                    @endif
+                </div>
+			</div>
+			
+	</div>
+	
+		
+		<div class="n_bbutton" >
+				<span><a class="n_left" onclick="gmBtn1_truth();" style="@if(!$user->isVip()) display:block;float:none; @endif">確認</a></span>
+				@if($user->isVip())
+                <span><a class="n_right" onclick="gmBtn1_truth();not_show_is_truth_popup();">不再顯示</a></span>
+                @endif
+        </div>
+</div>
+<a id="" onclick="gmBtn1();@if($user->isVip()) $('#truth_actor').data('truth_active',0); @endif" class="bl_gb"><img src="{{asset('new/images/gb_icon.png')}}"></a>
+@if($user->isVip())
+<input type="hidden" id="not_show_is_truth_popup" value="0">
+@endif
+</div>
 @endif
 @stop
 @section('javascript')
@@ -1104,7 +1201,7 @@
             }            
          
         }
-        console.log('zoom ajax start');
+
         var zoomFormData = new FormData();
         var zoomXhr = new XMLHttpRequest();
         zoomFormData.append("id", m_official);
@@ -1150,15 +1247,15 @@
     }
 
     readyNumber();
-    $(".nnn_adbut").click(function(){
-        if($(this).hasClass("adbut_on")){
-            $(this).removeClass("adbut_on");
+    function switch_adbut_on(dom) 
+    {
+        if($(dom).hasClass("adbut_on")){
+            $(dom).removeClass("adbut_on");
         }else{
-            $(this).addClass("adbut_on");
+            $(dom).addClass("adbut_on");
         }
+    }
 
-    });
-    
     $.ajaxSetup({ cache: false, contentType: false,processData: false});
     $.ajaxPrefilter(function (options, originalOptions, jqXHR) {
         // you can use originalOptions.type || options.type to restrict specific type of requests
@@ -1312,6 +1409,7 @@
     }
 
     $(".blbg").hide();
+    $("#tab_truth").hide();
     @if(isset($to))
         $('.delete-btn').on('click',function(){
             c4('確定要刪除嗎?');
@@ -1837,7 +1935,6 @@
                     }
                     else if(target_show_time_limit>0) {
                         window.setTimeout(function() {
-                            console.log('window.setTimeout destroy msg after '+target_show_time_limit*1000+'ms');
                             destroy_msg(null,target_client_id);
                           }, target_show_time_limit*1000);                        
                     }
@@ -1969,6 +2066,9 @@
             formData.append('parent', parent_id);
             formData.append('parent_client', parent_client_id);
             formData.append('client_id',msg_data.client_id);
+            @if($user->isVip())
+            formData.append('is_truth',$('#truth_actor').length?$('#truth_actor').data('truth_active'):0);
+            @endif
             formData.append("_token", "{{ csrf_token() }}");
             xhr.open("post", "{{ route('realTimeChat') }}", true);
             xhr.onload = function (e) {
@@ -2001,7 +2101,14 @@
                             $('.n_bllbut').focus();
                         }
                     }
-                
+                    @if($user->isVip())
+                    else {
+                        if(formData.get('is_truth')==1) {
+                            reset_data_truth_active();
+                            set_trigger_for_already_use_is_truth_popup();
+                        }
+                    }
+                    @endif
             }
             xhr.onerror = function(e) {
                 c5('傳送失敗!');
@@ -2192,7 +2299,110 @@
         });
 
     @endif
+    
+    function do_is_truth_action()
+    {
+    @if(!$user->isVip())
+        c_truth();
+        return;
+    @else
+        @if(!$exist_is_truth_quota)
+            show_already_use_is_truth_popup();
+            return;
+        @endif        
+        @if($user->isVip())
+            if($('#truth_actor').data('truth_active')==1) {
+                reset_truth_actor();
+                return;
+            }
+        @endif
+        @if(!$user->tiny_setting->count() || !$user->tiny_setting->sortByDesc('id')->first()->value)
+            if($('#not_show_is_truth_popup')==undefined || $('#not_show_is_truth_popup').val()==0) {
+                c_truth();
+                return;
+            }
+        @endif
+            switch_adbut_on(document.getElementById('truth_actor'));
+            if($('#truth_actor').data('truth_active')=='1') {
+                $('#truth_actor').data('truth_active',0);
+            }
+            else {
+                $('#truth_actor').data('truth_active',1);
+            }
+    @endif
+    }
+    @if($user->isVip())
+    function set_trigger_for_already_use_is_truth_popup()
+    {
+        $('#truth_actor').attr('onclick','show_already_use_is_truth_popup();');
+    }
+    
+    function set_trigger_for_is_truth_regular_act()
+    {
+        $('#truth_actor').attr('onclick','do_is_truth_action();');
+    }    
+    
+    function reset_truth_actor()
+    {     
+        reset_data_truth_active();
+        reset_truth_actor_on_class();
+    }
+    
+    function reset_data_truth_active()
+    {       
+        $('#truth_actor').data('truth_active',0);        
+    }
 
+    function reset_truth_actor_on_class()
+    {       
+        $('#truth_actor').removeClass('adbut_on');        
+    }    
+    
+    function show_already_use_is_truth_popup()
+    {
+        c5('您好，您今天的真心話次數已使用過，須等24HR後才可以再使用！');
+        return;        
+    }
+    
+    function not_show_is_truth_popup()
+    {
+         $.ajax({
+            type: 'GET',
+            url: '{{ route('setTinySetting') }}?{{csrf_token()}}={{now()->timestamp}}',
+            data: { catalog: "is_truth_chat_not_show_popup", value: 1},
+            dataType:'json',
+            success: function(data){
+                if(data.msg!=undefined) {
+                    if(data.msg.indexOf('成功')>=0) {
+                        $('#not_show_is_truth_popup').val(1);
+                    }
+                }
+            },
+        });              
+    }
+    @endif
+    
+	function c_truth() {
+		 $(".blbg").show();
+         $("#tab_truth").show();
+		 $('body').css("overflow", "hidden");
+    }
+    function gmBtn1(){
+        $(".blbg").hide();
+        //$(".bl").hide()
+        $("#tab_truth").hide();
+        $('body').css("overflow", "");        
+			
+    } 
+    function gmBtn1_truth() {
+    @if($user->isVip())
+        $('#truth_actor').data('truth_active',1);
+    @endif    
+        gmBtn1();
+        if(!$('#truth_actor').hasClass('adbut_on')) {
+            $('#truth_actor').addClass('adbut_on');
+        }        
+    }
 </script>
 @endif
 <style>

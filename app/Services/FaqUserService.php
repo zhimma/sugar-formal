@@ -243,7 +243,12 @@ class FaqUserService {
     
         $now_reply_entry = $fuService->saveReply($request);
         
-        if(!$question_id) return ['error'=>'no_question_id'];       
+        if(!$question_id) {
+           $error_code = 'no_question_id';
+           $now_reply_entry->error_code = $error_code;
+           $now_reply_entry->save();
+           return ['error'=>$error_code];        
+        }
         
         $popupQuestionList = $fuService->getPopupQuestionList();
         $popupUserGroupList = $fuService->getPopupUserGroupList();
@@ -260,7 +265,10 @@ class FaqUserService {
             }
             else {
                 $this->recordReply($reply);
-                return ['error'=>'not_user_question'];
+                $error_code = 'not_user_question';
+                $now_reply_entry->error_code = $error_code;
+                $now_reply_entry->save();                
+                return ['error'=>$error_code];
             }
         }
         else {
@@ -335,6 +343,11 @@ class FaqUserService {
             $now_reply_entry->save();
             $fuService->passGroup();
         }
+        
+        if($ans_rs_data['error']??null) {
+            $now_reply_entry->error_code = $ans_rs_data['error'];
+            $now_reply_entry->save();
+        }
         $this->recordReply($reply);
         if(($ans_rs_data['wrong']??null)!==null) $this->recordWrongReplyAnsWad($ans_rs_data['wrong']);
         else if(($ans_rs_data['text_wrong']??null)!==null) $this->recordWrongReplyAnsWad($ans_rs_data['text_wrong']);
@@ -396,7 +409,18 @@ class FaqUserService {
     
     public function getTheAllPassFlag() {
         return session()->get('fag_all_pass');        
-    }    
+    } 
+
+    public function setReplyErrorState() 
+    {
+        session()->put('faq_reply_error_state', 1);             
+        return $this;
+    } 
+
+    public function getReplyErrorState() 
+    {
+        return session()->get('faq_reply_error_state');        
+    }
   
     public function setCountDownStartTime() {
         session()->put('count_down_start_time', Carbon::now());        
@@ -425,8 +449,9 @@ class FaqUserService {
         $faqPopupQuestionList = $this->getPopupQuestionList();
         $faqCountDownStartTime = $this->getCountDownStartTime();
         $isFaqDuringCountDown = $this->isDuringCountDown();
+        $faqReplyErrorState = $this->getReplyErrorState();
         
-        return (count($faqPopupQuestionList) && !$faqCountDownStartTime) || $isFaqDuringCountDown;
+        return (count($faqPopupQuestionList) && !$faqCountDownStartTime && !$faqReplyErrorState) || $isFaqDuringCountDown;
     }
     
     public function clearCountDownRecord() {

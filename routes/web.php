@@ -174,6 +174,8 @@ Route::group(['middleware' => ['auth', 'global','SessionExpired']], function () 
 Route::post('/dashboard/faq_reply', 'PagesController@checkFaqAnswer')->middleware('auth')->name('checkFaqAnswer');
 Route::get('/dashboard/faq_check', 'PagesController@checkIsForceShowFaq')->middleware('auth')->name('checkIsForceShowFaq');
 Route::get('/advance_auth_activate/token/{token}', 'PagesController@advance_auth_email_activate')->name('advance_auth_email_activate');
+Route::get('/dashboard/faq_save_reply_error_state', 'PagesController@saveFaqReplyErrorState')->middleware('auth')->name('saveFaqReplyErrorState');
+Route::get('/dashboard/faq_read_reply_error_state', 'PagesController@readFaqReplyErrorState')->middleware('auth')->name('readFaqReplyErrorState');
 
 Route::group(['middleware' => ['auth', 'global', 'active', 'femaleActive', 'vipCheck', 'VvipCheck', 'newerManual', 'CheckAccountStatus', 'AdjustedPeriodCheck', 'SessionExpired','FaqCheck','RealAuthMiddleware']], function () {
 

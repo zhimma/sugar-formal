@@ -31,9 +31,9 @@ class ShortMessageService
 
     public static function deleteOldNotActShortMessageByUser($user,$auto_deleted=false)
     {
-        $sms_query = $user->short_message()->whereRaw('createdate < DATE_SUB(NOW(),INTERVAL 5 MINUTE)')->where(function($q){$q->whereNull('active')->orWhere('active',0);});
+        $sms_query = $user->short_message()->whereRaw('createdate < DATE_SUB(NOW(),INTERVAL 5 MINUTE)')->where(function($q){$q->whereNull('active')->orWhere('active',0);});      
         return ShortMessageService::deleteShortMessageByQuery($sms_query,$auto_deleted);
-    }       
+    }     
 
     public static function deleteShortMessageByQuery($query,$auto_deleted=false)
     {

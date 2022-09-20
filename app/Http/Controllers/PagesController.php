@@ -3972,7 +3972,10 @@ class PagesController extends BaseController
                     ->with('tippopup', $tippopup)
                     ->with('messages', $messages)
                     ->with('report_reason', $report_reason->content)
-                    ->with('first_send_messenge', $first_send_messenge);
+                    ->with('first_send_messenge', $first_send_messenge)
+                    ->with('is_truth_state',in_array(['to_id' =>$cid_user->id,'from_id' =>$user->id],Message::$truthMessages))
+                    ->with('exist_is_truth_quota',Message::existIsTrueQuotaByFromUser($user))
+                    ;
             }
             else {
                 return view('new.dashboard.chatWithUser')
@@ -9670,14 +9673,22 @@ class PagesController extends BaseController
     public function checkFaqAnswer(Request $request,FaqUserService $fuService) 
     {        
 
-        $fuService->riseByUserService(
-                                $this->service->riseByUserEntry(
-                                    auth()->user()
-                                )
-                            );
+        $fuService->riseByUserEntry( auth()->user());
         return response()->json($fuService->checkAnswer($request));
 
     }
+    
+    public function saveFaqReplyErrorState(Request $request,FaqUserService $fuService) 
+    {        
+
+        $fuService->riseByUserEntry( auth()->user())->setReplyErrorState();
+    }  
+
+    public function readFaqReplyErrorState(Request $request,FaqUserService $fuService) 
+    {        
+
+        return $fuService->riseByUserEntry( auth()->user())->getReplyErrorState();
+    }     
 
     public function advertise_record(Request $request)
     {

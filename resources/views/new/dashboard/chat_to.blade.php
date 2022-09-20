@@ -2,6 +2,17 @@
     function realtime_to(e){
         $('.announce_bg').hide();        
         let m = e.message;
+        
+        if(m['is_truth']==1) {
+            var truth_actor = $('#truth_actor');
+            reset_data_truth_active();
+            set_trigger_for_already_use_is_truth_popup();
+
+            if(truth_actor.length && !truth_actor.hasClass('adbut_on')) {
+                truth_actor.addClass('adbut_on');
+            }
+        }        
+        
         var msg_elt = $('#unsend_form_' + m['id']);
         if(!msg_elt.length) msg_elt = $('#unsend_form_client_' + m['client_id']);        
         if(m['created_at']) {
