@@ -55,7 +55,7 @@
         .she_fontetex{font-size: 16px; font-weight: bold; color: #ffffff; position: absolute; left:52px;}
         .she_fontetex span{ font-size: 12px; display: table; font-weight: normal;}
 
-        .sh_button_w{width: 100%; margin: 0 auto; display: table;margin-top:6px;background: url(../images/vvip_b.png); background-size: cover;height: 45px; text-align: center; line-height: 45px; color: #fff; font-weight: bold; font-size:16px;}
+        .sh_button_w{width: 100%; margin: 0 auto; display: table;margin-top:6px;background: url(/new/images/vvip_b.png); background-size: cover;height: 45px; text-align: center; line-height: 45px; color: #fff; font-weight: bold; font-size:16px;}
 
         .hdlist2_right{width: 48.5%; float: right; height: auto;  box-shadow:0 -3px 10px rgba(255,188,193,0.5);border-radius: 6px;}
         .hdlist2_right_tab{width: 100%; display: table;box-shadow:0px 15px 20px rgba(255,79,92,0.5); padding:15px 0px 0px 0px;background:linear-gradient(120deg, #ff9290, #ffdade);position: relative;
