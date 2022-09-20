@@ -711,7 +711,7 @@
                                 @else
                                     <form>
                                         @if($faqUserService->questionTypeToKey($question_entry->type)==2)
-                                        <div><input type="text" class="faq_replace_required_elt" required oninvalid="this.setCustomValidity('請選取選項')"  oninput="this.setCustomValidity('')"></div>
+                                        <div><input type="text" class="faq_replace_required_elt" required oninvalid="this.setCustomValidity('請選取選項')"  oninput="this.setCustomValidity('')" inputmode="none" ></div>
                                         @endif
                                         <input type="hidden" name="question_id" value="{{$question_entry->id}}" />                               
                                         <ul class="dowebok answer_item">        
@@ -1196,7 +1196,7 @@ display: flex;-webkit-box-pack: center;-ms-flex-pack: center;-webkit-justify-con
     #faq_tab .dati_font div form {display:none;}
     #faq_tab .dati_font > div > p {font-size:16px;}
     #faq_count_down_block {display:none;text-align:right;margin-top:10px;}
-    #faq_tab .force_show {display:inline !important;}
+    #faq_tab .force_show {display:flex !important;}
     .faq_replace_required_elt {width:0;height:0;position:relative;top:45px;color:transparent;border:0px transparent;background-color:transparent;}    
     #faq_tab ul li input[type=radio]:focus, #faq_tab ul li input[type=radio]:focus-visible,.faq_replace_required_elt:focus,.faq_replace_required_elt:focus-visible {outline:none;}
     #faq_announce_bg,#faq_msg_tab {z-index:19;display:none;}
@@ -1218,6 +1218,8 @@ display: flex;-webkit-box-pack: center;-ms-flex-pack: center;-webkit-justify-con
         $(".faq_blbg").show();      
         $(':input').labelauty();        
     }
+    
+    check_faq_error_state();
     
     faq_add_checking_flag($('#faq_tab .swiper-wrapper .swiper-slide').first());
     
@@ -1435,8 +1437,9 @@ display: flex;-webkit-box-pack: center;-ms-flex-pack: center;-webkit-justify-con
     if(get_faq_error_state()==1) {
         wdt();
     } else {
-        $('#faq_tab').show();
+        $('#faq_tab').show();        
         swiper = swiper_initial({{$faqUserService->getReplyedBreakIndex()}});
+
     }
    
     function swiper_initial(realindex=0) {
@@ -1516,8 +1519,15 @@ display: flex;-webkit-box-pack: center;-ms-flex-pack: center;-webkit-justify-con
     }  
 
     function save_faq_error_state() {
+        $.get( "{{route('saveFaqReplyErrorState',[csrf_token()=>time()])}}"+(new Date().getTime())); 
         sessionStorage.setItem( 'fag_error_state',1);
     }
+    
+    function check_faq_error_state() {
+        $.get( "{{route('readFaqReplyErrorState',[csrf_token()=>time()])}}"+(new Date().getTime()),function(data){
+           if(data==1) wdt(); 
+        }); 
+    }    
     
     function get_faq_error_state() {
         return sessionStorage.getItem('fag_error_state');
@@ -1532,6 +1542,10 @@ display: flex;-webkit-box-pack: center;-ms-flex-pack: center;-webkit-justify-con
     }
     
     function check_empty(from_close_btn=null) {
+        if(typeof document.createElement( 'input' ).checkValidity != 'function') {
+            return true;
+        }
+        
         var nowBlock = null;
         if(!from_close_btn)
             nowBlock = getFaqActBlock();

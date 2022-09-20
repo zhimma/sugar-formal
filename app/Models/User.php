@@ -461,7 +461,12 @@ class User extends Authenticatable implements JWTSubject
                     ->where('real_auth_user_modify.status',0)
                     ->where('real_auth_user_modify.item_id','!=',1)
                     ;
-    }     
+    }
+
+    public function order()
+    {
+        return $this->hasMany(Order::class,'user_id','id');
+    }
 
     /**
      * Check if user has role

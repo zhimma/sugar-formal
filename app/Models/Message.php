@@ -55,6 +55,7 @@ class Message extends Model
 
     static $date = null;
 
+    public static $truthMessages = [];
     /*
     |--------------------------------------------------------------------------
     | relationships
@@ -306,7 +307,7 @@ class Message extends Model
         return $saveMessages;
     }
 
-    public static function chatArrayAJAX($uid, $messages, $isVip, $noVipCount = 0) {
+    public static function chatArrayAJAX($uid, $messages, $isVip, $noVipCount = 0,&$truthMessages = []) {
         $saveMessages = [];
         $tempMessages = [];
         $isAllDelete = true;
@@ -480,11 +481,11 @@ class Message extends Model
                 order by `created_at` desc 
             "));
         }
-
+        $truthMessages = [];
         if($isVip == 1)
-            $saveMessages = Message::chatArrayAJAX($uid, $messages, 1);
+            $saveMessages = Message::chatArrayAJAX($uid, $messages, 1,0,$truthMessages);
         else if($isVip == 0) {
-            $saveMessages = Message::chatArrayAJAX($uid, $messages, 0, $noVipCount);
+            $saveMessages = Message::chatArrayAJAX($uid, $messages, 0, $noVipCount,$truthMessages);
         }
 
         if(count($saveMessages) == 0){
@@ -723,7 +724,17 @@ class Message extends Model
         }
         $query = $query->where('created_at','>=',self::$date)
                     ->orderBy('created_at', 'desc')
-                    ->paginate(10);
+                    ;
+        
+        if($user->engroup==1 && $user->isVip()) {
+            $is_truth_msg =( clone $query)->where('is_truth',1)->orderByDesc('id')->first();
+            if($is_truth_msg && !in_array(['to_id' => $is_truth_msg->to_id, 'from_id' => $is_truth_msg->from_id], Self::$truthMessages) && !in_array(['to_id' => $is_truth_msg->from_id, 'from_id' => $is_truth_msg->to_id], Self::$truthMessages)) {
+                array_push(Self::$truthMessages, ['to_id' => $is_truth_msg->to_id, 'from_id' => $is_truth_msg->from_id]);
+            }
+        }        
+       
+       $query = $query->paginate(10);
+        
         return $query;
     }
 
@@ -1049,7 +1060,7 @@ class Message extends Model
 
     public static function postByArr($arr)
     {
-        
+
 
         $tip_action = array_key_exists('tip_action',$arr) ? $arr['tip_action'] : true;
         $sys_notice = array_key_exists('sys_notice',$arr) ? $arr['sys_notice'] : 0;
@@ -1074,6 +1085,7 @@ class Message extends Model
         $message->is_single_delete_2 = 0;
         $message->temp_id = 0;
         $message->sys_notice = $sys_notice;
+        $message->is_truth = ($arr['is_truth'] ?? 0)?intval($message->existIsTrueQuota()):0;
         if($message->save()) {
             if($message->client_id??null ) {
                 Message::where('parent_client_id',$message->client_id)
@@ -1256,7 +1268,7 @@ class Message extends Model
         }
 
         $result=array();
-        if(array_get($data_all,'0')!=='No data'){
+        if(is_countable($data_all) && array_get($data_all,'0')!=='No data'){
             foreach ($data_all as $key =>$data){
                 if($data['created_at'] <= $time){
                     $msg_user=$data['from_id']==$user->id ? $data['to_id'] : $data['from_id'];
@@ -1270,5 +1282,17 @@ class Message extends Model
             }
         }
         return $result;
+    }
+    
+    public static function existIsTrueQuotaByFromUser($from_user) 
+    {
+        if($from_user)
+            return !intval($from_user->message()->where('is_truth',1)->where('created_at','>=',Carbon::now()->subDay())->count());
+    }    
+    
+    public function existIsTrueQuota() 
+    {
+        if($this->fromUser)
+            return $this->existIsTrueQuotaByFromUser($this->fromUser);
     }
 }

@@ -1620,7 +1620,11 @@ class UserController extends \App\Http\Controllers\BaseController
             ->whereNotIn('created_at', function ($query) use ($uid) {
                 $query->select('created_at')
                     ->from(with(new warned_users())->getTable())
-                    ->where('member_id', $uid);
+                    ->where('member_id', $uid)
+                    ->where('expire_date', null)
+                    ->orWhere('expire_date', '>', Carbon::now())
+                    ->where('member_id', $uid)
+                    ;
             })
             ->orderBy('created_at', 'desc')->paginate(10);
 
@@ -1630,7 +1634,11 @@ class UserController extends \App\Http\Controllers\BaseController
             ->whereNotIn('created_at', function ($query) use ($uid) {
                 $query->select('created_at')
                     ->from(with(new banned_users())->getTable())
-                    ->where('member_id', $uid);
+                    ->where('member_id', $uid)
+                    ->where('expire_date', null)
+                    ->orWhere('expire_date', '>', Carbon::now())
+                    ->where('member_id', $uid)                    
+                    ;
             })
             ->orderBy('created_at', 'desc')->paginate(10);
 
@@ -5272,6 +5280,22 @@ class UserController extends \App\Http\Controllers\BaseController
         return back()->with('message', '該筆過往警示紀錄已刪除');
     }     
 
+    public function deleteBannedLog(Request $request)
+    {
+        $ban_id = $request->ban_id;
+        //直接刪
+        DB::table('is_banned_log')->where('id',$ban_id)->delete();
+        return back()->with('message', '該筆過往封鎖紀錄已刪除');
+    } 
+
+    public function deleteWarnedLog(Request $request)
+    {
+        $warn_id = $request->warn_id;
+        //直接刪
+        DB::table('is_warned_log')->where('id',$warn_id)->delete();
+        return back()->with('message', '該筆過往警示紀錄已刪除');
+    }     
+
     public function searchPhone(Request $request)
     {
         $result = DB::table('short_message')->where('mobile', $request->phone)->where('active', 1)->first();
@@ -6866,11 +6890,66 @@ class UserController extends \App\Http\Controllers\BaseController
     }
     
     public function user_page_online_time_view(Request $request)
-    {      
-        $user_online_record = StayOnlineRecord::with('user')->whereNotNull('stay_online_time')->whereNotNull('url')->selectRaw('user_id,max(created_at) as created_at')->groupBy('user_id')->orderByDesc('created_at')->paginate(200);
+    {
+
+
+        if(count($request->query())) {
+
+            $user_online_record = StayOnlineRecord::with('user');        
+        
+            $user_online_record ->whereNotNull('stay_online_time')
+                        ->whereNotNull('url')
+                        ->selectRaw('distinct user_id')
+                        ->orderByDesc('id');            
+                       
+
+            $user_online_record->whereHas('user',function($users) use ($request) {
+                $name = $request->name ? $request->name : "";
+                $email = $request->email ? $request->email : "";
+                $keyword = $request->keyword ? $request->keyword : "";
+                $phone = $request->phone ? $request->phone : "";
+                $title = $request->title ? $request->title : "";
+                $order_no = $request->order_no ? $request->order_no : "";                        
+                
+                if($email) {
+                    $users->where('email', 'like', '%' . $email . '%');
+                }
+                
+                if($name) {
+                    $users->where('name', 'like', '%' . $name . '%');
+                }
+            
+                if($keyword){
+                    $users->whereHas('meta',function($mq) use ($keyword) {
+                                $mq->where('about', 'like', '%'.$keyword.'%')
+                                    ->orWhere('style', 'like', '%'.$keyword.'%');
+                            });
+                } 
+
+                if($phone){
+                    $users = $users->whereHas('short_message',function($smsq) use ($phone) {$smsq->where('mobile', 'like', '%' . $phone . '%')->where('short_message.active',1);});
+                }
+
+                if($title){
+                    $users = $users->where('title', 'like', '%' . $title . '%');
+                }
+
+                if($order_no){
+                    $users = $users->whereHas('order',function($odq) use ($order_no){
+                        $odq->where('order_id', 'like', '%' . $order_no . '%');
+                    });
+                }                        
+            
+            });
+            
+        $user_online_record = $user_online_record->paginate(20,['user_id']);
+        
+            
+            
+        }
 
         return view('admin.users.user_page_online_time_view')
-            ->with('user_online_record', $user_online_record);
+            ->with('user_online_record', $user_online_record??null);
     } 
 
     public function stay_online_record_page_name_view() 

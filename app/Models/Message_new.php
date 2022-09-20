@@ -40,6 +40,8 @@ class Message_new extends Model
 
     static $date = null;
     
+    public static $truthMessages = [];
+    
     /*
     |--------------------------------------------------------------------------
     | relationships
@@ -311,6 +313,10 @@ class Message_new extends Model
                 array_push($saveMessages, ['to_id' => $message->to_id, 'from_id' => $message->from_id, 'temp_id' => $message->temp_id,'all_delete_count' => $message->all_delete_count, 'is_row_delete_1' => $message->is_row_delete_1, 'is_row_delete_2' => $message->is_row_delete_2, 'is_single_delete_1' => $message->is_single_delete_1, 'is_single_delete_2' => $message->is_single_delete_2, 'sender' => $message->sender, 'receiver' => $message->receiver, 'content' => $message->content, 'read' => $message->read, 'created_at' => $message->created_at]);
                 //$noVipCount++;
             }
+            
+            if(!in_array(['to_id' => $message->to_id, 'from_id' => $message->from_id], Self::$truthMessages) && !in_array(['to_id' => $message->from_id, 'from_id' => $message->to_id], Self::$truthMessages) && $message->is_truth) {
+                array_push(Self::$truthMessages, ['to_id' => $message->to_id, 'from_id' => $message->from_id]);
+            }             
         }
 
         //if($isAllDelete) return NULL;
@@ -526,7 +532,9 @@ class Message_new extends Model
         if ($messages instanceof Illuminate\Database\Eloquent\Collection) {
             $messages = $messages->toArray();
         }
-	
+        
+        $truthMessages = Self::$truthMessages??[];
+        if(!$truthMessages) $truthMessages = [];
 		if($uid)
 			$user=User::find($uid);
         else
@@ -535,6 +543,11 @@ class Message_new extends Model
         // $isVip = $user->isVip();
         // $aa=[];
 		// $admin_id = AdminService::checkAdmin()->id;
+        $isVip = $user->isVip();
+        $aa=[];
+		$admin_id = AdminService::checkAdmin()->id;
+        $messagesForTruth = [];
+
         foreach ($messages as $key => &$message){
 			
             if($message['sender']->engroup==$message['receiver']->engroup){
@@ -614,6 +627,15 @@ class Message_new extends Model
                 
                 $messages[$key]['exchange_period']=$msgUser->exchange_period;
                 $messages[$key]['mCount']=$mCount;
+            
+                if(in_array(['to_id' => $message['to_id'], 'from_id' => $message['from_id']],Self::$truthMessages)) {
+                    $messages[$key]['is_truth'] = 1;
+                    $messagesForTruth[] = $messages[$key];
+                    unset($messages[$key]);
+                }
+                else {
+                    $messages[$key]['is_truth'] = 0;
+                }
             }
             else{
                 Log::info('Null object found, $user: ' . $user->id);
@@ -625,6 +647,7 @@ class Message_new extends Model
                 }
             }
         }
+        $messages = array_merge($messagesForTruth,$messages);
         //$messages['date'] = self::$date;
         //array_multisort($messages[1]['created_at'],SORT_DESC, SORT_STRING);
         return $messages;
