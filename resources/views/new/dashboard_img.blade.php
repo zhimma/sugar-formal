@@ -727,7 +727,7 @@ function requestBlurryAvatarDefault() {
                     },                                      
                 }
             })
-            resize_before_upload(uploaderOfAvatar,1000,300);
+            //resize_before_upload(uploaderOfAvatar,1000,300);
             
         },
         error: function(xhr, status, msg) {
@@ -886,7 +886,7 @@ function requestBlurryAvatarDefault() {
                 }
             })
             
-            resize_before_upload(uploaderOfMemberPic,1000,300);
+            //resize_before_upload(uploaderOfMemberPic,1000,300);
         },
         error: function(xhr, status, msg) {
             console.log(xhr);
@@ -1061,7 +1061,7 @@ function requestBlurryAvatarDefault() {
                 }
             }
         });
-        resize_before_upload(images_uploader,400,600,'#tab_real_auth_uploadPic');    
+        //resize_before_upload(images_uploader,400,600,'#tab_real_auth_uploadPic');
     @endif
     
 
