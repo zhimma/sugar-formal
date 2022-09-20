@@ -218,6 +218,27 @@
                                         <button class="btn btn-sm btn-danger btn_sid" type="button" data-confirm="1">列入</button>
                                     @endif
                                 </form>
+                                <form class="form-inline" action="/admin/users/picturesSimilar/suspicious:toggle" method="post">
+                                    {!! csrf_field() !!}
+                                    <input type="hidden" name="uid" value="{{ $user->id }}">
+                                    @if ($user->suspicious)
+                                        <label style="margin:12px 0px 0px 0px;">
+                                            <label class="mr-sm-2">初步判斷:</label>
+                                            <input type="checkbox" name="toggle" value="0" checked>
+                                            <sapn style="vertical-align:middle;">是八大</sapn>
+                                        </label>
+                                        <button class="btn btn-sm btn-danger btn_sid" type="button" data-confirm="0" style="margin-top: ">確定</button>
+
+                                    @else
+                                        <label style="margin:12px 0px 0px 0px;">
+                                            <label class="mr-sm-2">初步判斷:</label>
+                                            <input type="checkbox" class="form-control form-control-sm mr-sm-2"  name="toggle" value="1" >
+                                            <input type="hidden" name="reason" value="是八大" >
+                                            <sapn style="vertical-align:middle;">是八大</sapn>
+                                        </label>
+                                        <button class="btn btn-sm btn-danger btn_sid" type="button" data-confirm="1">確定</button>
+                                    @endif
+                                </form>
                                 </p>
                             </td>
                             <td>
