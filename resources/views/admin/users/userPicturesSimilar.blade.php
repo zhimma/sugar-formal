@@ -218,7 +218,7 @@
                                         <button class="btn btn-sm btn-danger btn_sid" type="button" data-confirm="1">列入</button>
                                     @endif
                                 </form>
-                                <form class="form-inline" action="/admin/users/picturesSimilar/suspicious:toggle" method="post">
+                                <form id="suspicious_from" class="form-inline" action="/admin/users/picturesSimilar/suspicious:toggle" method="post">
                                     {!! csrf_field() !!}
                                     <input type="hidden" name="uid" value="{{ $user->id }}">
                                     @if ($user->suspicious)
@@ -227,16 +227,17 @@
                                             <input type="checkbox" name="toggle" value="0" checked>
                                             <sapn style="vertical-align:middle;">是八大</sapn>
                                         </label>
-                                        <button class="btn btn-sm btn-danger btn_sid" type="button" data-confirm="0" style="margin-top: ">確定</button>
+                                        <button class="btn btn-sm btn-danger suspicious_from_btn" type="button" data-confirm="0" style="margin-top: ">確定</button>
 
                                     @else
                                         <label style="margin:12px 0px 0px 0px;">
                                             <label class="mr-sm-2">初步判斷:</label>
                                             <input type="checkbox" class="form-control form-control-sm mr-sm-2"  name="toggle" value="1" >
                                             <input type="hidden" name="reason" value="是八大" >
+                                            <input type="hidden" name="toggle" value="1" >
                                             <sapn style="vertical-align:middle;">是八大</sapn>
                                         </label>
-                                        <button class="btn btn-sm btn-danger btn_sid" type="button" data-confirm="1">確定</button>
+                                        <button class="btn btn-sm btn-danger suspicious_from_btn" type="button" data-confirm="1">確定</button>
                                     @endif
                                 </form>
                                 </p>
@@ -818,6 +819,15 @@
                 $(this).closest('form').submit();
             }
 
+        });
+
+        $('.suspicious_from_btn').on('click', function() {
+            event.preventDefault();
+            if($("input[name='toggle']").is(':checked')==false){
+                alert('請勾選是八大');
+                return false;
+            }
+            $('#suspicious_from').submit();
         });
     </script>
     <script>
