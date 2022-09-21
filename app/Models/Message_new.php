@@ -628,7 +628,9 @@ class Message_new extends Model
                 $messages[$key]['exchange_period']=$msgUser->exchange_period;
                 $messages[$key]['mCount']=$mCount;
             
-                if(in_array(['to_id' => $message['to_id'], 'from_id' => $message['from_id']],Self::$truthMessages)) {
+                if(in_array(['to_id' => $message['to_id'], 'from_id' => $message['from_id']],Self::$truthMessages)
+                  || in_array(['to_id' => $message['from_id'], 'from_id' => $message['to_id']],Self::$truthMessages)
+                ) {
                     $messages[$key]['is_truth'] = 1;
                     $messagesForTruth[] = $messages[$key];
                     unset($messages[$key]);
