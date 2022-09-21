@@ -430,6 +430,7 @@
 
                             <input id="system_image_assets" type="hidden" name="system_image_assets" value="">
                             <input id="system_image_life" type="hidden" name="system_image_life" value="">
+                            <input id="system_image_life_title" type="hidden" name="system_image_life_title" value="">
 
                             {{--複選選項--}}
 
@@ -735,6 +736,13 @@
                 option_array.push([$(this).find('.sys-img').attr('value'),$(this).children('input').val()]);
             });
             option_array = JSON.stringify(option_array);
+            $('#system_image_life_title').val(option_array);
+
+            option_array = [];
+            $('.input_field_6').first().children('.system_image').each(function(){
+                option_array.push([$(this).find('.sys-img').attr('value'),$(this).children('input').next('input').val()]);
+            });
+            option_array = JSON.stringify(option_array);
             $('#system_image_life').val(option_array);
 
             //檢查您的財富資產
@@ -780,6 +788,12 @@
 
             check_bool = false;
             $('.life_top').each(function(){
+                if($(this).val()==''){
+                    check_bool = true;
+                    return false;
+                }
+            });
+            $('.life_top_title').each(function(){
                 if($(this).val()==''){
                     check_bool = true;
                     return false;
@@ -1072,7 +1086,7 @@
 
             $("#add_image_6").click(function(e) {
                 add_life_image_id = add_life_image_id + 1;
-                if($('.life_top:last').val()=='') {
+                if($('.life_top:last').val()=='' || $('.life_top_title:last').val()=='') {
                     c5('您尚未輸入文字');
                     return false;
                 }
@@ -1083,7 +1097,8 @@
                 else {
                     e.preventDefault();
                     $(".input_field_6").append('<div class="custom matop10" style="width: 100%;">' +
-                        '<input type="text" placeholder="請輸入至多18個字" class="msinput life_top" name="life_image_content[' + add_life_image_id + ']" maxlength="18">' +
+                        '<input type="text" placeholder="標題請輸入至多4個字" class="msinput life_top_title" name="life_image_content_title[' + add_life_image_id + ']" maxlength="4">' +
+                        '<input type="text" placeholder="說明請輸入至多18個字" class="msinput life_top" name="life_image_content[' + add_life_image_id + ']" maxlength="18">' +
                         '<ul class="n_ulpic" style="margin-bottom: 0;">' +
                             '<input type="file" id="quality_life_image_' + add_life_image_id + '" name="quality_life_image_' + add_life_image_id + '" class="files quality_life_image" data-fileuploader-files="" data-fileuploader-listInput="quality_life_image_detail[' + add_life_image_id + ']">' +
                         '</ul><a href="#" class="remove_field_2"><img src="/new/images/del_03n.png"></a></div>');
@@ -1121,7 +1136,7 @@
                     $('.input_field_6').first().children('div').last().remove();
                 }
 
-                if($('.life_top:last').val()=='') {
+                if($('.life_top:last').val()=='' || $('.life_top_title:last').val()=='') {
                     c5('您尚未輸入文字');
                     return false;
                 }
@@ -1131,7 +1146,8 @@
                 }
                 else {
                     $('.input_field_6').first().append('<div class="system_image matop10" style="position: relative;">' +
-                        '<input type="text" placeholder="請輸入至多18個字" class="msinput life_top" maxlength="18">' +
+                        '<input type="text" placeholder="標題請輸入至多4個字" class="msinput life_top_title" maxlength="4">' +
+                        '<input type="text" placeholder="說明請輸入至多18個字" class="msinput life_top" maxlength="18">' +
                         '<ul class="n_ulpic" style="margin-bottom: 0;">' +
                             '<img style="width: 50%;" class="sys-img" src=' + $(this).attr('src') + ' value=' + $(this).attr('value') + '>' +
                         '</ul><a href="#" class="remove_field_2"><img src="/new/images/del_03n.png"></a></div>');
@@ -1151,7 +1167,8 @@
             @foreach($quality_life_image as $option)
                 @if($option->xref_id ?? false)
                     $('.input_field_6').first().append('<div class="system_image matop10" style="position: relative;">' +
-                        '<input type="text" placeholder="請輸入至多18個字" class="msinput life_top" maxlength="18" value={{$option->option_remark}}>' +
+                        '<input type="text" placeholder="標題請輸入至多4個字" class="msinput life_top_title" maxlength="4" value={{$option->option_second_remark ?? ''}}>' +
+                        '<input type="text" placeholder="說明請輸入至多18個字" class="msinput life_top" maxlength="18" value={{$option->option_remark}}>' +
                         '<ul class="n_ulpic" style="margin-bottom: 0;">' +
                             '<img style="width: 50%;" class="sys-img" src={{$option->option_name}} value={{$option->id}}>' +
                         '</ul><a href="#" class="remove_field_2"><img src="/new/images/del_03n.png"></a></div>');

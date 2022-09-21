@@ -363,7 +363,14 @@
                                 <div class="ci_lidw @if($key % 2 == 0) left @else right @endif">
                                     <img src={{$option->option_name}} class="ci_img">
                                     <div class="ci_ifont">
-                                        <div class="ci_div01">{{$option->option_remark}}</div>
+                                        <div class="ci_div01">{{$option->option_second_remark}}
+                                            @if($key % 2 == 0)
+                                                <img src="/new/images/zb_5.png">
+                                            @else
+                                                <img src="/new/images/zb_6.png">
+                                            @endif
+                                        </div>
+										<div class="ci_div02">{{$option->option_remark}}</div>
                                     </div>
                                 </div>
                             @endforeach
