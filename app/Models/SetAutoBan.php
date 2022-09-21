@@ -21,6 +21,8 @@ use App\Models\IntensiveCached\User as CachedUser;
 use App\Models\IntensiveCached\UserMeta as CachedUserMeta;
 use App\Models\IntensiveCached\Message as CachedMessage;
 use App\Models\IntensiveCached\AutoBanSetting as CachedAutoBanSetting;
+use Illuminate\Support\Facades\Cache;
+use Illuminate\Support\Facades\Redis;
 
 class SetAutoBan extends Model
 {
@@ -242,50 +244,59 @@ class SetAutoBan extends Model
         $ban_meta_set_type = collect(['about', 'style']);
 
         $ban_set_type->each(function($type) use ($user) {
-            $matched_set = CachedAutoBanSetting::where('type', $type)->whereRaw("INSTR('{$user->$type}', content) > 0")->first();
-            if($matched_set) {
-                SetAutoBan::banJobDispatcher($user, $matched_set, 'profile');
-            }
-
-            $all_check_matched_set = CachedAutoBanSetting::where('type', 'allcheck')->whereRaw("INSTR('{$user->$type}', content) > 0")->first();     
-            if($all_check_matched_set) {
-                SetAutoBan::banJobDispatcher($user, $matched_set, 'profile');
-            }
+            $type_rule_sets = SetAutoBan::retrive($type);
+            $all_check_rule_sets = SetAutoBan::retrive('allcheck');  
+            $rule_sets = $type_rule_sets->merge($all_check_rule_sets);
+            $rule_sets->each(function($rule_set) use ($user, $type) {
+                if(str_contains($user->$type, $rule_set->content)) {                    
+                    SetAutoBan::banJobDispatcher($user, $rule_set, 'profile');
+                }
+            });
         });
 
         $ban_meta_set_type->each(function($type) use ($user) {
-            $matched_set = CachedAutoBanSetting::where('type', $type)->whereRaw("INSTR('{$user->user_meta->$type}', content) > 0")->first();
-            if($matched_set) {
-                SetAutoBan::banJobDispatcher($user, $matched_set, 'profile');
-            }
-
-            $all_check_matched_set = CachedAutoBanSetting::where('type', 'allcheck')->whereRaw("INSTR('{$user->user_meta->$type}', content) > 0")->first();            
-            if($all_check_matched_set) {
-                SetAutoBan::banJobDispatcher($user, $matched_set, 'profile');
-            }
+            $type_rule_sets = SetAutoBan::retrive($type);
+            $all_check_rule_sets = SetAutoBan::retrive('allcheck');
+            $rule_sets = $type_rule_sets->merge($all_check_rule_sets);
+            $rule_sets->each(function($rule_set) use ($user, $type) {
+                if(str_contains($user->user_meta->$type, $rule_set->content)) {                    
+                    SetAutoBan::banJobDispatcher($user, $rule_set, 'profile');
+                }
+            });
         });
 
         $user->log_user_login->each(function ($log) use ($user) {
-            $cfp_id_matched_set = CachedAutoBanSetting::where('type', 'cfp_id')->where("content", $log->cfp_id)->first();
-            if($cfp_id_matched_set) {
-                SetAutoBan::banJobDispatcher($user, $cfp_id_matched_set, 'profile');
-            }
+            $cfp_id_rule_sets = SetAutoBan::retrive('cfp_id');
+            $cfp_id_rule_sets->each(function($rule_set) use ($user, $log) {
+                if($log->cfp_id == $rule_set->content) {
+                    SetAutoBan::banJobDispatcher($user, $rule_set, 'profile');
+                }
+            });
 
-            $user_agent_matched_set = CachedAutoBanSetting::where('type', 'userAgent')->whereRaw("INSTR('{$log->userAgent}', content) > 0")->first();
-            if($user_agent_matched_set) {
-                SetAutoBan::banJobDispatcher($user, $user_agent_matched_set, 'profile');
-            }
+            $user_agent_rule_sets = SetAutoBan::retrive('user_agent');
+            $user_agent_rule_sets->each(function($rule_set) use ($user, $log) {
+                if(str_contains($log->userAgent, $rule_set->content)) {
+                    SetAutoBan::banJobDispatcher($user, $rule_set, 'profile');
+                }
+            });
         });
 
         //20220629新增圖片檔名
-        $pic_matched_set = CachedAutoBanSetting::where('type', 'picname')->whereRaw("INSTR('{$user->user_meta->pic_original_name}', content) > 0")->first();
-        if($pic_matched_set) {
-            SetAutoBan::banJobDispatcher($user, $pic_matched_set, 'profile');
-        }
+        $pic_rule_sets = SetAutoBan::retrive('pic');
+        $pic_rule_sets->each(function($rule_set) use ($user) {
+            if(str_contains($user->user_meta->pic_original_name, $rule_set->content)) {
+                SetAutoBan::banJobDispatcher($user, $rule_set, 'profile');
+            }
+        });
 
         //有一筆違規就可以封鎖了 
-        $any_pic_violated = $user->pics->first(function($pic) {
-            return CachedAutoBanSetting::where('type', 'picname')->whereRaw("INSTR('{$pic->original_name}', content) > 0")->first();
+        $pic_name_rule_sets = SetAutoBan::retrive('picname');
+        $any_pic_violated = $user->pics->first(function($pic) use ($pic_name_rule_sets) {
+            return $pic_name_rule_sets->each(function($rule_set) use ($pic) {
+                if(str_contains($pic->original_name, $rule_set->content)) {
+                    return true;
+                }
+            });
         });
         if($any_pic_violated) {
             SetAutoBan::banJobDispatcher($user, $any_pic_violated, 'profile');
@@ -392,4 +403,11 @@ class SetAutoBan extends Model
         if($now->gt($stime) && $now->lt($etime)) $delay=25200; 
         return $delay;
     }    
+
+    public static function retrive($type)
+    {
+        return Cache::remember('auto_ban_set' . $type, 3600, function () use ($type) {
+            return SetAutoBan::where('type', $type)->get();
+        });
+    }
 }
