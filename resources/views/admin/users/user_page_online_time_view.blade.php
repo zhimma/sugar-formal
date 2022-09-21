@@ -115,9 +115,8 @@
         
         
         <div id="setting_empty_page_name_container"><a href="{{ route('admin/stay_online_record_page_name_view') }}" class='new text-white btn btn-success'>空白頁面名稱設定</a></div>           
-@if($user_online_record)
         <table id="table_userLogin_log" class="table table-hover table-bordered">
-            @foreach($user_online_record as $key => $uRecord)
+            @foreach($user_online_record??[] as $key => $uRecord)
                 @if(!$uRecord->user) 
                     @continue
                 @endif    
@@ -172,11 +171,13 @@
                     </td>
                 </tr>
             @endforeach
-            @if(count($user_online_record)==0)
+            @if(!$user_online_record || count($user_online_record)==0)
                 目前暫時無資料
             @endif
         </table>
+        @if($user_online_record)
         {!! $user_online_record->appends(request()->input())->links('pagination::sg-pages') !!}
+        @endif
         <script>
         $('.showLog').hide();
         $('.btn_showLogUser').click(function(){
