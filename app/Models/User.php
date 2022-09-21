@@ -38,6 +38,8 @@ use App\Models\LogAdvAuthApi;
 use App\Models\UserTattoo;
 use App\Models\StayOnlineRecord;
 use App\Models\PuppetAnalysisRow;
+use Illuminate\Support\Facades\Cache;
+
 use function Clue\StreamFilter\fun;
 use Tymon\JWTAuth\Contracts\JWTSubject;
 
@@ -2221,4 +2223,15 @@ class User extends Authenticatable implements JWTSubject
 //    }
 
     //--VVIP END--//
+    public static function retrive($id)
+    {
+        if($id) {
+            return Cache::remember('user_' . $id, 3600, function () use ($id) {
+                return User::find($id);
+            });
+        }
+        return Cache::remember('users' , 3600, function () {
+            return User::all();
+        });
+    }
 }
