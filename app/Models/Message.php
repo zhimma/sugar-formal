@@ -18,6 +18,7 @@ use App\Services\AdminService;
 use Intervention\Image\Facades\Image;
 use App\Models\SimpleTables\banned_users;
 use App\Services\UserService;
+use Illuminate\Support\Facades\Cache;
 use YlsIdeas\FeatureFlags\Facades\Features;
 
 use function Clue\StreamFilter\fun;
@@ -1294,5 +1295,12 @@ class Message extends Model
     {
         if($this->fromUser)
             return $this->existIsTrueQuotaByFromUser($this->fromUser);
+    }
+
+    public static function retrieve($user_id, $from_date)
+    {
+        return Cache::remember('message_' . $user_id, 3600, function () use ($user_id, $from_date) {
+            return Message::where('from_id', $user_id)->where('created_at', '>=', $from_date)->get();
+        });
     }
 }

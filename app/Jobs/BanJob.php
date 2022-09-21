@@ -14,9 +14,6 @@ use Illuminate\Support\Facades\DB;
 use Carbon\Carbon;
 use App\Models\BannedUsersImplicitly;
 use Illuminate\Support\Facades\Log;
-use App\Models\IntensiveCached\WarnedUser as CachedWarnedUser;
-use App\Models\IntensiveCached\BannedUser as CachedBannedUser;
-use App\Models\IntensiveCached\BannedUserImplicitly as CachedBannedUserImplicitly;
 
 class BanJob implements ShouldQueue
 {
@@ -43,9 +40,9 @@ class BanJob implements ShouldQueue
         Log::info('start_jobs_BanJob');
         Log::Info(Carbon::now());
         $that = $this;
-        $user_had_been_banned = CachedBannedUser::where('member_id', $this->uid)->get()->first();
-        $user_had_been_implicitly_banned = CachedBannedUserImplicitly::where('target', $this->uid)->get()->first();
-        $user_had_been_warned = CachedWarnedUser::where('member_id', $this->uid)->get()->first();
+        $user_had_been_banned = banned_users::where('member_id', $this->uid)->get()->first();
+        $user_had_been_implicitly_banned = BannedUsersImplicitly::where('target', $this->uid)->get()->first();
+        $user_had_been_warned = warned_users::where('member_id', $this->uid)->get()->first();
         if($this->ban_set->set_ban == 1 && !$user_had_been_banned)
         {
             //直接封鎖

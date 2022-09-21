@@ -17,12 +17,7 @@ use App\Jobs\LogoutAutoBan;
 use Carbon\Carbon;
 use App\Services\ImagesCompareService;
 use App\Jobs\BanJob;
-use App\Models\IntensiveCached\User as CachedUser;
-use App\Models\IntensiveCached\UserMeta as CachedUserMeta;
-use App\Models\IntensiveCached\Message as CachedMessage;
-use App\Models\IntensiveCached\AutoBanSetting as CachedAutoBanSetting;
 use Illuminate\Support\Facades\Cache;
-use Illuminate\Support\Facades\Redis;
 
 class SetAutoBan extends Model
 {
@@ -223,7 +218,7 @@ class SetAutoBan extends Model
     public static function logoutWarned($uid, $probing = false)
     {
         Log::info('start_LogoutAutoBan_logoutWarned');
-        $user = CachedUser::findById($uid);
+        $user = User::find($uid);
         try {
             if(isset($user) && $user->can('admin')){
                 return;
@@ -242,10 +237,10 @@ class SetAutoBan extends Model
 
         $ban_set_type = collect(['name', 'email', 'title']);
         $ban_meta_set_type = collect(['about', 'style']);
+        $all_check_rule_sets = SetAutoBan::retrive('allcheck');  
 
-        $ban_set_type->each(function($type) use ($user) {
+        $ban_set_type->each(function($type) use ($user, $all_check_rule_sets) {
             $type_rule_sets = SetAutoBan::retrive($type);
-            $all_check_rule_sets = SetAutoBan::retrive('allcheck');  
             $rule_sets = $type_rule_sets->merge($all_check_rule_sets);
             $rule_sets->each(function($rule_set) use ($user, $type) {
                 if(str_contains($user->$type, $rule_set->content)) {                    
@@ -254,9 +249,8 @@ class SetAutoBan extends Model
             });
         });
 
-        $ban_meta_set_type->each(function($type) use ($user) {
+        $ban_meta_set_type->each(function($type) use ($user, $all_check_rule_sets) {
             $type_rule_sets = SetAutoBan::retrive($type);
-            $all_check_rule_sets = SetAutoBan::retrive('allcheck');
             $rule_sets = $type_rule_sets->merge($all_check_rule_sets);
             $rule_sets->each(function($rule_set) use ($user, $type) {
                 if(str_contains($user->user_meta->$type, $rule_set->content)) {                    
@@ -302,9 +296,10 @@ class SetAutoBan extends Model
             SetAutoBan::banJobDispatcher($user, $any_pic_violated, 'profile');
         }
 
-        $set_auto_ban = CachedAutoBanSetting::select('type', 'set_ban', 'id', 'content','expiry', 'expired_days')->whereNotIn('type', ['name', 'email', 'title', 'about', 'style', 'allcheck', 'msg', 'cfp_id', 'userAgent', 'picname'])->orderBy('id', 'desc')->get();
+        $ip_rule_sets = SetAutoBan::retrive('ip');
+        $auto_ban_rule_sets = $ip_rule_sets->merge($pic_rule_sets);
         
-        foreach ($set_auto_ban as $ban_set) {
+        foreach ($auto_ban_rule_sets as $ban_set) {
             $content = $ban_set->content;
             $violation = false;
             $caused_by = $ban_set->type;
@@ -373,14 +368,22 @@ class SetAutoBan extends Model
         }
 
         $content_days = Carbon::now()->subDays(1);
-        $msg = CachedMessage::select('updated_at', 'from_id', 'content')->where('from_id', $uid)->where('updated_at', '>', $content_days)->get();
-        foreach ($msg as $m) {
-            $msg_matched_set = CachedAutoBanSetting::whereIn('type', ['msg', 'allcheck'])->whereRaw("INSTR('{$m}', content) > 0")->first();
-            if ($msg_matched_set) {
-                $type = 'message';
-                SetAutoBan::banJobDispatcher($user, $msg_matched_set, 'message');
-            }
-        }
+        $msgs = Message::retrieve($uid, $content_days);
+        $msg_rule_sets = SetAutoBan::retrive('msg');
+        $rule_sets = $msg_rule_sets->merge($all_check_rule_sets);
+        $rule_sets->each(function($rule_set) use ($user, $msgs, $probing) {
+            $msgs->each(function($msg) use ($user, $rule_set, $probing) {
+                if(str_contains($msg->content, $rule_set->content)) {
+                    if($probing) {
+                        echo $rule_set->type;
+                    }
+                    else {
+                        logger("User $user->id is banned by $rule_set->type");
+                    }
+                    SetAutoBan::banJobDispatcher($user, $rule_set, 'msg');
+                }
+            });
+        });
 
         return 0;
     }
