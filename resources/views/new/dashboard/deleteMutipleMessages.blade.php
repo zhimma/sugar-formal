@@ -2,7 +2,7 @@
 @section('style')
     <style>
         .hycov{ width: 50px;height: 50px;max-width: 100%;max-height: 100%;}
-        .dtl_zk{ height: 415px; overflow-y: scroll;}
+        .dtl_zk{ max-height: 415px; overflow-y: scroll;}
         .dtl_zk::-webkit-scrollbar {height: 0;width: 0;color: transparent;}
     </style>
 @endsection
@@ -26,7 +26,7 @@
                     <div class="det_k">
                         <div class="ny_zblb1">
                             <ul class="clearfix">
-                                <li class="box oneWeekList">
+                                <li class="box oneWeekList" @if(count($oneWeekList)==0) style="display: none;" @endif>
                                     <a href="javascript:void(0)">
                                         <div class="det_ttile">
                                             <span>刪除一周以上未連絡的會員</span>
@@ -35,21 +35,21 @@
                                     </a>
                                     <ul class="dtl_zk" style="position: relative;max-height: 415px;">
                                         <div class="n_gd_nn"><div class="n_gd_taa"></div></div>
-                                            @foreach($oneWeekList as $oneWeek)
-                                                <div class="dtl_zk_1" id="zh1" data-user_id="{{ $oneWeek['user_id'] }}">
-                                                    <div class="dtl_d" onclick="shanc1()">刪除</div>
-                                                    <div class="dtl_tx @if($oneWeek['isBlurAvatar']) blur_img @endif"><img src="{{ $oneWeek['user_pic'] }}" @if($oneWeek['user_engroup'] == 1) onerror="this.src='/new/images/male.png'" @else onerror="this.src='/new/images/female.png'" @endif class="hycov"></div>
+                                        @foreach($oneWeekList as $oneWeek)
+                                            <div class="dtl_zk_1" id="zh1" data-user_id="{{ $oneWeek['user_id'] }}">
+                                                <div class="dtl_d" onclick="shanc1()">刪除</div>
+                                                <div class="dtl_tx @if($oneWeek['isBlurAvatar']) blur_img @endif"><img src="{{ $oneWeek['user_pic'] }}" @if($oneWeek['user_engroup'] == 1) onerror="this.src='/new/images/male.png'" @else onerror="this.src='/new/images/female.png'" @endif class="hycov"></div>
 
-                                                    <div class="dt_nr">
-                                                        <span>{{ $oneWeek['user_name'] }}</span>
-                                                        <font>{{ $oneWeek['last_msg_content'] }}</font>
-                                                        <div class="dt_time">{{ date('m/d H:i', strtotime($oneWeek['last_msg_created_at'])) }}</div>
-                                                    </div>
+                                                <div class="dt_nr">
+                                                    <span>{{ $oneWeek['user_name'] }}</span>
+                                                    <font>{{ $oneWeek['last_msg_content'] }}</font>
+                                                    <div class="dt_time">{{ date('m/d H:i', strtotime($oneWeek['last_msg_created_at'])) }}</div>
                                                 </div>
-                                            @endforeach
+                                            </div>
+                                        @endforeach
                                     </ul>
                                 </li>
-                                <li class="box twoWeekList">
+                                <li class="box twoWeekList" @if(count($twoWeekList)==0) style="display: none;" @endif>
                                     <a href="javascript:void(0)">
                                         <dt class="det_ttile">
                                             <span>刪除兩周以上未連絡的會員</span>
@@ -72,7 +72,7 @@
                                         @endforeach
                                     </ul>
                                 </li>
-                                <li class="box oneMonthList">
+                                <li class="box oneMonthList" @if(count($oneMonthList)==0) style="display: none;" @endif>
                                     <a href="javascript:void(0)">
                                         <dt class="det_ttile">
                                             <span>刪除一個月以上未連絡的會員</span>
@@ -157,10 +157,19 @@
                     headers: {
                         'X-CSRF-TOKEN': $('meta[name="csrf-token"]').attr('content')
                     },
+                    beforeSend: function(){
+                        $('#tab06').hide();
+                        $("#delete_msg_working").show();
+                        $('#announce_bg').show();
+                    },
+                    complete: function(){
+                        $("#delete_msg_working").hide();
+                        $('#announce_bg').hide();
+                    },
                     success: function(xhr){
                         console.log(xhr.msg);
                         c5('訊息刪除成功');
-                        setTimeout('location.reload()', 3000);
+                        setTimeout('location.reload()', 0);
                     },
                     error: function(xhr, type){
                         c5('訊息讀取出現錯誤！敬請重新整理後再嘗試一次，如本錯誤持續出現，請與站長聯絡，謝謝。');

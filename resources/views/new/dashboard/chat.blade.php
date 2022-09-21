@@ -2418,9 +2418,12 @@ is_truth_icon_pic.src="{{asset('/new/images/zz_zt2.png')}}";
             @elseif($message_with_user_count>60)
                 $('#more_people_cnt').text('60');
             @endif
-
-            $('#deleteMutipleMessagePopUp').show();
-            $('#announce_bg').show();
+            //localStorage.removeItem('showDeleteMutipleMessagePopUp');
+            //alert('localStorage.getItem('showDeleteMutipleMessagePopUp'));
+            if(localStorage.getItem('showDeleteMutipleMessagePopUp')!=='N'){
+                $('#deleteMutipleMessagePopUp').show();
+                $('#announce_bg').show();
+            }
         @endif
 
 </script>
