@@ -575,13 +575,13 @@
                         </form>   
                     </a>
                     <a  id="truth_actor" style="position:relative;"
-                        @if($user->isVip()) data-truth_active="0" @endif 
+                        @if($user->isVipOrIsVvip()) data-truth_active="0" @endif 
                             onclick="do_is_truth_action();"
                         class="fa_adbut1 right
                         @if($is_truth_state) adbut_on @endif
                         "
                     >真心話                 
-                    @if(!$user->isVip())
+                    @if(!$user->isVipOrIsVvip())
                         <img src="{{asset('/new/images/icon_35.png')}}" style="position: absolute;float: left;left: 0px; top:3px;-moz-transform:rotate(-25deg);-webkit-transform:rotate(-30deg);">
                     @endif 
                     </a> 
@@ -1083,7 +1083,7 @@
                     <div class="t_iphoto" style="margin-top: 10px;"><img src="{{asset('new/images/zz_pt.jpg')}}"></div>
                     <h2 class="t_list"><img src="{{asset('new/images/ciicon_h.png')}}"><font>真心話會在女會員對話欄中置頂，如上圖</font></h2>
                     <h2 class="t_list"><img src="{{asset('new/images/ciicon_h.png')}}"><font>真心話一天只能發一次</font></h2>
-                    @if(!$user->isVip())
+                    @if(!$user->isVipOrIsVvip())
                     <h2 class="t_list"><img src="{{asset('new/images/ciicon_h.png')}}"><font>成為VIP即可發送真心話</font></h2>    
                     @endif
                 </div>
