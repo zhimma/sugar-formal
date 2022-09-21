@@ -1055,6 +1055,8 @@
 .t_list img{width: 8px;;}
 .t_list font{width: calc(100% - 12px); float: right;}
 
+#tab_truth .new_poptk{height:unset;}
+
 @media (max-width:768px){
 #tab_truth .new_poptk{height:auto;}
 }
