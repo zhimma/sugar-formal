@@ -314,7 +314,7 @@ class Message_new extends Model
                 //$noVipCount++;
             }
             
-            if(!in_array(['to_id' => $message->to_id, 'from_id' => $message->from_id], Self::$truthMessages) && !in_array(['to_id' => $message->from_id, 'from_id' => $message->to_id], Self::$truthMessages) && $message->is_truth) {
+            if(!$message->is_row_delete_1 && !$message->is_row_delete_2 && !in_array(['to_id' => $message->to_id, 'from_id' => $message->from_id], Self::$truthMessages) && !in_array(['to_id' => $message->from_id, 'from_id' => $message->to_id], Self::$truthMessages) && $message->is_truth) {
                 array_push(Self::$truthMessages, ['to_id' => $message->to_id, 'from_id' => $message->from_id]);
             }             
         }
