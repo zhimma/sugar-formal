@@ -728,7 +728,7 @@ class Message extends Model
                     ;
         
         if($user->engroup==1 && $user->isVip()) {
-            $is_truth_msg =( clone $query)->where('is_truth',1)->orderByDesc('id')->first();
+            $is_truth_msg =( clone $query)->where('is_truth',1)->where('is_row_delete_1',0)->where('is_row_delete_2',0)->orderByDesc('id')->first();
             if($is_truth_msg && !in_array(['to_id' => $is_truth_msg->to_id, 'from_id' => $is_truth_msg->from_id], Self::$truthMessages) && !in_array(['to_id' => $is_truth_msg->from_id, 'from_id' => $is_truth_msg->to_id], Self::$truthMessages)) {
                 array_push(Self::$truthMessages, ['to_id' => $is_truth_msg->to_id, 'from_id' => $is_truth_msg->from_id]);
             }
