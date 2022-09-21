@@ -78,7 +78,9 @@ class MessageFiller extends Seeder
                         'user_id' => $receiver->id,
                         'is_active' => 1
                     ]);
-                Message::post($user->id, $receiver->id, '測試刪除訊息');
+                $message = Message::post($user->id, $receiver->id, '測試刪除訊息');
+                $message->created_at = now()->subDays(8);
+                $message->save();
             }
         }
         
