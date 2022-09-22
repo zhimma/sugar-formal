@@ -36,6 +36,7 @@ use Illuminate\Http\Request;
 use App\Services\UserService;
 use App\Services\AdminService;
 use App\Services\FaqService;
+use App\Services\MessageService;
 use App\Services\ShortMessageService;
 use App\Http\Requests\UserInviteRequest;
 use App\Models\User;
@@ -85,11 +86,12 @@ use Illuminate\Support\Facades\Log;
 
 class UserController extends \App\Http\Controllers\BaseController
 {
-    public function __construct(UserService $userService, AdminService $adminService,RealAuthAdminService $raa_service)
+    public function __construct(UserService $userService, AdminService $adminService,RealAuthAdminService $raa_service,MessageService $messageService)
     {
         $this->service = $userService;
         $this->admin = $adminService;
         $this->raa_service = $raa_service->riseByUserService($this->service);
+        $this->messageService = $messageService;
     }
 
     /**
@@ -2200,9 +2202,11 @@ class UserController extends \App\Http\Controllers\BaseController
                 $temp = $results->get()->toArray();
                 //Rearranges the messages query results.
                 $results = array();
-                array_walk($temp, function (&$value) use (&$results) {
+
+                array_walk($temp, function (&$value, &$key) use (&$results) {
                     $results[$value['id']] = $value;
                 });
+
                 //Senders' id.
                 $to_id = array();
                 //Receivers' id.
@@ -2383,6 +2387,31 @@ class UserController extends \App\Http\Controllers\BaseController
         } else {
             return back()->withErrors(['找不到暱稱含有「站長」的使用者！請先新增再執行此步驟']);
         }
+    }
+
+    public function handleMessage(Request $request)
+    {
+        $admin = $this->admin->checkAdmin();
+
+        if (!$admin) {
+            return response()->json([
+                'message' => '找不到暱稱含有「站長」的使用者！請先新增再執行此步驟'
+            ], 403);
+        }
+
+        $messageId = $request->id;
+        $toId = $request->to_id;
+        $message = $this->messageService->getMessageById($messageId);
+
+        $handle = ($request->handle!=null)?$request->handle:intval($message->handle ==0);
+        if (!$message) {
+            return response()->json([
+                'message' => '找不到此訊息'
+            ], 403);
+        }
+        $this->messageService->setMessageHandling($messageId,$handle);
+
+        return response('', 201);
     }
 
     public function showBannedList()
@@ -3799,6 +3828,9 @@ class UserController extends \App\Http\Controllers\BaseController
         $isWarnedTime = null;
         if ($status == 1) {
             $isWarnedTime = Carbon::now();
+            /* 2022/09/22 被檢舉者列為警示時被檢舉的訊息改為未處理 */
+            \Log::debug('test::'.$id);
+            $this->messageService->setMessageHandlingBySenderId($id);
         }
 
         DB::table('user_meta')->where('user_id', $id)->update(['isWarned' => $status, 'isWarnedRead' => 0, 'isWarnedTime' => $isWarnedTime, 'isWarnedType' => $isWarnedType]);
