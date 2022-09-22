@@ -765,6 +765,7 @@ Route::group(['middleware' => ['auth', 'global', 'active', 'femaleActive', 'vipC
         Route::post('users/logUserLoginHide', 'UserController@logUserLoginHide')->name('logUserLoginHide');
 
         Route::group(['prefix'=>'users/message'], function(){
+            Route::get('record/{id}', 'UserController@showAdminMessageRecord')->name('AdminMessageRecord');
             Route::get('showBetween/{id1}/{id2}', 'UserController@showMessagesBetween')->name('admin/showMessagesBetween');
             Route::get('to/{id}', 'UserController@showAdminMessenger')->name('AdminMessage');
             Route::get('to/{id}/{mid}', 'UserController@showAdminMessengerWithMessageId')->name('AdminMessengerWithMessageId');
@@ -1143,4 +1144,3 @@ Route::group(['middleware' => ['auth', 'global', 'active', 'femaleActive', 'vipC
 Route::get('/test', 'ImageController@deletePictures');
 
 Route::get('/cfp', [CfpController::class, 'cfp']);
-// });

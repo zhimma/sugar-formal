@@ -2515,6 +2515,38 @@ class UserController extends \App\Http\Controllers\BaseController
         }
     }
 
+    public function showAdminMessageRecord($id)
+    {
+        $admin = $this->admin->checkAdmin();
+        if ($admin) {
+            $messages = Message::allToFromSenderChatWithAdmin($id, 1049)->get();
+            
+            $user = User::where('id', $id)->get()->first();
+            $admin = User::where('id', 1049)->get()->first();
+
+            $user->tipcount = Tip::TipCount_ChangeGood($user->id);
+            $admin->tipcount = Tip::TipCount_ChangeGood($admin->id);
+
+            $user->vip = Vip::vip_diamond($user->id);
+            $admin->vip = Vip::vip_diamond($admin->id);
+
+            $user->isBlocked = banned_users::where('member_id', $user->id)->orderBy('created_at', 'desc')->get()->first();
+            $user->isBlockedReceiver = banned_users::where('member_id', $user->id)->orderBy('created_at', 'desc')->get()->first();
+
+            $admin->isBlocked = banned_users::where('member_id', $admin->id)->orderBy('created_at', 'desc')->get()->first();
+            $admin->isBlockedReceiver = banned_users::where('member_id', $admin->id)->orderBy('created_at', 'desc')->get()->first();
+
+           
+            return view('admin.users.messageRecord')
+                ->with('messages', $messages)
+                ->with('user', $user)
+                ->with('admin', $admin);
+        } else {
+            return back()->withErrors(['找不到暱稱含有「站長」的使用者！請先新增再執行此步驟']);
+        }
+        
+    }
+
     public function showAdminMessengerWithReportedId($id, $reported_id, $pic_id = null, $isPic = null, $isReported = null)
     {
         // $isPic 為被檢舉之表格 ID
@@ -2652,7 +2684,11 @@ class UserController extends \App\Http\Controllers\BaseController
     public function sendAdminMessage(Request $request,RealAuthAdminService $raa_service, $id)
     {
         $payload = $request->all();
-        $p_rs = Message::post($payload['admin_id'], $id, $payload['msg']);
+        if($request->has('chat_with_admin')) {
+            $p_rs = Message::post($payload['admin_id'], $id, $payload['msg'],true,0,null, $payload['chat_with_admin']);
+        } else {
+            $p_rs = Message::post($payload['admin_id'], $id, $payload['msg']);
+        }
         
         $raa_service->riseByUserId($id);
         if($p_rs) {

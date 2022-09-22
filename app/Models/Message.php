@@ -691,7 +691,7 @@ class Message extends Model
 		$min_bad_date = self::getNotShowBadUserDate($uid, $sid);
 				
         $block = Blocked::where('member_id',$sid)->where('blocked_id', $uid)->get()->first();
-
+       
         $query = $query->where(function ($query) use ($uid,$sid,$isAdminSender,$includeDeleted) {
 			$whereArr1 = [['to_id', $uid],['from_id', $sid]];
 			$whereArr2 = [['from_id', $uid],['to_id', $sid]];
@@ -700,9 +700,10 @@ class Message extends Model
 				array_push($whereArr2,['is_single_delete_1','<>',$uid],['is_row_delete_1','<>',$uid]);
 			}
             $query->where($whereArr1);
-			
-			if(!$isAdminSender)
-                $query->orWhere($whereArr2);
+
+            if(!$isAdminSender) 
+            $query->orWhere($whereArr2);
+
         });
         
         if($isAdminSender) return $query->orderBy('created_at', 'desc')->paginate(10);//->get();
@@ -750,6 +751,19 @@ class Message extends Model
         $query = $query->where('created_at','>=',self::$date)
             ->orderBy('created_at', 'asc')
             ->paginate(100);
+        return $query;
+    }
+
+    public static function allToFromSenderChatWithAdmin($uid, $sid) {
+        self::$date =\Carbon\Carbon::parse("180 days ago")->toDateTimeString();
+        $query = Message::withTrashed()->where('created_at','>=',self::$date);
+        $query = $query->where(function ($query) use ($uid,$sid) {
+            $query->where([['chat_with_admin', 1],['to_id', $uid],['from_id', $sid]])
+                ->orWhere([['from_id', $uid],['to_id', $sid]]);
+        });
+
+        $query = $query->where('created_at','>=',self::$date)
+            ->orderBy('created_at', 'desc');
         return $query;
     }
 
@@ -1028,7 +1042,7 @@ class Message extends Model
         return $query->count();
     }
 
-    public static function post($from_id, $to_id, $msg, $tip_action = true, $sys_notice = 0,$parent_msg=null)
+    public static function post($from_id, $to_id, $msg, $tip_action = true, $sys_notice = 0,$parent_msg=null, $chat_with_admin=0)
     {   
         $message = new Message;
         $message->from_id = $from_id;
@@ -1048,6 +1062,7 @@ class Message extends Model
         $message->is_single_delete_2 = 0;
         $message->temp_id = 0;
         $message->sys_notice = $sys_notice;
+        $message->chat_with_admin = $chat_with_admin;
         $message->save();
         $curUser = User::findById($to_id);
         if ($curUser->user_meta->notifmessage !== '不通知')
@@ -1233,7 +1248,7 @@ class Message extends Model
             }
         }
         else{
-             $room_id = $checkData->first()?->room_id;
+             $room_id = $checkData->first()->room_id;
         }
 
         return $room_id ?? null;
