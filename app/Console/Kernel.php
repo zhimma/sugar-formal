@@ -108,7 +108,7 @@ class Kernel extends ConsoleKernel
             //每週檢查討論區
             $schedule->command('ForumCheck')->timezone('Asia/Taipei')->weeklyOn(1, '2:15');
             //每半小時檢查登入使用者
-            $schedule->command('UserLogin')->timezone('Asia/Taipei')->everyThirtyMinutes();
+            // $schedule->command('UserLogin')->timezone('Asia/Taipei')->everyThirtyMinutes();
             $schedule->command('CompareImages')->timezone('Asia/Taipei')->dailyAt('08:00');       
             $schedule->command('CompareImages  --dsort')->timezone('Asia/Taipei')->everyTenMinutes();//->between('02:00', '12:00');   
             //$schedule->command('EncodeImagesForCompare')->timezone('Asia/Taipei')->dailyAt('02:01');
