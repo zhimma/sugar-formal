@@ -188,7 +188,7 @@
                         $fromID_auth_status = 1;
                     }
                 @endphp
-                <td class="@if( ($isBlocked||$isAdminWarned) && ($fromID_userMeta->isWarned!=1) && ($result->handle == 0) ) needHandle @endif">
+                <td class="@if( ($isBlocked||$isAdminWarned) && ($fromID_userMeta->isWarned == 1) && ($result->handle == 0) ) needHandle @endif">
                     @if(!is_null($fromIDInfo))
                         @if($isBlocked)
                             <button type="button" class='unblock_user text-white btn @if($isBlocked) btn-success @else btn-danger @endif' onclick="Release({{ $result['from_id'] }})" data-id="{{ $result['from_id'] }}">解除封鎖</button>
