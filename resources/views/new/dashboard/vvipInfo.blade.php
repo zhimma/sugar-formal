@@ -594,7 +594,7 @@
             //檢查是否填寫高資產細項
             if($('#itemssxN2_high_assets').parent().prev().hasClass("nn_shoc_h"))
             {
-                if($('#high_assets').val() == '' && $('#uc_1_point1_input').val() == '')
+                if($('#high_assets').val() == '' && $('#uc_1_point1_input').val().trim() == '')
                 {
                     c5('請選擇高資產');
                     return false;
@@ -677,7 +677,7 @@
             //檢查是否填寫專業人脈細項
             if($('#itemssxN6').parent().prev().hasClass("nn_shoc_h"))
             {
-                if(option_array[2] == null || (option_array[0] == null && option_array[1] == ''))
+                if(option_array[2] == null || (option_array[0] == null && option_array[1].trim() == ''))
                 {
                     c5('請選擇專業人脈');
                     return false;
@@ -754,7 +754,7 @@
 
             check_bool = false;
             $('.assets_image_top').each(function(){
-                if($(this).val()==''){
+                if($(this).val().trim()==''){
                     check_bool = true;
                     return false;
                 }
@@ -788,13 +788,13 @@
 
             check_bool = false;
             $('.life_top').each(function(){
-                if($(this).val()==''){
+                if($(this).val().trim()==''){
                     check_bool = true;
                     return false;
                 }
             });
             $('.life_top_title').each(function(){
-                if($(this).val()==''){
+                if($(this).val().trim()==''){
                     check_bool = true;
                     return false;
                 }
@@ -820,7 +820,7 @@
             }
 
             //檢查關於我
-            if($('#about').val()=='') {
+            if($('#about').val().trim()=='') {
                 c5('您尚未輸入關於我');
                 return false;
             }
