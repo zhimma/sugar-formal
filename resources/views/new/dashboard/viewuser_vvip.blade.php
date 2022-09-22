@@ -78,6 +78,8 @@
         .hdlist2_right{width:100%; }
         .s_bushi{ font-size:12px;padding:3px 10px;}
         }
+
+        .fileuploader-icon-remove:after {content: none !important;}
     </style>
 @endsection
 @section('app-content')
