@@ -778,6 +778,7 @@ Route::group(['middleware' => ['auth', 'global', 'active', 'femaleActive', 'vipC
             Route::post('modify', 'UserController@modifyMessage')->name('users/message/modify');
             Route::post('delete', 'UserController@deleteMessage')->name('users/message/delete');
             Route::post('edit', 'UserController@editMessage')->name('users/message/edit');
+            Route::post('handle', 'UserController@handleMessage')->name('users/message/handle');
 
             Route::get('sendUserMessage', 'UserController@showSendUserMessage')->name('admin/showSendUserMessage');
             Route::post('sendUserMessage', 'UserController@sendUserMessage')->name('admin/sendUserMessage');
