@@ -581,7 +581,8 @@ class Message_newController extends BaseController {
             $letter_vvip = AdminCommonText::where('category_alias','letter_text')->where('alias','vvip')->get()->first();
             /*編輯文案-檢舉大頭照-END*/
 
-            $message_with_user_count=count(Message::showAllMsgWithinTimeRange($user->id, 'oneWeek'));
+            $data_all = Message_new::allSendersAJAX($user->id, $user->isVip(),'all');
+            $message_with_user_count = (is_countable($data_all) && array_get($data_all,'0')!=='No data') ? count($data_all) : 0;
             return view('new.dashboard.chat')
                 ->with('user', $user)
                 ->with('message_with_user_count', $message_with_user_count)
