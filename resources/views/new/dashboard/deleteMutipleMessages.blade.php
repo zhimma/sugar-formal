@@ -14,7 +14,7 @@
             </div>
             <div class="col-sm-12 col-xs-12 col-md-10">
                 <div class="shou"><span class="zq_font1">大量刪除訊息</span>
-                    <font class="zq_font2">Delect</font><a href="/dashboard/chat2#all" class="nnn_adbut"><img src="/new/images/zz_zbjt.png" style=" margin-left: -5px;">返回</a>
+                    <font class="zq_font2">Mass delete</font><a href="/dashboard/chat2#all" class="nnn_adbut"><img src="/new/images/zz_zbjt.png" style=" margin-left: -5px;">返回</a>
                 </div>
                 <div class="g_pnr">
                     <div class="del_dl">
@@ -37,7 +37,7 @@
                                         <div class="n_gd_nn"><div class="n_gd_taa"></div></div>
                                         @foreach($oneWeekList as $oneWeek)
                                             <div class="dtl_zk_1" id="zh1" data-user_id="{{ $oneWeek['user_id'] }}">
-                                                <div class="dtl_d" onclick="shanc1()">刪除</div>
+                                                <div class="dtl_d">刪除</div>
                                                 <div class="dtl_tx @if($oneWeek['isBlurAvatar']) blur_img @endif"><img src="{{ $oneWeek['user_pic'] }}" @if($oneWeek['user_engroup'] == 1) onerror="this.src='/new/images/male.png'" @else onerror="this.src='/new/images/female.png'" @endif class="hycov"></div>
 
                                                 <div class="dt_nr">
@@ -60,7 +60,7 @@
                                         <div class="n_gd_nn"><div class="n_gd_taa"></div></div>
                                         @foreach($twoWeekList as $twoWeek)
                                             <div class="dtl_zk_1" id="zh1" data-user_id="{{ $twoWeek['user_id'] }}">
-                                                <div class="dtl_d" onclick="shanc1()">刪除</div>
+                                                <div class="dtl_d">刪除</div>
                                                 <div class="dtl_tx @if($twoWeek['isBlurAvatar']) blur_img @endif"><img src="{{ $twoWeek['user_pic'] }}" @if($twoWeek['user_engroup'] == 1) onerror="this.src='/new/images/male.png'" @else onerror="this.src='/new/images/female.png'" @endif class="hycov"></div>
 
                                                 <div class="dt_nr">
@@ -83,7 +83,7 @@
                                         <div class="n_gd_nn"><div class="n_gd_taa"></div></div>
                                         @foreach($oneMonthList as $oneMonth)
                                             <div class="dtl_zk_1" id="zh1" data-user_id="{{ $oneMonth['user_id'] }}">
-                                                <div class="dtl_d" onclick="shanc1()">刪除</div>
+                                                <div class="dtl_d">刪除</div>
                                                 <div class="dtl_tx @if($oneMonth['isBlurAvatar']) blur_img @endif"><img src="{{ $oneMonth['user_pic'] }}" @if($oneMonth['user_engroup'] == 1) onerror="this.src='/new/images/male.png'" @else onerror="this.src='/new/images/female.png'" @endif class="hycov"></div>
 
                                                 <div class="dt_nr">
@@ -143,7 +143,7 @@
                 return false;
             }
 
-            c6('請問確定刪除這些訊息嗎？');
+            c6('您刪除的訊息為 '+sList_array.length+' 筆，會相當花費時間，建議本次使用完再刪除擺著讓系統跑，請問確定刪除這些訊息嗎？');
             $(".n_left").on('click', function() {
                 $.ajax({
                     type: 'POST',
