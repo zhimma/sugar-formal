@@ -312,8 +312,7 @@ is_truth_icon_pic.src="{{asset('/new/images/zz_zt2.png')}}";
                             data-tooltipClass="yd4" data-intro="<p>站方建議盡量多與
                         VVIP 會員互動。本區會員的素質最佳，投訴率低於 0.1%。</p>
                                 <em></em><em></em>">
-
-                            VVIP會員
+                                <span class="le_span">VVIP會員</span>
                         </dt>
                         <dd>
                             <div class="loading warning" id="sjlist_vvip_warning"><span

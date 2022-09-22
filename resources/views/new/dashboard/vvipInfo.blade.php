@@ -274,7 +274,7 @@
                                                             @endphp
                                                             <span class="custom_s a1 left @if($sub_option->xref_id ?? false) cractive_a @endif" value={{$sub_option->id}}>{{$sub_option->option_name}}</span>
                                                         @endforeach
-                                                        <input placeholder="輸入人脈屬性(至多8個中文字)" class="msinput" style=" margin-bottom:10px;">
+                                                        <input placeholder="輸入人脈屬性(至多8個中文字)" class="msinput" style=" margin-bottom:10px;" maxlength="8">
                                                         <div class="cr_ad">-人脈可用程度：<i class="nn_shoc_r">(必填)</i></div>
                                                         <h2 class="us_da_1"><input type="radio" @if(($depth ?? false) == 'high') checked @endif name="network_depth" style="margin-right:4px;" value='high'>高：可視情況幫baby安排實習/正式職務</h2>
                                                         <h2 class="us_da_1"><input type="radio" @if(($depth ?? false) == 'low') checked @endif name="network_depth" style="margin-right:4px;" value='low'>低：只能提供顧問以及諮詢</h2>
@@ -430,6 +430,7 @@
 
                             <input id="system_image_assets" type="hidden" name="system_image_assets" value="">
                             <input id="system_image_life" type="hidden" name="system_image_life" value="">
+                            <input id="system_image_life_title" type="hidden" name="system_image_life_title" value="">
 
                             {{--複選選項--}}
 
@@ -593,7 +594,7 @@
             //檢查是否填寫高資產細項
             if($('#itemssxN2_high_assets').parent().prev().hasClass("nn_shoc_h"))
             {
-                if($('#high_assets').val() == '' && $('#uc_1_point1_input').val() == '')
+                if($('#high_assets').val() == '' && $('#uc_1_point1_input').val().trim() == '')
                 {
                     c5('請選擇高資產');
                     return false;
@@ -676,7 +677,7 @@
             //檢查是否填寫專業人脈細項
             if($('#itemssxN6').parent().prev().hasClass("nn_shoc_h"))
             {
-                if(option_array[2] == null || (option_array[0] == null && option_array[1] == ''))
+                if(option_array[2] == null || (option_array[0] == null && option_array[1].trim() == ''))
                 {
                     c5('請選擇專業人脈');
                     return false;
@@ -735,6 +736,13 @@
                 option_array.push([$(this).find('.sys-img').attr('value'),$(this).children('input').val()]);
             });
             option_array = JSON.stringify(option_array);
+            $('#system_image_life_title').val(option_array);
+
+            option_array = [];
+            $('.input_field_6').first().children('.system_image').each(function(){
+                option_array.push([$(this).find('.sys-img').attr('value'),$(this).children('input').next('input').val()]);
+            });
+            option_array = JSON.stringify(option_array);
             $('#system_image_life').val(option_array);
 
             //檢查您的財富資產
@@ -746,7 +754,7 @@
 
             check_bool = false;
             $('.assets_image_top').each(function(){
-                if($(this).val()==''){
+                if($(this).val().trim()==''){
                     check_bool = true;
                     return false;
                 }
@@ -780,7 +788,13 @@
 
             check_bool = false;
             $('.life_top').each(function(){
-                if($(this).val()==''){
+                if($(this).val().trim()==''){
+                    check_bool = true;
+                    return false;
+                }
+            });
+            $('.life_top_title').each(function(){
+                if($(this).val().trim()==''){
                     check_bool = true;
                     return false;
                 }
@@ -806,7 +820,7 @@
             }
 
             //檢查關於我
-            if($('#about').val()=='') {
+            if($('#about').val().trim()=='') {
                 c5('您尚未輸入關於我');
                 return false;
             }
@@ -1063,7 +1077,7 @@
                     $(".input_field_5").append('<div class="custom matop10" style="width: 100%;">' +
                         '<input type="text" placeholder="請輸入至多18個字" class="msinput assets_image_top" name="assets_image_content[' + add_assets_image_id + ']" maxlength="18">' +
                         '<ul class="n_ulpic" style="margin-bottom: 0;">' +
-                            '<input type="file" id="assets_image_' + add_assets_image_id + '" name="assets_image_' + add_assets_image_id + '" class="files assets_image" data-fileuploader-files="" data-fileuploader-listInput="assets_image_' + add_assets_image_id + '">' +
+                            '<input type="file" id="assets_image_' + add_assets_image_id + '" name="assets_image_' + add_assets_image_id + '" class="files assets_image" data-fileuploader-files="" data-fileuploader-listInput="assets_image_detail[' + add_assets_image_id + ']">' +
                         '</ul><a href="#" class="remove_field_2"><img src="/new/images/del_03n.png"></a></div>');
 
                         uploaderFunction($(".input_field_5").find('.assets_image').last());
@@ -1072,7 +1086,7 @@
 
             $("#add_image_6").click(function(e) {
                 add_life_image_id = add_life_image_id + 1;
-                if($('.life_top:last').val()=='') {
+                if($('.life_top:last').val()=='' || $('.life_top_title:last').val()=='') {
                     c5('您尚未輸入文字');
                     return false;
                 }
@@ -1083,9 +1097,10 @@
                 else {
                     e.preventDefault();
                     $(".input_field_6").append('<div class="custom matop10" style="width: 100%;">' +
-                        '<input type="text" placeholder="請輸入至多18個字" class="msinput life_top" name="life_image_content[' + add_life_image_id + ']" maxlength="18">' +
+                        '<input type="text" placeholder="標題請輸入至多4個字" class="msinput life_top_title" name="life_image_content_title[' + add_life_image_id + ']" maxlength="4">' +
+                        '<input type="text" placeholder="說明請輸入至多18個字" class="msinput life_top" name="life_image_content[' + add_life_image_id + ']" maxlength="18">' +
                         '<ul class="n_ulpic" style="margin-bottom: 0;">' +
-                            '<input type="file" id="quality_life_image_' + add_life_image_id + '" name="quality_life_image_' + add_life_image_id + '" class="files quality_life_image" data-fileuploader-files="" data-fileuploader-listInput="quality_life_image_' + add_life_image_id + '">' +
+                            '<input type="file" id="quality_life_image_' + add_life_image_id + '" name="quality_life_image_' + add_life_image_id + '" class="files quality_life_image" data-fileuploader-files="" data-fileuploader-listInput="quality_life_image_detail[' + add_life_image_id + ']">' +
                         '</ul><a href="#" class="remove_field_2"><img src="/new/images/del_03n.png"></a></div>');
 
                     uploaderFunction($(".input_field_6").find('.quality_life_image').last());
@@ -1121,7 +1136,7 @@
                     $('.input_field_6').first().children('div').last().remove();
                 }
 
-                if($('.life_top:last').val()=='') {
+                if($('.life_top:last').val()=='' || $('.life_top_title:last').val()=='') {
                     c5('您尚未輸入文字');
                     return false;
                 }
@@ -1131,7 +1146,8 @@
                 }
                 else {
                     $('.input_field_6').first().append('<div class="system_image matop10" style="position: relative;">' +
-                        '<input type="text" placeholder="請輸入至多18個字" class="msinput life_top" maxlength="18">' +
+                        '<input type="text" placeholder="標題請輸入至多4個字" class="msinput life_top_title" maxlength="4">' +
+                        '<input type="text" placeholder="說明請輸入至多18個字" class="msinput life_top" maxlength="18">' +
                         '<ul class="n_ulpic" style="margin-bottom: 0;">' +
                             '<img style="width: 50%;" class="sys-img" src=' + $(this).attr('src') + ' value=' + $(this).attr('value') + '>' +
                         '</ul><a href="#" class="remove_field_2"><img src="/new/images/del_03n.png"></a></div>');
@@ -1151,7 +1167,8 @@
             @foreach($quality_life_image as $option)
                 @if($option->xref_id ?? false)
                     $('.input_field_6').first().append('<div class="system_image matop10" style="position: relative;">' +
-                        '<input type="text" placeholder="請輸入至多18個字" class="msinput life_top" maxlength="18" value={{$option->option_remark}}>' +
+                        '<input type="text" placeholder="標題請輸入至多4個字" class="msinput life_top_title" maxlength="4" value={{$option->option_second_remark ?? ''}}>' +
+                        '<input type="text" placeholder="說明請輸入至多18個字" class="msinput life_top" maxlength="18" value={{$option->option_remark}}>' +
                         '<ul class="n_ulpic" style="margin-bottom: 0;">' +
                             '<img style="width: 50%;" class="sys-img" src={{$option->option_name}} value={{$option->id}}>' +
                         '</ul><a href="#" class="remove_field_2"><img src="/new/images/del_03n.png"></a></div>');
@@ -1182,6 +1199,7 @@
     <script>
 
         //default
+        {{--
         $('.files').fileuploader({
             extensions: ['jpg', 'png', 'jpeg'],
             changeInput: '<a class="img dt_heght write_img dt_pa0" style="background: #fff !important; border: #fe92a9 1px solid; height: unset;"><img src="/new/images/shangc_zp.png" class="hycov" style="cursor: pointer;"></a>',
@@ -1304,6 +1322,7 @@
                 }
             }
         });
+        --}}
 
         function uploaderFunction(object) {
             object.fileuploader({
@@ -1315,7 +1334,7 @@
                 limit: 1,
                 editor: {
                     cropper: {
-                        ratio: null,
+                        ratio: '1:1',
                         minWidth: null,
                         minHeight: null,
                         showGrid: true
@@ -1386,7 +1405,21 @@
                             if (api.getOptions().limit && api.getChoosedFiles().length - 1 < api.getOptions().limit)
                                 plusInput.show();
                         });
-                    }
+                    },
+                },
+                onFileRead: function(item, listEl, parentEl, newInputEl, inputEl) {
+                    //自動跳出圖片編輯框
+                    if (item.popup)
+                        item.popup.open();
+                    if (item.editor)
+                        item.editor.cropper();
+                    /*
+                    $('[data-action="cancel"]').on('click',function(){
+                        return false;
+                    });
+                    */
+                    $('[data-action="cancel"]').hide();
+                    $('[data-action="rotate-cw"]').hide();
                 },
                 dragDrop: {
                     container: '.fileuploader-thumbnails-input'

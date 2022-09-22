@@ -8886,7 +8886,12 @@ class PagesController extends BaseController
                 $ssrData .='<div class="liuyan_img"><img class="hycov '.$is_blur.'" src="'.$umpic.'"></div>';
                 $ssrData .='</a>';
                 $ssrData .='<a href="/MessageBoard/post_detail/'. $list->mid.'">';
-                $ssrData .='<div class="liuyan_prilist">';
+                if($msgUser->isVVIP()){
+                    $ssrData .='<div class="liuyan_prilist liuy_vvip">';
+                }
+                else{
+                    $ssrData .='<div class="liuyan_prilist">';
+                }
                 $ssrData .='<div class="liuyfont">';
                 $ssrData .='<div class="liu_name">'.$list->uname.' , '. $age .'<span>'. substr($list->mcreated_at,0,10) .'</span></div>';
                 $ssrData .='<div class="liu_dq">'. $cityAndArea .'</div>';
@@ -9009,7 +9014,12 @@ class PagesController extends BaseController
                 $ssrData .='<div class="liuyan_img"><img class="hycov '.$is_blur.'" src="'.$umpic.'"></div>';
                 $ssrData .='</a>';
                 $ssrData .='<a href="/MessageBoard/post_detail/'. $list->mid.'">';
-                $ssrData .='<div class="liuyan_prilist">';
+                if($msgUser->isVVIP()){
+                    $ssrData .='<div class="liuyan_prilist liuy_vvip">';
+                }
+                else{
+                    $ssrData .='<div class="liuyan_prilist">';
+                }
                 $ssrData .='<div class="liuyfont">';
                 $ssrData .='<div class="liu_name">'.$list->uname.' , '.$age .'<span>'. substr($list->mcreated_at,0,10) .'</span></div>';
                 $ssrData .='<div class="liu_dq">'. $cityAndArea .'</div>';
@@ -10199,15 +10209,16 @@ class PagesController extends BaseController
         VvipOptionXref::update_multiple_option($user->id, $option_array, $option_array_other);
         //預設圖片處理
         $system_image_assets = json_decode($request->system_image_assets);
-        VvipOptionXref::updateMultipleOptionAndRemark($user->id, $system_image_assets, 'assets_image');
+        VvipOptionXref::updateMultipleOptionAndRemark($user->id, 'assets_image', $system_image_assets);
         $system_image_life = json_decode($request->system_image_life);
-        VvipOptionXref::updateMultipleOptionAndRemark($user->id, $system_image_life, 'quality_life_image');
+        $system_image_life_title = json_decode($request->system_image_life_title);
+        VvipOptionXref::updateMultipleOptionAndRemark($user->id, 'quality_life_image', $system_image_life, $system_image_life_title);
 
         //圖片上傳處理
         if($request->assets_image_content ?? false)
-        {VvipOptionXref::uploadImage($user->id, 'assets_image', $request->assets_image, $request->assets_image_content);}
+        {VvipOptionXref::uploadImage($user->id, 'assets_image', $request->assets_image, $request->assets_image_detail, $request->assets_image_content);}
         if($request->life_image_content ?? false)
-        {VvipOptionXref::uploadImage($user->id, 'quality_life_image', $request->quality_life_image, $request->life_image_content);}
+        {VvipOptionXref::uploadImage($user->id, 'quality_life_image', $request->quality_life_image, $request->quality_life_image_detail, $request->life_image_content, $request->life_image_content_title);}
 
         //重置選項
         VvipSubOptionXref::reset($user->id);

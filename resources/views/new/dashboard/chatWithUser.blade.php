@@ -644,7 +644,7 @@
 
                     <div class="{{($message['from_id'] == $user->id)?'show':'send' }} @if($message['id']) chat_msg_{{$message['id']}} @endif @if($message['client_id']) chat_msg_client_{{$message['client_id']}} @endif" @if($message['from_id']
                         !=$user->id) id="chat_msg_{{$message['id']}}" @endif>
-                        <div class="msg @if($message['from_id'] == $user->id) msg1 @endif">
+                        <div class="msg @if($message['from_id'] == $user->id) msg1 @endif" style="position: relative;">
                             @if($message['from_id'] == $user->id)
                                 <img
                                 src="@if(file_exists( public_path().$user->meta->pic ) && $user->meta->pic != ""){{$user->meta->pic}} @elseif($user->engroup==2)/new/images/female.png @else/new/images/male.png @endif">
@@ -660,6 +660,9 @@
                                 @endif
                                     <img class="@if($isBlurAvatar) blur_img @endif"
                                         src="@if(file_exists( public_path().$msgUser->meta->pic ) && $msgUser->meta->pic != ""){{$msgUser->meta->pic}} @elseif($msgUser->engroup==2)/new/images/female.png @else/new/images/male.png  @endif">
+                                    @if($to->isVVIP())
+                                        <img src="/new/images/v1_08.png" class="liaot_tx_l">
+                                    @endif
                                 </a>
                             @endif
                             <p class="@if($parentMsg??null) msg_has_parent @endif  userlogo_{{ $message['id'] }}  userlogo_{{ $message['client_id'] }} ">

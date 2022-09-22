@@ -40,6 +40,44 @@
             right: auto;
         }
         .shou{width: 93%;}
+
+        .metx_tab {width: 93%; margin: 0 auto; display: table; padding-top:0px; padding-bottom: 0px;}
+        @media (max-width:992px) {
+        .metx_tab {width:93%; margin: 0 auto; display: table;}	
+        }
+
+        .hdlist1_left{width: 48%; float: left; height: auto; box-shadow:0 -3px 10px rgba(255,188,193,0.5); border-radius: 6px;}
+        .hdlist1_left_tab{width: 100%; display: table; box-shadow:0px 15px 20px rgba(255,79,92,0.5); padding:15px 0px 0px 0px;background:linear-gradient(110deg, #ff9290, #ffdade); position: relative;
+        border-radius: 6px; overflow: hidden;}
+
+        .hs_tnes{width: 100%; display: table; padding: 0 5px;}
+        .hs_tnes img{ height:46px; float: left;}
+        .she_fontetex{font-size: 16px; font-weight: bold; color: #ffffff; position: absolute; left:52px;}
+        .she_fontetex span{ font-size: 12px; display: table; font-weight: normal;}
+
+        .sh_button_w{width: 100%; margin: 0 auto; display: table;margin-top:6px;background: url(/new/images/vvip_b.png); background-size: cover;height: 45px; text-align: center; line-height: 45px; color: #fff; font-weight: bold; font-size:16px;}
+
+        .hdlist2_right{width: 48.5%; float: right; height: auto;  box-shadow:0 -3px 10px rgba(255,188,193,0.5);border-radius: 6px;}
+        .hdlist2_right_tab{width: 100%; display: table;box-shadow:0px 15px 20px rgba(255,79,92,0.5); padding:15px 0px 0px 0px;background:linear-gradient(120deg, #ff9290, #ffdade);position: relative;
+        border-radius: 6px; overflow: hidden;}
+        .s_bushi{ position: absolute; right: 0; border-radius: 100px 0 0 100px; background: rgba(255,255,255,0.6);top:5px; color: #fd6986; font-size:14px; padding:3px 10px;cursor: pointer;}
+        .s_bushi:hover{ color: #f65f6e;background: rgba(255,255,255,0.8);}
+
+
+        @media (max-width:450px) {
+        .hdlist2_right_tab {padding:20px 0px 0px 0px;}
+        .hdlist1_left_tab{padding:20px 0px 0px 0px;}
+        .s_bushi{ font-size:12px;padding:0px 4px;}
+        }
+
+
+        @media (max-width:320px) {
+        .hdlist2_right_tab {padding:15px 0px 0px 0px;}
+        .hdlist1_left_tab{padding:15px 0px 0px 0px;}
+        .hdlist1_left{width: 100%; margin-bottom:20px;}
+        .hdlist2_right{width:100%; }
+        .s_bushi{ font-size:12px;padding:3px 10px;}
+        }
     </style>
 @endsection
 @section('app-content')
@@ -189,8 +227,8 @@
                             <div class="ci_lidw"><h2>尚無資料</h2></div>
                         </div>
                     @endif
+                    <!-- 背景與資產 -->
 
-                    <!--  -->
                     <!-- 溫情照顧 -->
                     <div class="shou" style="border-bottom: none; margin-bottom:5px; margin-top:20px;">
                         <span style="font-size: 18px;">Daddy溫情照顧</span>
@@ -236,8 +274,52 @@
                             <div class="ci_lidw"><h2>尚無資料</h2></div>
                         </div>
                     @endif
+                    <!-- 溫情照顧 -->
 
-                    <!--  -->
+                    <!-- Daddy預算 -->
+                    <div class="shou" style="border-bottom: none; margin-bottom:5px; margin-top:20px;">
+                        <span style="font-size: 18px;">Daddy預算</span>
+                        <font>Budget</font>
+                    </div>
+                    <div class="nn_zeng">
+                         
+                    </div>
+                    <div class="metx_tab"> 
+                        <div class="hdlist1_left">
+                            <div class="hdlist1_left_tab xa_psirp">
+                                <div class="hs_tnes">
+                                    <img src="/new/images/shouru.png">
+                                    <div class="she_fontetex">車馬費預算<span>income</span></div>
+                                </div>
+                                <a class="s_bushi" onclick="jianju_transport_fare()">檢舉</a>
+                                <div class="sh_button_w">
+                                    @if(!empty($targetUser->meta->transport_fare_min) && !empty($targetUser->meta->transport_fare_max) && $targetUser->meta->transport_fare_min != -1 && $targetUser->meta->transport_fare_max != -1)
+                                        <span>{{round($targetUser->meta->transport_fare_min, -2)}}~{{round($targetUser->meta->transport_fare_max, -2)}}</span>
+                                    @else
+                                        <span>未填</span>
+                                    @endif
+                                </div>
+                            </div>
+                        </div>
+                        <div class="hdlist2_right">
+                            <div class="hdlist2_right_tab xa_psirp">
+                                <div class="hs_tnes">
+                                    <img src="/new/images/zichan_2.png">
+                                    <div class="she_fontetex">每月預算<span>assets</span></div>
+                                </div>
+                                <a class="s_bushi" onclick="jianju_month_budget()">檢舉</a>
+                                <div class="sh_button_w">
+                                    @if(!empty($targetUser->meta->budget_per_month_min) && !empty($targetUser->meta->budget_per_month_max) && $targetUser->meta->budget_per_month_min != -1 && $targetUser->meta->budget_per_month_max != -1)
+                                        <span>{{round($targetUser->meta->budget_per_month_min, -3)/10000}}萬~{{round($targetUser->meta->budget_per_month_max, -3)/10000}}萬</span>
+                                    @else
+                                        <span>未填</span>
+                                    @endif
+                                </div>
+                            </div>
+                        </div>  
+                    </div>  
+
+                    <!-- Daddy預算 -->
 
                     <!-- 財富資產 -->
                     <div class="shou" style="border-bottom: none; margin-bottom:5px; margin-top: 20px;">
@@ -268,7 +350,7 @@
                         <div class="ci_lidw"><h2>尚無資料</h2></div>
                         </div>
                     @endif
-
+                    <!-- 財富資產 -->
 
                     <!-- Daddy的品質生活 -->
                     <div class="shou" style="border-bottom: none; margin-bottom:5px; margin-top: -30px;">
@@ -281,7 +363,14 @@
                                 <div class="ci_lidw @if($key % 2 == 0) left @else right @endif">
                                     <img src={{$option->option_name}} class="ci_img">
                                     <div class="ci_ifont">
-                                        <div class="ci_div01">{{$option->option_remark}}</div>
+                                        <div class="ci_div01">{{$option->option_second_remark}}
+                                            @if($key % 2 == 0)
+                                                <img src="/new/images/zb_5.png">
+                                            @else
+                                                <img src="/new/images/zb_6.png">
+                                            @endif
+                                        </div>
+										<div class="ci_div02">{{$option->option_remark}}</div>
                                     </div>
                                 </div>
                             @endforeach
@@ -289,7 +378,9 @@
                             <div class="ci_lidw left">尚無資料</div>
                         @endif
                     </div>
+                    <!-- Daddy的品質生活 -->
 
+                    <!-- 關於我 -->
                     <div class="shou" style="border-bottom: none; margin-bottom:5px; margin-top:20px;">
                         <span style="font-size: 18px;">關於我</span>
                         <font>About me</font>
@@ -302,9 +393,10 @@
                         @endif
                         --}}
                     </div>
-                    <!--  -->
-                    <div class="dlxbolv">
+                    <!-- 關於我 -->
 
+                    <!-- 期待的約會模式 -->
+                    <div class="dlxbolv">
                         <div class="shou" style="border-bottom: none; margin-bottom:5px; margin-top:20px;">
                             <span style="font-size: 18px;">期待的約會模式</span>
                             <font>Dating patterns</font>
@@ -318,59 +410,45 @@
                             @endforeach
                         </div>
                     </div>
-                    <!--  -->
+                    <!-- 期待的約會模式 -->
+
                     <div class="ziliao_dbn">
                         <div class="shou" style="border-bottom: none; margin-bottom:5px; margin-top:20px;">
                             <span style="font-size: 18px;">基本資料</span>
                             <font>Basic information</font>
                         </div>
                         <div class="ci_ddbg">
-                            <div class="zlys_aa">註冊時間 @if($user->isVip() || $user->isVVIP())<span>{{$targetUser->created_at}}</span>@else <span class="mtop"><img src="/new/images/icon_35.png"></span> @endif</div>
-                            <div class="xzl_left">年齡 <span>{{$targetUser->meta->age()}}</span></div>
-                            <div class="xzl_left">身高 <span>{{$targetUser->meta->height}}cm</span></div>
-                            <div class="xzl_left">包月預算 
-                                @if(!empty($targetUser->meta->budget_per_month_min) && !empty($targetUser->meta->budget_per_month_max) && $targetUser->meta->budget_per_month_min != -1 && $targetUser->meta->budget_per_month_max != -1)
-                                <span>{{round($targetUser->meta->budget_per_month_min, -3)/10000}}萬~{{round($targetUser->meta->budget_per_month_max, -3)/10000}}萬</span>
-                                @else
-                                <span>未填</span>
-                                @endif
-                            </div>
-                            <div class="xzl_left">車馬費預算 
-                                @if(!empty($targetUser->meta->transport_fare_min) && !empty($targetUser->meta->transport_fare_max) && $targetUser->meta->transport_fare_min != -1 && $targetUser->meta->transport_fare_max != -1)
-                                <span>{{round($targetUser->meta->transport_fare_min, -2)}}~{{round($targetUser->meta->transport_fare_max, -2)}}</span>
-                                @else
-                                <span>未填</span>
-                                @endif
-                            </div>
-                            <div class="xzl_left">婚姻  <span>{{$targetUser->meta->marriage}}</span></div>
-                            <div class="xzl_left">體型 <span>
+                            <div class="zlys_aa">註冊時間 @if($user->isVip() || $user->isVVIP())<span>{{$targetUser->created_at->toDateString()}}</span>@else <span class="mtop"><img src="/new/images/icon_35.png"></span> @endif</div>
+                            <div class="zlys_aa">年齡 <span>{{$targetUser->meta->age()}}</span></div>
+                            <div class="zlys_aa">身高 <span>{{$targetUser->meta->height}}cm</span></div>
+                            <div class="zlys_aa">婚姻  <span>{{$targetUser->meta->marriage}}</span></div>
+                            <div class="zlys_aa">體型 <span>
                                     @if(!empty($targetUser->meta->body) && $targetUser->meta->body != null && $targetUser->meta->body != 'null')
                                     {{$targetUser->meta->body}}
                                     @else
                                     未填
                                     @endif
                                 </span></div>
-                            <div class="xzl_left">被收藏次數 <span v-if="is_vip">
+                            <div class="zlys_aa">被收藏次數 <span v-if="is_vip">
                                             <font id="be_faved_count" ref="be_faved_count">
                                                 @{{be_faved}}
                                             </font>
                                         </span>
                                 <span class="mtop" v-else><img src="/new/images/icon_35.png" /></span></div>
-                            <div class="xzl_left">被封鎖次數 <span v-if="is_vip">
+                            <div class="zlys_aa">被封鎖次數 <span v-if="is_vip">
                                             <font id="be_blocked_other_count" ref="be_blocked_other_count">
                                                 @{{be_blocked_other_count}}
                                             </font>
                                         </span>
                                 <span class="mtop" v-else><img src="/new/images/icon_35.png" /></span></div>
-                            <div class="xzl_left">是否封鎖我 <span v-if="is_vip"><font>@{{is_block_mid}}</font></span>
+                            <div class="zlys_aa">是否封鎖我 <span v-if="is_vip"><font>@{{is_block_mid}}</font></span>
                                 <span class="mtop" v-else><img src="/new/images/icon_35.png" /></span></div>
-                            <div class="xzl_left">是否看過我 <span v-if="is_vip"><font>@{{is_visit_mid}}</font></span>
+                            <div class="zlys_aa">是否看過我 <span v-if="is_vip"><font>@{{is_visit_mid}}</font></span>
                                 <span class="mtop" v-else><img src="/new/images/icon_35.png" /></span></div>
                         </div>
                     </div>
-                    <!--  -->
-                </div>
 
+                </div>
             </div>
         </div>
     </div>
@@ -614,6 +692,7 @@
 
 <script type="application/javascript">
     let is_banned = {{ $is_banned ? 1 : 0 }};
+    let is_warned = {{ $user->isAdminWarned() ? 1 : 0 }};
     function jidutiao() {
         c5('此會員使用紀錄不足，無法判斷');
     }
@@ -1117,6 +1196,13 @@
             button();
             c5("檢舉預算不實一定要附上證據，例如轉帳截圖、對話記錄等");
         }
+    }
+
+    function button() {
+        $(".blbg").hide()
+        $("#jianju").hide()
+        $(".announce_bg").hide();
+        $('body').css("overflow", "auto");
     }
 </script>
 <script src="/new/js/swiper.min.js"></script>

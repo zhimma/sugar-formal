@@ -25,7 +25,7 @@
                 @endphp
                 <div class="tao_time">{{substr($row->created_at,0,10)}} ({{$weekMap[$date->dayOfWeek]}})</div>
             @endif
-            <div class="msg @if($row->user_id == auth()->user()->id) msg1 @endif" >
+            <div class="msg @if($row->user_id == auth()->user()->id) msg1 @endif" style="position: relative;" >
 
                 <img
                     @if($row->anonymous=='站長')
@@ -38,9 +38,17 @@
                     @if($row->user_id != auth()->user()->id)
                     style="cursor: pointer;" wire:click="chat_message('{{$row->anonymous}}', {{$row->id}}, {{$row->engroup}})"
                     @endif>
-                    @php
-                        $reply_data = \App\Models\AnonymousChat::where('id', $row->reply_id)->first();
-                    @endphp
+                @php
+                    $reply_data = \App\Models\AnonymousChat::where('id', $row->reply_id)->first();
+                    $msg_user = \App\Models\User::where('id', $row->user_id)->first();
+                @endphp
+                
+                @if($row->user_id != auth()->user()->id && $msg_user->isVVIP())
+                    <img src="/new/images/v1_08.png" class="liaot_tx_l">
+                @elseif($msg_user->isVVIP())
+                    <img src="/new/images/v1_08.png" class="liaot_tx_r">
+                @endif
+                
                 <p @if(isset($row->reply_id)) class="msg_has_parent" @endif @if($row->anonymous=='站長' && $row->user_id != auth()->user()->id)style="background: #ddf3ff;"@endif>
                     <span class="nickname @if($row->user_id != auth()->user()->id) left @endif" @if($row->user_id == auth()->user()->id) style="float: right; left: unset; right: 10px;" @endif>{{$row->anonymous}}</span>
                     @if(isset($row->reply_id))

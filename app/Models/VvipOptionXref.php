@@ -44,7 +44,7 @@ class VvipOptionXref extends Model
                             ->where('vvip_option_xref.option_type', '=', $type_name)
                             ;
                     })
-                    ->select($table_name.'.*', 'vvip_option_xref.id as xref_id','vvip_option_xref.option_remark as option_remark')
+                    ->select($table_name.'.*', 'vvip_option_xref.id as xref_id','vvip_option_xref.option_remark as option_remark','vvip_option_xref.option_second_remark as option_second_remark')
                     ->where('is_custom', 0)
                     ->orWhere(function ($query){
                         $query->where('is_custom', 1);
@@ -116,14 +116,22 @@ class VvipOptionXref extends Model
         VvipOptionXref::insert($insert_data);
     }
 
-    public static function uploadImage($user_id, $type_name, $image_array, $image_content_array)
+    public static function uploadImage($user_id, $type_name, $image_array, $image_detail_array, $image_content_array, $image_title_array = null)
     {
         $insert_data = [];
         $now_time = Carbon::now();
         foreach($image_content_array as $key => $content)
         {
+            //處理標題
+            $image_title = '';
+            if($image_title_array ?? false)
+            {
+                $image_title = $image_title_array[$key];
+            }
+
             $file_name = uniqid();
             $file_path = '';
+            $image_detail = json_decode($image_detail_array[$key], true);
 
             //上傳圖片
             $rootPath = public_path('/img/vvipInfo');
@@ -139,7 +147,7 @@ class VvipOptionXref extends Model
                 'uploadDir' => $tempPath,
                 'title' => '{random}',
                 'replace' => false,
-                'editor' => true,
+                'editor' => $image_detail[0]["editor"],
                 'listInput' => true
             ));
 
@@ -162,6 +170,7 @@ class VvipOptionXref extends Model
                 'option_type' => $type_name, 
                 'option_id' => $custom_option_id, 
                 'option_remark' => $content, 
+                'option_second_remark' => $image_title, 
                 'created_at' => $now_time,
                 'updated_at' => $now_time
             ];
@@ -169,18 +178,24 @@ class VvipOptionXref extends Model
         VvipOptionXref::insert($insert_data);
     }
 
-    public static function updateMultipleOptionAndRemark($user_id, $option_array, $type_name)
+    public static function updateMultipleOptionAndRemark($user_id, $type_name, $option_array, $option_second_array = null)
     {
         $now_time = Carbon::now();
         $insert_data = [];
 
-        foreach($option_array as $option)
+        foreach($option_array as $key => $option)
         {
+            $option_second_remark = '';
+            if($option_second_array ?? false)
+            {
+                $option_second_remark = $option_second_array[$key][1];
+            }
             $insert_data[] = [
                 'user_id' => $user_id, 
                 'option_type' => $type_name, 
                 'option_id' => $option[0], 
                 'option_remark' =>$option[1], 
+                'option_second_remark' =>$option_second_remark, 
                 'created_at' => $now_time,
                 'updated_at' => $now_time
             ];
