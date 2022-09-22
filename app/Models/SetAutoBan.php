@@ -217,175 +217,332 @@ class SetAutoBan extends Model
 
     public static function logoutWarned($uid, $probing = false)
     {
-        Log::info('start_LogoutAutoBan_logoutWarned');
-        $user = User::find($uid);
-        try {
-            if(isset($user) && $user->can('admin')){
+        $new = false;
+        if($new) {
+            Log::info('start_LogoutAutoBan_logoutWarned');
+            $user = User::find($uid);
+            try {
+                if(isset($user) && $user->can('admin')){
+                    return;
+                }
+            }
+            catch (\Exception $e){
+
+            }
+            if(!$user || !$uid) {
+                logger('SetAutoBan logout_warned() user not set, referer: ' . \Request::server('HTTP_REFERER'));
                 return;
             }
-        }
-        catch (\Exception $e){
 
-        }
-        if(!$user || !$uid) {
-            logger('SetAutoBan logout_warned() user not set, referer: ' . \Request::server('HTTP_REFERER'));
-            return;
-        }
+            //執行時間預設是30秒改為無上限
+            set_time_limit(-1);
 
-        //執行時間預設是30秒改為無上限
-        set_time_limit(-1);
+            $ban_set_type = collect(['name', 'email', 'title']);
+            $ban_meta_set_type = collect(['about', 'style']);
+            $all_check_rule_sets = SetAutoBan::retrive('allcheck');  
 
-        $ban_set_type = collect(['name', 'email', 'title']);
-        $ban_meta_set_type = collect(['about', 'style']);
-        $all_check_rule_sets = SetAutoBan::retrive('allcheck');  
-
-        $ban_set_type->each(function($type) use ($user, $all_check_rule_sets) {
-            $type_rule_sets = SetAutoBan::retrive($type);
-            $rule_sets = $type_rule_sets->merge($all_check_rule_sets);
-            $rule_sets->each(function($rule_set) use ($user, $type) {
-                if(str_contains($user->$type, $rule_set->content)) {                    
-                    SetAutoBan::banJobDispatcher($user, $rule_set, 'profile');
-                }
-            });
-        });
-
-        $ban_meta_set_type->each(function($type) use ($user, $all_check_rule_sets) {
-            $type_rule_sets = SetAutoBan::retrive($type);
-            $rule_sets = $type_rule_sets->merge($all_check_rule_sets);
-            $rule_sets->each(function($rule_set) use ($user, $type) {
-                if(str_contains($user->user_meta->$type, $rule_set->content)) {                    
-                    SetAutoBan::banJobDispatcher($user, $rule_set, 'profile');
-                }
-            });
-        });
-
-        $user->log_user_login->each(function ($log) use ($user) {
-            $cfp_id_rule_sets = SetAutoBan::retrive('cfp_id');
-            $cfp_id_rule_sets->each(function($rule_set) use ($user, $log) {
-                if($log->cfp_id == $rule_set->content) {
-                    SetAutoBan::banJobDispatcher($user, $rule_set, 'profile');
-                }
-            });
-
-            $user_agent_rule_sets = SetAutoBan::retrive('user_agent');
-            $user_agent_rule_sets->each(function($rule_set) use ($user, $log) {
-                if(str_contains($log->userAgent, $rule_set->content)) {
-                    SetAutoBan::banJobDispatcher($user, $rule_set, 'profile');
-                }
-            });
-        });
-
-        //20220629新增圖片檔名
-        $pic_rule_sets = SetAutoBan::retrive('pic');
-        $pic_rule_sets->each(function($rule_set) use ($user) {
-            if(str_contains($user->user_meta->pic_original_name, $rule_set->content)) {
-                SetAutoBan::banJobDispatcher($user, $rule_set, 'profile');
-            }
-        });
-
-        //有一筆違規就可以封鎖了 
-        $pic_name_rule_sets = SetAutoBan::retrive('picname');
-        $any_pic_violated = $user->pics->first(function($pic) use ($pic_name_rule_sets) {
-            return $pic_name_rule_sets->each(function($rule_set) use ($pic) {
-                if(str_contains($pic->original_name, $rule_set->content)) {
-                    return true;
-                }
-            });
-        });
-        if($any_pic_violated) {
-            SetAutoBan::banJobDispatcher($user, $any_pic_violated, 'profile');
-        }
-
-        $ip_rule_sets = SetAutoBan::retrive('ip');
-        $auto_ban_rule_sets = $ip_rule_sets->merge($pic_rule_sets);
-        
-        foreach ($auto_ban_rule_sets as $ban_set) {
-            $content = $ban_set->content;
-            $violation = false;
-            $caused_by = $ban_set->type;
-            switch ($ban_set->type) {
-                case 'ip':
-					if($ban_set->expiry=='0000-00-00 00:00:00') {
-						$ban_set->expiry = \Carbon\Carbon::now()->addMonths(1)->format('Y-m-d H:i:s');
-                        $ban_set->updated_at = now();
-						$ban_set->save();						
-					}
-					if($ban_set->expiry<=\Carbon\Carbon::now()->format('Y-m-d H:i:s')) {
-						$ban_set->delete();
-						break;
-					}					
-                    $ip = $user->log_user_login->sortByDesc('created_at')->first();
-                    if($ip?->ip == $content) {
-						$violation = true;
-						$ban_set->expiry = \Carbon\Carbon::now()->addMonths(1)->format('Y-m-d H:i:s');
-                        $ban_set->updated_at = now();
-						$ban_set->save();						
-					}
-                    break;
-                //20220629新增圖片檔名   
-                case 'pic':
-                    $ban_encode_entry = ImagesCompareService::getCompareEncodeByPic($content);
-
-                    if(($ban_encode_entry??null) && $ban_encode_entry->file_md5??'') {
-                        if(($user->meta->pic??null) && $ban_encode_entry->file_md5==(ImagesCompareService::getCompareEncodeByPic($user->meta->pic)->file_md5??null)) {
-                            $violation = true;
-                            $caused_by = 'pic';
-                        }
-                        
-                        if(!$violation) {
-                            $memPics = $user->pic_withTrashed()->pluck('pic')->all();
-                            $memPicMd5s =  ImagesCompareService::getFileMd5ArrByPicArr($memPics); 
-                            if(in_array($ban_encode_entry->file_md5,$memPicMd5s)) { 
-                                $violation = true;
-                                $caused_by = 'pic';
-                            }
-                        }                                           
-                        
-                        if(!$violation) {
-                            $delAvatars = $user->avatar_deleted()->pluck('pic')->all();
-                            $delAvatarMd5s =  ImagesCompareService::getFileMd5ArrByPicArr($delAvatars); 
-                            if(in_array($ban_encode_entry->file_md5,$delAvatarMd5s)) {
-                                $violation = true;
-                                $caused_by = 'pic';
-                            }
-                        }
+            $ban_set_type->each(function($type) use ($user, $all_check_rule_sets) {
+                $type_rule_sets = SetAutoBan::retrive($type);
+                $rule_sets = $type_rule_sets->merge($all_check_rule_sets);
+                $rule_sets->each(function($rule_set) use ($user, $type) {
+                    if(str_contains($user->$type, $rule_set->content)) {                    
+                        SetAutoBan::banJobDispatcher($user, $rule_set, 'profile');
                     }
-                break;
-                default:
+                });
+            });
+
+            $ban_meta_set_type->each(function($type) use ($user, $all_check_rule_sets) {
+                $type_rule_sets = SetAutoBan::retrive($type);
+                $rule_sets = $type_rule_sets->merge($all_check_rule_sets);
+                $rule_sets->each(function($rule_set) use ($user, $type) {
+                    if(str_contains($user->user_meta->$type, $rule_set->content)) {                    
+                        SetAutoBan::banJobDispatcher($user, $rule_set, 'profile');
+                    }
+                });
+            });
+
+            $user->log_user_login->each(function ($log) use ($user) {
+                $cfp_id_rule_sets = SetAutoBan::retrive('cfp_id');
+                $cfp_id_rule_sets->each(function($rule_set) use ($user, $log) {
+                    if($log->cfp_id == $rule_set->content) {
+                        SetAutoBan::banJobDispatcher($user, $rule_set, 'profile');
+                    }
+                });
+
+                $user_agent_rule_sets = SetAutoBan::retrive('user_agent');
+                $user_agent_rule_sets->each(function($rule_set) use ($user, $log) {
+                    if(str_contains($log->userAgent, $rule_set->content)) {
+                        SetAutoBan::banJobDispatcher($user, $rule_set, 'profile');
+                    }
+                });
+            });
+
+            //20220629新增圖片檔名
+            $pic_rule_sets = SetAutoBan::retrive('pic');
+            $pic_rule_sets->each(function($rule_set) use ($user) {
+                if(str_contains($user->user_meta->pic_original_name, $rule_set->content)) {
+                    SetAutoBan::banJobDispatcher($user, $rule_set, 'profile');
+                }
+            });
+
+            //有一筆違規就可以封鎖了 
+            $pic_name_rule_sets = SetAutoBan::retrive('picname');
+            $any_pic_violated = $user->pics->first(function($pic) use ($pic_name_rule_sets) {
+                return $pic_name_rule_sets->each(function($rule_set) use ($pic) {
+                    if(str_contains($pic->original_name, $rule_set->content)) {
+                        return true;
+                    }
+                });
+            });
+            if($any_pic_violated) {
+                SetAutoBan::banJobDispatcher($user, $any_pic_violated, 'profile');
+            }
+
+            $ip_rule_sets = SetAutoBan::retrive('ip');
+            $auto_ban_rule_sets = $ip_rule_sets->merge($pic_rule_sets);
+            
+            foreach ($auto_ban_rule_sets as $ban_set) {
+                $content = $ban_set->content;
+                $violation = false;
+                $caused_by = $ban_set->type;
+                switch ($ban_set->type) {
+                    case 'ip':
+                        if($ban_set->expiry=='0000-00-00 00:00:00') {
+                            $ban_set->expiry = \Carbon\Carbon::now()->addMonths(1)->format('Y-m-d H:i:s');
+                            $ban_set->updated_at = now();
+                            $ban_set->save();						
+                        }
+                        if($ban_set->expiry<=\Carbon\Carbon::now()->format('Y-m-d H:i:s')) {
+                            $ban_set->delete();
+                            break;
+                        }					
+                        $ip = $user->log_user_login->sortByDesc('created_at')->first();
+                        if($ip?->ip == $content) {
+                            $violation = true;
+                            $ban_set->expiry = \Carbon\Carbon::now()->addMonths(1)->format('Y-m-d H:i:s');
+                            $ban_set->updated_at = now();
+                            $ban_set->save();						
+                        }
+                        break;
+                    //20220629新增圖片檔名   
+                    case 'pic':
+                        $ban_encode_entry = ImagesCompareService::getCompareEncodeByPic($content);
+
+                        if(($ban_encode_entry??null) && $ban_encode_entry->file_md5??'') {
+                            if(($user->meta->pic??null) && $ban_encode_entry->file_md5==(ImagesCompareService::getCompareEncodeByPic($user->meta->pic)->file_md5??null)) {
+                                $violation = true;
+                                $caused_by = 'pic';
+                            }
+                            
+                            if(!$violation) {
+                                $memPics = $user->pic_withTrashed()->pluck('pic')->all();
+                                $memPicMd5s =  ImagesCompareService::getFileMd5ArrByPicArr($memPics); 
+                                if(in_array($ban_encode_entry->file_md5,$memPicMd5s)) { 
+                                    $violation = true;
+                                    $caused_by = 'pic';
+                                }
+                            }                                           
+                            
+                            if(!$violation) {
+                                $delAvatars = $user->avatar_deleted()->pluck('pic')->all();
+                                $delAvatarMd5s =  ImagesCompareService::getFileMd5ArrByPicArr($delAvatars); 
+                                if(in_array($ban_encode_entry->file_md5,$delAvatarMd5s)) {
+                                    $violation = true;
+                                    $caused_by = 'pic';
+                                }
+                            }
+                        }
                     break;
-            }
-
-            if ($violation) {
-                $type = 'profile';                
-                if($probing) {
-                    echo $caused_by;
+                    default:
+                        break;
                 }
-                else {
-                    logger("User $uid is banned by $caused_by");
-                }
-                BanJob::dispatch($uid, $ban_set, $user, $type)->onConnection('ban-job')->onQueue('ban-job');
-            }
-        }
 
-        $content_days = Carbon::now()->subDays(1);
-        $msgs = Message::retrieve($uid, $content_days);
-        $msg_rule_sets = SetAutoBan::retrive('msg');
-        $rule_sets = $msg_rule_sets->merge($all_check_rule_sets);
-        $rule_sets->each(function($rule_set) use ($user, $msgs, $probing) {
-            $msgs->each(function($msg) use ($user, $rule_set, $probing) {
-                if(str_contains($msg->content, $rule_set->content)) {
+                if ($violation) {
+                    $type = 'profile';                
                     if($probing) {
-                        echo $rule_set->type;
+                        echo $caused_by;
                     }
                     else {
-                        logger("User $user->id is banned by $rule_set->type");
+                        logger("User $uid is banned by $caused_by");
                     }
-                    SetAutoBan::banJobDispatcher($user, $rule_set, 'msg');
+                    BanJob::dispatch($uid, $ban_set, $user, $type)->onConnection('ban-job')->onQueue('ban-job');
+                }
+            }
+
+            $content_days = Carbon::now()->subDays(1);
+            $msgs = Message::retrieve($uid, $content_days);
+            $msg_rule_sets = SetAutoBan::retrive('msg');
+            $rule_sets = $msg_rule_sets->merge($all_check_rule_sets);
+            $rule_sets->each(function($rule_set) use ($user, $msgs, $probing) {
+                $msgs->each(function($msg) use ($user, $rule_set, $probing) {
+                    if(str_contains($msg->content, $rule_set->content)) {
+                        if($probing) {
+                            echo $rule_set->type;
+                        }
+                        else {
+                            logger("User $user->id is banned by $rule_set->type");
+                        }
+                        SetAutoBan::banJobDispatcher($user, $rule_set, 'msg');
+                    }
+                });
+            });
+
+            return 0;
+        }
+        else {
+            Log::info('start_LogoutAutoBan_logoutWarned');
+            $user = User::findById($uid);
+            try {
+                if(isset($user) && $user->can('admin')){
+                    return;
+                }
+            }
+            catch (\Exception $e){
+
+            }
+            if(!$user || !$uid) {
+                logger('SetAutoBan logout_warned() user not set, referer: ' . \Request::server('HTTP_REFERER'));
+                return;
+            }
+
+            //執行時間預設是30秒改為無上限
+            set_time_limit(-1);
+
+            $ban_set_type = collect(['name', 'email', 'title']);
+            $ban_meta_set_type = collect(['about', 'style']);
+
+            $ban_set_type->each(function($type) use ($user) {
+                $matched_set = SetAutoBan::where('type', $type)->whereRaw("INSTR('{$user->$type}', content) > 0")->first();
+                if($matched_set) {
+                    SetAutoBan::banJobDispatcher($user, $matched_set, 'profile');
+                }
+
+                $all_check_matched_set = SetAutoBan::where('type', 'allcheck')->whereRaw("INSTR('{$user->$type}', content) > 0")->first();     
+                if($all_check_matched_set) {
+                    SetAutoBan::banJobDispatcher($user, $matched_set, 'profile');
                 }
             });
-        });
 
-        return 0;
+            $ban_meta_set_type->each(function($type) use ($user) {
+                $matched_set = SetAutoBan::where('type', $type)->whereRaw("INSTR('{$user->user_meta->$type}', content) > 0")->first();
+                if($matched_set) {
+                    SetAutoBan::banJobDispatcher($user, $matched_set, 'profile');
+                }
+
+                $all_check_matched_set = SetAutoBan::where('type', 'allcheck')->whereRaw("INSTR('{$user->user_meta->$type}', content) > 0")->first();            
+                if($all_check_matched_set) {
+                    SetAutoBan::banJobDispatcher($user, $matched_set, 'profile');
+                }
+            });
+
+            $user->log_user_login->each(function ($log) use ($user) {
+                $cfp_id_matched_set = SetAutoBan::where('type', 'cfp_id')->where("content", $log->cfp_id)->first();
+                if($cfp_id_matched_set) {
+                    SetAutoBan::banJobDispatcher($user, $cfp_id_matched_set, 'profile');
+                }
+
+                $user_agent_matched_set = SetAutoBan::where('type', 'userAgent')->whereRaw("INSTR('{$log->userAgent}', content) > 0")->first();
+                if($user_agent_matched_set) {
+                    SetAutoBan::banJobDispatcher($user, $user_agent_matched_set, 'profile');
+                }
+            });
+
+            //20220629新增圖片檔名
+            $pic_matched_set = SetAutoBan::where('type', 'picname')->whereRaw("INSTR('{$user->user_meta->pic_original_name}', content) > 0")->first();
+            if($pic_matched_set) {
+                SetAutoBan::banJobDispatcher($user, $pic_matched_set, 'profile');
+            }
+
+            //有一筆違規就可以封鎖了 
+            $any_pic_violated = $user->pics->first(function($pic) {
+                return SetAutoBan::where('type', 'picname')->whereRaw("INSTR('{$pic->original_name}', content) > 0")->first();
+            });
+            if($any_pic_violated) {
+                SetAutoBan::banJobDispatcher($user, $any_pic_violated, 'profile');
+            }
+
+            $set_auto_ban = SetAutoBan::select('type', 'set_ban', 'id', 'content','expiry', 'expired_days')->whereNotIn('type', ['name', 'email', 'title', 'about', 'style', 'allcheck', 'msg', 'cfp_id', 'userAgent', 'picname'])->orderBy('id', 'desc')->get();
+            
+            foreach ($set_auto_ban as $ban_set) {
+                $content = $ban_set->content;
+                $violation = false;
+                $caused_by = $ban_set->type;
+                switch ($ban_set->type) {
+                    case 'ip':
+                        if($ban_set->expiry=='0000-00-00 00:00:00') {
+                            $ban_set->expiry = \Carbon\Carbon::now()->addMonths(1)->format('Y-m-d H:i:s');
+                            $ban_set->updated_at = now();
+                            $ban_set->save();						
+                        }
+                        if($ban_set->expiry<=\Carbon\Carbon::now()->format('Y-m-d H:i:s')) {
+                            $ban_set->delete();
+                            break;
+                        }					
+                        $ip = $user->log_user_login->sortByDesc('created_at')->first();
+                        if($ip?->ip == $content) {
+                            $violation = true;
+                            $ban_set->expiry = \Carbon\Carbon::now()->addMonths(1)->format('Y-m-d H:i:s');
+                            $ban_set->updated_at = now();
+                            $ban_set->save();						
+                        }
+                        break;
+                    //20220629新增圖片檔名   
+                    case 'pic':
+                        $ban_encode_entry = ImagesCompareService::getCompareEncodeByPic($content);
+
+                        if(($ban_encode_entry??null) && $ban_encode_entry->file_md5??'') {
+                            if(($user->meta->pic??null) && $ban_encode_entry->file_md5==(ImagesCompareService::getCompareEncodeByPic($user->meta->pic)->file_md5??null)) {
+                                $violation = true;
+                                $caused_by = 'pic';
+                            }
+                            
+                            if(!$violation) {
+                                $memPics = $user->pic_withTrashed()->pluck('pic')->all();
+                                $memPicMd5s =  ImagesCompareService::getFileMd5ArrByPicArr($memPics); 
+                                if(in_array($ban_encode_entry->file_md5,$memPicMd5s)) { 
+                                    $violation = true;
+                                    $caused_by = 'pic';
+                                }
+                            }                                           
+                            
+                            if(!$violation) {
+                                $delAvatars = $user->avatar_deleted()->pluck('pic')->all();
+                                $delAvatarMd5s =  ImagesCompareService::getFileMd5ArrByPicArr($delAvatars); 
+                                if(in_array($ban_encode_entry->file_md5,$delAvatarMd5s)) {
+                                    $violation = true;
+                                    $caused_by = 'pic';
+                                }
+                            }
+                        }
+                    break;
+                    default:
+                        break;
+                }
+
+                if ($violation) {
+                    $type = 'profile';                
+                    if($probing) {
+                        echo $caused_by;
+                    }
+                    else {
+                        logger("User $uid is banned by $caused_by");
+                    }
+                    BanJob::dispatch($uid, $ban_set, $user, $type)->onConnection('ban-job')->onQueue('ban-job');
+                }
+            }
+
+            $content_days = Carbon::now()->subDays(1);
+            $msg = Message::select('updated_at', 'from_id', 'content')->where('from_id', $uid)->where('updated_at', '>', $content_days)->get();
+            foreach ($msg as $m) {
+                $msg_matched_set = SetAutoBan::whereIn('type', ['msg', 'allcheck'])->whereRaw("INSTR('{$m}', content) > 0")->first();
+                if ($msg_matched_set) {
+                    $type = 'message';
+                    SetAutoBan::banJobDispatcher($user, $msg_matched_set, 'message');
+                }
+            }
+
+            return 0;
+        }
     }
 
     public static function setAutoBanAdd($type, $content, $set_ban, $cuz_user_set = null, $expiry = '0000-00-00 00:00:00', $host = null)
