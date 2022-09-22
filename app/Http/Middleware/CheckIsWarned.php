@@ -12,7 +12,7 @@ use Illuminate\Contracts\Auth\Guard;
 use App\Models\UserMeta;
 use Carbon\Carbon;
 use App\Models\SetAutoBan;
-
+use App\Services\MessageService;
 class CheckIsWarned
 {
     /**
@@ -28,9 +28,10 @@ class CheckIsWarned
      * @param  Guard  $auth
      * @return void
      */
-    public function __construct(Guard $auth)
+    public function __construct(Guard $auth,MessageService $messageService)
     {
         $this->auth = $auth;
+        $this->messageService = $messageService;
     }
     /**
      * Handle an incoming request.
@@ -176,7 +177,7 @@ class CheckIsWarned
         if($user->meta->isWarned == 0 && $user->WarnedScore() >= 10 && $auth_status == 0 && $user->id != 1049){
             //加入警示
             UserMeta::where('user_id',$user->id)->update(['isWarned'=>1, 'isWarnedRead'=>0, 'isWarnedTime' => Carbon::now()]);
-
+            $this->messageService->setMessageHandlingBySenderId($user->id);
 //            return $next($request);
         }
 
