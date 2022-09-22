@@ -2,9 +2,13 @@
 
 namespace App\Models;
 
+use App\Events\UserVvipRemoved;
+use App\Events\UserVvipUpgraded;
 use Illuminate\Database\Eloquent\Model;
 use App\Models\User;
 use Carbon\Carbon;
+use App\Services\EnvironmentService;
+use App\Services\PaymentService;
 
 class ValueAddedService extends Model
 {
@@ -30,7 +34,9 @@ class ValueAddedService extends Model
         'expiry',
         'active',
         'payment',
-        'created_at'
+        'created_at',
+        'need_to_refund',
+        'refund_amount'
     ];
 
     /*
@@ -44,12 +50,12 @@ class ValueAddedService extends Model
         return $this->belongsTo(User::class, 'member_id', 'id');
     }
 
-    public static function getData($member_id,$service_name)
+    public static function getData($member_id, $service_name)
     {
         return ValueAddedService::where('member_id', $member_id)->where('service_name', $service_name)->where('active', 1)->orderBy('created_at', 'desc')->first();
     }
 
-    public static function status($member_id,$service_name)
+    public static function status($member_id, $service_name)
     {
         $status = ValueAddedService::where('member_id', $member_id)->where('service_name', $service_name)->first();
 
@@ -167,7 +173,7 @@ class ValueAddedService extends Model
         }
 
 
-        if($service_name=='hideOnline'){
+        if($service_name == 'hideOnline') {
             $HideOnlineData = hideOnlineData::where('user_id', $member_id)->first();
             if(isset($HideOnlineData)) {
                 User::where('id', $member_id)->update(['is_hide_online' => 1, 'hide_online_time' => $HideOnlineData->login_time]);
@@ -176,7 +182,13 @@ class ValueAddedService extends Model
             }
         }
 
+        if(str_contains($service_name, 'VVIP')) {
+            $user = User::find($member_id);
+            event(new UserVvipUpgraded($user));
+        }
+
         ValueAddedServiceLog::addToLog($member_id, $service_name,'Upgrade, payment: ' . $payment . ', service: ' . $service_name, $order_id, $txn_id, 0);
+        return $valueAddedServiceData;
     }
 
     public static function findByIdAndServiceNameWithDateDesc($member_id,$service_name) {
@@ -232,7 +244,7 @@ class ValueAddedService extends Model
                 }
             }
 
-            if(!\App::environment('local')) {
+            if(!(EnvironmentService::isLocalOrTestMachine())) {
                 //訂單更新到期日
                 $order = Order::where('order_id', $user[0]->order_id)->get()->first();
                 if (strpos($user[0]->order_id, 'SG') !== false && isset($order)) {
@@ -260,6 +272,10 @@ class ValueAddedService extends Model
             foreach ($user as $u){
                 $u->expiry = $expiryDate->startOfDay()->toDateTimeString();
                 $u->save();
+            }
+
+            if(str_contains($service_name, 'VVIP')) {
+                event(new UserVvipRemoved($curUser));
             }
 
             ValueAddedServiceLog::addToLog($member_id, $service_name,'Cancelled, expiry: ' . $expiryDate, $user[0]->order_id, $user[0]->txn_id,0);
@@ -319,7 +335,7 @@ class ValueAddedService extends Model
 
 //        $be_fav_count = MemberFav::where('member_fav_id', $user->id)->get()->count();
 //        $fav_count = MemberFav::where('member_id', $user->id)->get()->count();
-        $tip_count = Tip::where('to_id', $user->id)->get()->count();
+        $tip_count = Tip::where('member_id', $user->id)->get()->count();
         /*七天前*/
         $date = date('Y-m-d H:m:s', strtotime('-7 days'));
         /*發信＆回信次數統計*/

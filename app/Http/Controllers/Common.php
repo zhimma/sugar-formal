@@ -155,6 +155,7 @@ class Common extends BaseController {
             if($now_time-300<strtotime($info->createdate)){
                 /*驗鄭成功更新資料庫*/
                 DB::table('short_message')->where('checkcode', $checkcode)->where('member_id',$user->id)->update(['active'=>1]);
+                ShortMessageService::deleteAnyNotActShortMessageByUser($user,true);
                 //驗證成功解除尚未手機驗證警示
                 SetAutoBan::relieve_mobile_verify_warned($user->id);
                 event(new \App\Events\CheckWarnedOfReport($user->id));

@@ -23,7 +23,7 @@ class Authenticate extends \Illuminate\Auth\Middleware\Authenticate
             $valueAddedServices = array();
             $valueAddedServices['hideOnline'] = 0;
             $isFreeVip = false;
-            if ($user->isVip()) {
+            if ($user->isVipOrIsVvip()) {
                 \View::share('isVip', true);
                 $isFreeVip = $user->isFreeVip();
                 $valueAddedServices['hideOnline'] = $user->valueAddedServiceStatus('hideOnline');

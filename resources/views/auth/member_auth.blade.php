@@ -726,6 +726,7 @@
                 return phone_number.match('^09[0-9]{8}$');
             }            
         </script>
+        @include('new.partials.stay_online_record')
 
 	</body>
 

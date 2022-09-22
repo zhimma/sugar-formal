@@ -11,6 +11,7 @@ use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\File;
 use Illuminate\Support\Facades\Http;
 use Illuminate\Http\Request;
+use App\Services\EnvironmentService;
 
 class Kernel extends ConsoleKernel
 {
@@ -49,7 +50,7 @@ class Kernel extends ConsoleKernel
             $schedule->call('\App\Http\Controllers\Admin\FindPuppetController@entrance',['request'=>$puppetReq])->timezone('Asia/Taipei')->dailyAt('15:00');
             //$schedule->call('\App\Http\Controllers\Admin\FindPuppetController@entrance',['request'=>$puppetReq])->timezone('Asia/Taipei')->dailyAt('21:00');
         }
-        if(app()->isProduction() || app()->isLocal() || app()->environment('simon-test')){
+        if(app()->isProduction() || EnvironmentService::isLocalOrTestMachine()){
             $schedule->command('FillDataForFilterByInfo')->timezone('Asia/Taipei')->dailyAt('01:00');
             $schedule->call(function (){
                 $this->checkECPayVip();

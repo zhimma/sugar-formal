@@ -90,6 +90,7 @@
 								<div v-html="listOther"></div>
 							{{-- </ul>
 						</div> --}}
+						<div class="sm_vvip"><div class="shuo_nr"><span class="shuo_vip">&nbsp;</span>表示為VVIP</div></div>
 						<div class="fenye mabot30" v-html="other_pagination">
 							<div class="fenye">
 								<a href="">上一頁</a>
@@ -105,6 +106,7 @@
 								<div v-html="listMyself"></div>
 							{{-- </ul>
 						</div> --}}
+						<div class="sm_vvip"><div class="shuo_nr"><span class="shuo_vip">&nbsp;</span>表示為VVIP</div></div>
 						<div class="fenye mabot30" v-html="myself_pagination">
 							<div class="fenye">
 								<a href="">上一頁</a>

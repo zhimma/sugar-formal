@@ -105,7 +105,7 @@ function waitTime()
 </script>
 <script>
 		$(document).ready(function(){
-		    @if (!$user->isVip())
+		    @if (!$user->isVipOrIsVvip())
 			$("#vipw").click(function(event)
 			{
 			    var r = confirm("此功能需VIP權限開通，是否前往儲值?");
@@ -121,7 +121,7 @@ function waitTime()
         function validateEmpty() {
             var content = document.forms["postBoard"]["msg"].value;
 
-            @if ($user->isVip())
+            @if ($user->isVipOrIsVvip())
                 if(trimfield(content) == null || trimfield(content) == "")
                 {
                     alert("請輸入內容");

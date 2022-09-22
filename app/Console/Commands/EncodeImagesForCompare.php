@@ -11,6 +11,7 @@ use App\Services\ImagesCompareService;
 use Illuminate\Console\Command;
 use Illuminate\Support\Carbon;
 use Illuminate\Support\Facades\Log;
+use App\Services\EnvironmentService;
 
 class EncodeImagesForCompare extends Command
 {
@@ -70,7 +71,7 @@ class EncodeImagesForCompare extends Command
             
             if($specific_pic) $memPicQuery->where('pic',$specific_pic);
             else {
-                if(!app()->isProduction() && !app()->isLocal()) {
+                if(!app()->isProduction() && !(EnvironmentService::isLocalOrTestMachine())) {
                     echo '本命令只能在正式站或測試環境下執行，已中止';
                     return;
                 }

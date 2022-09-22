@@ -174,8 +174,10 @@ Route::group(['middleware' => ['auth', 'global','SessionExpired']], function () 
 Route::post('/dashboard/faq_reply', 'PagesController@checkFaqAnswer')->middleware('auth')->name('checkFaqAnswer');
 Route::get('/dashboard/faq_check', 'PagesController@checkIsForceShowFaq')->middleware('auth')->name('checkIsForceShowFaq');
 Route::get('/advance_auth_activate/token/{token}', 'PagesController@advance_auth_email_activate')->name('advance_auth_email_activate');
+Route::get('/dashboard/faq_save_reply_error_state', 'PagesController@saveFaqReplyErrorState')->middleware('auth')->name('saveFaqReplyErrorState');
+Route::get('/dashboard/faq_read_reply_error_state', 'PagesController@readFaqReplyErrorState')->middleware('auth')->name('readFaqReplyErrorState');
 
-Route::group(['middleware' => ['auth', 'global', 'active', 'femaleActive', 'vipCheck', 'newerManual', 'CheckAccountStatus', 'AdjustedPeriodCheck', 'SessionExpired','FaqCheck','RealAuthMiddleware']], function () {
+Route::group(['middleware' => ['auth', 'global', 'active', 'femaleActive', 'vipCheck', 'VvipCheck', 'newerManual', 'CheckAccountStatus', 'AdjustedPeriodCheck', 'SessionExpired','FaqCheck','RealAuthMiddleware']], function () {
 
     Route::get('/dashboard/browse', 'PagesController@browse');
     /*
@@ -308,6 +310,17 @@ Route::group(['middleware' => ['auth', 'global', 'active', 'femaleActive', 'vipC
         Route::post('/dashboard/posts_recover', 'PagesController@posts_recover');/*討論區留言恢復*/
         Route::post('/dashboard/post_views', 'PagesController@post_views');
 
+        //VVIP官方討論區
+        Route::get('/dashboard/posts_list_VVIP', 'PagesController@posts_list_VVIP')->name('posts_list_VVIP');/*投稿列表功能*/
+        Route::get('/dashboard/post_detail_VVIP/{pid}', 'PagesController@post_detail_VVIP');
+        Route::post('/dashboard/getPosts_VVIP', 'PagesController@getPosts_VVIP');/*動態取得列表資料*/
+        Route::get('/dashboard/posts_VVIP', 'PagesController@posts_VVIP');/*投稿功能*/
+        Route::get('/dashboard/postsEdit_VVIP/{id}/{editType}', 'PagesController@postsEdit_VVIP');/*投稿修改功能*/
+        Route::post('/dashboard/doPosts_VVIP', 'PagesController@doPosts_VVIP');/*投稿功能*/
+        Route::post('/dashboard/posts_reply_VVIP', 'PagesController@posts_reply_VVIP');/*討論區留言回覆*/
+        Route::post('/dashboard/posts_delete_VVIP', 'PagesController@posts_delete_VVIP');/*討論區留言刪除*/
+        Route::post('/dashboard/posts_recover_VVIP', 'PagesController@posts_recover_VVIP');/*討論區留言恢復*/
+        Route::post('/dashboard/post_views_VVIP', 'PagesController@post_views_VVIP');
 
         //精華討論區
         Route::get('/dashboard/essence_enter_intro', 'PagesController@essence_enter_intro');
@@ -391,6 +404,24 @@ Route::group(['middleware' => ['auth', 'global', 'active', 'femaleActive', 'vipC
     Route::get('/dashboard/vipSelect', 'PagesController@view_vipSelect'); //new route
     Route::get('/dashboard/valueAddedHideOnline', 'PagesController@view_valueAddedHideOnline'); //new route
     Route::post('/dashboard/hideOnlineSwitch', 'PagesController@hideOnlineSwitch')->name('hideOnlineSwitch'); //new route
+
+    //--vvip--//
+    Route::get('/dashboard/vvipSelect', 'PagesController@view_vvipSelect')->name('vvipUpgradePortal'); //new route
+    Route::get('/dashboard/vvipSelectA', 'PagesController@view_vvipSelect_a')->name('vvipSelectA'); //new route
+    Route::get('/dashboard/vvipSelectB', 'PagesController@view_vvipSelect_b'); //new route
+    Route::post('/dashboard/vvipImages/upload','ImageController@uploadImages_VVIP')->name('uploadImages_VVIP');
+    Route::get('/dashboard/vvipPassSelect', 'PagesController@view_vvipPassSelect'); //new route
+    Route::get('/dashboard/vvipPassPay', 'PagesController@view_vvipPassPay'); //new route
+    Route::get('/dashboard/vvipExclusivePre', 'PagesController@view_vvipExclusivePre'); //new route
+    Route::get('/dashboard/vvipExclusive', 'PagesController@view_vvipExclusive'); //new route
+    Route::get('/dashboard/vvipCancel', 'PagesController@view_vvipCancel'); //new route
+    Route::post('/dashboard/vvipCancel', 'PagesController@vvipCancel'); //new route
+    Route::post('/dashboard/vvipUserNoteEdit', 'PagesController@vvipUserNoteEdit'); //new route
+    Route::get('/dashboard/vvipInfo', 'PagesController@view_vvipInfo')->name('vvipInfo')->withoutMiddleware('VvipCheck'); //new route
+    Route::post('/dashboard/vvipInfoEdit', 'PagesController@edit_vvipInfo')->name('vvipInfoEdit')->withoutMiddleware('VvipCheck'); //new route
+//    Route::post('/dashboard/VVIPisInvitedUpdateStatus', 'PagesController@VVIPisInvitedUpdateStatus')->name('VVIPisInvitedUpdateStatus');
+    //--vvip end--//
+
     Route::get('/dashboard2', 'PagesController@dashboard2');
     Route::get('/dashboard/cancel', 'PagesController@showCheckAccount');
     Route::post('/dashboard/chat', 'MessageController@postChat');
@@ -449,6 +480,10 @@ Route::group(['middleware' => ['auth', 'global', 'active', 'femaleActive', 'vipC
         Route::get('/dashboard/search_discard/del', 'PagesController@delSearchIgnore');        
     });
     Route::post('/dashboard/chat2/showMessages/{randomNo?}', 'Message_newController@chatviewMore')->name('showMessages');
+
+    Route::get('/dashboard/chat2/deleteMutipleMessages', 'Message_newController@deleteMutipleMessages')->name('deleteMutipleMessages');
+    Route::post('/dashboard/chat2/deleteBetweenMsg_multiple', 'Message_newController@deleteBetweenMsg_multiple')->name('deleteBetweenMsg_multiple');
+
     Route::group(['middleware' => ['filled']], function () {
         //新樣板
         Route::get('/dashboard/chat2/{randomNo?}', 'Message_newController@chatview')->name('chat2View');
@@ -501,6 +536,8 @@ Route::group(['middleware' => ['auth', 'global', 'active', 'femaleActive', 'vipC
             Route::get('/dashboard/viewuser/{uid?}', 'PagesController@viewuser2')->name('viewuser'); //new route
             Route::get('/dashboard/viewuser_re/{uid?}', 'PagesController@viewuser_re')->name('viewuser_re');
         });
+        Route::get('/dashboard/viewuser_vvip/{uid?}', 'PagesController@viewuser_vvip')->name('viewuser_vvip'); //new route
+
 		Route::get('/dashboard/switch_other_engroup', 'PagesController@switchOtherEngroup')->name('switch_other_engroup');
 		Route::get('/dashboard/switch_engroup_back', 'PagesController@switchEngroupBack')->name('switch_engroup_back');
         Route::get('/dashboard/personalPage', 'PagesController@personalPage'); //new route
@@ -577,7 +614,7 @@ Route::group(['middleware' => ['auth', 'global', 'active', 'femaleActive', 'vipC
     | Admin
     |--------------------------------------------------------------------------
     */
-    Route::group(['namespace' => 'Admin', 'middleware' => 'ReadOnly'], function () {
+    Route::group(['namespace' => 'Admin', 'middleware' => ['ReadOnly', 'Admin']], function () {
         Route::match(['get', 'post'], 'users/VIP/ECCancellations/readOnly', 'PagesController@showECCancellations')->name('users/VIP/ECCancellations/readOnly');
         Route::get('stats/vip/paid/readOnly', 'StatController@vipPaid')->name('stats/vip/paid/readOnly');
         Route::post('users/VIPToggler/readOnly', 'UserController@toggleVIP')->name('VIPToggler/readOnly');
@@ -771,6 +808,9 @@ Route::group(['middleware' => ['auth', 'global', 'active', 'femaleActive', 'vipC
             Route::post('modify', 'UserController@modifyEmail')->name('emailModify');
             Route::post('search', 'UserController@searchEmail');
         });
+        
+        Route::post('users/bannedLog/delete', 'UserController@deleteBannedLog')->name('bannedLogDelete');
+        Route::post('users/warnedLog/delete', 'UserController@deleteWarnedLog')->name('warnedLogDelete');
 
         Route::post('advanceVerify', 'UserController@advanceVerify')->name('advanceVerify');
 
@@ -786,6 +826,7 @@ Route::group(['middleware' => ['auth', 'global', 'active', 'femaleActive', 'vipC
         Route::get('users/reported/{date_start?}/{date_end?}/{reported_id?}', 'UserController@showReportedUsersList')->name('users/reported/EXTRA');
         Route::get('users/message/search/reported/{date_start?}/{date_end?}/{reported_id?}', 'UserController@showReportedMessages')->name('users/message/search/reported');
         Route::post('users/reported/handle/status', 'UserController@reportedIsWrite')->name('users.reported.isWrite');
+        Route::post('users/message/handle/status', 'UserController@messageIsWrite')->name('users.message.isWrite');
 
         Route::post('users/pics/reported', 'UserController@searchReportedPics')->name('users/pics/reported');
         Route::get('users/basic_setting', 'UserController@basicSetting')->name('users/basic_setting/GET');
@@ -826,6 +867,19 @@ Route::group(['middleware' => ['auth', 'global', 'active', 'femaleActive', 'vipC
         Route::get('announcement/new', 'UserController@showNewAdminAnnouncement')->name('admin/announcement/new/GET');
         Route::post('announcement/new', 'UserController@newAdminAnnouncement')->name('admin/announcement/new');
         Route::get('announcement/read/{id}', 'UserController@showReadAnnouncementUser')->name('admin/announcement/read');
+
+        //vvip
+        Route::get('users/VVIP', 'UserController@viewVvipApplication')->name('users/VVIP');
+        Route::post('users/VVIP_edit', 'UserController@editVvipApplication')->name('users/VVIP_edit');
+        Route::post('users/get_prove_img', 'UserController@vvip_get_prove_img')->name('get_prove_img');
+        Route::post('users/vvipInfo_admin_edit', 'UserController@vvipInfo_admin_edit')->name('users/vvipInfo_admin_edit');
+        Route::post('users/vvipInfo_status_toggle', 'UserController@vvipInfo_status_toggle')->name('users/vvipInfo_status_toggle');
+        Route::get('users/VVIP_margin_deposit', 'VvipController@viewVvipMarginDeposit')->name('users/VVIP_margin_deposit');
+        Route::get('users/VVIP_margin_deposit/edit/{user_id}', 'VvipController@editVvipMarginDeposit')->name('users/VVIP_margin_deposit/edit');
+        Route::post('users/VVIP_margin_deposit/save/{user_id}', 'VvipController@updateVvipMarginDeposit')->name('users/VVIP_margin_deposit/save');
+        Route::get('users/VVIP_cancellation_list', 'VvipController@viewVvipCancellationList')->name('users/VVIP_cancellation_list');
+        Route::post('users/VVIP_cancellation/save', 'VvipController@updateVvipCancellation')->name('users/VVIP_cancellation/save');
+//        Route::get('users/VVIP_invite', 'UserController@viewVvipInvite')->name('users/VVIP_invite');
 
         Route::get('faq', 'UserController@showFaq')->name('admin/faq');
          Route::get('faq/edit/{id}', 'UserController@showFaqEdit')->name('admin/faq/edit');
@@ -982,7 +1036,13 @@ Route::group(['middleware' => ['auth', 'global', 'active', 'femaleActive', 'vipC
         Route::get('admin/user_regist_time_view', 'UserController@user_regist_time_view')->name('admin/user_regist_time_view');
         Route::get('admin/user_visited_time_view', 'UserController@user_visited_time_view')->name('admin/user_visited_time_view');
         Route::get('admin/user_online_time_view', 'UserController@user_online_time_view')->name('admin/user_online_time_view');
-    
+        Route::get('admin/user_page_online_time_view', 'UserController@user_page_online_time_view')->name('admin/user_page_online_time_view');
+        Route::get('admin/stay_online_record_page_name_view', 'UserController@stay_online_record_page_name_view')->name('admin/stay_online_record_page_name_view');
+        Route::get('admin/stay_online_record_page_name_form', 'UserController@stay_online_record_page_name_form')->name('admin/stay_online_record_page_name_form');
+        Route::post('admin/stay_online_record_page_name_form', 'UserController@stay_online_record_page_name_save')->name('admin/stay_online_record_page_name_save');
+        Route::get('admin/stay_online_record_page_name_delete/{id}', 'UserController@stay_online_record_page_name_delete')->name('admin/stay_online_record_page_name_delete');
+        Route::get('admin/stay_online_record_page_name_switch', 'UserController@stay_online_record_page_name_switch')->name('admin/stay_online_record_page_name_switch');
+        
         Route::get('global/feature_flags', 'UserController@feature_flags')->name('admin/feature_flags');
         Route::get('global/feature_flags/create', 'UserController@feature_flags_create');
         Route::post('global/feature_flags/create', 'UserController@feature_flags_create');

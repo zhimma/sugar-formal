@@ -14,7 +14,7 @@
     --}}
             <div class="g_password g_pnr">
                 <div class="g_pwicon">
-                    <li><a href="/dashboard/viewuser/{{$user->id}}" class="g_pwicon_t5 "><span>自我預覽</span></a></li>
+                    <li><a href="@if($user->isVVIP()) /dashboard/viewuser_vvip/{{$user->id}} @else /dashboard/viewuser/{{$user->id}} @endif" class="g_pwicon_t5 "><span>自我預覽</span></a></li>
                     <li><a href="{!! url('dashboard') !!}" class="g_pwicon_t "><span>基本資料</span></a></li>
                     <li><a href="{!! url('dashboard_img') !!}" class="g_pwicon_t2"><span>照片管理</span></a></li>
                     <li><a href="{!! url('/dashboard/account_manage') !!}" class="g_pwicon_t3 g_hicon3"><span>帳號設定</span></a></li>
@@ -39,7 +39,7 @@
                                         狀態：
                                         @if($user->line_notify_token==null)
                                             尚未綁定
-                                            <a @if($user->isVip()) href="javascript:void(0);" @else onclick="show_onlyForVipPleaseUpgrade()"  @endif class="tuk_bdbutton right line_notify">
+                                            <a @if($user->isVipOrIsVvip()) href="javascript:void(0);" @else onclick="show_onlyForVipPleaseUpgrade()"  @endif class="tuk_bdbutton right line_notify">
                                                 立即绑定
                                             </a>
                                         @else
@@ -80,7 +80,7 @@
 {{--                                <div class="ti_xcheck">--}}
 {{--                                    @foreach($line_notify_chat as $row)--}}
 {{--                                        @if($row->name == '收藏會員' || $row->name == '誰來看我' || $row->name == '收藏我的會員')--}}
-{{--                                            @if($user->isVip())--}}
+{{--                                            @if($user->isVipOrIsVvip())--}}
 {{--                                                <span><input type="checkbox" name="group_name[]" id="q4" class="ti_ceckys" value="{{$row->id}}" @if(in_array($row->id, $user_line_notify_chat_set)) checked @endif>{{$row->name}}</span>--}}
 {{--                                            @else--}}
 {{--                                                @continue--}}
@@ -160,7 +160,7 @@
 
     {{--                          @foreach($line_notify_chat as $row)--}}
     {{--                              @if($row->name == '收藏會員')--}}
-    {{--                                 @if($user->isVip())--}}
+    {{--                                 @if($user->isVipOrIsVvip())--}}
     {{--                                     <span><input type="checkbox" name="group_name[]" id="q4" class="ti_ceckys" value="{{$row->id}}" @if(in_array($row->id, $user_line_notify_chat_set)) checked @endif>{{$row->name}}</span>--}}
     {{--                                  @else--}}
     {{--                                      @continue--}}
@@ -230,7 +230,7 @@
         });
 
         $(".line_notify").on('click', function() {
-            @if($user->isVip())
+            @if($user->isVipOrIsVvip())
             show_line_notify_set_alert();
             @else
             show_onlyForVipPleaseUpgrade();

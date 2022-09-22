@@ -4895,7 +4895,6 @@ margin-bottom: 50px; border-radius: 10PX 10PX 10PX 10PX;}
 
 
 
-<<<<<<< HEAD
 /* 4-20 */
 .se_text_bot{ margin-bottom:10px;}
 .ditext{width:92%; margin: 0 auto; display: table;background:linear-gradient(to right, rgba(253,86,120,0.4) 0%, rgba(253,86,120,0.2) 100%); padding: 10px 10px 0 10px; color: #fff;position: relative; 
@@ -4958,8 +4957,6 @@ line-height:26px; box-shadow: 0 5px 5px #ffc1cd;}
 
 
 
-=======
->>>>>>> 3448703057e8543e3ad1da20cabe441c1edc19b2
 .metx_tab {width: 60%; margin: 0 auto; display: table; padding-top:20px; padding-bottom: 20px;}
 @media (max-width:992px) {
 .metx_tab {width:95%; margin: 0 auto; display: table;}	

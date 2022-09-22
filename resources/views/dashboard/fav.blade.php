@@ -25,7 +25,7 @@
                                     </div>
                                     <div class="m-widget3__info">
                                         <span class="m-widget3__username">
-                                        {{ $favUser->name }} @if ($favUser->isVip()) (VIP) @endif
+                                        {{ $favUser->name }} @if ($favUser->isVipOrIsVvip()) (VIP) @endif
                                         </span><br>
                                         <span class="m-widget3__time">
                                         {{ $visitor->created_at }}

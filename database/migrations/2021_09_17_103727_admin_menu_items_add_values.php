@@ -19,7 +19,7 @@ class AdminMenuItemsAddValues extends Migration
             'VIP 會員統計資料' =>array('route_path'=>'/admin/stats/vip', 'sort'=>3),
             '付費 VIP 會員訂單資料' =>array('route_path'=>'/admin/stats/vip/paid', 'sort'=>4),
             '其他 VIP 相關統計資料' =>array('route_path'=>'/admin/stats/other', 'sort'=>5),
-            '綠界 VIP 付費取消資料' =>array('route_path'=>'/admin/users/VIP/ECCancellations', 'sort'=>6),
+            '綠界 / FunPoint VIP 付費取消資料' =>array('route_path'=>'/admin/users/VIP/ECCancellations', 'sort'=>6),
             '會員列表' =>array('route_path'=>'/admin/users/memberList', 'sort'=>7),
             '會員搜尋(變更男女、VIP資料)' =>array('route_path'=>'/admin/users/search', 'sort'=>8),
             '進階會員搜尋' =>array('route_path'=>'/admin/users/advSearch', 'sort'=>9),

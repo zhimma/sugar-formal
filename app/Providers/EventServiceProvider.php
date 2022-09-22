@@ -28,6 +28,12 @@ class EventServiceProvider extends ServiceProvider
         'App\Events\CheckWarnedOfReport' => [
             'App\Listeners\CheckWarnedOfReportListener'
         ],
+        'App\Events\UserVvipUpgraded' => [
+            'App\Listeners\UserVvipUpgradedListener'
+        ],
+        'App\Events\UserVvipRemoved' => [
+            'App\Listeners\UserVvipRemovedListener'
+        ],
     ];
 
     /**

@@ -23,10 +23,20 @@ class Order extends Model
         'payment_type',
         'pay_date',
         'amount',
+        'need_to_refund',
+        'refund_amount'
     ];
+
+    protected $primaryKey = 'order_id';
+
+    protected $keyType = 'string';
 
     public function users(){
         return $this->belongsTo(User::class, 'user_id', 'id');
+    }
+
+    public function user(){
+        return $this->belongsTo(User::class);
     }
 
     public static function addEcPayOrder($order_id, $order_expire_date = null){

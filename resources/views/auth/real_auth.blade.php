@@ -117,7 +117,7 @@
                                      </div>
                                      <div class="gaor_nr01_li"><img src="{{asset('alert/images/renz_14.png')}}"><font class="gaor_font">專有客服通道，可諮詢任何問題。必要時由站長親自回覆。</font></div>
                                      <div class="gaor_nr01_li">
-                                            <img src="{{asset('alert/images/renz_15.png')}}"><font class="gaor_font">投投訴立即處理。</font>
+                                            <img src="{{asset('alert/images/renz_15.png')}}"><font class="gaor_font">投訴立即處理。</font>
                                             <div class="ga_rtable">任何投訴都會在36小時內得到處理。</div>
                                      </div>
                                      <div class="gaor_nr01_li">

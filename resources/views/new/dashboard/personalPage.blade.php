@@ -195,73 +195,141 @@
                         </div>
                     </div>
                     @if($user->engroup==1)
-                    <div class="sys_aa" id="vip_state_block">
-                        <div class="tabbox_new_dt"><span>VIP狀態</span>
-                            @if(!$user->isVip())
-                                @if($user->engroup==2)
-                                    <a class="zs_buttonn" href="{{url('/dashboard_img')}}">立即上傳照片</a>
-                                @else
-                                    <a class="zs_buttonn" href="{{url('/dashboard/new_vip')}}">立即成為VIP</a>
-                                @endif
-                            @endif
-                        </div>
-                        <div class="tabbox_new_dd">
-                            @if($user->isVip())
-                                <h2 class="tabbox_h2">{!! $vipStatus !!}</h2>
-                            @else
-                            <h2 class="tabbox_h2"><span class="tu_dfont">{!! $vipStatus??'您目前還不是VIP' !!}</span></h2>
-                            @endif
-                            @php
-                                $essence_posts_reward_log=\App\Models\EssencePostsRewardLog::where('user_id', $user->id)->get();
-                            @endphp
-                            <h2 class="tabbox_h2 ta_l">
-                                @foreach ($essence_posts_reward_log as $reward_log)
-                                    <span class="tu_dfont" style="border-top: #eee 1px dashed;">
-                                        您的精華文章 {{$reward_log->title}} 已於 {{ substr($reward_log->verify_time,0,10) }} 通過審核，已贈予本站VIP一個月。
-                                    </span>
-                                @endforeach
-                            </h2>
-                        </div>
-                    </div>
+                        @if(!(isset($user->applyVVIP_getData()->created_at) && $user->applyVVIP_getData()->created_at != ''))
+                            <div class="sys_aa" id="vip_state_block">
+                                <div class="tabbox_new_dt"><span>VIP狀態</span>
+                                    @if(!$user->isVip() && !$user->isVVIP())
+                                        @if($user->engroup==2)
+                                            <a class="zs_buttonn" href="{{url('/dashboard_img')}}">立即上傳照片</a>
+                                        @else
+                                            <a class="zs_buttonn" href="{{url('/dashboard/new_vip')}}">立即成為VIP</a>
+                                        @endif
+                                    @endif
+                                </div>
+                                <div class="tabbox_new_dd">
+                                    @if($user->isVip()||$user->isVVIP())
+                                        <h2 class="tabbox_h2">{!! $vipStatus !!}</h2>
+                                    @else
+                                    <h2 class="tabbox_h2"><span class="tu_dfont">{!! $vipStatus??'您目前還不是VIP' !!}</span></h2>
+                                    @endif
+                                    @php
+                                        $essence_posts_reward_log=\App\Models\EssencePostsRewardLog::where('user_id', $user->id)->get();
+                                    @endphp
+                                    <h2 class="tabbox_h2 ta_l">
+                                        @foreach ($essence_posts_reward_log as $reward_log)
+                                            <span class="tu_dfont" style="border-top: #eee 1px dashed;">
+                                                您的精華文章 {{$reward_log->title}} 已於 {{ substr($reward_log->verify_time,0,10) }} 通過審核，已贈予本站VIP一個月。
+                                            </span>
+                                        @endforeach
+                                    </h2>
+                                </div>
+                            </div>
+                        @endif
+                        @if(isset($user->applyVVIP_getData()->created_at) && $user->applyVVIP_getData()->created_at != '')
+                            <div class="sys_aa" id="vip_state_block">
+                                <div class="tabbox_new_dt"><span>VVIP狀態</span>
+                                    @if($user->applyingVVIP_getDeadline() != 0)
+                                        <a class="zs_buttonn right" href="/dashboard/vvipSelectA#refill">VVIP立即補件</a>
+                                    @endif
+                                </div>
+                                <div class="tabbox_new_dd">
+                                    {{--
+                                    @if($user->applyingVVIP_getDeadline() != 0)
+                                        <h2 class="tabbox_h2" style="color:red;">您於 {{$user->applyVVIP_getData()->created_at->format("Y-m-d H:i")}} 申請本站VVIP，站方審核仍需更多財力文件，請您於 {{$user->applyingVVIP_getDeadline()}} 前補交文件</h2>
+                                    @endif
+                                    --}}
+
+                                    @if($user->applyVVIP_getData()->status == 2)
+                                        <h2 class="tabbox_h2">您於 {{$user->applyVVIP_getData()->created_at->format("Y-m-d H:i")}} 申請本站VVIP，未通過站方審核。</h2>
+
+                                    @elseif($user->applyVVIP_getData()->status == 3)
+                                        <h2 class="tabbox_h2" style="color:red;">{{$user->applyVVIP_getData()->supplement_notice}}</h2>
+
+                                    @elseif($user->cancelVVIP())
+                                        <h2 class="tabbox_h2">您於 {{$user->applyVVIP_getData()->created_at->format("Y-m-d H:i")}} 申請本站VVIP，已取消申請。</h2>
+                                    
+                                    @elseif($user->valueAddedServiceStatus('VVIP') == 1 && $user->passVVIP())
+                                        <h2 class="tabbox_h2">您已完成VVIP會員費</h2>
+                                    @elseif($user->valueAddedServiceStatus('VVIP') == 1 && !$user->passVVIP())
+                                        <h2 class="tabbox_h2">
+                                            <span class="tu_dfont">                                                
+                                                @if($user->applyVVIP_getData()->plan == 'VVIP_A')
+                                                    @if($user->VvipMargin?->balance < 20000 && now()->lte(\Carbon\Carbon::parse($user->VvipMargin?->updated_at)->addDays(3)))                                                        
+                                                        您好，您在 {{$user->applyVVIP_getData()->created_at->format("Y-m-d H:i")}} 申請 VVIP 已完成，請於 {{$user->applyVVIP_getData()->created_at->addDays(3)->format("Y-m-d H:i")}} 之前， <br>
+                                                        將本帳號繳交與本站的入會費 20000 元匯入此帳號 <br>
+                                                        台新銀行(812) <br>-
+                                                        帳號 20631050273029 <br>
+                                                        完成後請<font color="red">保留收據</font>並將帳號後五碼 <a onclick="vvipUserNoteEdit_show()" class='btn btn-primary' style="height: 30px; line-height: 15px;">輸入於此</a><br>
+                                                        <font color="red">注意：須於 {{$user->applyVVIP_getData()->created_at->addDays(3)->format("Y-m-d H:i")}} 之前匯入，否則將取消此次 VVIP 申請。9888元<br>扣除手續費4000，剩餘刷退。</font>
+                                                    @endif
+                                                @elseif($user->applyVVIP_getData()->plan == 'VVIP_B')
+                                                    @if($user->VvipMargin?->balance < 50000 && now()->lte(\Carbon\Carbon::parse($user->VvipMargin?->updated_at)->addDays(3)))  
+                                                        您好，您在 {{$user->applyVVIP_getData()->created_at->format("Y-m-d H:i")}} 申請 VVIP 已完成，請於 {{$user->applyVVIP_getData()->created_at->addDays(3)->format("Y-m-d H:i")}} 之前， <br>
+                                                        將本帳號繳交與本站的入會費 50000 元匯入此帳號 <br>
+                                                        台新銀行(812) <br>
+                                                        帳號 20631050273029 <br>
+                                                        完成後請<font color="red">保留收據</font>並將帳號後五碼 <a onclick="vvipUserNoteEdit_show()" class='btn btn-primary' style="height: 30px; line-height: 15px;">輸入於此</a><br>
+                                                        <font color="red">注意：須於 {{$user->applyVVIP_getData()->created_at->addDays(3)->format("Y-m-d H:i")}} 之前匯入，否則將取消此次 VVIP 申請。9888元<br>扣除手續費4000，剩餘刷退。</font>
+                                                    @endif
+                                                @endif
+                                            </span></h2>
+                                    @else
+                                        <h2 class="tabbox_h2"><span class="tu_dfont">您尚未購買VVIP會員費</span></h2>
+                                    @endif
+
+                                    @if($user->applyingVVIP())
+                                        <h2 class="tabbox_h2">VVIP審核，自匯款完成並輸入帳號後五碼起計算，五個工作天內通知結果。</h2>
+                                    @endif
+
+                                    @if($user->passVVIP())
+                                        <h2 class="tabbox_h2">
+                                            您於 {{$user->applyVVIP_getData()->created_at->format("Y-m-d H:i")}} 申請本站VVIP，恭喜您！已成為本站審核通過的高級VVIP會員。現在就加入VVIP專屬LINE@, 享受您的專屬客服服務!
+                                            <a href="https://line.me/ti/p/~@953wkgjq" target="_blank"> <img src="https://scdn.line-apps.com/n/line_add_friends/btn/zh-Hant.png" alt="加入好友" height="26" border="0" style="height: 26px; float: unset;"></a>
+                                        </h2>
+                                    @endif
+                                </div>
+                            </div>
+                        @endif
                     @endif
                     @if($user->engroup==2)
-                    <div class="sys_aa" id="adv_auth_state_block">
-                        <div class="tabbox_new_dt"><span>進階驗證</span>
-                        @if(!$user->isAdvanceAuth())
-                            <a class="zs_buttonn" href="{{url('/advance_auth/')}}">立即驗證</a>
-                        @endif
-                        </div>
-                        <div class="tabbox_new_dd">
-                        @if($user->isAdvanceAuth())
-                            <h2 class="tabbox_h2">已通過</h2>
-                        @else
-                            <h2 class="tabbox_h2"><span class="tu_dfont">尚未通過</span></h2>
-                        @endif
-                        </div>
-                    </div> 
-                    <div class="sys_aa" id="self_auth_state_block">
-                        <div class="tabbox_new_dt"><span>本人認證</span>
-                            <a class="zs_buttonn" href="{{route('real_auth')}}">
-                            @if($rap_service->isNoProgressByAuthTypeId(1))
-                                立即認證
-                            @else
-                                檢視認證
+                        <div class="sys_aa" id="adv_auth_state_block">
+                            <div class="tabbox_new_dt"><span>進階驗證</span>
+                            @if(!$user->isAdvanceAuth())
+                                <a class="zs_buttonn" href="{{url('/advance_auth/')}}">立即驗證</a>
                             @endif
-                            </a>
-                        </div>
-                        <div class="tabbox_new_dd">
-                        @if($rap_service->isPassedByAuthTypeId(1))
-                            <h2 class="tabbox_h2">已通過</h2>
-                        @elseif($rap_service->isSelfAuthWaitingCheck())
-                            <h2 class="tabbox_h2"><span class="tu_dfont">站方審核中</span></h2>
-                        @elseif($rap_service->isSelfAuthApplyNotVideoYet())
-                            <h2 class="tabbox_h2"><span class="tu_dfont"><span class="sa_video_status video_status_text_show_elt" id="video_status_text_show_elt">前往視訊</span><img id="video_status_show_elt" src="{{ asset('/new/images/guan.png') }}" class="sa_video_status video_status_show_elt"  style="cursor: pointer;height: 30px;display:none;"/></span></h2>
-                        @else
-                            <h2 class="tabbox_h2"><span class="tu_dfont">尚未通過</span></h2>
-                        @endif
-                        </div>
-                    </div>         
+                            </div>
+                            <div class="tabbox_new_dd">
+                            @if($user->isAdvanceAuth())
+                                <h2 class="tabbox_h2">已通過</h2>
+                            @else
+                                <h2 class="tabbox_h2"><span class="tu_dfont">尚未通過</span></h2>
+                            @endif
+                            </div>
+                        </div> 
+                        <div class="sys_aa" id="self_auth_state_block">
+                            <div class="tabbox_new_dt"><span>本人認證</span>
+                                <a class="zs_buttonn" href="{{route('real_auth')}}">
+                                @if($rap_service->isNoProgressByAuthTypeId(1))
+                                    立即認證
+                                @else
+                                    檢視認證
+                                @endif
+                                </a>
+                            </div>
+                            <div class="tabbox_new_dd">
+                            @if($rap_service->isPassedByAuthTypeId(1))
+                                <h2 class="tabbox_h2">已通過</h2>
+                            @elseif($rap_service->isSelfAuthWaitingCheck())
+                                <h2 class="tabbox_h2"><span class="tu_dfont">站方審核中</span></h2>
+                            @elseif($rap_service->isSelfAuthApplyNotVideoYet())
+                                <h2 class="tabbox_h2"><span class="tu_dfont"><span class="sa_video_status video_status_text_show_elt" id="video_status_text_show_elt">前往視訊</span><img id="video_status_show_elt" src="{{ asset('/new/images/guan.png') }}" class="sa_video_status video_status_show_elt"  style="cursor: pointer;height: 30px;display:none;"/></span></h2>
+                            @else
+                                <h2 class="tabbox_h2"><span class="tu_dfont">尚未通過</span></h2>
+                            @endif
+                            </div>
+                        </div>         
                     @endif
+
                    <div class="sys_aa" id="vip_state_block">
                         <div class="tabbox_new_dt"><span>隱藏狀態</span>
                             @if($user->valueAddedServiceStatus('hideOnline') == 1)
@@ -480,7 +548,7 @@
 
                     <div class="sys_aa">
                         <dt class="tabbox_new_ss"><span  class="sys_log1 xs_wi90">我收藏的會員上線</span>
-                            @if($myFav->count()>0 && $user->isVip())
+                            @if($myFav->count()>0 && ($user->isVip()||$user->isVVIP()))
                             <div class="right btn01"><span class="zixu_cs"><img src="/new/images/xiugai1.png">編輯</span></div>
                             <div class="btn02 sx_ment">
                                 <span class="iconfont icon-wancheng zixu_cs1 dtmr20">完成</span>
@@ -491,7 +559,7 @@
                         </dt>
                         <dd class="tabbox_new_dd">
                             <div class="tabbox_h4">
-                                @if($user->isVip())
+                                @if($user->isVip()||$user->isVVIP())
                                     @if($myFav->count()>0)
                                         <div class="ys_dt">僅顯示一周內上線的會員</div>
                                         <ul>
@@ -519,7 +587,7 @@
 
                     <div class="sys_aa">
                         <dt class="tabbox_new_ss"><span class="sys_log1 xs_wi90">收藏我的會員上線</span>
-                            @if($otherFav->count()>0 && $user->isVip())
+                            @if($otherFav->count()>0 && ($user->isVip()||$user->isVVIP()))
                             <div class="right btn01"><span class="zixu_cs"><img src="/new/images/xiugai1.png">編輯</span></div>
                             <div class="btn02 sx_ment">
                                 <span class="iconfont icon-wancheng zixu_cs1 dtmr20">完成</span>
@@ -530,7 +598,7 @@
                         </dt>
                         <dd class="tabbox_new_dd">
                             <div class="tabbox_h4">
-                                @if($user->isVip())
+                                @if($user->isVip()||$user->isVVIP())
                                     @if($otherFav->count()>0)
                                         <div class="ys_dt">僅顯示一周內上線的會員</div>
                                         <ul>
@@ -595,7 +663,7 @@
                         <img src="/new/images/LINE_T.png" class="line_img">
                     </div>
                     <div class="n_bbutton" style="margin-top: 0;">
-                        @if($user->isVip())
+                        @if($user->isVip()||$user->isVVIP())
                             <a class="sl_bllbut" href="/dashboard/chat/chatNotice">好，我想即時接收聊天訊息</a>
                         @else
                             <a class="sl_bllbut" onclick="lineNotifyPopUp_close();show_onlyForVipPleaseUpgrade();">好，我想即時接收聊天訊息</a>
@@ -643,7 +711,7 @@
                                 @else
                                     <form>
                                         @if($faqUserService->questionTypeToKey($question_entry->type)==2)
-                                        <div><input type="text" class="faq_replace_required_elt" required oninvalid="this.setCustomValidity('請選取選項')"  oninput="this.setCustomValidity('')"></div>
+                                        <div><input type="text" class="faq_replace_required_elt" required oninvalid="this.setCustomValidity('請選取選項')"  oninput="this.setCustomValidity('')" inputmode="none" ></div>
                                         @endif
                                         <input type="hidden" name="question_id" value="{{$question_entry->id}}" />                               
                                         <ul class="dowebok answer_item">        
@@ -674,25 +742,57 @@
     </div>
     @endif
     @if($rap_service->isSelfAuthApplyNotVideoYet())
-    <div style="position:relative;" id="video_app_container">
-        <div id="app" style="display: none;">
-            <video-chat 
-                :allusers="{{ $users }}" 
-                :authUserId="{{ auth()->id() }}" 
-                user_permission = "normal"
-                ice_server_json="" 
-            />
-            
+        <div style="position:relative;" id="video_app_container">
+            <div id="app" style="display: none;">
+                <video-chat 
+                    :allusers="{{ $users }}" 
+                    :authUserId="{{ auth()->id() }}" 
+                    user_permission = "normal"
+                    ice_server_json="" 
+                />
+                
+            </div>
         </div>
-    </div>
     @endif
-</div>
-      
+
+    @if(isset($user->applyVVIP_getData()->created_at) && $user->applyVVIP_getData()->created_at != '')
+        <div class="bl bl_tab" id="show_vvip_user_note">
+            <div class="bltitle"><span>回報末五碼</span></div>
+            <div class="n_blnr01 ">
+                <form class="m-form m-form--fit m-form--label-align-right" method="POST" action="{{ url('/dashboard/vvipUserNoteEdit') }}" id="">
+                    <input type="hidden" name="_token" value="{{ csrf_token() }}" >
+                    <input type="hidden" name="id" id="id" value="{{ $user->applyVVIP_getData()->id }}">
+                    <textarea onkeyup="value=value.replace(/[^\d]/g,'') " name="user_note" id="user_note" cols="" rows="" class="n_nutext" placeholder="請輸入內容" required></textarea>
+                    <input type="submit" class="n_bllbut msgsnd" value="送出" style="border-style: none;">
+                </form>
+            </div>
+            <a id="" onclick="gmBtnNoReload()" class="bl_gb"><img src="/new/images/gb_icon.png"></a>
+        </div>
+    @endif
+
 @stop
 
 @section('javascript')
 <script type="text/javascript">
+
+    function vvipUserNoteEdit_show() {
+        $('#show_vvip_user_note').show();
+        $('.announce_bg').show();
+
+    }
+
     $(function() {
+        $('#user_note').keypress(function(e) {
+            var a = [];
+            var k = e.which;
+
+            for (i = 48; i < 58; i++)
+                a.push(i);
+
+            if (!(a.indexOf(k)>=0))
+                e.preventDefault();
+        });
+
         $(".sys_log1").parent('.tabbox_new_ss').next('dd').hide();
         $(".btn01").hide();
         $(".btn02").hide();
@@ -933,22 +1033,6 @@
             lineNotifyPopUp();
         }
     }else{
-
-        //popup評價通知優先高於公告
-        @if($evaluation_30days_unread_count && $user->notice_has_new_evaluation)
-            $('#announcement').hide();
-            $('.announce_bg').hide();
-            $('#show_new_evalucation_popup').show();
-            $(".evaluation_bg").show();
-            $("#show_new_evalucation_popup, .evaluation_bg").on('click', function() {
-
-                if($('#show_new_evalucation_popup').css('display') == 'none'){
-                    $('#announcement').show();
-                    $('.announce_bg').show();
-                    $(".evaluation_bg").hide();
-                }
-            });
-        @endif
         $("#announcement, .gg_butnew, .announce_bg").on('click', function() {
             if($('#announcement').css('display') == 'none'){
                 if(showLineNotifyPop){
@@ -957,6 +1041,22 @@
             }
         });
     }
+
+    //popup評價通知優先高於公告
+    @if($evaluation_30days_unread_count && $user->notice_has_new_evaluation)
+    $('#announcement').hide();
+    $('#announce_bg').hide();
+    $('#show_new_evalucation_popup').show();
+    $(".evaluation_bg").show();
+    $("#show_new_evalucation_popup, .evaluation_bg").on('click', function() {
+
+        if($('#show_new_evalucation_popup').css('display') == 'none'){
+            $('#announcement').show();
+            $('.announce_bg').hide();
+            $(".evaluation_bg").hide();
+        }
+    });
+    @endif
 
     $("#announce_bg").on('click', function() {
         lineNotifyPopUp_close();
@@ -973,7 +1073,7 @@
     }
 
     $(".line_notify").on('click', function() {
-        @if($user->isVip())
+        @if($user->isVip()||$user->isVVIP())
         show_line_notify_set_alert();
         @else
             show_onlyForVipPleaseUpgrade();
@@ -1050,6 +1150,7 @@
         $('#show_new_evalucation_popup').hide();
         $("#evaluation_bg").hide();
     }
+
 </script>
 <script type="text/javascript">
     $(function() {
@@ -1095,7 +1196,7 @@ display: flex;-webkit-box-pack: center;-ms-flex-pack: center;-webkit-justify-con
     #faq_tab .dati_font div form {display:none;}
     #faq_tab .dati_font > div > p {font-size:16px;}
     #faq_count_down_block {display:none;text-align:right;margin-top:10px;}
-    #faq_tab .force_show {display:inline !important;}
+    #faq_tab .force_show {display:flex !important;}
     .faq_replace_required_elt {width:0;height:0;position:relative;top:45px;color:transparent;border:0px transparent;background-color:transparent;}    
     #faq_tab ul li input[type=radio]:focus, #faq_tab ul li input[type=radio]:focus-visible,.faq_replace_required_elt:focus,.faq_replace_required_elt:focus-visible {outline:none;}
     #faq_announce_bg,#faq_msg_tab {z-index:19;display:none;}
@@ -1117,6 +1218,8 @@ display: flex;-webkit-box-pack: center;-ms-flex-pack: center;-webkit-justify-con
         $(".faq_blbg").show();      
         $(':input').labelauty();        
     }
+    
+    check_faq_error_state();
     
     faq_add_checking_flag($('#faq_tab .swiper-wrapper .swiper-slide').first());
     
@@ -1334,8 +1437,9 @@ display: flex;-webkit-box-pack: center;-ms-flex-pack: center;-webkit-justify-con
     if(get_faq_error_state()==1) {
         wdt();
     } else {
-        $('#faq_tab').show();
+        $('#faq_tab').show();        
         swiper = swiper_initial({{$faqUserService->getReplyedBreakIndex()}});
+
     }
    
     function swiper_initial(realindex=0) {
@@ -1415,8 +1519,15 @@ display: flex;-webkit-box-pack: center;-ms-flex-pack: center;-webkit-justify-con
     }  
 
     function save_faq_error_state() {
+        $.get( "{{route('saveFaqReplyErrorState',[csrf_token()=>time()])}}"+(new Date().getTime())); 
         sessionStorage.setItem( 'fag_error_state',1);
     }
+    
+    function check_faq_error_state() {
+        $.get( "{{route('readFaqReplyErrorState',[csrf_token()=>time()])}}"+(new Date().getTime()),function(data){
+           if(data==1) wdt(); 
+        }); 
+    }    
     
     function get_faq_error_state() {
         return sessionStorage.getItem('fag_error_state');
@@ -1431,6 +1542,10 @@ display: flex;-webkit-box-pack: center;-ms-flex-pack: center;-webkit-justify-con
     }
     
     function check_empty(from_close_btn=null) {
+        if(typeof document.createElement( 'input' ).checkValidity != 'function') {
+            return true;
+        }
+        
         var nowBlock = null;
         if(!from_close_btn)
             nowBlock = getFaqActBlock();

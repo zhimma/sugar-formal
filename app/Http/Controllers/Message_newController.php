@@ -34,8 +34,8 @@ class Message_newController extends BaseController {
     public function __construct(UserService $userService) {
         parent::__construct();
         $this->service = $userService;
-        $this->middleware('throttle:140,1');
-        $this->middleware('pseudoThrottle:100,1');
+        $this->middleware('throttle:400,1');
+        $this->middleware('pseudoThrottle:250,1');
     }
 
     // handle delete message
@@ -256,7 +256,7 @@ class Message_newController extends BaseController {
         //$user = Auth::user();
         // 非 VIP: 一律限 8 秒發一次。
         // 女會員: 無論是否 VIP，一律限 8 秒發一次。
-        if(!$user->isVIP()){
+        if( !$user->isVIP() && !$user->isVVIP() ){
             $m_time = Message::select('created_at')->
             where('from_id', $user->id)->
             orderBy('created_at', 'desc')->first();
@@ -298,6 +298,7 @@ class Message_newController extends BaseController {
                 'parent_client_id' => ($payload['parent_client']??null),
                 'views_count_quota' => ($payload['views_count_quota']??0),
                 'show_time_limit' => ($payload['show_time_limit']??0),
+                'is_truth' => $payload['is_truth'] ?? 0,
             ]);
 
             $messagePosted = $this->message_pic_save($messageInfo->id, $request->file('images'));
@@ -481,10 +482,10 @@ class Message_newController extends BaseController {
                 $line_notify_send = true;
             }
         }else{
-            if(in_array(5, $line_notify_chat_id_ary) && $user->isVip()){
+            if(in_array(5, $line_notify_chat_id_ary) && ($user->isVip() || $user->isVVIP()) ){
                 $line_notify_send = true;
             }
-            if(in_array(6, $line_notify_chat_id_ary) && !$user->isVip()){
+            if(in_array(6, $line_notify_chat_id_ary) && ($user->isVip() || $user->isVVIP()) ){
                 $line_notify_send = true;
             }
             if(in_array(8, $line_notify_chat_id_ary) && memberFav::where('member_id', $to_user->id)->where('member_fav_id', $user->id)->first()){
@@ -557,7 +558,7 @@ class Message_newController extends BaseController {
         $m_time = '';
         if (isset($user)) {
             $this->service->dispatchCheckECPay($this->userIsVip, $this->userIsFreeVip, $this->userVipData);
-            $isVip = $user->isVip();
+            $isVip = ($user->isVip()||$user->isVVIP());
             /*編輯文案-檢舉大頭照-START*/
             $vip_member = AdminCommonText::where('alias','vip_member')->get()->first();
             /*編輯文案-檢舉大頭照-END*/
@@ -576,16 +577,24 @@ class Message_newController extends BaseController {
 
             /*編輯文案-檢舉大頭照-START*/
             $letter_vip = AdminCommonText::where('category_alias','letter_text')->where('alias','vip')->get()->first();
+
+            $letter_vvip = AdminCommonText::where('category_alias','letter_text')->where('alias','vvip')->get()->first();
             /*編輯文案-檢舉大頭照-END*/
+
+            $data_all = Message_new::allSendersAJAX($user->id, $user->isVip(),'all');
+            $message_with_user_count = (is_countable($data_all) && array_get($data_all,'0')!=='No data') ? count($data_all) : 0;
             return view('new.dashboard.chat')
                 ->with('user', $user)
+                ->with('message_with_user_count', $message_with_user_count)
                 ->with('m_time', $m_time)
                 ->with('isVip', $isVip)
                 ->with('vip_member', $vip_member->content)
                 ->with('normal_member', $normal_member->content)
                 ->with('alert_member', $alert_member->content)
                 ->with('letter_normal_member', $letter_normal_member->content)
-                ->with('letter_vip', $letter_vip->content);
+                ->with('letter_vip', $letter_vip->content)
+                ->with('letter_vvip', $letter_vvip->content);
+                ;
         }
     }
 
@@ -917,7 +926,7 @@ class Message_newController extends BaseController {
         $unsend_client_id = $payload['unsend_msg_client']??null;
         $user = Auth::user();
 
-        if($user->isVIP() &&  !isset($user->banned ) && !isset($user->implicitlyBanned)){
+        if(( $user->isVip() || $user->isVVIP() ) &&  !isset($user->banned ) && !isset($user->implicitlyBanned)){
             if($unsend_id)
                 $msg = Message::find($unsend_id);
             else if($unsend_client_id)
@@ -976,5 +985,36 @@ class Message_newController extends BaseController {
             session()->forget('via_by_essence_article_enter');
 
         }
+    }
+
+    public function deleteMutipleMessages(Request $request) {
+
+        $user=auth()->user();
+
+        $oneWeekList=Message::showAllMsgWithinTimeRange($user->id, 'oneWeek');
+        foreach ($oneWeekList as $key =>$value){
+            $item_user=\App\Models\User::findById($value['user_id']);
+            $oneWeekList[$key]['isBlurAvatar']= \App\Services\UserService::isBlurAvatar($item_user, $user);
+        }
+
+        $twoWeekList = collect($oneWeekList)->filter(function($item){
+            return $item['last_msg_created_at']<=date('Y-m-d H:i:s', strtotime('-2 weeks'));
+        });
+        $oneMonthList = collect($oneWeekList)->filter(function($item){
+            return $item['last_msg_created_at']<=date('Y-m-d H:i:s', strtotime('-1 months'));
+        });
+
+        return view('/new/dashboard/deleteMutipleMessages',compact('oneWeekList', 'twoWeekList', 'oneMonthList'))
+            ->with('user', $user);
+    }
+
+    public function deleteBetweenMsg_multiple(Request $request) {
+        $uid= auth()->user()->id;
+        $sList=$request->sList;
+        foreach ($sList as $key => $sid){
+            Message::deleteBetween($uid, $sid);
+            //logger('deleteBetween=>$uid'.$uid. ' $sid=>'.$sid);
+        }
+        return response()->json(['save' => 'ok']);
     }
 }

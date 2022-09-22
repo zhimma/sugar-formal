@@ -26,6 +26,12 @@ use App\Models\SetAutoBan;
 use App\Models\SimpleTables\users;
 use App\Models\SimpleTables\short_message;
 use App\Models\SuspiciousUser;
+use App\Models\VvipApplication;
+use App\Models\VvipInfo;
+use App\Models\VvipProveImg;
+use App\Notifications\AccountConsign;
+use App\Notifications\BannedUserImplicitly;
+use Illuminate\Database\Eloquent\Collection;
 use Illuminate\Http\Request;
 use App\Services\UserService;
 use App\Services\AdminService;
@@ -68,11 +74,13 @@ use App\Models\CheckPointUser;
 use App\Models\ComeFromAdvertise;
 use App\Models\IsBannedLog;
 use App\Models\StayOnlineRecord;
+use App\Models\StayOnlineRecordPageName;
 use App\Models\UserRecord;
 use App\Models\Visited;
 use App\Services\RealAuthAdminService;
 use App\Models\UserVideoVerifyRecord;
 use App\Models\Features;
+use Illuminate\Support\Facades\Log;
 
 
 class UserController extends \App\Http\Controllers\BaseController
@@ -272,6 +280,7 @@ class UserController extends \App\Http\Controllers\BaseController
             $sethideOnline = 0;
             $user = ValueAddedService::select('member_id', 'active')
                 ->where('member_id', $request->user_id)
+                ->where('service_name', 'hideOnline')
                 ->update(array(
                     'active' => $sethideOnline,
                     'expiry' => '0000-00-00 00:00:00',
@@ -282,10 +291,11 @@ class UserController extends \App\Http\Controllers\BaseController
         } else {
             //提供隱藏權限
             $sethideOnline = 1;
-            $tmpsql = ValueAddedService::select('expiry')->where('member_id', $request->user_id)->get()->first();
+            $tmpsql = ValueAddedService::select('expiry')->where('member_id', $request->user_id)->where('service_name', 'hideOnline')->get()->first();
             if (isset($tmpsql)) {
                 $user = ValueAddedService::select('member_id', 'active')
                     ->where('member_id', $request->user_id)
+                    ->where('service_name', 'hideOnline')
                     ->update(array(
                         'active' => $sethideOnline,
                         'business_id' => 'BackendFree',
@@ -1610,7 +1620,11 @@ class UserController extends \App\Http\Controllers\BaseController
             ->whereNotIn('created_at', function ($query) use ($uid) {
                 $query->select('created_at')
                     ->from(with(new warned_users())->getTable())
-                    ->where('member_id', $uid);
+                    ->where('member_id', $uid)
+                    ->where('expire_date', null)
+                    ->orWhere('expire_date', '>', Carbon::now())
+                    ->where('member_id', $uid)
+                    ;
             })
             ->orderBy('created_at', 'desc')->paginate(10);
 
@@ -1620,7 +1634,11 @@ class UserController extends \App\Http\Controllers\BaseController
             ->whereNotIn('created_at', function ($query) use ($uid) {
                 $query->select('created_at')
                     ->from(with(new banned_users())->getTable())
-                    ->where('member_id', $uid);
+                    ->where('member_id', $uid)
+                    ->where('expire_date', null)
+                    ->orWhere('expire_date', '>', Carbon::now())
+                    ->where('member_id', $uid)                    
+                    ;
             })
             ->orderBy('created_at', 'desc')->paginate(10);
 
@@ -2182,7 +2200,7 @@ class UserController extends \App\Http\Controllers\BaseController
                 $temp = $results->get()->toArray();
                 //Rearranges the messages query results.
                 $results = array();
-                array_walk($temp, function (&$value, &$key) use (&$results) {
+                array_walk($temp, function (&$value) use (&$results) {
                     $results[$value['id']] = $value;
                 });
                 //Senders' id.
@@ -3299,6 +3317,41 @@ class UserController extends \App\Http\Controllers\BaseController
 
         $reported->update([
             'is_write'      => $reported->is_write == 0 ? 1 : 0,
+        ]);
+
+        return response('', 201);
+    }
+
+    public function messageIsWrite(Request $request)
+    {
+        $admin = $this->admin->checkAdmin();
+
+        if (!$admin) {
+            return response()->json([
+                'message' => '找不到暱稱含有「站長」的使用者！請先新增再執行此步驟'
+            ], 403);
+        }
+
+        $toId = $request->toId;
+        $fromId   = $request->fromId;
+        $messageIndexId   = $request->messageIndexId;
+
+        $message = Message::where([
+            'to_id'     => $toId,
+            'from_id'   => $fromId,
+            'id'          => $messageIndexId
+        ])->first();
+
+        if (!$message) {
+            return response()->json([
+                'message' => '找不到此檢舉'
+            ], 403);
+        }
+
+        Message::where([
+            'id'          => $messageIndexId
+        ])->update([
+            'is_write'      => $message->is_write == 0 ? 1 : 0,
         ]);
 
         return response('', 201);
@@ -4930,7 +4983,13 @@ class UserController extends \App\Http\Controllers\BaseController
             })
             ->whereDoesntHave('check_point_name', function ($query) {
                 $query->where('name', 'step_1_ischecked');
-            });;
+            })
+            ->whereHas('user_meta', function ($query) {
+                $query->whereNotNull('smoking')->whereNotNull('drinking')
+                ->whereNotNull('marriage')->whereNotNull('education')->whereNotNull('about')->whereNotNull('style')
+                ->whereNotNull('birthdate')->whereNotNull('area')->whereNotNull('city');
+            });
+
 
         if ($request->date_start) {
             $datastart = $request->date_start;
@@ -5204,6 +5263,22 @@ class UserController extends \App\Http\Controllers\BaseController
         event(new \App\Events\CheckWarnedOfReport($request->user_id));
         return back()->with('message', '手機已刪除');
     }
+    
+    public function deleteBannedLog(Request $request)
+    {
+        $ban_id = $request->ban_id;
+        //直接刪
+        DB::table('is_banned_log')->where('id',$ban_id)->delete();
+        return back()->with('message', '該筆過往封鎖紀錄已刪除');
+    } 
+
+    public function deleteWarnedLog(Request $request)
+    {
+        $warn_id = $request->warn_id;
+        //直接刪
+        DB::table('is_warned_log')->where('id',$warn_id)->delete();
+        return back()->with('message', '該筆過往警示紀錄已刪除');
+    }      
 
     public function searchPhone(Request $request)
     {
@@ -5938,7 +6013,7 @@ class UserController extends \App\Http\Controllers\BaseController
             '*,
             @meta_update := (SELECT `updated_at` FROM `user_meta` WHERE `user_meta`.`user_id` = `users`.`id`) AS `meta_update`,
             @pic_update  := (SELECT max(`updated_at`) FROM `member_pic` WHERE `member_pic`.`member_id` = `users`.`id` AND `member_pic`.`deleted_at` IS NULL) AS `pic_update`,
-            @last_update := IF(@meta_update > @pic_update, @meta_update, @pic_update) AS `last_update`'
+            @last_update := IF(@meta_update > @pic_update, IFNULL(@meta_update, @pic_update), IFNULL(@pic_update, @meta_update)) AS `last_update`'
         );
 
         $users = $users->whereDoesntHave('suspicious')
@@ -5952,15 +6027,18 @@ class UserController extends \App\Http\Controllers\BaseController
                 $query->where('name', 'step_2_ischecked');
             })
             ->whereHas('user_meta', function ($query) {
-                $query->where('is_active', true);
+                $query->where('is_active', true)->whereNotNull('smoking')->whereNotNull('drinking')
+                ->whereNotNull('marriage')->whereNotNull('education')->whereNotNull('about')->whereNotNull('style')
+                ->whereNotNull('birthdate')->whereNotNull('area')->whereNotNull('city');
             });
+
 
         // 開始日期
         if ($request->date_start) {
 
             $users = $users->whereRaw(
                 "IF(
-                    (SELECT `updated_at` FROM `user_meta` WHERE `user_meta`.`user_id` = `users`.`id`) > (SELECT max(`updated_at`) FROM `member_pic` WHERE `member_pic`.`member_id` = `users`.`id` AND `member_pic`.`deleted_at` IS NULL),
+                    (SELECT `updated_at` FROM `user_meta` WHERE `user_meta`.`user_id` = `users`.`id`) > (SELECT IF(max(`updated_at`)=NULL,  max(`updated_at`), '0000-00-00') FROM `member_pic` WHERE `member_pic`.`member_id` = `users`.`id` AND `member_pic`.`deleted_at` IS NULL),
                     (SELECT `updated_at` FROM `user_meta` WHERE `user_meta`.`user_id` = `users`.`id`),
                     (SELECT max(`updated_at`) FROM `member_pic` WHERE `member_pic`.`member_id` = `users`.`id` AND `member_pic`.`deleted_at` IS NULL)
                 ) >= '$request->date_start'"
@@ -5972,7 +6050,7 @@ class UserController extends \App\Http\Controllers\BaseController
 
             $users = $users->whereRaw(
                 "IF(
-                    (SELECT `updated_at` FROM `user_meta` WHERE `user_meta`.`user_id` = `users`.`id`) > (SELECT max(`updated_at`) FROM `member_pic` WHERE `member_pic`.`member_id` = `users`.`id` AND `member_pic`.`deleted_at` IS NULL),
+                    (SELECT `updated_at` FROM `user_meta` WHERE `user_meta`.`user_id` = `users`.`id`) > (SELECT IF(max(`updated_at`)=NULL,  max(`updated_at`), '0000-00-00') FROM `member_pic` WHERE `member_pic`.`member_id` = `users`.`id` AND `member_pic`.`deleted_at` IS NULL),
                     (SELECT `updated_at` FROM `user_meta` WHERE `user_meta`.`user_id` = `users`.`id`),
                     (SELECT max(`updated_at`) FROM `member_pic` WHERE `member_pic`.`member_id` = `users`.`id` AND `member_pic`.`deleted_at` IS NULL)
                 ) <= '$request->date_end 23:59:59'"
@@ -6004,22 +6082,22 @@ class UserController extends \App\Http\Controllers\BaseController
         // 照片是否隱藏
         if ($request->hidden) {
 
-            $users = $users->whereHas('pic', function ($query) {
-                $query->where('isHidden', 1);
-            });
-
             $users = $users->whereHas('meta', function ($query) {
                 $query->where('isAvatarHidden', 1);
             });
+            //$users = $users->whereHas('pic', function ($query) {
+            //    $query->where('isHidden', 1);
+            //});
+            $users = $users->whereRaw('((select count(*) from `member_pic` where `users`.`id` = `member_pic`.`member_id` and `isHidden` = 1 and `member_pic`.`deleted_at` is null)>0 OR (select count(*) from `member_pic` where `users`.`id` = `member_pic`.`member_id`  and `member_pic`.`deleted_at` is null)=0)');
         } else {
-
-            $users = $users->whereHas('pic', function ($query) {
-                $query->where('isHidden', 0);
-            });
 
             $users = $users->whereHas('meta', function ($query) {
                 $query->where('isAvatarHidden', 0);
             });
+            //$users = $users->whereHas('pic', function ($query) {
+            //    $query->where('isHidden', 0);
+            //});
+            $users = $users->whereRaw('((select count(*) from `member_pic` where `users`.`id` = `member_pic`.`member_id` and `isHidden` = 0 and `member_pic`.`deleted_at` is null)>0 OR (select count(*) from `member_pic` where `users`.`id` = `member_pic`.`member_id`  and `member_pic`.`deleted_at` is null)=0)');
         }
 
         if ($request->order_by == 'last_login') {
@@ -6790,10 +6868,136 @@ class UserController extends \App\Http\Controllers\BaseController
 
     public function user_online_time_view(Request $request)
     {
-        $user_online_record = StayOnlineRecord::leftJoin('users', 'users.id', '=', 'stay_online_record.user_id')->whereNotNull('stay_online_time')->orderBy('stay_online_record.id', 'desc')->paginate(200);
+        $user_online_record = StayOnlineRecord::with('user')->selectRaw('user_id,client_storage_record_id,SUM(stay_online_time) AS stay_online_time')->whereNotNull('stay_online_time')->groupBy('user_id','stay_online_record.client_storage_record_id')->orderByDesc('stay_online_record.client_storage_record_id')->paginate(200);
         return view('admin.users.user_online_time_view')
             ->with('user_online_record', $user_online_record);
     }
+    
+    public function user_page_online_time_view(Request $request)
+    {
+
+
+        if(count($request->query())) {
+
+            $user_online_record = StayOnlineRecord::with('user');        
+        
+            $user_online_record ->whereNotNull('stay_online_time')
+                        ->whereNotNull('url')
+                        ->selectRaw('distinct user_id')
+                        ->orderByDesc('id');            
+                       
+
+            $user_online_record->whereHas('user',function($users) use ($request) {
+                $name = $request->name ? $request->name : "";
+                $email = $request->email ? $request->email : "";
+                $keyword = $request->keyword ? $request->keyword : "";
+                $phone = $request->phone ? $request->phone : "";
+                $title = $request->title ? $request->title : "";
+                $order_no = $request->order_no ? $request->order_no : "";                        
+                
+                if($email) {
+                    $users->where('email', 'like', '%' . $email . '%');
+                }
+                
+                if($name) {
+                    $users->where('name', 'like', '%' . $name . '%');
+                }
+            
+                if($keyword){
+                    $users->whereHas('meta',function($mq) use ($keyword) {
+                                $mq->where('about', 'like', '%'.$keyword.'%')
+                                    ->orWhere('style', 'like', '%'.$keyword.'%');
+                            });
+                } 
+
+                if($phone){
+                    $users = $users->whereHas('short_message',function($smsq) use ($phone) {$smsq->where('mobile', 'like', '%' . $phone . '%')->where('short_message.active',1);});
+                }
+
+                if($title){
+                    $users = $users->where('title', 'like', '%' . $title . '%');
+                }
+
+                if($order_no){
+                    $users = $users->whereHas('order',function($odq) use ($order_no){
+                        $odq->where('order_id', 'like', '%' . $order_no . '%');
+                    });
+                }                        
+            
+            });
+            
+        $user_online_record = $user_online_record->paginate(20,['user_id']);
+        
+            
+            
+        }
+
+        return view('admin.users.user_page_online_time_view')
+            ->with('user_online_record', $user_online_record??null);
+    } 
+
+    public function stay_online_record_page_name_view() 
+    {
+        $record_query = StayOnlineRecord::doesntHave('page_name')->selectRaw("'',url,''")->whereNotNull('stay_online_time')->whereNotNull('url')->orderByDesc('id')->distinct('url')
+                            ->where(function($q){
+                                $q->whereNull('title')->orWhere('title','');
+                            });
+        $page_name_list = StayOnlineRecordPageName::select('id','url','name')->whereNotNull('url')->where('url','!=','')
+                            ->union($record_query)
+                            ->orderBy('url')
+                            ->get()
+                            ;
+        return view('admin.users.stay_online_record_page_name_view')
+            ->with('row_list', $page_name_list);        
+    }
+    
+    public function stay_online_record_page_name_delete($id)
+    {
+        StayOnlineRecordPageName::where('id',$id)->delete();
+        return back()->with('message','頁面名稱刪除成功');
+    }  
+
+    public function stay_online_record_page_name_form(Request $request)
+    {
+        $entry = StayOnlineRecordPageName::where('id',$request->id)->firstOrNew();
+        return view('admin.users.stay_online_record_page_name_form')
+            ->with('entry', $entry); 
+    }
+
+    public function stay_online_record_page_name_switch(Request $request)
+    {
+        if(!$request->url)  return back();
+        $entry = StayOnlineRecordPageName::where('url',$request->url)->firstOrNew();
+        
+        if(!$entry->id) {
+            $entry->url = $request->url;
+            $entry->save();
+        }
+        $arr = ['id'=>$entry->id];
+        if($request->rtn) $arr['rtn'] = $request->rtn;
+        return redirect()->route('admin/stay_online_record_page_name_form',$arr); 
+    }      
+
+    public function stay_online_record_page_name_save(Request $request)
+    {
+        $entry = StayOnlineRecordPageName::where('id',$request->id)->firstOrNew();
+        $entry->url = $request->url;
+        $entry->name = $request->name;
+        $entry->save();
+        
+        if($request->id) {
+            $route_name = 'admin/stay_online_record_page_name_view';
+            
+            if($request->rtn=='record') {
+                $route_name = 'admin/user_page_online_time_view';
+            }
+            
+            return redirect()->route($route_name)
+                ->with('message','修改成功');
+        }
+        else
+            return back()->with('message','新增成功');
+    }        
 
     public function messageCheck(IndexRequest $request)
     {
@@ -6997,4 +7201,113 @@ class UserController extends \App\Http\Controllers\BaseController
 
         return back()->with('message', $message);
     }
+
+    //vvip
+    public function viewVvipApplication() {
+        $applicationData = VvipApplication::select(
+            'users.name',
+            'users.email',
+            'vvip_application.*',
+            'member_value_added_service.service_name',
+            'member_value_added_service.active as service_status',
+            'member_value_added_service.expiry',
+            'vvip_info.status as vvip_info_status',
+            'vvip_info.about',
+            'vvip_info.user_id as vvip_user_id'
+        )
+            ->leftJoin('users','users.id','vvip_application.user_id')
+            ->leftJoin('member_value_added_service','member_value_added_service.order_id','vvip_application.order_id')
+            ->leftJoin('vvip_info', 'vvip_info.user_id', 'vvip_application.user_id')
+            ->paginate(20);
+        return view('admin.users.vvipApplication', compact('applicationData'));
+    }
+
+    public function editVvipApplication(Request $request) {
+        Log::Info($request);
+        $id = $request->input('id');
+        $user_id = $request->input('user_id');
+        $user = User::find($user_id);
+        $status = $request->input('status');
+        $note = $request->input('note');
+
+        if($status == 3){
+            $deadline = $request->input('deadline');
+            $supplement_notice = $request->supplement_notice;
+            if($deadline==''){
+                return back()->with('message', '未填寫補件期限');
+            }
+            VvipApplication::where('id', $id)->update(['status' => $status, 'deadline' => $deadline." 23:59:59", 'note' => $note, 'supplement_notice' => $supplement_notice]);
+        }else if($status != ''){
+            VvipApplication::where('id', $id)->update(['status' => $status, 'note' => $note]);
+            if($status==1){
+                //VVIP付款中 經通過則取消原VIP
+                $vvipStatus = ValueAddedService::where('service_name', 'VVIP')->where('member_id', $user_id)->where('active', 1)->orderBy('created_at', 'desc')->first();
+                if(isset($vvipStatus)){
+                    VipLog::addToLog($user_id, 'Upgrade VVIP, system auto cancel VIP pay.', 'XXXXXXXXX', 0, 0);
+                    $userVIP = $user->getVipData(true);
+                    if($userVIP ?? false)
+                    {
+                        $userVIP->removeVIP();
+                    }
+                }
+            }
+        }else{
+            VvipApplication::where('id', $id)->update(['note' => $note]);
+        }
+
+        return back()->with('message', '資料已更新');
+    }
+
+    public function vvip_get_prove_img(Request $request) {
+        $user_id = $request->user_id;
+        $imgData = VvipProveImg::where('user_id',$user_id)->orderBy('created_at','desc')->get();
+        return response()->json(array(
+            'imgData' => $imgData,
+        ), 200);
+    }
+
+    public function vvipInfo_admin_edit(Request $request) {
+        $user_id = $request->input('user_id');
+        $vvipInfo = VvipInfo::where('user_id', $user_id)->first();
+        if($vvipInfo) {
+//            $vvipInfo = new VvipInfo();
+//            $vvipInfo->user_id = $user_id;
+            $vvipInfo->about = $request->input('about');
+            $vvipInfo->save();
+            return back()->with('message', '資料已更新');
+        }
+        return back()->with('message', '尚未產生會員頁資料');
+
+    }
+
+    public function vvipInfo_status_toggle(Request $request)
+    {
+        $user_id = $request->user_id;
+        $status = $request->status;
+        $vvipInfo = VvipInfo::where('user_id', $user_id)->first();
+        if($vvipInfo) {
+            $vvipInfo->status = $status;
+            $vvipInfo->save();
+            if($status == 1) {
+                $msg = '會員頁已啟用';
+            }else if($status == 0){
+                $msg = '會員頁已關閉';
+            }
+        }else{
+            $msg = '尚未產生會員頁資料';
+        }
+
+        echo json_encode(['msg' => $msg]);
+    }
+
+//    public function viewVvipInvite() {
+//        $inviteData = VvipInvite::select('a.name','a.email','vvip_invite.*', 'b.name as invite_name', 'b.email as invite_email')
+//            ->leftJoin('users as a','a.id','vvip_invite.user_id')
+//            ->leftJoin('users as b','b.id','vvip_invite.invite_user_id')
+//            ->paginate(20);
+//        return view('admin.users.vvipInvite', compact('inviteData'));
+//    }
+
+    //vvip end
+
 }

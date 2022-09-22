@@ -140,17 +140,16 @@
             width: calc(100% + 16px);
             /*margin: 0 10px;*/
             margin: 0 0 8px -8px;
-            padding: 8px 8px;
+            padding: 8px 8px 3px 8px;
             border-top-left-radius: 10px;
             border-top-right-radius: 10px;
             color: #ababab;
             border-bottom: #ababab 1px solid;
-
             overflow: hidden;
             text-overflow: ellipsis;
             display: -webkit-box;
-            -webkit-line-clamp: 1;
-            line-clamp: 1;
+            -webkit-line-clamp: 2;
+            line-clamp: 2;
             -webkit-box-orient: vertical;
             word-wrap: break-word;
             word-break: break-all;

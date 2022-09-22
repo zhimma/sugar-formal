@@ -68,6 +68,12 @@
 			width: 100%;
 			margin-left: -9px;
 		}
+		.fileuploader-theme-thumbnails{
+			background: white !important;
+		}
+		.fileuploader-items{
+			margin-bottom: -15px;
+		}
 	</style>
 @endsection
 

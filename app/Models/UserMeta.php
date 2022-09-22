@@ -548,12 +548,16 @@ class UserMeta extends Model
         $area2 = $request->area2 ?? null; 
         $city3 = $request->city3 ?? null;
         $area3 = $request->area3 ?? null;
+        $city4 = $request->city4 ?? null;
+        $area4 = $request->area4 ?? null;
+        $city5 = $request->city5 ?? null;
+        $area5 = $request->area5 ?? null;
         // 新增體重
         $weight = $request->weight ?? '';
         // 是否想進一步發展
         $is_pure_dating = $request->is_pure_dating ?? null;
         // 是否接受約外縣市
-        $is_dating_other_county = $request->is_dating_other_county ?? 0;
+        $is_dating_other_county = $request->is_dating_other_county ?? null;
         $relationship_status = $request->relationship_status ?? false;
 
         $xref_option_search_switch = false;
@@ -603,38 +607,133 @@ class UserMeta extends Model
             $area2,
             $city3,
             $area3,
+            $city4,
+            $area4,
+            $city5,
+            $area5,
             $weight){
             $query->select('*')->where('user_meta.birthdate', '<', Carbon::now()->subYears(18));
-            if($city || $city2 || $city3) {
-                $query->where(function($q) use ($city,$city2,$city3,$area,$area2,$area3) {
+            if($city || $city2 || $city3 || $city4 || $city5) {
+                $query->where(function($q) use ($city,$city2,$city3,$city4,$city5,$area,$area2,$area3,$area4,$area5) {
                     if($city) {
                         $q->orWhere(function($qq) use ($city,$area) {
-                            $qq->where('city','like','%'.$city.'%');
                             if($area) {
-                                $qq->where('area','like','%'.$area.'%');
+                                $qq->whereRaw('SUBSTRING_INDEX(city,",", 1) like "%'.$city.'%" AND SUBSTRING_INDEX(area,",", 1) like "%'.$area.'%"');
+                            }else{
+                                $qq->where('city','like','%'.$city.'%');
+                            }
+                        });
+                        $q->orWhere(function($qq) use ($city,$area) {
+                            if($area) {
+                                $qq->whereRaw('SUBSTRING_INDEX(SUBSTRING_INDEX(city,",", 2),",",-1) like "%'.$city.'%" AND SUBSTRING_INDEX(SUBSTRING_INDEX(area,",", 2),",",-1) like "%'.$area.'%"');
+                            }else{
+                                $qq->where('city','like','%'.$city.'%');
+                            }
+                        });
+                        $q->orWhere(function($qq) use ($city,$area) {
+                            if($area) {
+                                $qq->whereRaw('SUBSTRING_INDEX(city,",", -1) like "%'.$city.'%" AND SUBSTRING_INDEX(area,",", -1) like "%'.$area.'%"');
+                            }else{
+                                $qq->where('city','like','%'.$city.'%');
                             }
                         });
                     }
-                    
-                    
+
                     if($city2) {
                         $q->orWhere(function($qq) use ($city2,$area2) {
-                            $qq->where('city','like','%'.$city2.'%');
                             if($area2) {
-                                $qq->where('area','like','%'.$area2.'%');
+                                $qq->whereRaw('SUBSTRING_INDEX(city,",", 1) like "%'.$city2.'%" AND SUBSTRING_INDEX(area,",", 1) like "%'.$area2.'%"');
+                            }else{
+                                $qq->where('city','like','%'.$city2.'%');
+                            }
+                        });
+                        $q->orWhere(function($qq) use ($city2,$area2) {
+                            if($area2) {
+                                $qq->whereRaw('SUBSTRING_INDEX(SUBSTRING_INDEX(city,",", 2),",",-1) like "%'.$city2.'%" AND SUBSTRING_INDEX(SUBSTRING_INDEX(area,",", 2),",",-1) like "%'.$area2.'%"');
+                            }else{
+                                $qq->where('city','like','%'.$city2.'%');
+                            }
+                        });
+                        $q->orWhere(function($qq) use ($city2,$area2) {
+                            if($area2) {
+                                $qq->whereRaw('SUBSTRING_INDEX(city,",", -1) like "%'.$city2.'%" AND SUBSTRING_INDEX(area,",", -1) like "%'.$area2.'%"');
+                            }else{
+                                $qq->where('city','like','%'.$city2.'%');
                             }
                         });
                     }
 
                     if($city3) {
                         $q->orWhere(function($qq) use ($city3,$area3) {
-                            $qq->where('city','like','%'.$city3.'%');
                             if($area3) {
-                                $qq->where('area','like','%'.$area3.'%');
+                                $qq->whereRaw('SUBSTRING_INDEX(city,",", 1) like "%'.$city3.'%" AND SUBSTRING_INDEX(area,",", 1) like "%'.$area3.'%"');
+                            }else{
+                                $qq->where('city','like','%'.$city3.'%');
+                            }
+                        });
+                        $q->orWhere(function($qq) use ($city3,$area3) {
+                            if($area3) {
+                                $qq->whereRaw('SUBSTRING_INDEX(SUBSTRING_INDEX(city,",", 2),",",-1) like "%'.$city3.'%" AND SUBSTRING_INDEX(SUBSTRING_INDEX(area,",", 2),",",-1) like "%'.$area3.'%"');
+                            }else{
+                                $qq->where('city','like','%'.$city3.'%');
+                            }
+                        });
+                        $q->orWhere(function($qq) use ($city3,$area3) {
+                            if($area3) {
+                                $qq->whereRaw('SUBSTRING_INDEX(city,",", -1) like "%'.$city3.'%" AND SUBSTRING_INDEX(area,",", -1) like "%'.$area3.'%"');
+                            }else{
+                                $qq->where('city','like','%'.$city3.'%');
                             }
                         });
                     }                    
                     
+                    if($city4) {
+                        $q->orWhere(function($qq) use ($city4,$area4) {
+                            if($area4) {
+                                $qq->whereRaw('SUBSTRING_INDEX(city,",", 1) like "%'.$city4.'%" AND SUBSTRING_INDEX(area,",", 1) like "%'.$area4.'%"');
+                            }else{
+                                $qq->where('city','like','%'.$city4.'%');
+                            }
+                        });
+                        $q->orWhere(function($qq) use ($city4,$area4) {
+                            if($area4) {
+                                $qq->whereRaw('SUBSTRING_INDEX(SUBSTRING_INDEX(city,",", 2),",",-1) like "%'.$city4.'%" AND SUBSTRING_INDEX(SUBSTRING_INDEX(area,",", 2),",",-1) like "%'.$area4.'%"');
+                            }else{
+                                $qq->where('city','like','%'.$city4.'%');
+                            }
+                        });
+                        $q->orWhere(function($qq) use ($city4,$area4) {
+                            if($area4) {
+                                $qq->whereRaw('SUBSTRING_INDEX(city,",", -1) like "%'.$city4.'%" AND SUBSTRING_INDEX(area,",", -1) like "%'.$area4.'%"');
+                            }else{
+                                $qq->where('city','like','%'.$city4.'%');
+                            }
+                        });
+                    }  
+                    
+                    if($city5) {
+                        $q->orWhere(function($qq) use ($city5,$area5) {
+                            if($area5) {
+                                $qq->whereRaw('SUBSTRING_INDEX(city,",", 1) like "%'.$city5.'%" AND SUBSTRING_INDEX(area,",", 1) like "%'.$area5.'%"');
+                            }else{
+                                $qq->where('city','like','%'.$city5.'%');
+                            }
+                        });
+                        $q->orWhere(function($qq) use ($city5,$area5) {
+                            if($area5) {
+                                $qq->whereRaw('SUBSTRING_INDEX(SUBSTRING_INDEX(city,",", 2),",",-1) like "%'.$city5.'%" AND SUBSTRING_INDEX(SUBSTRING_INDEX(area,",", 2),",",-1) like "%'.$area5.'%"');
+                            }else{
+                                $qq->where('city','like','%'.$city5.'%');
+                            }
+                        });
+                        $q->orWhere(function($qq) use ($city5,$area5) {
+                            if($area5) {
+                                $qq->whereRaw('SUBSTRING_INDEX(city,",", -1) like "%'.$city5.'%" AND SUBSTRING_INDEX(area,",", -1) like "%'.$area5.'%"');
+                            }else{
+                                $qq->where('city','like','%'.$city5.'%');
+                            }
+                        });
+                    }  
                 });
             }            
 
@@ -752,7 +851,8 @@ class UserMeta extends Model
                     // $bannedUsers
                     $query->select('member_id')
                         ->from(with(new banned_users)->getTable());
-                });
+                })
+                ;
         }else {
             $query = User::with(['user_meta' => $constraint, 'vip', 'vas', 'aw_relation', 'fa_relation'])
                 ->select('*', \DB::raw("IF(is_hide_online = 1, hide_online_time, last_login) as last_login"))
@@ -881,9 +981,32 @@ class UserMeta extends Model
         
         // $execution_time = ($time_end - $time_start);
         // echo '<b>Total Execution Time:</b> '.($execution_time*1000).'Milliseconds';
+
+        $VvipDataQuery = $DataQuery->clone()->where('users.is_vvip',1);
+        $NormalDataQuery = $DataQuery->clone()->where('users.is_vvip',0);
+        $VvipDataQueryCount = $DataQuery->clone()->where('users.is_vvip',1)->count();
+
+        if($start < $VvipDataQueryCount && ($start + $count) > $VvipDataQueryCount)
+        {
+            $VvipPageData = $VvipDataQuery->skip($start)->take($VvipDataQueryCount - $start)->get();
+            $NormalPageData = $NormalDataQuery->skip(0)->take($count - ($VvipDataQueryCount - $start))->get();
+            $singlePageData = $VvipPageData->merge($NormalPageData);
+        }
+        else if($start < $VvipDataQueryCount)
+        {
+            $singlePageData = $VvipDataQuery->skip($start)->take($count)->get();
+        }
+        else
+        {
+            $singlePageData = $NormalDataQuery->skip($start - $VvipDataQueryCount)->take($count)->get();
+        }
+
+
+
+
         
-        $singlePageDataQuery = $DataQuery->skip($start)->take($count);
-        $singlePageData = $singlePageDataQuery->get();
+        //$singlePageDataQuery = $DataQuery->skip($start)->take($count);
+        //$singlePageData = $singlePageDataQuery->get();
         $singlePageCount = $singlePageData->count();
         
         $output = array(

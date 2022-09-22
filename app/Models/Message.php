@@ -18,6 +18,7 @@ use App\Services\AdminService;
 use Intervention\Image\Facades\Image;
 use App\Models\SimpleTables\banned_users;
 use App\Services\UserService;
+use Illuminate\Support\Facades\Cache;
 use YlsIdeas\FeatureFlags\Facades\Features;
 
 use function Clue\StreamFilter\fun;
@@ -55,6 +56,7 @@ class Message extends Model
 
     static $date = null;
 
+    public static $truthMessages = [];
     /*
     |--------------------------------------------------------------------------
     | relationships
@@ -230,11 +232,11 @@ class Message extends Model
         if (!isset($msgUser)){
             return false;
         }
-        return $isVip && !$msgUser->isVip() && $user->user_meta->notifhistory == '顯示VIP會員信件';
+        return $isVip && !$msgUser->isVipOrIsVvip() && $user->user_meta->notifhistory == '顯示VIP會員信件';
     }
 
     public static function showNoVip($user, $msgUser, $isVip = false) {
-        return $isVip && !$msgUser->isVip() && ($user->user_meta->notifhistory == '顯示普通會員信件' || $user->user_meta->notifhistory == '');
+        return $isVip && !$msgUser->isVipOrIsVvip() && ($user->user_meta->notifhistory == '顯示普通會員信件' || $user->user_meta->notifhistory == '');
     }
 
     public static function getLastSender($uid, $sid) {
@@ -306,7 +308,7 @@ class Message extends Model
         return $saveMessages;
     }
 
-    public static function chatArrayAJAX($uid, $messages, $isVip, $noVipCount = 0) {
+    public static function chatArrayAJAX($uid, $messages, $isVip, $noVipCount = 0,&$truthMessages = []) {
         $saveMessages = [];
         $tempMessages = [];
         $isAllDelete = true;
@@ -480,11 +482,11 @@ class Message extends Model
                 order by `created_at` desc 
             "));
         }
-
+        $truthMessages = [];
         if($isVip == 1)
-            $saveMessages = Message::chatArrayAJAX($uid, $messages, 1);
+            $saveMessages = Message::chatArrayAJAX($uid, $messages, 1,0,$truthMessages);
         else if($isVip == 0) {
-            $saveMessages = Message::chatArrayAJAX($uid, $messages, 0, $noVipCount);
+            $saveMessages = Message::chatArrayAJAX($uid, $messages, 0, $noVipCount,$truthMessages);
         }
 
         if(count($saveMessages) == 0){
@@ -528,7 +530,7 @@ class Message extends Model
         $block_people =  Config::get('social.block.block-people');
         $userBlockList = \App\Models\Blocked::select('blocked_id')->where('member_id', $user->id)->get();
         $banned_users = \App\Services\UserService::getBannedId($user->id);
-        $isVip = $user->isVip();
+        $isVip = $user->isVipOrIsVvip();
         foreach ($messages as $key => &$message){
             $to_id = isset($message["to_id"]) ? $message["to_id"] : null;
             $from_id = isset($message["from_id"]) ? $message["from_id"] : null;
@@ -661,7 +663,7 @@ class Message extends Model
 		if(!$isAdminSender) 
         {
             $includeUnsend = $includeDeleted;
-            if($user->isVip()) {
+            if($user->isVip() || $user->isVVIP()) {
                 self::$date =\Carbon\Carbon::parse("180 days ago")->toDateTimeString();
             }else {
                 self::$date = \Carbon\Carbon::parse("30 days ago")->toDateTimeString();
@@ -723,7 +725,17 @@ class Message extends Model
         }
         $query = $query->where('created_at','>=',self::$date)
                     ->orderBy('created_at', 'desc')
-                    ->paginate(10);
+                    ;
+        
+        if($user->engroup==1 && $user->isVip()) {
+            $is_truth_msg =( clone $query)->where('is_truth',1)->where('is_row_delete_1',0)->where('is_row_delete_2',0)->orderByDesc('id')->first();
+            if($is_truth_msg && !in_array(['to_id' => $is_truth_msg->to_id, 'from_id' => $is_truth_msg->from_id], Self::$truthMessages) && !in_array(['to_id' => $is_truth_msg->from_id, 'from_id' => $is_truth_msg->to_id], Self::$truthMessages)) {
+                array_push(Self::$truthMessages, ['to_id' => $is_truth_msg->to_id, 'from_id' => $is_truth_msg->from_id]);
+            }
+        }        
+       
+       $query = $query->paginate(10);
+        
         return $query;
     }
 
@@ -752,7 +764,7 @@ class Message extends Model
         if((isset($banned_users) && ($banned_users->expire_date == null || $banned_users->expire_date >= Carbon::now())) || isset($BannedUsersImplicitly)){
             return 0;
         }
-        if($user->isVip()) {
+        if($user->isVip() || $user->isVVIP()) {
             self::$date =\Carbon\Carbon::parse("180 days ago")->toDateTimeString();
         }else {
             self::$date = \Carbon\Carbon::parse("30 days ago")->toDateTimeString();
@@ -920,7 +932,7 @@ class Message extends Model
             return false;
         }
 
-        if($user->isVip()) {
+        if($user->isVip() || $user->isVVIP()) {
             self::$date =\Carbon\Carbon::parse("180 days ago")->toDateTimeString();
         }else {
             self::$date = \Carbon\Carbon::parse("30 days ago")->toDateTimeString();
@@ -1049,7 +1061,7 @@ class Message extends Model
 
     public static function postByArr($arr)
     {
-        
+
 
         $tip_action = array_key_exists('tip_action',$arr) ? $arr['tip_action'] : true;
         $sys_notice = array_key_exists('sys_notice',$arr) ? $arr['sys_notice'] : 0;
@@ -1074,6 +1086,7 @@ class Message extends Model
         $message->is_single_delete_2 = 0;
         $message->temp_id = 0;
         $message->sys_notice = $sys_notice;
+        $message->is_truth = ($arr['is_truth'] ?? 0)?intval($message->existIsTrueQuota()):0;
         if($message->save()) {
             if($message->client_id??null ) {
                 Message::where('parent_client_id',$message->client_id)
@@ -1234,5 +1247,60 @@ class Message extends Model
     public function toUser()
     {
         return $this->belongsTo(User::class, 'to_id');
+    }
+
+    public static function showAllMsgWithinTimeRange($user_id, $timeRange)
+    {
+        $user = auth()->user() ?? User::find($user_id);
+        $data_all = Message_new::allSendersAJAX($user->id, $user->isVip(),'all');
+        switch ($timeRange){
+            case 'oneWeek':
+                $time=date('Y-m-d H:i:s', strtotime('-1 week'));
+                break;
+            case 'twoWeek':
+                $time=date('Y-m-d H:i:s', strtotime('-2 weeks'));
+                break;
+            case 'oneMonth':
+                $time=date('Y-m-d H:i:s', strtotime('-1 months'));
+                break;
+            default:
+                $time='';
+                break;
+        }
+
+        $result=array();
+        if(is_countable($data_all) && array_get($data_all,'0')!=='No data'){
+            foreach ($data_all as $key =>$data){
+                if($data['created_at'] <= $time){
+                    $msg_user=$data['from_id']==$user->id ? $data['to_id'] : $data['from_id'];
+                    $result[$msg_user]['last_msg_content']=$data['content'];
+                    $result[$msg_user]['last_msg_created_at']=$data['created_at'];
+                    $result[$msg_user]['user_id']=$data['user_id'];
+                    $result[$msg_user]['user_name']=$data['user_name'];
+                    $result[$msg_user]['user_engroup']=$data['engroup'];
+                    $result[$msg_user]['user_pic']=$data['pic'];
+                }
+            }
+        }
+        return $result;
+    }
+    
+    public static function existIsTrueQuotaByFromUser($from_user) 
+    {
+        if($from_user)
+            return !intval($from_user->message()->where('is_truth',1)->where('created_at','>=',Carbon::now()->subDay())->count());
+    }    
+    
+    public function existIsTrueQuota() 
+    {
+        if($this->fromUser)
+            return $this->existIsTrueQuotaByFromUser($this->fromUser);
+    }
+
+    public static function retrieve($user_id, $from_date)
+    {
+        return Cache::remember('message_' . $user_id, 3600, function () use ($user_id, $from_date) {
+            return Message::where('from_id', $user_id)->where('created_at', '>=', $from_date)->get();
+        });
     }
 }

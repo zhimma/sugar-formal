@@ -8,6 +8,7 @@ use App\Services\ECPay_AllInOne;
 use App\Services\ECPay_PaymentMethod;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Config;
+use App\Services\EnvironmentService;
 
 class ECPayment extends BaseController
 {
@@ -25,25 +26,25 @@ class ECPayment extends BaseController
 
         //new payment
         if($request->type == 'cc_quarterly_payment'){
-            $amount = 2964;
+            $amount = 3988;
             $PeriodType = 'M';
             $Frequency = '3';
-            $PeriodAmount = '2964';
+            $PeriodAmount = '3988';
             $ExecTimes = '99';
         }else if($request->type == 'cc_monthly_payment'){
-            $amount = 1388;
+            $amount = 1899;
             $PeriodType = 'M';
             $Frequency = '1';
-            $PeriodAmount = '1388';
+            $PeriodAmount = '1899';
             $ExecTimes = '99';
         }else if($request->type == 'one_quarter_payment'){
-            $amount = 2964;
+            $amount = 3988;
             $PeriodType = '';
             $Frequency = '';
             $PeriodAmount = '';
             $ExecTimes = '';
         }else if($request->type == 'one_month_payment'){
-            $amount = 1388;
+            $amount = 1899;
             $PeriodType = '';
             $Frequency = '';
             $PeriodAmount = '';
@@ -53,7 +54,7 @@ class ECPayment extends BaseController
         try {
             $obj = new ECPay_AllInOne();
 
-            if(\App::environment('local')){
+            if(EnvironmentService::isLocalOrTestMachine()){
                 $envStr = '_test';
             }
             else{
@@ -187,7 +188,7 @@ class ECPayment extends BaseController
         try {
             $obj = new ECPay_AllInOne();
 
-            if (\App::environment('local')) {
+            if (EnvironmentService::isLocalOrTestMachine()) {
                 $envStr = '_test';
             } else {
                 $envStr = '';
@@ -260,7 +261,7 @@ class ECPayment extends BaseController
         try {
             $obj = new ECPay_AllInOne();
 
-            if (\App::environment('local')) {
+            if (EnvironmentService::isLocalOrTestMachine()) {
                 $envStr = '_test';
             } else {
                 $envStr = '';
@@ -348,7 +349,7 @@ class ECPayment extends BaseController
         try {
             $obj = new ECPay_AllInOne();
 
-            if(\App::environment('local')){
+            if(EnvironmentService::isLocalOrTestMachine()){
                 $envStr = '_test';
             }
             else{
@@ -413,6 +414,10 @@ class ECPayment extends BaseController
             if($request->remainDays){
                 $obj->Send['CustomField2']  = $request->remainDays;
             }
+            //VVIP定期定額紀錄申請方案
+            if($request->plan){
+                $obj->Send['CustomField2']  = $request->plan;
+            }
             //訂單的商品資料
             array_push($obj->Send['Items'], array('Name' => "SG-".$request->service_name."(".$request->userId.")", 'Price' => (int)$amount, 'Currency' => "元", 'Quantity' => (int) "1", 'URL' => ""));
 
@@ -432,7 +437,7 @@ class ECPayment extends BaseController
         try {
             $obj = new ECPay_AllInOne();
 
-            if (\App::environment('local')) {
+            if (EnvironmentService::isLocalOrTestMachine()) {
                 $envStr = '_test';
             } else {
                 $envStr = '';

@@ -40,6 +40,8 @@ class Message_new extends Model
 
     static $date = null;
     
+    public static $truthMessages = [];
+    
     /*
     |--------------------------------------------------------------------------
     | relationships
@@ -152,13 +154,13 @@ class Message_new extends Model
 
     // show message setting
     public static function onlyShowVip($user, $msgUser, $isVip = false) {
-        //return $user->isVip() && !$msgUser->isVip() && $user->meta_()->notifhistory == '顯示VIP會員信件';
-        return $isVip && !$msgUser->isVip() && $user->meta_('notifhistory')->notifhistory == '顯示VIP會員信件';
+        //return $user->isVipOrIsVvip() && !$msgUser->isVipOrIsVvip() && $user->meta_()->notifhistory == '顯示VIP會員信件';
+        return $isVip && !$msgUser->isVipOrIsVvip() && $user->meta_('notifhistory')->notifhistory == '顯示VIP會員信件';
     }
 
     public static function showNoVip($user, $msgUser, $isVip = false) {
-        //return $user->isVip() && !$msgUser->isVip() && ($user->meta_()->notifhistory == '顯示普通會員信件' || $user->meta_()->notifhistory == '');
-        return $isVip && !$msgUser->isVip() && ($user->meta_('notifhistory')->notifhistory == '顯示普通會員信件' || $user->meta_()->notifhistory == '');
+        //return $user->isVipOrIsVvip() && !$msgUser->isVipOrIsVvip() && ($user->meta_()->notifhistory == '顯示普通會員信件' || $user->meta_()->notifhistory == '');
+        return $isVip && !$msgUser->isVipOrIsVvip() && ($user->meta_('notifhistory')->notifhistory == '顯示普通會員信件' || $user->meta_()->notifhistory == '');
     }
 
     public static function getLastSender($uid, $sid) {
@@ -311,6 +313,10 @@ class Message_new extends Model
                 array_push($saveMessages, ['to_id' => $message->to_id, 'from_id' => $message->from_id, 'temp_id' => $message->temp_id,'all_delete_count' => $message->all_delete_count, 'is_row_delete_1' => $message->is_row_delete_1, 'is_row_delete_2' => $message->is_row_delete_2, 'is_single_delete_1' => $message->is_single_delete_1, 'is_single_delete_2' => $message->is_single_delete_2, 'sender' => $message->sender, 'receiver' => $message->receiver, 'content' => $message->content, 'read' => $message->read, 'created_at' => $message->created_at]);
                 //$noVipCount++;
             }
+            
+            if(!$message->is_row_delete_1 && !$message->is_row_delete_2 && !in_array(['to_id' => $message->to_id, 'from_id' => $message->from_id], Self::$truthMessages) && !in_array(['to_id' => $message->from_id, 'from_id' => $message->to_id], Self::$truthMessages) && $message->is_truth) {
+                array_push(Self::$truthMessages, ['to_id' => $message->to_id, 'from_id' => $message->from_id]);
+            }             
         }
 
         //if($isAllDelete) return NULL;
@@ -526,15 +532,22 @@ class Message_new extends Model
         if ($messages instanceof Illuminate\Database\Eloquent\Collection) {
             $messages = $messages->toArray();
         }
-	
+        
+        $truthMessages = Self::$truthMessages??[];
+        if(!$truthMessages) $truthMessages = [];
 		if($uid)
 			$user=User::find($uid);
         else
 			$user = Auth::user();
         $block_people =  Config::get('social.block.block-people');
+        // $isVip = $user->isVip();
+        // $aa=[];
+		// $admin_id = AdminService::checkAdmin()->id;
         $isVip = $user->isVip();
         $aa=[];
 		$admin_id = AdminService::checkAdmin()->id;
+        $messagesForTruth = [];
+
         foreach ($messages as $key => &$message){
 			
             if($message['sender']->engroup==$message['receiver']->engroup){
@@ -553,7 +566,7 @@ class Message_new extends Model
             }
             unset($message['sender']);
             unset($message['receiver']);
-            if(!$msgUser){
+            if(!($msgUser ?? false )){
                 unset($messages[$key]);
                 continue;
             }
@@ -584,6 +597,7 @@ class Message_new extends Model
                 $messages[$key]['user_id'] = $msgUser->id;
                 $messages[$key]['created_at'] = $message['created_at']->toDateTimeString();
                 $messages[$key]['user_name'] = $msgUser->name;
+                $messages[$key]['engroup'] = $msgUser->engroup;
                 $messages[$key]['isAvatarHidden'] = $msgUser->user_meta->isAvatarHidden;
                 $messages[$key]['blurry_avatar'] = $msgUser->user_meta->blurryAvatar;
                 $messages[$key]['blurry_life_photo'] = $msgUser->user_meta->blurryLifePhoto;
@@ -597,6 +611,7 @@ class Message_new extends Model
                 }
                 $messages[$key]['read_n'] = $mm[$msgUser->id] ?? 0;
                 $messages[$key]['isVip'] = $msgUser->isVip();
+                $messages[$key]['isVVIP'] = $msgUser->isVVIP();
                 //$messages[$key]['isWarned']=$msgUser->meta_()->isWarned;
                 if(($msgUser->user_meta->isWarned==1 || $msgUser->aw_relation ) && $msgUser->id != 1049){
                     $messages[$key]['isWarned']=1;
@@ -612,6 +627,17 @@ class Message_new extends Model
                 
                 $messages[$key]['exchange_period']=$msgUser->exchange_period;
                 $messages[$key]['mCount']=$mCount;
+            
+                if(in_array(['to_id' => $message['to_id'], 'from_id' => $message['from_id']],Self::$truthMessages)
+                  || in_array(['to_id' => $message['from_id'], 'from_id' => $message['to_id']],Self::$truthMessages)
+                ) {
+                    $messages[$key]['is_truth'] = 1;
+                    $messagesForTruth[] = $messages[$key];
+                    unset($messages[$key]);
+                }
+                else {
+                    $messages[$key]['is_truth'] = 0;
+                }
             }
             else{
                 Log::info('Null object found, $user: ' . $user->id);
@@ -623,6 +649,7 @@ class Message_new extends Model
                 }
             }
         }
+        $messages = array_merge($messagesForTruth,$messages);
         //$messages['date'] = self::$date;
         //array_multisort($messages[1]['created_at'],SORT_DESC, SORT_STRING);
         return $messages;

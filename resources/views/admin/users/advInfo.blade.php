@@ -689,13 +689,14 @@
     $isEverWarned_log['warned_admin']=null;
     if(isset($isEverWarned) && count($isEverWarned)>0){
         foreach($isEverWarned as $key =>$row){
+            $isEverWarned_log[$key]['id']=$row->id;
             $isEverWarned_log[$key]['created_at']=$row->created_at;
             $isEverWarned_log[$key]['reason']=$row->reason;
             $isEverWarned_log[$key]['vip_pass']=$row->vip_pass;
             $isEverWarned_log[$key]['adv_auth']=$row->adv_auth;
-            $isEverWarned_cancel=\App\Models\AdminActionLog::where('target_id', $user->id)->where('act','解除站方警示')->orderByDesc('created_at')->skip($key)->first();
+            $isEverWarned_cancel=($isWarned->count() && $key || !$isWarned->count())?\App\Models\AdminActionLog::where('target_id', $user->id)->where('act','解除站方警示')->orderByDesc('created_at')->skip($isWarned && $key?$key-1:$key)->first():null;
             $isEverWarned_log[$key]['cancal_admin']=$isEverWarned_cancel? \App\Models\User::findById($isEverWarned_cancel->operator??''):'';
-            $isEverWarned_log[$key]['cancal_time']=$isEverWarned_cancel?$isEverWarned_cancel->created_at:'';
+            $isEverWarned_log[$key]['cancal_time']=$isEverWarned_cancel?$isEverWarned_cancel->created_at:($isWarned->count() && !$key?'尚未解除':'');
         }
         $isEverWarned_warneder=\App\Models\AdminActionLog::where('target_id', $user->id)->where('act','站方警示')->orderByDesc('created_at')->first();
         $isEverWarned_log['warned_admin']=$isEverWarned_warneder? \App\Models\User::findById($isEverWarned_warneder->operator??'') : null;
@@ -705,14 +706,15 @@
     $isEverBanned_log['banneder_admin']= null;
     if(isset($isEverBanned) && count($isEverBanned)>0){
         foreach($isEverBanned as $key =>$row){
+            $isEverBanned_log[$key]['id']=$row->id;
             $isEverBanned_log[$key]['created_at']=$row->created_at;
             $isEverBanned_log[$key]['reason']=$row->reason;
             $isEverBanned_log[$key]['expire_date']=$row->expire_date;
             $isEverBanned_log[$key]['vip_pass']=$row->vip_pass;
             $isEverBanned_log[$key]['adv_auth']=$row->adv_auth;
-            $isEverBanned_cancel=\App\Models\AdminActionLog::where('target_id', $user->id)->where('act','解除封鎖')->orderByDesc('created_at')->skip($key)->first();
+            $isEverBanned_cancel=($isBanned->count() && $key || !$isBanned->count())?\App\Models\AdminActionLog::where('target_id', $user->id)->where('act','解除封鎖')->orderByDesc('created_at')->skip($isBanned->count() && $key?$key-1:$key)->first():null;
             $isEverBanned_log[$key]['cancal_admin']=$isEverBanned_cancel? \App\Models\User::findById($isEverBanned_cancel->operator??'') :'';
-            $isEverBanned_log[$key]['cancal_time']=$isEverBanned_cancel? $isEverBanned_cancel->created_at:'';
+            $isEverBanned_log[$key]['cancal_time']=$isEverBanned_cancel? $isEverBanned_cancel->created_at:($isBanned->count() && !$key?'尚未解除':'');
         }
         $isEverBanned_banneder=\App\Models\AdminActionLog::where('target_id', $user->id)->where('act','封鎖會員')->orderByDesc('created_at')->first();
         $isEverBanned_log['banneder_admin']=$isEverBanned_banneder? \App\Models\User::findById($isEverBanned_banneder->operator??'') : null;
@@ -798,146 +800,173 @@
 </table>
 
 <br>
-@if($isEverWarned_log || $isEverBanned_log || $isWarned_show || $isBanned_show)
     <h4>封鎖與警示紀錄</h4>
-    <table class="table table-hover table-bordered" style="width: 60%;">
+    <table class="table table-hover table-bordered" style="width: 80%;">
         <tr>
-            <th width="20%"></th>
-            @if(count($isBanned_show)>0 || count($isEverBanned_log)>0)
-                <th width="20%">是否封鎖</th>
-            @endif
-            @if(count($isWarned_show)>0 || count($isEverWarned_log)>0 || $userMeta->isWarned==1)
-                <th width="20%">是否警示</th>
-            @endif
-            @if(count($isEverBanned_log)>0)
-                @if(!is_null(array_get($isEverBanned_log,'0')))
-                    <th id="showMore_banned" width="20%" @if(count($isEverBanned)>1) title="封鎖紀錄" @endif>過往封鎖紀錄</th>
-                @endif
-            @endif
-            @if(count($isEverWarned_log)>0)
-                @if(!is_null(array_get($isEverWarned_log,'0')))
-                    <th id="showMore_warned" width="20%" @if(count($isEverWarned)>1) title="警示紀錄" @endif>過往警示紀錄</th>
-                @endif
-            @endif
+           <th width="20%"></th>
+           <th width="20%">是否封鎖</th>
+           <th width="20%">是否警示</th>
+           <th id="showMore_banned" width="20%" @if(count($isEverBanned)>1) title="封鎖紀錄" @endif>過往封鎖紀錄</th>
+           <th id="showMore_warned" width="20%" @if(count($isEverWarned)>1) title="警示紀錄" @endif>過往警示紀錄</th>
         </tr>
         <tr>
-            <th >時間</th>
-            @if(count($isBanned_show)>0 || count($isEverBanned_log)>0)
-                <td>{{ array_get($isBanned_show,'created_at') }}</td>
+            <th >時間</th>        
+            <td>
+            @if(($isBanned_show && count($isBanned_show)>0 && array_get($isBanned_show,'created_at')) )
+                {{ array_get($isBanned_show,'created_at') }}
             @endif
-            @if($userMeta->isWarned==1)
-                <td>{{ $userMeta->isWarnedTime }}</td>
-            @elseif(count($isWarned_show)>0 || count($isEverWarned_log)>0)
-                <td>{{ array_get($isWarned_show,'created_at') }}</td>
+            </td>
+            <td>
+            @if($userMeta && $userMeta->isWarned==1 && $userMeta->isWarnedTime)
+                {{ $userMeta->isWarnedTime }}
+            @elseif($isWarned_show && count($isWarned_show)>0 && array_get($isWarned_show,'created_at'))
+                {{ array_get($isWarned_show,'created_at') }}
             @endif
-            @if(count($isEverBanned_log)>0)
-                @if(!is_null(array_get($isEverBanned_log,'0')))
-                    <td>{{ array_get($isEverBanned_log,'0.created_at') }}</td>
+            </td>
+            <td>
+            @if($isEverBanned_log &&count($isEverBanned_log)>0)
+                @if(!is_null(array_get($isEverBanned_log,'0')))                    
+                {{ array_get($isEverBanned_log,'0.created_at') }}
                 @endif
             @endif
-            @if(count($isEverWarned_log)>0)
-                @if(!is_null(array_get($isEverWarned_log,'0')))
-                    <td>{{ array_get($isEverWarned_log,'0.created_at') }}</td>
+            </td>
+            <td>
+            @if($isEverWarned_log && count($isEverWarned_log)>0)
+                @if(!is_null(array_get($isEverWarned_log,'0')))                    
+                 {{ array_get($isEverWarned_log,'0.created_at') }}
                 @endif
             @endif
+            </td>
         </tr>
         <tr>
             <th>後台解除封鎖時間</th>
-            <td>@if(count($isBanned)>0){{ array_get($isBanned_show,'cancal_time') }}@endif</td>
-            <td>@if(count($isWarned)>0){{ array_get($isWarned_show,'cancal_time') }}@endif</td>
-            @if(count($isEverBanned_log)>0)
-                @if(!is_null(array_get($isEverBanned_log,'0')))
-                    <td>{{ array_get($isEverBanned_log,'0.cancal_time') }}</td>
+            <td>@if($isBanned && count($isBanned)>0){{ array_get($isBanned_show,'cancal_time') }}@endif</td>
+            <td>@if($isWarned && count($isWarned)>0){{ array_get($isWarned_show,'cancal_time') }}@endif</td>
+            <td>
+            @if($isEverBanned_log && count($isEverBanned_log)>0)
+                @if(!is_null(array_get($isEverBanned_log,'0')))                    
+                {{ array_get($isEverBanned_log,'0.cancal_time') }}
+                @endif
+            @endif                    
+            </td>
+            <td>
+            @if($isEverWarned_log && count($isEverWarned_log)>0)
+                @if(!is_null(array_get($isEverWarned_log,'0')))                    
+                {{ array_get($isEverWarned_log,'0.cancal_time') }}
                 @endif
             @endif
-            @if(count($isEverWarned_log)>0)
-                @if(!is_null(array_get($isEverWarned_log,'0')))
-                    <td>{{ array_get($isEverWarned_log,'0.cancal_time') }}</td>
-                @endif
-            @endif
+            </td>
         </tr>
         <tr>
             <th>原因</th>
-            @if(count($isBanned_show)>0 || count($isEverBanned_log)>0)
-                <td>{{ array_get($isBanned_show,'reason') }}</td>
+            <td>
+            @if($isBanned_show && count($isBanned_show)>0 && array_get($isBanned_show,'reason'))
+                {{ array_get($isBanned_show,'reason') }}
             @endif
-            @if(isset($isWarned) && count($isWarned)>0)
+            </td>
+            <td>
+            @if(isset($isWarned) && count($isWarned)>0)            
                 @if($userMeta->isWarned==1)
-                    <td>檢舉警示</td>
+                    檢舉警示
                 @elseif(count($isWarned_show)>0 || count($isEverWarned_log)>0)
-                    <td>{{ array_get($isWarned_show,'reason') }}</td>
+                    {{ array_get($isWarned_show,'reason') }}
                 @endif
-            @else
-                <td></td>
-            @endif
-            @if(count($isEverBanned_log)>0)
-                @if(!is_null(array_get($isEverBanned_log,'0')))
-                    <td>{{ array_get($isEverBanned_log,'0.reason') }}</td>
-                @endif
-            @endif
-            @if(count($isEverWarned_log)>0)
-                @if(!is_null(array_get($isEverWarned_log,'0')))
-                    <td>{{ array_get($isEverWarned_log,'0.reason') }}</td>
+            @endif                
+            </td>
+            <td>
+            @if($isEverBanned_log && count($isEverBanned_log)>0)
+                @if(array_get($isEverBanned_log,'0.reason'))
+                {{ array_get($isEverBanned_log,'0.reason') }}  
+                @elseif(array_get($isEverBanned_log,'0.id'))
+                    null
                 @endif
             @endif
+            @if(array_get($isEverBanned_log,'0.id'))
+                <form action="{{ route('bannedLogDelete') }}" method='POST'  style="float:right;">
+                    {!! csrf_field() !!}
+                    <input type="hidden" name="ban_id" value="{{ array_get($isEverBanned_log,'0.id') }}">
+                    <button type="submit" class="text-white btn btn-danger delete_banned_log_submit" style="float: right;">刪除</button>
+                </form>             
+            @endif
+            </td>
+            <td>
+            @if($isEverWarned_log && count($isEverWarned_log)>0)
+                @if(array_get($isEverWarned_log,'0.reason'))
+                {{ array_get($isEverWarned_log,'0.reason') }}
+                @elseif(array_get($isEverWarned_log,'0.id'))
+                null
+                @endif
+            @endif
+            @if(array_get($isEverWarned_log,'0.id'))
+                <form action="{{ route('warnedLogDelete') }}" method='POST' style="float:right;">
+                    {!! csrf_field() !!}
+                    <input type="hidden" name="warn_id" value="{{ array_get($isEverWarned_log,'0.id') }}">
+                    <button type="submit" class="text-white btn btn-danger delete_warned_log_submit" style="float: right;">刪除</button>
+                </form>            
+            @endif
+            </td>
         </tr>
         <tr>
             <th>到期日</th>
-            @if(count($isBanned_show)>0 || count($isEverBanned_log)>0)
-                <td>{{ !is_null(array_get($isBanned_show,'created_at')) && !is_null(array_get($isBanned_show,'expire_date')) ? array_get($isBanned_show,'expire_date') : (count($isBanned)>0 ? '永久' : '') }}</td>
+            <td>
+            @if(($isBanned_show && count($isBanned_show)>0) )
+                {{ !is_null(array_get($isBanned_show,'created_at')) && !is_null(array_get($isBanned_show,'expire_date')) ? array_get($isBanned_show,'expire_date') : (count($isBanned)>0 ? '永久' : '') }}
             @endif
+            </td>
+            <td>
             @if(isset($isWarned) && count($isWarned)>0)
                 @if($userMeta->isWarned==1)
-                    <td>永久</td>
+                    永久
                 @elseif(count($isWarned_show)>0 || count($isEverWarned_log)>0)
-                    <td>{{ !is_null(array_get($isWarned_show,'created_at')) && !is_null(array_get($isWarned_show,'expire_date')) ? array_get($isWarned_show,'expire_date') : (count($isWarned)>0 ? '永久' : '') }}</td>
+                    {{ !is_null(array_get($isWarned_show,'created_at')) && !is_null(array_get($isWarned_show,'expire_date')) ? array_get($isWarned_show,'expire_date') : (count($isWarned)>0 ? '永久' : '') }}
                 @endif
-            @else
-                <td></td>
             @endif
+            </td>
+            <td>
             @if(count($isEverBanned_log)>0)
                 @if(!is_null(array_get($isEverBanned_log,'0')))
-                    <td>{{ !empty(array_get($isEverBanned_log,'0.expire_date')) ? array_get($isEverBanned_log,'0.expire_date') : '永久' }}</td>
+                    {{ !empty(array_get($isEverBanned_log,'0.expire_date')) ? array_get($isEverBanned_log,'0.expire_date') : '永久' }}
                 @endif
             @endif
+            </td>
+            <td>
             @if(count($isEverWarned_log)>0)
                 @if(!is_null(array_get($isEverWarned_log,'0')))
-                    <td>{{ !empty(array_get($isEverWarned_log,'0.expire_date')) ? array_get($isEverWarned_log,'0.expire_date') : '永久' }}</td>
+                    {{ !empty(array_get($isEverWarned_log,'0.expire_date')) ? array_get($isEverWarned_log,'0.expire_date') : '永久' }}
                 @endif
             @endif
+            </td>
         </tr>
         <tr>
             <th>付費封鎖/驗證封鎖</th>
-            @if(count($isBanned_show)>0 || count($isEverBanned_log)>0)
-                <td>
-                    {{ array_get($isBanned_show,'vip_pass')==1  ? '付費封鎖' : '' }}
-                    {{ array_get($isBanned_show,'adv_auth')==1  ? '驗證封鎖' : '' }}
-                </td>
+            <td>
+            @if(($isBanned_show && count($isBanned_show)>0))      
+                {{ array_get($isBanned_show,'vip_pass')==1  ? '付費封鎖' : '' }}
+                {{ array_get($isBanned_show,'adv_auth')==1  ? '驗證封鎖' : '' }}               
             @endif
-            @if(count($isWarned_show)>0 || count($isEverWarned_log)>0)
-                <td>
-                    {{ array_get($isWarned_show,'vip_pass')==1  ? '付費警示' : '' }}
-                    {{ array_get($isWarned_show,'adv_auth')==1  ? '驗證警示' : '' }}
-                </td>
-            @else
-                <td></td>
+            </td>
+            <td>
+            @if(($isWarned_show && count($isWarned_show)>0) )
+                {{ array_get($isWarned_show,'vip_pass')==1  ? '付費警示' : '' }}
+                {{ array_get($isWarned_show,'adv_auth')==1  ? '驗證警示' : '' }}
             @endif
-            @if(count($isEverBanned_log)>0)
+            </td>
+            <td>
+            @if($isEverBanned_log && count($isEverBanned_log)>0)
                 @if(!is_null(array_get($isEverBanned_log,'0')))
-                    <td>
-                        {{ array_get($isEverBanned_log,'0.vip_pass') == 1 ? '付費封鎖' : '' }}
-                        {{ array_get($isEverBanned_log,'0.adv_auth') == 1 ? '驗證封鎖' : '' }}
-                    </td>
+                {{ array_get($isEverBanned_log,'0.vip_pass') == 1 ? '付費封鎖' : '' }}
+                {{ array_get($isEverBanned_log,'0.adv_auth') == 1 ? '驗證封鎖' : '' }}
                 @endif
             @endif
-            @if(count($isEverWarned_log)>0)
-                @if(!is_null(array_get($isEverWarned_log,'0')))
-                    <td>
-                        {{ array_get($isEverWarned_log,'0.vip_pass') == 1 ? '付費警示' : '' }}
-                        {{ array_get($isEverWarned_log,'0.adv_auth') == 1 ? '驗證警示' : '' }}
-                    </td>
+            </td>
+            <td>
+            @if($isEverWarned_log && count($isEverWarned_log)>0)
+                @if(!is_null(array_get($isEverWarned_log,'0')))      
+                {{ array_get($isEverWarned_log,'0.vip_pass') == 1 ? '付費警示' : '' }}
+                {{ array_get($isEverWarned_log,'0.adv_auth') == 1 ? '驗證警示' : '' }}
                 @endif
             @endif
+            </td>
         </tr>
         <tr>
             <th>後台解除封鎖人員</th>
@@ -947,22 +976,26 @@
                 $isEverBanned0_admin=array_get($isEverBanned_log,'0.cancal_admin');
                 $isEverWarned0_admin=array_get($isEverWarned_log,'0.cancal_admin');
             @endphp
-            @if(count($isBanned)>0 && $isBanned_admin)
-                <td><a href="{{ route('users/advInfo', $isBanned_admin->id) }}" target='_blank' @if($isBanned_admin->engroup == '2') style="color: #F00;" @else  style="color: #5867DD;"  @endif>{{ $isBanned_admin->name }}</a></td>
-            @else
-                <td></td>
+            <td>
+            @if($isBanned && count($isBanned)>0 && $isBanned_admin)
+                <a href="{{ route('users/advInfo', $isBanned_admin->id) }}" target='_blank' @if($isBanned_admin->engroup == '2') style="color: #F00;" @else  style="color: #5867DD;"  @endif>{{ $isBanned_admin->name }}</a>
             @endif
-            @if(count($isWarned)>0 &&$isWarned_admin)
-                <td><a href="{{ route('users/advInfo', $isWarned_admin->id) }}" target='_blank' @if($isWarned_admin->engroup == '2') style="color: #F00;" @else  style="color: #5867DD;"  @endif>{{ $isWarned_admin->name }}</a></td>
-            @else
-                <td></td>
+            </td>
+            <td>
+            @if($isWarned && count($isWarned)>0 &&$isWarned_admin)
+                <a href="{{ route('users/advInfo', $isWarned_admin->id) }}" target='_blank' @if($isWarned_admin->engroup == '2') style="color: #F00;" @else  style="color: #5867DD;"  @endif>{{ $isWarned_admin->name }}</a>
             @endif
+            </td>
+            <td>
             @if($isEverBanned0_admin)
-                <td><a href="{{ route('users/advInfo', $isEverBanned0_admin->id) }}" target='_blank' @if($isEverBanned0_admin->engroup == '2') style="color: #F00;" @else  style="color: #5867DD;"  @endif>{{ $isEverBanned0_admin->name }}</a></td>
+                <a href="{{ route('users/advInfo', $isEverBanned0_admin->id) }}" target='_blank' @if($isEverBanned0_admin->engroup == '2') style="color: #F00;" @else  style="color: #5867DD;"  @endif>{{ $isEverBanned0_admin->name }}</a>
             @endif
+            </td>
+            <td>
             @if($isEverWarned0_admin)
-                <td><a href="{{ route('users/advInfo', $isEverWarned0_admin->id) }}" target='_blank' @if($isEverWarned0_admin->engroup == '2') style="color: #F00;" @else  style="color: #5867DD;"  @endif>{{ $isEverWarned0_admin->name }}</a></td>
+                <a href="{{ route('users/advInfo', $isEverWarned0_admin->id) }}" target='_blank' @if($isEverWarned0_admin->engroup == '2') style="color: #F00;" @else  style="color: #5867DD;"  @endif>{{ $isEverWarned0_admin->name }}</a>
             @endif
+            </td>
         </tr>
         <tr>
             <th>後台封鎖人員</th>
@@ -972,22 +1005,26 @@
                 $isEverBanned_admin=$isEverBanned_log['banneder_admin'] ?? null;
                 $isEverWarned_admin=$isEverWarned_log["warned_admin"] ?? null;
             @endphp
-            @if(count($isBanned)>0 && $isBanned_admin)
-                <td><a href="{{ route('users/advInfo', $isBanned_admin->id) }}" target='_blank' @if($isBanned_admin->engroup == '2') style="color: #F00;" @else  style="color: #5867DD;"  @endif>{{ $isBanned_admin->name }}</a></td>
-            @else
-            <td></td>
+            <td>
+            @if($isBanned && count($isBanned)>0 && $isBanned_admin)
+                <a href="{{ route('users/advInfo', $isBanned_admin->id) }}" target='_blank' @if($isBanned_admin->engroup == '2') style="color: #F00;" @else  style="color: #5867DD;"  @endif>{{ $isBanned_admin->name }}</a>
             @endif
-            @if(count($isWarned)>0 &&$isWarned_admin)
-                <td><a href="{{ route('users/advInfo', $isWarned_admin->id) }}" target='_blank' @if($isWarned_admin->engroup == '2') style="color: #F00;" @else  style="color: #5867DD;"  @endif>{{ $isWarned_admin->name }}</a></td>
-            @else
-            <td></td>
+            </td>
+            <td>
+            @if($isWarned && count($isWarned)>0 &&$isWarned_admin)
+                <a href="{{ route('users/advInfo', $isWarned_admin->id) }}" target='_blank' @if($isWarned_admin->engroup == '2') style="color: #F00;" @else  style="color: #5867DD;"  @endif>{{ $isWarned_admin->name }}</a>
             @endif
+            </td>
+            <td>
             @if($isEverBanned_admin)
-                <td><a href="{{ route('users/advInfo', $isEverBanned_admin->id) }}" target='_blank' @if($isEverBanned_admin->engroup == '2') style="color: #F00;" @else  style="color: #5867DD;"  @endif>{{ $isEverBanned_admin->name }}</a></td>
+                <a href="{{ route('users/advInfo', $isEverBanned_admin->id) }}" target='_blank' @if($isEverBanned_admin->engroup == '2') style="color: #F00;" @else  style="color: #5867DD;"  @endif>{{ $isEverBanned_admin->name }}</a>
             @endif
+            </td>
+            <td>
             @if($isEverWarned_admin)
-                <td><a href="{{ route('users/advInfo', $isEverWarned_admin->id) }}" target='_blank' @if($isEverWarned_admin->engroup == '2') style="color: #F00;" @else  style="color: #5867DD;"  @endif>{{ $isEverWarned_admin->name }}</a></td>
+                <a href="{{ route('users/advInfo', $isEverWarned_admin->id) }}" target='_blank' @if($isEverWarned_admin->engroup == '2') style="color: #F00;" @else  style="color: #5867DD;"  @endif>{{ $isEverWarned_admin->name }}</a>
             @endif
+            </td>
         </tr>
     </table>
 
@@ -1167,8 +1204,6 @@
             </tr>
         </table>
     </div>
-
-@endif
 
 {{--@if($user->engroup==1)
 <h4>PR值</h4>
@@ -2789,6 +2824,16 @@ $('.modify_phone_submit').on('click',function(e){
 });
 $('.delete_phone_submit').on('click',function(e){
     if(!confirm('確定要刪除手機?')){
+        e.preventDefault();
+    }
+});
+$('.delete_banned_log_submit').on('click',function(e){
+    if(!confirm('確定要刪除此筆過往封鎖紀錄?')){
+        e.preventDefault();
+    }
+});
+$('.delete_warned_log_submit').on('click',function(e){
+    if(!confirm('確定要刪除此筆過往警示紀錄?')){
         e.preventDefault();
     }
 });

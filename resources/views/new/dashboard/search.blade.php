@@ -39,7 +39,7 @@ header("Expires: Fri, 01 Jan 1990 00:00:00 GMT");
                                     <div class="sew6" style="width:13%"></div>
                                     <div class="select_xx08 right" data-role="district" data-name="district" data-value="@if(!empty($_POST['district'])){{ $_POST['district'] }}@elseif(!empty($_GET['district'])){{ $_GET['district'] }}@elseif(!empty(session()->get('search_page_key.district'))){{ session()->get('search_page_key.district')  }}@endif" style=""></div>
                                     </span>
-                                    @if ($user->isVIP())
+                                    @if ($user->isVIP()||$user->isVVIP())
                                     <span class="twzipcode" id="twzipcode2" style="display:inline-flex">
                                     <div class="select_xx08 left" data-role="county" data-name="county2" data-value="{{ request()->county2??session()->get('search_page_key.county2')  }}" style=""></div>
                                     <div class="sew6" style="width:13%"></div>
@@ -50,10 +50,20 @@ header("Expires: Fri, 01 Jan 1990 00:00:00 GMT");
                                     <div class="sew6" style="width:13%"></div>
                                     <div class="select_xx08 right" data-role="district" data-name="district3" data-value="{{ request()->district3??session()->get('search_page_key.district3')  }}" style=""></div>
                                     </span>  
+                                    <span class="twzipcode" id="twzipcode4" style="display:inline-flex">
+                                    <div class="select_xx08 left" data-role="county" data-name="county4" data-value="{{ request()->county4??session()->get('search_page_key.county4')  }}" style=""></div>
+                                    <div class="sew6" style="width:13%"></div>
+                                    <div class="select_xx08 right" data-role="district" data-name="district4" data-value="{{ request()->district4??session()->get('search_page_key.district4')  }}" style=""></div>
+                                    </span>  
+                                    <span class="twzipcode" id="twzipcode5" style="display:inline-flex">
+                                    <div class="select_xx08 left" data-role="county" data-name="county5" data-value="{{ request()->county5??session()->get('search_page_key.county5')  }}" style=""></div>
+                                    <div class="sew6" style="width:13%"></div>
+                                    <div class="select_xx08 right" data-role="district" data-name="district5" data-value="{{ request()->district5??session()->get('search_page_key.district5')  }}" style=""></div>
+                                    </span>  
                                     @endif
                                 </dt>
 
-                                @if (!$user->isVIP())
+                                @if (!$user->isVIP() && !$user->isVVIP())
                                     <div>
                                         <div class="wuziliao">
                                             <img src="/new/images/fengs_icon.png">
@@ -61,7 +71,7 @@ header("Expires: Fri, 01 Jan 1990 00:00:00 GMT");
                                     </div>
                                 @endif
 
-                                @if ($user->isVIP())
+                                @if ($user->isVIP()||$user->isVVIP())
                                     
                                     <dt>
                                         <div class="n_se left">
@@ -587,8 +597,12 @@ header("Expires: Fri, 01 Jan 1990 00:00:00 GMT");
                         $tattoo = search_variable("tattoo","");
                         $county2 = search_variable("county2","");
                         $county3 = search_variable("county3","");
+                        $county4 = search_variable("county4","");
+                        $county5 = search_variable("county5","");
                         $district2 = search_variable("district2","");
                         $district3 = search_variable("district3","");
+                        $district4 = search_variable("district4","");
+                        $district5 = search_variable("district5","");
                         $relationship_status = search_variable('relationship_status',"");
 
                         $userIsAdvanceAuth = search_variable("isAdvanceAuth", 0);
@@ -599,9 +613,9 @@ header("Expires: Fri, 01 Jan 1990 00:00:00 GMT");
                         
 
                     $icc = 1;
-                    $userIsVip = $user->isVIP();
+                    $userIsVip = ($user->isVIP() || $user->isVVIP());
 
-                    if(isset($_GET['page'])){
+                    if(isset($_GET['page']) && is_numeric($_GET['page'])){
                         $page = $_GET['page'];
                         $page_pre = $page-1>0 ?$page-1: 1;
                         $page_next = $page+1;
@@ -638,7 +652,7 @@ header("Expires: Fri, 01 Jan 1990 00:00:00 GMT");
 
                         </div>
 
-                        <div class="n_sepeop">
+                        <div class="n_sepeop" id="content_a">
                             
                             <a v-html="csrData">
                                 {{-- @for($i=0;$i<12;$i++)
@@ -819,17 +833,27 @@ header("Expires: Fri, 01 Jan 1990 00:00:00 GMT");
             
 
             $('.twzipcode').eq(1).twzipcode({
-                'detect': true, 'css': ['select_xx08','select_xx08'],countyName : 'country2',districtName : 'district2', onCountySelect: function() {
+                'detect': true, 'css': ['select_xx08','select_xx08'],countyName : 'county2',districtName : 'district2', onCountySelect: function() {
                     $("select[name='district2']").prepend('<option selected value="">全部</option>');
                 }
             });
             $('input[name="zipcode"]').remove();
             
             $('.twzipcode').eq(2).twzipcode({
-                'detect': true, 'css': ['select_xx08','select_xx08'],countyName : 'country3',districtName : 'district3', onCountySelect: function() {
+                'detect': true, 'css': ['select_xx08','select_xx08'],countyName : 'county3',districtName : 'district3', onCountySelect: function() {
                     $("select[name='district3']").prepend('<option selected value="">全部</option>');
                 }
-            });            
+            });
+            $('.twzipcode').eq(3).twzipcode({
+                'detect': true, 'css': ['select_xx08','select_xx08'],countyName : 'county4',districtName : 'district4', onCountySelect: function() {
+                    $("select[name='district4']").prepend('<option selected value="">全部</option>');
+                }
+            });    
+            $('.twzipcode').eq(4).twzipcode({
+                'detect': true, 'css': ['select_xx08','select_xx08'],countyName : 'county5',districtName : 'district5', onCountySelect: function() {
+                    $("select[name='district5']").prepend('<option selected value="">全部</option>');
+                }
+            });                
             $('input[name="zipcode"]').remove();
             
             // $('[data-toggle="popover"]').popover({
@@ -939,17 +963,17 @@ header("Expires: Fri, 01 Jan 1990 00:00:00 GMT");
 
                 getSelfAuthTagShowOnPic()
                 {
-                    return '{!!str_replace("\n","'+\n'",str_replace("\r","",$rap_service->getSelfAuthTagShowOnPicLayoutByLoginedUserIsVip($user->isVip(),true))) !!}';
+                    return '{!!str_replace("\n","'+\n'",str_replace("\r","",$rap_service->getSelfAuthTagShowOnPicLayoutByLoginedUserIsVip($user->isVipOrIsVvip(),true))) !!}';
                 },
 
                 getBeautyAuthTagShowOnPic()
                 {
-                    return '{!!str_replace("\n","'+\n'",str_replace("\r","",$rap_service->getBeautyAuthTagShowOnPicLayoutByLoginedUserIsVip($user->isVip(),true))) !!}';
+                    return '{!!str_replace("\n","'+\n'",str_replace("\r","",$rap_service->getBeautyAuthTagShowOnPicLayoutByLoginedUserIsVip($user->isVipOrIsVvip(),true))) !!}';
                 },
 
                 getFamousAuthTagShowOnPic()
                 {
-                    return '{!!str_replace("\n","'+\n'",str_replace("\r","",$rap_service->getFamousAuthTagShowOnPicLayoutByLoginedUserIsVip($user->isVip(),true))) !!}';
+                    return '{!!str_replace("\n","'+\n'",str_replace("\r","",$rap_service->getFamousAuthTagShowOnPicLayoutByLoginedUserIsVip($user->isVipOrIsVvip(),true))) !!}';
                 }                 
             },
         mounted () {
@@ -992,6 +1016,10 @@ header("Expires: Fri, 01 Jan 1990 00:00:00 GMT");
                 area2:"{{$district2  ?? null}}",
                 city3:"{{$county3  ?? null}}",
                 area3:"{{$district3  ?? null}}",
+                city4:"{{$county4  ?? null}}",
+                area4:"{{$district4  ?? null}}",
+                city5:"{{$county5  ?? null}}",
+                area5:"{{$district5  ?? null}}",
                 //新增體重
                 weight:"{{$weight}}",
                 relationship_status:"{{$relationship_status}}",
@@ -1038,11 +1066,31 @@ header("Expires: Fri, 01 Jan 1990 00:00:00 GMT");
                         //     csrdDataPre += '<li class="nt_fg '+csrDataBg+'"><div class="n_seicon"><a><div class="nt_photo blur_img"></div><div class="nt_bot nt_bgco"><h2>loading...</h2><h3>loading...</h3><h3>最後上線時間：loading... </h3></div></a></div></li>';
                         //     this.csrData = csrdDataPre;
                         // })
+
+                        let vvip_top = '<div class="ne_bgnn"><div class="n_sepeop ne_tops_1">';
+                        let vvip_end = '</div></div><div class="n_sepeop ne_tops">';
+                        let no_vvip_top = '<div class="n_sepeop">';
+                        let no_vvip_end = '</div>';
+                        let have_vvip = 0;
+
+                        $("#content_a").removeClass("n_sepeop");
                         this.dataList.forEach((row, index) => {
                             let umeta = row.rawData.user_meta;
-                            if(varCheck(umeta.city)){
+                            if(varCheck(umeta.city))
+                            {
                                 umeta.city = umeta.city.split(",");
+                            }
+                            else
+                            {
+                                umeta.city = [];
+                            }
+                            if(varCheck(umeta.area))
+                            {
                                 umeta.area = umeta.area.split(",");
+                            }
+                            else
+                            {
+                                umeta.area = [];
                             }
 
                           
@@ -1058,6 +1106,8 @@ header("Expires: Fri, 01 Jan 1990 00:00:00 GMT");
                             let rowVisitorCheckRecommendedUser = row.visitorCheckRecommendedUser;
 
                             let rowVisitorIsVip = row.visitorIsVip;
+                            let rowVisitorIsVVIP = row.visitorIsVVIP;
+                            let rowVisitorVvipInfoStatus = row.visitorVvipInfoStatus;
 
                             let rowVisitorIsPhoneAuth = row.visitorIsPhoneAuth;
                             let rowVisitorIsAdvanceAuth = row.visitorIsAdvanceAuth;
@@ -1088,14 +1138,33 @@ header("Expires: Fri, 01 Jan 1990 00:00:00 GMT");
                             let new_occupation = row.new_occupation;
                             
                             // csrData +='<li class="nt_fg">';
-                            if(rowEngroup==2){
-                                if(rowExchangePeriod==1){
-                                    csrData += '<li class="nt_fg vvip_bg1">';
-                                }else{
-                                    csrData +='<li class="nt_fg vvip_bg2">';
+                            if(rowVisitorIsVVIP){
+                                $(".n_searchtit_a1").attr('class', 'n_searchtit_a');
+                                $(".n_searchtit_a").html('<img src="/new/images/setitile2.png" class="ne_titleimg">');
+
+                                csrData += vvip_top;
+                                vvip_top = '';
+
+                                have_vvip = 1;
+                                csrData += '<li class="nt_fg vvip_bg1">';
+                            }else {
+
+                                csrData += vvip_end;
+                                vvip_end = '';
+
+                                if(have_vvip==0){
+                                    csrData += no_vvip_top;
+                                    no_vvip_top = '';
                                 }
-                            }else{
-                                csrData +='<li class="nt_fg vvip_bg2">';
+                                if (rowEngroup == 2) {
+                                    if (rowExchangePeriod == 1) {
+                                        csrData += '<li class="nt_fg vvip_bg1">';
+                                    } else {
+                                        csrData += '<li class="nt_fg vvip_bg2">';
+                                    }
+                                } else {
+                                    csrData += '<li class="nt_fg vvip_bg2">';
+                                }
                             }
 
                             csrData +='<div class="n_seicon">';
@@ -1220,6 +1289,9 @@ header("Expires: Fri, 01 Jan 1990 00:00:00 GMT");
 
                             if(rowEngroup == 1){
                                 csrData +='<div class="tixright_a">';
+                                    if(rowVisitorIsVVIP){
+                                        csrData +='<div class="po_cicon"><img src="/new/images/v1_08.png"></div>';
+                                    }
                                     csrData +='<div class="span zi_sc">大方指數</div>';
                                         csrData +='<div class="font">';
                                             csrData +='<div class="vvipjdt tm_new">';
@@ -1252,7 +1324,11 @@ header("Expires: Fri, 01 Jan 1990 00:00:00 GMT");
                         } else {
                             onerror="this.src='/new/images/female.png'";
                         }
-                        csrData +='<a href="/dashboard/viewuser/'+rowID+'">';
+                        if(rowVisitorIsVVIP && rowVisitorVvipInfoStatus){
+                            csrData += '<a href="/dashboard/viewuser_vvip/' + rowID + '">';
+                        }else {
+                            csrData += '<a href="/dashboard/viewuser/' + rowID + '">';
+                        }
                         csrData +='<div class="nt_photo '+csrVar+'"><img class="lazy '+blur_img_class+ '" src="'+ASSET_SUBDOMAIN+csrVar2+'" data-original="'+csrVar2+'" onerror="'+onerror+'"/></div>';
 
                         if(rowEngroup == 2)
@@ -1265,6 +1341,8 @@ header("Expires: Fri, 01 Jan 1990 00:00:00 GMT");
                             {
                                 csrData +='<div class="nt_bot vvip_bgco2" style="color: #ff7575;">';
                             }
+                        }else if(rowVisitorIsVVIP){
+                            csrData +='<div class="nt_bot vvip_bgco1">';
                         }
                         else
                         {

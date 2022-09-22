@@ -164,7 +164,7 @@
                         <a href="{{ route('users/advInfo', $row['id']) }}" target='_blank'>
                             <p @if($row['engroup'] == '2') style="color: #F00;" @else  style="color: #5867DD;"  @endif>
                                 {{$row['name']}}
-                                @if($row->isVip())
+                                @if($row->isVip()||$row->isVVIP())
                                     @if($row->getVipDiamond()=='diamond_black')
                                         <img src="/img/diamond_black.png" style="height: 16px;width: 16px;">
                                     @else

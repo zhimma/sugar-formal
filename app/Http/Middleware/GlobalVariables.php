@@ -33,12 +33,17 @@ class GlobalVariables
             $valueAddedServices = array();
             //$valueAddedServices['hideOnline'] = 0;
             $valueAddedServices['hideOnline'] = $user->valueAddedServiceStatus('hideOnline');
+            $valueAddedServices['VVIP'] = $user->valueAddedServiceStatus('VVIP');
             $isFreeVip = false;
-            if ($user->isVip()) {
+            if ($user->isVip() || $user->isVVIP()) {
                 \View::share('isVip', true);
                 $isFreeVip = $user->isFreeVip();
 
-                $vipData = $user->vip->sortByDesc("created_at")->first();
+                if($user->isVVIP()){
+                    $vipData = $user->VVIP->first();
+                }else {
+                    $vipData = $user->vip->first();
+                }
                 // 全域 VIP 資料
                 \View::share('vipData', $vipData);
                 if (isset($vipData->updated_at)) {    //有的優選資格被拔掉的會員不會有 updated_at 的值

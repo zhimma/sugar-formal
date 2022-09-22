@@ -93,9 +93,9 @@
                     <div class="item">
                         <div class="ggtitle">站長公告(第{{ $cc }}/{{ count($announcement) }}則)</div>
                         <div class="new_poptk" style="width: 90%; max-height: 350px;">
-                            <div id="new_poptk_content" style="min-height: 105px;" @if(!$user->isVip() && $a->isVip==1)class="g_pfont"@endif>
+                            <div id="new_poptk_content" style="min-height: 105px;" @if(!$user->isVipOrIsVvip() && $a->isVip==1)class="g_pfont"@endif>
                             {!! nl2br($a->content) !!}
-                            @if(!$user->isVip() && $a->isVip==1)
+                            @if(!$user->isVipOrIsVvip() && $a->isVip==1)
                                 <div class="g_picon"><img src="/new/images/viponly.png" style="width: unset;"></div>
                             @endif
                             </div>
@@ -360,54 +360,6 @@
     <!-- livewire -->
     <livewire:scripts />
     <!-- livewire end-->
-
-    <script>
-        //上線時間紀錄
-        var hiddenProperty = 'hidden' in document ? 'hidden' :    
-            'webkitHidden' in document ? 'webkitHidden' :    
-            'mozHidden' in document ? 'mozHidden' :    
-            null;
-        if (!document[hiddenProperty])
-        {
-            online_time_interval = setInterval("update_online_time(5)","5000");
-        }
-        var visibilityChangeEvent = hiddenProperty.replace(/hidden/i, 'visibilitychange');
-        var onVisibilityChange = function()
-        {
-            if (!document[hiddenProperty]) 
-            {    
-                online_time_interval = setInterval("update_online_time(5)","5000");
-            }
-            else
-            {
-                clearInterval(online_time_interval);
-            }
-        }
-        document.addEventListener(visibilityChangeEvent, onVisibilityChange);
-        
-        function update_online_time(second){
-            if (typeof(page_id) == 'undefined') {
-                page_id = null;
-            } else {
-                page_id = page_id;
-            }
-
-            $.ajax({
-                type:'post',
-                url:'{{route("stay_online_time")}}',
-                data:
-                {
-                    _token: '{{ csrf_token() }}',
-                    stay_second: second,
-                    stay_online_record_id: sessionStorage.getItem('stay_online_record_id'),
-                    page_id: page_id
-                },
-                success:function(data){
-                    sessionStorage.setItem('stay_online_record_id',data['stay_online_record_id'])
-                }
-            });
-        }
-        //上線時間紀錄
-    </script>
+    @include('new.partials.stay_online_record')
 </body>
 </html>

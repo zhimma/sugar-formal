@@ -204,7 +204,7 @@ function requestBlurryAvatarDefault() {
         <div class="col-sm-12 col-xs-12 col-md-10">
             <div class="g_password">
                 <div class="g_pwicon">
-                    <li><a href="/dashboard/viewuser/{{$user->id}}" class="g_pwicon_t5 "><span>自我預覽</span></a></li>
+                    <li><a href="@if($user->isVVIP()) /dashboard/viewuser_vvip/{{$user->id}} @else /dashboard/viewuser/{{$user->id}} @endif" class="g_pwicon_t5 "><span>自我預覽</span></a></li>
                     <li><a href="{!! url('dashboard') !!}" class="g_pwicon_t "><span>基本資料</span></a></li>
                     <li><a href="{!! url('dashboard_img') !!}" class="g_pwicon_t2 g_hicon2"><span>照片管理</span></a></li>
                     <li><a href="{!! url('/dashboard/account_manage') !!}" class="g_pwicon_t3"><span>帳號設定</span></a></li>
@@ -321,7 +321,7 @@ function requestBlurryAvatarDefault() {
                                 <img src="/new/images/ph_03.png">
                             </div>
                             @php
-                                $defaultAvatar = $user->isVip() ? '/new/images/ph_12.png' : '/new/images/ph_11.png';
+                                $defaultAvatar = $user->isVipOrIsVvip() ? '/new/images/ph_12.png' : '/new/images/ph_11.png';
                                 // 添加日期參數, 讓圖片不使用快取機制
                                 // $avatar = isset($avatar->pic) ? $avatar->pic . '?' . \Carbon\Carbon::now() : null;
 
@@ -355,7 +355,7 @@ function requestBlurryAvatarDefault() {
                             @php
                                 $ImgCount+=1;
                                 $default = '/new/images/';
-                                if(!$user->isVip() and $key < 3)
+                                if(!$user->isVipOrIsVvip() and $key < 3)
                                     $default .= 'ph_10.png';
                                 else
                                     $default .= 'ph_12.png';
@@ -600,7 +600,7 @@ function requestBlurryAvatarDefault() {
 
         
         @if(Session::has('message'))
-            @if(Session::get('message')=='上傳成功' && $user->existHeaderImage() && $user->engroup==2 && !$user->isVip())//防呆
+            @if(Session::get('message')=='上傳成功' && $user->existHeaderImage() && $user->engroup==2 && !$user->isVipOrIsVvip())//防呆
                 @php
                     $vip_record = \Carbon\Carbon::parse($user->vip_record);
                 @endphp
@@ -727,7 +727,7 @@ function requestBlurryAvatarDefault() {
                     },                                      
                 }
             })
-            resize_before_upload(uploaderOfAvatar,1000,300);
+            //resize_before_upload(uploaderOfAvatar,1000,300);
             
         },
         error: function(xhr, status, msg) {
@@ -886,7 +886,7 @@ function requestBlurryAvatarDefault() {
                 }
             })
             
-            resize_before_upload(uploaderOfMemberPic,1000,300);
+            //resize_before_upload(uploaderOfMemberPic,1000,300);
         },
         error: function(xhr, status, msg) {
             console.log(xhr);
@@ -1061,7 +1061,7 @@ function requestBlurryAvatarDefault() {
                 }
             }
         });
-        resize_before_upload(images_uploader,400,600,'#tab_real_auth_uploadPic');    
+        //resize_before_upload(images_uploader,400,600,'#tab_real_auth_uploadPic');
     @endif
     
 
