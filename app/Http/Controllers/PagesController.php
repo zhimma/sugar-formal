@@ -8879,7 +8879,12 @@ class PagesController extends BaseController
                 $ssrData .='<div class="liuyan_nlist">';
                 $ssrData .='<ul>';
                 $ssrData .='<li>';
-                $ssrData .='<a href="/dashboard/viewuser/'.$list->uid.'">';
+                if($msgUser->isVVIP()){
+                    $ssrData .='<a href="/dashboard/viewuser_vvip/'.$list->uid.'">';
+                }
+                else{
+                    $ssrData .='<a href="/dashboard/viewuser/'.$list->uid.'">';
+                }
                 $ssrData .='<div class="liuyan_img"><img class="hycov '.$is_blur.'" src="'.$umpic.'"></div>';
                 $ssrData .='</a>';
                 $ssrData .='<a href="/MessageBoard/post_detail/'. $list->mid.'">';
@@ -9007,7 +9012,12 @@ class PagesController extends BaseController
                 $ssrData .='<div class="liuyan_nlist">';
                 $ssrData .='<ul>';
                 $ssrData .='<li>';
-                $ssrData .='<a href="/dashboard/viewuser/'.$list->uid.'">';
+                if($msgUser->isVVIP()){
+                    $ssrData .='<a href="/dashboard/viewuser_vvip/'.$list->uid.'">';
+                }
+                else{
+                    $ssrData .='<a href="/dashboard/viewuser/'.$list->uid.'">';
+                }
                 $ssrData .='<div class="liuyan_img"><img class="hycov '.$is_blur.'" src="'.$umpic.'"></div>';
                 $ssrData .='</a>';
                 $ssrData .='<a href="/MessageBoard/post_detail/'. $list->mid.'">';
