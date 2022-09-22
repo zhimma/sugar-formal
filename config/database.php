@@ -69,13 +69,13 @@ return [
             'engine' => null,
         ],
 
-        'mysql_fp' => [
+        'mysql_read' => [
             'driver' => 'mysql',
-            'host' => env('DB_HOST_SECOND', '192.168.128.141'),
-            'port' => env('DB_PORT_SECOND', '3306'),
-            'database' => env('DB_DATABASE_FP', 'sg_database'),
-            'username' => env('DB_USERNAME_FP', 'sg_database'),
-            'password' => env('DB_PASSWORD_FP', 'MaX@!w1E>%jzp2QzM9_'),
+            'host' => env('READ_DB_HOST', '192.168.128.141'),
+            'port' => env('READ_DB_PORT', '3306'),
+            'database' => env('READ_DB_DATABASE', 'sg_database'),
+            'username' => env('READ_DB_USERNAME', 'sg_database'),
+            'password' => env('READ_DB_PASSWORD', 'MaX@!w1E>%jzp2QzM9_'),
             'unix_socket' => env('DB_SOCKET', ''),
             'charset' => 'utf8',
             'collation' => 'utf8_unicode_ci',

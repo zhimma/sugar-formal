@@ -58,7 +58,7 @@ class BanJob implements ShouldQueue
                 $userBanned->reason = "系統原因(".$this->ban_set->id.")";
                 $userBanned->save();
                 //寫入log
-                DB::table('is_banned_log')->insert(['user_id' => $this->uid, 'reason' => "系統原因(".$this->ban_set->id.")"]);
+                DB::connection('mysql')->table('is_banned_log')->insert(['user_id' => $this->uid, 'reason' => "系統原因(".$this->ban_set->id.")"]);
             }
         }
         elseif($this->ban_set->set_ban == 2 && !$user_had_been_implicitly_banned)
@@ -75,7 +75,7 @@ class BanJob implements ShouldQueue
                     $Line = 124;
                     break;
             }
-            BannedUsersImplicitly::insert(['fp' => 'Line ' . $Line . ', BannedInUserInfo, ban_set ID: ' . $this->ban_set->id . ', content: ' . $this->ban_set->content, 'user_id' => 0, 'target' => $this->uid]);
+            BannedUsersImplicitly::connection('mysql')->insert(['fp' => 'Line ' . $Line . ', BannedInUserInfo, ban_set ID: ' . $this->ban_set->id . ', content: ' . $this->ban_set->content, 'user_id' => 0, 'target' => $this->uid]);
         }
         elseif($this->ban_set->set_ban == 3 && !$user_had_been_warned)
         {
@@ -91,7 +91,7 @@ class BanJob implements ShouldQueue
 
             $userWarned->save();
             //寫入log
-            DB::table('is_warned_log')->insert(['user_id' => $this->uid, 'reason' => "系統原因(".$this->ban_set->id.")"]);
+            DB::connection('mysql')->table('is_warned_log')->insert(['user_id' => $this->uid, 'reason' => "系統原因(".$this->ban_set->id.")"]);
             // UserMeta::where('user_id', $this->uid)->update(['isWarned' => 1]);
         }
         //sleep(90);
