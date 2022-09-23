@@ -177,7 +177,7 @@ class CheckIsWarned
         if($user->meta->isWarned == 0 && $user->WarnedScore() >= 10 && $auth_status == 0 && $user->id != 1049){
             //加入警示
             UserMeta::where('user_id',$user->id)->update(['isWarned'=>1, 'isWarnedRead'=>0, 'isWarnedTime' => Carbon::now()]);
-            $this->messageService->setMessageHandlingBySenderId($user->id);
+            $this->messageService->setMessageHandlingBySenderId($user->id,0);
 //            return $next($request);
         }
 
