@@ -272,11 +272,20 @@
                             $isAdminWarned = 0;
                         }
                     @endphp
+                    Old
                     <a href="{{ route('AdminMessengerWithMessageId', [$result->to_id, $result->id]) }}" target="_blank" class='btn btn-dark'>撰寫</a>
                     @if ($result->is_write == 1 || (!$messageInfo || $messageInfo && ($isBlocked == 1 || ($isAdminWarned == 1 && $isWomanWarned == 1))))
                     <a href="javascript:void(0);" data-id="{{ $result->id }}" data-toid = "{{ $result->to_id }}" data-fromid = "{{ $result->from_id }}" class='btn btn-success handle_status_btn' data-handlestatus="1">已處理</a>
                     @else
                     <a href="javascript:void(0);" data-id="{{ $result->id }}" data-toid = "{{ $result->to_id }}" data-fromid = "{{ $result->from_id }}" class='btn btn-dark handle_status_btn' data-handlestatus="0">未處理</a>
+                    @endif
+                    ---
+                    New
+                    <a href="javascript:void(0);" class='btn btn-dark write_btn'>撰寫</a>
+                    @if ($result->handle==1)
+                    <a href="javascript:void(0);" class='btn btn-success handle_status_btn'>已處理</a>
+                    @else
+                    <a href="javascript:void(0);" class='btn btn-dark handle_status_btn'>未處理</a>
                     @endif
                 </td>
 {{--                @if(isset($reported) && $reported == 1)--}}
@@ -1188,6 +1197,11 @@
             });
         });
 
+        $(".needHandle").each(function(k,v){
+            if($(v).parents('tr').data('handlestatus') != 1){
+                $(v).parents('tr').find('.handle_status_btn').click()
+            }
+        })
     });
 
     
