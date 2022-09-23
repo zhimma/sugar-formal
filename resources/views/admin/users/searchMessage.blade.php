@@ -253,7 +253,7 @@
                     </a>
                 </td>
                 <td>
-                    @php
+                    {{-- @php
                         $data = \App\Models\SimpleTables\warned_users::where('member_id', $result['to_id'])->first();
                         $messageInfo = \App\Models\User::findById($result['to_id']);
                         $banned_users =  \App\Models\SimpleTables\banned_users::where('member_id', 'like', $result['to_id'])->get()->first();
@@ -280,7 +280,7 @@
                     <a href="javascript:void(0);" data-id="{{ $result->id }}" data-toid = "{{ $result->to_id }}" data-fromid = "{{ $result->from_id }}" class='btn btn-dark handle_status_btn' data-handlestatus="0">未處理</a>
                     @endif
                     ---
-                    New
+                    New --}}
                     <a href="javascript:void(0);" class='btn btn-dark write_btn'>撰寫</a>
                     @if ($result->handle==1)
                     <a href="javascript:void(0);" class='btn btn-success handle_status_btn'>已處理</a>
