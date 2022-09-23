@@ -19,8 +19,8 @@ class MessageService
         return $this->message->where('id',$messageId)->update(['handle'=>$handleStatus]);
     }
 
-    public function setMessageHandlingBySenderId($userid){
-        return $this->message->where('from_id',$userid)->update(['handle'=>0]);
+    public function setMessageHandlingBySenderId($userid,$handle){
+        return $this->message->where('from_id',$userid)->update(['handle'=>$handle]);
     }
 
     public function getMessageById($id){

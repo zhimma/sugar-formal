@@ -826,10 +826,9 @@ class UserController extends \App\Http\Controllers\BaseController
             }
             warned_users::where('member_id', '=', $data['id'])->delete();
         }
-
+        $this->messageService->setMessageHandlingBySenderId($data['id'],0);
         //新增Admin操作log
         $this->insertAdminActionLog($data['id'], '解除站方警示');
-
         $data = array(
             'code' => '200',
             'status' => 'success'
@@ -3754,7 +3753,7 @@ class UserController extends \App\Http\Controllers\BaseController
             SetAutoBan::where('cuz_user_set', $data['id'])->where('host', null)->delete();
             SetAutoBan::where('cuz_user_set', $data['id'])->where('host', request()->getHttpHost())->delete();
         }
-
+        $this->messageService->setMessageHandlingBySenderId($data['id'],0);
         //新增Admin操作log
         $this->insertAdminActionLog($data['id'], '解除封鎖');
 
@@ -3785,7 +3784,7 @@ class UserController extends \App\Http\Controllers\BaseController
             $isWarnedTime = Carbon::now();
             /* 2022/09/22 被檢舉者列為警示時被檢舉的訊息改為未處理 */
             \Log::debug('test::'.$id);
-            $this->messageService->setMessageHandlingBySenderId($id);
+            $this->messageService->setMessageHandlingBySenderId($id,1);
         }
 
         DB::table('user_meta')->where('user_id', $id)->update(['isWarned' => $status, 'isWarnedRead' => 0, 'isWarnedTime' => $isWarnedTime, 'isWarnedType' => $isWarnedType]);
