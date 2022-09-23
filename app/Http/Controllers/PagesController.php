@@ -3942,7 +3942,9 @@ class PagesController extends BaseController
             
             if (isset($cid)) {
                 $cid_user = $this->service->find($cid);
-                
+                if($cid == "1049"){
+                    $messages = Message::allToFromSenderChatWithAdmin($user->id, 1049)->paginate(10);
+                }
                 if(!$cid_user){
                     return '<h1>該會員不存在。</h1>';
                 }
@@ -8341,7 +8343,7 @@ class PagesController extends BaseController
         $admin_msgs = [];
         $admin_msgs_sys = [];
 
-        foreach($admin_msg_entrys->where('sys_notice',0) as $admin_msg_entry) {
+        foreach($admin_msg_entrys->where('sys_notice',0)->where('sys_notice',0)->where('chat_with_admin', 0) as $admin_msg_entry) {
             $admin_msg_entry->content = str_replace('NAME', $user->name, $admin_msg_entry->content);
             $admin_msg_entry->content = str_replace('|$report|', $user->name, $admin_msg_entry->content);
             $admin_msg_entry->content = str_replace('LINE_ICON', AdminService::$line_icon_html, $admin_msg_entry->content);
@@ -10564,6 +10566,3 @@ class PagesController extends BaseController
     //vvip end
 
 }
-
-
-

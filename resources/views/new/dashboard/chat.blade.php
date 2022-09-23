@@ -224,6 +224,24 @@ is_truth_icon_pic.src="{{asset('/new/images/zz_zt2.png')}}";
             <div class="sjlist_li">
                 <div class="leftsidebar_box">
                     <dl class="system_log">
+                        @if($user->id != 1049)
+                            <span class="admin_delete shou_but">全部刪除</span>
+                        @endif
+                        @if($user->id != 1049)
+                        <dt class="lebox0" data-step="4" data-position="top" data-highlightClass="yd4a"
+                            data-tooltipClass="yd4" data-intro="<p>會員可以在此處與站長對話。</p>
+                                        <em></em><em></em>">
+
+                            <span class="le_span">站長來訊</span>
+                        </dt>
+                        <dd>
+                            <div class="loading warning" id="sjlist_admin_warning"><span
+                                    class="loading_text">loading</span></div>
+                            <ul class="sjlist sjlist_admin">
+                            </ul>
+                            <div class="page page_admin fenye" style="text-align: center;"></div>
+                        </dd>
+                        @endif
                         @if($user->engroup==1)
                         @php
                         $exchange_period_name = DB::table('exchange_period_name')->get();
@@ -537,6 +555,68 @@ is_truth_icon_pic.src="{{asset('/new/images/zz_zt2.png')}}";
         }
     };
 
+        // admin
+        var Page_admin = {
+            page : 1,
+            row  : 10,
+            DrawPage:function(total){
+                var total_page  = Math.ceil(total/Page_admin.row) == 0 ? 1 : Math.ceil(total/Page_admin.row);
+                var span_u      = 0;
+                var str         = '';
+                var i,active,prev_active,last_active;
+
+                if(total_page==1){
+                    str   = '';
+                }else if(Page_admin.page==1){
+                    str =`<a href="javascript:" class="" data-p="next">上一頁</a>
+                    <span class="new_page">${Page_admin.page}/${total_page}</span>
+                    <a href="javascript:" class="page-link" data-p="last">下一頁</a>`;
+                }else if(Page_admin.page==total_page){
+                    str =`<a href="javascript:" class="page-link" data-p="next">上一頁</a>
+                    <span class="new_page">${Page_admin.page}/${total_page}</span>
+                    <a href="javascript:" class="" data-p="last">下一頁</a>`;
+                }else{
+                    str = `
+                    <a href="javascript:" class="page-link" data-p="next">上一頁</a>
+                    <span class="new_page">${Page_admin.page}/${total_page}</span>
+                    <a href="javascript:" class="page-link" data-p="last">下一頁</a>
+                `;
+                }
+
+                $('.page_admin').html(str);
+                $('.warning').hide();
+
+                $('.page_admin a.page-link').click(function(){
+                    $('.warning').show();
+                    $('.sjlist_admin').children().css('display', 'none');
+
+                    switch($(this).data('p')) {
+                        case 'next': Page_admin.page = parseInt(Page_admin.page) - 1; break;
+                        case 'last': Page_admin.page = parseInt(Page_admin.page) + 1; break;
+                        default: Page_admin.page = parseInt($(this).data('p'));
+                    }
+                    Page_admin.DrawPage(total);
+
+                    // date= $('input[name=RadioGroup1]:checked').val();
+                    date= $("#daysSelect option:selected").val();
+
+                    if(date==7){
+                        $('.sjlist_admin>.date7.adminMember').slice((Page_admin.page-1)*Page_admin.row, Page_admin.page*Page_admin.row).css('display', '');
+                    }else if(date==30){
+                        $('.sjlist_admin>.common30.adminMember').slice((Page_admin.page-1)*Page_admin.row, Page_admin.page*Page_admin.row).css('display', '');
+                    }else{
+                        $('.sjlist_admin>.adminMember').slice((Page_admin.page-1)*Page_admin.row, Page_admin.page*Page_admin.row).css('display', '');
+                    }
+
+                    $('.sjlist_admin>.li_no_data').remove();
+
+                    if($('.sjlist_admin>li:visible').length == 0 && isLoading == 0){
+                        $('#sjlist_admin_warning').hide();
+                        $('.sjlist_admin').append(no_row_li);
+                    }
+                });
+            }
+        };
         //vip
         var Page = {
             page : 1,
@@ -885,7 +965,7 @@ is_truth_icon_pic.src="{{asset('/new/images/zz_zt2.png')}}";
         {
             return new Date(dt.getFullYear(), dt.getMonth(), 1);
         }
-        function liContent(pic,user_name,content,created_at,read_n,i,user_id,isVip,show,isWarned,isBanned,exchange_period,isBlur=false,is_truth=false){
+        function liContent(pic,user_name,content,created_at,read_n,i,user_id,isVip,show,isWarned,isBanned,exchange_period,isBlur=false,is_truth=false,isCan){
             showMsg = show;
             var li='';
             var ss =((i+1)>Page.row)?'display:none;':'display:none;';
@@ -907,7 +987,7 @@ is_truth_icon_pic.src="{{asset('/new/images/zz_zt2.png')}}";
                 `;
             }else{
                 li += `
-                <li class="row_data" style="${ss}" id="${user_id}">
+                <li class="row_data ${isCan? "d-none can":""}" style="${ss}" id="${user_id}">
                 `;
             }
 
@@ -931,6 +1011,9 @@ is_truth_icon_pic.src="{{asset('/new/images/zz_zt2.png')}}";
                 li += `<a href="${url}" target="_self">`;
                 if(is_truth) {
                     li += `<img src="{{asset('/new/images/zz_zt2.png')}}" class="ys_gt1">`;
+                }
+                if(isCan) {
+                    li += `<img src="/new/images/zz_zt1.png" class="ys_gt">`;
                 }
                 li += `<div class="sjpic ${styBlur} shanx" id="${user_id}">
                         <img src="${pic}">
@@ -1086,8 +1169,10 @@ is_truth_icon_pic.src="{{asset('/new/images/zz_zt2.png')}}";
                         @endforeach
                     @endif
 
+                    $('.sjlist_admin').html('');
                     $('.sjlist_alert').html('');
                     $('.sjlist_banned').html('');
+                    $('.page_admin').hide();
                     $('.page_warning').hide();
                     $('.warning').show();
                 },
@@ -1147,13 +1232,13 @@ is_truth_icon_pic.src="{{asset('/new/images/zz_zt2.png')}}";
                         if (userIsVip != 1 && i < hide_vip_counts && hide_vip_counts > 0 ) {
                             if(e.user_id == 1049 || e.isBanned==1){
                                 //hide_vip_counts = hide_vip_counts-1;
-                                if (e && e.user_id) li = liContent(e.pic, e.user_name, e.content, e.created_at, e.read_n, i, e.user_id, e.isVip, 1,e.isWarned,e.isBanned,e.exchange_period,isBlur,e.is_truth);
+                                if (e && e.user_id) li = liContent(e.pic, e.user_name, e.content, e.created_at, e.read_n, i, e.user_id, e.isVip, 1,e.isWarned,e.isBanned,e.exchange_period,isBlur,e.is_truth,e.isCan);
                             }else {							
-                                if (e && e.user_id) li = liContent(e.pic, e.user_name, e.content, e.created_at, e.read_n, i, e.user_id, e.isVip, 0,e.isWarned,e.isBanned,e.exchange_period,isBlur,e.is_truth);
+                                if (e && e.user_id) li = liContent(e.pic, e.user_name, e.content, e.created_at, e.read_n, i, e.user_id, e.isVip, 0,e.isWarned,e.isBanned,e.exchange_period,isBlur,e.is_truth,e.isCan);
                             }
                         }else {
 							//if(e.isBanned==1) hide_vip_counts = hide_vip_counts+1;
-                            if (e && e.user_id) li = liContent(e.pic, e.user_name, e.content, e.created_at, e.read_n, i, e.user_id, e.isVip, 1,e.isWarned,e.isBanned,e.exchange_period,isBlur,e.is_truth);
+                            if (e && e.user_id) li = liContent(e.pic, e.user_name, e.content, e.created_at, e.read_n, i, e.user_id, e.isVip, 1,e.isWarned,e.isBanned,e.exchange_period,isBlur,e.is_truth,e.isCan);
                         }
 
                         if (typeof e.created_at !== 'undefined') {
@@ -1165,6 +1250,8 @@ is_truth_icon_pic.src="{{asset('/new/images/zz_zt2.png')}}";
                                     $('.sjlist_alert').append(li).find('.row_data').addClass('date7 alertMember common30');
                                 }else if (e.isVVIP == 1 && userGender==2) {
                                     $('.sjlist_vvip').append(li).find('.row_data').addClass('date7 vvipMember common30');
+                                }else if (e.from_id==1049 || e.to_id==1049) {
+                                    $('.sjlist_admin').append(li).find('.row_data').addClass('date7 adminMember common30');
                                 }else if (e.isVip == 1 && userGender==2) {
                                     $('.sjlist_vip').append(li).find('.row_data').addClass('date7 vipMember common30');
                                 }else if (e.isVip == 0 && userGender==2) {
@@ -1193,6 +1280,8 @@ is_truth_icon_pic.src="{{asset('/new/images/zz_zt2.png')}}";
                                     $('.sjlist_alert').append(li).find('.row_data').addClass('date30 alertMember common30');
                                 }else if (e.isVVIP == 1 && userGender==2) {
                                     $('.sjlist_vvip').append(li).find('.row_data').addClass('date30 vvipMember common30');
+                                }else if (e.from_id==1049 || e.to_id==1049) {
+                                    $('.sjlist_admin').append(li).find('.row_data').addClass('date30 adminMember common30');
                                 }else if (e.isVip == 1 && userGender==2) {
                                     $('.sjlist_vip').append(li).find('.row_data').addClass('date30 vipMember common30');
                                 }else if (e.isVip == 0 && userGender==2)  {
@@ -1221,6 +1310,8 @@ is_truth_icon_pic.src="{{asset('/new/images/zz_zt2.png')}}";
                                     $('.sjlist_alert').append(li).find('.row_data').addClass('dateAll alertMember');
                                 }else if (e.isVVIP == 1 && userGender==2) {
                                     $('.sjlist_vvip').append(li).find('.row_data').addClass('dateAll vvipMember');
+                                }else if (e.from_id==1049 || e.to_id==1049) {
+                                    $('.sjlist_admin').append(li).find('.row_data').addClass('dateAll adminMember');
                                 }else if (e.isVip == 1 && userGender==2) {
                                     $('.sjlist_vip').append(li).find('.row_data').addClass('dateAll vipMember');
                                 }else if (e.isVip == 0 && userGender==2)  {
@@ -1313,6 +1404,13 @@ is_truth_icon_pic.src="{{asset('/new/images/zz_zt2.png')}}";
                                     @endforeach
                                 @endif
 
+                                let admin_counts = $('.date7.adminMember').length;
+                                if (admin_counts > 10) {
+                                    $('.page_admin').show();
+                                }
+                                Page_admin.DrawPage(admin_counts);
+                                $('.sjlist_admin>.date7.adminMember').slice((Page_admin.page - 1) * Page_admin.row, Page_admin.page * Page_admin.row).css('display', '');
+
                                 let alert_counts = $('.date7.alertMember').length;
                                 if (alert_counts > 10) {
                                     $('.page_warned').show();
@@ -1367,7 +1465,13 @@ is_truth_icon_pic.src="{{asset('/new/images/zz_zt2.png')}}";
                                         @endforeach
 
                                 @endif
-
+                                
+                                let admin_counts = $('.common30.adminMember').length;
+                                if (admin_counts > 10) {
+                                    $('.page_admin').show();
+                                }
+                                Page_admin.DrawPage(admin_counts);
+                                $('.sjlist_admin>.common30.adminMember').slice((Page_admin.page - 1) * Page_admin.row, Page_admin.page * Page_admin.row).css('display', '');
 
                                 let alert_counts = $('.common30.alertMember').length;
                                 if (alert_counts > 10) {
@@ -1420,6 +1524,13 @@ is_truth_icon_pic.src="{{asset('/new/images/zz_zt2.png')}}";
 
                                         @endforeach
                                 @endif
+                                
+                                let admin_counts = $('.adminMember').length;
+                                if (admin_counts > 10) {
+                                    $('.page_admin').show();
+                                }
+                                Page_admin.DrawPage(admin_counts);
+                                $('.sjlist_admin>.adminMember').slice((Page_admin.page - 1) * Page_admin.row, Page_admin.page * Page_admin.row).css('display', '');
 
                                 let alert_counts = $('.alertMember').length;
                                 if (alert_counts > 10) {
@@ -1477,6 +1588,13 @@ is_truth_icon_pic.src="{{asset('/new/images/zz_zt2.png')}}";
 
                                     @endforeach
                                 @endif
+                                
+                                let admin_counts = $('.date7.adminMember').length;
+                                if (admin_counts > 10) {
+                                    $('.page_admin').show();
+                                }
+                                Page_admin.DrawPage(admin_counts);
+                                $('.sjlist_admin>.date7.adminMember').slice((Page_admin.page - 1) * Page_admin.row, Page_admin.page * Page_admin.row).css('display', '');
 
                                 let alert_counts = $('.date7.alertMember').length;
                                 if (alert_counts > 10) {
@@ -1532,6 +1650,13 @@ is_truth_icon_pic.src="{{asset('/new/images/zz_zt2.png')}}";
 
                                     @endforeach
                                 @endif
+                                
+                                let admin_counts = $('.common30.adminMember').length;
+                                if (admin_counts > 10) {
+                                    $('.page_admin').show();
+                                }
+                                Page_admin.DrawPage(admin_counts);
+                                $('.sjlist_admin>.common30.adminMember').slice((Page_admin.page - 1) * Page_admin.row, Page_admin.page * Page_admin.row).css('display', '');                                
 
                                 let alert_counts = $('.common30.alertMember').length;
                                 if (alert_counts > 10) {
@@ -1586,6 +1711,13 @@ is_truth_icon_pic.src="{{asset('/new/images/zz_zt2.png')}}";
 
                                     @endforeach
                                 @endif
+                                
+                                let admin_counts = $('.adminMember').length;
+                                if (admin_counts > 10) {
+                                    $('.page_admin').show();
+                                }
+                                Page_admin.DrawPage(admin_counts);
+                                $('.sjlist_admin>.adminMember').slice((Page_admin.page - 1) * Page_admin.row, Page_admin.page * Page_admin.row).css('display', '');
 
                                 let alert_counts = $('.alertMember').length;
                                 if (alert_counts > 10) {
@@ -1609,12 +1741,17 @@ is_truth_icon_pic.src="{{asset('/new/images/zz_zt2.png')}}";
 
                         @if($user->engroup==2)
                             $('.sjlist_vvip>.li_no_data').remove();
+                            $('.sjlist_admin>.li_no_data').remove();
                             $('.sjlist_vip>.li_no_data').remove();
                             $('.sjlist_novip>.li_no_data').remove();
                             $('.sjlist_alert>.li_no_data').remove();
                             if ($('.sjlist_vvip>li:visible').length == 0) {
                                 $('#sjlist_vvip_warning').hide();
                                 $('.sjlist_vvip').append(no_row_li);
+                            }
+                            if ($('.sjlist_admin>li:visible').length == 0) {
+                                $('#sjlist_admin_warning').hide();
+                                $('.sjlist_admin').append(no_row_li);
                             }
                             if ($('.sjlist_vip>li:visible').length == 0) {
                                 $('#sjlist_vip_warning').hide();
@@ -1633,6 +1770,11 @@ is_truth_icon_pic.src="{{asset('/new/images/zz_zt2.png')}}";
                                 $('.sjlist_banned').append(no_row_li);
                             }                            
                         @elseif($user->engroup==1)
+                            $('.sjlist_admin>.li_no_data').remove();
+                            if ($('.sjlist_admin>li:visible').length == 0) {
+                                $('#sjlist_admin_warning').hide();
+                                $('.sjlist_admin').append(no_row_li);
+                            }
                             @php
                                 $exchange_period_name = DB::table('exchange_period_name')->get();
                             @endphp
@@ -1785,6 +1927,13 @@ is_truth_icon_pic.src="{{asset('/new/images/zz_zt2.png')}}";
 
                  @endif
 
+                    let admin_counts = $('.date7.adminMember').length;
+                    if (admin_counts > 10) {
+                        $('.page_admin').show();
+                    }
+                    Page_admin.DrawPage(admin_counts);
+                    $('.sjlist_admin>.date7.adminMember').slice((Page_admin.page - 1) * Page_admin.row, Page_admin.page * Page_admin.row).css('display', '');
+
                     let alert_counts = $('.date7.alertMember').length;
                     if (alert_counts > 10) {
                         $('.page_warned').show();
@@ -1837,6 +1986,13 @@ is_truth_icon_pic.src="{{asset('/new/images/zz_zt2.png')}}";
                          @endforeach
                      @endif
 
+                    let admin_counts = $('.common30.adminMember').length;
+                    if (admin_counts > 10) {
+                        $('.page_admin').show();
+                    }
+                    Page_admin.DrawPage(admin_counts);
+                    $('.sjlist_admin>.common30.adminMember').slice((Page_admin.page - 1) * Page_admin.row, Page_admin.page * Page_admin.row).css('display', '');
+
                     let alert_counts = $('.common30.alertMember').length;
                     if (alert_counts > 10) {
                         $('.page_warned').show();
@@ -1886,6 +2042,14 @@ is_truth_icon_pic.src="{{asset('/new/images/zz_zt2.png')}}";
                              $('.sjlist_exchange_period_{{$row->id}}>.exchange_period_member_{{$row->id}}').slice((Page_exchange_period_{{$row->id}}.page - 1) * Page_exchange_period_{{$row->id}}.row, Page_exchange_period_{{$row->id}}.page * Page_exchange_period_{{$row->id}}.row).css('display', '');
                          @endforeach
                      @endif
+
+                     let admin_counts = $('.adminMember').length;
+                     if (admin_counts > 10) {
+                         $('.page_admin').show();
+                     }
+                     Page_admin.DrawPage(admin_counts);
+                     $('.sjlist_admin>.adminMember').slice((Page_admin.page - 1) * Page_admin.row, Page_admin.page * Page_admin.row).css('display', '');
+
                      let alert_counts = $('.alertMember').length;
                      if (alert_counts > 10) {
                          $('.page_warned').show();
@@ -1904,12 +2068,17 @@ is_truth_icon_pic.src="{{asset('/new/images/zz_zt2.png')}}";
 
                     @if($user->engroup==2)
                         $('.sjlist_vvip>.li_no_data').remove();
+                        $('.sjlist_admin>.li_no_data').remove();
                         $('.sjlist_vip>.li_no_data').remove();
                         $('.sjlist_novip>.li_no_data').remove();
                         $('.sjlist_alert>.li_no_data').remove();
                         if ($('.sjlist_vvip>li:visible').length == 0 && isLoading == 0) {
                             $('#sjlist_vvip_warning').hide();
                             $('.sjlist_vvip').append(no_row_li);
+                        }
+                        if ($('.sjlist_admin>li:visible').length == 0 && isLoading == 0) {
+                            $('#sjlist_admin_warning').hide();
+                            $('.sjlist_admin').append(no_row_li);
                         }
                         if ($('.sjlist_vip>li:visible').length == 0 && isLoading == 0) {
                             $('#sjlist_vip_warning').hide();
@@ -1926,6 +2095,11 @@ is_truth_icon_pic.src="{{asset('/new/images/zz_zt2.png')}}";
                             }
                         }
                     @elseif($user->engroup==1)
+                        $('.sjlist_admin>.li_no_data').remove();
+                        if ($('.sjlist_admin>li:visible').length == 0 && isLoading == 0) {
+                            $('#sjlist_admin_warning').hide();
+                            $('.sjlist_admin').append(no_row_li);
+                        }
                         @php
                             $exchange_period_name = DB::table('exchange_period_name')->get();
                         @endphp
@@ -1987,6 +2161,20 @@ is_truth_icon_pic.src="{{asset('/new/images/zz_zt2.png')}}";
 
             var IDs = [];
             $(".sjlist_vvip").find("li").each(function(){ IDs.push(this.id); });
+            // alert(IDs);
+            // alert($('.sjlist_vip.row_data>li:visible').length);
+            if($.trim(IDs) !== '') {
+                c8('確定要全部刪除嗎?');
+                deleteRowAll(IDs);
+            }else{
+                c5('沒有可刪除資料');
+            }
+        });
+
+        $('.admin_delete').on('click', function() {
+
+            var IDs = [];
+            $(".sjlist_admin").find("li").each(function(){ IDs.push(this.id); });
             // alert(IDs);
             // alert($('.sjlist_vip.row_data>li:visible').length);
             if($.trim(IDs) !== '') {
@@ -2206,10 +2394,10 @@ is_truth_icon_pic.src="{{asset('/new/images/zz_zt2.png')}}";
         //
         //
 
-                $('.leboxVVIP,.lebox1,.lebox2,.lebox3,.lebox_alert,.lebox5').toggleClass('off');
-                $('.leboxVVIP,.lebox1,.lebox2,.lebox3,.lebox_alert,.lebox5').next('dd').slideToggle("slow");
+                $('.leboxVVIP,.lebox0,.lebox1,.lebox2,.lebox3,.lebox_alert,.lebox5').toggleClass('off');
+                $('.leboxVVIP,.lebox0,.lebox1,.lebox2,.lebox3,.lebox_alert,.lebox5').next('dd').slideToggle("slow");
 
-        $('.leboxVVIP,.lebox1,.lebox2,.lebox3,.lebox_alert,.lebox5').click(function(e) {
+        $('.leboxVVIP,.lebox0,.lebox1,.lebox2,.lebox3,.lebox_alert,.lebox5').click(function(e) {
             if ($(this).hasClass('off')) {
                 $(this).removeClass('off');
                 $(this).toggleClass('on');
@@ -2250,6 +2438,12 @@ is_truth_icon_pic.src="{{asset('/new/images/zz_zt2.png')}}";
                 }
                 @endforeach
             @endif
+
+            $('.sjlist_admin>.li_no_data').remove();
+            if ($('.sjlist_admin>li:visible').length == 0 && isLoading == 0) {
+                $('#sjlist_admin_warning').hide();
+                $('.sjlist_admin').append(no_row_li);
+            }
 
             $('.sjlist_alert>.li_no_data').remove();
             if ($('.sjlist_alert>li:visible').length == 0) {

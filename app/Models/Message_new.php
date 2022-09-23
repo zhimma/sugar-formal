@@ -473,8 +473,9 @@ class Message_new extends Model
                 ->whereNull('b6.blocked_id')
                 ->whereNull('b7.member_id')
                 ->where(function ($query) use ($uid,$admin_id) {
-                    $query->where([['message.to_id', $uid], ['message.from_id', '!=', $uid],['message.from_id','!=',$admin_id]])
-                        ->orWhere([['message.from_id', $uid], ['message.to_id', '!=',$uid],['message.to_id','!=',$admin_id]]);
+                    $query->where([['message.from_id', $admin_id], ['message.chat_with_admin', 1], ['message.to_id', $uid]])
+                        ->orWhere([['message.from_id', '<>', $admin_id], ['message.to_id', $uid], ['message.from_id', '!=', $uid]])    
+                        ->orWhere([['message.from_id', $uid], ['message.to_id', '!=',$uid]]);
                 });
 		if($forEventSenders) 
 		{
@@ -548,16 +549,17 @@ class Message_new extends Model
 		$admin_id = AdminService::checkAdmin()->id;
         $messagesForTruth = [];
 
-        foreach ($messages as $key => &$message){
-			
-            if($message['sender']->engroup==$message['receiver']->engroup){
-                unset($messages[$key]);
-                continue;
-            }			
+        foreach ($messages as $key => &$message){		
 			
             $to_id = isset($message["to_id"]) ? $message["to_id"] : null;
             $from_id = isset($message["from_id"]) ? $message["from_id"] : null;
 
+            if ($to_id != $admin_id && $from_id != $admin_id) {
+                if($message['sender']->engroup==$message['receiver']->engroup){
+                    unset($messages[$key]);
+                    continue;
+                }
+            }
             if($message['to_id'] == $user->id) {
                 $msgUser = $message['sender'];
             }

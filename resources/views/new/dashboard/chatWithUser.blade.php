@@ -535,7 +535,7 @@
                             <a href="dashboard/viewuser/{{$to->id}}" style="color: #fd5678;">{{$to->name}}</a>
                         @endif   
                     @else
-                    <span style="color: #fd5678;">系統來訊通知</span>
+                    <span style="color: #fd5678;">站長</span>
                     @endif
                 </span>
                 @else
@@ -865,9 +865,9 @@
                 </form>
             </div>--}}
 
-            @if((!isset($admin) || $to->id != $admin->id) && !isset($to->banned )&& !isset($to->implicitlyBanned))
+            @if(!isset($to->banned )&& !isset($to->implicitlyBanned))
                 <div class="se_text_bot" id="message_input" style="padding-right: 3%; padding-left:3%;">
-                    @if(($to->engroup) === ($user->engroup))
+                    @if(($to->engroup) === ($user->engroup) && ($to->id != $admin->id))
                     @else
                     <form style="margin: 0 auto;" method="POST"
                         action="/dashboard/chat2/{{ \Carbon\Carbon::now()->timestamp }}" id="chatForm" name="chatForm">
@@ -1232,7 +1232,7 @@
     }, true);
 </script>
 <script>
-    @if (($to->engroup) === ($user->engroup))
+    @if (($to->engroup) === ($user->engroup) && ($to->id != $admin->id))
         c5('同性會員無法發送訊息!');
         setTimeout("window.location.href = ' {{ !empty(session()->get('goBackPage_chat2')) ? session()->get('goBackPage_chat2') : \Illuminate\Support\Facades\URL::previous() }} '", 3000);
     @endif

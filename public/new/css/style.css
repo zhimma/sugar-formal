@@ -670,18 +670,21 @@ background: transparent;
 .leboxVVIP{background: url(../images/off.png) no-repeat right #ffbcca; background-position:98%; background-size:22px; padding:0px 20px;color:#ff3e65;font-size:16px;position:relative;line-height:40px;cursor:pointer;text-align: center;}
 .leboxVVIP.on{background:  url(../images/on.png) no-repeat right #ffbcca;background-position:98%;  background-size:22px;position:relative;cursor:pointer;color: #ff3e65;}
 
-.lebox1{background: url(../images/off.png) no-repeat right #f9dbe1; background-position:98%; background-size:22px; padding:0px 20px;color:#ff3e65;font-size:16px;position:relative;line-height:40px;cursor:pointer;text-align: center;}
-.lebox1.on{background:  url(../images/on.png) no-repeat right #f9dbe1;background-position:98%;  background-size:22px;position:relative;cursor:pointer;color: #ff3e65;}
+.lebox0,.lebox1{background: url(../images/off.png) no-repeat right #f9dbe1; background-position:98%; background-size:22px; padding:0px 20px;color:#ff3e65;font-size:16px;position:relative;line-height:40px;cursor:pointer;text-align: center;}
+.lebox0,.lebox1.on{background:  url(../images/on.png) no-repeat right #f9dbe1;background-position:98%;  background-size:22px;position:relative;cursor:pointer;color: #ff3e65;}
 
 .lebox2{background: url(../images/off.png) no-repeat right #98d0ff; background-position:98%; background-size:22px; padding:0px 20px;color:#0089ff;font-size:16px;position:relative;line-height:40px;cursor:pointer;text-align: center;}
-/*.lebox1.on{background:  url(../images/on.png) no-repeat right #ffbcca;background-position:98%;  background-size:22px;position:relative;cursor:pointer;color: #ff3e65;}*/
+/*.lebox0.on,.lebox1.on{background:  url(../images/on.png) no-repeat right #ffbcca;background-position:98%;  background-size:22px;position:relative;cursor:pointer;color: #ff3e65;}*/
+
 .lebox2.on{background:  url(../images/on.png) no-repeat right #98d0ff;background-position:98%;  background-size:22px;position:relative;cursor:pointer;color:#0089ff;}
 
 /*.lebox3{background: url(../images/off.png) no-repeat right #ffe8a0; background-position:98%; background-size:22px; padding:0px 20px;color:#fb8800;font-size:16px;position:relative;line-height:40px;cursor:pointer;}*/
 /*.lebox3.on{background:  url(../images/on.png) no-repeat right #ffe8a0;background-position:98%;  background-size:22px;position:relative;cursor:pointer;}*/
 
 .lebox3{background: url(../images/off.png) no-repeat right #ffc6a0; background-position:98%; background-size:22px; padding:0px 20px;color:#ea8948;font-size:16px;position:relative;line-height:40px;cursor:pointer;text-align: center;}
-/*.lebox1.on{background:  url(../images/on.png) no-repeat right #ffbcca;background-position:98%;  background-size:22px;position:relative;cursor:pointer;color: #ff3e65;}*/
+
+/*.lebox0.on,.lebox1.on{background:  url(../images/on.png) no-repeat right #ffbcca;background-position:98%;  background-size:22px;position:relative;cursor:pointer;color: #ff3e65;}*/
+
 .lebox3.on{background:  url(../images/on.png) no-repeat right #ffc6a0;background-position:98%;  background-size:22px;position:relative;cursor:pointer;color:#ea8948;}
 
 .lebox4{background: url(../images/off.png) no-repeat right #ffc6a0; background-position:98%; background-size:22px; padding:0px 20px;color:#ea8948;font-size:16px;
