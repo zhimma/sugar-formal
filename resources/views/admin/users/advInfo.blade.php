@@ -3034,6 +3034,13 @@ function show_re_content(id){
 
     });
 
+    $('.message_record_btn').on('click', function(){
+        if($(this).text() == '開啟會員對話')
+        {
+            $(this).text('對話中');
+        }
+    });
+
     //預算及車馬費警示警示
     function WarnBudget(type)
     {
