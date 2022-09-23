@@ -2046,7 +2046,7 @@ class PagesController extends BaseController
 
             User::where('id', $user_id)->update(['is_hide_online' => 1, 'hide_online_time' => $checkHideOnlineData->login_time]);
 
-            $status_msg = '搜索排序設定已變更。';
+            $status_msg = '切換成隱藏。';
 
         }else if($isHideOnline == 2){
             //check current is_hide_online
