@@ -54,6 +54,21 @@ return [
             'engine' => null,
         ],
 
+        'ban-job' => [
+            'driver' => 'mysql',
+            'host' => env('DB_HOST', '127.0.0.1'),
+            'port' => env('DB_PORT', '3306'),
+            'database' => env('DB_DATABASE', 'sugar_garden'),
+            'username' => env('DB_USERNAME', 'sguser'),
+            'password' => env('DB_PASSWORD', 'hC`Yz~`?k2N]dIem65t'),
+            'unix_socket' => env('DB_SOCKET', ''),
+            'charset' => 'utf8mb4',
+            'collation' => 'utf8mb4_general_ci',
+            'prefix' => '',
+            'strict' => false,
+            'engine' => null,
+        ],
+
         'mysql2' => [
             'driver' => 'mysql',
             'host' => env('DB_HOST_SECOND', '127.0.0.1'),
