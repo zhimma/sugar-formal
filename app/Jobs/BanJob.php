@@ -41,9 +41,9 @@ class BanJob implements ShouldQueue
         Log::info('start_jobs_BanJob');
         Log::Info(Carbon::now());
         $that = $this;
-        $user_had_been_banned = banned_users::connection($this->connection)->where('member_id', $this->uid)->get()->first();
-        $user_had_been_implicitly_banned = BannedUsersImplicitly::connection($this->connection)->where('target', $this->uid)->get()->first();
-        $user_had_been_warned = warned_users::connection($this->connection)->where('member_id', $this->uid)->get()->first();
+        $user_had_been_banned = DB::connection($this->connection)->table('banned_users')->where('member_id', $this->uid)->get()->first();
+        $user_had_been_implicitly_banned = DB::connection($this->connection)->table('banned_users_implicitly')->where('target', $this->uid)->get()->first();
+        $user_had_been_warned = DB::connection($this->connection)->table('warned_users')->where('member_id', $this->uid)->get()->first();
         if($this->ban_set->set_ban == 1 && !$user_had_been_banned)
         {
             //直接封鎖
@@ -76,7 +76,7 @@ class BanJob implements ShouldQueue
                     $Line = 124;
                     break;
             }
-            BannedUsersImplicitly::connection('mysql')->insert(['fp' => 'Line ' . $Line . ', BannedInUserInfo, ban_set ID: ' . $this->ban_set->id . ', content: ' . $this->ban_set->content, 'user_id' => 0, 'target' => $this->uid]);
+            DB::connection('mysql')->table('banned_users_implicitly')->insert(['fp' => 'Line ' . $Line . ', BannedInUserInfo, ban_set ID: ' . $this->ban_set->id . ', content: ' . $this->ban_set->content, 'user_id' => 0, 'target' => $this->uid]);
         }
         elseif($this->ban_set->set_ban == 3 && !$user_had_been_warned)
         {
