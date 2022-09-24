@@ -557,6 +557,7 @@ class Message_newController extends BaseController {
         $user = $request->user();
         $m_time = '';
         if (isset($user)) {
+            if($user->id == 1049) { set_time_limit(0); }
             $this->service->dispatchCheckECPay($this->userIsVip, $this->userIsFreeVip, $this->userVipData);
             $isVip = ($user->isVip()||$user->isVVIP());
             /*編輯文案-檢舉大頭照-START*/
