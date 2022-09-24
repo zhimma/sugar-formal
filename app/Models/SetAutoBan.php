@@ -228,7 +228,7 @@ class SetAutoBan extends Model
     {
         $new = true;
         if($new) {
-            Log::info('start_LogoutAutoBan_logoutWarned');
+            // Log::info('start_LogoutAutoBan_logoutWarned');
             $user = User::find($uid);
             try {
                 if(isset($user) && $user->can('admin')){
