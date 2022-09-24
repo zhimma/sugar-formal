@@ -57,6 +57,16 @@ class Message extends Model
     static $date = null;
 
     public static $truthMessages = [];
+
+    public function __construct(array $attributes = [])
+    {
+        $this->bootIfNotBooted();
+        $this->initializeTraits();
+        $this->syncOriginal();
+        $this->fill($attributes);
+        $this->connection = app()->environment('production-misc') ? 'mysql_read' : 'mysql';
+    }
+
     /*
     |--------------------------------------------------------------------------
     | relationships
