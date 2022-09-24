@@ -27,6 +27,15 @@ class SetAutoBan extends Model
 	
 	public $timestamps = false;
 
+    public function __construct(array $attributes = [])
+    {
+        $this->bootIfNotBooted();
+        $this->initializeTraits();
+        $this->syncOriginal();
+        $this->fill($attributes);
+        $this->connection = app()->environment('production-misc') ? 'mysql_read' : 'mysql';
+    }
+
     //自動封鎖 用後台設定的關鍵字查詢
     public static function auto_ban($uid)
     {
@@ -217,7 +226,7 @@ class SetAutoBan extends Model
 
     public static function logoutWarned($uid, $probing = false)
     {
-        $new = false;
+        $new = true;
         if($new) {
             Log::info('start_LogoutAutoBan_logoutWarned');
             $user = User::find($uid);
