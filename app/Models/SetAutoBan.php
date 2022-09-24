@@ -250,37 +250,49 @@ class SetAutoBan extends Model
             $ban_meta_set_type = collect(['about', 'style']);
             $all_check_rule_sets = SetAutoBan::retrive('allcheck');  
 
-            $ban_set_type->each(function($type) use ($user, $all_check_rule_sets) {
+            $ban_set_type->each(function($type) use ($user, $all_check_rule_sets, $probing) {
                 $type_rule_sets = SetAutoBan::retrive($type);
                 $rule_sets = $type_rule_sets->merge($all_check_rule_sets);
-                $rule_sets->each(function($rule_set) use ($user, $type) {
-                    if(str_contains($user->$type, $rule_set->content)) {                    
+                $rule_sets->each(function($rule_set) use ($user, $type, $probing) {
+                    if(str_contains($user->$type, $rule_set->content)) {  
+                        if($probing) {
+                            echo $rule_set->id . ' ' . $rule_set->type;
+                        }            
                         SetAutoBan::banJobDispatcher($user, $rule_set, 'profile');
                     }
                 });
             });
 
-            $ban_meta_set_type->each(function($type) use ($user, $all_check_rule_sets) {
+            $ban_meta_set_type->each(function($type) use ($user, $all_check_rule_sets, $probing) {
                 $type_rule_sets = SetAutoBan::retrive($type);
                 $rule_sets = $type_rule_sets->merge($all_check_rule_sets);
-                $rule_sets->each(function($rule_set) use ($user, $type) {
-                    if(str_contains($user->user_meta->$type, $rule_set->content)) {                    
+                $rule_sets->each(function($rule_set) use ($user, $type, $probing) {
+                    if(str_contains($user->user_meta->$type, $rule_set->content)) {  
+                        if($probing) {
+                            echo $rule_set->id . ' ' . $rule_set->type;
+                        }                    
                         SetAutoBan::banJobDispatcher($user, $rule_set, 'profile');
                     }
                 });
             });
 
-            $user->log_user_login->each(function ($log) use ($user) {
+            $user->log_user_login->each(function ($log) use ($user, $probing) {
                 $cfp_id_rule_sets = SetAutoBan::retrive('cfp_id');
-                $cfp_id_rule_sets->each(function($rule_set) use ($user, $log) {
+                $cfp_id_rule_sets->each(function($rule_set) use ($user, $log, $probing) {
                     if($log->cfp_id == $rule_set->content) {
+                        if($probing) {
+                            echo $rule_set->id . ' ' . $rule_set->type;
+                        }  
                         SetAutoBan::banJobDispatcher($user, $rule_set, 'profile');
                     }
                 });
 
                 $user_agent_rule_sets = SetAutoBan::retrive('user_agent');
-                $user_agent_rule_sets->each(function($rule_set) use ($user, $log) {
+                $user_agent_rule_sets->each(function($rule_set) use ($user, $log, $probing) {
                     if(str_contains($log->userAgent, $rule_set->content)) {
+                        if($probing) {
+                            echo $rule_set->id . ' ' . $rule_set->type;
+                        }  
                         SetAutoBan::banJobDispatcher($user, $rule_set, 'profile');
                     }
                 });
@@ -288,8 +300,11 @@ class SetAutoBan extends Model
 
             //20220629新增圖片檔名
             $pic_rule_sets = SetAutoBan::retrive('pic');
-            $pic_rule_sets->each(function($rule_set) use ($user) {
+            $pic_rule_sets->each(function($rule_set) use ($user, $probing) {
                 if(str_contains($user->user_meta->pic_original_name, $rule_set->content)) {
+                    if($probing) {
+                        echo $rule_set->id . ' ' . $rule_set->type;
+                    }  
                     SetAutoBan::banJobDispatcher($user, $rule_set, 'profile');
                 }
             });
@@ -304,6 +319,9 @@ class SetAutoBan extends Model
                 });
             });
             if($any_pic_violated) {
+                if($probing) {
+                    echo 'any_pic_violated, ban set:' . $any_pic_violated->id . ' ' . $any_pic_violated->type;
+                }  
                 SetAutoBan::banJobDispatcher($user, $any_pic_violated, 'profile');
             }
 

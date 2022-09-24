@@ -38,7 +38,7 @@ class BanJob implements ShouldQueue
 
     public function handle()
     {
-        Log::info('start_jobs_BanJob');
+        Log::info("start_jobs_BanJob, user {$this->user->id}, ban set {$this->ban_set->id}");
         Log::Info(Carbon::now());
         if (!$this->ban_set->id) {
             logger("Ban job failed on user {$this->user->id}, no ban set id, try to display ban type: " . $this->ban_set->set_ban);
@@ -102,7 +102,7 @@ class BanJob implements ShouldQueue
             // UserMeta::where('user_id', $this->uid)->update(['isWarned' => 1]);
         }
         //sleep(90);
-        Log::info('end_jobs_BanJob');
+        Log::info("end_jobs_BanJob, user {$this->user->id}, ban set {$this->ban_set->id}");
         Log::Info(Carbon::now());
         
         return 0;
