@@ -40,6 +40,12 @@ class BanJob implements ShouldQueue
     {
         Log::info('start_jobs_BanJob');
         Log::Info(Carbon::now());
+        if (!$this->ban_set->id) {
+            logger("Ban job failed on user {$this->user->id}, no ban set id, try to display ban type: " . $this->ban_set->set_ban);
+        }
+        if (!$this->ban_set->set_ban) {
+            logger("Ban job failed on user {$this->user->id}, set id: {$this->ban_set->set_ban}.");
+        }
         $that = $this;
         $user_had_been_banned = DB::connection($this->connection)->table('banned_users')->where('member_id', $this->uid)->get()->first();
         $user_had_been_implicitly_banned = DB::connection($this->connection)->table('banned_users_implicitly')->where('target', $this->uid)->get()->first();
