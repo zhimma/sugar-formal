@@ -311,19 +311,16 @@ class SetAutoBan extends Model
 
             //有一筆違規就可以封鎖了 
             $pic_name_rule_sets = SetAutoBan::retrive('picname');
-            $any_pic_violated = $user->pics->first(function($pic) use ($pic_name_rule_sets) {
-                return $pic_name_rule_sets->each(function($rule_set) use ($pic) {
+            $any_pic_violated = $user->pics->first(function($pic) use ($user, $pic_name_rule_sets, $probing) {
+                return $pic_name_rule_sets->each(function($rule_set) use ($user, $pic, $probing) {
                     if(str_contains($pic->original_name, $rule_set->content)) {
-                        return true;
+                        if($probing) {
+                            echo 'any_pic_violated, ban set:' . $rule_set->id . ' ' . $rule_set->type;
+                        }  
+                        SetAutoBan::banJobDispatcher($user, $rule_set, 'profile');
                     }
                 });
             });
-            if($any_pic_violated) {
-                if($probing) {
-                    echo 'any_pic_violated, ban set:' . $any_pic_violated->id . ' ' . $any_pic_violated->type;
-                }  
-                SetAutoBan::banJobDispatcher($user, $any_pic_violated, 'profile');
-            }
 
             $ip_rule_sets = SetAutoBan::retrive('ip');
             $auto_ban_rule_sets = $ip_rule_sets->merge($pic_rule_sets);
