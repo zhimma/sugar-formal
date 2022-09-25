@@ -36,6 +36,6 @@ class LogSuccessfulLoginListener
 
         //新增登入紀錄
         LogUserLogin::recordLoginData($user, $cfp_hash);
-        SetAutoBan::logout_warned($user->id);
+        // SetAutoBan::logout_warned($user->id);
     }
 }
