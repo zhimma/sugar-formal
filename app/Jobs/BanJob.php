@@ -111,4 +111,15 @@ class BanJob implements ShouldQueue
         
         return 0;
     }
+
+    /**
+    * The job failed to process.
+    *
+    * @param  Exception  $exception
+    * @return void
+    */
+    public function failed(\Exception $exception)
+    {
+        logger($exception);
+    }
 }
