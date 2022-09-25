@@ -18,10 +18,11 @@ use Carbon\Carbon;
 use App\Services\ImagesCompareService;
 use App\Jobs\BanJob;
 use Illuminate\Support\Facades\Cache;
+use Laravel\Scout\Searchable;
 
 class SetAutoBan extends Model
 {
-    use SoftDeletes;
+    use SoftDeletes, Searchable;
     //
     protected $table = 'set_auto_ban';
 	
@@ -569,5 +570,29 @@ class SetAutoBan extends Model
         return Cache::remember('auto_ban_set' . $type, 3600, function () use ($type) {
             return SetAutoBan::where('type', $type)->get();
         });
+    }
+    
+    /**
+     * Get the name of the index associated with the model.
+     *
+     * @return string
+     */
+    public function searchableAs()
+    {
+        return 'autoban_set';
+    }
+
+    /**
+     * Get the indexable data array for the model.
+     *
+     * @return array
+     */
+    public function toSearchableArray()
+    {
+        $array = $this->toArray();
+ 
+        // Customize the data array...
+ 
+        return $array;
     }
 }
