@@ -1061,6 +1061,23 @@ class UserMeta extends Model
     {
         return $this->hasOne(RealAuthUserModifyPic::class, 'old_pic', 'pic')->whereHas('real_auth_user_modify',function($q){$q->where([['status',0],['apply_status_shot',1]])->whereHas('real_auth_user_apply',function($qq){$qq->where('status',1);});})->orderByDesc('id')->take(1);
     }       
+
+    /**
+     * Perform a search against the model's indexed data.
+     *
+     * @param  string  $query
+     * @param  \Closure  $callback
+     * @return \Laravel\Scout\Builder
+     */
+    public static function scoutSearch($query = '', $callback = null)
+    {
+        return app(Builder::class, [
+            'model' => new static,
+            'query' => $query,
+            'callback' => $callback,
+            'softDelete'=> static::usesSoftDelete() && config('scout.soft_delete', false),
+        ]);
+    }
 }
 
 
