@@ -1071,7 +1071,7 @@ class UserMeta extends Model
      */
     public static function scoutSearch($query = '', $callback = null)
     {
-        return app(Builder::class, [
+        return app(\Laravel\Scout\Builder::class, [
             'model' => new static,
             'query' => $query,
             'callback' => $callback,
