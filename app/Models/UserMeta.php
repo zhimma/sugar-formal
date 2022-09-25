@@ -18,9 +18,12 @@ use App\Services\ImagesCompareService;
 use App\Models\SearchIgnore;
 use App\Services\SearchIgnoreService;
 use App\Models\RealAuthUserModifyPic;
+use Laravel\Scout\Searchable;
 
 class UserMeta extends Model
 {
+    use Searchable;
+
     /**
      * The database table used by the model.
      *

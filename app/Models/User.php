@@ -39,13 +39,12 @@ use App\Models\UserTattoo;
 use App\Models\StayOnlineRecord;
 use App\Models\PuppetAnalysisRow;
 use Illuminate\Support\Facades\Cache;
-
-use function Clue\StreamFilter\fun;
 use Tymon\JWTAuth\Contracts\JWTSubject;
+use Laravel\Scout\Searchable;
 
 class User extends Authenticatable implements JWTSubject
 {
-    use Notifiable;
+    use Notifiable, Searchable;
     /**
      * The database table used by the model.
      *

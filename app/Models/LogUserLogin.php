@@ -5,9 +5,12 @@ namespace App\Models;
 use App\Models\User;
 use Illuminate\Database\Eloquent\Model;
 use Carbon\Carbon;
+use Laravel\Scout\Searchable;
 
 class LogUserLogin extends Model
 {
+    use Searchable;
+    
     public $timestamps = false;
     /**
      * The database table used by the model.
