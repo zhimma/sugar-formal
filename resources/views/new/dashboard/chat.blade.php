@@ -165,6 +165,13 @@ is_truth_icon_pic.src="{{asset('/new/images/zz_zt2.png')}}";
     }
     
     img.ys_gt1 {z-index:5 !important;}
+    .msg_select_cont {
+        width: auto;
+        margin-right: 3%;
+        float: right;
+        margin-top: 0;
+        margin-bottom: 20px;
+    }
 </style>
 <!--引导弹出层-->
 <script type="text/javascript" src="/new/intro/intro.js"></script>
@@ -213,13 +220,18 @@ is_truth_icon_pic.src="{{asset('/new/images/zz_zt2.png')}}";
                     @endif
                 </h2>
             </div>
-            <div class=" select_cont">
-                <select id="daysSelect" class="right">
-                    {{-- <option value="7">訊息</option>--}}
-                    <option value="7">7天内</option>
-                    <option value="30">30天内</option>
-                    <option value="all">全部</option>
-                </select>
+            <div class="d-table">
+                <div class="select_cont msg_select_cont">
+                    <select id="daysSelect" class="right">
+                        {{-- <option value="7">訊息</option>--}}
+                        <option value="7">7天内</option>
+                        <option value="30">30天内</option>
+                        <option value="all">全部</option>
+                    </select>
+                </div>
+                @if($user->engroup==2)
+                <a href="javascript:void(0)" class="right ys_inbut"><img src="/new/images/zz_ztt.png">顯示罐頭訊息</a>
+                @endif
             </div>
             <div class="sjlist_li">
                 <div class="leftsidebar_box">
@@ -1829,6 +1841,10 @@ is_truth_icon_pic.src="{{asset('/new/images/zz_zt2.png')}}";
         //   alert( this.value );
         //   console.log($("#daysSelect option:selected").val())
         // });
+
+        $('.ys_inbut').on('click', function() {
+          $('.row_data.can').removeClass('d-none');
+        });
 
         $('#daysSelect').on('change', function() {
         // $('input[name=RadioGroup1]').on('click', function(event) {

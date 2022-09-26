@@ -2101,6 +2101,9 @@
                         if(rentry.error==401) {
                             show_pop_message('傳送失敗：'+rentry.content);
                         }
+                        else if(rentry.error==2){
+                            show_canMessageAlert(rentry.content);
+                        }
                         else {
                             c5(rentry.content);
                             $('.n_bllbut').focus();
