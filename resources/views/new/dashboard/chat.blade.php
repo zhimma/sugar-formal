@@ -224,7 +224,8 @@ is_truth_icon_pic.src="{{asset('/new/images/zz_zt2.png')}}";
             <div class="sjlist_li">
                 <div class="leftsidebar_box">
                     <dl class="system_log">
-                        @if($user->id != 1049)
+                        @if(($isVip && ($user->engroup==1 || $user->engroup==2)) || (!$isVip &&
+                        $user->engroup==2))
                             <span class="admin_delete shou_but">全部刪除</span>
                         @endif
                         @if($user->id != 1049)
