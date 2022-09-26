@@ -151,7 +151,7 @@ document.getElementById(id+"_a").className="n_viphover";
 			<a href=""> 網站使用</a> 丨
 			<a href=""> 使用條款</a> 丨
 			<a href=""> 聯絡我們</a>
-			<img src="/new/images/bot_10.png">
+			{{--<img src="/new/images/bot_10.png">--}}
 		</div>
         
 <div class="blbg" onclick="gmBtn1()"></div>

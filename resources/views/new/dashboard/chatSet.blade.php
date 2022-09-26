@@ -58,7 +58,7 @@
                                                 <span><input type="checkbox" name="group_name[]" class="ti_ceckys" value="3" @if(in_array(3, $user_line_notify_chat_set)) checked @endif>短期為主</span>
                                             @else
                                                 <span><input type="checkbox" name="group_name[]" class="ti_ceckys" value="5" @if(in_array(5, $user_line_notify_chat_set)) checked @endif>VIP</span>
-                                                <span><input type="checkbox" name="group_name[]" class="ti_ceckys" value="6" @if(in_array(6, $user_line_notify_chat_set)) checked @endif>普通會員</span>
+                                                <span><input type="checkbox" name="group_name[]" class="ti_ceckys" value="6" @if(in_array(6, $user_line_notify_chat_set)) checked @endif>試用會員</span>
                                             @endif
                                             <span><input type="checkbox" name="group_name[]" class="ti_ceckys" value="8" @if(in_array(8, $user_line_notify_chat_set)) checked @endif>已收藏會員</span>
                                         </div>
@@ -122,7 +122,7 @@
                                     <div class="ti_xcheck naa_dd">
                                         <input type="hidden" name="isHideWeight" value="0">
                                         <span><input type="checkbox" name="isRefused_vip_user" id="q4" class="ti_ceckys" value="1" @if($inbox_refuse_set->isrefused_vip_user == true) checked @endif>vip</span>
-                                        <span><input type="checkbox" name="isRefused_common_user" id="q4" class="ti_ceckys" value="1" @if($inbox_refuse_set->isrefused_common_user == true) checked @endif>普通會員</span>
+                                        <span><input type="checkbox" name="isRefused_common_user" id="q4" class="ti_ceckys" value="1" @if($inbox_refuse_set->isrefused_common_user == true) checked @endif>試用會員</span>
                                         <span><input type="checkbox" name="isRefused_warned_user" id="q4" class="ti_ceckys" value="1" @if($inbox_refuse_set->isrefused_warned_user == true) checked @endif>警示會員</span>
                                     </div>
                                     <div class="ti_ktx na_top25"><span class="na_nb">b.PR分數低於多少不收</span></div>

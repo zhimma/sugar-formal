@@ -7,7 +7,7 @@
 		<div class="col-sm-12 col-xs-12 col-md-12">
 			<div class="commonMenu">
 				<div class="menuTop">
-					<a href="{!! url('') !!}"><img src="/new/images/icon_41.png" class="logo" /></a>
+					{{--<a href="{!! url('') !!}"><img src="/new/images/icon_41.png" class="logo" /></a>--}}
                     <div class="ndlrfont"><a href="{!! url('/checkAdult') !!}">註冊</a>丨<a href="{!! url('login') !!}">登入</a></div>
 					<!--<span id="menuButton"><img src="images/icon.png" class="he_img"></span>-->
 				</div>

@@ -999,14 +999,14 @@
                                         </dt>
                                     @endif
 
-                                    @if($to->engroup == 2 && !empty($to->meta->budget))
+                                    {{--@if($to->engroup == 2 && !empty($to->meta->budget))
                                     <dt>
                                         <span>預算</span>
                                         <span>
                                             <div class="select_xx01 senhs hy_new">{{$to->meta->budget}}</div>
                                         </span>
                                     </dt>
-                                    @endif
+                                    @endif--}}
 
                                     @if(!empty($to->meta->age()))
                                     <dt>

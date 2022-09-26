@@ -210,7 +210,7 @@ is_truth_icon_pic.src="{{asset('/new/images/zz_zt2.png')}}";
                 {{-- @endif--}}
                 <h2 data-step="1" data-highlightClass="yd1a" data-tooltipClass="yd1"
                     data-intro="<p>不同等級會員可以有不同的信件讀取權限。</p>
-                        <p>普通會員：信件可保存30天，通訊人數限制10人。</p>
+                        <p>試用會員：信件可保存30天，通訊人數限制10人。</p>
                         <p>VIP 會員：信件可保存180天，無限制通訊人數。</p>
                         <h2>@if($isVip)您目前是 @if($user->isVVip()){{$letter_vvip}}@else{{$letter_vip}}@endif，所以不限制通訊人數，且信件可保存180天。@else您目前是 {{$letter_normal_member}}，所以限制通訊人數10，且信件保存30天。 @endif</h2><em></em><em></em>">
                     @if($isVip)
@@ -343,7 +343,7 @@ is_truth_icon_pic.src="{{asset('/new/images/zz_zt2.png')}}";
                             data-tooltipClass="yd4" data-intro="<p>站方建議盡量多與
                         VVIP 會員互動。本區會員的素質最佳，投訴率低於 0.1%。</p>
                                 <em></em><em></em>">
-                                <span class="le_span">VVIP會員</span>
+                                <span class="le_span">VVIP會員(財力驗證)</span>
                         </dt>
                         <dd>
                             <div class="loading warning" id="sjlist_vvip_warning"><span
@@ -362,7 +362,7 @@ is_truth_icon_pic.src="{{asset('/new/images/zz_zt2.png')}}";
                                 VIP 會員互動。本區會員的素質最佳，投訴率低於 0.1%。</p>
                                         <em></em><em></em>">
 
-                            <span class="le_span">VIP會員</span>
+                            <span class="le_span">VIP會員(基本認證)</span>
                         </dt>
                         <dd>
                             <div class="loading warning" id="sjlist_vip_warning"><span
@@ -379,7 +379,7 @@ is_truth_icon_pic.src="{{asset('/new/images/zz_zt2.png')}}";
                         <dt class="lebox2" data-position="top" data-highlightClass="yd4a" data-tooltipClass="yd4"
                             data-step="4" data-intro="未付費的會員賴帳機率高於VIP 50倍<em></em><em></em>">
 
-                            <span class="le_span">普通會員</span>
+                            <span class="le_span">試用會員(無驗證)</span>
                         </dt>
                         <dd>
                             <div class="loading warning" id="sjlist_novip_warning"><span
@@ -470,7 +470,7 @@ is_truth_icon_pic.src="{{asset('/new/images/zz_zt2.png')}}";
         </select>
         <h2>收信設定</h2>
         <select name="notifhistory" id="notifhistory" class="blinput">
-            <option value="顯示普通會員信件" @if($user->meta_()->notifhistory=='顯示普通會員信件') selected @endif>顯示普通會員信件</option>
+            <option value="顯示試用會員信件" @if($user->meta_()->notifhistory=='顯示普通會員信件') selected @endif>顯示試用會員信件</option>
             <option value="顯示VIP會員信件" @if($user->meta_()->notifhistory=='顯示VIP會員信件') selected @endif>顯示VIP會員信件</option>
             <option value="顯示全部會員信件" @if($user->meta_()->notifhistory=='顯示全部會員信件') selected @endif>顯示全部會員信件</option>
         </select>
@@ -1006,11 +1006,11 @@ is_truth_icon_pic.src="{{asset('/new/images/zz_zt2.png')}}";
 
             if(show==0 && engroup==1){
                 li += `
-                     <div onclick="yd3()" class="vipOnlyAlert" data-toggle="popover" data-content="${username}您好，普通會員只能看到最先通訊的十位女會員，請至「全部訊息」確認通訊人數是否已超過10人，即可發訊息給${user_name}" style="width: 100%">
+                     <div onclick="yd3()" class="vipOnlyAlert" data-toggle="popover" data-content="${username}您好，試用會員只能看到最先通訊的十位女會員，請至「全部訊息」確認通訊人數是否已超過10人，即可發訊息給${user_name}" style="width: 100%">
                    `;
             }else if(show==0 && engroup==2){
                 li += `
-                     <div onclick="yd3()" class="vipOnlyAlert" data-toggle="popover" data-content="${username}您好，普通會員只能看到最先通訊的十位男會員，請上傳大頭貼＋三張生活照就可以取得　ＶＩＰ　權限或是到「全部訊息」確認通訊人數是否已超過10人，即可發訊息給${user_name}" style="width: 100%">
+                     <div onclick="yd3()" class="vipOnlyAlert" data-toggle="popover" data-content="${username}您好，試用會員只能看到最先通訊的十位男會員，請上傳大頭貼＋三張生活照就可以取得　ＶＩＰ　權限或是到「全部訊息」確認通訊人數是否已超過10人，即可發訊息給${user_name}" style="width: 100%">
                   `;
             }
 
@@ -1043,7 +1043,7 @@ is_truth_icon_pic.src="{{asset('/new/images/zz_zt2.png')}}";
                             <div class="onlineStatusChatView"></div>
                         </div>
                         <div class="sjleft" data-position="bottom" data-highlightClass="yd3a" data-tooltipClass="yd3" data-step="6"
-                                     data-intro="普通會員只能看到舊的十筆訊息，如果想要看新的訊息請刪除舊的通訊紀錄。<em></em><em></em>">
+                                     data-intro="試用會員只能看到舊的十筆訊息，如果想要看新的訊息請刪除舊的通訊紀錄。<em></em><em></em>">
                             <div class="sjtable ${user_id}">${(read_n!=0 && isBanned==0?`<i class="number ${user_id}">${read_n}</i>`:'')}<span class="ellipsis" style="width: 60%;">${user_name}</span></div>
                   `;
             }else if(show==0){
@@ -1053,7 +1053,7 @@ is_truth_icon_pic.src="{{asset('/new/images/zz_zt2.png')}}";
                             <div class="onlineStatusChatView"></div>
                         </div>
                         <div class="sjleft" data-position="bottom" data-highlightClass="yd3a" data-tooltipClass="yd3" data-step="7"
-                                     data-intro="普通會員只能看到舊的十筆訊息，如果想要看新的訊息請刪除舊的通訊紀錄。<em></em><em></em>">
+                                     data-intro="試用會員只能看到舊的十筆訊息，如果想要看新的訊息請刪除舊的通訊紀錄。<em></em><em></em>">
                             <div class="sjtable ${user_id}">${(read_n!=0 && isBanned==0?`<i class="number ${user_id}">${read_n}</i>`:'')}<span class="ellipsis" style="width: 60%;">${user_name}</span></div>
                   `;
             }
@@ -1254,6 +1254,7 @@ is_truth_icon_pic.src="{{asset('/new/images/zz_zt2.png')}}";
                             if (e && e.user_id) li = liContent(e.pic, e.user_name, e.content, e.created_at, e.read_n, i, e.user_id, e.isVip, 1,e.isWarned,e.isBanned,e.exchange_period,isBlur,e.is_truth,e.isCan);
                         }
 
+                        var has_vvip_msg_count=0;
                         if (typeof e.created_at !== 'undefined') {
                             if (e.created_at.substr(0, 10) >= this_7daysBefore) {
                                 if(e.isBanned==1) {
@@ -1262,6 +1263,7 @@ is_truth_icon_pic.src="{{asset('/new/images/zz_zt2.png')}}";
                                 else if (e.isWarned==1) {
                                     $('.sjlist_alert').append(li).find('.row_data').addClass('date7 alertMember common30');
                                 }else if (e.isVVIP == 1 && userGender==2) {
+                                    has_vvip_msg_count+=1;
                                     $('.sjlist_vvip').append(li).find('.row_data').addClass('date7 vvipMember common30');
                                 }else if (e.from_id==1049 || e.to_id==1049) {
                                     $('.sjlist_admin').append(li).find('.row_data').addClass('date7 adminMember common30');
@@ -1292,6 +1294,7 @@ is_truth_icon_pic.src="{{asset('/new/images/zz_zt2.png')}}";
                                 else if (e.isWarned==1){
                                     $('.sjlist_alert').append(li).find('.row_data').addClass('date30 alertMember common30');
                                 }else if (e.isVVIP == 1 && userGender==2) {
+                                    has_vvip_msg_count+=1;
                                     $('.sjlist_vvip').append(li).find('.row_data').addClass('date30 vvipMember common30');
                                 }else if (e.from_id==1049 || e.to_id==1049) {
                                     $('.sjlist_admin').append(li).find('.row_data').addClass('date30 adminMember common30');
@@ -1322,6 +1325,7 @@ is_truth_icon_pic.src="{{asset('/new/images/zz_zt2.png')}}";
                                 else if (e.isWarned==1) {
                                     $('.sjlist_alert').append(li).find('.row_data').addClass('dateAll alertMember');
                                 }else if (e.isVVIP == 1 && userGender==2) {
+                                    has_vvip_msg_count+=1;
                                     $('.sjlist_vvip').append(li).find('.row_data').addClass('dateAll vvipMember');
                                 }else if (e.from_id==1049 || e.to_id==1049) {
                                     $('.sjlist_admin').append(li).find('.row_data').addClass('dateAll adminMember');
@@ -1346,6 +1350,11 @@ is_truth_icon_pic.src="{{asset('/new/images/zz_zt2.png')}}";
                                 @endif
                             }
                         }
+                        if(has_vvip_msg_count>0){
+                            $('.leboxVVIP').toggleClass('on');
+                            $('.leboxVVIP').next('dd').slideToggle("slow");
+                        }
+
                         @if($isVip)
                             $.each(usersList, function(i2, e2){
                                 console.log(e2.id == e.user_id);

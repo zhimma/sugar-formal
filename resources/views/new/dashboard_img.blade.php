@@ -446,12 +446,12 @@ function requestBlurryAvatarDefault() {
                           <ul>
                               <li><span>◎</span>預設為只給 VIP 看清楚的照片</li>
                               <li><span>◎</span>如果你想要開放給所有人看照片</li>
-                              <li><span>◎</span>請自行勾選下方的 "普通會員"</li>
+                              <li><span>◎</span>請自行勾選下方的 "試用會員"</li>
                           </ul>
                           <h3>清晰照片開放給</h3>
                           <h4>
                               <span><input name="picBlurryAvatar" type="checkbox" value="VIP" @if($isVIP) checked @endif>VIP</span>
-                              <span><input name="picBlurryAvatar" type="checkbox" value="general" @if($isGeneral) checked @endif>普通會員</span>
+                              <span><input name="picBlurryAvatar" type="checkbox" value="general" @if($isGeneral) checked @endif>試用會員</span>
                           </h4>
                     </div>
                     
@@ -491,12 +491,12 @@ function requestBlurryAvatarDefault() {
                           <ul>
                               <li><span>◎</span>預設為只給 VIP 看清楚的照片</li>
                               <li><span>◎</span>如果你想要開放給所有人看照片</li>
-                              <li><span>◎</span>請自行勾選下方的 "普通會員"</li>
+                              <li><span>◎</span>請自行勾選下方的 "試用會員"</li>
                           </ul>
                           <h3>清晰照片開放給</h3>
                           <h4>
                               <span><input name="picBlurryLifePhoto" type="checkbox" value="VIP" @if($isVIP) checked @endif>VIP</span>
-                              <span><input name="picBlurryLifePhoto" type="checkbox" value="general"  @if($isGeneral) checked @endif>普通會員</span>
+                              <span><input name="picBlurryLifePhoto" type="checkbox" value="general"  @if($isGeneral) checked @endif>試用會員</span>
                               @if($isDefault) 
                               <script>  
                                 requestBlurryLifePhotoDefault();
