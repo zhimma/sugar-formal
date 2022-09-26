@@ -1260,9 +1260,6 @@ is_truth_icon_pic.src="{{asset('/new/images/zz_zt2.png')}}";
                                 }
 
                                 @if($user->engroup==1)
-                                    if (userGender==1 && e.user_id == 1049){
-                                        $('.sjlist_exchange_period_1').append(li).find('.row_data').addClass('date7 exchange_period_member_1 common30');
-                                    }
                                     @php
                                         $exchange_period_name = DB::table('exchange_period_name')->get();
                                     @endphp
