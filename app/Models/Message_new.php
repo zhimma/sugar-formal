@@ -7,6 +7,7 @@ use App\Models\User;
 use App\Models\Blocked;
 use App\Models\SimpleTables\banned_users;
 use App\Services\AdminService;
+use App\Services\UserService;
 use Illuminate\Database\Eloquent\Model;
 use App\Notifications\MessageEmail;
 use Illuminate\Support\Facades\Config;
@@ -640,6 +641,16 @@ class Message_new extends Model
                 else {
                     $messages[$key]['is_truth'] = 0;
                 }
+
+		if(isset($messages[$key])) {
+                    $messages[$key]['isCan']=0;
+                    if ($msgUser->engroup == 1) {
+                        $gr_exceed = UserService::isGreetingFrequently($msgUser->id);
+                        if ($gr_exceed) {
+                            $messages[$key]['isCan']=1;
+                        }
+		    }
+		}
             }
             else{
                 Log::info('Null object found, $user: ' . $user->id);
