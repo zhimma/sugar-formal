@@ -1302,4 +1302,21 @@ class Message extends Model
             return Message::where('from_id', $user_id)->where('created_at', '>=', $from_date)->get();
         });
     }
+    
+    /**
+     * Perform a search against the model's indexed data.
+     *
+     * @param  string  $query
+     * @param  \Closure  $callback
+     * @return \Laravel\Scout\Builder
+     */
+    public static function scoutSearch($query = '', $callback = null)
+    {
+        return app(\Laravel\Scout\Builder::class, [
+            'model' => new static,
+            'query' => $query,
+            'callback' => $callback,
+            'softDelete'=> static::usesSoftDelete() && config('scout.soft_delete', false),
+        ]);
+    }
 }
