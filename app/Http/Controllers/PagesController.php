@@ -9522,7 +9522,6 @@ class PagesController extends BaseController
     }
 
     public function anonymousChat(Request $request) {
-        return "<h2>匿名聊天室維修中。</h2>";
         $user = auth()->user();
 
         if (User::isBanned($user->id)) {
