@@ -98,7 +98,7 @@
 
                                     <!--新增升級解鎖VIP訊息及按鈕 by simon-->
                                     <div class="n_shtab">
-                                        <h2>您已於{{ $closeDay }}將會員帳號關閉，普通會員每個月僅可變更一次，你需再等{{ $waitDay }}天後才能再次開啟此帳號，造成不便請見諒，或者點此
+                                        <h2>您已於{{ $closeDay }}將會員帳號關閉，試用會員每個月僅可變更一次，你需再等{{ $waitDay }}天後才能再次開啟此帳號，造成不便請見諒，或者點此
                                             <a href="{!! url('dashboard/new_vip') !!}" style="color:blue;">
                                                 升級VIP
                                             </a>
@@ -119,7 +119,7 @@
                                     </div>
                                 @else
                                     <div class="n_shtab">
-                                        <h2>提醒您：普通會員每個月僅可變更一次，距離您上次關閉帳號已超過一個月，您現在可以隨時再次開啟此帳號。</h2>
+                                        <h2>提醒您：試用會員每個月僅可變更一次，距離您上次關閉帳號已超過一個月，您現在可以隨時再次開啟此帳號。</h2>
                                     </div>
                                     <div class="sjlist_li">
                                         <div class="leftsidebar_box">
@@ -169,7 +169,7 @@
                                         </div>
                                     </div>
                                     <br>
-                                    <div class="blxg">註：普通會員每個月僅可變更一次，VIP則沒有限制，並請填答關閉原因。</div>
+                                    <div class="blxg">註：試用會員每個月僅可變更一次，VIP則沒有限制，並請填答關閉原因。</div>
                                     <div class="n_txbut g_inputt40" style="margin-top: 40px;">
                                         <button type="submit" class="se_but1" style="border-style: none;">關閉帳號</button>
                                         <button type="reset" class="se_but2">取消</button>

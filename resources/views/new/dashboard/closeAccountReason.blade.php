@@ -27,7 +27,7 @@ header("Expires: Fri, 01 Jan 1990 00:00:00 GMT");
                 </div>
 
                 <div class="n_shtab">
-                    <h2>普通會員每個月僅可變更一次, VIP則沒有限制, 並請填寫關閉原因。</h2>
+                    <h2>試用會員每個月僅可變更一次, VIP則沒有限制, 並請填寫關閉原因。</h2>
                 </div>
                 <div class="sjlist_li">
                     <div class="leftsidebar_box">

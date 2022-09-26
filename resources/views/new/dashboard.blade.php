@@ -392,7 +392,7 @@ dt span.engroup_type_title {display:inline-block;width:10%;white-space:nowrap;}
                     </dt>
                     @endif
                     @if($user->engroup==2)
-                            <dt class="">
+                            {{--<dt class="">
                                 <span>預算<i>(必填)</i></span>
                                 <span>
                                 <select data-parsley-errors-messages-disabled name="budget"  class="select_xx01">
@@ -410,7 +410,7 @@ dt span.engroup_type_title {display:inline-block;width:10%;white-space:nowrap;}
                                     <option value="可商議" {{($umeta->budget == '可商議')?"selected":""  }}>可商議</option>
                                 </select>
                                 </span>
-                            </dt>
+                            </dt>--}}
                     @endif
                     <dt>
                         <span>出生年月<i>(必填)</i></span>

@@ -268,7 +268,17 @@
         $anonymous_chat_announcement = '';
     }
 @endphp
-<div class="bl bl_tab tab_anonymousChatAlert" id="tab_anonymousChatAlert">
+<style>
+    @media (max-width:912px) and (max-height: 414px) {
+
+        .tab_anonymousChatAlert {
+            max-height: 300px;
+            overflow-y: scroll;
+        }
+    }
+</style>
+
+<div class="bl bl_tab tab_anonymousChatAlert" id="tab_anonymousChatAlert" style="top: 10%;">
     <div class="bltitle">聊天室重要規定</div>
     <div class="n_blnr01 matop10">
         <div class="n_fengs">{!! isset($anonymous_chat_announcement)?$anonymous_chat_announcement:'' !!}

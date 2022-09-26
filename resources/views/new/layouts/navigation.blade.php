@@ -1,9 +1,11 @@
 <div class="head_3 head hetop">
 	<div class="container">
 		<div class="col-sm-12 col-xs-12 col-md-12">
-			<a href="{!! url('') !!}" >
-				<img src="/new/images/icon_41.png" class="logo" />
-			</a>
+			@if($_SERVER['REQUEST_URI'] =='/')
+				<a href="{!! url('') !!}" >
+					<img src="/new/images/icon_41.png" class="logo" />
+				</a>
+			@endif
 			@if (isset($user) && !str_contains(url()->current(), 'activate') && !str_contains(url()->current(), 'member_auth') && $user->meta->is_active ==1)
 				@if(Session::has('original_user'))
 					<div class="ndlrfont">
@@ -38,9 +40,11 @@
 		<div class="col-sm-12 col-xs-12 col-md-12">
 			<div class="commonMenu">
 				<div class="menuTop">
-					<a href="{!! url('') !!}" >
-						<img src="/new/images/icon_41.png" class="logo" />
-					</a>
+					@if($_SERVER['REQUEST_URI'] =='/')
+						<a href="{!! url('') !!}" >
+							<img src="/new/images/icon_41.png" class="logo" />
+						</a>
+					@endif
 					@if (isset($user) && !str_contains(url()->current(), 'activate') && $user->meta->is_active ==1)
 					<span id="menuButton"><img src="/new/images/icon.png" class="he_img"></span>
 					@elseif(isset($user) && Auth::user() && $user->meta_()->is_active ==0)

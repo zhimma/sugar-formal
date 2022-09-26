@@ -133,7 +133,7 @@
         <div class="bl bl_tab" id="tab06_new_sugar_chat_set">	
             <div class="bltitle">提示</div>	
             <div class="n_blnr01">	
-                <div class="blnr bltext">是否願意接收普通會員訊息？
+                <div class="blnr bltext">是否願意接收試用會員訊息？
                 <span id="now_setting" style="display:none;">(目前設定為<span id="now_setting_value"></span>)</span>
                 </div>	
                 <div class="remove_callback"></div>	
