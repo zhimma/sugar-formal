@@ -3920,7 +3920,8 @@ class PagesController extends BaseController
             $is_banned = User::isBanned($user->id);
             $is_warned = warned_users::where('member_id', $user->id)->first();
             $toUserIsBanned = User::isBanned($cid);
-            $isVip = ($user->isVip()||$user->isVVIP());
+            $isVVIP = $user->isVVIP();
+            $isVip = ($user->isVip()||$isVVIP);
             $tippopup = AdminCommonText::getCommonText(3);//id3車馬費popup說明
             $messages = Message::allToFromSender($user->id, $cid,true);
             $c_user_meta = UserMeta::where('user_id', $cid)->get()->first();
@@ -3971,12 +3972,14 @@ class PagesController extends BaseController
                     ->with('to_forbid_msg_data',$forbid_msg_data)                    
                     ->with('m_time', $m_time)
                     ->with('isVip', $isVip)
+                    ->with('isVVIP',$isVVIP)
                     ->with('tippopup', $tippopup)
                     ->with('messages', $messages)
                     ->with('report_reason', $report_reason->content)
                     ->with('first_send_messenge', $first_send_messenge)
-                    ->with('is_truth_state',in_array(['to_id' =>$cid_user->id,'from_id' =>$user->id],Message::$truthMessages))
+                    ->with('is_truth_state',in_array(['to_id' =>$cid_user->id,'from_id' =>$user->id],Message::$truthMessages) || in_array(['to_id' =>$user->id,'from_id' =>$cid_user->id],Message::$truthMessages))
                     ->with('exist_is_truth_quota',Message::existIsTrueQuotaByFromUser($user))
+                    ->with('remain_num_of_is_truth',Message::getRemainQuotaOfIsTruthByFromUser($user))
                     ;
             }
             else {
@@ -7955,7 +7958,7 @@ class PagesController extends BaseController
                 }
                 switch ($vas->payment){
                     case 'cc_monthly_payment':
-                         if(!$vas->isPaidCanceled() && $nextProcessDate??null){
+                         if(!$vas->isPaidCanceled() && ($nextProcessDate??null)){
                             $vasStatus.='是每月持續付費，下次付費時間是'.$nextProcessDate.'。'.$vas_status;
                         }else if($vas->isPaidCanceled()){
                             $cancel_str = '';
@@ -10564,5 +10567,10 @@ class PagesController extends BaseController
 //    }
 
     //vvip end
-
+    public function getChatIsTruthRemainQuota(Request $request)
+    {
+        return intval(Message::getRemainQuotaOfIsTruthByFromUser($request->user()));
+    }  
 }
+
+
