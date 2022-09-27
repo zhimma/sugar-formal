@@ -505,6 +505,7 @@ export default {
       // if video or audio is muted, enable it so that the stopStreamedVideo method will work
       if (this.mutedVideo) this.toggleMuteVideo();
       if (this.mutedAudio) this.toggleMuteAudio();
+      /*
       this.stopStreamedVideo(this.$refs.userVideo);
       if (this.authuserid === this.videoCallParams.caller)
       {
@@ -532,6 +533,15 @@ export default {
       this.videoCallParams.channel.pusher.channels.channels[
         "presence-presence-video-channel"
       ].disconnect();
+      */
+      try
+      {
+        this.videoCallParams.connecting_peer.send('end_call');
+      }
+      catch(e)
+      {
+        console.log(e);
+      }
       setTimeout(() => {
         this.callPlaced = false;
         location.reload();

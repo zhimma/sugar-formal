@@ -331,11 +331,6 @@ export default {
           this.startRecording();
         }
         this.videoCallParams.connecting_peer = this.videoCallParams.peer1;
-        if(this.user_permission == 'normal')
-        {
-          $('#partner_video_screen').hide();
-          $('#none_partner_video').show();
-        }
       });
 
       this.videoCallParams.peer1.on("data", (data) => {
@@ -477,11 +472,6 @@ export default {
       {
         if (!this.mutedVideo) this.toggleMuteVideo();
       }
-      if(this.user_permission == 'normal')
-      {
-        $('#partner_video_screen').hide();
-        $('#none_partner_video').show();
-      }
     },
 
     toggleCameraArea() {
@@ -544,6 +534,12 @@ export default {
         console.log('Log_mutedVideo_true');
         $('#partner_video_screen').hide();
         $('#none_partner_video').show();
+      }
+      else if(new TextDecoder('utf-8').decode(data) === 'end_call')
+      {
+        console.log('user_end_call');
+        this.endCall();
+        
       }
     },
 

@@ -488,6 +488,7 @@ export default {
       $('#entire_site_video_app > div > .container').css('z-index',0).css('position','');
       if (this.mutedVideo) this.toggleMuteVideo();
       if (this.mutedAudio) this.toggleMuteAudio();
+      /*
       this.stopStreamedVideo(this.$refs.userVideo);
       if (this.authuserid === this.videoCallParams.caller)
       {
@@ -515,6 +516,15 @@ export default {
       this.videoCallParams.channel.pusher.channels.channels[
         "presence-presence-video-channel"
       ].disconnect();
+      */
+      try
+      {
+        this.videoCallParams.connecting_peer.send('end_call');
+      }
+      catch(e)
+      {
+        console.log(e);
+      }
       setTimeout(() => {
         this.callPlaced = false;
         location.reload();
