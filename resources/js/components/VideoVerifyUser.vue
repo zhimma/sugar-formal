@@ -62,17 +62,6 @@
             </div>
           </div>
           <div class="action-btns">
-            <button v-if="this.user_permission == 'admin'" type="button" class="btn btn-info" @click="toggleMuteAudio">
-              {{ mutedAudio ? "關閉靜音" : "開啟靜音" }}
-            </button>
-            <button
-              v-if="this.user_permission == 'admin'"
-              type="button"
-              class="btn btn-primary mx-4"
-              @click="toggleMuteVideo"
-            >
-              {{ mutedVideo ? "顯示畫面" : "隱藏畫面" }}
-            </button>
             <button type="button" class="btn btn-danger" @click="endCall">
               結束視訊通話
             </button>
@@ -309,21 +298,6 @@ export default {
 
       this.videoCallParams.peer1.on("connect", () => {
         console.log("peer1 connected");
-        if(this.user_permission == 'admin')
-        {
-          $.ajax({
-            type:'post',
-            url:'/admin/users/video_chat_verify_upload_init',
-            data:{
-              _token:this.csrf,
-              verify_user_id:id
-            },
-            success:function(data){
-              window.sessionStorage.setItem('verify_record_id', data.record_id);
-            }
-          });
-          this.startRecording();
-        }
         this.videoCallParams.connecting_peer = this.videoCallParams.peer1;
         if(this.user_permission == 'normal')
         {
@@ -376,10 +350,6 @@ export default {
           }
         }
       });
-      if(this.user_permission == 'admin')
-      {
-        if (!this.mutedVideo) this.toggleMuteVideo();
-      }
     },
 
     async acceptCall() {
@@ -434,21 +404,6 @@ export default {
       this.videoCallParams.peer2.on("connect", () => {
         console.log("peer2 connected");
         this.videoCallParams.callAccepted = true;
-        if(this.user_permission == 'admin')
-        {
-          $.ajax({
-            type:'post',
-            url:'/admin/users/video_chat_verify_upload_init',
-            data:{
-              _token:this.csrf,
-              verify_user_id:this.videoCallParams.caller
-            },
-            success:function(data){
-              window.sessionStorage.setItem('verify_record_id', data.record_id);
-            }
-          });
-          this.startRecording();
-        }
         this.videoCallParams.connecting_peer = this.videoCallParams.peer2;
       });
 
@@ -467,10 +422,6 @@ export default {
       });
 
       this.videoCallParams.peer2.signal(this.videoCallParams.callerSignal);
-      if(this.user_permission == 'admin')
-      {
-        if (!this.mutedVideo) this.toggleMuteVideo();
-      }
       if(this.user_permission == 'normal')
       {
         $('#partner_video_screen').hide();
@@ -581,15 +532,6 @@ export default {
       this.videoCallParams.channel.pusher.channels.channels[
         "presence-presence-video-channel"
       ].disconnect();
-      if(this.user_permission == 'admin')
-      {
-        try{this.stopRecording();}
-        catch(e){console.log(e);}
-      }
-      if(this.user_permission == 'admin')
-      {
-        window.sessionStorage.setItem('endcall_reload',true);
-      }
       setTimeout(() => {
         this.callPlaced = false;
         location.reload();
