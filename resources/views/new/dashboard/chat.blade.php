@@ -1347,9 +1347,12 @@ is_truth_icon_pic.src="{{asset('/new/images/zz_zt2.png')}}";
                                 @endif
                             }
                         }
+                        var has_vvip_msg_count=$('.sjlist_vvip>li').not('.d-none').length;
                         if(has_vvip_msg_count>0){
-                            $('.leboxVVIP').toggleClass('on');
-                            $('.leboxVVIP').next('dd').slideToggle("slow");
+                            if(!$('.leboxVVIP').hasClass('on')){
+                                $('.leboxVVIP').toggleClass('on');
+                                $('.leboxVVIP').next('dd').slideToggle("slow");
+                            }
                         }
 
                         @if($isVip)
@@ -1849,7 +1852,12 @@ is_truth_icon_pic.src="{{asset('/new/images/zz_zt2.png')}}";
         // });
 
         $('.ys_inbut').on('click', function() {
-          $('.row_data.can').removeClass('d-none');
+
+            if($('.sjlist_vvip>li').not('.li_no_data').length >0){
+                $('.sjlist_vvip>.li_no_data').hide();
+            }
+
+            $('.row_data.can').removeClass('d-none');
         });
 
         $('#daysSelect').on('change', function() {
