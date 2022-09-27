@@ -575,13 +575,15 @@
                         </form>   
                     </a>
                     <a  id="truth_actor" style="position:relative;"
-                        @if($user->isVipOrIsVvip()) data-truth_active="0" @endif 
-                            onclick="do_is_truth_action();"
+                        @if($isVip) data-truth_active="0"    @endif
+                         @if($isVVIP)  data-is_truth_remain_num="{{$remain_num_of_is_truth}}" data-local_is_truth_sent_num="0"  @endif
+                         data-is_truth_state="{{$is_truth_state?1:0}}"                         
+                            onclick="$('#msg').focus();do_is_truth_action();"
                         class="fa_adbut1 right
                         @if($is_truth_state) adbut_on @endif
                         "
                     >真心話                 
-                    @if(!$user->isVipOrIsVvip())
+                    @if(!$isVip)
                         <img src="{{asset('/new/images/icon_35.png')}}" style="position: absolute;float: left;left: 0px; top:3px;-moz-transform:rotate(-25deg);-webkit-transform:rotate(-30deg);">
                     @endif 
                     </a> 
@@ -976,7 +978,7 @@
                 @endif
                 <tr>
                     <td class="new_baa">需為VIP會員</td>
-                    <td class="">@if(!$user->isVip() && !$user->isVVIP())<img src="/new/images/ticon_02.png">@else<img
+                    <td class="">@if(!$isVip)<img src="/new/images/ticon_02.png">@else<img
                             src="/new/images/ticon_01.png">@endif</td>
                 </tr>
             </table>
@@ -998,6 +1000,7 @@
         <input type="hidden" name="{{ \Carbon\Carbon::now()->timestamp }}"
             value="{{ \Carbon\Carbon::now()->timestamp }}">
         <input type="hidden" name="parent" class="message_parent" value="">
+        <input type="hidden" name="is_truth" id="is_truth_of_form_uploadPic" value="0">
                 <input type="hidden" name="client_id" class="client_id" value="">
         <div class="bl_tab_bb">
             <div class="bltitle"><span style="text-align: center; float: none;">上傳照片</span></div>
@@ -1085,8 +1088,12 @@
 				<div class="giti">
                     <div class="t_iphoto" style="margin-top: 10px;"><img src="{{asset('new/images/zz_pt.jpg')}}"></div>
                     <h2 class="t_list"><img src="{{asset('new/images/ciicon_h.png')}}"><font>真心話會在女會員對話欄中置頂，如上圖</font></h2>
-                    <h2 class="t_list"><img src="{{asset('new/images/ciicon_h.png')}}"><font>真心話一天只能發一次</font></h2>
-                    @if(!$user->isVipOrIsVvip())
+                    <h2 class="t_list">
+                        <img src="{{asset('new/images/ciicon_h.png')}}">
+                        <font>真心話一天只能發一次</font>
+                        <font style="display:block;">(VVIP一天可以發三次)</font>
+                    </h2>
+                    @if(!$isVip)
                     <h2 class="t_list"><img src="{{asset('new/images/ciicon_h.png')}}"><font>成為VIP即可發送真心話</font></h2>    
                     @endif
                 </div>
@@ -1096,14 +1103,14 @@
 	
 		
 		<div class="n_bbutton" >
-				<span><a class="n_left" onclick="gmBtn1_truth();" style="@if(!$user->isVip()) display:block;float:none; @endif">確認</a></span>
-				@if($user->isVip())
+				<span><a class="n_left" onclick="gmBtn1_truth();" style="@if(!$isVip) display:block;float:none; @endif">確認</a></span>
+				@if($isVip)
                 <span><a class="n_right" onclick="gmBtn1_truth();not_show_is_truth_popup();">不再顯示</a></span>
                 @endif
         </div>
 </div>
-<a id="" onclick="gmBtn1();@if($user->isVip()) $('#truth_actor').data('truth_active',0); @endif" class="bl_gb"><img src="{{asset('new/images/gb_icon.png')}}"></a>
-@if($user->isVip())
+<a id="" onclick="gmBtn1();@if($isVip) $('#truth_actor').data('truth_active',0); @endif" class="bl_gb"><img src="{{asset('new/images/gb_icon.png')}}"></a>
+@if($isVip)
 <input type="hidden" id="not_show_is_truth_popup" value="0">
 @endif
 </div>
@@ -1255,11 +1262,25 @@
     function switch_adbut_on(dom) 
     {
         if($(dom).hasClass("adbut_on")){
-            $(dom).removeClass("adbut_on");
+            remove_adbut_on(dom);
         }else{
-            $(dom).addClass("adbut_on");
+            add_adbut_on(dom);
         }
     }
+    
+    function add_adbut_on(dom) 
+    {
+        if(!$(dom).hasClass("adbut_on")){
+            $(dom).addClass("adbut_on");
+        }
+    } 
+
+    function remove_adbut_on(dom) 
+    {
+        if($(dom).hasClass("adbut_on")){
+            $(dom).removeClass("adbut_on");
+        }
+    }      
 
     $.ajaxSetup({ cache: false, contentType: false,processData: false});
     $.ajaxPrefilter(function (options, originalOptions, jqXHR) {
@@ -1276,7 +1297,7 @@
             @else
     let m_time = '';
     @endif
-        let isVip = '{{$user->isVipOrIsVvip()}}';
+        let isVip = '{{$isVip}}';
     if(isVip==0){
         $( ".message_fixed" ).append( "<div><a href='{!! url('dashboard/new_vip') !!}' style='color: red;' class='tips'>成為VIP即可知道對方是否讀取信件哦！</a></div>" );
     }
@@ -1860,7 +1881,7 @@
                 tab_uploadPic_close(); 
                 $('#chatForm .xin_nleft').attr('onclick','return false;').find('img').attr('src','{{asset("new/owlcarousel/assets/ajax-loader.gif")}}');
             },  
-            afterSubmit: function(e) {        
+            afterSubmit: function(e) {  
                 var nowElt = $(e.target);  
                 if(nowElt.attr('id')=='reportMsgForm') return;
                 $('#chatForm .xin_nleft').attr('onclick','tab_uploadPic();').find('img').attr('src','{{asset("new/images/moren_pic.png")}}');
@@ -1874,7 +1895,7 @@
                 if(btn_elt.length) {
                     btn_elt.css({'color':'','cursor':''}).css('color','#ffffff').attr('onclick',btn_elt.attr('onclick').replace('return false;','')).html(btn_elt.html().replace('中',''));
                 }
-                resetSpecificMsgElt();
+                resetSpecificMsgElt();                
             }, 
             beforeSubmitedSuccess:function(data,status,xhr,ajaxObj,cur_uploader_api) {
                 if(data.error!=undefined && data.error==401) {
@@ -1944,6 +1965,8 @@
                           }, target_show_time_limit*1000);                        
                     }
                 }
+                
+                finish_is_truth_sent($('#is_truth_of_form_uploadPic').val());                
                 
                 if(curUploaderFormElt.length>0) curUploaderFormElt[0].reset();
             },          
@@ -2071,7 +2094,7 @@
             formData.append('parent', parent_id);
             formData.append('parent_client', parent_client_id);
             formData.append('client_id',msg_data.client_id);
-            @if($user->isVip())
+            @if($isVip)
             formData.append('is_truth',$('#truth_actor').length?$('#truth_actor').data('truth_active'):0);
             @endif
             formData.append("_token", "{{ csrf_token() }}");
@@ -2109,18 +2132,20 @@
                             $('.n_bllbut').focus();
                         }
                     }
-                    @if($user->isVip())
+                    @if($isVip)
                     else {
-                        if(formData.get('is_truth')==1) {
-                            reset_data_truth_active();
-                            set_trigger_for_already_use_is_truth_popup();
-                        }
+                        finish_is_truth_sent(formData.get('is_truth'));
                     }
                     @endif
             }
             xhr.onerror = function(e) {
                 c5('傳送失敗!');
                 $('.n_bllbut').focus();
+            }
+            if(formData.get('is_truth')==1) {
+                add_adbut_on(document.getElementById('truth_actor'));
+                reset_data_truth_active();
+                $('#truth_actor').attr('onclick','c5("訊息傳送中，請稍等片刻再使用真心話");');
             }
             xhr.send(formData);  /* Send to server */
             }
@@ -2310,7 +2335,9 @@
     
     function do_is_truth_action()
     {
-    @if(!$user->isVip())
+        var actor_dom = document.getElementById('truth_actor');
+        var actor_elt = $(actor_dom);
+    @if(!$isVip)
         c_truth();
         return;
     @else
@@ -2318,9 +2345,13 @@
             show_already_use_is_truth_popup();
             return;
         @endif        
-        @if($user->isVip())
-            if($('#truth_actor').data('truth_active')==1) {
-                reset_truth_actor();
+        @if($isVip)
+            if(actor_elt.data('truth_active')==1) {
+                if(actor_elt.data('is_truth_state')==1) {
+                    reset_data_truth_active();
+                    add_adbut_on(actor_dom);
+                }    
+                else reset_truth_actor();
                 return;
             }
         @endif
@@ -2330,16 +2361,19 @@
                 return;
             }
         @endif
-            switch_adbut_on(document.getElementById('truth_actor'));
-            if($('#truth_actor').data('truth_active')=='1') {
-                $('#truth_actor').data('truth_active',0);
+            if(actor_elt.data('is_truth_state')==1)
+                add_adbut_on(actor_dom);
+            else switch_adbut_on(actor_dom);
+            if(actor_elt.data('truth_active')=='1' || !actor_elt.hasClass('adbut_on')) {
+                actor_elt.data('truth_active',0);
             }
             else {
-                $('#truth_actor').data('truth_active',1);
+                enable_data_truth_active();
+                is_truth_remain_num_popup();
             }
     @endif
     }
-    @if($user->isVip())
+    @if($isVip)
     function set_trigger_for_already_use_is_truth_popup()
     {
         $('#truth_actor').attr('onclick','show_already_use_is_truth_popup();');
@@ -2347,7 +2381,7 @@
     
     function set_trigger_for_is_truth_regular_act()
     {
-        $('#truth_actor').attr('onclick','do_is_truth_action();');
+        $('#truth_actor').attr('onclick','$("#msg").focus();do_is_truth_action();');
     }    
     
     function reset_truth_actor()
@@ -2356,9 +2390,21 @@
         reset_truth_actor_on_class();
     }
     
+    function enable_data_truth_active()
+    {
+        $('#is_truth_of_form_uploadPic').val(1);
+        $('#truth_actor').data('truth_active',1);
+    }
+    
     function reset_data_truth_active()
-    {       
-        $('#truth_actor').data('truth_active',0);        
+    {     
+        var actor_dom = document.getElementById('truth_actor');
+        var actor_elt = $(actor_dom);
+        actor_elt.data('truth_active',0);        
+        $('#is_truth_of_form_uploadPic').val(0);
+        if(actor_elt.data('is_truth_state')==1) {
+            add_adbut_on(actor_dom);
+        }
     }
 
     function reset_truth_actor_on_class()
@@ -2371,7 +2417,6 @@
         c5('您好，您今天的真心話次數已使用過，須等24HR後才可以再使用！');
         return;        
     }
-    
     function not_show_is_truth_popup()
     {
          $.ajax({
@@ -2403,13 +2448,64 @@
 			
     } 
     function gmBtn1_truth() {
-    @if($user->isVip())
+        $('#msg').focus();
+    @if($isVip)
         $('#truth_actor').data('truth_active',1);
     @endif    
         gmBtn1();
         if(!$('#truth_actor').hasClass('adbut_on')) {
             $('#truth_actor').addClass('adbut_on');
-        }        
+        } 
+
+        show_is_truth_remain_num_popup();
+    }
+    
+    function is_truth_remain_num_popup()
+    {
+        var actor_elt = $('#truth_actor');
+        var is_truth_remain_num = actor_elt.data('is_truth_remain_num');
+        var local_is_truth_sent_num = actor_elt.data('local_is_truth_sent_num');
+            show_is_truth_remain_num_popup();
+    }
+    
+    function show_is_truth_remain_num_popup()
+    {
+    @if($isVVIP)
+        var is_truth_remain_num = $('#truth_actor').data('is_truth_remain_num');
+        if(is_truth_remain_num==undefined) is_truth_remain_num=0;
+        c5('您好，您今日真心話還可以使用 '+is_truth_remain_num+' 次');
+    @endif
+    }
+    
+    function finish_is_truth_sent(is_truth_formdata)
+    {
+        @if($isVip)
+        reset_data_truth_active();
+        if(is_truth_formdata==1) {
+            $('#truth_actor').data('is_truth_state',1);
+            add_adbut_on(document.getElementById('truth_actor'));
+        @if($isVVIP)
+            $('#truth_actor').attr('onclick','c5("檢查真心話次數中，請稍等片刻再使用真心話");');    
+
+            $.get("{{route('getChatIsTruthRemainQuota')}}",function(data){
+                    $('#truth_actor').data('is_truth_remain_num',data);
+                    var old_sent_num =  $('#truth_actor').data('local_is_truth_sent_num');
+                    if(old_sent_num==undefined ) old_sent_num=0;
+                    $('#truth_actor').data('local_is_truth_sent_num',old_sent_num+1);
+                    
+                    
+                    if(data>0) {
+                       set_trigger_for_is_truth_regular_act();
+                    }
+                    else {
+                       set_trigger_for_already_use_is_truth_popup(); 
+                    }
+                });                        
+        @else
+            set_trigger_for_already_use_is_truth_popup();
+        @endif
+        }
+        @endif
     }
 </script>
 @endif

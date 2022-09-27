@@ -50,10 +50,15 @@ class Message extends Model
         'views_count',
         'views_count_quota',
         'show_time_limit',
-        'room_id'
+        'room_id',
+        'is_truth',
     ];
 
     static $date = null;
+    
+    static $quota_of_is_truth_VVIP = 3;
+    
+    static $quota_of_is_truth_VIP = 1;
 
     public static $truthMessages = [];
 
@@ -737,7 +742,7 @@ class Message extends Model
                     ->orderBy('created_at', 'desc')
                     ;
         
-        if($user->engroup==1 && $user->isVip()) {
+        if($user->engroup==1 && $user->isVipOrIsVvip()) {
             $is_truth_msg =( clone $query)->where('is_truth',1)->where('is_row_delete_1',0)->where('is_row_delete_2',0)->orderByDesc('id')->first();
             if($is_truth_msg && !in_array(['to_id' => $is_truth_msg->to_id, 'from_id' => $is_truth_msg->from_id], Self::$truthMessages) && !in_array(['to_id' => $is_truth_msg->from_id, 'from_id' => $is_truth_msg->to_id], Self::$truthMessages)) {
                 array_push(Self::$truthMessages, ['to_id' => $is_truth_msg->to_id, 'from_id' => $is_truth_msg->from_id]);
@@ -1311,14 +1316,45 @@ class Message extends Model
     
     public static function existIsTrueQuotaByFromUser($from_user) 
     {
-        if($from_user)
-            return !intval($from_user->message()->where('is_truth',1)->where('created_at','>=',Carbon::now()->subDay())->count());
+        if($from_user) {
+            return boolval(Message::getRemainQuotaOfIsTruthByFromUser($from_user));
+        }
     }    
     
     public function existIsTrueQuota() 
     {
         if($this->fromUser)
             return $this->existIsTrueQuotaByFromUser($this->fromUser);
+    }
+    
+    public static function getRemainQuotaOfIsTruthByFromUser($from_user)
+    {
+        $remain_quota = 0;
+       if($from_user) {
+            if($from_user->isVVIP()) {
+                $remain_quota = Message::$quota_of_is_truth_VVIP;
+            }
+            else if($from_user->isVip()) {
+                $remain_quota = Message::$quota_of_is_truth_VIP;
+            }
+            
+            $truth_count = Message::getNowDayIsTruthCountByFromUser($from_user);      
+            $remain_quota = ($remain_quota-$truth_count)>0?$remain_quota-$truth_count:0;
+        }
+
+        return $remain_quota;
+    }
+    
+    public static function getNowDayIsTruthCountByFromUser($from_user) 
+    {
+        $truth_count = 0;
+       if($from_user) {          
+            $truth_count = $from_user->message()->where('is_truth',1)->where('created_at','>=',Carbon::now()->subDay())->count();
+            $truth_count = intval($truth_count);
+            
+        } 
+
+        return $truth_count;
     }
 
     public static function retrieve($user_id, $from_date)

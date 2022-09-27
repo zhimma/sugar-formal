@@ -503,6 +503,7 @@ Route::group(['middleware' => ['auth', 'global', 'active', 'femaleActive', 'vipC
         Route::post('/dashboard/chat/chatNoticeSet', 'Message_newController@chatNoticeSet')->name('chatNoticeSet');
         Route::post('/dashboard/announcement_post', 'Message_newController@announcePost')->name('announcePost');
         Route::get('/dashboard/manual', 'PagesController@manual');
+        Route::get('/dashboard/chat2/is_truth/get_remain', 'PagesController@getChatIsTruthRemainQuota')->name('getChatIsTruthRemainQuota');
 
         Route::post('/dashboard/letTourRead', 'PagesController@letTourRead')->name('letTourRead');
 
