@@ -616,6 +616,9 @@
                 $isBlurParentSender = \App\Services\UserService::isBlurAvatar($parentMsgSender, $user);
                 }
                 }
+                if($message['sys_notice']==1 && $message['from_id']!==$user->id && $message['from_id']!=-1049){
+                    continue;
+                }
                 @endphp
 
                 @if($date_temp != substr($message['created_at'],0,10)) <div class="sebg matopj10">
