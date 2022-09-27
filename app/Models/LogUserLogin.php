@@ -3,6 +3,7 @@
 namespace App\Models;
 
 use App\Models\User;
+use App\Models\SetAutoBan;
 use Illuminate\Database\Eloquent\Model;
 use Carbon\Carbon;
 use Laravel\Scout\Searchable;
@@ -173,4 +174,26 @@ class LogUserLogin extends Model
             logger($e);
         }
     }
+    
+    public function set_auto_ban_of_cfp_id()
+    {
+        return $this->hasOne(SetAutoBan::class, 'content', 'cfp_id')->where('type','cfp_id');
+    }
+    
+    public function active_set_auto_ban_of_cfp_id()
+    {
+        return $this->set_auto_ban_of_cfp_id()
+                ->where(function($q) {$q->where('expiry','>=',now())->orWhere('expiry','0000-00-00 00:00:00');});
+    }    
+    
+    public function set_auto_ban_of_ip()
+    {
+        return $this->hasOne(SetAutoBan::class, 'content', 'ip')->where('type','ip');
+    } 
+
+    public function active_set_auto_ban_of_ip()
+    {
+        return $this->set_auto_ban_of_ip()
+                ->where(function($q) {$q->where('expiry','>=',now())->orWhere('expiry','0000-00-00 00:00:00');});
+    }     
 }
