@@ -1000,7 +1000,7 @@ is_truth_icon_pic.src="{{asset('/new/images/zz_zt2.png')}}";
                 `;
             }else{
                 li += `
-                <li class="row_data ${isCan? "d-none can":""}" style="${ss}" id="${user_id}">
+                <li class="row_data ${(isCan && !is_truth)? "d-none can":""}" style="${ss}" id="${user_id}">
                 `;
             }
 
@@ -1024,8 +1024,7 @@ is_truth_icon_pic.src="{{asset('/new/images/zz_zt2.png')}}";
                 li += `<a href="${url}" target="_self">`;
                 if(is_truth) {
                     li += `<img src="{{asset('/new/images/zz_zt2.png')}}" class="ys_gt1">`;
-                }
-                if(isCan) {
+                }else if(isCan) {
                     li += `<img src="/new/images/zz_zt1.png" class="ys_gt">`;
                 }
                 li += `<div class="sjpic ${styBlur} shanx" id="${user_id}">
@@ -1852,12 +1851,15 @@ is_truth_icon_pic.src="{{asset('/new/images/zz_zt2.png')}}";
         // });
 
         $('.ys_inbut').on('click', function() {
-
-            if($('.sjlist_vvip>li').not('.li_no_data').length >0){
-                $('.sjlist_vvip>.li_no_data').hide();
+            let text = $(this).find('span').text();
+            if(text == '顯示罐頭訊息') {
+                $(this).find('span').text('收起罐頭訊息');
+            } else if(text == '收起罐頭訊息') {
+                $(this).find('span').text('顯示罐頭訊息');
             }
 
-            $('.row_data.can').removeClass('d-none');
+            $('.row_data.can').toggleClass('d-none');
+            $('.row_data.can').next('.li_no_data').toggle();
         });
 
         $('#daysSelect').on('change', function() {
