@@ -91,7 +91,7 @@
                     }
                 @endphp
                 @foreach ($loginLogs as $loginLog)
-                    <tr @if($isBanned || $isSetAutoBan) style="background: yellow;" @elseif($isAdminWarned) style="background: palegreen;" @endif>
+                    <tr @if($isBanned) style="background: yellow;" @elseif($isAdminWarned) style="background: palegreen;" @endif>
                         <td>{{$loginLog->ip}}</td>
                         <td><a href="../advInfo/{{ $row->user_id }}" target="_blank">{{$user->email}}</a></td>
                         <td>{{$loginLog->country}}</td>
