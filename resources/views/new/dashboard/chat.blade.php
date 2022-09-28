@@ -230,7 +230,7 @@ is_truth_icon_pic.src="{{asset('/new/images/zz_zt2.png')}}";
                     </select>
                 </div>
                 @if($user->engroup==2)
-                <a href="javascript:void(0)" class="right ys_inbut"><img src="/new/images/zz_ztt.png">顯示罐頭訊息</a>
+                <a href="javascript:void(0)" class="right ys_inbut"><img src="/new/images/zz_ztt.png"><span>顯示罐頭訊息</span></a>
                 @endif
             </div>
             <div class="sjlist_li">
