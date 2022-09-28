@@ -1528,14 +1528,15 @@ class UserService
                 similar_text($content, $data['content'], $percent);
                 if ($percent >= $can_pr) {
                     $isCanMessage = true;
-                    $user_open_alert = $user->can_message_alert;
-                    if ($user_open_alert) {
-                        return true;
-                    }else {
-                        return false;
-                    }
                 }
             }    
+            
+            $user_open_alert = $user->can_message_alert;
+            if ($user_open_alert && $isCanMessage) {
+                return true;
+            }else {
+                return false;
+            }
         }
         return false;
     }
