@@ -1373,8 +1373,10 @@ class UserService
 
                 $messages = Message::select('id','content','created_at')
                     ->where('from_id', $targetUser->id)
-                    ->where('sys_notice', 0)
-                    ->orWhereNull('sys_notice')
+                    ->where(function ($query) {
+                        $query->where('sys_notice', 0)
+                        ->orWhereNull('sys_notice');
+                    })
                     ->whereBetween('created_at', array($date_start . ' 00:00', $date_end . ' 23:59'))
                     ->orderBy('created_at','desc')
                     ->take(100)
@@ -1453,8 +1455,10 @@ class UserService
 
                 $messages = Message::select('id','content','created_at')
                     ->where('from_id', $targetUser->id)
-                    ->where('sys_notice', 0)
-                    ->orWhereNull('sys_notice')
+                    ->where(function ($query) {
+                        $query->where('sys_notice', 0)
+                        ->orWhereNull('sys_notice');
+                    })
                     ->whereBetween('created_at', array($date_start . ' 00:00', $date_end . ' 23:59'))
                     ->orderBy('created_at','desc')
                     ->take(100)

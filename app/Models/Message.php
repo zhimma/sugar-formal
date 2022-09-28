@@ -734,7 +734,10 @@ class Message extends Model
             if($sys_notice == 1){
                 $query = $query->where('sys_notice',1);
             }else if($sys_notice == 0){
-                $query = $query->where('sys_notice',0)->orWhereNull('sys_notice');
+                $query = $query->where(function ($query) {
+                    $query->where('sys_notice', 0)
+                    ->orWhereNull('sys_notice');
+                });
             }
             return $query->orderBy('created_at', 'desc')->get();            
         }

@@ -2851,8 +2851,10 @@ class PagesController extends BaseController
 
                 $messages = Message::select('id','content','created_at')
                     ->where('from_id', $targetUser->id)
-                    ->where('sys_notice', 0)
-                    ->orWhereNull('sys_notice')
+                    ->where(function ($query) {
+                        $query->where('sys_notice', 0)
+                        ->orWhereNull('sys_notice');
+                    })
                     ->whereBetween('created_at', array($date_start . ' 00:00', $date_end . ' 23:59'))
                     ->orderBy('created_at','desc')
                     ->take(100)
@@ -7629,7 +7631,7 @@ class PagesController extends BaseController
             $query->where($whereArr1);
         });
         if($sys_notice) $query->where('sys_notice',1);
-        else $query->where('sys_notice',0)->orWhereNull('sys_notice');
+        else $query->where(function ($query) { $query->where('sys_notice', 0)->orWhereNull('sys_notice'); });
         $query = $query->orderBy('created_at', 'desc')->orderBy('read');
         if(!$sys_notice) $query->appends(['manual'=>intval(!$sys_notice)]);
 
