@@ -6945,19 +6945,14 @@ class UserController extends \App\Http\Controllers\BaseController
     
     public function user_page_online_time_view(Request $request)
     {
+        if(!count($request->query())) {
+            $user_online_record = null;
+        } 
+        else {
+            $user_online_record = User::whereHas('stay_online_record_only_page')->selectRaw('*,id as user_id')->orderByDesc('last_login');        
+            
+            $users = $user_online_record;
 
-
-        if(count($request->query())) {
-
-            $user_online_record = StayOnlineRecord::with('user');        
-        
-            $user_online_record ->whereNotNull('stay_online_time')
-                        ->whereNotNull('url')
-                        ->selectRaw('distinct user_id')
-                        ->orderByDesc('id');            
-                       
-
-            $user_online_record->whereHas('user',function($users) use ($request) {
                 $name = $request->name ? $request->name : "";
                 $email = $request->email ? $request->email : "";
                 $keyword = $request->keyword ? $request->keyword : "";
@@ -6992,28 +6987,57 @@ class UserController extends \App\Http\Controllers\BaseController
                     $users = $users->whereHas('order',function($odq) use ($order_no){
                         $odq->where('order_id', 'like', '%' . $order_no . '%');
                     });
-                }                        
-            
-            });
-            
-        $user_online_record = $user_online_record->paginate(20,['user_id']);
-        
-            
-            
+                }    
         }
+
+
+        if($user_online_record) $user_online_record = $user_online_record->paginate(20,['user_id']);
 
         return view('admin.users.user_page_online_time_view')
             ->with('user_online_record', $user_online_record??null);
     } 
 
+    public function user_page_online_time_view_user_paginate(Request $request)
+    {
+        $user = null;
+        foreach($request->query() as $k=>$v) {
+            if(strpos($k,'pageU')!==0) continue;
+            else {
+                $user_id = str_replace('pageU','',$k);
+                if(!$user_id) return;
+                $user = User::find($user_id);
+                break;
+            }
+        }
+
+        if($user) {
+            return view('admin.users.user_page_online_time_view_user_paginate')
+                ->with('uRecord', $user)
+                ->with('with_user_page_link_binding_script',1)
+                ;            
+            
+        }
+        
+    }
+
     public function stay_online_record_page_name_view() 
     {
-        $record_query = StayOnlineRecord::doesntHave('page_name')->selectRaw("'',url,''")->whereNotNull('stay_online_time')->whereNotNull('url')->orderByDesc('id')->distinct('url')
+        $partial_name_list = StayOnlineRecordPageName::where('is_partial',1)->get();
+        
+        $record_query = StayOnlineRecord::doesntHave('page_name')->selectRaw("'',url,'',0")->whereNotNull('stay_online_time')->whereNotNull('url')->orderByDesc('id')->distinct('url')
                             ->where(function($q){
                                 $q->whereNull('title')->orWhere('title','');
                             });
-        $page_name_list = StayOnlineRecordPageName::select('id','url','name')->whereNotNull('url')->where('url','!=','')
+                            
+        foreach($partial_name_list as $k=>$v) {
+            $record_query->where('url', 'not like', '%'.$v->url.'%');
+        }
+        
+        $page_name_list = StayOnlineRecordPageName::select('id','url','name','is_partial')->whereNotNull('url')->where('url','!=','')
                             ->union($record_query)
+                            ->orderByDesc('is_partial')
+                            ->orderByDesc('id')
+                            ->orderByRaw('LENGTH(url)')
                             ->orderBy('url')
                             ->get()
                             ;
@@ -7053,6 +7077,7 @@ class UserController extends \App\Http\Controllers\BaseController
         $entry = StayOnlineRecordPageName::where('id',$request->id)->firstOrNew();
         $entry->url = $request->url;
         $entry->name = $request->name;
+        $entry->is_partial = $request->is_partial?1:0;
         $entry->save();
         
         if($request->id) {
@@ -7062,8 +7087,7 @@ class UserController extends \App\Http\Controllers\BaseController
                 $route_name = 'admin/user_page_online_time_view';
             }
             
-            return redirect()->route($route_name)
-                ->with('message','修改成功');
+            return back()->with('message','修改成功');
         }
         else
             return back()->with('message','新增成功');

@@ -48,6 +48,14 @@
         
             #setting_empty_page_name_container {margin-bottom:10px;text-align:right;}
             .showLog {display:none;}
+            .cell_of_records_table {position:relative;}
+            .ajax-loader-continer {
+                position: absolute;
+                left: 50%;
+                top: 20%;
+                z-index: 10; 
+                display:none;
+            }
         </style>
         <h1>頁面停留時間</h1>
         <br>
@@ -117,57 +125,24 @@
         <div id="setting_empty_page_name_container"><a href="{{ route('admin/stay_online_record_page_name_view') }}" class='new text-white btn btn-success'>空白頁面名稱設定</a></div>           
         <table id="table_userLogin_log" class="table table-hover table-bordered">
             @foreach($user_online_record??[] as $key => $uRecord)
-                @if(!$uRecord->user) 
-                    @continue
-                @endif    
                 <tr>
                     <td>
-                        <span id="btn_showDetail_{{ $uRecord->user['id'] }}" class="btn_showLogUser btn btn-primary" data-sectionName="showDetail_{{ $uRecord->user['id'] }}">+</span>
-                        <a href="/admin/users/advInfo/{{ $uRecord->user['id'] }}" target="_blank"><span>帳號：{{  $uRecord->user['name'] }}</span></a>
+                        <span id="btn_showDetail_{{ $uRecord->getUser()?$uRecord->getUser()['id']:$uRecord->user_id }}" class="btn_showLogUser btn btn-primary" data-sectionName="showDetail_{{ $uRecord->getUser()?$uRecord->getUser()['id']:$uRecord->user_id }}">+</span>
+                        <a href="/admin/users/advInfo/{{ $uRecord->getUser()?$uRecord->getUser()['id']:$uRecord->user_id }}" target="_blank"><span>帳號：{{  $uRecord->getUser()?$uRecord->getUser()->id:$uRecord->user_id }} {{  $uRecord->getUser()?$uRecord->getUser()->name:'( 帳號已刪除 )' }}</span></a>
                     <table>
-                            <tr class="showLog" id="showDetail_{{ $uRecord->user['id'] }}">
-                                <td>
-                                    <table class="table table-bordered  table-hover" style="display: block; max-height: 500px; overflow-x: scroll;">
-                                        <thead>
-                                        <tr class="info">
-                                            <th >網址</th>
-                                            <th width="10%">頁面名稱</th>
-                                            <th width="5%">ip</th>
-                                            <th width="45%">User Agent</th>
-                                            <th width="5%">停留時間(秒)</th>
-                                            <th width="10%" nowrap>開始時間</th>
-                                        </tr>
-                                        </thead>
-                                        <tbody>
-                                        @foreach($uRecord->getUserDescRecordsPaginate() as $record)                                        
-                                            <tr  class="{{$record->user->banned?'banned':''}} 
-                                                        {{$record->user->implicitlyBanned?'implicitlyBanned':''}} 
-                                                        {{(isset($record->user->user_meta->isWarned) && $record->user->user_meta->isWarned) || $record->user->aw_relation?'isWarned':''}}
-                                                        {{$record->user->accountStatus===0?'isClosed':''}}
-                                                        {{$record->user->account_status_admin===0?'isClosedByAdmin':''}}
-                                                        {{$record->user->engroup == 1 ? 'male_row' : 'female_row'}}
-                                            ">
-                                                <td class="col-1st">{{ $record['url'] }}</td>
-                                                <td class="col-2nd">{!!$record->page_name && $record->page_name->name? $record->page_name->name:($record->title?:'<div style="width:100%;text-align:center;"><a class="text-white btn btn-primary" href="'.route('admin/stay_online_record_page_name_switch',['url'=>$record->url,'rtn'=>'record']).'">設定<a></div>')!!}</td>
-                                                <td class="col-3rd" nowrap>{{$record->ip}}</td>
-                                                <td class="col-most">{{$record->userAgent}}</td>
-                                                <td class="col-most" nowrap>{{$record->stay_online_time}} 秒</td>
-                                                <td class="col-most">{{$record->created_at}}</td>
-                                            </tr>                                            
-                                        @endforeach
-                                        </tbody>
-                                    </table>
-                                    {!!$uRecord->paginate->appends(request()->input())->links('pagination::sg-pages') !!}
-                                    <script>
-                                        @if(request()->input('pageU'.$uRecord->user->id))
-                                        $(function(){
-                                            $("#btn_showDetail_{{ $uRecord->user['id'] }}").focus().click();    
-                                        });
-                                        @endif
-                                    </script>
+                            <tr class="showLog" id="showDetail_{{ $uRecord->getUser()?$uRecord->getUser()['id']:$uRecord->user_id }}">
+                                <td id="cell_of_records_table_{{$uRecord->getUser()?$uRecord->getUser()->id:$uRecord->user_id}}" class="cell_of_records_table">
+                                    @include('admin.users.user_page_online_time_view_user_paginate')
                                 </td>
                             </tr>
                         </table>
+                        <script>
+                            @if(request()->input('pageU'.($uRecord->getUser()?$uRecord->getUser()->id:$uRecord->user_id)))
+                            $(function(){
+                                $("#btn_showDetail_{{ $uRecord->getUser()?$uRecord->getUser()['id']:$uRecord->user_id }}").focus().click();    
+                            });
+                            @endif
+                        </script>                        
                     </td>
                 </tr>
             @endforeach
@@ -179,7 +154,22 @@
         {!! $user_online_record->appends(request()->input())->links('pagination::sg-pages') !!}
         @endif
         <script>
+        function binding_records_tb_page_link()
+        {
+            var now_elt = $(this);
+            var now_href = now_elt.attr('href');
+            var now_cell_elt = now_elt.closest('.cell_of_records_table');
+            var now_ajax_holder_elt = now_cell_elt.find('.ajax-loader-continer');
+            var now_records_tb_elt = now_cell_elt.find('.records_table');
+            now_records_tb_elt.css('visibility', 'hidden');
+            now_ajax_holder_elt.show();
+            $.get(now_href,function(data){
+                now_cell_elt.html(data);
+            }); 
+            return false;
+        }
         $('.showLog').hide();
+        $('.cell_of_records_table .page-link').click(binding_records_tb_page_link);
         $('.btn_showLogUser').click(function(){
             var sectionName =$(this).attr('data-sectionName');
 
