@@ -200,7 +200,7 @@ class User extends Authenticatable implements JWTSubject
 
     public function stay_online_record_only_page()
     {
-        return $this->stay_online_record()->whereNotNull('stay_online_time')->whereNotNull('url');
+        return StayOnlineRecord::addOnlyPageClauseToQuery($this->stay_online_record());//->whereNotNull('stay_online_time')->whereNotNull('url');
     }     
     
     //多重帳號row
@@ -2243,4 +2243,18 @@ class User extends Authenticatable implements JWTSubject
             return User::all();
         });
     }
+
+    
+    public function getUser()
+    {
+        return $this;
+    }
+        
+    
+    public function getUserDescPageStayOnlineRecordsPaginate()
+    {
+        $this->paginate = $this->stay_online_record_only_page()->orderByDesc('id')->paginate(20,['*'], 'pageU'.$this->id, request()->input('pageU'.$this->id));
+        return $this->paginate;
+    }    
+
 }

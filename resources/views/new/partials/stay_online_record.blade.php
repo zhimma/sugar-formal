@@ -60,6 +60,14 @@
             
             if(!page_title_elt.length) page_title_elt = $('.ddt_list > .nn_dontt > ul > .nn_dontt_hover');
             
+            if(!page_title_elt.length) page_title_elt = $('.wxsy > .wxsy_title');
+            
+            if(!page_title_elt.length) page_title_elt = $('.shouxq > span > a > .se_rea ');            
+            
+            if(!page_title_elt.length) page_title_elt = $('.shouxq > .se_rea ');
+            
+            if(!page_title_elt.length) page_title_elt = $('.ziliao > .ztitle > span ');
+            
             stay_online_record_request = $.ajax({
                 type:'post',
                 url:'{{route("stay_online_time")}}',
