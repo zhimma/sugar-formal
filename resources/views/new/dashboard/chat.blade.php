@@ -1006,11 +1006,11 @@ is_truth_icon_pic.src="{{asset('/new/images/zz_zt2.png')}}";
 
             if(show==0 && engroup==1){
                 li += `
-                     <div class="vipOnlyAlert" data-toggle="popover" data-content="試用會員只能看到舊的十筆訊息，如果想要看新的訊息請刪除舊的通訊紀錄。" style="width: 100%">
+                     <div class="vipOnlyAlert" style="width: 100%">
                    `;
             }else if(show==0 && engroup==2){
                 li += `
-                     <div class="vipOnlyAlert" data-toggle="popover" data-content="試用會員只能看到舊的十筆訊息，如果想要看新的訊息請刪除舊的通訊紀錄。" style="width: 100%">
+                     <div class="vipOnlyAlert" style="width: 100%">
                   `;
             }
 
@@ -1076,12 +1076,14 @@ is_truth_icon_pic.src="{{asset('/new/images/zz_zt2.png')}}";
                    `;
             }else if(show==0 && engroup==1 && isBanned==0){
                 li += `
-                     <font><img src="/new/images/icon_35.png"></font>
+                     <font><div  data-toggle="popover" data-content="試用會員只能看到舊的十筆訊息，如果想要看新的訊息請刪除舊的通訊紀錄。" style="width: 100%"><img src="/new/images/icon_35.png"></div></font>
+
                      </div></a>
                    `;
             }else if(show==0 && engroup==2 && isBanned==0){
                 li += `
-                     <font><img src="/new/images/icon_35.png"></font>
+                     <font><div data-toggle="popover" data-content="試用會員只能看到舊的十筆訊息，如果想要看新的訊息請刪除舊的通訊紀錄。" style="width: 100%"><img src="/new/images/icon_35.png"></div></font>
+
                      </div></a>
                    `;
             }
@@ -1342,13 +1344,6 @@ is_truth_icon_pic.src="{{asset('/new/images/zz_zt2.png')}}";
                                         }
                                     @endforeach
                                 @endif
-                            }
-                        }
-                        var has_vvip_msg_count=$('.sjlist_vvip>li').not('.d-none').length;
-                        if(has_vvip_msg_count>0){
-                            if(!$('.leboxVVIP').hasClass('on')){
-                                $('.leboxVVIP').toggleClass('on');
-                                $('.leboxVVIP').next('dd').slideToggle("slow");
                             }
                         }
 
@@ -1823,6 +1818,14 @@ is_truth_icon_pic.src="{{asset('/new/images/zz_zt2.png')}}";
                         html: true,
                         content: function () { return '<h4>' + $(this).data('content') + '</h4>'; }
                     });
+
+                    var has_vvip_msg_count=$('.sjlist_vvip>li:visible').not('.li_no_data').length;
+                    if(has_vvip_msg_count>0){
+                        if(!$('.leboxVVIP').hasClass('on')){
+                            $('.leboxVVIP').toggleClass('on');
+                            $('.leboxVVIP').next('dd').slideToggle("slow");
+                        }
+                    }
                 }
             })
                 .done(function() {
@@ -1846,11 +1849,6 @@ is_truth_icon_pic.src="{{asset('/new/images/zz_zt2.png')}}";
 
         $('.ys_inbut').on('click', function() {
 
-            if($('.sjlist_vvip>li').not('.li_no_data').length >0){
-                $('.sjlist_vvip>.li_no_data').hide();
-            }
-
-            $('.row_data.can').removeClass('d-none');
             let text = $(this).find('span').text();
             if(text == '顯示罐頭訊息') {
                 $(this).find('span').text('收起罐頭訊息');
@@ -1860,6 +1858,15 @@ is_truth_icon_pic.src="{{asset('/new/images/zz_zt2.png')}}";
 
             $('.row_data.can').toggleClass('d-none');
             $('.row_data.can').next('.li_no_data').toggle();
+
+
+            var has_vvip_msg_count=$('.sjlist_vvip>li:visible').not('.li_no_data').length;
+            if(has_vvip_msg_count>0){
+                if(!$('.leboxVVIP').hasClass('on')){
+                    $('.leboxVVIP').toggleClass('on');
+                    $('.leboxVVIP').next('dd').slideToggle("slow");
+                }
+            }
         });
 
         $('#daysSelect').on('change', function() {
