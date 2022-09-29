@@ -1169,8 +1169,7 @@ is_truth_icon_pic.src="{{asset('/new/images/zz_zt2.png')}}";
                         
                         $('.sjlist_alert').html('');
                         $('.sjlist_banned').html('');
-                        $('.page_warned').hide();
-                        $('.page_banned').hide();                        
+                        $('.page_banned').hide();
                     @elseif($user->engroup==1)
                         @php
                             $exchange_period_name = DB::table('exchange_period_name')->get();
@@ -1186,6 +1185,7 @@ is_truth_icon_pic.src="{{asset('/new/images/zz_zt2.png')}}";
                     $('.sjlist_banned').html('');
                     $('.page_admin').hide();
                     $('.page_warning').hide();
+                    $('.page_warned').hide();
                     $('.warning').show();
                 },
                 complete: function () {
