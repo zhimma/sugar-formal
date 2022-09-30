@@ -25,6 +25,7 @@ use Illuminate\Support\Facades\Config;
 use Illuminate\Support\Facades\File;
 use Intervention\Image\Facades\Image;
 use App\Services\AdminService;
+use DB;
 use Session;
 use App\Models\InboxRefuseSet;
 use App\Models\Pr_log;
@@ -125,6 +126,7 @@ class Message_newController extends BaseController {
         return view('new.dashboard.chatSet')
             ->with('line_notify_chat', $line_notify_chat)
             ->with('user_line_notify_chat_set', $user_line_notify_chat_set)
+            ->with('can_message_alert', $user->can_message_alert)
             ->with('inbox_refuse_set', $inbox_refuse_set);
     }
 
@@ -158,6 +160,15 @@ class Message_newController extends BaseController {
         }
         //line notify end
         
+        //罐頭訊息警示 start
+        if($user->engroup==1)
+        {
+           
+            $user->can_message_alert = $request->can_message_alert;
+            $user->save();
+        }
+        //罐頭訊息警示 end
+
         //拒收站內信start
         if($user->engroup==2)
         {
@@ -308,6 +319,17 @@ class Message_newController extends BaseController {
             $postArr['from_id'] = $user->id;
             $messagePosted = Message::postByArr($postArr);
             $this->addEssenceStatisticsLog(['user_id'=>$user->id, 'to_id'=>$payload['to'], 'message_data'=>$messagePosted]);
+        }
+
+        //罐頭訊息
+        
+        if ($user->engroup == 1) {
+            $isCanMessage = UserService::checkCanMessageWithGreetingRate($user, $to_user->id, $payload['msg']);
+            if ($isCanMessage) {
+                Message::where('id', $messagePosted->id)->update(['is_can' => 1]);
+                return array('error' => 2,
+                'content' => '您好，您剛剛發給 ' . $to_user->name . ' 的訊息因為與您過去的訊息過於相似，已被系統判定為罐頭訊息，有可能被女會員過濾掉，建議您多發一條訊息並充實內容');
+            }
         }
 
         //line通知訊息

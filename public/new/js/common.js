@@ -228,6 +228,12 @@
 		$("#tab_message .gxbut").text(str);
 		// c5(str);
 	}
+	
+	function show_canMessageAlert(str) {
+		$(".announce_bg").show();
+		$("#canMessageAlert").show();
+		$("#canMessageAlert .bltext").text(str);	
+	}
 
 	function show_onlyForVipPleaseUpgrade() {
 		$(".announce_bg").show();

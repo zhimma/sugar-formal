@@ -165,6 +165,13 @@ is_truth_icon_pic.src="{{asset('/new/images/zz_zt2.png')}}";
     }
     
     img.ys_gt1 {z-index:5 !important;}
+    .msg_select_cont {
+        width: auto;
+        margin-right: 3%;
+        float: right;
+        margin-top: 0;
+        margin-bottom: 20px;
+    }
 </style>
 <!--引导弹出层-->
 <script type="text/javascript" src="/new/intro/intro.js"></script>
@@ -213,13 +220,18 @@ is_truth_icon_pic.src="{{asset('/new/images/zz_zt2.png')}}";
                     @endif
                 </h2>
             </div>
-            <div class=" select_cont">
-                <select id="daysSelect" class="right">
-                    {{-- <option value="7">訊息</option>--}}
-                    <option value="7">7天内</option>
-                    <option value="30">30天内</option>
-                    <option value="all">全部</option>
-                </select>
+            <div class="d-table">
+                <div class="select_cont msg_select_cont">
+                    <select id="daysSelect" class="right">
+                        {{-- <option value="7">訊息</option>--}}
+                        <option value="7">7天内</option>
+                        <option value="30">30天内</option>
+                        <option value="all">全部</option>
+                    </select>
+                </div>
+                @if($user->engroup==2)
+                <a href="javascript:void(0)" class="right ys_inbut"><img src="/new/images/zz_ztt.png"><span>顯示罐頭訊息</span></a>
+                @endif
             </div>
             <div class="sjlist_li">
                 <div class="leftsidebar_box">
@@ -988,7 +1000,7 @@ is_truth_icon_pic.src="{{asset('/new/images/zz_zt2.png')}}";
                 `;
             }else{
                 li += `
-                <li class="row_data ${isCan? "d-none can":""}" style="${ss}" id="${user_id}">
+                <li class="row_data ${(isCan && !is_truth)? "d-none can":""}" style="${ss}" id="${user_id}">
                 `;
             }
 
@@ -1012,8 +1024,7 @@ is_truth_icon_pic.src="{{asset('/new/images/zz_zt2.png')}}";
                 li += `<a href="${url}" target="_self">`;
                 if(is_truth) {
                     li += `<img src="{{asset('/new/images/zz_zt2.png')}}" class="ys_gt1">`;
-                }
-                if(isCan) {
+                }else if(isCan) {
                     li += `<img src="/new/images/zz_zt1.png" class="ys_gt">`;
                 }
                 li += `<div class="sjpic ${styBlur} shanx" id="${user_id}">
@@ -1826,6 +1837,18 @@ is_truth_icon_pic.src="{{asset('/new/images/zz_zt2.png')}}";
         //   alert( this.value );
         //   console.log($("#daysSelect option:selected").val())
         // });
+
+        $('.ys_inbut').on('click', function() {
+            let text = $(this).find('span').text();
+            if(text == '顯示罐頭訊息') {
+                $(this).find('span').text('收起罐頭訊息');
+            } else if(text == '收起罐頭訊息') {
+                $(this).find('span').text('顯示罐頭訊息');
+            }
+
+            $('.row_data.can').toggleClass('d-none');
+            $('.row_data.can').next('.li_no_data').toggle();
+        });
 
         $('#daysSelect').on('change', function() {
         // $('input[name=RadioGroup1]').on('click', function(event) {

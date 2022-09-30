@@ -92,7 +92,22 @@
 {{--                                </div>--}}
 {{--                            @endif--}}
                         </dd>
-
+                        @if($user->engroup==1)
+                            <dt id="can_message_alert_expand" class="n_gg_mm">
+                                <span><i></i>罐頭訊息警示設定</span>
+                            </dt>
+                            <dd>  
+                                <div class="ngg_a_tab">
+                                    <div class="ti_ktx">
+                                        <span class="na_nb">罐頭警示設定</span>
+                                    </div>
+                                    <div class="ti_xcheck naa_dd">
+                                        <span><input type="radio" name="can_message_alert" value=1  @if($can_message_alert == true) checked @endif> 是 </input></span>
+                                        <span><input type="radio" name="can_message_alert" value=0 @if($can_message_alert == false) checked @endif> 否 </input></span>
+                                    </div>
+                                </div>	
+                            </dd>
+                        @endif
                         @if($user->engroup==2)
                             <dt id="refuse_inbox_expand" class="n_gg_mm">
                                 <span><i></i>拒收站內來信設定</span>
@@ -277,18 +292,23 @@
             if(window.sessionStorage.getItem('isUpdated')){
                 if(window.sessionStorage.getItem('line_notify_expand'))
                 {
-                    $('#line_notify_expand').toggleClass('on');
+                    $('#line_notify_expand').toggleClass('open');
                     $('#line_notify_expand').next('dd').slideToggle();
+                }
+                if(window.sessionStorage.getItem('can_message_alert_expand'))
+                {
+                    $('#can_message_alert_expand').toggleClass('open');
+                    $('#can_message_alert_expand').next('dd').slideToggle();
                 }
                 if(window.sessionStorage.getItem('refuse_inbox_expand'))
                 {
-                    $('#refuse_inbox_expand').toggleClass('on');
+                    $('#refuse_inbox_expand').toggleClass('open');
                     $('#refuse_inbox_expand').next('dd').slideToggle();
                 }
             }
             else{
-                
                 window.sessionStorage.removeItem('line_notify_expand');
+                window.sessionStorage.removeItem('can_message_alert_expand');
                 window.sessionStorage.removeItem('refuse_inbox_expand');
             }
             window.sessionStorage.removeItem('isUpdated');
@@ -304,7 +324,20 @@
             {
                 window.sessionStorage.setItem('line_notify_expand',true);
             }
-            $(this).toggleClass('on');
+            $(this).toggleClass('open');
+            $(this).next('dd').slideToggle();
+        });
+
+        $('#can_message_alert_expand').click(function(e) {
+            if(window.sessionStorage.getItem('can_message_alert_expand'))
+            {
+                window.sessionStorage.removeItem('can_message_alert_expand');
+            }
+            else
+            {
+                window.sessionStorage.setItem('can_message_alert_expand',true);
+            }
+            $(this).toggleClass('open');
             $(this).next('dd').slideToggle();
         });
 
@@ -317,7 +350,7 @@
             {
                 window.sessionStorage.setItem('refuse_inbox_expand',true);
             }
-            $(this).toggleClass('on');
+            $(this).toggleClass('open');
             $(this).next('dd').slideToggle();
         });
     </script>

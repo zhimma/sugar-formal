@@ -92,6 +92,19 @@
     <a id="" onclick="gmBtnNoReload()" class="bl_gb"><img src="/new/images/gb_icon.png"></a>
 </div>
 
+<div class="bl bl_tab " id="canMessageAlert">
+    <div class="bltitle"><font>提示</font></div>
+    <div class="n_blnr01">	
+        <div class="blnr bltext"></div>	
+        <div class="remove_callback"></div>	
+        <div class="n_bbutton">	
+            <span class="zlfr"><a class="n_left" onclick="gmBtnNoReload()" style="width:60px;margin:0;">確認</a></span>
+            <span class="zlfr"><a class="n_right" style="width:190px;" href="{{ route('viewChatNotice') }}">不再顯示[點此進行設定]</a></span>
+	    </div>	
+    </div>	
+    <a id="" onclick="gmBtnNoReload()" class="bl_gb"><img src="/new/images/gb_icon.png"></a>
+</div>
+
 <div class="bl bl_tab" id="onlyForVipPleaseUpgrade">
     <div class="bltitle">提示</div>
     <div class="n_blnr01 matop10">
