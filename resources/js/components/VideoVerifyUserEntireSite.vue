@@ -172,6 +172,7 @@ export default {
         })
         .catch((error) => {
           console.log(error);
+          $("#error_message").text(error);
         });
     },
 
@@ -268,6 +269,7 @@ export default {
           .then(() => {})
           .catch((error) => {
             console.log('signal axios error:' + error);
+            $("#error_message").text('signal axios error:' + error);
           });
       });
 
@@ -296,6 +298,7 @@ export default {
       this.videoCallParams.peer1.on("error", (err) => {
         console.log('peer1 error');
         console.log(err);
+        $("#error_message").text('peer1 error : ' + err);
       });
 
       this.videoCallParams.peer1.on("close", () => {
@@ -375,6 +378,7 @@ export default {
           .then(() => {})
           .catch((error) => {
             console.log('signal axios error:' + error);
+            $("#error_message").text('signal axios error:' + error);
           });
       });
 
@@ -385,6 +389,7 @@ export default {
 
       this.videoCallParams.peer2.on("connect", () => {
         console.log("peer2 connected");
+        $("#error_message").text("peer2 connected");
         this.videoCallParams.callAccepted = true;
         this.videoCallParams.connecting_peer = this.videoCallParams.peer2;
       });
@@ -397,6 +402,7 @@ export default {
       this.videoCallParams.peer2.on("error", (err) => {
         console.log('peer2 error');
         console.log(err);
+        $("#error_message").text('peer2 error : ' + err);
       });
 
       this.videoCallParams.peer2.on("close", () => {
