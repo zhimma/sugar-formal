@@ -441,7 +441,6 @@ export default {
 
       this.videoCallParams.peer2.on("connect", () => {
         console.log("peer2 connected");
-        $("#error_message").text("peer2 connected");
         this.videoCallParams.callAccepted = true;
         if(this.user_permission == 'admin')
         {
