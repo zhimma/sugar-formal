@@ -1348,8 +1348,10 @@ class UserService
                 ->leftJoin('banned_users_implicitly as b3', 'b3.target', '=', 'message.from_id')
                 ->leftJoin('warned_users as wu', function($join) {
                     $join->on('wu.member_id', '=', 'message.from_id')
-                        ->where('wu.expire_date', '>=', Carbon::now())
-                        ->orWhere('wu.expire_date', null); })
+                         ->where(function($join) {                            
+                            $join->where('wu.expire_date', '>=', Carbon::now())
+                            ->orWhere('wu.expire_date', null);
+                         }); })
                 ->whereNull('b1.member_id')
                 ->whereNull('b3.target')
                 ->whereNull('wu.member_id')
@@ -1371,8 +1373,10 @@ class UserService
 
                 $messages = Message::select('id','content','created_at')
                     ->where('from_id', $targetUser->id)
-                    ->where('sys_notice', 0)
-                    ->orWhereNull('sys_notice')
+                    ->where(function ($query) {
+                        $query->where('sys_notice', 0)
+                        ->orWhereNull('sys_notice');
+                    })
                     ->whereBetween('created_at', array($date_start . ' 00:00', $date_end . ' 23:59'))
                     ->orderBy('created_at','desc')
                     ->take(100)
@@ -1426,8 +1430,10 @@ class UserService
                 ->leftJoin('banned_users_implicitly as b3', 'b3.target', '=', 'message.from_id')
                 ->leftJoin('warned_users as wu', function($join) {
                     $join->on('wu.member_id', '=', 'message.from_id')
-                        ->where('wu.expire_date', '>=', Carbon::now())
-                        ->orWhere('wu.expire_date', null); })
+                         ->where(function($join) {                            
+                            $join->where('wu.expire_date', '>=', Carbon::now())
+                            ->orWhere('wu.expire_date', null);
+                         }); })
                 ->whereNull('b1.member_id')
                 ->whereNull('b3.target')
                 ->whereNull('wu.member_id')
@@ -1449,8 +1455,10 @@ class UserService
 
                 $messages = Message::select('id','content','created_at')
                     ->where('from_id', $targetUser->id)
-                    ->where('sys_notice', 0)
-                    ->orWhereNull('sys_notice')
+                    ->where(function ($query) {
+                        $query->where('sys_notice', 0)
+                        ->orWhereNull('sys_notice');
+                    })
                     ->whereBetween('created_at', array($date_start . ' 00:00', $date_end . ' 23:59'))
                     ->orderBy('created_at','desc')
                     ->take(100)
@@ -1490,9 +1498,9 @@ class UserService
     public static function isGreetingFrequently($from_id)
     {
         $query = DB::table('log_system_day_statistic')->whereDate('date', Carbon::today())->first();
-        $avg = $query->average_recipients_count_of_vip_male_senders;
-        $median = $query->median_recipients_count_of_vip_male_senders;
-        $greeting_rate = max($avg, $median);
+        $avg = $query?->average_recipients_count_of_vip_male_senders;
+        $median = $query?->median_recipients_count_of_vip_male_senders;
+        $greeting_rate = max($avg ?? 999, $median ?? 999);
         $recipients_count = UserMeta::where('user_id', $from_id)->pluck('recipients_count')->first();
         
         return $recipients_count > $greeting_rate;
@@ -1520,14 +1528,15 @@ class UserService
                 similar_text($content, $data['content'], $percent);
                 if ($percent >= $can_pr) {
                     $isCanMessage = true;
-                    $user_open_alert = $user->can_message_alert;
-                    if ($user_open_alert) {
-                        return true;
-                    }else {
-                        return false;
-                    }
                 }
             }    
+            
+            $user_open_alert = $user->can_message_alert;
+            if ($user_open_alert && $isCanMessage) {
+                return true;
+            }else {
+                return false;
+            }
         }
         return false;
     }

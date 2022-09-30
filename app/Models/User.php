@@ -200,7 +200,7 @@ class User extends Authenticatable implements JWTSubject
 
     public function stay_online_record_only_page()
     {
-        return $this->stay_online_record()->whereNotNull('stay_online_time')->whereNotNull('url');
+        return StayOnlineRecord::addOnlyPageClauseToQuery($this->stay_online_record());//->whereNotNull('stay_online_time')->whereNotNull('url');
     }     
     
     //多重帳號row
@@ -1404,9 +1404,11 @@ class User extends Authenticatable implements JWTSubject
 				->leftJoin('banned_users as b1', 'b1.member_id', '=', 'message.from_id')
 				->leftJoin('banned_users_implicitly as b3', 'b3.target', '=', 'message.from_id')
 				->leftJoin('warned_users as wu', function($join) {
-					$join->on('wu.member_id', '=', 'message.from_id')
-						->where('wu.expire_date', '>=', Carbon::now())
-						->orWhere('wu.expire_date', null); })
+                    $join->on('wu.member_id', '=', 'message.from_id')
+                         ->where(function($join) {                            
+                            $join->where('wu.expire_date', '>=', Carbon::now())
+                            ->orWhere('wu.expire_date', null);
+                         }); })
 				->whereNull('b1.member_id')
 				->whereNull('b3.target')
 				->whereNull('wu.member_id')
@@ -1426,7 +1428,10 @@ class User extends Authenticatable implements JWTSubject
 
 				$messages = Message::select('id','content','created_at')
 					->where('from_id', $user->id)
-					->where('sys_notice', 0)->orWhereNull('sys_notice')
+					->where(function ($query) {
+                        $query->where('sys_notice', 0)
+                        ->orWhereNull('sys_notice');
+                    })
 					->whereBetween('created_at', array($date_start . ' 00:00', $date_end . ' 23:59'))
 					->orderBy('created_at','desc')
 					->take(100)
@@ -1581,8 +1586,10 @@ class User extends Authenticatable implements JWTSubject
                 ->leftJoin('banned_users_implicitly as b3', 'b3.target', '=', 'message.from_id')
                 ->leftJoin('warned_users as wu', function($join) {
                     $join->on('wu.member_id', '=', 'message.from_id')
-                        ->where('wu.expire_date', '>=', Carbon::now())
-                        ->orWhere('wu.expire_date', null); })
+                         ->where(function($join) {                            
+                            $join->where('wu.expire_date', '>=', Carbon::now())
+                            ->orWhere('wu.expire_date', null);
+                         }); })
                 ->whereNull('b1.member_id')
                 ->whereNull('b3.target')
                 ->whereNull('wu.member_id')
@@ -1602,7 +1609,10 @@ class User extends Authenticatable implements JWTSubject
 
                 $messages = Message::select('id','content','created_at')
                     ->where('from_id', $user->id)
-                    ->where('sys_notice', 0)->orWhereNull('sys_notice')
+                    ->where(function ($query) {
+                        $query->where('sys_notice', 0)
+                        ->orWhereNull('sys_notice');
+                    })
                     ->whereBetween('created_at', array($date_start . ' 00:00', $date_end . ' 23:59'))
                     ->orderBy('created_at','desc')
                     ->take(100)
@@ -2233,4 +2243,18 @@ class User extends Authenticatable implements JWTSubject
             return User::all();
         });
     }
+
+    
+    public function getUser()
+    {
+        return $this;
+    }
+        
+    
+    public function getUserDescPageStayOnlineRecordsPaginate()
+    {
+        $this->paginate = $this->stay_online_record_only_page()->orderByDesc('id')->paginate(20,['*'], 'pageU'.$this->id, request()->input('pageU'.$this->id));
+        return $this->paginate;
+    }    
+
 }

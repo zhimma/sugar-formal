@@ -230,7 +230,7 @@ is_truth_icon_pic.src="{{asset('/new/images/zz_zt2.png')}}";
                     </select>
                 </div>
                 @if($user->engroup==2)
-                <a href="javascript:void(0)" class="right ys_inbut"><img src="/new/images/zz_ztt.png">顯示罐頭訊息</a>
+                <a href="javascript:void(0)" class="right ys_inbut"><img src="/new/images/zz_ztt.png"><span>顯示罐頭訊息</span></a>
                 @endif
             </div>
             <div class="sjlist_li">
@@ -978,7 +978,7 @@ is_truth_icon_pic.src="{{asset('/new/images/zz_zt2.png')}}";
         {
             return new Date(dt.getFullYear(), dt.getMonth(), 1);
         }
-        function liContent(pic,user_name,content,created_at,read_n,i,user_id,isVip,show,isWarned,isBanned,exchange_period,isBlur=false,is_truth=false,isCan){
+        function liContent(pic,user_name,content,created_at,read_n,i,user_id,isVip,show,isWarned,isBanned,exchange_period,isBlur=false,is_truth=false, isCan = false){
             showMsg = show;
             var li='';
             var ss =((i+1)>Page.row)?'display:none;':'display:none;';
@@ -1000,17 +1000,17 @@ is_truth_icon_pic.src="{{asset('/new/images/zz_zt2.png')}}";
                 `;
             }else{
                 li += `
-                <li class="row_data ${isCan? "d-none can":""}" style="${ss}" id="${user_id}">
+                <li class="row_data ${(isCan && !is_truth)? "d-none can":""}" style="${ss}" id="${user_id}">
                 `;
             }
 
             if(show==0 && engroup==1){
                 li += `
-                     <div onclick="yd3()" class="vipOnlyAlert" data-toggle="popover" data-content="${username}您好，試用會員只能看到最先通訊的十位女會員，請至「全部訊息」確認通訊人數是否已超過10人，即可發訊息給${user_name}" style="width: 100%">
+                     <div class="vipOnlyAlert" style="width: 100%">
                    `;
             }else if(show==0 && engroup==2){
                 li += `
-                     <div onclick="yd3()" class="vipOnlyAlert" data-toggle="popover" data-content="${username}您好，試用會員只能看到最先通訊的十位男會員，請上傳大頭貼＋三張生活照就可以取得　ＶＩＰ　權限或是到「全部訊息」確認通訊人數是否已超過10人，即可發訊息給${user_name}" style="width: 100%">
+                     <div class="vipOnlyAlert" style="width: 100%">
                   `;
             }
 
@@ -1024,8 +1024,7 @@ is_truth_icon_pic.src="{{asset('/new/images/zz_zt2.png')}}";
                 li += `<a href="${url}" target="_self">`;
                 if(is_truth) {
                     li += `<img src="{{asset('/new/images/zz_zt2.png')}}" class="ys_gt1">`;
-                }
-                if(isCan) {
+                }else if(isCan) {
                     li += `<img src="/new/images/zz_zt1.png" class="ys_gt">`;
                 }
                 li += `<div class="sjpic ${styBlur} shanx" id="${user_id}">
@@ -1042,8 +1041,7 @@ is_truth_icon_pic.src="{{asset('/new/images/zz_zt2.png')}}";
                             <img src="${pic}">
                             <div class="onlineStatusChatView"></div>
                         </div>
-                        <div class="sjleft" data-position="bottom" data-highlightClass="yd3a" data-tooltipClass="yd3" data-step="6"
-                                     data-intro="試用會員只能看到舊的十筆訊息，如果想要看新的訊息請刪除舊的通訊紀錄。<em></em><em></em>">
+                        <div class="sjleft">
                             <div class="sjtable ${user_id}">${(read_n!=0 && isBanned==0?`<i class="number ${user_id}">${read_n}</i>`:'')}<span class="ellipsis" style="width: 60%;">${user_name}</span></div>
                   `;
             }else if(show==0){
@@ -1052,8 +1050,7 @@ is_truth_icon_pic.src="{{asset('/new/images/zz_zt2.png')}}";
                             <img src="${pic}">
                             <div class="onlineStatusChatView"></div>
                         </div>
-                        <div class="sjleft" data-position="bottom" data-highlightClass="yd3a" data-tooltipClass="yd3" data-step="7"
-                                     data-intro="試用會員只能看到舊的十筆訊息，如果想要看新的訊息請刪除舊的通訊紀錄。<em></em><em></em>">
+                        <div class="sjleft">
                             <div class="sjtable ${user_id}">${(read_n!=0 && isBanned==0?`<i class="number ${user_id}">${read_n}</i>`:'')}<span class="ellipsis" style="width: 60%;">${user_name}</span></div>
                   `;
             }
@@ -1079,12 +1076,14 @@ is_truth_icon_pic.src="{{asset('/new/images/zz_zt2.png')}}";
                    `;
             }else if(show==0 && engroup==1 && isBanned==0){
                 li += `
-                     <font><img src="/new/images/icon_35.png"></font>
+                     <font><div  data-toggle="popover" data-content="試用會員只能看到舊的十筆訊息，如果想要看新的訊息請刪除舊的通訊紀錄。" style="width: 100%"><img src="/new/images/icon_35.png"></div></font>
+
                      </div></a>
                    `;
             }else if(show==0 && engroup==2 && isBanned==0){
                 li += `
-                     <font id="yd3"><img src="/new/images/icon_35.png"></font>
+                     <font><div data-toggle="popover" data-content="試用會員只能看到舊的十筆訊息，如果想要看新的訊息請刪除舊的通訊紀錄。" style="width: 100%"><img src="/new/images/icon_35.png"></div></font>
+
                      </div></a>
                    `;
             }
@@ -1170,8 +1169,7 @@ is_truth_icon_pic.src="{{asset('/new/images/zz_zt2.png')}}";
                         
                         $('.sjlist_alert').html('');
                         $('.sjlist_banned').html('');
-                        $('.page_warned').hide();
-                        $('.page_banned').hide();                        
+                        $('.page_banned').hide();
                     @elseif($user->engroup==1)
                         @php
                             $exchange_period_name = DB::table('exchange_period_name')->get();
@@ -1187,6 +1185,7 @@ is_truth_icon_pic.src="{{asset('/new/images/zz_zt2.png')}}";
                     $('.sjlist_banned').html('');
                     $('.page_admin').hide();
                     $('.page_warning').hide();
+                    $('.page_warned').hide();
                     $('.warning').show();
                 },
                 complete: function () {
@@ -1346,10 +1345,6 @@ is_truth_icon_pic.src="{{asset('/new/images/zz_zt2.png')}}";
                                     @endforeach
                                 @endif
                             }
-                        }
-                        if(has_vvip_msg_count>0){
-                            $('.leboxVVIP').toggleClass('on');
-                            $('.leboxVVIP').next('dd').slideToggle("slow");
                         }
 
                         @if($isVip)
@@ -1824,9 +1819,13 @@ is_truth_icon_pic.src="{{asset('/new/images/zz_zt2.png')}}";
                         content: function () { return '<h4>' + $(this).data('content') + '</h4>'; }
                     });
 
-                    @if($user->checkTourRead('chat',6) == 0)
-                        $('div[data-toggle="popover"]').popover('disable');
-                    @endif
+                    var has_vvip_msg_count=$('.sjlist_vvip>li:visible').not('.li_no_data').length;
+                    if(has_vvip_msg_count>0){
+                        if(!$('.leboxVVIP').hasClass('on')){
+                            $('.leboxVVIP').toggleClass('on');
+                            $('.leboxVVIP').next('dd').slideToggle("slow");
+                        }
+                    }
                 }
             })
                 .done(function() {
@@ -1849,7 +1848,25 @@ is_truth_icon_pic.src="{{asset('/new/images/zz_zt2.png')}}";
         // });
 
         $('.ys_inbut').on('click', function() {
-          $('.row_data.can').removeClass('d-none');
+
+            let text = $(this).find('span').text();
+            if(text == '顯示罐頭訊息') {
+                $(this).find('span').text('收起罐頭訊息');
+            } else if(text == '收起罐頭訊息') {
+                $(this).find('span').text('顯示罐頭訊息');
+            }
+
+            $('.row_data.can').toggleClass('d-none');
+            $('.row_data.can').next('.li_no_data').toggle();
+
+
+            var has_vvip_msg_count=$('.sjlist_vvip>li:visible').not('.li_no_data').length;
+            if(has_vvip_msg_count>0){
+                if(!$('.leboxVVIP').hasClass('on')){
+                    $('.leboxVVIP').toggleClass('on');
+                    $('.leboxVVIP').next('dd').slideToggle("slow");
+                }
+            }
         });
 
         $('#daysSelect').on('change', function() {
@@ -2595,32 +2612,32 @@ is_truth_icon_pic.src="{{asset('/new/images/zz_zt2.png')}}";
                     @endif
                 });
 
-                function yd3() {
-                    @if($user->checkTourRead('chat',7)==0)
-                    if (step7 != 1) {
-                        $('#announcement').hide();
-                        $('.announce_bg').hide();
-                        introJs().goToStep(6).start();
-                        $('div[data-toggle="popover"]').popover('disable');
-                        step7 = 1;
-                        letTourRead('chat',7);
-                    }
-                    @endif
-                }
+                {{--function yd3() {--}}
+                {{--    @if($user->checkTourRead('chat',7)==0)--}}
+                {{--    if (step7 != 1) {--}}
+                {{--        $('#announcement').hide();--}}
+                {{--        $('.announce_bg').hide();--}}
+                {{--        introJs().goToStep(6).start();--}}
+                {{--        $('div[data-toggle="popover"]').popover('disable');--}}
+                {{--        step7 = 1;--}}
+                {{--        letTourRead('chat',7);--}}
+                {{--    }--}}
+                {{--    @endif--}}
+                {{--}--}}
 
             @else
-                function yd3() {
-                    @if($user->checkTourRead('chat',6)==0)
-                    if (step6 != 1) {
-                        $('#announcement').hide();
-                        $('.announce_bg').hide();
-                        introJs().goToStep(5).start();
-                        $('div[data-toggle="popover"]').popover('disable');
-                        step6 = 1;
-                        letTourRead('chat',6);
-                    }
-                    @endif
-                }
+                {{--function yd3() {--}}
+                {{--    @if($user->checkTourRead('chat',6)==0)--}}
+                {{--    if (step6 != 1) {--}}
+                {{--        $('#announcement').hide();--}}
+                {{--        $('.announce_bg').hide();--}}
+                {{--        introJs().goToStep(5).start();--}}
+                {{--        $('div[data-toggle="popover"]').popover('disable');--}}
+                {{--        step6 = 1;--}}
+                {{--        letTourRead('chat',6);--}}
+                {{--    }--}}
+                {{--    @endif--}}
+                {{--}--}}
             @endif
 
 

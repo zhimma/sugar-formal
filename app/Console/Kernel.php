@@ -116,7 +116,7 @@ class Kernel extends ConsoleKernel
             //$schedule->command('queue:work --queue=compare_images --daemon --sleep=3 --tries=3 --delay=3  --timeout=0')->timezone('Asia/Taipei')->everyFiveMinutes()->between('02:00', '12:00');
 
             //每天計算統計資料
-            $schedule->command('ComputeStatisticInformation')->timezone('Asia/Taipei')->dailyAt('00:00'); 
+            $schedule->command('ComputeStatisticInformation')->timezone('Asia/Taipei')->dailyAt('00:01'); 
 
         }
         if(app()->isProduction()) {
