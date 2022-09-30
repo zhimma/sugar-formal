@@ -1711,6 +1711,12 @@ class UserController extends \App\Http\Controllers\BaseController
             ->where('user_id', $id)
             ->get()
             ->toArray();
+            
+        $not_pass_faq_ltime = '';
+        
+        if($user->engroup==2) {
+            $not_pass_faq_ltime = $user->faq_user_group()->with('faq_group')->where('is_pass',0)->whereHas('faq_group',function($q) {$q->whereHas('faq_user_reply_not_pass');})->get()->pluck('faq_group.faq_login_times')->implode('/');
+        }
 
         if (str_contains(url()->current(), 'edit')) {
             $birthday = date('Y-m-d', strtotime($userMeta->birthdate));
@@ -1724,7 +1730,10 @@ class UserController extends \App\Http\Controllers\BaseController
                 ->with('year', $year)
                 ->with('month', $month)
                 ->with('day', $day)
-                ->with('raa_service',$this->raa_service->riseByUserEntry($user));
+                ->with('raa_service',$this->raa_service->riseByUserEntry($user))
+                ->with('not_pass_faq_ltime',$not_pass_faq_ltime)
+                ;
+                
         } else {
             $user_video_verify_record = UserVideoVerifyRecord::select('user_video_verify_record.*', 'users.name','users.email')
                         ->leftJoin('users', 'user_video_verify_record.user_id', '=', 'users.id')
@@ -1767,6 +1776,7 @@ class UserController extends \App\Http\Controllers\BaseController
                 ->with('user_video_verify_record',$user_video_verify_record)
                 ->with('is_warned_of_budget', $is_warned_of_budget)
                 ->with('pageStay', $pageStay)
+                ->with('not_pass_faq_ltime',$not_pass_faq_ltime)
                 ;
         }
     }

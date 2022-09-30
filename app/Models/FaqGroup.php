@@ -6,6 +6,7 @@ use App\Models\FaqQuestion;
 use App\Models\FaqChoice;
 use App\Models\FaqGroupActLog;
 use App\Models\FaqUserGroup;
+use App\Models\FaqUserReply;
 use Illuminate\Database\Eloquent\Model;
 
 class FaqGroup extends Model
@@ -32,7 +33,17 @@ class FaqGroup extends Model
     public function faq_choice()
     {
         return $this->hasManyThrough(FaqChoice::class, FaqQuestion::class, 'group_id', 'question_id');
-    }  
+    } 
+
+    public function faq_user_reply()
+    {
+        return $this->hasManyThrough(FaqUserReply::class, FaqQuestion::class, 'group_id', 'question_id');
+    }
+
+    public function faq_user_reply_not_pass()
+    {
+        return $this->faq_user_reply()->where('faq_user_replies.is_pass',0);
+    }       
 
     public function answer_choice()
     {

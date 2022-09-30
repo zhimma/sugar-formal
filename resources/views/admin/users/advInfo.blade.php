@@ -534,6 +534,16 @@
                     @endforeach
                 @endforeach
             </table>
+            @if($user->engroup==2 && $not_pass_faq_ltime)
+            <table  class="table table-bordered">
+                <tr>
+                    <th>FAQ 未回答紀錄：
+                        {{$not_pass_faq_ltime}}
+                    </th>
+                </tr>
+                
+            </table>
+            @endif
         </td>
         <!--
         <td colspan='2'>
