@@ -83,6 +83,9 @@
               結束視訊通話
             </button>
           </div>
+          <div class="error_message">
+            <strong><li id="error_message" style="color:red;"></li></strong>
+          </div>
         </div>
       </div>
       <!-- End of Placing Video Call  -->
@@ -837,6 +840,15 @@ export default {
   left: 50%;
   margin-left: -50px;
   z-index: 3;
+  display: flex;
+  flex-direction: row;
+}
+
+.video-container .error_message {
+  position: absolute;
+  bottom: 0;
+  right: 0;
+  z-index: 4;
   display: flex;
   flex-direction: row;
 }
