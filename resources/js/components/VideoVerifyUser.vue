@@ -62,20 +62,12 @@
             </div>
           </div>
           <div class="action-btns">
-            <button v-if="this.user_permission == 'admin'" type="button" class="btn btn-info" @click="toggleMuteAudio">
-              {{ mutedAudio ? "關閉靜音" : "開啟靜音" }}
-            </button>
-            <button
-              v-if="this.user_permission == 'admin'"
-              type="button"
-              class="btn btn-primary mx-4"
-              @click="toggleMuteVideo"
-            >
-              {{ mutedVideo ? "顯示畫面" : "隱藏畫面" }}
-            </button>
             <button type="button" class="btn btn-danger" @click="endCall">
               結束視訊通話
             </button>
+          </div>
+          <div class="error_message">
+            <strong><li id="error_message" style="color:red;"></li></strong>
           </div>
         </div>
       </div>
@@ -201,6 +193,7 @@ export default {
         })
         .catch((error) => {
           console.log(error);
+          $("#error_message").text(error);
         });
     },
 
@@ -297,6 +290,7 @@ export default {
           .then(() => {})
           .catch((error) => {
             console.log('signal axios error:' + error);
+            $("#error_message").text('signal axios error:' + error);
           });
       });
 
@@ -309,21 +303,6 @@ export default {
 
       this.videoCallParams.peer1.on("connect", () => {
         console.log("peer1 connected");
-        if(this.user_permission == 'admin')
-        {
-          $.ajax({
-            type:'post',
-            url:'/admin/users/video_chat_verify_upload_init',
-            data:{
-              _token:this.csrf,
-              verify_user_id:id
-            },
-            success:function(data){
-              window.sessionStorage.setItem('verify_record_id', data.record_id);
-            }
-          });
-          this.startRecording();
-        }
         this.videoCallParams.connecting_peer = this.videoCallParams.peer1;
         if(this.user_permission == 'normal')
         {
@@ -340,6 +319,7 @@ export default {
       this.videoCallParams.peer1.on("error", (err) => {
         console.log('peer1 error');
         console.log(err);
+        $("#error_message").text('peer1 error : ' + err);
       });
 
       this.videoCallParams.peer1.on("close", () => {
@@ -376,10 +356,6 @@ export default {
           }
         }
       });
-      if(this.user_permission == 'admin')
-      {
-        if (!this.mutedVideo) this.toggleMuteVideo();
-      }
     },
 
     async acceptCall() {
@@ -423,6 +399,7 @@ export default {
           .then(() => {})
           .catch((error) => {
             console.log('signal axios error:' + error);
+            $("#error_message").text('signal axios error:' + error);
           });
       });
 
@@ -434,21 +411,6 @@ export default {
       this.videoCallParams.peer2.on("connect", () => {
         console.log("peer2 connected");
         this.videoCallParams.callAccepted = true;
-        if(this.user_permission == 'admin')
-        {
-          $.ajax({
-            type:'post',
-            url:'/admin/users/video_chat_verify_upload_init',
-            data:{
-              _token:this.csrf,
-              verify_user_id:this.videoCallParams.caller
-            },
-            success:function(data){
-              window.sessionStorage.setItem('verify_record_id', data.record_id);
-            }
-          });
-          this.startRecording();
-        }
         this.videoCallParams.connecting_peer = this.videoCallParams.peer2;
       });
 
@@ -460,6 +422,7 @@ export default {
       this.videoCallParams.peer2.on("error", (err) => {
         console.log('peer2 error');
         console.log(err);
+        $("#error_message").text('peer2 error : ' + err);
       });
 
       this.videoCallParams.peer2.on("close", () => {
@@ -467,10 +430,6 @@ export default {
       });
 
       this.videoCallParams.peer2.signal(this.videoCallParams.callerSignal);
-      if(this.user_permission == 'admin')
-      {
-        if (!this.mutedVideo) this.toggleMuteVideo();
-      }
       if(this.user_permission == 'normal')
       {
         $('#partner_video_screen').hide();
@@ -554,6 +513,7 @@ export default {
       // if video or audio is muted, enable it so that the stopStreamedVideo method will work
       if (this.mutedVideo) this.toggleMuteVideo();
       if (this.mutedAudio) this.toggleMuteAudio();
+      /*
       this.stopStreamedVideo(this.$refs.userVideo);
       if (this.authuserid === this.videoCallParams.caller)
       {
@@ -581,14 +541,14 @@ export default {
       this.videoCallParams.channel.pusher.channels.channels[
         "presence-presence-video-channel"
       ].disconnect();
-      if(this.user_permission == 'admin')
+      */
+      try
       {
-        try{this.stopRecording();}
-        catch(e){console.log(e);}
+        this.videoCallParams.connecting_peer.send('end_call');
       }
-      if(this.user_permission == 'admin')
+      catch(e)
       {
-        window.sessionStorage.setItem('endcall_reload',true);
+        console.log(e);
       }
       setTimeout(() => {
         this.callPlaced = false;
@@ -831,6 +791,15 @@ export default {
   left: 50%;
   margin-left: -50px;
   z-index: 3;
+  display: flex;
+  flex-direction: row;
+}
+
+.video-container .error_message {
+  position: absolute;
+  bottom: 0;
+  right: 0;
+  z-index: 4;
   display: flex;
   flex-direction: row;
 }
