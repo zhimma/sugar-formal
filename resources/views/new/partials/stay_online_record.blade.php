@@ -33,6 +33,10 @@
         
         update_online_time(0);
         
+        $(function(){
+            update_online_time(0);
+        });
+        
         function update_online_time_on_leave() {
             stay_online_record_request.abort();
             clearInterval(online_time_interval);

@@ -218,6 +218,17 @@
                                         <button class="btn btn-sm btn-danger btn_sid" type="button" data-confirm="1">列入</button>
                                     @endif
                                 </form>
+                                @if($user->engroup==2)
+                                @php $not_pass_faq_ltime = $user->faq_user_group()->with('faq_group')->where('is_pass',0)->whereHas('faq_group',function($q) {$q->whereHas('faq_user_reply_not_pass');})->get()->pluck('faq_group.faq_login_times')->implode('/');   @endphp
+                                <table  class="table table-bordered">
+                                    <tr>
+                                        <th>FAQ 未回答紀錄：
+                                            {{$not_pass_faq_ltime?$not_pass_faq_ltime:'無'}}
+                                        </th>
+                                    </tr>
+                                    
+                                </table>
+                                @endif                                
                                 <form id="suspicious_from" class="form-inline" action="/admin/users/picturesSimilar/suspicious:toggle" method="post">
                                     {!! csrf_field() !!}
                                     <input type="hidden" name="uid" value="{{ $user->id }}">

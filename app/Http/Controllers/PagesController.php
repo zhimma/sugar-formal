@@ -9963,7 +9963,7 @@ class PagesController extends BaseController
                 $no_storage_record_id = true;
             }
             else {
-                $stay_online_record = StayOnlineRecord::where('client_storage_record_id', $stay_online_record_id)->where('page_uid',$page_uid)->where('user_id', $user->id)->first();
+                $stay_online_record = StayOnlineRecord::where('client_storage_record_id', $stay_online_record_id)->where('page_uid',$page_uid)->where('user_id', $user->id)->orderByDesc('id')->first();
             
                 if(!$stay_online_record) {
                     $is_need_create = true;
@@ -9981,6 +9981,7 @@ class PagesController extends BaseController
             
             $stay_online_record->page_uid = $page_uid;
             if(!$no_storage_record_id) $stay_online_record->client_storage_record_id = $stay_online_record_id;
+            if(!$stay_online_record->title) $stay_online_record->title = $page_title;
                 
             $stay_online_record->stay_online_time = ($stay_online_record->stay_online_time ?? 0) + $second;
             if ($page_id) {
