@@ -2523,9 +2523,9 @@ jQuery(document).ready(function(){
         var cfpID =$(this).attr('data-cfpID');
         if(ip!=='不指定'){
             if(ip){
-                window.open('/admin/users/ip/'+ip+'?assign_user_id='+ assign_user_id+'&yearMonth='+ yearMonth, '_blank');
+                window.open('/admin/users/ip/'+ip, '_blank');
             }else{
-                window.open('/admin/users/ip/不指定?assign_user_id='+ assign_user_id+'&yearMonth='+ yearMonth +'&cfp_id='+ cfpID, '_blank');
+                window.open('/admin/users/ip/不指定?cfp_id='+ cfpID, '_blank');
             }
         }else{
             $('.showLog').hide();
