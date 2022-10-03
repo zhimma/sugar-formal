@@ -648,6 +648,8 @@ class Message_new extends Model
                         if (!$gr_exceed) {
                             $messages[$key]['isCan']=0;
                         }
+                    }else {
+                        $messages[$key]['isCan']=0;
                     }
                 }
             }
