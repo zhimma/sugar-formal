@@ -123,7 +123,7 @@
 			nowElt.addClass('handling');
 			nowElt.text('處理中');				
 
-			var user_id = nowElt.parent().find('a.user_id').text().replace(' ','');
+			var user_id = nowElt.closest('tr').find('a.advinfo_entrance')[0].pathname.split('/').pop();
 			$.ajax({
 				type: 'POST',
 				url: '/admin/users/accountStatus_admin?{{csrf_token()}}={{now()->timestamp}}',
@@ -154,7 +154,7 @@
 			
 			$(this).hide();
 			$(this).parent().find('.ignore_switch_on').css("display", "inline-block");
-			var user_id = $(this).parent().find('a.user_id').text().replace(' ','');
+			var user_id = $(this).closest('tr').find('a.advinfo_entrance')[0].pathname.split('/').pop();
 			$.ajax({
 				type: 'GET',
 				url: '{{ route('ignoreDuplicate') }}?{{csrf_token()}}={{now()->timestamp}}',
@@ -171,7 +171,7 @@
 		$('.ignore_switch_on').on('click',function() {
 			$(this).hide();
 			$(this).parent().find('.ignore_switch_off').css("display", "inline-block");
-			var user_id = $(this).parent().find('a.user_id').text().replace(' ','');
+			var user_id = $(this).closest('tr').find('a.advinfo_entrance')[0].pathname.split('/').pop();
 			$.ajax({
 				type: 'GET',
 				url: '{{ route('ignoreDuplicate') }}?{{csrf_token()}}={{now()->timestamp}}',
@@ -501,7 +501,7 @@
 			@endphp
 			@if($user)
 				<th  class="col-2nd"  style="color: {{ $user->engroup == 1 ? 'blue' : 'red' }}; @if($bgColor) background-color: {{ $bgColor }} @endif">
-					<a href="{!!route('users/advInfo',$user->id)!!}"  target="_blank">{{ $user->email }}</a>
+					<a class="advinfo_entrance"  href="{!!route('users/advInfo',$user->id)!!}"  target="_blank">{{ $user->email }}</a>
 				</th>
                 <th  class="col-3rd" style="color: {{ $user->engroup == 1 ? 'blue' : 'red' }}; @if($bgColor) background-color: {{ $bgColor }} @endif">
                     {{$user->newer_manual_stay_online_time->time??'無'}}
