@@ -1446,7 +1446,7 @@ is_truth_icon_pic.src="{{asset('/new/images/zz_zt2.png')}}";
                                     if (vvip_counts > 10) {
                                         $('.page_vvip').show();
                                     }
-                                    Page.DrawPage(vip_counts);
+                                    Page.DrawPage(vvip_counts);
                                     $('.sjlist_vvip>.common30.vvipMember').slice((Page.page - 1) * Page.row, Page.page * Page.row).css('display', '');
 
                                     let vip_counts = $('.common30.vipMember').length;
@@ -1506,7 +1506,7 @@ is_truth_icon_pic.src="{{asset('/new/images/zz_zt2.png')}}";
                                     if (vvip_counts > 10) {
                                         $('.page_vvip').show();
                                     }
-                                    Page.DrawPage(vip_counts);
+                                    Page.DrawPage(vvip_counts);
                                     $('.sjlist_vvip>.vvipMember').slice((Page.page - 1) * Page.row, Page.page * Page.row).css('display', '');
 
                                     let vip_counts = $('.vipMember').length;
@@ -1763,6 +1763,17 @@ is_truth_icon_pic.src="{{asset('/new/images/zz_zt2.png')}}";
                                 $('#sjlist_vvip_warning').hide();
                                 $('.sjlist_vvip').append(no_row_li);
                             }
+
+                            var has_vvip_msg_count=$('.sjlist_vvip>li').not('.li_no_data').not('.d-none').length;
+                            //alert('筆數：'+has_vvip_msg_count + ' ,test筆數：'+ $('.sjlist_vvip>li:visible').length);
+                            if ($('.sjlist_vvip>li').not('.li_no_data').length > 0) {
+                                if(!$('.leboxVVIP').hasClass('on')){
+                                    $('.sjlist_vvip>.li_no_data').hide();
+                                    $('.leboxVVIP').toggleClass('on');
+                                    $('.leboxVVIP').next('dd').slideToggle("slow");
+                                }
+                            }
+
                             if ($('.sjlist_admin>li:visible').length == 0) {
                                 $('#sjlist_admin_warning').hide();
                                 $('.sjlist_admin').append(no_row_li);
@@ -1818,14 +1829,6 @@ is_truth_icon_pic.src="{{asset('/new/images/zz_zt2.png')}}";
                         html: true,
                         content: function () { return '<h4>' + $(this).data('content') + '</h4>'; }
                     });
-
-                    var has_vvip_msg_count=$('.sjlist_vvip>li:visible').not('.li_no_data').length;
-                    if(has_vvip_msg_count>0){
-                        if(!$('.leboxVVIP').hasClass('on')){
-                            $('.leboxVVIP').toggleClass('on');
-                            $('.leboxVVIP').next('dd').slideToggle("slow");
-                        }
-                    }
                 }
             })
                 .done(function() {
@@ -1858,15 +1861,6 @@ is_truth_icon_pic.src="{{asset('/new/images/zz_zt2.png')}}";
 
             $('.row_data.can').toggleClass('d-none');
             $('.row_data.can').next('.li_no_data').toggle();
-
-
-            var has_vvip_msg_count=$('.sjlist_vvip>li:visible').not('.li_no_data').length;
-            if(has_vvip_msg_count>0){
-                if(!$('.leboxVVIP').hasClass('on')){
-                    $('.leboxVVIP').toggleClass('on');
-                    $('.leboxVVIP').next('dd').slideToggle("slow");
-                }
-            }
         });
 
         $('#daysSelect').on('change', function() {
@@ -2157,7 +2151,17 @@ is_truth_icon_pic.src="{{asset('/new/images/zz_zt2.png')}}";
                             $('#sjlist_banned_warning').hide();
                             $('.sjlist_banned').append(no_row_li);
                         }
-                    }                       
+                    }
+
+                    var has_vvip_msg_count=$('.sjlist_vvip>li').not('.li_no_data').not('.d-none').length;
+                    // alert('days select =>'+has_vvip_msg_count);
+                    if(has_vvip_msg_count>0){
+                        if(!$('.leboxVVIP').hasClass('on')){
+                            $('.sjlist_vvip>.li_no_data').hide();
+                            $('.leboxVVIP').toggleClass('on');
+                            $('.leboxVVIP').next('dd').slideToggle("slow");
+                        }
+                    }
             }
 
         });
