@@ -1054,6 +1054,8 @@ Route::group(['middleware' => ['auth', 'global', 'active', 'femaleActive', 'vipC
         Route::post('global/feature_flags/edit', 'UserController@feature_flags_edit');
         Route::post('global/feature_flags/update', 'UserController@feature_flags_update');
         Route::post('global/feature_flags/delete', 'UserController@feature_flags_delete');
+
+        Route::get('special_industries_judgment_training', 'AdminController@special_industries_judgment_training')->name('admin/special_industries_judgment_training');
     });
     Route::group(['prefix' => 'admin', 'middleware' => 'Admin'], function () {
         //寄退信Log查詢
