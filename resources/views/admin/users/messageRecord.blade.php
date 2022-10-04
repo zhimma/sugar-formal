@@ -189,7 +189,11 @@
         <textarea name="msg" id="msg2" class="form-control" cols="80" rows="5"></textarea>
         <br>
         <button type='submit' class='text-white btn btn-primary'>送出</button>
+        @if($user->is_admin_chat_channel_open)
+        <button type="button" class="btn btn-dark" onclick="closeChat({{$user->id}})">結束對話</button>
+        @endif
     </form>
+    
 </body>
 
 <script src="/js/vendors.bundle.js" type="text/javascript"></script>
@@ -285,6 +289,21 @@ jQuery(document).ready(function(){
                 }
             }
         }
+    }
+    function closeChat(id) {
+        $.ajax({
+            type: 'POST',
+            url: "/admin/users/isChatToggler",
+            data:{
+                _token: '{{csrf_token()}}',
+                user_id: id,
+                is_admin_chat_channel_open: 0,
+            },
+            dataType:"json",
+            success: function(res){
+                alert('對話已結束')
+                location.reload();
+        }});
     }
     $('.message_management_btn').on('click', function(){
         $('.main').toggle();

@@ -211,6 +211,15 @@ class UserController extends \App\Http\Controllers\BaseController
         return redirect('admin/users/advInfo/' . $request->user_id);
     }
 
+    public function TogglerIsChat(Request $request)
+    {
+        $user = User::where('id', $request->user_id)->first();
+        $user->is_admin_chat_channel_open = $request->is_admin_chat_channel_open;
+        $user->save();
+
+        return response()->json($user);
+    }
+
     /**
      * Toggle the gender of a specific member.
      *

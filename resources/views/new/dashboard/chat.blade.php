@@ -236,25 +236,27 @@ is_truth_icon_pic.src="{{asset('/new/images/zz_zt2.png')}}";
             <div class="sjlist_li">
                 <div class="leftsidebar_box">
                     <dl class="system_log">
-                        @if(($isVip && ($user->engroup==1 || $user->engroup==2)) || (!$isVip &&
-                        $user->engroup==2))
-                            <span class="admin_delete shou_but">全部刪除</span>
-                        @endif
-                        @if($user->id != 1049)
-                        <dt class="lebox0" data-step="4" data-position="top" data-highlightClass="yd4a"
-                            data-tooltipClass="yd4" data-intro="<p>會員可以在此處與站長對話。</p>
-                                        <em></em><em></em>">
+                        @if($user->is_admin_chat_channel_open)
+                            @if(($isVip && ($user->engroup==1 || $user->engroup==2)) || (!$isVip &&
+                            $user->engroup==2))
+                                <span class="admin_delete shou_but">全部刪除</span>
+                            @endif
+                            @if($user->id != 1049)
+                            <dt class="lebox0" data-step="4" data-position="top" data-highlightClass="yd4a"
+                                data-tooltipClass="yd4" data-intro="<p>會員可以在此處與站長對話。</p>
+                                            <em></em><em></em>">
 
-                            <span class="le_span">站長來訊</span>
-                        </dt>
-                        <dd>
-                            <div class="loading warning" id="sjlist_admin_warning"><span
-                                    class="loading_text">loading</span></div>
-                            <ul class="sjlist sjlist_admin">
-                            </ul>
-                            <div class="page page_admin fenye" style="text-align: center;"></div>
-                        </dd>
-                        @endif
+                                <span class="le_span">站長來訊</span>
+                            </dt>
+                            <dd>
+                                <div class="loading warning" id="sjlist_admin_warning"><span
+                                        class="loading_text">loading</span></div>
+                                <ul class="sjlist sjlist_admin">
+                                </ul>
+                                <div class="page page_admin fenye" style="text-align: center;"></div>
+                            </dd>
+                            @endif
+                            @endif
                         @if($user->engroup==1)
                         @php
                         $exchange_period_name = DB::table('exchange_period_name')->get();

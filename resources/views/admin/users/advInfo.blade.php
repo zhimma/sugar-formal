@@ -219,7 +219,7 @@
         <input type="hidden" name='is_real' value="{{ $user->is_real }}">
         <button type="submit" class="btn {{ $user->is_real? 'btn-warning' : 'btn-danger' }}">{{ $user->is_real ? '是本人' : '非本人' }}</button>
     </form>   
-    <a href="{{ route('AdminMessageRecord', $user['id']) }}" target="_blank" class='btn btn-danger message_record_btn'>開啟會員對話</a>
+    <button class="btn {{ $user->is_admin_chat_channel_open? 'btn-success' : 'btn-danger' }} message_record_btn" onclick="isChat( {{ $user->id }}, {{ !$user->is_admin_chat_channel_open }})">{{ $user->is_admin_chat_channel_open ? '對話中' : '開啟會員對話' }}</button>
     @if($user->engroup==2)
     <div id="real_auth_actor_container">
         <a class="btn {{$raa_service->getActorClassAttrByAuthTypeId(1)}}" id="self_auth_actor" href="javascript:void(0)" data-auth_type_id="1" data-auth_name="本人認證" data-user_id="{{ $user['id'] }}"  data-latest_modify_id="{{$raa_service->getLatestUncheckedModifyIdByAuthTypeId(1)}}" >{{$raa_service->getStatusActorPrefixByAuthTypeId(1)}}本人認證</a>
@@ -3033,13 +3033,22 @@ function show_re_content(id){
         }
 
     });
-
-    $('.message_record_btn').on('click', function(){
-        if($(this).text() == '開啟會員對話')
-        {
-            $(this).text('對話中');
-        }
-    });
+    function isChat(id, is_open) {
+        window.open('/admin/users/message/record/'+id);
+        $.ajax({
+            type: 'POST',
+            url: '/admin/users/isChatToggler',
+            data:{
+                _token: '{{csrf_token()}}',
+                user_id: id,
+                is_admin_chat_channel_open: is_open,
+            },
+            dataType:"json",
+            success: function(res){
+                location.reload();
+        }});
+    }
+  
 
     //預算及車馬費警示警示
     function WarnBudget(type)

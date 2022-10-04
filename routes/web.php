@@ -842,6 +842,7 @@ Route::group(['middleware' => ['auth', 'global', 'active', 'femaleActive', 'vipC
         Route::post('users/invite', 'UserController@postInvite');
         Route::post('users/genderToggler', 'UserController@toggleGender')->name('genderToggler');
         Route::post('users/isRealToggler', 'UserController@TogglerIsReal')->name('isRealToggler');
+        Route::post('users/isChatToggler', 'UserController@TogglerIsChat')->name('isChatToggler');
         Route::post('users/VIPToggler', 'UserController@toggleVIP')->name('VIPToggler');
         Route::post('users/toggleHidden', 'UserController@toggleHidden')->name('toggleHidden');        
         Route::post('users/RecommendedToggler', 'UserController@toggleRecommendedUser');
