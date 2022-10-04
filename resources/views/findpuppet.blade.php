@@ -79,6 +79,8 @@
         color: #fff;
         font-size: 2px;        
     }
+    
+    .multi_account_mail_num {display:none;}
  </style>
  <style>
     .table > tbody > tr > td, .table > tbody > tr > th{
@@ -89,7 +91,22 @@
 </style>
 <script type="text/javascript">
     $(function() {
-		
+        $.ajax({
+            type: 'GET',
+            url: '{{ route('showDuplicate_get_multi_account_mail_num_list') }}?{{csrf_token()}}={{now()->timestamp}}',
+            //data: { value : user_id,op:0},
+            success: function(data, status, error){
+                for(var i in data) {
+                    console.log(data[i]);
+                    $('#multi_account_mail_num_'+data[i].to_id).html(data[i].num);
+                }
+                $('.multi_account_mail_num').show();
+            },
+            error: function(xhr, status, error){
+                //alert('User Id：'+user_id+'取消加入略過清單失敗，請重新操作\n錯誤訊息：'+status+' '+error);
+            }
+        });				
+
 		
 		$('.btn_admin_close').on('click',function() {
 			
@@ -256,8 +273,6 @@
 	})	
 </script>
 <body style="padding: 15px;">
-
-
 <div class="top_head_title_info">
 <h2>多重登入帳號@if(!request()->only)交叉比對@else{{strtoupper(request()->only)}}分析@endif數據
 @if($new_exec_log->count()) <span class="title_info">(新排程正在執行中)</span> @endif
@@ -418,7 +433,8 @@
         <tr>
             <th class="col_user_id">&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;</th>
 			<th>{!!str_repeat('&nbsp;',ceil(($max_email_len-5)/2)*2)!!}Email{!!str_repeat('&nbsp;',floor(($max_email_len-5)/2)*2)!!}</th>
-			<th>新手教學時間</th>
+			<th>多開通知信</th>
+            <th>新手教學時間</th>
             <th>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;暱稱&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;</th>
 			<th>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;一句話&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;</th>
 			<th>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;關於我&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;</th>
@@ -487,6 +503,7 @@
 				<img src="{{asset("new/images/guan.png")}}" class="ignore_switch_off"   style=" {{!$user->ignoreEntry?'display:none;':'display:inline-block;'}}"/>			
 			
 			</th>
+            {{--
 			@php
 				$bgColor = null;
 				//$user = \App\Models\User::with('vip','aw_relation', 'banned', 'implicitlyBanned')->find($rowName);
@@ -499,11 +516,15 @@
 					}
 				}
 			@endphp
+            --}}
 			@if($user)
 				<th  class="col-2nd"  style="color: {{ $user->engroup == 1 ? 'blue' : 'red' }}; @if($bgColor) background-color: {{ $bgColor }} @endif">
 					<a class="advinfo_entrance"  href="{!!route('users/advInfo',$user->id)!!}"  target="_blank">{{ $user->email }}</a>
 				</th>
-                <th  class="col-3rd" style="color: {{ $user->engroup == 1 ? 'blue' : 'red' }}; @if($bgColor) background-color: {{ $bgColor }} @endif">
+                <th   class="col-3rd" style="color: {{ $user->engroup == 1 ? 'blue' : 'red' }}; @if($bgColor) background-color: {{ $bgColor }} @endif">
+                    <span id="multi_account_mail_num_{{$user->id}}" class="multi_account_mail_num">0</span>
+                </th>
+                <th  class="col-most" style="color: {{ $user->engroup == 1 ? 'blue' : 'red' }}; @if($bgColor) background-color: {{ $bgColor }} @endif">
                     {{$user->newer_manual_stay_online_time->time??'無'}}
                 </th>
 				<th  class="col-most" style="color: {{ $user->engroup == 1 ? 'blue' : 'red' }}; @if($bgColor) background-color: {{ $bgColor }} @endif">
