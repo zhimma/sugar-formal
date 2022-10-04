@@ -1515,7 +1515,8 @@ class UserService
                 ->get();
 
             $isCanMessage = false;
-            $can_pr = UserService::computeCanMessagePercent_15($user->id);
+            // $can_pr = UserService::computeCanMessagePercent_15($user->id);
+            $can_pr = 50;
             foreach($messages as $data) {
                 similar_text($content, $data['content'], $percent);
                 if ($percent >= $can_pr) {
