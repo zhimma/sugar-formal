@@ -1524,12 +1524,14 @@ class UserService
 
             $isCanMessage = false;
             $can_pr = UserService::computeCanMessagePercent_15($user->id);
-            foreach($messages as $data) {
-                similar_text($content, $data['content'], $percent);
-                if ($percent >= $can_pr) {
-                    $isCanMessage = true;
-                }
-            }    
+            if($can_pr > 50) {
+                foreach($messages as $data) {
+                    similar_text($content, $data['content'], $percent);
+                    if ($percent >= $can_pr) {
+                        $isCanMessage = true;
+                    }
+                }    
+            }
             
             $user_open_alert = $user->can_message_alert;
             if ($user_open_alert && $isCanMessage) {
