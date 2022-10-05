@@ -3823,7 +3823,25 @@ class PagesController extends BaseController
     public function newer_manual(Request $request) {
         $user = $request->user();
         if ($user) {
+            if($user->engroup==2){
+                return redirect('/dashboard/female_newer_manual');
+            }
             return view('new.dashboard.newer_manual')
+                ->with('user', $user);
+        }
+    }
+
+    public function female_newer_manual(Request $request) {
+        $user = $request->user();
+        if ($user) {
+            $version=3;
+            if($user->female_manual_login_times==1)
+                $version=1;
+            else if($user->female_manual_login_times==2)
+                $version=2;
+
+            return view('new.dashboard.female_newer_manual')
+                ->with('show_sop_type', $version)
                 ->with('user', $user);
         }
     }
@@ -3853,6 +3871,26 @@ class PagesController extends BaseController
         $user = $request->user();
         $user->isReadManual = 1 ;
         $user->save();
+        return 'ok';
+    }
+
+    public function is_read_female_manual(Request $request)
+    {
+        $user = $request->user();
+
+        if($request->sop_type=='one'){
+            $user->is_read_female_manual_part1=1;
+            $user->save();
+        }else if ($request->sop_type=='two'){
+            $user->is_read_female_manual_part2=1;
+            $user->save();
+        }else if($request->sop_type=='three'){
+            $user->is_read_female_manual_part3=1;
+            $user->save();
+        }
+        //本次登入是否有看過新手教學
+        session()->put('female_manual_has_been_read', 1);
+
         return 'ok';
     }
 

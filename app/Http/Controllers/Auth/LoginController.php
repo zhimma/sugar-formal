@@ -201,7 +201,7 @@ class LoginController extends \App\Http\Controllers\BaseController
         }
 
         $user = User::query()
-                    ->select('id', 'engroup', 'email', 'last_login', 'login_times', 'intro_login_times', 'line_notify_alert', 'registered_from_mobile')
+                    ->select('id', 'engroup', 'email', 'last_login', 'login_times', 'intro_login_times', 'female_manual_login_times', 'line_notify_alert', 'registered_from_mobile')
                     ->withOut(['vip', 'user_meta'])
                     ->where('email', $request->email)->get()->first();
 
@@ -304,7 +304,11 @@ class LoginController extends \App\Http\Controllers\BaseController
         User::where('id',$user->id)->update(['intro_login_times'=>$user->intro_login_times +1]);
         //更新會員專屬頁通知<->登入次數
         User::where('id',$user->id)->update(['line_notify_alert'=>$user->line_notify_alert +1]);
-        
+        if($user->engroup==2){
+            //更新新版SOP教學<->登入次數
+            User::where('id',$user->id)->update(['female_manual_login_times'=>$user->female_manual_login_times +1]);
+            session()->forget('female_manual_has_been_read');
+        }
         //移至LogSuccessfulLoginListener
         /*
         //更新login_times
