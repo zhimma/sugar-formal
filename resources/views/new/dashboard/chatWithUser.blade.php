@@ -591,7 +591,7 @@
                     <a class="fa_adbut1 right" onclick="c5('這是Daddy主動發起的，請提醒Daddy按此按紐發動車馬費邀請！')">車馬費</a>
                     @php
                         $warned_users_data = \App\Models\SimpleTables\warned_users::where('member_id', $to->id)->orderBy('created_at', 'desc')->first();
-                        if (isset($warned_users_data) && ($warned_users_data->expire_date == null || $warned_users_data->expire_date >= Carbon::now())) {
+                        if (isset($warned_users_data) && ($warned_users_data->expire_date == null || $warned_users_data->expire_date >= \Carbon\Carbon::now())) {
                             $isAdminWarned= 1;
                         } else {
                             $isAdminWarned = 0;
