@@ -386,7 +386,7 @@
         display: block;
         z-index: 5;
     }
-    .fa_adbut1{ background:url({{asset('/new/images/1_03nn.png')}}) no-repeat;width:60px; height:28px; line-height:25px; text-align:center;display:table; margin-top:7px; 
+    .fa_adbut1{ background:url({{asset('/new/images/1_03nn.png')}}) no-repeat;width:70px; height:30px; line-height:28px; text-align:center;display:table; margin-top:7px;
     color:#ffffff; cursor: pointer;background-size: cover !important;}
     .fa_adbut1:hover{color:#ffffff !important} 
     .fa_adbut1:active,.fa_adbut1.adbut_on{background:url({{asset('/new/images/1_03nn_h.png')}}) no-repeat !important;width:60px; height:28px; line-height:25px; text-align:center;display:table; margin-top:7px;
@@ -588,7 +588,24 @@
                     @endif 
                     </a> 
                 @else
-                <a class="fa_adbut1 right" onclick="c5('這是Daddy主動發起的，請提醒Daddy按此按紐發動車馬費邀請！')">車馬費</a>
+                    <a class="fa_adbut1 right" onclick="c5('這是Daddy主動發起的，請提醒Daddy按此按紐發動車馬費邀請！')">車馬費</a>
+                    @php
+                        $warned_users_data = \App\Models\SimpleTables\warned_users::where('member_id', $to->id)->orderBy('created_at', 'desc')->first();
+                        if (isset($warned_users_data) && ($warned_users_data->expire_date == null || $warned_users_data->expire_date >= Carbon::now())) {
+                            $isAdminWarned= 1;
+                        } else {
+                            $isAdminWarned = 0;
+                        }
+                    @endphp
+                    @if($to->isVVIP())
+                        <a class="fa_adbut1 right" onclick="c5('VVIP 為經過站方認證高資產人士，站方強力推薦!!! 若甜心在與vvip互動時出現任何詐騙問題。請隨時回報站方，站方將提供免費法律諮詢，並將重新審核該位vvip的資格!')">VVIP</a>
+                    @elseif($isAdminWarned==1)
+                        <a class="fa_adbut1 right" onclick="c5('警示會員為遭受本站警示會員，若無必要，強烈建議勿與此類會員互動。')">警示會員</a>
+                    @elseif($to->isVip())
+                        <a class="fa_adbut1 right" onclick="c5('VIP 為經過站方認證身分會員。建議甜心盡量選擇高Pr值會員互動。')">VIP</a>
+                    @else
+                        <a class="fa_adbut1 right" onclick="c5('試用會員若有開出高額車馬費/包養費用是很不合理的事情，請甜心務必提高警覺多加注意。')">試用會員</a>
+                    @endif
                 @endif
                 @endif
                 @endif
