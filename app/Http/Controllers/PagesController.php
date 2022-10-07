@@ -3960,7 +3960,12 @@ class PagesController extends BaseController
         
         if (isset($user)) {
             $is_banned = User::isBanned($user->id);
-            $is_warned = warned_users::where('member_id', $user->id)->first();
+            $is_warned = warned_users::where('member_id', $user->id)
+                ->where(function ($q) {
+                    $today = Carbon::today();
+                    //就算有被封，只要 解封時間 不是null 以及大於今日就放過
+                    $q->where("expire_date", null)->orWhere("expire_date", ">", $today);
+                })->first();
             $toUserIsBanned = User::isBanned($cid);
             $isVVIP = $user->isVVIP();
             $isVip = ($user->isVip()||$isVVIP);
