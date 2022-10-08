@@ -53,6 +53,7 @@ class Kernel extends ConsoleKernel
         }
         if(app()->isProduction() || EnvironmentService::isLocalOrTestMachine()){
             $schedule->command('FillDataForFilterByInfo')->timezone('Asia/Taipei')->dailyAt('01:00');
+            $schedule->command('MessageSchedule')->timezone('Asia/Taipei')->dailyAt('01:30');
             $schedule->call(function (){
                 $this->checkECPayVip();
                 $this->checkEmailVailUser();
