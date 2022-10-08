@@ -7772,7 +7772,8 @@ class PagesController extends BaseController
                                 $periodRemained = 30;
                             }
                             $lastProcessDate = last(json_decode($order->pay_date));
-                            $nextProcessDate = substr($lastProcessDate[0]->addDays($periodRemained), 0, 10);
+                            $theActualLastProcessDate = is_string($lastProcessDate[0]) ? Carbon::parse($lastProcessDate[0]) : $lastProcessDate[0];
+                            $nextProcessDate = substr($theActualLastProcessDate->addDays($periodRemained), 0, 10);
                         }
                     }
 
@@ -7851,7 +7852,8 @@ class PagesController extends BaseController
                             $periodRemained = 30;
                         }
                         $lastProcessDate = last(json_decode($order->pay_date));
-                        $nextProcessDate = substr($lastProcessDate[0]->addDays($periodRemained), 0, 10);
+                        $theActualLastProcessDate = is_string($lastProcessDate[0]) ? Carbon::parse($lastProcessDate[0]) : $lastProcessDate[0];
+                        $nextProcessDate = substr($theActualLastProcessDate->addDays($periodRemained), 0, 10);
                     }
                 }
 
@@ -7947,7 +7949,8 @@ class PagesController extends BaseController
                             $periodRemained = 30;
                         }
                         $lastProcessDate = last(json_decode($order->pay_date));
-                        $nextProcessDate = substr($lastProcessDate[0]->addDays($periodRemained), 0, 10);
+                        $theActualLastProcessDate = is_string($lastProcessDate[0]) ? Carbon::parse($lastProcessDate[0]) : $lastProcessDate[0];
+                        $nextProcessDate = substr($theActualLastProcessDate->addDays($periodRemained), 0, 10);
                     }
                 }
 
