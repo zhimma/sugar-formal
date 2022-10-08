@@ -7734,13 +7734,11 @@ class PagesController extends BaseController
             }
         }
 
-        
+
         if($user->isVip()) {
             $vipStatus='您已是 VIP';
             $vip_record = Carbon::parse($user->vip_record);
-            $nextProcessDate = null;
             $vipDays = $vip_record->diffInDays(Carbon::now());
-            $nextProcessDate = null;
             if(!$user->isFreeVip()) {               
                 $vip = $user->vip->first();               
                 if($vip->payment && !str_contains($vip->order_id, 'TEST')){
@@ -7761,36 +7759,23 @@ class PagesController extends BaseController
                         default:
                             $payment = '';
                     }
-                    if(EnvironmentService::isLocalOrTestMachine()){
-                        $envStr = '_test';
-                    }
-                    else{
-                        $envStr = '';
-                    }
-                    if(substr($vip->payment,0,3) == 'cc_' && $vip->business_id == Config::get('ecpay.payment'.$envStr.'.MerchantID')){
 
-                        $ecpay = new \App\Services\ECPay_AllInOne();
-                        $ecpay->MerchantID = Config::get('ecpay.payment'.$envStr.'.MerchantID');
-                        $ecpay->ServiceURL = Config::get('ecpay.payment'.$envStr.'.ServiceURL');//定期定額查詢
-                        $ecpay->HashIV = Config::get('ecpay.payment'.$envStr.'.HashIV');
-                        $ecpay->HashKey = Config::get('ecpay.payment'.$envStr.'.HashKey');
-                        $ecpay->Query = [
-                            'MerchantTradeNo' => $vip->order_id,
-                            'TimeStamp' =>  time()
-                        ];
-                        $paymentData = $ecpay->QueryPeriodCreditCardTradeInfo(); //信用卡定期定額
-                        $last = last($paymentData['ExecLog']);
-                        $lastProcessDate = str_replace('%20', ' ', $last['process_date']);
-                        $lastProcessDate = \Carbon\Carbon::createFromFormat('Y/m/d H:i:s', $lastProcessDate);
-
-                        //計算下次扣款日
-                        if($vip->payment == 'cc_quarterly_payment'){
-                            $periodRemained = 92;
-                        }else {
-                            $periodRemained = 30;
+                    //order data check nextProcessDate
+                    $nextProcessDate = null;
+                    if(substr($vip->payment,0,3) == 'cc_') {
+                        $order = Order::where('order_id', $vip->order_id)->first();
+                        if (isset($order)) {
+                            //計算下次扣款日
+                            if ($vip->payment == 'cc_quarterly_payment') {
+                                $periodRemained = 92;
+                            } else {
+                                $periodRemained = 30;
+                            }
+                            $lastProcessDate = last(json_decode($order->pay_date));
+                            $nextProcessDate = substr($lastProcessDate[0]->addDays($periodRemained), 0, 10);
                         }
-                        $nextProcessDate = substr($lastProcessDate->addDays($periodRemained),0,10);
                     }
+
                     $last_vip_log = null;
 
                     switch ($vip->payment){
@@ -7853,35 +7838,23 @@ class PagesController extends BaseController
             $vipStatus = '您已是 VVIP';
             $vvip = $user->vvip->first();
             if ($vvip->payment) {
-                if (EnvironmentService::isLocalOrTestMachine()) {
-                    $envStr = '_test';
-                } else {
-                    $envStr = '';
-                }
-                if (substr($vvip->payment, 0, 3) == 'cc_' && $vvip->business_id == Config::get('ecpay.payment' . $envStr . '.MerchantID')) {
 
-                    $ecpay = new \App\Services\ECPay_AllInOne();
-                    $ecpay->MerchantID = Config::get('ecpay.payment' . $envStr . '.MerchantID');
-                    $ecpay->ServiceURL = Config::get('ecpay.payment' . $envStr . '.ServiceURL');//定期定額查詢
-                    $ecpay->HashIV = Config::get('ecpay.payment' . $envStr . '.HashIV');
-                    $ecpay->HashKey = Config::get('ecpay.payment' . $envStr . '.HashKey');
-                    $ecpay->Query = [
-                        'MerchantTradeNo' => $vvip->order_id,
-                        'TimeStamp' => time()
-                    ];
-                    $paymentData = $ecpay->QueryPeriodCreditCardTradeInfo(); //信用卡定期定額
-                    $last = last($paymentData['ExecLog']);
-                    $lastProcessDate = str_replace('%20', ' ', $last['process_date']);
-                    $lastProcessDate = \Carbon\Carbon::createFromFormat('Y/m/d H:i:s', $lastProcessDate);
-
-                    //計算下次扣款日
-                    if ($vvip->payment == 'cc_quarterly_payment') {
-                        $periodRemained = 92;
-                    } else {
-                        $periodRemained = 30;
+                //order data check nextProcessDate
+                $nextProcessDate = null;
+                if(substr($vvip->payment,0,3) == 'cc_') {
+                    $order = Order::where('order_id', $vvip->order_id)->first();
+                    if (isset($order)) {
+                        //計算下次扣款日
+                        if ($vvip->payment == 'cc_quarterly_payment') {
+                            $periodRemained = 92;
+                        } else {
+                            $periodRemained = 30;
+                        }
+                        $lastProcessDate = last(json_decode($order->pay_date));
+                        $nextProcessDate = substr($lastProcessDate[0]->addDays($periodRemained), 0, 10);
                     }
-                    $nextProcessDate = substr($lastProcessDate->addDays($periodRemained), 0, 10);
                 }
+
                 $last_vvip_log = null;
 
                 switch ($vvip->payment) {
@@ -7961,37 +7934,23 @@ class PagesController extends BaseController
             $vasStatus = '您目前已購買隱藏功能。';
             $vas = $user->vas->where('service_name','hideOnline')->first();
             if($vas->payment){
-                if(EnvironmentService::isLocalOrTestMachine()){
-                    $envStr = '_test';
-                }
-                else{
-                    $envStr = '';
-                }
-                if(substr($vas->payment,0,3) == 'cc_' && $vas->business_id == Config::get('ecpay.payment'.$envStr.'.MerchantID')){
 
-                    $ecpay = new \App\Services\ECPay_AllInOne();
-                    $ecpay->MerchantID = Config::get('ecpay.payment'.$envStr.'.MerchantID');
-                    $ecpay->ServiceURL = Config::get('ecpay.payment'.$envStr.'.ServiceURL');//定期定額查詢
-                    $ecpay->HashIV = Config::get('ecpay.payment'.$envStr.'.HashIV');
-                    $ecpay->HashKey = Config::get('ecpay.payment'.$envStr.'.HashKey');
-                    $ecpay->Query = [
-                        'MerchantTradeNo' => $vas->order_id,
-                        'TimeStamp' =>  time()
-                    ];
-                    $paymentData = $ecpay->QueryPeriodCreditCardTradeInfo(); //信用卡定期定額
-                    
-                    $last = last($paymentData['ExecLog']);
-                    $lastProcessDate = str_replace('%20', ' ', $last['process_date']);
-                    $lastProcessDate = \Carbon\Carbon::createFromFormat('Y/m/d H:i:s', $lastProcessDate);
-                    //計算下次扣款日
-                    if($vas->payment == 'cc_quarterly_payment'){
-                        $periodRemained = 92;
-                    }else {
-                        $periodRemained = 30;
+                //order data check nextProcessDate
+                $nextProcessDate = null;
+                if(substr($vas->payment,0,3) == 'cc_') {
+                    $order = Order::where('order_id', $vas->order_id)->first();
+                    if (isset($order)) {
+                        //計算下次扣款日
+                        if ($vas->payment == 'cc_quarterly_payment') {
+                            $periodRemained = 92;
+                        } else {
+                            $periodRemained = 30;
+                        }
+                        $lastProcessDate = last(json_decode($order->pay_date));
+                        $nextProcessDate = substr($lastProcessDate[0]->addDays($periodRemained), 0, 10);
                     }
-                    $nextProcessDate = substr($lastProcessDate->addDays($periodRemained),0,10);
-                    
                 }
+
                 $payment = '信用卡繳費';
                 $vas_status='隱藏功能設定：';
                 if($user->is_hide_online==1){
