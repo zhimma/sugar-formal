@@ -1898,5 +1898,26 @@ class FindPuppetController extends \App\Http\Controllers\Controller
         
     }
     
+    public function get_newer_manual_stay_online_time_list(Request $request)
+    {
+        $only = $request->only;
+        $user_list_query = PuppetAnalysisRow::select('name')->distinct();
+        if($only) {
+            $user_list_query->where('cat','only_'.$only);
+        }
+        $user_list = $user_list_query->pluck('name');
+        $female_list = User::where('engroup',2)->whereIn('id',$user_list)->pluck('id');
+        $male_list = User::where('engroup',1)->whereIn('id',$user_list)->pluck('id');
+        $female_time_query = StayOnlineRecord::where('url','like','%#nr_fnm%')->whereIn('user_id',$female_list)->groupBy('user_id')->selectRaw('user_id,sum(stay_online_time) as time');
+        $male_time_query = StayOnlineRecord::whereIn('user_id',$male_list)->groupBy('user_id')->selectRaw('user_id,SUM(newer_manual) as time');
+
+        $newer_time_list = $male_time_query->union($female_time_query)->get();
+        
+        $zero_time_list = $newer_time_list->where('time',0);
+        
+        return response()->json(array_diff($newer_time_list->all(),$zero_time_list->all()));
+        
+    }    
+    
       
 }

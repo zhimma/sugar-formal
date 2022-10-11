@@ -1,5 +1,17 @@
 @extends('new.layouts.website')
+@section('style')
+<script>
 
+if(location.hash!='' && location.hash.indexOf('#nr_fnm')>=0) {
+    location.hash='';
+}
+
+if(location.hash=='' ) {
+    location.hash= '#{{$no_read_hash_str??''}}{{$show_sop_type}}_1';
+}
+
+</script>
+@stop
 @section('app-content')
     <style>
         .mb-3 { margin-bottom: 16px !important; }
@@ -96,9 +108,9 @@
                     <div class="zhapian">
                     <div class="zp_title">新手教學-約見SOP</div>
                     <div class="pagination">
-                        <a href="javascript:void(0);" class="pa_cit pa_hover part1" id="step01">STEP1</a>
-                        <a href="javascript:void(0);" class="pa_cit part1" id="step02">STEP2</a>
-                        <a href="javascript:void(0);" class="pa_cit part1" id="step03">STEP3</a>
+                        <a href="#{{$no_read_hash_str??''}}{{$show_sop_type}}_1" class="pa_cit pa_hover part1" id="step01">STEP1</a>
+                        <a href="#{{$no_read_hash_str??''}}{{$show_sop_type}}_2" class="pa_cit part1" id="step02">STEP2</a>
+                        <a href="#{{$no_read_hash_str??''}}{{$show_sop_type}}_3" class="pa_cit part1" id="step03">STEP3</a>
                     </div>
                     <div class="zp_bg step01" >
                         <div class="zp_img">
@@ -154,8 +166,8 @@
                         </div>
                     </div>
                     <div class="fenye">
-                        <a class="prev">上一頁</a>
-                        <a class="next">下一頁</a>
+                        <a class="prev" >上一頁</a>
+                        <a class="next" href="#{{$no_read_hash_str??''}}{{$show_sop_type}}_2">下一頁</a>
 {{--                        @if($user->isReadManual == 0)--}}
                             <a class="finish" data-sop_manual="one">結束新手教學</a>
 {{--                        @endif--}}
@@ -167,9 +179,9 @@
                     <div class="zhapian">
                         <div class="zp_title">新手教學-約見SOP</div>
                         <div class="pagination">
-                            <a href="javascript:void(0);" class="pa_cit pa_hover part2" id="step01">STEP1</a>
-                            <a href="javascript:void(0);" class="pa_cit part2" id="step02">STEP2</a>
-                            <a href="javascript:void(0);" class="pa_cit part2" id="step03">STEP3</a>
+                            <a href="#{{$no_read_hash_str??''}}{{$show_sop_type}}_1" class="pa_cit pa_hover part2" id="step01">STEP1</a>
+                            <a href="#{{$no_read_hash_str??''}}{{$show_sop_type}}_2" class="pa_cit part2" id="step02">STEP2</a>
+                            <a href="#{{$no_read_hash_str??''}}{{$show_sop_type}}_3" class="pa_cit part2" id="step03">STEP3</a>
                         </div>
                         <div class="zp_bg step01">
                             <div class="zp_img">
@@ -236,7 +248,7 @@
                         </div>
                         <div class="fenye">
                             <a class="prev">上一頁</a>
-                            <a class="next">下一頁</a>
+                            <a class="next" href="#{{$no_read_hash_str??''}}{{$show_sop_type}}_2">下一頁</a>
 {{--                            @if($user->isReadManual == 0)--}}
                                 <a class="finish" data-sop_manual="two">結束新手教學</a>
 {{--                            @endif--}}
@@ -248,9 +260,9 @@
                     <div class="zhapian">
                         <div class="zp_title">進階教學-認識網站進階功能</div>
                         <div class="pagination">
-                            <a href="javascript:void(0);" class="pa_cit pa_hover part3" id="step01">Step1</a>
-                            <a href="javascript:void(0);" class="pa_cit part3" id="step02">Step2</a>
-                            <a href="javascript:void(0);" class="pa_cit part3" id="step03">Step3</a>
+                            <a href="#{{$no_read_hash_str??''}}{{$show_sop_type}}_1" class="pa_cit pa_hover part3" id="step01">Step1</a>
+                            <a href="#{{$no_read_hash_str??''}}{{$show_sop_type}}_2" class="pa_cit part3" id="step02">Step2</a>
+                            <a href="#{{$no_read_hash_str??''}}{{$show_sop_type}}_3" class="pa_cit part3" id="step03">Step3</a>
                         </div>
                         <div class="zp_bg step01">
                             <div class="zp_img">
@@ -334,7 +346,7 @@
                         </div>
                         <div class="fenye">
                             <a class="prev">上一頁</a>
-                            <a class="next">下一頁</a>
+                            <a class="next" href="#{{$no_read_hash_str??''}}{{$show_sop_type}}_2">下一頁</a>
                             {{--                            @if($user->isReadManual == 0)--}}
 {{--                            <a class="finish" data-sop_manual="three">結束新手教學</a>--}}
                             {{--                            @endif--}}
@@ -423,11 +435,19 @@ function gmBtn1() {
             $('.pa_cit').removeClass(active);
             $(this).addClass(active);
             var id = $(this).attr('id');
+            var prev_id = 'step0' +(parseInt(id.slice(-1))-1);
+            var next_id = 'step0' +(parseInt(id.slice(-1))+1);
             localStorage.setItem(id, 'Y');
             $('.zp_bg').hide();
             $('.zp_tab').hide();
             $('.m_zp_tab').hide();
             $('.' + id).show();
+            if($('#' + next_id).length>0) {
+                $('.next').attr('href',$('#' + next_id).attr('href')).data('real_href',$('#' + next_id).attr('href'));
+            }
+            if($('#' + prev_id).length>0) {
+                $('.prev').attr('href',$('#' + prev_id).attr('href')).data('real_href',$('#' + prev_id).attr('href'));
+            }
             if (id == 'step01') {
                 $('.prev').hide();
                 $('.next').show();
@@ -442,12 +462,19 @@ function gmBtn1() {
                 $('.finish').hide();
             }
         }
+        else {
+            return false;
+        }
+
     });
 
     $('.prev').click(function() {
         var now_id = $(active_class).attr('id');
-        var prev_id =  'step0' + (now_id.slice(-1) - 1);
+        var id = parseInt(now_id.slice(-1))-1;
+        var prev_id =  'step0' + id;
+        var prev_prev_id =  'step0' + (id-1);
         localStorage.setItem(now_id,'Y');
+        $('.next').attr('href',location.hash).data('real_href',location.hash);
         $('.pa_cit').removeClass(active);
         $('#'+ prev_id).addClass(active);
         $('.zp_bg').hide();
@@ -468,14 +495,28 @@ function gmBtn1() {
             $('.finish').hide();
         }
         $('html,body').animate({ scrollTop: 0 }, 'slow');
+    
+        if($(this).data('real_href')!=undefined ) {
+            $(this).attr('href',$(this).data('real_href'))
+        }
+
+        if($('#'+ prev_prev_id).length>0) {
+            $(this).data('real_href',$('#'+ prev_prev_id).attr('href'));    
+        }
+        
+        
+    
     });
     $('.next').click(function() {
         var now_id = $(active_class).attr('id');
         var id = parseInt(now_id.slice(-1))+1;
         var next_id =  'step0' + id;
+        var next_next_id =  'step0' + (id+1);
         localStorage.setItem(now_id,'Y');
+        $('.prev').attr('href',location.hash!=''?location.hash:$('.pa_cit.'+active).attr('href'));
+        $('.prev').data('real_href',$('.prev').attr('href'));
         $('.pa_cit').removeClass(active);
-        $('#'+ next_id).addClass(active);
+        $('#'+ next_id).addClass(active);             
         $('.zp_bg').hide();
         $('.zp_tab').hide();
         $('.m_zp_tab').hide();
@@ -494,6 +535,12 @@ function gmBtn1() {
             $('.finish').hide();
         }
         $('html,body').animate({ scrollTop: 0 }, 'slow');
+
+        if($(this).data('real_href')!=undefined ) {
+            $(this).attr('href',$(this).data('real_href'))
+        }
+
+        $(this).data('real_href',$('#'+ next_next_id).attr('href'));
     });
 
 
@@ -551,5 +598,9 @@ function gmBtn1() {
             }
         });
     }
+    
+    if(location.hash!='' && location.hash.indexOf('#nr_fnm')<0) {
+        $('a.pa_cit[href="'+location.hash+'"]').click();
+    }    
 </script>
 @stop

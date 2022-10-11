@@ -6968,7 +6968,7 @@ class UserController extends \App\Http\Controllers\BaseController
             $user_online_record = null;
         } 
         else {
-            $user_online_record = User::whereHas('stay_online_record_only_page')->selectRaw('*,id as user_id')->orderByDesc('last_login');        
+            $user_online_record = User::selectRaw('*,id as user_id')->orderByDesc('last_login');        
             
             $users = $user_online_record;
 
