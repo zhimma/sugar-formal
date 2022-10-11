@@ -36,6 +36,7 @@ use App\Models\IsWarnedLog;
 use App\Models\SimpleTables\short_message;
 use App\Models\LogAdvAuthApi;
 use App\Models\UserTattoo;
+use Illuminate\Database\Eloquent\Factories\HasFactory;
 use App\Models\StayOnlineRecord;
 use App\Models\PuppetAnalysisRow;
 use Illuminate\Support\Facades\Cache;
@@ -44,7 +45,7 @@ use Laravel\Scout\Searchable;
 
 class User extends Authenticatable implements JWTSubject
 {
-    use Notifiable, Searchable;
+    use HasFactory, Notifiable, Searchable;
     /**
      * The database table used by the model.
      *
