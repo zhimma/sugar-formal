@@ -13,6 +13,7 @@ use App\Models\UserMeta;
 use Carbon\Carbon;
 use App\Models\SetAutoBan;
 use App\Services\MessageService;
+use App\Models\ScheduleData;
 class CheckIsWarned
 {
     /**
@@ -170,15 +171,22 @@ class CheckIsWarned
                     $q->orwhere('isWarnedType','<>','adv_auth');
                 })->update(['isWarned'=>0, 'isWarnedRead'=>0, 'isWarnedTime' => null]);
             }
-//            dd($user->meta_()->isWarned);
+            //dd($user->meta_()->isWarned);
             return $next($request);
         }
 
         if($user->meta->isWarned == 0 && $user->WarnedScore() >= 10 && $auth_status == 0 && $user->id != 1049){
             //加入警示
             UserMeta::where('user_id',$user->id)->update(['isWarned'=>1, 'isWarnedRead'=>0, 'isWarnedTime' => Carbon::now()]);
-            $this->messageService->setMessageHandlingBySenderId($user->id,0);
-//            return $next($request);
+
+            //移至schedule執行
+            $schedule = new ScheduleData;
+            $schedule->type = 'set_message_handling';
+            $schedule->input_id = $user->id;
+            $schedule->save();
+            //$this->messageService->setMessageHandlingBySenderId($user->id,0);
+
+            //return $next($request);
         }
 
         return $next($request);
