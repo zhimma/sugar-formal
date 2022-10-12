@@ -9961,14 +9961,17 @@ class PagesController extends BaseController
         
         if($user??false)
         {
-            $stay_online_record = StayOnlineRecord::where('id', $stay_online_record_id)->where('user_id', $user->id)->first();
-            if(!$stay_online_record)
-            {
-                $is_need_create = true;
-                $no_storage_record_id = true;
+            $stay_online_record = null;
+            if($stay_online_record_id) {
+                $stay_online_record = StayOnlineRecord::where('id', $stay_online_record_id)->where('user_id', $user->id)->first();
+                if(!$stay_online_record)
+                {
+                    $is_need_create = true;
+                    $no_storage_record_id = true;
+                } 
             }
-            else {
-                $stay_online_record = StayOnlineRecord::where('client_storage_record_id', $stay_online_record_id)->where('page_uid',$page_uid)->where('user_id', $user->id)->orderByDesc('id')->first();
+            if(!$is_need_create) {                 
+                $stay_online_record = StayOnlineRecord::where('page_uid',$page_uid)->where('url',$page_url)->where('user_id', $user->id)->orderByDesc('id')->first();
             
                 if(!$stay_online_record) {
                     $is_need_create = true;

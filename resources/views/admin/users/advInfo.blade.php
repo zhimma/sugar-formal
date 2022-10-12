@@ -54,6 +54,9 @@
     .has_unchecked_compare_origin_show {display:inline-block;width:45%;}
     #form_exchange_period_container {display:inline-block;vertical-align:top;}
     #form_exchange_period_container .unchecked_value_show {font-size:14px;white-space:nowrap;}
+
+    .newer_manual_time_detail_tb th {font-weight:549;text-align:center;}
+    .newer_manual_time_detail_tb td {text-align:center;}
 </style>
 
 <body style="padding: 15px;">
@@ -521,18 +524,92 @@
                 </thead>
                 @foreach ($pageStay as $data)
                     @foreach ($data as $name => $val)
+                        @if($name == 'browse' || $user->engroup==1)
                         <tr>
                             <td style="width: 170px;">
                                 @if($name == 'browse')
                                     瀏覽資料
-                                @elseif ($name == 'newer_manual')
+                                @elseif ($name == 'newer_manual' && $user->engroup==1)
                                     新手教學
                                 @endif
                             </td>
                             <td style="width: 170px;">{{$val??0}}</td>
                         </tr>
+                        @endif
                     @endforeach
                 @endforeach
+                @if($user->engroup==2)
+                <tr>
+                    <td style="width: 170px;">
+                        新手教學
+                        <span id="btn_showDetail_newer_manual_time" class="btn_showLogUser btn btn-primary" >+</span>
+                        <script>
+                        $('#btn_showDetail_newer_manual_time').click(function(){
+                            
+                            if( $('#newer_manual_time_detail_tb').css('display')=='none'){
+                                $('#newer_manual_time_detail_tb').show();
+                                $('#btn_showDetail_newer_manual_time').text('-');
+                            }else{
+                                
+                            
+                                $('#newer_manual_time_detail_tb').hide();
+                                $('#btn_showDetail_newer_manual_time').text('+');
+
+                            }
+                        });  
+                        </script>
+                    </td>
+                    <td style="width: 170px;">{{var_carrier('totalTime',$user->getFemaleNewerManualTotalTime())}}</td>
+                </tr>
+                <tr>
+                    <td colspan="2">
+                        <table id="newer_manual_time_detail_tb" class="newer_manual_time_detail_tb table table-hover table-bordered" style="display:none;">
+                            <tr>
+                                <th>1-1</th><th>1-2</th><th>1-3</th>
+                            </tr>
+                            <tr>
+                                <td @if(var_carrier('halfTotalTime',var_carrier('totalTime')*0.5) < var_carrier('step_time1_1',($user->female_newer_manual_time_list->where('step','1_1')->sum('time')))) style="background:red;font-weight:bolder;"   @endif>
+                                    {{var_carrier('step_time1_1')}}                                            
+                                </td>
+                                <td @if(var_carrier('halfTotalTime')< var_carrier('step_time1_2',$user->female_newer_manual_time_list->where('step','1_2')->sum('time'))) style="background:red;font-weight:bolder;"   @endif>
+                                    {{var_carrier('step_time1_2')}}
+                                </td>
+                                <td @if(var_carrier('halfTotalTime')< var_carrier('step_time1_3',$user->female_newer_manual_time_list->where('step','1_3')->sum('time'))) style="background:red;font-weight:bolder;"   @endif>
+                                    {{var_carrier('step_time1_3')}}
+                                </td>
+                            </tr>
+                            <tr>
+                                <th>2-1</th><th>2-2</th><th>2-3</th>
+                            </tr>
+                            <tr>
+                               <td @if(var_carrier('halfTotalTime')< var_carrier('step_time2_1',$user->female_newer_manual_time_list->where('step','2_1')->sum('time'))) style="background:red;font-weight:bolder;"   @endif>
+                                    {{var_carrier('step_time2_1')}}
+                               </td>
+                                <td @if(var_carrier('halfTotalTime')< var_carrier('step_time2_2',$user->female_newer_manual_time_list->where('step','2_2')->sum('time'))) style="background:red;font-weight:bolder;"   @endif>
+                                    {{var_carrier('step_time2_2')}}
+                                </td>
+                                <td @if(var_carrier('halfTotalTime')< var_carrier('step_time2_3',$user->female_newer_manual_time_list->where('step','2_3')->sum('time'))) style="background:red;font-weight:bolder;"   @endif>
+                                     {{var_carrier('step_time2_3')}}
+                                </td>
+                            </tr>
+                            <tr>
+                                <th>3-1</th><th>3-2</th><th>3-3</th>
+                            </tr>
+                            <tr>
+                               <td @if(var_carrier('halfTotalTime')< var_carrier('step_time3_1',$user->female_newer_manual_time_list->where('step','3_1')->sum('time'))) style="background:red;font-weight:bolder;"   @endif>
+                                    {{var_carrier('step_time3_1')}}
+                               </td>
+                                <td @if(var_carrier('halfTotalTime')< var_carrier('step_time3_2',$user->female_newer_manual_time_list->where('step','3_2')->sum('time'))) style="background:red;font-weight:bolder;"   @endif>
+                                    {{var_carrier('step_time3_2')}}
+                                </td>
+                                <td @if(var_carrier('halfTotalTime')< var_carrier('step_time3_3',$user->female_newer_manual_time_list->where('step','3_3')->sum('time'))) style="background:red;font-weight:bolder;"   @endif>
+                                     {{var_carrier('step_time3_3')}}
+                                </td>
+                            </tr>
+                        </table>
+                    </td>
+                </tr>
+                @endif                
             </table>
             @if($user->engroup==2 && $not_pass_faq_ltime)
             <table  class="table table-bordered">

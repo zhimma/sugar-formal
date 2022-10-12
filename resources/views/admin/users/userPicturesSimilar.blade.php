@@ -72,6 +72,8 @@
         #autoban_pic_gather .autoban_pic_unit label span {display:block;text-align:center;font-size:4px;}
         #autoban_pic_gather .autoban_pic_unit input:checked+label {background:#1E90FF;}
     
+        .newer_manual_time_detail_tb th {font-weight:549;}
+        .newer_manual_time_detail_tb td {text-align:center;}
     </style>
 
     <body style="padding: 15px;">
@@ -175,7 +177,72 @@
                                         </span>
                                         <br>
                                         <span>
-                                            教學時間:{{ $user->newer_manual_stay_online_time->time }}
+                                            教學時間:
+                                            @if($user->engroup==1)
+                                            {{ $user->newer_manual_stay_online_time->time }}
+                                            @else
+                                            {{var_carrier('totalTime',$user->getFemaleNewerManualTotalTime())}}    
+                                                @if(var_carrier('totalTime')>0)
+                                                <span id="btn_showDetail_newer_manual_time_{{$user->id}}" class="btn_showLogUser btn btn-primary" >+</span>
+                                                <script>
+                                                    $('#btn_showDetail_newer_manual_time_{{$user->id}}').click(function(){
+                                                        
+                                                        if( $('#newer_manual_time_detail_tb_{{$user->id}}').css('display')=='none'){
+                                                            $('#newer_manual_time_detail_tb_{{$user->id}}').show();
+                                                            $('#btn_showDetail_newer_manual_time_{{$user->id}}').text('-');
+                                                        }else{
+                                                            $('#newer_manual_time_detail_tb_{{$user->id}}').hide();
+                                                            $('#btn_showDetail_newer_manual_time_{{$user->id}}').text('+');
+
+                                                        }
+                                                    });  
+                                                </script>
+                                                <table id="newer_manual_time_detail_tb_{{$user->id}}" class="newer_manual_time_detail_tb table table-hover table-bordered" style="display:none;">
+                                                    <tr>
+                                                        <th>1-1</th><th>1-2</th><th>1-3</th>
+                                                    </tr>
+                                                    <tr>
+                                                        <td @if(var_carrier('halfTotalTime',var_carrier('totalTime')*0.5) < var_carrier('step_time1_1',($user->female_newer_manual_time_list->where('step','1_1')->sum('time')))) style="background:red;font-weight:bolder;"   @endif>
+                                                            {{var_carrier('step_time1_1')}}                                            
+                                                        </td>
+                                                        <td @if(var_carrier('halfTotalTime')< var_carrier('step_time1_2',$user->female_newer_manual_time_list->where('step','1_2')->sum('time'))) style="background:red;font-weight:bolder;"   @endif>
+                                                            {{var_carrier('step_time1_2')}}
+                                                        </td>
+                                                        <td @if(var_carrier('halfTotalTime')< var_carrier('step_time1_3',$user->female_newer_manual_time_list->where('step','1_3')->sum('time'))) style="background:red;font-weight:bolder;"   @endif>
+                                                            {{var_carrier('step_time1_3')}}
+                                                        </td>
+                                                    </tr>
+                                                    <tr style="border-top:3px solid;">
+                                                        <th>2-1</th><th>2-2</th><th>2-3</th>
+                                                    </tr>
+                                                    <tr>
+                                                       <td @if(var_carrier('halfTotalTime')< var_carrier('step_time2_1',$user->female_newer_manual_time_list->where('step','2_1')->sum('time'))) style="background:red;font-weight:bolder;"   @endif>
+                                                            {{var_carrier('step_time2_1')}}
+                                                       </td>
+                                                        <td @if(var_carrier('halfTotalTime')< var_carrier('step_time2_2',$user->female_newer_manual_time_list->where('step','2_2')->sum('time'))) style="background:red;font-weight:bolder;"   @endif>
+                                                            {{var_carrier('step_time2_2')}}
+                                                        </td>
+                                                        <td @if(var_carrier('halfTotalTime')< var_carrier('step_time2_3',$user->female_newer_manual_time_list->where('step','2_3')->sum('time'))) style="background:red;font-weight:bolder;"   @endif>
+                                                             {{var_carrier('step_time2_3')}}
+                                                        </td>
+                                                    </tr>
+                                                    <tr style="border-top:3px solid;">
+                                                        <th>3-1</th><th>3-2</th><th>3-3</th>
+                                                    </tr>
+                                                    <tr>
+                                                       <td @if(var_carrier('halfTotalTime')< var_carrier('step_time3_1',$user->female_newer_manual_time_list->where('step','3_1')->sum('time'))) style="background:red;font-weight:bolder;"   @endif>
+                                                            {{var_carrier('step_time3_1')}}
+                                                       </td>
+                                                        <td @if(var_carrier('halfTotalTime')< var_carrier('step_time3_2',$user->female_newer_manual_time_list->where('step','3_2')->sum('time'))) style="background:red;font-weight:bolder;"   @endif>
+                                                            {{var_carrier('step_time3_2')}}
+                                                        </td>
+                                                        <td @if(var_carrier('halfTotalTime')< var_carrier('step_time3_3',$user->female_newer_manual_time_list->where('step','3_3')->sum('time'))) style="background:red;font-weight:bolder;"   @endif>
+                                                             {{var_carrier('step_time3_3')}}
+                                                        </td>
+                                                    </tr>
+                                                </table>
+                                                @endif         
+                                            @endif                                          
                                         </span>
                                         <br><br>
                                         <button type="submit" class="btn btn-sm btn-primary">修改資料</button>

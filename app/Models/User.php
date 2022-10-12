@@ -206,7 +206,22 @@ class User extends Authenticatable implements JWTSubject
     public function stay_online_record_only_page()
     {
         return StayOnlineRecord::addOnlyPageClauseToQuery($this->stay_online_record());//->whereNotNull('stay_online_time')->whereNotNull('url');
-    }     
+    }  
+
+    public function female_newer_manual_time_list()
+    {
+        
+        return $this->stay_online_record_only_page()
+            ->where('url','like','%#nr_fnm%')
+            ->groupBy('url')
+            ->selectRaw('SUBSTRING(url, -3, 3) as step,sum(stay_online_time) as time')
+            ;
+    }
+    
+    public function getFemaleNewerManualTotalTime()
+    {
+        return $this->female_newer_manual_time_list->sum('time');
+    }
     
     //多重帳號row
     public function puppet_analysis_row()

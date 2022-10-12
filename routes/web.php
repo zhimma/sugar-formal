@@ -1005,6 +1005,7 @@ Route::group(['middleware' => ['auth', 'global', 'active', 'femaleActive', 'vipC
         Route::get('users/compare_login_time', 'FindPuppetController@compare_login_time_show');
         Route::post('users/compare_login_time', 'FindPuppetController@compare_login_time');
         Route::get('users/get_multi_account_mail_num_list','FindPuppetController@get_multi_account_mail_num_list')->name('showDuplicate_get_multi_account_mail_num_list');
+        Route::get('users/get_newer_manual_stay_online_time_list','FindPuppetController@get_newer_manual_stay_online_time_list')->name('showDuplicate_get_newer_manual_stay_online_time_list');
         Route::get('too_many_requests', 'PagesController@tooManyRequests')->name('tooMantRequests');
 
 
