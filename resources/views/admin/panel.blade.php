@@ -69,7 +69,8 @@
 		<a href="{{ route('users/video_chat_verify_record_list') }}">視訊驗證影片紀錄</a>
 		<a href="{{ route('admin/getEssenceStatisticsRecord') }}">精華文章統計資料</a>
 		<a href="{{ route('admin/feature_flags') }}">Feature Flags</a>
-		<a href="{{ route('admin/special_industries_judgment_training') }}">八大判斷訓練</a>
+		<a href="{{ route('admin/special_industries_judgment_training_setup') }}">八大判斷訓練設定頁</a>
+		<a href="{{ route('admin/special_industries_judgment_training_select') }}">八大判斷訓練測試頁</a>
 
 	@elseif (Auth::user()->can('readonly'))
 		<a href="javascript:void(0)" class="closebtn" onclick="closeNav()">&times;</a>

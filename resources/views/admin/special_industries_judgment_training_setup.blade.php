@@ -10,8 +10,8 @@
     }
     </style>
     <body style="padding: 15px;">
-        <h1>八大判斷訓練</h1>
-        <form>
+        <h1>八大判斷訓練設定頁</h1>
+        <form action="{{ route('admin/special_industries_judgment_training_setup_set') }}" method="POST">
             {!! csrf_field() !!}
             <table class="table-hover table table-bordered" style="width: 50%;">
                 <tr>
@@ -42,27 +42,46 @@
                         <input type="radio" name="en_group" value="1">男</input>
                         <input type="radio" name="en_group" value="2">女</input>
                     </td>
-                </tr>
-                <tr>
-                    <th>地區</th>
-                    <td class="twzipcode">
-                        <div class="twzip" data-role="county" data-name="city" ></div>
-                        <div class="twzip" data-role="district" data-name="area"></div>
-        
-                    </td>
-                </tr>
-                <tr>
-                    <th>排序方式</th>
-                    <td>
-                        <div class="form-check form-check-inline">
-                            <input type="radio" class="form-check-input" name="order_by" value="updated_at" @if(!isset($order_by) || $order_by == 'updated_at') checked @endif style="margin-left: unset;">
-                            <label class="form-check-label" for="inlineRadio4">更新時間</label>
-                        </div>
-                        <div class="form-check form-check-inline">
-                            <input type="radio" class="form-check-input" name="order_by" value="last_login" @if(isset($order_by) && $order_by == 'last_login') checked @endif style="margin-left: unset;">
-                            <label class="form-check-label" for="inlineRadio5">上線時間</label>
-                        </div>
-                    </td>
+                    <tr>
+                        <th>測驗標題</th>
+                        <td>
+                            <input name="test_title"></input>
+                        </td>
+                    </tr>
+                    <tr>
+                        <th>選項</th>
+                        <td>
+                            <input type="checkbox" name="is_banned" value="1"><label>已被封鎖</label>
+                            <br>
+                            <input type="checkbox" name="is_warned" value="1"><label>已被警示</label>
+                            <br>
+                            <input type="checkbox" name="is_ever_banned" value="1"><label>曾被封鎖，已解鎖</label>
+                            <br>
+                            <input type="checkbox" name="is_ever_warned" value="1"><label>曾被警示，已解除</label>
+                        </td>
+                    </tr>
+                    <tr>
+                        <th>選取模式</th>
+                        <td>
+                            <input type="radio" name="select_member_count" value="0" checked></input>全選
+                            <br>
+                            <input type="radio" name="select_member_count" value="1"></input>隨機選取<input name="select_count"></input>人
+                        </td>
+                    </tr>
+                    <tr>
+                        <th>正常會員人數</th>
+                        <td>
+                            <input type="radio" name="normal_member_count" value="0" checked></input>持平
+                            <br>
+                            <input type="radio" name="normal_member_count" value="1"></input>增加
+                            <input type="radio" name="normal_member_count" value="-1"></input>減少<input name="member_count"></input>人
+                        </td>
+                    </tr>
+                    <tr>
+                        <td colspan="2">
+                            <button type="submit" class="btn btn-primary">新增</button>
+                        </td>
+                    </tr>
                 </tr>
             </table>
         </form>
