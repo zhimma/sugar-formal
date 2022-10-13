@@ -230,7 +230,7 @@ is_truth_icon_pic.src="{{asset('/new/images/zz_zt2.png')}}";
                     </select>
                 </div>
                 @if($user->engroup==2)
-                <a href="javascript:void(0)" class="right ys_inbut"><img src="/new/images/zz_ztt.png"><span>顯示罐頭訊息</span></a>
+                <a href="javascript:void(0)" class="right ys_inbut"><img src="/new/images/zz_ztt.png"><span>{{ $user->show_can_message ? '收起罐頭訊息' : '顯示罐頭訊息' }}</span></a>
                 @endif
             </div>
             <div class="sjlist_li">
@@ -986,7 +986,7 @@ is_truth_icon_pic.src="{{asset('/new/images/zz_zt2.png')}}";
             var ss =((i+1)>Page.row)?'display:none;':'display:none;';
             var username = '{{$user->name}}';
             var engroup = '{{$user->engroup}}';
-
+            var showCanMsg = '{{$user->show_can_message}}';
 
             var url = '{{ route("chat2WithUser", ":id") }}';
             url = url.replace(':id', user_id);
@@ -1002,7 +1002,7 @@ is_truth_icon_pic.src="{{asset('/new/images/zz_zt2.png')}}";
                 `;
             }else{
                 li += `
-                <li class="row_data ${(isCan && !is_truth)? "d-none can":""}" style="${ss}" id="${user_id}">
+                <li class="row_data ${(isCan && !is_truth)? "can":""} ${(showCanMsg=='0' && isCan)? "d-none":""}" style="${ss}" id="${user_id}">
                 `;
             }
 
@@ -1863,6 +1863,17 @@ is_truth_icon_pic.src="{{asset('/new/images/zz_zt2.png')}}";
 
             $('.row_data.can').toggleClass('d-none');
             $('.row_data.can').next('.li_no_data').toggle();
+
+            $.ajax({
+				type: 'POST',
+				url: "/dashboard/toggleShowCanMessage",
+				data:{
+					_token: '{{csrf_token()}}',
+					user_id: '{{$user->id}}',
+				},
+				dataType:"json"
+			});
+           
         });
 
         $('#daysSelect').on('change', function() {
