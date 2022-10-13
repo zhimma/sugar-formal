@@ -1039,4 +1039,15 @@ class Message_newController extends BaseController {
         }
         return response()->json(['save' => 'ok']);
     }
+
+    public function ToggleShowCanMessage(Request $request)
+    {
+        
+        $user = User::where('id', $request->user_id)->first();
+        $origin_show_can_message = $user->show_can_message;
+        $user->show_can_message = !$origin_show_can_message;
+        $user->save();
+        
+        return http_response_code(204);
+    }
 }

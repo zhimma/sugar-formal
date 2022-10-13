@@ -503,6 +503,7 @@ Route::group(['middleware' => ['auth', 'global', 'active', 'femaleActive', 'vipC
         Route::post('/dashboard/chat/chatNoticeSet', 'Message_newController@chatNoticeSet')->name('chatNoticeSet');
         Route::post('/dashboard/announcement_post', 'Message_newController@announcePost')->name('announcePost');
         Route::get('/dashboard/manual', 'PagesController@manual');
+        Route::post('/dashboard/toggleShowCanMessage', 'Message_newController@ToggleShowCanMessage')->name('toggleShowCanMessage');
 
         Route::post('/dashboard/letTourRead', 'PagesController@letTourRead')->name('letTourRead');
 
