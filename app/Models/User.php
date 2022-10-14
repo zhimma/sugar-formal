@@ -2284,6 +2284,7 @@ class User extends Authenticatable implements JWTSubject
             'engroup' => $this->engroup,
             'name' => $this->name,
             'email' => $this->email,
+            'birthdate' => $this->user_meta()->birthdate,
             'created_at' => $this->created_at?->timestamp,
             'updated_at' => $this->updated_at?->timestamp,
         ];
@@ -2294,7 +2295,7 @@ class User extends Authenticatable implements JWTSubject
         return [
             'name',
             'engroup',
-            'user_meta.birthdate',
+            'birthdate',
         ];
     }
 }
