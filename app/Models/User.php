@@ -2288,4 +2288,12 @@ class User extends Authenticatable implements JWTSubject
             'updated_at' => $this->updated_at?->timestamp,
         ];
     }
+
+    public static function getSearchFilterAttributes()
+    {
+        return [
+            'name',
+            'user_meta.birthdate',
+        ];
+    }
 }
