@@ -2293,6 +2293,7 @@ class User extends Authenticatable implements JWTSubject
     {
         return [
             'name',
+            'engroup',
             'user_meta.birthdate',
         ];
     }
