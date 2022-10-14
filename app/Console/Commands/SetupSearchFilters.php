@@ -20,11 +20,11 @@ class SetupSearchFilters extends Command
         );
  
         $model = match($index) {
-            'users' => User::class,
-            'user_meta' => UserMeta::class,
-            'message' => Message::class,
-            'log_user_login' => LogUserLogin::class,
-            'set_auto_ban' => SetAutoBan::class,
+            'users' => \App\Models\User::class,
+            'user_meta' => \App\Models\UserMeta::class,
+            'message' => \App\Models\Message::class,
+            'log_user_login' => \App\Models\LogUserLogin::class,
+            'set_auto_ban' => \App\Models\SetAutoBan::class,
         };
  
         try {
