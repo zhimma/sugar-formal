@@ -2249,12 +2249,13 @@ class User extends Authenticatable implements JWTSubject
 
     public function toSearchableArray()
     {
+        $meta = $this->user_meta()->first();
         return [
             'id' => $this->id,
             'engroup' => $this->engroup,
             'name' => $this->name,
             'email' => $this->email,
-            'birthdate' => $this->user_meta()->birthdate,
+            'birthdate' => $meta->birthdate,
             'created_at' => $this->created_at?->timestamp,
             'updated_at' => $this->updated_at?->timestamp,
         ];
