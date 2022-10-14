@@ -31,6 +31,12 @@ class SetupSearchFilters extends Command
             $this->info(
                 string: "Updating filterable attributes for [$model] on index [$index]",
             );
+
+            $client->index(
+                uid: $index,
+            )->updateSearchableAttributes(
+                searchableAttributes: $model::toSearchableArray(),
+            );
  
             $client->index(
                 uid: $index,
