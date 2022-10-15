@@ -6930,6 +6930,27 @@ class UserController extends \App\Http\Controllers\BaseController
         if($latest_modify_id && $latest_modify_id< $raa_service->getLatestUncheckedModifyIdByAuthTypeId($auth_type_id)) {
             return 2;
         }
+
+        //通過認證後, 發送站長訊息通知
+        if($raa_service->passApplyByAuthTypeId($auth_type_id)){
+            $user=User::findById($user_id);
+
+            $auth_tag_success=[];
+            if($user && $user->engroup==2){
+                if($user->self_auth_status)
+                    $auth_tag_success[]='本人認證';
+                if ($user->beauty_auth_status)
+                    $auth_tag_success[]='美顏推薦';
+                if ($user->famous_auth_status)
+                    $auth_tag_success[]='名人認證';
+            }
+            if(count($auth_tag_success)>0){
+                $auth_string=count($auth_tag_success) >0 ? implode('&', $auth_tag_success) :'';
+                $message= $user->name .'您好，您已通過本站的 '.$auth_string.'，此驗證 tag以及您的照片站方僅預設開放給 vvip，以及 pr 值超過80的vip daddy，如果您想要調整，<a href="/dashboard/tag_display_settings" style="color: red;">請點此自行調整。';
+                $admin_id = AdminService::checkAdmin()->id;
+                Message::post($admin_id, $user_id, $message);
+            }
+        }
         
         return $raa_service->passApplyByAuthTypeId($auth_type_id)?'1':'0';
             

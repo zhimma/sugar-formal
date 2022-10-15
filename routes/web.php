@@ -599,7 +599,9 @@ Route::group(['middleware' => ['auth', 'global', 'active', 'femaleActive', 'vipC
         Route::get('/dashboard/beauty_auth', 'PagesController@showBeautyAuth')->name('beauty_auth');
         Route::post('/dashboard/beauty_auth/save', 'PagesController@saveBeautyAuth')->name('beauty_auth_save');
         Route::get('/dashboard/beauty_auth/delete_pic', 'PagesController@deleteBeautyAuthPic')->name('beauty_auth_pic_delete');        
-        Route::post('/dashboard/real_auth_update_profile','PagesController@savePassedRealAuthModify')->name('real_auth_update_profile');        
+        Route::post('/dashboard/real_auth_update_profile','PagesController@savePassedRealAuthModify')->name('real_auth_update_profile');
+        Route::get('/dashboard/tag_display_settings', 'PagesController@showTagDisplaySettings')->name('tag_display_settings');
+        Route::post('/dashboard/tag_display_settings', 'PagesController@tagDisplaySet')->name('tagDisplaySet');
         /*
         |--------------------------------------------------------------------------
         | LINE

@@ -426,7 +426,7 @@ function requestBlurryAvatarDefault() {
                         @php
                             $blurryAvatar = isset($blurry_avatar)? $blurry_avatar : '';
                             $blurryAvatar = explode(',', $blurryAvatar);
-                            $isVVIP = true;$isVIP = true;$isGeneral = true;
+                            $isVVIP = true;$isVIP = false;$isGeneral = true;$isPR = false;
                             $isDefault = false;
                             if(!($blurry_avatar??null)) {                              
                                 $isGeneral = false;
@@ -439,6 +439,8 @@ function requestBlurryAvatarDefault() {
                                     $isVIP = false;
                                 } elseif($row == 'general') {
                                     $isGeneral = false;
+                                } elseif(str_contains($row, 'PR_')) {
+                                    $isPR = true;
                                 }
                             }
                         @endphp
@@ -452,6 +454,9 @@ function requestBlurryAvatarDefault() {
                           <h4>
                               <span><input name="picBlurryAvatar" type="checkbox" value="VIP" @if($isVIP) checked @endif>VIP</span>
                               <span><input name="picBlurryAvatar" type="checkbox" value="general" @if($isGeneral) checked @endif>試用會員</span>
+                              @if($user->engroup==2)
+                              <span><input name="picBlurryAvatar" type="checkbox" value="PR" @if($isPR) checked @endif>pr<input type="number" name="avatar_pr_value" value="60" min="0" max="100" style="height: 22px;"></span>
+                              @endif
                           </h4>
                     </div>
                     
@@ -470,7 +475,7 @@ function requestBlurryAvatarDefault() {
                         @php
                             $blurryLifePhoto = isset($blurry_life_photo)? $blurry_life_photo : '';
                             $blurryLifePhoto = explode(',', $blurryLifePhoto);
-                            $isVVIP = true;$isVIP = true;$isGeneral = true;
+                            $isVVIP = true;$isVIP = false;$isGeneral = true;$isPR = false;
                             $isDefault=false;
                             if(!($blurry_life_photo??null)) {                              
                                 $isGeneral = false;
@@ -484,6 +489,8 @@ function requestBlurryAvatarDefault() {
                                     $isVIP = false;
                                 } elseif($row == 'general') {
                                     $isGeneral = false;
+                                } elseif(str_contains($row, 'PR_')) {
+                                    $isPR = true;
                                 }
                             }
                         @endphp
@@ -497,7 +504,10 @@ function requestBlurryAvatarDefault() {
                           <h4>
                               <span><input name="picBlurryLifePhoto" type="checkbox" value="VIP" @if($isVIP) checked @endif>VIP</span>
                               <span><input name="picBlurryLifePhoto" type="checkbox" value="general"  @if($isGeneral) checked @endif>試用會員</span>
-                              @if($isDefault) 
+                              @if($user->engroup==2)
+                                  <span><input name="picBlurryLifePhoto" type="checkbox" value="PR" @if($isPR) checked @endif>pr<input type="number" name="life_photo_pr_value" value="60" min="0" max="100" style="height: 22px;"></span>
+                              @endif
+                              @if($isDefault)
                               <script>  
                                 requestBlurryLifePhotoDefault();
                               </script>
@@ -1068,8 +1078,14 @@ function requestBlurryAvatarDefault() {
     $("input:checkbox[name='picBlurryAvatar']").on('click', function() {
         var values = "";
         $.each($("input[name='picBlurryAvatar']"), function() {
-            if(!$(this).is(':checked')){
-                values = values + $(this).val() +',';
+            if($(this).val()=='PR'){
+                if($(this).is(':checked')){
+                    values = values + $(this).val() +'_' + $("input[name='avatar_pr_value']").val() +',';
+                }
+            }else{
+                if(!$(this).is(':checked')){
+                    values = values + $(this).val() +',';
+                }
             }
         });
         $.ajax({
@@ -1089,8 +1105,14 @@ function requestBlurryAvatarDefault() {
     $("input:checkbox[name='picBlurryLifePhoto']").on('click', function() {
         var values = "";
         $.each($("input[name='picBlurryLifePhoto']"), function() {
-            if(!$(this).is(':checked')){
-                values = values + $(this).val() +',';
+            if($(this).val()=='PR'){
+                if($(this).is(':checked')){
+                    values = values + $(this).val() +'_' + $("input[name='life_photo_pr_value']").val() +',';
+                }
+            }else{
+                if(!$(this).is(':checked')){
+                    values = values + $(this).val() +',';
+                }
             }
         });
         requestBlurryLifePhoto(userId,values);
