@@ -1148,7 +1148,7 @@ function requestBlurryAvatarDefault() {
     
     function active_onbeforeunload_hint()
     {
-        //$('body').attr('onbeforeunload',"return '';");
+        $('body').attr('onbeforeunload',"return '';");
         $('body').attr('onkeydown',"if (window.event.keyCode == 116) $(this).attr('onbeforeunload','');");    
     }
 </script>
