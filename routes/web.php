@@ -364,13 +364,13 @@ Route::group(['middleware' => ['auth', 'global', 'active', 'femaleActive', 'vipC
     // 大頭照和生活照
     Route::get('/dashboard_img', 'PagesController@dashboard_img')->name('dashboard_img');
     Route::get('/dashboard/pictures/{userId?}', 'ImageController@getPictures');
-    Route::post('/dashboard/pictures/upload','ImageController@uploadPictures');
+    Route::post('/dashboard/pictures/upload','ImageController@uploadPictures')->name('dashboard/pictures/upload');
     Route::post('/dashboard/pictures/delete', 'ImageController@deletePictures');
     Route::get('/dashboard/avatar/{userId?}', 'ImageController@getAvatar');
     Route::get('/dashboard/avatar/blurry/{userId?}', 'PagesController@getBlurryAvatar');
     Route::post('/dashboard/avatar/blurry/{userId?}', 'PagesController@blurryAvatar');
     Route::post('/dashboard/lifephoto/blurry/{userId?}', 'PagesController@blurryLifePhoto');
-    Route::post('/dashboard/avatar/upload', 'ImageController@uploadAvatar');
+    Route::post('/dashboard/avatar/upload', 'ImageController@uploadAvatar')->name('dashboard/avatar/upload');
     Route::post('/dashboard/avatar/delete/{userId}', 'ImageController@deleteAvatar');
     Route::post('/dashboard/delPic', 'PagesController@delPic');
     Route::get('/dashboard/password', 'PagesController@view_changepassword'); //new route

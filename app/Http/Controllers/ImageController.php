@@ -335,7 +335,7 @@ class ImageController extends BaseController
                 echo is_array($upload['warnings'])?implode("\r\r",$upload['warnings']):$upload['warnings'];
                 exit;
             }            
-            return redirect()->back()->withErrors($upload['warnings']);
+            return redirect()->back()->with(['real_auth'=>request()->real_auth ?? 0])->withErrors($upload['warnings']);
         }else{
             //upload new avator
             $avatar = $fileUploader->getUploadedFiles();
@@ -398,7 +398,7 @@ class ImageController extends BaseController
                 else echo '1';
                 exit;
             }
-            return redirect()->back()->with('message', $msg);
+            return redirect()->back()->with(['message', $msg, 'real_auth'=>request()->real_auth ?? 0]);
         }
     }
     
@@ -661,7 +661,7 @@ class ImageController extends BaseController
                 echo is_array($upload['warnings'])?implode("\r\r",$upload['warnings']):$upload['warnings'];
                 exit;
             }            
-            return redirect()->back()->withErrors($upload['warnings']);
+            return redirect()->back()->with(['real_auth'=>request()->real_auth ?? 0])->withErrors($upload['warnings']);
         }        
         
         if($upload)
@@ -724,7 +724,7 @@ class ImageController extends BaseController
             if($no_react) echo '1';
             exit;
         }
-        $previous = redirect()->back()->with('message', $msg);
+        $previous = redirect()->back()->with(['message', $msg, 'real_auth'=>request()->real_auth ?? 0]);
         return $upload['isSuccess'] ? $previous : $previous->withErrors($upload['warnings']);
     }
     

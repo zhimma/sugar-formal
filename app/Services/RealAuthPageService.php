@@ -788,6 +788,7 @@ class RealAuthPageService {
             break;
         }  
         
+        /*
         return  '
                          '.($is_in_search?'<div class="hoverTip">':'<li>').'
                             <div class="tagText"  data-toggle="popover" data-content="此會員通過本站的基本資料/照片與視訊認證。">
@@ -795,6 +796,9 @@ class RealAuthPageService {
                             </div>
                          '.($is_in_search?'</div>':'</li>').'   
                 ';
+        */
+        return '';
+
     }
     
     public function getBeautyAuthTagShowOnPicLayoutByLoginedUserIsVip($is_vip,$is_in_search=false)

@@ -536,43 +536,36 @@
                         @endphp
                         <div class="tubiao" data-step="1" data-position="top" data-highlightClass="yindao2" data-tooltipClass="yindao1" data-intro="<ul>
                                 @if(isset($data['description']) && $to->engroup == 2)
-                                <li><div style='min-width:{{$introMinDiv}};text-align: center;'><img @if($user->isVip()||$user->isVVIP())width='85px'@endif src='@if($user->isVip()||$user->isVVIP())/new/images/a1.png @else/new/images/b_1.png @endif'></div> <span>註冊未滿30天的新進會員</span></li>
+                                    <li><div style='min-width:{{$introMinDiv}};text-align: center;'><img @if($user->isVip()||$user->isVVIP())width='85px'@endif src='@if($user->isVip()||$user->isVVIP())/new/images/a1.png @else/new/images/b_1.png @endif'></div> <span>註冊未滿30天的新進會員</span></li>
                                 @endif
-                        @if($to->isVip() && $to->engroup == 1)
-                                <li><div style='min-width: {{$introMinDiv}};text-align: center;'><img @if($user->isVip()||$user->isVVIP())width='65px'@endif src='@if($user->isVip()||$user->isVVIP())/new/images/a4.png @else/new/images/b_4.png @endif'></div> <span>本站付費會員</span></li>
+                                @if($to->isVip() && $to->engroup == 1)
+                                    <li><div style='min-width: {{$introMinDiv}};text-align: center;'><img @if($user->isVip()||$user->isVVIP())width='65px'@endif src='@if($user->isVip()||$user->isVVIP())/new/images/a4.png @else/new/images/b_4.png @endif'></div> <span>本站付費會員</span></li>
                                 @endif
-                        @if(isset($data['description']) && $to->engroup == 1)
-                                <li><div style='min-width: {{$introMinDiv}};text-align: center;'><img @if($user->isVip()||$user->isVVIP())width='85px'@endif src='@if($user->isVip()||$user->isVVIP())/new/images/a2.png @else/new/images/b_2.png @endif'></div> <span>長期付費的VIP，或者常用車馬費邀請的男會員</span></li>
+                                @if(isset($data['description']) && $to->engroup == 1)
+                                    <li><div style='min-width: {{$introMinDiv}};text-align: center;'><img @if($user->isVip()||$user->isVVIP())width='85px'@endif src='@if($user->isVip()||$user->isVVIP())/new/images/a2.png @else/new/images/b_2.png @endif'></div> <span>長期付費的VIP，或者常用車馬費邀請的男會員</span></li>
                                 @endif
-                        @if($to->meta->isWarned == 1 || $to->aw_relation)
-                                <li><div style='min-width: {{$introMinDiv}};text-align: center;'><img @if($user->isVip()||$user->isVVIP())width='85px'@endif src='@if($user->isVip()||$user->isVVIP())/new/images/a5.png @else/new/images/b_5.png @endif'></div> <span>被多人檢舉或被網站評為可疑的會員</span></li>
+                                @if($to->meta->isWarned == 1 || $to->aw_relation)
+                                    <li><div style='min-width: {{$introMinDiv}};text-align: center;'><img @if($user->isVip()||$user->isVVIP())width='85px'@endif src='@if($user->isVip()||$user->isVVIP())/new/images/a5.png @else/new/images/b_5.png @endif'></div> <span>被多人檢舉或被網站評為可疑的會員</span></li>
                                 @endif
-                        @if($to->isPhoneAuth())
-                                <li><div style='min-width: {{$introMinDiv}};text-align: center;'><img @if($user->isVip()||$user->isVVIP())width='85px'@endif src='@if($user->isVip()||$user->isVVIP())/new/images/a6.png @else/new/images/b_6.png @endif'></div> <span>通過手機認證的會員</span></li>
+                                @if($to->isPhoneAuth())
+                                    <li><div style='min-width: {{$introMinDiv}};text-align: center;'><img @if($user->isVip()||$user->isVVIP())width='85px'@endif src='@if($user->isVip()||$user->isVVIP())/new/images/a6.png @else/new/images/b_6.png @endif'></div> <span>通過手機認證的會員</span></li>
                                 @endif
                                 </ul>">
                             <ul @if(!$user->isVip() && !$user->isVVIP())style="margin-top: -5px;"@endif class="@if(!$user->isVip() && !$user->isVVIP()) not_vip  @endif">
-
-{{--                                @if(isset($data['description']) && $to->engroup == 1)--}}
-{{--                                    <li>--}}
-{{--                                        <div class="tagText" data-toggle="popover" data-content="優質會員是願意長期付費的VIP，或者常用車馬費邀請的男會員，建議女會員優先考慮。" style="width: 100%">--}}
-{{--                                            @if($user->isVipOrIsVvip())--}}
-{{--                                                <img src="/new/images/a2.png">--}}
-{{--                                            @else--}}
-{{--                                                <img src="/new/images/b_2.png" style="height: 50px;">--}}
-{{--                                            @endif--}}
-{{--                                        </div>--}}
-{{--                                        --}}{{--                                        <span>{{$well_member}}</span>--}}
-{{--                                    </li>--}}
-{{--                                    @php--}}
-{{--                                        $user->isReadIntro = 1;--}}
-{{--                                        $introCount++;--}}
-{{--                                    @endphp--}}
-{{--                                @endif--}}
-                                {{--                            <li><img src="/new/images/icon_23.png"><span>{{$money_cert}}</span></li>--}}
-
-                                {{--                            <li><img src="/new/images/icon_27.png"><span>{{$alert_account}}</span></li>--}}
-
+                                @php
+                                    $blue_tick = 0;
+                                    if(!$rap_service->isPassedByAuthTypeId(2) && !$rap_service->isPassedByAuthTypeId(3))
+                                    {
+                                        if($to->isAdvanceAuth()){$blue_tick = $blue_tick + 1;}
+                                        if($rap_service->riseByUserEntry($to)->isPassedByAuthTypeId(1)){$blue_tick = $blue_tick + 1;}
+                                    }
+                                @endphp
+                                @if($blue_tick == 2)
+                                    <img src="/new/images/zz_zss.png" style="border-radius: 100px; box-shadow:1px 2px 10px rgba(77,152,252,1); height:20px; margin-top:6px;">
+									<img src="/new/images/zz_zss.png" style="border-radius: 100px; box-shadow:1px 2px 10px rgba(77,152,252,1); height:20px; margin-left: -2px; margin-top: 6px">
+                                @elseif($blue_tick == 1)
+                                    <img src="/new/images/zz_zss.png" style="border-radius: 100px; box-shadow:1px 2px 10px rgba(77,152,252,1); height:20px; margin-top:6px;">
+                                @endif
                                 @if($rap_service->isNeedShowTagOnPic())
                                     {!!$rap_service->getTagShowOnPicLayoutByLoginedUserIsVip($user->isVipOrIsVvip()) !!}
                                 @elseif($to->meta->isWarned == 1 || $to->aw_relation)
@@ -621,39 +614,6 @@
                                         $introCount++;
                                     @endphp 
                                 @elseif($to->isAdvanceAuth() || $to->isPhoneAuth())
-                                    <li>
-                                        @if($user->isVip() || $user->isVVIP())
-                                            {{--@if($to->isAdvanceAuth() && $to->engroup==2)
-                                            <div class="tagText"  data-toggle="popover" data-content="本站的進階認證會員，本會員通過本站的嚴格驗證，基本資料正確無誤。">
-                                                <img src="/new/images/a8_x.png">
-                                            </div>
-                                            @elseif(!$to->isAdvanceAuth() && $to->engroup==2)
-                                            <div class="tagText"  data-toggle="popover" data-content="以手機門號通過年齡/性別驗證。">
-                                                <img src="/new/images/a6_x.png">
-                                            </div>
-                                            @endif--}}
-                                            @if($to->isAdvanceAuth() && $to->engroup==2)
-                                            <div class="tagText"  data-toggle="popover" data-content="以手機門號通過年齡/性別驗證。">
-                                                <img src="/new/images/a6.png">
-                                            </div>
-                                            @endif
-                                        @else
-                                            {{--@if($to->isAdvanceAuth() && $to->engroup==2)
-                                            <div class="tagText"  data-toggle="popover" data-content="本站的進階認證會員，本會員通過本站的嚴格驗證，基本資料正確無誤。">
-                                                <img src="/new/images/b_8x.png">
-                                            </div>
-                                            @elseif(!$to->isAdvanceAuth() && $to->engroup==2)
-                                            <div class="tagText"  data-toggle="popover" data-content="以手機門號通過年齡/性別驗證。">
-                                                <img src="/new/images/b_5x.png">
-                                            </div>
-                                            @endif--}}
-                                            @if($to->isAdvanceAuth() && $to->engroup==2)
-                                            <div class="tagText"  data-toggle="popover" data-content="以手機門號通過年齡/性別驗證。">
-                                                <img src="/new/images/b_6.png">
-                                            </div>
-                                            @endif
-                                        @endif
-                                    </li>
                                         @php
                                             $user->isReadIntro = 1;
                                             $introCount++;

@@ -100,6 +100,7 @@
       </div>
       <!-- End of Incoming Call  -->
     </div>
+    <div class="real_auth_video_entire_site_bg" ></div>
   </div>
 </template>
 
@@ -156,6 +157,8 @@ export default {
         this.videoCallParams.receivingCall &&
         this.videoCallParams.caller !== this.authuserid
       ) {
+        $('.real_auth_video_entire_site_bg').show();
+        $('#entire_site_video_app > div > .container').css('z-index',39).css('position','fixed');
         return true;
       }
       return false;
@@ -454,6 +457,8 @@ export default {
     },
 
     declineCall() {
+      $('.real_auth_video_entire_site_bg').hide();
+      $('#entire_site_video_app > div > .container').css('z-index',0).css('position','');    
       this.videoCallParams.receivingCall = false;
     },
 
@@ -511,6 +516,8 @@ export default {
 
     endCall() {
       // if video or audio is muted, enable it so that the stopStreamedVideo method will work
+      $('.real_auth_video_entire_site_bg').hide();
+      $('#entire_site_video_app > div > .container').css('z-index',0).css('position','');
       if (this.mutedVideo) this.toggleMuteVideo();
       if (this.mutedAudio) this.toggleMuteAudio();
       /*
@@ -809,5 +816,18 @@ export default {
   .video-container {
     height: 50vh;
   }
+}
+
+.real_auth_video_entire_site_bg {
+    width: 100%;
+    height: 100%;
+    width: 100%;
+    height: 100%;
+    position: fixed;
+    top: 0px;
+    left: 0;
+    background: rgba(0,0,0,0.5);
+    z-index: 30;
+    display: none;
 }
 </style>
