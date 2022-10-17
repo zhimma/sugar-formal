@@ -525,20 +525,29 @@ class Message_new extends Model
             $blockedUsers = $user->blocked->pluck('blocked_id')->toArray();
             
             foreach($messages as $message){
+                if(!$message->sender || !$message->receiver) {
+                    unset($message);
+                    continue;
+                }
+
                 if ($message->sender_is_banned || $message->receiver_is_banned || $message->sender_is_implicitly_banned || $message->receiver_is_implicitly_banned) {
                     unset($message);
+                    continue;
                 }
                 
                 if ($message->sender_is_banned || $message->receiver_is_banned || $message->sender_is_implicitly_banned || $message->receiver_is_implicitly_banned) {
                     unset($message);
+                    continue;
                 }
 
                 if (in_array($message->from_id, $blockedUsers)) {
                     unset($message);
+                    continue;
                 }
 
                 if (Carbon::parse($message->created_at)->lt(Carbon::parse(self::$date))) {
                     unset($message);
+                    continue;
                 }
             }
         }
