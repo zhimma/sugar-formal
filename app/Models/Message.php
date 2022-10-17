@@ -1323,12 +1323,12 @@ class Message extends Model
     public function toSearchableArray()
     {
         $msgArray = $this->toArray();
-        $msgArray['sender_is_banned'] = $this->sender()->first()->banned();
-        $msgArray['receiver_is_banned'] = $this->receiver()->first()->banned();
-        $msgArray['sender_is_implicitly_banned'] = $this->sender()->first()->implicitlyBanned();
-        $msgArray['receiver_is_implicitly_banned'] = $this->receiver()->first()->implicitlyBanned();
-        $msgArray['sender_is_warned'] = $this->sender()->first()->aw_relation();
-        $msgArray['receiver_is_warned'] = $this->receiver()->first()->aw_relation();
+        $msgArray['sender_is_banned'] = $this->sender()->first()?->banned();
+        $msgArray['receiver_is_banned'] = $this->receiver()->first()?->banned();
+        $msgArray['sender_is_implicitly_banned'] = $this->sender()->first()?->implicitlyBanned();
+        $msgArray['receiver_is_implicitly_banned'] = $this->receiver()->first()?->implicitlyBanned();
+        $msgArray['sender_is_warned'] = $this->sender()->first()?->aw_relation();
+        $msgArray['receiver_is_warned'] = $this->receiver()->first()?->aw_relation();
         return $msgArray;
     }
 
