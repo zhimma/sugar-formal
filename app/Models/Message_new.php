@@ -524,8 +524,8 @@ class Message_new extends Model
             $messages = Message::scoutSearch()->whereIn('room_id', $userRooms)->get();
             $blockedUsers = $user->blocked->pluck('blocked_id')->toArray();
             
-            foreach($messages as $message){
-                if(!$message->sender || !$message->receiver) {
+            foreach ($messages as &$message) {
+                if (!$message->sender || !$message->receiver) {
                     unset($message);
                     continue;
                 }
