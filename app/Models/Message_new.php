@@ -532,7 +532,7 @@ class Message_new extends Model
                     unset($message);
                 }
 
-                if (in_array($blockedUsers, $message->from_id)) {
+                if (in_array($message->from_id, $blockedUsers)) {
                     unset($message);
                 }
 
