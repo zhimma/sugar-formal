@@ -1383,4 +1383,29 @@ class Message extends Model
             'softDelete'=> static::usesSoftDelete() && config('scout.soft_delete', false),
         ]);
     }
+
+    public function toSearchableArray()
+    {
+        $msgArray = $this->toArray();
+        $msgArray['sender_is_banned'] = $this->sender()->first()->banned();
+        $msgArray['receiver_is_banned'] = $this->receiver()->first()->banned();
+        $msgArray['sender_is_implicitly_banned'] = $this->sender()->first()->implicitlyBanned();
+        $msgArray['receiver_is_implicitly_banned'] = $this->receiver()->first()->implicitlyBanned();
+        $msgArray['sender_is_warned'] = $this->sender()->first()->aw_relation();
+        $msgArray['receiver_is_warned'] = $this->receiver()->first()->aw_relation();
+        return $msgArray;
+    }
+
+    public static function getSearchFilterAttributes()
+    {
+        $columns = \Schema::getColumnListing('messages');
+        return $columns + [
+            'sender_is_banned',
+            'receiver_is_banned',
+            'sender_is_implicitly_banned',
+            'receiver_is_implicitly_banned',
+            'sender_is_warned',
+            'receiver_is_warned',
+        ];
+    }
 }
