@@ -437,6 +437,7 @@ Route::group(['middleware' => ['auth', 'global', 'active', 'femaleActive', 'vipC
     Route::post('/dashboard/imagedel/{admin?}', 'ImageController@deleteImage');
     Route::post('/dashboard/block', 'PagesController@postBlock');
     Route::post('/dashboard/blockAJAX', 'PagesController@postBlockAJAX')->name('postBlockAJAX');//new route
+    Route::post('/dashboard/messageUserNoteAJAX', 'PagesController@messageUserNoteAJAX')->name('messageUserNoteAJAX');//new route
     Route::post('/dashboard/unblock', 'PagesController@unblock');
     Route::post('/dashboard/unblockajax', 'PagesController@unblockAJAX')->name('unblockAJAX'); //new route
     Route::post('/dashboard/unblockAll', 'PagesController@unblockAll')->name('unblockAll'); //new route
