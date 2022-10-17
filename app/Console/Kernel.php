@@ -42,8 +42,8 @@ class Kernel extends ConsoleKernel
             // $schedule->call('\App\Http\Controllers\Admin\FindPuppetController@entrance')->timezone('Asia/Taipei')->dailyAt('11:00');
             // $schedule->call('\App\Http\Controllers\Admin\FindPuppetController@entrance')->timezone('Asia/Taipei')->dailyAt('17:00');
             // $schedule->call('\App\Http\Controllers\Admin\FindPuppetController@entrance')->timezone('Asia/Taipei')->dailyAt('23:00');
-            $schedule->call('\App\Http\Controllers\Admin\FindPuppetController@entrance')->timezone('Asia/Taipei')->dailyAt('09:00');
-            //$schedule->call('\App\Http\Controllers\Admin\FindPuppetController@entrance')->timezone('Asia/Taipei')->dailyAt('21:00');            
+            //$schedule->call('\App\Http\Controllers\Admin\FindPuppetController@entrance')->timezone('Asia/Taipei')->dailyAt('09:00');
+            $schedule->call('\App\Http\Controllers\Admin\FindPuppetController@entrance')->timezone('Asia/Taipei')->dailyAt('21:00');            
             $puppetReq = new Request();
             $puppetReq->only = 'cfpid';
             $schedule->call('\App\Http\Controllers\Admin\FindPuppetController@entrance',['request'=>$puppetReq])->timezone('Asia/Taipei')->dailyAt('03:00');

@@ -298,7 +298,9 @@
 	@else
 	全部直到
 	@endif
+    <span style="{{$new_exec_log->count() && ((\Carbon\Carbon::now()->diffInMinutes(\Carbon\Carbon::parse($new_exec_log[0]->created_at))-(\Carbon\Carbon::parse($end_cron_date)->diffInMinutes(\Carbon\Carbon::parse($end_date)))>360))?'color:red;':''}}">
 	{{$end_date}}
+    </span>
 	@if(!$sdateOfIp)
 	為止
 	@endif
@@ -311,7 +313,9 @@
         @else
         全部直到
         @endif
+        <span style="{{$new_exec_log->count() && ((\Carbon\Carbon::now()->diffInMinutes(\Carbon\Carbon::parse($new_exec_log[0]->created_at))-(\Carbon\Carbon::parse($end_cron_date)->diffInMinutes(\Carbon\Carbon::parse($end_date)))>360))?'color:red;':''}}">
         {{$end_date}}
+        </span>
         @if(!$sdateOfCfpId)
         為止
         @endif	
