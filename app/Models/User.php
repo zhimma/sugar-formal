@@ -153,6 +153,11 @@ class User extends Authenticatable implements JWTSubject
         return $this->hasMany(Message_new::class, 'to_id', 'id');
     }
 
+    public function messageRooms()
+    {
+        return $this->hasManyThrough(MessageRoom::class, MessageRoomUserXref::class, 'user_id', 'id', 'id', 'room_id');
+    }
+
     //生活照
     public function pic()
     {
