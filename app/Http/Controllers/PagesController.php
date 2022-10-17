@@ -25,6 +25,7 @@ use App\Models\Message_new;
 use App\Models\MessageBoard;
 use App\Models\MessageBoardPic;
 use App\Models\Forum;
+use App\Models\MessageUserNote;
 use App\Models\Order;
 use App\Models\PostsVvip;
 use App\Models\ReportedMessageBoard;
@@ -3651,6 +3652,27 @@ class PagesController extends BaseController
             }
         }
         return response()->json(['save' => 'error']);
+    }
+
+    public function messageUserNoteAJAX(Request $request)
+    {
+        $target_id = $request->target_id;
+        $user_id = $request->user_id;
+        $massage_user_note_content = $request->massage_user_note_content;
+
+        $checkData = MessageUserNote::where('user_id', $user_id)->where('message_user_id', $target_id)->first();
+
+        if(isset($checkData)){
+            MessageUserNote::where('user_id', $user_id)->where('message_user_id', $target_id)->update(['note'=>$massage_user_note_content]);
+            return response()->json(['save' => 'ok']);
+        }else{
+            $MessageUserNote = new MessageUserNote();
+            $MessageUserNote->user_id = $user_id;
+            $MessageUserNote->message_user_id = $target_id;
+            $MessageUserNote->note = $massage_user_note_content;
+            $MessageUserNote->save();
+            return response()->json(['save' => 'ok']);
+        }
     }
 
     public function unblock(Request $request)

@@ -615,6 +615,21 @@ class Message_new extends Model
                 $messages[$key]['read_n'] = $mm[$msgUser->id] ?? 0;
                 $messages[$key]['isVip'] = $msgUser->isVip();
                 $messages[$key]['isVVIP'] = $msgUser->isVVIP();
+
+                $cityAndArea='';
+                if(isset($msgUser->user_meta->city)) {
+                    $cityList = explode(',', $msgUser->user_meta->city);
+                    $areaList = explode(',', $msgUser->user_meta->area);
+                    foreach ($cityList as $k => $city) {
+                        $cityAndArea .= $cityList[$k] . $areaList[$k] . ((count($cityList) - 1) == $k ? '' : '/');
+                    }
+                }
+                $messages[$key]['cityAndArea'] = $cityAndArea;
+
+                $message_user_note = MessageUserNote::where('user_id', $user->id)->where('message_user_id', $msgUser->id)->first();
+                $message_user_note = $message_user_note->note ?? '';
+                $messages[$key]['message_user_note'] = $message_user_note;
+
                 //$messages[$key]['isWarned']=$msgUser->meta_()->isWarned;
                 if(($msgUser->user_meta->isWarned==1 || $msgUser->aw_relation ) && $msgUser->id != 1049){
                     $messages[$key]['isWarned']=1;
@@ -909,6 +924,6 @@ class Message_new extends Model
     public function scopeImplicitWhere($q, $alias)
     {
         return $q->where($alias.'.created_at', '>', Message::implicitLimitDate());
-    }  
+    }
 
 }
