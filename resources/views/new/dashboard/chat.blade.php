@@ -980,7 +980,7 @@ is_truth_icon_pic.src="{{asset('/new/images/zz_zt2.png')}}";
         {
             return new Date(dt.getFullYear(), dt.getMonth(), 1);
         }
-        function liContent(pic,user_name,content,created_at,read_n,i,user_id,isVip,show,isWarned,isBanned,exchange_period,isBlur=false,is_truth=false,isCan){
+        function liContent(pic,user_name,content,created_at,read_n,i,user_id,isVip,isVVIP,show,isWarned,isBanned,exchange_period,isBlur=false,is_truth=false,isCan){
             showMsg = show;
             var li='';
             var ss =((i+1)>Page.row)?'display:none;':'display:none;';
@@ -1002,7 +1002,7 @@ is_truth_icon_pic.src="{{asset('/new/images/zz_zt2.png')}}";
                 `;
             }else{
                 li += `
-                <li class="row_data ${(isCan && !is_truth)? "can":""} ${(showCanMsg=='0' && isCan)? "d-none":""}" style="${ss}" id="${user_id}">
+                <li class="row_data ${(isCan && !is_truth)? "can":""} ${(showCanMsg=='0' && isCan && !isVVIP)? "d-none":""}" style="${ss}" id="${user_id}">
                 `;
             }
 
@@ -1246,13 +1246,13 @@ is_truth_icon_pic.src="{{asset('/new/images/zz_zt2.png')}}";
                         if (userIsVip != 1 && i < hide_vip_counts && hide_vip_counts > 0 ) {
                             if(e.user_id == 1049 || e.isBanned==1){
                                 //hide_vip_counts = hide_vip_counts-1;
-                                if (e && e.user_id) li = liContent(e.pic, e.user_name, e.content, e.created_at, e.read_n, i, e.user_id, e.isVip, 1,e.isWarned,e.isBanned,e.exchange_period,isBlur,e.is_truth,e.isCan);
+                                if (e && e.user_id) li = liContent(e.pic, e.user_name, e.content, e.created_at, e.read_n, i, e.user_id, e.isVip, e.isVVIP, 1,e.isWarned,e.isBanned,e.exchange_period,isBlur,e.is_truth,e.isCan);
                             }else {							
-                                if (e && e.user_id) li = liContent(e.pic, e.user_name, e.content, e.created_at, e.read_n, i, e.user_id, e.isVip, 0,e.isWarned,e.isBanned,e.exchange_period,isBlur,e.is_truth,e.isCan);
+                                if (e && e.user_id) li = liContent(e.pic, e.user_name, e.content, e.created_at, e.read_n, i, e.user_id, e.isVip, e.isVVIP, 0,e.isWarned,e.isBanned,e.exchange_period,isBlur,e.is_truth,e.isCan);
                             }
                         }else {
 							//if(e.isBanned==1) hide_vip_counts = hide_vip_counts+1;
-                            if (e && e.user_id) li = liContent(e.pic, e.user_name, e.content, e.created_at, e.read_n, i, e.user_id, e.isVip, 1,e.isWarned,e.isBanned,e.exchange_period,isBlur,e.is_truth,e.isCan);
+                            if (e && e.user_id) li = liContent(e.pic, e.user_name, e.content, e.created_at, e.read_n, i, e.user_id, e.isVip, e.isVVIP, 1,e.isWarned,e.isBanned,e.exchange_period,isBlur,e.is_truth,e.isCan);
                         }
 
                         if (typeof e.created_at !== 'undefined') {
