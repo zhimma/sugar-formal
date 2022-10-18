@@ -1087,7 +1087,7 @@ is_truth_icon_pic.src="{{asset('/new/images/zz_zt2.png')}}";
                 `;
             }else{
                 li += `
-                <li class="row_data ${(isCan && !is_truth)? "can":""} ${(showCanMsg=='0' && isCan)? "d-none":""}" style="${ss}" id="${user_id}">
+                <li class="row_data ${(isCan && !is_truth)? "can":""} ${(showCanMsg=='0' && isCan && !isVVIP)? "d-none":""}" style="${ss}" id="${user_id}">
                 `;
             }
 

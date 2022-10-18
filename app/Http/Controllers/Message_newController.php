@@ -327,8 +327,13 @@ class Message_newController extends BaseController {
             $isCanMessage = UserService::checkCanMessageWithGreetingRate($user, $to_user->id, $payload['msg']);
             if ($isCanMessage) {
                 Message::where('id', $messagePosted->id)->update(['is_can' => 1]);
-                return array('error' => 2,
-                'content' => '您好，您剛剛發給 ' . $to_user->name . ' 的訊息因為與您過去的訊息過於相似，已被系統判定為罐頭訊息，有可能被女會員過濾掉，建議您多發一條訊息並充實內容');
+                if(!$user->is_vvip) {
+                    $inbox_refuse_set = InboxRefuseSet::where('user_id', $to_user->id)->first();
+                    if($inbox_refuse_set->refuse_canned_message_pr != -1) {
+                        return array('error' => 2,
+                            'content' => '您好，此位女會員設定屏蔽罐頭訊息，如發罐頭訊息給她會被屏蔽');
+                    }
+                }
             }
         }
 
