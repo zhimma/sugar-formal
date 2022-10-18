@@ -128,6 +128,15 @@ class RealAuthPageService {
         return $this->rau_repo()->modify_pic_entry($value_or_reset);
     }    
 
+    public function isAllowUseBeautyAuthForm()
+    {
+        if(!$this->isApplyEffectByAuthTypeId(1)) {
+            return false;
+        }
+        
+        return true;
+    }
+
     public function isAllowRealAuthType($value) 
     {
         $type_list = $this->ra_type_list();
@@ -359,7 +368,7 @@ class RealAuthPageService {
     
     public function getBeautyAuthProcessPrecheckReturn()
     {
-        if(!$this->isPassedByAuthTypeId(1)) {
+        if(!$this->isAllowUseBeautyAuthForm()) {   
             return redirect()->route('real_auth');
         }
     }   
@@ -953,8 +962,9 @@ class RealAuthPageService {
         $last_url_arr_elt = array_pop($url_arr);        
         $last_url_arr_elt_segs = explode('?',$last_url_arr_elt);
         $last_url_seg = array_shift($last_url_arr_elt_segs);
+        parse_str(implode('',$last_url_arr_elt_segs),$url_query);
         
-        if(!$url || in_array($last_url_seg,$this->getExcludeReturnBackPageArrInRealAuthPage())) {
+        if(!$url ||  ($url_query['real_auth']??null)  || in_array($last_url_seg,$this->getExcludeReturnBackPageArrInRealAuthPage())) {
             $url = $this->getRememberedReturnBackUrlInRealAuthPage();
         }
         
