@@ -593,13 +593,12 @@ class Message_new extends Model
 		$admin_id = AdminService::checkAdmin()->id;
         $messagesForTruth = [];
 
-        foreach ($messages as $key => &$message){
-			
-            if($message['sender']->engroup==$message['receiver']->engroup){
-                unset($messages[$key]);
+        foreach ($messages as $key => &$message) {		
+			if (!$message['sender'] || !$message['receiver']) {
+                logger('message sender or receiver is null: ' . json_encode($message));
+                unset($message);
                 continue;
-            }			
-			
+            }
             $to_id = isset($message["to_id"]) ? $message["to_id"] : null;
             $from_id = isset($message["from_id"]) ? $message["from_id"] : null;
 
