@@ -564,6 +564,9 @@
                         </a>
                     @endif
                 </span>
+                @if($to->engroup==2 && $to->refuse_canned_message)
+                    <img style="width:20px;position: absolute;" src="{{ asset('/new/images/zz_ztt2.png') }}" >
+                @endif
                 @if($user->engroup==1)     
                     <a  class="fa_adbut1 right" onclick="checkPay('ecpay');switch_adbut_on(this);">
                          <form class="" 

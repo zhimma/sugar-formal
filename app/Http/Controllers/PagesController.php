@@ -96,6 +96,7 @@ use App\Models\VvipQualityLifeImage;
 use App\Models\VvipSubOptionXref;
 use App\Services\EnvironmentService;
 use App\Services\PaymentService;
+use App\Models\InboxRefuseSet;
 
 class PagesController extends BaseController
 {
@@ -3951,6 +3952,14 @@ class PagesController extends BaseController
                 
                 $cid_recommend_data = [];
                 $forbid_msg_data = UserService::checkNewSugarForbidMsg($cid_user,$user);
+
+            
+                if($cid_user->engroup==2) {
+                    $inbox_refuse_set = InboxRefuseSet::where('user_id', $cid)->first();
+                    if($inbox_refuse_set && $inbox_refuse_set->refuse_canned_message_pr != -1) {
+                        $cid_user->refuse_canned_message = true;
+                    }
+                }
 
                 if((!$user->isVip() && !$user->isVVIP() )&& $user->engroup == 1){
                     $m_time = Message::select('created_at')->
