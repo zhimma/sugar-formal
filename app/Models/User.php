@@ -2233,4 +2233,29 @@ class User extends Authenticatable implements JWTSubject
             return User::all();
         });
     }
+
+    
+    public function getUser()
+    {
+        return $this;
+    }
+        
+    
+    public function getUserDescPageStayOnlineRecordsPaginate()
+    {
+        $this->paginate = $this->stay_online_record_only_page()->orderByDesc('id')->paginate(20,['*'], 'pageU'.$this->id, request()->input('pageU'.$this->id));
+        return $this->paginate;
+    }    
+
+    public function toSearchableArray()
+    {
+        return [
+            'id' => $this->id,
+            'engroup' => $this->engroup,
+            'name' => $this->name,
+            'email' => $this->email,
+            'created_at' => $this->created_at->timestamp,
+            'updated_at' => $this->updated_at->timestamp,
+        ];
+    }
 }
