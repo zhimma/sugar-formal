@@ -4026,7 +4026,7 @@ class PagesController extends BaseController
             
                 if($cid_user->engroup==2) {
                     $inbox_refuse_set = InboxRefuseSet::where('user_id', $cid)->first();
-                    if($inbox_refuse_set && $inbox_refuse_set->refuse_canned_message_pr != -1) {
+                    if($inbox_refuse_set?->refuse_canned_message_pr != -1) {
                         $cid_user->refuse_canned_message = true;
                     }
                 }
