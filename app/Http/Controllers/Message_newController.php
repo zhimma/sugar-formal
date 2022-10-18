@@ -30,6 +30,7 @@ use Session;
 use App\Models\InboxRefuseSet;
 use App\Models\Pr_log;
 use YlsIdeas\FeatureFlags\Facades\Features;
+use App\Models\ExchangePeriodName;
 
 class Message_newController extends BaseController {
     public function __construct(UserService $userService) {
@@ -606,7 +607,10 @@ class Message_newController extends BaseController {
 
             $data_all = Message_new::allSendersAJAX($user->id, $user->isVip(),'all');
             $message_with_user_count = (is_countable($data_all) && array_get($data_all,'0')!=='No data') ? count($data_all) : 0;
-            return view('new.dashboard.chat')
+
+            $data['exchange_period_name']   =   ExchangePeriodName::get();
+
+            return view('new.dashboard.chat',$data)
                 ->with('user', $user)
                 ->with('message_with_user_count', $message_with_user_count)
                 ->with('m_time', $m_time)

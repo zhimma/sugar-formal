@@ -6,6 +6,75 @@
 @endphp
 @extends('new.layouts.website')
 @section('style')
+<style>
+    .btn_imga1>.btn_back {
+        width: 100%;
+        background: url(/new/images/fanhui_1.png) no-repeat 0 0;
+        background-size: 100% 100%;
+        height: 34px;
+        padding-left: 6px;
+    }
+    .toug_back img {
+        height: 14px;
+        vertical-align: middle;
+        margin-top: -3px;
+        margin-right: 2px;
+    }
+    .toug_back {
+        background: #fe92a8;
+        border-radius: 100em;
+        height: 21px;
+        width: 21px;
+        line-height: 19px;
+        color: #ffffff;
+        text-align: center;
+        float: right;
+        font-size: 13px;
+        margin-top: 10px;
+        margin-right: 16px;
+    }
+    .btn_imga1 {
+        width: 86px;
+        height: auto;
+        margin: 7px -8px 0 0;
+        background: none;
+        padding: 0;
+        line-height: 32px;
+    }
+    .xzgn {
+        /* position: absolute; */
+        right: 0;
+        cursor: pointer;
+        z-index: 2;
+    }
+    .fabiao1 {
+        width: 150px;
+        background: linear-gradient(to right, #fff6f7, #ffd8e3);
+        border-radius: 10px;
+        display: none;
+        padding: 5px 0;
+        box-shadow: 0 5px 10px #e398a4;
+        position: absolute;
+        right: 0;
+        cursor: pointer;
+        z-index: 3;
+        color: #333333;
+        text-align: left;
+    }
+    .fabiao1 a {
+        width: 90%;
+        display: table;
+        margin: 0 auto;
+        line-height: 30px;
+        border-bottom: #fd5678 1px dashed;
+        color: #333333;
+        cursor: pointer;
+    }
+    .fabiao1 a:hover {
+        color: #ee5472;
+        background: #ffc9d8;
+    }
+</style>
 @if($user->isVip())
 <script>
 let is_truth_icon_pic = new Image();
@@ -13,6 +82,26 @@ is_truth_icon_pic.src="{{asset('/new/images/zz_zt2.png')}}";
 </script>
 @endif
 @stop
+@push('javascript')
+<script>
+    $('.userlogo1').click(function(){
+        event.stopPropagation()
+        if($(this).hasClass('')){
+            $(this).removeClass('')
+            $('.fadeinboxs').fadeOut()
+            $('.showslide').fadeOut()
+        }else{
+            $(this).addClass('')
+            $('.fadeinboxs').fadeIn()
+            $('.showslide').fadeIn()
+        }
+    })
+    $('body').click(function(){
+        $('.showslide').fadeOut()
+        $('.fadeinboxs').fadeOut()
+    })
+</script>
+@endpush
 @section('app-content')
 <style>
     .blur_img {
@@ -184,30 +273,44 @@ is_truth_icon_pic.src="{{asset('/new/images/zz_zt2.png')}}";
         </div>
         <div class="col-sm-12 col-xs-12 col-md-10">
             <div class="shou" style="text-align: center;">
+                <a class="toug_back btn_imga1 userlogo1 xzgn" style="float: left; left: 0; ">
+                    <div class="btn_back">刪除<img src="/new/images/jiant_a.png"></div>
+                </a>
+                <div class="fabiao1 showslide" style="left: 0; top: 48px;z-index: 101;">
+                    <a href="">大量刪除</a>
+                    @if($user->is_admin_chat_channel_open)
+                        @if(($isVip && ($user->engroup==1 || $user->engroup==2)) || (!$isVip && $user->engroup==2))
+                            <a class="admin_delete">刪除所有站長來訊</a>
+                        @endif
+                    @endif
+                    @if($user->engroup==1)
+                        @if($isVip)
+                            @foreach($exchange_period_name as $exchange)
+                            <a class="exchange_period_delete_{{$exchange->id}}">刪除所有{{$exchange->name}}</a>
+                            @endforeach
+                        @endif
+                    @elseif($user->engroup==2)
+                        @if(($isVip && ($user->engroup==1 || $user->engroup==2)) || (!$isVip && $user->engroup==2))
+                            <a class="vvip_delete">刪除所有VVIP會員</a>
+                            <a class="vip_delete">刪除所有VIP會員</a>
+                            <a class="novip_delete">刪除所有試用會員</a>
+                        @endif
+                    @endif
+                    @if(($isVip && ($user->engroup==1 || $user->engroup==2)) || (!$isVip && $user->engroup==2))
+                        <a class="alert_delete">刪除所有警示會員</a>
+                    @endif
+                    @if(($isVip && ($user->engroup==1 || $user->engroup==2)) || (!$isVip && $user->engroup==2))
+                        <a class="banned_delete">刪除所有被封鎖會員</a>
+                    @endif
+                </div>
                 <div class="sj_iconleft">
                     <a href="{{route('viewChatNotice')}}"><img src="/new/images/ncion_03.png"></a>
                 </div>
                 <span style="border-bottom: unset;">收件夾</span>
                 <font>Inbox</font>
-                {{-- <a href="" class="shou_but">全部刪除</a>--}}
-                {{-- <a href="javascript:void(0);" onclick="showChatSet()"><img src="/new/images/ncion_03.png"
-                        class="whoicon02 marlr10"></a>--}}
                 <div class="sj_iconright"><img src="/new/images/sj_icon2.png"></div>
             </div>
-            {{-- <div class="shou_j">--}}
-                {{-- <div class="sj_iconleft"><a href="{{route('viewChatNotice')}}"><img
-                            src="/new/images/ncion_03.png"></a></div>--}}
-                {{-- <span>收件夾</span>--}}
-                {{-- <div class="sj_iconright"><img src="/new/images/sj_icon2.png"></div>--}}
-                {{-- </div>--}}
             <div class="n_shtab">
-
-                {{-- <h2><span>您目前為高級會員</span>訊息可保存天數：30，可通訊人數:無限</h2>--}}
-                {{-- @if($isVip)--}}
-                {{-- <h2><span>@if($user->isVVip()){{$letter_vvip}}@else{{$letter_vip}}@endif</span>訊息可保存天數：180，可通訊人數:無限</h2>--}}
-                {{-- @else--}}
-                {{-- <h2><span>{{$letter_normal_member}}</span>訊息可保存天數：7，可通訊人數:10</h2>--}}
-                {{-- @endif--}}
                 <h2 data-step="1" data-highlightClass="yd1a" data-tooltipClass="yd1"
                     data-intro="<p>不同等級會員可以有不同的信件讀取權限。</p>
                         <p>試用會員：信件可保存30天，通訊人數限制10人。</p>
@@ -237,10 +340,6 @@ is_truth_icon_pic.src="{{asset('/new/images/zz_zt2.png')}}";
                 <div class="leftsidebar_box">
                     <dl class="system_log">
                         @if($user->is_admin_chat_channel_open)
-                            @if(($isVip && ($user->engroup==1 || $user->engroup==2)) || (!$isVip &&
-                            $user->engroup==2))
-                                <span class="admin_delete shou_but">全部刪除</span>
-                            @endif
                             @if($user->id != 1049)
                             <dt class="lebox0" data-step="4" data-position="top" data-highlightClass="yd4a"
                                 data-tooltipClass="yd4" data-intro="<p>會員可以在此處與站長對話。</p>
@@ -256,15 +355,9 @@ is_truth_icon_pic.src="{{asset('/new/images/zz_zt2.png')}}";
                                 <div class="page page_admin fenye" style="text-align: center;"></div>
                             </dd>
                             @endif
-                            @endif
+                        @endif
                         @if($user->engroup==1)
-                        @php
-                        $exchange_period_name = DB::table('exchange_period_name')->get();
-                        @endphp
-                        <!--男性介面-->
-                            @if($isVip)
-                                <span class="exchange_period_delete_{{$exchange_period_name[0]->id}} shou_but">全部刪除</span>
-                            @endif
+                            <!--男性介面-->
                             <dt class="lebox1 lebox_exchange_period_{{$exchange_period_name[0]->id}}" data-step="{{2+$exchange_period_name[0]->id}}"
                                 data-position="top" data-highlightClass="yd4a" data-tooltipClass="yd4"
                                 data-intro="<p>
@@ -280,9 +373,6 @@ is_truth_icon_pic.src="{{asset('/new/images/zz_zt2.png')}}";
                                 <div class="page page_exchange_period_{{$exchange_period_name[0]->id}} fenye" style="text-align: center;"></div>
                             </dd>
 
-                            @if($isVip)
-                                <span class="exchange_period_delete_{{$exchange_period_name[2]->id}} shou_but">全部刪除</span>
-                            @endif
                             <dt class="lebox2 lebox_exchange_period_{{$exchange_period_name[2]->id}}" data-step="{{2+$exchange_period_name[2]->id}}"
                                 data-position="top" data-highlightClass="yd4a" data-tooltipClass="yd4"
                                 data-intro="<p>
@@ -298,9 +388,6 @@ is_truth_icon_pic.src="{{asset('/new/images/zz_zt2.png')}}";
                                 <div class="page page_exchange_period_{{$exchange_period_name[2]->id}} fenye" style="text-align: center;"></div>
                             </dd>
 
-                            @if($isVip)
-                                <span class="exchange_period_delete_{{$exchange_period_name[1]->id}} shou_but">全部刪除</span>
-                            @endif
                             <dt class="lebox3 lebox_exchange_period_{{$exchange_period_name[1]->id}}" data-step="{{2+$exchange_period_name[1]->id}}"
                                 data-position="top" data-highlightClass="yd4a" data-tooltipClass="yd4"
                                 data-intro="<p>
@@ -336,85 +423,68 @@ is_truth_icon_pic.src="{{asset('/new/images/zz_zt2.png')}}";
                         @endif
 
                         @if($user->engroup==2)
-                        <!--女性介面-->
-                        @if(($isVip && ($user->engroup==1 || $user->engroup==2)) || (!$isVip &&
-                        $user->engroup==2))
-                            <span class="vvip_delete shou_but">全部刪除</span>
-                        @endif
-                        <dt class="leboxVVIP" data-position="top" data-highlightClass="yd4a"
-                            data-tooltipClass="yd4" data-intro="<p>站方建議盡量多與
-                        VVIP 會員互動。本區會員的素質最佳，投訴率低於 0.1%。</p>
-                                <em></em><em></em>">
-                                <span class="le_span">VVIP會員(財力驗證)</span>
-                        </dt>
-                        <dd>
-                            <div class="loading warning" id="sjlist_vvip_warning"><span
+                            <!--女性介面-->
+                            <dt class="leboxVVIP" data-position="top" data-highlightClass="yd4a"
+                                data-tooltipClass="yd4" data-intro="<p>站方建議盡量多與
+                            VVIP 會員互動。本區會員的素質最佳，投訴率低於 0.1%。</p>
+                                    <em></em><em></em>">
+                                    <span class="le_span">VVIP會員(財力驗證)</span>
+                            </dt>
+                            <dd>
+                                <div class="loading warning" id="sjlist_vvip_warning"><span
+                                            class="loading_text">loading</span></div>
+                                <ul class="sjlist sjlist_vvip">
+                                </ul>
+                                <div class="page page_vvip fenye" style="text-align: center;"></div>
+                            </dd>
+
+                            <dt class="lebox1" data-step="3" data-position="top" data-highlightClass="yd4a"
+                                data-tooltipClass="yd4" data-intro="<p>站方建議盡量多與
+                                    VIP 會員互動。本區會員的素質最佳，投訴率低於 0.1%。</p>
+                                            <em></em><em></em>">
+
+                                <span class="le_span">VIP會員(基本認證)</span>
+                            </dt>
+                            <dd>
+                                <div class="loading warning" id="sjlist_vip_warning"><span
                                         class="loading_text">loading</span></div>
-                            <ul class="sjlist sjlist_vvip">
-                            </ul>
-                            <div class="page page_vvip fenye" style="text-align: center;"></div>
-                        </dd>
+                                <ul class="sjlist sjlist_vip">
+                                </ul>
+                                <div class="page page_vip fenye" style="text-align: center;"></div>
+                            </dd>
 
-                        @if(($isVip && ($user->engroup==1 || $user->engroup==2)) || (!$isVip &&
-                        $user->engroup==2))
-                        <span class="vip_delete shou_but">全部刪除</span>
-                        @endif
-                        <dt class="lebox1" data-step="3" data-position="top" data-highlightClass="yd4a"
-                            data-tooltipClass="yd4" data-intro="<p>站方建議盡量多與
-                                VIP 會員互動。本區會員的素質最佳，投訴率低於 0.1%。</p>
-                                        <em></em><em></em>">
+                            <dt class="lebox2" data-position="top" data-highlightClass="yd4a" data-tooltipClass="yd4"
+                                data-step="4" data-intro="未付費的會員賴帳機率高於VIP 50倍<em></em><em></em>">
 
-                            <span class="le_span">VIP會員(基本認證)</span>
-                        </dt>
-                        <dd>
-                            <div class="loading warning" id="sjlist_vip_warning"><span
-                                    class="loading_text">loading</span></div>
-                            <ul class="sjlist sjlist_vip">
-                            </ul>
-                            <div class="page page_vip fenye" style="text-align: center;"></div>
-                        </dd>
+                                <span class="le_span">試用會員(無驗證)</span>
+                            </dt>
+                            <dd>
+                                <div class="loading warning" id="sjlist_novip_warning"><span
+                                        class="loading_text">loading</span></div>
+                                <ul class="sjlist sjlist_novip">
+                                </ul>
+                                <div class="page page_novip fenye" style="text-align: center;"></div>
+                            </dd>
+                            <!--女性介面 END -->
 
-                        @if(($isVip && ($user->engroup==1 || $user->engroup==2)) || (!$isVip &&
-                        $user->engroup==2))
-                        <span class="novip_delete shou_but">全部刪除</span>
-                        @endif
-                        <dt class="lebox2" data-position="top" data-highlightClass="yd4a" data-tooltipClass="yd4"
-                            data-step="4" data-intro="未付費的會員賴帳機率高於VIP 50倍<em></em><em></em>">
-
-                            <span class="le_span">試用會員(無驗證)</span>
-                        </dt>
-                        <dd>
-                            <div class="loading warning" id="sjlist_novip_warning"><span
-                                    class="loading_text">loading</span></div>
-                            <ul class="sjlist sjlist_novip">
-                            </ul>
-                            <div class="page page_novip fenye" style="text-align: center;"></div>
-                        </dd>
-                        <!--女性介面 END -->
-
-                        {{-- @if(($isVip && ($user->engroup==1 || $user->engroup==2)) || (!$isVip &&
-                        $user->engroup==2))--}}
-                        {{-- <span class="alert_delete shou_but">全部刪除</span>--}}
-                        {{-- @endif--}}
-                        {{-- <dt class="lebox3 lebox_alert" data-position="top" data-highlightClass="yd5a"
-                            data-tooltipClass="yd5" data-step="5" --}} {{--
-                            data-intro="警示原因會有多種，也許是被檢舉也許是站長設定為警示。站方強烈不建議與此區會員互動，若一定要跟此區會員互動請務必提高十二萬分警覺。<em></em><em></em>">
-                            --}}
-                            {{-- 警示會員</dt>--}}
-                        {{-- <dd>--}}
-                            {{-- <div class="loading warning" id="sjlist_alert_warning"><span
-                                    class="loading_text">loading</span></div>--}}
-                            {{-- <ul class="sjlist sjlist_alert">--}}
-                                {{-- </ul>--}}
-                            {{-- </dd>--}}
+                            {{-- @if(($isVip && ($user->engroup==1 || $user->engroup==2)) || (!$isVip &&
+                            $user->engroup==2))--}}
+                            {{-- <span class="alert_delete shou_but">全部刪除</span>--}}
+                            {{-- @endif--}}
+                            {{-- <dt class="lebox3 lebox_alert" data-position="top" data-highlightClass="yd5a"
+                                data-tooltipClass="yd5" data-step="5" --}} {{--
+                                data-intro="警示原因會有多種，也許是被檢舉也許是站長設定為警示。站方強烈不建議與此區會員互動，若一定要跟此區會員互動請務必提高十二萬分警覺。<em></em><em></em>">
+                                --}}
+                                {{-- 警示會員</dt>--}}
+                            {{-- <dd>--}}
+                                {{-- <div class="loading warning" id="sjlist_alert_warning"><span
+                                        class="loading_text">loading</span></div>--}}
+                                {{-- <ul class="sjlist sjlist_alert">--}}
+                                    {{-- </ul>--}}
+                                {{-- </dd>--}}
 
                         @endif
 
-
-                        @if(($isVip && ($user->engroup==1 || $user->engroup==2)) || (!$isVip &&
-                        $user->engroup==2))
-                        <span class="alert_delete shou_but">全部刪除</span>
-                        @endif
                         <dt class="@if($user->engroup==2)lebox3 @else lebox4 @endif lebox_alert" data-position="top"
                             data-highlightClass="yd5a" data-tooltipClass="yd5" @if($user->engroup==2)data-step="5" @else
                             data-step="6" @endif
@@ -429,10 +499,6 @@ is_truth_icon_pic.src="{{asset('/new/images/zz_zt2.png')}}";
                             </ul>
                             <div class="page page_warned fenye" style="text-align: center;"></div>
                         </dd>
-                        @if(($isVip && ($user->engroup==1 || $user->engroup==2)) || (!$isVip &&
-                        $user->engroup==2))
-                        <span class="banned_delete shou_but">全部刪除</span>
-                        @endif
                         <dt class="lebox5">
                             <span class="le_span">已被站方封鎖會員</span>
                         </dt>
@@ -756,9 +822,6 @@ is_truth_icon_pic.src="{{asset('/new/images/zz_zt2.png')}}";
             }
         };
 
-        @php
-            $exchange_period_name = DB::table('exchange_period_name')->get();
-        @endphp
         @foreach($exchange_period_name as $row)
             var  Page_exchange_period_{{$row->id}}= {
             page : 1,
@@ -1173,9 +1236,6 @@ is_truth_icon_pic.src="{{asset('/new/images/zz_zt2.png')}}";
                         $('.sjlist_banned').html('');
                         $('.page_banned').hide();
                     @elseif($user->engroup==1)
-                        @php
-                            $exchange_period_name = DB::table('exchange_period_name')->get();
-                        @endphp
                         @foreach($exchange_period_name as $row)
                         $('.sjlist_exchange_period_{{$row->id}}').html('');
                         $('.page_exchange_period_{{$row->id}}').hide();
@@ -1275,9 +1335,6 @@ is_truth_icon_pic.src="{{asset('/new/images/zz_zt2.png')}}";
                                 }
 
                                 @if($user->engroup==1)
-                                    @php
-                                        $exchange_period_name = DB::table('exchange_period_name')->get();
-                                    @endphp
                                     @foreach($exchange_period_name as $row)
                                         if (userGender==1 && e.exchange_period=='{{$row->id}}' && e.user_id != 1049 && e.isWarned == 0 && e.isBanned==0){
                                             $('.sjlist_exchange_period_{{$row->id}}').append(li).find('.row_data').addClass('date7 exchange_period_member_{{$row->id}} common30');
@@ -1306,9 +1363,6 @@ is_truth_icon_pic.src="{{asset('/new/images/zz_zt2.png')}}";
                                     if (userGender==1 && e.user_id == 1049){
                                         $('.sjlist_exchange_period_1').append(li).find('.row_data').addClass('date30 exchange_period_member_1 common30');
                                     }
-                                    @php
-                                        $exchange_period_name = DB::table('exchange_period_name')->get();
-                                    @endphp
                                     @foreach($exchange_period_name as $row)
                                         if (userGender==1 && e.exchange_period=='{{$row->id}}' && e.user_id != 1049 && e.isWarned == 0 && e.isBanned==0){
                                             $('.sjlist_exchange_period_{{$row->id}}').append(li).find('.row_data').addClass('date30 exchange_period_member_{{$row->id}} common30');
@@ -1337,9 +1391,6 @@ is_truth_icon_pic.src="{{asset('/new/images/zz_zt2.png')}}";
                                     if (userGender==1 && e.user_id == 1049){
                                         $('.sjlist_exchange_period_1').append(li).find('.row_data').addClass('dateAll exchange_period_member_1');
                                     }
-                                    @php
-                                        $exchange_period_name = DB::table('exchange_period_name')->get();
-                                    @endphp
                                     @foreach($exchange_period_name as $row)
                                         if (userGender==1 && e.exchange_period=='{{$row->id}}' && e.user_id != 1049 && e.isWarned == 0 && e.isBanned==0){
                                             $('.sjlist_exchange_period_{{$row->id}}').append(li).find('.row_data').addClass('dateAll exchange_period_member_{{$row->id}}');
@@ -1405,9 +1456,6 @@ is_truth_icon_pic.src="{{asset('/new/images/zz_zt2.png')}}";
                                     $('.sjlist_novip>.date7.novipMember').slice((Page_noVip.page - 1) * Page_noVip.row, Page_noVip.page * Page_noVip.row).css('display', '');
 
                                 @elseif($user->engroup==1)
-                                    @php
-                                        $exchange_period_name = DB::table('exchange_period_name')->get();
-                                    @endphp
                                     @foreach($exchange_period_name as $row)
 
                                     let exchange_period_counts_{{$row->id}} = $('.date7.exchange_period_member_{{$row->id}}').length;
@@ -1466,9 +1514,6 @@ is_truth_icon_pic.src="{{asset('/new/images/zz_zt2.png')}}";
                                     $('.sjlist_novip>.common30.novipMember').slice((Page_noVip.page - 1) * Page_noVip.row, Page_noVip.page * Page_noVip.row).css('display', '');
 
                                 @elseif($user->engroup==1)
-                                        @php
-                                            $exchange_period_name = DB::table('exchange_period_name')->get();
-                                        @endphp
                                         @foreach($exchange_period_name as $row)
 
                                         let exchange_period_counts_{{$row->id}} = $('.common30.exchange_period_member_{{$row->id}}').length;
@@ -1526,9 +1571,6 @@ is_truth_icon_pic.src="{{asset('/new/images/zz_zt2.png')}}";
                                     $('.sjlist_novip>.novipMember').slice((Page_noVip.page - 1) * Page_noVip.row, Page_noVip.page * Page_noVip.row).css('display', '');
 
                                 @elseif($user->engroup==1)
-                                        @php
-                                            $exchange_period_name = DB::table('exchange_period_name')->get();
-                                        @endphp
                                         @foreach($exchange_period_name as $row)
 
                                         let exchange_period_counts_{{$row->id}} = $('.exchange_period_member_{{$row->id}}').length;
@@ -1590,9 +1632,6 @@ is_truth_icon_pic.src="{{asset('/new/images/zz_zt2.png')}}";
                                     $('.sjlist_novip>.date7.novipMember').slice((Page_noVip.page - 1) * Page_noVip.row, Page_noVip.page * Page_noVip.row).css('display', '');
 
                                 @elseif($user->engroup==1)
-                                    @php
-                                        $exchange_period_name = DB::table('exchange_period_name')->get();
-                                    @endphp
                                     @foreach($exchange_period_name as $row)
 
                                     let exchange_period_counts_{{$row->id}} = $('.date7.exchange_period_member_{{$row->id}}').length;
@@ -1652,9 +1691,6 @@ is_truth_icon_pic.src="{{asset('/new/images/zz_zt2.png')}}";
                                     $('.sjlist_novip>.common30.novipMember').slice((Page_noVip.page - 1) * Page_noVip.row, Page_noVip.page * Page_noVip.row).css('display', '');
 
                                 @elseif($user->engroup==1)
-                                    @php
-                                        $exchange_period_name = DB::table('exchange_period_name')->get();
-                                    @endphp
                                     @foreach($exchange_period_name as $row)
 
                                         let exchange_period_counts_{{$row->id}} = $('.common30.exchange_period_member_{{$row->id}}').length;
@@ -1713,9 +1749,6 @@ is_truth_icon_pic.src="{{asset('/new/images/zz_zt2.png')}}";
                                     $('.sjlist_novip>.novipMember').slice((Page_noVip.page - 1) * Page_noVip.row, Page_noVip.page * Page_noVip.row).css('display', '');
 
                                 @elseif($user->engroup==1)
-                                    @php
-                                        $exchange_period_name = DB::table('exchange_period_name')->get();
-                                    @endphp
                                     @foreach($exchange_period_name as $row)
 
                                         let exchange_period_counts_{{$row->id}} = $('.exchange_period_member_{{$row->id}}').length;
@@ -1802,9 +1835,6 @@ is_truth_icon_pic.src="{{asset('/new/images/zz_zt2.png')}}";
                                 $('#sjlist_admin_warning').hide();
                                 $('.sjlist_admin').append(no_row_li);
                             }
-                            @php
-                                $exchange_period_name = DB::table('exchange_period_name')->get();
-                            @endphp
                             @foreach($exchange_period_name as $row)
                             $('.sjlist_exchange_period_{{$row->id}}>.li_no_data').remove();
                             if ($('.sjlist_exchange_period_{{$row->id}}>li:visible').length == 0) {
@@ -1901,9 +1931,6 @@ is_truth_icon_pic.src="{{asset('/new/images/zz_zt2.png')}}";
             date= $("#daysSelect option:selected").val();
             window.location.hash = '#'+ date;
             @if($user->engroup==1)
-                    @php
-                        $exchange_period_name = DB::table('exchange_period_name')->get();
-                    @endphp
                     @foreach($exchange_period_name as $row)
                         Page_exchange_period_{{$row->id}}.page=1;
                         $('.page_exchange_period_{{$row->id}}').hide();
@@ -1949,9 +1976,6 @@ is_truth_icon_pic.src="{{asset('/new/images/zz_zt2.png')}}";
                      $('.sjlist_novip>.date7.novipMember').slice((Page_noVip.page - 1) * Page_noVip.row, Page_noVip.page * Page_noVip.row).css('display', '');
 
                  @elseif($user->engroup==1)
-                         @php
-                             $exchange_period_name = DB::table('exchange_period_name')->get();
-                         @endphp
                          @foreach($exchange_period_name as $row)
                             let exchange_period_counts_{{$row->id}} = $('.date7.exchange_period_member_{{$row->id}}').length;
                             if (exchange_period_counts_{{$row->id}} > 10) {
@@ -2009,9 +2033,6 @@ is_truth_icon_pic.src="{{asset('/new/images/zz_zt2.png')}}";
                          Page_noVip.DrawPage(novip_counts);
                          $('.sjlist_novip>.common30.novipMember').slice((Page_noVip.page - 1) * Page_noVip.row, Page_noVip.page * Page_noVip.row).css('display', '');
                      @elseif($user->engroup==1)
-                         @php
-                             $exchange_period_name = DB::table('exchange_period_name')->get();
-                         @endphp
                          @foreach($exchange_period_name as $row)
                              let exchange_period_counts_{{$row->id}} = $('.common30.exchange_period_member_{{$row->id}}').length;
                              if (exchange_period_counts_{{$row->id}} > 10) {
@@ -2066,9 +2087,6 @@ is_truth_icon_pic.src="{{asset('/new/images/zz_zt2.png')}}";
                          $('.sjlist_novip>.novipMember').slice((Page_noVip.page - 1) * Page_noVip.row, Page_noVip.page * Page_noVip.row).css('display', '');
 
                      @elseif($user->engroup==1)
-                         @php
-                             $exchange_period_name = DB::table('exchange_period_name')->get();
-                         @endphp
                          @foreach($exchange_period_name as $row)
                              let exchange_period_counts_{{$row->id}} = $('.exchange_period_member_{{$row->id}}').length;
                              if (exchange_period_counts_{{$row->id}} > 10) {
@@ -2136,9 +2154,6 @@ is_truth_icon_pic.src="{{asset('/new/images/zz_zt2.png')}}";
                             $('#sjlist_admin_warning').hide();
                             $('.sjlist_admin').append(no_row_li);
                         }
-                        @php
-                            $exchange_period_name = DB::table('exchange_period_name')->get();
-                        @endphp
                         @foreach($exchange_period_name as $row)
                             $('.sjlist_exchange_period_{{$row->id}}>.li_no_data').remove();
                             if ($('.sjlist_exchange_period_{{$row->id}}>li:visible').length == 0 && isLoading == 0) {
@@ -2283,9 +2298,6 @@ is_truth_icon_pic.src="{{asset('/new/images/zz_zt2.png')}}";
             }
         });        
 
-        @php
-        $exchange_period_name = DB::table('exchange_period_name')->get();
-        @endphp
         @foreach($exchange_period_name as $row)
             $('.exchange_period_delete_{{$row->id}}').on('click', function() {
                 // c4('確定要全部刪除嗎?');
@@ -2471,9 +2483,6 @@ is_truth_icon_pic.src="{{asset('/new/images/zz_zt2.png')}}";
                 $('.sjlist_novip').append(no_row_li);
             }
             @elseif($user->engroup==1)
-                @php
-                    $exchange_period_name = DB::table('exchange_period_name')->get();
-                @endphp
                 @foreach($exchange_period_name as $row)
                 $('.sjlist_exchange_period_{{$row->id}}>.li_no_data').remove();
                 if ($('.sjlist_exchange_period_{{$row->id}}>li:visible').length == 0) {

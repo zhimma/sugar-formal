@@ -148,6 +148,7 @@
 
 
     @yield("javascript")
+    @stack("javascript")
 
     <link rel="stylesheet" href="/new/owlcarousel/assets/owl.carousel.min.css">
     <link rel="stylesheet" href="/new/owlcarousel/assets/owl.theme.default.min.css">
