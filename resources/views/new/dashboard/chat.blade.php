@@ -42,7 +42,7 @@
         line-height: 32px;
     }
     .xzgn {
-        /* position: absolute; */
+        position: absolute;
         right: 0;
         cursor: pointer;
         z-index: 2;
@@ -303,9 +303,9 @@ is_truth_icon_pic.src="{{asset('/new/images/zz_zt2.png')}}";
                         <a class="banned_delete">刪除所有被封鎖會員</a>
                     @endif
                 </div>
-                <div class="sj_iconleft">
+                {{-- <div class="sj_iconleft">
                     <a href="{{route('viewChatNotice')}}"><img src="/new/images/ncion_03.png"></a>
-                </div>
+                </div> --}}
                 <span style="border-bottom: unset;">收件夾</span>
                 <font>Inbox</font>
                 <div class="sj_iconright"><img src="/new/images/sj_icon2.png"></div>
