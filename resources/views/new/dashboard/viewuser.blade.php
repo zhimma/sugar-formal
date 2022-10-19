@@ -335,6 +335,33 @@
             overflow-y: scroll;
             max-height: 480px;            
         }
+        .ri_xixn {
+            width: 240px;
+            margin: 0 auto;
+            background: #fff;
+            display: table;
+            border-radius: 10px;
+            margin-top: 15px;
+        }
+        .ri_xixn_input {
+            width: 200px;
+            border: none;
+            background: transparent;
+            height: 35px;
+            color: #000;
+            padding-left: 10px;
+            outline: none;
+        }
+        .ri_button_a {
+            background: #fabbcc;
+            border-radius: 3px;
+            height: 35px;
+            color: #fff;
+            float: right;
+            width: 40px;
+            text-align: center;
+            line-height: 35px;
+        }
     </style>
     <style>
         .he_tkcn ul a span {text-align:left;font-size:unset;}
@@ -732,7 +759,9 @@
                                 </div>
                             @endif
                         </div>
-
+                        <div class="ri_xixn">
+                            <input placeholder="您尚未留下備註" class="ri_xixn_input" id="massage_user_note_{{$to->id}}" value=""><a href="" class="ri_button_a" onclick="massage_user_note('{{$to->id}}');">確定</a>
+                        </div>
                     </div>
                     <div class="bottub">
 
@@ -3655,6 +3684,20 @@ rendorItemNthText.nthEnum = '一二三四五六七八九十'.split('');
         $('body').css("overflow", "auto");
     }
     
+
+    function massage_user_note(sid){
+        let massage_user_note_content = $('#massage_user_note_' + sid).val();
+        $.post('{{ route('messageUserNoteAJAX') }}', {
+            user_id: '{{ $user->id }}',
+            target_id: sid,
+            massage_user_note_content: massage_user_note_content,
+            _token: '{{ csrf_token() }}'
+        }, function (data) {
+            c5('備註已更新');
+        });
+        return false;
+    }
+
 </script>
 
 @stop
