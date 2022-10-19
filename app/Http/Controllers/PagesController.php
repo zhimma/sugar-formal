@@ -28,6 +28,7 @@ use App\Models\Forum;
 use App\Models\MessageUserNote;
 use App\Models\Order;
 use App\Models\PostsVvip;
+use App\Models\RealAuthUserTagsDisplay;
 use App\Models\ReportedMessageBoard;
 use App\Models\SimpleTables\warned_users;
 use App\Models\Suspicious;
@@ -9980,6 +9981,46 @@ class PagesController extends BaseController
         }
     }     
     
+
+    public function showTagDisplaySettings(Request $request,RealAuthPageService $service)
+    {
+
+        $user = auth()->user();
+        if($user->engroup!=2) {
+            return redirect('/dashboard/personalPage');
+        }
+
+        $data['self_auth']= RealAuthUserTagsDisplay::where('user_id', $user->id)->where('auth_type_id', 1)->first();
+        $data['beauty_auth']= RealAuthUserTagsDisplay::where('user_id', $user->id)->where('auth_type_id', 2)->first();
+        $data['famous_auth']= RealAuthUserTagsDisplay::where('user_id', $user->id)->where('auth_type_id', 3)->first();
+        return view('new.dashboard.tag_display_settings', compact('data'));
+    }
+
+    public function tagDisplaySet(Request $request,RealAuthPageService $service)
+    {
+        $user = auth()->user();
+
+        if($request->self_auth_vip_show || $request->self_auth_pr_show){
+            $data['vip_show']=$request->self_auth_vip_show=='VIP' ? 1 :0;
+            $data['more_than_pr_show']=$request->self_auth_pr_show=='PR' ? $request->self_auth_pr_value : null;
+            RealAuthUserTagsDisplay::updateOrInsert(['user_id'=> $user->id, 'auth_type_id'=> 1], $data);
+        }
+
+        if($request->beauty_auth_vip_show || $request->beauty_auth_pr_show){
+            $data['vip_show']=$request->beauty_auth_vip_show=='VIP' ? 1 :0;
+            $data['more_than_pr_show']=$request->beauty_auth_pr_show=='PR' ? $request->beauty_auth_pr_value : null;
+            RealAuthUserTagsDisplay::updateOrInsert(['user_id'=> $user->id, 'auth_type_id'=> 2], $data);
+        }
+
+        if($request->famous_auth_vip_show || $request->famous_auth_pr_show){
+            $data['vip_show']=$request->famous_auth_vip_show=='VIP' ? 1 :0;
+            $data['more_than_pr_show']=$request->famous_auth_pr_show=='PR' ? $request->famous_auth_pr_value : null;
+            RealAuthUserTagsDisplay::updateOrInsert(['user_id'=> $user->id, 'auth_type_id'=> 3], $data);
+        }
+
+        return redirect()->back()->with('message', '更新完成');
+    }
+
 
     public function stay_online_time(Request $request)
     {

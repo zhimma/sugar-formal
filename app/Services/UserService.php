@@ -1195,6 +1195,18 @@ class UserService
             else {
                 $isBlurAvatar = false;
             }
+
+            $getPr=$user->pr_log?$user->pr_log->pr:0;
+            foreach ($blurryAvatar as $value){
+                if(str_contains($value, 'PR_')){
+                    $set_pr_value=str_replace('PR_',"",$value);
+                    $isBlurAvatar=($set_pr_value>=$getPr) ? true : false;
+                }
+            }
+            if($user->isVVIP() || ($user->isVip() && $getPr>=80) ){
+                $isBlurAvatar = false;
+            }
+
         }
         return $isBlurAvatar;
     }
@@ -1216,6 +1228,18 @@ class UserService
             else {
                 $isBlurLifePhoto = false;
             }
+
+            $getPr=$user->pr_log?$user->pr_log->pr:0;
+            foreach ($blurryLifePhoto as $value){
+                if(str_contains($value, 'PR_')){
+                    $set_pr_value=str_replace('PR_',"",$value);
+                    $isBlurLifePhoto=($set_pr_value>=$getPr) ? true : false;
+                }
+            }
+            if($user->isVVIP() || ($user->isVip() && $getPr>=80) ){
+                $isBlurLifePhoto = false;
+            }
+
         }
         return $isBlurLifePhoto;
     }

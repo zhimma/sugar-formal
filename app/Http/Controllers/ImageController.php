@@ -382,6 +382,15 @@ class ImageController extends BaseController
                     $arr['pic_cat'] = 'avatar';
                    $this->handleUploadedFileForRealAuth($rap_service,$arr);
                 }
+
+                //更新大頭照模糊照片路徑
+                $avatarOriginPath=UserMeta::where('user_id', $userId)->first();
+                if(!is_null($avatarOriginPath) && $avatarOriginPath->pic){
+                    $blurPic=$this->createBlurPhoto($avatarOriginPath->pic);
+                    $avatarOriginPath->pic_blur=$blurPic;
+                    $avatarOriginPath->save();
+                }
+
                // UserMeta::where('user_id', $userId)->update(['pic' => $path, 'pic_original_name'=>$avatar[0]['old_name']]);
                 //if($user->engroup==2)
                //     \App\Jobs\SimilarImagesSearcher::dispatch($path);                
@@ -703,6 +712,16 @@ class ImageController extends BaseController
             if($rap_service->isApplyEffectByAuthTypeId(1)) {
                 $rap_service->updateModifyNewMemPicNum();
             }            
+
+            //更新生活照模糊照片路徑
+            $lifePhotoList=MemberPic::where('member_id', $userId)->get();
+            foreach ($lifePhotoList as $lifePhoto){
+                if(!is_null($lifePhoto->pic)){
+                    $blurPic=$this->createBlurPhoto($lifePhoto->pic);
+                    $lifePhoto->pic_blur=$blurPic;
+                    $lifePhoto->save();
+                }
+            }
         }
         
         $msg="上傳成功";
@@ -1155,5 +1174,35 @@ class ImageController extends BaseController
 
 
         return $upload['isSuccess'] ? $previous : $previous->withErrors($upload['warnings']);
+    }
+
+    //大頭照or生活照照片模糊處理
+    public function createBlurPhoto($originPath){
+
+        $blurPhotoPath='';
+        if(!empty($originPath))
+        {
+            $pic_path = public_path($originPath);
+            if(file_exists($pic_path)){
+                $file_name_string_start=strripos($originPath, '/');
+                $origin_file_name=str_replace('/', '',substr($originPath, -($file_name_string_start)));
+                $origin_file_extension=explode('.',$origin_file_name)[1];
+
+                $uploadDir_Blur= '/img/Blur/Member/'. substr($origin_file_name, 0, 4) .'/'. substr($origin_file_name, 4, 2) .'/'. substr($origin_file_name, 6, 2) .'/';
+                $blur_file_name=substr($origin_file_name, 0, 4).substr($origin_file_name, 4, 2). substr($origin_file_name, 6, 2).rand(100000000,999999999).'.'.$origin_file_extension;
+                $blurPhotoPath=$uploadDir_Blur.$blur_file_name;
+
+
+                if(!File::exists(public_path($uploadDir_Blur)))
+                    File::makeDirectory(public_path($uploadDir_Blur), 0777, true);
+
+                // 建立圖片實例
+                $img = Image::make(public_path($originPath));
+                $img->resize(400, 600, function ($constraint) {
+                    $constraint->aspectRatio();
+                })->blur(30)->save(public_path($blurPhotoPath));
+            }
+        }
+        return $blurPhotoPath;
     }
 }

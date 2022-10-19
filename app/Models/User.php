@@ -136,6 +136,18 @@ class User extends Authenticatable implements JWTSubject
         return $this->hasOne(\App\Models\SimpleTables\short_message::class, 'member_id', 'id')->where('mobile','!=','')->where('active', 1);
     }
 
+    public function self_auth_tags_display() {
+        return $this->hasOne(RealAuthUserTagsDisplay::class, 'user_id', 'id')->where('auth_type_id', 1);
+    }
+
+    public function beauty_auth_tags_display() {
+        return $this->hasOne(RealAuthUserTagsDisplay::class, 'user_id', 'id')->where('auth_type_id', 2);
+    }
+
+    public function famous_auth_tags_display() {
+        return $this->hasOne(RealAuthUserTagsDisplay::class, 'user_id', 'id')->where('auth_type_id', 3);
+    }
+
     public function pr_log() {
         return $this->hasOne(Pr_log::class, 'user_id', 'id')->where('active', 1);
     }

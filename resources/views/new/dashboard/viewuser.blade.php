@@ -503,7 +503,11 @@
 
                         <div class="swiper-container photo">
                             <div class="swiper-wrapper">
-                                <div class="swiper-slide @if($isBlurAvatar) blur_img @endif" data-type="avatar" data-sid="{{$to->id}}" data-pic_id=""><img src="@if(file_exists( public_path().$to->meta->pic ) && $to->meta->pic != ""){{$to->meta->pic}} @elseif($to->engroup==2)/new/images/female.png @else/new/images/male.png @endif"></div>
+                                @php
+                                    $getAvatarPath=($isBlurAvatar && $to->meta->pic_blur) ? $to->meta->pic_blur : $to->meta->pic;
+                                @endphp
+                                <div class="swiper-slide @if($isBlurAvatar) blur_img @endif" data-type="avatar" data-sid="{{$to->id}}" data-pic_id=""><img src="@if(file_exists( public_path().$getAvatarPath ) && $getAvatarPath != ""){{$getAvatarPath}} @elseif($to->engroup==2)/new/images/female.png @else/new/images/male.png @endif"></div>
+                                {{--<div class="swiper-slide @if($isBlurAvatar) blur_img @endif" data-type="avatar" data-sid="{{$to->id}}" data-pic_id=""><img src="@if(file_exists( public_path().$to->meta->pic ) && $to->meta->pic != ""){{$to->meta->pic}} @elseif($to->engroup==2)/new/images/female.png @else/new/images/male.png @endif"></div>--}}
                                 @php
                                     $ImgCount=1;
                                 @endphp
@@ -511,8 +515,10 @@
                                     @if(!str_contains($row->pic, 'IDPhoto'))
                                         @php
                                             $ImgCount+=1;
+                                            $getLifePhotoPath=($isBlurLifePhoto && $row->pic_blur) ? $row->pic_blur : $row->pic;
                                         @endphp
-                                        <div class="swiper-slide @if($isBlurLifePhoto) blur_img @endif" data-type="pic" data-sid="{{$to->id}}" data-pic_id="{{$row->id}}"><img src="{{$row->pic}}"></div>
+                                        <div class="swiper-slide @if($isBlurLifePhoto) blur_img @endif" data-type="pic" data-sid="{{$to->id}}" data-pic_id="{{$row->id}}"><img src="{{$getLifePhotoPath}}"></div>
+                                        {{--<div class="swiper-slide @if($isBlurLifePhoto) blur_img @endif" data-type="pic" data-sid="{{$to->id}}" data-pic_id="{{$row->id}}"><img src="{{$row->pic}}"></div>--}}
                                     @endif
                                 @endforeach
                                 @php
