@@ -349,7 +349,9 @@ is_truth_icon_pic.src="{{asset('/new/images/zz_zt2.png')}}";
             @include('new.dashboard.panel')
         </div>
         <div class="col-sm-12 col-xs-12 col-md-10">
+
             <div class="shou" style="text-align: center;position: relative;">
+                @if($isVip)
                 <a class="toug_back btn_imga1 userlogo1 xzgn" style="float: left; left: 0; ">
                     <div class="btn_back">刪除<img src="/new/images/jiant_a.png"></div>
                 </a>
@@ -382,6 +384,7 @@ is_truth_icon_pic.src="{{asset('/new/images/zz_zt2.png')}}";
                         <a class="banned_delete">刪除所有被封鎖會員</a>
                     @endif
                 </div>
+                @endif
                 <div class="fadeinboxs"></div>
                 {{-- <div class="sj_iconleft">
                     <a href="{{route('viewChatNotice')}}"><img src="/new/images/ncion_03.png"></a>
