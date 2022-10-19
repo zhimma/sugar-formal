@@ -339,6 +339,91 @@ is_truth_icon_pic.src="{{asset('/new/images/zz_zt2.png')}}";
         margin-top: 0;
         margin-bottom: 20px;
     }
+
+    @media (max-width:450px) {
+        .mad_tit{display: table; text-align: center; float: inherit; margin-left: inherit;}
+    }
+    .mad_tit font{ font-weight: normal !important}
+
+
+    @media (max-width:450px) {
+        .le_span{text-align: left;padding-left:40px;}
+    }
+    @media (max-width:320px) {
+        .le_span{text-align: left;padding-left:50px;}
+    }
+
+
+    .sjleft_b{ color: #fff !important;}
+    .d_dw{ position: relative;}
+    .denglu_nn{width: 12px; height: 12px; position: absolute; bottom: 0; right: 0px; background: #38b549; box-shadow: 0 2px 3px rgba(56,181,73,0.8);  border-radius: 100px;}
+
+    .deng_nn{background: linear-gradient(to TOP,#ff9225,#ffb86e);box-shadow: 2px 2px 0px #ff721d; border-radius: 100px;}
+    .deng_nn img{height: 7px !important;width: 7px !important;margin: 0 auto;display: table;margin-top: 4px;}
+    /*.sjpic{width: 65px; height: 65px;}*/
+    /*.sjpic img{width: 65px; height: 65px;}*/
+
+
+    .righ_nre{width: 120px; float: right;}
+    .righ_nre h3 {font-size: 12px !important;text-align: right ;color: #999999;line-height: 25px}
+    .righ_nre h4 {font-size: 12px;text-align: right ;color: #fe92a8; line-height: 25px; height: 25px;
+        -webkit-box-orient: vertical;text-overflow: ellipsis;overflow: hidden;width: 100%;display:block;white-space: nowrap; -webkit-line-clamp: 1;}
+    .sjleftzz{ margin-left: 0;
+        /*width: calc(100% - 110PX); */
+        float: left;}
+
+    .denglu_nn{left:50px;bottom: 6px;}
+    .si_bg{
+        margin-left: 16px;
+    }
+    @media (max-width: 767px){
+        .si_bg {width: 95%; /* margin-left: 13%; */}
+    }
+    @media (max-width: 450px){
+        .si_bg {width: 92%; /* margin-left: 13%; */}
+    }
+
+    .se_seccner {
+        width: 100%;
+        display: table;
+    }
+
+    /* 10-10 */
+    .se_seccner{width: 100%; display: table;}
+    .se_input{width:300px;  border: #fabbcc 1px solid; height: 25px; border-radius: 3px;  background: #fff; font-size: 12px; float: left;}
+    .se_in01{width:220px; border: none; background: transparent; height: 24px; color: #000;}
+    .se_button_a{ background: #fabbcc;border-radius: 3px;  height: 25px; color: #fff; float: right; width:60px; text-align: center; line-height: 24px;}
+
+
+    .se_rig_ff{width: calc(100% - 300px); float: right;}
+
+    .serit_aa{height:24px;background: url(/new/images/fengsuo.png) no-repeat;background-size: cover;line-height:24px; margin-left:5px; border-radius:100px;
+        box-shadow:3px 4px 10px #d5ddec;color: #87909c !important;text-align: center;padding: 0 5px;cursor: pointer;display: table; float: right;}
+    .serit_aa img{ height:16px;margin-right:2px; margin-top:0px;}
+    .serit_aa:hover{height: 26px;background: url(/new/images/fengsuo_h.png) no-repeat; background-size:cover;
+        box-shadow:3px 4px 10px #d5ddec;}
+
+
+    @media (max-width:824px){
+        .se_input{width: 300px; }
+        .se_rig_ff{width: calc(100% - 300px); float: right;}
+        .se_in01{width: 220px; border: none; background: transparent; height: 24px; color: #000;}
+        .se_button_a{ background: #fabbcc;border-radius: 3px;  height: 25px; color: #fff; float: right; width:60px; text-align: center; line-height: 24px;}
+
+    }
+
+    @media (max-width:540px){
+        .serit_aa{ font-size: 12px;}
+        .serit_aa img{ height:14px;margin-right:2px; margin-top:-2px;}
+        .se_input{width: 130px; }
+        .se_rig_ff{width: calc(100% - 135px); float: right;}
+        .se_in01{width: 95px; border: none; background: transparent; height: 24px; color: #000;}
+        .se_button_a{ background: #fabbcc;border-radius: 3px;  height: 25px; color: #fff; float: right; width:32px; text-align: center; line-height: 24px;}
+
+    }
+
+    .righ_nre h3{font-size: 12px !important;}
+
 </style>
 <!--引导弹出层-->
 <script type="text/javascript" src="/new/intro/intro.js"></script>
@@ -1135,7 +1220,7 @@ is_truth_icon_pic.src="{{asset('/new/images/zz_zt2.png')}}";
         {
             return new Date(dt.getFullYear(), dt.getMonth(), 1);
         }
-        function liContent(pic,user_name,content,created_at,read_n,i,user_id,isVip,show,isWarned,isBanned,exchange_period,isBlur=false,is_truth=false, isCan = false){
+        function liContent(pic,user_name,content,created_at,read_n,i,user_id,isVip,show,isWarned,isBanned,exchange_period,isBlur=false,is_truth=false, isCan = false, cityAndArea, message_user_note){
             showMsg = show;
             var li='';
             var ss =((i+1)>Page.row)?'display:none;':'display:none;';
@@ -1179,21 +1264,38 @@ is_truth_icon_pic.src="{{asset('/new/images/zz_zt2.png')}}";
             if(show==1) {
 
                 li += `<a href="${url}" target="_self">`;
+                if(engroup==1) {
+                    li += `<div style="width: 70px; float: left;">`;
+                }
                 if(is_truth) {
-                    li += `<img src="{{asset('/new/images/zz_zt2.png')}}" class="ys_gt1">`;
+                    li += `<img src="/new/images/zz_zt2.png" class="ys_gt1">`;
                 }else if(isCan) {
                     li += `<img src="/new/images/zz_zt1.png" class="ys_gt">`;
                 }
-                li += `<div class="sjpic ${styBlur} shanx" id="${user_id}">
-                        <img src="${pic}">
-                        <div class="onlineStatusChatView"></div>
-                    </div>
-                    <div class="sjleftmm">
-                        <div class="sjtable ${user_id}">${(read_n!=0 && isBanned==0?`<i class="number ${user_id}">${read_n}</i>`:'')}<span class="ellipsis" style="width: 60%;">${user_name}</span></div>
+                if(engroup==1){
+                    li += `<div class="sjpic ${styBlur} shanx" id="${user_id}" style="width: 65px; height: 65px;">
+                            <img src="${pic}" style="margin-top: 5px;width: 65px; height: 65px;">
+                            `;
+                }else {
+                    li += `<div class="sjpic ${styBlur} shanx" id="${user_id}">
+                            <img src="${pic}">
+                            `;
+                }
+                li += `<div class="onlineStatusChatView"></div>
+                       </div>`;
+                if(engroup==1) {
+                    li += `</div>
+                            <div style="width: calc(100% - 75px); float: right;">
+                            <div class="sjleftzz">
+                            `;
+                }else{
+                    li += `<div class="sjleftmm">`;
+                }
+                li += `<div class="sjtable ${user_id}">${(read_n != 0 && isBanned == 0 ? `<i class="number ${user_id}">${read_n}</i>` : '')}<span class="ellipsis" style="width: 60%;">${user_name}</span></div>
                   `;
             }else if(show==0 && engroup==2){
                 li += `<a href="javascript:void(0)" target="_self">
-                        <img src="{{asset('/new/images/zz_zt2.png')}}" class="ys_gt1">
+                        <img src="/new/images/zz_zt2.png" class="ys_gt1">
                         <div class="sjpic ${styBlur} shanx" id="${user_id}">
                             <img src="${pic}">
                             <div class="onlineStatusChatView"></div>
@@ -1226,43 +1328,68 @@ is_truth_icon_pic.src="{{asset('/new/images/zz_zt2.png')}}";
             //
             //       `;
             if(show==1) {
-                li += `
-                        <span class="box"><font class="ellipsis ${user_id}">${content}</font></span>
-                        </div>
-                        </a>
+                li += `<span class="box">
+                        <font class="ellipsis ${user_id}">${content}</font>
+                       </span>
+                       </div></a>
                    `;
             }else if(show==0 && engroup==1 && isBanned==0){
-                li += `
-                     <font><div  data-toggle="popover" data-content="試用會員只能看到舊的十筆訊息，如果想要看新的訊息請刪除舊的通訊紀錄。" style="width: 100%"><img src="/new/images/icon_35.png"></div></font>
-
-                     </div></a>
+                li += `<font>
+                        <div  data-toggle="popover" data-content="試用會員只能看到舊的十筆訊息，如果想要看新的訊息請刪除舊的通訊紀錄。" style="width: 100%"><img src="/new/images/icon_35.png"></div>
+                       </font>
+                       </div></a>
                    `;
             }else if(show==0 && engroup==2 && isBanned==0){
-                li += `
-                     <font><div data-toggle="popover" data-content="試用會員只能看到舊的十筆訊息，如果想要看新的訊息請刪除舊的通訊紀錄。" style="width: 100%"><img src="/new/images/icon_35.png"></div></font>
-
-                     </div></a>
+                li += `<font>
+                        <div data-toggle="popover" data-content="試用會員只能看到舊的十筆訊息，如果想要看新的訊息請刪除舊的通訊紀錄。" style="width: 100%"><img src="/new/images/icon_35.png"></div>
+                       </font>
+                       </div></a>
                    `;
             }
-            li += `
-                        <div class="sjright">
-                            <h3>${created_at}</h3>
-                            <h4>
-                  `;
-            if(userIsVip==1) {
-                li += `
-                        <a href="javascript:void(0)" onclick="block('${user_id}');"><img src="/new/images/del_05.png">封鎖</a>
-                      `;
-            }
-            li +=`
-                          <a href="javascript:void(0)" onclick="chk_delete('${del_url}');"><img src="/new/images/del_03.png">刪除</a>
-                         </h4>
-                        </div>
+            if(engroup==1) {
+                //新版測試
+                li += `<div class="righ_nre">
+                    <h3 style="font-size: 12px !important;">${created_at}</h3>
+                    <h4 style="margin-top: -3px;" data-toggle="popover" data-content="${cityAndArea}"><img src="/new/images/zs_jt11.png" style="height:16px; margin-right: 3px;">${cityAndArea}</h4>
+
+                </div>
+                <div class="se_seccner">
+                    <div class="se_input">
+                        <input placeholder="您尚未留下備註" class="se_in01" id="massage_user_note_${user_id}" value="${message_user_note}"><a href="javascript:void(0)" class="se_button_a" onclick="massage_user_note('${user_id}');">確定</a>
                     </div>
-            `;
+                    <div class="se_rig_ff">
+                `;
+                if (userIsVip == 1) {
+                    li += `<a href="javascript:void(0)" class="serit_aa" onclick="block('${user_id}');"><img src="/new/images/ncion_11.png">封鎖</a>
+                      `;
+                }
+
+                li += `<a href="javascript:void(0)" class="serit_aa" onclick="chk_delete('${del_url}');"><img src="/new/images/del_03n.png">刪除</a>`;
+                li += `</div>
+                       </div>
+                        `;
+
+            }else{
+                li += `<div class="sjright">
+                <h3>${created_at}</h3>
+                <h4>
+                    `;
+
+                if (userIsVip == 1) {
+                    li += `<a href="javascript:void(0)" onclick="block('${user_id}');"><img src="/new/images/del_05.png">封鎖</a>
+                      `;
+                }
+
+                li += `<a href="javascript:void(0)" onclick="chk_delete('${del_url}');"><img src="/new/images/del_03.png">刪除</a>
+                </h4>
+            </div>
+            </div>
+                `;
+            }
+
+            //vipOnlyAlert end
             if(show==0){
-                li += `
-                     </div>
+                li += `</div>
                    `;
             }
 
@@ -1398,13 +1525,13 @@ is_truth_icon_pic.src="{{asset('/new/images/zz_zt2.png')}}";
                         if (userIsVip != 1 && i < hide_vip_counts && hide_vip_counts > 0 ) {
                             if(e.user_id == 1049 || e.isBanned==1){
                                 //hide_vip_counts = hide_vip_counts-1;
-                                if (e && e.user_id) li = liContent(e.pic, e.user_name, e.content, e.created_at, e.read_n, i, e.user_id, e.isVip, 1,e.isWarned,e.isBanned,e.exchange_period,isBlur,e.is_truth, e.isCan);
+                                if (e && e.user_id) li = liContent(e.pic, e.user_name, e.content, e.created_at, e.read_n, i, e.user_id, e.isVip, 1,e.isWarned,e.isBanned,e.exchange_period,isBlur,e.is_truth, e.isCan, e.cityAndArea, e.message_user_note);
                             }else {							
-                                if (e && e.user_id) li = liContent(e.pic, e.user_name, e.content, e.created_at, e.read_n, i, e.user_id, e.isVip, 0,e.isWarned,e.isBanned,e.exchange_period,isBlur,e.is_truth, e.isCan);
+                                if (e && e.user_id) li = liContent(e.pic, e.user_name, e.content, e.created_at, e.read_n, i, e.user_id, e.isVip, 0,e.isWarned,e.isBanned,e.exchange_period,isBlur,e.is_truth, e.isCan, e.cityAndArea, e.message_user_note);
                             }
                         }else {
 							//if(e.isBanned==1) hide_vip_counts = hide_vip_counts+1;
-                            if (e && e.user_id) li = liContent(e.pic, e.user_name, e.content, e.created_at, e.read_n, i, e.user_id, e.isVip, 1,e.isWarned,e.isBanned,e.exchange_period,isBlur,e.is_truth, e.isCan);
+                            if (e && e.user_id) li = liContent(e.pic, e.user_name, e.content, e.created_at, e.read_n, i, e.user_id, e.isVip, 1,e.isWarned,e.isBanned,e.exchange_period,isBlur,e.is_truth, e.isCan, e.cityAndArea, e.message_user_note);
                         }
 
                         var has_vvip_msg_count=0;
@@ -1946,7 +2073,7 @@ is_truth_icon_pic.src="{{asset('/new/images/zz_zt2.png')}}";
                         @endif
                     }, 300);
 
-                    $('div[data-toggle="popover"]').popover({
+                    $('[data-toggle="popover"]').popover({
                         animated: 'fade',
                         placement: 'bottom',
                         trigger: 'hover',
@@ -2270,6 +2397,19 @@ is_truth_icon_pic.src="{{asset('/new/images/zz_zt2.png')}}";
             return false;
         }
 
+    function massage_user_note(sid){
+        let massage_user_note_content = $('#massage_user_note_' + sid).val();
+        $.post('{{ route('messageUserNoteAJAX') }}', {
+            user_id: '{{ $user->id }}',
+            target_id: sid,
+            massage_user_note_content: massage_user_note_content,
+            _token: '{{ csrf_token() }}'
+        }, function (data) {
+            c5('備註已更新');
+        });
+        return false;
+    }
+
         function banned(sid,name){
             $("input[name='uid']").val(sid);
             $(".banned_name").append("<span>" + name + "</span>")
@@ -2413,7 +2553,6 @@ is_truth_icon_pic.src="{{asset('/new/images/zz_zt2.png')}}";
 @stop
 
 @section('javascript')
-
 
 <style>
     .box {
@@ -2735,5 +2874,17 @@ is_truth_icon_pic.src="{{asset('/new/images/zz_zt2.png')}}";
             $('#announce_bg').show();
         }
 
+
 </script>
+// <script type="application/javascript">
+//     $(document).ready(function(){
+//         $('[data-toggle="popover"]').popover({
+//             animated: 'fade',
+//             placement: 'bottom',
+//             trigger: 'hover',
+//             html: true,
+//             content: function () { return '<h4>' + $(this).data('content') + '</h4>'; }
+//         });
+//     });
+// </script>
 @stop
