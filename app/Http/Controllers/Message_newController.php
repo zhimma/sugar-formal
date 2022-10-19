@@ -608,7 +608,7 @@ class Message_newController extends BaseController {
             $data_all = Message_new::allSendersAJAX($user->id, $user->isVip(),'all');
             $message_with_user_count = (is_countable($data_all) && array_get($data_all,'0')!=='No data') ? count($data_all) : 0;
 
-            $data['exchange_period_name']   =   ExchangePeriodName::get();
+            $data['exchange_period_name']   =   ExchangePeriodName::orderByRaw("FIELD(id,1,3,2)")->get();
             // $data['total_message']  =   
             // \App\Models\Message::unread($user_id)
 
