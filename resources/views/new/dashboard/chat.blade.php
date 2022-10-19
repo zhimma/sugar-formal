@@ -307,9 +307,8 @@ is_truth_icon_pic.src="{{asset('/new/images/zz_zt2.png')}}";
                 </a>
                 <div class="fabiao1 showslide">
                     @if($message_with_user_count >= 60)
-                    
+                        <a class="" onclick="MutilpleDelete()">大量刪除</a>
                     @endif
-                    <a class="all_delete">大量刪除</a>
                     @if($user->is_admin_chat_channel_open)
                         @if(($isVip && ($user->engroup==1 || $user->engroup==2)) || (!$isVip && $user->engroup==2))
                             <a class="admin_delete">刪除所有站長來訊</a>
@@ -2704,22 +2703,10 @@ is_truth_icon_pic.src="{{asset('/new/images/zz_zt2.png')}}";
 
 
         @endif
-
-        @if($message_with_user_count>60 || $message_with_user_count>150 || $message_with_user_count>250)
-            @if($message_with_user_count>250)
-                $('#more_people_cnt').text('250');
-            @elseif($message_with_user_count>150)
-                $('#more_people_cnt').text('150');
-            @elseif($message_with_user_count>60)
-                $('#more_people_cnt').text('60');
-            @endif
-            //localStorage.removeItem('showDeleteMutipleMessagePopUp');
-            //alert('localStorage.getItem('showDeleteMutipleMessagePopUp'));
-            if(localStorage.getItem('showDeleteMutipleMessagePopUp')!=='N'){
-                $('#deleteMutipleMessagePopUp').show();
-                $('#announce_bg').show();
-            }
-        @endif
+        function MutilpleDelete() {
+            $('#deleteMutipleMessagePopUp').show();
+            $('#announce_bg').show();
+        }
 
 </script>
 @stop
