@@ -35,4 +35,4 @@ return new class extends Migration
     {
         Schema::dropIfExists('real_auth_user_tags_display');
     }
-}
+};
