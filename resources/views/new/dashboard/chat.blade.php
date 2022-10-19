@@ -358,7 +358,7 @@ is_truth_icon_pic.src="{{asset('/new/images/zz_zt2.png')}}";
                 </a>
                 <div class="fabiao1 showslide">
                     @if($message_with_user_count >= 60)
-                        <a class="" onclick="MutilpleDelete()">大量刪除</a>
+                        <a class="" onclick="MutilpleDelete()">大量刪除訊息</a>
                     @endif
                     @if($user->is_admin_chat_channel_open)
                         @if(($isVip && ($user->engroup==1 || $user->engroup==2)) || (!$isVip && $user->engroup==2))
