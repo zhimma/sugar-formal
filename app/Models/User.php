@@ -68,7 +68,6 @@ class User extends Authenticatable implements JWTSubject
         'login_times',
         'intro_login_times',
         'isReadManual',
-        'female_manual_login_times',
         'is_read_female_manual_part1',
         'is_read_female_manual_part2',
         'is_read_female_manual_part3',

@@ -41,8 +41,6 @@ class NewerManual
 
             if($this->auth->user()->engroup==2){
                 //女會員教學
-
-                $female_manual_login_times=$this->auth->user()->female_manual_login_times;
                 if(session()->get('female_manual_has_been_read', 0) ==0){
 
                     $version='';
