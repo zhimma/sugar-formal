@@ -103,6 +103,37 @@
         height: 34px;
         padding-left: 6px;
     }
+    .fabiao2 {
+        width: 90px;
+        background: linear-gradient(to right, #fff6f7, #ffd8e3);
+        border-radius: 10px;
+        display: none;
+        padding: 5px 0;
+        box-shadow: 0 5px 10px #e398a4;
+        position: absolute;
+        right: 0;
+        cursor: pointer;
+        z-index: 3;
+        color: #333333;
+        text-align: center;
+    }
+    .fabiao2 a {
+        width: 90%;
+        display: table;
+        margin: 0 auto;
+        line-height: 30px;
+        border-bottom: #fd5678 1px dashed;
+        color: #333333;
+        cursor: pointer;
+    }
+    .fabiao2 a:hover {
+        color: #ee5472;
+        background: #ffc9d8;
+    }
+    .ys_inbut {
+        margin-right: 40px;
+        margin-bottom: 20px;
+    }
 </style>
 @if($user->isVip())
 <script>
@@ -124,10 +155,27 @@ is_truth_icon_pic.src="{{asset('/new/images/zz_zt2.png')}}";
             $('.fadeinboxs').fadeIn()
             $('.showslide').fadeIn()
         }
-    })
+    });
+    $('.userlogo').click(function(){
+        event.stopPropagation()
+        if($(this).hasClass('')){
+            $(this).removeClass('')
+            $('.fadeinboxs').fadeOut()
+            $('.showslide1').fadeOut()
+        }else{
+            $(this).addClass('')
+            $('.fadeinboxs').fadeIn()
+            $('.showslide1').fadeIn()
+        }
+    });
     $('body').click(function(){
         $('.showslide').fadeOut()
+        $('.showslide1').fadeOut()
         $('.fadeinboxs').fadeOut()
+    })
+    $('.setDay').click(function(){
+        let day = $(this).data('day');
+        $('#daysSelect').val(day).trigger('change');
     })
 </script>
 @endpush
@@ -340,7 +388,15 @@ is_truth_icon_pic.src="{{asset('/new/images/zz_zt2.png')}}";
                 </div> --}}
                 <span style="border-bottom: unset;">收件夾</span>
                 <font>Inbox</font>
-                <div class="sj_iconright"><img src="/new/images/sj_icon2.png"></div>
+                <a class="toug_back btn_imga1 userlogo xzgn" style="top: 0;"> 
+                    <div class="btn_back">訊息<img src="/new/images/jiant_a.png"></div>
+                </a>
+                <div class="fabiao2 showslide1" style="display: none;top: 48px; z-index: 101;">
+                    <a class="setDay" data-day="all">全部</a>
+                    <a class="setDay" data-day="7">7天内</a>
+                    <a class="setDay" data-day="30">30天内</a>
+                </div>
+                <!-- <div class="sj_iconright"><img src="/new/images/sj_icon2.png"></div> -->
             </div>
             <div class="n_shtab">
                 <h2 data-step="1" data-highlightClass="yd1a" data-tooltipClass="yd1"
@@ -356,7 +412,7 @@ is_truth_icon_pic.src="{{asset('/new/images/zz_zt2.png')}}";
                 </h2>
             </div>
             <div class="d-table">
-                <div class="select_cont msg_select_cont">
+                <div class="select_cont msg_select_cont" style="display:none">
                     <select id="daysSelect" class="right">
                         {{-- <option value="7">訊息</option>--}}
                         <option value="7">7天内</option>
@@ -1928,38 +1984,6 @@ is_truth_icon_pic.src="{{asset('/new/images/zz_zt2.png')}}";
         });
 
         $('#daysSelect').on('change', function() {
-        // $('input[name=RadioGroup1]').on('click', function(event) {
-
-            // $('.lebox1,.lebox2,.lebox3,.lebox_alert').removeClass('off');
-            // $('.lebox1,.lebox2,.lebox3,.lebox_alert').removeClass('on');
-            {{--$('.lebox1').removeClass('off');--}}
-            {{--$('.lebox1').removeClass('on');--}}
-            {{--// $('.lebox1').toggleClass('on');--}}
-
-            {{--@if($user->engroup==2)--}}
-            {{--$('.lebox1').toggleClass('on');--}}
-            {{--@elseif($user->engroup==1)--}}
-            {{--$('.lebox1').toggleClass('off');--}}
-            {{--@endif--}}
-            {{--$('.lebox2,.lebox3,.lebox_alert').removeClass('off');--}}
-            {{--$('.lebox2,.lebox3,.lebox_alert').removeClass('on');--}}
-            {{--$('.lebox2,.lebox3,.lebox_alert').toggleClass('off');--}}
-            {{--$('.lebox2,.lebox3,.lebox_alert').next('dd').show();--}}
-            {{--$('.lebox2,.lebox3,.lebox_alert').next('dd').slideToggle();--}}
-
-{{--            @if($user->engroup==2)--}}
-{{--            $('.lebox1,.lebox2,.lebox3,.lebox_alert').removeClass('on off');--}}
-{{--            $('.lebox1').toggleClass('on');--}}
-{{--            $('.lebox2,.lebox3,.lebox_alert').toggleClass('off');--}}
-{{--            // $('.lebox2,.lebox3,.lebox_alert').next('dd').slideToggle("slow");--}}
-{{--            @elseif($user->engroup==1)--}}
-{{--            $('.lebox1,.lebox2,.lebox3,.lebox_alert').removeClass('on off');--}}
-{{--            $('.lebox1,.lebox2,.lebox3,.lebox_alert').toggleClass('off');--}}
-{{--            // $('.lebox1,.lebox2,.lebox3,.lebox_alert').next('dd').slideToggle("slow");--}}
-{{--            @endif--}}
-
-
-            // date= $('input[name=RadioGroup1]:checked').val();
             date= $("#daysSelect option:selected").val();
             window.location.hash = '#'+ date;
             @if($user->engroup==1)
@@ -2212,7 +2236,6 @@ is_truth_icon_pic.src="{{asset('/new/images/zz_zt2.png')}}";
                         }
                     }
             }
-
         });
 
         function chk_delete(url) {
