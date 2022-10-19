@@ -3857,11 +3857,14 @@ class PagesController extends BaseController
     public function female_newer_manual(Request $request) {
         $user = $request->user();
         if ($user) {
+            if($user-> is_read_female_manual_part1)
+            $version=1;
+            if($user-> is_read_female_manual_part2)
+            $version=2;
+            if($user-> is_read_female_manual_part3)
             $version=3;
-            if($user->female_manual_login_times==1)
-                $version=1;
-            else if($user->female_manual_login_times==2)
-                $version=2;
+            
+
 
             return view('new.dashboard.female_newer_manual')
                 ->with('show_sop_type', $version)

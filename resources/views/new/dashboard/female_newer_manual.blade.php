@@ -348,7 +348,7 @@ if(location.hash=='' ) {
                             <a class="prev">上一頁</a>
                             <a class="next" href="#{{$no_read_hash_str??''}}{{$show_sop_type}}_2">下一頁</a>
                             {{--                            @if($user->isReadManual == 0)--}}
-{{--                            <a class="finish" data-sop_manual="three">結束新手教學</a>--}}
+                            <a class="finish" data-sop_manual="three">結束新手教學</a>
                             {{--                            @endif--}}
                         </div>
                     </div>
