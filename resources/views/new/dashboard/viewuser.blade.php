@@ -362,6 +362,10 @@
             text-align: center;
             line-height: 35px;
         }
+        .ri_button_a:hover {
+            background: #ffa9bc;
+            color: #fff;
+        }
     </style>
     <style>
         .he_tkcn ul a span {text-align:left;font-size:unset;}
@@ -760,7 +764,7 @@
                             @endif
                         </div>
                         <div class="ri_xixn">
-                            <input placeholder="您尚未留下備註" class="ri_xixn_input" id="massage_user_note_{{$to->id}}" value=""><a href="" class="ri_button_a" onclick="massage_user_note('{{$to->id}}');">確定</a>
+                            <input placeholder="您尚未留下備註" class="ri_xixn_input" id="massage_user_note_{{$to->id}}" value="{{$note?$note->note:''}}"><a href="" class="ri_button_a" onclick="massage_user_note('{{$to->id}}');">確定</a>
                         </div>
                     </div>
                     <div class="bottub">
