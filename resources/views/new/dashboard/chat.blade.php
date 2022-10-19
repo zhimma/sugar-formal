@@ -176,6 +176,7 @@ is_truth_icon_pic.src="{{asset('/new/images/zz_zt2.png')}}";
     $('.setDay').click(function(){
         let day = $(this).data('day');
         $('#daysSelect').val(day).trigger('change');
+        $('#day_text').text($(this).text());
     })
 </script>
 @endpush
@@ -392,12 +393,12 @@ is_truth_icon_pic.src="{{asset('/new/images/zz_zt2.png')}}";
                 <span style="border-bottom: unset;">收件夾</span>
                 <font>Inbox</font>
                 <a class="toug_back btn_imga1 userlogo xzgn" style="top: 0;"> 
-                    <div class="btn_back">訊息<img src="/new/images/jiant_a.png"></div>
+                    <div class="btn_back"><c id="day_text">7天内</c><img src="/new/images/jiant_a.png"></div>
                 </a>
                 <div class="fabiao2 showslide1" style="display: none;top: 48px; z-index: 101;">
-                    <a class="setDay" data-day="all">全部</a>
                     <a class="setDay" data-day="7">7天内</a>
                     <a class="setDay" data-day="30">30天内</a>
+                    <a class="setDay" data-day="all">全部</a>
                 </div>
                 <!-- <div class="sj_iconright"><img src="/new/images/sj_icon2.png"></div> -->
             </div>

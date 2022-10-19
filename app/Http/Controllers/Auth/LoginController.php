@@ -201,7 +201,7 @@ class LoginController extends \App\Http\Controllers\BaseController
         }
 
         $user = User::query()
-                    ->select('id', 'engroup', 'email', 'last_login', 'login_times', 'intro_login_times', 'female_manual_login_times', 'line_notify_alert', 'registered_from_mobile')
+                    ->select('id', 'engroup', 'email', 'last_login', 'login_times', 'intro_login_times', 'line_notify_alert', 'registered_from_mobile')
                     ->withOut(['vip', 'user_meta'])
                     ->where('email', $request->email)->get()->first();
 
