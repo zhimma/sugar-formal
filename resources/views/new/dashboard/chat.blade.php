@@ -20,6 +20,10 @@
         margin-top: -3px;
         margin-right: 2px;
     }
+    .toug_back:hover {
+        color: #ffffff;
+        box-shadow: inset 0px 13px 10px -10px #f83964, inset 0px -10px 10px -20px #f83964;
+    }
     .toug_back {
         background: #fe92a8;
         border-radius: 100em;
@@ -88,6 +92,16 @@
         display: none;
         top: 0;
         z-index: 100;
+    }
+    .btn_imga1:hover {
+        box-shadow: unset;
+    }
+    .btn_imga1:hover>.btn_back {
+        width: 100%;
+        background: url(/new/images/fanhui_2.png) no-repeat 0 0;
+        background-size: 100% 100%;
+        height: 34px;
+        padding-left: 6px;
     }
 </style>
 @if($user->isVip())
@@ -292,7 +306,10 @@ is_truth_icon_pic.src="{{asset('/new/images/zz_zt2.png')}}";
                     <div class="btn_back">刪除<img src="/new/images/jiant_a.png"></div>
                 </a>
                 <div class="fabiao1 showslide">
-                    <a href="">大量刪除</a>
+                    @if($message_with_user_count >= 60)
+                    
+                    @endif
+                    <a class="all_delete">大量刪除</a>
                     @if($user->is_admin_chat_channel_open)
                         @if(($isVip && ($user->engroup==1 || $user->engroup==2)) || (!$isVip && $user->engroup==2))
                             <a class="admin_delete">刪除所有站長來訊</a>
@@ -2233,6 +2250,20 @@ is_truth_icon_pic.src="{{asset('/new/images/zz_zt2.png')}}";
             $(".announce_bg").show();
             $("#show_banned_ele").show();
         }
+
+        // $('.all_delete').on('click', function() {
+
+        //     var IDs = [];
+        //     $('.system_log dd').find('li.row_data').each(function(){ IDs.push(this.id); });
+        //     // alert(IDs);
+        //     // alert($('.sjlist_vip.row_data>li:visible').length);
+        //     if($.trim(IDs) !== '') {
+        //         c8('確定要全部刪除嗎?');
+        //         deleteRowAll(IDs);
+        //     }else{
+        //         c5('沒有可刪除資料');
+        //     }
+        // });
 
         $('.vvip_delete').on('click', function() {
 
