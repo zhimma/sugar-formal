@@ -669,7 +669,13 @@ class Message_new extends Model
                     $cityList = explode(',', $msgUser->user_meta->city);
                     $areaList = explode(',', $msgUser->user_meta->area);
                     foreach ($cityList as $k => $city) {
-                        $cityAndArea .= $cityList[$k] . $areaList[$k] . ((count($cityList) - 1) == $k ? '' : '/');
+                        try {
+                            $cityAndArea .= $cityList[$k] . $areaList[$k] . ((count($cityList) - 1) == $k ? '' : '/');
+                        }
+                        catch (\Exception $e) {                            
+                            \Sentry\captureMessage('city and area error: ' . $e->getMessage());
+                            \Sentry\captureMessage('user: ' . $msgUser);
+                        }
                     }
                 }
                 $messages[$key]['cityAndArea'] = $cityAndArea;
