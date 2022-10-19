@@ -74,6 +74,21 @@
         color: #ee5472;
         background: #ffc9d8;
     }
+    .showslide {
+        left: 0;
+        top: 48px;
+        z-index: 101;
+    }
+    .fadeinboxs {
+        width: 100%;
+        height: 100%;
+        background: rgba(255, 255, 255, 0);
+        position: fixed;
+        left: 0;
+        display: none;
+        top: 0;
+        z-index: 100;
+    }
 </style>
 @if($user->isVip())
 <script>
@@ -272,11 +287,11 @@ is_truth_icon_pic.src="{{asset('/new/images/zz_zt2.png')}}";
             @include('new.dashboard.panel')
         </div>
         <div class="col-sm-12 col-xs-12 col-md-10">
-            <div class="shou" style="text-align: center;">
+            <div class="shou" style="text-align: center;position: relative;">
                 <a class="toug_back btn_imga1 userlogo1 xzgn" style="float: left; left: 0; ">
                     <div class="btn_back">刪除<img src="/new/images/jiant_a.png"></div>
                 </a>
-                <div class="fabiao1 showslide" style="left: 0; top: 48px;z-index: 101;">
+                <div class="fabiao1 showslide">
                     <a href="">大量刪除</a>
                     @if($user->is_admin_chat_channel_open)
                         @if(($isVip && ($user->engroup==1 || $user->engroup==2)) || (!$isVip && $user->engroup==2))
@@ -303,6 +318,7 @@ is_truth_icon_pic.src="{{asset('/new/images/zz_zt2.png')}}";
                         <a class="banned_delete">刪除所有被封鎖會員</a>
                     @endif
                 </div>
+                <div class="fadeinboxs"></div>
                 {{-- <div class="sj_iconleft">
                     <a href="{{route('viewChatNotice')}}"><img src="/new/images/ncion_03.png"></a>
                 </div> --}}

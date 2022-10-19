@@ -609,6 +609,8 @@ class Message_newController extends BaseController {
             $message_with_user_count = (is_countable($data_all) && array_get($data_all,'0')!=='No data') ? count($data_all) : 0;
 
             $data['exchange_period_name']   =   ExchangePeriodName::get();
+            // $data['total_message']  =   
+            // \App\Models\Message::unread($user_id)
 
             return view('new.dashboard.chat',$data)
                 ->with('user', $user)
