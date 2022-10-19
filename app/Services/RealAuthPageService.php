@@ -822,6 +822,7 @@ class RealAuthPageService {
             break;
         }        
         
+        /*
         return '
                         '.($is_in_search?'<div class="hoverTip">':'<li>').'
                             <div class="tagText"  data-toggle="popover" data-content="此會員通過本站的基本資料/照片與視訊認證。推薦給各位 vvip 會員。">
@@ -829,6 +830,9 @@ class RealAuthPageService {
                             </div>
                         '.($is_in_search?'</div>':'</li>').'        
                 ';
+        */
+        return '';
+
     }
 
     public function getFamousAuthTagShowOnPicLayoutByLoginedUserIsVip($is_vip,$is_in_search=false)
@@ -843,6 +847,7 @@ class RealAuthPageService {
             break;
         }
         
+        /*
         return '
                        '.($is_in_search?'<div class="hoverTip">':'<li>').'
                             <div class="tagText"  data-toggle="popover" data-content="本站的名人認證會員。">
@@ -850,6 +855,9 @@ class RealAuthPageService {
                             </div> 
                          '.($is_in_search?'</div>':'</li>').'          
                 ';
+        */
+        return '';
+
     }    
     
     public function getLatestActualUnchekedHeightModifyEntry() 

@@ -1199,31 +1199,24 @@ header("Expires: Fri, 01 Jan 1990 00:00:00 GMT");
                                     csrData +='<img src="/new/images/zz_02.png" style="float: right;">';
                                 }
 
-                                if(!rowVisitorIsBeautyAuth && !rowVisitorIsFamousAuth)
+                                let blue_tick = 0;
+                                if(rowVisitorIsAdvanceAuth == 1)
                                 {
-                                    let blue_tick = 0;
-                                    
-                                    if(rowVisitorIsAdvanceAuth == 1)
-                                    {
-                                        blue_tick = blue_tick + 1;
-                                    }
-
-                                    if(rowVisitorIsSelfAuth == 1)
-                                    {
-                                        blue_tick = blue_tick + 1;
-                                    }
-
-                                    if(blue_tick == 2)
-                                    {
-                                        csrData +='<img src="/new/images/zz_zss.png" style="border-radius: 100px; box-shadow:1px 2px 10px rgba(77,152,252,1); height:20px; margin-top:6px;">';
-                                        csrData +='<img src="/new/images/zz_zss.png" style="border-radius: 100px; box-shadow:1px 2px 10px rgba(77,152,252,1); height:20px; margin-left: -8px; margin-top: 6px">';
-                                    }
-                                    else if(blue_tick == 1)
-                                    {
-                                        csrData +='<img src="/new/images/zz_zss.png" style="border-radius: 100px; box-shadow:1px 2px 10px rgba(77,152,252,1); height:20px; margin-top:6px;">';
-                                    }
+                                    blue_tick = blue_tick + 1;
                                 }
-                                
+                                if(rowVisitorIsSelfAuth == 1)
+                                {
+                                    blue_tick = blue_tick + 1;
+                                }
+                                if(blue_tick == 2)
+                                {
+                                    csrData +='<img src="/new/images/zz_zss.png" style="border-radius: 100px; box-shadow:1px 2px 10px rgba(77,152,252,1); height:20px; margin-top:6px;">';
+                                    csrData +='<img src="/new/images/zz_zss.png" style="border-radius: 100px; box-shadow:1px 2px 10px rgba(77,152,252,1); height:20px; margin-left: -8px; margin-top: 6px">';
+                                }
+                                else if(blue_tick == 1)
+                                {
+                                    csrData +='<img src="/new/images/zz_zss.png" style="border-radius: 100px; box-shadow:1px 2px 10px rgba(77,152,252,1); height:20px; margin-top:6px;">';
+                                }
                             }                            
                             if(this.isRealAuthNeedShowTagOnPic(row)) {
                                 csrData += this.getTagShowOnPic(row);
