@@ -36,6 +36,7 @@ use Illuminate\Http\Request;
 use App\Services\UserService;
 use App\Services\AdminService;
 use App\Services\FaqService;
+use App\Services\FaqUserService;
 use App\Services\MessageService;
 use App\Services\ShortMessageService;
 use App\Http\Requests\UserInviteRequest;
@@ -86,12 +87,13 @@ use Illuminate\Support\Facades\Log;
 
 class UserController extends \App\Http\Controllers\BaseController
 {
-    public function __construct(UserService $userService, AdminService $adminService,RealAuthAdminService $raa_service,MessageService $messageService)
+    public function __construct(UserService $userService, AdminService $adminService,RealAuthAdminService $raa_service,MessageService $messageService,FaqUserService $faqUserService)
     {
         $this->service = $userService;
         $this->admin = $adminService;
         $this->raa_service = $raa_service->riseByUserService($this->service);
         $this->messageService = $messageService;
+        $this->faqUserService = $faqUserService;
     }
 
     /**
@@ -1724,7 +1726,7 @@ class UserController extends \App\Http\Controllers\BaseController
         $not_pass_faq_ltime = '';
         
         if($user->engroup==2) {
-            $not_pass_faq_ltime = $user->faq_user_group()->with('faq_group')->where('is_pass',0)->whereHas('faq_group',function($q) {$q->whereHas('faq_user_reply_not_pass');})->get()->pluck('faq_group.faq_login_times')->implode('/');
+            $not_pass_faq_ltime = $this->faqUserService->faq_service()->group_entry()->whereIn('id',$this->faqUserService->riseByUserEntry($user)->getPopupUserGroupList()->pluck('group_id'))->pluck('faq_login_times')->implode(' , ');
         }
 
         if (str_contains(url()->current(), 'edit')) {
