@@ -134,10 +134,16 @@ is_truth_icon_pic.src="{{asset('/new/images/zz_zt2.png')}}";
         .sjleftmm {
             width: 57%;
         }
+        .sjleftzz {
+            width: 57%;
+        }
     }
 
     @media (max-width:320px) {
         .sjleftmm {
+            width: 50%;
+        }
+        .sjleftzz {
             width: 50%;
         }
     }
@@ -197,13 +203,77 @@ is_truth_icon_pic.src="{{asset('/new/images/zz_zt2.png')}}";
     /*.sjpic img{width: 65px; height: 65px;}*/
 
 
-    .righ_nre{width: 120px; float: right;}
+    .righ_nre{width: 109px; float: right;}
     .righ_nre h3 {font-size: 12px !important;text-align: right ;color: #999999;line-height: 25px}
     .righ_nre h4 {font-size: 12px;text-align: right ;color: #fe92a8; line-height: 25px; height: 25px;
         -webkit-box-orient: vertical;text-overflow: ellipsis;overflow: hidden;width: 100%;display:block;white-space: nowrap; -webkit-line-clamp: 1;}
     .sjleftzz{ margin-left: 0;
-        /*width: calc(100% - 110PX); */
-        float: left;}
+        /*width: calc(100% - 110PX);*/
+        float: left;
+        text-overflow: ellipsis;
+    }
+
+    .sjleftzz {
+        width: 60%;
+        height: 50px;
+        float: left;
+        line-height: 25px;
+        margin-left: 10px;
+        text-overflow: ellipsis;
+        white-space: nowrap;
+        display: block;
+    }
+
+    .sjleftzz span {
+        font-size: 14px;
+        text-align: left !important;
+        height: 25px;
+        float: left;
+        -webkit-line-clamp: 3;
+        white-space: nowrap;
+        display: -webkit-box;
+        -webkit-box-orient: vertical;
+        overflow: hidden !important;
+    }
+
+    .sjleftzz font {
+        font-size: 14px;
+        height: 25px;
+        overflow: hidden;
+        text-align: left;
+        color: #999999;
+        display: block;
+        text-overflow: ellipsis;
+        /*white-space: nowrap*/
+    }
+
+    .sjleftzz font img {
+        height: 20px
+    }
+
+    @media (max-width:450px) {
+        .sjleftzz {
+            width: 55%;
+        }
+    }
+
+    @media (max-width:375px) {
+        .sjleftzz {
+            width: 55%;
+        }
+    }
+
+    @media (max-width:360px) {
+        .sjleftzz {
+            width: 52%;
+        }
+    }
+
+    @media (max-width:320px) {
+        .sjleftzz {
+            width: 45%;
+        }
+    }
 
     .denglu_nn{left:50px;bottom: 6px;}
     .si_bg{
@@ -223,7 +293,7 @@ is_truth_icon_pic.src="{{asset('/new/images/zz_zt2.png')}}";
 
     /* 10-10 */
     .se_seccner{width: 100%; display: table;}
-    .se_input{width:300px;  border: #fabbcc 1px solid; height: 25px; border-radius: 3px;  background: #fff; font-size: 12px; float: left;}
+    .se_input{width:auto;  border: #fabbcc 1px solid; height: 25px; border-radius: 3px;  background: #fff; font-size: 12px; float: left;}
     .se_in01{width:220px; border: none; background: transparent; height: 24px; color: #000;}
     .se_button_a{ background: #fabbcc;border-radius: 3px;  height: 25px; color: #fff; float: right; width:60px; text-align: center; line-height: 24px;}
 
@@ -238,7 +308,7 @@ is_truth_icon_pic.src="{{asset('/new/images/zz_zt2.png')}}";
 
 
     @media (max-width:824px){
-        .se_input{width: 300px; }
+        .se_input{width: auto; }
         .se_rig_ff{width: calc(100% - 300px); float: right;}
         .se_in01{width: 220px; border: none; background: transparent; height: 24px; color: #000;}
         .se_button_a{ background: #fabbcc;border-radius: 3px;  height: 25px; color: #fff; float: right; width:60px; text-align: center; line-height: 24px;}
@@ -248,7 +318,7 @@ is_truth_icon_pic.src="{{asset('/new/images/zz_zt2.png')}}";
     @media (max-width:540px){
         .serit_aa{ font-size: 12px;}
         .serit_aa img{ height:14px;margin-right:2px; margin-top:-2px;}
-        .se_input{width: 130px; }
+        .se_input{width: auto; }
         .se_rig_ff{width: calc(100% - 135px); float: right;}
         .se_in01{width: 95px; border: none; background: transparent; height: 24px; color: #000;}
         .se_button_a{ background: #fabbcc;border-radius: 3px;  height: 25px; color: #fff; float: right; width:32px; text-align: center; line-height: 24px;}
@@ -1109,33 +1179,33 @@ is_truth_icon_pic.src="{{asset('/new/images/zz_zt2.png')}}";
             if(show==1) {
 
                 li += `<a href="${url}" target="_self">`;
-                if(engroup==1) {
+                // if(engroup==1) {
                     li += `<div style="width: 70px; float: left;">`;
-                }
+                // }
                 if(is_truth) {
                     li += `<img src="/new/images/zz_zt2.png" class="ys_gt1">`;
                 }else if(isCan) {
                     li += `<img src="/new/images/zz_zt1.png" class="ys_gt">`;
                 }
-                if(engroup==1){
+                // if(engroup==1){
                     li += `<div class="sjpic ${styBlur} shanx" id="${user_id}" style="width: 65px; height: 65px;">
                             <img src="${pic}" style="margin-top: 5px;width: 65px; height: 65px;">
                             `;
-                }else {
-                    li += `<div class="sjpic ${styBlur} shanx" id="${user_id}">
-                            <img src="${pic}">
-                            `;
-                }
+                // }else {
+                //     li += `<div class="sjpic ${styBlur} shanx" id="${user_id}">
+                //             <img src="${pic}">
+                //             `;
+                // }
                 li += `<div class="onlineStatusChatView"></div>
                        </div>`;
-                if(engroup==1) {
+                // if(engroup==1) {
                     li += `</div>
                             <div style="width: calc(100% - 75px); float: right;">
                             <div class="sjleftzz">
                             `;
-                }else{
-                    li += `<div class="sjleftmm">`;
-                }
+                // }else{
+                //     li += `<div class="sjleftmm">`;
+                // }
                 li += `<div class="sjtable ${user_id}">${(read_n != 0 && isBanned == 0 ? `<i class="number ${user_id}">${read_n}</i>` : '')}<span class="ellipsis" style="width: 60%;">${user_name}</span></div>
                   `;
             }else if(show==0 && engroup==2){
@@ -1191,7 +1261,7 @@ is_truth_icon_pic.src="{{asset('/new/images/zz_zt2.png')}}";
                        </div></a>
                    `;
             }
-            if(engroup==1) {
+            // if(engroup==1) {
                 //新版測試
                 li += `<div class="righ_nre">
                     <h3 style="font-size: 12px !important;">${created_at}</h3>
@@ -1214,23 +1284,23 @@ is_truth_icon_pic.src="{{asset('/new/images/zz_zt2.png')}}";
                        </div>
                         `;
 
-            }else{
-                li += `<div class="sjright">
-                <h3>${created_at}</h3>
-                <h4>
-                    `;
-
-                if (userIsVip == 1) {
-                    li += `<a href="javascript:void(0)" onclick="block('${user_id}');"><img src="/new/images/del_05.png">封鎖</a>
-                      `;
-                }
-
-                li += `<a href="javascript:void(0)" onclick="chk_delete('${del_url}');"><img src="/new/images/del_03.png">刪除</a>
-                </h4>
-            </div>
-            </div>
-                `;
-            }
+            // }else{
+            //     li += `<div class="sjright">
+            //     <h3>${created_at}</h3>
+            //     <h4>
+            //         `;
+            //
+            //     if (userIsVip == 1) {
+            //         li += `<a href="javascript:void(0)" onclick="block('${user_id}');"><img src="/new/images/del_05.png">封鎖</a>
+            //           `;
+            //     }
+            //
+            //     li += `<a href="javascript:void(0)" onclick="chk_delete('${del_url}');"><img src="/new/images/del_03.png">刪除</a>
+            //     </h4>
+            // </div>
+            // </div>
+            //     `;
+            // }
 
             //vipOnlyAlert end
             if(show==0){
@@ -1945,7 +2015,7 @@ is_truth_icon_pic.src="{{asset('/new/images/zz_zt2.png')}}";
                         @endif
                     }, 300);
 
-                    $('[data-toggle="popover"]').popover({
+                    $('*[data-toggle="popover"]').popover({
                         animated: 'fade',
                         placement: 'bottom',
                         trigger: 'hover',
@@ -2811,15 +2881,4 @@ is_truth_icon_pic.src="{{asset('/new/images/zz_zt2.png')}}";
 
 
 </script>
-// <script type="application/javascript">
-//     $(document).ready(function(){
-//         $('[data-toggle="popover"]').popover({
-//             animated: 'fade',
-//             placement: 'bottom',
-//             trigger: 'hover',
-//             html: true,
-//             content: function () { return '<h4>' + $(this).data('content') + '</h4>'; }
-//         });
-//     });
-// </script>
 @stop

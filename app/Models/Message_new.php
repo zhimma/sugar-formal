@@ -646,7 +646,7 @@ class Message_new extends Model
                     $message['button'] = $data['button'];
                 }
                 $messages[$key]['user_id'] = $msgUser->id;
-                $messages[$key]['created_at'] = $message['created_at']->toDateTimeString();
+                $messages[$key]['created_at'] = substr($message['created_at']->toDateTimeString(), 0, 16);
                 $messages[$key]['user_name'] = $msgUser->name;
                 $messages[$key]['engroup'] = $msgUser->engroup;
                 $messages[$key]['isAvatarHidden'] = $msgUser->user_meta->isAvatarHidden;
