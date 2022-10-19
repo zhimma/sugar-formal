@@ -452,22 +452,22 @@ is_truth_icon_pic.src="{{asset('/new/images/zz_zt2.png')}}";
                     @endif
                     @if($user->engroup==1)
                         @if($isVip)
-                            @foreach($exchange_period_name as $exchange)
-                            <a class="exchange_period_delete_{{$exchange->id}}">刪除所有{{$exchange->name}}</a>
-                            @endforeach
+                            <a class="exchange_period_delete_{{$exchange_period_name[0]->id}}">刪除所有{{$exchange_period_name[0]->name}}</a>
+                            <a class="exchange_period_delete_{{$exchange_period_name[2]->id}}">刪除所有{{$exchange_period_name[2]->name}}</a>
+                            <a class="exchange_period_delete_{{$exchange_period_name[1]->id}}">刪除所有{{$exchange_period_name[1]->name}}</a>
                         @endif
                     @elseif($user->engroup==2)
                         @if(($isVip && ($user->engroup==1 || $user->engroup==2)) || (!$isVip && $user->engroup==2))
-                            <a class="vvip_delete">刪除所有VVIP會員</a>
-                            <a class="vip_delete">刪除所有VIP會員</a>
-                            <a class="novip_delete">刪除所有試用會員</a>
+                            <a class="vvip_delete">刪除所有VVIP</a>
+                            <a class="vip_delete">刪除所有VIP</a>
+                            <a class="novip_delete">刪除所有普通會員</a>
                         @endif
                     @endif
                     @if(($isVip && ($user->engroup==1 || $user->engroup==2)) || (!$isVip && $user->engroup==2))
                         <a class="alert_delete">刪除所有警示會員</a>
                     @endif
                     @if(($isVip && ($user->engroup==1 || $user->engroup==2)) || (!$isVip && $user->engroup==2))
-                        <a class="banned_delete">刪除所有被封鎖會員</a>
+                        <a class="banned_delete">刪除被站方封鎖會員</a>
                     @endif
                 </div>
                 @endif
