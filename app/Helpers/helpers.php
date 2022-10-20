@@ -26,6 +26,12 @@ if (! function_exists('search_variable')){
     }
 }
 
+if (! function_exists('test_notification')){
+    function test_notification($className, $functionName, $line){
+        return "【TEST SCHEDULER ERROR】: className:$className, functionName: $functionName, line: $line";
+    }
+}
+
 // if (! function_exists('isset_variable')){
 //     function isset_variable($variable){
 //         return isset($variable) ? $variable: "";
@@ -89,5 +95,20 @@ if (!function_exists('strLimit')) {
         }
 
         return rtrim(mb_substr($value, 0, $limit, 'UTF-8')).$end;
+    }
+}
+
+
+if (!function_exists('var_carrier')) {
+
+    function var_carrier($var_name, $var_val = false)
+    {
+        static $arr = [];
+        
+        if($var_val===false )    return ($arr[$var_name]??null);
+    
+        $arr[$var_name] = $var_val;
+        
+        return $arr[$var_name];
     }
 }

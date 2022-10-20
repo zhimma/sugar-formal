@@ -19,11 +19,11 @@ use App\Models\SearchIgnore;
 use App\Services\SearchIgnoreService;
 use App\Models\RealAuthUserModifyPic;
 use Laravel\Scout\Searchable;
+use Illuminate\Database\Eloquent\Factories\HasFactory;
 
 class UserMeta extends Model
 {
-    use Searchable;
-
+    use Searchable, HasFactory;
     /**
      * The database table used by the model.
      *

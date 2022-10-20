@@ -14,6 +14,7 @@ use Illuminate\Support\Facades\Config;
 use Carbon\Carbon;
 use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\Log;
+use YlsIdeas\FeatureFlags\Facades\Features;
 
 class Message_new extends Model
 {
@@ -442,72 +443,115 @@ class Message_new extends Model
         self::deleteAutoDestroyMessageByUserId($user->id);
         
         $admin_id = AdminService::checkAdmin()->id;
-        /**
-         * 效能調整：使用左結合取代 where in 以取得更好的效能
-         *
-         * @author LZong <lzong.tw@gmail.com>
-         */
-        $query = Message::with(['sender',                  'receiver', 
-                                'sender.banned',           'receiver.banned',
-                                'sender.implicitlyBanned', 'receiver.implicitlyBanned',
-                                'sender.aw_relation',      'receiver.aw_relation'])
-            ->select("message.*")
-            //->from('message as m')
-            ->leftJoin('users as u1', 'u1.id', '=', 'message.from_id')
-            ->leftJoin('users as u2', 'u2.id', '=', 'message.to_id')
-            ->leftJoin('banned_users as b1', 'b1.member_id', '=', 'message.from_id')
-            ->leftJoin('banned_users as b2', 'b2.member_id', '=', 'message.to_id')
-            ->leftJoin('banned_users_implicitly as b3', 'b3.target', '=', 'message.from_id')
-            ->leftJoin('banned_users_implicitly as b4', 'b4.target', '=', 'message.to_id')
-            ->leftJoin('blocked as b5', function($join) use($uid) {
-                $join->on('b5.blocked_id', '=', 'message.from_id')
-                    ->where('b5.member_id', $uid); })
-            ->leftJoin('blocked as b6', function($join) use($uid) {
-                $join->on('b6.blocked_id', '=', 'message.to_id')
-                    ->where('b6.member_id', $uid); })
-            ->leftJoin('blocked as b7', function($join) use($uid) {
-                $join->on('b7.member_id', '=', 'message.from_id')
-                    ->where('b7.blocked_id', $uid); });
-        $query = $query->whereNotNull('u1.id')
-                ->whereNotNull('u2.id')
-                ->whereNull('b5.blocked_id')
-                ->whereNull('b6.blocked_id')
-                ->whereNull('b7.member_id')
-                ->where(function ($query) use ($uid,$admin_id) {
-                    $query->where([['message.from_id', $admin_id], ['message.chat_with_admin', 1], ['message.to_id', $uid]])
-                        ->orWhere([['message.from_id', '<>', $admin_id], ['message.to_id', $uid], ['message.from_id', '!=', $uid]])    
-                        ->orWhere([['message.from_id', $uid], ['message.to_id', '!=',$uid]]);
-                });
-		if($forEventSenders) 
-		{
-			self::$date = \Carbon\Carbon::parse(date("Y-m-01"))->toDateTimeString();
-		}
-        else if($d==7){
-            self::$date = \Carbon\Carbon::parse("7 days ago")->toDateTimeString();
-        }else if($d==30){
-            self::$date = \Carbon\Carbon::parse("30 days ago")->toDateTimeString();
-        }else if($d=='all'){
-            if($isVip) {
-                self::$date =\Carbon\Carbon::parse("180 days ago")->toDateTimeString();
-            }else {
+        
+        if (!Features::accessible('message_uses_scout')) {
+            /**
+             * 效能調整：使用左結合取代 where in 以取得更好的效能
+             *
+             * @author LZong <lzong.tw@gmail.com>
+             */
+            $query = Message::with(['sender',                  'receiver', 
+                                    'sender.banned',           'receiver.banned',
+                                    'sender.implicitlyBanned', 'receiver.implicitlyBanned',
+                                    'sender.aw_relation',      'receiver.aw_relation'])
+                ->select("message.*")
+                //->from('message as m')
+                ->leftJoin('users as u1', 'u1.id', '=', 'message.from_id')
+                ->leftJoin('users as u2', 'u2.id', '=', 'message.to_id')
+                ->leftJoin('banned_users as b1', 'b1.member_id', '=', 'message.from_id')
+                ->leftJoin('banned_users as b2', 'b2.member_id', '=', 'message.to_id')
+                ->leftJoin('banned_users_implicitly as b3', 'b3.target', '=', 'message.from_id')
+                ->leftJoin('banned_users_implicitly as b4', 'b4.target', '=', 'message.to_id')
+                ->leftJoin('blocked as b5', function($join) use($uid) {
+                    $join->on('b5.blocked_id', '=', 'message.from_id')
+                        ->where('b5.member_id', $uid); })
+                ->leftJoin('blocked as b6', function($join) use($uid) {
+                    $join->on('b6.blocked_id', '=', 'message.to_id')
+                        ->where('b6.member_id', $uid); })
+                ->leftJoin('blocked as b7', function($join) use($uid) {
+                    $join->on('b7.member_id', '=', 'message.from_id')
+                        ->where('b7.blocked_id', $uid); });
+            $query = $query->whereNotNull('u1.id')
+                    ->whereNotNull('u2.id')
+                    ->whereNull('b5.blocked_id')
+                    ->whereNull('b6.blocked_id')
+                    ->whereNull('b7.member_id')
+                    ->where(function ($query) use ($uid,$admin_id) {
+                        $query->where([['message.from_id', $admin_id], ['message.chat_with_admin', 1], ['message.to_id', $uid]])
+                            ->orWhere([['message.from_id', '<>', $admin_id], ['message.to_id', $uid], ['message.from_id', '!=', $uid]])    
+                            ->orWhere([['message.from_id', $uid], ['message.to_id', '!=',$uid]]);
+                    });    
+
+            if($forEventSenders) 
+            {
+                self::$date = \Carbon\Carbon::parse(date("Y-m-01"))->toDateTimeString();
+            }
+            else if($d==7){
+                self::$date = \Carbon\Carbon::parse("7 days ago")->toDateTimeString();
+            }else if($d==30){
                 self::$date = \Carbon\Carbon::parse("30 days ago")->toDateTimeString();
+            }else if($d=='all'){
+                if($isVip) {
+                    self::$date =\Carbon\Carbon::parse("180 days ago")->toDateTimeString();
+                }else {
+                    self::$date = \Carbon\Carbon::parse("30 days ago")->toDateTimeString();
+                }
+            }
+
+            $query->where([['message.created_at','>=',self::$date]]);
+            $query->whereRaw('message.created_at < IFNULL(b1.created_at,"2999-12-31 23:59:59")');
+            $query->whereRaw('message.created_at < IFNULL(b2.created_at,"2999-12-31 23:59:59")');
+            $query->whereRaw('message.created_at < IFNULL(b3.created_at,"2999-12-31 23:59:59")');
+            $query->whereRaw('message.created_at < IFNULL(b4.created_at,"2999-12-31 23:59:59")');
+            $query->where([['message.is_row_delete_1','<>',$uid],['message.is_single_delete_1', '<>' ,$uid], ['message.all_delete_count', '<>' ,$uid],['message.is_row_delete_2', '<>' ,$uid],['message.is_single_delete_2', '<>' ,$uid],['message.temp_id', '=', 0]]);
+            $query->orderBy('message.created_at', 'desc');
+            if($user->id != 1049){
+                $query->where(function($query){
+                    $query->where(DB::raw('(u1.engroup + u2.engroup)'), '<>', '2');
+                    $query->orWhere(DB::raw('(u1.engroup + u2.engroup)'), '<>', '4');
+                });
+            }
+            $messages = $query->get();
+        }
+        
+        /**
+         * 
+         * 20221017 效能調整：改使用 Scout 進行搜尋
+         * 
+         */
+        if (Features::accessible('message_uses_scout')) {
+            $userRooms = $user->messageRooms->pluck('id')->toArray();
+            $messages = Message::scoutSearch()->whereIn('room_id', $userRooms)->get();
+            $blockedUsers = $user->blocked->pluck('blocked_id')->toArray();
+            
+            foreach ($messages as &$message) {
+                if (!$message->sender || !$message->receiver) {
+                    unset($message);
+                    continue;
+                }
+
+                if ($message->sender_is_banned || $message->receiver_is_banned || $message->sender_is_implicitly_banned || $message->receiver_is_implicitly_banned) {
+                    unset($message);
+                    continue;
+                }
+                
+                if ($message->sender_is_banned || $message->receiver_is_banned || $message->sender_is_implicitly_banned || $message->receiver_is_implicitly_banned) {
+                    unset($message);
+                    continue;
+                }
+
+                if (in_array($message->from_id, $blockedUsers)) {
+                    unset($message);
+                    continue;
+                }
+
+                if (Carbon::parse($message->created_at)->lt(Carbon::parse(self::$date))) {
+                    unset($message);
+                    continue;
+                }
             }
         }
 
-        $query->where([['message.created_at','>=',self::$date]]);
-        $query->whereRaw('message.created_at < IFNULL(b1.created_at,"2999-12-31 23:59:59")');
-        $query->whereRaw('message.created_at < IFNULL(b2.created_at,"2999-12-31 23:59:59")');
-        $query->whereRaw('message.created_at < IFNULL(b3.created_at,"2999-12-31 23:59:59")');
-        $query->whereRaw('message.created_at < IFNULL(b4.created_at,"2999-12-31 23:59:59")');
-        $query->where([['message.is_row_delete_1','<>',$uid],['message.is_single_delete_1', '<>' ,$uid], ['message.all_delete_count', '<>' ,$uid],['message.is_row_delete_2', '<>' ,$uid],['message.is_single_delete_2', '<>' ,$uid],['message.temp_id', '=', 0]]);
-        $query->orderBy('message.created_at', 'desc');
-        if($user->id != 1049){
-            $query->where(function($query){
-                $query->where(DB::raw('(u1.engroup + u2.engroup)'), '<>', '2');
-                $query->orWhere(DB::raw('(u1.engroup + u2.engroup)'), '<>', '4');
-            });
-        }
-        $messages = $query->get();
         $mCount = count($messages);
         $mm = [];
         foreach ($messages as $key => $v) {
@@ -550,8 +594,12 @@ class Message_new extends Model
 		$admin_id = AdminService::checkAdmin()->id;
         $messagesForTruth = [];
 
-        foreach ($messages as $key => &$message){		
-			
+        foreach ($messages as $key => &$message) {		
+			if (!$message['sender'] || !$message['receiver']) {
+                logger('message sender or receiver is null: ' . json_encode($message));
+                unset($message);
+                continue;
+            }
             $to_id = isset($message["to_id"]) ? $message["to_id"] : null;
             $from_id = isset($message["from_id"]) ? $message["from_id"] : null;
 
@@ -598,7 +646,7 @@ class Message_new extends Model
                     $message['button'] = $data['button'];
                 }
                 $messages[$key]['user_id'] = $msgUser->id;
-                $messages[$key]['created_at'] = $message['created_at']->toDateTimeString();
+                $messages[$key]['created_at'] = substr($message['created_at']->toDateTimeString(), 0, 16);
                 $messages[$key]['user_name'] = $msgUser->name;
                 $messages[$key]['engroup'] = $msgUser->engroup;
                 $messages[$key]['isAvatarHidden'] = $msgUser->user_meta->isAvatarHidden;
@@ -621,7 +669,13 @@ class Message_new extends Model
                     $cityList = explode(',', $msgUser->user_meta->city);
                     $areaList = explode(',', $msgUser->user_meta->area);
                     foreach ($cityList as $k => $city) {
-                        $cityAndArea .= $cityList[$k] . $areaList[$k] . ((count($cityList) - 1) == $k ? '' : '/');
+                        try {
+                            $cityAndArea .= $cityList[$k] . $areaList[$k] . ((count($cityList) - 1) == $k ? '' : '/');
+                        }
+                        catch (\Exception $e) {                            
+                            \Sentry\captureMessage('city and area error: ' . $e->getMessage());
+                            \Sentry\captureMessage('user: ' . $msgUser);
+                        }
                     }
                 }
                 $messages[$key]['cityAndArea'] = $cityAndArea;

@@ -42,17 +42,18 @@ class Kernel extends ConsoleKernel
             // $schedule->call('\App\Http\Controllers\Admin\FindPuppetController@entrance')->timezone('Asia/Taipei')->dailyAt('11:00');
             // $schedule->call('\App\Http\Controllers\Admin\FindPuppetController@entrance')->timezone('Asia/Taipei')->dailyAt('17:00');
             // $schedule->call('\App\Http\Controllers\Admin\FindPuppetController@entrance')->timezone('Asia/Taipei')->dailyAt('23:00');
-            $schedule->call('\App\Http\Controllers\Admin\FindPuppetController@entrance')->timezone('Asia/Taipei')->dailyAt('09:00');
+            //$schedule->call('\App\Http\Controllers\Admin\FindPuppetController@entrance')->timezone('Asia/Taipei')->dailyAt('09:00');
             $schedule->call('\App\Http\Controllers\Admin\FindPuppetController@entrance')->timezone('Asia/Taipei')->dailyAt('21:00');            
             $puppetReq = new Request();
             $puppetReq->only = 'cfpid';
             $schedule->call('\App\Http\Controllers\Admin\FindPuppetController@entrance',['request'=>$puppetReq])->timezone('Asia/Taipei')->dailyAt('03:00');
             //$schedule->call('\App\Http\Controllers\Admin\FindPuppetController@entrance',['request'=>$puppetReq])->timezone('Asia/Taipei')->dailyAt('09:00');
-            $schedule->call('\App\Http\Controllers\Admin\FindPuppetController@entrance',['request'=>$puppetReq])->timezone('Asia/Taipei')->dailyAt('15:00');
+            //$schedule->call('\App\Http\Controllers\Admin\FindPuppetController@entrance',['request'=>$puppetReq])->timezone('Asia/Taipei')->dailyAt('15:00');
             //$schedule->call('\App\Http\Controllers\Admin\FindPuppetController@entrance',['request'=>$puppetReq])->timezone('Asia/Taipei')->dailyAt('21:00');
         }
         if(app()->isProduction() || EnvironmentService::isLocalOrTestMachine()){
             $schedule->command('FillDataForFilterByInfo')->timezone('Asia/Taipei')->dailyAt('01:00');
+            $schedule->command('MessageSchedule')->timezone('Asia/Taipei')->dailyAt('01:30');
             $schedule->call(function (){
                 $this->checkECPayVip();
                 $this->checkEmailVailUser();
@@ -72,6 +73,34 @@ class Kernel extends ConsoleKernel
                 $this->deleteAnonymousChat();
             })->timezone('Asia/Taipei')->weeklyOn(0, '23:59');
 
+            //每週檢查討論區
+            $schedule->command('ForumCheck')->timezone('Asia/Taipei')->weeklyOn(1, '2:15');
+
+            $schedule->command('TestCheck')->timezone('Asia/Taipei')->weeklyOn(1, '2:15');
+
+        }
+        if(app()->environment('CFP')){
+            $schedule->call('\App\Http\Controllers\Admin\FindPuppetController@entrance')->timezone('Asia/Taipei')->dailyAt('05:00');
+            $schedule->call('\App\Http\Controllers\Admin\FindPuppetController@entrance')->timezone('Asia/Taipei')->dailyAt('11:00');
+            $schedule->call('\App\Http\Controllers\Admin\FindPuppetController@entrance')->timezone('Asia/Taipei')->dailyAt('17:00');
+            $schedule->call('\App\Http\Controllers\Admin\FindPuppetController@entrance')->timezone('Asia/Taipei')->dailyAt('23:00');
+            $puppetReq = new Request();
+            $puppetReq->only = 'cfpid';
+            $schedule->call('\App\Http\Controllers\Admin\FindPuppetController@entrance',['request'=>$puppetReq])->timezone('Asia/Taipei')->dailyAt('03:00');
+            $schedule->call('\App\Http\Controllers\Admin\FindPuppetController@entrance',['request'=>$puppetReq])->timezone('Asia/Taipei')->dailyAt('09:00');
+            $schedule->call('\App\Http\Controllers\Admin\FindPuppetController@entrance',['request'=>$puppetReq])->timezone('Asia/Taipei')->dailyAt('15:00');
+            $schedule->call('\App\Http\Controllers\Admin\FindPuppetController@entrance',['request'=>$puppetReq])->timezone('Asia/Taipei')->dailyAt('21:00');
+        
+            //$schedule->command('EncodeImagesForCompare')->timezone('Asia/Taipei')->dailyAt('02:01');
+            //$schedule->command('queue:work --queue=compare_images --daemon --sleep=3 --tries=3 --delay=3  --timeout=0')->timezone('Asia/Taipei')->everyFiveMinutes()->between('02:00', '12:00');
+            $schedule->command('CompareImages')->timezone('Asia/Taipei')->dailyAt('08:00');       
+            $schedule->command('CompareImages  --dsort')->timezone('Asia/Taipei')->everyTenMinutes();//->between('02:00', '12:00');   
+
+            //每小時檢查登入使用者
+            $schedule->command('UserLogin')->timezone('Asia/Taipei')->hourly();         
+        }
+        if(app()->isProduction() || app()->isLocal()){
+            
             $puppetReq = new Request();
             $puppetReq->only = 'vid';
             $schedule->call('\App\Http\Controllers\Admin\FindPuppetController@entrance',['request'=>$puppetReq])->timezone('Asia/Taipei')->dailyAt('01:00');

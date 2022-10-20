@@ -13,7 +13,7 @@ class RoleServiceTest extends TestCase
     protected $editedArray;
     protected $searchTerm;
 
-    public function setUp()
+    public function setUp():void
     {
         parent::setUp();
         $this->service = $this->app->make(RoleService::class);

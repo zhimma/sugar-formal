@@ -258,57 +258,7 @@ is_truth_icon_pic.src="{{asset('/new/images/zz_zt2.png')}}";
     .select_cont option {
         text-align: center;
     }
-
-    .sjleftmm {
-        width: 64%;
-        height: 50px;
-        float: left;
-        line-height: 25px;
-        margin-left: 10px;
-        text-overflow: ellipsis;
-        white-space: nowrap;
-        display: block;
-    }
-
-    .sjleftmm span {
-        font-size: 14px;
-        text-align: left !important;
-        height: 25px;
-        float: left;
-        -webkit-line-clamp: 3;
-        white-space: nowrap;
-        display: -webkit-box;
-        -webkit-box-orient: vertical;
-        overflow: hidden !important;
-    }
-
-    .sjleftmm font {
-        font-size: 14px;
-        height: 25px;
-        overflow: hidden;
-        text-align: left;
-        color: #999999;
-        display: block;
-        text-overflow: ellipsis;
-        /*white-space: nowrap*/
-    }
-
-    .sjleftmm font img {
-        height: 20px
-    }
-
-    @media (max-width:360px) {
-        .sjleftmm {
-            width: 57%;
-        }
-    }
-
-    @media (max-width:320px) {
-        .sjleftmm {
-            width: 50%;
-        }
-    }
-
+    
     .lebox5 {
         background: url({{ asset('/new/images/off.png') }}) no-repeat right #94a5b4;
         background-position:98%;
@@ -364,13 +314,77 @@ is_truth_icon_pic.src="{{asset('/new/images/zz_zt2.png')}}";
     /*.sjpic img{width: 65px; height: 65px;}*/
 
 
-    .righ_nre{width: 120px; float: right;}
+    .righ_nre{width: 109px; float: right;}
     .righ_nre h3 {font-size: 12px !important;text-align: right ;color: #999999;line-height: 25px}
     .righ_nre h4 {font-size: 12px;text-align: right ;color: #fe92a8; line-height: 25px; height: 25px;
         -webkit-box-orient: vertical;text-overflow: ellipsis;overflow: hidden;width: 100%;display:block;white-space: nowrap; -webkit-line-clamp: 1;}
     .sjleftzz{ margin-left: 0;
-        /*width: calc(100% - 110PX); */
-        float: left;}
+        /*width: calc(100% - 110PX);*/
+        float: left;
+        text-overflow: ellipsis;
+    }
+
+    .sjleftzz {
+        width: 60%;
+        height: 50px;
+        float: left;
+        line-height: 25px;
+        margin-left: 10px;
+        text-overflow: ellipsis;
+        white-space: nowrap;
+        display: block;
+    }
+
+    .sjleftzz span {
+        font-size: 14px;
+        text-align: left !important;
+        height: 25px;
+        float: left;
+        -webkit-line-clamp: 3;
+        white-space: nowrap;
+        display: -webkit-box;
+        -webkit-box-orient: vertical;
+        overflow: hidden !important;
+    }
+
+    .sjleftzz font {
+        font-size: 14px;
+        height: 25px;
+        overflow: hidden;
+        text-align: left;
+        color: #999999;
+        display: block;
+        text-overflow: ellipsis;
+        /*white-space: nowrap*/
+    }
+
+    .sjleftzz font img {
+        height: 20px
+    }
+
+    @media (max-width:450px) {
+        .sjleftzz {
+            width: 55%;
+        }
+    }
+
+    @media (max-width:375px) {
+        .sjleftzz {
+            width: 55%;
+        }
+    }
+
+    @media (max-width:360px) {
+        .sjleftzz {
+            width: 52%;
+        }
+    }
+
+    @media (max-width:320px) {
+        .sjleftzz {
+            width: 45%;
+        }
+    }
 
     .denglu_nn{left:50px;bottom: 6px;}
     .si_bg{
@@ -390,7 +404,7 @@ is_truth_icon_pic.src="{{asset('/new/images/zz_zt2.png')}}";
 
     /* 10-10 */
     .se_seccner{width: 100%; display: table;}
-    .se_input{width:300px;  border: #fabbcc 1px solid; height: 25px; border-radius: 3px;  background: #fff; font-size: 12px; float: left;}
+    .se_input{width:auto;  border: #fabbcc 1px solid; height: 25px; border-radius: 3px;  background: #fff; font-size: 12px; float: left;}
     .se_in01{width:220px; border: none; background: transparent; height: 24px; color: #000;}
     .se_button_a{ background: #fabbcc;border-radius: 3px;  height: 25px; color: #fff; float: right; width:60px; text-align: center; line-height: 24px;}
 
@@ -405,7 +419,7 @@ is_truth_icon_pic.src="{{asset('/new/images/zz_zt2.png')}}";
 
 
     @media (max-width:824px){
-        .se_input{width: 300px; }
+        .se_input{width: auto; }
         .se_rig_ff{width: calc(100% - 300px); float: right;}
         .se_in01{width: 220px; border: none; background: transparent; height: 24px; color: #000;}
         .se_button_a{ background: #fabbcc;border-radius: 3px;  height: 25px; color: #fff; float: right; width:60px; text-align: center; line-height: 24px;}
@@ -415,7 +429,7 @@ is_truth_icon_pic.src="{{asset('/new/images/zz_zt2.png')}}";
     @media (max-width:540px){
         .serit_aa{ font-size: 12px;}
         .serit_aa img{ height:14px;margin-right:2px; margin-top:-2px;}
-        .se_input{width: 130px; }
+        .se_input{width: auto; }
         .se_rig_ff{width: calc(100% - 135px); float: right;}
         .se_in01{width: 95px; border: none; background: transparent; height: 24px; color: #000;}
         .se_button_a{ background: #fabbcc;border-radius: 3px;  height: 25px; color: #fff; float: right; width:32px; text-align: center; line-height: 24px;}
@@ -510,7 +524,7 @@ is_truth_icon_pic.src="{{asset('/new/images/zz_zt2.png')}}";
                     </select>
                 </div>
                 @if($user->engroup==2)
-                <a href="javascript:void(0)" class="right ys_inbut"><img src="/new/images/zz_ztt.png"><span>顯示罐頭訊息</span></a>
+                <a href="javascript:void(0)" class="right ys_inbut"><img src="/new/images/zz_ztt.png"><span>{{ $user->show_can_message ? '收起罐頭訊息' : '顯示罐頭訊息' }}</span></a>
                 @endif
             </div>
             <div class="sjlist_li">
@@ -1226,7 +1240,7 @@ is_truth_icon_pic.src="{{asset('/new/images/zz_zt2.png')}}";
             var ss =((i+1)>Page.row)?'display:none;':'display:none;';
             var username = '{{$user->name}}';
             var engroup = '{{$user->engroup}}';
-
+            var showCanMsg = '{{$user->show_can_message}}';
 
             var url = '{{ route("chat2WithUser", ":id") }}';
             url = url.replace(':id', user_id);
@@ -1235,25 +1249,21 @@ is_truth_icon_pic.src="{{asset('/new/images/zz_zt2.png')}}";
             var sid = '{{$user->id}}';
             del_url = del_url.replace(':uid', sid);
             del_url = del_url.replace(':sid', user_id);
-            //${content}
+
             if(user_id==1049) {
                 li += `
                 <li class="row_data hy_bg02" style="${ss}" id="${user_id}">
                 `;
             }else{
                 li += `
-                <li class="row_data ${(isCan && !is_truth)? "d-none can":""}" style="${ss}" id="${user_id}">
+                <li class="row_data ${(isCan && !is_truth)? "can":""} ${(showCanMsg=='0' && isCan && !isVVIP)? "d-none":""}" style="${ss}" id="${user_id}">
                 `;
             }
 
-            if(show==0 && engroup==1){
+            if(show==0){
                 li += `
                      <div class="vipOnlyAlert" style="width: 100%">
                    `;
-            }else if(show==0 && engroup==2){
-                li += `
-                     <div class="vipOnlyAlert" style="width: 100%">
-                  `;
             }
 
             li += `<div class="si_bg ys_pr">`;
@@ -1263,129 +1273,79 @@ is_truth_icon_pic.src="{{asset('/new/images/zz_zt2.png')}}";
 
             if(show==1) {
 
-                li += `<a href="${url}" target="_self">`;
-                if(engroup==1) {
-                    li += `<div style="width: 70px; float: left;">`;
-                }
+                li += `<a href="${url}" target="_self">
+                    <div style="width: 70px; float: left;">
+                    `;
                 if(is_truth) {
                     li += `<img src="/new/images/zz_zt2.png" class="ys_gt1">`;
                 }else if(isCan) {
                     li += `<img src="/new/images/zz_zt1.png" class="ys_gt">`;
                 }
-                if(engroup==1){
-                    li += `<div class="sjpic ${styBlur} shanx" id="${user_id}" style="width: 65px; height: 65px;">
-                            <img src="${pic}" style="margin-top: 5px;width: 65px; height: 65px;">
-                            `;
-                }else {
-                    li += `<div class="sjpic ${styBlur} shanx" id="${user_id}">
-                            <img src="${pic}">
-                            `;
-                }
-                li += `<div class="onlineStatusChatView"></div>
-                       </div>`;
-                if(engroup==1) {
-                    li += `</div>
-                            <div style="width: calc(100% - 75px); float: right;">
-                            <div class="sjleftzz">
-                            `;
-                }else{
-                    li += `<div class="sjleftmm">`;
-                }
-                li += `<div class="sjtable ${user_id}">${(read_n != 0 && isBanned == 0 ? `<i class="number ${user_id}">${read_n}</i>` : '')}<span class="ellipsis" style="width: 60%;">${user_name}</span></div>
-                  `;
-            }else if(show==0 && engroup==2){
-                li += `<a href="javascript:void(0)" target="_self">
-                        <img src="/new/images/zz_zt2.png" class="ys_gt1">
-                        <div class="sjpic ${styBlur} shanx" id="${user_id}">
-                            <img src="${pic}">
-                            <div class="onlineStatusChatView"></div>
+
+                li += `<div class="sjpic ${styBlur} shanx" id="${user_id}" style="width: 65px; height: 65px;">
+                        <img src="${pic}" style="margin-top: 5px;width: 65px; height: 65px;">
+                        <div class="onlineStatusChatView"></div>
+                       </div>
                         </div>
-                        <div class="sjleft">
-                            <div class="sjtable ${user_id}">${(read_n!=0 && isBanned==0?`<i class="number ${user_id}">${read_n}</i>`:'')}<span class="ellipsis" style="width: 60%;">${user_name}</span></div>
+                        <div style="width: calc(100% - 75px); float: right;">
+                        <div class="sjleftzz">
+                        <div class="sjtable ${user_id}">${(read_n != 0 && isBanned == 0 ? `<i class="number ${user_id}">${read_n}</i>` : '')}<span class="ellipsis" style="width: 60%;">${user_name}</span></div>
                   `;
-            }else if(show==0){
+            }else if(show==0) {
                 li += `<a href="javascript:void(0)" target="_self">
-                        <div class="sjpic ${styBlur} shanx" id="${user_id}">
-                            <img src="${pic}">
-                            <div class="onlineStatusChatView"></div>
-                        </div>
-                        <div class="sjleft">
-                            <div class="sjtable ${user_id}">${(read_n!=0 && isBanned==0?`<i class="number ${user_id}">${read_n}</i>`:'')}<span class="ellipsis" style="width: 60%;">${user_name}</span></div>
+                        <div style="width: 70px; float: left;">`;
+                if (show == 0 && engroup == 2) {
+                    li += `<img src="/new/images/zz_zt2.png" class="ys_gt1">`;
+                }
+                li += `<div class="sjpic ${styBlur} shanx" id="${user_id}" style="width: 65px; height: 65px;">
+                    <img src="${pic}" style="margin-top: 5px;width: 65px; height: 65px;">
+                    <div class="onlineStatusChatView"></div>
+                </div>
+                </div>
+                    <div style="width: calc(100% - 75px); float: right;">
+                <div class="sjleft">
+                    <div class="sjtable ${user_id}">${(read_n != 0 && isBanned == 0 ? `<i class="number ${user_id}">${read_n}</i>` : '')}<span class="ellipsis" style="width: 60%;">${user_name}</span></div>
                   `;
             }
 
-            // if(show==1) {
-            //     li += `<a href="${url}" target="_self">
-            //       `;
-            // }else if(show==0){
-            //     li += `<a href="javascript:void(0)" target="_self">
-            //       `;
-            // }
-            // li +=`
-            //             <div class="sjpic"><img class="lazy" src="${pic}" data-original="${pic}"></div>
-            //             <div class="sjleft">
-            //                 <div class="sjtable">${(read_n!=0?`<i class="number">${read_n}</i>`:'')}<span class="ellipsis" style="width: 60%;">${user_name}</span></div>
-            //
-            //       `;
             if(show==1) {
                 li += `<span class="box">
                         <font class="ellipsis ${user_id}">${content}</font>
                        </span>
                        </div></a>
                    `;
-            }else if(show==0 && engroup==1 && isBanned==0){
+            }else if(show==0 && isBanned==0) {
                 li += `<font>
                         <div  data-toggle="popover" data-content="試用會員只能看到舊的十筆訊息，如果想要看新的訊息請刪除舊的通訊紀錄。" style="width: 100%"><img src="/new/images/icon_35.png"></div>
                        </font>
                        </div></a>
                    `;
-            }else if(show==0 && engroup==2 && isBanned==0){
-                li += `<font>
-                        <div data-toggle="popover" data-content="試用會員只能看到舊的十筆訊息，如果想要看新的訊息請刪除舊的通訊紀錄。" style="width: 100%"><img src="/new/images/icon_35.png"></div>
-                       </font>
-                       </div></a>
-                   `;
             }
-            if(engroup==1) {
-                //新版測試
-                li += `<div class="righ_nre">
-                    <h3 style="font-size: 12px !important;">${created_at}</h3>
-                    <h4 style="margin-top: -3px;" data-toggle="popover" data-content="${cityAndArea}"><img src="/new/images/zs_jt11.png" style="height:16px; margin-right: 3px;">${cityAndArea}</h4>
 
-                </div>
-                <div class="se_seccner">
-                    <div class="se_input">
+            li += `<div class="righ_nre">
+                <h3 style="font-size: 12px !important;">${created_at}</h3>
+                <h4 style="margin-top: -3px;" data-toggle="popover" data-content="${cityAndArea}"><img src="/new/images/zs_jt11.png" style="height:16px; margin-right: 3px;">${cityAndArea}</h4>
+            </div>
+
+            <div class="se_seccner">`;
+
+            if(show==1) {
+                li += `<div class="se_input">
                         <input placeholder="您尚未留下備註" class="se_in01" id="massage_user_note_${user_id}" value="${message_user_note}"><a href="javascript:void(0)" class="se_button_a" onclick="massage_user_note('${user_id}');">確定</a>
-                    </div>
-                    <div class="se_rig_ff">
-                `;
-                if (userIsVip == 1) {
-                    li += `<a href="javascript:void(0)" class="serit_aa" onclick="block('${user_id}');"><img src="/new/images/ncion_11.png">封鎖</a>
-                      `;
-                }
-
-                li += `<a href="javascript:void(0)" class="serit_aa" onclick="chk_delete('${del_url}');"><img src="/new/images/del_03n.png">刪除</a>`;
-                li += `</div>
-                       </div>
-                        `;
-
-            }else{
-                li += `<div class="sjright">
-                <h3>${created_at}</h3>
-                <h4>
-                    `;
-
-                if (userIsVip == 1) {
-                    li += `<a href="javascript:void(0)" onclick="block('${user_id}');"><img src="/new/images/del_05.png">封鎖</a>
-                      `;
-                }
-
-                li += `<a href="javascript:void(0)" onclick="chk_delete('${del_url}');"><img src="/new/images/del_03.png">刪除</a>
-                </h4>
-            </div>
-            </div>
-                `;
+                        </div>`;
             }
+
+            li += `<div class="se_rig_ff">`;
+
+            if (userIsVip == 1) {
+                li += `<a href="javascript:void(0)" class="serit_aa" onclick="block('${user_id}');"><img src="/new/images/ncion_11.png">封鎖</a>
+                  `;
+            }
+
+            li += `<a href="javascript:void(0)" class="serit_aa" onclick="chk_delete('${del_url}');"><img src="/new/images/del_03n.png">刪除</a>
+                   </div>
+                   </div>
+                    `;
 
             //vipOnlyAlert end
             if(show==0){
@@ -2112,6 +2072,17 @@ is_truth_icon_pic.src="{{asset('/new/images/zz_zt2.png')}}";
 
             $('.row_data.can').toggleClass('d-none');
             $('.row_data.can').next('.li_no_data').toggle();
+
+            $.ajax({
+				type: 'POST',
+				url: "/dashboard/toggleShowCanMessage",
+				data:{
+					_token: '{{csrf_token()}}',
+					user_id: '{{$user->id}}',
+				},
+				dataType:"json"
+			});
+           
         });
 
         $('#daysSelect').on('change', function() {
@@ -2776,19 +2747,19 @@ is_truth_icon_pic.src="{{asset('/new/images/zz_zt2.png')}}";
 
 
         @if($user->login_times >= 3)
-            $(function(){
-                
-                @if($user->checkTourRead('chat',1)==0)
-                if(step1 != 1) {
+            {{--$(function(){--}}
+            {{--    --}}
+            {{--    @if($user->checkTourRead('chat',1)==0)--}}
+            {{--    if(step1 != 1) {--}}
                     // $('#announcement').hide();
                     // $('.announce_bg').hide();
                     // introJs().setOption('showButtons', true).start();
                     // step1=1;
                     // letTourRead('chat',1);
-                }
+                // }
 
-                @endif
-            });
+{{--                @endif--}}
+{{--            });--}}
 
             $('.lebox1').click(function(){
                 @if($user->checkTourRead('chat',3)==0)
@@ -2875,16 +2846,6 @@ is_truth_icon_pic.src="{{asset('/new/images/zz_zt2.png')}}";
         }
 
 
+
 </script>
-// <script type="application/javascript">
-//     $(document).ready(function(){
-//         $('[data-toggle="popover"]').popover({
-//             animated: 'fade',
-//             placement: 'bottom',
-//             trigger: 'hover',
-//             html: true,
-//             content: function () { return '<h4>' + $(this).data('content') + '</h4>'; }
-//         });
-//     });
-// </script>
 @stop
