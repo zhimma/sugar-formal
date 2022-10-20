@@ -550,6 +550,10 @@ class User extends Authenticatable implements JWTSubject
         return $this->hasManyThrough(CheckPoints::class, CheckPointUser::class, 'user_id', 'id','id','check_point_id');
     }
 
+    public function backend_user_details(){
+        return $this->hasMany(BackendUserDetails::class, 'user_id', 'id');
+    }
+
     /**
      * Find by Email
      *

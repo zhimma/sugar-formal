@@ -68,6 +68,7 @@ use Intervention\Image\Facades\Image;
 use Session;
 use App\Http\Requests\Reported\ReportedIsWriteRequest;
 use App\Http\Requests\UserMessageCheck\IndexRequest;
+use App\Models\BackendUserDetails;
 use App\Models\Blocked;
 use App\Models\ValueAddedService;
 use App\Services\ImagesCompareService;
@@ -1729,6 +1730,8 @@ class UserController extends \App\Http\Controllers\BaseController
             $not_pass_faq_ltime = $this->faqUserService->faq_service()->group_entry()->whereIn('id',$this->faqUserService->riseByUserEntry($user)->getPopupUserGroupList()->pluck('group_id'))->pluck('faq_login_times')->implode(' , ');
         }
 
+        $backend_detail = BackendUserDetails::first_or_new($user->id);
+
         if (str_contains(url()->current(), 'edit')) {
             $birthday = date('Y-m-d', strtotime($userMeta->birthdate));
             $birthday = explode('-', $birthday);
@@ -1788,6 +1791,7 @@ class UserController extends \App\Http\Controllers\BaseController
                 ->with('is_warned_of_budget', $is_warned_of_budget)
                 ->with('pageStay', $pageStay)
                 ->with('not_pass_faq_ltime',$not_pass_faq_ltime)
+                ->with('backend_detail',$backend_detail)
                 ;
         }
     }
@@ -6098,7 +6102,8 @@ class UserController extends \App\Http\Controllers\BaseController
             ->with('aw_relation')
             ->with('banned')
             ->with('implicitlyBanned')
-            ->with('check_point_user');
+            ->with('check_point_user')
+            ->with('backend_user_details');
 
         $users = $users->selectRaw(
             '*,
@@ -6121,6 +6126,9 @@ class UserController extends \App\Http\Controllers\BaseController
                 $query->where('is_active', true)->whereNotNull('smoking')->whereNotNull('drinking')
                 ->whereNotNull('marriage')->whereNotNull('education')->whereNotNull('about')->whereNotNull('style')
                 ->whereNotNull('birthdate')->whereNotNull('area')->whereNotNull('city');
+            })
+            ->whereDoesntHave('backend_user_details', function ($query) {
+                $query->where('user_check_step2_wait_login_times','!=', 0);
             });
 
 
@@ -6646,7 +6654,13 @@ class UserController extends \App\Http\Controllers\BaseController
 
     public function member_profile_check_over(Request $request)
     {
+        $check_extend_users_id = json_decode($request->check_extend_users_id);
         $users_id = json_decode($request->users_id);
+        $users_id = array_diff($users_id, $check_extend_users_id);
+        foreach($check_extend_users_id as $uid)
+        {
+            BackendUserDetails::check_extend($uid, 2);
+        }
         foreach ($users_id as $user_id) {
             $check_point_user = new CheckPointUser;
             $check_point_user->user_id = $user_id;
@@ -7445,5 +7459,14 @@ class UserController extends \App\Http\Controllers\BaseController
 //    }
 
     //vvip end
+
+    public function check_extend(Request $request)
+    {
+        $uid = $request->user_id;
+        BackendUserDetails::check_extend($uid, 2);
+        $msg_type    = 'message';
+        $msg_content = '已延長等待更多資料';
+        return back()->with($msg_type, $msg_content);
+    }
 
 }

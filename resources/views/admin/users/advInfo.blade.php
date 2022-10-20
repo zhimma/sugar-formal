@@ -257,6 +257,14 @@
         @endif
     @endif
 
+    @if($backend_detail->user_check_step2_wait_login_times == 0)
+        <form method="POST" style="display: inline;" action="{{ route('check_extend') }}">
+            <input type="hidden" name="_token" value="{{ csrf_token() }}" >
+            <input type="hidden" name='user_id' value="{{ $user->id }}">
+            <button type="submit" class="btn btn-primary">等待更多資料</button>
+        </form>
+    @endif
+
     @if(is_null($userMeta->activation_token))
         <b style="font-size:18px">已開通會員</b>
     @else
