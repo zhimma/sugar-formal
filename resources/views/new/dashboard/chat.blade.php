@@ -458,9 +458,9 @@ is_truth_icon_pic.src="{{asset('/new/images/zz_zt2.png')}}";
                         @endif
                     @elseif($user->engroup==2)
                         @if(($isVip && ($user->engroup==1 || $user->engroup==2)) || (!$isVip && $user->engroup==2))
-                            <a class="vvip_delete">刪除所有VVIP</a>
-                            <a class="vip_delete">刪除所有VIP</a>
-                            <a class="novip_delete">刪除所有普通會員</a>
+                            <a class="vvip_delete">刪除所有VVIP會員</a>
+                            <a class="vip_delete">刪除所有VIP會員</a>
+                            <a class="novip_delete">刪除所有試用會員</a>
                         @endif
                     @endif
                     @if(($isVip && ($user->engroup==1 || $user->engroup==2)) || (!$isVip && $user->engroup==2))
