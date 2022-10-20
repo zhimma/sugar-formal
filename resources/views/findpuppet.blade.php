@@ -80,7 +80,7 @@
         font-size: 2px;        
     }
     
-    .multi_account_mail_num {display:none;}
+    .multi_account_mail_num,.newer_manual_stay_online_time {display:none;}
  </style>
  <style>
     .table > tbody > tr > td, .table > tbody > tr > th{
@@ -97,16 +97,30 @@
             //data: { value : user_id,op:0},
             success: function(data, status, error){
                 for(var i in data) {
-                    console.log(data[i]);
                     $('#multi_account_mail_num_'+data[i].to_id).html(data[i].num);
                 }
                 $('.multi_account_mail_num').show();
             },
             error: function(xhr, status, error){
-                //alert('User Id：'+user_id+'取消加入略過清單失敗，請重新操作\n錯誤訊息：'+status+' '+error);
+                alert('多開通知信欄位讀取失敗，無法顯示多開通知信欄位，請重新整理網頁。\n\n錯誤訊息：'+status+' '+error);
             }
         });				
 
+        $.ajax({
+            type: 'GET',
+            url: '{{ route('showDuplicate_get_newer_manual_stay_online_time_list') }}?{{csrf_token()}}={{now()->timestamp}}',
+            success: function(data, status, error){
+                for(var i in data) {
+                    $('#newer_manual_stay_online_time_'+data[i].user_id).html(data[i].time);
+                }
+                $('.newer_manual_stay_online_time').show();
+            },
+            error: function(xhr, status, error){
+                alert('新手教學時間欄位讀取失敗，無法顯示新手教學時間欄位，請重新整理網頁。\n\n錯誤訊息：'+status+' '+error);
+            }
+        });				
+
+		
 		
 		$('.btn_admin_close').on('click',function() {
 			
@@ -284,7 +298,9 @@
 	@else
 	全部直到
 	@endif
+    <span style="{{$new_exec_log->count() && (\Carbon\Carbon::now()->diffInHours($end_date)>=48)?'color:red;':''}}">
 	{{$end_date}}
+    </span>
 	@if(!$sdateOfIp)
 	為止
 	@endif
@@ -297,7 +313,9 @@
         @else
         全部直到
         @endif
+        <span style="{{$new_exec_log->count() && (\Carbon\Carbon::now()->diffInHours($end_date)>=48)?'color:red;':''}}">
         {{$end_date}}
+        </span>
         @if(!$sdateOfCfpId)
         為止
         @endif	
@@ -525,7 +543,7 @@
                     <span id="multi_account_mail_num_{{$user->id}}" class="multi_account_mail_num">0</span>
                 </th>
                 <th  class="col-most" style="color: {{ $user->engroup == 1 ? 'blue' : 'red' }}; @if($bgColor) background-color: {{ $bgColor }} @endif">
-                    {{$user->newer_manual_stay_online_time->time??'無'}}
+                    <span id="newer_manual_stay_online_time_{{$user->id}}" class="newer_manual_stay_online_time">0</span>
                 </th>
 				<th  class="col-most" style="color: {{ $user->engroup == 1 ? 'blue' : 'red' }}; @if($bgColor) background-color: {{ $bgColor }} @endif">
 					<a href="#" class="user user_name" title="{{$user->name}}" onclick="return false;">{{ mb_strlen($user->name)>8?mb_substr($user->name,0,9).'...':$user->name }}</a>

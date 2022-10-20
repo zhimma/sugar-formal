@@ -4,7 +4,7 @@ use Illuminate\Database\Migrations\Migration;
 use Illuminate\Database\Schema\Blueprint;
 use Illuminate\Support\Facades\Schema;
 
-class CreateRealAuthUseTagsDisplayTable extends Migration
+return new class extends Migration
 {
     /**
      * Run the migrations.
@@ -35,4 +35,4 @@ class CreateRealAuthUseTagsDisplayTable extends Migration
     {
         Schema::dropIfExists('real_auth_user_tags_display');
     }
-}
+};

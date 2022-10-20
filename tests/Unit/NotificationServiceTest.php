@@ -8,7 +8,7 @@ class NotificationServiceTest extends TestCase
 {
     use DatabaseMigrations;
 
-    public function setUp()
+    public function setUp():void
     {
         parent::setUp();
         $role = factory(App\Models\Role::class)->create();

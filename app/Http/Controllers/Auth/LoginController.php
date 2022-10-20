@@ -21,6 +21,7 @@ use Illuminate\Support\Facades\DB;
 use Session;
 use App\Observer\BadUserCommon;
 use App\Services\AdminService;
+use Illuminate\Support\Facades\Log;
 
 class LoginController extends \App\Http\Controllers\BaseController
 {
@@ -283,6 +284,7 @@ class LoginController extends \App\Http\Controllers\BaseController
     }
 
     public function handle_other_events_after_login($request, $user){
+        //Log::Info('handle_other_events_after_login');
         $email = $user->email;
         $uid = \Auth::user()->id;
         $domains = config('banned.domains');
@@ -306,7 +308,6 @@ class LoginController extends \App\Http\Controllers\BaseController
         User::where('id',$user->id)->update(['line_notify_alert'=>$user->line_notify_alert +1]);
         if($user->engroup==2){
             //更新新版SOP教學<->登入次數
-            User::where('id',$user->id)->update(['female_manual_login_times'=>$user->female_manual_login_times +1]);
             session()->forget('female_manual_has_been_read');
         }
         //移至LogSuccessfulLoginListener

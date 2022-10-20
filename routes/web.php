@@ -364,13 +364,13 @@ Route::group(['middleware' => ['auth', 'global', 'active', 'femaleActive', 'vipC
     // 大頭照和生活照
     Route::get('/dashboard_img', 'PagesController@dashboard_img')->name('dashboard_img');
     Route::get('/dashboard/pictures/{userId?}', 'ImageController@getPictures');
-    Route::post('/dashboard/pictures/upload','ImageController@uploadPictures');
+    Route::post('/dashboard/pictures/upload','ImageController@uploadPictures')->name('dashboard/pictures/upload');
     Route::post('/dashboard/pictures/delete', 'ImageController@deletePictures');
     Route::get('/dashboard/avatar/{userId?}', 'ImageController@getAvatar');
     Route::get('/dashboard/avatar/blurry/{userId?}', 'PagesController@getBlurryAvatar');
     Route::post('/dashboard/avatar/blurry/{userId?}', 'PagesController@blurryAvatar');
     Route::post('/dashboard/lifephoto/blurry/{userId?}', 'PagesController@blurryLifePhoto');
-    Route::post('/dashboard/avatar/upload', 'ImageController@uploadAvatar');
+    Route::post('/dashboard/avatar/upload', 'ImageController@uploadAvatar')->name('dashboard/avatar/upload');
     Route::post('/dashboard/avatar/delete/{userId}', 'ImageController@deleteAvatar');
     Route::post('/dashboard/delPic', 'PagesController@delPic');
     Route::get('/dashboard/password', 'PagesController@view_changepassword'); //new route
@@ -507,6 +507,7 @@ Route::group(['middleware' => ['auth', 'global', 'active', 'femaleActive', 'vipC
         Route::post('/dashboard/announcement_post', 'Message_newController@announcePost')->name('announcePost');
         Route::get('/dashboard/manual', 'PagesController@manual');
         Route::get('/dashboard/chat2/is_truth/get_remain', 'PagesController@getChatIsTruthRemainQuota')->name('getChatIsTruthRemainQuota');
+        Route::post('/dashboard/toggleShowCanMessage', 'Message_newController@ToggleShowCanMessage')->name('toggleShowCanMessage');
 
         Route::post('/dashboard/letTourRead', 'PagesController@letTourRead')->name('letTourRead');
 
@@ -1008,6 +1009,7 @@ Route::group(['middleware' => ['auth', 'global', 'active', 'femaleActive', 'vipC
         Route::get('users/compare_login_time', 'FindPuppetController@compare_login_time_show');
         Route::post('users/compare_login_time', 'FindPuppetController@compare_login_time');
         Route::get('users/get_multi_account_mail_num_list','FindPuppetController@get_multi_account_mail_num_list')->name('showDuplicate_get_multi_account_mail_num_list');
+        Route::get('users/get_newer_manual_stay_online_time_list','FindPuppetController@get_newer_manual_stay_online_time_list')->name('showDuplicate_get_newer_manual_stay_online_time_list');
         Route::get('too_many_requests', 'PagesController@tooManyRequests')->name('tooMantRequests');
 
 

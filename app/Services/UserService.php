@@ -1524,7 +1524,7 @@ class UserService
         $query = DB::table('log_system_day_statistic')->whereDate('date', Carbon::today())->first();
         $avg = $query?->average_recipients_count_of_vip_male_senders;
         $median = $query?->median_recipients_count_of_vip_male_senders;
-        $greeting_rate = max($avg ?? 999, $median ?? 999);
+        $greeting_rate = max($avg ?? 999, $median ?? 999) * 1.75;
         $recipients_count = UserMeta::where('user_id', $from_id)->pluck('recipients_count')->first();
         
         return $recipients_count > $greeting_rate;

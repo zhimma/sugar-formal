@@ -18,11 +18,11 @@
                 <div class="zhapian">
                     <div class="zp_title @if($user->engroup==1)b_sop @endif">新手教學-約見SOP</div>
                     <div class="ppp">
-                        <a href="javascript:void(0);" class="pa_cit @if($user->engroup==1)b_sop mm @else pa_hover @endif" id="step01">STEP1</a>
-                        <a href="javascript:void(0);" class="pa_cit" id="step02">STEP2</a>
-                        <a href="javascript:void(0);" class="pa_cit" id="step03">STEP3</a>
-                        <a href="javascript:void(0);" class="pa_cit" id="step04">STEP4</a>
-                        <a href="javascript:void(0);" class="pa_cit" id="step05">STEP5</a>
+                        <a href="#{{$no_read_hash_str??''}}step1" class="pa_cit @if($user->engroup==1)b_sop mm @else pa_hover @endif" id="step01">STEP1</a>
+                        <a href="#{{$no_read_hash_str??''}}step2" class="pa_cit" id="step02">STEP2</a>
+                        <a href="#{{$no_read_hash_str??''}}step3" class="pa_cit" id="step03">STEP3</a>
+                        <a href="#{{$no_read_hash_str??''}}step4" class="pa_cit" id="step04">STEP4</a>
+                        <a href="#{{$no_read_hash_str??''}}step5" class="pa_cit" id="step05">STEP5</a>
                     </div>
                     <div class="zp_bg step01">
                         <div class="zp_img">
@@ -361,6 +361,11 @@
                 window.location.href = '/dashboard';
             }
         });
+    });
+    
+    $(function(){
+        if(location.hash.length>0)
+            $('a.pa_cit[href="'+location.hash+'"]').click();
     });
 
 </script>

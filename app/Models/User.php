@@ -36,6 +36,7 @@ use App\Models\IsWarnedLog;
 use App\Models\SimpleTables\short_message;
 use App\Models\LogAdvAuthApi;
 use App\Models\UserTattoo;
+use Illuminate\Database\Eloquent\Factories\HasFactory;
 use App\Models\StayOnlineRecord;
 use App\Models\PuppetAnalysisRow;
 use Illuminate\Support\Facades\Cache;
@@ -44,7 +45,7 @@ use Laravel\Scout\Searchable;
 
 class User extends Authenticatable implements JWTSubject
 {
-    use Notifiable, Searchable;
+    use HasFactory, Notifiable, Searchable;
     /**
      * The database table used by the model.
      *
@@ -68,7 +69,6 @@ class User extends Authenticatable implements JWTSubject
         'login_times',
         'intro_login_times',
         'isReadManual',
-        'female_manual_login_times',
         'is_read_female_manual_part1',
         'is_read_female_manual_part2',
         'is_read_female_manual_part3',
@@ -164,6 +164,11 @@ class User extends Authenticatable implements JWTSubject
         return $this->hasMany(Message_new::class, 'to_id', 'id');
     }
 
+    public function messageRooms()
+    {
+        return $this->hasManyThrough(MessageRoom::class, MessageRoomUserXref::class, 'user_id', 'id', 'id', 'room_id');
+    }
+
     //生活照
     public function pic()
     {
@@ -217,7 +222,22 @@ class User extends Authenticatable implements JWTSubject
     public function stay_online_record_only_page()
     {
         return StayOnlineRecord::addOnlyPageClauseToQuery($this->stay_online_record());//->whereNotNull('stay_online_time')->whereNotNull('url');
-    }     
+    }  
+
+    public function female_newer_manual_time_list()
+    {
+        
+        return $this->stay_online_record_only_page()
+            ->where('url','like','%#nr_fnm%')
+            ->groupBy('url')
+            ->selectRaw('SUBSTRING(url, -3, 3) as step,sum(stay_online_time) as time')
+            ;
+    }
+    
+    public function getFemaleNewerManualTotalTime()
+    {
+        return $this->female_newer_manual_time_list->sum('time');
+    }
     
     //多重帳號row
     public function puppet_analysis_row()
@@ -2275,13 +2295,24 @@ class User extends Authenticatable implements JWTSubject
 
     public function toSearchableArray()
     {
+        $meta = $this->user_meta()->first();
         return [
             'id' => $this->id,
             'engroup' => $this->engroup,
             'name' => $this->name,
             'email' => $this->email,
+            'birthdate' => $meta->birthdate,
             'created_at' => $this->created_at?->timestamp,
             'updated_at' => $this->updated_at?->timestamp,
+        ];
+    }
+
+    public static function getSearchFilterAttributes()
+    {
+        return [
+            'name',
+            'engroup',
+            'birthdate',
         ];
     }
 }
