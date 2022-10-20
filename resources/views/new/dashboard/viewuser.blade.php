@@ -366,6 +366,12 @@
             background: #ffa9bc;
             color: #fff;
         }
+        @media (max-width: 992px) {
+            .bottub {
+                margin-top: -26px;
+            }
+        }
+
     </style>
     <style>
         .he_tkcn ul a span {text-align:left;font-size:unset;}

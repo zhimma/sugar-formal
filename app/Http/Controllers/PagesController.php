@@ -3219,7 +3219,8 @@ class PagesController extends BaseController
                 'allPageDataCount'=>$searchApi['allPageDataCount'],
                 'dataList'=>$dataList,
                 'user'=>$user,
-                'userIsVip'=>$userIsVip
+                'userIsVip'=>$userIsVip,
+                'notes'=>MessageUserNote::where('user_id', $user->id)->get()->pluck('note','message_user_id'),
             );
             return json_encode($output);
         }catch (\Exception $e){
