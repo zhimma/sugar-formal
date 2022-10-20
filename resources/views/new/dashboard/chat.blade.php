@@ -451,7 +451,7 @@ is_truth_icon_pic.src="{{asset('/new/images/zz_zt2.png')}}";
         <div class="col-sm-12 col-xs-12 col-md-10">
 
             <div class="shou" style="text-align: center;position: relative;">
-                @if($isVip)
+                @if($isVip || $user->engroup==2)
                 <a class="toug_back btn_imga1 userlogo1 xzgn" style="float: left; left: 0; ">
                     <div class="btn_back">刪除<img src="/new/images/jiant_a.png"></div>
                 </a>
