@@ -699,7 +699,6 @@
     <form id="check_and_next_page" action="{{ route('admin/member_profile_check_over') }}" method="post">
         {!! csrf_field() !!}
         <input type="hidden" name="users_id" id="users_id" value={{json_encode($user_id_of_page)}}>
-        <input type="hidden" name="check_extend_users_id" id="check_extend_users_id" value=''>
         <input type="hidden" name="check_point_id" id="check_point_id" value=2>
     </form>
     @endif
@@ -791,6 +790,13 @@
         <div class="swiper-pagination2"></div>
     </div>
     <!--照片查看-->
+
+    <!--檢查延長-->
+    <form id="check_extend_form" method="POST" action="{{ route('check_extend') }}">
+        <input type="hidden" name="_token" value="{{ csrf_token() }}" >
+        <input id="check_extend_form_user_id" type="hidden" name='user_id' value="">
+    </form>
+    <!--檢查延長-->
 
     <script>
         $('.twzipcode').twzipcode({
@@ -1107,12 +1113,6 @@
         $('.check_and_next_page').on('click', function(){
             r = confirm('是否確定本頁檢查完畢?');
             if(r==true){
-                let check_extend_id = [];
-                $('.check_extend.btn-secondary').each(function(){
-                    check_extend_id.push($(this).val());
-                });
-                check_extend_id = JSON.stringify(check_extend_id);
-                $('#check_extend_users_id').val(check_extend_id);
                 $('#check_and_next_page').submit();
             }
         });
@@ -1123,6 +1123,8 @@
 
         $('.check_extend').on('click', function(){
             $(this).removeClass('btn-primary').addClass('btn-secondary').attr('disabled', true);
+            $('#check_extend_form_user_id').val($(this).val());
+            $('#check_extend_form').submit();
         });
 
     </script>
