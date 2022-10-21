@@ -559,7 +559,51 @@
                         });  
                         </script>
                     </td>
-                    <td style="width: 170px;">{{var_carrier('totalTime',$user->getFemaleNewerManualTotalTime())}}</td>
+                    <td style="width: 170px;">
+                        <div>
+                            <span>總時長：</span>
+                            @if(var_carrier(true) 
+                                && var_carrier('is_fnm_time_unusual',
+                                        var_carrier('totalTime',$user->getFemaleNewerManualTotalTime())
+                                        && var_carrier('halfTotalTime',var_carrier('totalTime')*0.5)< var_carrier('max_step_time',max($fnm_step_time_arr))
+                                        && ($fnm_step_time_arr['step_time3_3']??0)
+                                )
+                            )
+                            
+                                {{var_carrier('totalTime')-var_carrier('max_step_time')}} 秒
+                                = {{var_carrier('totalTime')}} - {{var_carrier('max_step_time')}}
+                            @else
+                                {{var_carrier('totalTime')??0}} 秒
+                            @endif
+                        </div>
+                        <div style="margin-top:0.5em;">
+                            <span>Step1:</span>
+                            @if( in_array(var_carrier('max_step_time'),$fnm_step1_time_arr) && var_carrier('is_fnm_time_unusual') )
+                                {{var_carrier('step_time1_total',array_sum($fnm_step1_time_arr))-var_carrier('max_step_time')}} 秒
+                                = {{var_carrier('step_time1_total')}}-{{var_carrier('max_step_time')}}
+                            @else
+                                {{var_carrier('step_time1_total',array_sum($fnm_step1_time_arr))}} 秒
+                            @endif
+                        </div>
+                        <div>
+                            <span>Step2:</span>
+                            @if( in_array(var_carrier('max_step_time'),$fnm_step2_time_arr) && var_carrier('is_fnm_time_unusual'))
+                                {{var_carrier('step_time2_total',array_sum($fnm_step2_time_arr))-var_carrier('max_step_time')}} 秒
+                                = {{var_carrier('step_time2_total')}}-{{var_carrier('max_step_time')}}
+                            @else
+                                {{var_carrier('step_time2_total',array_sum($fnm_step2_time_arr))}} 秒
+                            @endif
+                        </div>
+                        <div>
+                            <span>Step3:</span>
+                            @if( in_array(var_carrier('max_step_time'),$fnm_step3_time_arr) &&  var_carrier('is_fnm_time_unusual') )
+                                {{var_carrier('step_time3_total',array_sum($fnm_step3_time_arr))-var_carrier('max_step_time')}} 秒
+                                = {{var_carrier('step_time3_total')}}-{{var_carrier('max_step_time')}}
+                            @else
+                                {{var_carrier('step_time3_total',array_sum($fnm_step3_time_arr))}} 秒
+                            @endif
+                        </div>
+                    </td>
                 </tr>
                 <tr>
                     <td colspan="2">
@@ -568,42 +612,42 @@
                                 <th>1-1</th><th>1-2</th><th>1-3</th>
                             </tr>
                             <tr>
-                                <td @if(var_carrier('halfTotalTime',var_carrier('totalTime')*0.5) < var_carrier('step_time1_1',($user->female_newer_manual_time_list->where('step','1_1')->sum('time')))) style="background:red;font-weight:bolder;"   @endif>
-                                    {{var_carrier('step_time1_1')}}                                            
+                                <td @if( var_carrier('halfTotalTime')< $fnm_step_time_arr['step_time1_1'] && var_carrier('is_fnm_time_unusual')) style="background:red;font-weight:bolder;"   @endif>
+                                    {{$fnm_step_time_arr['step_time1_1']??0}}                                            
                                 </td>
-                                <td @if(var_carrier('halfTotalTime')< var_carrier('step_time1_2',$user->female_newer_manual_time_list->where('step','1_2')->sum('time'))) style="background:red;font-weight:bolder;"   @endif>
-                                    {{var_carrier('step_time1_2')}}
+                                <td @if(var_carrier('halfTotalTime')< $fnm_step_time_arr['step_time1_2'] && var_carrier('is_fnm_time_unusual')) style="background:red;font-weight:bolder;"   @endif>
+                                    {{$fnm_step_time_arr['step_time1_2']??0}}
                                 </td>
-                                <td @if(var_carrier('halfTotalTime')< var_carrier('step_time1_3',$user->female_newer_manual_time_list->where('step','1_3')->sum('time'))) style="background:red;font-weight:bolder;"   @endif>
-                                    {{var_carrier('step_time1_3')}}
+                                <td @if(var_carrier('halfTotalTime')< $fnm_step_time_arr['step_time1_3'] && var_carrier('is_fnm_time_unusual')) style="background:red;font-weight:bolder;"   @endif>
+                                    {{$fnm_step_time_arr['step_time1_3']??0}}
                                 </td>
                             </tr>
                             <tr>
                                 <th>2-1</th><th>2-2</th><th>2-3</th>
                             </tr>
                             <tr>
-                               <td @if(var_carrier('halfTotalTime')< var_carrier('step_time2_1',$user->female_newer_manual_time_list->where('step','2_1')->sum('time'))) style="background:red;font-weight:bolder;"   @endif>
-                                    {{var_carrier('step_time2_1')}}
+                               <td @if(var_carrier('halfTotalTime')< $fnm_step_time_arr['step_time2_1']  && var_carrier('is_fnm_time_unusual')) style="background:red;font-weight:bolder;"   @endif>
+                                    {{$fnm_step_time_arr['step_time2_1']??0}}
                                </td>
-                                <td @if(var_carrier('halfTotalTime')< var_carrier('step_time2_2',$user->female_newer_manual_time_list->where('step','2_2')->sum('time'))) style="background:red;font-weight:bolder;"   @endif>
-                                    {{var_carrier('step_time2_2')}}
+                                <td @if(var_carrier('halfTotalTime')< $fnm_step_time_arr['step_time2_2'] && var_carrier('is_fnm_time_unusual')) style="background:red;font-weight:bolder;"   @endif>
+                                    {{$fnm_step_time_arr['step_time2_2']??0}}
                                 </td>
-                                <td @if(var_carrier('halfTotalTime')< var_carrier('step_time2_3',$user->female_newer_manual_time_list->where('step','2_3')->sum('time'))) style="background:red;font-weight:bolder;"   @endif>
-                                     {{var_carrier('step_time2_3')}}
+                                <td @if(var_carrier('halfTotalTime')< $fnm_step_time_arr['step_time2_3'] && var_carrier('is_fnm_time_unusual')) style="background:red;font-weight:bolder;"   @endif>
+                                     {{$fnm_step_time_arr['step_time2_3']??0}}
                                 </td>
                             </tr>
                             <tr>
                                 <th>3-1</th><th>3-2</th><th>3-3</th>
                             </tr>
                             <tr>
-                               <td @if(var_carrier('halfTotalTime')< var_carrier('step_time3_1',$user->female_newer_manual_time_list->where('step','3_1')->sum('time'))) style="background:red;font-weight:bolder;"   @endif>
-                                    {{var_carrier('step_time3_1')}}
+                               <td @if(var_carrier('halfTotalTime')< $fnm_step_time_arr['step_time3_1'] && var_carrier('is_fnm_time_unusual')) style="background:red;font-weight:bolder;"   @endif>
+                                    {{$fnm_step_time_arr['step_time3_1']??0}}
                                </td>
-                                <td @if(var_carrier('halfTotalTime')< var_carrier('step_time3_2',$user->female_newer_manual_time_list->where('step','3_2')->sum('time'))) style="background:red;font-weight:bolder;"   @endif>
-                                    {{var_carrier('step_time3_2')}}
+                                <td @if(var_carrier('halfTotalTime')< $fnm_step_time_arr['step_time3_2'] && var_carrier('is_fnm_time_unusual')) style="background:red;font-weight:bolder;"   @endif>
+                                    {{$fnm_step_time_arr['step_time3_2']??0}}
                                 </td>
-                                <td @if(var_carrier('halfTotalTime')< var_carrier('step_time3_3',$user->female_newer_manual_time_list->where('step','3_3')->sum('time'))) style="background:red;font-weight:bolder;"   @endif>
-                                     {{var_carrier('step_time3_3')}}
+                                <td @if(var_carrier('halfTotalTime')< $fnm_step_time_arr['step_time3_3'] && var_carrier('is_fnm_time_unusual')) style="background:red;font-weight:bolder;"   @endif>
+                                     {{$fnm_step_time_arr['step_time3_3']??0}}
                                 </td>
                             </tr>
                         </table>

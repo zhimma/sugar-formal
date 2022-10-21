@@ -101,11 +101,18 @@ if (!function_exists('strLimit')) {
 
 if (!function_exists('var_carrier')) {
 
-    function var_carrier($var_name, $var_val = false)
+    function var_carrier($var_name, $var_val = false, $force_update=false)
     {
         static $arr = [];
         
-        if($var_val===false )    return ($arr[$var_name]??null);
+        if($var_name===true || $var_name===false) {
+            $arr = [];
+            return $var_name;
+        }
+        
+        if($var_val===false )    {
+            if($force_update===false) return ($arr[$var_name]??null);
+        }
     
         $arr[$var_name] = $var_val;
         

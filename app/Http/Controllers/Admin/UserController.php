@@ -1727,6 +1727,22 @@ class UserController extends \App\Http\Controllers\BaseController
         
         if($user->engroup==2) {
             $not_pass_faq_ltime = $this->faqUserService->faq_service()->group_entry()->whereIn('id',$this->faqUserService->riseByUserEntry($user)->getPopupUserGroupList()->pluck('group_id'))->pluck('faq_login_times')->implode(' , ');
+        
+            $fnm_step_time_arr = [
+                'step_time1_1'=>$user->female_newer_manual_time_list->where('step','1_1')->sum('time')
+                ,'step_time1_2'=>$user->female_newer_manual_time_list->where('step','1_2')->sum('time')
+                ,'step_time1_3'=>$user->female_newer_manual_time_list->where('step','1_3')->sum('time')
+                ,'step_time2_1'=>$user->female_newer_manual_time_list->where('step','2_1')->sum('time')
+                ,'step_time2_2'=>$user->female_newer_manual_time_list->where('step','2_2')->sum('time')
+                ,'step_time2_3'=>$user->female_newer_manual_time_list->where('step','2_3')->sum('time')
+                ,'step_time3_1'=>$user->female_newer_manual_time_list->where('step','3_1')->sum('time')
+                ,'step_time3_2'=>$user->female_newer_manual_time_list->where('step','3_2')->sum('time')
+                ,'step_time3_3'=>$user->female_newer_manual_time_list->where('step','3_3')->sum('time')
+            ];
+            
+            $fnm_step1_time_arr = [$fnm_step_time_arr['step_time1_1'],$fnm_step_time_arr['step_time1_2'],$fnm_step_time_arr['step_time1_3']];
+            $fnm_step2_time_arr = [$fnm_step_time_arr['step_time2_1'],$fnm_step_time_arr['step_time2_2'],$fnm_step_time_arr['step_time2_3']];
+            $fnm_step3_time_arr = [$fnm_step_time_arr['step_time3_1'],$fnm_step_time_arr['step_time3_2'],$fnm_step_time_arr['step_time3_3']];
         }
 
         if (str_contains(url()->current(), 'edit')) {
@@ -1743,6 +1759,10 @@ class UserController extends \App\Http\Controllers\BaseController
                 ->with('day', $day)
                 ->with('raa_service',$this->raa_service->riseByUserEntry($user))
                 ->with('not_pass_faq_ltime',$not_pass_faq_ltime)
+                ->with('fnm_step_time_arr',$fnm_step_time_arr)
+                ->with('fnm_step1_time_arr',$fnm_step1_time_arr)
+                ->with('fnm_step2_time_arr',$fnm_step2_time_arr)
+                ->with('fnm_step3_time_arr',$fnm_step3_time_arr)
                 ;
                 
         } else {
@@ -1788,6 +1808,10 @@ class UserController extends \App\Http\Controllers\BaseController
                 ->with('is_warned_of_budget', $is_warned_of_budget)
                 ->with('pageStay', $pageStay)
                 ->with('not_pass_faq_ltime',$not_pass_faq_ltime)
+                ->with('fnm_step_time_arr',$fnm_step_time_arr)
+                ->with('fnm_step1_time_arr',$fnm_step1_time_arr)
+                ->with('fnm_step2_time_arr',$fnm_step2_time_arr)
+                ->with('fnm_step3_time_arr',$fnm_step3_time_arr)
                 ;
         }
     }
