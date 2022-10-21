@@ -2847,5 +2847,17 @@ is_truth_icon_pic.src="{{asset('/new/images/zz_zt2.png')}}";
 
 
 
+
 </script>
+// <script type="application/javascript">
+//     $(document).ready(function(){
+//         $('[data-toggle="popover"]').popover({
+//             animated: 'fade',
+//             placement: 'bottom',
+//             trigger: 'hover',
+//             html: true,
+//             content: function () { return '<h4>' + $(this).data('content') + '</h4>'; }
+//         });
+//     });
+// </script>
 @stop

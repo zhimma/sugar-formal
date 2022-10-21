@@ -2684,7 +2684,7 @@ class PagesController extends BaseController
             $bool_value = [];
             $bool_value['transport_fare_warn'] = warned_users::where('member_id', $uid)->where('type', 'transport_fare')->first();
             $bool_value['budget_per_month_warn'] = warned_users::where('member_id', $uid)->where('type', 'month_budget')->first();
-
+            $data['note']   =    MessageUserNote::where('user_id', $user->id)->where('message_user_id', $to->id)->first();
 
             return view('new.dashboard.viewuser', $data ?? [])
                     ->with('user', $user)
@@ -3221,7 +3221,8 @@ class PagesController extends BaseController
                 'allPageDataCount'=>$searchApi['allPageDataCount'],
                 'dataList'=>$dataList,
                 'user'=>$user,
-                'userIsVip'=>$userIsVip
+                'userIsVip'=>$userIsVip,
+                'notes'=>MessageUserNote::where('user_id', $user->id)->get()->pluck('note','message_user_id'),
             );
             return json_encode($output);
         }catch (\Exception $e){

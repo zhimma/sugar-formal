@@ -5,6 +5,67 @@ header("Last-Modified: " . gmdate("D, d M Y H:i:s") . " GMT");
 header("Expires: Fri, 01 Jan 1990 00:00:00 GMT");
 ?>
 @extends('new.layouts.website')
+@section('style')
+<style>
+    .ss_xixn_input {
+        width: 200px;
+        border: none;
+        background: transparent;
+        height: 30px;
+        color: #000;
+        padding-left: 10px;
+        outline: none;
+    }
+    .ss_button_a {
+        background: #fabbcc;
+        border-radius: 3px;
+        height: 30px;
+        color: #fff;
+        float: right;
+        width: 40px;
+        text-align: center;
+        line-height: 30px;
+        cursor: pointer;
+    }
+    .ss_button_a:hover {
+        background: #ffa9bc;
+        color: #fff;
+    }
+    .ss_xixn {
+        width: 240px;
+        margin: 0 auto;
+        background: #fff;
+        border-radius: 5px;
+        float: left;
+        margin-left: 10px;
+        z-index: 9;
+        position: relative;
+    }
+    .n_ntab {
+        position: absolute;
+        bottom: 75px;
+        left: 10px;
+    }
+    .nnn_one {
+        position: relative;
+        float: left;
+        width: 45%;
+        margin-left: 2%;
+        margin-right: 2%;
+    }
+    .n_sepeop li {
+        width: 100%;
+        float: unset;
+    }
+    @media (max-width: 766px) {
+        .nnn_one {
+            width: 100%;
+            margin-left: 0%;
+            margin-right: 0%;
+        }
+    }
+</style>
+@endsection
 
 @section('app-content')
 @php $user_engroup = $user->engroup; @endphp
@@ -894,11 +955,11 @@ header("Expires: Fri, 01 Jan 1990 00:00:00 GMT");
     console.log(engroup);
     let csrDataSingle = '';
     if(engroup==1){
-        csrDataSingle = '<li class="nt_fg"><div class="n_seicon_bg"><a><div class="nt_photo blur_img"></div><div class="nt_bot vvip_bgco2"><h2>loading...</h2><h3>loading...</h3><h3>最後上線時間：loading... </h3></div></a></div></li>';
+        csrDataSingle = '<div class="nnn_one"><li class="nt_fg"><div class="n_seicon_bg"><a><div class="nt_photo blur_img"></div><div class="nt_bot vvip_bgco2"><h2>loading...</h2><h3>loading...</h3><h3>最後上線時間：loading... </h3></div></a></div></li></div>';
     }else if(engroup==2){
-        csrDataSingle = '<li class="nt_fg"><div class="n_seicon_bg"><a><div class="nt_photo blur_img"></div><div class="nt_bot nt_bgco"><h2>loading...</h2><h3>loading...</h3><h3>最後上線時間：loading... </h3></div></a></div></li>';
+        csrDataSingle = '<div class="nnn_one"><li class="nt_fg"><div class="n_seicon_bg"><a><div class="nt_photo blur_img"></div><div class="nt_bot nt_bgco"><h2>loading...</h2><h3>loading...</h3><h3>最後上線時間：loading... </h3></div></a></div></li></div>';
     }else{
-        csrDataSingle = '<li class="nt_fg"><div class="n_seicon_bg"><a><div class="nt_photo blur_img"></div><div class="nt_bot vvip_bgco2"><h2>loading...</h2><h3>loading...</h3><h3>最後上線時間：loading... </h3></div></a></div></li>';
+        csrDataSingle = '<div class="nnn_one"><li class="nt_fg"><div class="n_seicon_bg"><a><div class="nt_photo blur_img"></div><div class="nt_bot vvip_bgco2"><h2>loading...</h2><h3>loading...</h3><h3>最後上線時間：loading... </h3></div></a></div></li></div>';
     }
     
     let csrDataText = csrDataSingle.repeat(perPageCount);
@@ -1171,7 +1232,13 @@ header("Expires: Fri, 01 Jan 1990 00:00:00 GMT");
                                 vvip_top = '';
 
                                 have_vvip = 1;
-                                csrData += '<li class="nt_fg vvip_bg1">';
+                                csrData +=  `<div class="nnn_one">`;
+                                if(this.userIsVip && this.user.engroup==2) {
+                                    csrData +=  `<div class="ss_xixn n_ntab">
+                                                    <input placeholder="您尚未留下備註" class="ss_xixn_input" id="massage_user_note_${rowID}" value="${response.data.notes[rowID]??''}"><a class="ss_button_a" onclick="massage_user_note('${rowID}');">確定</a>
+                                                </div>`;
+                                }
+                                csrData += `<li class="nt_fg vvip_bg1">`;
                             }else {
 
                                 csrData += vvip_end;
@@ -1183,12 +1250,31 @@ header("Expires: Fri, 01 Jan 1990 00:00:00 GMT");
                                 }
                                 if (rowEngroup == 2) {
                                     if (rowExchangePeriod == 1) {
-                                        csrData += '<li class="nt_fg vvip_bg1">';
+                                        csrData +=  `<div class="nnn_one">`;
+                                        if(this.userIsVip && this.user.engroup==2) {
+                                            csrData +=  `<div class="ss_xixn n_ntab">
+                                                            <input placeholder="您尚未留下備註" class="ss_xixn_input" id="massage_user_note_${rowID}" value="${response.data.notes[rowID]??''}"><a class="ss_button_a" onclick="massage_user_note('${rowID}');">確定</a>
+                                                        </div>`;
+                                        }
+                                        
+                                        csrData += `<li class="nt_fg vvip_bg1">`;
                                     } else {
-                                        csrData += '<li class="nt_fg vvip_bg2">';
+                                        csrData +=  `<div class="nnn_one">`;
+                                        if(this.userIsVip && this.user.engroup==2) {
+                                            csrData +=  `<div class="ss_xixn n_ntab">
+                                                            <input placeholder="您尚未留下備註" class="ss_xixn_input" id="massage_user_note_${rowID}" value="${response.data.notes[rowID]??''}"><a class="ss_button_a" onclick="massage_user_note('${rowID}');">確定</a>
+                                                        </div>`;
+                                        }
+                                        csrData += `<li class="nt_fg vvip_bg2">`;
                                     }
                                 } else {
-                                    csrData += '<li class="nt_fg vvip_bg2">';
+                                    csrData +=  `<div class="nnn_one">`;
+                                    if(this.userIsVip && this.user.engroup==2) {
+                                        csrData +=  `<div class="ss_xixn n_ntab">
+                                                        <input placeholder="您尚未留下備註" class="ss_xixn_input" id="massage_user_note_${rowID}" value="${response.data.notes[rowID]??''}"><a class="ss_button_a" onclick="massage_user_note('${rowID}');">確定</a>
+                                                    </div>`;
+                                    }
+                                    csrData +=  `<li class="nt_fg vvip_bg2">`;
                                 }
                             }
 
@@ -1328,6 +1414,7 @@ header("Expires: Fri, 01 Jan 1990 00:00:00 GMT");
                         } else {
                             onerror="this.src='/new/images/female.png'";
                         }
+
                         if(rowVisitorIsVVIP && rowVisitorVvipInfoStatus){
                             csrData += '<a href="/dashboard/viewuser_vvip/' + rowID + '">';
                         }else {
@@ -1352,6 +1439,7 @@ header("Expires: Fri, 01 Jan 1990 00:00:00 GMT");
                         {
                             csrData +='<div class="nt_bot nt_bgco">';
                         }
+                        
                         // csrData +='<div class="nt_bot nt_bgco">';
                         csrData +='<h2>';
                         csrData +='<font class="left">'+rowName+'<span>'+rowVisitorAge+'歲</span></font>';
@@ -1365,6 +1453,9 @@ header("Expires: Fri, 01 Jan 1990 00:00:00 GMT");
                         }
 
                         csrData +='</h2>';
+                        if(this.userIsVip && this.user.engroup==2) {
+                            csrData += `<div style="height:35px;"></div>`;
+                        }
                         csrData +='<h3>';
                         if(umeta.city !== ""){
                             umeta.city.forEach((row, index) => {
@@ -1421,7 +1512,7 @@ header("Expires: Fri, 01 Jan 1990 00:00:00 GMT");
                         csrData +='</h3>';
                         csrData +='</div>';
                         csrData +='</a>';
-                        csrData +='</li>';
+                        csrData +='</li></div>';
 
                         this.csrData = csrData;
                         });
@@ -1449,7 +1540,20 @@ header("Expires: Fri, 01 Jan 1990 00:00:00 GMT");
             return (typeof variable !== 'undefined' && typeof variable !== undefined && typeof variable !== 'null' && typeof variable !== null && variable!==undefined && variable !=='undefined' && variable !== null && variable !=='null');
         }
     </script>
-
+    <script>
+        function massage_user_note(sid){
+            let massage_user_note_content = $('#massage_user_note_' + sid).val();
+            $.post('{{ route('messageUserNoteAJAX') }}', {
+                user_id: '{{ $user->id }}',
+                target_id: sid,
+                massage_user_note_content: massage_user_note_content,
+                _token: '{{ csrf_token() }}'
+            }, function (data) {
+                c5('備註已更新');
+            });
+            return false;
+        }
+    </script>
 @endsection
 
 
