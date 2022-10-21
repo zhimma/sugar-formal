@@ -759,6 +759,7 @@ Route::group(['middleware' => ['auth', 'global', 'active', 'femaleActive', 'vipC
         Route::get('users/closeAccountDetail', 'UserController@closeAccountDetail');
 
         Route::post('users/forum_toggle', 'UserController@forum_toggle')->name('forum_toggle');
+        Route::post('users/check_extend', 'UserController@check_extend')->name('check_extend');
 
         Route::get('users/anonymousChat', 'UserController@showAnonymousChatPage')->name('users/showAnonymousChatPage');
         Route::get('users/searchAnonymousChat', 'UserController@searchAnonymousChatPage')->name('users/searchAnonymousChatPage');

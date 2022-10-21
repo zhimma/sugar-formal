@@ -306,6 +306,7 @@
                                             <sapn style="vertical-align:middle;">是八大</sapn>
                                         </label>
                                         <button class="btn btn-sm btn-danger suspicious_from_btn" type="button" data-confirm="0" style="margin-top: ">確定</button>
+                                        <button class="btn btn-sm btn-primary check_extend" value={{$user->id}}>等待更多資料</button>
 
                                     @else
                                         <label style="margin:12px 0px 0px 0px;">
@@ -316,6 +317,7 @@
                                             <sapn style="vertical-align:middle;">是八大</sapn>
                                         </label>
                                         <button class="btn btn-sm btn-danger suspicious_from_btn" type="button" data-confirm="1">確定</button>
+                                        <button class="btn btn-sm btn-primary check_extend" value={{$user->id}}>等待更多資料</button>
                                     @endif
                                 </form>
                                 </p>
@@ -697,6 +699,7 @@
     <form id="check_and_next_page" action="{{ route('admin/member_profile_check_over') }}" method="post">
         {!! csrf_field() !!}
         <input type="hidden" name="users_id" id="users_id" value={{json_encode($user_id_of_page)}}>
+        <input type="hidden" name="check_extend_users_id" id="check_extend_users_id" value=''>
         <input type="hidden" name="check_point_id" id="check_point_id" value=2>
     </form>
     @endif
@@ -1104,12 +1107,22 @@
         $('.check_and_next_page').on('click', function(){
             r = confirm('是否確定本頁檢查完畢?');
             if(r==true){
+                let check_extend_id = [];
+                $('.check_extend.btn-secondary').each(function(){
+                    check_extend_id.push($(this).val());
+                });
+                check_extend_id = JSON.stringify(check_extend_id);
+                $('#check_extend_users_id').val(check_extend_id);
                 $('#check_and_next_page').submit();
             }
         });
 
         $(document).ready(function(){
             autosize($('textarea'));
+        });
+
+        $('.check_extend').on('click', function(){
+            $(this).removeClass('btn-primary').addClass('btn-secondary').attr('disabled', true);
         });
 
     </script>

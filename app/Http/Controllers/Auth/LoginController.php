@@ -3,6 +3,7 @@
 namespace App\Http\Controllers\Auth;
 
 use App\Http\Controllers\Controller;
+use App\Models\BackendUserDetails;
 use App\Models\LogUserLogin;
 use App\Models\SimpleTables\member_vip;
 use App\Models\Vip;
@@ -310,6 +311,15 @@ class LoginController extends \App\Http\Controllers\BaseController
             //更新新版SOP教學<->登入次數
             session()->forget('female_manual_has_been_read');
         }
+
+        //更新後台紀錄登入次數
+        $backend_user_details = BackendUserDetails::first_or_new($uid);
+        if($backend_user_details->user_check_step2_wait_login_times > 0)
+        {
+            $backend_user_details->user_check_step2_wait_login_times = $backend_user_details->user_check_step2_wait_login_times - 1;
+            $backend_user_details->save();
+        }
+
         //移至LogSuccessfulLoginListener
         /*
         //更新login_times
