@@ -164,6 +164,8 @@ Route::group(['middleware' => ['auth', 'global','SessionExpired']], function () 
     Route::get('/dashboard/web_manual', 'PagesController@web_manual');
     Route::get('/dashboard/anti_fraud_manual', 'PagesController@anti_fraud_manual');
     Route::post('/dashboard/newer_manual/isRead', 'PagesController@is_read_manual');
+    Route::get('/dashboard/female_newer_manual', 'PagesController@female_newer_manual');
+    Route::post('/dashboard/female_newer_manual/isRead', 'PagesController@is_read_female_manual');
     Route::get('/dashboard/openCloseAccount', 'PagesController@view_openCloseAccount');
     Route::post('/dashboard/closeAccountReason', 'PagesController@view_closeAccountReason');
     Route::post('/dashboard/updateAccountStatus', 'PagesController@updateAccountStatus');
@@ -362,13 +364,13 @@ Route::group(['middleware' => ['auth', 'global', 'active', 'femaleActive', 'vipC
     // 大頭照和生活照
     Route::get('/dashboard_img', 'PagesController@dashboard_img')->name('dashboard_img');
     Route::get('/dashboard/pictures/{userId?}', 'ImageController@getPictures');
-    Route::post('/dashboard/pictures/upload','ImageController@uploadPictures');
+    Route::post('/dashboard/pictures/upload','ImageController@uploadPictures')->name('dashboard/pictures/upload');
     Route::post('/dashboard/pictures/delete', 'ImageController@deletePictures');
     Route::get('/dashboard/avatar/{userId?}', 'ImageController@getAvatar');
     Route::get('/dashboard/avatar/blurry/{userId?}', 'PagesController@getBlurryAvatar');
     Route::post('/dashboard/avatar/blurry/{userId?}', 'PagesController@blurryAvatar');
     Route::post('/dashboard/lifephoto/blurry/{userId?}', 'PagesController@blurryLifePhoto');
-    Route::post('/dashboard/avatar/upload', 'ImageController@uploadAvatar');
+    Route::post('/dashboard/avatar/upload', 'ImageController@uploadAvatar')->name('dashboard/avatar/upload');
     Route::post('/dashboard/avatar/delete/{userId}', 'ImageController@deleteAvatar');
     Route::post('/dashboard/delPic', 'PagesController@delPic');
     Route::get('/dashboard/password', 'PagesController@view_changepassword'); //new route
@@ -435,6 +437,7 @@ Route::group(['middleware' => ['auth', 'global', 'active', 'femaleActive', 'vipC
     Route::post('/dashboard/imagedel/{admin?}', 'ImageController@deleteImage');
     Route::post('/dashboard/block', 'PagesController@postBlock');
     Route::post('/dashboard/blockAJAX', 'PagesController@postBlockAJAX')->name('postBlockAJAX');//new route
+    Route::post('/dashboard/messageUserNoteAJAX', 'PagesController@messageUserNoteAJAX')->name('messageUserNoteAJAX');//new route
     Route::post('/dashboard/unblock', 'PagesController@unblock');
     Route::post('/dashboard/unblockajax', 'PagesController@unblockAJAX')->name('unblockAJAX'); //new route
     Route::post('/dashboard/unblockAll', 'PagesController@unblockAll')->name('unblockAll'); //new route
@@ -504,6 +507,7 @@ Route::group(['middleware' => ['auth', 'global', 'active', 'femaleActive', 'vipC
         Route::post('/dashboard/announcement_post', 'Message_newController@announcePost')->name('announcePost');
         Route::get('/dashboard/manual', 'PagesController@manual');
         Route::get('/dashboard/chat2/is_truth/get_remain', 'PagesController@getChatIsTruthRemainQuota')->name('getChatIsTruthRemainQuota');
+        Route::post('/dashboard/toggleShowCanMessage', 'Message_newController@ToggleShowCanMessage')->name('toggleShowCanMessage');
 
         Route::post('/dashboard/letTourRead', 'PagesController@letTourRead')->name('letTourRead');
 
@@ -597,7 +601,9 @@ Route::group(['middleware' => ['auth', 'global', 'active', 'femaleActive', 'vipC
         Route::get('/dashboard/beauty_auth', 'PagesController@showBeautyAuth')->name('beauty_auth');
         Route::post('/dashboard/beauty_auth/save', 'PagesController@saveBeautyAuth')->name('beauty_auth_save');
         Route::get('/dashboard/beauty_auth/delete_pic', 'PagesController@deleteBeautyAuthPic')->name('beauty_auth_pic_delete');        
-        Route::post('/dashboard/real_auth_update_profile','PagesController@savePassedRealAuthModify')->name('real_auth_update_profile');        
+        Route::post('/dashboard/real_auth_update_profile','PagesController@savePassedRealAuthModify')->name('real_auth_update_profile');
+        Route::get('/dashboard/tag_display_settings', 'PagesController@showTagDisplaySettings')->name('tag_display_settings');
+        Route::post('/dashboard/tag_display_settings', 'PagesController@tagDisplaySet')->name('tagDisplaySet');
         /*
         |--------------------------------------------------------------------------
         | LINE
@@ -844,6 +850,7 @@ Route::group(['middleware' => ['auth', 'global', 'active', 'femaleActive', 'vipC
         Route::post('users/invite', 'UserController@postInvite');
         Route::post('users/genderToggler', 'UserController@toggleGender')->name('genderToggler');
         Route::post('users/isRealToggler', 'UserController@TogglerIsReal')->name('isRealToggler');
+        Route::post('users/isChatToggler', 'UserController@TogglerIsChat')->name('isChatToggler');
         Route::post('users/VIPToggler', 'UserController@toggleVIP')->name('VIPToggler');
         Route::post('users/toggleHidden', 'UserController@toggleHidden')->name('toggleHidden');        
         Route::post('users/RecommendedToggler', 'UserController@toggleRecommendedUser');
@@ -1001,6 +1008,8 @@ Route::group(['middleware' => ['auth', 'global', 'active', 'femaleActive', 'vipC
         Route::get('users/showLogBk', 'FindPuppetController@displayDetail');
         Route::get('users/compare_login_time', 'FindPuppetController@compare_login_time_show');
         Route::post('users/compare_login_time', 'FindPuppetController@compare_login_time');
+        Route::get('users/get_multi_account_mail_num_list','FindPuppetController@get_multi_account_mail_num_list')->name('showDuplicate_get_multi_account_mail_num_list');
+        Route::get('users/get_newer_manual_stay_online_time_list','FindPuppetController@get_newer_manual_stay_online_time_list')->name('showDuplicate_get_newer_manual_stay_online_time_list');
         Route::get('too_many_requests', 'PagesController@tooManyRequests')->name('tooMantRequests');
 
 

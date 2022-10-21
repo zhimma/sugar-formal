@@ -36,6 +36,7 @@ use App\Models\IsWarnedLog;
 use App\Models\SimpleTables\short_message;
 use App\Models\LogAdvAuthApi;
 use App\Models\UserTattoo;
+use Illuminate\Database\Eloquent\Factories\HasFactory;
 use App\Models\StayOnlineRecord;
 use App\Models\PuppetAnalysisRow;
 use Illuminate\Support\Facades\Cache;
@@ -44,7 +45,7 @@ use Laravel\Scout\Searchable;
 
 class User extends Authenticatable implements JWTSubject
 {
-    use Notifiable, Searchable;
+    use HasFactory, Notifiable, Searchable;
     /**
      * The database table used by the model.
      *
@@ -68,6 +69,9 @@ class User extends Authenticatable implements JWTSubject
         'login_times',
         'intro_login_times',
         'isReadManual',
+        'is_read_female_manual_part1',
+        'is_read_female_manual_part2',
+        'is_read_female_manual_part3',
         'exchange_period',
         'line_notify_switch',
         'is_hide_online',
@@ -132,6 +136,18 @@ class User extends Authenticatable implements JWTSubject
         return $this->hasOne(\App\Models\SimpleTables\short_message::class, 'member_id', 'id')->where('mobile','!=','')->where('active', 1);
     }
 
+    public function self_auth_tags_display() {
+        return $this->hasOne(RealAuthUserTagsDisplay::class, 'user_id', 'id')->where('auth_type_id', 1);
+    }
+
+    public function beauty_auth_tags_display() {
+        return $this->hasOne(RealAuthUserTagsDisplay::class, 'user_id', 'id')->where('auth_type_id', 2);
+    }
+
+    public function famous_auth_tags_display() {
+        return $this->hasOne(RealAuthUserTagsDisplay::class, 'user_id', 'id')->where('auth_type_id', 3);
+    }
+
     public function pr_log() {
         return $this->hasOne(Pr_log::class, 'user_id', 'id')->where('active', 1);
     }
@@ -146,6 +162,11 @@ class User extends Authenticatable implements JWTSubject
     public function receivedMessages()
     {
         return $this->hasMany(Message_new::class, 'to_id', 'id');
+    }
+
+    public function messageRooms()
+    {
+        return $this->hasManyThrough(MessageRoom::class, MessageRoomUserXref::class, 'user_id', 'id', 'id', 'room_id');
     }
 
     //生活照
@@ -201,7 +222,22 @@ class User extends Authenticatable implements JWTSubject
     public function stay_online_record_only_page()
     {
         return StayOnlineRecord::addOnlyPageClauseToQuery($this->stay_online_record());//->whereNotNull('stay_online_time')->whereNotNull('url');
-    }     
+    }  
+
+    public function female_newer_manual_time_list()
+    {
+        
+        return $this->stay_online_record_only_page()
+            ->where('url','like','%#nr_fnm%')
+            ->groupBy('url')
+            ->selectRaw('SUBSTRING(url, -3, 3) as step,sum(stay_online_time) as time')
+            ;
+    }
+    
+    public function getFemaleNewerManualTotalTime()
+    {
+        return $this->female_newer_manual_time_list->sum('time');
+    }
     
     //多重帳號row
     public function puppet_analysis_row()
@@ -2257,4 +2293,26 @@ class User extends Authenticatable implements JWTSubject
         return $this->paginate;
     }    
 
+    public function toSearchableArray()
+    {
+        $meta = $this->user_meta()->first();
+        return [
+            'id' => $this->id,
+            'engroup' => $this->engroup,
+            'name' => $this->name,
+            'email' => $this->email,
+            'birthdate' => $meta->birthdate,
+            'created_at' => $this->created_at?->timestamp,
+            'updated_at' => $this->updated_at?->timestamp,
+        ];
+    }
+
+    public static function getSearchFilterAttributes()
+    {
+        return [
+            'name',
+            'engroup',
+            'birthdate',
+        ];
+    }
 }

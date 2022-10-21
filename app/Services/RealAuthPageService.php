@@ -128,6 +128,15 @@ class RealAuthPageService {
         return $this->rau_repo()->modify_pic_entry($value_or_reset);
     }    
 
+    public function isAllowUseBeautyAuthForm()
+    {
+        if(!$this->isApplyEffectByAuthTypeId(1)) {
+            return false;
+        }
+        
+        return true;
+    }
+
     public function isAllowRealAuthType($value) 
     {
         $type_list = $this->ra_type_list();
@@ -359,7 +368,7 @@ class RealAuthPageService {
     
     public function getBeautyAuthProcessPrecheckReturn()
     {
-        if(!$this->isPassedByAuthTypeId(1)) {
+        if(!$this->isAllowUseBeautyAuthForm()) {   
             return redirect()->route('real_auth');
         }
     }   
@@ -788,6 +797,7 @@ class RealAuthPageService {
             break;
         }  
         
+        /*
         return  '
                          '.($is_in_search?'<div class="hoverTip">':'<li>').'
                             <div class="tagText"  data-toggle="popover" data-content="此會員通過本站的基本資料/照片與視訊認證。">
@@ -795,6 +805,9 @@ class RealAuthPageService {
                             </div>
                          '.($is_in_search?'</div>':'</li>').'   
                 ';
+        */
+        return '';
+
     }
     
     public function getBeautyAuthTagShowOnPicLayoutByLoginedUserIsVip($is_vip,$is_in_search=false)
@@ -809,6 +822,7 @@ class RealAuthPageService {
             break;
         }        
         
+        /*
         return '
                         '.($is_in_search?'<div class="hoverTip">':'<li>').'
                             <div class="tagText"  data-toggle="popover" data-content="此會員通過本站的基本資料/照片與視訊認證。推薦給各位 vvip 會員。">
@@ -816,6 +830,9 @@ class RealAuthPageService {
                             </div>
                         '.($is_in_search?'</div>':'</li>').'        
                 ';
+        */
+        return '';
+
     }
 
     public function getFamousAuthTagShowOnPicLayoutByLoginedUserIsVip($is_vip,$is_in_search=false)
@@ -830,6 +847,7 @@ class RealAuthPageService {
             break;
         }
         
+        /*
         return '
                        '.($is_in_search?'<div class="hoverTip">':'<li>').'
                             <div class="tagText"  data-toggle="popover" data-content="本站的名人認證會員。">
@@ -837,6 +855,9 @@ class RealAuthPageService {
                             </div> 
                          '.($is_in_search?'</div>':'</li>').'          
                 ';
+        */
+        return '';
+
     }    
     
     public function getLatestActualUnchekedHeightModifyEntry() 
@@ -949,8 +970,9 @@ class RealAuthPageService {
         $last_url_arr_elt = array_pop($url_arr);        
         $last_url_arr_elt_segs = explode('?',$last_url_arr_elt);
         $last_url_seg = array_shift($last_url_arr_elt_segs);
+        parse_str(implode('',$last_url_arr_elt_segs),$url_query);
         
-        if(!$url || in_array($last_url_seg,$this->getExcludeReturnBackPageArrInRealAuthPage())) {
+        if(!$url ||  ($url_query['real_auth']??null)  || in_array($last_url_seg,$this->getExcludeReturnBackPageArrInRealAuthPage())) {
             $url = $this->getRememberedReturnBackUrlInRealAuthPage();
         }
         

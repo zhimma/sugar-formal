@@ -54,6 +54,9 @@
     .has_unchecked_compare_origin_show {display:inline-block;width:45%;}
     #form_exchange_period_container {display:inline-block;vertical-align:top;}
     #form_exchange_period_container .unchecked_value_show {font-size:14px;white-space:nowrap;}
+
+    .newer_manual_time_detail_tb th {font-weight:549;text-align:center;}
+    .newer_manual_time_detail_tb td {text-align:center;}
 </style>
 
 <body style="padding: 15px;">
@@ -219,7 +222,7 @@
         <input type="hidden" name='is_real' value="{{ $user->is_real }}">
         <button type="submit" class="btn {{ $user->is_real? 'btn-warning' : 'btn-danger' }}">{{ $user->is_real ? '是本人' : '非本人' }}</button>
     </form>   
-    <a href="{{ route('AdminMessageRecord', $user['id']) }}" target="_blank" class='btn btn-danger message_record_btn'>開啟會員對話</a>
+    <button class="btn {{ $user->is_admin_chat_channel_open? 'btn-success' : 'btn-danger' }} message_record_btn" onclick="isChat( {{ $user->id }}, {{ !$user->is_admin_chat_channel_open }})">{{ $user->is_admin_chat_channel_open ? '對話中' : '開啟會員對話' }}</button>
     @if($user->engroup==2)
     <div id="real_auth_actor_container">
         <a class="btn {{$raa_service->getActorClassAttrByAuthTypeId(1)}}" id="self_auth_actor" href="javascript:void(0)" data-auth_type_id="1" data-auth_name="本人認證" data-user_id="{{ $user['id'] }}"  data-latest_modify_id="{{$raa_service->getLatestUncheckedModifyIdByAuthTypeId(1)}}" >{{$raa_service->getStatusActorPrefixByAuthTypeId(1)}}本人認證</a>
@@ -521,18 +524,92 @@
                 </thead>
                 @foreach ($pageStay as $data)
                     @foreach ($data as $name => $val)
+                        @if($name == 'browse' || $user->engroup==1)
                         <tr>
                             <td style="width: 170px;">
                                 @if($name == 'browse')
                                     瀏覽資料
-                                @elseif ($name == 'newer_manual')
+                                @elseif ($name == 'newer_manual' && $user->engroup==1)
                                     新手教學
                                 @endif
                             </td>
                             <td style="width: 170px;">{{$val??0}}</td>
                         </tr>
+                        @endif
                     @endforeach
                 @endforeach
+                @if($user->engroup==2)
+                <tr>
+                    <td style="width: 170px;">
+                        新手教學
+                        <span id="btn_showDetail_newer_manual_time" class="btn_showLogUser btn btn-primary" >+</span>
+                        <script>
+                        $('#btn_showDetail_newer_manual_time').click(function(){
+                            
+                            if( $('#newer_manual_time_detail_tb').css('display')=='none'){
+                                $('#newer_manual_time_detail_tb').show();
+                                $('#btn_showDetail_newer_manual_time').text('-');
+                            }else{
+                                
+                            
+                                $('#newer_manual_time_detail_tb').hide();
+                                $('#btn_showDetail_newer_manual_time').text('+');
+
+                            }
+                        });  
+                        </script>
+                    </td>
+                    <td style="width: 170px;">{{var_carrier('totalTime',$user->getFemaleNewerManualTotalTime())}}</td>
+                </tr>
+                <tr>
+                    <td colspan="2">
+                        <table id="newer_manual_time_detail_tb" class="newer_manual_time_detail_tb table table-hover table-bordered" style="display:none;">
+                            <tr>
+                                <th>1-1</th><th>1-2</th><th>1-3</th>
+                            </tr>
+                            <tr>
+                                <td @if(var_carrier('halfTotalTime',var_carrier('totalTime')*0.5) < var_carrier('step_time1_1',($user->female_newer_manual_time_list->where('step','1_1')->sum('time')))) style="background:red;font-weight:bolder;"   @endif>
+                                    {{var_carrier('step_time1_1')}}                                            
+                                </td>
+                                <td @if(var_carrier('halfTotalTime')< var_carrier('step_time1_2',$user->female_newer_manual_time_list->where('step','1_2')->sum('time'))) style="background:red;font-weight:bolder;"   @endif>
+                                    {{var_carrier('step_time1_2')}}
+                                </td>
+                                <td @if(var_carrier('halfTotalTime')< var_carrier('step_time1_3',$user->female_newer_manual_time_list->where('step','1_3')->sum('time'))) style="background:red;font-weight:bolder;"   @endif>
+                                    {{var_carrier('step_time1_3')}}
+                                </td>
+                            </tr>
+                            <tr>
+                                <th>2-1</th><th>2-2</th><th>2-3</th>
+                            </tr>
+                            <tr>
+                               <td @if(var_carrier('halfTotalTime')< var_carrier('step_time2_1',$user->female_newer_manual_time_list->where('step','2_1')->sum('time'))) style="background:red;font-weight:bolder;"   @endif>
+                                    {{var_carrier('step_time2_1')}}
+                               </td>
+                                <td @if(var_carrier('halfTotalTime')< var_carrier('step_time2_2',$user->female_newer_manual_time_list->where('step','2_2')->sum('time'))) style="background:red;font-weight:bolder;"   @endif>
+                                    {{var_carrier('step_time2_2')}}
+                                </td>
+                                <td @if(var_carrier('halfTotalTime')< var_carrier('step_time2_3',$user->female_newer_manual_time_list->where('step','2_3')->sum('time'))) style="background:red;font-weight:bolder;"   @endif>
+                                     {{var_carrier('step_time2_3')}}
+                                </td>
+                            </tr>
+                            <tr>
+                                <th>3-1</th><th>3-2</th><th>3-3</th>
+                            </tr>
+                            <tr>
+                               <td @if(var_carrier('halfTotalTime')< var_carrier('step_time3_1',$user->female_newer_manual_time_list->where('step','3_1')->sum('time'))) style="background:red;font-weight:bolder;"   @endif>
+                                    {{var_carrier('step_time3_1')}}
+                               </td>
+                                <td @if(var_carrier('halfTotalTime')< var_carrier('step_time3_2',$user->female_newer_manual_time_list->where('step','3_2')->sum('time'))) style="background:red;font-weight:bolder;"   @endif>
+                                    {{var_carrier('step_time3_2')}}
+                                </td>
+                                <td @if(var_carrier('halfTotalTime')< var_carrier('step_time3_3',$user->female_newer_manual_time_list->where('step','3_3')->sum('time'))) style="background:red;font-weight:bolder;"   @endif>
+                                     {{var_carrier('step_time3_3')}}
+                                </td>
+                            </tr>
+                        </table>
+                    </td>
+                </tr>
+                @endif                
             </table>
             @if($user->engroup==2 && $not_pass_faq_ltime)
             <table  class="table table-bordered">
@@ -2523,9 +2600,9 @@ jQuery(document).ready(function(){
         var cfpID =$(this).attr('data-cfpID');
         if(ip!=='不指定'){
             if(ip){
-                window.open('/admin/users/ip/'+ip+'?assign_user_id='+ assign_user_id+'&yearMonth='+ yearMonth, '_blank');
+                window.open('/admin/users/ip/'+ip, '_blank');
             }else{
-                window.open('/admin/users/ip/不指定?assign_user_id='+ assign_user_id+'&yearMonth='+ yearMonth +'&cfp_id='+ cfpID, '_blank');
+                window.open('/admin/users/ip/不指定?cfp_id='+ cfpID, '_blank');
             }
         }else{
             $('.showLog').hide();
@@ -3043,13 +3120,22 @@ function show_re_content(id){
         }
 
     });
-
-    $('.message_record_btn').on('click', function(){
-        if($(this).text() == '開啟會員對話')
-        {
-            $(this).text('對話中');
-        }
-    });
+    function isChat(id, is_open) {
+        window.open('/admin/users/message/record/'+id);
+        $.ajax({
+            type: 'POST',
+            url: '/admin/users/isChatToggler',
+            data:{
+                _token: '{{csrf_token()}}',
+                user_id: id,
+                is_admin_chat_channel_open: is_open,
+            },
+            dataType:"json",
+            success: function(res){
+                location.reload();
+        }});
+    }
+  
 
     //預算及車馬費警示警示
     function WarnBudget(type)

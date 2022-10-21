@@ -36,6 +36,7 @@ use Illuminate\Http\Request;
 use App\Services\UserService;
 use App\Services\AdminService;
 use App\Services\FaqService;
+use App\Services\FaqUserService;
 use App\Services\MessageService;
 use App\Services\ShortMessageService;
 use App\Http\Requests\UserInviteRequest;
@@ -86,12 +87,13 @@ use Illuminate\Support\Facades\Log;
 
 class UserController extends \App\Http\Controllers\BaseController
 {
-    public function __construct(UserService $userService, AdminService $adminService,RealAuthAdminService $raa_service,MessageService $messageService)
+    public function __construct(UserService $userService, AdminService $adminService,RealAuthAdminService $raa_service,MessageService $messageService,FaqUserService $faqUserService)
     {
         $this->service = $userService;
         $this->admin = $adminService;
         $this->raa_service = $raa_service->riseByUserService($this->service);
         $this->messageService = $messageService;
+        $this->faqUserService = $faqUserService;
     }
 
     /**
@@ -211,6 +213,15 @@ class UserController extends \App\Http\Controllers\BaseController
         $user->save();
 
         return redirect('admin/users/advInfo/' . $request->user_id);
+    }
+
+    public function TogglerIsChat(Request $request)
+    {
+        $user = User::where('id', $request->user_id)->first();
+        $user->is_admin_chat_channel_open = $request->is_admin_chat_channel_open;
+        $user->save();
+
+        return response()->json($user);
     }
 
     /**
@@ -1715,7 +1726,7 @@ class UserController extends \App\Http\Controllers\BaseController
         $not_pass_faq_ltime = '';
         
         if($user->engroup==2) {
-            $not_pass_faq_ltime = $user->faq_user_group()->with('faq_group')->where('is_pass',0)->whereHas('faq_group',function($q) {$q->whereHas('faq_user_reply_not_pass');})->get()->pluck('faq_group.faq_login_times')->implode('/');
+            $not_pass_faq_ltime = $this->faqUserService->faq_service()->group_entry()->whereIn('id',$this->faqUserService->riseByUserEntry($user)->getPopupUserGroupList()->pluck('group_id'))->pluck('faq_login_times')->implode(' , ');
         }
 
         if (str_contains(url()->current(), 'edit')) {
@@ -2212,7 +2223,7 @@ class UserController extends \App\Http\Controllers\BaseController
                 //Rearranges the messages query results.
                 $results = array();
 
-                array_walk($temp, function (&$value, &$key) use (&$results) {
+                array_walk($temp, function (&$value) use (&$results) {
                     $results[$value['id']] = $value;
                 });
 
@@ -6921,6 +6932,27 @@ class UserController extends \App\Http\Controllers\BaseController
         if($latest_modify_id && $latest_modify_id< $raa_service->getLatestUncheckedModifyIdByAuthTypeId($auth_type_id)) {
             return 2;
         }
+
+        //通過認證後, 發送站長訊息通知
+        if($raa_service->passApplyByAuthTypeId($auth_type_id)){
+            $user=User::findById($user_id);
+
+            $auth_tag_success=[];
+            if($user && $user->engroup==2){
+                if($user->self_auth_status)
+                    $auth_tag_success[]='本人認證';
+                if ($user->beauty_auth_status)
+                    $auth_tag_success[]='美顏推薦';
+                if ($user->famous_auth_status)
+                    $auth_tag_success[]='名人認證';
+            }
+            if(count($auth_tag_success)>0){
+                $auth_string=count($auth_tag_success) >0 ? implode('&', $auth_tag_success) :'';
+                $message= $user->name .'您好，您已通過本站的 '.$auth_string.'，此驗證 tag以及您的照片站方僅預設開放給 vvip，以及 pr 值超過80的vip daddy，如果您想要調整，<a href="/dashboard/tag_display_settings" style="color: red;">請點此自行調整。';
+                $admin_id = AdminService::checkAdmin()->id;
+                Message::post($admin_id, $user_id, $message);
+            }
+        }
         
         return $raa_service->passApplyByAuthTypeId($auth_type_id)?'1':'0';
             
@@ -6959,7 +6991,7 @@ class UserController extends \App\Http\Controllers\BaseController
             $user_online_record = null;
         } 
         else {
-            $user_online_record = User::whereHas('stay_online_record_only_page')->selectRaw('*,id as user_id')->orderByDesc('last_login');        
+            $user_online_record = User::selectRaw('*,id as user_id')->orderByDesc('last_login');        
             
             $users = $user_online_record;
 

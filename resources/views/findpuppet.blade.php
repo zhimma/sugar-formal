@@ -79,6 +79,8 @@
         color: #fff;
         font-size: 2px;        
     }
+    
+    .multi_account_mail_num,.newer_manual_stay_online_time {display:none;}
  </style>
  <style>
     .table > tbody > tr > td, .table > tbody > tr > th{
@@ -89,6 +91,35 @@
 </style>
 <script type="text/javascript">
     $(function() {
+        $.ajax({
+            type: 'GET',
+            url: '{{ route('showDuplicate_get_multi_account_mail_num_list') }}?{{csrf_token()}}={{now()->timestamp}}',
+            //data: { value : user_id,op:0},
+            success: function(data, status, error){
+                for(var i in data) {
+                    $('#multi_account_mail_num_'+data[i].to_id).html(data[i].num);
+                }
+                $('.multi_account_mail_num').show();
+            },
+            error: function(xhr, status, error){
+                alert('多開通知信欄位讀取失敗，無法顯示多開通知信欄位，請重新整理網頁。\n\n錯誤訊息：'+status+' '+error);
+            }
+        });				
+
+        $.ajax({
+            type: 'GET',
+            url: '{{ route('showDuplicate_get_newer_manual_stay_online_time_list') }}?{{csrf_token()}}={{now()->timestamp}}',
+            success: function(data, status, error){
+                for(var i in data) {
+                    $('#newer_manual_stay_online_time_'+data[i].user_id).html(data[i].time);
+                }
+                $('.newer_manual_stay_online_time').show();
+            },
+            error: function(xhr, status, error){
+                alert('新手教學時間欄位讀取失敗，無法顯示新手教學時間欄位，請重新整理網頁。\n\n錯誤訊息：'+status+' '+error);
+            }
+        });				
+
 		
 		
 		$('.btn_admin_close').on('click',function() {
@@ -123,7 +154,7 @@
 			nowElt.addClass('handling');
 			nowElt.text('處理中');				
 
-			var user_id = nowElt.parent().find('a.user_id').text().replace(' ','');
+			var user_id = nowElt.closest('tr').find('a.advinfo_entrance')[0].pathname.split('/').pop();
 			$.ajax({
 				type: 'POST',
 				url: '/admin/users/accountStatus_admin?{{csrf_token()}}={{now()->timestamp}}',
@@ -154,7 +185,7 @@
 			
 			$(this).hide();
 			$(this).parent().find('.ignore_switch_on').css("display", "inline-block");
-			var user_id = $(this).parent().find('a.user_id').text().replace(' ','');
+			var user_id = $(this).closest('tr').find('a.advinfo_entrance')[0].pathname.split('/').pop();
 			$.ajax({
 				type: 'GET',
 				url: '{{ route('ignoreDuplicate') }}?{{csrf_token()}}={{now()->timestamp}}',
@@ -171,7 +202,7 @@
 		$('.ignore_switch_on').on('click',function() {
 			$(this).hide();
 			$(this).parent().find('.ignore_switch_off').css("display", "inline-block");
-			var user_id = $(this).parent().find('a.user_id').text().replace(' ','');
+			var user_id = $(this).closest('tr').find('a.advinfo_entrance')[0].pathname.split('/').pop();
 			$.ajax({
 				type: 'GET',
 				url: '{{ route('ignoreDuplicate') }}?{{csrf_token()}}={{now()->timestamp}}',
@@ -256,8 +287,6 @@
 	})	
 </script>
 <body style="padding: 15px;">
-
-
 <div class="top_head_title_info">
 <h2>多重登入帳號@if(!request()->only)交叉比對@else{{strtoupper(request()->only)}}分析@endif數據
 @if($new_exec_log->count()) <span class="title_info">(新排程正在執行中)</span> @endif
@@ -269,7 +298,9 @@
 	@else
 	全部直到
 	@endif
+    <span style="{{$new_exec_log->count() && (\Carbon\Carbon::now()->diffInHours($end_date)>=48)?'color:red;':''}}">
 	{{$end_date}}
+    </span>
 	@if(!$sdateOfIp)
 	為止
 	@endif
@@ -282,7 +313,9 @@
         @else
         全部直到
         @endif
+        <span style="{{$new_exec_log->count() && (\Carbon\Carbon::now()->diffInHours($end_date)>=48)?'color:red;':''}}">
         {{$end_date}}
+        </span>
         @if(!$sdateOfCfpId)
         為止
         @endif	
@@ -418,7 +451,8 @@
         <tr>
             <th class="col_user_id">&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;</th>
 			<th>{!!str_repeat('&nbsp;',ceil(($max_email_len-5)/2)*2)!!}Email{!!str_repeat('&nbsp;',floor(($max_email_len-5)/2)*2)!!}</th>
-			<th>新手教學時間</th>
+			<th>多開通知信</th>
+            <th>新手教學時間</th>
             <th>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;暱稱&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;</th>
 			<th>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;一句話&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;</th>
 			<th>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;關於我&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;</th>
@@ -487,6 +521,7 @@
 				<img src="{{asset("new/images/guan.png")}}" class="ignore_switch_off"   style=" {{!$user->ignoreEntry?'display:none;':'display:inline-block;'}}"/>			
 			
 			</th>
+            {{--
 			@php
 				$bgColor = null;
 				//$user = \App\Models\User::with('vip','aw_relation', 'banned', 'implicitlyBanned')->find($rowName);
@@ -499,12 +534,16 @@
 					}
 				}
 			@endphp
+            --}}
 			@if($user)
 				<th  class="col-2nd"  style="color: {{ $user->engroup == 1 ? 'blue' : 'red' }}; @if($bgColor) background-color: {{ $bgColor }} @endif">
-					<a href="{!!route('users/advInfo',$user->id)!!}"  target="_blank">{{ $user->email }}</a>
+					<a class="advinfo_entrance"  href="{!!route('users/advInfo',$user->id)!!}"  target="_blank">{{ $user->email }}</a>
 				</th>
-                <th  class="col-3rd" style="color: {{ $user->engroup == 1 ? 'blue' : 'red' }}; @if($bgColor) background-color: {{ $bgColor }} @endif">
-                    {{$user->newer_manual_stay_online_time->time??'無'}}
+                <th   class="col-3rd" style="color: {{ $user->engroup == 1 ? 'blue' : 'red' }}; @if($bgColor) background-color: {{ $bgColor }} @endif">
+                    <span id="multi_account_mail_num_{{$user->id}}" class="multi_account_mail_num">0</span>
+                </th>
+                <th  class="col-most" style="color: {{ $user->engroup == 1 ? 'blue' : 'red' }}; @if($bgColor) background-color: {{ $bgColor }} @endif">
+                    <span id="newer_manual_stay_online_time_{{$user->id}}" class="newer_manual_stay_online_time">0</span>
                 </th>
 				<th  class="col-most" style="color: {{ $user->engroup == 1 ? 'blue' : 'red' }}; @if($bgColor) background-color: {{ $bgColor }} @endif">
 					<a href="#" class="user user_name" title="{{$user->name}}" onclick="return false;">{{ mb_strlen($user->name)>8?mb_substr($user->name,0,9).'...':$user->name }}</a>

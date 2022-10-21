@@ -591,9 +591,16 @@ abstract class ECPay_Aio
         curl_setopt($ch, CURLOPT_POSTFIELDS, http_build_query($parameters));
         $rs = curl_exec($ch);
 
-        if (FALSE === $rs) {
-            throw new \Exception (curl_error($ch), curl_errno($ch));
+        try {
+            if (FALSE === $rs) {
+                // throw new \Exception (curl_error($ch), curl_errno($ch));
+                logger('curl_error:' . curl_error($ch) . curl_error($ch));
+            }
         }
+        catch(\Exception $e) {
+            logger($e);
+        }
+        
 
         curl_close($ch);
 

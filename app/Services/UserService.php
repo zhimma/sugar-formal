@@ -1195,6 +1195,18 @@ class UserService
             else {
                 $isBlurAvatar = false;
             }
+
+            $getPr=$user->pr_log?$user->pr_log->pr:0;
+            foreach ($blurryAvatar as $value){
+                if(str_contains($value, 'PR_')){
+                    $set_pr_value=str_replace('PR_',"",$value);
+                    $isBlurAvatar=($set_pr_value>=$getPr) ? true : false;
+                }
+            }
+            if($user->isVVIP() || ($user->isVip() && $getPr>=80) ){
+                $isBlurAvatar = false;
+            }
+
         }
         return $isBlurAvatar;
     }
@@ -1216,6 +1228,18 @@ class UserService
             else {
                 $isBlurLifePhoto = false;
             }
+
+            $getPr=$user->pr_log?$user->pr_log->pr:0;
+            foreach ($blurryLifePhoto as $value){
+                if(str_contains($value, 'PR_')){
+                    $set_pr_value=str_replace('PR_',"",$value);
+                    $isBlurLifePhoto=($set_pr_value>=$getPr) ? true : false;
+                }
+            }
+            if($user->isVVIP() || ($user->isVip() && $getPr>=80) ){
+                $isBlurLifePhoto = false;
+            }
+
         }
         return $isBlurLifePhoto;
     }
@@ -1500,7 +1524,7 @@ class UserService
         $query = DB::table('log_system_day_statistic')->whereDate('date', Carbon::today())->first();
         $avg = $query?->average_recipients_count_of_vip_male_senders;
         $median = $query?->median_recipients_count_of_vip_male_senders;
-        $greeting_rate = max($avg ?? 999, $median ?? 999);
+        $greeting_rate = max($avg ?? 999, $median ?? 999) * 1.75;
         $recipients_count = UserMeta::where('user_id', $from_id)->pluck('recipients_count')->first();
         
         return $recipients_count > $greeting_rate;
@@ -1523,19 +1547,19 @@ class UserService
                 ->get();
 
             $isCanMessage = false;
-            $can_pr = UserService::computeCanMessagePercent_15($user->id);
+            // $can_pr = UserService::computeCanMessagePercent_15($user->id);
+            $can_pr = 50;
             foreach($messages as $data) {
                 similar_text($content, $data['content'], $percent);
                 if ($percent >= $can_pr) {
                     $isCanMessage = true;
-                }
-            }    
-            
-            $user_open_alert = $user->can_message_alert;
-            if ($user_open_alert && $isCanMessage) {
-                return true;
-            }else {
-                return false;
+                    $user_open_alert = $user->can_message_alert;
+                    if ($user_open_alert) {
+                        return true;
+                    }else {
+                        return false;
+                    }
+                }    
             }
         }
         return false;

@@ -426,7 +426,7 @@ function requestBlurryAvatarDefault() {
                         @php
                             $blurryAvatar = isset($blurry_avatar)? $blurry_avatar : '';
                             $blurryAvatar = explode(',', $blurryAvatar);
-                            $isVVIP = true;$isVIP = true;$isGeneral = true;
+                            $isVVIP = true;$isVIP = false;$isGeneral = true;$isPR = false;
                             $isDefault = false;
                             if(!($blurry_avatar??null)) {                              
                                 $isGeneral = false;
@@ -439,6 +439,8 @@ function requestBlurryAvatarDefault() {
                                     $isVIP = false;
                                 } elseif($row == 'general') {
                                     $isGeneral = false;
+                                } elseif(str_contains($row, 'PR_')) {
+                                    $isPR = true;
                                 }
                             }
                         @endphp
@@ -452,16 +454,19 @@ function requestBlurryAvatarDefault() {
                           <h4>
                               <span><input name="picBlurryAvatar" type="checkbox" value="VIP" @if($isVIP) checked @endif>VIP</span>
                               <span><input name="picBlurryAvatar" type="checkbox" value="general" @if($isGeneral) checked @endif>試用會員</span>
+                              @if($user->engroup==2)
+                              <span><input name="picBlurryAvatar" type="checkbox" value="PR" @if($isPR) checked @endif>pr<input type="number" name="avatar_pr_value" value="60" min="0" max="100" style="height: 22px;"></span>
+                              @endif
                           </h4>
                     </div>
                     
                     <div class="row mb-4 ">
                         <div class="col-sm-12 col-lg-12">
-                            <form id="avatar_upload_form"  action="{{ url('/dashboard/avatar/upload') }}" method="post" enctype="multipart/form-data">
+                            <form id="avatar_upload_form" @if($rap_service->isInRealAuthProcess()) action="{{route('dashboard/avatar/upload',['real_auth'=>request()->real_auth])}}" @else action="{{ url('/dashboard/avatar/upload') }}" @endif method="post" enctype="multipart/form-data">
                                 <input type="file" name="avatar" data-fileuploader-files=''>
                                 <input type="hidden" name="userId" value="{{ $user->id }}">
                                 <input type="hidden" name="_token" value="{{ csrf_token() }}">
-                                <input type="submit" class="vipbut upload_btn abtn" value="上傳大頭照" style="border-style: none;box-shadow: 0 0 20px #ffb6c5;">
+                                <input type="submit" class="vipbut upload_btn abtn" value="上傳大頭照" style="border-style: none;box-shadow: 0 0 20px #ffb6c5;" onclick="disable_onbeforeunload_hint();">
                             </form>
                         </div>
                     </div>
@@ -470,7 +475,7 @@ function requestBlurryAvatarDefault() {
                         @php
                             $blurryLifePhoto = isset($blurry_life_photo)? $blurry_life_photo : '';
                             $blurryLifePhoto = explode(',', $blurryLifePhoto);
-                            $isVVIP = true;$isVIP = true;$isGeneral = true;
+                            $isVVIP = true;$isVIP = false;$isGeneral = true;$isPR = false;
                             $isDefault=false;
                             if(!($blurry_life_photo??null)) {                              
                                 $isGeneral = false;
@@ -484,6 +489,8 @@ function requestBlurryAvatarDefault() {
                                     $isVIP = false;
                                 } elseif($row == 'general') {
                                     $isGeneral = false;
+                                } elseif(str_contains($row, 'PR_')) {
+                                    $isPR = true;
                                 }
                             }
                         @endphp
@@ -497,7 +504,10 @@ function requestBlurryAvatarDefault() {
                           <h4>
                               <span><input name="picBlurryLifePhoto" type="checkbox" value="VIP" @if($isVIP) checked @endif>VIP</span>
                               <span><input name="picBlurryLifePhoto" type="checkbox" value="general"  @if($isGeneral) checked @endif>試用會員</span>
-                              @if($isDefault) 
+                              @if($user->engroup==2)
+                                  <span><input name="picBlurryLifePhoto" type="checkbox" value="PR" @if($isPR) checked @endif>pr<input type="number" name="life_photo_pr_value" value="60" min="0" max="100" style="height: 22px;"></span>
+                              @endif
+                              @if($isDefault)
                               <script>  
                                 requestBlurryLifePhotoDefault();
                               </script>
@@ -508,12 +518,12 @@ function requestBlurryAvatarDefault() {
                     <div class="row mb-4 ">
                         <div class="col-sm-12 col-lg-12">
                             <div>
-                                <form id="mempic_upload_form" action="{{ url('/dashboard/pictures/upload') }}" method="post" enctype="multipart/form-data">
+                                <form id="mempic_upload_form"@if($rap_service->isInRealAuthProcess()) action="{{route('dashboard/pictures/upload',['real_auth'=>request()->real_auth])}}" @else action="{{ url('/dashboard/pictures/upload') }}" @endif method="post" enctype="multipart/form-data">
                                     <!-- name 要與 FileUploader 相同 -->
                                     <input type="file" name="pictures" data-fileuploader-files=''>
                                     <input type="hidden" name="userId" value="{{ $user->id }}">
                                     <input type="hidden" name="_token" value="{{ csrf_token() }}">
-                                    <input type="submit" class="vipbut upload_btn abtn" value="上傳生活照" style="border-style: none;box-shadow: 0 0 20px #ffb6c5;">
+                                    <input type="submit" class="vipbut upload_btn abtn" value="上傳生活照" style="border-style: none;box-shadow: 0 0 20px #ffb6c5;" onclick="disable_onbeforeunload_hint();">
                                 </form>
                             </div>
                             <div>
@@ -523,16 +533,16 @@ function requestBlurryAvatarDefault() {
                     </div>
                     <div class="real_auth_bg" onclick="gmBtnNoReload();tab_real_auth_uploadPic_close();" style="display:none;"></div>
                     @if($rap_service->isInRealAuthProcess())
-                    <div class="ga_dtie" style="margin-top: 50px;">
-                        此認證將驗證本人，如果您照片不想曝光，請改用背影照或者是馬賽克。禁止使用非本人照片。認證通過後照片如要修改需經過審核。(強烈建議千萬不要使用曾在FB,iG使用過的照片)
+                        <div class="ga_dtie" style="margin-top: 50px;">
+                            此認證將驗證本人，如果您照片不想曝光，請改用背影照或者是馬賽克。禁止使用非本人照片。認證通過後照片如要修改需經過審核。(強烈建議千萬不要使用曾在FB,iG使用過的照片)
+                        </div>
+                        <div></div>
+                        <div class="n_txbut" style="width: auto;">
+                        <a href="{{route('dashboard',['real_auth'=>request()->real_auth])}}" class="se_but3 " {!! $rap_service->getOnClickAttrForNoUnloadConfirm()  !!}>
+                            <span >前往下一步認證</span><font>生活照與大頭照皆已上傳完成</font>
+                        </a>
+                        <a href="{{route('real_auth')}}" class="se_but4" >取消認證</a>
                     </div>
-                    <div></div>
-					<div class="n_txbut" style="width: auto;">
-					  <a href="{{route('dashboard',['real_auth'=>request()->real_auth])}}" class="se_but3 " {!! $rap_service->getOnClickAttrForNoUnloadConfirm()  !!}>
-						  <span >前往下一步認證</span><font>生活照與大頭照皆已上傳完成</font>
-					  </a>
-					  <a href="" class="se_but4" >取消認證</a>
-				   </div>
                     @endif
                     @if($rap_service->isPassedByAuthTypeId(1))
                     <div class="bl_tab_aa" id="tab_real_auth_uploadPic" style="display: none;left:0;">
@@ -1068,8 +1078,14 @@ function requestBlurryAvatarDefault() {
     $("input:checkbox[name='picBlurryAvatar']").on('click', function() {
         var values = "";
         $.each($("input[name='picBlurryAvatar']"), function() {
-            if(!$(this).is(':checked')){
-                values = values + $(this).val() +',';
+            if($(this).val()=='PR'){
+                if($(this).is(':checked')){
+                    values = values + $(this).val() +'_' + $("input[name='avatar_pr_value']").val() +',';
+                }
+            }else{
+                if(!$(this).is(':checked')){
+                    values = values + $(this).val() +',';
+                }
             }
         });
         $.ajax({
@@ -1089,8 +1105,14 @@ function requestBlurryAvatarDefault() {
     $("input:checkbox[name='picBlurryLifePhoto']").on('click', function() {
         var values = "";
         $.each($("input[name='picBlurryLifePhoto']"), function() {
-            if(!$(this).is(':checked')){
-                values = values + $(this).val() +',';
+            if($(this).val()=='PR'){
+                if($(this).is(':checked')){
+                    values = values + $(this).val() +'_' + $("input[name='life_photo_pr_value']").val() +',';
+                }
+            }else{
+                if(!$(this).is(':checked')){
+                    values = values + $(this).val() +',';
+                }
             }
         });
         requestBlurryLifePhoto(userId,values);
@@ -1133,6 +1155,11 @@ function requestBlurryAvatarDefault() {
             });
         }
     });
+    
+    function disable_onbeforeunload_hint()
+    {
+        $('body').attr('onbeforeunload',"");   
+    }     
 </script>
 @if($rap_service->isInRealAuthProcess())
 <script>

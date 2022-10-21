@@ -956,7 +956,7 @@ header("Expires: Fri, 01 Jan 1990 00:00:00 GMT");
                         }            
                     }
                     else if(isSelfAuth) {
-                        tagHtml+=this.getTagShowOnPicByAuthType(1);
+                        //tagHtml+=this.getTagShowOnPicByAuthType(1);
                     }
 
                     return tagHtml;            
@@ -1131,6 +1131,11 @@ header("Expires: Fri, 01 Jan 1990 00:00:00 GMT");
 
                             let rowVisitorIsPhoneAuth = row.visitorIsPhoneAuth;
                             let rowVisitorIsAdvanceAuth = row.visitorIsAdvanceAuth;
+                            let rowVisitorIsSelfAuth = row.visitorIsSelfAuth;
+                            let rowVisitorIsBeautyAuth = row.visitorIsBeautyAuth;
+                            let rowVisitorIsFamousAuth = row.visitorIsFamousAuth;
+
+
 
 
                             let rowPrLog = row.rawData.pr_log;
@@ -1188,9 +1193,29 @@ header("Expires: Fri, 01 Jan 1990 00:00:00 GMT");
                             }
 
                             csrData +='<div class="n_seicon">';
+                            
                             if(rowEngroup == 2){
                                 if(umeta.is_pure_dating==0){
                                     csrData +='<img src="/new/images/zz_02.png" style="float: right;">';
+                                }
+
+                                let blue_tick = 0;
+                                if(rowVisitorIsAdvanceAuth == 1)
+                                {
+                                    blue_tick = blue_tick + 1;
+                                }
+                                if(rowVisitorIsSelfAuth == 1)
+                                {
+                                    blue_tick = blue_tick + 1;
+                                }
+                                if(blue_tick == 2)
+                                {
+                                    csrData +='<img src="/new/images/zz_zss.png" style="border-radius: 100px; box-shadow:1px 2px 10px rgba(77,152,252,1); height:20px; margin-top:6px;">';
+                                    csrData +='<img src="/new/images/zz_zss.png" style="border-radius: 100px; box-shadow:1px 2px 10px rgba(77,152,252,1); height:20px; margin-left: -8px; margin-top: 6px">';
+                                }
+                                else if(blue_tick == 1)
+                                {
+                                    csrData +='<img src="/new/images/zz_zss.png" style="border-radius: 100px; box-shadow:1px 2px 10px rgba(77,152,252,1); height:20px; margin-top:6px;">';
                                 }
                             }                            
                             if(this.isRealAuthNeedShowTagOnPic(row)) {
@@ -1254,50 +1279,6 @@ header("Expires: Fri, 01 Jan 1990 00:00:00 GMT");
                                 {
                                     csrVar = '';
                                 }
-                               
-                                if(rowVisitorIsPhoneAuth==true )
-                                {          
-                                    csrData +='<div class="hoverTip '+csrVar+'">';     
-                                    if(this.userIsVip==1)
-                                    {
-                                        /*if(rowVisitorIsAdvanceAuth==1 && rowEngroup==2){
-                                            csrData +='<div class="tagText"  data-toggle="popover" data-content="本站的進階認證會員，本會員通過本站的嚴格驗證，基本資料正確無誤。">';
-                                            csrData +='<img src="/new/images/c_03.png">';
-                                            csrData +='</div> ';
-
-                                            csrData +='<span>丨</span>';
-                                        }else if(rowVisitorIsAdvanceAuth==0 && rowEngroup==2){
-                                            csrData +='<div class="tagText"  data-toggle="popover" data-content="以手機門號通過年齡/性別驗證。">';
-                                            csrData +='<img src="/new/images/c_09.png">';
-                                            csrData +='</div>  ';
-
-                                            csrData +='<span>丨</span>';
-                                        }*/
-                                        if(rowVisitorIsAdvanceAuth==1 && rowEngroup==2){
-                                            csrData +='<div class="tagText"  data-toggle="popover" data-content="以手機門號通過年齡/性別驗證。">';
-                                            csrData +='<img src="/new/images/c_10.png">';
-                                            csrData +='</div>';
-                                        }
-                                    }
-                                    else
-                                    {
-                                        /*if(rowVisitorIsAdvanceAuth==1 && rowEngroup==2 ){
-                                            csrData +='<div class="tagText"  data-toggle="popover" data-content="本站的進階認證會員，本會員通過本站的嚴格驗證，基本資料正確無誤。">';
-                                            csrData +='<img src="/new/images/b_8x.png">';
-                                            csrData +='</div> ';
-                                        }else if(rowVisitorIsAdvanceAuth==0 && rowEngroup==2 ){
-                                            csrData +='<div class="tagText"  data-toggle="popover" data-content="以手機門號通過年齡/性別驗證。">';
-                                            csrData +='<img src="/new/images/b_5x.png">';
-                                            csrData +='</div>  ';
-                                        }*/
-                                        if(rowVisitorIsAdvanceAuth==1 && rowEngroup==2) {
-                                            csrData +='<div class="tagText"  data-toggle="popover" data-content="以手機門號通過年齡/性別驗證。">';
-                                            csrData +='<img src="/new/images/b_6.png">';
-                                            csrData +='</div>  ';
-                                        }
-                                    }
-                                    csrData +='</div>';
-                                }
                             }
                           
                             if(varCheck(rowPrLog)){
@@ -1330,6 +1311,9 @@ header("Expires: Fri, 01 Jan 1990 00:00:00 GMT");
                         if(rowVisitorIsBlurAvatar==1) csrVar = 'blur_img';
                         if(rowVisitorIsBlurAvatar==1){
                             var blur_img_class = 'nt_photo_blur_img';
+                            if(umeta.pic_blur!='')
+                                umetaPic=umeta.pic_blur;
+
                         } else{
                             var blur_img_class = '';
                         }

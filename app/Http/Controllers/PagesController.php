@@ -25,8 +25,10 @@ use App\Models\Message_new;
 use App\Models\MessageBoard;
 use App\Models\MessageBoardPic;
 use App\Models\Forum;
+use App\Models\MessageUserNote;
 use App\Models\Order;
 use App\Models\PostsVvip;
+use App\Models\RealAuthUserTagsDisplay;
 use App\Models\ReportedMessageBoard;
 use App\Models\SimpleTables\warned_users;
 use App\Models\Suspicious;
@@ -96,6 +98,7 @@ use App\Models\VvipQualityLifeImage;
 use App\Models\VvipSubOptionXref;
 use App\Services\EnvironmentService;
 use App\Services\PaymentService;
+use App\Models\InboxRefuseSet;
 
 class PagesController extends BaseController
 {
@@ -3653,6 +3656,27 @@ class PagesController extends BaseController
         return response()->json(['save' => 'error']);
     }
 
+    public function messageUserNoteAJAX(Request $request)
+    {
+        $target_id = $request->target_id;
+        $user_id = $request->user_id;
+        $massage_user_note_content = $request->massage_user_note_content;
+
+        $checkData = MessageUserNote::where('user_id', $user_id)->where('message_user_id', $target_id)->first();
+
+        if(isset($checkData)){
+            MessageUserNote::where('user_id', $user_id)->where('message_user_id', $target_id)->update(['note'=>$massage_user_note_content]);
+            return response()->json(['save' => 'ok']);
+        }else{
+            $MessageUserNote = new MessageUserNote();
+            $MessageUserNote->user_id = $user_id;
+            $MessageUserNote->message_user_id = $target_id;
+            $MessageUserNote->note = $massage_user_note_content;
+            $MessageUserNote->save();
+            return response()->json(['save' => 'ok']);
+        }
+    }
+
     public function unblock(Request $request)
     {
         $payload = $request->all();
@@ -3823,7 +3847,28 @@ class PagesController extends BaseController
     public function newer_manual(Request $request) {
         $user = $request->user();
         if ($user) {
+            if($user->engroup==2){
+                return redirect('/dashboard/female_newer_manual');
+            }
             return view('new.dashboard.newer_manual')
+                ->with('user', $user);
+        }
+    }
+
+    public function female_newer_manual(Request $request) {
+        $user = $request->user();
+        if ($user) {
+            if($user-> is_read_female_manual_part1)
+            $version=1;
+            if($user-> is_read_female_manual_part2)
+            $version=2;
+            if($user-> is_read_female_manual_part3)
+            $version=3;
+            
+
+
+            return view('new.dashboard.female_newer_manual')
+                ->with('show_sop_type', $version)
                 ->with('user', $user);
         }
     }
@@ -3853,6 +3898,26 @@ class PagesController extends BaseController
         $user = $request->user();
         $user->isReadManual = 1 ;
         $user->save();
+        return 'ok';
+    }
+
+    public function is_read_female_manual(Request $request)
+    {
+        $user = $request->user();
+
+        if($request->sop_type=='one'){
+            $user->is_read_female_manual_part1=1;
+            $user->save();
+        }else if ($request->sop_type=='two'){
+            $user->is_read_female_manual_part2=1;
+            $user->save();
+        }else if($request->sop_type=='three'){
+            $user->is_read_female_manual_part3=1;
+            $user->save();
+        }
+        //本次登入是否有看過新手教學
+        session()->put('female_manual_has_been_read', 1);
+
         return 'ok';
     }
 
@@ -3922,7 +3987,12 @@ class PagesController extends BaseController
         
         if (isset($user)) {
             $is_banned = User::isBanned($user->id);
-            $is_warned = warned_users::where('member_id', $user->id)->first();
+            $is_warned = warned_users::where('member_id', $user->id)
+                ->where(function ($q) {
+                    $today = Carbon::today();
+                    //就算有被封，只要 解封時間 不是null 以及大於今日就放過
+                    $q->where("expire_date", null)->orWhere("expire_date", ">", $today);
+                })->first();
             $toUserIsBanned = User::isBanned($cid);
             $isVVIP = $user->isVVIP();
             $isVip = ($user->isVip()||$isVVIP);
@@ -3956,6 +4026,14 @@ class PagesController extends BaseController
                 
                 $cid_recommend_data = [];
                 $forbid_msg_data = UserService::checkNewSugarForbidMsg($cid_user,$user);
+
+            
+                if($cid_user->engroup==2) {
+                    $inbox_refuse_set = InboxRefuseSet::where('user_id', $cid)->first();
+                    if($inbox_refuse_set?->refuse_canned_message_pr != -1) {
+                        $cid_user->refuse_canned_message = true;
+                    }
+                }
 
                 if((!$user->isVip() && !$user->isVVIP() )&& $user->engroup == 1){
                     $m_time = Message::select('created_at')->
@@ -7691,13 +7769,11 @@ class PagesController extends BaseController
             }
         }
 
-        
+
         if($user->isVip()) {
             $vipStatus='您已是 VIP';
             $vip_record = Carbon::parse($user->vip_record);
-            $nextProcessDate = null;
             $vipDays = $vip_record->diffInDays(Carbon::now());
-            $nextProcessDate = null;
             if(!$user->isFreeVip()) {               
                 $vip = $user->vip->first();               
                 if($vip->payment && !str_contains($vip->order_id, 'TEST')){
@@ -7718,36 +7794,24 @@ class PagesController extends BaseController
                         default:
                             $payment = '';
                     }
-                    if(EnvironmentService::isLocalOrTestMachine()){
-                        $envStr = '_test';
-                    }
-                    else{
-                        $envStr = '';
-                    }
-                    if(substr($vip->payment,0,3) == 'cc_' && $vip->business_id == Config::get('ecpay.payment'.$envStr.'.MerchantID')){
 
-                        $ecpay = new \App\Services\ECPay_AllInOne();
-                        $ecpay->MerchantID = Config::get('ecpay.payment'.$envStr.'.MerchantID');
-                        $ecpay->ServiceURL = Config::get('ecpay.payment'.$envStr.'.ServiceURL');//定期定額查詢
-                        $ecpay->HashIV = Config::get('ecpay.payment'.$envStr.'.HashIV');
-                        $ecpay->HashKey = Config::get('ecpay.payment'.$envStr.'.HashKey');
-                        $ecpay->Query = [
-                            'MerchantTradeNo' => $vip->order_id,
-                            'TimeStamp' =>  time()
-                        ];
-                        $paymentData = $ecpay->QueryPeriodCreditCardTradeInfo(); //信用卡定期定額
-                        $last = last($paymentData['ExecLog']);
-                        $lastProcessDate = str_replace('%20', ' ', $last['process_date']);
-                        $lastProcessDate = \Carbon\Carbon::createFromFormat('Y/m/d H:i:s', $lastProcessDate);
-
-                        //計算下次扣款日
-                        if($vip->payment == 'cc_quarterly_payment'){
-                            $periodRemained = 92;
-                        }else {
-                            $periodRemained = 30;
+                    //order data check nextProcessDate
+                    $nextProcessDate = null;
+                    if(substr($vip->payment,0,3) == 'cc_') {
+                        $order = Order::where('order_id', $vip->order_id)->first();
+                        if (isset($order)) {
+                            //計算下次扣款日
+                            if ($vip->payment == 'cc_quarterly_payment') {
+                                $periodRemained = 92;
+                            } else {
+                                $periodRemained = 30;
+                            }
+                            $lastProcessDate = last(json_decode($order->pay_date));
+                            $theActualLastProcessDate = is_string($lastProcessDate[0]) ? Carbon::parse($lastProcessDate[0]) : $lastProcessDate[0];
+                            $nextProcessDate = substr($theActualLastProcessDate->addDays($periodRemained), 0, 10);
                         }
-                        $nextProcessDate = substr($lastProcessDate->addDays($periodRemained),0,10);
                     }
+
                     $last_vip_log = null;
 
                     switch ($vip->payment){
@@ -7810,35 +7874,24 @@ class PagesController extends BaseController
             $vipStatus = '您已是 VVIP';
             $vvip = $user->vvip->first();
             if ($vvip->payment) {
-                if (EnvironmentService::isLocalOrTestMachine()) {
-                    $envStr = '_test';
-                } else {
-                    $envStr = '';
-                }
-                if (substr($vvip->payment, 0, 3) == 'cc_' && $vvip->business_id == Config::get('ecpay.payment' . $envStr . '.MerchantID')) {
 
-                    $ecpay = new \App\Services\ECPay_AllInOne();
-                    $ecpay->MerchantID = Config::get('ecpay.payment' . $envStr . '.MerchantID');
-                    $ecpay->ServiceURL = Config::get('ecpay.payment' . $envStr . '.ServiceURL');//定期定額查詢
-                    $ecpay->HashIV = Config::get('ecpay.payment' . $envStr . '.HashIV');
-                    $ecpay->HashKey = Config::get('ecpay.payment' . $envStr . '.HashKey');
-                    $ecpay->Query = [
-                        'MerchantTradeNo' => $vvip->order_id,
-                        'TimeStamp' => time()
-                    ];
-                    $paymentData = $ecpay->QueryPeriodCreditCardTradeInfo(); //信用卡定期定額
-                    $last = last($paymentData['ExecLog']);
-                    $lastProcessDate = str_replace('%20', ' ', $last['process_date']);
-                    $lastProcessDate = \Carbon\Carbon::createFromFormat('Y/m/d H:i:s', $lastProcessDate);
-
-                    //計算下次扣款日
-                    if ($vvip->payment == 'cc_quarterly_payment') {
-                        $periodRemained = 92;
-                    } else {
-                        $periodRemained = 30;
+                //order data check nextProcessDate
+                $nextProcessDate = null;
+                if(substr($vvip->payment,0,3) == 'cc_') {
+                    $order = Order::where('order_id', $vvip->order_id)->first();
+                    if (isset($order)) {
+                        //計算下次扣款日
+                        if ($vvip->payment == 'cc_quarterly_payment') {
+                            $periodRemained = 92;
+                        } else {
+                            $periodRemained = 30;
+                        }
+                        $lastProcessDate = last(json_decode($order->pay_date));
+                        $theActualLastProcessDate = is_string($lastProcessDate[0]) ? Carbon::parse($lastProcessDate[0]) : $lastProcessDate[0];
+                        $nextProcessDate = substr($theActualLastProcessDate->addDays($periodRemained), 0, 10);
                     }
-                    $nextProcessDate = substr($lastProcessDate->addDays($periodRemained), 0, 10);
                 }
+
                 $last_vvip_log = null;
 
                 switch ($vvip->payment) {
@@ -7918,37 +7971,24 @@ class PagesController extends BaseController
             $vasStatus = '您目前已購買隱藏功能。';
             $vas = $user->vas->where('service_name','hideOnline')->first();
             if($vas->payment){
-                if(EnvironmentService::isLocalOrTestMachine()){
-                    $envStr = '_test';
-                }
-                else{
-                    $envStr = '';
-                }
-                if(substr($vas->payment,0,3) == 'cc_' && $vas->business_id == Config::get('ecpay.payment'.$envStr.'.MerchantID')){
 
-                    $ecpay = new \App\Services\ECPay_AllInOne();
-                    $ecpay->MerchantID = Config::get('ecpay.payment'.$envStr.'.MerchantID');
-                    $ecpay->ServiceURL = Config::get('ecpay.payment'.$envStr.'.ServiceURL');//定期定額查詢
-                    $ecpay->HashIV = Config::get('ecpay.payment'.$envStr.'.HashIV');
-                    $ecpay->HashKey = Config::get('ecpay.payment'.$envStr.'.HashKey');
-                    $ecpay->Query = [
-                        'MerchantTradeNo' => $vas->order_id,
-                        'TimeStamp' =>  time()
-                    ];
-                    $paymentData = $ecpay->QueryPeriodCreditCardTradeInfo(); //信用卡定期定額
-                    
-                    $last = last($paymentData['ExecLog']);
-                    $lastProcessDate = str_replace('%20', ' ', $last['process_date']);
-                    $lastProcessDate = \Carbon\Carbon::createFromFormat('Y/m/d H:i:s', $lastProcessDate);
-                    //計算下次扣款日
-                    if($vas->payment == 'cc_quarterly_payment'){
-                        $periodRemained = 92;
-                    }else {
-                        $periodRemained = 30;
+                //order data check nextProcessDate
+                $nextProcessDate = null;
+                if(substr($vas->payment,0,3) == 'cc_') {
+                    $order = Order::where('order_id', $vas->order_id)->first();
+                    if (isset($order)) {
+                        //計算下次扣款日
+                        if ($vas->payment == 'cc_quarterly_payment') {
+                            $periodRemained = 92;
+                        } else {
+                            $periodRemained = 30;
+                        }
+                        $lastProcessDate = last(json_decode($order->pay_date));
+                        $theActualLastProcessDate = is_string($lastProcessDate[0]) ? Carbon::parse($lastProcessDate[0]) : $lastProcessDate[0];
+                        $nextProcessDate = substr($theActualLastProcessDate->addDays($periodRemained), 0, 10);
                     }
-                    $nextProcessDate = substr($lastProcessDate->addDays($periodRemained),0,10);
-                    
                 }
+
                 $payment = '信用卡繳費';
                 $vas_status='隱藏功能設定：';
                 if($user->is_hide_online==1){
@@ -9942,6 +9982,46 @@ class PagesController extends BaseController
     }     
     
 
+    public function showTagDisplaySettings(Request $request,RealAuthPageService $service)
+    {
+
+        $user = auth()->user();
+        if($user->engroup!=2) {
+            return redirect('/dashboard/personalPage');
+        }
+
+        $data['self_auth']= RealAuthUserTagsDisplay::where('user_id', $user->id)->where('auth_type_id', 1)->first();
+        $data['beauty_auth']= RealAuthUserTagsDisplay::where('user_id', $user->id)->where('auth_type_id', 2)->first();
+        $data['famous_auth']= RealAuthUserTagsDisplay::where('user_id', $user->id)->where('auth_type_id', 3)->first();
+        return view('new.dashboard.tag_display_settings', compact('data'));
+    }
+
+    public function tagDisplaySet(Request $request,RealAuthPageService $service)
+    {
+        $user = auth()->user();
+
+        if($request->self_auth_vip_show || $request->self_auth_pr_show){
+            $data['vip_show']=$request->self_auth_vip_show=='VIP' ? 1 :0;
+            $data['more_than_pr_show']=$request->self_auth_pr_show=='PR' ? $request->self_auth_pr_value : null;
+            RealAuthUserTagsDisplay::updateOrInsert(['user_id'=> $user->id, 'auth_type_id'=> 1], $data);
+        }
+
+        if($request->beauty_auth_vip_show || $request->beauty_auth_pr_show){
+            $data['vip_show']=$request->beauty_auth_vip_show=='VIP' ? 1 :0;
+            $data['more_than_pr_show']=$request->beauty_auth_pr_show=='PR' ? $request->beauty_auth_pr_value : null;
+            RealAuthUserTagsDisplay::updateOrInsert(['user_id'=> $user->id, 'auth_type_id'=> 2], $data);
+        }
+
+        if($request->famous_auth_vip_show || $request->famous_auth_pr_show){
+            $data['vip_show']=$request->famous_auth_vip_show=='VIP' ? 1 :0;
+            $data['more_than_pr_show']=$request->famous_auth_pr_show=='PR' ? $request->famous_auth_pr_value : null;
+            RealAuthUserTagsDisplay::updateOrInsert(['user_id'=> $user->id, 'auth_type_id'=> 3], $data);
+        }
+
+        return redirect()->back()->with('message', '更新完成');
+    }
+
+
     public function stay_online_time(Request $request)
     {
         $second = $request->stay_second;
@@ -9956,14 +10036,17 @@ class PagesController extends BaseController
         
         if($user??false)
         {
-            $stay_online_record = StayOnlineRecord::where('id', $stay_online_record_id)->where('user_id', $user->id)->first();
-            if(!$stay_online_record)
-            {
-                $is_need_create = true;
-                $no_storage_record_id = true;
+            $stay_online_record = null;
+            if($stay_online_record_id) {
+                $stay_online_record = StayOnlineRecord::where('id', $stay_online_record_id)->where('user_id', $user->id)->first();
+                if(!$stay_online_record)
+                {
+                    $is_need_create = true;
+                    $no_storage_record_id = true;
+                } 
             }
-            else {
-                $stay_online_record = StayOnlineRecord::where('client_storage_record_id', $stay_online_record_id)->where('page_uid',$page_uid)->where('user_id', $user->id)->orderByDesc('id')->first();
+            if(!$is_need_create) {                 
+                $stay_online_record = StayOnlineRecord::where('page_uid',$page_uid)->where('url',$page_url)->where('user_id', $user->id)->orderByDesc('id')->first();
             
                 if(!$stay_online_record) {
                     $is_need_create = true;

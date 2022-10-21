@@ -1264,7 +1264,7 @@ dt span.engroup_type_title {display:inline-block;width:10%;white-space:nowrap;}
                     確定更新
                     @endif
                 </a>
-                <a href="" class="zcbut matop20">取消</a>
+                <a href="{{$rap_service->isInRealAuthProcess()?route('real_auth'):null}}" class="zcbut matop20">取消</a>
               </form>
             </div>
           </div>

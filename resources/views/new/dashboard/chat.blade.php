@@ -6,6 +6,135 @@
 @endphp
 @extends('new.layouts.website')
 @section('style')
+<style>
+    .btn_imga1>.btn_back {
+        width: 100%;
+        background: url(/new/images/fanhui_1.png) no-repeat 0 0;
+        background-size: 100% 100%;
+        height: 34px;
+        padding-left: 6px;
+    }
+    .toug_back img {
+        height: 14px;
+        vertical-align: middle;
+        margin-top: -3px;
+        margin-right: 2px;
+    }
+    .toug_back:hover {
+        color: #ffffff;
+        box-shadow: inset 0px 13px 10px -10px #f83964, inset 0px -10px 10px -20px #f83964;
+    }
+    .toug_back {
+        background: #fe92a8;
+        border-radius: 100em;
+        height: 21px;
+        width: 21px;
+        line-height: 19px;
+        color: #ffffff;
+        text-align: center;
+        float: right;
+        font-size: 13px;
+        margin-top: 10px;
+        margin-right: 16px;
+    }
+    .btn_imga1 {
+        width: 86px;
+        height: auto;
+        margin: 7px -8px 0 0;
+        background: none;
+        padding: 0;
+        line-height: 32px;
+    }
+    .xzgn {
+        position: absolute;
+        right: 0;
+        cursor: pointer;
+        z-index: 2;
+    }
+    .fabiao1 {
+        width: 150px;
+        background: linear-gradient(to right, #fff6f7, #ffd8e3);
+        border-radius: 10px;
+        display: none;
+        padding: 5px 0;
+        box-shadow: 0 5px 10px #e398a4;
+        position: absolute;
+        right: 0;
+        cursor: pointer;
+        z-index: 3;
+        color: #333333;
+        text-align: left;
+    }
+    .fabiao1 a {
+        width: 90%;
+        display: table;
+        margin: 0 auto;
+        line-height: 30px;
+        border-bottom: #fd5678 1px dashed;
+        color: #333333;
+        cursor: pointer;
+    }
+    .fabiao1 a:hover {
+        color: #ee5472;
+        background: #ffc9d8;
+    }
+    .showslide {
+        left: 0;
+        top: 48px;
+        z-index: 101;
+    }
+    .fadeinboxs {
+        width: 100%;
+        height: 100%;
+        background: rgba(255, 255, 255, 0);
+        position: fixed;
+        left: 0;
+        display: none;
+        top: 0;
+        z-index: 100;
+    }
+    .btn_imga1:hover {
+        box-shadow: unset;
+    }
+    .btn_imga1:hover>.btn_back {
+        width: 100%;
+        background: url(/new/images/fanhui_2.png) no-repeat 0 0;
+        background-size: 100% 100%;
+        height: 34px;
+        padding-left: 6px;
+    }
+    .fabiao2 {
+        width: 90px;
+        background: linear-gradient(to right, #fff6f7, #ffd8e3);
+        border-radius: 10px;
+        display: none;
+        padding: 5px 0;
+        box-shadow: 0 5px 10px #e398a4;
+        position: absolute;
+        right: 0;
+        cursor: pointer;
+        z-index: 3;
+        color: #333333;
+        text-align: center;
+    }
+    .fabiao2 a {
+        width: 90%;
+        display: table;
+        margin: 0 auto;
+        line-height: 30px;
+        border-bottom: #fd5678 1px dashed;
+        color: #333333;
+        cursor: pointer;
+    }
+    .fabiao2 a:hover {
+        color: #ee5472;
+        background: #ffc9d8;
+    }
+    .ys_inbut {
+        margin-right: 40px;
+        margin-bottom: 20px;
+    }
+</style>
 @if($user->isVip())
 <script>
 let is_truth_icon_pic = new Image();
@@ -13,6 +142,44 @@ is_truth_icon_pic.src="{{asset('/new/images/zz_zt2.png')}}";
 </script>
 @endif
 @stop
+@push('javascript')
+<script>
+    $('.userlogo1').click(function(){
+        event.stopPropagation()
+        if($(this).hasClass('')){
+            $(this).removeClass('')
+            $('.fadeinboxs').fadeOut()
+            $('.showslide').fadeOut()
+        }else{
+            $(this).addClass('')
+            $('.fadeinboxs').fadeIn()
+            $('.showslide').fadeIn()
+        }
+    });
+    $('.userlogo').click(function(){
+        event.stopPropagation()
+        if($(this).hasClass('')){
+            $(this).removeClass('')
+            $('.fadeinboxs').fadeOut()
+            $('.showslide1').fadeOut()
+        }else{
+            $(this).addClass('')
+            $('.fadeinboxs').fadeIn()
+            $('.showslide1').fadeIn()
+        }
+    });
+    $('body').click(function(){
+        $('.showslide').fadeOut()
+        $('.showslide1').fadeOut()
+        $('.fadeinboxs').fadeOut()
+    })
+    $('.setDay').click(function(){
+        let day = $(this).data('day');
+        $('#daysSelect').val(day).trigger('change');
+        $('#day_text').text($(this).text());
+    })
+</script>
+@endpush
 @section('app-content')
 <style>
     .blur_img {
@@ -91,57 +258,7 @@ is_truth_icon_pic.src="{{asset('/new/images/zz_zt2.png')}}";
     .select_cont option {
         text-align: center;
     }
-
-    .sjleftmm {
-        width: 64%;
-        height: 50px;
-        float: left;
-        line-height: 25px;
-        margin-left: 10px;
-        text-overflow: ellipsis;
-        white-space: nowrap;
-        display: block;
-    }
-
-    .sjleftmm span {
-        font-size: 14px;
-        text-align: left !important;
-        height: 25px;
-        float: left;
-        -webkit-line-clamp: 3;
-        white-space: nowrap;
-        display: -webkit-box;
-        -webkit-box-orient: vertical;
-        overflow: hidden !important;
-    }
-
-    .sjleftmm font {
-        font-size: 14px;
-        height: 25px;
-        overflow: hidden;
-        text-align: left;
-        color: #999999;
-        display: block;
-        text-overflow: ellipsis;
-        /*white-space: nowrap*/
-    }
-
-    .sjleftmm font img {
-        height: 20px
-    }
-
-    @media (max-width:360px) {
-        .sjleftmm {
-            width: 57%;
-        }
-    }
-
-    @media (max-width:320px) {
-        .sjleftmm {
-            width: 50%;
-        }
-    }
-
+    
     .lebox5 {
         background: url({{ asset('/new/images/off.png') }}) no-repeat right #94a5b4;
         background-position:98%;
@@ -172,6 +289,155 @@ is_truth_icon_pic.src="{{asset('/new/images/zz_zt2.png')}}";
         margin-top: 0;
         margin-bottom: 20px;
     }
+
+    @media (max-width:450px) {
+        .mad_tit{display: table; text-align: center; float: inherit; margin-left: inherit;}
+    }
+    .mad_tit font{ font-weight: normal !important}
+
+
+    @media (max-width:450px) {
+        .le_span{text-align: left;padding-left:40px;}
+    }
+    @media (max-width:320px) {
+        .le_span{text-align: left;padding-left:50px;}
+    }
+
+
+    .sjleft_b{ color: #fff !important;}
+    .d_dw{ position: relative;}
+    .denglu_nn{width: 12px; height: 12px; position: absolute; bottom: 0; right: 0px; background: #38b549; box-shadow: 0 2px 3px rgba(56,181,73,0.8);  border-radius: 100px;}
+
+    .deng_nn{background: linear-gradient(to TOP,#ff9225,#ffb86e);box-shadow: 2px 2px 0px #ff721d; border-radius: 100px;}
+    .deng_nn img{height: 7px !important;width: 7px !important;margin: 0 auto;display: table;margin-top: 4px;}
+    /*.sjpic{width: 65px; height: 65px;}*/
+    /*.sjpic img{width: 65px; height: 65px;}*/
+
+
+    .righ_nre{width: 109px; float: right;}
+    .righ_nre h3 {font-size: 12px !important;text-align: right ;color: #999999;line-height: 25px}
+    .righ_nre h4 {font-size: 12px;text-align: right ;color: #fe92a8; line-height: 25px; height: 25px;
+        -webkit-box-orient: vertical;text-overflow: ellipsis;overflow: hidden;width: 100%;display:block;white-space: nowrap; -webkit-line-clamp: 1;}
+    .sjleftzz{ margin-left: 0;
+        /*width: calc(100% - 110PX);*/
+        float: left;
+        text-overflow: ellipsis;
+    }
+
+    .sjleftzz {
+        width: 60%;
+        height: 50px;
+        float: left;
+        line-height: 25px;
+        margin-left: 10px;
+        text-overflow: ellipsis;
+        white-space: nowrap;
+        display: block;
+    }
+
+    .sjleftzz span {
+        font-size: 14px;
+        text-align: left !important;
+        height: 25px;
+        float: left;
+        -webkit-line-clamp: 3;
+        white-space: nowrap;
+        display: -webkit-box;
+        -webkit-box-orient: vertical;
+        overflow: hidden !important;
+    }
+
+    .sjleftzz font {
+        font-size: 14px;
+        height: 25px;
+        overflow: hidden;
+        text-align: left;
+        color: #999999;
+        display: block;
+        text-overflow: ellipsis;
+        /*white-space: nowrap*/
+    }
+
+    .sjleftzz font img {
+        height: 20px
+    }
+
+    @media (max-width:450px) {
+        .sjleftzz {
+            width: 55%;
+        }
+    }
+
+    @media (max-width:375px) {
+        .sjleftzz {
+            width: 55%;
+        }
+    }
+
+    @media (max-width:360px) {
+        .sjleftzz {
+            width: 52%;
+        }
+    }
+
+    @media (max-width:320px) {
+        .sjleftzz {
+            width: 45%;
+        }
+    }
+
+    .denglu_nn{left:50px;bottom: 6px;}
+    .si_bg{
+        margin-left: 16px;
+    }
+    @media (max-width: 767px){
+        .si_bg {width: 95%; /* margin-left: 13%; */}
+    }
+    @media (max-width: 450px){
+        .si_bg {width: 92%; /* margin-left: 13%; */}
+    }
+
+    .se_seccner {
+        width: 100%;
+        display: table;
+    }
+
+    /* 10-10 */
+    .se_seccner{width: 100%; display: table;}
+    .se_input{width:auto;  border: #fabbcc 1px solid; height: 25px; border-radius: 3px;  background: #fff; font-size: 12px; float: left;}
+    .se_in01{width:220px; border: none; background: transparent; height: 24px; color: #000;}
+    .se_button_a{ background: #fabbcc;border-radius: 3px;  height: 25px; color: #fff; float: right; width:60px; text-align: center; line-height: 24px;}
+
+
+    .se_rig_ff{width: calc(100% - 300px); float: right;}
+
+    .serit_aa{height:24px;background: url(/new/images/fengsuo.png) no-repeat;background-size: cover;line-height:24px; margin-left:5px; border-radius:100px;
+        box-shadow:3px 4px 10px #d5ddec;color: #87909c !important;text-align: center;padding: 0 5px;cursor: pointer;display: table; float: right;}
+    .serit_aa img{ height:16px;margin-right:2px; margin-top:0px;}
+    .serit_aa:hover{height: 26px;background: url(/new/images/fengsuo_h.png) no-repeat; background-size:cover;
+        box-shadow:3px 4px 10px #d5ddec;}
+
+
+    @media (max-width:824px){
+        .se_input{width: auto; }
+        .se_rig_ff{width: calc(100% - 300px); float: right;}
+        .se_in01{width: 220px; border: none; background: transparent; height: 24px; color: #000;}
+        .se_button_a{ background: #fabbcc;border-radius: 3px;  height: 25px; color: #fff; float: right; width:60px; text-align: center; line-height: 24px;}
+
+    }
+
+    @media (max-width:540px){
+        .serit_aa{ font-size: 12px;}
+        .serit_aa img{ height:14px;margin-right:2px; margin-top:-2px;}
+        .se_input{width: auto; }
+        .se_rig_ff{width: calc(100% - 135px); float: right;}
+        .se_in01{width: 95px; border: none; background: transparent; height: 24px; color: #000;}
+        .se_button_a{ background: #fabbcc;border-radius: 3px;  height: 25px; color: #fff; float: right; width:32px; text-align: center; line-height: 24px;}
+
+    }
+
+    .righ_nre h3{font-size: 12px !important;}
+
 </style>
 <!--引导弹出层-->
 <script type="text/javascript" src="/new/intro/intro.js"></script>
@@ -183,31 +449,59 @@ is_truth_icon_pic.src="{{asset('/new/images/zz_zt2.png')}}";
             @include('new.dashboard.panel')
         </div>
         <div class="col-sm-12 col-xs-12 col-md-10">
-            <div class="shou" style="text-align: center;">
-                <div class="sj_iconleft">
-                    <a href="{{route('viewChatNotice')}}"><img src="/new/images/ncion_03.png"></a>
+
+            <div class="shou" style="text-align: center;position: relative;">
+                @if($isVip || $user->engroup==2)
+                <a class="toug_back btn_imga1 userlogo1 xzgn" style="float: left; left: 0; ">
+                    <div class="btn_back">刪除<img src="/new/images/jiant_a.png"></div>
+                </a>
+                <div class="fabiao1 showslide">
+                    @if($message_with_user_count >= 60)
+                        <a class="" onclick="MutilpleDelete()">大量刪除訊息</a>
+                    @endif
+                    @if($user->is_admin_chat_channel_open)
+                        @if(($isVip && ($user->engroup==1 || $user->engroup==2)) || (!$isVip && $user->engroup==2))
+                            <a class="admin_delete">刪除所有站長來訊</a>
+                        @endif
+                    @endif
+                    @if($user->engroup==1)
+                        @if($isVip)
+                            <a class="exchange_period_delete_{{$exchange_period_name[0]->id}}">刪除所有{{$exchange_period_name[0]->name}}</a>
+                            <a class="exchange_period_delete_{{$exchange_period_name[2]->id}}">刪除所有{{$exchange_period_name[2]->name}}</a>
+                            <a class="exchange_period_delete_{{$exchange_period_name[1]->id}}">刪除所有{{$exchange_period_name[1]->name}}</a>
+                        @endif
+                    @elseif($user->engroup==2)
+                        @if(($isVip && ($user->engroup==1 || $user->engroup==2)) || (!$isVip && $user->engroup==2))
+                            <a class="vvip_delete">刪除所有VVIP會員</a>
+                            <a class="vip_delete">刪除所有VIP會員</a>
+                            <a class="novip_delete">刪除所有試用會員</a>
+                        @endif
+                    @endif
+                    @if(($isVip && ($user->engroup==1 || $user->engroup==2)) || (!$isVip && $user->engroup==2))
+                        <a class="alert_delete">刪除所有警示會員</a>
+                    @endif
+                    @if(($isVip && ($user->engroup==1 || $user->engroup==2)) || (!$isVip && $user->engroup==2))
+                        <a class="banned_delete">刪除被站方封鎖會員</a>
+                    @endif
                 </div>
+                @endif
+                <div class="fadeinboxs"></div>
+                {{-- <div class="sj_iconleft">
+                    <a href="{{route('viewChatNotice')}}"><img src="/new/images/ncion_03.png"></a>
+                </div> --}}
                 <span style="border-bottom: unset;">收件夾</span>
                 <font>Inbox</font>
-                {{-- <a href="" class="shou_but">全部刪除</a>--}}
-                {{-- <a href="javascript:void(0);" onclick="showChatSet()"><img src="/new/images/ncion_03.png"
-                        class="whoicon02 marlr10"></a>--}}
-                <div class="sj_iconright"><img src="/new/images/sj_icon2.png"></div>
+                <a class="toug_back btn_imga1 userlogo xzgn" style="top: 0;"> 
+                    <div class="btn_back"><c id="day_text">7天内</c><img src="/new/images/jiant_a.png"></div>
+                </a>
+                <div class="fabiao2 showslide1" style="display: none;top: 48px; z-index: 101;">
+                    <a class="setDay" data-day="7">7天内</a>
+                    <a class="setDay" data-day="30">30天内</a>
+                    <a class="setDay" data-day="all">全部</a>
+                </div>
+                <!-- <div class="sj_iconright"><img src="/new/images/sj_icon2.png"></div> -->
             </div>
-            {{-- <div class="shou_j">--}}
-                {{-- <div class="sj_iconleft"><a href="{{route('viewChatNotice')}}"><img
-                            src="/new/images/ncion_03.png"></a></div>--}}
-                {{-- <span>收件夾</span>--}}
-                {{-- <div class="sj_iconright"><img src="/new/images/sj_icon2.png"></div>--}}
-                {{-- </div>--}}
             <div class="n_shtab">
-
-                {{-- <h2><span>您目前為高級會員</span>訊息可保存天數：30，可通訊人數:無限</h2>--}}
-                {{-- @if($isVip)--}}
-                {{-- <h2><span>@if($user->isVVip()){{$letter_vvip}}@else{{$letter_vip}}@endif</span>訊息可保存天數：180，可通訊人數:無限</h2>--}}
-                {{-- @else--}}
-                {{-- <h2><span>{{$letter_normal_member}}</span>訊息可保存天數：7，可通訊人數:10</h2>--}}
-                {{-- @endif--}}
                 <h2 data-step="1" data-highlightClass="yd1a" data-tooltipClass="yd1"
                     data-intro="<p>不同等級會員可以有不同的信件讀取權限。</p>
                         <p>試用會員：信件可保存30天，通訊人數限制10人。</p>
@@ -221,7 +515,7 @@ is_truth_icon_pic.src="{{asset('/new/images/zz_zt2.png')}}";
                 </h2>
             </div>
             <div class="d-table">
-                <div class="select_cont msg_select_cont">
+                <div class="select_cont msg_select_cont" style="display:none">
                     <select id="daysSelect" class="right">
                         {{-- <option value="7">訊息</option>--}}
                         <option value="7">7天内</option>
@@ -230,39 +524,31 @@ is_truth_icon_pic.src="{{asset('/new/images/zz_zt2.png')}}";
                     </select>
                 </div>
                 @if($user->engroup==2)
-                <a href="javascript:void(0)" class="right ys_inbut"><img src="/new/images/zz_ztt.png"><span>顯示罐頭訊息</span></a>
+                <a href="javascript:void(0)" class="right ys_inbut"><img src="/new/images/zz_ztt.png"><span>{{ $user->show_can_message ? '收起罐頭訊息' : '顯示罐頭訊息' }}</span></a>
                 @endif
             </div>
             <div class="sjlist_li">
                 <div class="leftsidebar_box">
                     <dl class="system_log">
-                        @if(($isVip && ($user->engroup==1 || $user->engroup==2)) || (!$isVip &&
-                        $user->engroup==2))
-                            <span class="admin_delete shou_but">全部刪除</span>
-                        @endif
-                        @if($user->id != 1049)
-                        <dt class="lebox0" data-step="4" data-position="top" data-highlightClass="yd4a"
-                            data-tooltipClass="yd4" data-intro="<p>會員可以在此處與站長對話。</p>
-                                        <em></em><em></em>">
+                        @if($user->is_admin_chat_channel_open)
+                            @if($user->id != 1049)
+                            <dt class="lebox0" data-step="4" data-position="top" data-highlightClass="yd4a"
+                                data-tooltipClass="yd4" data-intro="<p>會員可以在此處與站長對話。</p>
+                                            <em></em><em></em>">
 
-                            <span class="le_span">站長來訊</span>
-                        </dt>
-                        <dd>
-                            <div class="loading warning" id="sjlist_admin_warning"><span
-                                    class="loading_text">loading</span></div>
-                            <ul class="sjlist sjlist_admin">
-                            </ul>
-                            <div class="page page_admin fenye" style="text-align: center;"></div>
-                        </dd>
+                                <span class="le_span">站長來訊</span>
+                            </dt>
+                            <dd>
+                                <div class="loading warning" id="sjlist_admin_warning"><span
+                                        class="loading_text">loading</span></div>
+                                <ul class="sjlist sjlist_admin">
+                                </ul>
+                                <div class="page page_admin fenye" style="text-align: center;"></div>
+                            </dd>
+                            @endif
                         @endif
                         @if($user->engroup==1)
-                        @php
-                        $exchange_period_name = DB::table('exchange_period_name')->get();
-                        @endphp
-                        <!--男性介面-->
-                            @if($isVip)
-                                <span class="exchange_period_delete_{{$exchange_period_name[0]->id}} shou_but">全部刪除</span>
-                            @endif
+                            <!--男性介面-->
                             <dt class="lebox1 lebox_exchange_period_{{$exchange_period_name[0]->id}}" data-step="{{2+$exchange_period_name[0]->id}}"
                                 data-position="top" data-highlightClass="yd4a" data-tooltipClass="yd4"
                                 data-intro="<p>
@@ -278,9 +564,6 @@ is_truth_icon_pic.src="{{asset('/new/images/zz_zt2.png')}}";
                                 <div class="page page_exchange_period_{{$exchange_period_name[0]->id}} fenye" style="text-align: center;"></div>
                             </dd>
 
-                            @if($isVip)
-                                <span class="exchange_period_delete_{{$exchange_period_name[2]->id}} shou_but">全部刪除</span>
-                            @endif
                             <dt class="lebox2 lebox_exchange_period_{{$exchange_period_name[2]->id}}" data-step="{{2+$exchange_period_name[2]->id}}"
                                 data-position="top" data-highlightClass="yd4a" data-tooltipClass="yd4"
                                 data-intro="<p>
@@ -296,9 +579,6 @@ is_truth_icon_pic.src="{{asset('/new/images/zz_zt2.png')}}";
                                 <div class="page page_exchange_period_{{$exchange_period_name[2]->id}} fenye" style="text-align: center;"></div>
                             </dd>
 
-                            @if($isVip)
-                                <span class="exchange_period_delete_{{$exchange_period_name[1]->id}} shou_but">全部刪除</span>
-                            @endif
                             <dt class="lebox3 lebox_exchange_period_{{$exchange_period_name[1]->id}}" data-step="{{2+$exchange_period_name[1]->id}}"
                                 data-position="top" data-highlightClass="yd4a" data-tooltipClass="yd4"
                                 data-intro="<p>
@@ -334,85 +614,68 @@ is_truth_icon_pic.src="{{asset('/new/images/zz_zt2.png')}}";
                         @endif
 
                         @if($user->engroup==2)
-                        <!--女性介面-->
-                        @if(($isVip && ($user->engroup==1 || $user->engroup==2)) || (!$isVip &&
-                        $user->engroup==2))
-                            <span class="vvip_delete shou_but">全部刪除</span>
-                        @endif
-                        <dt class="leboxVVIP" data-position="top" data-highlightClass="yd4a"
-                            data-tooltipClass="yd4" data-intro="<p>站方建議盡量多與
-                        VVIP 會員互動。本區會員的素質最佳，投訴率低於 0.1%。</p>
-                                <em></em><em></em>">
-                                <span class="le_span">VVIP會員(財力驗證)</span>
-                        </dt>
-                        <dd>
-                            <div class="loading warning" id="sjlist_vvip_warning"><span
+                            <!--女性介面-->
+                            <dt class="leboxVVIP" data-position="top" data-highlightClass="yd4a"
+                                data-tooltipClass="yd4" data-intro="<p>站方建議盡量多與
+                            VVIP 會員互動。本區會員的素質最佳，投訴率低於 0.1%。</p>
+                                    <em></em><em></em>">
+                                    <span class="le_span">VVIP會員(財力驗證)</span>
+                            </dt>
+                            <dd>
+                                <div class="loading warning" id="sjlist_vvip_warning"><span
+                                            class="loading_text">loading</span></div>
+                                <ul class="sjlist sjlist_vvip">
+                                </ul>
+                                <div class="page page_vvip fenye" style="text-align: center;"></div>
+                            </dd>
+
+                            <dt class="lebox1" data-step="3" data-position="top" data-highlightClass="yd4a"
+                                data-tooltipClass="yd4" data-intro="<p>站方建議盡量多與
+                                    VIP 會員互動。本區會員的素質最佳，投訴率低於 0.1%。</p>
+                                            <em></em><em></em>">
+
+                                <span class="le_span">VIP會員(基本認證)</span>
+                            </dt>
+                            <dd>
+                                <div class="loading warning" id="sjlist_vip_warning"><span
                                         class="loading_text">loading</span></div>
-                            <ul class="sjlist sjlist_vvip">
-                            </ul>
-                            <div class="page page_vvip fenye" style="text-align: center;"></div>
-                        </dd>
+                                <ul class="sjlist sjlist_vip">
+                                </ul>
+                                <div class="page page_vip fenye" style="text-align: center;"></div>
+                            </dd>
 
-                        @if(($isVip && ($user->engroup==1 || $user->engroup==2)) || (!$isVip &&
-                        $user->engroup==2))
-                        <span class="vip_delete shou_but">全部刪除</span>
-                        @endif
-                        <dt class="lebox1" data-step="3" data-position="top" data-highlightClass="yd4a"
-                            data-tooltipClass="yd4" data-intro="<p>站方建議盡量多與
-                                VIP 會員互動。本區會員的素質最佳，投訴率低於 0.1%。</p>
-                                        <em></em><em></em>">
+                            <dt class="lebox2" data-position="top" data-highlightClass="yd4a" data-tooltipClass="yd4"
+                                data-step="4" data-intro="未付費的會員賴帳機率高於VIP 50倍<em></em><em></em>">
 
-                            <span class="le_span">VIP會員(基本認證)</span>
-                        </dt>
-                        <dd>
-                            <div class="loading warning" id="sjlist_vip_warning"><span
-                                    class="loading_text">loading</span></div>
-                            <ul class="sjlist sjlist_vip">
-                            </ul>
-                            <div class="page page_vip fenye" style="text-align: center;"></div>
-                        </dd>
+                                <span class="le_span">試用會員(無驗證)</span>
+                            </dt>
+                            <dd>
+                                <div class="loading warning" id="sjlist_novip_warning"><span
+                                        class="loading_text">loading</span></div>
+                                <ul class="sjlist sjlist_novip">
+                                </ul>
+                                <div class="page page_novip fenye" style="text-align: center;"></div>
+                            </dd>
+                            <!--女性介面 END -->
 
-                        @if(($isVip && ($user->engroup==1 || $user->engroup==2)) || (!$isVip &&
-                        $user->engroup==2))
-                        <span class="novip_delete shou_but">全部刪除</span>
-                        @endif
-                        <dt class="lebox2" data-position="top" data-highlightClass="yd4a" data-tooltipClass="yd4"
-                            data-step="4" data-intro="未付費的會員賴帳機率高於VIP 50倍<em></em><em></em>">
-
-                            <span class="le_span">試用會員(無驗證)</span>
-                        </dt>
-                        <dd>
-                            <div class="loading warning" id="sjlist_novip_warning"><span
-                                    class="loading_text">loading</span></div>
-                            <ul class="sjlist sjlist_novip">
-                            </ul>
-                            <div class="page page_novip fenye" style="text-align: center;"></div>
-                        </dd>
-                        <!--女性介面 END -->
-
-                        {{-- @if(($isVip && ($user->engroup==1 || $user->engroup==2)) || (!$isVip &&
-                        $user->engroup==2))--}}
-                        {{-- <span class="alert_delete shou_but">全部刪除</span>--}}
-                        {{-- @endif--}}
-                        {{-- <dt class="lebox3 lebox_alert" data-position="top" data-highlightClass="yd5a"
-                            data-tooltipClass="yd5" data-step="5" --}} {{--
-                            data-intro="警示原因會有多種，也許是被檢舉也許是站長設定為警示。站方強烈不建議與此區會員互動，若一定要跟此區會員互動請務必提高十二萬分警覺。<em></em><em></em>">
-                            --}}
-                            {{-- 警示會員</dt>--}}
-                        {{-- <dd>--}}
-                            {{-- <div class="loading warning" id="sjlist_alert_warning"><span
-                                    class="loading_text">loading</span></div>--}}
-                            {{-- <ul class="sjlist sjlist_alert">--}}
-                                {{-- </ul>--}}
-                            {{-- </dd>--}}
+                            {{-- @if(($isVip && ($user->engroup==1 || $user->engroup==2)) || (!$isVip &&
+                            $user->engroup==2))--}}
+                            {{-- <span class="alert_delete shou_but">全部刪除</span>--}}
+                            {{-- @endif--}}
+                            {{-- <dt class="lebox3 lebox_alert" data-position="top" data-highlightClass="yd5a"
+                                data-tooltipClass="yd5" data-step="5" --}} {{--
+                                data-intro="警示原因會有多種，也許是被檢舉也許是站長設定為警示。站方強烈不建議與此區會員互動，若一定要跟此區會員互動請務必提高十二萬分警覺。<em></em><em></em>">
+                                --}}
+                                {{-- 警示會員</dt>--}}
+                            {{-- <dd>--}}
+                                {{-- <div class="loading warning" id="sjlist_alert_warning"><span
+                                        class="loading_text">loading</span></div>--}}
+                                {{-- <ul class="sjlist sjlist_alert">--}}
+                                    {{-- </ul>--}}
+                                {{-- </dd>--}}
 
                         @endif
 
-
-                        @if(($isVip && ($user->engroup==1 || $user->engroup==2)) || (!$isVip &&
-                        $user->engroup==2))
-                        <span class="alert_delete shou_but">全部刪除</span>
-                        @endif
                         <dt class="@if($user->engroup==2)lebox3 @else lebox4 @endif lebox_alert" data-position="top"
                             data-highlightClass="yd5a" data-tooltipClass="yd5" @if($user->engroup==2)data-step="5" @else
                             data-step="6" @endif
@@ -427,10 +690,6 @@ is_truth_icon_pic.src="{{asset('/new/images/zz_zt2.png')}}";
                             </ul>
                             <div class="page page_warned fenye" style="text-align: center;"></div>
                         </dd>
-                        @if(($isVip && ($user->engroup==1 || $user->engroup==2)) || (!$isVip &&
-                        $user->engroup==2))
-                        <span class="banned_delete shou_but">全部刪除</span>
-                        @endif
                         <dt class="lebox5">
                             <span class="le_span">已被站方封鎖會員</span>
                         </dt>
@@ -754,9 +1013,6 @@ is_truth_icon_pic.src="{{asset('/new/images/zz_zt2.png')}}";
             }
         };
 
-        @php
-            $exchange_period_name = DB::table('exchange_period_name')->get();
-        @endphp
         @foreach($exchange_period_name as $row)
             var  Page_exchange_period_{{$row->id}}= {
             page : 1,
@@ -978,13 +1234,13 @@ is_truth_icon_pic.src="{{asset('/new/images/zz_zt2.png')}}";
         {
             return new Date(dt.getFullYear(), dt.getMonth(), 1);
         }
-        function liContent(pic,user_name,content,created_at,read_n,i,user_id,isVip,show,isWarned,isBanned,exchange_period,isBlur=false,is_truth=false, isCan = false){
+        function liContent(pic,user_name,content,created_at,read_n,i,user_id,isVip,show,isWarned,isBanned,exchange_period,isBlur=false,is_truth=false, isCan = false, cityAndArea, message_user_note){
             showMsg = show;
             var li='';
             var ss =((i+1)>Page.row)?'display:none;':'display:none;';
             var username = '{{$user->name}}';
             var engroup = '{{$user->engroup}}';
-
+            var showCanMsg = '{{$user->show_can_message}}';
 
             var url = '{{ route("chat2WithUser", ":id") }}';
             url = url.replace(':id', user_id);
@@ -993,25 +1249,21 @@ is_truth_icon_pic.src="{{asset('/new/images/zz_zt2.png')}}";
             var sid = '{{$user->id}}';
             del_url = del_url.replace(':uid', sid);
             del_url = del_url.replace(':sid', user_id);
-            //${content}
+
             if(user_id==1049) {
                 li += `
                 <li class="row_data hy_bg02" style="${ss}" id="${user_id}">
                 `;
             }else{
                 li += `
-                <li class="row_data ${(isCan && !is_truth)? "d-none can":""}" style="${ss}" id="${user_id}">
+                <li class="row_data ${(isCan && !is_truth)? "can":""} ${(showCanMsg=='0' && isCan && !isVVIP)? "d-none":""}" style="${ss}" id="${user_id}">
                 `;
             }
 
-            if(show==0 && engroup==1){
+            if(show==0){
                 li += `
                      <div class="vipOnlyAlert" style="width: 100%">
                    `;
-            }else if(show==0 && engroup==2){
-                li += `
-                     <div class="vipOnlyAlert" style="width: 100%">
-                  `;
             }
 
             li += `<div class="si_bg ys_pr">`;
@@ -1021,91 +1273,83 @@ is_truth_icon_pic.src="{{asset('/new/images/zz_zt2.png')}}";
 
             if(show==1) {
 
-                li += `<a href="${url}" target="_self">`;
+                li += `<a href="${url}" target="_self">
+                    <div style="width: 70px; float: left;">
+                    `;
                 if(is_truth) {
-                    li += `<img src="{{asset('/new/images/zz_zt2.png')}}" class="ys_gt1">`;
+                    li += `<img src="/new/images/zz_zt2.png" class="ys_gt1">`;
                 }else if(isCan) {
                     li += `<img src="/new/images/zz_zt1.png" class="ys_gt">`;
                 }
-                li += `<div class="sjpic ${styBlur} shanx" id="${user_id}">
-                        <img src="${pic}">
+
+                li += `<div class="sjpic ${styBlur} shanx" id="${user_id}" style="width: 65px; height: 65px;">
+                        <img src="${pic}" style="margin-top: 5px;width: 65px; height: 65px;">
                         <div class="onlineStatusChatView"></div>
-                    </div>
-                    <div class="sjleftmm">
-                        <div class="sjtable ${user_id}">${(read_n!=0 && isBanned==0?`<i class="number ${user_id}">${read_n}</i>`:'')}<span class="ellipsis" style="width: 60%;">${user_name}</span></div>
-                  `;
-            }else if(show==0 && engroup==2){
-                li += `<a href="javascript:void(0)" target="_self">
-                        <img src="{{asset('/new/images/zz_zt2.png')}}" class="ys_gt1">
-                        <div class="sjpic ${styBlur} shanx" id="${user_id}">
-                            <img src="${pic}">
-                            <div class="onlineStatusChatView"></div>
+                       </div>
                         </div>
-                        <div class="sjleft">
-                            <div class="sjtable ${user_id}">${(read_n!=0 && isBanned==0?`<i class="number ${user_id}">${read_n}</i>`:'')}<span class="ellipsis" style="width: 60%;">${user_name}</span></div>
+                        <div style="width: calc(100% - 75px); float: right;">
+                        <div class="sjleftzz">
+                        <div class="sjtable ${user_id}">${(read_n != 0 && isBanned == 0 ? `<i class="number ${user_id}">${read_n}</i>` : '')}<span class="ellipsis" style="width: 60%;">${user_name}</span></div>
                   `;
-            }else if(show==0){
+            }else if(show==0) {
                 li += `<a href="javascript:void(0)" target="_self">
-                        <div class="sjpic ${styBlur} shanx" id="${user_id}">
-                            <img src="${pic}">
-                            <div class="onlineStatusChatView"></div>
-                        </div>
-                        <div class="sjleft">
-                            <div class="sjtable ${user_id}">${(read_n!=0 && isBanned==0?`<i class="number ${user_id}">${read_n}</i>`:'')}<span class="ellipsis" style="width: 60%;">${user_name}</span></div>
+                        <div style="width: 70px; float: left;">`;
+                if (show == 0 && engroup == 2) {
+                    li += `<img src="/new/images/zz_zt2.png" class="ys_gt1">`;
+                }
+                li += `<div class="sjpic ${styBlur} shanx" id="${user_id}" style="width: 65px; height: 65px;">
+                    <img src="${pic}" style="margin-top: 5px;width: 65px; height: 65px;">
+                    <div class="onlineStatusChatView"></div>
+                </div>
+                </div>
+                    <div style="width: calc(100% - 75px); float: right;">
+                <div class="sjleft">
+                    <div class="sjtable ${user_id}">${(read_n != 0 && isBanned == 0 ? `<i class="number ${user_id}">${read_n}</i>` : '')}<span class="ellipsis" style="width: 60%;">${user_name}</span></div>
                   `;
             }
 
-            // if(show==1) {
-            //     li += `<a href="${url}" target="_self">
-            //       `;
-            // }else if(show==0){
-            //     li += `<a href="javascript:void(0)" target="_self">
-            //       `;
-            // }
-            // li +=`
-            //             <div class="sjpic"><img class="lazy" src="${pic}" data-original="${pic}"></div>
-            //             <div class="sjleft">
-            //                 <div class="sjtable">${(read_n!=0?`<i class="number">${read_n}</i>`:'')}<span class="ellipsis" style="width: 60%;">${user_name}</span></div>
-            //
-            //       `;
             if(show==1) {
-                li += `
-                        <span class="box"><font class="ellipsis ${user_id}">${content}</font></span>
-                        </div>
-                        </a>
+                li += `<span class="box">
+                        <font class="ellipsis ${user_id}">${content}</font>
+                       </span>
+                       </div></a>
                    `;
-            }else if(show==0 && engroup==1 && isBanned==0){
-                li += `
-                     <font><div  data-toggle="popover" data-content="試用會員只能看到舊的十筆訊息，如果想要看新的訊息請刪除舊的通訊紀錄。" style="width: 100%"><img src="/new/images/icon_35.png"></div></font>
-
-                     </div></a>
-                   `;
-            }else if(show==0 && engroup==2 && isBanned==0){
-                li += `
-                     <font><div data-toggle="popover" data-content="試用會員只能看到舊的十筆訊息，如果想要看新的訊息請刪除舊的通訊紀錄。" style="width: 100%"><img src="/new/images/icon_35.png"></div></font>
-
-                     </div></a>
+            }else if(show==0 && isBanned==0) {
+                li += `<font>
+                        <div  data-toggle="popover" data-content="試用會員只能看到舊的十筆訊息，如果想要看新的訊息請刪除舊的通訊紀錄。" style="width: 100%"><img src="/new/images/icon_35.png"></div>
+                       </font>
+                       </div></a>
                    `;
             }
-            li += `
-                        <div class="sjright">
-                            <h3>${created_at}</h3>
-                            <h4>
+
+            li += `<div class="righ_nre">
+                <h3 style="font-size: 12px !important;">${created_at}</h3>
+                <h4 style="margin-top: -3px;" data-toggle="popover" data-content="${cityAndArea}"><img src="/new/images/zs_jt11.png" style="height:16px; margin-right: 3px;">${cityAndArea}</h4>
+            </div>
+
+            <div class="se_seccner">`;
+
+            if(show==1) {
+                li += `<div class="se_input">
+                        <input placeholder="您尚未留下備註" class="se_in01" id="massage_user_note_${user_id}" value="${message_user_note}"><a href="javascript:void(0)" class="se_button_a" onclick="massage_user_note('${user_id}');">確定</a>
+                        </div>`;
+            }
+
+            li += `<div class="se_rig_ff">`;
+
+            if (userIsVip == 1) {
+                li += `<a href="javascript:void(0)" class="serit_aa" onclick="block('${user_id}');"><img src="/new/images/ncion_11.png">封鎖</a>
                   `;
-            if(userIsVip==1) {
-                li += `
-                        <a href="javascript:void(0)" onclick="block('${user_id}');"><img src="/new/images/del_05.png">封鎖</a>
-                      `;
             }
-            li +=`
-                          <a href="javascript:void(0)" onclick="chk_delete('${del_url}');"><img src="/new/images/del_03.png">刪除</a>
-                         </h4>
-                        </div>
-                    </div>
-            `;
+
+            li += `<a href="javascript:void(0)" class="serit_aa" onclick="chk_delete('${del_url}');"><img src="/new/images/del_03n.png">刪除</a>
+                   </div>
+                   </div>
+                    `;
+
+            //vipOnlyAlert end
             if(show==0){
-                li += `
-                     </div>
+                li += `</div>
                    `;
             }
 
@@ -1171,9 +1415,6 @@ is_truth_icon_pic.src="{{asset('/new/images/zz_zt2.png')}}";
                         $('.sjlist_banned').html('');
                         $('.page_banned').hide();
                     @elseif($user->engroup==1)
-                        @php
-                            $exchange_period_name = DB::table('exchange_period_name')->get();
-                        @endphp
                         @foreach($exchange_period_name as $row)
                         $('.sjlist_exchange_period_{{$row->id}}').html('');
                         $('.page_exchange_period_{{$row->id}}').hide();
@@ -1244,13 +1485,13 @@ is_truth_icon_pic.src="{{asset('/new/images/zz_zt2.png')}}";
                         if (userIsVip != 1 && i < hide_vip_counts && hide_vip_counts > 0 ) {
                             if(e.user_id == 1049 || e.isBanned==1){
                                 //hide_vip_counts = hide_vip_counts-1;
-                                if (e && e.user_id) li = liContent(e.pic, e.user_name, e.content, e.created_at, e.read_n, i, e.user_id, e.isVip, 1,e.isWarned,e.isBanned,e.exchange_period,isBlur,e.is_truth, e.isCan);
+                                if (e && e.user_id) li = liContent(e.pic, e.user_name, e.content, e.created_at, e.read_n, i, e.user_id, e.isVip, 1,e.isWarned,e.isBanned,e.exchange_period,isBlur,e.is_truth, e.isCan, e.cityAndArea, e.message_user_note);
                             }else {							
-                                if (e && e.user_id) li = liContent(e.pic, e.user_name, e.content, e.created_at, e.read_n, i, e.user_id, e.isVip, 0,e.isWarned,e.isBanned,e.exchange_period,isBlur,e.is_truth, e.isCan);
+                                if (e && e.user_id) li = liContent(e.pic, e.user_name, e.content, e.created_at, e.read_n, i, e.user_id, e.isVip, 0,e.isWarned,e.isBanned,e.exchange_period,isBlur,e.is_truth, e.isCan, e.cityAndArea, e.message_user_note);
                             }
                         }else {
 							//if(e.isBanned==1) hide_vip_counts = hide_vip_counts+1;
-                            if (e && e.user_id) li = liContent(e.pic, e.user_name, e.content, e.created_at, e.read_n, i, e.user_id, e.isVip, 1,e.isWarned,e.isBanned,e.exchange_period,isBlur,e.is_truth, e.isCan);
+                            if (e && e.user_id) li = liContent(e.pic, e.user_name, e.content, e.created_at, e.read_n, i, e.user_id, e.isVip, 1,e.isWarned,e.isBanned,e.exchange_period,isBlur,e.is_truth, e.isCan, e.cityAndArea, e.message_user_note);
                         }
 
                         var has_vvip_msg_count=0;
@@ -1273,9 +1514,6 @@ is_truth_icon_pic.src="{{asset('/new/images/zz_zt2.png')}}";
                                 }
 
                                 @if($user->engroup==1)
-                                    @php
-                                        $exchange_period_name = DB::table('exchange_period_name')->get();
-                                    @endphp
                                     @foreach($exchange_period_name as $row)
                                         if (userGender==1 && e.exchange_period=='{{$row->id}}' && e.user_id != 1049 && e.isWarned == 0 && e.isBanned==0){
                                             $('.sjlist_exchange_period_{{$row->id}}').append(li).find('.row_data').addClass('date7 exchange_period_member_{{$row->id}} common30');
@@ -1304,9 +1542,6 @@ is_truth_icon_pic.src="{{asset('/new/images/zz_zt2.png')}}";
                                     if (userGender==1 && e.user_id == 1049){
                                         $('.sjlist_exchange_period_1').append(li).find('.row_data').addClass('date30 exchange_period_member_1 common30');
                                     }
-                                    @php
-                                        $exchange_period_name = DB::table('exchange_period_name')->get();
-                                    @endphp
                                     @foreach($exchange_period_name as $row)
                                         if (userGender==1 && e.exchange_period=='{{$row->id}}' && e.user_id != 1049 && e.isWarned == 0 && e.isBanned==0){
                                             $('.sjlist_exchange_period_{{$row->id}}').append(li).find('.row_data').addClass('date30 exchange_period_member_{{$row->id}} common30');
@@ -1335,9 +1570,6 @@ is_truth_icon_pic.src="{{asset('/new/images/zz_zt2.png')}}";
                                     if (userGender==1 && e.user_id == 1049){
                                         $('.sjlist_exchange_period_1').append(li).find('.row_data').addClass('dateAll exchange_period_member_1');
                                     }
-                                    @php
-                                        $exchange_period_name = DB::table('exchange_period_name')->get();
-                                    @endphp
                                     @foreach($exchange_period_name as $row)
                                         if (userGender==1 && e.exchange_period=='{{$row->id}}' && e.user_id != 1049 && e.isWarned == 0 && e.isBanned==0){
                                             $('.sjlist_exchange_period_{{$row->id}}').append(li).find('.row_data').addClass('dateAll exchange_period_member_{{$row->id}}');
@@ -1403,9 +1635,6 @@ is_truth_icon_pic.src="{{asset('/new/images/zz_zt2.png')}}";
                                     $('.sjlist_novip>.date7.novipMember').slice((Page_noVip.page - 1) * Page_noVip.row, Page_noVip.page * Page_noVip.row).css('display', '');
 
                                 @elseif($user->engroup==1)
-                                    @php
-                                        $exchange_period_name = DB::table('exchange_period_name')->get();
-                                    @endphp
                                     @foreach($exchange_period_name as $row)
 
                                     let exchange_period_counts_{{$row->id}} = $('.date7.exchange_period_member_{{$row->id}}').length;
@@ -1446,7 +1675,7 @@ is_truth_icon_pic.src="{{asset('/new/images/zz_zt2.png')}}";
                                     if (vvip_counts > 10) {
                                         $('.page_vvip').show();
                                     }
-                                    Page.DrawPage(vip_counts);
+                                    Page.DrawPage(vvip_counts);
                                     $('.sjlist_vvip>.common30.vvipMember').slice((Page.page - 1) * Page.row, Page.page * Page.row).css('display', '');
 
                                     let vip_counts = $('.common30.vipMember').length;
@@ -1464,9 +1693,6 @@ is_truth_icon_pic.src="{{asset('/new/images/zz_zt2.png')}}";
                                     $('.sjlist_novip>.common30.novipMember').slice((Page_noVip.page - 1) * Page_noVip.row, Page_noVip.page * Page_noVip.row).css('display', '');
 
                                 @elseif($user->engroup==1)
-                                        @php
-                                            $exchange_period_name = DB::table('exchange_period_name')->get();
-                                        @endphp
                                         @foreach($exchange_period_name as $row)
 
                                         let exchange_period_counts_{{$row->id}} = $('.common30.exchange_period_member_{{$row->id}}').length;
@@ -1506,7 +1732,7 @@ is_truth_icon_pic.src="{{asset('/new/images/zz_zt2.png')}}";
                                     if (vvip_counts > 10) {
                                         $('.page_vvip').show();
                                     }
-                                    Page.DrawPage(vip_counts);
+                                    Page.DrawPage(vvip_counts);
                                     $('.sjlist_vvip>.vvipMember').slice((Page.page - 1) * Page.row, Page.page * Page.row).css('display', '');
 
                                     let vip_counts = $('.vipMember').length;
@@ -1524,9 +1750,6 @@ is_truth_icon_pic.src="{{asset('/new/images/zz_zt2.png')}}";
                                     $('.sjlist_novip>.novipMember').slice((Page_noVip.page - 1) * Page_noVip.row, Page_noVip.page * Page_noVip.row).css('display', '');
 
                                 @elseif($user->engroup==1)
-                                        @php
-                                            $exchange_period_name = DB::table('exchange_period_name')->get();
-                                        @endphp
                                         @foreach($exchange_period_name as $row)
 
                                         let exchange_period_counts_{{$row->id}} = $('.exchange_period_member_{{$row->id}}').length;
@@ -1588,9 +1811,6 @@ is_truth_icon_pic.src="{{asset('/new/images/zz_zt2.png')}}";
                                     $('.sjlist_novip>.date7.novipMember').slice((Page_noVip.page - 1) * Page_noVip.row, Page_noVip.page * Page_noVip.row).css('display', '');
 
                                 @elseif($user->engroup==1)
-                                    @php
-                                        $exchange_period_name = DB::table('exchange_period_name')->get();
-                                    @endphp
                                     @foreach($exchange_period_name as $row)
 
                                     let exchange_period_counts_{{$row->id}} = $('.date7.exchange_period_member_{{$row->id}}').length;
@@ -1650,9 +1870,6 @@ is_truth_icon_pic.src="{{asset('/new/images/zz_zt2.png')}}";
                                     $('.sjlist_novip>.common30.novipMember').slice((Page_noVip.page - 1) * Page_noVip.row, Page_noVip.page * Page_noVip.row).css('display', '');
 
                                 @elseif($user->engroup==1)
-                                    @php
-                                        $exchange_period_name = DB::table('exchange_period_name')->get();
-                                    @endphp
                                     @foreach($exchange_period_name as $row)
 
                                         let exchange_period_counts_{{$row->id}} = $('.common30.exchange_period_member_{{$row->id}}').length;
@@ -1711,9 +1928,6 @@ is_truth_icon_pic.src="{{asset('/new/images/zz_zt2.png')}}";
                                     $('.sjlist_novip>.novipMember').slice((Page_noVip.page - 1) * Page_noVip.row, Page_noVip.page * Page_noVip.row).css('display', '');
 
                                 @elseif($user->engroup==1)
-                                    @php
-                                        $exchange_period_name = DB::table('exchange_period_name')->get();
-                                    @endphp
                                     @foreach($exchange_period_name as $row)
 
                                         let exchange_period_counts_{{$row->id}} = $('.exchange_period_member_{{$row->id}}').length;
@@ -1763,6 +1977,17 @@ is_truth_icon_pic.src="{{asset('/new/images/zz_zt2.png')}}";
                                 $('#sjlist_vvip_warning').hide();
                                 $('.sjlist_vvip').append(no_row_li);
                             }
+
+                            var has_vvip_msg_count=$('.sjlist_vvip>li').not('.li_no_data').not('.d-none').length;
+                            //alert('筆數：'+has_vvip_msg_count + ' ,test筆數：'+ $('.sjlist_vvip>li:visible').length);
+                            if ($('.sjlist_vvip>li').not('.li_no_data').length > 0) {
+                                if(!$('.leboxVVIP').hasClass('on')){
+                                    $('.sjlist_vvip>.li_no_data').hide();
+                                    $('.leboxVVIP').toggleClass('on');
+                                    $('.leboxVVIP').next('dd').slideToggle("slow");
+                                }
+                            }
+
                             if ($('.sjlist_admin>li:visible').length == 0) {
                                 $('#sjlist_admin_warning').hide();
                                 $('.sjlist_admin').append(no_row_li);
@@ -1789,9 +2014,6 @@ is_truth_icon_pic.src="{{asset('/new/images/zz_zt2.png')}}";
                                 $('#sjlist_admin_warning').hide();
                                 $('.sjlist_admin').append(no_row_li);
                             }
-                            @php
-                                $exchange_period_name = DB::table('exchange_period_name')->get();
-                            @endphp
                             @foreach($exchange_period_name as $row)
                             $('.sjlist_exchange_period_{{$row->id}}>.li_no_data').remove();
                             if ($('.sjlist_exchange_period_{{$row->id}}>li:visible').length == 0) {
@@ -1811,21 +2033,13 @@ is_truth_icon_pic.src="{{asset('/new/images/zz_zt2.png')}}";
                         @endif
                     }, 300);
 
-                    $('div[data-toggle="popover"]').popover({
+                    $('[data-toggle="popover"]').popover({
                         animated: 'fade',
                         placement: 'bottom',
                         trigger: 'hover',
                         html: true,
                         content: function () { return '<h4>' + $(this).data('content') + '</h4>'; }
                     });
-
-                    var has_vvip_msg_count=$('.sjlist_vvip>li:visible').not('.li_no_data').length;
-                    if(has_vvip_msg_count>0){
-                        if(!$('.leboxVVIP').hasClass('on')){
-                            $('.leboxVVIP').toggleClass('on');
-                            $('.leboxVVIP').next('dd').slideToggle("slow");
-                        }
-                    }
                 }
             })
                 .done(function() {
@@ -1859,55 +2073,22 @@ is_truth_icon_pic.src="{{asset('/new/images/zz_zt2.png')}}";
             $('.row_data.can').toggleClass('d-none');
             $('.row_data.can').next('.li_no_data').toggle();
 
-
-            var has_vvip_msg_count=$('.sjlist_vvip>li:visible').not('.li_no_data').length;
-            if(has_vvip_msg_count>0){
-                if(!$('.leboxVVIP').hasClass('on')){
-                    $('.leboxVVIP').toggleClass('on');
-                    $('.leboxVVIP').next('dd').slideToggle("slow");
-                }
-            }
+            $.ajax({
+				type: 'POST',
+				url: "/dashboard/toggleShowCanMessage",
+				data:{
+					_token: '{{csrf_token()}}',
+					user_id: '{{$user->id}}',
+				},
+				dataType:"json"
+			});
+           
         });
 
         $('#daysSelect').on('change', function() {
-        // $('input[name=RadioGroup1]').on('click', function(event) {
-
-            // $('.lebox1,.lebox2,.lebox3,.lebox_alert').removeClass('off');
-            // $('.lebox1,.lebox2,.lebox3,.lebox_alert').removeClass('on');
-            {{--$('.lebox1').removeClass('off');--}}
-            {{--$('.lebox1').removeClass('on');--}}
-            {{--// $('.lebox1').toggleClass('on');--}}
-
-            {{--@if($user->engroup==2)--}}
-            {{--$('.lebox1').toggleClass('on');--}}
-            {{--@elseif($user->engroup==1)--}}
-            {{--$('.lebox1').toggleClass('off');--}}
-            {{--@endif--}}
-            {{--$('.lebox2,.lebox3,.lebox_alert').removeClass('off');--}}
-            {{--$('.lebox2,.lebox3,.lebox_alert').removeClass('on');--}}
-            {{--$('.lebox2,.lebox3,.lebox_alert').toggleClass('off');--}}
-            {{--$('.lebox2,.lebox3,.lebox_alert').next('dd').show();--}}
-            {{--$('.lebox2,.lebox3,.lebox_alert').next('dd').slideToggle();--}}
-
-{{--            @if($user->engroup==2)--}}
-{{--            $('.lebox1,.lebox2,.lebox3,.lebox_alert').removeClass('on off');--}}
-{{--            $('.lebox1').toggleClass('on');--}}
-{{--            $('.lebox2,.lebox3,.lebox_alert').toggleClass('off');--}}
-{{--            // $('.lebox2,.lebox3,.lebox_alert').next('dd').slideToggle("slow");--}}
-{{--            @elseif($user->engroup==1)--}}
-{{--            $('.lebox1,.lebox2,.lebox3,.lebox_alert').removeClass('on off');--}}
-{{--            $('.lebox1,.lebox2,.lebox3,.lebox_alert').toggleClass('off');--}}
-{{--            // $('.lebox1,.lebox2,.lebox3,.lebox_alert').next('dd').slideToggle("slow");--}}
-{{--            @endif--}}
-
-
-            // date= $('input[name=RadioGroup1]:checked').val();
             date= $("#daysSelect option:selected").val();
             window.location.hash = '#'+ date;
             @if($user->engroup==1)
-                    @php
-                        $exchange_period_name = DB::table('exchange_period_name')->get();
-                    @endphp
                     @foreach($exchange_period_name as $row)
                         Page_exchange_period_{{$row->id}}.page=1;
                         $('.page_exchange_period_{{$row->id}}').hide();
@@ -1953,9 +2134,6 @@ is_truth_icon_pic.src="{{asset('/new/images/zz_zt2.png')}}";
                      $('.sjlist_novip>.date7.novipMember').slice((Page_noVip.page - 1) * Page_noVip.row, Page_noVip.page * Page_noVip.row).css('display', '');
 
                  @elseif($user->engroup==1)
-                         @php
-                             $exchange_period_name = DB::table('exchange_period_name')->get();
-                         @endphp
                          @foreach($exchange_period_name as $row)
                             let exchange_period_counts_{{$row->id}} = $('.date7.exchange_period_member_{{$row->id}}').length;
                             if (exchange_period_counts_{{$row->id}} > 10) {
@@ -2013,9 +2191,6 @@ is_truth_icon_pic.src="{{asset('/new/images/zz_zt2.png')}}";
                          Page_noVip.DrawPage(novip_counts);
                          $('.sjlist_novip>.common30.novipMember').slice((Page_noVip.page - 1) * Page_noVip.row, Page_noVip.page * Page_noVip.row).css('display', '');
                      @elseif($user->engroup==1)
-                         @php
-                             $exchange_period_name = DB::table('exchange_period_name')->get();
-                         @endphp
                          @foreach($exchange_period_name as $row)
                              let exchange_period_counts_{{$row->id}} = $('.common30.exchange_period_member_{{$row->id}}').length;
                              if (exchange_period_counts_{{$row->id}} > 10) {
@@ -2070,9 +2245,6 @@ is_truth_icon_pic.src="{{asset('/new/images/zz_zt2.png')}}";
                          $('.sjlist_novip>.novipMember').slice((Page_noVip.page - 1) * Page_noVip.row, Page_noVip.page * Page_noVip.row).css('display', '');
 
                      @elseif($user->engroup==1)
-                         @php
-                             $exchange_period_name = DB::table('exchange_period_name')->get();
-                         @endphp
                          @foreach($exchange_period_name as $row)
                              let exchange_period_counts_{{$row->id}} = $('.exchange_period_member_{{$row->id}}').length;
                              if (exchange_period_counts_{{$row->id}} > 10) {
@@ -2140,9 +2312,6 @@ is_truth_icon_pic.src="{{asset('/new/images/zz_zt2.png')}}";
                             $('#sjlist_admin_warning').hide();
                             $('.sjlist_admin').append(no_row_li);
                         }
-                        @php
-                            $exchange_period_name = DB::table('exchange_period_name')->get();
-                        @endphp
                         @foreach($exchange_period_name as $row)
                             $('.sjlist_exchange_period_{{$row->id}}>.li_no_data').remove();
                             if ($('.sjlist_exchange_period_{{$row->id}}>li:visible').length == 0 && isLoading == 0) {
@@ -2157,9 +2326,18 @@ is_truth_icon_pic.src="{{asset('/new/images/zz_zt2.png')}}";
                             $('#sjlist_banned_warning').hide();
                             $('.sjlist_banned').append(no_row_li);
                         }
-                    }                       
-            }
+                    }
 
+                    var has_vvip_msg_count=$('.sjlist_vvip>li').not('.li_no_data').not('.d-none').length;
+                    // alert('days select =>'+has_vvip_msg_count);
+                    if(has_vvip_msg_count>0){
+                        if(!$('.leboxVVIP').hasClass('on')){
+                            $('.sjlist_vvip>.li_no_data').hide();
+                            $('.leboxVVIP').toggleClass('on');
+                            $('.leboxVVIP').next('dd').slideToggle("slow");
+                        }
+                    }
+            }
         });
 
         function chk_delete(url) {
@@ -2190,12 +2368,39 @@ is_truth_icon_pic.src="{{asset('/new/images/zz_zt2.png')}}";
             return false;
         }
 
+    function massage_user_note(sid){
+        let massage_user_note_content = $('#massage_user_note_' + sid).val();
+        $.post('{{ route('messageUserNoteAJAX') }}', {
+            user_id: '{{ $user->id }}',
+            target_id: sid,
+            massage_user_note_content: massage_user_note_content,
+            _token: '{{ csrf_token() }}'
+        }, function (data) {
+            c5('備註已更新');
+        });
+        return false;
+    }
+
         function banned(sid,name){
             $("input[name='uid']").val(sid);
             $(".banned_name").append("<span>" + name + "</span>")
             $(".announce_bg").show();
             $("#show_banned_ele").show();
         }
+
+        // $('.all_delete').on('click', function() {
+
+        //     var IDs = [];
+        //     $('.system_log dd').find('li.row_data').each(function(){ IDs.push(this.id); });
+        //     // alert(IDs);
+        //     // alert($('.sjlist_vip.row_data>li:visible').length);
+        //     if($.trim(IDs) !== '') {
+        //         c8('確定要全部刪除嗎?');
+        //         deleteRowAll(IDs);
+        //     }else{
+        //         c5('沒有可刪除資料');
+        //     }
+        // });
 
         $('.vvip_delete').on('click', function() {
 
@@ -2277,9 +2482,6 @@ is_truth_icon_pic.src="{{asset('/new/images/zz_zt2.png')}}";
             }
         });        
 
-        @php
-        $exchange_period_name = DB::table('exchange_period_name')->get();
-        @endphp
         @foreach($exchange_period_name as $row)
             $('.exchange_period_delete_{{$row->id}}').on('click', function() {
                 // c4('確定要全部刪除嗎?');
@@ -2322,7 +2524,6 @@ is_truth_icon_pic.src="{{asset('/new/images/zz_zt2.png')}}";
 @stop
 
 @section('javascript')
-
 
 <style>
     .box {
@@ -2465,9 +2666,6 @@ is_truth_icon_pic.src="{{asset('/new/images/zz_zt2.png')}}";
                 $('.sjlist_novip').append(no_row_li);
             }
             @elseif($user->engroup==1)
-                @php
-                    $exchange_period_name = DB::table('exchange_period_name')->get();
-                @endphp
                 @foreach($exchange_period_name as $row)
                 $('.sjlist_exchange_period_{{$row->id}}>.li_no_data').remove();
                 if ($('.sjlist_exchange_period_{{$row->id}}>li:visible').length == 0) {
@@ -2549,19 +2747,19 @@ is_truth_icon_pic.src="{{asset('/new/images/zz_zt2.png')}}";
 
 
         @if($user->login_times >= 3)
-            $(function(){
-                
-                @if($user->checkTourRead('chat',1)==0)
-                if(step1 != 1) {
+            {{--$(function(){--}}
+            {{--    --}}
+            {{--    @if($user->checkTourRead('chat',1)==0)--}}
+            {{--    if(step1 != 1) {--}}
                     // $('#announcement').hide();
                     // $('.announce_bg').hide();
                     // introJs().setOption('showButtons', true).start();
                     // step1=1;
                     // letTourRead('chat',1);
-                }
+                // }
 
-                @endif
-            });
+{{--                @endif--}}
+{{--            });--}}
 
             $('.lebox1').click(function(){
                 @if($user->checkTourRead('chat',3)==0)
@@ -2642,22 +2840,12 @@ is_truth_icon_pic.src="{{asset('/new/images/zz_zt2.png')}}";
 
 
         @endif
+        function MutilpleDelete() {
+            $('#deleteMutipleMessagePopUp').show();
+            $('#announce_bg').show();
+        }
 
-        @if($message_with_user_count>60 || $message_with_user_count>150 || $message_with_user_count>250)
-            @if($message_with_user_count>250)
-                $('#more_people_cnt').text('250');
-            @elseif($message_with_user_count>150)
-                $('#more_people_cnt').text('150');
-            @elseif($message_with_user_count>60)
-                $('#more_people_cnt').text('60');
-            @endif
-            //localStorage.removeItem('showDeleteMutipleMessagePopUp');
-            //alert('localStorage.getItem('showDeleteMutipleMessagePopUp'));
-            if(localStorage.getItem('showDeleteMutipleMessagePopUp')!=='N'){
-                $('#deleteMutipleMessagePopUp').show();
-                $('#announce_bg').show();
-            }
-        @endif
+
 
 </script>
 @stop

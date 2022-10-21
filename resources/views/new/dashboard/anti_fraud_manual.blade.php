@@ -47,11 +47,13 @@
 
                     <div class="f_zp_bg">
                         <div class="f_nw">
-                            <div class="f_zpfont_f">
-                                <div class="sy_font">如果遇到這種情況，請直接檢舉</div>
+                            <div class="f_zpfont_f"  style="width: 100%; display: table; margin-top: 0px; margin-bottom: 15px;">
+                                <div class="sy_font" style="width: 96%;">如果遇到這種情況，請直接檢舉</div>
                             </div>
+                            <img src="/new/images/zhap_06.png" class="zp_sjimg f_zp_sj" style="margin-bottom: 15px;">
+                            <img src="/new/images/zhap_06.png" class="zp_pcimg zp_pc" style="float: left; width: 45%; margin-left: 2%;">
+                            <img src="/new/images/zhap_05.png" class="zp_pcimg zp_pc"  style="float: right; width: 45%;margin-right: 2%;">
                             <img src="/new/images/zhap_05.png" class="zp_sjimg f_zp_sj">
-                            <img src="/new/images/zhap_05.png" class="zp_pcimg zp_pc">
                         </div>
                     </div>
 
