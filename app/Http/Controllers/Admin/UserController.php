@@ -1762,9 +1762,9 @@ class UserController extends \App\Http\Controllers\BaseController
                 ->with('day', $day)
                 ->with('raa_service',$this->raa_service->riseByUserEntry($user))
                 ->with('not_pass_faq_ltime',$not_pass_faq_ltime)
-                ->with('fnm_step_time_arr',$fnm_step_time_arr)
-                ->with('fnm_step1_time_arr',$fnm_step1_time_arr)
-                ->with('fnm_step2_time_arr',$fnm_step2_time_arr)
+                ->with('fnm_step_time_arr',$fnm_step_time_arr ?? null)
+                ->with('fnm_step1_time_arr',$fnm_step1_time_arr ?? null)
+                ->with('fnm_step2_time_arr',$fnm_step2_time_arr ?? null)
                 ->with('fnm_step3_time_arr',$fnm_step3_time_arr)
                 ;
                 
