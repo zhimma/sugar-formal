@@ -6678,13 +6678,7 @@ class UserController extends \App\Http\Controllers\BaseController
 
     public function member_profile_check_over(Request $request)
     {
-        $check_extend_users_id = json_decode($request->check_extend_users_id);
         $users_id = json_decode($request->users_id);
-        $users_id = array_diff($users_id, $check_extend_users_id);
-        foreach($check_extend_users_id as $uid)
-        {
-            BackendUserDetails::check_extend($uid, 2);
-        }
         foreach ($users_id as $user_id) {
             $check_point_user = new CheckPointUser;
             $check_point_user->user_id = $user_id;
