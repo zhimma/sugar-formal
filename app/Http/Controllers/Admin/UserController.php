@@ -1812,10 +1812,10 @@ class UserController extends \App\Http\Controllers\BaseController
                 ->with('pageStay', $pageStay)
                 ->with('not_pass_faq_ltime',$not_pass_faq_ltime)
                 ->with('backend_detail',$backend_detail)
-                ->with('fnm_step_time_arr',$fnm_step_time_arr)
-                ->with('fnm_step1_time_arr',$fnm_step1_time_arr)
-                ->with('fnm_step2_time_arr',$fnm_step2_time_arr)
-                ->with('fnm_step3_time_arr',$fnm_step3_time_arr)
+                ->with('fnm_step_time_arr', $fnm_step_time_arr ?? null)
+                ->with('fnm_step1_time_arr', $fnm_step1_time_arr ?? null)
+                ->with('fnm_step2_time_arr', $fnm_step2_time_arr ?? null)
+                ->with('fnm_step3_time_arr', $fnm_step3_time_arr ?? null)
                 ;
         }
     }
