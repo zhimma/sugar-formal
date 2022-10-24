@@ -2305,7 +2305,7 @@ class User extends Authenticatable implements JWTSubject
             'engroup' => $this->engroup,
             'name' => $this->name,
             'email' => $this->email,
-            'birthdate' => $meta->birthdate,
+            'birthdate' => Carbon::parse($meta->birthdate)->timestamp,
             'created_at' => $this->created_at?->timestamp,
             'updated_at' => $this->updated_at?->timestamp,
         ];
