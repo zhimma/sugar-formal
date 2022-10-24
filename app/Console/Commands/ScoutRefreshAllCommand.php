@@ -1,6 +1,6 @@
 <?php
 
-namespace Tarre\LaravelScoutRefresh\Console;
+namespace App\Console\Commands;
 
 use Artisan;
 use File;
