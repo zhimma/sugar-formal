@@ -404,7 +404,7 @@ is_truth_icon_pic.src="{{asset('/new/images/zz_zt2.png')}}";
 
     /* 10-10 */
     .se_seccner{width: 100%; display: table;}
-    .se_input{width:auto;  border: #fabbcc 1px solid; height: 25px; border-radius: 3px;  background: #fff; font-size: 12px; float: left;}
+    .se_input{width:auto;  border: #fabbcc 1px solid; height: 25px; border-radius: 3px;  background: #fff; font-size: 12px; float: left;margin-left: 10px;}
     .se_in01{width:220px; border: none; background: transparent; height: 24px; color: #000;}
     .se_button_a{ background: #fabbcc;border-radius: 3px;  height: 25px; color: #fff; float: right; width:60px; text-align: center; line-height: 24px;}
 
@@ -437,7 +437,9 @@ is_truth_icon_pic.src="{{asset('/new/images/zz_zt2.png')}}";
     }
 
     .righ_nre h3{font-size: 12px !important;}
-
+    .sjleft {
+        margin-bottom: 5px;
+    }
 </style>
 <!--引导弹出层-->
 <script type="text/javascript" src="/new/intro/intro.js"></script>
@@ -1329,11 +1331,11 @@ is_truth_icon_pic.src="{{asset('/new/images/zz_zt2.png')}}";
 
             <div class="se_seccner">`;
 
-            if(show==1) {
+            // if(show==1) {
                 li += `<div class="se_input">
                         <input placeholder="您尚未留下備註" class="se_in01" id="massage_user_note_${user_id}" value="${message_user_note}"><a href="javascript:void(0)" class="se_button_a" onclick="massage_user_note('${user_id}');">確定</a>
                         </div>`;
-            }
+            // }
 
             li += `<div class="se_rig_ff">`;
 
@@ -2632,8 +2634,6 @@ is_truth_icon_pic.src="{{asset('/new/images/zz_zt2.png')}}";
         // $('.lebox1,.lebox2,.lebox3,.lebox_alert').toggleClass('off');
         // $(".leftsidebar_box dd").show();
         // $('.lebox2,.lebox3,.lebox_alert').next('dd').slideToggle("slow");
-        //
-        //
 
                 $('.leboxVVIP,.lebox0,.lebox1,.lebox2,.lebox3,.lebox_alert,.lebox5').toggleClass('off');
                 $('.leboxVVIP,.lebox0,.lebox1,.lebox2,.lebox3,.lebox_alert,.lebox5').next('dd').slideToggle("slow");
@@ -2743,9 +2743,6 @@ is_truth_icon_pic.src="{{asset('/new/images/zz_zt2.png')}}";
 
             });
         }
-
-
-
         @if($user->login_times >= 3)
             {{--$(function(){--}}
             {{--    --}}
@@ -2837,27 +2834,11 @@ is_truth_icon_pic.src="{{asset('/new/images/zz_zt2.png')}}";
                 {{--    @endif--}}
                 {{--}--}}
             @endif
-
-
         @endif
         function MutilpleDelete() {
             $('#deleteMutipleMessagePopUp').show();
             $('#announce_bg').show();
         }
-
-
-
-
 </script>
-// <script type="application/javascript">
-//     $(document).ready(function(){
-//         $('[data-toggle="popover"]').popover({
-//             animated: 'fade',
-//             placement: 'bottom',
-//             trigger: 'hover',
-//             html: true,
-//             content: function () { return '<h4>' + $(this).data('content') + '</h4>'; }
-//         });
-//     });
-// </script>
+
 @stop

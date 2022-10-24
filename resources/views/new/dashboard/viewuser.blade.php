@@ -366,6 +366,12 @@
             background: #ffa9bc;
             color: #fff;
         }
+        .metx {
+            max-height: 400px;
+        }
+        .bottub {
+            margin-top: -28px;
+        }
         @media (max-width: 992px) {
             .bottub {
                 margin-top: -26px;
@@ -732,9 +738,11 @@
                                 </div>
                             @endif
                         </div>
+                        @if(auth()->user()->id != $to->id )
                         <div class="ri_xixn">
                             <input placeholder="您尚未留下備註" class="ri_xixn_input" id="massage_user_note_{{$to->id}}" value="{{$note?$note->note:''}}"><a href="" class="ri_button_a" onclick="massage_user_note('{{$to->id}}');">確定</a>
                         </div>
+                        @endif
                     </div>
                     <div class="bottub">
 
@@ -2266,47 +2274,33 @@
         var vipDiff = parseInt('{{ ($user->isVip() || $user->isVVIP()) ? '6' : '0'}}');
 
         if(window.matchMedia("(min-width: 992px)").matches && window.matchMedia("(max-width: 1599px)").matches){
-            $(".swiper-container").css('height',$(".metx").height()- 56);
+            $(".swiper-container").css('height',$(".metx").height()- 106);
         }
         if(window.matchMedia("(min-width: 1600px)").matches){
-            $(".swiper-container").css('height',$(".metx").height()- 56);
+            $(".swiper-container").css('height',$(".metx").height()- 106);
         }
         if(window.matchMedia("(min-width: 376px)").matches && window.matchMedia("(max-width: 991px)").matches){
-            $(".swiper-container").css('height',$(".metx").height()-48);
+            $(".swiper-container").css('height',$(".metx").height() - 106 );
         }
         
 
         if( /Android|webOS|iPhone|iPod|BlackBerry|IEMobile|Opera Mini/i.test(navigator.userAgent) ) {
-            if(window.matchMedia("(max-width: 375px)").matches){
+            /* if(window.matchMedia("(max-width: 375px)").matches){
+                console.log(375)
                 $(".swiper-container").css('height',$(".metx").height()- 46);
             }
             if(window.matchMedia("(min-width: 767px)").matches && window.matchMedia("(max-width: 770px)").matches){
                 console.log("768px")
                 $(".swiper-container").css('height',$(".metx").height()- 46);
-            }
-            if(window.innerWidth > window.innerHeight){
+            } */
+            /* if(window.innerWidth > window.innerHeight){
                 console.log("land")
                 $(".swiper-container").css('height',$(".metx").height()- 55);
-            }
+            } */
         } else {
             
         }
-        // if(window.matchMedia("(max-width: 1366px)").matches && window.matchMedia("(min-width: 993px)").matches){
-        //     console.log("1366px")
-        //     $(".swiper-container").css('height',$(".metx").height() - 30+ vipDiff);
-        // }
-        // if(window.matchMedia("(max-width: 992px)").matches && window.matchMedia("(min-width: 737px)").matches){
-        //     console.log("992px")
-        //     $(".swiper-container").css('height',$(".metx").height()- 56 + vipDiff);
-        // }
-        // if(window.matchMedia("(max-width: 736px)").matches && window.matchMedia("(min-width: 661px)").matches){
-        //     console.log("736px")
-        //     $(".swiper-container").css('height',$(".metx").height()- 45);
-        // }
-        // if(window.matchMedia("(max-width: 660px)").matches){
-        //     console.log("660px")
-        //     $(".swiper-container").css('height',$(".metx").height() - 55 - vipDiff);
-        // }
+
         //固定高取得
         var bottom_height=$('.tubiao ul').height();
         //浮動高度

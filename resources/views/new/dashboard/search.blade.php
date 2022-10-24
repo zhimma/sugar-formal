@@ -38,7 +38,7 @@ header("Expires: Fri, 01 Jan 1990 00:00:00 GMT");
         border-radius: 5px;
         float: left;
         margin-left: 10px;
-        z-index: 9;
+        z-index: 8;
         position: relative;
     }
     .n_ntab {
@@ -63,6 +63,16 @@ header("Expires: Fri, 01 Jan 1990 00:00:00 GMT");
             margin-left: 0%;
             margin-right: 0%;
         }
+        .n_ntab {
+            left:0px;
+        }
+    }
+
+    @media (max-width: 455px) {
+        
+    }
+    .nt_img {
+        left: 20px;
     }
 </style>
 @endsection
@@ -1233,11 +1243,9 @@ header("Expires: Fri, 01 Jan 1990 00:00:00 GMT");
 
                                 have_vvip = 1;
                                 csrData +=  `<div class="nnn_one">`;
-                                if(this.userIsVip && this.user.engroup==2) {
                                     csrData +=  `<div class="ss_xixn n_ntab">
                                                     <input placeholder="您尚未留下備註" class="ss_xixn_input" id="massage_user_note_${rowID}" value="${response.data.notes[rowID]??''}"><a class="ss_button_a" onclick="massage_user_note('${rowID}');">確定</a>
                                                 </div>`;
-                                }
                                 csrData += `<li class="nt_fg vvip_bg1">`;
                             }else {
 
@@ -1251,29 +1259,23 @@ header("Expires: Fri, 01 Jan 1990 00:00:00 GMT");
                                 if (rowEngroup == 2) {
                                     if (rowExchangePeriod == 1) {
                                         csrData +=  `<div class="nnn_one">`;
-                                        if(this.userIsVip && this.user.engroup==2) {
                                             csrData +=  `<div class="ss_xixn n_ntab">
                                                             <input placeholder="您尚未留下備註" class="ss_xixn_input" id="massage_user_note_${rowID}" value="${response.data.notes[rowID]??''}"><a class="ss_button_a" onclick="massage_user_note('${rowID}');">確定</a>
                                                         </div>`;
-                                        }
                                         
                                         csrData += `<li class="nt_fg vvip_bg1">`;
                                     } else {
                                         csrData +=  `<div class="nnn_one">`;
-                                        if(this.userIsVip && this.user.engroup==2) {
                                             csrData +=  `<div class="ss_xixn n_ntab">
                                                             <input placeholder="您尚未留下備註" class="ss_xixn_input" id="massage_user_note_${rowID}" value="${response.data.notes[rowID]??''}"><a class="ss_button_a" onclick="massage_user_note('${rowID}');">確定</a>
                                                         </div>`;
-                                        }
                                         csrData += `<li class="nt_fg vvip_bg2">`;
                                     }
                                 } else {
                                     csrData +=  `<div class="nnn_one">`;
-                                    if(this.userIsVip && this.user.engroup==2) {
                                         csrData +=  `<div class="ss_xixn n_ntab">
                                                         <input placeholder="您尚未留下備註" class="ss_xixn_input" id="massage_user_note_${rowID}" value="${response.data.notes[rowID]??''}"><a class="ss_button_a" onclick="massage_user_note('${rowID}');">確定</a>
                                                     </div>`;
-                                    }
                                     csrData +=  `<li class="nt_fg vvip_bg2">`;
                                 }
                             }
@@ -1453,9 +1455,7 @@ header("Expires: Fri, 01 Jan 1990 00:00:00 GMT");
                         }
 
                         csrData +='</h2>';
-                        if(this.userIsVip && this.user.engroup==2) {
-                            csrData += `<div style="height:35px;"></div>`;
-                        }
+                            csrData += `<div style="height:35px;" class="noactvie"></div>`;
                         csrData +='<h3>';
                         if(umeta.city !== ""){
                             umeta.city.forEach((row, index) => {
@@ -1519,7 +1519,12 @@ header("Expires: Fri, 01 Jan 1990 00:00:00 GMT");
                     }else{
                         this.csrData = '<div class="fengsicon search"><img src="/new/images/loupe.png" class="feng_img"><span>沒有資料</span></div>';
                     }
-
+                    function remarkHandle() {
+                        $('.nnn_one').each(function(){
+                            let i = $(this);
+                            i.find('.ss_xixn').css({'bottom':(i.find('.nt_bot').height()-35)+'px'})
+                        })
+                    }
                     $(document).ready(function(){
                         $('[data-toggle="popover"]').popover({
                             animated: 'fade',
@@ -1528,6 +1533,11 @@ header("Expires: Fri, 01 Jan 1990 00:00:00 GMT");
                             html: true,
                             content: function () { return '<h4>' + $(this).data('content') + '</h4>'; }
                         });
+                        remarkHandle()
+                        
+                    });
+                    $(window).resize(function(){
+                        remarkHandle()
                     });
                 })
             .catch(function (error) { // 请求失败处理
