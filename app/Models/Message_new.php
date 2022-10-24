@@ -515,11 +515,19 @@ class Message_new extends Model
         }
         
         /**
-         * 
          * 20221017 效能調整：改使用 Scout 進行搜尋
-         * 
+         * Usage:
+         *  $customers = \App\Models\User::search('', function (
+         *      $meiliSearch,
+         *      string $query
+         *  ) {
+         *      $options['filter'] = 'birthdate > UNIX TIMESTAMP';
+         *
+         *      return $meiliSearch->search($query, $options);
+         *  })->get();
          */
         if (Features::accessible('message_uses_scout')) {
+            
             // todo: 7 天、40 天、 180 天的 Room_id
             $userRooms = $user->messageRooms->pluck('id')->toArray();
             $messages = Message::scoutSearch()->whereIn('room_id', $userRooms)->get();
