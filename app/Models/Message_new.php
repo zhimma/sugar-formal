@@ -520,26 +520,25 @@ class Message_new extends Model
          * 
          */
         if (Features::accessible('message_uses_scout')) {
+            // todo: 7 天、40 天、 180 天的 Room_id
             $userRooms = $user->messageRooms->pluck('id')->toArray();
             $messages = Message::scoutSearch()->whereIn('room_id', $userRooms)->get();
             $blockedUsers = $user->blocked->pluck('blocked_id')->toArray();
             
             foreach ($messages as &$message) {
+                // 排除不存在的會員
                 if (!$message->sender || !$message->receiver) {
                     unset($message);
                     continue;
                 }
 
-                if ($message->sender_is_banned || $message->receiver_is_banned || $message->sender_is_implicitly_banned || $message->receiver_is_implicitly_banned) {
-                    unset($message);
-                    continue;
-                }
-                
+                // 排除被封鎖、被隱性封鎖的會員，包含收雙方
                 if ($message->sender_is_banned || $message->receiver_is_banned || $message->sender_is_implicitly_banned || $message->receiver_is_implicitly_banned) {
                     unset($message);
                     continue;
                 }
 
+                // 排除自己封鎖的會員
                 if (in_array($message->from_id, $blockedUsers)) {
                     unset($message);
                     continue;
