@@ -1391,8 +1391,8 @@ class Message extends Model
         $receiver = $this->receiver()->first();
         $msgArray['sender_is_banned'] = $sender ? $sender->banned() : 1;
         $msgArray['receiver_is_banned'] = $receiver ? $receiver->banned() : 1;
-        $msgArray['sender_is_implicitly_banned'] = $sender ? $sender->implicitly_banned() : 1;
-        $msgArray['receiver_is_implicitly_banned'] = $receiver ? $receiver->implicitly_banned() : 1;
+        $msgArray['sender_is_implicitly_banned'] = $sender ? $sender->implicitlyBanned() : 1;
+        $msgArray['receiver_is_implicitly_banned'] = $receiver ? $receiver->implicitlyBanned() : 1;
         $msgArray['sender_is_warned'] = $sender?->aw_relation();
         $msgArray['receiver_is_warned'] = $receiver?->aw_relation();
         return $msgArray;
