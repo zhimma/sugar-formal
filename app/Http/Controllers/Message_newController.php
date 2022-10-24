@@ -328,8 +328,7 @@ class Message_newController extends BaseController {
             if ($isCanMessage) {
                 Message::where('id', $messagePosted->id)->update(['is_can' => 1]);
                 if(!$user->is_vvip) {
-                    $inbox_refuse_set = InboxRefuseSet::where('user_id', $to_user->id)->first();
-                    if($inbox_refuse_set->refuse_canned_message_pr != -1) {
+                    if($to_user->show_can_message != 1) {
                         return array('error' => 2,
                             'content' => '您好，此位女會員設定屏蔽罐頭訊息，如發罐頭訊息給她會被屏蔽');
                     }
