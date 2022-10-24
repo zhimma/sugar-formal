@@ -519,6 +519,7 @@ class Message_new extends Model
          * 
          */
         if (Features::accessible('message_uses_scout')) {
+            // todo: 7 天、40 天、 180 天的 Room_id
             $userRooms = $user->messageRooms->pluck('id')->toArray();
             $messages = Message::scoutSearch()->whereIn('room_id', $userRooms)->get();
             $blockedUsers = $user->blocked->pluck('blocked_id')->toArray();
