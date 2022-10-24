@@ -46,7 +46,7 @@ a:focus {outline:none;}
 .introjs-tooltip.yd3{margin:0 0 0 150px; width: 100%;}
 .yd3 .introjs-arrow{width:40px; background:url("../images/yd_jt2.png") no-repeat 0 0; height:50px;top:0;
     left:-50px;right:auto; background-size: auto 100%;}
-.yd3 .introjs-nextbutton,.yd2 .introjs-nextbutton,.yd4 .introjs-nextbutton,.yd5 .introjs-nextbutton{display: none;}
+.yd3 .introjs-nextbutton,.yd2 .introjs-nextbutton,.yd4 .introjs-nextbutton,.yd5 .introjs-nextbutton,.yd6 .introjs-nextbutton{display: none;}
 
 .introjs-helperLayer.yd4a,.introjs-helperLayer.yd5a{max-width:100%; min-height:50px;  border-radius: 10px;}
 .introjs-tooltip.yd4,.introjs-tooltip.yd5{margin-top:0; margin-bottom:55px;min-height: 70px; padding:10px 20px;}
@@ -60,6 +60,21 @@ a:focus {outline:none;}
 }
 .yd4 .introjs-button,.yd4 .introjs-button:focus,.yd4 .introjs-button:active{bottom:-200px; left: 75%;}
 .yd5 .introjs-button,.yd5 .introjs-button:focus,.yd5 .introjs-button:active{bottom:-200px; left: 75%;}
+
+.yd6a{min-width: auto;border-radius: 50px;border: 0;box-shadow: 0 0 8px rgba(255,255,255,.7);}
+.yd6a.introjs-helperLayer{display: none;}
+.yd6a.introjs-helperLayer, .yd6a + .introjs-tooltipReferenceLayer {padding: 0;}
+.yd6.introjs-tooltip {bottom: auto!important;background: none;box-shadow: none;height: 800px;border: 0;}
+.yd6 .introjs-tooltiptext{position: absolute;right: -40px;bottom: 250px;width: 300px;}
+.yd6 .introjs-arrow{width:500px;height: auto; background:url("../images/addbgs_03.png") no-repeat 0 0;
+    left:auto;right: -145px;top: -30px;background-size: 100% auto;}
+.yd6 .introjs-arrow.top {top: 0;}
+.yd6 .introjs-button,.yd6 .introjs-button:focus,.yd6 .introjs-button:active{bottom:150px;left: -280px; margin-left: 0;}
+.yd6 .introjs-tooltiptext em{width:10%}
+img.yd6{position: absolute;width: 15px;right: -10px;}
+img.highlight{width: 25px;border: 4px solid white;border-radius: 50px; box-shadow: 0 0 8px rgb(255 255 255 / 70%);}
+.yd6 .introjs-skipbutton{ background: url("../images/yd_btn_confirm.png") no-repeat 0 0;background-size: 100% auto;}
+.yd6 .introjs-notshowbutton{ background: url("../images/yd_btn_not_show_again.png") no-repeat 0 0;background-size: 100% auto;left: -50px !important;}
 
 .yd1 .introjs-nextbutton{background: none; position: fixed; width: 100%; height: 100%; top: 0; left: 0; z-index:999;}
 
@@ -138,18 +153,24 @@ a:focus {outline:none;}
 
 /* 横向放置的手机和竖向放置的平板之间的分辨率 */
 @media (max-width: 767px) {
-    .introjs-helperLayer { min-width: 300px;}
+    .introjs-helperLayer:not(.yd6a) { min-width: 300px;}
     .introjs-tooltip.yd2{width:65%;}
     .introjs-helperLayer.yd4a,.introjs-helperLayer.yd5a{max-width:90%; min-width:auto; min-height:50px; left: 5%;   border-radius: 10px; margin-left: 5%;}
     .introjs-tooltip.yd4,.introjs-tooltip.yd5{width:86%; margin-left:5%;}
     .lebox2.introjs-showElement,.lebox3.introjs-showElement{width:88%; margin-left:5%;}
 
 
-
-
-
+    /* .introjs-tooltip.yd6{width:65%;} */
+    .yd6 .introjs-arrow{width:400px;right: -110px;}
+    .yd6 .introjs-tooltiptext{bottom: 370px;right: -60px;}
+    .yd6 .introjs-button, .yd6 .introjs-button:focus, .yd6 .introjs-button:active{bottom: 260px;left: -220px;}
 }
 
+@media (max-height: 801px) {
+    .yd6 .introjs-arrow{width:300px;right: -70px;}
+    .yd6 .introjs-tooltiptext{bottom: 465px;right: -80px;}
+    .yd6 .introjs-button, .yd6 .introjs-button:focus, .yd6 .introjs-button:active{bottom: 380px;left: -190px;}
+}
 /* 横向放置的手机及分辨率更小的设备 */
 @media (max-width: 480px) {
    .introjs-tooltip{font:14px/20px ""; margin-top: 50px;}
@@ -186,14 +207,23 @@ a:focus {outline:none;}
     .yindao1 li,.yindao1b li,.yindao1c li{padding: 5px 10px;}
     .yindao1 li:first-child,.yindao1b li:first-child,.yindao1c li:first-child{padding-top: 0;}
 
-
-
+    .introjs-tooltip.yd6{ margin-bottom:30px;}
+    .yd6 .introjs-arrow{width:280px;right: -70px;}
+    .yd6 .introjs-tooltiptext{width: 280px;right: -80px;bottom: 525px;}
+    .yd6 .introjs-button,.yd6 .introjs-button:focus,.yd6 .introjs-button:active{bottom:440px;}
+    .yd6 .introjs-skipbutton{left: -165px;}
+    .yd6 .introjs-notshowbutton{left: -25px!important;}
+    .yd6a{width:93%; padding: 10px 0; margin: 0 auto;font-size: 14px;}
 }
 @media (max-width: 375px) {
     .introjs-tooltip.yd2{ margin-bottom:50px;}
     /*.yd2b{top: 0; padding: 0; margin-top:-20px;}*/
     .yd1 .introjs-nextbutton{background: none; position: fixed; width: 100%; height: 100%; top: 0; left: 0; z-index:999;}
      .yindao1,.yindao1b,.yindao1c{ left:2.5% !important;}
+     .introjs-tooltip.yd6{ margin-bottom:50px;}
+
+     .yd6 .introjs-arrow{right: -75px;}
+     .yd6 .introjs-tooltiptext{width: 250px;right: -60px;}
 }
 
 @media (max-width: 320px) {
@@ -202,6 +232,7 @@ a:focus {outline:none;}
     .introjs-tooltip.yd4,.introjs-tooltip.yd5{padding: 10px;}
     /*.yd2b{margin-top:0;}*/
     .yd2a{font-size:12px;}
+    .yd6a{font-size:12px;}
     .introjs-helperLayer.yd4a,.introjs-helperLayer.yd5a{max-width:90%; min-width:200px; margin-left:6%;}
     .lebox2.introjs-showElement,.lebox3.introjs-showElement{width:88%; margin-left:5.5%;}
     .yd1 .introjs-nextbutton{background: none; position: fixed; width: 100%; height: 100%; top: 0; left:0; z-index:999;}
@@ -214,5 +245,11 @@ a:focus {outline:none;}
     .yindao1c{height: 240px;}
     .yindao1 .introjs-button,.yindao1b .introjs-button,.yindao1c .introjs-button {bottom: -180px;}
 
-
+    .yd6a {min-width: auto;}
+    .yd6 .introjs-tooltiptext{width: 230px;right: -45px;bottom: 550px;}
+    .yd6 .introjs-arrow{width: 250px;right: -55px;}
+    .yd6 .introjs-button, .yd6 .introjs-button:focus, .yd6 .introjs-button:active {width: 95px;bottom: 470px;}
+    .yd6 .introjs-skipbutton{left: -155px;}
+    .yd6 .introjs-notshowbutton{left: -35px!important;}
+    
 }
