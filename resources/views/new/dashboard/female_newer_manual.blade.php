@@ -95,9 +95,31 @@ if(location.hash=='' ) {
             .new_poptk{height:auto;}
         }
         .new_ii{ font-style: normal; font-size: 14px; width: 100%; display: table; font-weight: normal; line-height: 25px;}
-
+        .scroll-bottom {
+            writing-mode: tb;
+            position: fixed;
+            background-color: #F9869C;
+            border-radius: 11px;
+            padding: 5px 6px;
+            bottom: 15px;
+            z-index: 1;
+            color: #fff;
+            width: 35px;
+            text-align: center;
+            left: 50%;
+            margin-left: -17px;
+            cursor: pointer;
+            font-weight:bold;
+            box-shadow: 0px 0px 10px #fd5676;
+        }
+        .scroll-bottom:hover {
+            background-color: #fd5676;
+        }
     </style>
     <div class="container matop70">
+        <div class="scroll-bottom">
+            >>
+        </div>
         <div class="row">
             <div class="col-sm-2 col-xs-2 col-md-2 dinone">
                 @include('new.dashboard.panel')
@@ -602,5 +624,18 @@ function gmBtn1() {
     if(location.hash!='' && location.hash.indexOf('#nr_fnm')<0) {
         $('a.pa_cit[href="'+location.hash+'"]').click();
     }    
+
+    $('.scroll-bottom').click(function(){
+        $("html,body").animate({ scrollTop: $('html').scrollTop() + $(window).height() }, 1000);
+    });
+    $(window).scroll(function(){
+        let now = $('html').scrollTop();
+        let limit = $(document).height() - $(window).height() - 100;
+        if(now < limit) {
+            $('.scroll-bottom').show();
+        }else {
+            $('.scroll-bottom').hide();
+        }
+    })
 </script>
 @stop
