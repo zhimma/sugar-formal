@@ -563,10 +563,8 @@
                             </span>
                         </a>
                         @if($to->engroup==2 && $to->show_can_message== 0)
-                        <a onclick="show_canMessageAlert()">
                             <img id="yd6"  class="yd6" src="{{ asset('/new/images/zz_ztt2.png') }}" data-position="top" data-highlightClass="yd6a" data-tooltipClass="yd6"
                                 data-intro="<p>注意!! 此符號代表該位女會員設定屏蔽罐頭訊息，您目前發出的訊息與過往訊息相似度太高，會被屏蔽，建議您重新調整訊息內容再發出。</p>">
-                        </a>
                         @endif
                     @endif
                 </span>
