@@ -341,7 +341,10 @@
             background: #fff;
             display: table;
             border-radius: 10px;
-            margin-top: 15px;
+            /* margin-top: 15px; */
+        }
+        .eg_o {
+            margin-bottom: 0px;
         }
         .ri_xixn_input {
             width: 200px;
@@ -739,7 +742,7 @@
                             @endif
                         </div>
                         @if(auth()->user()->id != $to->id )
-                        <div class="ri_xixn">
+                        <div class="ri_xixn" @if(auth()->user()->engroup == 1) style="margin-top:15px;" @endif>
                             <input placeholder="您尚未留下備註" class="ri_xixn_input" id="massage_user_note_{{$to->id}}" value="{{$note?$note->note:''}}"><a href="" class="ri_button_a" onclick="massage_user_note('{{$to->id}}');">確定</a>
                         </div>
                         @endif
