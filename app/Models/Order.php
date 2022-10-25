@@ -85,6 +85,10 @@ class Order extends Model
                     $dd = str_replace('%20', ' ', $paymentData['PaymentDate']);
                     $dd = \Carbon\Carbon::createFromFormat('Y/m/d H:i:s', $dd)->toDateTimeString();
                     array_push($dateArray, array($dd));
+
+                    $order->card4no = $paymentData['card4no'];
+                    $order->card6no = $paymentData['card6no'];
+
                 }else{
                     foreach($paymentPeriodInfo['ExecLog'] as $data){
                         if($data['RtnCode']==1) {
@@ -98,8 +102,14 @@ class Order extends Model
                     $lastProcessDate = str_replace('%20', ' ', $last['process_date']);
                     $lastProcessDate = \Carbon\Carbon::createFromFormat('Y/m/d H:i:s', $lastProcessDate);
                     $lastProcessDateDiffDays = $lastProcessDate->diffInDays(Carbon::now());
+
+                    $order->card4no = $paymentPeriodInfo['card4no'];
+                    $order->card6no = $paymentPeriodInfo['card6no'];
+
                 }
                 $order->pay_date = json_encode($dateArray);
+
+
 
                 $PaymentDate =str_replace('%20', ' ', $paymentData['PaymentDate']);
                 $PaymentDate = \Carbon\Carbon::createFromFormat('Y/m/d H:i:s', $PaymentDate);
@@ -214,6 +224,10 @@ class Order extends Model
                     $dd = str_replace('%20', ' ', $paymentData['PaymentDate']);
                     $dd = \Carbon\Carbon::createFromFormat('Y/m/d H:i:s', $dd)->toDateTimeString();
                     array_push($dateArray, array($dd));
+
+                    $order->card4no = $paymentData['card4no'];
+                    $order->card6no = $paymentData['card6no'];
+
                 }else{
                     foreach($paymentPeriodInfo['ExecLog'] as $data){
                         if($data['RtnCode']==1) {
@@ -227,6 +241,10 @@ class Order extends Model
                     $lastProcessDate = str_replace('%20', ' ', $last['process_date']);
                     $lastProcessDate = \Carbon\Carbon::createFromFormat('Y/m/d H:i:s', $lastProcessDate);
                     $lastProcessDateDiffDays = $lastProcessDate->diffInDays(Carbon::now());
+
+                    $order->card4no = $paymentPeriodInfo['card4no'];
+                    $order->card6no = $paymentPeriodInfo['card6no'];
+
                 }
                 $order->pay_date = json_encode($dateArray);
 
@@ -306,10 +324,16 @@ class Order extends Model
                 $dateArray = array();
                 $lastProcessDate = '';
                 $lastProcessDateDiffDays = '';
+                $card4no = '';
+                $card6no = '';
                 if($paymentPeriodInfo['ExecLog']==''){
                     $dd = str_replace('%20', ' ', $paymentData['PaymentDate']);
                     $dd = \Carbon\Carbon::createFromFormat('Y/m/d H:i:s', $dd)->toDateTimeString();
                     array_push($dateArray, array($dd));
+
+                    $card4no = $paymentData['card4no'];
+                    $card6no = $paymentData['card6no'];
+
                 }else{
                     foreach($paymentPeriodInfo['ExecLog'] as $data){
                         if($data['RtnCode']==1) {
@@ -323,6 +347,10 @@ class Order extends Model
                     $lastProcessDate = str_replace('%20', ' ', $last['process_date']);
                     $lastProcessDate = \Carbon\Carbon::createFromFormat('Y/m/d H:i:s', $lastProcessDate);
                     $lastProcessDateDiffDays = $lastProcessDate->diffInDays(Carbon::now());
+
+                    $card4no = $paymentPeriodInfo['card4no'];
+                    $card6no = $paymentPeriodInfo['card6no'];
+
                 }
                 //更新到期日
                 $order_expire_date = null;
@@ -350,7 +378,7 @@ class Order extends Model
                     $order_expire_date = $lastProcessDate->addMonthsNoOverflow(1);
                 }
 
-                Order::where('order_id', $order_id)->update(['order_expire_date' => $order_expire_date, 'pay_date' => json_encode($dateArray)]);
+                Order::where('order_id', $order_id)->update(['order_expire_date' => $order_expire_date, 'pay_date' => json_encode($dateArray), 'card4no' => $card4no, 'card6no' => $card6no]);
 
             }
 
@@ -389,10 +417,16 @@ class Order extends Model
                 $dateArray = array();
                 $lastProcessDate = '';
                 $lastProcessDateDiffDays = '';
+                $card4no = '';
+                $card6no = '';
                 if($paymentPeriodInfo['ExecLog']==''){
                     $dd = str_replace('%20', ' ', $paymentData['PaymentDate']);
                     $dd = \Carbon\Carbon::createFromFormat('Y/m/d H:i:s', $dd)->toDateTimeString();
                     array_push($dateArray, array($dd));
+
+                    $card4no = $paymentData['card4no'];
+                    $card6no = $paymentData['card6no'];
+
                 }else{
                     foreach($paymentPeriodInfo['ExecLog'] as $data){
                         if($data['RtnCode']==1) {
@@ -406,6 +440,10 @@ class Order extends Model
                     $lastProcessDate = str_replace('%20', ' ', $last['process_date']);
                     $lastProcessDate = \Carbon\Carbon::createFromFormat('Y/m/d H:i:s', $lastProcessDate);
                     $lastProcessDateDiffDays = $lastProcessDate->diffInDays(Carbon::now());
+
+                    $card4no = $paymentPeriodInfo['card4no'];
+                    $card6no = $paymentPeriodInfo['card6no'];
+
                 }
                 //更新到期日
                 $order_expire_date = null;
@@ -433,7 +471,7 @@ class Order extends Model
                     $order_expire_date = $lastProcessDate->addMonthsNoOverflow(1);
                 }
 
-                Order::where('order_id', $order_id)->update(['order_expire_date' => $order_expire_date, 'pay_date' => json_encode($dateArray)]);
+                Order::where('order_id', $order_id)->update(['order_expire_date' => $order_expire_date, 'pay_date' => json_encode($dateArray), 'card4no' => $card4no, 'card6no' => $card6no]);
 
             }
 
