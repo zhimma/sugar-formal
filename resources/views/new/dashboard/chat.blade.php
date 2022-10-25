@@ -431,7 +431,7 @@ is_truth_icon_pic.src="{{asset('/new/images/zz_zt2.png')}}";
         .serit_aa img{ height:14px;margin-right:2px; margin-top:-2px;}
         .se_input{width: auto; }
         .se_rig_ff{width: calc(100% - 135px); float: right;}
-        .se_in01{width: 95px; border: none; background: transparent; height: 24px; color: #000;}
+        .se_in01{width: 90px; border: none; background: transparent; height: 24px; color: #000;}
         .se_button_a{ background: #fabbcc;border-radius: 3px;  height: 25px; color: #fff; float: right; width:32px; text-align: center; line-height: 24px;}
 
     }
@@ -439,6 +439,9 @@ is_truth_icon_pic.src="{{asset('/new/images/zz_zt2.png')}}";
     .righ_nre h3{font-size: 12px !important;}
     .sjleft {
         margin-bottom: 5px;
+    }
+    .ys_gt,.ys_gt1 {
+        left:-10px;
     }
 </style>
 <!--引导弹出层-->
@@ -503,7 +506,7 @@ is_truth_icon_pic.src="{{asset('/new/images/zz_zt2.png')}}";
                 </div>
                 <!-- <div class="sj_iconright"><img src="/new/images/sj_icon2.png"></div> -->
             </div>
-            <div class="n_shtab">
+            <div class="n_shtab" style="position: relative;">
                 <h2 data-step="1" data-highlightClass="yd1a" data-tooltipClass="yd1"
                     data-intro="<p>不同等級會員可以有不同的信件讀取權限。</p>
                         <p>試用會員：信件可保存30天，通訊人數限制10人。</p>
@@ -515,6 +518,9 @@ is_truth_icon_pic.src="{{asset('/new/images/zz_zt2.png')}}";
                     <span>您目前為{{$letter_normal_member}}</span>訊息可保存天數：30，可通訊人數:10
                     @endif
                 </h2>
+                @if($user->engroup==2)
+                <a href="javascript:void(0)" class="right ys_inbut" style="margin-right: 10px;position: absolute;right: 0px;top: 7px;"><img src="/new/images/zz_ztt.png"><span>{{ $user->show_can_message ? '收起罐頭訊息' : '顯示罐頭訊息' }}</span></a>
+                @endif
             </div>
             <div class="d-table">
                 <div class="select_cont msg_select_cont" style="display:none">
@@ -525,9 +531,7 @@ is_truth_icon_pic.src="{{asset('/new/images/zz_zt2.png')}}";
                         <option value="all">全部</option>
                     </select>
                 </div>
-                @if($user->engroup==2)
-                <a href="javascript:void(0)" class="right ys_inbut"><img src="/new/images/zz_ztt.png"><span>{{ $user->show_can_message ? '收起罐頭訊息' : '顯示罐頭訊息' }}</span></a>
-                @endif
+                
             </div>
             <div class="sjlist_li">
                 <div class="leftsidebar_box">
