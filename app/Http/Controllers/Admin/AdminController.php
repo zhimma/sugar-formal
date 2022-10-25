@@ -3,11 +3,13 @@
 namespace App\Http\Controllers\Admin;
 
 use App\Http\Controllers\Controller;
+use App\Models\SpecialIndustriesTestAnswer;
 use App\Models\SpecialIndustriesTestSetup;
 use App\Models\SpecialIndustriesTestTopic;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Log;
 use Carbon\Carbon;
+use App\Models\User;
 
 class AdminController extends \App\Http\Controllers\BaseController
 {
@@ -18,46 +20,62 @@ class AdminController extends \App\Http\Controllers\BaseController
 
     public function special_industries_judgment_training_setup_set(Request $request)
     {
-        $test_setup = new SpecialIndustriesTestSetup;
-        $test_setup->title = $request->test_title ?? '未命名';
-        $test_setup->is_banned = $request->is_banned ?? 0;
-        $test_setup->is_warned = $request->is_warned ?? 0;
-        $test_setup->is_ever_banned = $request->is_ever_banned ?? 0;
-        $test_setup->is_ever_warned = $request->is_ever_warned ?? 0;
-        $test_setup->start_time = Carbon::parse($request->date_start ?? "0000-00-00 00:00:00");
-        $test_setup->end_time = Carbon::parse($request->date_end." 23:59:59" ?? "0000-00-00 00:00:00");
-        $test_setup->gender = $request->en_group ?? 0;
-        $test_setup->select_member_count = $request->select_member_count * ($request->select_count ?? 0);
-        $test_setup->normal_member_count = $request->normal_member_count * ($request->member_count ?? 0);
-        $test_setup->save();
+        $setup_id = SpecialIndustriesTestSetup::generate_setup($request);
 
-        $test_topic = new SpecialIndustriesTestTopic;
-        $test_topic->test_setup_id = $test_setup->id;
-        $test_topic->test_topic = '';
-        $test_topic->correct_answer = '';
-        $test_topic->save();
+        $test_topic_id = SpecialIndustriesTestTopic::generate_topic($setup_id);
 
         return back()->with('message', '新增成功');
     }
 
     public function special_industries_judgment_training_select()
     {
-        $test_topic = SpecialIndustriesTestTopic::get();
+        $test_topic = SpecialIndustriesTestTopic::select('special_industries_test_topic.id as topic_id','special_industries_test_topic.*','special_industries_test_setup.*')
+                                                ->leftJoin('special_industries_test_setup','special_industries_test_setup.id','special_industries_test_topic.test_setup_id')
+                                                ->orderByDesc('special_industries_test_topic.updated_at')
+                                                ->get();
         return view('admin.special_industries_judgment_training_select')
                 ->with('test_topic', $test_topic);
     }
 
     public function special_industries_judgment_training_test(Request $request)
     {
-        if($request->setup_id)
-        {
-            $setup = SpecialIndustriesTestSetup::where('id', $request->setup_id)->first();
+        $test_topic = SpecialIndustriesTestTopic::where('id',$request->topic_id)
+                                            ->first();
+        $topic_user = User::whereIn('users.id',json_decode($test_topic->test_topic))
+                            ->inRandomOrder()
+                            ->get();
+        $correct_answer = json_decode($test_topic->correct_answer, true);
+        Log::Info($correct_answer);
 
-        }
-        else
-        {
+        return view('admin.special_industries_judgment_training_test')
+                ->with('test_topic', $test_topic)
+                ->with('topic_user', $topic_user)
+                ->with('correct_answer', $correct_answer)
+                ;
+    }
 
+    public function special_industries_judgment_answer_send(Request $request)
+    {
+        $user = $request->user();
+        $topic_id = $request->topic_id;
+        $test_topic = SpecialIndustriesTestTopic::where('id',$topic_id)->first();
+
+        $answer_array = [];
+        $user_id_array = json_decode($request->answer_user_id);
+        $answer_choose_array = json_decode($request->answer_choose);
+        
+        for ($i=0; $i<$test_topic->topic_count; $i++)
+        {
+            $answer_array[$user_id_array[$i]] = $answer_choose_array[$i];
         }
-        return view('admin.special_industries_judgment_training_test');
+
+        //儲存結果
+        $answer = new SpecialIndustriesTestAnswer();
+        $answer->test_topic_id = $topic_id;
+        $answer->test_user = $user->id;
+        $answer->user_answer = json_encode($answer_array);
+        $answer->save();
+
+        return response()->json([], 200);
     }
 }
