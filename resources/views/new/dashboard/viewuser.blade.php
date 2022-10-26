@@ -1474,10 +1474,10 @@
                                         <span v-if="is_vip"><font>@{{message_percent_7}}</font></span>
                                         <span class="mtop" v-else><img src="/new/images/icon_35.png" /></span>
                                     </dt>
-                                    <dt><span>是否封鎖我</span>
+                                    {{-- <dt><span>是否封鎖我</span>
                                         <span v-if="is_vip"><font>@{{is_block_mid}}</font></span>
                                         <span class="mtop" v-else><img src="/new/images/icon_35.png" /></span>
-                                    </dt>
+                                    </dt> --}}
                                     <dt><span>是否看過我</span>
                                         <span v-if="is_vip"><font>@{{is_visit_mid}}</font></span>
                                         <span class="mtop" v-else><img src="/new/images/icon_35.png" /></span>
