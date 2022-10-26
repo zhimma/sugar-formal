@@ -86,8 +86,10 @@ class Order extends Model
                     $dd = \Carbon\Carbon::createFromFormat('Y/m/d H:i:s', $dd)->toDateTimeString();
                     array_push($dateArray, array($dd));
 
-                    $order->card4no = $paymentData['card4no'];
-                    $order->card6no = $paymentData['card6no'];
+                    if($paymentData['card4no']) {
+                        $order->card4no = $paymentData['card4no'];
+                        $order->card6no = $paymentData['card6no'];
+                    }
 
                 }else{
                     foreach($paymentPeriodInfo['ExecLog'] as $data){
@@ -103,8 +105,10 @@ class Order extends Model
                     $lastProcessDate = \Carbon\Carbon::createFromFormat('Y/m/d H:i:s', $lastProcessDate);
                     $lastProcessDateDiffDays = $lastProcessDate->diffInDays(Carbon::now());
 
-                    $order->card4no = $paymentPeriodInfo['card4no'];
-                    $order->card6no = $paymentPeriodInfo['card6no'];
+                    if($paymentPeriodInfo['card4no']) {
+                        $order->card4no = $paymentPeriodInfo['card4no'];
+                        $order->card6no = $paymentPeriodInfo['card6no'];
+                    }
 
                 }
                 $order->pay_date = json_encode($dateArray);
@@ -242,8 +246,10 @@ class Order extends Model
                     $lastProcessDate = \Carbon\Carbon::createFromFormat('Y/m/d H:i:s', $lastProcessDate);
                     $lastProcessDateDiffDays = $lastProcessDate->diffInDays(Carbon::now());
 
-                    $order->card4no = $paymentPeriodInfo['card4no'];
-                    $order->card6no = $paymentPeriodInfo['card6no'];
+                    if($paymentPeriodInfo['card4no']) {
+                        $order->card4no = $paymentPeriodInfo['card4no'];
+                        $order->card6no = $paymentPeriodInfo['card6no'];
+                    }
 
                 }
                 $order->pay_date = json_encode($dateArray);
@@ -348,8 +354,10 @@ class Order extends Model
                     $lastProcessDate = \Carbon\Carbon::createFromFormat('Y/m/d H:i:s', $lastProcessDate);
                     $lastProcessDateDiffDays = $lastProcessDate->diffInDays(Carbon::now());
 
-                    $card4no = $paymentPeriodInfo['card4no'];
-                    $card6no = $paymentPeriodInfo['card6no'];
+                    if($paymentPeriodInfo['card4no']) {
+                        $card4no = $paymentPeriodInfo['card4no'];
+                        $card6no = $paymentPeriodInfo['card6no'];
+                    }
 
                 }
                 //更新到期日
@@ -424,8 +432,10 @@ class Order extends Model
                     $dd = \Carbon\Carbon::createFromFormat('Y/m/d H:i:s', $dd)->toDateTimeString();
                     array_push($dateArray, array($dd));
 
-                    $card4no = $paymentData['card4no'];
-                    $card6no = $paymentData['card6no'];
+                    if($paymentData['card4no']) {
+                        $card4no = $paymentData['card4no'];
+                        $card6no = $paymentData['card6no'];
+                    }
 
                 }else{
                     foreach($paymentPeriodInfo['ExecLog'] as $data){
@@ -441,8 +451,10 @@ class Order extends Model
                     $lastProcessDate = \Carbon\Carbon::createFromFormat('Y/m/d H:i:s', $lastProcessDate);
                     $lastProcessDateDiffDays = $lastProcessDate->diffInDays(Carbon::now());
 
-                    $card4no = $paymentPeriodInfo['card4no'];
-                    $card6no = $paymentPeriodInfo['card6no'];
+                    if($paymentPeriodInfo['card4no']) {
+                        $card4no = $paymentPeriodInfo['card4no'];
+                        $card6no = $paymentPeriodInfo['card6no'];
+                    }
 
                 }
                 //更新到期日
