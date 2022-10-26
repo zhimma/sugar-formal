@@ -4,7 +4,7 @@
         "Read more about it at https://getcomposer.org/doc/01-basic-usage.md#installing-dependencies",
         "This file is @generated automatically"
     ],
-    "content-hash": "79272d3c24e27f27897ebcc9b1259f85",
+    "content-hash": "f4f3229f41a0f0572584d5e60351fbfa",
     "packages": [
         {
             "name": "aws/aws-crt-php",
@@ -1360,6 +1360,61 @@
                 }
             ],
             "time": "2022-01-07T12:00:00+00:00"
+        },
+        {
+            "name": "fzaninotto/faker",
+            "version": "v1.9.2",
+            "source": {
+                "type": "git",
+                "url": "https://github.com/fzaninotto/Faker.git",
+                "reference": "848d8125239d7dbf8ab25cb7f054f1a630e68c2e"
+            },
+            "dist": {
+                "type": "zip",
+                "url": "https://api.github.com/repos/fzaninotto/Faker/zipball/848d8125239d7dbf8ab25cb7f054f1a630e68c2e",
+                "reference": "848d8125239d7dbf8ab25cb7f054f1a630e68c2e",
+                "shasum": ""
+            },
+            "require": {
+                "php": "^5.3.3 || ^7.0"
+            },
+            "require-dev": {
+                "ext-intl": "*",
+                "phpunit/phpunit": "^4.8.35 || ^5.7",
+                "squizlabs/php_codesniffer": "^2.9.2"
+            },
+            "type": "library",
+            "extra": {
+                "branch-alias": {
+                    "dev-master": "1.9-dev"
+                }
+            },
+            "autoload": {
+                "psr-4": {
+                    "Faker\\": "src/Faker/"
+                }
+            },
+            "notification-url": "https://packagist.org/downloads/",
+            "license": [
+                "MIT"
+            ],
+            "authors": [
+                {
+                    "name": "François Zaninotto"
+                }
+            ],
+            "description": "Faker is a PHP library that generates fake data for you.",
+            "keywords": [
+                "data",
+                "faker",
+                "fixtures"
+            ],
+            "support": {
+                "issues": "https://github.com/fzaninotto/Faker/issues",
+                "source": "https://github.com/fzaninotto/Faker/tree/v1.9.2"
+            },
+            "abandoned": true,
+            "time": "2020-12-11T09:56:16+00:00"
         },
         {
             "name": "genealabs/laravel-model-caching",
@@ -4348,6 +4403,54 @@
                 "source": "https://github.com/opis/closure/tree/3.6.3"
             },
             "time": "2022-01-27T09:35:39+00:00"
+        },
+        {
+            "name": "outl1ne/laravel-scout-batch-searchable",
+            "version": "2.0.0",
+            "source": {
+                "type": "git",
+                "url": "https://github.com/outl1ne/laravel-scout-batch-searchable.git",
+                "reference": "18e3e0a4cdc28f5119a5549293267fc3c45430e5"
+            },
+            "dist": {
+                "type": "zip",
+                "url": "https://api.github.com/repos/outl1ne/laravel-scout-batch-searchable/zipball/18e3e0a4cdc28f5119a5549293267fc3c45430e5",
+                "reference": "18e3e0a4cdc28f5119a5549293267fc3c45430e5",
+                "shasum": ""
+            },
+            "require": {
+                "illuminate/support": ">=7.0",
+                "laravel/scout": "^9.1.0",
+                "php": ">=7.3.0"
+            },
+            "type": "library",
+            "extra": {
+                "laravel": {
+                    "providers": [
+                        "Outl1ne\\ScoutBatchSearchable\\ServiceProvider"
+                    ]
+                }
+            },
+            "autoload": {
+                "psr-4": {
+                    "Outl1ne\\ScoutBatchSearchable\\": "src/"
+                }
+            },
+            "notification-url": "https://packagist.org/downloads/",
+            "license": [
+                "MIT"
+            ],
+            "description": "This Laravel package adds a BatchSearchable trait to allow batching Scout updates.",
+            "keywords": [
+                "batch",
+                "laravel",
+                "scout"
+            ],
+            "support": {
+                "issues": "https://github.com/outl1ne/laravel-scout-batch-searchable/issues",
+                "source": "https://github.com/outl1ne/laravel-scout-batch-searchable/tree/2.0.0"
+            },
+            "time": "2022-06-09T13:02:38+00:00"
         },
         {
             "name": "paragonie/random_compat",
@@ -14438,8 +14541,9 @@
     "prefer-lowest": false,
     "platform": {
         "php": "^8.0",
+        "ext-gd": "*",
         "ext-json": "*"
     },
     "platform-dev": [],
-    "plugin-api-version": "2.1.0"
+    "plugin-api-version": "2.0.0"
 }
