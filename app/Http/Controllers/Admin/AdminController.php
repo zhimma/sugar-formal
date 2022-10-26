@@ -78,4 +78,17 @@ class AdminController extends \App\Http\Controllers\BaseController
 
         return response()->json([], 200);
     }
+
+    public function special_industries_judgment_result(Request $request)
+    {
+        $answer_detail = SpecialIndustriesTestAnswer::leftJoin('special_industries_test_topic','special_industries_test_topic.id','special_industries_test_answer.test_topic_id')
+                                                    ->where('special_industries_test_answer.id',$request->answer_id)
+                                                    ->first();
+        $topic_user = User::whereIn('users.id',json_decode($answer_detail->test_topic))
+                            ->get();
+        $user_answer = json_decode($answer_detail->user_answer,true);
+        $correct_answer = json_decode($answer_detail->correct_answer,true);
+        return response()->json(['answer_id' => $request->answer_id,'topic_user' => $topic_user,'user_answer' => $user_answer,'correct_answer' => $correct_answer], 200);
+    }
+
 }

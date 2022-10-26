@@ -1069,6 +1069,7 @@ Route::group(['middleware' => ['auth', 'global', 'active', 'femaleActive', 'vipC
         Route::get('special_industries_judgment_training_select', 'AdminController@special_industries_judgment_training_select')->name('admin/special_industries_judgment_training_select');
         Route::get('special_industries_judgment_training_test', 'AdminController@special_industries_judgment_training_test')->name('admin/special_industries_judgment_training_test');
         Route::post('special_industries_judgment_answer_send', 'AdminController@special_industries_judgment_answer_send')->name('admin/special_industries_judgment_answer_send');
+        Route::get('special_industries_judgment_result', 'AdminController@special_industries_judgment_result')->name('admin/special_industries_judgment_result');
     });
     Route::group(['prefix' => 'admin', 'middleware' => 'Admin'], function () {
         //寄退信Log查詢

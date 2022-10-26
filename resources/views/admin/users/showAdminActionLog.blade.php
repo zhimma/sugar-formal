@@ -124,6 +124,29 @@
         @if(count($getLogs)==0)
             暫無資料
         @endif
+
+        <tr>
+            <td>
+                測驗結果
+                @foreach($test_result as $result)
+                    <tr>
+                        <td class='test_title'>
+                            <input type="hidden" value={{$result->answer_id}}>
+                            {{$result->title}}( 測驗時間 : {{$result->filled_time}} )( 測驗人員 : {{$result->name}} , Email : {{$result->email}} )
+                        </td>
+                    </tr>
+                    <tr>
+                        <td id='test_detail_{{$result->answer_id}}'>
+
+                        </td>
+                    </tr>
+                @endforeach
+            </td>
+        </tr>
+        @if(count($test_result)==0)
+            測驗暫無資料
+        @endif
+
     </table>
 </body>
 
@@ -249,5 +272,89 @@
     function str_pad(n) {
         return String("00" + n).slice(-2);
     }
+
+    $('.test_title').on('click', function(){
+        let test_answer_id = $(this).children('input').first().val();
+        $.ajax({
+            type: 'GET',
+            url: '{{route('admin/special_industries_judgment_result')}}',
+            data:{ answer_id: test_answer_id },
+            success:function(data){
+                topic_user = data['topic_user'];
+                user_answer = data['user_answer'];
+                correct_answer = data['correct_answer'];
+
+                $('#test_detail_' + data['answer_id']).append(
+                    '<tr>' +
+                        '<td>' +
+                            'email' +
+                        '</td>' +
+                        '<td>' +
+                            '暱稱' +
+                        '</td>' +
+                        '<td>' +
+                            '一句話' +
+                        '</td>' +
+                        '<td>' +
+                            '判斷' +
+                        '</td>' +
+                        '<td>' +
+                            '實際結果' +
+                        '</td>' +
+                    '</tr>'
+                );
+                for( let i = 0 ; i < topic_user.length ; i++ ){
+                    u_ans = '';
+                    c_ans = '';
+                    c_ans_reason = correct_answer[topic_user[i]['id']][1];
+                    switch(user_answer[topic_user[i]['id']]){
+                        case 'pass':
+                            u_ans = '通過';
+                            break;
+                        case 'banned':
+                            u_ans = '封鎖';
+                            break;
+                        case 'warned':
+                            u_ans = '警示';
+                            break;
+                        default:
+                            u_ans = '';
+                    }
+                    switch(correct_answer[topic_user[i]['id']][0]){
+                        case 'pass':
+                            c_ans = '通過';
+                            break;
+                        case 'banned':
+                            c_ans = '封鎖 : ';
+                            break;
+                        case 'warned':
+                            c_ans = '警示 : ';
+                            break;
+                        default:
+                            c_ans = '';
+                    }
+                    $('#test_detail_' + data['answer_id']).append(
+                        '<tr>' +
+                            '<td>' +
+                                topic_user[i]['email'] +
+                            '</td>' +
+                            '<td>' +
+                                topic_user[i]['name'] +
+                            '</td>' +
+                            '<td>' +
+                                topic_user[i]['title'] +
+                            '</td>' +
+                            '<td>' +
+                                u_ans +
+                            '</td>' +
+                            '<td>' +
+                                c_ans + c_ans_reason +
+                            '</td>' +
+                        '</tr>'
+                    );
+                }
+            }
+        });
+    });
 </script>
 @stop

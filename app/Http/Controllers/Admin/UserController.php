@@ -82,6 +82,7 @@ use App\Models\Visited;
 use App\Services\RealAuthAdminService;
 use App\Models\UserVideoVerifyRecord;
 use App\Models\Features;
+use App\Models\SpecialIndustriesTestAnswer;
 use Illuminate\Support\Facades\Log;
 
 
@@ -4957,9 +4958,27 @@ class UserController extends \App\Http\Controllers\BaseController
                 $result[$key]['operator_by_date'] = $get_operator_by_date->get()->toArray();
             }
             $getLogs = $result;
+
+            $test_result = SpecialIndustriesTestAnswer::leftJoin('users','users.id', '=', 'special_industries_test_answer.test_user')
+                                                        ->leftJoin('special_industries_test_topic','special_industries_test_topic.id', '=', 'special_industries_test_answer.test_topic_id')
+                                                        ->leftJoin('special_industries_test_setup','special_industries_test_setup.id', '=', 'special_industries_test_topic.test_setup_id')
+                                                        ->whereIn('test_user',$request->get('operator'));
+            if(!empty($request->get('date_start')))
+            {
+                $test_result = $test_result->where('special_industries_test_answer.updated_at','>=',$request->get('date_start'));
+            }
+            if(!empty($request->get('date_end')))
+            {
+                $test_result = $test_result->where('special_industries_test_answer.updated_at','<=',$request->get('date_end'));
+            }
+
+            $test_result = $test_result->select('special_industries_test_answer.*','users.*','special_industries_test_topic.*','special_industries_test_setup.*','special_industries_test_answer.updated_at as filled_time','special_industries_test_answer.id as answer_id')
+                                        ->orderByDesc('special_industries_test_answer.updated_at')
+                                        ->get();
         }
 
-        return view('admin.users.showAdminActionLog', compact('operator_list', 'getLogs'));
+        return view('admin.users.showAdminActionLog', compact('operator_list', 'getLogs'))
+                ->with('test_result', $test_result);
     }
 
     public function insertAdminActionLog($targetAccountID, $action)
