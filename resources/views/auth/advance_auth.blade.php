@@ -287,7 +287,7 @@
                     {!!$init_check_msg!!}
                     @elseif(!$user->isAdvanceAuth() && !Session::has('email_error'))
                         您好，您即將進入本站的進階身分驗證資訊系統。
-                        通過驗證將獲得本站的<img src="{{asset('new/images/b_6.png')}}" class="adv_auth_icon" />進階驗證標籤<img src="{{asset('new/images/b_6.png')}}"  class="adv_auth_icon" />               
+                        通過驗證將獲得本站的<img src="{{asset('new/images/zz_zss.png')}}" class="adv_auth_icon" style="border-radius: 100px; box-shadow:1px 2px 10px rgba(77,152,252,1); height:20px;margin: 0px 5px;"/>進階驗證標籤<img src="{{asset('new/images/zz_zss.png')}}"  class="adv_auth_icon" style="border-radius: 100px; box-shadow:1px 2px 10px rgba(77,152,252,1); height:20px;margin: 0px 5px;"/>               
                         @if($rap_service->isInRealAuthProcess())
                         ，並可進行與站長的視訊。
                         @endif            
@@ -328,8 +328,6 @@
             }
             
             function gmBtn1(){
-
-                
                 @if(!$user->isPhoneAuth() && !($is_edu_mode??null) && !$user->isAdvanceAuth())
                 {!!$rap_service->getClearUnloadConfirmJs() !!}
                 location.href='{{url("goto_member_auth")}}'+location.search;
