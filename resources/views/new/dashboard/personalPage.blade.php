@@ -531,7 +531,7 @@
                                                     <font><a href="/dashboard/viewuser/{{$user->id}}#hash_evaluation"><span class="red"> [此評價來自封鎖的會員]</span></a></font>
                                                 @endif
                                             </h2>
-                                            <h2><span>評價時間</span><font>{{ $evaluation->created_at }}</font></h2>
+                                            <h2><span>評價時間</span><font>{{ date("Y-m-d H:i",strtotime($evaluation->created_at)) }}</font></h2>
                                             <h2><span>回覆本評價</span><font><a class="zs_buttonn1" onclick="see_evaluation_popup();">點此查看</a></font></h2>
                                         </li>
                                         @endforeach
@@ -774,7 +774,6 @@
 
 @section('javascript')
 <script type="text/javascript">
-
     function vvipUserNoteEdit_show() {
         $('#show_vvip_user_note').show();
         $('.announce_bg').show();
@@ -1205,6 +1204,7 @@ display: flex;-webkit-box-pack: center;-ms-flex-pack: center;-webkit-justify-con
 <script src="{{asset('new/js/jquery-labelauty.js')}}"></script>
 <script src="{{asset('new/js/is_logout_respose.js')}}"></script>
 <script>
+    
     @if(!$faqCountDownStartTime)    
         $('#faq_tab .swiper-wrapper .swiper-slide').last().after('<div class="swiper-slide"><div class="dati_font"><img src="{{asset('new/owlcarousel/assets/ajax-loader.gif')}}"></div></div>');
     @elseif($isFaqDuringCountDown)     
@@ -1670,6 +1670,7 @@ display: flex;-webkit-box-pack: center;-ms-flex-pack: center;-webkit-justify-con
             video_state_intro_block.html('視訊審核的站方人員不在線，請稍後再試。');
         }
     }
+    
 </script>
 @endif
 @stop
