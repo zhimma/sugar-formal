@@ -86,11 +86,6 @@ class Order extends Model
                     $dd = \Carbon\Carbon::createFromFormat('Y/m/d H:i:s', $dd)->toDateTimeString();
                     array_push($dateArray, array($dd));
 
-                    if($paymentData['card4no']) {
-                        $order->card4no = $paymentData['card4no'];
-                        $order->card6no = $paymentData['card6no'];
-                    }
-
                 }else{
                     foreach($paymentPeriodInfo['ExecLog'] as $data){
                         if($data['RtnCode']==1) {
@@ -229,9 +224,6 @@ class Order extends Model
                     $dd = \Carbon\Carbon::createFromFormat('Y/m/d H:i:s', $dd)->toDateTimeString();
                     array_push($dateArray, array($dd));
 
-                    $order->card4no = $paymentData['card4no'];
-                    $order->card6no = $paymentData['card6no'];
-
                 }else{
                     foreach($paymentPeriodInfo['ExecLog'] as $data){
                         if($data['RtnCode']==1) {
@@ -337,9 +329,6 @@ class Order extends Model
                     $dd = \Carbon\Carbon::createFromFormat('Y/m/d H:i:s', $dd)->toDateTimeString();
                     array_push($dateArray, array($dd));
 
-                    $card4no = $paymentData['card4no'];
-                    $card6no = $paymentData['card6no'];
-
                 }else{
                     foreach($paymentPeriodInfo['ExecLog'] as $data){
                         if($data['RtnCode']==1) {
@@ -431,11 +420,6 @@ class Order extends Model
                     $dd = str_replace('%20', ' ', $paymentData['PaymentDate']);
                     $dd = \Carbon\Carbon::createFromFormat('Y/m/d H:i:s', $dd)->toDateTimeString();
                     array_push($dateArray, array($dd));
-
-                    if($paymentData['card4no']) {
-                        $card4no = $paymentData['card4no'];
-                        $card6no = $paymentData['card6no'];
-                    }
 
                 }else{
                     foreach($paymentPeriodInfo['ExecLog'] as $data){

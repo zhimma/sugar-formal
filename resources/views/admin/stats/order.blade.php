@@ -26,7 +26,7 @@
             </div>
         </div>
     </form>
-    <form action="{{ route('order/orderEcPayCheck') }}" method='post' target="_blank">
+    <form action="{{ route('order/orderEcPayCheck') }}" method='get' target="_blank">
         {!! csrf_field() !!}
         <div class="form-row align-items-center">
             <div class="col-auto">綠界訂單反查</div>
@@ -42,7 +42,7 @@
             </div>
         </div>
     </form>
-    <form action="{{ route('order/orderFunPointPayCheck') }}" method='post' target="_blank">
+    <form action="{{ route('order/orderFunPointPayCheck') }}" method='get' target="_blank">
         {!! csrf_field() !!}
         <div class="form-row align-items-center">
             <div class="col-auto">FunPoint訂單反查</div>

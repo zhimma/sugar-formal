@@ -977,8 +977,8 @@ Route::group(['middleware' => ['auth', 'global', 'active', 'femaleActive', 'vipC
         Route::get('order', 'OrderController@index')->name('order');
         Route::get('order/list', 'OrderController@getOrderData')->name('order/list');
         Route::post('order/orderGeneratorById', 'OrderController@orderGeneratorById')->name('order/orderGeneratorById');
-        Route::post('order/orderEcPayCheck', 'OrderController@orderEcPayCheck')->name('order/orderEcPayCheck');
-        Route::post('order/orderFunPointPayCheck', 'OrderController@orderFunPointPayCheck')->name('order/orderFunPointPayCheck');
+        Route::get('order/orderEcPayCheck', 'OrderController@orderEcPayCheck')->name('order/orderEcPayCheck');
+        Route::get('order/orderFunPointPayCheck', 'OrderController@orderFunPointPayCheck')->name('order/orderFunPointPayCheck');
 
 
         /*新增、編輯訊息*/
