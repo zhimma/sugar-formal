@@ -20,11 +20,11 @@ use App\Models\SimpleTables\banned_users;
 use App\Services\UserService;
 use Illuminate\Support\Facades\Cache;
 use YlsIdeas\FeatureFlags\Facades\Features;
-use Laravel\Scout\Searchable;
+use Outl1ne\ScoutBatchSearchable\BatchSearchable;
 
 class Message extends Model
 {
-    use SoftDeletes, Searchable;
+    use SoftDeletes, BatchSearchable;
 
     /**
      * The database table used by the model.

@@ -18,12 +18,12 @@ use App\Services\ImagesCompareService;
 use App\Models\SearchIgnore;
 use App\Services\SearchIgnoreService;
 use App\Models\RealAuthUserModifyPic;
-use Laravel\Scout\Searchable;
+use Outl1ne\ScoutBatchSearchable\BatchSearchable;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 
 class UserMeta extends Model
 {
-    use Searchable, HasFactory;
+    use BatchSearchable, HasFactory;
     /**
      * The database table used by the model.
      *

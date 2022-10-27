@@ -3,11 +3,11 @@
 namespace App\Models;
 
 use Illuminate\Database\Eloquent\Model;
-use Laravel\Scout\Searchable;
+use Outl1ne\ScoutBatchSearchable\BatchSearchable;
 
 class BannedUsersImplicitly extends Model
 {
-    use Searchable;
+    use BatchSearchable;
     //
     protected $table = 'banned_users_implicitly';
 }
