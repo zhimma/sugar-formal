@@ -72,6 +72,10 @@ return [
         'unsearchable' => 500,
     ],
 
+    "batch_searchable_max_batch_size" => 1000,
+    
+    "batch_searchable_debounce_time_in_min" => 3,
+
     /*
     |--------------------------------------------------------------------------
     | Soft Deletes
