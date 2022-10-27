@@ -793,8 +793,10 @@
         <td>@if($userMeta->city=='0') 無 @else {{ $userMeta->city }} {{ $userMeta->area }} @endif</td>
         <th>拒絕查詢的縣市</th>
         <td>@if($userMeta->blockcity=='0') 無 @else {{ $userMeta->blockcity }} {{ $userMeta->blockarea }} @endif</td>
-        <th>預算</th>
-        <td>{{ $userMeta->budget }}</td>
+        @if($user->engroup == 2)
+            <th>預算</th>
+            <td>{{ $userMeta->budget }}</td>
+        @endif
     </tr>
     <tr>
         <th>生日</th>
@@ -807,8 +809,10 @@
     <tr>
         <th>體重</th>
         <td>{{ \App\Services\UserService::getOptionWordByWeightValue($userMeta->weight) }}{!!$raa_service->getActualUncheckedWeightLayout()!!}</td>
-        <th>罩杯</th>
-        <td>{{ $userMeta->cup }}</td>
+        @if($user->engroup == 2)
+            <th>罩杯</th>
+            <td>{{ $userMeta->cup }}</td>
+        @endif
         <th>體型</th>
         <td>{{ $userMeta->body }}</td>
     </tr>
