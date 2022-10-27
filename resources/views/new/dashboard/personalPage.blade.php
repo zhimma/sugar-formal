@@ -258,7 +258,7 @@
                                                         您好，您在 {{$user->applyVVIP_getData()->created_at->format("Y-m-d H:i")}} 申請 VVIP 已完成，請於 {{$user->applyVVIP_getData()->created_at->addDays(3)->format("Y-m-d H:i")}} 之前， <br>
                                                         將本帳號繳交與本站的入會費 20000 元匯入此帳號 <br>
                                                         台新銀行(812) <br>-
-                                                        帳號 20631050273029 <br>
+                                                        帳號 2077-01-0000964-9 <br>
                                                         完成後請<font color="red">保留收據</font>並將帳號後五碼 <a onclick="vvipUserNoteEdit_show()" class='btn btn-primary' style="height: 30px; line-height: 15px;">輸入於此</a><br>
                                                         <font color="red">注意：須於 {{$user->applyVVIP_getData()->created_at->addDays(3)->format("Y-m-d H:i")}} 之前匯入，否則將取消此次 VVIP 申請。9888元<br>扣除手續費4000，剩餘刷退。</font>
                                                     @endif
@@ -267,7 +267,7 @@
                                                         您好，您在 {{$user->applyVVIP_getData()->created_at->format("Y-m-d H:i")}} 申請 VVIP 已完成，請於 {{$user->applyVVIP_getData()->created_at->addDays(3)->format("Y-m-d H:i")}} 之前， <br>
                                                         將本帳號繳交與本站的入會費 50000 元匯入此帳號 <br>
                                                         台新銀行(812) <br>
-                                                        帳號 20631050273029 <br>
+                                                        帳號 2077-01-0000964-9 <br>
                                                         完成後請<font color="red">保留收據</font>並將帳號後五碼 <a onclick="vvipUserNoteEdit_show()" class='btn btn-primary' style="height: 30px; line-height: 15px;">輸入於此</a><br>
                                                         <font color="red">注意：須於 {{$user->applyVVIP_getData()->created_at->addDays(3)->format("Y-m-d H:i")}} 之前匯入，否則將取消此次 VVIP 申請。9888元<br>扣除手續費4000，剩餘刷退。</font>
                                                     @endif
