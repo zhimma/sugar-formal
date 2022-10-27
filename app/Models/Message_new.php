@@ -660,6 +660,7 @@ class Message_new extends Model
                 $messages[$key]['blurry_avatar'] = $msgUser->user_meta->blurryAvatar;
                 $messages[$key]['blurry_life_photo'] = $msgUser->user_meta->blurryLifePhoto;
                 $messages[$key]['pic'] = $msgUser->user_meta->pic;
+                $messages[$key]['pic_blur'] = $msgUser->user_meta->pic_blur;
                 if(!file_exists( public_path().$msgUser->user_meta->pic ) || $msgUser->user_meta->pic==null){
                     if($msgUser->engroup==1) {
                         $messages[$key]['pic'] = '/new/images/male.png';

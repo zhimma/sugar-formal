@@ -1,4 +1,11 @@
 @extends('new.layouts.website')
+@section('style')
+<style>
+    .n_gg_mm span {
+        position: relative;
+    }
+</style>
+@stop
 @section('app-content')
     <div class="container matop70 chat">
         <div class="row">
@@ -18,7 +25,7 @@
                     <div class="gg_zh">
                         <dt id="line_notify_expand" class="n_gg_mm"><span><i></i>Tag預覽顯示設定</span><!--<img src="/new/images/shed_icon.png">--></dt>
                         <dd style="display: block;">
-                            <div class="tuba">若您有通過本人驗證、美顏推薦、名人認證，則會獲得站方認證的 Tag，且站方預設僅開放給 VVIP，以及 PR 值超過80的VIP Daddy，您可自行於下方調整，開放給VIP或PR多少以上的會員看</div>
+                            <div class="tuba">若您有通過本人驗證，則會獲得站方認證的 Tag，且站方預設僅開放給 VVIP，以及 PR 值超過80的VIP Daddy，您可自行於下方調整，開放給VIP或PR多少以上的會員看</div>
                             <div class="tu_bd">
                                 <div class="ngg_a_tab">
                                     @if($user->self_auth_status)
@@ -28,7 +35,7 @@
                                             <span>
                                                 <input type="checkbox" name="self_auth_pr_show" class="ti_ceckys" value="PR" @if($data['self_auth'] && $data['self_auth']->more_than_pr_show) checked @endif>PR
                                             </span>
-                                            <input type="number" name="self_auth_pr_value" value="{{ ($data['self_auth'] && $data['self_auth']->more_than_pr_show) ?  $data['self_auth']->more_than_pr_show :60 }}" min="0" max="100" required style="height: 22px;margin-left: -16px;">
+                                            <input type="number" name="self_auth_pr_value" value="{{ ($data['self_auth'] && $data['self_auth']->more_than_pr_show) ?  $data['self_auth']->more_than_pr_show :60 }}" min="0" max="100" required style="height: 22px;margin-left: -16px;line-height:normal;">
                                         </div>
                                     @endif
                                     @if($user->beauty_auth_status)
@@ -38,17 +45,7 @@
                                             <span>
                                                 <input type="checkbox" name="beauty_auth_pr_show" class="ti_ceckys" value="PR" @if($data['beauty_auth'] && $data['beauty_auth']->more_than_pr_show) checked @endif>PR
                                             </span>
-                                            <input type="number" name="beauty_auth_pr_value" value="{{ ($data['beauty_auth'] && $data['beauty_auth']->more_than_pr_show) ?  $data['beauty_auth']->more_than_pr_show :60 }}" min="0" max="100" required style="height: 22px;margin-left: -16px;">
-                                        </div>
-                                    @endif
-                                    @if($user->famous_auth_status)
-                                        <div class="ti_ktx na_top25 ga_ti_ft"><font class="na_nb">c.<i class="ga_i">名人驗證</i></font></div>
-                                        <div class="ti_xcheck naa_dd">
-                                            <span><input type="checkbox" name="famous_auth_vip_show" class="ti_ceckys" value="VIP" @if($data['famous_auth'] && $data['famous_auth']->vip_show) checked @endif>VIP</span>
-                                            <span>
-                                                <input type="checkbox" name="famous_auth_pr_show" class="ti_ceckys" value="PR" @if($data['famous_auth'] && $data['famous_auth']->more_than_pr_show) checked @endif>PR
-                                            </span>
-                                            <input type="number" name="famous_auth_pr_value" value="{{ ($data['famous_auth'] && $data['famous_auth']->more_than_pr_show) ?  $data['famous_auth']->more_than_pr_show :60 }}" min="0" max="100" required style="height: 22px;margin-left: -16px;">
+                                            <input type="number" name="beauty_auth_pr_value" value="{{ ($data['beauty_auth'] && $data['beauty_auth']->more_than_pr_show) ?  $data['beauty_auth']->more_than_pr_show :60 }}" min="0" max="100" required style="height: 22px;margin-left: -16px;line-height:normal;">
                                         </div>
                                     @endif
                                 </div>

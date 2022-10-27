@@ -146,8 +146,8 @@
     }
 
     .blur_img {
-        filter: blur(2px);
-        -webkit-filter: blur(2px);
+        filter: blur(1px);
+        -webkit-filter: blur(1px);
     }
 
     .fileuploader-icon-remove:after {
@@ -685,8 +685,11 @@
                                         <a class="chatWith" href="{{ url('/dashboard/viewuser/' . $msgUser->id ) }}">
                                     @endif
                                 @endif
+                                    @php
+                                        $pic = ($isBlurAvatar)?$msgUser->meta->pic_blur:$msgUser->meta->pic;
+                                    @endphp
                                     <img class="@if($isBlurAvatar) blur_img @endif"
-                                        src="@if(file_exists( public_path().$msgUser->meta->pic ) && $msgUser->meta->pic != ""){{$msgUser->meta->pic}} @elseif($msgUser->engroup==2)/new/images/female.png @else/new/images/male.png  @endif">
+                                        src="@if(file_exists( public_path().$pic ) && $pic != ""){{$pic}} @elseif($msgUser->engroup==2)/new/images/female.png @else/new/images/male.png  @endif">
                                     @if($to->isVVIP())
                                         <img src="/new/images/v1_08.png" class="liaot_tx_l">
                                     @endif
@@ -699,8 +702,11 @@
                                     <img
                                         src="@if(file_exists( public_path().$user->meta->pic ) && $user->meta->pic != ""){{$user->meta->pic}} @elseif($user->engroup==2)/new/images/female.png @else/new/images/male.png @endif">
                                     @else
+                                    @php
+                                        $parentPic = ($isBlurParentSender)?$parentMsgSender->meta->pic_blur:$parentMsgSender->meta->pic;
+                                    @endphp
                                     <img class="@if($isBlurParentSender??null) blur_img @endif"
-                                        src="@if(file_exists( public_path().$parentMsgSender->meta->pic ) && $parentMsgSender->meta->pic != ""){{$parentMsgSender->meta->pic}} @elseif($parentMsgSender->engroup==2)/new/images/female.png @else/new/images/male.png  @endif">
+                                        src="@if(file_exists( public_path().$parentPic ) && $parentPic != ""){{$parentPic}} @elseif($parentMsgSender->engroup==2)/new/images/female.png @else/new/images/male.png  @endif">
                                     @endif
                                     @if(!is_null(json_decode($parentMsg['pic'],true)))
                                     <img src="{{ json_decode($parentMsg['pic'],true)[0]['file_path'] }}"
