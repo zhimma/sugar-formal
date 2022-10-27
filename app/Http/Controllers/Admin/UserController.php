@@ -4925,6 +4925,7 @@ class UserController extends \App\Http\Controllers\BaseController
             ->groupBy('admin_action_log.operator')->get();
 
         $getLogs = [];
+        $test_result = [];
         if (!empty($request->get('date_start')) && !empty($request->get('date_end')) && count($request->get('operator'))) {
             $getLogs = AdminActionLog::selectRaw('admin_action_log.operator, users.name AS operator_name, users.email AS operator_email')
                 ->selectRaw('count(*) AS dataCount')
@@ -4977,8 +4978,7 @@ class UserController extends \App\Http\Controllers\BaseController
                                         ->get();
         }
 
-        return view('admin.users.showAdminActionLog', compact('operator_list', 'getLogs'))
-                ->with('test_result', $test_result);
+        return view('admin.users.showAdminActionLog', compact('operator_list', 'getLogs', 'test_result'));
     }
 
     public function insertAdminActionLog($targetAccountID, $action)
