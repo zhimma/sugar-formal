@@ -17,7 +17,7 @@
                     <th>
                         題目{{$test->topic_id}}-設定{{$test->title}}
                         ({{$test->topic_count}}人)
-                        ({{Carbon\Carbon::parse($test->start_tim)->toDateString()}}~{{Carbon\Carbon::parse($test->end_tim)->toDateString()}})
+                        ({{Carbon\Carbon::parse($test->start_time)->toDateString()}}~{{Carbon\Carbon::parse($test->end_time)->toDateString()}})
                         (
                         @if($test->gender == 1)
                         男
