@@ -775,7 +775,9 @@ class Message extends Model
         self::$date =\Carbon\Carbon::parse("180 days ago")->toDateTimeString();
         $query = Message::withTrashed()->where('created_at','>=',self::$date);
         $query = $query->where(function ($query) use ($uid,$sid) {
-            $query->where([['chat_with_admin', 1],['to_id', $uid],['from_id', $sid]])
+            // 效能調整
+            // $query->where([['chat_with_admin', 1],['to_id', $uid],['from_id', $sid]])
+            $query->where([['to_id', $uid],['from_id', $sid]])
                 ->orWhere([['from_id', $uid],['to_id', $sid]]);
         });
 
