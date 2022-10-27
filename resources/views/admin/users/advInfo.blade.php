@@ -820,6 +820,24 @@
         <th>期待的約會模式</th>
         <td>{{ $userMeta->style }}</td>
     </tr>
+    <tr>
+        @if($user->engroup == 2)
+            <th>是否接受進一步關係</th>
+            <td>
+                @if($userMeta->is_pure_dating)
+                    是
+                @else
+                    否
+                @endif
+            </td>
+        @endif
+        @if($user->engroup == 1)
+            <th>每月預算</th>
+            <td>{{$userMeta->budget_per_month_min ?? '未填'}} ~ {{$userMeta->budget_per_month_max ?? '未填'}}</td>
+            <th>車馬費預算</th>
+            <td>{{$userMeta->transport_fare_min ?? '未填'}} ~ {{$userMeta->transport_fare_max ?? '未填'}}</td>
+        @endif
+    </tr>
 </table>
 
 @php
