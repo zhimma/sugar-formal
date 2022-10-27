@@ -15,7 +15,7 @@
             @foreach($test_topic as $test)
                 <tr>
                     <th>
-                        題目{{$test->topic_id}}-設定{{$test->title}}
+                        題目編號{{$test->topic_id}}-設定({{$test->title}})
                         ({{$test->topic_count}}人)
                         ({{Carbon\Carbon::parse($test->start_time)->toDateString()}}~{{Carbon\Carbon::parse($test->end_time)->toDateString()}})
                         (

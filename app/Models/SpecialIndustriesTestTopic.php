@@ -19,11 +19,24 @@ class SpecialIndustriesTestTopic extends Model
         $test_topic_array = [];
         $correct_answer_array = [];
 
-        //異常會員
-        $warn_ban_topic = User::leftJoin('banned_users','banned_users.member_id','users.id')
-                                ->leftJoin('is_banned_log','is_banned_log.user_id','users.id')
-                                ->leftJoin('warned_users','warned_users.member_id','users.id')
-                                ->leftJoin('is_warned_log','is_warned_log.user_id','users.id');
+        //隨機挑選異常會員
+        $warn_ban_topic = User::select('users.id as topic_user_id','banned_users.id as banned_id','warned_users.id as warned_id','is_banned_log.id as is_ever_banned_id','is_warned_log.id as is_ever_warned_id','banned_users.reason as banned_reason','warned_users.reason as warned_reason','is_banned_log.reason as is_ever_banned_reason','is_warned_log.reason as is_ever_warned_reason');
+        if($setup->is_banned)
+        {
+            $warn_ban_topic = $warn_ban_topic->leftJoin('banned_users','banned_users.member_id','users.id');
+        }
+        if($setup->is_warned)
+        {
+            $warn_ban_topic = $warn_ban_topic->leftJoin('warned_users','warned_users.member_id','users.id');
+        }
+        if($setup->is_ever_banned)
+        {
+            $warn_ban_topic = $warn_ban_topic->leftJoin('is_banned_log','is_banned_log.user_id','users.id');
+        }
+        if($setup->is_ever_warned)
+        {
+            $warn_ban_topic = $warn_ban_topic->leftJoin('is_warned_log','is_warned_log.user_id','users.id');
+        }
         
         if($setup->start_time != '0000-00-00 00:00:00')
         {
@@ -57,9 +70,7 @@ class SpecialIndustriesTestTopic extends Model
             }
         });
 
-        $warn_ban_topic = $warn_ban_topic->select('users.id as topic_user_id','banned_users.id as banned_id','warned_users.id as warned_id','is_banned_log.id as is_ever_banned_id','is_warned_log.id as is_ever_warned_id','banned_users.reason as banned_reason','warned_users.reason as warned_reason','is_banned_log.reason as is_ever_banned_reason','is_warned_log.reason as is_ever_warned_reason');
-
-        $warn_ban_topic = $warn_ban_topic->inRandomOrder();
+        $warn_ban_topic = $warn_ban_topic->groupBy('users.id')->inRandomOrder();
         if($setup->select_member_count)
         {
             $warn_ban_topic = $warn_ban_topic->take($setup->select_member_count);
