@@ -15,7 +15,13 @@ class AdminController extends \App\Http\Controllers\BaseController
 {
     public function special_industries_judgment_training_setup()
     {
-        return view('admin.special_industries_judgment_training_setup');
+        $test_topic = SpecialIndustriesTestTopic::select('special_industries_test_topic.id as topic_id','special_industries_test_topic.*','special_industries_test_setup.*')
+                                                ->leftJoin('special_industries_test_setup','special_industries_test_setup.id','special_industries_test_topic.test_setup_id')
+                                                ->where('is_hide',false)
+                                                ->orderByDesc('special_industries_test_topic.updated_at')
+                                                ->get();
+        return view('admin.special_industries_judgment_training_setup')
+                ->with('test_topic', $test_topic);
     }
 
     public function special_industries_judgment_training_setup_set(Request $request)
@@ -31,6 +37,7 @@ class AdminController extends \App\Http\Controllers\BaseController
     {
         $test_topic = SpecialIndustriesTestTopic::select('special_industries_test_topic.id as topic_id','special_industries_test_topic.*','special_industries_test_setup.*')
                                                 ->leftJoin('special_industries_test_setup','special_industries_test_setup.id','special_industries_test_topic.test_setup_id')
+                                                ->where('is_hide',false)
                                                 ->orderByDesc('special_industries_test_topic.updated_at')
                                                 ->get();
         return view('admin.special_industries_judgment_training_select')
@@ -45,13 +52,21 @@ class AdminController extends \App\Http\Controllers\BaseController
                             ->inRandomOrder()
                             ->get();
         $correct_answer = json_decode($test_topic->correct_answer, true);
-        Log::Info($correct_answer);
 
         return view('admin.special_industries_judgment_training_test')
                 ->with('test_topic', $test_topic)
                 ->with('topic_user', $topic_user)
                 ->with('correct_answer', $correct_answer)
                 ;
+    }
+
+    public function special_industries_judgment_training_hide(Request $request)
+    {
+        $test_topic = SpecialIndustriesTestTopic::where('id',$request->topic_id)->first();
+        $test_topic->is_hide = true;
+        $test_topic->save();
+
+        return back()->with('message', '刪除成功');
     }
 
     public function special_industries_judgment_answer_send(Request $request)

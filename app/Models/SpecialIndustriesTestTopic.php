@@ -10,6 +10,10 @@ class SpecialIndustriesTestTopic extends Model
 {
     protected $table = 'special_industries_test_topic';
 
+    protected $fillable = [
+        'is_hide',
+    ];
+
     public static function generate_topic($setup_id){
 
         //讀取題目設定

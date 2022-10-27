@@ -85,6 +85,33 @@
                 </tr>
             </table>
         </form>
+        <h1>題目列表</h1>
+        <table class="table-hover table table-bordered" style="width: 50%;">
+            @foreach($test_topic as $test)
+                <tr>
+                    <th>
+                        題目編號{{$test->topic_id}}-設定({{$test->title}})
+                        ({{$test->topic_count}}人)
+                        ({{Carbon\Carbon::parse($test->start_time)->toDateString()}}~{{Carbon\Carbon::parse($test->end_time)->toDateString()}})
+                        (
+                        @if($test->gender == 1)
+                        男
+                        @elseif($test->gender == 2)
+                        女
+                        @else
+                        男女
+                        @endif
+                        )
+                    </th>
+                    <td align="center">
+                        <button onclick="location.href='special_industries_judgment_training_test?topic_id={{$test->topic_id}}'">測試</button>
+                    </td>
+                    <td align="center">
+                        <button onclick="location.href='special_industries_judgment_training_hide?topic_id={{$test->topic_id}}'">刪除</button>
+                    </td>
+                <tr>
+            @endforeach
+        </table>
     </body>
     <script>
         $('.twzipcode').twzipcode({
