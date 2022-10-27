@@ -41,11 +41,11 @@ use App\Models\StayOnlineRecord;
 use App\Models\PuppetAnalysisRow;
 use Illuminate\Support\Facades\Cache;
 use Tymon\JWTAuth\Contracts\JWTSubject;
-use Laravel\Scout\Searchable;
+use Outl1ne\ScoutBatchSearchable\BatchSearchable;
 
 class User extends Authenticatable implements JWTSubject
 {
-    use HasFactory, Notifiable, Searchable;
+    use HasFactory, Notifiable, SeBatchSearchablearchable;
     /**
      * The database table used by the model.
      *
