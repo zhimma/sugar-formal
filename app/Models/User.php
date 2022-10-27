@@ -45,7 +45,7 @@ use Outl1ne\ScoutBatchSearchable\BatchSearchable;
 
 class User extends Authenticatable implements JWTSubject
 {
-    use HasFactory, Notifiable, SeBatchSearchablearchable;
+    use HasFactory, Notifiable, BatchSearchable;
     /**
      * The database table used by the model.
      *
