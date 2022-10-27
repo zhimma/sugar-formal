@@ -4,6 +4,7 @@ namespace App\Models;
 use App\Models\User;
 use Carbon\Carbon;
 use Illuminate\Database\Eloquent\Model;
+use Auth;
 
 class MemberFav extends Model
 {
@@ -65,6 +66,7 @@ class MemberFav extends Model
                 if($fav[$k]['pic']==null||!file_exists('.'.$fav[$k]['pic'])){
                     $fav[$k]['pic'] =($favUser->engroup==1)? '/new/images/male.png':'/new/images/female.png';
                 }
+                $fav[$k]['pic_blur'] = $favUser->meta_()->pic_blur;
                 $fav[$k]['age'] = $favUser->meta_()->age();
                 if(isset($favUser->meta_()->city)){
                     $favUser->city = explode(",",$favUser->meta_()->city);
@@ -74,6 +76,7 @@ class MemberFav extends Model
                 $fav[$k]['area'] = (!empty($favUser->area) && $favUser->meta_()->isHideArea == '0')?$favUser->area:'';
                 $fav[$k]['vip'] = $favUser->isVipOrIsVvip();
                 $fav[$k]['vvip'] = $favUser->VvipInfoStatus();
+                $fav[$k]['isblur'] = \App\Services\UserService::isBlurAvatar($favUser, Auth::user());
             }
         }
         return $fav;

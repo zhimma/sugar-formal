@@ -1175,6 +1175,37 @@ class UserService
         }
     }
 
+    public static function isPersonalTagShow($to, $user) {
+        if(($to->id == $user->id)) {
+            return true;
+        }
+        if(($to->engroup == $user->engroup)) {
+            return true;
+        }
+        $setting = $to->self_auth_tags_display;
+        $show = false;
+        if($user->meta->isWarned == 1 || $user->aw_relation){
+            $show = false;
+        }
+        else{
+            $getPr  =   $user->pr_log?$user->pr_log->pr:0;
+            if($setting) {
+                if($user->isVip() && $setting->vip_show) {
+                    $show = true;
+                }
+                if($setting->more_than_pr_show && !$show) {
+                    $show   =   ($getPr >=$setting->more_than_pr_show);
+                }
+            }
+            
+            if($user->isVVIP() || ($user->isVip() && $getPr>=80) ){
+                $show = true;
+            }
+
+        }
+        return $show;
+    }
+
     public static function isBlurAvatar($to, $user) {
         if(($to->id == $user->id)) {
             return false;

@@ -523,6 +523,7 @@
     @php
         $isBlurAvatar = \App\Services\UserService::isBlurAvatar($to, $user);
         $isBlurLifePhoto = \App\Services\UserService::isBlurLifePhoto($to, $user);
+        $isPersonalTagShow = \App\Services\UserService::isPersonalTagShow($to, $user);
     @endphp
     <div id="app">
     <div class="container matop80">
@@ -607,11 +608,11 @@
                                 @php
                                     $blue_tick = 0;
                                     if($to->isAdvanceAuth()){$blue_tick = $blue_tick + 1;}
-                                    if($rap_service->riseByUserEntry($to)->isPassedByAuthTypeId(1)){$blue_tick = $blue_tick + 1;}
+                                    if($rap_service->riseByUserEntry($to)->isPassedByAuthTypeId(1) && $isPersonalTagShow){$blue_tick = $blue_tick + 1;}
                                 @endphp
                                 @if($blue_tick == 2)
                                     <img src="/new/images/zz_zss.png" style="border-radius: 100px; box-shadow:1px 2px 10px rgba(77,152,252,1); height:20px; margin-top:6px;">
-									<img src="/new/images/zz_zss.png" style="border-radius: 100px; box-shadow:1px 2px 10px rgba(77,152,252,1); height:20px; margin-left: -2px; margin-top: 6px">
+                                    <img src="/new/images/zz_zss.png" style="border-radius: 100px; box-shadow:1px 2px 10px rgba(77,152,252,1); height:20px; margin-left: -2px; margin-top: 6px">
                                 @elseif($blue_tick == 1)
                                     <img src="/new/images/zz_zss.png" style="border-radius: 100px; box-shadow:1px 2px 10px rgba(77,152,252,1); height:20px; margin-top:6px;">
                                 @endif

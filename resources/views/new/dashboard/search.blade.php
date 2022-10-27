@@ -1211,6 +1211,7 @@ header("Expires: Fri, 01 Jan 1990 00:00:00 GMT");
 
                             let rowPrLog = row.rawData.pr_log;
                             let rowVisitorIsBlurAvatar = row.visitorIsBlurAvatar;
+                            let rowvisitorisPersonalTagShow = row.visitorisPersonalTagShow;
 
                             let umetaIsAvatarHidden = umeta.isAvatarHidden;
                             let umetaPic = umeta.pic;
@@ -1292,7 +1293,7 @@ header("Expires: Fri, 01 Jan 1990 00:00:00 GMT");
                                 {
                                     blue_tick = blue_tick + 1;
                                 }
-                                if(rowVisitorIsSelfAuth == 1)
+                                if(rowVisitorIsSelfAuth == 1 && rowvisitorisPersonalTagShow)
                                 {
                                     blue_tick = blue_tick + 1;
                                 }
@@ -1305,6 +1306,7 @@ header("Expires: Fri, 01 Jan 1990 00:00:00 GMT");
                                 {
                                     csrData +='<img src="/new/images/zz_zss.png" style="border-radius: 100px; box-shadow:1px 2px 10px rgba(77,152,252,1); height:20px; margin-top:6px;">';
                                 }
+                                
                             }                            
                             if(this.isRealAuthNeedShowTagOnPic(row)) {
                                 csrData += this.getTagShowOnPic(row);

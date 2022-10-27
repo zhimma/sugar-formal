@@ -151,7 +151,13 @@ class SearchIgnoreService
             $pic_show = 'makesomeerror';
         }
         else {
-            $pic_show = $userEntry->user_meta->pic;  
+            $isblur = $this->userService()->isBlurAvatar($userEntry, Auth::user());
+            if($isblur) {
+                $pic_show = $userEntry->user_meta->pic_blur;  
+            }else{
+                $pic_show = $userEntry->user_meta->pic;  
+            }
+            
         } 
 
         return $pic_show;

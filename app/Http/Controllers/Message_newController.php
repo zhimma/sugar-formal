@@ -657,6 +657,10 @@ class Message_newController extends BaseController {
         $data = Message_new::allSendersAJAX($user_id, $request->isVip,$request->date);
         if(is_array($data) && $data != ['No data'])
         {
+            foreach($data as $key => $item) {
+                $visitor = User::find($item['user_id']);
+                $data[$key]['isblur'] = \App\Services\UserService::isBlurAvatar($visitor, $user);
+            }
             //過濾篩選條件
             $inbox_refuse_set = InboxRefuseSet::where('user_id', $user->id)->first();
             if($inbox_refuse_set)

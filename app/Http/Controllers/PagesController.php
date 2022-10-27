@@ -3182,6 +3182,7 @@ class PagesController extends BaseController
                     $temp_array['visitorIsBeautyAuth'] = $rap_service->isPassedByAuthTypeId(2);
                     $temp_array['visitorIsFamousAuth'] = $rap_service->isPassedByAuthTypeId(3);
                     $temp_array['visitorIsBlurAvatar'] = \App\Services\UserService::isBlurAvatar($visitor, $user);
+                    $temp_array['visitorisPersonalTagShow'] = \App\Services\UserService::isPersonalTagShow($visitor, $user);
                     $temp_array['visitorAge'] = $visitor->age();
                     $temp_array['visitorIsOnline'] = $visitor->isOnline();
                     $temp_array['visitorExchangePeriodName'] = DB::table('exchange_period_name')->where('id',$visitor->exchange_period)->first();
@@ -3204,6 +3205,7 @@ class PagesController extends BaseController
                     $temp_array['visitorIsBeautyAuth'] = $rap_service->isPassedByAuthTypeId(2);
                     $temp_array['visitorIsFamousAuth'] = $rap_service->isPassedByAuthTypeId(3);
                     $temp_array['visitorIsBlurAvatar'] = \App\Services\UserService::isBlurAvatar($visitor, $user);
+                    $temp_array['visitorisPersonalTagShow'] = \App\Services\UserService::isPersonalTagShow($visitor, $user);
                     $temp_array['visitorAge'] = $visitor->age();
                     $temp_array['visitorIsOnline'] = $visitor->isOnline();
                     $temp_array['visitorExchangePeriodName'] = DB::table('exchange_period_name')->where('id',$visitor->exchange_period)->first();
@@ -10001,23 +10003,23 @@ class PagesController extends BaseController
     {
         $user = auth()->user();
 
-        if($request->self_auth_vip_show || $request->self_auth_pr_show){
+        // if($request->self_auth_vip_show || $request->self_auth_pr_show){
             $data['vip_show']=$request->self_auth_vip_show=='VIP' ? 1 :0;
             $data['more_than_pr_show']=$request->self_auth_pr_show=='PR' ? $request->self_auth_pr_value : null;
             RealAuthUserTagsDisplay::updateOrInsert(['user_id'=> $user->id, 'auth_type_id'=> 1], $data);
-        }
+        // }
 
-        if($request->beauty_auth_vip_show || $request->beauty_auth_pr_show){
+        // if($request->beauty_auth_vip_show || $request->beauty_auth_pr_show){
             $data['vip_show']=$request->beauty_auth_vip_show=='VIP' ? 1 :0;
             $data['more_than_pr_show']=$request->beauty_auth_pr_show=='PR' ? $request->beauty_auth_pr_value : null;
             RealAuthUserTagsDisplay::updateOrInsert(['user_id'=> $user->id, 'auth_type_id'=> 2], $data);
-        }
+        // }
 
-        if($request->famous_auth_vip_show || $request->famous_auth_pr_show){
+        // if($request->famous_auth_vip_show || $request->famous_auth_pr_show){
             $data['vip_show']=$request->famous_auth_vip_show=='VIP' ? 1 :0;
             $data['more_than_pr_show']=$request->famous_auth_pr_show=='PR' ? $request->famous_auth_pr_value : null;
             RealAuthUserTagsDisplay::updateOrInsert(['user_id'=> $user->id, 'auth_type_id'=> 3], $data);
-        }
+        // }
 
         return redirect()->back()->with('message', '更新完成');
     }
