@@ -144,7 +144,7 @@
         }
 
         function hasPassAuthCheck() {
-            @if(!$user->self_auth_status && !$user->beauty_auth_status && !$user->famous_auth_status)
+            @if($user->self_auth_status!=1 && $user->beauty_auth_status!=1)
                 c5('您好，您目前尚未通過認證');
                 return false;
             @endif
