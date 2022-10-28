@@ -1729,6 +1729,7 @@ class UserController extends \App\Http\Controllers\BaseController
         if($user->engroup==2) {
             $not_pass_faq_ltime = $this->faqUserService->faq_service()->group_entry()->whereIn('id',$this->faqUserService->riseByUserEntry($user)->getPopupUserGroupList()->pluck('group_id'))->pluck('faq_login_times')->implode(' , ');
         }
+        $is_test = $request->is_test ?? false;
 
         if (str_contains(url()->current(), 'edit')) {
             $birthday = date('Y-m-d', strtotime($userMeta->birthdate));
@@ -1788,7 +1789,8 @@ class UserController extends \App\Http\Controllers\BaseController
                 ->with('user_video_verify_record',$user_video_verify_record)
                 ->with('is_warned_of_budget', $is_warned_of_budget)
                 ->with('pageStay', $pageStay)
-                ->with('not_pass_faq_ltime',$not_pass_faq_ltime)
+                ->with('not_pass_faq_ltime', $not_pass_faq_ltime)
+                ->with('is_test', $is_test)
                 ;
         }
     }

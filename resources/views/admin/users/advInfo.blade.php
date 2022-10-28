@@ -3175,6 +3175,11 @@ function show_re_content(id){
     }
     //預算及車馬費警示警示
 
+    @if(!$is_test)
+    $(document).ready(function () {
+        $('.btn').hide();
+    });
+    @endif
 </script>
 <!--照片查看end-->
 </html>
