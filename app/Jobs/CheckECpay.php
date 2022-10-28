@@ -124,20 +124,20 @@ class CheckECpay implements ShouldQueue
                     $OrderDataCheck = $OrderData;
                 }
                 ///預先給予權限訂單判斷 有訂單
-                elseif($this->vipData->PaymentType=='BARCODE' || $this->vipData->PaymentType=='CVS' || $this->vipData->PaymentType=='ATM') {
+                elseif($this->vipData->payment_method=='BARCODE' || $this->vipData->payment_method=='CVS' || $this->vipData->payment_method=='ATM') {
                     $preOrderCheck = PaymentGetQrcodeLog::where('order_id', $this->vipData->order_id)->first();
                     if($preOrderCheck) {
                         if (!$this->userIsVip && Carbon::parse($OrderData->order_expire_date)->gt($now)) {
                             \App\Models\Vip::select('member_id', 'active')
                                 ->where('member_id', $this->vipData->member_id)
                                 ->update(array('active' => 1, 'expiry' => $OrderData->order_expire_date));
-                            \App\Models\VipLog::addToLog($user->id, 'order_id: ' . $this->vipData->order_id . '; 繳款檢查正常回復VIP：' . $this->vipData->PaymentType, '自動回復', 0, 0);
+                            \App\Models\VipLog::addToLog($user->id, 'order_id: ' . $this->vipData->order_id . '; 繳款檢查正常回復VIP：' . $this->vipData->payment_method, '自動回復', 0, 0);
                         }
                         elseif($this->userIsVip && Carbon::parse($OrderData->order_expire_date) !=  Carbon::parse($this->vipData->expiry) && Carbon::parse($OrderData->order_expire_date)->diffInDays(Carbon::parse($this->vipData->expiry))>20) {
                             \App\Models\Vip::select('member_id', 'active')
                                 ->where('member_id', $this->vipData->member_id)
                                 ->update(array('expiry' => $OrderData->order_expire_date));
-                            \App\Models\VipLog::addToLog($user->id, 'order_id: ' . $this->vipData->order_id . '; VIP訂單檢查：' . $this->vipData->PaymentType, '到期日自動調整', 0, 0);
+                            \App\Models\VipLog::addToLog($user->id, 'order_id: ' . $this->vipData->order_id . '; VIP訂單檢查：' . $this->vipData->payment_method, '到期日自動調整', 0, 0);
                         }
                     }
                 }
@@ -146,7 +146,7 @@ class CheckECpay implements ShouldQueue
             //Order無訂單資料時 從金流新增訂單
             else{
                 //預先給予權限訂單判斷 無訂單
-                if($this->vipData->PaymentType=='BARCODE' || $this->vipData->PaymentType=='CVS' || $this->vipData->PaymentType=='ATM') {
+                if($this->vipData->payment_method=='BARCODE' || $this->vipData->payment_method=='CVS' || $this->vipData->payment_method=='ATM') {
                     $preOrderCheck = PaymentGetQrcodeLog::where('order_id', $this->vipData->order_id)->first();
                     if($preOrderCheck) {
                          if($this->userIsVip && $now->gt($preOrderCheck->ExpireDate)) {
@@ -158,7 +158,7 @@ class CheckECpay implements ShouldQueue
                              if($vipData){
                                  $vipData->removeVIP();
                              }
-                             \App\Models\VipLog::addToLog($user->id, 'order_id: '.$this->vipData->order_id.'; 期限內('.$preOrderCheck->ExpireDate.')未完成付款：' . $this->vipData->PaymentType['PaymentType'], '自動取消', 0, 0);
+                             \App\Models\VipLog::addToLog($user->id, 'order_id: '.$this->vipData->order_id.'; 期限內('.$preOrderCheck->ExpireDate.')未完成付款：' . $this->vipData->payment_method, '自動取消', 0, 0);
                          }
                      }
                 }
