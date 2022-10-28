@@ -2598,16 +2598,29 @@ jQuery(document).ready(function(){
         var yearMonth =$(this).attr('data-yearMonth');
         var ip =$(this).attr('data-ip');
         var cfpID =$(this).attr('data-cfpID');
-        if(ip!=='不指定'){
-            if(ip){
-                window.open('/admin/users/ip/'+ip, '_blank');
+        @if($is_test)
+            if(ip!=='不指定'){
+                if(ip){
+                    window.open('/admin/users/ip/'+ip, '_blank?is_test=1');
+                }else{
+                    window.open('/admin/users/ip/不指定?cfp_id='+ cfpID, '_blank?is_test=1');
+                }
             }else{
-                window.open('/admin/users/ip/不指定?cfp_id='+ cfpID, '_blank');
+                $('.showLog').hide();
+                $('#'+sectionName).show();
             }
-        }else{
-            $('.showLog').hide();
-            $('#'+sectionName).show();
-        }
+        @else
+            if(ip!=='不指定'){
+                if(ip){
+                    window.open('/admin/users/ip/'+ip, '_blank');
+                }else{
+                    window.open('/admin/users/ip/不指定?cfp_id='+ cfpID, '_blank');
+                }
+            }else{
+                $('.showLog').hide();
+                $('#'+sectionName).show();
+            }
+        @endif
     });
     $('.loginItem_IP').click(function(){
         var sectionName =$(this).attr('data-sectionName');
@@ -3175,10 +3188,10 @@ function show_re_content(id){
     }
     //預算及車馬費警示警示
 
-    @if(!$is_test)
-    $(document).ready(function () {
-        $('.btn').hide();
-    });
+    @if($is_test)
+        $(document).ready(function () {
+            $('.btn').hide();
+        });
     @endif
 </script>
 <!--照片查看end-->

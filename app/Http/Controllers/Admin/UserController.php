@@ -5751,7 +5751,7 @@ class UserController extends \App\Http\Controllers\BaseController
 
     public function getIpUsers(Request $request, $ip)
     {
-
+        $is_test = $request->is_test ?? false;
         ini_set("max_execution_time", '0');
         ini_set('memory_limit', '-1');
 
@@ -5829,7 +5829,8 @@ class UserController extends \App\Http\Controllers\BaseController
             ->with('isSetAutoBan_ip', $isSetAutoBan_ip)
             ->with('male_user_list', $male_user_list)
             ->with('ip', $ip)
-            ->with('recordType', $request->type);
+            ->with('recordType', $request->type)
+            ->with('is_test', $is_test);
     }
 
     public function getUsersLog(Request $request)

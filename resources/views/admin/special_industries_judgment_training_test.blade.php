@@ -25,7 +25,7 @@
                 @foreach($topic_user as $user)
                 <tr>
                     <th>
-                        <a href="/admin/users/advInfo/{{$user->id}}?is_test=1;" target="_blank">{{$user->email}}</a>
+                        <a href="/admin/users/advInfo/{{$user->id}}?is_test=1" target="_blank">{{$user->email}}</a>
                     </th>
                     <td>
                         {{$user->name}}
