@@ -102,6 +102,9 @@
                         男女
                         @endif
                         )
+                        <br>
+                        (非正常會員 : {{$test->topic_count - $test->normal_count}}人)
+                        (正常會員 : {{$test->normal_count}}人)
                     </th>
                     <td align="center">
                         <button onclick="location.href='special_industries_judgment_training_test?topic_id={{$test->topic_id}}'">測試</button>

@@ -151,16 +151,19 @@ class SpecialIndustriesTestTopic extends Model
         $normal_topic = $normal_topic->inRandomOrder()->take(count($test_topic_array) + $setup->normal_member_count)->get();
 
         //題目插入正常會員
+        $normal_count = 0;
         foreach($normal_topic as $topic)
         {
             $test_topic_array[] = $topic->topic_user_id;
             $correct_answer_array[$topic->topic_user_id] = ['pass',''];
+            $normal_count = $normal_count + 1;
         }
 
         //儲存題目
         $test_topic = new SpecialIndustriesTestTopic;
         $test_topic->test_setup_id = $setup_id;
         $test_topic->topic_count = count($test_topic_array);
+        $test_topic->normal_count = $normal_count;
         $test_topic->test_topic = json_encode($test_topic_array);
         $test_topic->correct_answer = json_encode($correct_answer_array);
         $test_topic->save();
