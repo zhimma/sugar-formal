@@ -793,28 +793,8 @@
         <td>@if($userMeta->city=='0') 無 @else {{ $userMeta->city }} {{ $userMeta->area }} @endif</td>
         <th>拒絕查詢的縣市</th>
         <td>@if($userMeta->blockcity=='0') 無 @else {{ $userMeta->blockcity }} {{ $userMeta->blockarea }} @endif</td>
-        @if($user->engroup == 2)
-            <th>預算</th>
-            <td>{{ $userMeta->budget }}</td>
-        @endif
-    </tr>
-    <tr>
-        <th>生日</th>
-        <td>{{ date('Y-m-d', strtotime($userMeta->birthdate)) }}</td>
-        <th>身高</th>
-        <td>{{ $userMeta->height }}{!!$raa_service->getActualUncheckedHeightLayout()!!}</td>
         <th>職業</th>
         <td>{{ $userMeta->occupation }}</td>
-    </tr>
-    <tr>
-        <th>體重</th>
-        <td>{{ \App\Services\UserService::getOptionWordByWeightValue($userMeta->weight) }}{!!$raa_service->getActualUncheckedWeightLayout()!!}</td>
-        @if($user->engroup == 2)
-            <th>罩杯</th>
-            <td>{{ $userMeta->cup }}</td>
-        @endif
-        <th>體型</th>
-        <td>{{ $userMeta->body }}</td>
     </tr>
     <tr>
         <th>現況</th>
@@ -823,6 +803,29 @@
         <td>{{ $userMeta->about }}</td>
         <th>期待的約會模式</th>
         <td>{{ $userMeta->style }}</td>
+    </tr>
+    <tr>
+        <th>生日</th>
+        <td>{{ date('Y-m-d', strtotime($userMeta->birthdate)) }}</td>
+        <th>身高</th>
+        <td>{{ $userMeta->height }}{!!$raa_service->getActualUncheckedHeightLayout()!!}</td>
+        <th>體重</th>
+        <td>{{ \App\Services\UserService::getOptionWordByWeightValue($userMeta->weight) }}{!!$raa_service->getActualUncheckedWeightLayout()!!}</td>
+    </tr>
+    <tr><th>體型</th>
+        <td>{{ $userMeta->body }}</td>
+        @if($user->engroup == 2)
+            <th>罩杯</th>
+            <td>{{ $userMeta->cup }}</td>
+            <th>預算</th>
+            <td>{{ $userMeta->budget }}</td>
+        @endif
+        @if($user->engroup == 1)
+            <th>每月預算</th>
+            <td>{{$userMeta->budget_per_month_min ?? '未填'}} ~ {{$userMeta->budget_per_month_max ?? '未填'}}</td>
+            <th>車馬費預算</th>
+            <td>{{$userMeta->transport_fare_min ?? '未填'}} ~ {{$userMeta->transport_fare_max ?? '未填'}}</td>
+        @endif
     </tr>
     <tr>
         @if($user->engroup == 2)
@@ -834,12 +837,6 @@
                     否
                 @endif
             </td>
-        @endif
-        @if($user->engroup == 1)
-            <th>每月預算</th>
-            <td>{{$userMeta->budget_per_month_min ?? '未填'}} ~ {{$userMeta->budget_per_month_max ?? '未填'}}</td>
-            <th>車馬費預算</th>
-            <td>{{$userMeta->transport_fare_min ?? '未填'}} ~ {{$userMeta->transport_fare_max ?? '未填'}}</td>
         @endif
     </tr>
 </table>
