@@ -68,6 +68,25 @@ class FindPuppetController extends \App\Http\Controllers\Controller
         $whereArrOfVid = [];
         $have_mon_limit = false;
         $only= $request->only;
+
+
+	$latest_column = $this->column->where('column_index','!=',-1)->orderByDesc('id')->first();
+        if($this->column->where('column_index',-1)->count()) {
+            if(\Carbon\Carbon::now()->diffInHours($latest_column->created_at)<48) {
+		    Log::info('findPuppet自動切換排程：已有正在執行的排程，所以此次不執行');
+		    exit;
+            }            
+        }
+        if($latest_column->cat=='only_cfpid') {
+            $only='';
+        }
+        else  {
+            $only='cfpid';
+        }
+
+
+
+
 		$cat = $only?'only_'.$only:'';
         Log::info('findPuppet排程'.$cat.'：開始執行');
 

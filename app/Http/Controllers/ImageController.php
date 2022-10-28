@@ -310,7 +310,7 @@ class ImageController extends BaseController
         
         $file_input_name = 'avatar';
         
-        if($rap_service->isPassedByAuthTypeId(1) ) {
+        if($rap_service->isPassedByAuthTypeId(1) && $user_meta->pic ) {
             $file_input_name = 'apply_replace_pic';
         }
             
