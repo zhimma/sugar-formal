@@ -2601,9 +2601,9 @@ jQuery(document).ready(function(){
         @if($is_test)
             if(ip!=='不指定'){
                 if(ip){
-                    window.open('/admin/users/ip/'+ip, '_blank?is_test=1');
+                    window.open('/admin/users/ip/'+ip+'?is_test=1', '_blank');
                 }else{
-                    window.open('/admin/users/ip/不指定?cfp_id='+ cfpID, '_blank?is_test=1');
+                    window.open('/admin/users/ip/不指定?cfp_id='+ cfpID+'?is_test=1', '_blank');
                 }
             }else{
                 $('.showLog').hide();
