@@ -1198,7 +1198,8 @@ class UserService
                 }
             }
             
-            if($user->isVVIP() || ($user->isVip() && $getPr>=80) ){
+            if($user->isVVIP() || $getPr>=80 ){
+            // if($user->isVVIP() || ($user->isVip() && $getPr>=80) ){
                 $show = true;
             }
 
@@ -1234,7 +1235,8 @@ class UserService
                     $isBlurAvatar=($set_pr_value>=$getPr) ? true : false;
                 }
             }
-            if($user->isVVIP() || ($user->isVip() && $getPr>=80) ){
+            if($user->isVVIP() || $getPr>=80 ){
+            // if($user->isVVIP() || ($user->isVip() && $getPr>=80) ){
                 $isBlurAvatar = false;
             }
 
@@ -1267,7 +1269,9 @@ class UserService
                     $isBlurLifePhoto=($set_pr_value>=$getPr) ? true : false;
                 }
             }
-            if($user->isVVIP() || ($user->isVip() && $getPr>=80) ){
+
+            if($user->isVVIP() || $getPr>=80 ){
+            // if($user->isVVIP() || ($user->isVip() && $getPr>=80) ){
                 $isBlurLifePhoto = false;
             }
 
