@@ -127,20 +127,22 @@
 
         <tr>
             <td>
-                測驗結果
-                @foreach($test_result as $result)
-                    <tr>
-                        <td class='test_title'>
-                            <input type="hidden" value={{$result->answer_id}}>
-                            {{$result->title}}( 測驗時間 : {{$result->filled_time}} ){{--( 測驗人員 : {{$result->name}} , Email : {{$result->email}} )--}}
-                        </td>
-                    </tr>
-                    <tr>
-                        <td id='test_detail_{{$result->answer_id}}'>
+                測驗結果 <span id="test_result_button" class="btn btn-primary">+</span>
+                <table id='test_result_table' style="display:none">
+                    @foreach($test_result as $result)
+                        <tr>
+                            <td class='test_title'>
+                                <input type="hidden" value={{$result->answer_id}}>
+                                {{$result->title}}( 測驗時間 : {{$result->filled_time}} ){{--( 測驗人員 : {{$result->name}} , Email : {{$result->email}} )--}}
+                            </td>
+                        </tr>
+                        <tr>
+                            <td id='test_detail_{{$result->answer_id}}'>
 
-                        </td>
-                    </tr>
-                @endforeach
+                            </td>
+                        </tr>
+                    @endforeach
+                </table>
             </td>
         </tr>
         @if(count($test_result)==0)
@@ -355,6 +357,19 @@
                 }
             }
         });
+    });
+
+    $('#test_result_button').on('click', function(){
+        if($('#test_result_table').css('display')=='none')
+        {
+            $(this).text('-');
+            $('#test_result_table').show();
+        }
+        else
+        {
+            $(this).text('+');
+            $('#test_result_table').hide();
+        }
     });
 </script>
 @stop
