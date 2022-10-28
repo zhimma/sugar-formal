@@ -9992,6 +9992,9 @@ class PagesController extends BaseController
         if($user->engroup!=2) {
             return redirect('/dashboard/personalPage');
         }
+        if($user->self_auth_status!=1 && $user->beauty_auth_status!=1) {
+            return redirect('/dashboard/personalPage');
+        }
 
         $data['self_auth']= RealAuthUserTagsDisplay::where('user_id', $user->id)->where('auth_type_id', 1)->first();
         $data['beauty_auth']= RealAuthUserTagsDisplay::where('user_id', $user->id)->where('auth_type_id', 2)->first();
