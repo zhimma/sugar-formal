@@ -476,10 +476,9 @@ class Message_new extends Model
                     ->whereNull('b5.blocked_id')
                     ->whereNull('b6.blocked_id')
                     ->whereNull('b7.member_id')
-                    ->where(function ($query) use ($uid,$admin_id) {
-                        $query->where([['message.from_id', $admin_id], ['message.chat_with_admin', 1], ['message.to_id', $uid]])
-                            ->orWhere([['message.from_id', '<>', $admin_id], ['message.to_id', $uid], ['message.from_id', '!=', $uid]])    
-                            ->orWhere([['message.from_id', $uid], ['message.to_id', '!=',$uid]]);
+                    ->where(function ($query) use ($uid) {
+                        $query->where([['message.to_id', $uid], ['message.from_id', '<>', $uid]])    
+                            ->orWhere([['message.from_id', $uid], ['message.to_id', '<>',$uid]]);
                     });    
 
             if($forEventSenders) 
