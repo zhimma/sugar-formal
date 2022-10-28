@@ -132,7 +132,7 @@
                     <tr>
                         <td class='test_title'>
                             <input type="hidden" value={{$result->answer_id}}>
-                            {{$result->title}}( 測驗時間 : {{$result->filled_time}} )( 測驗人員 : {{$result->name}} , Email : {{$result->email}} )
+                            {{$result->title}}( 測驗時間 : {{$result->filled_time}} ){{--( 測驗人員 : {{$result->name}} , Email : {{$result->email}} )--}}
                         </td>
                     </tr>
                     <tr>

@@ -33,11 +33,19 @@ class AdminController extends \App\Http\Controllers\BaseController
         return back()->with('message', '新增成功');
     }
 
-    public function special_industries_judgment_training_select()
+    public function special_industries_judgment_training_select(Request $request)
     {
+        $user = $request->user();
+        $already_test = SpecialIndustriesTestAnswer::select('test_topic_id')->where('test_user',$user->id)->get();
+        $topic_array = [];
+        foreach($already_test as $topic)
+        {
+            $topic_array[] = $topic->test_topic_id;
+        }
         $test_topic = SpecialIndustriesTestTopic::select('special_industries_test_topic.id as topic_id','special_industries_test_topic.*','special_industries_test_setup.*')
                                                 ->leftJoin('special_industries_test_setup','special_industries_test_setup.id','special_industries_test_topic.test_setup_id')
                                                 ->where('is_hide',false)
+                                                ->whereNotIn('special_industries_test_topic.id',$topic_array)
                                                 ->orderByDesc('special_industries_test_topic.updated_at')
                                                 ->get();
         return view('admin.special_industries_judgment_training_select')
