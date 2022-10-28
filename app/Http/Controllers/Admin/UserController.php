@@ -4970,7 +4970,7 @@ class UserController extends \App\Http\Controllers\BaseController
             }
             if(!empty($request->get('date_end')))
             {
-                $test_result = $test_result->where('special_industries_test_answer.updated_at','<=',$request->get('date_end'));
+                $test_result = $test_result->where('special_industries_test_answer.updated_at','<=',date("Y-m-d", strtotime("+1 day", strtotime($request->get('date_end')))));
             }
 
             $test_result = $test_result->select('special_industries_test_answer.*','users.*','special_industries_test_topic.*','special_industries_test_setup.*','special_industries_test_answer.updated_at as filled_time','special_industries_test_answer.id as answer_id')
