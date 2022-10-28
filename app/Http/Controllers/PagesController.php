@@ -8391,7 +8391,7 @@ class PagesController extends BaseController
         $admin_msgs = [];
         $admin_msgs_sys = [];
 
-        foreach($admin_msg_entrys->where('sys_notice',0)->where('sys_notice',0)->where('chat_with_admin', 0) as $admin_msg_entry) {
+        foreach($admin_msg_entrys->where('sys_notice',0)->where('chat_with_admin', 0) as $admin_msg_entry) {
             $admin_msg_entry->content = str_replace('NAME', $user->name, $admin_msg_entry->content);
             $admin_msg_entry->content = str_replace('|$report|', $user->name, $admin_msg_entry->content);
             $admin_msg_entry->content = str_replace('LINE_ICON', AdminService::$line_icon_html, $admin_msg_entry->content);
