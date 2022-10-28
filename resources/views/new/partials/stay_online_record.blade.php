@@ -1,3 +1,4 @@
+@if(config('app.bypass_stay_online_record') == false)
     <script>
         //上線時間紀錄
         var hiddenProperty = 'hidden' in document ? 'hidden' :    
@@ -104,3 +105,4 @@
         }
         //上線時間紀錄
     </script>
+@endif
