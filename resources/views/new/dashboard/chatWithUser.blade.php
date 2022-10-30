@@ -896,6 +896,7 @@
                     <form style="margin: 0 auto;" method="POST"
                         action="/dashboard/chat2/{{ \Carbon\Carbon::now()->timestamp }}" id="chatForm" name="chatForm">
                         <input type="hidden" name="_token" value="{{ csrf_token() }}">
+                        <input type="hidden" name="chat_with_admin" value="{{ $chatting_with_admin }}">
                         <input type="hidden" name="userId" value="{{$user->id}}">
                         <input type="hidden" name="to" value="{{$to->id}}">
                         <input type="hidden" name="m_time" @if(isset($m_time)) value="{{ $m_time }}" @else value="" @endif>
