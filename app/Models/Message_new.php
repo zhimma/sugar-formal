@@ -565,8 +565,8 @@ class Message_new extends Model
                 $mm[$v->from_id] = 0;
             }
             if($v->read=='N' && $v->all_delete_count != $uid && $v->is_row_delete_1 != $uid && $v->is_row_delete_2 != $uid && $v->is_single_delete_1 != $uid && $v->is_single_delete_2 != $uid){
-                if((($v->to_id == $uid and $v->from_id == AdminService::checkAdmin()->id) or
-                    ($v->from_id == $uid and $v->to_id == AdminService::checkAdmin()->id)) and
+                if((($v->from_id == AdminService::checkAdmin()->id) or
+                    ($v->to_id == AdminService::checkAdmin()->id)) and
                     $v->chat_with_admin){
                         $mm[$v->from_id]++;
                 }
