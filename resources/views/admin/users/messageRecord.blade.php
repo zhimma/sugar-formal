@@ -302,8 +302,7 @@ jQuery(document).ready(function(){
             dataType:"json",
             success: function(res){
                 alert('對話已結束')
-                window.opener = self;
-                window.close();
+                location.reload();
         }});
     }
     $('.message_management_btn').on('click', function(){
@@ -321,5 +320,13 @@ jQuery(document).ready(function(){
 
     });
 
+    if (window.parent.location.href.match(/from_advInfo=/)){
+        if (typeof (history.pushState) != "undefined") {
+            var obj = { Title: document.title, Url: window.parent.location.pathname };
+            history.pushState(obj, obj.Title, obj.Url);
+        } else {
+            window.parent.location = window.parent.location.pathname;
+        }
+    }
 </script>
 </html>

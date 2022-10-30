@@ -3192,7 +3192,7 @@ function show_re_content(id){
 
     });
     function isChat(id, is_open) {
-        window.open('/admin/users/message/record/'+id);
+        window.open('/admin/users/message/record/' + id + '?from_advInfo=1');
         {{-- $.ajax({
             type: 'POST',
             url: '/admin/users/isChatToggler',

@@ -2597,17 +2597,17 @@ class UserController extends \App\Http\Controllers\BaseController
         $admin = $this->admin->checkAdmin();
         if ($admin) {
             $user = User::where('id', $id)->get()->first();
-
-            $controller = resolve(self::class);
-            $request = new Request();
-            $request->replace([
-                "_token" => csrf_token(),
-                "user_id" => $id,
-                "is_admin_chat_channel_open" => !$user->is_admin_chat_channel_open
-            ]);
-            $controller->TogglerIsChat($request);
-
-            $user->fresh();
+            if(request()->input('from_advInfo') and request()->input('from_advInfo') == 1 and !$user->is_admin_chat_channel_open) {
+                $controller = resolve(self::class);
+                $request = new Request();
+                $request->replace([
+                    "_token" => csrf_token(),
+                    "user_id" => $id,
+                    "is_admin_chat_channel_open" => !$user->is_admin_chat_channel_open
+                ]);
+                $controller->TogglerIsChat($request);
+                $user->fresh();
+            }
 
             $messages = Message::allToFromSenderChatWithAdmin($id, 1049)->get();
             
