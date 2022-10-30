@@ -773,14 +773,18 @@ class Message extends Model
 
     public static function allToFromSenderChatWithAdmin($uid, $sid) {
         self::$date =\Carbon\Carbon::parse("180 days ago")->toDateTimeString();
-        // 效能調整
-        // $query = Message::withTrashed()->where('created_at','>=',self::$date);
-        // $query = $query->where(function ($query) use ($uid,$sid) {
-        //     // 效能調整
-        //     // $query->where([['chat_with_admin', 1],['to_id', $uid],['from_id', $sid]])
-        //     $query->where([['to_id', $uid],['from_id', $sid]])
-        //         ->orWhere([['from_id', $uid],['to_id', $sid]]);
-        // });
+        $query = Message::withTrashed()->where('created_at','>=',self::$date);
+        $query = $query->where(function ($query) use ($uid,$sid) {
+            // 效能調整
+            // $query->where([['chat_with_admin', 1],['to_id', $uid],['from_id', $sid]])
+            $query->where('chat_with_admin', 1)->where(
+                function ($query) use ($uid, $sid) {
+                    $query->where([['to_id', $uid],['from_id', $sid]])
+                        ->orWhere([['from_id', $uid],['to_id', $sid]]);
+                }
+            );
+        });
+        /*
         $first = DB::table("message")->where([['to_id', $uid], ['from_id', $sid]])
                     ->where('created_at', '>=', self::$date)
                     ->orderBy('created_at', 'desc');
@@ -788,8 +792,9 @@ class Message extends Model
         $final = DB::table("message")->where([['from_id', $uid], ['to_id', $sid]])
                     ->where('created_at', '>=', self::$date)
                     ->orderBy('created_at', 'desc')->union($first);
+         */
 
-        return $final;
+        return $query;
     }
 
     public static function unread($uid, $tinker = false)
