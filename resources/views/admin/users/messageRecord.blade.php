@@ -302,7 +302,8 @@ jQuery(document).ready(function(){
             dataType:"json",
             success: function(res){
                 alert('對話已結束')
-                location.reload();
+                window.opener = self;
+                window.close();
         }});
     }
     $('.message_management_btn').on('click', function(){
