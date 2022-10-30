@@ -2117,18 +2117,19 @@
                 var parent_id = document.getElementById('message_parent').value;
                 var parent_client_id = document.getElementById('message_parent_client').value;
                 formData.append("msg", msg_text);
-            formData.append("from", "{{ auth()->user()->id }}");
-            formData.append("to", "{{ $to->id }}");
-            formData.append('parent', parent_id);
-            formData.append('parent_client', parent_client_id);
-            formData.append('client_id',msg_data.client_id);
-            @if($isVip)
-            formData.append('is_truth',$('#truth_actor').length?$('#truth_actor').data('truth_active'):0);
-            @endif
-            formData.append("_token", "{{ csrf_token() }}");
-            xhr.open("post", "{{ route('realTimeChat') }}", true);
-            xhr.onload = function (e) {
-                var response = e.currentTarget.response;
+                formData.append("chat_with_admin", {{ $chatting_with_admin ?? 0 }});
+                formData.append("from", "{{ auth()->user()->id }}");
+                formData.append("to", "{{ $to->id }}");
+                formData.append('parent', parent_id);
+                formData.append('parent_client', parent_client_id);
+                formData.append('client_id',msg_data.client_id);
+                @if($isVip)
+                formData.append('is_truth',$('#truth_actor').length?$('#truth_actor').data('truth_active'):0);
+                @endif
+                formData.append("_token", "{{ csrf_token() }}");
+                xhr.open("post", "{{ route('realTimeChat') }}", true);
+                xhr.onload = function (e) {
+                    var response = e.currentTarget.response;
                     var rentry = null;
                     try { 
                         rentry = JSON.parse(response);
