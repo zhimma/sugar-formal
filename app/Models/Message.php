@@ -872,14 +872,16 @@ class Message extends Model
                         ->whereNull('b6.blocked_id')
                         ->whereNull('b7.member_id')
                         ->where(function($query) use ($uid) {
-                            $query->where([
-                                ['message.to_id', $uid],
-                                ['message.from_id', '!=', $uid],
-                                ['message.from_id', '!=',AdminService::checkAdmin()->id]
-                            ])->orWhere([
-                                ['message.from_id', '=',AdminService::checkAdmin()->id],
-                                ['message.chat_with_admin', 1]
-                            ]);
+                            $query->where(function($query) use ($uid) {
+                                    where([
+                                    ['message.to_id', $uid],
+                                    ['message.from_id', '!=', $uid],
+                                    ['message.from_id', '!=',AdminService::checkAdmin()->id]
+                                ])->orWhere([
+                                    ['message.from_id', '=',AdminService::checkAdmin()->id],
+                                    ['message.chat_with_admin', 1]
+                                ]);
+                            });
                         })
                         ->where([['message.is_row_delete_1','<>',$uid],['message.is_single_delete_1', '<>' ,$uid], ['message.all_delete_count', '<>' ,$uid],['message.is_row_delete_2', '<>' ,$uid],['message.is_single_delete_2', '<>' ,$uid],['message.temp_id', '=', 0]])
                         ->where('message.read', 'N')
