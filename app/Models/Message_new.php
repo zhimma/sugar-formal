@@ -565,10 +565,11 @@ class Message_new extends Model
                 $mm[$v->from_id] = 0;
             }
             if($v->read=='N' && $v->all_delete_count != $uid && $v->is_row_delete_1 != $uid && $v->is_row_delete_2 != $uid && $v->is_single_delete_1 != $uid && $v->is_single_delete_2 != $uid){
-                if((($v->from_id == AdminService::checkAdmin()->id) or
-                    ($v->to_id == AdminService::checkAdmin()->id)) and
-                    $v->chat_with_admin){
+                if(($v->from_id == AdminService::checkAdmin()->id) or
+                    ($v->to_id == AdminService::checkAdmin()->id)){
+                    if($v->chat_with_admin) {
                         $mm[$v->from_id]++;
+                    }                    
                 }
                 else {
                     $mm[$v->from_id]++;
