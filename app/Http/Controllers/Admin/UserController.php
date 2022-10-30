@@ -2607,6 +2607,8 @@ class UserController extends \App\Http\Controllers\BaseController
             ]);
             $controller->TogglerIsChat($request);
 
+            $user->fresh();
+
             $messages = Message::allToFromSenderChatWithAdmin($id, 1049)->get();
             
             $admin = User::where('id', 1049)->get()->first();
