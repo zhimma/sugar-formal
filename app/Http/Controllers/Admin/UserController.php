@@ -2596,9 +2596,19 @@ class UserController extends \App\Http\Controllers\BaseController
     {
         $admin = $this->admin->checkAdmin();
         if ($admin) {
+            $user = User::where('id', $id)->get()->first();
+
+            $controller = resolve(self::class);
+            $request = new Request();
+            $request->replace([
+                "_token" => csrf_token(),
+                "user_id" => $id,
+                "is_admin_chat_channel_open" => !$user->is_admin_chat_channel_open
+            ]);
+            $controller->TogglerIsChat($request);
+
             $messages = Message::allToFromSenderChatWithAdmin($id, 1049)->get();
             
-            $user = User::where('id', $id)->get()->first();
             $admin = User::where('id', 1049)->get()->first();
 
             $user->tipcount = Tip::TipCount_ChangeGood($user->id);
