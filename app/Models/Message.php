@@ -873,7 +873,7 @@ class Message extends Model
                         ->whereNull('b7.member_id')
                         ->where(function($query) use ($uid) {
                             $query->where(function($query) use ($uid) {
-                                    where([
+                                $query->where([
                                     ['message.to_id', $uid],
                                     ['message.from_id', '!=', $uid],
                                     ['message.from_id', '!=',AdminService::checkAdmin()->id]
