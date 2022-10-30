@@ -2597,7 +2597,7 @@ class UserController extends \App\Http\Controllers\BaseController
         $admin = $this->admin->checkAdmin();
         if ($admin) {
             $user = User::where('id', $id)->get()->first();
-            if(!$user->is_admin_chat_channel_open) {
+            if(request()->input('from_advInfo') and request()->input('from_advInfo') == 1 and !$user->is_admin_chat_channel_open) {
                 $controller = resolve(self::class);
                 $request = new Request();
                 $request->replace([
@@ -2605,7 +2605,7 @@ class UserController extends \App\Http\Controllers\BaseController
                     "user_id" => $id,
                     "is_admin_chat_channel_open" => !$user->is_admin_chat_channel_open
                 ]);
-                $controller->TogglerIsChat($request);    
+                $controller->TogglerIsChat($request);
                 $user->fresh();
             }
 
