@@ -2609,7 +2609,7 @@ class UserController extends \App\Http\Controllers\BaseController
                 $user->refresh();
             }
 
-            $messages = Message::allToFromSenderChatWithAdmin($id, 1049)->get();
+            $messages = Message::allToFromSenderChatWithAdmin($id, 1049)->orderBy('id', 'asc')->get();
             
             $admin = User::where('id', 1049)->get()->first();
 
