@@ -302,7 +302,6 @@ jQuery(document).ready(function(){
             dataType:"json",
             success: function(res){
                 alert('對話已結束')
-                removeURLParameter
                 location.reload();
         }});
     }
