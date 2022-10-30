@@ -1118,7 +1118,7 @@ class Message extends Model
         $message->parent_msg = array_key_exists('parent',$arr)?$arr['parent']:'';
         $message->client_id = array_key_exists('client_id',$arr)?$arr['client_id']:'';
         $message->parent_client_id = array_key_exists('parent_client',$arr)?$arr['parent_client']:'';
-
+        $message->chat_with_admin = $arr['chat_with_admin'] ?? 0;
         $message->all_delete_count = 0;
         $message->is_row_delete_1 = 0;
         $message->is_row_delete_2 = 0;
