@@ -797,6 +797,15 @@ class Message extends Model
         return $query;
     }
 
+    /**
+     * 使用中
+     * @param mixed $uid 
+     * @param bool $tinker 
+     * @return int 
+     * @throws \InvalidArgumentException 
+     * @throws \Carbon\Exceptions\InvalidFormatException 
+     * @throws \Carbon\Exceptions\UnitException 
+     */
     public static function unread($uid, $tinker = false)
     {
         $user = \View::shared('user');
@@ -866,9 +875,12 @@ class Message extends Model
                             $query->where([
                                 ['message.to_id', $uid],
                                 ['message.from_id', '!=', $uid],
-                                ['message.from_id','!=',AdminService::checkAdmin()->id]
+                                ['message.from_id', '!=',AdminService::checkAdmin()->id]
+                            ])->orWhere([
+                                ['message.from_id', '=',AdminService::checkAdmin()->id],
+                                ['message.chat_with_admin', 1]
                             ]);
-                        })
+                        );})
                         ->where([['message.is_row_delete_1','<>',$uid],['message.is_single_delete_1', '<>' ,$uid], ['message.all_delete_count', '<>' ,$uid],['message.is_row_delete_2', '<>' ,$uid],['message.is_single_delete_2', '<>' ,$uid],['message.temp_id', '=', 0]])
                         ->where('message.read', 'N')
                         ->where([['message.created_at','>=',self::$date]])
