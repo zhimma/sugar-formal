@@ -2606,7 +2606,7 @@ class UserController extends \App\Http\Controllers\BaseController
                     "is_admin_chat_channel_open" => !$user->is_admin_chat_channel_open
                 ]);
                 $controller->TogglerIsChat($request);
-                $user->fresh();
+                $user->refresh();
             }
 
             $messages = Message::allToFromSenderChatWithAdmin($id, 1049)->get();
