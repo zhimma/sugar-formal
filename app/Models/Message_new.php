@@ -799,6 +799,9 @@ class Message_new extends Model
         return Message::where([['to_id', $uid],['from_id', $sid]])->orWhere([['from_id', $uid],['to_id', $sid]])->distinct()->orderBy('created_at', 'desc')->paginate(10);
     }
 
+    /**
+     * 未使用
+     */
     public static function unread($uid)
     {
         // block information
