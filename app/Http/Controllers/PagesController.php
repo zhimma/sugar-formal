@@ -4022,6 +4022,7 @@ class PagesController extends BaseController
                 $cid_user = $this->service->find($cid);
                 if($cid == "1049"){
                     $messages = Message::allToFromSenderChatWithAdmin($user->id, 1049)->paginate(10);
+                    $chatting_with_admin = true;
                 }
                 if(!$cid_user){
                     return '<h1>該會員不存在。</h1>';
@@ -4065,6 +4066,7 @@ class PagesController extends BaseController
                     ->with('is_truth_state',in_array(['to_id' =>$cid_user->id,'from_id' =>$user->id],Message::$truthMessages) || in_array(['to_id' =>$user->id,'from_id' =>$cid_user->id],Message::$truthMessages))
                     ->with('exist_is_truth_quota',Message::existIsTrueQuotaByFromUser($user))
                     ->with('remain_num_of_is_truth',Message::getRemainQuotaOfIsTruthByFromUser($user))
+                    ->with('chatting_with_admin', $chatting_with_admin ?? false)
                     ;
             }
             else {
@@ -4080,7 +4082,8 @@ class PagesController extends BaseController
                     ->with('tippopup', $tippopup)
                     ->with('messages', $messages)
                     ->with('report_reason', $report_reason->content)
-                    ->with('first_send_messenge', $first_send_messenge);
+                    ->with('first_send_messenge', $first_send_messenge)
+                    ->with('chatting_with_admin', $chatting_with_admin ?? false);
             }
         }
     }
