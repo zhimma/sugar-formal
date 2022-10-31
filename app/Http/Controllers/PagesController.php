@@ -3944,7 +3944,7 @@ class PagesController extends BaseController
             if (isset($cid)) {
                 $cid_user = $this->service->find($cid);
                 if($cid == "1049"){
-                    $messages = Message::allToFromSenderChatWithAdmin($user->id, 1049)->paginate(10);
+                    $messages = Message::allToFromSenderChatWithAdmin($user->id, 1049)->orderBy('created_at', 'desc')->paginate(10);
                 }
                 if(!$cid_user){
                     return '<h1>該會員不存在。</h1>';

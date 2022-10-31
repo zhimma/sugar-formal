@@ -2528,7 +2528,7 @@ class UserController extends \App\Http\Controllers\BaseController
     {
         $admin = $this->admin->checkAdmin();
         if ($admin) {
-            $messages = Message::allToFromSenderChatWithAdmin($id, 1049)->get();
+            $messages = Message::allToFromSenderChatWithAdmin($id, 1049)->orderBy('created_at', 'asc')->get();
             
             $user = User::where('id', $id)->get()->first();
             $admin = User::where('id', 1049)->get()->first();
