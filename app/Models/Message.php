@@ -762,8 +762,7 @@ class Message extends Model
                 ->orWhere([['from_id', $uid],['to_id', $sid]]);
         });
 
-        $query = $query->where('created_at','>=',self::$date)
-            ->orderBy('created_at', 'desc');
+        $query = $query->where('created_at','>=',self::$date);
         return $query;
     }
 
