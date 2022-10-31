@@ -45,19 +45,19 @@
                     <tr>
                         <th>測驗標題</th>
                         <td>
-                            <input name="test_title"></input>
+                            <input id="test_title" name="test_title"></input>
                         </td>
                     </tr>
                     <tr>
                         <th>選項</th>
                         <td>
-                            <input type="checkbox" name="is_banned" value="1"><label>已被封鎖</label>
+                            <input class="ban_warn_option" type="checkbox" name="is_banned" value="1"><label>已被封鎖</label>
                             <br>
-                            <input type="checkbox" name="is_warned" value="1"><label>已被警示</label>
+                            <input class="ban_warn_option" type="checkbox" name="is_warned" value="1"><label>已被警示</label>
                             <br>
-                            <input type="checkbox" name="is_ever_banned" value="1"><label>曾被封鎖，已解鎖</label>
+                            <input class="ban_warn_option" type="checkbox" name="is_ever_banned" value="1"><label>曾被封鎖，已解鎖</label>
                             <br>
-                            <input type="checkbox" name="is_ever_warned" value="1"><label>曾被警示，已解除</label>
+                            <input class="ban_warn_option" type="checkbox" name="is_ever_warned" value="1"><label>曾被警示，已解除</label>
                         </td>
                     </tr>
                     <tr>
@@ -79,7 +79,7 @@
                     </tr>
                     <tr>
                         <td colspan="2">
-                            <button type="submit" class="btn btn-primary">新增</button>
+                            <button id="set_up_submit" type="submit" class="btn btn-primary">新增</button>
                         </td>
                     </tr>
                 </tr>
@@ -194,5 +194,27 @@
         function str_pad(n) {
             return String("00" + n).slice(-2);
         }
+        $('#set_up_submit').click(function() {
+            if($('#datepicker_1').val() == '')
+            {
+                alert("請選擇開始時間");
+                return false;
+            }
+            if($('#datepicker_2').val() == '')
+            {
+                alert("請選擇結束時間");
+                return false;
+            }
+            if($("input:checkbox:checked").first().val() == undefined)
+            {
+                alert("請選擇選項");
+                return false;
+            }
+            if($('#test_title').val() == '')
+            {
+                alert("請填寫標題");
+                return false;
+            }
+        });
     </script>
 @stop
