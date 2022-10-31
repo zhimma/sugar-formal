@@ -26,6 +26,7 @@ class SpecialIndustriesTestTopic extends Model
         //隨機挑選異常會員
         $warn_ban_topic = User::select('users.id as topic_user_id');
         
+        //增加select
         if($setup->is_banned)
         {
             $warn_ban_topic = $warn_ban_topic->addSelect('banned_users.id as banned_id','banned_users.reason as banned_reason');
@@ -36,13 +37,22 @@ class SpecialIndustriesTestTopic extends Model
         }
         if($setup->is_ever_banned)
         {
+            if(!$setup->is_banned)
+            {
+                $warn_ban_topic = $warn_ban_topic->addSelect('banned_users.id as banned_id','banned_users.reason as banned_reason');
+            }
             $warn_ban_topic = $warn_ban_topic->addSelect('is_banned_log.id as is_ever_banned_id','is_banned_log.reason as is_ever_banned_reason');
         }
         if($setup->is_ever_warned)
         {
+            if(!$setup->is_warned)
+            {
+                $warn_ban_topic = $warn_ban_topic->addSelect('warned_users.id as warned_id','warned_users.reason as warned_reason');
+            }
             $warn_ban_topic = $warn_ban_topic->addSelect('is_warned_log.id as is_ever_warned_id','is_warned_log.reason as is_ever_warned_reason');
         }
         
+        //增加leftJoin
         if($setup->is_banned)
         {
             $warn_ban_topic = $warn_ban_topic->leftJoin('banned_users','banned_users.member_id','users.id');
@@ -53,13 +63,22 @@ class SpecialIndustriesTestTopic extends Model
         }
         if($setup->is_ever_banned)
         {
+            if(!$setup->is_banned)
+            {
+                $warn_ban_topic = $warn_ban_topic->leftJoin('banned_users','banned_users.member_id','users.id');
+            }
             $warn_ban_topic = $warn_ban_topic->leftJoin('is_banned_log','is_banned_log.user_id','users.id');
         }
         if($setup->is_ever_warned)
         {
+            if(!$setup->is_warned)
+            {
+                $warn_ban_topic = $warn_ban_topic->leftJoin('warned_users','warned_users.member_id','users.id');
+            }
             $warn_ban_topic = $warn_ban_topic->leftJoin('is_warned_log','is_warned_log.user_id','users.id');
         }
         
+        //篩選
         if($setup->start_time != '0000-00-00 00:00:00')
         {
             $warn_ban_topic = $warn_ban_topic->where('users.last_login','>=',$setup->start_time);
@@ -76,7 +95,7 @@ class SpecialIndustriesTestTopic extends Model
         $warn_ban_topic = $warn_ban_topic->where(function($query) use($setup){
             if($setup->is_banned)
             {
-                $query = $query->whereNotNull('banned_users.id');
+                $query = $query->orWhereNotNull('banned_users.id');
             }
             if($setup->is_warned)
             {
@@ -84,11 +103,15 @@ class SpecialIndustriesTestTopic extends Model
             }
             if($setup->is_ever_banned)
             {
-                $query = $query->orWhereNotNull('is_banned_log.id');
+                $query = $query->orWhere(function($query) use($setup){
+                    $query = $query->whereNotNull('is_banned_log.id')->whereNull('banned_users.id');
+                });
             }
             if($setup->is_ever_warned)
             {
-                $query = $query->orWhereNotNull('is_warned_log.id');
+                $query = $query->orWhere(function($query) use($setup){
+                    $query = $query->whereNotNull('is_warned_log.id')->whereNull('warned_users.id');
+                });
             }
         });
 
