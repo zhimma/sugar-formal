@@ -91,7 +91,7 @@
                     }
                 @endphp
                 @foreach ($loginLogs as $loginLog)
-                    @if(!($is_test && ($isBanned || $isAdminWarned)))
+                    @if(!(Auth::user()->can('juniorAdmin') && $is_test && ($isBanned || $isAdminWarned)))
                         <tr @if($isBanned) style="background: yellow;" @elseif($isAdminWarned) style="background: palegreen;" @endif>
                             <td>{{$loginLog->ip}}</td>
                             <td><a href="../advInfo/{{ $row->user_id }}" target="_blank">{{$user->email}}</a></td>

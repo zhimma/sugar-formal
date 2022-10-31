@@ -1,6 +1,11 @@
 @include('partials.header')
 @include('partials.message')
 <style>
+    @if(Auth::user()->can('juniorAdmin') && $is_test)
+        .btn{
+            display:none;
+        }
+    @endif
     .hiddenRow {
         padding: 0 !important;
     }
@@ -3187,12 +3192,6 @@ function show_re_content(id){
         }
     }
     //預算及車馬費警示警示
-
-    @if($is_test)
-        $(document).ready(function () {
-            $('.btn').hide();
-        });
-    @endif
 </script>
 <!--照片查看end-->
 </html>
