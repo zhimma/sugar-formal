@@ -122,34 +122,36 @@
             </tr>
         @endforeach
         @if(count($getLogs)==0)
-            暫無資料
+            操作記錄暫無資料
         @endif
-
-        <tr>
-            <td>
-                測驗結果 <span id="test_result_button" class="btn btn-primary">+</span>
-                <table id='test_result_table' style="display:none">
-                    @foreach($test_result as $result)
-                        <tr>
-                            <td class='test_title'>
-                                <input type="hidden" value={{$result->answer_id}}>
-                                {{$result->title}}( 測驗時間 : {{$result->filled_time}} ){{--( 測驗人員 : {{$result->name}} , Email : {{$result->email}} )--}}
-                            </td>
-                        </tr>
-                        <tr>
-                            <td id='test_detail_{{$result->answer_id}}'>
-
-                            </td>
-                        </tr>
-                    @endforeach
-                </table>
-            </td>
-        </tr>
-        @if(count($test_result)==0)
-            測驗暫無資料
-        @endif
-
     </table>
+
+    @if(count($test_result)==0)
+        測驗暫無資料
+    @else
+        <table class="table table-hover table-bordered">
+            <tr>
+                <td>
+                    測驗結果 <span id="test_result_button" class="btn btn-primary">+</span>
+                    <table id='test_result_table' style="display:none">
+                        @foreach($test_result as $result)
+                            <tr>
+                                <td class='test_title'>
+                                    <input type="hidden" value={{$result->answer_id}}>
+                                    {{$result->title}}( 測驗時間 : {{$result->filled_time}} ){{--( 測驗人員 : {{$result->name}} , Email : {{$result->email}} )--}}
+                                </td>
+                            </tr>
+                            <tr>
+                                <td id='test_detail_{{$result->answer_id}}'>
+
+                                </td>
+                            </tr>
+                        @endforeach
+                    </table>
+                </td>
+            </tr>
+        </table>
+    @endif
 </body>
 
 <script>
