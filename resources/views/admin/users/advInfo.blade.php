@@ -2603,7 +2603,7 @@ jQuery(document).ready(function(){
                 if(ip){
                     window.open('/admin/users/ip/'+ip+'?is_test=1', '_blank');
                 }else{
-                    window.open('/admin/users/ip/不指定?cfp_id='+ cfpID+'?is_test=1', '_blank');
+                    window.open('/admin/users/ip/不指定?cfp_id='+ cfpID+'&is_test=1', '_blank');
                 }
             }else{
                 $('.showLog').hide();
