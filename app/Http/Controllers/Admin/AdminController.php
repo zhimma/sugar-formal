@@ -48,12 +48,19 @@ class AdminController extends \App\Http\Controllers\BaseController
                                                 ->whereNotIn('special_industries_test_topic.id',$topic_array)
                                                 ->orderByDesc('special_industries_test_topic.updated_at')
                                                 ->get();
+        $already_test_topic = SpecialIndustriesTestTopic::select('special_industries_test_topic.id as topic_id','special_industries_test_topic.*','special_industries_test_setup.*')
+                                                ->leftJoin('special_industries_test_setup','special_industries_test_setup.id','special_industries_test_topic.test_setup_id')
+                                                ->whereIn('special_industries_test_topic.id',$topic_array)
+                                                ->orderByDesc('special_industries_test_topic.updated_at')
+                                                ->get();
         return view('admin.special_industries_judgment_training_select')
-                ->with('test_topic', $test_topic);
+                ->with('test_topic', $test_topic)
+                ->with('already_test_topic', $already_test_topic);
     }
 
     public function special_industries_judgment_training_test(Request $request)
     {
+        $user = $request->user();
         $test_topic = SpecialIndustriesTestTopic::where('id',$request->topic_id)
                                             ->first();
         $topic_user = User::whereIn('users.id',json_decode($test_topic->test_topic))
@@ -61,10 +68,18 @@ class AdminController extends \App\Http\Controllers\BaseController
                             ->get();
         $correct_answer = json_decode($test_topic->correct_answer, true);
 
+        $already_test = SpecialIndustriesTestAnswer::where('test_topic_id',$request->topic_id)->where('test_user',$user->id)->first();
+        $user_test_result = $already_test->user_answer ?? false;
+        if($user_test_result)
+        {
+            $user_test_result = json_decode($already_test->user_answer,true);
+        }
+
         return view('admin.special_industries_judgment_training_test')
                 ->with('test_topic', $test_topic)
                 ->with('topic_user', $topic_user)
                 ->with('correct_answer', $correct_answer)
+                ->with('user_test_result', $user_test_result)
                 ;
     }
 

@@ -33,15 +33,27 @@
                     <td>
                         {{$user->title}}
                     </td>
-                    <td>
-                        <input class="answer_user_id" type='hidden' value={{$user->id}}>
-                        <input class="answer_choose" name="question{{$user->id}}" type="radio" value="banned" />封鎖
-                        <br>
-                        <input class="answer_choose" name="question{{$user->id}}" type="radio" value="warned" />警示
-                        <br>
-                        <input class="answer_choose" name="question{{$user->id}}" type="radio" value="pass" />pass
-                    </td>
-                    <td class='correct_answer' style="display:none;">
+                    @if($user_test_result ?? false)
+                        <td>
+                            @if($user_test_result[$user->id] == 'banned')
+                                封鎖
+                            @elseif($user_test_result[$user->id] == 'warned')
+                                警示
+                            @elseif($user_test_result[$user->id] == 'pass')
+                                pass
+                            @endif
+                        </td>
+                    @else
+                        <td>
+                            <input class="answer_user_id" type='hidden' value={{$user->id}}>
+                            <input class="answer_choose" name="question{{$user->id}}" type="radio" value="banned" />封鎖
+                            <br>
+                            <input class="answer_choose" name="question{{$user->id}}" type="radio" value="warned" />警示
+                            <br>
+                            <input class="answer_choose" name="question{{$user->id}}" type="radio" value="pass" />pass
+                        </td>
+                    @endif
+                    <td class='correct_answer' @if(!($user_test_result ?? false)) style="display:none;" @endif>
                         @if($correct_answer[$user->id][0] == 'pass')
                             PASS
                         @elseif($correct_answer[$user->id][0] == 'warned')
@@ -58,8 +70,8 @@
                 @endforeach
             </tbody>
         </table>
-        <button id="submit">送出答案</button>
-        <button id="return_select_page" style="display:none" onclick="location.href='{{route("admin/special_industries_judgment_training_select")}}'">返回測試選擇頁</button>
+        <button id="submit" @if($user_test_result ?? false) style="display:none;" @endif>送出答案</button>
+        <button id="return_select_page" @if(!($user_test_result ?? false)) style="display:none;" @endif onclick="location.href='{{route("admin/special_industries_judgment_training_select")}}'">返回測試選擇頁</button>
     </body>
     <script>
         $('#submit').click(function(e){
