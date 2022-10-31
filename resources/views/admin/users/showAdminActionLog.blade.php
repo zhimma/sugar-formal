@@ -48,6 +48,7 @@
         </form>
     </div>
     <table id="table_userLogin_log" class="table table-hover table-bordered">
+        <tr><td>操作紀錄</td></tr>
         @foreach($getLogs as $key => $log)
             <tr>
                 <td>
@@ -122,14 +123,16 @@
             </tr>
         @endforeach
         @if(count($getLogs)==0)
-            操作記錄暫無資料
+            <tr><td>操作記錄暫無資料</td></tr>
         @endif
     </table>
 
-    @if(count($test_result)==0)
-        測驗暫無資料
-    @else
-        <table class="table table-hover table-bordered">
+    <table class="table table-hover table-bordered">
+        
+        @if(count($test_result)==0)
+            <tr><td>測驗結果</td></tr>
+            <tr><td>測驗結果暫無資料</td></tr>
+        @else
             <tr>
                 <td>
                     測驗結果 <span id="test_result_button" class="btn btn-primary">+</span>
@@ -141,7 +144,7 @@
                                     {{$result->title}}( 測驗時間 : {{$result->filled_time}} ){{--( 測驗人員 : {{$result->name}} , Email : {{$result->email}} )--}}
                                 </td>
                             </tr>
-                            <tr>
+                            <tr style="display:none">
                                 <td id='test_detail_{{$result->answer_id}}'>
 
                                 </td>
@@ -150,8 +153,8 @@
                     </table>
                 </td>
             </tr>
-        </table>
-    @endif
+        @endif
+    </table>
 </body>
 
 <script>
@@ -357,6 +360,7 @@
                         '</tr>'
                     );
                 }
+                $('#test_detail_' + data['answer_id']).parent('tr').show();
             }
         });
     });
