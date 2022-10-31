@@ -59,6 +59,7 @@
             </tbody>
         </table>
         <button id="submit">送出答案</button>
+        <button id="return_select_page" style="display:none" onclick="location.href='{{route("admin/special_industries_judgment_training_select")}}'">返回測試選擇頁</button>
     </body>
     <script>
         $('#submit').click(function(e){
@@ -92,6 +93,8 @@
                 {
                     $('.correct_answer').show();
                     $('#submit').attr('disabled', true);
+                    $('#return_select_page').show();
+                    alert('已送出答案');
                 }
             });
         });
