@@ -1064,6 +1064,14 @@ Route::group(['middleware' => ['auth', 'global', 'active', 'femaleActive', 'vipC
         Route::post('global/feature_flags/edit', 'UserController@feature_flags_edit');
         Route::post('global/feature_flags/update', 'UserController@feature_flags_update');
         Route::post('global/feature_flags/delete', 'UserController@feature_flags_delete');
+
+        Route::get('special_industries_judgment_training_setup', 'AdminController@special_industries_judgment_training_setup')->name('admin/special_industries_judgment_training_setup');
+        Route::post('special_industries_judgment_training_setup_set', 'AdminController@special_industries_judgment_training_setup_set')->name('admin/special_industries_judgment_training_setup_set');
+        Route::get('special_industries_judgment_training_select', 'AdminController@special_industries_judgment_training_select')->name('admin/special_industries_judgment_training_select');
+        Route::get('special_industries_judgment_training_test', 'AdminController@special_industries_judgment_training_test')->name('admin/special_industries_judgment_training_test');
+        Route::post('special_industries_judgment_answer_send', 'AdminController@special_industries_judgment_answer_send')->name('admin/special_industries_judgment_answer_send');
+        Route::get('special_industries_judgment_result', 'AdminController@special_industries_judgment_result')->name('admin/special_industries_judgment_result');
+        Route::get('special_industries_judgment_training_hide', 'AdminController@special_industries_judgment_training_hide')->name('admin/special_industries_judgment_training_hide');
     });
     Route::group(['prefix' => 'admin', 'middleware' => 'Admin'], function () {
         //寄退信Log查詢

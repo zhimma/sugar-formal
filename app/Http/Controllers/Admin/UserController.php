@@ -83,6 +83,7 @@ use App\Models\Visited;
 use App\Services\RealAuthAdminService;
 use App\Models\UserVideoVerifyRecord;
 use App\Models\Features;
+use App\Models\SpecialIndustriesTestAnswer;
 use Illuminate\Support\Facades\Log;
 
 
@@ -1745,6 +1746,7 @@ class UserController extends \App\Http\Controllers\BaseController
             $fnm_step2_time_arr = [$fnm_step_time_arr['step_time2_1'],$fnm_step_time_arr['step_time2_2'],$fnm_step_time_arr['step_time2_3']];
             $fnm_step3_time_arr = [$fnm_step_time_arr['step_time3_1'],$fnm_step_time_arr['step_time3_2'],$fnm_step_time_arr['step_time3_3']];
         }
+        $is_test = $request->is_test ?? false;
 
         $backend_detail = BackendUserDetails::first_or_new($user->id);
 
@@ -1816,6 +1818,7 @@ class UserController extends \App\Http\Controllers\BaseController
                 ->with('fnm_step1_time_arr', $fnm_step1_time_arr ?? null)
                 ->with('fnm_step2_time_arr', $fnm_step2_time_arr ?? null)
                 ->with('fnm_step3_time_arr', $fnm_step3_time_arr ?? null)
+                ->with('is_test', $is_test)
                 ;
         }
     }
@@ -4964,6 +4967,7 @@ class UserController extends \App\Http\Controllers\BaseController
             ->groupBy('admin_action_log.operator')->get();
 
         $getLogs = [];
+        $test_result = [];
         if (!empty($request->get('date_start')) && !empty($request->get('date_end')) && count($request->get('operator'))) {
             $getLogs = AdminActionLog::selectRaw('admin_action_log.operator, users.name AS operator_name, users.email AS operator_email')
                 ->selectRaw('count(*) AS dataCount')
@@ -4997,9 +5001,26 @@ class UserController extends \App\Http\Controllers\BaseController
                 $result[$key]['operator_by_date'] = $get_operator_by_date->get()->toArray();
             }
             $getLogs = $result;
+
+            $test_result = SpecialIndustriesTestAnswer::leftJoin('users','users.id', '=', 'special_industries_test_answer.test_user')
+                                                        ->leftJoin('special_industries_test_topic','special_industries_test_topic.id', '=', 'special_industries_test_answer.test_topic_id')
+                                                        ->leftJoin('special_industries_test_setup','special_industries_test_setup.id', '=', 'special_industries_test_topic.test_setup_id')
+                                                        ->whereIn('test_user',$request->get('operator'));
+            if(!empty($request->get('date_start')))
+            {
+                $test_result = $test_result->where('special_industries_test_answer.updated_at','>=',$request->get('date_start'));
+            }
+            if(!empty($request->get('date_end')))
+            {
+                $test_result = $test_result->where('special_industries_test_answer.updated_at','<=',date("Y-m-d", strtotime("+1 day", strtotime($request->get('date_end')))));
+            }
+
+            $test_result = $test_result->select('special_industries_test_answer.*','users.*','special_industries_test_topic.*','special_industries_test_setup.*','special_industries_test_answer.updated_at as filled_time','special_industries_test_answer.id as answer_id')
+                                        ->orderByDesc('special_industries_test_answer.updated_at')
+                                        ->get();
         }
 
-        return view('admin.users.showAdminActionLog', compact('operator_list', 'getLogs'));
+        return view('admin.users.showAdminActionLog', compact('operator_list', 'getLogs', 'test_result'));
     }
 
     public function insertAdminActionLog($targetAccountID, $action)
@@ -5770,7 +5791,7 @@ class UserController extends \App\Http\Controllers\BaseController
 
     public function getIpUsers(Request $request, $ip)
     {
-
+        $is_test = $request->is_test ?? false;
         ini_set("max_execution_time", '0');
         ini_set('memory_limit', '-1');
 
@@ -5848,7 +5869,8 @@ class UserController extends \App\Http\Controllers\BaseController
             ->with('isSetAutoBan_ip', $isSetAutoBan_ip)
             ->with('male_user_list', $male_user_list)
             ->with('ip', $ip)
-            ->with('recordType', $request->type);
+            ->with('recordType', $request->type)
+            ->with('is_test', $is_test);
     }
 
     public function getUsersLog(Request $request)

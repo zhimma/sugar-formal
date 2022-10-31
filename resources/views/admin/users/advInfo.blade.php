@@ -1,6 +1,14 @@
 @include('partials.header')
 @include('partials.message')
 <style>
+    @if(Auth::user()->can('juniorAdmin') && $is_test)
+        .btn{
+            display:none;
+        }
+        .cfp_bp{
+            display:none;
+        }
+    @endif
     .hiddenRow {
         padding: 0 !important;
     }
@@ -1721,7 +1729,7 @@
                     @if($CFP_count>0)
                         @foreach(array_get($logInLog->CfpID,'CfpID_group',[]) as $gpKey =>$group)
                             @if($gpKey<5)
-                                <td class="loginItem" id="showcfpID{{substr($logInLog->loginDate,0,7)}}_group{{$gpKey}}" data-sectionName="cfpID{{substr($logInLog->loginDate,0,7)}}_group{{$gpKey}}" data-assign_user_id="{{ $user->id }}" data-yearMonth="{{substr($logInLog->loginDate,0,7)}}" data-cfpID="{{$group->cfp_id}}" data-blocked-people="{{ $logInLog->CfpID['CfpID_blocked_people'][$gpKey] }}" data-online-people="{{ $logInLog->CfpID['CfpID_online_people'][$gpKey] }}" data-count="{{ $group->dataCount }}" style="margin-left: 20px;min-width: 100px;{{ $group->CfpID_set_auto_ban ? 'background:yellow;' : '' }}">{{ $group->cfp_id }} <span style="{{ $logInLog->CfpID['CfpID_blocked_people'][$gpKey] > 0 ? 'background-color: yellow;' : '' }}">[{{ $logInLog->CfpID['CfpID_blocked_people'][$gpKey] }}/{{ $logInLog->CfpID['CfpID_online_people'][$gpKey] }}]</span> {{ '('.$group->dataCount .')' }}</td>
+                                <td class="loginItem" id="showcfpID{{substr($logInLog->loginDate,0,7)}}_group{{$gpKey}}" data-sectionName="cfpID{{substr($logInLog->loginDate,0,7)}}_group{{$gpKey}}" data-assign_user_id="{{ $user->id }}" data-yearMonth="{{substr($logInLog->loginDate,0,7)}}" data-cfpID="{{$group->cfp_id}}" data-blocked-people="{{ $logInLog->CfpID['CfpID_blocked_people'][$gpKey] }}" data-online-people="{{ $logInLog->CfpID['CfpID_online_people'][$gpKey] }}" data-count="{{ $group->dataCount }}" style="margin-left: 20px;min-width: 100px;{{ $group->CfpID_set_auto_ban ? 'background:yellow;' : '' }}">{{ $group->cfp_id }} <span class="cfp_bp" style="{{ $logInLog->CfpID['CfpID_blocked_people'][$gpKey] > 0 ? 'background-color: yellow;' : '' }}">[{{ $logInLog->CfpID['CfpID_blocked_people'][$gpKey] }}/{{ $logInLog->CfpID['CfpID_online_people'][$gpKey] }}]</span> {{ '('.$group->dataCount .')' }}</td>
                             @endif
                         @endforeach
                     @endif
@@ -1737,7 +1745,7 @@
                     @if($IP_count>0)
                         @foreach(array_get($logInLog->Ip,'Ip_group',[]) as $gpKey =>$group)
                             @if($gpKey<10)
-                                <td class="loginItem ipItem" id="showIp{{substr($logInLog->loginDate,0,7)}}_group{{$gpKey}}" data-sectionName="Ip{{substr($logInLog->loginDate,0,7)}}_group{{$gpKey}}" data-assign_user_id="{{ $user->id }}" data-yearMonth="{{substr($logInLog->loginDate,0,7)}}" data-ip="{{ $group->ip }}" data-blocked-people="{{ $logInLog->Ip['Ip_blocked_people'][$gpKey] }}" data-online-people="{{ $logInLog->Ip['Ip_online_people'][$gpKey] }}" data-count="{{ $group->dataCount }}" style="margin-left: 20px;min-width: 150px;{{ $group->IP_set_auto_ban ? 'background:yellow;' : '' }}">{{ $group->ip }} <span style="{{ $logInLog->Ip['Ip_blocked_people'][$gpKey] > 0 ? 'background-color: yellow;' : '' }}">[{{ $logInLog->Ip['Ip_blocked_people'][$gpKey] }}/{{ $logInLog->Ip['Ip_online_people'][$gpKey] }}]</span> {{ '('.$group->dataCount .')' }}</td>
+                                <td class="loginItem ipItem" id="showIp{{substr($logInLog->loginDate,0,7)}}_group{{$gpKey}}" data-sectionName="Ip{{substr($logInLog->loginDate,0,7)}}_group{{$gpKey}}" data-assign_user_id="{{ $user->id }}" data-yearMonth="{{substr($logInLog->loginDate,0,7)}}" data-ip="{{ $group->ip }}" data-blocked-people="{{ $logInLog->Ip['Ip_blocked_people'][$gpKey] }}" data-online-people="{{ $logInLog->Ip['Ip_online_people'][$gpKey] }}" data-count="{{ $group->dataCount }}" style="margin-left: 20px;min-width: 150px;{{ $group->IP_set_auto_ban ? 'background:yellow;' : '' }}">{{ $group->ip }} <span class="cfp_bp" style="{{ $logInLog->Ip['Ip_blocked_people'][$gpKey] > 0 ? 'background-color: yellow;' : '' }}">[{{ $logInLog->Ip['Ip_blocked_people'][$gpKey] }}/{{ $logInLog->Ip['Ip_online_people'][$gpKey] }}]</span> {{ '('.$group->dataCount .')' }}</td>
                             @endif
                         @endforeach
                     @endif
@@ -2669,16 +2677,29 @@ jQuery(document).ready(function(){
         var yearMonth =$(this).attr('data-yearMonth');
         var ip =$(this).attr('data-ip');
         var cfpID =$(this).attr('data-cfpID');
-        if(ip!=='不指定'){
-            if(ip){
-                window.open('/admin/users/ip/'+ip, '_blank');
+        @if($is_test)
+            if(ip!=='不指定'){
+                if(ip){
+                    window.open('/admin/users/ip/'+ip+'?is_test=1', '_blank');
+                }else{
+                    window.open('/admin/users/ip/不指定?cfp_id='+ cfpID+'&is_test=1', '_blank');
+                }
             }else{
-                window.open('/admin/users/ip/不指定?cfp_id='+ cfpID, '_blank');
+                $('.showLog').hide();
+                $('#'+sectionName).show();
             }
-        }else{
-            $('.showLog').hide();
-            $('#'+sectionName).show();
-        }
+        @else
+            if(ip!=='不指定'){
+                if(ip){
+                    window.open('/admin/users/ip/'+ip, '_blank');
+                }else{
+                    window.open('/admin/users/ip/不指定?cfp_id='+ cfpID, '_blank');
+                }
+            }else{
+                $('.showLog').hide();
+                $('#'+sectionName).show();
+            }
+        @endif
     });
     $('.loginItem_IP').click(function(){
         var sectionName =$(this).attr('data-sectionName');
@@ -3248,7 +3269,6 @@ function show_re_content(id){
         }
     }
     //預算及車馬費警示警示
-
 </script>
 <!--照片查看end-->
 </html>
