@@ -2123,7 +2123,7 @@
                 var parent_id = document.getElementById('message_parent').value;
                 var parent_client_id = document.getElementById('message_parent_client').value;
                 formData.append("msg", msg_text);
-                formData.append("chat_with_admin", {{ $chatting_with_admin ?? 0 }});
+                formData.append("chat_with_admin", '{{ $chatting_with_admin ?? 0 }}');
                 formData.append("from", "{{ auth()->user()->id }}");
                 formData.append("to", "{{ $to->id }}");
                 formData.append('parent', parent_id);
