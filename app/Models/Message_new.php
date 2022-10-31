@@ -943,15 +943,20 @@ class Message_new extends Model
             ->whereNull('b5.blocked_id')
             ->whereNull('b6.blocked_id')
             ->whereNull('b7.member_id')
-            ->where(function ($query) use ($uid,$admin_id) {
-                $query->where([['message.to_id', $uid], ['message.from_id', '!=', $uid],['message.from_id','!=',$admin_id]])
-                    ->orWhere([['message.from_id', $uid], ['message.to_id', '!=',$uid],['message.to_id','!=',$admin_id]]);
+            ->where(function ($query) use ($uid) {
+                $query->where([['message.to_id', $uid], ['message.from_id', '!=', $uid]])
+                    ->orWhere([['message.from_id', $uid], ['message.to_id', '!=',$uid]]);
             });
 
-        if($user->id != 1049){
-            $query->where(function($query){
-                $query->where(DB::raw('(u1.engroup + u2.engroup)'), '<>', '2');
-                $query->orWhere(DB::raw('(u1.engroup + u2.engroup)'), '<>', '4');
+        if ($user->id != 1049) {
+            $query->where(function ($query) use ($admin_id) {
+                $query->where(function ($query) use ($admin_id) {
+                    $query->where(DB::raw('(u1.engroup + u2.engroup)'), '<>', '2')
+                        ->where(function ($query) use ($admin_id) {
+                            $query->where('message.from_id', '!=', $admin_id)
+                                ->orWhere('message.to_id', '!=', $admin_id);
+                        });
+                })->orWhere(DB::raw('(u1.engroup + u2.engroup)'), '<>', '4');
             });
         }
 
