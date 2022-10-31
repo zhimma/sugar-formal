@@ -11,6 +11,7 @@
             <th width="45%">內容</th>
             <th>上傳照片</th>
             <th width="5%">狀態</th>
+            <th width="12%">發訊時間</th>
         </tr>
         @forelse ($messages as $message)
             <tr>
@@ -168,6 +169,7 @@
                     @endif
                 </td>
                 <td nowrap>{{ $message->unsend?'已收回':'' }}</td>
+                <td nowrap>{{ $message->created_at }}</td>
             </tr>
         @empty
             沒有訊息

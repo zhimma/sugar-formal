@@ -794,6 +794,7 @@ class Message extends Model
                     ->orderBy('created_at', 'desc')->union($first);
          */
 
+        $query = $query->where('created_at','>=',self::$date);
         return $query;
     }
 
