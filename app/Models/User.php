@@ -1532,8 +1532,7 @@ class User extends Authenticatable implements JWTSubject
         /*此會員封鎖多少其他會員*/
 		if(!$wantIndexArr || in_array('blocked_other_count',$wantIndexArr)) {
 			$bannedUsers = \App\Services\UserService::getBannedId();
-			$advInfo['blocked_other_count']= \App\Models\Blocked::with(['blocked_user'])
-				->join('users', 'users.id', '=', 'blocked.blocked_id')
+			$advInfo['blocked_other_count']= \App\Models\Blocked::join('users', 'users.id', '=', 'blocked.blocked_id')
 				->where('blocked.member_id', $user->id)
 				->whereNotIn('blocked.blocked_id',$bannedUsers)
 				->whereNotNull('users.id')
@@ -1541,8 +1540,7 @@ class User extends Authenticatable implements JWTSubject
 		}
         /*此會員被多少會員封鎖*/
 		if(!$wantIndexArr || in_array('be_blocked_other_count',$wantIndexArr)) {
-			$advInfo['be_blocked_other_count'] = \App\Models\Blocked::with(['blocked_user'])
-				->join('users', 'users.id', '=', 'blocked.member_id')
+			$advInfo['be_blocked_other_count'] = \App\Models\Blocked::join('users', 'users.id', '=', 'blocked.member_id')
 				->where('blocked.blocked_id', $user->id)
 				->whereNotIn('blocked.member_id',$bannedUsers)
 				->whereNotNull('users.id')
