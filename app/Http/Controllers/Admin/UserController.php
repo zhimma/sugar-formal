@@ -6648,19 +6648,46 @@ class UserController extends \App\Http\Controllers\BaseController
 
     public function searchAnonymousChatPage(Request $request)
     {
-
-        $msg = isset($request->msg) ? $request->msg : '';
-        $date_start = $request->date_start ? $request->date_start : '0000-00-00';
-        $date_end = $request->date_end ? $request->date_end : date('Y-m-d');
-        $results = AnonymousChat::select('anonymous_chat.*', 'users.name', 'users.engroup')
-            ->leftJoin('users', 'users.id', 'anonymous_chat.user_id')
-            ->where('anonymous_chat.content', 'like', '%' . $msg . '%')
-            ->whereBetween('anonymous_chat.created_at', array($date_start . ' 00:00', $date_end . ' 23:59'))
-            ->orderBy('anonymous_chat.created_at', 'desc')
-            ->withTrashed()
-            ->paginate(100);
-        //dd($results);
-        return view('admin.users.searchAnonymousChat')->with('results', $results);
+        if($request->searchAnonymousChatPage) {
+            $msg = isset($request->msg) ? $request->msg : '';
+            $date_start = $request->date_start ? $request->date_start : '0000-00-00';
+            $date_end = $request->date_end ? $request->date_end : date('Y-m-d');
+            $results = AnonymousChat::select('anonymous_chat.*', 'users.name', 'users.id as usersID', 'users.engroup')
+                ->leftJoin('users', 'users.id', 'anonymous_chat.user_id')
+                ->where('anonymous_chat.content', 'like', '%' . $msg . '%')
+                ->whereBetween('anonymous_chat.created_at', array($date_start . ' 00:00', $date_end . ' 23:59'))
+                ->orderBy('anonymous_chat.created_at', 'desc')
+                ->withTrashed()
+                ->paginate(100);
+            return view('admin.users.searchAnonymousChat')->with('results', $results);
+        }elseif($request->searchAnonymousChatReport){
+            $msg = isset($request->msg) ? $request->msg : '';
+            $date_start = $request->date_start ? $request->date_start : '0000-00-00';
+            $date_end = $request->date_end ? $request->date_end : date('Y-m-d');
+            $resultsReport = AnonymousChatReport::select(
+                'anonymous_chat.*',
+                'users.name',
+                'users.id as usersID',
+                'users.engroup',
+                'anonymous_chat_report.content as report_content',
+                'anonymous_chat_report.user_id as report_user',
+                'anonymous_chat_report.created_at as report_time',
+                'report_user.name as report_name',
+                'anonymous_chat_report.deleted_at as report_deleted_at',
+                'anonymous_chat_report.id as report_id',
+                'report_user.engroup as report_engroup'
+            )
+                ->selectRaw('(select count(DISTINCT aa.user_id) from anonymous_chat_report as aa where (aa.reported_user_id=users.id) ) as reported_num')
+                ->leftJoin('anonymous_chat', 'anonymous_chat.id', 'anonymous_chat_report.anonymous_chat_id')
+                ->leftJoin('users', 'users.id', 'anonymous_chat_report.reported_user_id')
+                ->leftJoin('users as report_user', 'report_user.id', 'anonymous_chat_report.user_id')
+                ->where('anonymous_chat.content', 'like', '%' . $msg . '%')
+                ->whereBetween('anonymous_chat_report.created_at', array($date_start . ' 00:00', $date_end . ' 23:59'))
+                ->orderBy('anonymous_chat_report.created_at', 'desc')
+                ->orderBy('anonymous_chat.user_id', 'desc')
+                ->withTrashed()->paginate(100);
+            return view('admin.users.searchAnonymousChat')->with('resultsReport', $resultsReport);
+        }
     }
 
     public function searchAnonymousChatReport(Request $request)
