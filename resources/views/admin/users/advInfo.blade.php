@@ -2187,7 +2187,7 @@
                 @php
                     $exchange_period_name = DB::table('exchange_period_name')->where('id',$user->exchange_period)->first();
                 @endphp
-                {{$exchange_period_name->name}}
+                {{$exchange_period_name?->name}}
                 {!!$raa_service->getActualUncheckedExchangePeriodLayout()!!}
             </td>
 
