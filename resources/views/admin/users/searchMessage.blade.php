@@ -74,7 +74,7 @@
         <input type="hidden" name="msg" value="@if(isset($msg)) {{ $msg }}@endif" class="form-control" id="msg2">
         <input type='hidden' class="datepicker_1" name="date_start" data-date-format='yyyy-mm-dd' value="@if(isset($date_start)){{ $date_start }}@endif" class="form-control">
         <input type='hidden' class="datepicker_2" name="date_end" data-date-format='yyyy-mm-dd' value="@if(isset($date_end)){{ $date_end }}@endif" class="form-control">
-        <h3 style="text-align: left;">搜尋結果</h3>
+        <h3 style="text-align: left; display:inline-block;">搜尋結果</h3>
         <a id='hide_switch' class='text-white btn btn-primary' value='false'>隱藏已處理案件</a>
         <table class="table-hover table table-bordered">
             <tr>
