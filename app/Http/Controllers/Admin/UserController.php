@@ -1099,13 +1099,13 @@ class UserController extends \App\Http\Controllers\BaseController
 
         $block = $request->block;
 
-        $user = User::where('id', 'like', $id)
+        $user = User::where('id', '=', $id)
             ->get()->first();
         if (!isset($user)) {
             if ($block == 'pic')  return;
             return '<h1>會員資料已刪除。</h1>';
         }
-        $userMeta = UserMeta::where('user_id', 'like', $id)->get()->first();
+        $userMeta = UserMeta::where('user_id', '=', $id)->get()->first();
 
         if ($block == 'pic') {
             return view('admin.users.advInfoPicBlock')
