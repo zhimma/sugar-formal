@@ -75,6 +75,7 @@
         <input type='hidden' class="datepicker_1" name="date_start" data-date-format='yyyy-mm-dd' value="@if(isset($date_start)){{ $date_start }}@endif" class="form-control">
         <input type='hidden' class="datepicker_2" name="date_end" data-date-format='yyyy-mm-dd' value="@if(isset($date_end)){{ $date_end }}@endif" class="form-control">
         <h3 style="text-align: left;">搜尋結果</h3>
+        <a id='hide_switch' class='text-white btn btn-primary' value='false'>隱藏已處理案件</a>
         <table class="table-hover table table-bordered">
             <tr>
                 <td>發送者</td>
@@ -283,7 +284,7 @@
                     New --}}
                     <a href="javascript:void(0);" class='btn btn-dark write_btn'>撰寫</a>
                     @if ($result->handle==1)
-                    <a href="javascript:void(0);" class='btn btn-success handle_status_btn'>已處理</a>
+                    <a href="javascript:void(0);" class='btn btn-success handle_status_btn has_processed'>已處理</a>
                     @else
                     <a href="javascript:void(0);" class='btn btn-dark handle_status_btn'>未處理</a>
                     @endif
@@ -961,7 +962,7 @@
 
                         handleStatusBtn.removeClass('btn-dark');
 
-                        handleStatusBtn.addClass('btn-success');
+                        handleStatusBtn.addClass('btn-success has_processed');
                     },
                     error: error => {
                         console.log(error.responseJSON.message);
@@ -991,11 +992,11 @@
                     _self.parents('tr').data('handlestatus', status == 1 ? 0 : 1);
                     _self.text(handleStatus);
                     if (status == 1) {
-                        _self.removeClass('btn-success');
+                        _self.removeClass('btn-success has_processed');
                         _self.addClass('btn-dark');
                     } else {
                         _self.removeClass('btn-dark');
-                        _self.addClass('btn-success');
+                        _self.addClass('btn-success has_processed');
                     }
                 },
                 error: error => {
@@ -1184,11 +1185,11 @@
                     _self.text(handleStatus);
 
                     if (status == 1) {
-                        _self.removeClass('btn-success');
+                        _self.removeClass('btn-success has_processed');
                         _self.addClass('btn-dark');
                     } else {
                         _self.removeClass('btn-dark');
-                        _self.addClass('btn-success');
+                        _self.addClass('btn-success has_processed');
                     }
                 },
                 error: error => {
@@ -1328,5 +1329,19 @@
 
     });
     /*调起大图 E*/
+    $('#hide_switch').click(function() {
+        if($(this).attr("value") == "false")
+        {
+            $(this).attr("value","true");
+            $(this).text("顯示已處理案件");
+            $('.has_processed').parent('td').parent('tr').hide();
+        }
+        else
+        {
+            $(this).attr("value","false");
+            $(this).text("隱藏已處理案件");
+            $('.has_processed').parent('td').parent('tr').show();
+        }
+    });
 </script>
 @stop
