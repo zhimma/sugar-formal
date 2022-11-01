@@ -1401,7 +1401,7 @@ header("Expires: Fri, 01 Jan 1990 00:00:00 GMT");
                         if(rowVisitorIsBlurAvatar==1) csrVar = 'blur_img';
                         if(rowVisitorIsBlurAvatar==1){
                             var blur_img_class = 'nt_photo_blur_img';
-                            if(umeta.pic_blur!='')
+                            if(umeta.pic_blur!='' && umeta.pic_blur!=null && umeta.pic_blur!=undefined)
                                 umetaPic=umeta.pic_blur;
 
                         } else{
