@@ -4935,15 +4935,9 @@ class UserController extends \App\Http\Controllers\BaseController
                 ->orderBy('admin_action_log.created_at', 'desc')
                 ->groupBy('admin_action_log.operator');
 
-            if (!empty($request->get('operator'))) {
-                $getLogs->whereIn('users.id', $request->get('operator'));
-            }
-            if (!empty($request->get('date_start'))) {
-                $getLogs->where('admin_action_log.created_at', '>=', $request->get('date_start'));
-            }
-            if (!empty($request->get('date_end'))) {
-                $getLogs->where('admin_action_log.created_at', '<=', date("Y-m-d", strtotime("+1 day", strtotime($request->get('date_end')))));
-            }
+            $getLogs->whereIn('users.id', $request->get('operator'));
+            $getLogs->where('admin_action_log.created_at', '>=', $request->get('date_start'));
+            $getLogs->where('admin_action_log.created_at', '<=', date("Y-m-d", strtotime("+1 day", strtotime($request->get('date_end')))));
             $getLogs = $getLogs->get();
 
             $result = [];
@@ -4952,12 +4946,8 @@ class UserController extends \App\Http\Controllers\BaseController
                 $get_operator_by_date = AdminActionLog::selectRaw('LEFT(admin_action_log.created_at,10) as log_by_date, (count(*)) AS count_by_date')->orderBy('admin_action_log.created_at', 'desc')
                     ->where('admin_action_log.operator', $log->operator)
                     ->groupBy('log_by_date');
-                if (!empty($request->get('date_start'))) {
-                    $get_operator_by_date->where('admin_action_log.created_at', '>=', $request->get('date_start'));
-                }
-                if (!empty($request->get('date_end'))) {
-                    $get_operator_by_date->where('admin_action_log.created_at', '<=', date("Y-m-d", strtotime("+1 day", strtotime($request->get('date_end')))));
-                }
+                $get_operator_by_date->where('admin_action_log.created_at', '>=', $request->get('date_start'));
+                $get_operator_by_date->where('admin_action_log.created_at', '<=', date("Y-m-d", strtotime("+1 day", strtotime($request->get('date_end')))));
                 $result[$key]['operator_by_date'] = $get_operator_by_date->get()->toArray();
             }
             $getLogs = $result;
@@ -4966,14 +4956,8 @@ class UserController extends \App\Http\Controllers\BaseController
                                                         ->leftJoin('special_industries_test_topic','special_industries_test_topic.id', '=', 'special_industries_test_answer.test_topic_id')
                                                         ->leftJoin('special_industries_test_setup','special_industries_test_setup.id', '=', 'special_industries_test_topic.test_setup_id')
                                                         ->whereIn('test_user',$request->get('operator'));
-            if(!empty($request->get('date_start')))
-            {
-                $test_result = $test_result->where('special_industries_test_answer.updated_at','>=',$request->get('date_start'));
-            }
-            if(!empty($request->get('date_end')))
-            {
-                $test_result = $test_result->where('special_industries_test_answer.updated_at','<=',date("Y-m-d", strtotime("+1 day", strtotime($request->get('date_end')))));
-            }
+            $test_result = $test_result->where('special_industries_test_answer.updated_at','>=',$request->get('date_start'));
+            $test_result = $test_result->where('special_industries_test_answer.updated_at','<=',date("Y-m-d", strtotime("+1 day", strtotime($request->get('date_end')))));
 
             $test_result = $test_result->select('special_industries_test_answer.*','users.*','special_industries_test_topic.*','special_industries_test_setup.*','special_industries_test_answer.updated_at as filled_time','special_industries_test_answer.id as answer_id')
                                         ->orderByDesc('special_industries_test_answer.updated_at')
