@@ -4923,14 +4923,16 @@ class UserController extends \App\Http\Controllers\BaseController
 
     public function adminActionLog(Request $request)
     {
-        $operator_list = RoleUser::leftJoin('users', 'users.id', '=', 'role_user.user_id')
-            ->get();
+        $operator_list = RoleUser::get();
 
         $getLogs = [];
         $test_result = [];
         if (!empty($request->get('date_start')) && !empty($request->get('date_end')) && count($request->get('operator'))) {
+            $select_operator = RoleUser::leftJoin('users', 'users.id', '=', 'role_user.user_id')
+                ->whereIn('user_id', $request->get('operator'))
+                ->get();
             $result = [];
-            foreach ($operator_list as $key => $operator) {
+            foreach ($select_operator as $key => $operator) {
                 $result[$key] = $operator->toArray();
                 $get_operator_by_date = AdminActionLog::selectRaw('LEFT(admin_action_log.created_at,10) as log_by_date, (count(*)) AS count_by_date')->orderBy('admin_action_log.created_at', 'desc')
                     ->where('admin_action_log.operator', $operator->user_id)
