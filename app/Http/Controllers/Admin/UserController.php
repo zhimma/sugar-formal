@@ -84,6 +84,7 @@ use App\Models\UserVideoVerifyRecord;
 use App\Models\Features;
 use App\Models\SpecialIndustriesTestAnswer;
 use Illuminate\Support\Facades\Log;
+use App\Models\RoleUser;
 
 
 class UserController extends \App\Http\Controllers\BaseController
@@ -4922,9 +4923,8 @@ class UserController extends \App\Http\Controllers\BaseController
 
     public function adminActionLog(Request $request)
     {
-        $operator_list = AdminActionLog::selectRaw('admin_action_log.operator, users.name AS operator_name, users.email AS operator_email')
-            ->leftJoin('users', 'users.id', '=', 'admin_action_log.operator')
-            ->groupBy('admin_action_log.operator')->get();
+        $operator_list = RoleUser::leftJoin('users', 'users.id', '=', 'role_user.user_id')
+            ->get();
 
         $getLogs = [];
         $test_result = [];

@@ -35,7 +35,7 @@
                     <th>Admin操作人員</th>
                     <td>
                         @foreach($operator_list as $operator)
-                            <input type="checkbox" name="operator[]" value="{{$operator->operator}}" @if(in_array($operator->operator, Request()->get('operator',[]))) checked @endif><span>{{$operator->operator_email}}</span><br>
+                            <input type="checkbox" name="operator[]" value="{{$operator->user_id}}" @if(in_array($operator->user_id, Request()->get('operator',[]))) checked @endif><span>{{$operator->email}}</span><br>
                         @endforeach
                     </td>
                 </tr>
