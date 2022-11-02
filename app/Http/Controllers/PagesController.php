@@ -3222,7 +3222,7 @@ class PagesController extends BaseController
                 'singlePageCount'=> $searchApi['singlePageCount'],
                 'allPageDataCount'=>$searchApi['allPageDataCount'],
                 'dataList'=>$dataList,
-                'user'=>$user,
+                'user_engroup'=>$user->engroup,
                 'userIsVip'=>$userIsVip,
                 'notes'=>MessageUserNote::where('user_id', $user->id)->get()->pluck('note','message_user_id'),
             );
