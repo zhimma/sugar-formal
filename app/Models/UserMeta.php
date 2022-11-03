@@ -798,9 +798,9 @@ class UserMeta extends Model
             $user_city = explode(',', $meta->city);
             $user_area = explode(',', $meta->area);
             /* 判斷搜索者的 city 和 area 是否被被搜索者封鎖 */
-//            foreach ($user_city as $key => $city) {
-//                 $query->whereRaw('(blockarea not LIKE "%' . $city .$user_area[$key]  .'%"  AND blockarea not LIKE "%'.$city.'全區%")');
-//            }
+             //foreach ($user_city as $key => $city) {
+                 //$query->whereRaw('(blockarea not LIKE "%' . $city .$user_area[$key]  .'%"  AND blockarea not LIKE "%'.$city.'全區%")');
+            //}
 
             foreach ($user_city as $key => $city){
                 $query->where(
@@ -989,19 +989,20 @@ class UserMeta extends Model
         $NormalDataQuery = $DataQuery->clone()->where('users.is_vvip',0);
         $VvipDataQueryCount = $DataQuery->clone()->where('users.is_vvip',1)->count();
 
+        //makeHidden隱藏欄位避免資料外洩
         if($start < $VvipDataQueryCount && ($start + $count) > $VvipDataQueryCount)
         {
-            $VvipPageData = $VvipDataQuery->skip($start)->take($VvipDataQueryCount - $start)->get();
-            $NormalPageData = $NormalDataQuery->skip(0)->take($count - ($VvipDataQueryCount - $start))->get();
+            $VvipPageData = $VvipDataQuery->skip($start)->take($VvipDataQueryCount - $start)->get()->makeHidden(['email','fa_relation','meta']);
+            $NormalPageData = $NormalDataQuery->skip(0)->take($count - ($VvipDataQueryCount - $start))->get()->makeHidden(['email','fa_relation','meta']);
             $singlePageData = $VvipPageData->merge($NormalPageData);
         }
         else if($start < $VvipDataQueryCount)
         {
-            $singlePageData = $VvipDataQuery->skip($start)->take($count)->get();
+            $singlePageData = $VvipDataQuery->skip($start)->take($count)->get()->makeHidden(['email','fa_relation','meta']);
         }
         else
         {
-            $singlePageData = $NormalDataQuery->skip($start - $VvipDataQueryCount)->take($count)->get();
+            $singlePageData = $NormalDataQuery->skip($start - $VvipDataQueryCount)->take($count)->get()->makeHidden(['email','fa_relation','meta']);
         }
 
 
