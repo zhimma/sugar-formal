@@ -716,10 +716,14 @@ class ImageController extends BaseController
             //更新生活照模糊照片路徑
             $lifePhotoList=MemberPic::where('member_id', $userId)->get();
             foreach ($lifePhotoList as $lifePhoto){
-                if($path){
+                if($path ?? false){
                     $blurPic=$this->createBlurPhoto($path);
                     $lifePhoto->pic_blur=$blurPic;
                     $lifePhoto->save();
+                }
+                else {
+                    logger('ImageController no path.');
+                    \Sentry\captureMessage("ImageController no path.");
                 }
             }
         }
