@@ -3871,7 +3871,7 @@ class PagesController extends BaseController
 
 
             return view('new.dashboard.female_newer_manual')
-                ->with('show_sop_type', $version)
+                ->with('show_sop_type', $version ?? null)
                 ->with('user', $user);
         }
     }
