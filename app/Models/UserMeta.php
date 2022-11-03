@@ -989,22 +989,24 @@ class UserMeta extends Model
         $NormalDataQuery = $DataQuery->clone()->where('users.is_vvip',0);
         $VvipDataQueryCount = $DataQuery->clone()->where('users.is_vvip',1)->count();
 
-        //makeHidden隱藏欄位避免資料外洩
         if($start < $VvipDataQueryCount && ($start + $count) > $VvipDataQueryCount)
         {
-            $VvipPageData = $VvipDataQuery->skip($start)->take($VvipDataQueryCount - $start)->get()->makeHidden(['email','fa_relation','meta']);
-            $NormalPageData = $NormalDataQuery->skip(0)->take($count - ($VvipDataQueryCount - $start))->get()->makeHidden(['email','fa_relation','meta']);
+            $VvipPageData = $VvipDataQuery->skip($start)->take($VvipDataQueryCount - $start)->get();
+            $NormalPageData = $NormalDataQuery->skip(0)->take($count - ($VvipDataQueryCount - $start))->get();
             $singlePageData = $VvipPageData->merge($NormalPageData);
         }
         else if($start < $VvipDataQueryCount)
         {
-            $singlePageData = $VvipDataQuery->skip($start)->take($count)->get()->makeHidden(['email','fa_relation','meta']);
+            $singlePageData = $VvipDataQuery->skip($start)->take($count)->get();
         }
         else
         {
-            $singlePageData = $NormalDataQuery->skip($start - $VvipDataQueryCount)->take($count)->get()->makeHidden(['email','fa_relation','meta']);
+            $singlePageData = $NormalDataQuery->skip($start - $VvipDataQueryCount)->take($count)->get();
         }
 
+        //makeHidden隱藏欄位避免資料外洩
+        $singlePageData = $singlePageData->makeHidden(['email','fa_relation','meta']);
+        
 
 
 

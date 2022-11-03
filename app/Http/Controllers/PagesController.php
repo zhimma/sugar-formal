@@ -3167,6 +3167,7 @@ class PagesController extends BaseController
             $dataList_normal = [];
             $rap_service = $this->rap_service;
             foreach ($searchApi['singlePageData'] as $key=>$visitor){
+                $visitor->user_meta = $visitor->user_meta->makeHidden(['phone']);
                 if($visitor->isVVIP())
                 {
                     $temp_array = [];
