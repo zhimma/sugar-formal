@@ -3294,27 +3294,35 @@ function show_re_content(id){
     //預算及車馬費警示警示
 
     $('.message_toggle').on('click', function(){
+        console.log($(this).text());
         if($(this).text() == '+')
         {
             $(this).text('-');
-            room_id = $(this).attr("value");
-            $.ajax({
-                type: 'GET',
-                url: '{{route('users/getMessageFromRoomId')}}',
-                data: {
-                    room_id: room_id,
-                },
-                success: function(data){
-                    let data_array = JSON.parse(data);
-                    console.log(data);
-                    console.log(data_array['room_id']);
-                    console.log('message_room_' + data_array['room_id']);
-            }});
+            console.log('+++');
         }
         else if($(this).text() == '-')
         {
             $(this).text('+');
-        }   
+            console.log('---');
+        }
+        else
+        {
+            console.log('nnn');
+        }
+        room_id = $(this).attr("value");
+        $.ajax({
+            type: 'GET',
+            url: '{{route('users/getMessageFromRoomId')}}',
+            data: {
+                room_id: room_id,
+            },
+            success: function(data){
+                let data_array = JSON.parse(data);
+                console.log(data);
+                console.log(data.room_id);
+                console.log(data_array['room_id']);
+                console.log('message_room_' + data_array['room_id']);
+        }}); 
     });
 </script>
 <!--照片查看end-->
