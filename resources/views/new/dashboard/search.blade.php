@@ -5,6 +5,77 @@ header("Last-Modified: " . gmdate("D, d M Y H:i:s") . " GMT");
 header("Expires: Fri, 01 Jan 1990 00:00:00 GMT");
 ?>
 @extends('new.layouts.website')
+@section('style')
+<style>
+    .ss_xixn_input {
+        width: 200px;
+        border: none;
+        background: transparent;
+        height: 30px;
+        color: #000;
+        padding-left: 10px;
+        outline: none;
+    }
+    .ss_button_a {
+        background: #fabbcc;
+        border-radius: 3px;
+        height: 30px;
+        color: #fff;
+        float: right;
+        width: 40px;
+        text-align: center;
+        line-height: 30px;
+        cursor: pointer;
+    }
+    .ss_button_a:hover {
+        background: #ffa9bc;
+        color: #fff;
+    }
+    .ss_xixn {
+        width: 240px;
+        margin: 0 auto;
+        background: #fff;
+        border-radius: 5px;
+        float: left;
+        margin-left: 10px;
+        z-index: 8;
+        position: relative;
+    }
+    .n_ntab {
+        position: absolute;
+        bottom: 75px;
+        left: 10px;
+    }
+    .nnn_one {
+        position: relative;
+        float: left;
+        width: 45%;
+        margin-left: 2%;
+        margin-right: 2%;
+    }
+    .n_sepeop li {
+        width: 100%;
+        float: unset;
+    }
+    @media (max-width: 766px) {
+        .nnn_one {
+            width: 100%;
+            margin-left: 0%;
+            margin-right: 0%;
+        }
+        .n_ntab {
+            left:0px;
+        }
+    }
+
+    @media (max-width: 455px) {
+        
+    }
+    .nt_img {
+        left: 20px;
+    }
+</style>
+@endsection
 
 @section('app-content')
 @php $user_engroup = $user->engroup; @endphp
@@ -214,7 +285,7 @@ header("Expires: Fri, 01 Jan 1990 00:00:00 GMT");
                                         <dt>
                                             @if($user->engroup == 1)
                                             <div class="n_se left">
-                                                <span>預算</span>
+                                                {{--<span>預算</span>
                                                 <select name="budget" id="budget" class="select_xx01">
                                                     <option value="">請選擇</option>
                                                     <option value="基礎" @if( !empty( $_POST["budget"] ) && $_POST["budget"] == "基礎" ) selected @elseif(!empty( $_GET["budget"] ) && $_GET["budget"] == "基礎") selected @elseif(!empty( session()->get('search_page_key.budget') ) && session()->get('search_page_key.budget') == "基礎") selected @endif>基礎</option>
@@ -222,6 +293,27 @@ header("Expires: Fri, 01 Jan 1990 00:00:00 GMT");
                                                     <option value="高級" @if( !empty( $_POST["budget"] ) && $_POST["budget"] == "高級" ) selected @elseif(!empty( $_GET["budget"] ) && $_GET["budget"] == "高級") selected @elseif(!empty( session()->get('search_page_key.budget') ) && session()->get('search_page_key.budget') == "高級") selected @endif>高級</option>
                                                     <option value="最高" @if( !empty( $_POST["budget"] ) && $_POST["budget"] == "最高" ) selected @elseif(!empty( $_GET["budget"] ) && $_GET["budget"] == "最高") selected @elseif(!empty( session()->get('search_page_key.budget') ) && session()->get('search_page_key.budget') == "最高") selected @endif>最高</option>
                                                     <option value="可商議" @if( !empty( $_POST["budget"] ) && $_POST["budget"] == "可商議" ) selected @elseif(!empty( $_GET["budget"] ) && $_GET["budget"] == "可商議") selected @elseif(!empty( session()->get('search_page_key.budget') ) && session()->get('search_page_key.budget') == "可商議") selected @endif>可商議</option>
+                                                </select>--}}
+                                                <span>抽菸</span>
+                                                <select name="smoking" id="smoking" class="select_xx01">
+                                                    <option value="">請選擇</option>
+                                                    <option value="不抽" @if( !empty( $_POST["smoking"] ) && $_POST["smoking"] == "不抽" ) selected @elseif(!empty( $_GET["smoking"] ) && $_GET["smoking"] == "不抽") selected @elseif(!empty( session()->get('search_page_key.smoking') ) && session()->get('search_page_key.smoking') == "不抽") selected @endif>不抽</option>
+                                                    <option value="偶爾抽" @if( !empty( $_POST["smoking"] ) && $_POST["smoking"] == "偶爾抽" ) selected @elseif(!empty( $_GET["smoking"] ) && $_GET["smoking"] == "偶爾抽") selected @elseif(!empty( session()->get('search_page_key.smoking') ) && session()->get('search_page_key.smoking') == "偶爾抽") selected @endif>偶爾抽</option>
+                                                    <option value="常抽" @if( !empty( $_POST["smoking"] ) && $_POST["smoking"] == "常抽" ) selected @elseif(!empty( $_GET["smoking"] ) && $_GET["smoking"] == "常抽") selected @elseif(!empty( session()->get('search_page_key.smoking') ) && session()->get('search_page_key.smoking') == "常抽") selected @endif>常抽</option>
+                                                </select>
+                                            </div>
+                                            <div class="n_se right">
+                                                <span>婚姻</span>
+                                                <select name="marriage" id="marriage" class="select_xx01">
+                                                    <option value="">請選擇</option>
+                                                    <option value="已婚" @if( !empty( $_POST["marriage"] ) && $_POST["marriage"] == "已婚" ) selected @elseif(!empty( $_GET["marriage"] ) && $_GET["marriage"] == "已婚") selected @elseif(!empty( session()->get('search_page_key.marriage') ) && session()->get('search_page_key.marriage') == "已婚") selected @endif>已婚</option>
+                                                    <option value="分居" @if( !empty( $_POST["marriage"] ) && $_POST["marriage"] == "分居" ) selected @elseif(!empty( $_GET["marriage"] ) && $_GET["marriage"] == "分居") selected @elseif(!empty( session()->get('search_page_key.marriage') ) && session()->get('search_page_key.marriage') == "分居") selected @endif>分居</option>
+                                                    <option value="單身" @if( !empty( $_POST["marriage"] ) && $_POST["marriage"] == "單身" ) selected @elseif(!empty( $_GET["marriage"] ) && $_GET["marriage"] == "單身") selected @elseif(!empty( session()->get('search_page_key.marriage') ) && session()->get('search_page_key.marriage') == "單身") selected @endif>單身</option>
+                                                    @if( $user_engroup == 2)
+                                                        <option value="有女友" @if( !empty( $_POST["marriage"] ) && $_POST["marriage"] == "有女友" ) selected @elseif(!empty( $_GET["marriage"] ) && $_GET["marriage"] == "有女友") selected @elseif(!empty( session()->get('search_page_key.marriage') ) && session()->get('search_page_key.marriage') == "有女友") selected @endif>有女友</option>
+                                                    @else
+                                                        <option value="有男友" @if( !empty( $_POST["marriage"] ) && $_POST["marriage"] == "有男友" ) selected @elseif(!empty( $_GET["marriage"] ) && $_GET["marriage"] == "有男友") selected @elseif(!empty( session()->get('search_page_key.marriage') ) && session()->get('search_page_key.marriage') == "有男友") selected @endif>有男友</option>
+                                                    @endif
                                                 </select>
                                             </div>
                                             @else
@@ -247,7 +339,8 @@ header("Expires: Fri, 01 Jan 1990 00:00:00 GMT");
                                                         {{--<option value="75-100" @if( !empty( $_POST["prRange"] ) && $_POST["prRange"] == "75-100" ) selected @elseif(!empty( $_GET["prRange"] ) && $_GET["prRange"] == "75-100") selected @endif>75~100</option>--}}
                                                     {{--</select>--}}
                                                 {{--</div>--}}
-                                            {{--@else--}}
+                                            {{--@endif--}}
+                                            @if ($user->engroup == 2)
                                             <div class="n_se right">
                                                 <span>抽菸</span>
                                                 <select name="smoking" id="smoking" class="select_xx01">
@@ -257,7 +350,7 @@ header("Expires: Fri, 01 Jan 1990 00:00:00 GMT");
                                                     <option value="常抽" @if( !empty( $_POST["smoking"] ) && $_POST["smoking"] == "常抽" ) selected @elseif(!empty( $_GET["smoking"] ) && $_GET["smoking"] == "常抽") selected @elseif(!empty( session()->get('search_page_key.smoking') ) && session()->get('search_page_key.smoking') == "常抽") selected @endif>常抽</option>
                                                 </select>
                                             </div>
-                                            {{--@endif--}}
+                                            @endif
                                         </dt>
 
                                         @if ($user_engroup == 2)
@@ -295,43 +388,44 @@ header("Expires: Fri, 01 Jan 1990 00:00:00 GMT");
                                             </dt>
                                         @else
                                             <dt>
-                                                <div class="n_se left">
-                                                    <span>婚姻</span>
-                                                    <select name="marriage" id="marriage" class="select_xx01">
-                                                        <option value="">請選擇</option>
-                                                        <option value="已婚" @if( !empty( $_POST["marriage"] ) && $_POST["marriage"] == "已婚" ) selected @elseif(!empty( $_GET["marriage"] ) && $_GET["marriage"] == "已婚") selected @elseif(!empty( session()->get('search_page_key.marriage') ) && session()->get('search_page_key.marriage') == "已婚") selected @endif>已婚</option>
-                                                        <option value="分居" @if( !empty( $_POST["marriage"] ) && $_POST["marriage"] == "分居" ) selected @elseif(!empty( $_GET["marriage"] ) && $_GET["marriage"] == "分居") selected @elseif(!empty( session()->get('search_page_key.marriage') ) && session()->get('search_page_key.marriage') == "分居") selected @endif>分居</option>
-                                                        <option value="單身" @if( !empty( $_POST["marriage"] ) && $_POST["marriage"] == "單身" ) selected @elseif(!empty( $_GET["marriage"] ) && $_GET["marriage"] == "單身") selected @elseif(!empty( session()->get('search_page_key.marriage') ) && session()->get('search_page_key.marriage') == "單身") selected @endif>單身</option>
-                                                        @if( $user_engroup == 2)
-                                                            <option value="有女友" @if( !empty( $_POST["marriage"] ) && $_POST["marriage"] == "有女友" ) selected @elseif(!empty( $_GET["marriage"] ) && $_GET["marriage"] == "有女友") selected @elseif(!empty( session()->get('search_page_key.marriage') ) && session()->get('search_page_key.marriage') == "有女友") selected @endif>有女友</option>
-                                                        @else
-                                                            <option value="有男友" @if( !empty( $_POST["marriage"] ) && $_POST["marriage"] == "有男友" ) selected @elseif(!empty( $_GET["marriage"] ) && $_GET["marriage"] == "有男友") selected @elseif(!empty( session()->get('search_page_key.marriage') ) && session()->get('search_page_key.marriage') == "有男友") selected @endif>有男友</option>
-                                                        @endif
-                                                    </select>
-                                                </div>
-                                                @if ($user_engroup == 1)
-                                                <div class="n_se right">
-                                                    <span>教育</span>
-                                                    <select name="education" class="select_xx01">
-                                                        <option value="">請選擇</option>
-                                                        <option value="國中" @if( !empty( $_POST["education"] ) && $_POST["education"] == "國中" ) selected @elseif(!empty( $_GET["education"] ) && $_GET["education"] == "國中") selected @elseif(!empty( session()->get('search_page_key.education') ) && session()->get('search_page_key.education') == "國中") selected @endif>國中</option>
-                                                        <option value="高中" @if( !empty( $_POST["education"] ) && $_POST["education"] == "高中" ) selected @elseif(!empty( $_GET["education"] ) && $_GET["education"] == "高中") selected @elseif(!empty( session()->get('search_page_key.education') ) && session()->get('search_page_key.education') == "高中") selected @endif>高中</option>
-                                                        <option value="大學" @if( !empty( $_POST["education"] ) && $_POST["education"] == "大學" ) selected @elseif(!empty( $_GET["education"] ) && $_GET["education"] == "大學") selected @elseif(!empty( session()->get('search_page_key.education') ) && session()->get('search_page_key.education') == "大學") selected @endif>大學</option>
-                                                        <option value="研究所" @if( !empty( $_POST["education"] ) && $_POST["education"] == "研究所" ) selected @elseif(!empty( $_GET["education"] ) && $_GET["education"] == "研究所") selected @elseif(!empty( session()->get('search_page_key.education') ) && session()->get('search_page_key.education') == "研究所") selected @endif>研究所</option>
-                                                    </select>
-                                                </div>
+                                                @if ($user_engroup == 2)
+                                                    <div class="n_se left">
+                                                        <span>婚姻</span>
+                                                        <select name="marriage" id="marriage" class="select_xx01">
+                                                            <option value="">請選擇</option>
+                                                            <option value="已婚" @if( !empty( $_POST["marriage"] ) && $_POST["marriage"] == "已婚" ) selected @elseif(!empty( $_GET["marriage"] ) && $_GET["marriage"] == "已婚") selected @elseif(!empty( session()->get('search_page_key.marriage') ) && session()->get('search_page_key.marriage') == "已婚") selected @endif>已婚</option>
+                                                            <option value="分居" @if( !empty( $_POST["marriage"] ) && $_POST["marriage"] == "分居" ) selected @elseif(!empty( $_GET["marriage"] ) && $_GET["marriage"] == "分居") selected @elseif(!empty( session()->get('search_page_key.marriage') ) && session()->get('search_page_key.marriage') == "分居") selected @endif>分居</option>
+                                                            <option value="單身" @if( !empty( $_POST["marriage"] ) && $_POST["marriage"] == "單身" ) selected @elseif(!empty( $_GET["marriage"] ) && $_GET["marriage"] == "單身") selected @elseif(!empty( session()->get('search_page_key.marriage') ) && session()->get('search_page_key.marriage') == "單身") selected @endif>單身</option>
+                                                            @if( $user_engroup == 2)
+                                                                <option value="有女友" @if( !empty( $_POST["marriage"] ) && $_POST["marriage"] == "有女友" ) selected @elseif(!empty( $_GET["marriage"] ) && $_GET["marriage"] == "有女友") selected @elseif(!empty( session()->get('search_page_key.marriage') ) && session()->get('search_page_key.marriage') == "有女友") selected @endif>有女友</option>
+                                                            @else
+                                                                <option value="有男友" @if( !empty( $_POST["marriage"] ) && $_POST["marriage"] == "有男友" ) selected @elseif(!empty( $_GET["marriage"] ) && $_GET["marriage"] == "有男友") selected @elseif(!empty( session()->get('search_page_key.marriage') ) && session()->get('search_page_key.marriage') == "有男友") selected @endif>有男友</option>
+                                                            @endif
+                                                        </select>
+                                                    </div>
+                                                @else
+                                                    <div class="n_se left">
+                                                        <span>教育</span>
+                                                        <select name="education" class="select_xx01">
+                                                            <option value="">請選擇</option>
+                                                            <option value="國中" @if( !empty( $_POST["education"] ) && $_POST["education"] == "國中" ) selected @elseif(!empty( $_GET["education"] ) && $_GET["education"] == "國中") selected @elseif(!empty( session()->get('search_page_key.education') ) && session()->get('search_page_key.education') == "國中") selected @endif>國中</option>
+                                                            <option value="高中" @if( !empty( $_POST["education"] ) && $_POST["education"] == "高中" ) selected @elseif(!empty( $_GET["education"] ) && $_GET["education"] == "高中") selected @elseif(!empty( session()->get('search_page_key.education') ) && session()->get('search_page_key.education') == "高中") selected @endif>高中</option>
+                                                            <option value="大學" @if( !empty( $_POST["education"] ) && $_POST["education"] == "大學" ) selected @elseif(!empty( $_GET["education"] ) && $_GET["education"] == "大學") selected @elseif(!empty( session()->get('search_page_key.education') ) && session()->get('search_page_key.education') == "大學") selected @endif>大學</option>
+                                                            <option value="研究所" @if( !empty( $_POST["education"] ) && $_POST["education"] == "研究所" ) selected @elseif(!empty( $_GET["education"] ) && $_GET["education"] == "研究所") selected @elseif(!empty( session()->get('search_page_key.education') ) && session()->get('search_page_key.education') == "研究所") selected @endif>研究所</option>
+                                                        </select>
+                                                    </div>
+                                                    <div class="n_se right">
+                                                        <span>是否想進一步發展?</span>
+                                                        <select name="is_pure_dating" class="select_xx01">
+                                                            <option value="">請選擇</option>
+                                                            <option value="1" @if( request()->is_pure_dating == "1" || session()->get('search_page_key.is_pure_dating') =="1") selected @endif>是</option>
+                                                            <option value="0" @if( request()->is_pure_dating == "0" || session()->get('search_page_key.is_pure_dating') =="0") selected @endif>否</option>
+                                                        </select>
+                                                    </div>
                                                 @endif
                                             </dt>
                                             <dt>
                                                 <div class="n_se left">
-                                                    <span>是否想進一步發展?</span>
-                                                    <select name="is_pure_dating" class="select_xx01">
-                                                        <option value="">請選擇</option>
-                                                        <option value="1" @if( request()->is_pure_dating == "1" || session()->get('search_page_key.is_pure_dating') =="1") selected @endif>是</option>
-                                                        <option value="0" @if( request()->is_pure_dating == "0" || session()->get('search_page_key.is_pure_dating') =="0") selected @endif>否</option>
-                                                      </select>
-                                                </div>
-                                                <div class="n_se right">
                                                      <span>刺青<i class="ssrgf">(僅顯示有填寫者)</i></span>
                                                       <select name="tattoo" class="select_xx01">
                                                         <option value="">請選擇</option>
@@ -339,19 +433,16 @@ header("Expires: Fri, 01 Jan 1990 00:00:00 GMT");
                                                         <option value="-1" @if( !empty( $_POST["tattoo"] ) && $_POST["tattoo"] == "-1" ) selected @elseif(!empty( $_GET["tattoo"] ) && $_GET["tattoo"] == "-1") selected @elseif(!empty( session()->get('search_page_key.tattoo') ) && session()->get('search_page_key.tattoo') == "-1") selected @endif>無</option>
                                                       </select>
                                                 </div>
-                                           </dt>
-                                           <dt>
-                                                <div class="n_se left">
+                                                <div class="n_se right">
                                                     <span>是否接受約外縣市?</span>
                                                     <select name="is_dating_other_county" class="select_xx01">
                                                         <option value="">請選擇</option>
                                                         <option value="1" @if( request()->is_dating_other_county == "1" || session()->get('search_page_key.is_dating_other_county') =="1") selected @endif>是</option>
                                                         <option value="0" @if( request()->is_dating_other_county == "0" || session()->get('search_page_key.is_dating_other_county') =="0") selected @endif>否</option>
-                                                      </select>
+                                                    </select>
                                                 </div>
                                            </dt>
                                         @endif
-                                        
                                         <dt>
                                             {{--<div class="n_se right">--}}
                                             {{--<span>喝酒</span>--}}
@@ -874,11 +965,11 @@ header("Expires: Fri, 01 Jan 1990 00:00:00 GMT");
     console.log(engroup);
     let csrDataSingle = '';
     if(engroup==1){
-        csrDataSingle = '<li class="nt_fg"><div class="n_seicon_bg"><a><div class="nt_photo blur_img"></div><div class="nt_bot vvip_bgco2"><h2>loading...</h2><h3>loading...</h3><h3>最後上線時間：loading... </h3></div></a></div></li>';
+        csrDataSingle = '<div class="nnn_one"><li class="nt_fg"><div class="n_seicon_bg"><a><div class="nt_photo blur_img"></div><div class="nt_bot vvip_bgco2"><h2>loading...</h2><h3>loading...</h3><h3>最後上線時間：loading... </h3></div></a></div></li></div>';
     }else if(engroup==2){
-        csrDataSingle = '<li class="nt_fg"><div class="n_seicon_bg"><a><div class="nt_photo blur_img"></div><div class="nt_bot nt_bgco"><h2>loading...</h2><h3>loading...</h3><h3>最後上線時間：loading... </h3></div></a></div></li>';
+        csrDataSingle = '<div class="nnn_one"><li class="nt_fg"><div class="n_seicon_bg"><a><div class="nt_photo blur_img"></div><div class="nt_bot nt_bgco"><h2>loading...</h2><h3>loading...</h3><h3>最後上線時間：loading... </h3></div></a></div></li></div>';
     }else{
-        csrDataSingle = '<li class="nt_fg"><div class="n_seicon_bg"><a><div class="nt_photo blur_img"></div><div class="nt_bot vvip_bgco2"><h2>loading...</h2><h3>loading...</h3><h3>最後上線時間：loading... </h3></div></a></div></li>';
+        csrDataSingle = '<div class="nnn_one"><li class="nt_fg"><div class="n_seicon_bg"><a><div class="nt_photo blur_img"></div><div class="nt_bot vvip_bgco2"><h2>loading...</h2><h3>loading...</h3><h3>最後上線時間：loading... </h3></div></a></div></li></div>';
     }
     
     let csrDataText = csrDataSingle.repeat(perPageCount);
@@ -936,7 +1027,7 @@ header("Expires: Fri, 01 Jan 1990 00:00:00 GMT");
                         }            
                     }
                     else if(isSelfAuth) {
-                        tagHtml+=this.getTagShowOnPicByAuthType(1);
+                        //tagHtml+=this.getTagShowOnPicByAuthType(1);
                     }
 
                     return tagHtml;            
@@ -1028,7 +1119,7 @@ header("Expires: Fri, 01 Jan 1990 00:00:00 GMT");
             axios.post('/getSearchData', post_data)
             .then(response => {
                     this.dataList = response.data.dataList;
-                    this.user = response.data.user;
+                    this.user_engroup = response.data.user_engroup;
                     this.userIsVip = response.data.userIsVip;
 
                     this.singlePageCount = response.data.singlePageCount;
@@ -1111,10 +1202,16 @@ header("Expires: Fri, 01 Jan 1990 00:00:00 GMT");
 
                             let rowVisitorIsPhoneAuth = row.visitorIsPhoneAuth;
                             let rowVisitorIsAdvanceAuth = row.visitorIsAdvanceAuth;
+                            let rowVisitorIsSelfAuth = row.visitorIsSelfAuth;
+                            let rowVisitorIsBeautyAuth = row.visitorIsBeautyAuth;
+                            let rowVisitorIsFamousAuth = row.visitorIsFamousAuth;
+
+
 
 
                             let rowPrLog = row.rawData.pr_log;
                             let rowVisitorIsBlurAvatar = row.visitorIsBlurAvatar;
+                            let rowvisitorisPersonalTagShow = row.visitorisPersonalTagShow;
 
                             let umetaIsAvatarHidden = umeta.isAvatarHidden;
                             let umetaPic = umeta.pic;
@@ -1146,7 +1243,11 @@ header("Expires: Fri, 01 Jan 1990 00:00:00 GMT");
                                 vvip_top = '';
 
                                 have_vvip = 1;
-                                csrData += '<li class="nt_fg vvip_bg1">';
+                                csrData +=  `<div class="nnn_one">`;
+                                    csrData +=  `<div class="ss_xixn n_ntab">
+                                                    <input placeholder="您尚未留下備註" class="ss_xixn_input" id="massage_user_note_${rowID}" value="${response.data.notes[rowID]??''}"><a class="ss_button_a" onclick="massage_user_note('${rowID}');">確定</a>
+                                                </div>`;
+                                csrData += `<li class="nt_fg vvip_bg1">`;
                             }else {
 
                                 csrData += vvip_end;
@@ -1158,20 +1259,54 @@ header("Expires: Fri, 01 Jan 1990 00:00:00 GMT");
                                 }
                                 if (rowEngroup == 2) {
                                     if (rowExchangePeriod == 1) {
-                                        csrData += '<li class="nt_fg vvip_bg1">';
+                                        csrData +=  `<div class="nnn_one">`;
+                                            csrData +=  `<div class="ss_xixn n_ntab">
+                                                            <input placeholder="您尚未留下備註" class="ss_xixn_input" id="massage_user_note_${rowID}" value="${response.data.notes[rowID]??''}"><a class="ss_button_a" onclick="massage_user_note('${rowID}');">確定</a>
+                                                        </div>`;
+                                        
+                                        csrData += `<li class="nt_fg vvip_bg1">`;
                                     } else {
-                                        csrData += '<li class="nt_fg vvip_bg2">';
+                                        csrData +=  `<div class="nnn_one">`;
+                                            csrData +=  `<div class="ss_xixn n_ntab">
+                                                            <input placeholder="您尚未留下備註" class="ss_xixn_input" id="massage_user_note_${rowID}" value="${response.data.notes[rowID]??''}"><a class="ss_button_a" onclick="massage_user_note('${rowID}');">確定</a>
+                                                        </div>`;
+                                        csrData += `<li class="nt_fg vvip_bg2">`;
                                     }
                                 } else {
-                                    csrData += '<li class="nt_fg vvip_bg2">';
+                                    csrData +=  `<div class="nnn_one">`;
+                                        csrData +=  `<div class="ss_xixn n_ntab">
+                                                        <input placeholder="您尚未留下備註" class="ss_xixn_input" id="massage_user_note_${rowID}" value="${response.data.notes[rowID]??''}"><a class="ss_button_a" onclick="massage_user_note('${rowID}');">確定</a>
+                                                    </div>`;
+                                    csrData +=  `<li class="nt_fg vvip_bg2">`;
                                 }
                             }
 
                             csrData +='<div class="n_seicon">';
+                            
                             if(rowEngroup == 2){
                                 if(umeta.is_pure_dating==0){
                                     csrData +='<img src="/new/images/zz_02.png" style="float: right;">';
                                 }
+
+                                let blue_tick = 0;
+                                if(rowVisitorIsAdvanceAuth == 1)
+                                {
+                                    blue_tick = blue_tick + 1;
+                                }
+                                if(rowVisitorIsSelfAuth == 1 && rowvisitorisPersonalTagShow)
+                                {
+                                    blue_tick = blue_tick + 1;
+                                }
+                                if(blue_tick == 2)
+                                {
+                                    csrData +='<img src="/new/images/zz_zss.png" style="border-radius: 100px; box-shadow:1px 2px 10px rgba(77,152,252,1); height:20px; margin-top:6px;">';
+                                    csrData +='<img src="/new/images/zz_zss.png" style="border-radius: 100px; box-shadow:1px 2px 10px rgba(77,152,252,1); height:20px; margin-left: -8px; margin-top: 6px">';
+                                }
+                                else if(blue_tick == 1)
+                                {
+                                    csrData +='<img src="/new/images/zz_zss.png" style="border-radius: 100px; box-shadow:1px 2px 10px rgba(77,152,252,1); height:20px; margin-top:6px;">';
+                                }
+                                
                             }                            
                             if(this.isRealAuthNeedShowTagOnPic(row)) {
                                 csrData += this.getTagShowOnPic(row);
@@ -1234,50 +1369,6 @@ header("Expires: Fri, 01 Jan 1990 00:00:00 GMT");
                                 {
                                     csrVar = '';
                                 }
-                               
-                                if(rowVisitorIsPhoneAuth==true )
-                                {          
-                                    csrData +='<div class="hoverTip '+csrVar+'">';     
-                                    if(this.userIsVip==1)
-                                    {
-                                        /*if(rowVisitorIsAdvanceAuth==1 && rowEngroup==2){
-                                            csrData +='<div class="tagText"  data-toggle="popover" data-content="本站的進階認證會員，本會員通過本站的嚴格驗證，基本資料正確無誤。">';
-                                            csrData +='<img src="/new/images/c_03.png">';
-                                            csrData +='</div> ';
-
-                                            csrData +='<span>丨</span>';
-                                        }else if(rowVisitorIsAdvanceAuth==0 && rowEngroup==2){
-                                            csrData +='<div class="tagText"  data-toggle="popover" data-content="以手機門號通過年齡/性別驗證。">';
-                                            csrData +='<img src="/new/images/c_09.png">';
-                                            csrData +='</div>  ';
-
-                                            csrData +='<span>丨</span>';
-                                        }*/
-                                        if(rowVisitorIsAdvanceAuth==1 && rowEngroup==2){
-                                            csrData +='<div class="tagText"  data-toggle="popover" data-content="以手機門號通過年齡/性別驗證。">';
-                                            csrData +='<img src="/new/images/c_10.png">';
-                                            csrData +='</div>';
-                                        }
-                                    }
-                                    else
-                                    {
-                                        /*if(rowVisitorIsAdvanceAuth==1 && rowEngroup==2 ){
-                                            csrData +='<div class="tagText"  data-toggle="popover" data-content="本站的進階認證會員，本會員通過本站的嚴格驗證，基本資料正確無誤。">';
-                                            csrData +='<img src="/new/images/b_8x.png">';
-                                            csrData +='</div> ';
-                                        }else if(rowVisitorIsAdvanceAuth==0 && rowEngroup==2 ){
-                                            csrData +='<div class="tagText"  data-toggle="popover" data-content="以手機門號通過年齡/性別驗證。">';
-                                            csrData +='<img src="/new/images/b_5x.png">';
-                                            csrData +='</div>  ';
-                                        }*/
-                                        if(rowVisitorIsAdvanceAuth==1 && rowEngroup==2) {
-                                            csrData +='<div class="tagText"  data-toggle="popover" data-content="以手機門號通過年齡/性別驗證。">';
-                                            csrData +='<img src="/new/images/b_6.png">';
-                                            csrData +='</div>  ';
-                                        }
-                                    }
-                                    csrData +='</div>';
-                                }
                             }
                           
                             if(varCheck(rowPrLog)){
@@ -1310,6 +1401,9 @@ header("Expires: Fri, 01 Jan 1990 00:00:00 GMT");
                         if(rowVisitorIsBlurAvatar==1) csrVar = 'blur_img';
                         if(rowVisitorIsBlurAvatar==1){
                             var blur_img_class = 'nt_photo_blur_img';
+                            if(umeta.pic_blur!='' && umeta.pic_blur!=null && umeta.pic_blur!=undefined)
+                                umetaPic=umeta.pic_blur;
+
                         } else{
                             var blur_img_class = '';
                         }
@@ -1324,6 +1418,7 @@ header("Expires: Fri, 01 Jan 1990 00:00:00 GMT");
                         } else {
                             onerror="this.src='/new/images/female.png'";
                         }
+
                         if(rowVisitorIsVVIP && rowVisitorVvipInfoStatus){
                             csrData += '<a href="/dashboard/viewuser_vvip/' + rowID + '">';
                         }else {
@@ -1348,6 +1443,7 @@ header("Expires: Fri, 01 Jan 1990 00:00:00 GMT");
                         {
                             csrData +='<div class="nt_bot nt_bgco">';
                         }
+                        
                         // csrData +='<div class="nt_bot nt_bgco">';
                         csrData +='<h2>';
                         csrData +='<font class="left">'+rowName+'<span>'+rowVisitorAge+'歲</span></font>';
@@ -1361,6 +1457,7 @@ header("Expires: Fri, 01 Jan 1990 00:00:00 GMT");
                         }
 
                         csrData +='</h2>';
+                            csrData += `<div style="height:35px;" class="noactvie"></div>`;
                         csrData +='<h3>';
                         if(umeta.city !== ""){
                             umeta.city.forEach((row, index) => {
@@ -1397,7 +1494,7 @@ header("Expires: Fri, 01 Jan 1990 00:00:00 GMT");
                             csrData +='<span style="margin-left: 10px;"><span style="padding-left: 5px;">工作/學業</span><img src="/new/images/icon_35.png" class="nt_img"></span>';
                         }
                       
-                        if(this.user.engroup==1){
+                        if(this.user_engroup==1){
                             csrData +='<i class="j_lxx">丨</i><span>'+rowVisitorExchangePeriodName.name+'</span>';
                             // if(this.userIsVip==1){
                             //     csrData +='<i class="j_lxx">丨</i><span>'+rowVisitorExchangePeriodName.name+'</span>';
@@ -1417,14 +1514,19 @@ header("Expires: Fri, 01 Jan 1990 00:00:00 GMT");
                         csrData +='</h3>';
                         csrData +='</div>';
                         csrData +='</a>';
-                        csrData +='</li>';
+                        csrData +='</li></div>';
 
                         this.csrData = csrData;
                         });
                     }else{
                         this.csrData = '<div class="fengsicon search"><img src="/new/images/loupe.png" class="feng_img"><span>沒有資料</span></div>';
                     }
-
+                    function remarkHandle() {
+                        $('.nnn_one').each(function(){
+                            let i = $(this);
+                            i.find('.ss_xixn').css({'bottom':(i.find('.nt_bot').height()-35)+'px'})
+                        })
+                    }
                     $(document).ready(function(){
                         $('[data-toggle="popover"]').popover({
                             animated: 'fade',
@@ -1433,6 +1535,11 @@ header("Expires: Fri, 01 Jan 1990 00:00:00 GMT");
                             html: true,
                             content: function () { return '<h4>' + $(this).data('content') + '</h4>'; }
                         });
+                        remarkHandle()
+                        
+                    });
+                    $(window).resize(function(){
+                        remarkHandle()
                     });
                 })
             .catch(function (error) { // 请求失败处理
@@ -1445,7 +1552,20 @@ header("Expires: Fri, 01 Jan 1990 00:00:00 GMT");
             return (typeof variable !== 'undefined' && typeof variable !== undefined && typeof variable !== 'null' && typeof variable !== null && variable!==undefined && variable !=='undefined' && variable !== null && variable !=='null');
         }
     </script>
-
+    <script>
+        function massage_user_note(sid){
+            let massage_user_note_content = $('#massage_user_note_' + sid).val();
+            $.post('{{ route('messageUserNoteAJAX') }}', {
+                user_id: '{{ $user->id }}',
+                target_id: sid,
+                massage_user_note_content: massage_user_note_content,
+                _token: '{{ csrf_token() }}'
+            }, function (data) {
+                c5('備註已更新');
+            });
+            return false;
+        }
+    </script>
 @endsection
 
 

@@ -16,12 +16,14 @@ h3{
         <tr>
             <th class="text-center">網址</th>
             <th class="text-center">名稱</th>
+            <th class="text-center">網址部分符合</th>
             <th class="text-center">操作</th>
         </tr>
         @foreach($row_list as $key =>$row)
             <tr class="template">
                 <td><a href="{{ $row->url }}" target="_blank">{{ $row->url }}</a></td>
                 <td width="20%">{{ $row->name }}</td>
+                <td width="10%" style="text-align:center;">{{ $row->is_partial?'是':'否' }}</td>
                 <td width="20%">
                     <div style="display: inline-flex;">
                         <a class='text-white btn btn-primary' href="{{ $row->id?route('admin/stay_online_record_page_name_form',['id'=>$row->id]):route('admin/stay_online_record_page_name_switch',['url'=>$row->url])}}">修改</a>

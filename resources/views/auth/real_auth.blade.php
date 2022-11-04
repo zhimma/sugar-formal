@@ -57,8 +57,8 @@
                              <dl class="system">
                                  <dt class="ag_ttile">※ 通過這個認證我有什麼好處? </dt>
                                  <dd style="display: none;" class="matop_5 mabot_5">
-                                     <div class="gaor_nr01_li"><img src="{{asset('alert/images/renz_12.png')}}"><font class="gaor_font">本人認證的標籤
-                                            <span style="color: #20b0c9; font-weight: bold; font-size: 16px;">「<span class="ewnz"><img src="{{asset('alert/images/w1.png')}}">本人認證</span> 」</span>
+                                     <div class="gaor_nr01_li"><img src="{{asset('alert/images/renz_12.png')}}"><font class="gaor_font">本人認證通過後，會獲得官方認證的藍勾勾
+                                            <span style="color: #20b0c9; font-weight: bold; font-size: 16px;">「 <img src="{{asset('new/images/zz_zss.png')}}" style="border-radius: 100px; box-shadow:1px 2px 10px rgba(77,152,252,1); height:20px;"> 」</span>
                                             通常daddy會更加信任你。</font>
                                     </div>
                                      <div class="gaor_nr01_li"><img src="{{asset('alert/images/renz_13.png')}}"><font class="gaor_font">投訴立即處理。</font>
@@ -107,21 +107,21 @@
                              <dl class="system">
                                  <dt class="ag_ttile">※ 通過這個認證我有什麼好處? </dt>
                                  <dd style="display: none;" class="matop_5 mabot_5">
-                                     <div class="gaor_nr01_li"><img src="{{asset('alert/images/renz_12.png')}}"><font class="gaor_font">美顏推薦的標籤
+                                     <!-- <div class="gaor_nr01_li"><img src="{{asset('alert/images/renz_12.png')}}"><font class="gaor_font">美顏推薦的標籤
                                             <span style="color: #20b0c9; font-weight: bold; font-size: 16px;">「<span class="ewnz"><img src="{{asset('alert/images/w3.png')}}">美顏推薦</span> 」</span>
                                             </font>
-                                    </div>
+                                    </div> -->
                                      <div class="gaor_nr01_li">
-                                         <img src="{{asset('alert/images/renz_13.png')}}"><font class="gaor_font">詐騙保險</font>
+                                         <img src="{{asset('alert/images/renz_12.png')}}"><font class="gaor_font">詐騙保險</font>
                                          <div class="ga_rtable">只要你跟本站vvip daddy約見。約見過程中如果遭受不公平的待遇，站方會補償你5000~15000的金額。視情節輕重而定。</div>
                                      </div>
-                                     <div class="gaor_nr01_li"><img src="{{asset('alert/images/renz_14.png')}}"><font class="gaor_font">專有客服通道，可諮詢任何問題。必要時由站長親自回覆。</font></div>
+                                     <div class="gaor_nr01_li"><img src="{{asset('alert/images/renz_13.png')}}"><font class="gaor_font">專有客服通道，可諮詢任何問題。必要時由站長親自回覆。</font></div>
                                      <div class="gaor_nr01_li">
-                                            <img src="{{asset('alert/images/renz_15.png')}}"><font class="gaor_font">投訴立即處理。</font>
+                                            <img src="{{asset('alert/images/renz_14.png')}}"><font class="gaor_font">投訴立即處理。</font>
                                             <div class="ga_rtable">任何投訴都會在36小時內得到處理。</div>
                                      </div>
                                      <div class="gaor_nr01_li">
-                                            <img src="{{asset('alert/images/renz_16.png')}}"><font class="gaor_font">完整的法務支援</font>
+                                            <img src="{{asset('alert/images/renz_15.png')}}"><font class="gaor_font">完整的法務支援</font>
                                             <div class="ga_rtable">站方有法務律師會免費全程提供你任何需要的法律諮詢。</div>
                                      </div>
                                     
@@ -133,11 +133,9 @@
                         <a href="{{route('beauty_auth')}}" class="ga_1">已通過認證 - 編修認證表</a>
                     @elseif($service->isBeautyAuthWaitingCheck())
                         <a href="{{route('beauty_auth')}}" class="ga_1">認證表審核中 - 編修認證表</a>                     
-                    @elseif($service->isSelfAuthWaitingCheck())
-                        <a href="{{url('user_video_chat_verify')}}" class="ga_1">視訊審核中 - 重錄視頻</a>    
                     @elseif($service->isSelfAuthApplyNotVideoYet())
                         <a href="{{url('user_video_chat_verify')}}" class="ga_1">前往視訊頁面</a>
-                    @elseif($service->isPassedByAuthTypeId(1))
+                    @elseif($service->isAllowUseBeautyAuthForm())
                         <a href="{{route('beauty_auth')}}" class="ga_1">填寫認證表</a>
                     @else                        
                         <a class="ga_1" onclick="real_auth_popup(2);return false;">我符合，申請美顏推薦</a>
@@ -168,19 +166,19 @@
                                  <dl class="system">
                                      <dt class="ag_ttile">※ 通過這個認證我有什麼好處? </dt>
                                      <dd style="display: none;" class="matop_5 mabot_5">
-                                         <div class="gaor_nr01_li">
+                                         <!-- <div class="gaor_nr01_li">
                                                 <img src="{{asset('alert/images/renz_12.png')}}">
                                                 <font class="gaor_font">獲得名人認證的標籤
                                                 <span style="color: #20b0c9; font-weight: bold; font-size: 16px;">「<span class="ewnz"><img src="{{asset('alert/images/w2.png')}}">名人認證</span> 」</span>
                                                 </font>
-                                        </div>
+                                        </div> -->
                                          <div class="gaor_nr01_li">
-                                             <img src="{{asset('alert/images/renz_13.png')}}">
+                                             <img src="{{asset('alert/images/renz_12.png')}}">
                                              <font class="gaor_font">本站有北中南共計百位以上身價破億的 vvip。配合妳的需求由站長親自主持妳的資料推薦方式。讓你可以兼顧隱私與效率中，找到最優值的高階 daddy。
                                              </font>
                                          </div>
                                          <div class="gaor_nr01_li">
-                                             <img src="{{asset('alert/images/renz_14.png')}}">
+                                             <img src="{{asset('alert/images/renz_13.png')}}">
                                             <font class="gaor_font">其他美顏推薦的所有功能。</font>
                                         </div>
                                         

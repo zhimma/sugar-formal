@@ -167,7 +167,7 @@
                                         <span class="showText">{{ $msg->content }}</span>
                                         <a>…<em>更多</em></a>
                                     </div>
-                                    <h3>{{ $msg->created_at }}</h3>
+                                    <h3>{{ date('Y-m-d H:i',strtotime($msg->created_at)) }}</h3>
                                 </div>
                             </li>
                             @endif
@@ -185,7 +185,7 @@
                                             <span class="showText">{{ $msg->content }}</span>
                                             <a class="padc">…<em>更多</em></a>
                                         </div>
-                                        <h3>{{ $msg->created_at }}</h3>
+                                        <h3>{{ date('Y-m-d H:i',strtotime($msg->created_at)) }}</h3>
                                     </div>
                                 </li>
                                 @endif

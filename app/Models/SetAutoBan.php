@@ -18,14 +18,24 @@ use Carbon\Carbon;
 use App\Services\ImagesCompareService;
 use App\Jobs\BanJob;
 use Illuminate\Support\Facades\Cache;
+use Outl1ne\ScoutBatchSearchable\BatchSearchable;
 
 class SetAutoBan extends Model
 {
-    use SoftDeletes;
+    use SoftDeletes, BatchSearchable;
     //
     protected $table = 'set_auto_ban';
 	
 	public $timestamps = false;
+
+    public function __construct(array $attributes = [])
+    {
+        $this->bootIfNotBooted();
+        $this->initializeTraits();
+        $this->syncOriginal();
+        $this->fill($attributes);
+        $this->connection = app()->environment('production-misc') ? 'mysql_read' : 'mysql';
+    }
 
     //自動封鎖 用後台設定的關鍵字查詢
     public static function auto_ban($uid)
@@ -204,8 +214,8 @@ class SetAutoBan extends Model
 
     public static function banJobDispatcher($user, $matched_set, $data_type)
     {
-        if($matched_set) {
-            logger("User $user->id is banned by $matched_set->type");
+        if($matched_set && $matched_set->id) {
+            logger("User $user->id violated auto-ban set: $matched_set->id");
             BanJob::dispatch($user->id, $matched_set, $user, $data_type)->onConnection('ban-job')->onQueue('ban-job');
         }
         else {
@@ -217,9 +227,9 @@ class SetAutoBan extends Model
 
     public static function logoutWarned($uid, $probing = false)
     {
-        $new = false;
+        $new = true;
         if($new) {
-            Log::info('start_LogoutAutoBan_logoutWarned');
+            // Log::info('start_LogoutAutoBan_logoutWarned');
             $user = User::find($uid);
             try {
                 if(isset($user) && $user->can('admin')){
@@ -241,37 +251,49 @@ class SetAutoBan extends Model
             $ban_meta_set_type = collect(['about', 'style']);
             $all_check_rule_sets = SetAutoBan::retrive('allcheck');  
 
-            $ban_set_type->each(function($type) use ($user, $all_check_rule_sets) {
+            $ban_set_type->each(function($type) use ($user, $all_check_rule_sets, $probing) {
                 $type_rule_sets = SetAutoBan::retrive($type);
                 $rule_sets = $type_rule_sets->merge($all_check_rule_sets);
-                $rule_sets->each(function($rule_set) use ($user, $type) {
-                    if(str_contains($user->$type, $rule_set->content)) {                    
+                $rule_sets->each(function($rule_set) use ($user, $type, $probing) {
+                    if(str_contains($user->$type, $rule_set->content)) {  
+                        if($probing) {
+                            echo $rule_set->id . ' ' . $rule_set->type;
+                        }            
                         SetAutoBan::banJobDispatcher($user, $rule_set, 'profile');
                     }
                 });
             });
 
-            $ban_meta_set_type->each(function($type) use ($user, $all_check_rule_sets) {
+            $ban_meta_set_type->each(function($type) use ($user, $all_check_rule_sets, $probing) {
                 $type_rule_sets = SetAutoBan::retrive($type);
                 $rule_sets = $type_rule_sets->merge($all_check_rule_sets);
-                $rule_sets->each(function($rule_set) use ($user, $type) {
-                    if(str_contains($user->user_meta->$type, $rule_set->content)) {                    
+                $rule_sets->each(function($rule_set) use ($user, $type, $probing) {
+                    if(str_contains($user->user_meta->$type, $rule_set->content)) {  
+                        if($probing) {
+                            echo $rule_set->id . ' ' . $rule_set->type;
+                        }                    
                         SetAutoBan::banJobDispatcher($user, $rule_set, 'profile');
                     }
                 });
             });
 
-            $user->log_user_login->each(function ($log) use ($user) {
+            $user->log_user_login->each(function ($log) use ($user, $probing) {
                 $cfp_id_rule_sets = SetAutoBan::retrive('cfp_id');
-                $cfp_id_rule_sets->each(function($rule_set) use ($user, $log) {
+                $cfp_id_rule_sets->each(function($rule_set) use ($user, $log, $probing) {
                     if($log->cfp_id == $rule_set->content) {
+                        if($probing) {
+                            echo $rule_set->id . ' ' . $rule_set->type;
+                        }  
                         SetAutoBan::banJobDispatcher($user, $rule_set, 'profile');
                     }
                 });
 
                 $user_agent_rule_sets = SetAutoBan::retrive('user_agent');
-                $user_agent_rule_sets->each(function($rule_set) use ($user, $log) {
+                $user_agent_rule_sets->each(function($rule_set) use ($user, $log, $probing) {
                     if(str_contains($log->userAgent, $rule_set->content)) {
+                        if($probing) {
+                            echo $rule_set->id . ' ' . $rule_set->type;
+                        }  
                         SetAutoBan::banJobDispatcher($user, $rule_set, 'profile');
                     }
                 });
@@ -279,24 +301,27 @@ class SetAutoBan extends Model
 
             //20220629新增圖片檔名
             $pic_rule_sets = SetAutoBan::retrive('pic');
-            $pic_rule_sets->each(function($rule_set) use ($user) {
+            $pic_rule_sets->each(function($rule_set) use ($user, $probing) {
                 if(str_contains($user->user_meta->pic_original_name, $rule_set->content)) {
+                    if($probing) {
+                        echo $rule_set->id . ' ' . $rule_set->type;
+                    }  
                     SetAutoBan::banJobDispatcher($user, $rule_set, 'profile');
                 }
             });
 
             //有一筆違規就可以封鎖了 
             $pic_name_rule_sets = SetAutoBan::retrive('picname');
-            $any_pic_violated = $user->pics->first(function($pic) use ($pic_name_rule_sets) {
-                return $pic_name_rule_sets->each(function($rule_set) use ($pic) {
+            $any_pic_violated = $user->pics->first(function($pic) use ($user, $pic_name_rule_sets, $probing) {
+                return $pic_name_rule_sets->each(function($rule_set) use ($user, $pic, $probing) {
                     if(str_contains($pic->original_name, $rule_set->content)) {
-                        return true;
+                        if($probing) {
+                            echo 'any_pic_violated, ban set:' . $rule_set->id . ' ' . $rule_set->type;
+                        }  
+                        SetAutoBan::banJobDispatcher($user, $rule_set, 'profile');
                     }
                 });
             });
-            if($any_pic_violated) {
-                SetAutoBan::banJobDispatcher($user, $any_pic_violated, 'profile');
-            }
 
             $ip_rule_sets = SetAutoBan::retrive('ip');
             $auto_ban_rule_sets = $ip_rule_sets->merge($pic_rule_sets);
@@ -569,5 +594,29 @@ class SetAutoBan extends Model
         return Cache::remember('auto_ban_set' . $type, 3600, function () use ($type) {
             return SetAutoBan::where('type', $type)->get();
         });
+    }
+    
+    /**
+     * Get the name of the index associated with the model.
+     *
+     * @return string
+     */
+    public function searchableAs()
+    {
+        return 'autoban_set';
+    }
+
+    /**
+     * Get the indexable data array for the model.
+     *
+     * @return array
+     */
+    public function toSearchableArray()
+    {
+        $array = $this->toArray();
+ 
+        // Customize the data array...
+ 
+        return $array;
     }
 }

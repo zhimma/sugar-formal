@@ -164,6 +164,8 @@ Route::group(['middleware' => ['auth', 'global','SessionExpired']], function () 
     Route::get('/dashboard/web_manual', 'PagesController@web_manual');
     Route::get('/dashboard/anti_fraud_manual', 'PagesController@anti_fraud_manual');
     Route::post('/dashboard/newer_manual/isRead', 'PagesController@is_read_manual');
+    Route::get('/dashboard/female_newer_manual', 'PagesController@female_newer_manual');
+    Route::post('/dashboard/female_newer_manual/isRead', 'PagesController@is_read_female_manual');
     Route::get('/dashboard/openCloseAccount', 'PagesController@view_openCloseAccount');
     Route::post('/dashboard/closeAccountReason', 'PagesController@view_closeAccountReason');
     Route::post('/dashboard/updateAccountStatus', 'PagesController@updateAccountStatus');
@@ -362,13 +364,13 @@ Route::group(['middleware' => ['auth', 'global', 'active', 'femaleActive', 'vipC
     // 大頭照和生活照
     Route::get('/dashboard_img', 'PagesController@dashboard_img')->name('dashboard_img');
     Route::get('/dashboard/pictures/{userId?}', 'ImageController@getPictures');
-    Route::post('/dashboard/pictures/upload','ImageController@uploadPictures');
+    Route::post('/dashboard/pictures/upload','ImageController@uploadPictures')->name('dashboard/pictures/upload');
     Route::post('/dashboard/pictures/delete', 'ImageController@deletePictures');
     Route::get('/dashboard/avatar/{userId?}', 'ImageController@getAvatar');
     Route::get('/dashboard/avatar/blurry/{userId?}', 'PagesController@getBlurryAvatar');
     Route::post('/dashboard/avatar/blurry/{userId?}', 'PagesController@blurryAvatar');
     Route::post('/dashboard/lifephoto/blurry/{userId?}', 'PagesController@blurryLifePhoto');
-    Route::post('/dashboard/avatar/upload', 'ImageController@uploadAvatar');
+    Route::post('/dashboard/avatar/upload', 'ImageController@uploadAvatar')->name('dashboard/avatar/upload');
     Route::post('/dashboard/avatar/delete/{userId}', 'ImageController@deleteAvatar');
     Route::post('/dashboard/delPic', 'PagesController@delPic');
     Route::get('/dashboard/password', 'PagesController@view_changepassword'); //new route
@@ -435,6 +437,7 @@ Route::group(['middleware' => ['auth', 'global', 'active', 'femaleActive', 'vipC
     Route::post('/dashboard/imagedel/{admin?}', 'ImageController@deleteImage');
     Route::post('/dashboard/block', 'PagesController@postBlock');
     Route::post('/dashboard/blockAJAX', 'PagesController@postBlockAJAX')->name('postBlockAJAX');//new route
+    Route::post('/dashboard/messageUserNoteAJAX', 'PagesController@messageUserNoteAJAX')->name('messageUserNoteAJAX');//new route
     Route::post('/dashboard/unblock', 'PagesController@unblock');
     Route::post('/dashboard/unblockajax', 'PagesController@unblockAJAX')->name('unblockAJAX'); //new route
     Route::post('/dashboard/unblockAll', 'PagesController@unblockAll')->name('unblockAll'); //new route
@@ -503,6 +506,7 @@ Route::group(['middleware' => ['auth', 'global', 'active', 'femaleActive', 'vipC
         Route::post('/dashboard/chat/chatNoticeSet', 'Message_newController@chatNoticeSet')->name('chatNoticeSet');
         Route::post('/dashboard/announcement_post', 'Message_newController@announcePost')->name('announcePost');
         Route::get('/dashboard/manual', 'PagesController@manual');
+        Route::get('/dashboard/chat2/is_truth/get_remain', 'PagesController@getChatIsTruthRemainQuota')->name('getChatIsTruthRemainQuota');
         Route::post('/dashboard/toggleShowCanMessage', 'Message_newController@ToggleShowCanMessage')->name('toggleShowCanMessage');
 
         Route::post('/dashboard/letTourRead', 'PagesController@letTourRead')->name('letTourRead');
@@ -597,7 +601,9 @@ Route::group(['middleware' => ['auth', 'global', 'active', 'femaleActive', 'vipC
         Route::get('/dashboard/beauty_auth', 'PagesController@showBeautyAuth')->name('beauty_auth');
         Route::post('/dashboard/beauty_auth/save', 'PagesController@saveBeautyAuth')->name('beauty_auth_save');
         Route::get('/dashboard/beauty_auth/delete_pic', 'PagesController@deleteBeautyAuthPic')->name('beauty_auth_pic_delete');        
-        Route::post('/dashboard/real_auth_update_profile','PagesController@savePassedRealAuthModify')->name('real_auth_update_profile');        
+        Route::post('/dashboard/real_auth_update_profile','PagesController@savePassedRealAuthModify')->name('real_auth_update_profile');
+        Route::get('/dashboard/tag_display_settings', 'PagesController@showTagDisplaySettings')->name('tag_display_settings');
+        Route::post('/dashboard/tag_display_settings', 'PagesController@tagDisplaySet')->name('tagDisplaySet');
         /*
         |--------------------------------------------------------------------------
         | LINE
@@ -753,6 +759,7 @@ Route::group(['middleware' => ['auth', 'global', 'active', 'femaleActive', 'vipC
         Route::get('users/closeAccountDetail', 'UserController@closeAccountDetail');
 
         Route::post('users/forum_toggle', 'UserController@forum_toggle')->name('forum_toggle');
+        Route::post('users/check_extend', 'UserController@check_extend')->name('check_extend');
 
         Route::get('users/anonymousChat', 'UserController@showAnonymousChatPage')->name('users/showAnonymousChatPage');
         Route::get('users/searchAnonymousChat', 'UserController@searchAnonymousChatPage')->name('users/searchAnonymousChatPage');
@@ -780,6 +787,7 @@ Route::group(['middleware' => ['auth', 'global', 'active', 'femaleActive', 'vipC
             Route::post('modify', 'UserController@modifyMessage')->name('users/message/modify');
             Route::post('delete', 'UserController@deleteMessage')->name('users/message/delete');
             Route::post('edit', 'UserController@editMessage')->name('users/message/edit');
+            Route::post('handle', 'UserController@handleMessage')->name('users/message/handle');
 
             Route::get('sendUserMessage', 'UserController@showSendUserMessage')->name('admin/showSendUserMessage');
             Route::post('sendUserMessage', 'UserController@sendUserMessage')->name('admin/sendUserMessage');
@@ -969,8 +977,8 @@ Route::group(['middleware' => ['auth', 'global', 'active', 'femaleActive', 'vipC
         Route::get('order', 'OrderController@index')->name('order');
         Route::get('order/list', 'OrderController@getOrderData')->name('order/list');
         Route::post('order/orderGeneratorById', 'OrderController@orderGeneratorById')->name('order/orderGeneratorById');
-        Route::post('order/orderEcPayCheck', 'OrderController@orderEcPayCheck')->name('order/orderEcPayCheck');
-        Route::post('order/orderFunPointPayCheck', 'OrderController@orderFunPointPayCheck')->name('order/orderFunPointPayCheck');
+        Route::get('order/orderEcPayCheck', 'OrderController@orderEcPayCheck')->name('order/orderEcPayCheck');
+        Route::get('order/orderFunPointPayCheck', 'OrderController@orderFunPointPayCheck')->name('order/orderFunPointPayCheck');
 
 
         /*新增、編輯訊息*/
@@ -1001,6 +1009,8 @@ Route::group(['middleware' => ['auth', 'global', 'active', 'femaleActive', 'vipC
         Route::get('users/showLogBk', 'FindPuppetController@displayDetail');
         Route::get('users/compare_login_time', 'FindPuppetController@compare_login_time_show');
         Route::post('users/compare_login_time', 'FindPuppetController@compare_login_time');
+        Route::get('users/get_multi_account_mail_num_list','FindPuppetController@get_multi_account_mail_num_list')->name('showDuplicate_get_multi_account_mail_num_list');
+        Route::get('users/get_newer_manual_stay_online_time_list','FindPuppetController@get_newer_manual_stay_online_time_list')->name('showDuplicate_get_newer_manual_stay_online_time_list');
         Route::get('too_many_requests', 'PagesController@tooManyRequests')->name('tooMantRequests');
 
 
@@ -1040,6 +1050,7 @@ Route::group(['middleware' => ['auth', 'global', 'active', 'femaleActive', 'vipC
         Route::get('admin/user_visited_time_view', 'UserController@user_visited_time_view')->name('admin/user_visited_time_view');
         Route::get('admin/user_online_time_view', 'UserController@user_online_time_view')->name('admin/user_online_time_view');
         Route::get('admin/user_page_online_time_view', 'UserController@user_page_online_time_view')->name('admin/user_page_online_time_view');
+        Route::get('admin/user_page_online_time_view_user_paginate', 'UserController@user_page_online_time_view_user_paginate')->name('admin/user_page_online_time_view_user_paginate');
         Route::get('admin/stay_online_record_page_name_view', 'UserController@stay_online_record_page_name_view')->name('admin/stay_online_record_page_name_view');
         Route::get('admin/stay_online_record_page_name_form', 'UserController@stay_online_record_page_name_form')->name('admin/stay_online_record_page_name_form');
         Route::post('admin/stay_online_record_page_name_form', 'UserController@stay_online_record_page_name_save')->name('admin/stay_online_record_page_name_save');
@@ -1053,6 +1064,14 @@ Route::group(['middleware' => ['auth', 'global', 'active', 'femaleActive', 'vipC
         Route::post('global/feature_flags/edit', 'UserController@feature_flags_edit');
         Route::post('global/feature_flags/update', 'UserController@feature_flags_update');
         Route::post('global/feature_flags/delete', 'UserController@feature_flags_delete');
+
+        Route::get('special_industries_judgment_training_setup', 'AdminController@special_industries_judgment_training_setup')->name('admin/special_industries_judgment_training_setup');
+        Route::post('special_industries_judgment_training_setup_set', 'AdminController@special_industries_judgment_training_setup_set')->name('admin/special_industries_judgment_training_setup_set');
+        Route::get('special_industries_judgment_training_select', 'AdminController@special_industries_judgment_training_select')->name('admin/special_industries_judgment_training_select');
+        Route::get('special_industries_judgment_training_test', 'AdminController@special_industries_judgment_training_test')->name('admin/special_industries_judgment_training_test');
+        Route::post('special_industries_judgment_answer_send', 'AdminController@special_industries_judgment_answer_send')->name('admin/special_industries_judgment_answer_send');
+        Route::get('special_industries_judgment_result', 'AdminController@special_industries_judgment_result')->name('admin/special_industries_judgment_result');
+        Route::get('special_industries_judgment_training_hide', 'AdminController@special_industries_judgment_training_hide')->name('admin/special_industries_judgment_training_hide');
     });
     Route::group(['prefix' => 'admin', 'middleware' => 'Admin'], function () {
         //寄退信Log查詢

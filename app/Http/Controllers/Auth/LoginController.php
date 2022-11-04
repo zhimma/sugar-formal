@@ -3,6 +3,7 @@
 namespace App\Http\Controllers\Auth;
 
 use App\Http\Controllers\Controller;
+use App\Models\BackendUserDetails;
 use App\Models\LogUserLogin;
 use App\Models\SimpleTables\member_vip;
 use App\Models\Vip;
@@ -21,6 +22,7 @@ use Illuminate\Support\Facades\DB;
 use Session;
 use App\Observer\BadUserCommon;
 use App\Services\AdminService;
+use Illuminate\Support\Facades\Log;
 
 class LoginController extends \App\Http\Controllers\BaseController
 {
@@ -283,6 +285,7 @@ class LoginController extends \App\Http\Controllers\BaseController
     }
 
     public function handle_other_events_after_login($request, $user){
+        //Log::Info('handle_other_events_after_login');
         $email = $user->email;
         $uid = \Auth::user()->id;
         $domains = config('banned.domains');
@@ -304,7 +307,19 @@ class LoginController extends \App\Http\Controllers\BaseController
         User::where('id',$user->id)->update(['intro_login_times'=>$user->intro_login_times +1]);
         //更新會員專屬頁通知<->登入次數
         User::where('id',$user->id)->update(['line_notify_alert'=>$user->line_notify_alert +1]);
-        
+        if($user->engroup==2){
+            //更新新版SOP教學<->登入次數
+            session()->forget('female_manual_has_been_read');
+        }
+
+        //更新後台紀錄登入次數
+        $backend_user_details = BackendUserDetails::first_or_new($uid);
+        if($backend_user_details->user_check_step2_wait_login_times > 0)
+        {
+            $backend_user_details->user_check_step2_wait_login_times = $backend_user_details->user_check_step2_wait_login_times - 1;
+            $backend_user_details->save();
+        }
+
         //移至LogSuccessfulLoginListener
         /*
         //更新login_times

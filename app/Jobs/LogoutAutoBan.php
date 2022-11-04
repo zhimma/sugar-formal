@@ -62,4 +62,15 @@ class LogoutAutoBan implements ShouldQueue
     {
         return now()->addMinutes(120);
     }
+
+    /**
+    * The job failed to process.
+    *
+    * @param  Exception  $exception
+    * @return void
+    */
+    public function failed(\Exception $exception)
+    {
+        logger($exception);
+    }
 }

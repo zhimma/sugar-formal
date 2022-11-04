@@ -12,7 +12,8 @@ use Illuminate\Contracts\Auth\Guard;
 use App\Models\UserMeta;
 use Carbon\Carbon;
 use App\Models\SetAutoBan;
-
+use App\Services\MessageService;
+use App\Models\ScheduleData;
 class CheckIsWarned
 {
     /**
@@ -28,9 +29,10 @@ class CheckIsWarned
      * @param  Guard  $auth
      * @return void
      */
-    public function __construct(Guard $auth)
+    public function __construct(Guard $auth,MessageService $messageService)
     {
         $this->auth = $auth;
+        $this->messageService = $messageService;
     }
     /**
      * Handle an incoming request.
@@ -169,7 +171,7 @@ class CheckIsWarned
                     $q->orwhere('isWarnedType','<>','adv_auth');
                 })->update(['isWarned'=>0, 'isWarnedRead'=>0, 'isWarnedTime' => null]);
             }
-//            dd($user->meta_()->isWarned);
+            //dd($user->meta_()->isWarned);
             return $next($request);
         }
 
@@ -177,7 +179,14 @@ class CheckIsWarned
             //加入警示
             UserMeta::where('user_id',$user->id)->update(['isWarned'=>1, 'isWarnedRead'=>0, 'isWarnedTime' => Carbon::now()]);
 
-//            return $next($request);
+            //移至schedule執行
+            $schedule = new ScheduleData;
+            $schedule->type = 'set_message_handling';
+            $schedule->input_id = $user->id;
+            $schedule->save();
+            //$this->messageService->setMessageHandlingBySenderId($user->id,0);
+
+            //return $next($request);
         }
 
         return $next($request);

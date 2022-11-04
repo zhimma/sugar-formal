@@ -119,8 +119,17 @@ class VipCheck
 //            User::where('id', $user->id)->update(['is_vvip' => 0]);
 //        }
 
-        if($user->is_vvip==0 && $user->isVVIP()){
-            User::where('id', $user->id)->update(['is_vvip' => 1]);
+        if($user->isVVIP()){
+
+            if($user->is_vvip==0) {
+                User::where('id', $user->id)->update(['is_vvip' => 1]);
+            }
+
+            if($user->isVip()){
+                \App\Models\VipLog::addToLog($user->id, 'User is VVIP, cancel VIP.', 'XXXXXXXXX', 0, 0);
+                $userVIP->removeVIP();
+            }
+
         }else{
             User::where('id', $user->id)->update(['is_vvip' => 0]);
         }

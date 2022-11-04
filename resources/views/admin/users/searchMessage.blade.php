@@ -74,7 +74,8 @@
         <input type="hidden" name="msg" value="@if(isset($msg)) {{ $msg }}@endif" class="form-control" id="msg2">
         <input type='hidden' class="datepicker_1" name="date_start" data-date-format='yyyy-mm-dd' value="@if(isset($date_start)){{ $date_start }}@endif" class="form-control">
         <input type='hidden' class="datepicker_2" name="date_end" data-date-format='yyyy-mm-dd' value="@if(isset($date_end)){{ $date_end }}@endif" class="form-control">
-        <h3 style="text-align: left;">搜尋結果</h3>
+        <h3 style="text-align: left; display:inline-block;">搜尋結果</h3>
+        <a id='hide_switch' class='text-white btn btn-primary' value='false'>隱藏已處理案件</a>
         <table class="table-hover table table-bordered">
             <tr>
                 <td>發送者</td>
@@ -111,7 +112,7 @@
                     @continue
                 @endif
             @endif
-            <tr>
+            <tr data-id="{{ $result->id }}" data-to_id="{{ $result->to_id }}" data-handlestatus="{{ $result->handle }}">
                 <td @if($result['isBlocked']) style="background-color:#FFFF00" @endif>
                     <a href="{{ route('users/advInfo', $result['from_id']) }}" target='_blank' >
                         <p  @if($users[$result['from_id']]['engroup'] == '2') style="color: #F00;" @else  style="color: #5867DD;"  @endif>
@@ -188,7 +189,7 @@
                         $fromID_auth_status = 1;
                     }
                 @endphp
-                <td>
+                <td class="@if( ($isBlocked||$isAdminWarned) && ($fromID_userMeta->isWarned !=1 ) && ($result->handle == 0) ) needHandle @endif">
                     @if(!is_null($fromIDInfo))
                         @if($isBlocked)
                             <button type="button" class='unblock_user text-white btn @if($isBlocked) btn-success @else btn-danger @endif' onclick="Release({{ $result['from_id'] }})" data-id="{{ $result['from_id'] }}">解除封鎖</button>
@@ -253,7 +254,7 @@
                     </a>
                 </td>
                 <td>
-                    @php
+                    {{-- @php
                         $data = \App\Models\SimpleTables\warned_users::where('member_id', $result['to_id'])->first();
                         $messageInfo = \App\Models\User::findById($result['to_id']);
                         $banned_users =  \App\Models\SimpleTables\banned_users::where('member_id', 'like', $result['to_id'])->get()->first();
@@ -272,11 +273,20 @@
                             $isAdminWarned = 0;
                         }
                     @endphp
+                    Old
                     <a href="{{ route('AdminMessengerWithMessageId', [$result->to_id, $result->id]) }}" target="_blank" class='btn btn-dark'>撰寫</a>
                     @if ($result->is_write == 1 || (!$messageInfo || $messageInfo && ($isBlocked == 1 || ($isAdminWarned == 1 && $isWomanWarned == 1))))
                     <a href="javascript:void(0);" data-id="{{ $result->id }}" data-toid = "{{ $result->to_id }}" data-fromid = "{{ $result->from_id }}" class='btn btn-success handle_status_btn' data-handlestatus="1">已處理</a>
                     @else
                     <a href="javascript:void(0);" data-id="{{ $result->id }}" data-toid = "{{ $result->to_id }}" data-fromid = "{{ $result->from_id }}" class='btn btn-dark handle_status_btn' data-handlestatus="0">未處理</a>
+                    @endif
+                    ---
+                    New --}}
+                    <a href="javascript:void(0);" class='btn btn-dark write_btn'>撰寫</a>
+                    @if ($result->handle==1)
+                    <a href="javascript:void(0);" class='btn btn-success handle_status_btn has_processed'>已處理</a>
+                    @else
+                    <a href="javascript:void(0);" class='btn btn-dark handle_status_btn'>未處理</a>
                     @endif
                 </td>
 {{--                @if(isset($reported) && $reported == 1)--}}
@@ -927,6 +937,73 @@
                 return false;
             }
         });
+        
+        $(".write_btn").click(function () {
+            const _self = $(this),
+                to_id = _self.parents('tr').data('to_id'),
+                id = _self.parents('tr').data('id');
+                url = `{{ route('AdminMessengerWithMessageId', [":to_id", ":id"]) }}`.replace(':to_id', to_id).replace(':id', id),
+                handleStatusBtn = _self.siblings('.handle_status_btn');
+
+            if(handleStatusBtn.data('handle')!=1){
+                $.ajax({
+                    url : `{{ route('users/message/handle') }}`,
+                    type: "POST",
+                    data: {
+                        _token: '{{csrf_token()}}',
+                        to_id: to_id,
+                        id: id,
+                        handle:1
+                    },
+                    success: res => {
+                        _self.parents('tr').data('handlestatus', 1);
+
+                        handleStatusBtn.text("已處理");
+
+                        handleStatusBtn.removeClass('btn-dark');
+
+                        handleStatusBtn.addClass('btn-success has_processed');
+                    },
+                    error: error => {
+                        console.log(error.responseJSON.message);
+                    }
+                });
+            }
+            window.open(url);
+        });
+
+        $(".handle_status_btn").click(function () {
+            const _self = $(this),
+                to_id = _self.parents('tr').data('to_id'),
+                id = _self.parents('tr').data('id');
+                status = _self.parents('tr').data('handlestatus'),
+                handleStatus = status == 1 ? "未處理" : "已處理";
+
+            $.ajax({
+                url : `{{ route('users/message/handle') }}`,
+                type: "POST",
+                data: {
+                    _token: '{{csrf_token()}}',
+                    to_id: to_id,
+                    id: id,
+                },
+                success: res => {
+                    console.log(handleStatus);
+                    _self.parents('tr').data('handlestatus', status == 1 ? 0 : 1);
+                    _self.text(handleStatus);
+                    if (status == 1) {
+                        _self.removeClass('btn-success has_processed');
+                        _self.addClass('btn-dark');
+                    } else {
+                        _self.removeClass('btn-dark');
+                        _self.addClass('btn-success has_processed');
+                    }
+                },
+                error: error => {
+                    console.log(error.responseJSON.message);
+                }
+            });
+        });
 
         $("#block_user_submit").click(function(){
             $("#block_user_cancel").click();
@@ -1108,11 +1185,11 @@
                     _self.text(handleStatus);
 
                     if (status == 1) {
-                        _self.removeClass('btn-success');
+                        _self.removeClass('btn-success has_processed');
                         _self.addClass('btn-dark');
                     } else {
                         _self.removeClass('btn-dark');
-                        _self.addClass('btn-success');
+                        _self.addClass('btn-success has_processed');
                     }
                 },
                 error: error => {
@@ -1121,6 +1198,11 @@
             });
         });
 
+        $(".needHandle").each(function(k,v){
+            if($(v).parents('tr').data('handlestatus') != 1){
+                $(v).parents('tr').find('.handle_status_btn').click()
+            }
+        })
     });
 
     
@@ -1247,5 +1329,19 @@
 
     });
     /*调起大图 E*/
+    $('#hide_switch').click(function() {
+        if($(this).attr("value") == "false")
+        {
+            $(this).attr("value","true");
+            $(this).text("顯示已處理案件");
+            $('.has_processed').parent('td').parent('tr').hide();
+        }
+        else
+        {
+            $(this).attr("value","false");
+            $(this).text("隱藏已處理案件");
+            $('.has_processed').parent('td').parent('tr').show();
+        }
+    });
 </script>
 @stop

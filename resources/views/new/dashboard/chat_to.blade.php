@@ -2,15 +2,13 @@
     function realtime_to(e){
         $('.announce_bg').hide();        
         let m = e.message;
-        
+        @if($isVip && $user->engroup==1)
+        if(!m['pic'] || m['pic']==undefined) reset_data_truth_active();
+        @endif
         if(m['is_truth']==1) {
-            var truth_actor = $('#truth_actor');
-            reset_data_truth_active();
-            set_trigger_for_already_use_is_truth_popup();
-
-            if(truth_actor.length && !truth_actor.hasClass('adbut_on')) {
-                truth_actor.addClass('adbut_on');
-            }
+            @if($user->engroup==1)
+            add_adbut_on(document.getElementById('truth_actor'));
+            @endif
         }        
         
         var msg_elt = $('#unsend_form_' + m['id']);

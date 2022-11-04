@@ -30,6 +30,7 @@ use Session;
 use App\Models\InboxRefuseSet;
 use App\Models\Pr_log;
 use YlsIdeas\FeatureFlags\Facades\Features;
+use App\Models\ExchangePeriodName;
 
 class Message_newController extends BaseController {
     public function __construct(UserService $userService) {
@@ -309,7 +310,7 @@ class Message_newController extends BaseController {
                 'parent_client_id' => ($payload['parent_client']??null),
                 'views_count_quota' => ($payload['views_count_quota']??0),
                 'show_time_limit' => ($payload['show_time_limit']??0),
-                'is_truth' => $payload['is_truth'] ?? 0,
+                'is_truth' => ($payload['is_truth'] ?? 0)?intval(Message::existIsTrueQuotaByFromUser($user)):0,//$payload['is_truth'] ?? 0,
             ]);
 
             $messagePosted = $this->message_pic_save($messageInfo->id, $request->file('images'));
@@ -581,6 +582,7 @@ class Message_newController extends BaseController {
         $user = $request->user();
         $m_time = '';
         if (isset($user)) {
+            if($user->id == 1049) { set_time_limit(0); }
             $this->service->dispatchCheckECPay($this->userIsVip, $this->userIsFreeVip, $this->userVipData);
             $isVip = ($user->isVip()||$user->isVVIP());
             /*編輯文案-檢舉大頭照-START*/
@@ -607,7 +609,12 @@ class Message_newController extends BaseController {
 
             $data_all = Message_new::allSendersAJAX($user->id, $user->isVip(),'all');
             $message_with_user_count = (is_countable($data_all) && array_get($data_all,'0')!=='No data') ? count($data_all) : 0;
-            return view('new.dashboard.chat')
+
+            $data['exchange_period_name']   =   ExchangePeriodName::get();
+            // $data['total_message']  =   
+            // \App\Models\Message::unread($user_id)
+
+            return view('new.dashboard.chat',$data)
                 ->with('user', $user)
                 ->with('message_with_user_count', $message_with_user_count)
                 ->with('m_time', $m_time)
@@ -647,6 +654,10 @@ class Message_newController extends BaseController {
         $data = Message_new::allSendersAJAX($user_id, $request->isVip,$request->date);
         if(is_array($data) && $data != ['No data'])
         {
+            foreach($data as $key => $item) {
+                $visitor = User::find($item['user_id']);
+                $data[$key]['isblur'] = \App\Services\UserService::isBlurAvatar($visitor, $user);
+            }
             //過濾篩選條件
             $inbox_refuse_set = InboxRefuseSet::where('user_id', $user->id)->first();
             if($inbox_refuse_set)

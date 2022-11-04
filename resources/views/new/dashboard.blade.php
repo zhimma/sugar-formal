@@ -267,9 +267,9 @@ dt span.engroup_type_title {display:inline-block;width:10%;white-space:nowrap;}
                         @endphp
                         <span>
 {{--                            <input name="" id="" type="text" class="select_xx01" value="{{$exchange_period_name->name}}" data-parsley-errors-messages-disabled disabled style="background-color: #d2d2d2;">--}}
-                            <div class="select_xx01 senhs hy_new" tabindex="-1" id="exchange_period_readonly_block" style="background: #d2d2d2;@if($rap_service->modify_entry()) display:inline-block;width:50%;  @endif">{{$exchange_period_name->name}}{{$exchange_period_name->name_explain}}</div>
+                            <div class="select_xx01 senhs hy_new" tabindex="-1" id="exchange_period_readonly_block" style="background: #d2d2d2;@if($rap_service->modify_entry()) display:inline-block;width:50%;  @endif">{{$exchange_period_name?->name}}{{$exchange_period_name?->name_explain}}</div>
                             @if($rap_service->isPassedByAuthTypeId(1) && $rap_service->modify_entry())
-                            <div class="select_xx01 senhs hy_new" tabindex="-1" id="new_exchange_period_readonly_block" style="background: #d2d2d2;display:inline-block;width:47%;" >{{$rap_service->modify_entry()->new_exchange_period_name->name}}{{$rap_service->modify_entry()->new_exchange_period_name->name_explain}}</div>        
+                            <div class="select_xx01 senhs hy_new" tabindex="-1" id="new_exchange_period_readonly_block" style="background: #d2d2d2;display:inline-block;width:47%;" >{{$rap_service->modify_entry()->new_exchange_period_name?->name}}{{$rap_service->modify_entry()->new_exchange_period_name?->name_explain}}</div>        
                             @endif                            
                         </span>
                         <input name="exchange_period" id="" type="hidden" class="select_xx01" value="{{$user->exchange_period}}" data-parsley-errors-messages-disabled disabled style="background-color: #d2d2d2;">                                     
@@ -280,7 +280,7 @@ dt span.engroup_type_title {display:inline-block;width:10%;white-space:nowrap;}
                             <span class="engroup_type_title">地區<i>(必填)</i></span>
                             @if($user->engroup==2)
                                 <input type="hidden" name="is_dating_other_county" value="0">
-                                <div style="float: right;margin-top:8px;"><input name="is_dating_other_county" type="checkbox" @if(isset($umeta->is_dating_other_county) && $umeta->is_dating_other_county == true) checked @endif value="1"> 是否接受約外縣市</div>
+                                <div style="float: right;margin-top:8px;"><input name="is_dating_other_county" type="checkbox" @if(isset($umeta->is_dating_other_county) && $umeta->is_dating_other_county == true) checked @endif value="1"> 願意接受約外縣市</div>
                             @endif
                         </div>
                         
@@ -392,7 +392,7 @@ dt span.engroup_type_title {display:inline-block;width:10%;white-space:nowrap;}
                     </dt>
                     @endif
                     @if($user->engroup==2)
-                            <dt class="">
+                            {{--<dt class="">
                                 <span>預算<i>(必填)</i></span>
                                 <span>
                                 <select data-parsley-errors-messages-disabled name="budget"  class="select_xx01">
@@ -410,7 +410,7 @@ dt span.engroup_type_title {display:inline-block;width:10%;white-space:nowrap;}
                                     <option value="可商議" {{($umeta->budget == '可商議')?"selected":""  }}>可商議</option>
                                 </select>
                                 </span>
-                            </dt>
+                            </dt>--}}
                     @endif
                     <dt>
                         <span>出生年月<i>(必填)</i></span>
@@ -1264,7 +1264,7 @@ dt span.engroup_type_title {display:inline-block;width:10%;white-space:nowrap;}
                     確定更新
                     @endif
                 </a>
-                <a href="" class="zcbut matop20">取消</a>
+                <a href="{{$rap_service->isInRealAuthProcess()?route('real_auth'):null}}" class="zcbut matop20">取消</a>
               </form>
             </div>
           </div>

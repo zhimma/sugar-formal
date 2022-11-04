@@ -258,7 +258,7 @@
                                                         您好，您在 {{$user->applyVVIP_getData()->created_at->format("Y-m-d H:i")}} 申請 VVIP 已完成，請於 {{$user->applyVVIP_getData()->created_at->addDays(3)->format("Y-m-d H:i")}} 之前， <br>
                                                         將本帳號繳交與本站的入會費 20000 元匯入此帳號 <br>
                                                         台新銀行(812) <br>-
-                                                        帳號 20631050273029 <br>
+                                                        帳號 2077-01-0000964-9 <br>
                                                         完成後請<font color="red">保留收據</font>並將帳號後五碼 <a onclick="vvipUserNoteEdit_show()" class='btn btn-primary' style="height: 30px; line-height: 15px;">輸入於此</a><br>
                                                         <font color="red">注意：須於 {{$user->applyVVIP_getData()->created_at->addDays(3)->format("Y-m-d H:i")}} 之前匯入，否則將取消此次 VVIP 申請。9888元<br>扣除手續費4000，剩餘刷退。</font>
                                                     @endif
@@ -267,7 +267,7 @@
                                                         您好，您在 {{$user->applyVVIP_getData()->created_at->format("Y-m-d H:i")}} 申請 VVIP 已完成，請於 {{$user->applyVVIP_getData()->created_at->addDays(3)->format("Y-m-d H:i")}} 之前， <br>
                                                         將本帳號繳交與本站的入會費 50000 元匯入此帳號 <br>
                                                         台新銀行(812) <br>
-                                                        帳號 20631050273029 <br>
+                                                        帳號 2077-01-0000964-9 <br>
                                                         完成後請<font color="red">保留收據</font>並將帳號後五碼 <a onclick="vvipUserNoteEdit_show()" class='btn btn-primary' style="height: 30px; line-height: 15px;">輸入於此</a><br>
                                                         <font color="red">注意：須於 {{$user->applyVVIP_getData()->created_at->addDays(3)->format("Y-m-d H:i")}} 之前匯入，否則將取消此次 VVIP 申請。9888元<br>扣除手續費4000，剩餘刷退。</font>
                                                     @endif
@@ -531,7 +531,7 @@
                                                     <font><a href="/dashboard/viewuser/{{$user->id}}#hash_evaluation"><span class="red"> [此評價來自封鎖的會員]</span></a></font>
                                                 @endif
                                             </h2>
-                                            <h2><span>評價時間</span><font>{{ $evaluation->created_at }}</font></h2>
+                                            <h2><span>評價時間</span><font>{{ date("Y-m-d H:i",strtotime($evaluation->created_at)) }}</font></h2>
                                             <h2><span>回覆本評價</span><font><a class="zs_buttonn1" onclick="see_evaluation_popup();">點此查看</a></font></h2>
                                         </li>
                                         @endforeach
@@ -774,7 +774,6 @@
 
 @section('javascript')
 <script type="text/javascript">
-
     function vvipUserNoteEdit_show() {
         $('#show_vvip_user_note').show();
         $('.announce_bg').show();
@@ -1205,6 +1204,7 @@ display: flex;-webkit-box-pack: center;-ms-flex-pack: center;-webkit-justify-con
 <script src="{{asset('new/js/jquery-labelauty.js')}}"></script>
 <script src="{{asset('new/js/is_logout_respose.js')}}"></script>
 <script>
+    
     @if(!$faqCountDownStartTime)    
         $('#faq_tab .swiper-wrapper .swiper-slide').last().after('<div class="swiper-slide"><div class="dati_font"><img src="{{asset('new/owlcarousel/assets/ajax-loader.gif')}}"></div></div>');
     @elseif($isFaqDuringCountDown)     
@@ -1670,6 +1670,7 @@ display: flex;-webkit-box-pack: center;-ms-flex-pack: center;-webkit-justify-con
             video_state_intro_block.html('視訊審核的站方人員不在線，請稍後再試。');
         }
     }
+    
 </script>
 @endif
 @stop

@@ -18,9 +18,12 @@ use App\Services\ImagesCompareService;
 use App\Models\SearchIgnore;
 use App\Services\SearchIgnoreService;
 use App\Models\RealAuthUserModifyPic;
+use Outl1ne\ScoutBatchSearchable\BatchSearchable;
+use Illuminate\Database\Eloquent\Factories\HasFactory;
 
 class UserMeta extends Model
 {
+    use BatchSearchable, HasFactory;
     /**
      * The database table used by the model.
      *
@@ -126,7 +129,7 @@ class UserMeta extends Model
             //return isset($this->smoking) && isset($this->drinking) && isset($this->marriage) && isset($this->education) && isset($this->about) && isset($this->style) && isset($this->birthdate) && isset($this->budget) && $this->height > 0 && isset($this->area) && isset($this->city) && isset($this->income) && isset($this->assets);
             return isset($this->smoking) && isset($this->drinking) && isset($this->marriage) && isset($this->education) && isset($this->about) && isset($this->style) && isset($this->birthdate) && $this->height > 0 && isset($this->area) && isset($this->city);
         }else{
-            return isset($this->smoking) && isset($this->drinking) && isset($this->marriage) && isset($this->education) && isset($this->about) && isset($this->style) && isset($this->birthdate) && isset($this->budget) && $this->height > 0 && isset($this->area) && isset($this->city);
+            return isset($this->smoking) && isset($this->drinking) && isset($this->marriage) && isset($this->education) && isset($this->about) && isset($this->style) && isset($this->birthdate) && $this->height > 0 && isset($this->area) && isset($this->city);
         }
         
     }
@@ -795,9 +798,9 @@ class UserMeta extends Model
             $user_city = explode(',', $meta->city);
             $user_area = explode(',', $meta->area);
             /* 判斷搜索者的 city 和 area 是否被被搜索者封鎖 */
-//            foreach ($user_city as $key => $city) {
-//                 $query->whereRaw('(blockarea not LIKE "%' . $city .$user_area[$key]  .'%"  AND blockarea not LIKE "%'.$city.'全區%")');
-//            }
+             //foreach ($user_city as $key => $city) {
+                 //$query->whereRaw('(blockarea not LIKE "%' . $city .$user_area[$key]  .'%"  AND blockarea not LIKE "%'.$city.'全區%")');
+            //}
 
             foreach ($user_city as $key => $city){
                 $query->where(
@@ -1001,6 +1004,9 @@ class UserMeta extends Model
             $singlePageData = $NormalDataQuery->skip($start - $VvipDataQueryCount)->take($count)->get();
         }
 
+        //makeHidden隱藏欄位避免資料外洩
+        $singlePageData = $singlePageData->makeHidden(['email','fa_relation','meta']);
+        
 
 
 
@@ -1058,6 +1064,23 @@ class UserMeta extends Model
     {
         return $this->hasOne(RealAuthUserModifyPic::class, 'old_pic', 'pic')->whereHas('real_auth_user_modify',function($q){$q->where([['status',0],['apply_status_shot',1]])->whereHas('real_auth_user_apply',function($qq){$qq->where('status',1);});})->orderByDesc('id')->take(1);
     }       
+
+    /**
+     * Perform a search against the model's indexed data.
+     *
+     * @param  string  $query
+     * @param  \Closure  $callback
+     * @return \Laravel\Scout\Builder
+     */
+    public static function scoutSearch($query = '', $callback = null)
+    {
+        return app(\Laravel\Scout\Builder::class, [
+            'model' => new static,
+            'query' => $query,
+            'callback' => $callback,
+            'softDelete'=> static::usesSoftDelete() && config('scout.soft_delete', false),
+        ]);
+    }
 }
 
 

@@ -443,8 +443,8 @@
                                             </font>
                                         </span>
                                 <span class="mtop" v-else><img src="/new/images/icon_35.png" /></span></div>
-                            <div class="zlys_aa">是否封鎖我 <span v-if="is_vip"><font>@{{is_block_mid}}</font></span>
-                                <span class="mtop" v-else><img src="/new/images/icon_35.png" /></span></div>
+                            {{-- <div class="zlys_aa">是否封鎖我 <span v-if="is_vip"><font>@{{is_block_mid}}</font></span>
+                                <span class="mtop" v-else><img src="/new/images/icon_35.png" /></span></div> --}}
                             <div class="zlys_aa">是否看過我 <span v-if="is_vip"><font>@{{is_visit_mid}}</font></span>
                                 <span class="mtop" v-else><img src="/new/images/icon_35.png" /></span></div>
                         </div>

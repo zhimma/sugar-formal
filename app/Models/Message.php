@@ -20,12 +20,11 @@ use App\Models\SimpleTables\banned_users;
 use App\Services\UserService;
 use Illuminate\Support\Facades\Cache;
 use YlsIdeas\FeatureFlags\Facades\Features;
-
-use function Clue\StreamFilter\fun;
+use Outl1ne\ScoutBatchSearchable\BatchSearchable;
 
 class Message extends Model
 {
-    use SoftDeletes;
+    use SoftDeletes, BatchSearchable;
 
     /**
      * The database table used by the model.
@@ -51,12 +50,27 @@ class Message extends Model
         'views_count',
         'views_count_quota',
         'show_time_limit',
-        'room_id'
+        'room_id',
+        'is_truth',
     ];
 
     static $date = null;
+    
+    static $quota_of_is_truth_VVIP = 3;
+    
+    static $quota_of_is_truth_VIP = 1;
 
     public static $truthMessages = [];
+
+    public function __construct(array $attributes = [])
+    {
+        $this->bootIfNotBooted();
+        $this->initializeTraits();
+        $this->syncOriginal();
+        $this->fill($attributes);
+        $this->connection = app()->environment('production-misc') ? 'mysql_read' : 'mysql';
+    }
+
     /*
     |--------------------------------------------------------------------------
     | relationships
@@ -720,7 +734,10 @@ class Message extends Model
             if($sys_notice == 1){
                 $query = $query->where('sys_notice',1);
             }else if($sys_notice == 0){
-                $query = $query->where('sys_notice',0)->orWhereNull('sys_notice');
+                $query = $query->where(function ($query) {
+                    $query->where('sys_notice', 0)
+                    ->orWhereNull('sys_notice');
+                });
             }
             return $query->orderBy('created_at', 'desc')->get();            
         }
@@ -728,7 +745,7 @@ class Message extends Model
                     ->orderBy('created_at', 'desc')
                     ;
         
-        if($user->engroup==1 && $user->isVip()) {
+        if($user->engroup==1 && $user->isVipOrIsVvip()) {
             $is_truth_msg =( clone $query)->where('is_truth',1)->where('is_row_delete_1',0)->where('is_row_delete_2',0)->orderByDesc('id')->first();
             if($is_truth_msg && !in_array(['to_id' => $is_truth_msg->to_id, 'from_id' => $is_truth_msg->from_id], Self::$truthMessages) && !in_array(['to_id' => $is_truth_msg->from_id, 'from_id' => $is_truth_msg->to_id], Self::$truthMessages)) {
                 array_push(Self::$truthMessages, ['to_id' => $is_truth_msg->to_id, 'from_id' => $is_truth_msg->from_id]);
@@ -758,14 +775,38 @@ class Message extends Model
         self::$date =\Carbon\Carbon::parse("180 days ago")->toDateTimeString();
         $query = Message::withTrashed()->where('created_at','>=',self::$date);
         $query = $query->where(function ($query) use ($uid,$sid) {
-            $query->where([['chat_with_admin', 1],['to_id', $uid],['from_id', $sid]])
-                ->orWhere([['from_id', $uid],['to_id', $sid]]);
+            // 效能調整
+            // $query->where([['chat_with_admin', 1],['to_id', $uid],['from_id', $sid]])
+            $query->where('chat_with_admin', 1)->where(
+                function ($query) use ($uid, $sid) {
+                    $query->where([['to_id', $uid],['from_id', $sid]])
+                        ->orWhere([['from_id', $uid],['to_id', $sid]]);
+                }
+            );
         });
+        /*
+        $first = DB::table("message")->where([['to_id', $uid], ['from_id', $sid]])
+                    ->where('created_at', '>=', self::$date)
+                    ->orderBy('created_at', 'desc');
+
+        $final = DB::table("message")->where([['from_id', $uid], ['to_id', $sid]])
+                    ->where('created_at', '>=', self::$date)
+                    ->orderBy('created_at', 'desc')->union($first);
+         */
 
         $query = $query->where('created_at','>=',self::$date);
         return $query;
     }
 
+    /**
+     * 使用中
+     * @param mixed $uid 
+     * @param bool $tinker 
+     * @return int 
+     * @throws \InvalidArgumentException 
+     * @throws \Carbon\Exceptions\InvalidFormatException 
+     * @throws \Carbon\Exceptions\UnitException 
+     */
     public static function unread($uid, $tinker = false)
     {
         $user = \View::shared('user');
@@ -831,11 +872,15 @@ class Message extends Model
                         ->whereNull('b5.blocked_id')
                         ->whereNull('b6.blocked_id')
                         ->whereNull('b7.member_id')
-                        ->where(function($query)use($uid){
+                        ->where(function($query) use ($uid) {
                             $query->where([
                                 ['message.to_id', $uid],
                                 ['message.from_id', '!=', $uid],
-                                ['message.from_id','!=',AdminService::checkAdmin()->id]
+                                ['message.from_id', '!=',AdminService::checkAdmin()->id]
+                            ])->orWhere([                                
+                                ['message.to_id', $uid],
+                                ['message.from_id', '=',AdminService::checkAdmin()->id],
+                                ['message.chat_with_admin', 1]
                             ]);
                         })
                         ->where([['message.is_row_delete_1','<>',$uid],['message.is_single_delete_1', '<>' ,$uid], ['message.all_delete_count', '<>' ,$uid],['message.is_row_delete_2', '<>' ,$uid],['message.is_single_delete_2', '<>' ,$uid],['message.temp_id', '=', 0]])
@@ -1087,7 +1132,7 @@ class Message extends Model
         $message->parent_msg = array_key_exists('parent',$arr)?$arr['parent']:'';
         $message->client_id = array_key_exists('client_id',$arr)?$arr['client_id']:'';
         $message->parent_client_id = array_key_exists('parent_client',$arr)?$arr['parent_client']:'';
-
+        $message->chat_with_admin = $arr['chat_with_admin'] ?? 0;
         $message->all_delete_count = 0;
         $message->is_row_delete_1 = 0;
         $message->is_row_delete_2 = 0;
@@ -1247,7 +1292,7 @@ class Message extends Model
             }
         }
         else{
-             $room_id = $checkData->first()->room_id;
+             $room_id = $checkData->first()?->room_id;
         }
 
         return $room_id ?? null;
@@ -1301,8 +1346,9 @@ class Message extends Model
     
     public static function existIsTrueQuotaByFromUser($from_user) 
     {
-        if($from_user)
-            return !intval($from_user->message()->where('is_truth',1)->where('created_at','>=',Carbon::now()->subDay())->count());
+        if($from_user) {
+            return boolval(Message::getRemainQuotaOfIsTruthByFromUser($from_user));
+        }
     }    
     
     public function existIsTrueQuota() 
@@ -1310,11 +1356,85 @@ class Message extends Model
         if($this->fromUser)
             return $this->existIsTrueQuotaByFromUser($this->fromUser);
     }
+    
+    public static function getRemainQuotaOfIsTruthByFromUser($from_user)
+    {
+        $remain_quota = 0;
+       if($from_user) {
+            if($from_user->isVVIP()) {
+                $remain_quota = Message::$quota_of_is_truth_VVIP;
+            }
+            else if($from_user->isVip()) {
+                $remain_quota = Message::$quota_of_is_truth_VIP;
+            }
+            
+            $truth_count = Message::getNowDayIsTruthCountByFromUser($from_user);      
+            $remain_quota = ($remain_quota-$truth_count)>0?$remain_quota-$truth_count:0;
+        }
+
+        return $remain_quota;
+    }
+    
+    public static function getNowDayIsTruthCountByFromUser($from_user) 
+    {
+        $truth_count = 0;
+       if($from_user) {          
+            $truth_count = $from_user->message()->where('is_truth',1)->where('created_at','>=',Carbon::now()->subDay())->count();
+            $truth_count = intval($truth_count);
+            
+        } 
+
+        return $truth_count;
+    }
 
     public static function retrieve($user_id, $from_date)
     {
         return Cache::remember('message_' . $user_id, 3600, function () use ($user_id, $from_date) {
             return Message::where('from_id', $user_id)->where('created_at', '>=', $from_date)->get();
         });
+    }
+    
+    /**
+     * Perform a search against the model's indexed data.
+     *
+     * @param  string  $query
+     * @param  \Closure  $callback
+     * @return \Laravel\Scout\Builder
+     */
+    public static function scoutSearch($query = '', $callback = null)
+    {
+        return app(\Laravel\Scout\Builder::class, [
+            'model' => new static,
+            'query' => $query,
+            'callback' => $callback,
+            'softDelete'=> static::usesSoftDelete() && config('scout.soft_delete', false),
+        ]);
+    }
+
+    public function toSearchableArray()
+    {
+        $msgArray = $this->toArray();
+        $sender = $this->sender()->first();
+        $receiver = $this->receiver()->first();
+        $msgArray['sender_is_banned'] = $sender ? $sender->banned() : 1;
+        $msgArray['receiver_is_banned'] = $receiver ? $receiver->banned() : 1;
+        $msgArray['sender_is_implicitly_banned'] = $sender ? $sender->implicitlyBanned() : 1;
+        $msgArray['receiver_is_implicitly_banned'] = $receiver ? $receiver->implicitlyBanned() : 1;
+        $msgArray['sender_is_warned'] = $sender?->aw_relation();
+        $msgArray['receiver_is_warned'] = $receiver?->aw_relation();
+        return $msgArray;
+    }
+
+    public static function getSearchFilterAttributes()
+    {
+        $columns = \Schema::getColumnListing('messages');
+        return $columns + [
+            'sender_is_banned',
+            'receiver_is_banned',
+            'sender_is_implicitly_banned',
+            'receiver_is_implicitly_banned',
+            'sender_is_warned',
+            'receiver_is_warned',
+        ];
     }
 }

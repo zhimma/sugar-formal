@@ -4,6 +4,7 @@ use App\Models\Message;
 use App\Models\AdminCommonText;
 use App\Models\Tip;
 use App\Models\Vip;
+use App\Services\EnvironmentService;
 use Carbon\Carbon;
 use Closure;
 use Illuminate\Support\Facades\Log;
@@ -90,14 +91,21 @@ class TipApiDataLogger{
                 unset($payload['CheckMacValue']);
                 uksort($payload, array('\App\Http\Middleware\TipApiDataLogger','merchantSort'));
 
+                if(EnvironmentService::isLocalOrTestMachine()){
+                    $envStr = '_test';
+                }
+                else{
+                    $envStr = '';
+                }
+
                 // 組合字串
-                $sMacValue = 'HashKey=' . config('ecpay.payment.HashKey') ;
+                $sMacValue = 'HashKey=' . config('ecpay.payment' . $envStr . '.HashKey');
                 foreach($payload as $key => $value)
                 {
                     $sMacValue .= '&' . $key . '=' . $value ;
                 }
 
-                $sMacValue .= '&HashIV=' . config('ecpay.payment.HashIV') ;
+                $sMacValue .= '&HashIV=' . config('ecpay.payment' . $envStr . '.HashIV');
 
                 // URL Encode編碼
                 $sMacValue = urlencode($sMacValue);

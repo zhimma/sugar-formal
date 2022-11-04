@@ -1,9 +1,11 @@
 <div class="head_3 head hetop">
 	<div class="container">
 		<div class="col-sm-12 col-xs-12 col-md-12">
-			<a href="{!! url('') !!}" >
-				<img src="/new/images/icon_41.png" class="logo" />
-			</a>
+			@if($_SERVER['REQUEST_URI'] =='/')
+				<a href="{!! url('') !!}" >
+					<img src="/new/images/icon_41.png" class="logo" />
+				</a>
+			@endif
 			@if (isset($user) && !str_contains(url()->current(), 'activate') && !str_contains(url()->current(), 'member_auth') && $user->meta->is_active ==1)
 				@if(Session::has('original_user'))
 					<div class="ndlrfont">
@@ -38,9 +40,11 @@
 		<div class="col-sm-12 col-xs-12 col-md-12">
 			<div class="commonMenu">
 				<div class="menuTop">
-					<a href="{!! url('') !!}" >
-						<img src="/new/images/icon_41.png" class="logo" />
-					</a>
+					@if($_SERVER['REQUEST_URI'] =='/')
+						<a href="{!! url('') !!}" >
+							<img src="/new/images/icon_41.png" class="logo" />
+						</a>
+					@endif
 					@if (isset($user) && !str_contains(url()->current(), 'activate') && $user->meta->is_active ==1)
 					<span id="menuButton"><img src="/new/images/icon.png" class="he_img"></span>
 					@elseif(isset($user) && Auth::user() && $user->meta_()->is_active ==0)
@@ -76,7 +80,6 @@
 										<a href="{!! url('dashboard/chat2/') !!}"><img src="/new/images/icon_45.png">收件夾</a><span id="unreadCount2">0</span>
 									</li>
 									<li>
-{{--										<a href="{!! url('dashboard/anonymousChat') !!}"><img src="/new/images/icon_nn45.png">匿名聊天室</a>--}}
 										<a href="javascript:void(0);" onclick="showAnonymousAlert()"><img src="/new/images/icon_nn45.png">匿名聊天室</a>
 									</li>
 									@if($user->engroup == 1)

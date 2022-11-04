@@ -26,7 +26,7 @@
 				<div class="col-sm-12 col-xs-12 col-md-12">
 					<div class="commonMenu">
 						<div class="menuTop">
-							<img src="/auth/images/icon_41.png" class="logo" />
+							{{--<img src="/auth/images/icon_41.png" class="logo" />--}}
                             <div class="ndlrfont"><a href="">註冊</a>丨<a href="">登入</a></div>
 							<!--<span id="menuButton"><img src="images/icon.png" class="he_img"></span>-->
 						</div>

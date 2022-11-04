@@ -36,16 +36,16 @@ use App\Models\IsWarnedLog;
 use App\Models\SimpleTables\short_message;
 use App\Models\LogAdvAuthApi;
 use App\Models\UserTattoo;
+use Illuminate\Database\Eloquent\Factories\HasFactory;
 use App\Models\StayOnlineRecord;
 use App\Models\PuppetAnalysisRow;
 use Illuminate\Support\Facades\Cache;
-
-use function Clue\StreamFilter\fun;
 use Tymon\JWTAuth\Contracts\JWTSubject;
+use Outl1ne\ScoutBatchSearchable\BatchSearchable;
 
 class User extends Authenticatable implements JWTSubject
 {
-    use Notifiable;
+    use HasFactory, Notifiable, BatchSearchable;
     /**
      * The database table used by the model.
      *
@@ -69,6 +69,9 @@ class User extends Authenticatable implements JWTSubject
         'login_times',
         'intro_login_times',
         'isReadManual',
+        'is_read_female_manual_part1',
+        'is_read_female_manual_part2',
+        'is_read_female_manual_part3',
         'exchange_period',
         'line_notify_switch',
         'is_hide_online',
@@ -133,6 +136,18 @@ class User extends Authenticatable implements JWTSubject
         return $this->hasOne(\App\Models\SimpleTables\short_message::class, 'member_id', 'id')->where('mobile','!=','')->where('active', 1);
     }
 
+    public function self_auth_tags_display() {
+        return $this->hasOne(RealAuthUserTagsDisplay::class, 'user_id', 'id')->where('auth_type_id', 1);
+    }
+
+    public function beauty_auth_tags_display() {
+        return $this->hasOne(RealAuthUserTagsDisplay::class, 'user_id', 'id')->where('auth_type_id', 2);
+    }
+
+    public function famous_auth_tags_display() {
+        return $this->hasOne(RealAuthUserTagsDisplay::class, 'user_id', 'id')->where('auth_type_id', 3);
+    }
+
     public function pr_log() {
         return $this->hasOne(Pr_log::class, 'user_id', 'id')->where('active', 1);
     }
@@ -147,6 +162,11 @@ class User extends Authenticatable implements JWTSubject
     public function receivedMessages()
     {
         return $this->hasMany(Message_new::class, 'to_id', 'id');
+    }
+
+    public function messageRooms()
+    {
+        return $this->hasManyThrough(MessageRoom::class, MessageRoomUserXref::class, 'user_id', 'id', 'id', 'room_id');
     }
 
     //生活照
@@ -201,8 +221,23 @@ class User extends Authenticatable implements JWTSubject
 
     public function stay_online_record_only_page()
     {
-        return $this->stay_online_record()->whereNotNull('stay_online_time')->whereNotNull('url');
-    }     
+        return StayOnlineRecord::addOnlyPageClauseToQuery($this->stay_online_record());//->whereNotNull('stay_online_time')->whereNotNull('url');
+    }  
+
+    public function female_newer_manual_time_list()
+    {
+        
+        return $this->stay_online_record_only_page()
+            ->where('url','like','%#nr_fnm%')
+            ->groupBy('url')
+            ->selectRaw('SUBSTRING(url, -3, 3) as step,sum(stay_online_time) as time')
+            ;
+    }
+    
+    public function getFemaleNewerManualTotalTime()
+    {
+        return $this->female_newer_manual_time_list->sum('time');
+    }
     
     //多重帳號row
     public function puppet_analysis_row()
@@ -513,6 +548,10 @@ class User extends Authenticatable implements JWTSubject
 
     public function check_point_name(){
         return $this->hasManyThrough(CheckPoints::class, CheckPointUser::class, 'user_id', 'id','id','check_point_id');
+    }
+
+    public function backend_user_details(){
+        return $this->hasMany(BackendUserDetails::class, 'user_id', 'id');
     }
 
     /**
@@ -1405,9 +1444,11 @@ class User extends Authenticatable implements JWTSubject
 				->leftJoin('banned_users as b1', 'b1.member_id', '=', 'message.from_id')
 				->leftJoin('banned_users_implicitly as b3', 'b3.target', '=', 'message.from_id')
 				->leftJoin('warned_users as wu', function($join) {
-					$join->on('wu.member_id', '=', 'message.from_id')
-						->where('wu.expire_date', '>=', Carbon::now())
-						->orWhere('wu.expire_date', null); })
+                    $join->on('wu.member_id', '=', 'message.from_id')
+                         ->where(function($join) {                            
+                            $join->where('wu.expire_date', '>=', Carbon::now())
+                            ->orWhere('wu.expire_date', null);
+                         }); })
 				->whereNull('b1.member_id')
 				->whereNull('b3.target')
 				->whereNull('wu.member_id')
@@ -1427,7 +1468,10 @@ class User extends Authenticatable implements JWTSubject
 
 				$messages = Message::select('id','content','created_at')
 					->where('from_id', $user->id)
-					->where('sys_notice', 0)->orWhereNull('sys_notice')
+					->where(function ($query) {
+                        $query->where('sys_notice', 0)
+                        ->orWhereNull('sys_notice');
+                    })
 					->whereBetween('created_at', array($date_start . ' 00:00', $date_end . ' 23:59'))
 					->orderBy('created_at','desc')
 					->take(100)
@@ -1582,8 +1626,10 @@ class User extends Authenticatable implements JWTSubject
                 ->leftJoin('banned_users_implicitly as b3', 'b3.target', '=', 'message.from_id')
                 ->leftJoin('warned_users as wu', function($join) {
                     $join->on('wu.member_id', '=', 'message.from_id')
-                        ->where('wu.expire_date', '>=', Carbon::now())
-                        ->orWhere('wu.expire_date', null); })
+                         ->where(function($join) {                            
+                            $join->where('wu.expire_date', '>=', Carbon::now())
+                            ->orWhere('wu.expire_date', null);
+                         }); })
                 ->whereNull('b1.member_id')
                 ->whereNull('b3.target')
                 ->whereNull('wu.member_id')
@@ -1603,7 +1649,10 @@ class User extends Authenticatable implements JWTSubject
 
                 $messages = Message::select('id','content','created_at')
                     ->where('from_id', $user->id)
-                    ->where('sys_notice', 0)->orWhereNull('sys_notice')
+                    ->where(function ($query) {
+                        $query->where('sys_notice', 0)
+                        ->orWhereNull('sys_notice');
+                    })
                     ->whereBetween('created_at', array($date_start . ' 00:00', $date_end . ' 23:59'))
                     ->orderBy('created_at','desc')
                     ->take(100)
@@ -1710,7 +1759,7 @@ class User extends Authenticatable implements JWTSubject
                 $IpUsers = LogUserLogin::where('ip',$group->ip)->distinct('user_id')->groupBy('user_id')->get()->toarray();
                 $IpUsers = array_column($IpUsers,'user_id');
                 $Ip['Ip_online_people'][$Ip_key] = LogUserLogin::where('ip',$group->ip)->distinct('user_id')->count();
-                $Ip['Ip_blocked_people'][$Ip_key] = banned_users::whereIn('member_id',$IpUsers)->get()->count();
+                $Ip['Ip_blocked_people'][$Ip_key] = banned_users::whereIn('member_id',$IpUsers)->distinct('member_id')->count();
             }
             $userLogin_log[$key]['Ip'] = $Ip;
 
@@ -1728,7 +1777,7 @@ class User extends Authenticatable implements JWTSubject
                 $CfpIDUsers = LogUserLogin::where('cfp_id',$group->cfp_id)->distinct('user_id')->groupBy('user_id')->get()->toarray();
                 $CfpIDUsers = array_column($CfpIDUsers,'user_id');
                 $CfpID['CfpID_online_people'][$CfpID_key] = count($CfpIDUsers);
-                $CfpID['CfpID_blocked_people'][$CfpID_key] = banned_users::whereIn('member_id',$CfpIDUsers)->get()->count();
+                $CfpID['CfpID_blocked_people'][$CfpID_key] = banned_users::whereIn('member_id',$CfpIDUsers)->distinct('member_id')->count();
 
             }
             $userLogin_log[$key]['CfpID'] = $CfpID;
@@ -1953,53 +2002,37 @@ class User extends Authenticatable implements JWTSubject
 
     public function is6MonthsVip()
     {
-        $currentMonths = 0;
         $months = 0;
-        $order_id = '';
         //6個月以上連續信用卡付費的 vip
-        $vip = Vip::where('member_id', $this->id)->where('free',0)
-                ->whereIn('payment_method', ['CREDIT', null])
-                ->first();
-        if(isset($vip)) {
-            if ($vip->expiry == '0000-00-00 00:00:00') {
-                $currentMonths = Carbon::parse($vip->created_at)->diffInMonths(Carbon::now());
-            } else {
-                $currentMonths = Carbon::parse($vip->created_at)->diffInMonths($vip->expiry);
-            }
-            $order_id = $vip->order_id;
-        }
-
+        //抓有效訂單計算
         $getOrderData = Order::where('user_id', $this->id)
-            ->where('order_id', '<>', $order_id)
+            ->where('service_name', 'VIP')
             ->where('payment_type', 'Credit_CreditCard')
+            ->where('payment', 'cc_monthly_payment')
             ->get();
         if(count($getOrderData)>0) {
             foreach ($getOrderData as $row) {
                 if($row->order_expire_date != ''){
                     $months = Carbon::parse($row->order_date)->diffInMonths(Carbon::parse($row->order_expire_date));
                     if($months > 6){ break; }
+                }else{
+                    $months = Carbon::parse($row->order_date)->diffInMonths(Carbon::now());
+                    if($months > 6){ break; }
                 }
             }
         }
-
-        if( $currentMonths > 6 || $months > 6 ){ return 1;}
+        if( $months > 6 ){ return 1;}
         return 0;
     }
 
     public function is12MonthsVip()
     {
         //12個月以上累計付費的 vip
-        $currentMonths = 0;
+        //抓有效訂單計算
         $months = 0;
-        $order_id = '';
-
-        $vip = Vip::where('member_id', $this->id)->where('active',1)->where('free',0)->first();
-        if(isset($vip)){
-            $currentMonths = Carbon::parse($vip->created_at)->diffInMonths(Carbon::now());
-            $order_id = $vip->order_id;
-        }
-
-        $getOrderData = Order::where('user_id', $this->id)->where('order_id', '<>', $order_id)->get();
+        $getOrderData = Order::where('user_id', $this->id)
+            ->where('service_name', 'VIP')
+            ->get();
         if(count($getOrderData)>0) {
             foreach ($getOrderData as $row) {
                 if($row->order_expire_date==''){
@@ -2010,7 +2043,6 @@ class User extends Authenticatable implements JWTSubject
             }
         }
 
-        $months += $currentMonths;
         if($months > 12){ return 1;}
         return 0;
     }
@@ -2233,5 +2265,41 @@ class User extends Authenticatable implements JWTSubject
         return Cache::remember('users' , 3600, function () {
             return User::all();
         });
+    }
+
+    
+    public function getUser()
+    {
+        return $this;
+    }
+        
+    
+    public function getUserDescPageStayOnlineRecordsPaginate()
+    {
+        $this->paginate = $this->stay_online_record_only_page()->orderByDesc('id')->paginate(20,['*'], 'pageU'.$this->id, request()->input('pageU'.$this->id));
+        return $this->paginate;
+    }    
+
+    public function toSearchableArray()
+    {
+        $meta = $this->user_meta()->first();
+        return [
+            'id' => $this->id,
+            'engroup' => $this->engroup,
+            'name' => $this->name,
+            'email' => $this->email,
+            'birthdate_timestamp' => Carbon::parse($meta->birthdate)->timestamp,
+            'created_at' => $this->created_at?->timestamp,
+            'updated_at' => $this->updated_at?->timestamp,
+        ];
+    }
+
+    public static function getSearchFilterAttributes()
+    {
+        return [
+            'name',
+            'engroup',
+            'birthdate_timestamp',
+        ];
     }
 }

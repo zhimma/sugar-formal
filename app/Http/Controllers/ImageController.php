@@ -310,7 +310,7 @@ class ImageController extends BaseController
         
         $file_input_name = 'avatar';
         
-        if($rap_service->isPassedByAuthTypeId(1) ) {
+        if($rap_service->isPassedByAuthTypeId(1) && $user_meta->pic ) {
             $file_input_name = 'apply_replace_pic';
         }
             
@@ -335,7 +335,7 @@ class ImageController extends BaseController
                 echo is_array($upload['warnings'])?implode("\r\r",$upload['warnings']):$upload['warnings'];
                 exit;
             }            
-            return redirect()->back()->withErrors($upload['warnings']);
+            return redirect()->back()->with(['real_auth'=>request()->real_auth ?? 0])->withErrors($upload['warnings']);
         }else{
             //upload new avator
             $avatar = $fileUploader->getUploadedFiles();
@@ -382,6 +382,15 @@ class ImageController extends BaseController
                     $arr['pic_cat'] = 'avatar';
                    $this->handleUploadedFileForRealAuth($rap_service,$arr);
                 }
+
+                //更新大頭照模糊照片路徑
+                $avatarOriginPath=UserMeta::where('user_id', $userId)->first();
+                if(!is_null($avatarOriginPath) && $path){
+                    $blurPic=$this->createBlurPhoto($path);
+                    $avatarOriginPath->pic_blur=$blurPic;
+                    $avatarOriginPath->save();
+                }
+
                // UserMeta::where('user_id', $userId)->update(['pic' => $path, 'pic_original_name'=>$avatar[0]['old_name']]);
                 //if($user->engroup==2)
                //     \App\Jobs\SimilarImagesSearcher::dispatch($path);                
@@ -398,7 +407,7 @@ class ImageController extends BaseController
                 else echo '1';
                 exit;
             }
-            return redirect()->back()->with('message', $msg);
+            return redirect()->back()->with(['message', $msg, 'real_auth'=>request()->real_auth ?? 0]);
         }
     }
     
@@ -661,7 +670,7 @@ class ImageController extends BaseController
                 echo is_array($upload['warnings'])?implode("\r\r",$upload['warnings']):$upload['warnings'];
                 exit;
             }            
-            return redirect()->back()->withErrors($upload['warnings']);
+            return redirect()->back()->with(['real_auth'=>request()->real_auth ?? 0])->withErrors($upload['warnings']);
         }        
         
         if($upload)
@@ -703,6 +712,20 @@ class ImageController extends BaseController
             if($rap_service->isApplyEffectByAuthTypeId(1)) {
                 $rap_service->updateModifyNewMemPicNum();
             }            
+
+            //更新生活照模糊照片路徑
+            $lifePhotoList=MemberPic::where('member_id', $userId)->get();
+            foreach ($lifePhotoList as $lifePhoto){
+                if($path ?? false){
+                    $blurPic=$this->createBlurPhoto($path);
+                    $lifePhoto->pic_blur=$blurPic;
+                    $lifePhoto->save();
+                }
+                else {
+                    logger('ImageController no path.');
+                    \Sentry\captureMessage("ImageController no path.");
+                }
+            }
         }
         
         $msg="上傳成功";
@@ -724,7 +747,7 @@ class ImageController extends BaseController
             if($no_react) echo '1';
             exit;
         }
-        $previous = redirect()->back()->with('message', $msg);
+        $previous = redirect()->back()->with(['message', $msg, 'real_auth'=>request()->real_auth ?? 0]);
         return $upload['isSuccess'] ? $previous : $previous->withErrors($upload['warnings']);
     }
     
@@ -1155,5 +1178,35 @@ class ImageController extends BaseController
 
 
         return $upload['isSuccess'] ? $previous : $previous->withErrors($upload['warnings']);
+    }
+
+    //大頭照or生活照照片模糊處理
+    public function createBlurPhoto($originPath){
+
+        $blurPhotoPath='';
+        if(!empty($originPath))
+        {
+            $pic_path = public_path($originPath);
+            if(file_exists($pic_path)){
+                $file_name_string_start=strripos($originPath, '/');
+                $origin_file_name=str_replace('/', '',substr($originPath, -($file_name_string_start)));
+                $origin_file_extension=explode('.',$origin_file_name)[1];
+
+                $uploadDir_Blur= '/img/Blur/Member/'. substr($origin_file_name, 0, 4) .'/'. substr($origin_file_name, 4, 2) .'/'. substr($origin_file_name, 6, 2) .'/';
+                $blur_file_name=substr($origin_file_name, 0, 4).substr($origin_file_name, 4, 2). substr($origin_file_name, 6, 2).rand(100000000,999999999).'.'.$origin_file_extension;
+                $blurPhotoPath=$uploadDir_Blur.$blur_file_name;
+
+
+                if(!File::exists(public_path($uploadDir_Blur)))
+                    File::makeDirectory(public_path($uploadDir_Blur), 0777, true);
+
+                // 建立圖片實例
+                $img = Image::make(public_path($originPath));
+                $img->resize(400, 600, function ($constraint) {
+                    $constraint->aspectRatio();
+                })->blur(30)->save(public_path($blurPhotoPath));
+            }
+        }
+        return $blurPhotoPath;
     }
 }

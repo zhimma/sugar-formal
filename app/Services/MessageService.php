@@ -14,4 +14,18 @@ class MessageService
     {
     	$this->message = $message;
     }
+
+    public function setMessageHandling($messageId,$handleStatus){
+        return $this->message->where('id',$messageId)->update(['handle'=>$handleStatus]);
+    }
+
+    public function setMessageHandlingBySenderId($userid,$handle){
+        return $this->message->where('from_id',$userid)->update(['handle'=>$handle]);
+    }
+
+    public function getMessageById($id){
+        return $this->message->where([
+            'id'     => $id,
+        ])->first();
+    }
 }

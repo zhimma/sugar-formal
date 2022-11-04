@@ -9,6 +9,7 @@ use Illuminate\Contracts\Queue\ShouldQueue;
 use Illuminate\Support\Facades\Log;
 use Illuminate\Http\Request;
 use App\Models\LogUserLogin;
+use App\Models\SetAutoBan;
 
 class LogSuccessfulLoginListener
 {
@@ -35,5 +36,6 @@ class LogSuccessfulLoginListener
 
         //新增登入紀錄
         LogUserLogin::recordLoginData($user, $cfp_hash);
+        // SetAutoBan::logout_warned($user->id);
     }
 }

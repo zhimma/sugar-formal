@@ -72,6 +72,8 @@
         #autoban_pic_gather .autoban_pic_unit label span {display:block;text-align:center;font-size:4px;}
         #autoban_pic_gather .autoban_pic_unit input:checked+label {background:#1E90FF;}
     
+        .newer_manual_time_detail_tb th {font-weight:549;}
+        .newer_manual_time_detail_tb td {text-align:center;}
     </style>
 
     <body style="padding: 15px;">
@@ -174,8 +176,144 @@
                                             <textarea type="text" class="form-control form-control-sm form-control-plaintext mr-sm-2" name="style">{{ $user->meta_()->style }}</textarea>
                                         </span>
                                         <br>
+                                        @php
+                                            $step_time1_1 = $user->female_newer_manual_time_list->where('step','1_1')->sum('time');
+                                            $step_time1_2 = $user->female_newer_manual_time_list->where('step','1_2')->sum('time');
+                                            $step_time1_3 = $user->female_newer_manual_time_list->where('step','1_3')->sum('time');
+                                            $step_time2_1 = $user->female_newer_manual_time_list->where('step','2_1')->sum('time');
+                                            $step_time2_2 = $user->female_newer_manual_time_list->where('step','2_2')->sum('time');
+                                            $step_time2_3 = $user->female_newer_manual_time_list->where('step','2_3')->sum('time');
+                                            $step_time3_1 = $user->female_newer_manual_time_list->where('step','3_1')->sum('time');
+                                            $step_time3_2 = $user->female_newer_manual_time_list->where('step','3_2')->sum('time');
+                                            $step_time3_3 = $user->female_newer_manual_time_list->where('step','3_3')->sum('time');
+                                        
+                                            $step_time_arr = ['step_time1_1'=>$step_time1_1
+                                                                ,'step_time1_2'=>$step_time1_2
+                                                                ,'step_time1_3'=>$step_time1_3
+                                                                ,'step_time2_1'=>$step_time2_1
+                                                                ,'step_time2_2'=>$step_time2_2
+                                                                ,'step_time2_3'=>$step_time2_3
+                                                                ,'step_time3_1'=>$step_time3_1
+                                                                ,'step_time3_2'=>$step_time3_2
+                                                                ,'step_time3_3'=>$step_time3_3
+                                                             ];
+                                        
+                                            $max_step_time = max($step_time_arr);
+                                        
+                                            $totalTime = $user->getFemaleNewerManualTotalTime();
+                                        
+                                            $halfTotalTime = $totalTime*0.5;
+                                        
+                                            $is_fnm_time_unusual = $totalTime && $halfTotalTime< $max_step_time && end($step_time_arr);
+                                            $step_time1_arr = [$step_time1_1,$step_time1_2,$step_time1_3 ];
+                                            $step_time2_arr = [$step_time2_1,$step_time2_2,$step_time2_3 ];
+                                            $step_time3_arr = [$step_time3_1,$step_time3_2,$step_time3_3 ];
+                                        
+                                            $step_time1_total = array_sum($step_time1_arr);
+                                            $step_time2_total = array_sum($step_time2_arr);
+                                            $step_time3_total = array_sum($step_time3_arr);
+                                        @endphp
                                         <span>
-                                            教學時間:{{ $user->newer_manual_stay_online_time->time }}
+                                            教學時間:
+                                            @if($user->engroup==1)
+                                            {{ $user->newer_manual_stay_online_time->time }}
+                                            @else
+                                                @if( $is_fnm_time_unusual)
+                                                
+                                                    {{$totalTime-$max_step_time}} 秒
+                                                    = {{$totalTime}} - {{$max_step_time}}
+                                                @else
+                                                    {{$totalTime??0}} 秒
+                                                @endif
+                                                <span style="display:block;margin-top:0.5em;">
+                                                    <span>Step1:</span>
+                                                    @if( in_array($max_step_time,$step_time1_arr) && $is_fnm_time_unusual )
+                                                        {{$step_time1_total-$max_step_time}} 秒
+                                                        = {{$step_time1_total}}-{{$max_step_time}}
+                                                    @else
+                                                        {{$step_time1_total}} 秒
+                                                    @endif
+                                                </span>
+                                                <span style="display:block;">
+                                                    <span>Step2:</span>
+                                                    @if( in_array($max_step_time,$step_time2_arr) && $is_fnm_time_unusual )
+                                                        {{$step_time2_total-$max_step_time}} 秒
+                                                        = {{$step_time2_total}}-{{$max_step_time}}
+                                                    @else
+                                                        {{$step_time2_total}} 秒
+                                                    @endif
+                                                </span>
+                                                <span style="display:block;">
+                                                    <span>Step3:</span>
+                                                    @if( in_array($max_step_time,$step_time3_arr) && $is_fnm_time_unusual )
+                                                        {{$step_time3_total-$max_step_time}} 秒
+                                                        = {{$step_time3_total}}-{{$max_step_time}}
+                                                    @else
+                                                        {{$step_time3_total}} 秒
+                                                    @endif
+                                                </span>
+
+                                                @if($totalTime>0)
+                                                <span id="btn_showDetail_newer_manual_time_{{$user->id}}" class="btn_showLogUser btn btn-primary" >+</span>
+                                                <script>
+                                                    $('#btn_showDetail_newer_manual_time_{{$user->id}}').click(function(){
+                                                        
+                                                        if( $('#newer_manual_time_detail_tb_{{$user->id}}').css('display')=='none'){
+                                                            $('#newer_manual_time_detail_tb_{{$user->id}}').show();
+                                                            $('#btn_showDetail_newer_manual_time_{{$user->id}}').text('-');
+                                                        }else{
+                                                            $('#newer_manual_time_detail_tb_{{$user->id}}').hide();
+                                                            $('#btn_showDetail_newer_manual_time_{{$user->id}}').text('+');
+
+                                                        }
+                                                    });  
+                                                </script>
+                                                <table id="newer_manual_time_detail_tb_{{$user->id}}" class="newer_manual_time_detail_tb table table-hover table-bordered" style="display:none;">
+                                                    <tr>
+                                                        <th>1-1</th><th>1-2</th><th>1-3</th>
+                                                    </tr>
+                                                    <tr>
+                                                        <td @if($halfTotalTime< $step_time1_1 && $is_fnm_time_unusual) style="background:red;font-weight:bolder;"   @endif>
+                                                            {{$step_time1_1}}                                            
+                                                        </td>
+                                                        <td @if($halfTotalTime< $step_time1_2 && $is_fnm_time_unusual) style="background:red;font-weight:bolder;"   @endif>
+                                                            {{$step_time1_2}}
+                                                        </td>
+                                                        <td @if($halfTotalTime< $step_time1_3 && $is_fnm_time_unusual) style="background:red;font-weight:bolder;"   @endif>
+                                                            {{$step_time1_3}}
+                                                        </td>
+                                                    </tr>
+                                                    <tr style="border-top:3px solid;">
+                                                        <th>2-1</th><th>2-2</th><th>2-3</th>
+                                                    </tr>
+                                                    <tr>
+                                                       <td @if($halfTotalTime< $step_time2_1 && $is_fnm_time_unusual) style="background:red;font-weight:bolder;"   @endif>
+                                                            {{$step_time2_1}}
+                                                       </td>
+                                                        <td @if($halfTotalTime< $step_time2_2 && $is_fnm_time_unusual) style="background:red;font-weight:bolder;"   @endif>
+                                                            {{$step_time2_2}}
+                                                        </td>
+                                                        <td @if($halfTotalTime< $step_time2_3 && $is_fnm_time_unusual) style="background:red;font-weight:bolder;"   @endif>
+                                                             {{$step_time2_3}}
+                                                        </td>
+                                                    </tr>
+                                                    <tr style="border-top:3px solid;">
+                                                        <th>3-1</th><th>3-2</th><th>3-3</th>
+                                                    </tr>
+                                                    <tr>
+                                                       <td @if($halfTotalTime< $step_time3_1 && $is_fnm_time_unusual) style="background:red;font-weight:bolder;"   @endif>
+                                                            {{$step_time3_1}}
+                                                       </td>
+                                                        <td @if($halfTotalTime< $step_time3_2 && $is_fnm_time_unusual) style="background:red;font-weight:bolder;"   @endif>
+                                                            {{$step_time3_2}}
+                                                        </td>
+                                                        <td @if($halfTotalTime< $step_time3_3 && $is_fnm_time_unusual) style="background:red;font-weight:bolder;"   @endif>
+                                                             {{$step_time3_3}}
+                                                        </td>
+                                                    </tr>
+                                                </table>
+                                                @endif         
+                                            @endif                                          
                                         </span>
                                         <br><br>
                                         <button type="submit" class="btn btn-sm btn-primary">修改資料</button>
@@ -218,6 +356,17 @@
                                         <button class="btn btn-sm btn-danger btn_sid" type="button" data-confirm="1">列入</button>
                                     @endif
                                 </form>
+                                @if($user->engroup==2)
+                                @php $not_pass_faq_ltime = $user->faq_user_group()->with('faq_group')->where('is_pass',0)->whereHas('faq_group',function($q) {$q->whereHas('faq_user_reply_not_pass');})->get()->pluck('faq_group.faq_login_times')->implode('/');   @endphp
+                                <table  class="table table-bordered">
+                                    <tr>
+                                        <th>FAQ 未回答紀錄：
+                                            {{$not_pass_faq_ltime?$not_pass_faq_ltime:'無'}}
+                                        </th>
+                                    </tr>
+                                    
+                                </table>
+                                @endif                                
                                 <form id="suspicious_from" class="form-inline" action="/admin/users/picturesSimilar/suspicious:toggle" method="post">
                                     {!! csrf_field() !!}
                                     <input type="hidden" name="uid" value="{{ $user->id }}">
@@ -228,6 +377,7 @@
                                             <sapn style="vertical-align:middle;">是八大</sapn>
                                         </label>
                                         <button class="btn btn-sm btn-danger suspicious_from_btn" type="button" data-confirm="0" style="margin-top: ">確定</button>
+                                        <button class="btn btn-sm btn-primary check_extend" value={{$user->id}}>等待更多資料</button>
 
                                     @else
                                         <label style="margin:12px 0px 0px 0px;">
@@ -238,6 +388,7 @@
                                             <sapn style="vertical-align:middle;">是八大</sapn>
                                         </label>
                                         <button class="btn btn-sm btn-danger suspicious_from_btn" type="button" data-confirm="1">確定</button>
+                                        <button class="btn btn-sm btn-primary check_extend" value={{$user->id}}>等待更多資料</button>
                                     @endif
                                 </form>
                                 </p>
@@ -711,6 +862,13 @@
     </div>
     <!--照片查看-->
 
+    <!--檢查延長-->
+    <form id="check_extend_form" method="POST" action="{{ route('check_extend') }}">
+        <input type="hidden" name="_token" value="{{ csrf_token() }}" >
+        <input id="check_extend_form_user_id" type="hidden" name='user_id' value="">
+    </form>
+    <!--檢查延長-->
+
     <script>
         $('.twzipcode').twzipcode({
             'detect': true,
@@ -1032,6 +1190,12 @@
 
         $(document).ready(function(){
             autosize($('textarea'));
+        });
+
+        $('.check_extend').on('click', function(){
+            $(this).removeClass('btn-primary').addClass('btn-secondary').attr('disabled', true);
+            $('#check_extend_form_user_id').val($(this).val());
+            $('#check_extend_form').submit();
         });
 
     </script>

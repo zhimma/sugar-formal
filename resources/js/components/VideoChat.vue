@@ -83,6 +83,9 @@
               結束視訊通話
             </button>
           </div>
+          <div class="error_message">
+            <strong><li id="error_message" style="color:red;"></li></strong>
+          </div>
         </div>
       </div>
       <!-- End of Placing Video Call  -->
@@ -207,6 +210,7 @@ export default {
         })
         .catch((error) => {
           console.log(error);
+          $("#error_message").text(error);
         });
     },
 
@@ -303,6 +307,7 @@ export default {
           .then(() => {})
           .catch((error) => {
             console.log('signal axios error:' + error);
+            $("#error_message").text('signal axios error:' + error);
           });
       });
 
@@ -331,11 +336,6 @@ export default {
           this.startRecording();
         }
         this.videoCallParams.connecting_peer = this.videoCallParams.peer1;
-        if(this.user_permission == 'normal')
-        {
-          $('#partner_video_screen').hide();
-          $('#none_partner_video').show();
-        }
       });
 
       this.videoCallParams.peer1.on("data", (data) => {
@@ -346,6 +346,7 @@ export default {
       this.videoCallParams.peer1.on("error", (err) => {
         console.log('peer1 error');
         console.log(err);
+        $("#error_message").text('peer1 error : ' + err);
       });
 
       this.videoCallParams.peer1.on("close", () => {
@@ -429,6 +430,7 @@ export default {
           .then(() => {})
           .catch((error) => {
             console.log('signal axios error:' + error);
+            $("#error_message").text('signal axios error:' + error);
           });
       });
 
@@ -466,6 +468,7 @@ export default {
       this.videoCallParams.peer2.on("error", (err) => {
         console.log('peer2 error');
         console.log(err);
+        $("#error_message").text('peer2 error : ' + err);
       });
 
       this.videoCallParams.peer2.on("close", () => {
@@ -476,11 +479,6 @@ export default {
       if(this.user_permission == 'admin')
       {
         if (!this.mutedVideo) this.toggleMuteVideo();
-      }
-      if(this.user_permission == 'normal')
-      {
-        $('#partner_video_screen').hide();
-        $('#none_partner_video').show();
       }
     },
 
@@ -545,6 +543,12 @@ export default {
         $('#partner_video_screen').hide();
         $('#none_partner_video').show();
       }
+      else if(new TextDecoder('utf-8').decode(data) === 'end_call')
+      {
+        console.log('user_end_call');
+        this.endCall();
+        
+      }
     },
 
     stopStreamedVideo(videoElem) {
@@ -590,7 +594,7 @@ export default {
       if(this.user_permission == 'admin')
       {
         try{this.stopRecording();}
-        catch(e){console.log(e);}
+        catch(e){console.log(e);$("#error_message").text(e);}
       }
       if(this.user_permission == 'admin')
       {
@@ -841,6 +845,15 @@ export default {
   left: 50%;
   margin-left: -50px;
   z-index: 3;
+  display: flex;
+  flex-direction: row;
+}
+
+.video-container .error_message {
+  position: absolute;
+  bottom: 0;
+  right: 0;
+  z-index: 4;
   display: flex;
   flex-direction: row;
 }

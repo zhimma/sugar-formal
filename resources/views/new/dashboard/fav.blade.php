@@ -90,6 +90,11 @@
         var ss =((i+1)>Page.row)?'display:none;':'display:none;';
         var c = (e.vip)?'hy_bg01':'';
         var area_string='';
+        let pic = e.pic_blur;
+        if(!isBlur || !e.pic_blur) {
+            pic = e.pic;
+        }
+
         if( typeof e.city !== 'undefined' && e.city.length>1){
             for(k=0 ; k < e.city.length;k++){
                 if(typeof e.area[k] !== 'undefined' && e.area[k].length>1)
@@ -119,7 +124,7 @@
         li +=`
             <li  style="${ss}" class="${c}">
                 <div class="si_bg leftb5">
-                    <div class="sjpic ${styBlur}"><a href="${url}"><img src="${e.pic}"></a></div>
+                    <div class="sjpic ${styBlur}"><a href="${url}"><img src="${pic}"></a></div>
                     <div class="sjleft">
                         <div class="sjtable"><span><a href="${url}">${e.name}<i class="cicd">●</i>${e.age}</a></span></div>
                         <font>${area_string}</font>
@@ -183,7 +188,7 @@
                         }
                     }
                     
-
+                    isBlur = e.isblur;
                     nn++;
                     li = liContent(e,i,isBlur,vvipInfo);
                     if(typeof e.name !== 'undefined')

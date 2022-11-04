@@ -34,6 +34,14 @@
                 </td>
             </tr>
             <tr>
+                <th class="text-center">網址部分符合</th>
+                <td style="text-align: left;">
+                    <div>
+                        <input type="checkbox" name="is_partial" value="1" {{$entry->is_partial?'checked':''}}>
+                    </div>
+                </td>
+            </tr>
+            <tr>
                 <th class="text-center">操作</th>
                 <td>
                     <a href="{{ request()->rtn=='record'?route('admin/user_page_online_time_view'):route('admin/stay_online_record_page_name_view')}}" class="text-white btn btn-primary">返回</a>

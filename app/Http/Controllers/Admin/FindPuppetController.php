@@ -12,6 +12,7 @@ use App\Models\PuppetAnalysisColumn;
 use App\Models\PuppetAnalysisRow;
 use App\Models\PuppetAnalysisIgnore;
 use App\Models\StayOnlineRecord;
+use App\Models\Message;
 use Illuminate\Support\Facades\Log;
 use App\Services\UserService;
 use App\Services\PuppetAnalysisAdminService;
@@ -67,6 +68,25 @@ class FindPuppetController extends \App\Http\Controllers\Controller
         $whereArrOfVid = [];
         $have_mon_limit = false;
         $only= $request->only;
+
+
+	$latest_column = $this->column->where('column_index','!=',-1)->orderByDesc('id')->first();
+        if($this->column->where('column_index',-1)->count()) {
+            if(\Carbon\Carbon::now()->diffInHours($latest_column->created_at)<48) {
+		    Log::info('findPuppet自動切換排程：已有正在執行的排程，所以此次不執行');
+		    exit;
+            }            
+        }
+        if($latest_column->cat=='only_cfpid') {
+            $only='';
+        }
+        else  {
+            $only='cfpid';
+        }
+
+
+
+
 		$cat = $only?'only_'.$only:'';
         Log::info('findPuppet排程'.$cat.'：開始執行');
 
@@ -1261,6 +1281,7 @@ class FindPuppetController extends \App\Http\Controllers\Controller
     public function display(Request $request) 
     {
         if($request->ajax()) exit;
+
         ini_set("max_execution_time",'0');
         ini_set('memory_limit','-1');
         ini_set("request_terminate_timeout",'10000');
@@ -1871,6 +1892,51 @@ class FindPuppetController extends \App\Http\Controllers\Controller
  
         return view('admin.users.findpuppet_compare_login_time',$data)
                 ->with('data',$data); 
+    }  
+
+    public function get_multi_account_mail_num_list(Request $request)
+    {
+        $only = $request->only;
+        $user_list_query = PuppetAnalysisRow::select('name')->distinct();
+        if($only) {
+            $user_list_query->where('cat','only_'.$only);
+        }
+        $user_list = $user_list_query->pluck('name');
+        
+        $keyword_arr =['目前使用多個帳號','請選擇一個主帳號','個人資料','帳號設定','自行關閉','查到會封鎖帳號','到時候就救不回來'];
+        
+        $msg_query = Message::where('from_id',1049)->whereIn('to_id',$user_list)->selectRaw('to_id,count(*) as num')->groupBy('to_id');
+        
+        foreach($keyword_arr as $k=>$v) {
+             $msg_query->where('content','like','%'.$v.'%');
+        }
+        
+        $msg_num_list = $msg_query->get();
+        
+        return response()->json($msg_num_list);
+        
+    }
+    
+    public function get_newer_manual_stay_online_time_list(Request $request)
+    {
+        $only = $request->only;
+        $user_list_query = PuppetAnalysisRow::select('name')->distinct();
+        if($only) {
+            $user_list_query->where('cat','only_'.$only);
+        }
+        $user_list = $user_list_query->pluck('name');
+        $female_list = User::where('engroup',2)->whereIn('id',$user_list)->pluck('id');
+        $male_list = User::where('engroup',1)->whereIn('id',$user_list)->pluck('id');
+        $female_time_query = StayOnlineRecord::where('url','like','%#nr_fnm%')->whereIn('user_id',$female_list)->groupBy('user_id')->selectRaw('user_id,sum(stay_online_time) as time');
+        $male_time_query = StayOnlineRecord::whereIn('user_id',$male_list)->groupBy('user_id')->selectRaw('user_id,SUM(newer_manual) as time');
+
+        $newer_time_list = $male_time_query->union($female_time_query)->get();
+        
+        $zero_time_list = $newer_time_list->where('time',0);
+        
+        return response()->json(array_diff($newer_time_list->all(),$zero_time_list->all()));
+        
     }    
+    
       
 }

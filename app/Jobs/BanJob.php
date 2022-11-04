@@ -33,16 +33,22 @@ class BanJob implements ShouldQueue
         $this->ban_set = $ban_set;
         $this->user = $user;
         $this->type = $type;
+        $this->connection = app()->environment('production-misc') ? 'mysql_read' : 'mysql';
     }
 
     public function handle()
     {
-        Log::info('start_jobs_BanJob');
-        Log::Info(Carbon::now());
+        Log::info("start_jobs_BanJob at " . now() . ", user {$this->user->id}, ban set {$this->ban_set->id}");
+        if (!$this->ban_set->id) {
+            logger("Ban job failed on user {$this->user->id}, no ban set id, try to display ban type: " . $this->ban_set->set_ban);
+        }
+        if (!$this->ban_set->set_ban) {
+            logger("Ban job failed on user {$this->user->id}, set id: {$this->ban_set->set_ban}.");
+        }
         $that = $this;
-        $user_had_been_banned = banned_users::where('member_id', $this->uid)->get()->first();
-        $user_had_been_implicitly_banned = BannedUsersImplicitly::where('target', $this->uid)->get()->first();
-        $user_had_been_warned = warned_users::where('member_id', $this->uid)->get()->first();
+        $user_had_been_banned = DB::connection($this->connection)->table('banned_users')->where('member_id', $this->uid)->get()->first();
+        $user_had_been_implicitly_banned = DB::connection($this->connection)->table('banned_users_implicitly')->where('target', $this->uid)->get()->first();
+        $user_had_been_warned = DB::connection($this->connection)->table('warned_users')->where('member_id', $this->uid)->get()->first();
         if($this->ban_set->set_ban == 1 && !$user_had_been_banned)
         {
             //直接封鎖
@@ -51,7 +57,10 @@ class BanJob implements ShouldQueue
                if(!($this->user->advance_auth_status ?? null)) {
                    $userBanned->adv_auth=1;
                }
-               else $userBanned = null;
+               else {
+                    $userBanned = null;
+                    logger("Ban job skipped on user {$this->user->id}, user is already adv authed.");
+                }
             }                         
             if($userBanned) {
                 $userBanned->member_id = $this->uid;
@@ -59,6 +68,7 @@ class BanJob implements ShouldQueue
                 $userBanned->save();
                 //寫入log
                 DB::connection('mysql')->table('is_banned_log')->insert(['user_id' => $this->uid, 'reason' => "系統原因(".$this->ban_set->id.")"]);
+                logger("Baned user {$this->user->id}, ban set {$this->ban_set->id}");
             }
         }
         elseif($this->ban_set->set_ban == 2 && !$user_had_been_implicitly_banned)
@@ -75,7 +85,8 @@ class BanJob implements ShouldQueue
                     $Line = 124;
                     break;
             }
-            BannedUsersImplicitly::connection('mysql')->insert(['fp' => 'Line ' . $Line . ', BannedInUserInfo, ban_set ID: ' . $this->ban_set->id . ', content: ' . $this->ban_set->content, 'user_id' => 0, 'target' => $this->uid]);
+            DB::connection('mysql')->table('banned_users_implicitly')->insert(['fp' => 'Line ' . $Line . ', BannedInUserInfo, ban_set ID: ' . $this->ban_set->id . ', content: ' . $this->ban_set->content, 'user_id' => 0, 'target' => $this->uid]);
+            logger("Implicit banned user {$this->user->id}, ban set {$this->ban_set->id}");
         }
         elseif($this->ban_set->set_ban == 3 && !$user_had_been_warned)
         {
@@ -93,11 +104,22 @@ class BanJob implements ShouldQueue
             //寫入log
             DB::connection('mysql')->table('is_warned_log')->insert(['user_id' => $this->uid, 'reason' => "系統原因(".$this->ban_set->id.")"]);
             // UserMeta::where('user_id', $this->uid)->update(['isWarned' => 1]);
+            logger("Warned user {$this->user->id}, ban set {$this->ban_set->id}");
         }
         //sleep(90);
-        Log::info('end_jobs_BanJob');
-        Log::Info(Carbon::now());
+        Log::info("end_jobs_BanJob at " . now() . ", user {$this->user->id}, ban set {$this->ban_set->id}");
         
         return 0;
+    }
+
+    /**
+    * The job failed to process.
+    *
+    * @param  Exception  $exception
+    * @return void
+    */
+    public function failed(\Exception $exception)
+    {
+        logger($exception);
     }
 }

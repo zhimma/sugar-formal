@@ -461,8 +461,10 @@ class AuthController extends Controller
                 ->leftJoin('banned_users_implicitly as b3', 'b3.target', '=', 'message.from_id')
                 ->leftJoin('warned_users as wu', function($join) {
                     $join->on('wu.member_id', '=', 'message.from_id')
-                        ->where('wu.expire_date', '>=', Carbon::now())
-                        ->orWhere('wu.expire_date', null); })
+                         ->where(function($join) {                            
+                            $join->where('wu.expire_date', '>=', Carbon::now())
+                            ->orWhere('wu.expire_date', null);
+                         }); })
                 ->whereNull('b1.member_id')
                 ->whereNull('b3.target')
                 ->whereNull('wu.member_id')
@@ -484,8 +486,10 @@ class AuthController extends Controller
 
             $messages = Message::select('id','content','created_at')
                     ->where('from_id', $targetUser->id)
-                    ->where('sys_notice', 0)
-                    ->orWhereNull('sys_notice')
+                    ->where(function ($query) {
+                        $query->where('sys_notice', 0)
+                        ->orWhereNull('sys_notice');
+                    })
                     ->whereBetween('created_at', array($date_start . ' 00:00', $date_end . ' 23:59'))
                     ->orderBy('created_at','desc')
                     ->take(100)
@@ -791,9 +795,10 @@ class AuthController extends Controller
                     //         ->where('isWarned', 1); })
                     ->leftJoin('warned_users as wu', function($join) {
                         $join->on('wu.member_id', '=', 'evaluation.from_id')
-                            ->where(function($query){
-                                $query->where('wu.expire_date', '>=', Carbon::now())
-                                    ->orWhere('wu.expire_date', null); }); })
+                             ->where(function($join) {                            
+                                $join->where('wu.expire_date', '>=', Carbon::now())
+                                ->orWhere('wu.expire_date', null);
+                             }); })
                     ->leftJoin('is_warned_log as iw', 'iw.user_id', '=', 'evaluation.from_id')
                     ->whereNull('b1.member_id')
                     ->whereNull('b3.target')

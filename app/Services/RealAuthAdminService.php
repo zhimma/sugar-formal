@@ -183,7 +183,20 @@ class RealAuthAdminService {
                     }
                 }
             }
-
+            if($auth_type_id == 1) {
+                $meta = $this->user()->meta;
+                if($meta) {
+                    $meta->blurryLifePhoto = 'VIP,general,';
+                    $meta->blurryAvatar = 'VIP,general,';
+                    $meta->save();
+                }
+                $tag = $this->user()->self_auth_tags_display;
+                if($tag) {
+                    $tag->vip_show = 0;
+                    $tag->more_than_pr_show = NULL;
+                    $tag->save();
+                }
+            }
         }
         
         return $rs;

@@ -66,7 +66,10 @@
                         </a>
                         <a href="{{route('real_auth')}}" class="gg_zh_li"><span><img src="/new/images/zh11.png"></span>
 								<font>本人認證</font>
-						</a>                      
+						</a>
+                        <a href="javascript:void(0)" class="gg_zh_li" onclick="hasPassAuthCheck();"><span><img src="/new/images/zh11.png"></span>
+                            <font>tag預覽設定</font>
+                        </a>
                         @endif
                     </div>
 
@@ -138,6 +141,15 @@
                 c5html(advAuthStr);
                 return false;
             }
+        }
+
+        function hasPassAuthCheck() {
+            @if($user->self_auth_status!=1 && $user->beauty_auth_status!=1)
+                c5('您好，您目前尚未通過認證');
+                return false;
+            @endif
+            window.location.replace("/dashboard/tag_display_settings");
+            return true;
         }
     </script>
 @stop

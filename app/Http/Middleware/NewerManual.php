@@ -38,8 +38,27 @@ class NewerManual
     {
         $user_meta = view()->shared('user_meta');
         if (!is_null($this->auth->user())){
-            if (!$user_meta->isAllSet($this->auth->user()->engroup)  && $this->auth->user()->isReadManual == 0) {
-                return response()->view('new.dashboard.newer_manual',['user'=> auth()->user()]);
+
+            if($this->auth->user()->engroup==2){
+                //女會員教學
+                if(session()->get('female_manual_has_been_read', 0) ==0){
+
+                    $version='';
+                    if($this->auth->user()->is_read_female_manual_part1 ==0)
+                        $version=1;
+                    else if($this->auth->user()->is_read_female_manual_part2 ==0)
+                        $version=2;
+                    else if($this->auth->user()->is_read_female_manual_part3 ==0)
+                        $version=3;
+
+                    if(!empty($version))
+                        return response()->view('new.dashboard.female_newer_manual',['user'=> auth()->user(), 'show_sop_type'=>$version,'no_read_hash_str'=>'nr_fnm']);
+                }
+            }else{
+                //男會員教學
+                if (!$user_meta->isAllSet($this->auth->user()->engroup)  && $this->auth->user()->isReadManual == 0) {
+                    return response()->view('new.dashboard.newer_manual',['user'=> auth()->user()]);
+                }
             }
 
             if( $this->auth->user()->engroup==1 &&
