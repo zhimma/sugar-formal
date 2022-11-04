@@ -2053,7 +2053,11 @@
                 class='message_no_interactive' style="display:none"
             @endif>
             {{--一次顯示50個 臨時搭建用--}}
-            <td style="text-align: center;"><button data-toggle="collapse" data-target="#msgLog{{$ref_user_id}}" class="accordion-toggle btn btn-primary message_toggle">+</button></td>
+            <td style="text-align: center;">
+                <button data-toggle="collapse" data-target="#msgLog{{$ref_user_id}}" class="accordion-toggle btn btn-primary message_toggle" value="{{$messageLog->room_id}}">
+                    +
+                </button>
+            </td>
             <td>@if(!empty($ref_user->name))<a href="{{ route('admin/showMessagesBetween', [$user->id, $ref_user_id]) }}" target="_blank">{{ $ref_user->name }}</a>@else 會員資料已刪除@endif</td>
             <td id="new{{$messageLog->to_id}}">
                 @if($message_log)
@@ -2083,6 +2087,7 @@
             <td id="new_time{{$ref_user_id}}">@if(!empty($ref_user->name)) {{ $message_log ? $message_log->created_at :''}} @else 會員資料已刪除 @endif</td>
             <td>@if(!empty($ref_user->name)) {{$toCount_user_id .'/'.$toCount_ref_user_id}} @else 會員資料已刪除 @endif</td>
         </tr>
+        {{--預定修改--}}
         <tr class="accordian-body collapse" id="msgLog{{$ref_user_id}}">
             <td class="hiddenRow" colspan="5">
                 <table class="table table-bordered">
@@ -2157,6 +2162,7 @@
                 </table>
             </td>
         </tr>
+        {{--預定修改--}}
     @endforeach
 </table>
 {!! $userMessage_log->links('pagination::sg-pages3') !!}
@@ -3292,6 +3298,10 @@ function show_re_content(id){
         }
     }
     //預算及車馬費警示警示
+
+    $('.message_toggle').on('click', function(){
+        console.log($(this).attr("value"));
+    });
 </script>
 <!--照片查看end-->
 </html>
