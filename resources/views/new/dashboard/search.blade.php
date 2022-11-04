@@ -1119,7 +1119,7 @@ header("Expires: Fri, 01 Jan 1990 00:00:00 GMT");
             axios.post('/getSearchData', post_data)
             .then(response => {
                     this.dataList = response.data.dataList;
-                    this.user = response.data.user;
+                    this.user_engroup = response.data.user_engroup;
                     this.userIsVip = response.data.userIsVip;
 
                     this.singlePageCount = response.data.singlePageCount;
@@ -1494,7 +1494,7 @@ header("Expires: Fri, 01 Jan 1990 00:00:00 GMT");
                             csrData +='<span style="margin-left: 10px;"><span style="padding-left: 5px;">工作/學業</span><img src="/new/images/icon_35.png" class="nt_img"></span>';
                         }
                       
-                        if(this.user.engroup==1){
+                        if(this.user_engroup==1){
                             csrData +='<i class="j_lxx">丨</i><span>'+rowVisitorExchangePeriodName.name+'</span>';
                             // if(this.userIsVip==1){
                             //     csrData +='<i class="j_lxx">丨</i><span>'+rowVisitorExchangePeriodName.name+'</span>';

@@ -231,10 +231,10 @@
             <div class="bltitle"><span style="text-align: center; float: none;" id="anonymous_chat_name"></span></div>
             <div class="new_pot new_poptk_nn new_pot001">
                 <div class="fpt_pic new_po000">
-                    <form id="reportPostForm" action="{{ route('anonymous_chat_report') }}" method="post">
+                    <form id="reportPostForm">
                         <input type="hidden" name="_token" value="{{ csrf_token() }}">
                         <input type="hidden" name="anonymous_chat_id" id="anonymous_chat_id" value="">
-                        <textarea name="content" cols="" rows="" class="n_nutext" style="border-style: none;" maxlength="300" placeholder="請輸入檢舉理由" required></textarea>
+                        <textarea name="content" id="anonymous_chat_report_content" cols="" rows="" class="n_nutext" style="border-style: none;" maxlength="300" placeholder="請輸入檢舉理由" required></textarea>
                         <div class="n_bbutton" style="margin-top:10px;">
                             <div style="display: inline-flex;">
                                 <button type="submit" class="n_right" style="border-style: none; background: #8a9ff0; color:#ffffff; float: unset; margin-left: 0px; margin-right: 20px;">送出</button>
@@ -468,6 +468,38 @@
         }
     });
 
+    $('#reportPostForm').on('submit',function(e){
+        e.preventDefault();
+
+        let content = $('#anonymous_chat_report_content').val();
+        let formData = new FormData(this);
+        if( content == ''){
+            c5('請輸入內容');
+            return false;
+        }else {
+            $.ajax({
+                url: '{{ route('anonymous_chat_report') }}',
+                type: 'POST',
+                data: formData,
+                cache:false,
+                contentType: false,
+                processData: false,
+                success: function (result) {
+                    if(result.msg=='OK') {
+                        $('#anonymous_chat_report_content').val('');
+                        $('#anonymous_chat_id').val('');
+                        $(".announce_bg").hide();
+                        $("#show_banned_ele").hide();
+
+                        c5('檢舉成功');
+                    }else{
+                        c5(result.msg);
+                    }
+                }
+            });
+        }
+    });
+
     function resetSpecificMsgElt() {
         $('#reply_id').val('');
         $('.specific_msg').html('');
@@ -527,8 +559,8 @@
         $("#show_banned_ele").hide();
     });
 
-
 </script>
+
 @stack('scripts')
 <script src="https://cdn.jsdelivr.net/npm/@fancyapps/ui@4.0/dist/fancybox.umd.js"></script>
 @endsection
