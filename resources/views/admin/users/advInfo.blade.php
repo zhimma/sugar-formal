@@ -2047,7 +2047,7 @@
             $toCount_user_id=\App\Models\Message::withTrashed()->where('from_id',$user->id)->where('to_id',$ref_user_id)->get()->count();
             $toCount_ref_user_id=\App\Models\Message::withTrashed()->where('from_id',$ref_user_id)->where('to_id',$user->id)->get()->count();
         @endphp
-        <tr 
+        <tr id='message_room_{{$messageLog->room_id}}'
             {{--一次顯示50個 臨時搭建用--}}
             @if($toCount_user_id == 0 )
                 class='message_no_interactive' style="display:none"
@@ -3305,7 +3305,7 @@ function show_re_content(id){
                     room_id: room_id,
                 },
                 success: function(data){
-                    console.log(data);
+                    console.log(data.room_id);
             }});
         }
         else if($(this).text() == '-')
