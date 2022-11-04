@@ -3306,6 +3306,7 @@ function show_re_content(id){
                 },
                 success: function(data){
                     let data_array = JSON.parse(data);
+                    console.log(data);
                     console.log(data_array['room_id']);
                     console.log('message_room_' + data_array['room_id']);
             }});
