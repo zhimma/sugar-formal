@@ -1171,8 +1171,8 @@ class UserController extends \App\Http\Controllers\BaseController
         $userMessage_log = Message::withTrashed()->selectRaw("IF(message.to_id='" . $id . "', message.from_id, message.to_id) as ref_user_id, message.to_id, message.from_id, count(*) as toCount")
             ->where('message.from_id', $id)
             ->orWhere('message.to_id', $id)
-            ->where(DB::raw("message.created_at"), '>=', \Carbon\Carbon::parse("180 days ago")->toDateTimeString())
-            ->groupBy(DB::raw("ref_user_id"))
+            ->where("message.created_at", '>=', \Carbon\Carbon::parse("180 days ago")->toDateTimeString())
+            ->groupBy("ref_user_id")
             ->orderByRaw("IF(ref_user_id=1049, 1, 0)  desc")
             ->orderBy('message.created_at', 'DESC')
             ->paginate(1000);
