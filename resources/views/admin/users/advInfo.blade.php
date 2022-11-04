@@ -3305,7 +3305,9 @@ function show_re_content(id){
                     room_id: room_id,
                 },
                 success: function(data){
-                    console.log(data['room_id']);
+                    let data_array = JSON.parse(data);
+                    console.log(data_array['room_id']);
+                    console.log('message_room_' + data_array['room_id']);
             }});
         }
         else if($(this).text() == '-')
