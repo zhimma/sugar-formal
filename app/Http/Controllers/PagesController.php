@@ -9597,9 +9597,11 @@ class PagesController extends BaseController
         }
 
         $checkReport = AnonymousChatReport::select('user_id', 'created_at')->where('reported_user_id', $user->id)->groupBy('user_id')->orderBy('created_at', 'desc')->get();
-        //dd($checkReport);
-        //dd($checkReport[0]->created_at);
-        if(count($checkReport) >= 5 && Carbon::parse($checkReport[0]->created_at)->diffInDays(Carbon::now())<3){
+        $times = 3;
+        if($user->isVVIP()){
+            $times = 5;
+        }
+        if(count($checkReport) >= $times && Carbon::parse($checkReport[0]->created_at)->diffInDays(Carbon::now())<3){
             return redirect('/dashboard/personalPage')->with('message', '因被檢舉次數過多，目前已限制使用匿名聊天室');
         }
 
@@ -9622,12 +9624,17 @@ class PagesController extends BaseController
         $msg = '檢舉成功';
 
         //判斷檢舉人數超過五人時刪除訊息
-        $checkReport = AnonymousChatReport::where('reported_user_id', $reported_user_id->user_id)->groupBy('user_id')->get();
-        if(count($checkReport) >= 5){
+        $checkReport = AnonymousChatReport::where('reported_user_id', $reported_user_id->user_id)->where('created_at', '>=', Carbon::now()->startOfWeek()->toDateTimeString())->groupBy('user_id')->get();
+        $reported_user = User::findById($reported_user_id->user_id);
+        $times = 3;
+        if($reported_user->isVVIP()){
+            $times = 5;
+        }
+        if(count($checkReport) >= $times){
             AnonymousChat::where('user_id', $reported_user_id->user_id)->delete();
         }
-
-        return back()->with('message', $msg);
+//        return back()->with('message', $msg);
+        return response()->json(['msg' => 'OK']);
     }
 
     public function anonymous_chat_message(Request $request) {
