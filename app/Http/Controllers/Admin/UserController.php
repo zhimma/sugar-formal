@@ -7548,7 +7548,9 @@ class UserController extends \App\Http\Controllers\BaseController
     public function getMessageFromRoomId(Request $request)
     {
         $room_id = $request->room_id;
-        return back()->with($room_id);
+        return response()->json([
+            'room_id' => $room_id
+        ], 201);
     }
 
 }
