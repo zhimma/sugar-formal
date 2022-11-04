@@ -1168,7 +1168,7 @@ class UserController extends \App\Http\Controllers\BaseController
         }
 
         //groupby $userMessage
-        $userMessage_log = Message::withTrashed()->selectRaw("IF(message.to_id='" . $id . "', message.from_id, message.to_id) as ref_user_id, message.to_id, message.from_id, count(*) as toCount")
+        $userMessage_log = Message::withTrashed()->selectRaw("IF(message.to_id='" . $id . "', message.from_id, message.to_id) as ref_user_id, message.room_id, message.to_id, message.from_id, count(*) as toCount")
             ->where('message.from_id', $id)
             ->orWhere('message.to_id', $id)
             ->where("message.created_at", '>=', \Carbon\Carbon::parse("180 days ago")->toDateTimeString())
