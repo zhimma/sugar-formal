@@ -91,26 +91,28 @@
                     }
                 @endphp
                 @foreach ($loginLogs as $loginLog)
-                    <tr @if($isBanned) style="background: yellow;" @elseif($isAdminWarned) style="background: palegreen;" @endif>
-                        <td>{{$loginLog->ip}}</td>
-                        <td><a href="../advInfo/{{ $row->user_id }}" target="_blank">{{$user->email}}</a></td>
-                        <td>{{$loginLog->country}}</td>
-                        <td>{{$row->cfp_id}}</td>
-                        @if($user->engroup==1)
-                            <td style="color: blue;">男</td>
-                        @else
-                            <td style="color: red;">女</td>
-                        @endif
-                        <td>{{$user->name}}</td>
-                        <td>{{$user->title}}</td>
-                        <td>{{$loginLog->created_at}}
-                            @if($row->groupCount>1 && request()->type!=='detail')
-                                <a href="/admin/users/ip/{{$loginLog->ip}}?type=detail&user_id={{ $row->user_id }}&cfp_id={{ $row->cfp_id }}&date={{ substr($loginLog->created_at,0,10) }}" target="_blank">{{ '(' .$row->groupCount .')' }}</a>
+                    @if(!(Auth::user()->can('juniorAdmin') && $is_test && ($isBanned || $isAdminWarned)))
+                        <tr @if($isBanned) style="background: yellow;" @elseif($isAdminWarned) style="background: palegreen;" @endif>
+                            <td>{{$loginLog->ip}}</td>
+                            <td><a href="../advInfo/{{ $row->user_id }}" target="_blank">{{$user->email}}</a></td>
+                            <td>{{$loginLog->country}}</td>
+                            <td>{{$row->cfp_id}}</td>
+                            @if($user->engroup==1)
+                                <td style="color: blue;">男</td>
+                            @else
+                                <td style="color: red;">女</td>
                             @endif
-                        </td>
-                        <td>{{$user->last_login}}</td>
-                        <td>{{ str_replace("Mozilla/5.0","", $loginLog->userAgent) }}</td>
-                    </tr>
+                            <td>{{$user->name}}</td>
+                            <td>{{$user->title}}</td>
+                            <td>{{$loginLog->created_at}}
+                                @if($row->groupCount>1 && request()->type!=='detail')
+                                    <a href="/admin/users/ip/{{$loginLog->ip}}?type=detail&user_id={{ $row->user_id }}&cfp_id={{ $row->cfp_id }}&date={{ substr($loginLog->created_at,0,10) }}" target="_blank">{{ '(' .$row->groupCount .')' }}</a>
+                                @endif
+                            </td>
+                            <td>{{$user->last_login}}</td>
+                            <td>{{ str_replace("Mozilla/5.0","", $loginLog->userAgent) }}</td>
+                        </tr>
+                    @endif
                 @endforeach
             @endforeach
         </tbody>

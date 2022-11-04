@@ -476,10 +476,9 @@ class Message_new extends Model
                     ->whereNull('b5.blocked_id')
                     ->whereNull('b6.blocked_id')
                     ->whereNull('b7.member_id')
-                    ->where(function ($query) use ($uid,$admin_id) {
-                        $query->where([['message.from_id', $admin_id], ['message.chat_with_admin', 1], ['message.to_id', $uid]])
-                            ->orWhere([['message.from_id', '<>', $admin_id], ['message.to_id', $uid], ['message.from_id', '!=', $uid]])    
-                            ->orWhere([['message.from_id', $uid], ['message.to_id', '!=',$uid]]);
+                    ->where(function ($query) use ($uid) {
+                        $query->where([['message.to_id', $uid], ['message.from_id', '<>', $uid]])    
+                            ->orWhere([['message.from_id', $uid], ['message.to_id', '<>',$uid]]);
                     });    
 
             if($forEventSenders) 
@@ -566,7 +565,15 @@ class Message_new extends Model
                 $mm[$v->from_id] = 0;
             }
             if($v->read=='N' && $v->all_delete_count != $uid && $v->is_row_delete_1 != $uid && $v->is_row_delete_2 != $uid && $v->is_single_delete_1 != $uid && $v->is_single_delete_2 != $uid){
-                $mm[$v->from_id]++;
+                if(($v->from_id == AdminService::checkAdmin()->id) or
+                    ($v->to_id == AdminService::checkAdmin()->id)){
+                    if($v->chat_with_admin) {
+                        $mm[$v->from_id]++;
+                    }                    
+                }
+                else {
+                    $mm[$v->from_id]++;
+                }
             }
 
         }
@@ -660,6 +667,7 @@ class Message_new extends Model
                 $messages[$key]['blurry_avatar'] = $msgUser->user_meta->blurryAvatar;
                 $messages[$key]['blurry_life_photo'] = $msgUser->user_meta->blurryLifePhoto;
                 $messages[$key]['pic'] = $msgUser->user_meta->pic;
+                $messages[$key]['pic_blur'] = $msgUser->user_meta->pic_blur;
                 if(!file_exists( public_path().$msgUser->user_meta->pic ) || $msgUser->user_meta->pic==null){
                     if($msgUser->engroup==1) {
                         $messages[$key]['pic'] = '/new/images/male.png';
@@ -791,6 +799,9 @@ class Message_new extends Model
         return Message::where([['to_id', $uid],['from_id', $sid]])->orWhere([['from_id', $uid],['to_id', $sid]])->distinct()->orderBy('created_at', 'desc')->paginate(10);
     }
 
+    /**
+     * 未使用
+     */
     public static function unread($uid)
     {
         // block information
@@ -932,15 +943,20 @@ class Message_new extends Model
             ->whereNull('b5.blocked_id')
             ->whereNull('b6.blocked_id')
             ->whereNull('b7.member_id')
-            ->where(function ($query) use ($uid,$admin_id) {
-                $query->where([['message.to_id', $uid], ['message.from_id', '!=', $uid],['message.from_id','!=',$admin_id]])
-                    ->orWhere([['message.from_id', $uid], ['message.to_id', '!=',$uid],['message.to_id','!=',$admin_id]]);
+            ->where(function ($query) use ($uid) {
+                $query->where([['message.to_id', $uid], ['message.from_id', '!=', $uid]])
+                    ->orWhere([['message.from_id', $uid], ['message.to_id', '!=',$uid]]);
             });
 
-        if($user->id != 1049){
-            $query->where(function($query){
-                $query->where(DB::raw('(u1.engroup + u2.engroup)'), '<>', '2');
-                $query->orWhere(DB::raw('(u1.engroup + u2.engroup)'), '<>', '4');
+        if ($user->id != 1049) {
+            $query->where(function ($query) use ($admin_id) {
+                $query->where(function ($query) use ($admin_id) {
+                    $query->where(DB::raw('(u1.engroup + u2.engroup)'), '<>', '2')
+                        ->where(function ($query) use ($admin_id) {
+                            $query->where('message.from_id', '!=', $admin_id)
+                                ->orWhere('message.to_id', '!=', $admin_id);
+                        });
+                })->orWhere(DB::raw('(u1.engroup + u2.engroup)'), '<>', '4');
             });
         }
 

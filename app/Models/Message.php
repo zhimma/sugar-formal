@@ -20,11 +20,11 @@ use App\Models\SimpleTables\banned_users;
 use App\Services\UserService;
 use Illuminate\Support\Facades\Cache;
 use YlsIdeas\FeatureFlags\Facades\Features;
-use Laravel\Scout\Searchable;
+use Outl1ne\ScoutBatchSearchable\BatchSearchable;
 
 class Message extends Model
 {
-    use SoftDeletes, Searchable;
+    use SoftDeletes, BatchSearchable;
 
     /**
      * The database table used by the model.
@@ -775,15 +775,38 @@ class Message extends Model
         self::$date =\Carbon\Carbon::parse("180 days ago")->toDateTimeString();
         $query = Message::withTrashed()->where('created_at','>=',self::$date);
         $query = $query->where(function ($query) use ($uid,$sid) {
-            $query->where([['chat_with_admin', 1],['to_id', $uid],['from_id', $sid]])
-                ->orWhere([['from_id', $uid],['to_id', $sid]]);
+            // 效能調整
+            // $query->where([['chat_with_admin', 1],['to_id', $uid],['from_id', $sid]])
+            $query->where('chat_with_admin', 1)->where(
+                function ($query) use ($uid, $sid) {
+                    $query->where([['to_id', $uid],['from_id', $sid]])
+                        ->orWhere([['from_id', $uid],['to_id', $sid]]);
+                }
+            );
         });
+        /*
+        $first = DB::table("message")->where([['to_id', $uid], ['from_id', $sid]])
+                    ->where('created_at', '>=', self::$date)
+                    ->orderBy('created_at', 'desc');
 
-        $query = $query->where('created_at','>=',self::$date)
-            ->orderBy('created_at', 'desc');
+        $final = DB::table("message")->where([['from_id', $uid], ['to_id', $sid]])
+                    ->where('created_at', '>=', self::$date)
+                    ->orderBy('created_at', 'desc')->union($first);
+         */
+
+        $query = $query->where('created_at','>=',self::$date);
         return $query;
     }
 
+    /**
+     * 使用中
+     * @param mixed $uid 
+     * @param bool $tinker 
+     * @return int 
+     * @throws \InvalidArgumentException 
+     * @throws \Carbon\Exceptions\InvalidFormatException 
+     * @throws \Carbon\Exceptions\UnitException 
+     */
     public static function unread($uid, $tinker = false)
     {
         $user = \View::shared('user');
@@ -849,11 +872,15 @@ class Message extends Model
                         ->whereNull('b5.blocked_id')
                         ->whereNull('b6.blocked_id')
                         ->whereNull('b7.member_id')
-                        ->where(function($query)use($uid){
+                        ->where(function($query) use ($uid) {
                             $query->where([
                                 ['message.to_id', $uid],
                                 ['message.from_id', '!=', $uid],
-                                ['message.from_id','!=',AdminService::checkAdmin()->id]
+                                ['message.from_id', '!=',AdminService::checkAdmin()->id]
+                            ])->orWhere([                                
+                                ['message.to_id', $uid],
+                                ['message.from_id', '=',AdminService::checkAdmin()->id],
+                                ['message.chat_with_admin', 1]
                             ]);
                         })
                         ->where([['message.is_row_delete_1','<>',$uid],['message.is_single_delete_1', '<>' ,$uid], ['message.all_delete_count', '<>' ,$uid],['message.is_row_delete_2', '<>' ,$uid],['message.is_single_delete_2', '<>' ,$uid],['message.temp_id', '=', 0]])
@@ -1105,7 +1132,7 @@ class Message extends Model
         $message->parent_msg = array_key_exists('parent',$arr)?$arr['parent']:'';
         $message->client_id = array_key_exists('client_id',$arr)?$arr['client_id']:'';
         $message->parent_client_id = array_key_exists('parent_client',$arr)?$arr['parent_client']:'';
-
+        $message->chat_with_admin = $arr['chat_with_admin'] ?? 0;
         $message->all_delete_count = 0;
         $message->is_row_delete_1 = 0;
         $message->is_row_delete_2 = 0;

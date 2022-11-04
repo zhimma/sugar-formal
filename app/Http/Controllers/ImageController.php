@@ -310,7 +310,7 @@ class ImageController extends BaseController
         
         $file_input_name = 'avatar';
         
-        if($rap_service->isPassedByAuthTypeId(1) ) {
+        if($rap_service->isPassedByAuthTypeId(1) && $user_meta->pic ) {
             $file_input_name = 'apply_replace_pic';
         }
             
@@ -385,8 +385,8 @@ class ImageController extends BaseController
 
                 //更新大頭照模糊照片路徑
                 $avatarOriginPath=UserMeta::where('user_id', $userId)->first();
-                if(!is_null($avatarOriginPath) && $avatarOriginPath->pic){
-                    $blurPic=$this->createBlurPhoto($avatarOriginPath->pic);
+                if(!is_null($avatarOriginPath) && $path){
+                    $blurPic=$this->createBlurPhoto($path);
                     $avatarOriginPath->pic_blur=$blurPic;
                     $avatarOriginPath->save();
                 }
@@ -716,10 +716,14 @@ class ImageController extends BaseController
             //更新生活照模糊照片路徑
             $lifePhotoList=MemberPic::where('member_id', $userId)->get();
             foreach ($lifePhotoList as $lifePhoto){
-                if(!is_null($lifePhoto->pic)){
-                    $blurPic=$this->createBlurPhoto($lifePhoto->pic);
+                if($path ?? false){
+                    $blurPic=$this->createBlurPhoto($path);
                     $lifePhoto->pic_blur=$blurPic;
                     $lifePhoto->save();
+                }
+                else {
+                    logger('ImageController no path.');
+                    \Sentry\captureMessage("ImageController no path.");
                 }
             }
         }

@@ -426,8 +426,9 @@ function requestBlurryAvatarDefault() {
                         @php
                             $blurryAvatar = isset($blurry_avatar)? $blurry_avatar : '';
                             $blurryAvatar = explode(',', $blurryAvatar);
-                            $isVVIP = true;$isVIP = false;$isGeneral = true;$isPR = false;
+                            $isVVIP = true;$isVIP = true;$isGeneral = true;$isPR = false;
                             $isDefault = false;
+                            $AvatarPr = 60;
                             if(!($blurry_avatar??null)) {                              
                                 $isGeneral = false;
                                 $isDefault = true;
@@ -441,6 +442,7 @@ function requestBlurryAvatarDefault() {
                                     $isGeneral = false;
                                 } elseif(str_contains($row, 'PR_')) {
                                     $isPR = true;
+                                    $AvatarPr = explode("_",$row)[1];
                                 }
                             }
                         @endphp
@@ -454,8 +456,8 @@ function requestBlurryAvatarDefault() {
                           <h4>
                               <span><input name="picBlurryAvatar" type="checkbox" value="VIP" @if($isVIP) checked @endif>VIP</span>
                               <span><input name="picBlurryAvatar" type="checkbox" value="general" @if($isGeneral) checked @endif>試用會員</span>
-                              @if($user->engroup==2)
-                              <span><input name="picBlurryAvatar" type="checkbox" value="PR" @if($isPR) checked @endif>pr<input type="number" name="avatar_pr_value" value="60" min="0" max="100" style="height: 22px;"></span>
+                              @if($user->engroup==2 && $rap_service->isPassedByAuthTypeId(1))
+                              <span><input name="picBlurryAvatar" type="checkbox" value="PR" @if($isPR) checked @endif>pr<input type="number" name="avatar_pr_value" value="{{$AvatarPr}}" min="0" max="100" style="height: 22px;"></span>
                               @endif
                           </h4>
                     </div>
@@ -475,8 +477,9 @@ function requestBlurryAvatarDefault() {
                         @php
                             $blurryLifePhoto = isset($blurry_life_photo)? $blurry_life_photo : '';
                             $blurryLifePhoto = explode(',', $blurryLifePhoto);
-                            $isVVIP = true;$isVIP = false;$isGeneral = true;$isPR = false;
+                            $isVVIP = true;$isVIP = true;$isGeneral = true;$isPR = false;
                             $isDefault=false;
+                            $LifePhotoPr = 60;
                             if(!($blurry_life_photo??null)) {                              
                                 $isGeneral = false;
                                 $isDefault = true;
@@ -491,6 +494,7 @@ function requestBlurryAvatarDefault() {
                                     $isGeneral = false;
                                 } elseif(str_contains($row, 'PR_')) {
                                     $isPR = true;
+                                    $LifePhotoPr = explode("_",$row)[1];
                                 }
                             }
                         @endphp
@@ -504,8 +508,8 @@ function requestBlurryAvatarDefault() {
                           <h4>
                               <span><input name="picBlurryLifePhoto" type="checkbox" value="VIP" @if($isVIP) checked @endif>VIP</span>
                               <span><input name="picBlurryLifePhoto" type="checkbox" value="general"  @if($isGeneral) checked @endif>試用會員</span>
-                              @if($user->engroup==2)
-                                  <span><input name="picBlurryLifePhoto" type="checkbox" value="PR" @if($isPR) checked @endif>pr<input type="number" name="life_photo_pr_value" value="60" min="0" max="100" style="height: 22px;"></span>
+                              @if($user->engroup==2 && $rap_service->isPassedByAuthTypeId(1))
+                                  <span><input name="picBlurryLifePhoto" type="checkbox" value="PR" @if($isPR) checked @endif>pr<input type="number" name="life_photo_pr_value" value="{{$LifePhotoPr}}" min="0" max="100" style="height: 22px;"></span>
                               @endif
                               @if($isDefault)
                               <script>  
@@ -1102,7 +1106,50 @@ function requestBlurryAvatarDefault() {
         });
     });
 
+    $(`input[name="avatar_pr_value"]`).change(function(){
+        var values = "";
+        $.each($("input[name='picBlurryAvatar']"), function() {
+            if($(this).val()=='PR'){
+                if($(this).is(':checked')){
+                    values = values + $(this).val() +'_' + $("input[name='avatar_pr_value']").val() +',';
+                }
+            }else{
+                if(!$(this).is(':checked')){
+                    values = values + $(this).val() +',';
+                }
+            }
+        });
+        $.ajax({
+            url: '/dashboard/avatar/blurry/' + userId + '?{{csrf_token()}}={{now()->timestamp}}',
+            method: 'POST',
+            data: {
+                _token: "{{ csrf_token() }}",
+                'blurrys': values
+            },
+            dataType: 'json',
+
+            success: function(data) {
+            }
+        });
+    });
+
     $("input:checkbox[name='picBlurryLifePhoto']").on('click', function() {
+        var values = "";
+        $.each($("input[name='picBlurryLifePhoto']"), function() {
+            if($(this).val()=='PR'){
+                if($(this).is(':checked')){
+                    values = values + $(this).val() +'_' + $("input[name='life_photo_pr_value']").val() +',';
+                }
+            }else{
+                if(!$(this).is(':checked')){
+                    values = values + $(this).val() +',';
+                }
+            }
+        });
+        requestBlurryLifePhoto(userId,values);
+    });
+
+    $(`input[name="life_photo_pr_value"]`).change(function(){
         var values = "";
         $.each($("input[name='picBlurryLifePhoto']"), function() {
             if($(this).val()=='PR'){

@@ -146,8 +146,8 @@
     }
 
     .blur_img {
-        filter: blur(2px);
-        -webkit-filter: blur(2px);
+        filter: blur(1px);
+        -webkit-filter: blur(1px);
     }
 
     .fileuploader-icon-remove:after {
@@ -626,21 +626,18 @@
                 @if(!empty($messages))
                 @foreach ($messages as $m_key =>$message)
                 @php
-                $parentMsg = null;
-                $msgUser = \App\Models\User::findById($message->from_id);
-                \App\Models\Message::read($message, $user->id);
-                if($message->parent_msg??null) $parentMsg = \App\Models\Message::find($message->parent_msg);
-                if(!($parentMsg??null) && $message->parent_client_id??null) $parentMsg = \App\Models\Message::where('client_id',$message->parent_client_id)->first();
-                if($parentMsg??null) {
-                if($parentMsg->from_id==$user->id) $parentMsgSender=$user;
-                else {
-                $parentMsgSender = \App\Models\User::findById($parentMsg->from_id);
-                $isBlurParentSender = \App\Services\UserService::isBlurAvatar($parentMsgSender, $user);
-                }
-                }
-                if($message['sys_notice']==1 && $message['from_id']!==$user->id && $message['from_id']!=-1049){
-                    continue;
-                }
+                    $parentMsg = null;
+                    $msgUser = \App\Models\User::findById($message->from_id);
+                    \App\Models\Message::read($message, $user->id);
+                    if($message->parent_msg ?? null) $parentMsg = \App\Models\Message::find($message->parent_msg);
+                    if(!($parentMsg ?? null) && $message->parent_client_id ?? null) $parentMsg = \App\Models\Message::where('client_id', $message->parent_client_id)->first();
+                    if($parentMsg ?? null) {
+                        if($parentMsg->from_id == $user->id) $parentMsgSender = $user;
+                        else {
+                            $parentMsgSender = \App\Models\User::findById($parentMsg->from_id);
+                            $isBlurParentSender = \App\Services\UserService::isBlurAvatar($parentMsgSender, $user);
+                        }
+                    }
                 @endphp
 
                 @if($date_temp != substr($message['created_at'],0,10)) <div class="sebg matopj10">
@@ -685,8 +682,11 @@
                                         <a class="chatWith" href="{{ url('/dashboard/viewuser/' . $msgUser->id ) }}">
                                     @endif
                                 @endif
+                                    @php
+                                        $pic = ($isBlurAvatar)?$msgUser->meta->pic_blur:$msgUser->meta->pic;
+                                    @endphp
                                     <img class="@if($isBlurAvatar) blur_img @endif"
-                                        src="@if(file_exists( public_path().$msgUser->meta->pic ) && $msgUser->meta->pic != ""){{$msgUser->meta->pic}} @elseif($msgUser->engroup==2)/new/images/female.png @else/new/images/male.png  @endif">
+                                        src="@if(file_exists( public_path().$pic ) && $pic != ""){{$pic}} @elseif($msgUser->engroup==2)/new/images/female.png @else/new/images/male.png  @endif">
                                     @if($to->isVVIP())
                                         <img src="/new/images/v1_08.png" class="liaot_tx_l">
                                     @endif
@@ -699,8 +699,11 @@
                                     <img
                                         src="@if(file_exists( public_path().$user->meta->pic ) && $user->meta->pic != ""){{$user->meta->pic}} @elseif($user->engroup==2)/new/images/female.png @else/new/images/male.png @endif">
                                     @else
+                                    @php
+                                        $parentPic = ($isBlurParentSender)?$parentMsgSender->meta->pic_blur:$parentMsgSender->meta->pic;
+                                    @endphp
                                     <img class="@if($isBlurParentSender??null) blur_img @endif"
-                                        src="@if(file_exists( public_path().$parentMsgSender->meta->pic ) && $parentMsgSender->meta->pic != ""){{$parentMsgSender->meta->pic}} @elseif($parentMsgSender->engroup==2)/new/images/female.png @else/new/images/male.png  @endif">
+                                        src="@if(file_exists( public_path().$parentPic ) && $parentPic != ""){{$parentPic}} @elseif($parentMsgSender->engroup==2)/new/images/female.png @else/new/images/male.png  @endif">
                                     @endif
                                     @if(!is_null(json_decode($parentMsg['pic'],true)))
                                     <img src="{{ json_decode($parentMsg['pic'],true)[0]['file_path'] }}"
@@ -899,6 +902,7 @@
                     <form style="margin: 0 auto;" method="POST"
                         action="/dashboard/chat2/{{ \Carbon\Carbon::now()->timestamp }}" id="chatForm" name="chatForm">
                         <input type="hidden" name="_token" value="{{ csrf_token() }}">
+                        <input type="hidden" name="chat_with_admin" value="{{ $chatting_with_admin }}">
                         <input type="hidden" name="userId" value="{{$user->id}}">
                         <input type="hidden" name="to" value="{{$to->id}}">
                         <input type="hidden" name="m_time" @if(isset($m_time)) value="{{ $m_time }}" @else value="" @endif>
@@ -2119,18 +2123,19 @@
                 var parent_id = document.getElementById('message_parent').value;
                 var parent_client_id = document.getElementById('message_parent_client').value;
                 formData.append("msg", msg_text);
-            formData.append("from", "{{ auth()->user()->id }}");
-            formData.append("to", "{{ $to->id }}");
-            formData.append('parent', parent_id);
-            formData.append('parent_client', parent_client_id);
-            formData.append('client_id',msg_data.client_id);
-            @if($isVip)
-            formData.append('is_truth',$('#truth_actor').length?$('#truth_actor').data('truth_active'):0);
-            @endif
-            formData.append("_token", "{{ csrf_token() }}");
-            xhr.open("post", "{{ route('realTimeChat') }}", true);
-            xhr.onload = function (e) {
-                var response = e.currentTarget.response;
+                formData.append("chat_with_admin", '{{ $chatting_with_admin ?? 0 }}');
+                formData.append("from", "{{ auth()->user()->id }}");
+                formData.append("to", "{{ $to->id }}");
+                formData.append('parent', parent_id);
+                formData.append('parent_client', parent_client_id);
+                formData.append('client_id',msg_data.client_id);
+                @if($isVip)
+                formData.append('is_truth',$('#truth_actor').length?$('#truth_actor').data('truth_active'):0);
+                @endif
+                formData.append("_token", "{{ csrf_token() }}");
+                xhr.open("post", "{{ route('realTimeChat') }}", true);
+                xhr.onload = function (e) {
+                    var response = e.currentTarget.response;
                     var rentry = null;
                     try { 
                         rentry = JSON.parse(response);

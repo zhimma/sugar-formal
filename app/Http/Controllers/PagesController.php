@@ -3167,6 +3167,8 @@ class PagesController extends BaseController
             $dataList_normal = [];
             $rap_service = $this->rap_service;
             foreach ($searchApi['singlePageData'] as $key=>$visitor){
+                //隱藏電話號碼避免個資外洩
+                $visitor->user_meta = $visitor->user_meta->makeHidden(['phone']);
                 if($visitor->isVVIP())
                 {
                     $temp_array = [];
@@ -3182,6 +3184,7 @@ class PagesController extends BaseController
                     $temp_array['visitorIsBeautyAuth'] = $rap_service->isPassedByAuthTypeId(2);
                     $temp_array['visitorIsFamousAuth'] = $rap_service->isPassedByAuthTypeId(3);
                     $temp_array['visitorIsBlurAvatar'] = \App\Services\UserService::isBlurAvatar($visitor, $user);
+                    $temp_array['visitorisPersonalTagShow'] = \App\Services\UserService::isPersonalTagShow($visitor, $user);
                     $temp_array['visitorAge'] = $visitor->age();
                     $temp_array['visitorIsOnline'] = $visitor->isOnline();
                     $temp_array['visitorExchangePeriodName'] = DB::table('exchange_period_name')->where('id',$visitor->exchange_period)->first();
@@ -3204,6 +3207,7 @@ class PagesController extends BaseController
                     $temp_array['visitorIsBeautyAuth'] = $rap_service->isPassedByAuthTypeId(2);
                     $temp_array['visitorIsFamousAuth'] = $rap_service->isPassedByAuthTypeId(3);
                     $temp_array['visitorIsBlurAvatar'] = \App\Services\UserService::isBlurAvatar($visitor, $user);
+                    $temp_array['visitorisPersonalTagShow'] = \App\Services\UserService::isPersonalTagShow($visitor, $user);
                     $temp_array['visitorAge'] = $visitor->age();
                     $temp_array['visitorIsOnline'] = $visitor->isOnline();
                     $temp_array['visitorExchangePeriodName'] = DB::table('exchange_period_name')->where('id',$visitor->exchange_period)->first();
@@ -3220,7 +3224,7 @@ class PagesController extends BaseController
                 'singlePageCount'=> $searchApi['singlePageCount'],
                 'allPageDataCount'=>$searchApi['allPageDataCount'],
                 'dataList'=>$dataList,
-                'user'=>$user,
+                'user_engroup'=>$user->engroup,
                 'userIsVip'=>$userIsVip,
                 'notes'=>MessageUserNote::where('user_id', $user->id)->get()->pluck('note','message_user_id'),
             );
@@ -3869,7 +3873,7 @@ class PagesController extends BaseController
 
 
             return view('new.dashboard.female_newer_manual')
-                ->with('show_sop_type', $version)
+                ->with('show_sop_type', $version ?? null)
                 ->with('user', $user);
         }
     }
@@ -4019,7 +4023,8 @@ class PagesController extends BaseController
             if (isset($cid)) {
                 $cid_user = $this->service->find($cid);
                 if($cid == "1049"){
-                    $messages = Message::allToFromSenderChatWithAdmin($user->id, 1049)->paginate(10);
+                    $messages = Message::allToFromSenderChatWithAdmin($user->id, 1049)->orderBy('id', 'desc')->paginate(10);
+                    $chatting_with_admin = true;
                 }
                 if(!$cid_user){
                     return '<h1>該會員不存在。</h1>';
@@ -4063,6 +4068,7 @@ class PagesController extends BaseController
                     ->with('is_truth_state',in_array(['to_id' =>$cid_user->id,'from_id' =>$user->id],Message::$truthMessages) || in_array(['to_id' =>$user->id,'from_id' =>$cid_user->id],Message::$truthMessages))
                     ->with('exist_is_truth_quota',Message::existIsTrueQuotaByFromUser($user))
                     ->with('remain_num_of_is_truth',Message::getRemainQuotaOfIsTruthByFromUser($user))
+                    ->with('chatting_with_admin', $chatting_with_admin ?? false)
                     ;
             }
             else {
@@ -4078,7 +4084,8 @@ class PagesController extends BaseController
                     ->with('tippopup', $tippopup)
                     ->with('messages', $messages)
                     ->with('report_reason', $report_reason->content)
-                    ->with('first_send_messenge', $first_send_messenge);
+                    ->with('first_send_messenge', $first_send_messenge)
+                    ->with('chatting_with_admin', $chatting_with_admin ?? false);
             }
         }
     }
@@ -8391,7 +8398,7 @@ class PagesController extends BaseController
         $admin_msgs = [];
         $admin_msgs_sys = [];
 
-        foreach($admin_msg_entrys->where('sys_notice',0)->where('sys_notice',0)->where('chat_with_admin', 0) as $admin_msg_entry) {
+        foreach($admin_msg_entrys->where('sys_notice',0)->where('chat_with_admin', 0) as $admin_msg_entry) {
             $admin_msg_entry->content = str_replace('NAME', $user->name, $admin_msg_entry->content);
             $admin_msg_entry->content = str_replace('|$report|', $user->name, $admin_msg_entry->content);
             $admin_msg_entry->content = str_replace('LINE_ICON', AdminService::$line_icon_html, $admin_msg_entry->content);
@@ -9990,6 +9997,9 @@ class PagesController extends BaseController
         if($user->engroup!=2) {
             return redirect('/dashboard/personalPage');
         }
+        if($user->self_auth_status!=1 && $user->beauty_auth_status!=1) {
+            return redirect('/dashboard/personalPage');
+        }
 
         $data['self_auth']= RealAuthUserTagsDisplay::where('user_id', $user->id)->where('auth_type_id', 1)->first();
         $data['beauty_auth']= RealAuthUserTagsDisplay::where('user_id', $user->id)->where('auth_type_id', 2)->first();
@@ -10001,23 +10011,23 @@ class PagesController extends BaseController
     {
         $user = auth()->user();
 
-        if($request->self_auth_vip_show || $request->self_auth_pr_show){
+        // if($request->self_auth_vip_show || $request->self_auth_pr_show){
             $data['vip_show']=$request->self_auth_vip_show=='VIP' ? 1 :0;
             $data['more_than_pr_show']=$request->self_auth_pr_show=='PR' ? $request->self_auth_pr_value : null;
             RealAuthUserTagsDisplay::updateOrInsert(['user_id'=> $user->id, 'auth_type_id'=> 1], $data);
-        }
+        // }
 
-        if($request->beauty_auth_vip_show || $request->beauty_auth_pr_show){
+        // if($request->beauty_auth_vip_show || $request->beauty_auth_pr_show){
             $data['vip_show']=$request->beauty_auth_vip_show=='VIP' ? 1 :0;
             $data['more_than_pr_show']=$request->beauty_auth_pr_show=='PR' ? $request->beauty_auth_pr_value : null;
             RealAuthUserTagsDisplay::updateOrInsert(['user_id'=> $user->id, 'auth_type_id'=> 2], $data);
-        }
+        // }
 
-        if($request->famous_auth_vip_show || $request->famous_auth_pr_show){
+        // if($request->famous_auth_vip_show || $request->famous_auth_pr_show){
             $data['vip_show']=$request->famous_auth_vip_show=='VIP' ? 1 :0;
             $data['more_than_pr_show']=$request->famous_auth_pr_show=='PR' ? $request->famous_auth_pr_value : null;
             RealAuthUserTagsDisplay::updateOrInsert(['user_id'=> $user->id, 'auth_type_id'=> 3], $data);
-        }
+        // }
 
         return redirect()->back()->with('message', '更新完成');
     }

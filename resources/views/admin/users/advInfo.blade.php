@@ -1,6 +1,14 @@
 @include('partials.header')
 @include('partials.message')
 <style>
+    @if(Auth::user()->can('juniorAdmin') && $is_test)
+        .btn{
+            display:none;
+        }
+        .cfp_bp{
+            display:none;
+        }
+    @endif
     .hiddenRow {
         padding: 0 !important;
     }
@@ -793,24 +801,8 @@
         <td>@if($userMeta->city=='0') 無 @else {{ $userMeta->city }} {{ $userMeta->area }} @endif</td>
         <th>拒絕查詢的縣市</th>
         <td>@if($userMeta->blockcity=='0') 無 @else {{ $userMeta->blockcity }} {{ $userMeta->blockarea }} @endif</td>
-        <th>預算</th>
-        <td>{{ $userMeta->budget }}</td>
-    </tr>
-    <tr>
-        <th>生日</th>
-        <td>{{ date('Y-m-d', strtotime($userMeta->birthdate)) }}</td>
-        <th>身高</th>
-        <td>{{ $userMeta->height }}{!!$raa_service->getActualUncheckedHeightLayout()!!}</td>
         <th>職業</th>
         <td>{{ $userMeta->occupation }}</td>
-    </tr>
-    <tr>
-        <th>體重</th>
-        <td>{{ \App\Services\UserService::getOptionWordByWeightValue($userMeta->weight) }}{!!$raa_service->getActualUncheckedWeightLayout()!!}</td>
-        <th>罩杯</th>
-        <td>{{ $userMeta->cup }}</td>
-        <th>體型</th>
-        <td>{{ $userMeta->body }}</td>
     </tr>
     <tr>
         <th>現況</th>
@@ -819,6 +811,41 @@
         <td>{{ $userMeta->about }}</td>
         <th>期待的約會模式</th>
         <td>{{ $userMeta->style }}</td>
+    </tr>
+    <tr>
+        <th>生日</th>
+        <td>{{ date('Y-m-d', strtotime($userMeta->birthdate)) }}</td>
+        <th>身高</th>
+        <td>{{ $userMeta->height }}{!!$raa_service->getActualUncheckedHeightLayout()!!}</td>
+        <th>體重</th>
+        <td>{{ \App\Services\UserService::getOptionWordByWeightValue($userMeta->weight) }}{!!$raa_service->getActualUncheckedWeightLayout()!!}</td>
+    </tr>
+    <tr><th>體型</th>
+        <td>{{ $userMeta->body }}</td>
+        @if($user->engroup == 2)
+            <th>罩杯</th>
+            <td>{{ $userMeta->cup }}</td>
+            <th>預算</th>
+            <td>{{ $userMeta->budget }}</td>
+        @endif
+        @if($user->engroup == 1)
+            <th>每月預算</th>
+            <td>{{$userMeta->budget_per_month_min ?? '未填'}} ~ {{$userMeta->budget_per_month_max ?? '未填'}}</td>
+            <th>車馬費預算</th>
+            <td>{{$userMeta->transport_fare_min ?? '未填'}} ~ {{$userMeta->transport_fare_max ?? '未填'}}</td>
+        @endif
+    </tr>
+    <tr>
+        @if($user->engroup == 2)
+            <th>是否接受進一步關係</th>
+            <td>
+                @if($userMeta->is_pure_dating)
+                    是
+                @else
+                    否
+                @endif
+            </td>
+        @endif
     </tr>
 </table>
 
@@ -1702,7 +1729,7 @@
                     @if($CFP_count>0)
                         @foreach(array_get($logInLog->CfpID,'CfpID_group',[]) as $gpKey =>$group)
                             @if($gpKey<5)
-                                <td class="loginItem" id="showcfpID{{substr($logInLog->loginDate,0,7)}}_group{{$gpKey}}" data-sectionName="cfpID{{substr($logInLog->loginDate,0,7)}}_group{{$gpKey}}" data-assign_user_id="{{ $user->id }}" data-yearMonth="{{substr($logInLog->loginDate,0,7)}}" data-cfpID="{{$group->cfp_id}}" data-blocked-people="{{ $logInLog->CfpID['CfpID_blocked_people'][$gpKey] }}" data-online-people="{{ $logInLog->CfpID['CfpID_online_people'][$gpKey] }}" data-count="{{ $group->dataCount }}" style="margin-left: 20px;min-width: 100px;{{ $group->CfpID_set_auto_ban ? 'background:yellow;' : '' }}">{{ $group->cfp_id }} <span style="{{ $logInLog->CfpID['CfpID_blocked_people'][$gpKey] > 0 ? 'background-color: yellow;' : '' }}">[{{ $logInLog->CfpID['CfpID_blocked_people'][$gpKey] }}/{{ $logInLog->CfpID['CfpID_online_people'][$gpKey] }}]</span> {{ '('.$group->dataCount .')' }}</td>
+                                <td class="loginItem" id="showcfpID{{substr($logInLog->loginDate,0,7)}}_group{{$gpKey}}" data-sectionName="cfpID{{substr($logInLog->loginDate,0,7)}}_group{{$gpKey}}" data-assign_user_id="{{ $user->id }}" data-yearMonth="{{substr($logInLog->loginDate,0,7)}}" data-cfpID="{{$group->cfp_id}}" data-blocked-people="{{ $logInLog->CfpID['CfpID_blocked_people'][$gpKey] }}" data-online-people="{{ $logInLog->CfpID['CfpID_online_people'][$gpKey] }}" data-count="{{ $group->dataCount }}" style="margin-left: 20px;min-width: 100px;{{ $group->CfpID_set_auto_ban ? 'background:yellow;' : '' }}">{{ $group->cfp_id }} <span class="cfp_bp" style="{{ $logInLog->CfpID['CfpID_blocked_people'][$gpKey] > 0 ? 'background-color: yellow;' : '' }}">[{{ $logInLog->CfpID['CfpID_blocked_people'][$gpKey] }}/{{ $logInLog->CfpID['CfpID_online_people'][$gpKey] }}]</span> {{ '('.$group->dataCount .')' }}</td>
                             @endif
                         @endforeach
                     @endif
@@ -1718,7 +1745,7 @@
                     @if($IP_count>0)
                         @foreach(array_get($logInLog->Ip,'Ip_group',[]) as $gpKey =>$group)
                             @if($gpKey<10)
-                                <td class="loginItem ipItem" id="showIp{{substr($logInLog->loginDate,0,7)}}_group{{$gpKey}}" data-sectionName="Ip{{substr($logInLog->loginDate,0,7)}}_group{{$gpKey}}" data-assign_user_id="{{ $user->id }}" data-yearMonth="{{substr($logInLog->loginDate,0,7)}}" data-ip="{{ $group->ip }}" data-blocked-people="{{ $logInLog->Ip['Ip_blocked_people'][$gpKey] }}" data-online-people="{{ $logInLog->Ip['Ip_online_people'][$gpKey] }}" data-count="{{ $group->dataCount }}" style="margin-left: 20px;min-width: 150px;{{ $group->IP_set_auto_ban ? 'background:yellow;' : '' }}">{{ $group->ip }} <span style="{{ $logInLog->Ip['Ip_blocked_people'][$gpKey] > 0 ? 'background-color: yellow;' : '' }}">[{{ $logInLog->Ip['Ip_blocked_people'][$gpKey] }}/{{ $logInLog->Ip['Ip_online_people'][$gpKey] }}]</span> {{ '('.$group->dataCount .')' }}</td>
+                                <td class="loginItem ipItem" id="showIp{{substr($logInLog->loginDate,0,7)}}_group{{$gpKey}}" data-sectionName="Ip{{substr($logInLog->loginDate,0,7)}}_group{{$gpKey}}" data-assign_user_id="{{ $user->id }}" data-yearMonth="{{substr($logInLog->loginDate,0,7)}}" data-ip="{{ $group->ip }}" data-blocked-people="{{ $logInLog->Ip['Ip_blocked_people'][$gpKey] }}" data-online-people="{{ $logInLog->Ip['Ip_online_people'][$gpKey] }}" data-count="{{ $group->dataCount }}" style="margin-left: 20px;min-width: 150px;{{ $group->IP_set_auto_ban ? 'background:yellow;' : '' }}">{{ $group->ip }} <span class="cfp_bp" style="{{ $logInLog->Ip['Ip_blocked_people'][$gpKey] > 0 ? 'background-color: yellow;' : '' }}">[{{ $logInLog->Ip['Ip_blocked_people'][$gpKey] }}/{{ $logInLog->Ip['Ip_online_people'][$gpKey] }}]</span> {{ '('.$group->dataCount .')' }}</td>
                             @endif
                         @endforeach
                     @endif
@@ -2160,7 +2187,7 @@
                 @php
                     $exchange_period_name = DB::table('exchange_period_name')->where('id',$user->exchange_period)->first();
                 @endphp
-                {{$exchange_period_name->name}}
+                {{$exchange_period_name?->name}}
                 {!!$raa_service->getActualUncheckedExchangePeriodLayout()!!}
             </td>
 
@@ -2650,16 +2677,29 @@ jQuery(document).ready(function(){
         var yearMonth =$(this).attr('data-yearMonth');
         var ip =$(this).attr('data-ip');
         var cfpID =$(this).attr('data-cfpID');
-        if(ip!=='不指定'){
-            if(ip){
-                window.open('/admin/users/ip/'+ip, '_blank');
+        @if($is_test)
+            if(ip!=='不指定'){
+                if(ip){
+                    window.open('/admin/users/ip/'+ip+'?is_test=1', '_blank');
+                }else{
+                    window.open('/admin/users/ip/不指定?cfp_id='+ cfpID+'&is_test=1', '_blank');
+                }
             }else{
-                window.open('/admin/users/ip/不指定?cfp_id='+ cfpID, '_blank');
+                $('.showLog').hide();
+                $('#'+sectionName).show();
             }
-        }else{
-            $('.showLog').hide();
-            $('#'+sectionName).show();
-        }
+        @else
+            if(ip!=='不指定'){
+                if(ip){
+                    window.open('/admin/users/ip/'+ip, '_blank');
+                }else{
+                    window.open('/admin/users/ip/不指定?cfp_id='+ cfpID, '_blank');
+                }
+            }else{
+                $('.showLog').hide();
+                $('#'+sectionName).show();
+            }
+        @endif
     });
     $('.loginItem_IP').click(function(){
         var sectionName =$(this).attr('data-sectionName');
@@ -3173,8 +3213,8 @@ function show_re_content(id){
 
     });
     function isChat(id, is_open) {
-        window.open('/admin/users/message/record/'+id);
-        $.ajax({
+        window.open('/admin/users/message/record/' + id + '?from_advInfo=1');
+        {{-- $.ajax({
             type: 'POST',
             url: '/admin/users/isChatToggler',
             data:{
@@ -3184,8 +3224,11 @@ function show_re_content(id){
             },
             dataType:"json",
             success: function(res){
-                location.reload();
-        }});
+        }}); --}}
+
+        setTimeout(function() {
+            location.reload();
+        }, 1500);
     }
   
 
@@ -3226,7 +3269,6 @@ function show_re_content(id){
         }
     }
     //預算及車馬費警示警示
-
 </script>
 <!--照片查看end-->
 </html>

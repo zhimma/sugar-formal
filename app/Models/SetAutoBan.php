@@ -18,11 +18,11 @@ use Carbon\Carbon;
 use App\Services\ImagesCompareService;
 use App\Jobs\BanJob;
 use Illuminate\Support\Facades\Cache;
-use Laravel\Scout\Searchable;
+use Outl1ne\ScoutBatchSearchable\BatchSearchable;
 
 class SetAutoBan extends Model
 {
-    use SoftDeletes, Searchable;
+    use SoftDeletes, BatchSearchable;
     //
     protected $table = 'set_auto_ban';
 	
