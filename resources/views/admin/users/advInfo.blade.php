@@ -2570,12 +2570,6 @@ jQuery(document).ready(function(){
     });
     //test
 
-    $('.message_toggle').on('click',function(e){
-        $(this).text(function(i,old){
-            return old=='+' ?  '-' : '+';
-        });
-    });
-
     $('.delete-btn').on('click',function(e){
         if(!confirm('確定要刪除選取的訊息?')){
             e.preventDefault();
@@ -3300,16 +3294,24 @@ function show_re_content(id){
     //預算及車馬費警示警示
 
     $('.message_toggle').on('click', function(){
-        room_id = $(this).attr("value");
-        $.ajax({
-            type: 'GET',
-            url: '{{route('users/getMessageFromRoomId')}}',
-            data: {
-                room_id: room_id,
-            },
-            success: function(data){
-                console.log(data);
-        }});   
+        if($(this).text() == '+')
+        {
+            $(this).text('-');
+            room_id = $(this).attr("value");
+            $.ajax({
+                type: 'GET',
+                url: '{{route('users/getMessageFromRoomId')}}',
+                data: {
+                    room_id: room_id,
+                },
+                success: function(data){
+                    console.log(data);
+            }});
+        }
+        else if($(this).text() == '-')
+        {
+            $(this).text('+');
+        }   
     });
 </script>
 <!--照片查看end-->
