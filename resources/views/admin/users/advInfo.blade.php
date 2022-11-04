@@ -297,7 +297,10 @@
         //VIP起始時間,現狀,付費方式,種類
         $vipInfo = \App\Models\Vip::findByIdWithDateDesc($user->id);
 
-        if(!is_null($vipInfo)){
+        $vvipInfo = \App\Models\ValueAddedService::where('member_id', $user->id)->where('service_name', 'VVIP')->orderBy('created_at', 'desc')->first();
+        $getUserInfo=\App\Models\User::findById($user->id);
+
+        if(!is_null($vipInfo) && !$getUserInfo->isVVIP()){
             $upgradeDay = date('Y-m-d', strtotime($vipInfo->created_at));
             $upgradeWay ='';
             if ($vipInfo->payment_method == 'CREDIT')
@@ -396,7 +399,33 @@
                 $showVipInfo = $showVipInfo_1;
             */
 
-        }else{
+        }
+        else if(!is_null($vvipInfo)){
+            $upgradeDay = date('Y-m-d', strtotime($vvipInfo->created_at));
+            $upgradeWay = '信用卡';
+            $upgradeKind ='';
+            if ($vvipInfo->payment == 'cc_quarterly_payment')
+                $upgradeKind = '持續季繳';
+            else if ($vvipInfo->payment == 'cc_monthly_payment')
+                $upgradeKind = '持續月繳';
+            else if ($vvipInfo->payment == 'one_quarter_payment')
+                $upgradeKind = '季繳一季';
+            else if ($vvipInfo->payment == 'one_month_payment')
+                $upgradeKind = '月繳一月';
+
+            $vvipLog = \App\Models\ValueAddedServiceLog::where("member_id", $user->id)->where('service_name', 'VVIP')->orderBy('id', 'desc')->first();
+            //現狀:只有持續中跟未持續兩種。已取消扣款或者一次付清都是未持續。
+            if(in_array($vvipInfo->payment, ['one_quarter_payment','one_month_payment']) || $vvipInfo->active ==0)
+                $nowStatus = '未持續';
+            else if(str_contains($vvipLog, 'cancel') || (str_contains($vvipLog, 'Cancel') && !str_contains($vvipLog, 'bypass')))
+                $nowStatus = '未持續';
+            else
+                $nowStatus = '持續中';
+
+            $isVVIPStatus=$getUserInfo->isVVIP() ? '是':'否';
+            $showVipInfo =  '(VVIP) '.$upgradeDay .' / '. $isVVIPStatus .' / '. $upgradeWay .' / '. $upgradeKind;
+        }
+        else{
             $nowStatus = '';
             //還沒有成為過vip
             $showVipInfo =  '未曾加入 / 否 / 無 / 無';
@@ -2181,7 +2210,7 @@
                 @php
                     $exchange_period_name = DB::table('exchange_period_name')->where('id',$user->exchange_period)->first();
                 @endphp
-                {{$exchange_period_name->name}}
+                {{$exchange_period_name?->name}}
                 {!!$raa_service->getActualUncheckedExchangePeriodLayout()!!}
             </td>
 

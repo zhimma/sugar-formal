@@ -26,6 +26,7 @@ use App\Models\SetAutoBan;
 use App\Models\SimpleTables\users;
 use App\Models\SimpleTables\short_message;
 use App\Models\SuspiciousUser;
+use App\Models\ValueAddedServiceLog;
 use App\Models\VvipApplication;
 use App\Models\VvipInfo;
 use App\Models\VvipProveImg;
@@ -85,6 +86,7 @@ use App\Models\UserVideoVerifyRecord;
 use App\Models\Features;
 use App\Models\SpecialIndustriesTestAnswer;
 use Illuminate\Support\Facades\Log;
+use App\Models\RoleUser;
 
 
 class UserController extends \App\Http\Controllers\BaseController
@@ -151,6 +153,24 @@ class UserController extends \App\Http\Controllers\BaseController
                 ->get()->first();
             if (VipLog::select("updated_at")->where('member_id', $user->id)->orderBy('updated_at', 'desc')->get()->first()) {
                 $user['updated_at'] = VipLog::select("updated_at")->where('member_id', $user->id)->orderBy('updated_at', 'desc')->get()->first()->updated_at;
+            }
+
+            if($user->isVVIP()){
+                $user['isVVIP'] = true;
+            }else{
+                $user['isVVIP'] = false;
+            }
+            $user['vvip_data'] = ValueAddedService::select('active', 'expiry', 'payment', 'created_at', 'updated_at', 'order_id')
+                ->where('member_id', $user->id)
+                ->where('active', 1)
+                ->where('service_name', 'VVIP')
+                ->where(function($query) {
+                    $query->where('expiry', '0000-00-00 00:00:00')
+                        ->orWhere('expiry', '>=', Carbon::now());}
+                )->orderBy('created_at', 'desc')->first();
+
+            if(ValueAddedServiceLog::select("updated_at")->where('member_id', $user->id)->where('service_name', 'VVIP')->orderBy('updated_at', 'desc')->get()->first()){
+                $user['vvip_updated_at'] = ValueAddedServiceLog::select("updated_at")->where('member_id', $user->id)->where('service_name', 'VVIP')->orderBy('updated_at', 'desc')->get()->first()->updated_at;
             }
         }
         return view('admin.users.index')
@@ -4961,65 +4981,42 @@ class UserController extends \App\Http\Controllers\BaseController
 
     public function adminActionLog(Request $request)
     {
-        $operator_list = AdminActionLog::selectRaw('admin_action_log.operator, users.name AS operator_name, users.email AS operator_email')
-            ->leftJoin('users', 'users.id', '=', 'admin_action_log.operator')
-            ->groupBy('admin_action_log.operator')->get();
+        $operator_list = RoleUser::leftJoin('users', 'users.id', '=', 'role_user.user_id')->get();
 
         $getLogs = [];
         $test_result = [];
         if (!empty($request->get('date_start')) && !empty($request->get('date_end')) && count($request->get('operator'))) {
-            $getLogs = AdminActionLog::selectRaw('admin_action_log.operator, users.name AS operator_name, users.email AS operator_email')
-                ->selectRaw('count(*) AS dataCount')
-                ->leftJoin('users', 'users.id', '=', 'admin_action_log.operator')
-                ->orderBy('admin_action_log.created_at', 'desc')
-                ->groupBy('admin_action_log.operator');
-
-            if (!empty($request->get('operator'))) {
-                $getLogs->whereIn('users.id', $request->get('operator'));
-            }
-            if (!empty($request->get('date_start'))) {
-                $getLogs->where('admin_action_log.created_at', '>=', $request->get('date_start'));
-            }
-            if (!empty($request->get('date_end'))) {
-                $getLogs->where('admin_action_log.created_at', '<=', date("Y-m-d", strtotime("+1 day", strtotime($request->get('date_end')))));
-            }
-            $getLogs = $getLogs->get();
-
+            $select_operator = RoleUser::leftJoin('users', 'users.id', '=', 'role_user.user_id')
+                                        ->whereIn('user_id', $request->get('operator'))
+                                        ->get();
             $result = [];
-            foreach ($getLogs as $key => $log) {
-                $result[$key] = $log->toArray();
+            foreach ($select_operator as $key => $operator) {
+                $result[$key] = $operator->toArray();
                 $get_operator_by_date = AdminActionLog::selectRaw('LEFT(admin_action_log.created_at,10) as log_by_date, (count(*)) AS count_by_date')->orderBy('admin_action_log.created_at', 'desc')
-                    ->where('admin_action_log.operator', $log->operator)
+                    ->where('admin_action_log.operator', $operator->user_id)
                     ->groupBy('log_by_date');
-                if (!empty($request->get('date_start'))) {
-                    $get_operator_by_date->where('admin_action_log.created_at', '>=', $request->get('date_start'));
-                }
-                if (!empty($request->get('date_end'))) {
-                    $get_operator_by_date->where('admin_action_log.created_at', '<=', date("Y-m-d", strtotime("+1 day", strtotime($request->get('date_end')))));
-                }
+                $get_operator_by_date->where('admin_action_log.created_at', '>=', $request->get('date_start'));
+                $get_operator_by_date->where('admin_action_log.created_at', '<=', date("Y-m-d", strtotime("+1 day", strtotime($request->get('date_end')))));
                 $result[$key]['operator_by_date'] = $get_operator_by_date->get()->toArray();
-            }
-            $getLogs = $result;
+                $result[$key]['dataCount'] = count($result[$key]['operator_by_date']);
 
-            $test_result = SpecialIndustriesTestAnswer::leftJoin('users','users.id', '=', 'special_industries_test_answer.test_user')
+                $get_test_result = SpecialIndustriesTestAnswer::leftJoin('users','users.id', '=', 'special_industries_test_answer.test_user')
                                                         ->leftJoin('special_industries_test_topic','special_industries_test_topic.id', '=', 'special_industries_test_answer.test_topic_id')
                                                         ->leftJoin('special_industries_test_setup','special_industries_test_setup.id', '=', 'special_industries_test_topic.test_setup_id')
-                                                        ->whereIn('test_user',$request->get('operator'));
-            if(!empty($request->get('date_start')))
-            {
-                $test_result = $test_result->where('special_industries_test_answer.updated_at','>=',$request->get('date_start'));
-            }
-            if(!empty($request->get('date_end')))
-            {
-                $test_result = $test_result->where('special_industries_test_answer.updated_at','<=',date("Y-m-d", strtotime("+1 day", strtotime($request->get('date_end')))));
-            }
+                                                        ->where('test_user', $operator->user_id);
+                $get_test_result = $get_test_result->where('special_industries_test_answer.updated_at','>=',$request->get('date_start'));
+                $get_test_result = $get_test_result->where('special_industries_test_answer.updated_at','<=',date("Y-m-d", strtotime("+1 day", strtotime($request->get('date_end')))));
 
-            $test_result = $test_result->select('special_industries_test_answer.*','users.*','special_industries_test_topic.*','special_industries_test_setup.*','special_industries_test_answer.updated_at as filled_time','special_industries_test_answer.id as answer_id')
-                                        ->orderByDesc('special_industries_test_answer.updated_at')
-                                        ->get();
+                $get_test_result = $get_test_result->select('special_industries_test_answer.*','users.*','special_industries_test_topic.*','special_industries_test_setup.*','special_industries_test_answer.updated_at as filled_time','special_industries_test_answer.id as answer_id')
+                                            ->orderByDesc('special_industries_test_answer.updated_at')
+                                            ->get();
+                $result[$key]['test_result'] = $get_test_result;
+                $result[$key]['test_result_count'] = count($result[$key]['test_result']);
+            }
+            $getLogs = $result;
         }
 
-        return view('admin.users.showAdminActionLog', compact('operator_list', 'getLogs', 'test_result'));
+        return view('admin.users.showAdminActionLog', compact('operator_list', 'getLogs'));
     }
 
     public function insertAdminActionLog($targetAccountID, $action)
@@ -6647,24 +6644,52 @@ class UserController extends \App\Http\Controllers\BaseController
 
     public function searchAnonymousChatPage(Request $request)
     {
-
-        $msg = isset($request->msg) ? $request->msg : '';
-        $date_start = $request->date_start ? $request->date_start : '0000-00-00';
-        $date_end = $request->date_end ? $request->date_end : date('Y-m-d');
-        $results = AnonymousChat::select('anonymous_chat.*', 'users.name', 'users.engroup')
-            ->leftJoin('users', 'users.id', 'anonymous_chat.user_id')
-            ->where('anonymous_chat.content', 'like', '%' . $msg . '%')
-            ->whereBetween('anonymous_chat.created_at', array($date_start . ' 00:00', $date_end . ' 23:59'))
-            ->orderBy('anonymous_chat.created_at', 'desc')
-            ->withTrashed()
-            ->paginate(100);
-        //dd($results);
-        return view('admin.users.searchAnonymousChat')->with('results', $results);
+        if($request->searchAnonymousChatPage) {
+            $msg = isset($request->msg) ? $request->msg : '';
+            $date_start = $request->date_start ? $request->date_start : '0000-00-00';
+            $date_end = $request->date_end ? $request->date_end : date('Y-m-d');
+            $results = AnonymousChat::select('anonymous_chat.*', 'users.name', 'users.id as usersID', 'users.engroup')
+                ->leftJoin('users', 'users.id', 'anonymous_chat.user_id')
+                ->where('anonymous_chat.content', 'like', '%' . $msg . '%')
+                ->whereBetween('anonymous_chat.created_at', array($date_start . ' 00:00', $date_end . ' 23:59'))
+                ->orderBy('anonymous_chat.created_at', 'desc')
+                ->withTrashed()
+                ->paginate(100);
+            return view('admin.users.searchAnonymousChat')->with('results', $results);
+        }elseif($request->searchAnonymousChatReport){
+            $msg = isset($request->msg) ? $request->msg : '';
+            $date_start = $request->date_start ? $request->date_start : '0000-00-00';
+            $date_end = $request->date_end ? $request->date_end : date('Y-m-d');
+            $resultsReport = AnonymousChatReport::select(
+                'anonymous_chat.*',
+                'users.name',
+                'users.id as usersID',
+                'users.engroup',
+                'anonymous_chat_report.content as report_content',
+                'anonymous_chat_report.user_id as report_user',
+                'anonymous_chat_report.created_at as report_time',
+                'report_user.name as report_name',
+                'anonymous_chat_report.deleted_at as report_deleted_at',
+                'anonymous_chat_report.id as report_id',
+                'report_user.engroup as report_engroup'
+            )
+                ->selectRaw('(select count(DISTINCT aa.user_id) from anonymous_chat_report as aa where (aa.reported_user_id=users.id) ) as reported_num')
+                ->leftJoin('anonymous_chat', 'anonymous_chat.id', 'anonymous_chat_report.anonymous_chat_id')
+                ->leftJoin('users', 'users.id', 'anonymous_chat_report.reported_user_id')
+                ->leftJoin('users as report_user', 'report_user.id', 'anonymous_chat_report.user_id')
+                ->where('anonymous_chat.content', 'like', '%' . $msg . '%')
+                ->whereBetween('anonymous_chat_report.created_at', array($date_start . ' 00:00', $date_end . ' 23:59'))
+                ->orderBy('anonymous_chat_report.created_at', 'desc')
+                ->orderBy('anonymous_chat.user_id', 'desc')
+                ->withTrashed()->paginate(100);
+            return view('admin.users.searchAnonymousChat')->with('resultsReport', $resultsReport);
+        }
     }
 
     public function searchAnonymousChatReport(Request $request)
     {
 
+        $time = Carbon::now()->startOfWeek()->toDateTimeString();
         $resultsReport = AnonymousChatReport::select(
             'anonymous_chat.*',
             'users.name',
@@ -6677,7 +6702,7 @@ class UserController extends \App\Http\Controllers\BaseController
             'anonymous_chat_report.id as report_id',
             'report_user.engroup as report_engroup'
         )
-            ->selectRaw('(select count(DISTINCT aa.user_id) from anonymous_chat_report as aa where (aa.reported_user_id=users.id) ) as reported_num')
+            ->selectRaw("(select count(DISTINCT aa.user_id) from anonymous_chat_report as aa where (aa.reported_user_id=users.id)and (aa.created_at >= '$time')) as reported_num")
             ->leftJoin('anonymous_chat', 'anonymous_chat.id', 'anonymous_chat_report.anonymous_chat_id')
             ->leftJoin('users', 'users.id', 'anonymous_chat_report.reported_user_id')
             ->leftJoin('users as report_user', 'report_user.id', 'anonymous_chat_report.user_id')

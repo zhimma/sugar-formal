@@ -51,7 +51,11 @@
                 </td>
             </tr>
             <tr>
-                <td colspan="2"><button class='text-white btn btn-primary submit'>搜尋</button> 或 <a id="reported_meg" href="{{ route('users/searchAnonymousChatReport') }}" class="btn btn-info">檢視被檢舉訊息</a></td>
+                <td colspan="2">
+                    <input class='text-white btn btn-primary submit' type="submit" name="searchAnonymousChatPage" value="搜尋">
+                    或 <input id="reported_meg"  class="btn btn-info" type="submit" name="searchAnonymousChatReport" value="檢視被檢舉訊息">
+                </td>
+{{--                href="{{ route('users/searchAnonymousChatReport') }}"--}}
             </tr>
             <tr>
                 <td colspan="2">
@@ -88,8 +92,11 @@
                                 ->orderBy('created_at','desc')->first();
                     @endphp
                     <td style="@if(\App\Models\User::isBanned($row->user_id))background-color:#FFFF00;@endif @if($isWarned)background-color:#B0FFB1;@endif">
-
+                        @if($row->usersID)
                         <a href="{{ route('users/advInfo', $row->user_id) }}" style="color:{{($row->engroup==1)?'blue':'red'}};" target='_blank' >{{$row->name}}</a>
+                        @else
+                            <font style="font-size: 10pt;">會員資料已刪除</font>
+                        @endif
                     </td>
                     <td>{{$row->anonymous}}</td>
 {{--                    <td>{{($row->engroup==1)?'男':'女'}}</td>--}}
@@ -120,8 +127,8 @@
             </tbody>
 
         </table>
-{{--        {{ $results->appends(request()->input())->links('pagination::tailwind') }}--}}
-        {{ $results->links() }}
+        {{ $results->appends(request()->input())->links() }}
+{{--        {{ $results->links() }}--}}
     @endif
 
     @if(isset($resultsReport))
@@ -159,8 +166,11 @@
                                 ->orderBy('created_at','desc')->first();
                     @endphp
                     <td style="@if(\App\Models\User::isBanned($row->user_id))background-color:#FFFF00;@endif @if($isWarned)background-color:#B0FFB1;@endif">
-
+                        @if($row->usersID)
                         <a href="{{ route('users/advInfo', $row->user_id) }}" style="color:{{($row->engroup==1)?'blue':'red'}};" target='_blank' >{{$row->name}}</a>
+                        @else
+                            <font style="font-size: 10pt;">會員資料已刪除</font>
+                        @endif
                     </td>
                     <td>{{$row->anonymous}}</td>
 {{--                    <td>{{($row->engroup==1)?'男':'女'}}</td>--}}
@@ -221,8 +231,8 @@
             </tbody>
 
         </table>
-{{--        {{ $resultsReport->appends(request()->input())->links('pagination::tailwind') }}--}}
-        {{ $resultsReport->links() }}
+        {{ $resultsReport->appends(request()->input())->links() }}
+{{--        {{ $resultsReport->links() }}--}}
     @endif
 
     @endif
@@ -287,11 +297,11 @@
                 $('.datepicker_1').val(start_date.getFullYear() + '-' + parseInt(start_date.getMonth()+1) + '-' + start_date.getDate());
                 set_end_date();
             });
-        $('.submit').click(
-            function() {
-                $('#msg2').val($('#msg').val());
-                $('#message').submit();
-            });
+        // $('.submit').click(
+        //     function() {
+        //         $('#msg2').val($('#msg').val());
+        //         $('#message').submit();
+        //     });
         $('.delete-btn').on('click', function(e) {
             if (!confirm('確定要刪除選取的訊息?')) {
                 e.preventDefault();
