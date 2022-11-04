@@ -26,6 +26,7 @@ use App\Models\SetAutoBan;
 use App\Models\SimpleTables\users;
 use App\Models\SimpleTables\short_message;
 use App\Models\SuspiciousUser;
+use App\Models\ValueAddedServiceLog;
 use App\Models\VvipApplication;
 use App\Models\VvipInfo;
 use App\Models\VvipProveImg;
@@ -152,6 +153,24 @@ class UserController extends \App\Http\Controllers\BaseController
                 ->get()->first();
             if (VipLog::select("updated_at")->where('member_id', $user->id)->orderBy('updated_at', 'desc')->get()->first()) {
                 $user['updated_at'] = VipLog::select("updated_at")->where('member_id', $user->id)->orderBy('updated_at', 'desc')->get()->first()->updated_at;
+            }
+
+            if($user->isVVIP()){
+                $user['isVVIP'] = true;
+            }else{
+                $user['isVVIP'] = false;
+            }
+            $user['vvip_data'] = ValueAddedService::select('active', 'expiry', 'payment', 'created_at', 'updated_at', 'order_id')
+                ->where('member_id', $user->id)
+                ->where('active', 1)
+                ->where('service_name', 'VVIP')
+                ->where(function($query) {
+                    $query->where('expiry', '0000-00-00 00:00:00')
+                        ->orWhere('expiry', '>=', Carbon::now());}
+                )->orderBy('created_at', 'desc')->first();
+
+            if(ValueAddedServiceLog::select("updated_at")->where('member_id', $user->id)->where('service_name', 'VVIP')->orderBy('updated_at', 'desc')->get()->first()){
+                $user['vvip_updated_at'] = ValueAddedServiceLog::select("updated_at")->where('member_id', $user->id)->where('service_name', 'VVIP')->orderBy('updated_at', 'desc')->get()->first()->updated_at;
             }
         }
         return view('admin.users.index')
@@ -6671,6 +6690,7 @@ class UserController extends \App\Http\Controllers\BaseController
     public function searchAnonymousChatReport(Request $request)
     {
 
+        $time = Carbon::now()->startOfWeek()->toDateTimeString();
         $resultsReport = AnonymousChatReport::select(
             'anonymous_chat.*',
             'users.name',
@@ -6683,7 +6703,7 @@ class UserController extends \App\Http\Controllers\BaseController
             'anonymous_chat_report.id as report_id',
             'report_user.engroup as report_engroup'
         )
-            ->selectRaw('(select count(DISTINCT aa.user_id) from anonymous_chat_report as aa where (aa.reported_user_id=users.id) ) as reported_num')
+            ->selectRaw("(select count(DISTINCT aa.user_id) from anonymous_chat_report as aa where (aa.reported_user_id=users.id)and (aa.created_at >= '$time')) as reported_num")
             ->leftJoin('anonymous_chat', 'anonymous_chat.id', 'anonymous_chat_report.anonymous_chat_id')
             ->leftJoin('users', 'users.id', 'anonymous_chat_report.reported_user_id')
             ->leftJoin('users as report_user', 'report_user.id', 'anonymous_chat_report.user_id')
