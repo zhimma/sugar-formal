@@ -3305,7 +3305,7 @@ function show_re_content(id){
                     room_id: room_id,
                 },
                 success: function(data){
-                    console.log(data.room_id);
+                    console.log(data['room_id']);
             }});
         }
         else if($(this).text() == '-')
