@@ -2054,9 +2054,7 @@
             @endif>
             {{--一次顯示50個 臨時搭建用--}}
             <td style="text-align: center;">
-                <button data-toggle="collapse" data-target="#msgLog{{$ref_user_id}}" class="accordion-toggle btn btn-primary message_toggle" value="{{$messageLog->room_id}}">
-                    +
-                </button>
+                <button data-toggle="collapse" data-target="#msgLog{{$ref_user_id}}" class="accordion-toggle btn btn-primary message_toggle" value="{{$messageLog->room_id}}">+</button>
             </td>
             <td>@if(!empty($ref_user->name))<a href="{{ route('admin/showMessagesBetween', [$user->id, $ref_user_id]) }}" target="_blank">{{ $ref_user->name }}</a>@else 會員資料已刪除@endif</td>
             <td id="new{{$messageLog->to_id}}">
@@ -3317,11 +3315,9 @@ function show_re_content(id){
                 room_id: room_id,
             },
             success: function(data){
-                let data_array = JSON.parse(data);
                 console.log(data);
                 console.log(data.room_id);
-                console.log(data_array['room_id']);
-                console.log('message_room_' + data_array['room_id']);
+                console.log('message_room_' + data.room_id);
         }}); 
     });
 </script>
