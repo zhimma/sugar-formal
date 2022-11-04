@@ -1148,7 +1148,7 @@ class UserController extends \App\Http\Controllers\BaseController
         }
 
         //groupby $userMessage
-        $userMessage_log = Message::withTrashed()->selectRaw("IF(message.to_id='" . $id . "', message.from_id, message.to_id) as ref_user_id, message.to_id, message.from_id, count(*) as toCount") //->from('message as m')
+        $userMessage_log = Message::withTrashed()->selectRaw("IF(message.to_id='" . $id . "', message.from_id, message.to_id) as ref_user_id, message.to_id, message.from_id, count(*) as toCount")
             ->where('message.from_id', $id)
             ->orWhere('message.to_id', $id)
             ->where(DB::raw("message.created_at"), '>=', \Carbon\Carbon::parse("180 days ago")->toDateTimeString())
@@ -1159,7 +1159,6 @@ class UserController extends \App\Http\Controllers\BaseController
 
         foreach ($userMessage_log as $key => $value) {
             $userMessage_log[$key]['items'] = Message::withTrashed()->select('message.*', 'message.id as mid', 'message.created_at as m_time', 'u.*', 'b.id as banned_id', 'b.expire_date as banned_expire_date')
-                //->from('message as m')
                 ->leftJoin('users as u', 'u.id', 'message.from_id')
                 ->leftJoin('banned_users as b', 'message.from_id', 'b.member_id')
                 ->where([['message.to_id', $id], ['message.from_id', $value->ref_user_id]])

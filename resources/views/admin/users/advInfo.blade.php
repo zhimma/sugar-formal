@@ -2001,11 +2001,11 @@
         <th width="15%">發送時間</th>
         <th width="8%">發送數 <br>本人/對方</th>
     </tr>
-    @foreach($userMessage_log as $Log)
+    @foreach($userMessage_log as $messageLog)
         @php
-            $ref_user = \App\Models\User::findById($Log->ref_user_id);
+            $ref_user = \App\Models\User::findById($messageLog->ref_user_id);
             if(!$ref_user) { continue; }
-            $ref_user_id = $Log->ref_user_id;
+            $ref_user_id = $messageLog->ref_user_id;
             $message_log = \App\Models\Message::withTrashed()
                                 ->where([['message.to_id', $ref_user->id ],['message.from_id', $user->id ]])
                                 ->orderBy('created_at')->first();
@@ -2026,7 +2026,7 @@
             {{--一次顯示50個 臨時搭建用--}}
             <td style="text-align: center;"><button data-toggle="collapse" data-target="#msgLog{{$ref_user_id}}" class="accordion-toggle btn btn-primary message_toggle">+</button></td>
             <td>@if(!empty($ref_user->name))<a href="{{ route('admin/showMessagesBetween', [$user->id, $ref_user_id]) }}" target="_blank">{{ $ref_user->name }}</a>@else 會員資料已刪除@endif</td>
-            <td id="new{{$Log->to_id}}">
+            <td id="new{{$messageLog->to_id}}">
                 @if($message_log)
                     {{($message_log->from_id==$message_1st->from_id ? '(發)' :'(回)') .$message_log->content}}
                 @endif
@@ -2067,13 +2067,7 @@
                     </tr>
                     </thead>
                     <tbody>
-                    @foreach ($Log->items as $key => $item)
-                        {{--@if($key==0)--}}
-                            {{--<script>--}}
-                                {{--$('#new' + {{$Log->to_id}}).text('{{ $item->content }}');--}}
-                                {{--$('#new_time' + {{$Log->to_id}}).text('{{ $item->m_time }}');--}}
-                            {{--</script>--}}
-                        {{--@endif--}}
+                    @foreach ($messageLog->items as $key => $item)
                         <tr>
                             <td style="text-align: right;">
                                 @php
@@ -2134,7 +2128,7 @@
                 </table>
             </td>
         </tr>
-        @endforeach
+    @endforeach
 </table>
 {!! $userMessage_log->links('pagination::sg-pages3') !!}
 
