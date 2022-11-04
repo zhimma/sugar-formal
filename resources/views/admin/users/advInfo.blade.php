@@ -3300,7 +3300,16 @@ function show_re_content(id){
     //預算及車馬費警示警示
 
     $('.message_toggle').on('click', function(){
-        console.log($(this).attr("value"));
+        room_id = $(this).attr("value");
+        $.ajax({
+            type: 'GET',
+            url: '{{route('users/getMessageFromRoomId')}}',
+            data: {
+                room_id: room_id,
+            },
+            success: function(data){
+                console.log(data);
+        }});   
     });
 </script>
 <!--照片查看end-->

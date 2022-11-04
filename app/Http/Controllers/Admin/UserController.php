@@ -7545,4 +7545,10 @@ class UserController extends \App\Http\Controllers\BaseController
         return back()->with($msg_type, $msg_content);
     }
 
+    public function getMessageFromRoomId(Request $request)
+    {
+        $room_id = $request->room_id;
+        return back()->with($room_id);
+    }
+
 }

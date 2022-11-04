@@ -720,6 +720,7 @@ Route::group(['middleware' => ['auth', 'global', 'active', 'femaleActive', 'vipC
         Route::post('users/userUnblock', 'UserController@userUnblock');
         Route::get('users/banUserWithDayAndMessage/{user_id}/{msg_id}/{isReported?}', 'UserController@showBanUserDialog')->name('banUserWithDayAndMessage');
         Route::get('users/warnedUserWithDayAndMessage/{user_id}/{msg_id}', 'UserController@showWarnedUserDialog')->name('warnedUserWithDayAndMessage');
+        Route::get('users/getMessageFromRoomId', 'UserController@getMessageFromRoomId')->name('users/getMessageFromRoomId');
 
         Route::post('users/banUserWithDayAndMessage', 'UserController@banUserWithDayAndMessage');
         Route::get('users/pictures', 'UserController@showUserPictures')->name('users/pictures');
