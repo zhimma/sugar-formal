@@ -134,21 +134,17 @@ class AdminService
                 $user['isBlocked']=1;
             }
             $user['vip'] = $user->isVip() ? 1 : 0;
-            if($user['vip'] == 1){
-                $user['vip_data'] = Vip::select('id', 'expiry', 'order_id', 'updated_at', 'created_at', 'payment_method')
-                    ->where('member_id', $user->id)
-                    ->orderBy('created_at', 'asc')
-                    ->get()->first();
-            }
+            $user['vip_data'] = Vip::select('id', 'free', 'expiry', 'order_id', 'updated_at', 'created_at', 'payment_method')
+                ->where('member_id', $user->id)
+                ->orderBy('created_at', 'desc')
+                ->get()->first();
 
             $user['vvip'] = $user->isVVIP() ? 1 : 0;
-            if($user['vvip'] == 1){
-                $user['vvip_data'] = ValueAddedService::select('active', 'expiry', 'payment', 'created_at', 'updated_at', 'order_id')
-                    ->where('member_id', $user->id)
-                    ->where('service_name', 'VVIP')
-                    ->orderBy('created_at', 'desc')
-                    ->get()->first();
-            }
+            $user['vvip_data'] = ValueAddedService::select('active', 'expiry', 'payment', 'created_at', 'updated_at', 'order_id')
+                ->where('member_id', $user->id)
+                ->where('service_name', 'VVIP')
+                ->orderBy('created_at', 'desc')
+                ->get()->first();
         }
         if($request->member_type =='vvip'){
             $users = $users->sortByDesc('vvip');
