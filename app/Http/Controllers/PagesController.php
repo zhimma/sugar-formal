@@ -3167,8 +3167,14 @@ class PagesController extends BaseController
             $dataList_normal = [];
             $rap_service = $this->rap_service;
             foreach ($searchApi['singlePageData'] as $key=>$visitor){
-                //隱藏電話號碼避免個資外洩
-                $visitor->user_meta = $visitor->user_meta->makeHidden(['phone']);
+                // 隱藏非必要及敏感個人資料
+                $visitor->user_meta = $visitor->user_meta->makeHidden([
+                    'id', 'phone', 'marketing', 'updated_at', 'terms_and_cond',
+                    'blockcity', 'blockarea', 'memo', 'pic_original_name',
+                    'blockdomainType', 'blockdomain', 'isWarnedRead', 'adminNote',
+                    'name_change', 'exchange_period_change', 'isConsign',
+                    'consign_expiry_date', 'recipients_count'
+                ]);
                 if($visitor->isVVIP())
                 {
                     $temp_array = [];
