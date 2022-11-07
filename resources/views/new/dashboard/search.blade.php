@@ -999,8 +999,7 @@ header("Expires: Fri, 01 Jan 1990 00:00:00 GMT");
                 }                 
             },
         mounted () {
-
-             let post_data = {
+            let post_data = {
                 city:"{{$county}}",
                 area:"{{$district}}",
                 cup:{!! json_encode($cup) !!},
