@@ -33,9 +33,9 @@
                                         <div class="ti_xcheck naa_dd">
                                             <span><input type="checkbox" name="self_auth_vip_show" class="ti_ceckys" value="VIP" @if($data['self_auth'] && $data['self_auth']->vip_show) checked @endif>VIP</span>
                                             <span>
-                                                <input type="checkbox" name="self_auth_pr_show" class="ti_ceckys" value="PR" @if($data['self_auth'] && $data['self_auth']->more_than_pr_show) checked @endif>PR
+                                                <input type="checkbox" name="self_auth_pr_show" class="ti_ceckys" value="PR" @if($data['self_auth'] && !is_null($data['self_auth']->more_than_pr_show)) checked @endif>PR
                                             </span>
-                                            <input type="number" name="self_auth_pr_value" value="{{ ($data['self_auth'] && $data['self_auth']->more_than_pr_show) ?  $data['self_auth']->more_than_pr_show :60 }}" min="0" max="100" required style="height: 22px;margin-left: -16px;line-height:normal;">
+                                            <input type="number" name="self_auth_pr_value" value="{{ ($data['self_auth'] && !is_null($data['self_auth']->more_than_pr_show)) ?  $data['self_auth']->more_than_pr_show :60 }}" min="0" max="100" required style="height: 22px;margin-left: -16px;line-height:normal;">
                                         </div>
                                     @endif
                                     @if($user->beauty_auth_status)

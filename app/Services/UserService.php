@@ -1193,7 +1193,7 @@ class UserService
                 if($user->isVip() && $setting->vip_show) {
                     $show = true;
                 }
-                if($setting->more_than_pr_show && !$show) {
+                if(!is_null($setting->more_than_pr_show) && !$show) {
                     $show   =   ($getPr >=$setting->more_than_pr_show);
                 }
             }
