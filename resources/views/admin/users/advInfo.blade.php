@@ -3287,7 +3287,7 @@ function show_re_content(id){
         else if($(this).text() == '-')
         {
             $(this).text('+');
-            $('message_room_detail_' + data.room_id).empty();
+            $('#message_room_detail_' + data.room_id).empty();
         }
     });
 </script>
