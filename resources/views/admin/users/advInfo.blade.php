@@ -3251,20 +3251,21 @@ function show_re_content(id){
                     console.log('message_room_' + data.room_id);
 
                     data.message_detail.forEach(function(){
-                        $('message_room_detail_' + data.room_id).append(
+                        console.log('test');
+                        $('#message_room_detail_' + data.room_id).append(
                         /*施工中*/
                         '<tr>'+
                             '<td style="text-align: right;">'+
-                                'test'+
+
                             '</td>'+
                             '<td>'+
-                                'test'+
+
                             '</td>'+
                             '<td>'+
-                                'test'+
+
                             '</td>'+
                             '<td>'+
-                                'test'+
+
                             '</td>'+
                         '</tr>'
                         /*施工中*/
