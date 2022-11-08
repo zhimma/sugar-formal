@@ -3255,12 +3255,16 @@ function show_re_content(id){
                         /*施工中*/
                         '<tr>'+
                             '<td style="text-align: right;">'+
+                                'test'+
                             '</td>'+
                             '<td>'+
+                                'test'+
                             '</td>'+
                             '<td>'+
+                                'test'+
                             '</td>'+
                             '<td>'+
+                                'test'+
                             '</td>'+
                         '</tr>'
                         /*施工中*/
