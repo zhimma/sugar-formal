@@ -13,7 +13,7 @@ if (! function_exists('search_variable')){
              $return_variable = $_POST[$variable];
         }elseif(isset($_GET[$variable])){
             $return_variable = $_GET[$variable];
-        }elseif(!empty(session()->get($search_page_key))){
+        }elseif(!is_null(session()->get($search_page_key))){
             $return_variable = session()->get($search_page_key);
         }else{
             if(!is_null($default)){
