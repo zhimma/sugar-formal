@@ -3270,7 +3270,7 @@ function show_re_content(id){
                                     '</p>'+
                                 '</td>'+
                                 '<td class="evaluation_zoomIn">'+
-
+                                    messagePicHTML +
                                 '</td>'+
                                 '<td>'+
                                     value.m_time +
