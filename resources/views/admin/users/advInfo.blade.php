@@ -3246,24 +3246,25 @@ function show_re_content(id){
                     room_id: room_id,
                 },
                 success: function(data){
-                    console.log(data);
-                    console.log(data.room_id);
-                    console.log('message_room_' + data.room_id);
+
 
                     data.message_detail.forEach(function(value){
-                        console.log('test');
                         $('#message_room_detail_' + data.room_id).append(
                             /*施工中*/
                             '<tr>'+
                                 '<td style="text-align: right;">'+
-
+                                    '<a>'+
+                                        '<p style="margin-bottom:0px;">'+
+                                            value.name
+                                        '</p>'+
+                                    '</a>'+
                                 '</td>'+
                                 '<td>'+
                                     '<p style="word-break:break-all;">'+
                                         value.content +
                                     '</p>'+
                                 '</td>'+
-                                '<td>'+
+                                '<td class="evaluation_zoomIn">'+
 
                                 '</td>'+
                                 '<td>'+
