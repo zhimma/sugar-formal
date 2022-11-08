@@ -3253,22 +3253,27 @@ function show_re_content(id){
                     data.message_detail.forEach(function(value){
                         console.log('test');
                         $('#message_room_detail_' + data.room_id).append(
-                        /*施工中*/
-                        '<tr>'+
-                            '<td style="text-align: right;">'+
+                            /*施工中*/
+                            '<tr>'+
+                                '<td style="text-align: right;">'+
 
-                            '</td>'+
-                            '<td>'+
+                                '</td>'+
+                                '<td>'+
+                                    '<p style="word-break:break-all;">'+
+                                        value.content +
+                                    '</p>'+
+                                '</td>'+
+                                '<td>'+
 
-                            '</td>'+
-                            '<td>'+
-                                value.m_time +
-                            '</td>'+
-                            '<td nowrap>'+
-                                value.unsend ? '已收回' : '' +
-                            '</td>'+
-                        '</tr>'
-                        /*施工中*/
+                                '</td>'+
+                                '<td>'+
+                                    value.m_time +
+                                '</td>'+
+                                '<td nowrap>'+
+                                    (value.unsend ? '已收回' : '') +
+                                '</td>'+
+                            '</tr>'
+                            /*施工中*/
                         );
                     });
                     
