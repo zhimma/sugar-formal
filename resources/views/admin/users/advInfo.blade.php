@@ -3247,8 +3247,15 @@ function show_re_content(id){
                 },
                 success: function(data){
                     data.message_detail.forEach(function(value){
+                        messagePics = value.pic ? [] : JSON.parse(value.pic);
+                        messagePicHTML = ''
+                        messagePics.forEach(function(pic){
+                            messagePicHTML =  messagePicHTML +
+                            '<li style="float:left;margin:2px 2px;list-style:none;display:block;white-space: nowrap;width: 135px;">'+
+                                '<img src="'+ pic.file_path +'" style="max-width:130px;max-height:130px;margin-right: 5px;">'+
+                            '</li>';
+                        });
                         $('#message_room_detail_' + data.room_id).append(
-                            /*施工中*/
                             '<tr>'+
                                 '<td style="text-align: right;">'+
                                     '<a>'+
@@ -3272,7 +3279,6 @@ function show_re_content(id){
                                     (value.unsend ? '已收回' : '') +
                                 '</td>'+
                             '</tr>'
-                            /*施工中*/
                         );
                     });
                     
