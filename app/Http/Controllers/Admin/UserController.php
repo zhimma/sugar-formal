@@ -1176,19 +1176,6 @@ class UserController extends \App\Http\Controllers\BaseController
             ->orderByRaw("IF(ref_user_id=1049, 1, 0)  desc")
             ->orderBy('message.created_at', 'DESC')
             ->paginate(1000);
-
-        foreach ($userMessage_log as $key => $value) {
-            $userMessage_log[$key]['items'] = Message::withTrashed()->select('message.*', 'message.id as mid', 'message.created_at as m_time', 'u.*', 'b.id as banned_id', 'b.expire_date as banned_expire_date')
-                ->leftJoin('users as u', 'u.id', 'message.from_id')
-                ->leftJoin('banned_users as b', 'message.from_id', 'b.member_id')
-                ->where([['message.to_id', $id], ['message.from_id', $value->ref_user_id]])
-                ->orWhere([['message.from_id', $id], ['message.to_id', $value->ref_user_id]])
-                ->where('message.created_at', '>=', \Carbon\Carbon::parse("180 days ago")->toDateTimeString())
-                ->orderBy('message.created_at')
-                ->take(1000)
-                ->get();
-        }
-
         // 給予、取消優選
         $now = \Carbon\Carbon::now();
         $vip_date = Vip::select('id', 'updated_at')->where('member_id', $user->id)->orderBy('updated_at', 'desc')->get()->first();
@@ -7548,8 +7535,21 @@ class UserController extends \App\Http\Controllers\BaseController
     public function getMessageFromRoomId(Request $request)
     {
         $room_id = $request->room_id;
+
+        //施工中
+        $message_detail = Message::withTrashed()->select('message.*', 'message.id as mid', 'message.created_at as m_time', 'u.*', 'b.id as banned_id', 'b.expire_date as banned_expire_date')
+		->leftJoin('users as u', 'u.id', 'message.from_id')
+		->leftJoin('banned_users as b', 'message.from_id', 'b.member_id')
+        ->where('room_id', $room_id)
+		->where('message.created_at', '>=', \Carbon\Carbon::parse("180 days ago")->toDateTimeString())
+		->orderBy('message.created_at')
+		->take(1000)
+		->get();
+        //施工中
+
         return response()->json([
-            'room_id' => $room_id
+            'room_id' => $room_id,
+            'message_detail' => $message_detail
         ], 201);
     }
 

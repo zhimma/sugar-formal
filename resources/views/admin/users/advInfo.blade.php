@@ -2098,64 +2098,7 @@
                         <th width="5%" nowrap>狀態</th>
                     </tr>
                     </thead>
-                    <tbody>
-                    @foreach ($messageLog->items as $key => $item)
-                        <tr>
-                            <td style="text-align: right;">
-                                @php
-                                    $from_id_user=\App\Models\User::findById($item->from_id);
-                                @endphp
-                                <a href="{{ route('admin/showMessagesBetween', [$user->id, $ref_user_id]) }}" target="_blank">
-                                    <p style="margin-bottom:0px; @if($item->engroup == '2') color: #F00; @else color: #5867DD; @endif">{{$item->name }}
-                                    @php
-                                        $from_id_tipcount = \App\Models\Tip::TipCount_ChangeGood($item->from_id);
-                                        $from_id_vip = \App\Models\Vip::vip_diamond($item->from_id);
-                                    @endphp
-                                    @if($from_id_vip)
-                                        @if($from_id_vip=='diamond_black')
-                                            <img src="/img/diamond_black.png" style="height: 16px;width: 16px;">
-                                        @else
-                                            @for($z = 0; $z < $from_id_vip; $z++)
-                                                <img src="/img/diamond.png" style="height: 16px;width: 16px;">
-                                            @endfor
-                                        @endif
-                                    @endif
-                                    @for($i = 0; $i < $from_id_tipcount; $i++)
-                                        👍
-                                    @endfor
-                                    @if(!is_null($item->banned_id))
-                                        @if(!is_null($item->banned_expire_date))
-                                            ({{ round((strtotime($item->banned_expire_date) - getdate()[0])/3600/24 ) }}天)
-                                        @else
-                                            (永久)
-                                        @endif
-                                    @endif
-                                    </p>
-                                </a>
-                            </td>
-                            <td><p style="word-break:break-all;">{{ $item->content }}</p></td>
-                            <td class="evaluation_zoomIn">
-                                @php
-                                    $messagePics=is_null($item->pic) ? [] : json_decode($item->pic,true);
-                                @endphp
-                                @if(isset($messagePics))
-                                    @foreach( $messagePics as $messagePic)
-                                        @if(isset($messagePic['file_path']))
-                                            <li style="float:left;margin:2px 2px;list-style:none;display:block;white-space: nowrap;width: 135px;">
-                                                <img src="{{ $messagePic['file_path'] }}" style="max-width:130px;max-height:130px;margin-right: 5px;">
-                                            </li>
-                                        @else
-                                            <li style="float:left;margin:2px 2px;list-style:none;display:block;white-space: nowrap;width: 135px;">
-                                                無法找到圖片
-                                            </li>
-                                        @endif
-                                    @endforeach
-                                @endif
-                            </td>
-                            <td>{{ $item->m_time }}</td>
-                            <td nowrap>{{ $item->unsend?'已收回':'' }}</td>
-                        </tr>
-                    @endforeach
+                    <tbody id="message_room_detail_{{$messageLog->room_id}}">
                     </tbody>
                 </table>
             </td>
@@ -3296,29 +3239,42 @@ function show_re_content(id){
         if($(this).text() == '+')
         {
             $(this).text('-');
-            console.log('+++');
+            room_id = $(this).attr("value");
+            $.ajax({
+                type: 'GET',
+                url: '{{route('users/getMessageFromRoomId')}}',
+                data: {
+                    room_id: room_id,
+                },
+                success: function(data){
+                    console.log(data);
+                    console.log(data.room_id);
+                    console.log('message_room_' + data.room_id);
+
+                    data.message_detail.forEach(
+                        $('message_room_detail_' + data.room_id).append(
+                        /*施工中*/
+                        '<tr>'+
+                            '<td style="text-align: right;">'+
+                            '</td>'+
+                            '<td>'+
+                            '</td>'+
+                            '<td>'+
+                            '</td>'+
+                            '<td>'+
+                            '</td>'+
+                        '</tr>'
+                        /*施工中*/
+                        )
+                    )
+                    
+            }});
         }
         else if($(this).text() == '-')
         {
             $(this).text('+');
-            console.log('---');
+            $('message_room_detail_' + data.room_id).empty();
         }
-        else
-        {
-            console.log('nnn');
-        }
-        room_id = $(this).attr("value");
-        $.ajax({
-            type: 'GET',
-            url: '{{route('users/getMessageFromRoomId')}}',
-            data: {
-                room_id: room_id,
-            },
-            success: function(data){
-                console.log(data);
-                console.log(data.room_id);
-                console.log('message_room_' + data.room_id);
-        }}); 
     });
 </script>
 <!--照片查看end-->
