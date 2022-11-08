@@ -3246,8 +3246,6 @@ function show_re_content(id){
                     room_id: room_id,
                 },
                 success: function(data){
-
-
                     data.message_detail.forEach(function(value){
                         $('#message_room_detail_' + data.room_id).append(
                             /*施工中*/
@@ -3255,7 +3253,7 @@ function show_re_content(id){
                                 '<td style="text-align: right;">'+
                                     '<a>'+
                                         '<p style="margin-bottom:0px;">'+
-                                            value.name
+                                            value.name +
                                         '</p>'+
                                     '</a>'+
                                 '</td>'+
