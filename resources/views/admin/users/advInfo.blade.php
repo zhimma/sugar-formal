@@ -3235,7 +3235,6 @@ function show_re_content(id){
     //預算及車馬費警示警示
 
     $('.message_toggle').on('click', function(){
-        console.log($(this).text());
         if($(this).text() == '+')
         {
             $(this).text('-');
@@ -3251,7 +3250,7 @@ function show_re_content(id){
                     console.log(data.room_id);
                     console.log('message_room_' + data.room_id);
 
-                    data.message_detail.forEach(
+                    data.message_detail.forEach(function(){
                         $('message_room_detail_' + data.room_id).append(
                         /*施工中*/
                         '<tr>'+
@@ -3265,8 +3264,8 @@ function show_re_content(id){
                             '</td>'+
                         '</tr>'
                         /*施工中*/
-                        )
-                    )
+                        );
+                    });
                     
             }});
         }
