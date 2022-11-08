@@ -3247,7 +3247,7 @@ function show_re_content(id){
                 },
                 success: function(data){
                     data.message_detail.forEach(function(value){
-                        messagePics = value.pic ? [] : JSON.parse(value.pic);
+                        messagePics = (value.pic === null) ? [] : JSON.parse(value.pic);
                         messagePicHTML = ''
                         messagePics.forEach(function(pic){
                             messagePicHTML =  messagePicHTML +
