@@ -3250,7 +3250,7 @@ function show_re_content(id){
                     console.log(data.room_id);
                     console.log('message_room_' + data.room_id);
 
-                    data.message_detail.forEach(function(){
+                    data.message_detail.forEach(function(value){
                         console.log('test');
                         $('#message_room_detail_' + data.room_id).append(
                         /*施工中*/
@@ -3262,10 +3262,10 @@ function show_re_content(id){
 
                             '</td>'+
                             '<td>'+
-
+                                value.m_time +
                             '</td>'+
-                            '<td>'+
-
+                            '<td nowrap>'+
+                                value.unsend ? '已收回' : '' +
                             '</td>'+
                         '</tr>'
                         /*施工中*/
