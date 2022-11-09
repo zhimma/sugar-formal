@@ -1037,6 +1037,10 @@ Route::group(['middleware' => ['auth', 'global', 'active', 'femaleActive', 'vipC
         Route::post('check/step1', 'UserController@member_profile_check_over')->name('admin/member_profile_check_over');
         Route::get('ban_information', 'UserController@ban_information');
         Route::post('users/little_update_profile', 'UserController@little_update_profile');
+        Route::get('admin_item_folder_manage', 'AdminController@admin_item_folder_manage')->name('admin_item_folder_manage');
+        Route::post('admin_item_folder_create', 'AdminController@admin_item_folder_create')->name('admin_item_folder_create');
+        Route::post('admin_item_folder_delete', 'AdminController@admin_item_folder_delete')->name('admin_item_folder_delete');
+        Route::post('admin_item_folder_update', 'AdminController@admin_item_folder_update')->name('admin_item_folder_update');
 
         //進階資訊統計工具
         Route::get('users/informationStatistics', 'UserController@informationStatistics')->name('users/informationStatistics');
