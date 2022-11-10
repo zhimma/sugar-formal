@@ -1776,7 +1776,7 @@
                     --}}
                     @if($IP_count>0)
                         @php
-                            $IpLogInLog = array_get($logInLog->Ip,'Ip_group',[])
+                            $IpLogInLog = array_get($logInLog->Ip,'Ip_group',[]);
                             Illuminate\Support\Facades\Log::Info($IpLogInLog);
                         @endphp
                         @foreach($IpLogInLog as $gpKey =>$group)
