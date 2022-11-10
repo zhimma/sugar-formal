@@ -1777,6 +1777,7 @@
                     @if($IP_count>0)
                         @foreach(array_get($logInLog->Ip,'Ip_group',[]) as $gpKey =>$group)
                             {{--@if($gpKey<10)--}}
+                            @if($logInLog->Ip['Ip_online_people'][$gpKey] != 1)
                                 <td class="loginItem ipItem" id="showIp{{substr($logInLog->loginDate,0,7)}}_group{{$gpKey}}" data-sectionName="Ip{{substr($logInLog->loginDate,0,7)}}_group{{$gpKey}}" data-assign_user_id="{{ $user->id }}" data-yearMonth="{{substr($logInLog->loginDate,0,7)}}" data-ip="{{ $group->ip }}" data-blocked-people="{{ $logInLog->Ip['Ip_blocked_people'][$gpKey] }}" data-online-people="{{ $logInLog->Ip['Ip_online_people'][$gpKey] }}" data-count="{{ $group->dataCount }}" style="margin-left: 20px;min-width: 150px;{{ $group->IP_set_auto_ban ? 'background:yellow;' : '' }}">
                                     {{ $group->ip }} 
                                     <span class="cfp_bp" style="{{ $logInLog->Ip['Ip_blocked_people'][$gpKey] > 0 ? 'background-color: yellow;' : '' }}">
@@ -1784,6 +1785,7 @@
                                     </span> 
                                     {{ '('.$group->dataCount .')' }}
                                 </td>
+                            @endif
                             {{--@endif--}}
                         @endforeach
                     @endif
