@@ -5,7 +5,7 @@
 		@foreach(\App\Models\AdminMenuItemFolder::where('user_id', Auth::user()->id)->get() as $folder)
 			<a class="folder"><img src="/new/images/afp_1.png" width="30" height="30"><font color="white">{{$folder->folder_name}}</font></a>
 			<div class="folder_item" style="display:none">
-				@foreach(\App\Models\AdminMenuItemXref::leftJoin('admin_menu_items', 'admin_menu_item_xref.item_id', '=', 'admin_menu_items.id')->where('folder_id', $folder->id)->get() as $item)
+				@foreach(\App\Models\AdminMenuItemXref::leftJoin('admin_menu_items', 'admin_menu_item_xref.item_id', '=', 'admin_menu_items.id')->where('folder_id', $folder->id)->where('admin_menu_items.status', 1)->get() as $item)
 					<a href="{{ $item->route_path }}">{{ $item->title }}</a>
 				@endforeach
 			</div>
@@ -31,7 +31,7 @@
 			$getMenuList=explode(',',$getPermission);
 		@endphp
 		@if(!is_null($getPermission))
-			@foreach(\App\Models\AdminMenuItems::whereIn('id',$getMenuList)->get() as $key =>$item)
+			@foreach(\App\Models\AdminMenuItems::whereIn('id',$getMenuList)->where('status', 1)->get() as $key =>$item)
 				<a href="{{ $item->route_path }}">{{ $item->title }}</a>
 			@endforeach
 		@endif

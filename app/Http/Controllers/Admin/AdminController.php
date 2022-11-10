@@ -135,8 +135,8 @@ class AdminController extends \App\Http\Controllers\BaseController
     public function admin_item_folder_manage(Request $request)
     {
         $user = $request->user();
-        $folders = AdminMenuItemFolder::where('user_id', $user->id)->get();
-        $admin_items = AdminMenuItems::get();
+        $folders = AdminMenuItemFolder::with('items')->where('user_id', $user->id)->get();
+        $admin_items = AdminMenuItems::where('status', 1)->get();
         return view('admin.admin_item_folder_manage')
                 ->with('folders', $folders)
                 ->with('admin_items', $admin_items)

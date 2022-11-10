@@ -890,16 +890,16 @@ Route::group(['middleware' => ['auth', 'global', 'active', 'femaleActive', 'vipC
         Route::post('users/VVIP_margin_deposit/save/{user_id}', 'VvipController@updateVvipMarginDeposit')->name('users/VVIP_margin_deposit/save');
         Route::get('users/VVIP_cancellation_list', 'VvipController@viewVvipCancellationList')->name('users/VVIP_cancellation_list');
         Route::post('users/VVIP_cancellation/save', 'VvipController@updateVvipCancellation')->name('users/VVIP_cancellation/save');
-//        Route::get('users/VVIP_invite', 'UserController@viewVvipInvite')->name('users/VVIP_invite');
+        //Route::get('users/VVIP_invite', 'UserController@viewVvipInvite')->name('users/VVIP_invite');
 
         Route::get('faq', 'UserController@showFaq')->name('admin/faq');
-         Route::get('faq/edit/{id}', 'UserController@showFaqEdit')->name('admin/faq/edit');
-         Route::post('faq/save', 'UserController@saveFaq')->name('admin/faq/save');
-         Route::post('faq/answer/save', 'UserController@saveAnsFromFaq')->name('admin/faq/answer/save');
-         Route::post('faq/setting/save', 'UserController@saveSettingFromFaq')->name('admin/faq/setting/save');
-         Route::get('faq/delete/{id?}', 'UserController@deleteFaq')->name('admin/faq/delete');
-         Route::get('faq/new', 'UserController@showNewFaq')->name('admin/faq/new/GET');
-         Route::post('faq/new', 'UserController@newFaq')->name('admin/faq/new');
+        Route::get('faq/edit/{id}', 'UserController@showFaqEdit')->name('admin/faq/edit');
+        Route::post('faq/save', 'UserController@saveFaq')->name('admin/faq/save');
+        Route::post('faq/answer/save', 'UserController@saveAnsFromFaq')->name('admin/faq/answer/save');
+        Route::post('faq/setting/save', 'UserController@saveSettingFromFaq')->name('admin/faq/setting/save');
+        Route::get('faq/delete/{id?}', 'UserController@deleteFaq')->name('admin/faq/delete');
+        Route::get('faq/new', 'UserController@showNewFaq')->name('admin/faq/new/GET');
+        Route::post('faq/new', 'UserController@newFaq')->name('admin/faq/new');
 
         Route::get('faq_group', 'UserController@showFaqGroup')->name('admin/faq_group');
         Route::get('faq_group/edit/{id}', 'UserController@showFaqGroupEdit')->name('admin/faq_group/edit');
