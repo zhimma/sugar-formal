@@ -23,8 +23,8 @@ class CanMessageSeeder extends Seeder
     {
         $to_users = User::where('engroup', 2)
                             ->where(function ($query) {
-                                $query->where('email', 'like', '%@test$')
-                                    ->orWhere('email', 'like', '%sandyh.dlc$');
+                                $query->where('email', 'like', '%@test%')
+                                    ->orWhere('email', 'like', '%sandyh.dlc%');
                             })->inRandomOrder()->take(10)->get();
         $from_user_id_array = [15598, 15601, 185840, 185841, 185842, 185843, 185844, 185845];
         foreach ($from_user_id_array as $from_user_id)
