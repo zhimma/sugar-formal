@@ -1119,13 +1119,13 @@ class UserController extends \App\Http\Controllers\BaseController
 
         $block = $request->block;
 
-        $user = User::where('id', 'like', $id)
+        $user = User::where('id', '=', $id)
             ->get()->first();
         if (!isset($user)) {
             if ($block == 'pic')  return;
             return '<h1>會員資料已刪除。</h1>';
         }
-        $userMeta = UserMeta::where('user_id', 'like', $id)->get()->first();
+        $userMeta = UserMeta::where('user_id', '=', $id)->get()->first();
 
         if ($block == 'pic') {
             return view('admin.users.advInfoPicBlock')
@@ -1168,28 +1168,14 @@ class UserController extends \App\Http\Controllers\BaseController
         }
 
         //groupby $userMessage
-        $userMessage_log = Message::withTrashed()->selectRaw("IF(message.to_id='" . $id . "', message.from_id, message.to_id) as ref_user_id, message.to_id, message.from_id, count(*) as toCount") //->from('message as m')
+        $userMessage_log = Message::withTrashed()->selectRaw("IF(message.to_id='" . $id . "', message.from_id, message.to_id) as ref_user_id, message.room_id, message.to_id, message.from_id, count(*) as toCount")
             ->where('message.from_id', $id)
             ->orWhere('message.to_id', $id)
-            ->where(DB::raw("message.created_at"), '>=', \Carbon\Carbon::parse("180 days ago")->toDateTimeString())
-            ->groupBy(DB::raw("ref_user_id"))
+            ->where("message.created_at", '>=', \Carbon\Carbon::parse("180 days ago")->toDateTimeString())
+            ->groupBy("ref_user_id")
             ->orderByRaw("IF(ref_user_id=1049, 1, 0)  desc")
             ->orderBy('message.created_at', 'DESC')
             ->paginate(1000);
-
-        foreach ($userMessage_log as $key => $value) {
-            $userMessage_log[$key]['items'] = Message::withTrashed()->select('message.*', 'message.id as mid', 'message.created_at as m_time', 'u.*', 'b.id as banned_id', 'b.expire_date as banned_expire_date')
-                //->from('message as m')
-                ->leftJoin('users as u', 'u.id', 'message.from_id')
-                ->leftJoin('banned_users as b', 'message.from_id', 'b.member_id')
-                ->where([['message.to_id', $id], ['message.from_id', $value->ref_user_id]])
-                ->orWhere([['message.from_id', $id], ['message.to_id', $value->ref_user_id]])
-                ->where('message.created_at', '>=', \Carbon\Carbon::parse("180 days ago")->toDateTimeString())
-                ->orderBy('message.created_at')
-                ->take(1000)
-                ->get();
-        }
-
         // 給予、取消優選
         $now = \Carbon\Carbon::now();
         $vip_date = Vip::select('id', 'updated_at')->where('member_id', $user->id)->orderBy('updated_at', 'desc')->get()->first();
@@ -5857,7 +5843,7 @@ class UserController extends \App\Http\Controllers\BaseController
         if(Request()->get('cfp_id')){
             $isSetAutoBan_cfp_id = \App\Models\SetAutoBan::whereRaw('(content="'. Request()->get('cfp_id').'" AND expiry >="'. now().'")')->orWhereRaw('(content="'. Request()->get('cfp_id').'" AND expiry="0000-00-00 00:00:00")')->get();
         }else{
-            $isSetAutoBan_ip = \App\Models\SetAutoBan::whereRaw('(content="'. Request()->get('ip').'" AND expiry >="'. now().'")')->orWhereRaw('(content="'. Request()->get('ip').'" AND expiry="0000-00-00 00:00:00")')->get();
+            $isSetAutoBan_ip = \App\Models\SetAutoBan::whereRaw('(content="'. $ip.'" AND expiry >="'. now().'")')->orWhereRaw('(content="'. $ip.'" AND expiry="0000-00-00 00:00:00")')->get();
         }
         $male_user_list=User::where('engroup', 1)->whereIn('id', array_keys($getIpUsersData_origin->groupBy('user_id')->toArray()))->get()->pluck('id')->toArray();
         return view('admin.users.ipUsersList')
@@ -7544,6 +7530,27 @@ class UserController extends \App\Http\Controllers\BaseController
         $msg_type    = 'message';
         $msg_content = '已延長等待更多資料';
         return back()->with($msg_type, $msg_content);
+    }
+
+    public function getMessageFromRoomId(Request $request)
+    {
+        $room_id = $request->room_id;
+
+        //施工中
+        $message_detail = Message::withTrashed()->select('message.*', 'message.id as mid', 'message.created_at as m_time', 'u.*', 'b.id as banned_id', 'b.expire_date as banned_expire_date')
+		->leftJoin('users as u', 'u.id', 'message.from_id')
+		->leftJoin('banned_users as b', 'message.from_id', 'b.member_id')
+        ->where('room_id', $room_id)
+		->where('message.created_at', '>=', \Carbon\Carbon::parse("180 days ago")->toDateTimeString())
+		->orderBy('message.created_at')
+		->take(1000)
+		->get();
+        //施工中
+
+        return response()->json([
+            'room_id' => $room_id,
+            'message_detail' => $message_detail
+        ], 201);
     }
 
 }
