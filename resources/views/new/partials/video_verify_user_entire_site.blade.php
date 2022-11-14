@@ -1,4 +1,20 @@
     @if(view()->shared('user') && view()->shared('rap_service') && view()->shared('rap_service')->riseByUserEntry(view()->shared('user')->refresh())->isAllowUseVideoChat() && view()->shared('rap_service')->isUrlNeedEntireSiteVideoChat())
+        <script>
+            let video_verify_loading_pic = new Image();
+            video_verify_loading_pic.src="{{asset('/new/images/loading.svg')}}";    
+    
+            function log_video_chat_process(log_arr)
+            {
+                log_arr.url = location.href;
+
+                fetch('/video/log_video_chat_process', {
+                      method: 'POST',
+                      headers: {'Content-Type': 'application/json'},
+                      body: JSON.stringify(log_arr)
+                      });
+                     
+            }
+        </script>
         <style>
             #entire_site_video_app > div > .container {
                 

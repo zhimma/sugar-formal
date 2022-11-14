@@ -724,7 +724,7 @@ class RealAuthPageService {
         
         if($this->isSelfAuthWaitingCheck()) return true;
         
-        if($this->getApplyByAuthTypeId(1) && !$this->isPassedByAuthTypeId(1)) return true;
+        if($this->isApplyEffectByAuthTypeId(1) && $this->getApplyByAuthTypeId(1) && !$this->isPassedByAuthTypeId(1)) return true;
     
         return false;
     }
