@@ -3264,7 +3264,8 @@ function show_re_content(id){
                             name_color = 'color: #5867DD;';
                         }
 
-                        console.log(data.users_data);
+                        console.log(value.u_id);
+                        console.log(data.users_data[value.u_id]);
 
                         $('#message_room_detail_' + data.room_id).append(
                             '<tr>'+

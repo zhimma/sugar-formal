@@ -7537,7 +7537,7 @@ class UserController extends \App\Http\Controllers\BaseController
     {
         $room_id = $request->room_id;
 
-        $message_detail = Message::withTrashed()->select('message.*', 'message.id as mid', 'message.created_at as m_time', 'u.*', 'b.id as banned_id', 'b.expire_date as banned_expire_date')
+        $message_detail = Message::withTrashed()->select('message.*', 'message.id as mid', 'message.created_at as m_time', 'u.*', 'u.id as u_id', 'b.id as banned_id', 'b.expire_date as banned_expire_date')
 		->leftJoin('users as u', 'u.id', 'message.from_id')
 		->leftJoin('banned_users as b', 'message.from_id', 'b.member_id')
         ->where('room_id', $room_id)
@@ -7552,8 +7552,8 @@ class UserController extends \App\Http\Controllers\BaseController
         foreach($room_users as $room_user)
         {
             $users[] = $room_user->user_id;
-            $users_data[$room_user->user_id]['tipcount'] =  Tip::TipCount_ChangeGood($room_user->user_id);
-            $users_data[$room_user->user_id]['vip'] =  Vip::vip_diamond($room_user->user_id);
+            $users_data[$room_user->user_id]['tipcount'] =  Tip::TipCount_ChangeGood($room_user->user_id) ?? false;
+            $users_data[$room_user->user_id]['vip'] =  Vip::vip_diamond($room_user->user_id) ?? false;
         }
 
         $message_href = route('admin/showMessagesBetween', $users);
