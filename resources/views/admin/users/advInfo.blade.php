@@ -3276,7 +3276,7 @@ function show_re_content(id){
                             }
                         }
 
-                        for(i = 0; i < data.users_data[value.u_id]['tipcount']; $i++){
+                        for(i = 0; i < data.users_data[value.u_id]['tipcount']; i++){
                             user_icon += '👍';
                         }
 
