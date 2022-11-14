@@ -46,6 +46,12 @@
         
         update_online_time(0);
         
+        function clear_online_time_interval()
+        {
+            stay_online_record_request.abort();
+            clearInterval(online_time_interval);            
+        }
+        
         function update_online_time_on_leave(page_url='') {
             stay_online_record_request.abort();
             clearInterval(online_time_interval);
@@ -97,9 +103,23 @@
                 type:'post',
                 url:'{{route("stay_online_time")}}?{{ csrf_token() }}='+Date.now(),
                 data:stay_online_time_formData,
+                dataType:'json',
                 success:function(data){
                     stay_online_record_base_time = Date.now();
                     sessionStorage.setItem('stay_online_record_id',data['stay_online_record_id']);
+                },
+                error:function(xhr, status, error) {
+                    if(error=='Unauthorized') {
+                        clear_online_time_interval();
+                        var unauth_error_msg = '您已登出或基於帳號安全由系統自動登出，請重新登入';
+                        if($('#tabPopM').length>0) {
+                            show_pop_message(unauth_error_msg);
+                        }
+                        else {
+                            alert(unauth_error_msg);
+                            location.reload();
+                        }
+                    }
                 }
             });
         }
