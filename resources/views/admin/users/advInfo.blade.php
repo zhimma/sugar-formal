@@ -3248,26 +3248,28 @@ function show_re_content(id){
                 success: function(data){
                     data.message_detail.forEach(function(value){
                         messagePics = (value.pic === null) ? [] : JSON.parse(value.pic);
-                        messagePicHTML = ''
+                        messagePicHTML = '';
                         messagePics.forEach(function(pic){
                             messagePicHTML =  messagePicHTML +
                             '<li style="float:left;margin:2px 2px;list-style:none;display:block;white-space: nowrap;width: 135px;">'+
                                 '<img src="'+ pic.file_path +'" style="max-width:130px;max-height:130px;margin-right: 5px;">'+
                             '</li>';
                         });
+
                         name_color = '';
-                        if(value.engroup == 2)
-                        {
+                        if(value.engroup == 2){
                             name_color = 'color: #F00;';
                         }
-                        else
-                        {
+                        else{
                             name_color = 'color: #5867DD;';
                         }
+
+                        console.log(data.users_data);
+
                         $('#message_room_detail_' + data.room_id).append(
                             '<tr>'+
                                 '<td style="text-align: right;">'+
-                                    '<a>'+
+                                    '<a href="' + data.message_href + '" target="_blank">'+
                                         '<p style="margin-bottom:0px;'+ name_color +'">'+
                                             value.name +
                                         '</p>'+
