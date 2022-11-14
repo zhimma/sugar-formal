@@ -54,12 +54,14 @@ class CanMessageSeeder extends Seeder
                         'user_id' => $to_user->id
                     ]);
                 }
-                Message::create([
+                $model = Message::create([
                     'room_id' => $room_id,
                     'to_id' => $to_user->id,
                     'from_id' => $from_user_id,
                     'content' => '哈囉你好嗎?'
                 ]);
+                
+                \DB::update('update message set created_at = created_at - INTERVAL FLOOR(RAND() * 60) SECOND where id = ?', [$model->id]);
             }
         }
     }
