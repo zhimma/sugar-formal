@@ -136,6 +136,7 @@
                                             <option value=100 @if($inbox_refuse_set->refuse_pr == 100) selected @endif>100</option>
                                         </select>
                                     </div>
+                                    {{--
                                     <div class="ti_ktx na_top25"><span class="na_nb">c.七天內罐頭訊息數量超過多少不收</span></div>
                                     <div class="ti_xcheck naa_dd">
                                         <select name="refuse_canned_message_PR" class="na_selct na_top">
@@ -145,7 +146,8 @@
                                             <option value=75 @if($inbox_refuse_set->refuse_canned_message_pr == 75) selected @endif>75%</option>
                                         </select>
                                     </div>
-                                    <div class="ti_ktx na_top25"><span class="na_nb">d.拒收幾天內註冊的新會員</span></div>
+                                    --}}
+                                    <div class="ti_ktx na_top25"><span class="na_nb">c.拒收幾天內註冊的新會員</span></div>
                                     <div class="ti_xcheck naa_dd">
                                         <select name="refuse_register_days" class="na_selct na_top">
                                             <option value=0 @if($inbox_refuse_set->refuse_register_days == 0) selected @endif>請選擇</option>
