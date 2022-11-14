@@ -271,8 +271,11 @@ Route::group(['middleware' => ['auth', 'global', 'active', 'femaleActive', 'vipC
     //視訊功能
     Route::post('/video/call-user', 'VideoChatController@callUser');
     Route::post('/video/accept-call', 'VideoChatController@acceptCall');
+    Route::post('/video/decline-call', 'VideoChatController@declineCall');
+    Route::post('/video/abort-dial-call', 'VideoChatController@abortDialCall');
     Route::get('/video/receive-call-user-signal-data', 'VideoChatController@receiveCallUserSignalData');
     Route::get('/video/receive-accept-call-signal-data', 'VideoChatController@receiveAcceptCallSignalData');
+    Route::any('/video/log_video_chat_process', 'VideoChatController@log_video_chat_process')->name('log_video_chat_process');
 
     /*
     |--------------------------------------------------------------------------
@@ -720,6 +723,7 @@ Route::group(['middleware' => ['auth', 'global', 'active', 'femaleActive', 'vipC
         Route::post('users/userUnblock', 'UserController@userUnblock');
         Route::get('users/banUserWithDayAndMessage/{user_id}/{msg_id}/{isReported?}', 'UserController@showBanUserDialog')->name('banUserWithDayAndMessage');
         Route::get('users/warnedUserWithDayAndMessage/{user_id}/{msg_id}', 'UserController@showWarnedUserDialog')->name('warnedUserWithDayAndMessage');
+        Route::get('users/getMessageFromRoomId', 'UserController@getMessageFromRoomId')->name('users/getMessageFromRoomId');
 
         Route::post('users/banUserWithDayAndMessage', 'UserController@banUserWithDayAndMessage');
         Route::get('users/pictures', 'UserController@showUserPictures')->name('users/pictures');
@@ -759,6 +763,7 @@ Route::group(['middleware' => ['auth', 'global', 'active', 'femaleActive', 'vipC
         Route::get('users/closeAccountDetail', 'UserController@closeAccountDetail');
 
         Route::post('users/forum_toggle', 'UserController@forum_toggle')->name('forum_toggle');
+        Route::post('users/check_extend', 'UserController@check_extend')->name('check_extend');
 
         Route::get('users/anonymousChat', 'UserController@showAnonymousChatPage')->name('users/showAnonymousChatPage');
         Route::get('users/searchAnonymousChat', 'UserController@searchAnonymousChatPage')->name('users/searchAnonymousChatPage');
@@ -889,16 +894,16 @@ Route::group(['middleware' => ['auth', 'global', 'active', 'femaleActive', 'vipC
         Route::post('users/VVIP_margin_deposit/save/{user_id}', 'VvipController@updateVvipMarginDeposit')->name('users/VVIP_margin_deposit/save');
         Route::get('users/VVIP_cancellation_list', 'VvipController@viewVvipCancellationList')->name('users/VVIP_cancellation_list');
         Route::post('users/VVIP_cancellation/save', 'VvipController@updateVvipCancellation')->name('users/VVIP_cancellation/save');
-//        Route::get('users/VVIP_invite', 'UserController@viewVvipInvite')->name('users/VVIP_invite');
+        //Route::get('users/VVIP_invite', 'UserController@viewVvipInvite')->name('users/VVIP_invite');
 
         Route::get('faq', 'UserController@showFaq')->name('admin/faq');
-         Route::get('faq/edit/{id}', 'UserController@showFaqEdit')->name('admin/faq/edit');
-         Route::post('faq/save', 'UserController@saveFaq')->name('admin/faq/save');
-         Route::post('faq/answer/save', 'UserController@saveAnsFromFaq')->name('admin/faq/answer/save');
-         Route::post('faq/setting/save', 'UserController@saveSettingFromFaq')->name('admin/faq/setting/save');
-         Route::get('faq/delete/{id?}', 'UserController@deleteFaq')->name('admin/faq/delete');
-         Route::get('faq/new', 'UserController@showNewFaq')->name('admin/faq/new/GET');
-         Route::post('faq/new', 'UserController@newFaq')->name('admin/faq/new');
+        Route::get('faq/edit/{id}', 'UserController@showFaqEdit')->name('admin/faq/edit');
+        Route::post('faq/save', 'UserController@saveFaq')->name('admin/faq/save');
+        Route::post('faq/answer/save', 'UserController@saveAnsFromFaq')->name('admin/faq/answer/save');
+        Route::post('faq/setting/save', 'UserController@saveSettingFromFaq')->name('admin/faq/setting/save');
+        Route::get('faq/delete/{id?}', 'UserController@deleteFaq')->name('admin/faq/delete');
+        Route::get('faq/new', 'UserController@showNewFaq')->name('admin/faq/new/GET');
+        Route::post('faq/new', 'UserController@newFaq')->name('admin/faq/new');
 
         Route::get('faq_group', 'UserController@showFaqGroup')->name('admin/faq_group');
         Route::get('faq_group/edit/{id}', 'UserController@showFaqGroupEdit')->name('admin/faq_group/edit');
@@ -976,8 +981,8 @@ Route::group(['middleware' => ['auth', 'global', 'active', 'femaleActive', 'vipC
         Route::get('order', 'OrderController@index')->name('order');
         Route::get('order/list', 'OrderController@getOrderData')->name('order/list');
         Route::post('order/orderGeneratorById', 'OrderController@orderGeneratorById')->name('order/orderGeneratorById');
-        Route::post('order/orderEcPayCheck', 'OrderController@orderEcPayCheck')->name('order/orderEcPayCheck');
-        Route::post('order/orderFunPointPayCheck', 'OrderController@orderFunPointPayCheck')->name('order/orderFunPointPayCheck');
+        Route::get('order/orderEcPayCheck', 'OrderController@orderEcPayCheck')->name('order/orderEcPayCheck');
+        Route::get('order/orderFunPointPayCheck', 'OrderController@orderFunPointPayCheck')->name('order/orderFunPointPayCheck');
 
 
         /*新增、編輯訊息*/
@@ -1036,6 +1041,10 @@ Route::group(['middleware' => ['auth', 'global', 'active', 'femaleActive', 'vipC
         Route::post('check/step1', 'UserController@member_profile_check_over')->name('admin/member_profile_check_over');
         Route::get('ban_information', 'UserController@ban_information');
         Route::post('users/little_update_profile', 'UserController@little_update_profile');
+        Route::get('admin_item_folder_manage', 'AdminController@admin_item_folder_manage')->name('admin_item_folder_manage');
+        Route::post('admin_item_folder_create', 'AdminController@admin_item_folder_create')->name('admin_item_folder_create');
+        Route::post('admin_item_folder_delete', 'AdminController@admin_item_folder_delete')->name('admin_item_folder_delete');
+        Route::post('admin_item_folder_update', 'AdminController@admin_item_folder_update')->name('admin_item_folder_update');
 
         //進階資訊統計工具
         Route::get('users/informationStatistics', 'UserController@informationStatistics')->name('users/informationStatistics');
@@ -1063,6 +1072,14 @@ Route::group(['middleware' => ['auth', 'global', 'active', 'femaleActive', 'vipC
         Route::post('global/feature_flags/edit', 'UserController@feature_flags_edit');
         Route::post('global/feature_flags/update', 'UserController@feature_flags_update');
         Route::post('global/feature_flags/delete', 'UserController@feature_flags_delete');
+
+        Route::get('special_industries_judgment_training_setup', 'AdminController@special_industries_judgment_training_setup')->name('admin/special_industries_judgment_training_setup');
+        Route::post('special_industries_judgment_training_setup_set', 'AdminController@special_industries_judgment_training_setup_set')->name('admin/special_industries_judgment_training_setup_set');
+        Route::get('special_industries_judgment_training_select', 'AdminController@special_industries_judgment_training_select')->name('admin/special_industries_judgment_training_select');
+        Route::get('special_industries_judgment_training_test', 'AdminController@special_industries_judgment_training_test')->name('admin/special_industries_judgment_training_test');
+        Route::post('special_industries_judgment_answer_send', 'AdminController@special_industries_judgment_answer_send')->name('admin/special_industries_judgment_answer_send');
+        Route::get('special_industries_judgment_result', 'AdminController@special_industries_judgment_result')->name('admin/special_industries_judgment_result');
+        Route::get('special_industries_judgment_training_hide', 'AdminController@special_industries_judgment_training_hide')->name('admin/special_industries_judgment_training_hide');
     });
     Route::group(['prefix' => 'admin', 'middleware' => 'Admin'], function () {
         //寄退信Log查詢
@@ -1079,6 +1096,8 @@ Route::group(['middleware' => ['auth', 'global', 'active', 'femaleActive', 'vipC
         //視訊驗證影片紀錄
         Route::get('users/video_chat_verify_record_list', 'VideoChatController@video_chat_verify_record_list')->name('users/video_chat_verify_record_list');
         Route::get('users/video_chat_verify_record', 'VideoChatController@video_chat_verify_record')->name('users/video_chat_verify_record');
+
+        Route::get('users/video_chat_get_users', 'VideoChatController@video_chat_get_users')->name('users/video_chat_get_users');
 
         Route::get("stat_test", 'Api\MailController@test_stat');
 

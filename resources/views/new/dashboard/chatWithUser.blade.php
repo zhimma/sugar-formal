@@ -543,7 +543,7 @@
                 <a class="fa_adbut1 left"
                     href="{{ !empty(session()->get('goBackPage_chat2')) ? session()->get('goBackPage_chat2') : \Illuminate\Support\Facades\URL::previous() }}"><img
                         class="fa_backicon" src="{{ asset('/new/images/back_icon.png') }}">返回</a>
-                <span style="se_rea">
+                <span class="se_rea">
                     @if($toUserIsBanned)
                         <a type="button" style="color: #fd5678;" onclick="c5('{{'此人已被站方封鎖'}}'),setTimeout(function(){window.location.href = ' {{ !empty(session()->get	('goBackPage_chat2')) ? session()->get('goBackPage_chat2') : \Illuminate\Support\Facades\URL::previous() }} '},3000)">{{$to->name}}</a>
                     @else
@@ -562,11 +562,13 @@
                                 @endif
                             </span>
                         </a>
+                        @if($to->engroup==2 && $to->show_can_message== 0)
+                            <img id="yd6"  class="yd6" src="{{ asset('/new/images/zz_ztt2.png') }}" data-position="top" data-highlightClass="yd6a" data-tooltipClass="yd6"
+                                data-intro="<p>注意!! 此符號代表該位女會員設定屏蔽罐頭訊息，您目前發出的訊息與過往訊息相似度太高，會被屏蔽，建議您重新調整訊息內容再發出。</p>">
+                        @endif
                     @endif
                 </span>
-                @if($to->engroup==2 && $to->refuse_canned_message)
-                    <img style="width:20px;position: absolute;" src="{{ asset('/new/images/zz_ztt2.png') }}" >
-                @endif
+                
                 @if($user->engroup==1)     
                     <a  class="fa_adbut1 right" onclick="checkPay('ecpay');switch_adbut_on(this);">
                          <form class="" 
@@ -624,21 +626,18 @@
                 @if(!empty($messages))
                 @foreach ($messages as $m_key =>$message)
                 @php
-                $parentMsg = null;
-                $msgUser = \App\Models\User::findById($message->from_id);
-                \App\Models\Message::read($message, $user->id);
-                if($message->parent_msg??null) $parentMsg = \App\Models\Message::find($message->parent_msg);
-                if(!($parentMsg??null) && $message->parent_client_id??null) $parentMsg = \App\Models\Message::where('client_id',$message->parent_client_id)->first();
-                if($parentMsg??null) {
-                if($parentMsg->from_id==$user->id) $parentMsgSender=$user;
-                else {
-                $parentMsgSender = \App\Models\User::findById($parentMsg->from_id);
-                $isBlurParentSender = \App\Services\UserService::isBlurAvatar($parentMsgSender, $user);
-                }
-                }
-                if($message['sys_notice']==1 && $message['from_id']!==$user->id && $message['from_id']!=-1049){
-                    continue;
-                }
+                    $parentMsg = null;
+                    $msgUser = \App\Models\User::findById($message->from_id);
+                    \App\Models\Message::read($message, $user->id);
+                    if($message->parent_msg ?? null) $parentMsg = \App\Models\Message::find($message->parent_msg);
+                    if(!($parentMsg ?? null) && $message->parent_client_id ?? null) $parentMsg = \App\Models\Message::where('client_id', $message->parent_client_id)->first();
+                    if($parentMsg ?? null) {
+                        if($parentMsg->from_id == $user->id) $parentMsgSender = $user;
+                        else {
+                            $parentMsgSender = \App\Models\User::findById($parentMsg->from_id);
+                            $isBlurParentSender = \App\Services\UserService::isBlurAvatar($parentMsgSender, $user);
+                        }
+                    }
                 @endphp
 
                 @if($date_temp != substr($message['created_at'],0,10)) <div class="sebg matopj10">
@@ -903,6 +902,7 @@
                     <form style="margin: 0 auto;" method="POST"
                         action="/dashboard/chat2/{{ \Carbon\Carbon::now()->timestamp }}" id="chatForm" name="chatForm">
                         <input type="hidden" name="_token" value="{{ csrf_token() }}">
+                        <input type="hidden" name="chat_with_admin" value="{{ $chatting_with_admin }}">
                         <input type="hidden" name="userId" value="{{$user->id}}">
                         <input type="hidden" name="to" value="{{$to->id}}">
                         <input type="hidden" name="m_time" @if(isset($m_time)) value="{{ $m_time }}" @else value="" @endif>
@@ -1149,6 +1149,11 @@
 <link href="{{ asset('css/jquery.fileuploader.min.css') }}" media="all" rel="stylesheet">
 <link href="{{ asset('new/css/fileupload.css') }}" media="all" rel="stylesheet">
 <link href="{{ asset('css/font/font-fileuploader.css') }}" media="all" rel="stylesheet">
+
+<link href="/new/intro/introjs.css" rel="stylesheet">
+<link href="/new/intro/cover.css" rel="stylesheet">
+<script type="text/javascript" src="/new/intro/intro.js"></script>
+
 <script src="{{ asset('js/jquery.fileuploader.js') }}" type="text/javascript"></script>
 <script src="https://rawgit.com/google/code-prettify/master/loader/run_prettify.js" defer></script>
 <script src="https://cdnjs.cloudflare.com/ajax/libs/photoswipe/4.1.2/photoswipe.min.js" charset="utf-8"></script>
@@ -2118,18 +2123,19 @@
                 var parent_id = document.getElementById('message_parent').value;
                 var parent_client_id = document.getElementById('message_parent_client').value;
                 formData.append("msg", msg_text);
-            formData.append("from", "{{ auth()->user()->id }}");
-            formData.append("to", "{{ $to->id }}");
-            formData.append('parent', parent_id);
-            formData.append('parent_client', parent_client_id);
-            formData.append('client_id',msg_data.client_id);
-            @if($isVip)
-            formData.append('is_truth',$('#truth_actor').length?$('#truth_actor').data('truth_active'):0);
-            @endif
-            formData.append("_token", "{{ csrf_token() }}");
-            xhr.open("post", "{{ route('realTimeChat') }}", true);
-            xhr.onload = function (e) {
-                var response = e.currentTarget.response;
+                formData.append("chat_with_admin", '{{ $chatting_with_admin ?? 0 }}');
+                formData.append("from", "{{ auth()->user()->id }}");
+                formData.append("to", "{{ $to->id }}");
+                formData.append('parent', parent_id);
+                formData.append('parent_client', parent_client_id);
+                formData.append('client_id',msg_data.client_id);
+                @if($isVip)
+                formData.append('is_truth',$('#truth_actor').length?$('#truth_actor').data('truth_active'):0);
+                @endif
+                formData.append("_token", "{{ csrf_token() }}");
+                xhr.open("post", "{{ route('realTimeChat') }}", true);
+                xhr.onload = function (e) {
+                    var response = e.currentTarget.response;
                     var rentry = null;
                     try { 
                         rentry = JSON.parse(response);
@@ -2154,7 +2160,7 @@
                             show_pop_message('傳送失敗：'+rentry.content);
                         }
                         else if(rentry.error==2){
-                            show_canMessageAlert(rentry.content);
+                            show_canMessageAlert();
                         }
                         else {
                             c5(rentry.content);
@@ -2464,6 +2470,19 @@
     }
     @endif
     
+    function show_canMessageAlert() {
+        introJs().start().oncomplete(function() {
+            $('img.yd6').removeClass('highlight');
+        }).onexit(function() {
+            $('img.yd6').removeClass('highlight');
+        });
+        
+        $('img.yd6').addClass('highlight');
+        var notShowButton = document.createElement("a");  
+        notShowButton.setAttribute('class', 'introjs-button introjs-notshowbutton');
+        notShowButton.setAttribute('href', "{{ route('viewChatNotice') }}");
+        $('.introjs-tooltipbuttons').append(notShowButton);
+    }
 	function c_truth() {
 		 $(".blbg").show();
          $("#tab_truth").show();

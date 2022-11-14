@@ -97,6 +97,7 @@ class ECPayment extends BaseController
             $obj->Send['TotalAmount']       = $amount;                                     //交易金額
             $obj->Send['TradeDesc']         = "SG-VIP(".$request->userId.")";                                //交易描述
             $obj->Send['PaymentType']       = "aio";
+            $obj->Send['NeedExtraPaidInfo'] = 'Y';
 
             if($request->type=='one_quarter_payment' || $request->type=='one_month_payment') {
 //                $obj->Send['ChoosePayment'] = $request->choosePayment;
@@ -211,6 +212,7 @@ class ECPayment extends BaseController
             $obj->Send['TotalAmount'] = 1788;                                     //交易金額
             $obj->Send['TradeDesc'] = "SG-車馬費(" . $request->userId . ")";                                //交易描述
             $obj->Send['ChoosePayment'] = ECPay_PaymentMethod::Credit;             //付款方式:Credit
+            $obj->Send['NeedExtraPaidInfo'] = 'Y';
             // $obj->Send['IgnorePayment']     = ECPay_PaymentMethod::GooglePay ;           //不使用付款方式:GooglePay
             $obj->Send['CustomField1'] = $request->userId;
             $obj->Send['CustomField2'] = $request->to;
@@ -284,6 +286,7 @@ class ECPayment extends BaseController
             $obj->Send['TotalAmount'] = $request->amount;                                     //交易金額
             $obj->Send['TradeDesc'] = "SG-補刷卡費(" . $request->userId . ")";                                //交易描述
             $obj->Send['ChoosePayment'] = ECPay_PaymentMethod::Credit;             //付款方式:Credit
+            $obj->Send['NeedExtraPaidInfo'] = 'Y';
             // $obj->Send['IgnorePayment']     = ECPay_PaymentMethod::GooglePay ;           //不使用付款方式:GooglePay
             $obj->Send['CustomField1'] = $request->userId;
 
@@ -373,6 +376,7 @@ class ECPayment extends BaseController
             $obj->Send['TotalAmount']       = $amount;                                     //交易金額
             $obj->Send['TradeDesc']         = "SG-".$request->service_name."(".$request->userId.")";                                //交易描述
             $obj->Send['PaymentType']       = "aio";
+            $obj->Send['NeedExtraPaidInfo'] = 'Y';
 
             if($request->payment=='one_quarter_payment' || $request->payment=='one_month_payment') {
                 //                $obj->Send['ChoosePayment'] = $request->choosePayment;

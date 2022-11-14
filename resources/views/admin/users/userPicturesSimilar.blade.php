@@ -176,13 +176,84 @@
                                             <textarea type="text" class="form-control form-control-sm form-control-plaintext mr-sm-2" name="style">{{ $user->meta_()->style }}</textarea>
                                         </span>
                                         <br>
+                                        @php
+                                            $step_time1_1 = $user->female_newer_manual_time_list->where('step','1_1')->sum('time');
+                                            $step_time1_2 = $user->female_newer_manual_time_list->where('step','1_2')->sum('time');
+                                            $step_time1_3 = $user->female_newer_manual_time_list->where('step','1_3')->sum('time');
+                                            $step_time2_1 = $user->female_newer_manual_time_list->where('step','2_1')->sum('time');
+                                            $step_time2_2 = $user->female_newer_manual_time_list->where('step','2_2')->sum('time');
+                                            $step_time2_3 = $user->female_newer_manual_time_list->where('step','2_3')->sum('time');
+                                            $step_time3_1 = $user->female_newer_manual_time_list->where('step','3_1')->sum('time');
+                                            $step_time3_2 = $user->female_newer_manual_time_list->where('step','3_2')->sum('time');
+                                            $step_time3_3 = $user->female_newer_manual_time_list->where('step','3_3')->sum('time');
+                                        
+                                            $step_time_arr = ['step_time1_1'=>$step_time1_1
+                                                                ,'step_time1_2'=>$step_time1_2
+                                                                ,'step_time1_3'=>$step_time1_3
+                                                                ,'step_time2_1'=>$step_time2_1
+                                                                ,'step_time2_2'=>$step_time2_2
+                                                                ,'step_time2_3'=>$step_time2_3
+                                                                ,'step_time3_1'=>$step_time3_1
+                                                                ,'step_time3_2'=>$step_time3_2
+                                                                ,'step_time3_3'=>$step_time3_3
+                                                             ];
+                                        
+                                            $max_step_time = max($step_time_arr);
+                                        
+                                            $totalTime = $user->getFemaleNewerManualTotalTime();
+                                        
+                                            $halfTotalTime = $totalTime*0.5;
+                                        
+                                            $is_fnm_time_unusual = $totalTime && $halfTotalTime< $max_step_time && end($step_time_arr);
+                                            $step_time1_arr = [$step_time1_1,$step_time1_2,$step_time1_3 ];
+                                            $step_time2_arr = [$step_time2_1,$step_time2_2,$step_time2_3 ];
+                                            $step_time3_arr = [$step_time3_1,$step_time3_2,$step_time3_3 ];
+                                        
+                                            $step_time1_total = array_sum($step_time1_arr);
+                                            $step_time2_total = array_sum($step_time2_arr);
+                                            $step_time3_total = array_sum($step_time3_arr);
+                                        @endphp
                                         <span>
                                             教學時間:
                                             @if($user->engroup==1)
                                             {{ $user->newer_manual_stay_online_time->time }}
                                             @else
-                                            {{var_carrier('totalTime',$user->getFemaleNewerManualTotalTime())}}    
-                                                @if(var_carrier('totalTime')>0)
+                                                @if( $is_fnm_time_unusual)
+                                                
+                                                    {{$totalTime-$max_step_time}} 秒
+                                                    = {{$totalTime}} - {{$max_step_time}}
+                                                @else
+                                                    {{$totalTime??0}} 秒
+                                                @endif
+                                                <span style="display:block;margin-top:0.5em;">
+                                                    <span>Step1:</span>
+                                                    @if( in_array($max_step_time,$step_time1_arr) && $is_fnm_time_unusual )
+                                                        {{$step_time1_total-$max_step_time}} 秒
+                                                        = {{$step_time1_total}}-{{$max_step_time}}
+                                                    @else
+                                                        {{$step_time1_total}} 秒
+                                                    @endif
+                                                </span>
+                                                <span style="display:block;">
+                                                    <span>Step2:</span>
+                                                    @if( in_array($max_step_time,$step_time2_arr) && $is_fnm_time_unusual )
+                                                        {{$step_time2_total-$max_step_time}} 秒
+                                                        = {{$step_time2_total}}-{{$max_step_time}}
+                                                    @else
+                                                        {{$step_time2_total}} 秒
+                                                    @endif
+                                                </span>
+                                                <span style="display:block;">
+                                                    <span>Step3:</span>
+                                                    @if( in_array($max_step_time,$step_time3_arr) && $is_fnm_time_unusual )
+                                                        {{$step_time3_total-$max_step_time}} 秒
+                                                        = {{$step_time3_total}}-{{$max_step_time}}
+                                                    @else
+                                                        {{$step_time3_total}} 秒
+                                                    @endif
+                                                </span>
+
+                                                @if($totalTime>0)
                                                 <span id="btn_showDetail_newer_manual_time_{{$user->id}}" class="btn_showLogUser btn btn-primary" >+</span>
                                                 <script>
                                                     $('#btn_showDetail_newer_manual_time_{{$user->id}}').click(function(){
@@ -202,42 +273,42 @@
                                                         <th>1-1</th><th>1-2</th><th>1-3</th>
                                                     </tr>
                                                     <tr>
-                                                        <td @if(var_carrier('halfTotalTime',var_carrier('totalTime')*0.5) < var_carrier('step_time1_1',($user->female_newer_manual_time_list->where('step','1_1')->sum('time')))) style="background:red;font-weight:bolder;"   @endif>
-                                                            {{var_carrier('step_time1_1')}}                                            
+                                                        <td @if($halfTotalTime< $step_time1_1 && $is_fnm_time_unusual) style="background:red;font-weight:bolder;"   @endif>
+                                                            {{$step_time1_1}}                                            
                                                         </td>
-                                                        <td @if(var_carrier('halfTotalTime')< var_carrier('step_time1_2',$user->female_newer_manual_time_list->where('step','1_2')->sum('time'))) style="background:red;font-weight:bolder;"   @endif>
-                                                            {{var_carrier('step_time1_2')}}
+                                                        <td @if($halfTotalTime< $step_time1_2 && $is_fnm_time_unusual) style="background:red;font-weight:bolder;"   @endif>
+                                                            {{$step_time1_2}}
                                                         </td>
-                                                        <td @if(var_carrier('halfTotalTime')< var_carrier('step_time1_3',$user->female_newer_manual_time_list->where('step','1_3')->sum('time'))) style="background:red;font-weight:bolder;"   @endif>
-                                                            {{var_carrier('step_time1_3')}}
+                                                        <td @if($halfTotalTime< $step_time1_3 && $is_fnm_time_unusual) style="background:red;font-weight:bolder;"   @endif>
+                                                            {{$step_time1_3}}
                                                         </td>
                                                     </tr>
                                                     <tr style="border-top:3px solid;">
                                                         <th>2-1</th><th>2-2</th><th>2-3</th>
                                                     </tr>
                                                     <tr>
-                                                       <td @if(var_carrier('halfTotalTime')< var_carrier('step_time2_1',$user->female_newer_manual_time_list->where('step','2_1')->sum('time'))) style="background:red;font-weight:bolder;"   @endif>
-                                                            {{var_carrier('step_time2_1')}}
+                                                       <td @if($halfTotalTime< $step_time2_1 && $is_fnm_time_unusual) style="background:red;font-weight:bolder;"   @endif>
+                                                            {{$step_time2_1}}
                                                        </td>
-                                                        <td @if(var_carrier('halfTotalTime')< var_carrier('step_time2_2',$user->female_newer_manual_time_list->where('step','2_2')->sum('time'))) style="background:red;font-weight:bolder;"   @endif>
-                                                            {{var_carrier('step_time2_2')}}
+                                                        <td @if($halfTotalTime< $step_time2_2 && $is_fnm_time_unusual) style="background:red;font-weight:bolder;"   @endif>
+                                                            {{$step_time2_2}}
                                                         </td>
-                                                        <td @if(var_carrier('halfTotalTime')< var_carrier('step_time2_3',$user->female_newer_manual_time_list->where('step','2_3')->sum('time'))) style="background:red;font-weight:bolder;"   @endif>
-                                                             {{var_carrier('step_time2_3')}}
+                                                        <td @if($halfTotalTime< $step_time2_3 && $is_fnm_time_unusual) style="background:red;font-weight:bolder;"   @endif>
+                                                             {{$step_time2_3}}
                                                         </td>
                                                     </tr>
                                                     <tr style="border-top:3px solid;">
                                                         <th>3-1</th><th>3-2</th><th>3-3</th>
                                                     </tr>
                                                     <tr>
-                                                       <td @if(var_carrier('halfTotalTime')< var_carrier('step_time3_1',$user->female_newer_manual_time_list->where('step','3_1')->sum('time'))) style="background:red;font-weight:bolder;"   @endif>
-                                                            {{var_carrier('step_time3_1')}}
+                                                       <td @if($halfTotalTime< $step_time3_1 && $is_fnm_time_unusual) style="background:red;font-weight:bolder;"   @endif>
+                                                            {{$step_time3_1}}
                                                        </td>
-                                                        <td @if(var_carrier('halfTotalTime')< var_carrier('step_time3_2',$user->female_newer_manual_time_list->where('step','3_2')->sum('time'))) style="background:red;font-weight:bolder;"   @endif>
-                                                            {{var_carrier('step_time3_2')}}
+                                                        <td @if($halfTotalTime< $step_time3_2 && $is_fnm_time_unusual) style="background:red;font-weight:bolder;"   @endif>
+                                                            {{$step_time3_2}}
                                                         </td>
-                                                        <td @if(var_carrier('halfTotalTime')< var_carrier('step_time3_3',$user->female_newer_manual_time_list->where('step','3_3')->sum('time'))) style="background:red;font-weight:bolder;"   @endif>
-                                                             {{var_carrier('step_time3_3')}}
+                                                        <td @if($halfTotalTime< $step_time3_3 && $is_fnm_time_unusual) style="background:red;font-weight:bolder;"   @endif>
+                                                             {{$step_time3_3}}
                                                         </td>
                                                     </tr>
                                                 </table>
@@ -306,6 +377,7 @@
                                             <sapn style="vertical-align:middle;">是八大</sapn>
                                         </label>
                                         <button class="btn btn-sm btn-danger suspicious_from_btn" type="button" data-confirm="0" style="margin-top: ">確定</button>
+                                        <button class="btn btn-sm btn-primary check_extend" value={{$user->id}}>等待更多資料</button>
 
                                     @else
                                         <label style="margin:12px 0px 0px 0px;">
@@ -316,6 +388,7 @@
                                             <sapn style="vertical-align:middle;">是八大</sapn>
                                         </label>
                                         <button class="btn btn-sm btn-danger suspicious_from_btn" type="button" data-confirm="1">確定</button>
+                                        <button class="btn btn-sm btn-primary check_extend" value={{$user->id}}>等待更多資料</button>
                                     @endif
                                 </form>
                                 </p>
@@ -789,6 +862,13 @@
     </div>
     <!--照片查看-->
 
+    <!--檢查延長-->
+    <form id="check_extend_form" method="POST" action="{{ route('check_extend') }}">
+        <input type="hidden" name="_token" value="{{ csrf_token() }}" >
+        <input id="check_extend_form_user_id" type="hidden" name='user_id' value="">
+    </form>
+    <!--檢查延長-->
+
     <script>
         $('.twzipcode').twzipcode({
             'detect': true,
@@ -1110,6 +1190,12 @@
 
         $(document).ready(function(){
             autosize($('textarea'));
+        });
+
+        $('.check_extend').on('click', function(){
+            $(this).removeClass('btn-primary').addClass('btn-secondary').attr('disabled', true);
+            $('#check_extend_form_user_id').val($(this).val());
+            $('#check_extend_form').submit();
         });
 
     </script>

@@ -628,57 +628,7 @@ header("Expires: Fri, 01 Jan 1990 00:00:00 GMT");
 
                         </div>
                     </form>
-
-                    <?php
-                        
-                    ?>
 @php
-
-                        
-                            // $district = "";
-                            // $county = "";
-                            // $district2 = "";
-                            // $county2 = "";
-                            // $district3 = "";
-                            // $county3 = "";                        
-                            // $cup = "";
-                            // $marriage = "";
-                            // $budget = "";
-                            // $income = "";
-                            // $smoking = "";
-                            // $drinking = "";
-                            // $pic = "";
-                            // $ageto = "";
-                            // $agefrom = "";
-                            // $seqtime = "";
-                            // $body = "";
-                            // $exchange_period = "";
-                            // $umeta = $user->user_meta;
-                            // // $isBlocked = 1;
-                            // if(isset($umeta->city)){
-                            //     $umeta->city = explode(",",$umeta->city);
-                            //     $umeta->area = explode(",",$umeta->area);
-                            // }
-                            // $heightfrom = "";
-                            // $heightto = "";
-                            // $prRange_none = "";
-                            // $prRange = "";
-                            // $situation = "";
-                            // $education = "";
-                            // $isVip = "";
-                            // $isWarned = "";
-                            // $isPhoneAuth = "";
-                            // $tattoo= "";
-                            //新增體重
-                            // $weight = "";
-                        
-
-
-
-
-
-
-                    // if (isset($_POST['_token']) || isset($_GET['_token']) || count(session()->get('search_page_key',[]))){
                     try{
                         $umeta = $user->user_meta;
                         if(isset($umeta->city)){
@@ -743,25 +693,6 @@ header("Expires: Fri, 01 Jan 1990 00:00:00 GMT");
                         $page_pre = 1;
                         $page_next = 2;
                     }
-                        //is these are correct modification??
-                        // $tattoo = request()->tattoo??session()->get('search_page_key.tattoo');
-                        // $county2 = request()->county2??session()->get('search_page_key.county2');
-                        // $county3 = request()->county3??session()->get('search_page_key.county3');
-                        // $district2 = request()->district2??session()->get('search_page_key.district2');
-                        // $district3 = request()->district3??session()->get('search_page_key.district3');
-                        
-                    // }
-
-
-                    
-                    // $userIsAdvanceAuth = $_POST["isAdvanceAuth"] ?? 
-                    //                      $_GET["isAdvanceAuth"]  ?? 
-                    //                      session()->get('search_page_key.isAdvanceAuth') ?? 0;
-
-                    // vi vendor/laravel/framework/src/Illuminate/Database/Query/Builder.php
-                    // addWhereExistsQuery() remove $operator
-                    // https://learnku.com/articles/28283?order_by=vote_count&
-
 @endphp
                     
 
@@ -1096,8 +1027,7 @@ header("Expires: Fri, 01 Jan 1990 00:00:00 GMT");
                 }                 
             },
         mounted () {
-
-             let post_data = {
+            let post_data = {
                 city:"{{$county}}",
                 area:"{{$district}}",
                 cup:{!! json_encode($cup) !!},
@@ -1147,7 +1077,7 @@ header("Expires: Fri, 01 Jan 1990 00:00:00 GMT");
             axios.post('/getSearchData', post_data)
             .then(response => {
                     this.dataList = response.data.dataList;
-                    this.user = response.data.user;
+                    this.user_engroup = response.data.user_engroup;
                     this.userIsVip = response.data.userIsVip;
 
                     this.singlePageCount = response.data.singlePageCount;
@@ -1437,7 +1367,7 @@ header("Expires: Fri, 01 Jan 1990 00:00:00 GMT");
                         if(rowVisitorIsBlurAvatar==1) csrVar = 'blur_img';
                         if(rowVisitorIsBlurAvatar==1){
                             var blur_img_class = 'nt_photo_blur_img';
-                            if(umeta.pic_blur!='')
+                            if(umeta.pic_blur!='' && umeta.pic_blur!=null && umeta.pic_blur!=undefined)
                                 umetaPic=umeta.pic_blur;
 
                         } else{
@@ -1500,12 +1430,12 @@ header("Expires: Fri, 01 Jan 1990 00:00:00 GMT");
                             umeta.city.forEach((row, index) => {
                                 if (index==0){
                                     csrData +=  umeta.city[index];
-                                    if(umetaIsHideArea == 0 && this.user.engroup == 2){
+                                    if(umetaIsHideArea == 0 && this.user_engroup == 2){
                                         csrData +=  umetaArea[index]+'  ';
                                     }
                                 }else{
                                     csrData +=  '<span>'+umeta.city[index];
-                                    if(umetaIsHideArea == 0 && this.user.engroup == 2){
+                                    if(umetaIsHideArea == 0 && this.user_engroup == 2){
                                         csrData += (umetaArea[index]);
                                     }
                                     csrData += '</span>';
@@ -1517,14 +1447,6 @@ header("Expires: Fri, 01 Jan 1990 00:00:00 GMT");
                         
 
                         csrData +='<span class="u_info" style="overflow: hidden;display: inline-block;">';
-                        if(this.user.engroup==1){
-                            csrData +='<i class="j_lxx">丨</i><span>'+rowVisitorExchangePeriodName.name+'</span>';
-                            // if(this.userIsVip==1){
-                            //     csrData +='<i class="j_lxx">丨</i><span>'+rowVisitorExchangePeriodName.name+'</span>';
-                            // }else{
-                            //     csrData +='<i class="j_lxx">丨</i><span>包養關係<img src="/new/images/icon_35.png" class="nt_img"></span>';
-                            // }
-                        }
                         csrData +='</span>';
 
                         csrData +='<span class="u_profession">';
@@ -1544,8 +1466,16 @@ header("Expires: Fri, 01 Jan 1990 00:00:00 GMT");
                         }else{
                             csrData +='<span style="margin-left: 10px;"><span style="padding-left: 5px;">工作/學業</span><img src="/new/images/icon_35.png" class="nt_img"></span>';
                         }
-                        csrData +='</span>';
-
+                      
+                        if(this.user_engroup==1){
+                            csrData +='<i class="j_lxx">丨</i><span>'+rowVisitorExchangePeriodName.name+'</span>';
+                            // if(this.userIsVip==1){
+                            //     csrData +='<i class="j_lxx">丨</i><span>'+rowVisitorExchangePeriodName.name+'</span>';
+                            // }else{
+                            //     csrData +='<i class="j_lxx">丨</i><span>包養關係<img src="/new/images/icon_35.png" class="nt_img"></span>';
+                            // }
+                        }
+                        
                         csrData +='</h3>';
                         csrData +='<h3>最後上線時間：';
                         if(rowVisitorValueAddedServiceStatusHideOnline==1 && rowIsHideOnline==1){

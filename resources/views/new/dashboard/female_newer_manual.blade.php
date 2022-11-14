@@ -191,7 +191,7 @@ if(location.hash=='' ) {
                         <a class="prev" >上一頁</a>
                         <a class="next" href="#{{$no_read_hash_str??''}}{{$show_sop_type}}_2">下一頁</a>
 {{--                        @if($user->isReadManual == 0)--}}
-                            <a class="finish" data-sop_manual="one">結束新手教學</a>
+                            <a class="finish" data-sop_manual="one" onclick="location.hash= '#{{$no_read_hash_str??''}}{{$show_sop_type}}_leave';">結束新手教學</a>
 {{--                        @endif--}}
                     </div>
                 </div>
@@ -272,7 +272,7 @@ if(location.hash=='' ) {
                             <a class="prev">上一頁</a>
                             <a class="next" href="#{{$no_read_hash_str??''}}{{$show_sop_type}}_2">下一頁</a>
 {{--                            @if($user->isReadManual == 0)--}}
-                                <a class="finish" data-sop_manual="two">結束新手教學</a>
+                                <a class="finish" data-sop_manual="two" onclick="location.hash= '#{{$no_read_hash_str??''}}{{$show_sop_type}}_leave';">結束新手教學</a>
 {{--                            @endif--}}
                         </div>
                     </div>
@@ -353,7 +353,7 @@ if(location.hash=='' ) {
                             </div>
                         </div>
                         <div class="@if($user->engroup==2)zp_tab @else m_zp_tab @endif step03 isReadContent">
-                            <a href="/dashboard" class="link_page finish" data-sop_manual="three">
+                            <a href="/dashboard" class="link_page finish" data-sop_manual="three" onclick="location.hash= '#{{$no_read_hash_str??''}}{{$show_sop_type}}_leave';">
                                 <li class="@if($user->engroup==2)zp_line zp_line02 @else m_zp_line m_zp_line02 @endif "><img src="@if($user->engroup==2)/new/images/5_1.png @else/new/images/micon1.png @endif"><span>新手教學結束<i>開始使用網站</i></span></li>
                             </a>
                             <a href="/dashboard/anti_fraud_manual" class="link_page">
@@ -370,7 +370,7 @@ if(location.hash=='' ) {
                             <a class="prev">上一頁</a>
                             <a class="next" href="#{{$no_read_hash_str??''}}{{$show_sop_type}}_2">下一頁</a>
                             {{--                            @if($user->isReadManual == 0)--}}
-                            <a class="finish" data-sop_manual="three">結束新手教學</a>
+                            <a class="finish" data-sop_manual="three" onclick="location.hash= '#{{$no_read_hash_str??''}}{{$show_sop_type}}_leave';">結束新手教學</a>
                             {{--                            @endif--}}
                         </div>
                     </div>

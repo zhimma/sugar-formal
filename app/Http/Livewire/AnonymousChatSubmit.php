@@ -4,6 +4,7 @@ namespace App\Http\Livewire;
 
 use App\Models\AnonymousChat;
 use App\Models\AnonymousChatReport;
+use App\Models\User;
 use Livewire\Component;
 use Carbon\Carbon;
 use Illuminate\Support\Facades\File;
@@ -24,8 +25,16 @@ class AnonymousChatSubmit extends Component
     public function save()
     {
 
-        $checkReport = AnonymousChatReport::select('user_id', 'created_at')->where('reported_user_id', auth()->user()->id)->groupBy('user_id')->orderBy('created_at', 'desc')->get();
-        if(count($checkReport) >= 5 && Carbon::parse($checkReport[0]->created_at)->diffInDays(Carbon::now())<3){
+        $checkReport = AnonymousChatReport::select('user_id', 'created_at')
+            ->where('reported_user_id', auth()->user()->id)
+            ->where('created_at', '>=', Carbon::now()->startOfWeek()->toDateTimeString())
+            ->groupBy('user_id')->orderBy('created_at', 'desc')->get();
+        $reported_user = User::findById(auth()->user()->id);
+        $times = 3;
+        if($reported_user->isVVIP()){
+            $times = 5;
+        }
+        if(count($checkReport) >= $times && Carbon::parse($checkReport[0]->created_at)->diffInDays(Carbon::now())<3){
             return redirect('/dashboard/personalPage')->with('message', '因被檢舉次數過多，目前已限制使用匿名聊天室');
         }
 

@@ -1,6 +1,14 @@
 @include('partials.header')
 @include('partials.message')
 <style>
+    @if(Auth::user()->can('juniorAdmin') && $is_test)
+        .btn{
+            display:none;
+        }
+        .cfp_bp{
+            display:none;
+        }
+    @endif
     .hiddenRow {
         padding: 0 !important;
     }
@@ -257,6 +265,14 @@
         @endif
     @endif
 
+    @if($backend_detail->user_check_step2_wait_login_times == 0)
+        <form method="POST" style="display: inline;" action="{{ route('check_extend') }}">
+            <input type="hidden" name="_token" value="{{ csrf_token() }}" >
+            <input type="hidden" name='user_id' value="{{ $user->id }}">
+            <button type="submit" class="btn btn-primary">等待更多資料</button>
+        </form>
+    @endif
+
     @if(is_null($userMeta->activation_token))
         <b style="font-size:18px">已開通會員</b>
     @else
@@ -281,7 +297,10 @@
         //VIP起始時間,現狀,付費方式,種類
         $vipInfo = \App\Models\Vip::findByIdWithDateDesc($user->id);
 
-        if(!is_null($vipInfo)){
+        $vvipInfo = \App\Models\ValueAddedService::where('member_id', $user->id)->where('service_name', 'VVIP')->orderBy('created_at', 'desc')->first();
+        $getUserInfo=\App\Models\User::findById($user->id);
+
+        if(!is_null($vipInfo) && !$getUserInfo->isVVIP()){
             $upgradeDay = date('Y-m-d', strtotime($vipInfo->created_at));
             $upgradeWay ='';
             if ($vipInfo->payment_method == 'CREDIT')
@@ -380,7 +399,33 @@
                 $showVipInfo = $showVipInfo_1;
             */
 
-        }else{
+        }
+        else if(!is_null($vvipInfo)){
+            $upgradeDay = date('Y-m-d', strtotime($vvipInfo->created_at));
+            $upgradeWay = '信用卡';
+            $upgradeKind ='';
+            if ($vvipInfo->payment == 'cc_quarterly_payment')
+                $upgradeKind = '持續季繳';
+            else if ($vvipInfo->payment == 'cc_monthly_payment')
+                $upgradeKind = '持續月繳';
+            else if ($vvipInfo->payment == 'one_quarter_payment')
+                $upgradeKind = '季繳一季';
+            else if ($vvipInfo->payment == 'one_month_payment')
+                $upgradeKind = '月繳一月';
+
+            $vvipLog = \App\Models\ValueAddedServiceLog::where("member_id", $user->id)->where('service_name', 'VVIP')->orderBy('id', 'desc')->first();
+            //現狀:只有持續中跟未持續兩種。已取消扣款或者一次付清都是未持續。
+            if(in_array($vvipInfo->payment, ['one_quarter_payment','one_month_payment']) || $vvipInfo->active ==0)
+                $nowStatus = '未持續';
+            else if(str_contains($vvipLog, 'cancel') || (str_contains($vvipLog, 'Cancel') && !str_contains($vvipLog, 'bypass')))
+                $nowStatus = '未持續';
+            else
+                $nowStatus = '持續中';
+
+            $isVVIPStatus=$getUserInfo->isVVIP() ? '是':'否';
+            $showVipInfo =  '(VVIP) '.$upgradeDay .' / '. $isVVIPStatus .' / '. $upgradeWay .' / '. $upgradeKind;
+        }
+        else{
             $nowStatus = '';
             //還沒有成為過vip
             $showVipInfo =  '未曾加入 / 否 / 無 / 無';
@@ -559,7 +604,51 @@
                         });  
                         </script>
                     </td>
-                    <td style="width: 170px;">{{var_carrier('totalTime',$user->getFemaleNewerManualTotalTime())}}</td>
+                    <td style="width: 170px;">
+                        <div>
+                            <span>總時長：</span>
+                            @if(var_carrier(true) 
+                                && var_carrier('is_fnm_time_unusual',
+                                        var_carrier('totalTime',$user->getFemaleNewerManualTotalTime())
+                                        && var_carrier('halfTotalTime',var_carrier('totalTime')*0.5)< var_carrier('max_step_time',max($fnm_step_time_arr))
+                                        && ($fnm_step_time_arr['step_time3_3']??0)
+                                )
+                            )
+                            
+                                {{var_carrier('totalTime')-var_carrier('max_step_time')}} 秒
+                                = {{var_carrier('totalTime')}} - {{var_carrier('max_step_time')}}
+                            @else
+                                {{var_carrier('totalTime')??0}} 秒
+                            @endif
+                        </div>
+                        <div style="margin-top:0.5em;">
+                            <span>Step1:</span>
+                            @if( in_array(var_carrier('max_step_time'),$fnm_step1_time_arr) && var_carrier('is_fnm_time_unusual') )
+                                {{var_carrier('step_time1_total',array_sum($fnm_step1_time_arr))-var_carrier('max_step_time')}} 秒
+                                = {{var_carrier('step_time1_total')}}-{{var_carrier('max_step_time')}}
+                            @else
+                                {{var_carrier('step_time1_total',array_sum($fnm_step1_time_arr))}} 秒
+                            @endif
+                        </div>
+                        <div>
+                            <span>Step2:</span>
+                            @if( in_array(var_carrier('max_step_time'),$fnm_step2_time_arr) && var_carrier('is_fnm_time_unusual'))
+                                {{var_carrier('step_time2_total',array_sum($fnm_step2_time_arr))-var_carrier('max_step_time')}} 秒
+                                = {{var_carrier('step_time2_total')}}-{{var_carrier('max_step_time')}}
+                            @else
+                                {{var_carrier('step_time2_total',array_sum($fnm_step2_time_arr))}} 秒
+                            @endif
+                        </div>
+                        <div>
+                            <span>Step3:</span>
+                            @if( in_array(var_carrier('max_step_time'),$fnm_step3_time_arr) &&  var_carrier('is_fnm_time_unusual') )
+                                {{var_carrier('step_time3_total',array_sum($fnm_step3_time_arr))-var_carrier('max_step_time')}} 秒
+                                = {{var_carrier('step_time3_total')}}-{{var_carrier('max_step_time')}}
+                            @else
+                                {{var_carrier('step_time3_total',array_sum($fnm_step3_time_arr))}} 秒
+                            @endif
+                        </div>
+                    </td>
                 </tr>
                 <tr>
                     <td colspan="2">
@@ -568,42 +657,42 @@
                                 <th>1-1</th><th>1-2</th><th>1-3</th>
                             </tr>
                             <tr>
-                                <td @if(var_carrier('halfTotalTime',var_carrier('totalTime')*0.5) < var_carrier('step_time1_1',($user->female_newer_manual_time_list->where('step','1_1')->sum('time')))) style="background:red;font-weight:bolder;"   @endif>
-                                    {{var_carrier('step_time1_1')}}                                            
+                                <td @if( var_carrier('halfTotalTime')< $fnm_step_time_arr['step_time1_1'] && var_carrier('is_fnm_time_unusual')) style="background:red;font-weight:bolder;"   @endif>
+                                    {{$fnm_step_time_arr['step_time1_1']??0}}                                            
                                 </td>
-                                <td @if(var_carrier('halfTotalTime')< var_carrier('step_time1_2',$user->female_newer_manual_time_list->where('step','1_2')->sum('time'))) style="background:red;font-weight:bolder;"   @endif>
-                                    {{var_carrier('step_time1_2')}}
+                                <td @if(var_carrier('halfTotalTime')< $fnm_step_time_arr['step_time1_2'] && var_carrier('is_fnm_time_unusual')) style="background:red;font-weight:bolder;"   @endif>
+                                    {{$fnm_step_time_arr['step_time1_2']??0}}
                                 </td>
-                                <td @if(var_carrier('halfTotalTime')< var_carrier('step_time1_3',$user->female_newer_manual_time_list->where('step','1_3')->sum('time'))) style="background:red;font-weight:bolder;"   @endif>
-                                    {{var_carrier('step_time1_3')}}
+                                <td @if(var_carrier('halfTotalTime')< $fnm_step_time_arr['step_time1_3'] && var_carrier('is_fnm_time_unusual')) style="background:red;font-weight:bolder;"   @endif>
+                                    {{$fnm_step_time_arr['step_time1_3']??0}}
                                 </td>
                             </tr>
                             <tr>
                                 <th>2-1</th><th>2-2</th><th>2-3</th>
                             </tr>
                             <tr>
-                               <td @if(var_carrier('halfTotalTime')< var_carrier('step_time2_1',$user->female_newer_manual_time_list->where('step','2_1')->sum('time'))) style="background:red;font-weight:bolder;"   @endif>
-                                    {{var_carrier('step_time2_1')}}
+                               <td @if(var_carrier('halfTotalTime')< $fnm_step_time_arr['step_time2_1']  && var_carrier('is_fnm_time_unusual')) style="background:red;font-weight:bolder;"   @endif>
+                                    {{$fnm_step_time_arr['step_time2_1']??0}}
                                </td>
-                                <td @if(var_carrier('halfTotalTime')< var_carrier('step_time2_2',$user->female_newer_manual_time_list->where('step','2_2')->sum('time'))) style="background:red;font-weight:bolder;"   @endif>
-                                    {{var_carrier('step_time2_2')}}
+                                <td @if(var_carrier('halfTotalTime')< $fnm_step_time_arr['step_time2_2'] && var_carrier('is_fnm_time_unusual')) style="background:red;font-weight:bolder;"   @endif>
+                                    {{$fnm_step_time_arr['step_time2_2']??0}}
                                 </td>
-                                <td @if(var_carrier('halfTotalTime')< var_carrier('step_time2_3',$user->female_newer_manual_time_list->where('step','2_3')->sum('time'))) style="background:red;font-weight:bolder;"   @endif>
-                                     {{var_carrier('step_time2_3')}}
+                                <td @if(var_carrier('halfTotalTime')< $fnm_step_time_arr['step_time2_3'] && var_carrier('is_fnm_time_unusual')) style="background:red;font-weight:bolder;"   @endif>
+                                     {{$fnm_step_time_arr['step_time2_3']??0}}
                                 </td>
                             </tr>
                             <tr>
                                 <th>3-1</th><th>3-2</th><th>3-3</th>
                             </tr>
                             <tr>
-                               <td @if(var_carrier('halfTotalTime')< var_carrier('step_time3_1',$user->female_newer_manual_time_list->where('step','3_1')->sum('time'))) style="background:red;font-weight:bolder;"   @endif>
-                                    {{var_carrier('step_time3_1')}}
+                               <td @if(var_carrier('halfTotalTime')< $fnm_step_time_arr['step_time3_1'] && var_carrier('is_fnm_time_unusual')) style="background:red;font-weight:bolder;"   @endif>
+                                    {{$fnm_step_time_arr['step_time3_1']??0}}
                                </td>
-                                <td @if(var_carrier('halfTotalTime')< var_carrier('step_time3_2',$user->female_newer_manual_time_list->where('step','3_2')->sum('time'))) style="background:red;font-weight:bolder;"   @endif>
-                                    {{var_carrier('step_time3_2')}}
+                                <td @if(var_carrier('halfTotalTime')< $fnm_step_time_arr['step_time3_2'] && var_carrier('is_fnm_time_unusual')) style="background:red;font-weight:bolder;"   @endif>
+                                    {{$fnm_step_time_arr['step_time3_2']??0}}
                                 </td>
-                                <td @if(var_carrier('halfTotalTime')< var_carrier('step_time3_3',$user->female_newer_manual_time_list->where('step','3_3')->sum('time'))) style="background:red;font-weight:bolder;"   @endif>
-                                     {{var_carrier('step_time3_3')}}
+                                <td @if(var_carrier('halfTotalTime')< $fnm_step_time_arr['step_time3_3'] && var_carrier('is_fnm_time_unusual')) style="background:red;font-weight:bolder;"   @endif>
+                                     {{$fnm_step_time_arr['step_time3_3']??0}}
                                 </td>
                             </tr>
                         </table>
@@ -741,24 +830,8 @@
         <td>@if($userMeta->city=='0') 無 @else {{ $userMeta->city }} {{ $userMeta->area }} @endif</td>
         <th>拒絕查詢的縣市</th>
         <td>@if($userMeta->blockcity=='0') 無 @else {{ $userMeta->blockcity }} {{ $userMeta->blockarea }} @endif</td>
-        <th>預算</th>
-        <td>{{ $userMeta->budget }}</td>
-    </tr>
-    <tr>
-        <th>生日</th>
-        <td>{{ date('Y-m-d', strtotime($userMeta->birthdate)) }}</td>
-        <th>身高</th>
-        <td>{{ $userMeta->height }}{!!$raa_service->getActualUncheckedHeightLayout()!!}</td>
         <th>職業</th>
         <td>{{ $userMeta->occupation }}</td>
-    </tr>
-    <tr>
-        <th>體重</th>
-        <td>{{ \App\Services\UserService::getOptionWordByWeightValue($userMeta->weight) }}{!!$raa_service->getActualUncheckedWeightLayout()!!}</td>
-        <th>罩杯</th>
-        <td>{{ $userMeta->cup }}</td>
-        <th>體型</th>
-        <td>{{ $userMeta->body }}</td>
     </tr>
     <tr>
         <th>現況</th>
@@ -767,6 +840,41 @@
         <td>{{ $userMeta->about }}</td>
         <th>期待的約會模式</th>
         <td>{{ $userMeta->style }}</td>
+    </tr>
+    <tr>
+        <th>生日</th>
+        <td>{{ date('Y-m-d', strtotime($userMeta->birthdate)) }}</td>
+        <th>身高</th>
+        <td>{{ $userMeta->height }}{!!$raa_service->getActualUncheckedHeightLayout()!!}</td>
+        <th>體重</th>
+        <td>{{ \App\Services\UserService::getOptionWordByWeightValue($userMeta->weight) }}{!!$raa_service->getActualUncheckedWeightLayout()!!}</td>
+    </tr>
+    <tr><th>體型</th>
+        <td>{{ $userMeta->body }}</td>
+        @if($user->engroup == 2)
+            <th>罩杯</th>
+            <td>{{ $userMeta->cup }}</td>
+            <th>預算</th>
+            <td>{{ $userMeta->budget }}</td>
+        @endif
+        @if($user->engroup == 1)
+            <th>每月預算</th>
+            <td>{{$userMeta->budget_per_month_min ?? '未填'}} ~ {{$userMeta->budget_per_month_max ?? '未填'}}</td>
+            <th>車馬費預算</th>
+            <td>{{$userMeta->transport_fare_min ?? '未填'}} ~ {{$userMeta->transport_fare_max ?? '未填'}}</td>
+        @endif
+    </tr>
+    <tr>
+        @if($user->engroup == 2)
+            <th>是否接受進一步關係</th>
+            <td>
+                @if($userMeta->is_pure_dating)
+                    是
+                @else
+                    否
+                @endif
+            </td>
+        @endif
     </tr>
 </table>
 
@@ -1650,7 +1758,7 @@
                     @if($CFP_count>0)
                         @foreach(array_get($logInLog->CfpID,'CfpID_group',[]) as $gpKey =>$group)
                             @if($gpKey<5)
-                                <td class="loginItem" id="showcfpID{{substr($logInLog->loginDate,0,7)}}_group{{$gpKey}}" data-sectionName="cfpID{{substr($logInLog->loginDate,0,7)}}_group{{$gpKey}}" data-assign_user_id="{{ $user->id }}" data-yearMonth="{{substr($logInLog->loginDate,0,7)}}" data-cfpID="{{$group->cfp_id}}" data-blocked-people="{{ $logInLog->CfpID['CfpID_blocked_people'][$gpKey] }}" data-online-people="{{ $logInLog->CfpID['CfpID_online_people'][$gpKey] }}" data-count="{{ $group->dataCount }}" style="margin-left: 20px;min-width: 100px;{{ $group->CfpID_set_auto_ban ? 'background:yellow;' : '' }}">{{ $group->cfp_id }} <span style="{{ $logInLog->CfpID['CfpID_blocked_people'][$gpKey] > 0 ? 'background-color: yellow;' : '' }}">[{{ $logInLog->CfpID['CfpID_blocked_people'][$gpKey] }}/{{ $logInLog->CfpID['CfpID_online_people'][$gpKey] }}]</span> {{ '('.$group->dataCount .')' }}</td>
+                                <td class="loginItem" id="showcfpID{{substr($logInLog->loginDate,0,7)}}_group{{$gpKey}}" data-sectionName="cfpID{{substr($logInLog->loginDate,0,7)}}_group{{$gpKey}}" data-assign_user_id="{{ $user->id }}" data-yearMonth="{{substr($logInLog->loginDate,0,7)}}" data-cfpID="{{$group->cfp_id}}" data-blocked-people="{{ $logInLog->CfpID['CfpID_blocked_people'][$gpKey] }}" data-online-people="{{ $logInLog->CfpID['CfpID_online_people'][$gpKey] }}" data-count="{{ $group->dataCount }}" style="margin-left: 20px;min-width: 100px;{{ $group->CfpID_set_auto_ban ? 'background:yellow;' : '' }}">{{ $group->cfp_id }} <span class="cfp_bp" style="{{ $logInLog->CfpID['CfpID_blocked_people'][$gpKey] > 0 ? 'background-color: yellow;' : '' }}">[{{ $logInLog->CfpID['CfpID_blocked_people'][$gpKey] }}/{{ $logInLog->CfpID['CfpID_online_people'][$gpKey] }}]</span> {{ '('.$group->dataCount .')' }}</td>
                             @endif
                         @endforeach
                     @endif
@@ -1666,7 +1774,7 @@
                     @if($IP_count>0)
                         @foreach(array_get($logInLog->Ip,'Ip_group',[]) as $gpKey =>$group)
                             @if($gpKey<10)
-                                <td class="loginItem ipItem" id="showIp{{substr($logInLog->loginDate,0,7)}}_group{{$gpKey}}" data-sectionName="Ip{{substr($logInLog->loginDate,0,7)}}_group{{$gpKey}}" data-assign_user_id="{{ $user->id }}" data-yearMonth="{{substr($logInLog->loginDate,0,7)}}" data-ip="{{ $group->ip }}" data-blocked-people="{{ $logInLog->Ip['Ip_blocked_people'][$gpKey] }}" data-online-people="{{ $logInLog->Ip['Ip_online_people'][$gpKey] }}" data-count="{{ $group->dataCount }}" style="margin-left: 20px;min-width: 150px;{{ $group->IP_set_auto_ban ? 'background:yellow;' : '' }}">{{ $group->ip }} <span style="{{ $logInLog->Ip['Ip_blocked_people'][$gpKey] > 0 ? 'background-color: yellow;' : '' }}">[{{ $logInLog->Ip['Ip_blocked_people'][$gpKey] }}/{{ $logInLog->Ip['Ip_online_people'][$gpKey] }}]</span> {{ '('.$group->dataCount .')' }}</td>
+                                <td class="loginItem ipItem" id="showIp{{substr($logInLog->loginDate,0,7)}}_group{{$gpKey}}" data-sectionName="Ip{{substr($logInLog->loginDate,0,7)}}_group{{$gpKey}}" data-assign_user_id="{{ $user->id }}" data-yearMonth="{{substr($logInLog->loginDate,0,7)}}" data-ip="{{ $group->ip }}" data-blocked-people="{{ $logInLog->Ip['Ip_blocked_people'][$gpKey] }}" data-online-people="{{ $logInLog->Ip['Ip_online_people'][$gpKey] }}" data-count="{{ $group->dataCount }}" style="margin-left: 20px;min-width: 150px;{{ $group->IP_set_auto_ban ? 'background:yellow;' : '' }}">{{ $group->ip }} <span class="cfp_bp" style="{{ $logInLog->Ip['Ip_blocked_people'][$gpKey] > 0 ? 'background-color: yellow;' : '' }}">[{{ $logInLog->Ip['Ip_blocked_people'][$gpKey] }}/{{ $logInLog->Ip['Ip_online_people'][$gpKey] }}]</span> {{ '('.$group->dataCount .')' }}</td>
                             @endif
                         @endforeach
                     @endif
@@ -1922,11 +2030,11 @@
         <th width="15%">發送時間</th>
         <th width="8%">發送數 <br>本人/對方</th>
     </tr>
-    @foreach($userMessage_log as $Log)
+    @foreach($userMessage_log as $messageLog)
         @php
-            $ref_user = \App\Models\User::findById($Log->ref_user_id);
+            $ref_user = \App\Models\User::findById($messageLog->ref_user_id);
             if(!$ref_user) { continue; }
-            $ref_user_id = $Log->ref_user_id;
+            $ref_user_id = $messageLog->ref_user_id;
             $message_log = \App\Models\Message::withTrashed()
                                 ->where([['message.to_id', $ref_user->id ],['message.from_id', $user->id ]])
                                 ->orderBy('created_at')->first();
@@ -1939,15 +2047,17 @@
             $toCount_user_id=\App\Models\Message::withTrashed()->where('from_id',$user->id)->where('to_id',$ref_user_id)->get()->count();
             $toCount_ref_user_id=\App\Models\Message::withTrashed()->where('from_id',$ref_user_id)->where('to_id',$user->id)->get()->count();
         @endphp
-        <tr 
+        <tr id='message_room_{{$messageLog->room_id}}'
             {{--一次顯示50個 臨時搭建用--}}
             @if($toCount_user_id == 0 )
                 class='message_no_interactive' style="display:none"
             @endif>
             {{--一次顯示50個 臨時搭建用--}}
-            <td style="text-align: center;"><button data-toggle="collapse" data-target="#msgLog{{$ref_user_id}}" class="accordion-toggle btn btn-primary message_toggle">+</button></td>
+            <td style="text-align: center;">
+                <button data-toggle="collapse" data-target="#msgLog{{$ref_user_id}}" class="accordion-toggle btn btn-primary message_toggle" value="{{$messageLog->room_id}}">+</button>
+            </td>
             <td>@if(!empty($ref_user->name))<a href="{{ route('admin/showMessagesBetween', [$user->id, $ref_user_id]) }}" target="_blank">{{ $ref_user->name }}</a>@else 會員資料已刪除@endif</td>
-            <td id="new{{$Log->to_id}}">
+            <td id="new{{$messageLog->to_id}}">
                 @if($message_log)
                     {{($message_log->from_id==$message_1st->from_id ? '(發)' :'(回)') .$message_log->content}}
                 @endif
@@ -1975,6 +2085,7 @@
             <td id="new_time{{$ref_user_id}}">@if(!empty($ref_user->name)) {{ $message_log ? $message_log->created_at :''}} @else 會員資料已刪除 @endif</td>
             <td>@if(!empty($ref_user->name)) {{$toCount_user_id .'/'.$toCount_ref_user_id}} @else 會員資料已刪除 @endif</td>
         </tr>
+        {{--預定修改--}}
         <tr class="accordian-body collapse" id="msgLog{{$ref_user_id}}">
             <td class="hiddenRow" colspan="5">
                 <table class="table table-bordered">
@@ -1987,75 +2098,13 @@
                         <th width="5%" nowrap>狀態</th>
                     </tr>
                     </thead>
-                    <tbody>
-                    @foreach ($Log->items as $key => $item)
-                        {{--@if($key==0)--}}
-                            {{--<script>--}}
-                                {{--$('#new' + {{$Log->to_id}}).text('{{ $item->content }}');--}}
-                                {{--$('#new_time' + {{$Log->to_id}}).text('{{ $item->m_time }}');--}}
-                            {{--</script>--}}
-                        {{--@endif--}}
-                        <tr>
-                            <td style="text-align: right;">
-                                @php
-                                    $from_id_user=\App\Models\User::findById($item->from_id);
-                                @endphp
-                                <a href="{{ route('admin/showMessagesBetween', [$user->id, $ref_user_id]) }}" target="_blank">
-                                    <p style="margin-bottom:0px; @if($item->engroup == '2') color: #F00; @else color: #5867DD; @endif">{{$item->name }}
-                                    @php
-                                        $from_id_tipcount = \App\Models\Tip::TipCount_ChangeGood($item->from_id);
-                                        $from_id_vip = \App\Models\Vip::vip_diamond($item->from_id);
-                                    @endphp
-                                    @if($from_id_vip)
-                                        @if($from_id_vip=='diamond_black')
-                                            <img src="/img/diamond_black.png" style="height: 16px;width: 16px;">
-                                        @else
-                                            @for($z = 0; $z < $from_id_vip; $z++)
-                                                <img src="/img/diamond.png" style="height: 16px;width: 16px;">
-                                            @endfor
-                                        @endif
-                                    @endif
-                                    @for($i = 0; $i < $from_id_tipcount; $i++)
-                                        👍
-                                    @endfor
-                                    @if(!is_null($item->banned_id))
-                                        @if(!is_null($item->banned_expire_date))
-                                            ({{ round((strtotime($item->banned_expire_date) - getdate()[0])/3600/24 ) }}天)
-                                        @else
-                                            (永久)
-                                        @endif
-                                    @endif
-                                    </p>
-                                </a>
-                            </td>
-                            <td><p style="word-break:break-all;">{{ $item->content }}</p></td>
-                            <td class="evaluation_zoomIn">
-                                @php
-                                    $messagePics=is_null($item->pic) ? [] : json_decode($item->pic,true);
-                                @endphp
-                                @if(isset($messagePics))
-                                    @foreach( $messagePics as $messagePic)
-                                        @if(isset($messagePic['file_path']))
-                                            <li style="float:left;margin:2px 2px;list-style:none;display:block;white-space: nowrap;width: 135px;">
-                                                <img src="{{ $messagePic['file_path'] }}" style="max-width:130px;max-height:130px;margin-right: 5px;">
-                                            </li>
-                                        @else
-                                            <li style="float:left;margin:2px 2px;list-style:none;display:block;white-space: nowrap;width: 135px;">
-                                                無法找到圖片
-                                            </li>
-                                        @endif
-                                    @endforeach
-                                @endif
-                            </td>
-                            <td>{{ $item->m_time }}</td>
-                            <td nowrap>{{ $item->unsend?'已收回':'' }}</td>
-                        </tr>
-                    @endforeach
+                    <tbody id="message_room_detail_{{$messageLog->room_id}}">
                     </tbody>
                 </table>
             </td>
         </tr>
-        @endforeach
+        {{--預定修改--}}
+    @endforeach
 </table>
 {!! $userMessage_log->links('pagination::sg-pages3') !!}
 
@@ -2108,7 +2157,7 @@
                 @php
                     $exchange_period_name = DB::table('exchange_period_name')->where('id',$user->exchange_period)->first();
                 @endphp
-                {{$exchange_period_name->name}}
+                {{$exchange_period_name?->name}}
                 {!!$raa_service->getActualUncheckedExchangePeriodLayout()!!}
             </td>
 
@@ -2462,12 +2511,6 @@ jQuery(document).ready(function(){
     });
     //test
 
-    $('.message_toggle').on('click',function(e){
-        $(this).text(function(i,old){
-            return old=='+' ?  '-' : '+';
-        });
-    });
-
     $('.delete-btn').on('click',function(e){
         if(!confirm('確定要刪除選取的訊息?')){
             e.preventDefault();
@@ -2598,16 +2641,29 @@ jQuery(document).ready(function(){
         var yearMonth =$(this).attr('data-yearMonth');
         var ip =$(this).attr('data-ip');
         var cfpID =$(this).attr('data-cfpID');
-        if(ip!=='不指定'){
-            if(ip){
-                window.open('/admin/users/ip/'+ip, '_blank');
+        @if($is_test)
+            if(ip!=='不指定'){
+                if(ip){
+                    window.open('/admin/users/ip/'+ip+'?is_test=1', '_blank');
+                }else{
+                    window.open('/admin/users/ip/不指定?cfp_id='+ cfpID+'&is_test=1', '_blank');
+                }
             }else{
-                window.open('/admin/users/ip/不指定?cfp_id='+ cfpID, '_blank');
+                $('.showLog').hide();
+                $('#'+sectionName).show();
             }
-        }else{
-            $('.showLog').hide();
-            $('#'+sectionName).show();
-        }
+        @else
+            if(ip!=='不指定'){
+                if(ip){
+                    window.open('/admin/users/ip/'+ip, '_blank');
+                }else{
+                    window.open('/admin/users/ip/不指定?cfp_id='+ cfpID, '_blank');
+                }
+            }else{
+                $('.showLog').hide();
+                $('#'+sectionName).show();
+            }
+        @endif
     });
     $('.loginItem_IP').click(function(){
         var sectionName =$(this).attr('data-sectionName');
@@ -3121,8 +3177,8 @@ function show_re_content(id){
 
     });
     function isChat(id, is_open) {
-        window.open('/admin/users/message/record/'+id);
-        $.ajax({
+        window.open('/admin/users/message/record/' + id + '?from_advInfo=1');
+        {{-- $.ajax({
             type: 'POST',
             url: '/admin/users/isChatToggler',
             data:{
@@ -3132,8 +3188,11 @@ function show_re_content(id){
             },
             dataType:"json",
             success: function(res){
-                location.reload();
-        }});
+        }}); --}}
+
+        setTimeout(function() {
+            location.reload();
+        }, 1500);
     }
   
 
@@ -3175,6 +3234,62 @@ function show_re_content(id){
     }
     //預算及車馬費警示警示
 
+    $('.message_toggle').on('click', function(){
+        if($(this).text() == '+')
+        {
+            $(this).text('-');
+            room_id = $(this).attr("value");
+            $.ajax({
+                type: 'GET',
+                url: '{{route('users/getMessageFromRoomId')}}',
+                data: {
+                    room_id: room_id,
+                },
+                success: function(data){
+                    data.message_detail.forEach(function(value){
+                        messagePics = (value.pic === null) ? [] : JSON.parse(value.pic);
+                        messagePicHTML = ''
+                        messagePics.forEach(function(pic){
+                            messagePicHTML =  messagePicHTML +
+                            '<li style="float:left;margin:2px 2px;list-style:none;display:block;white-space: nowrap;width: 135px;">'+
+                                '<img src="'+ pic.file_path +'" style="max-width:130px;max-height:130px;margin-right: 5px;">'+
+                            '</li>';
+                        });
+                        $('#message_room_detail_' + data.room_id).append(
+                            '<tr>'+
+                                '<td style="text-align: right;">'+
+                                    '<a>'+
+                                        '<p style="margin-bottom:0px;">'+
+                                            value.name +
+                                        '</p>'+
+                                    '</a>'+
+                                '</td>'+
+                                '<td>'+
+                                    '<p style="word-break:break-all;">'+
+                                        value.content +
+                                    '</p>'+
+                                '</td>'+
+                                '<td class="evaluation_zoomIn">'+
+                                    messagePicHTML +
+                                '</td>'+
+                                '<td>'+
+                                    value.m_time +
+                                '</td>'+
+                                '<td nowrap>'+
+                                    (value.unsend ? '已收回' : '') +
+                                '</td>'+
+                            '</tr>'
+                        );
+                    });
+                    
+            }});
+        }
+        else if($(this).text() == '-')
+        {
+            $(this).text('+');
+            $('#message_room_detail_' + data.room_id).empty();
+        }
+    });
 </script>
 <!--照片查看end-->
 </html>

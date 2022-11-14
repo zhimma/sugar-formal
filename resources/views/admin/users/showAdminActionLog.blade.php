@@ -35,7 +35,7 @@
                     <th>Admin操作人員</th>
                     <td>
                         @foreach($operator_list as $operator)
-                            <input type="checkbox" name="operator[]" value="{{$operator->operator}}" @if(in_array($operator->operator, Request()->get('operator',[]))) checked @endif><span>{{$operator->operator_email}}</span><br>
+                            <input type="checkbox" name="operator[]" value="{{$operator->user_id}}" @if(in_array($operator->user_id, Request()->get('operator',[]))) checked @endif><span>{{$operator->email}}</span><br>
                         @endforeach
                     </td>
                 </tr>
@@ -47,84 +47,112 @@
             </table>
         </form>
     </div>
-    <table id="table_userLogin_log" class="table table-hover table-bordered">
-        @foreach($getLogs as $key => $log)
-            <tr>
-                <td>
-                    <span class="OperatorItem" data-sectionName="showOperator_{{ $log['operator'] }}">操作人員：{{  $log['operator_name']. ' ['. $log['dataCount'] .']' .' Email： '.$log['operator_email']  }}</span>
-                    <table>
-                        @php
-                            $operator_by_date=array_get($log,'operator_by_date',[]);
-                        @endphp
-                        @if(count($operator_by_date)>0)
-                            @foreach($operator_by_date as $gpKey =>$group)
-                                <tr class="showOperator showOperator_{{ $log['operator'] }}">
-                                    <td class="showDetail" id="showLogByDate{{ $group['log_by_date'] }}_operator_{{$log['operator']}}" data-sectionName="showLogByDateDetail{{ $group['log_by_date'] }}_operator_{{$log['operator']}}" style="margin-left: 20px;min-width: 130px;">
-                                        <span id="btn_showLogByDateDetail{{ $group['log_by_date'] }}_operator_{{$log['operator']}}" class="btn btn-primary">+</span>
-                                        {{  $group['log_by_date'] .'('. $group['count_by_date'] .')' }}
-                                    </td>
-                                </tr>
-                                <tr class="showLog" id="showLogByDateDetail{{ $group['log_by_date'] }}_operator_{{$log['operator']}}">
-                                    <td>
-                                        @php
-                                            $logInLog=\App\Models\AdminActionLog::selectRaw('admin_action_log.*, users.email, (select email from users where id = admin_action_log.target_id) AS target_acc, `warned_users`.`expire_date` as `warned_expire_date`, `banned_users`.`expire_date` as `banned_expire_date`')
-                                                ->selectRaw('IF((select count(*) from banned_users where banned_users.member_id=admin_action_log.target_id) >0,1,0) AS is_banned')
-                                                ->selectRaw('IF((select count(*) from warned_users where warned_users.member_id=admin_action_log.target_id) >0,1,0) AS is_warned')
-                                                ->leftJoin('users', 'users.id', '=', 'admin_action_log.operator')
-                                                ->leftJoin('warned_users', 'warned_users.member_id', '=', 'admin_action_log.target_id')
-                                                ->leftJoin('banned_users', 'banned_users.member_id', '=', 'admin_action_log.target_id')
-                                                ->where('admin_action_log.operator', $log['operator'])
-                                                ->where('admin_action_log.created_at','like', '%'.$group['log_by_date'].'%')
-                                                ->orderBy('admin_action_log.created_at', 'desc')
-                                                ->get();
-                                        @endphp
-                                        <table class="table table-bordered" style="display: block; max-height: 500px; overflow-x: scroll;">
-                                            <thead>
-                                            <tr class="info">
-                                                <td>序號</td>
-                                                <td>Admin操作人員</td>
-                                                <td>目標帳號</td>
-                                                <td>動作</td>
-                                                <td>IP</td>
-                                                <td>備註</td>
-                                                <td>操作時間</td>
-                                            </tr>
-                                            </thead>
-                                            <tbody>
-                                            @foreach($logInLog as $detail)
+    @foreach($getLogs as $key => $log)
+        @if($log['dataCount'] != 0 || $log['test_result_count'] != 0)
+            <table id="table_userLogin_log" class="table table-hover table-bordered">
+                <tr>
+                    <td>
+                        <span>操作人員：{{  $log['name'].'Email： '.$log['email']  }}</span>
+                    </td>
+                </tr>
+                @if($log['dataCount'] != 0)
+                    <tr>
+                        <td>
+                            <span class="OperatorItem" data-sectionName="showOperator_{{ $log['user_id'] }}">操作紀錄{{ ' ['. $log['dataCount'] .']' }}</span>
+                            <table>
+                                @php
+                                    $operator_by_date=array_get($log,'operator_by_date',[]);
+                                @endphp
+                                @if(count($operator_by_date)>0)
+                                    @foreach($operator_by_date as $gpKey =>$group)
+                                        <tr class="showOperator showOperator_{{ $log['user_id'] }}">
+                                            <td class="showDetail" id="showLogByDate{{ $group['log_by_date'] }}_operator_{{$log['user_id']}}" data-sectionName="showLogByDateDetail{{ $group['log_by_date'] }}_operator_{{$log['user_id']}}" style="margin-left: 20px;min-width: 130px;">
+                                                <span id="btn_showLogByDateDetail{{ $group['log_by_date'] }}_operator_{{$log['user_id']}}" class="btn btn-primary">+</span>
+                                                {{  $group['log_by_date'] .'('. $group['count_by_date'] .')' }}
+                                            </td>
+                                        </tr>
+                                        <tr class="showLog" id="showLogByDateDetail{{ $group['log_by_date'] }}_operator_{{$log['user_id']}}">
+                                            <td>
                                                 @php
-                                                    $backgroud_color='';
-                                                    if($detail->is_banned==1 && (now()->lt($detail->banned_expire_date) || $detail->banned_expire_date == null)) {
-                                                        $backgroud_color='yellow';
-                                                    }
-                                                    elseif ($detail->is_warned==1 && (now()->lt($detail->warned_expire_date) || $detail->warned_expire_date == null)) {
-                                                        $backgroud_color='#62ff07d1';
-                                                    }
+                                                    $logInLog=\App\Models\AdminActionLog::selectRaw('admin_action_log.*, users.email, (select email from users where id = admin_action_log.target_id) AS target_acc, `warned_users`.`expire_date` as `warned_expire_date`, `banned_users`.`expire_date` as `banned_expire_date`')
+                                                        ->selectRaw('IF((select count(*) from banned_users where banned_users.member_id=admin_action_log.target_id) >0,1,0) AS is_banned')
+                                                        ->selectRaw('IF((select count(*) from warned_users where warned_users.member_id=admin_action_log.target_id) >0,1,0) AS is_warned')
+                                                        ->leftJoin('users', 'users.id', '=', 'admin_action_log.operator')
+                                                        ->leftJoin('warned_users', 'warned_users.member_id', '=', 'admin_action_log.target_id')
+                                                        ->leftJoin('banned_users', 'banned_users.member_id', '=', 'admin_action_log.target_id')
+                                                        ->where('admin_action_log.operator', $log['user_id'])
+                                                        ->where('admin_action_log.created_at','like', '%'.$group['log_by_date'].'%')
+                                                        ->orderBy('admin_action_log.created_at', 'desc')
+                                                        ->get();
                                                 @endphp
-                                                <tr style="background-color:{{$backgroud_color}}">
-                                                    <td>{{ $detail->operator }}</td>
-                                                    <td><a href="/admin/users/advInfo/{{ $detail->operator }}" target="_blank">{{ $detail->email }}</a></td>
-                                                    <td><a href="/admin/users/advInfo/{{ $detail->target_id }}" target="_blank">{{ $detail->target_acc }}</a></td>
-                                                    <td>{{ $detail->act }}</td>
-                                                    <td>{{ $detail->ip }}</td>
-                                                    <td>@if($detail->banned_expire_date || $detail->warned_expire_date)到期日：@endif{{ $detail->banned_expire_date ?? $detail->warned_expire_date ?? null }}</td>
-                                                    <td>{{ $detail->created_at }}</td>
-                                                </tr>
-                                            @endforeach
-                                            </tbody>
-                                        </table>
-                                    </td>
-                                </tr>
-                            @endforeach
-                        @endif
-                    </table>
-                </td>
-            </tr>
-        @endforeach
-        @if(count($getLogs)==0)
-            暫無資料
+                                                <table class="table table-bordered" style="display: block; max-height: 500px; overflow-x: scroll;">
+                                                    <thead>
+                                                    <tr class="info">
+                                                        <td>序號</td>
+                                                        <td>Admin操作人員</td>
+                                                        <td>目標帳號</td>
+                                                        <td>動作</td>
+                                                        <td>IP</td>
+                                                        <td>備註</td>
+                                                        <td>操作時間</td>
+                                                    </tr>
+                                                    </thead>
+                                                    <tbody>
+                                                    @foreach($logInLog as $detail)
+                                                        @php
+                                                            $backgroud_color='';
+                                                            if($detail->is_banned==1 && (now()->lt($detail->banned_expire_date) || $detail->banned_expire_date == null)) {
+                                                                $backgroud_color='yellow';
+                                                            }
+                                                            elseif ($detail->is_warned==1 && (now()->lt($detail->warned_expire_date) || $detail->warned_expire_date == null)) {
+                                                                $backgroud_color='#62ff07d1';
+                                                            }
+                                                        @endphp
+                                                        <tr style="background-color:{{$backgroud_color}}">
+                                                            <td>{{ $detail->operator }}</td>
+                                                            <td><a href="/admin/users/advInfo/{{ $detail->operator }}" target="_blank">{{ $detail->email }}</a></td>
+                                                            <td><a href="/admin/users/advInfo/{{ $detail->target_id }}" target="_blank">{{ $detail->target_acc }}</a></td>
+                                                            <td>{{ $detail->act }}</td>
+                                                            <td>{{ $detail->ip }}</td>
+                                                            <td>@if($detail->banned_expire_date || $detail->warned_expire_date)到期日：@endif{{ $detail->banned_expire_date ?? $detail->warned_expire_date ?? null }}</td>
+                                                            <td>{{ $detail->created_at }}</td>
+                                                        </tr>
+                                                    @endforeach
+                                                    </tbody>
+                                                </table>
+                                            </td>
+                                        </tr>
+                                    @endforeach
+                                @endif
+                            </table>
+                        </td>
+                    </tr>
+                @endif
+                @if($log['test_result_count'] != 0)
+                    <tr>
+                        <td>
+                            測驗結果 <span class="test_result_button btn btn-primary">+</span>
+                            <table class='test_result_table' style="display:none">
+                                @foreach($log['test_result'] as $result)
+                                    <tr>
+                                        <td class='test_title'>
+                                            <input type="hidden" value={{$result->answer_id}}>
+                                            {{$result->title}}( 測驗時間 : {{$result->filled_time}} ){{--( 測驗人員 : {{$result->name}} , Email : {{$result->email}} )--}}
+                                        </td>
+                                    </tr>
+                                    <tr style="display:none">
+                                        <td id='test_detail_{{$result->answer_id}}'>
+
+                                        </td>
+                                    </tr>
+                                @endforeach
+                            </table>
+                        </td>
+                    </tr>
+                @endif
+            </table>
         @endif
-    </table>
+    @endforeach
 </body>
 
 <script>
@@ -249,5 +277,103 @@
     function str_pad(n) {
         return String("00" + n).slice(-2);
     }
+
+    $('.test_title').on('click', function(){
+        let test_answer_id = $(this).children('input').first().val();
+        $.ajax({
+            type: 'GET',
+            url: '{{route('admin/special_industries_judgment_result')}}',
+            data:{ answer_id: test_answer_id },
+            success:function(data){
+                topic_user = data['topic_user'];
+                user_answer = data['user_answer'];
+                correct_answer = data['correct_answer'];
+
+                $('#test_detail_' + data['answer_id']).append(
+                    '<tr>' +
+                        '<td>' +
+                            'email' +
+                        '</td>' +
+                        '<td>' +
+                            '暱稱' +
+                        '</td>' +
+                        '<td>' +
+                            '一句話' +
+                        '</td>' +
+                        '<td>' +
+                            '判斷' +
+                        '</td>' +
+                        '<td>' +
+                            '實際結果' +
+                        '</td>' +
+                    '</tr>'
+                );
+                for( let i = 0 ; i < topic_user.length ; i++ ){
+                    u_ans = '';
+                    c_ans = '';
+                    c_ans_reason = correct_answer[topic_user[i]['id']][1];
+                    switch(user_answer[topic_user[i]['id']]){
+                        case 'pass':
+                            u_ans = '通過';
+                            break;
+                        case 'banned':
+                            u_ans = '封鎖';
+                            break;
+                        case 'warned':
+                            u_ans = '警示';
+                            break;
+                        default:
+                            u_ans = '';
+                    }
+                    switch(correct_answer[topic_user[i]['id']][0]){
+                        case 'pass':
+                            c_ans = '通過';
+                            break;
+                        case 'banned':
+                            c_ans = '封鎖 : ';
+                            break;
+                        case 'warned':
+                            c_ans = '警示 : ';
+                            break;
+                        default:
+                            c_ans = '';
+                    }
+                    $('#test_detail_' + data['answer_id']).append(
+                        '<tr>' +
+                            '<td>' +
+                                topic_user[i]['email'] +
+                            '</td>' +
+                            '<td>' +
+                                topic_user[i]['name'] +
+                            '</td>' +
+                            '<td>' +
+                                topic_user[i]['title'] +
+                            '</td>' +
+                            '<td>' +
+                                u_ans +
+                            '</td>' +
+                            '<td>' +
+                                c_ans + c_ans_reason +
+                            '</td>' +
+                        '</tr>'
+                    );
+                }
+                $('#test_detail_' + data['answer_id']).parent('tr').show();
+            }
+        });
+    });
+
+    $('.test_result_button').on('click', function(){
+        if($(this).next('.test_result_table').css('display')=='none')
+        {
+            $(this).text('-');
+            $(this).next('.test_result_table').show();
+        }
+        else
+        {
+            $(this).text('+');
+            $(this).next('.test_result_table').hide();
+        }
+    });
 </script>
 @stop

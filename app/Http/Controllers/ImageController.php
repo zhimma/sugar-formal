@@ -310,7 +310,7 @@ class ImageController extends BaseController
         
         $file_input_name = 'avatar';
         
-        if($rap_service->isPassedByAuthTypeId(1) ) {
+        if($rap_service->isPassedByAuthTypeId(1) && $user_meta->pic ) {
             $file_input_name = 'apply_replace_pic';
         }
             
@@ -720,6 +720,10 @@ class ImageController extends BaseController
                     $blurPic=$this->createBlurPhoto($lifePhoto->pic);
                     $lifePhoto->pic_blur=$blurPic;
                     $lifePhoto->save();
+                }
+                else {
+                    logger('ImageController no path.');
+                    \Sentry\captureMessage("ImageController no path.");
                 }
             }
         }

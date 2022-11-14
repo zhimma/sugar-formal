@@ -160,25 +160,35 @@
                 </a>
             </td>
             <td>{{ $user->engroup ==1 ? '男':'女' }}</td>
-            @if($userInfo->isVip())
-                <td>是 @if($user->vip_data->expiry!="0000-00-00 00:00:00") (到期日: {{ substr($user->vip_data->expiry, 0, 10) }}) @endif</td>
-                <td>@if($user->vip_data->free == 1) 是 @else 否 @endif</td>
-                <td>{{ $user->vip_order_id }}</td>
+            @if($userInfo->isVip() || $userInfo->isVVIP())
+                <td>是 @if($user['vvip'])(VVIP)@endif
+                    @if($user['vip'] && isset($user->vip_data->expiry) && $user->vip_data->expiry!="0000-00-00 00:00:00") (到期日: {{ substr($user->vip_data->expiry, 0, 10) }})
+                    @elseif($user['vvip'] && isset($user->vvip_data->expiry) && $user->vvip_data->expiry!="0000-00-00 00:00:00") (到期日: {{ substr($user->vvip_data->expiry, 0, 10) }} (VVIP))
+                    @endif</td>
+                <td>@if(isset($user->vip_data->free) && $user->vip_data->free == 1 && !$user['vvip']) 是 @else 否 @endif</td>
+                <td>@if($user['vvip']){{ $user->vvip_data->order_id }}(VVIP)
+                    @elseif($user['vip']){{ $user->vip_data->order_id }}
+                    @endif</td>
                 <td>
-                    @if ($user->vip_data->payment_method == 'CREDIT')
-                        信用卡
-                    @elseif ($user->vip_data->payment_method == 'ATM')
-                        ATM
-                    @elseif ($user->vip_data->payment_method == 'CVS')
-                        超商代碼
-                    @elseif ($user->vip_data->payment_method == 'BARCODE')
-                        超商條碼
+                    @if(!$user['vvip'] && $user['vip'] && isset($user->vip_data))
+                        @if ($user->vip_data->payment_method == 'CREDIT')
+                            信用卡
+                        @elseif ($user->vip_data->payment_method == 'ATM')
+                            ATM
+                        @elseif ($user->vip_data->payment_method == 'CVS')
+                            超商代碼
+                        @elseif ($user->vip_data->payment_method == 'BARCODE')
+                            超商條碼
+                        @endif
+                    @elseif($user['vvip'])信用卡
                     @endif
                 </td>
             @else
                 <td>否</td>
-                <td>@if(isset($user->vip_data))@if($user->vip_data->free == 1) 是 @else 否 @endif @else 無資料 @endif</td>
-                <td>@if(isset($user->vip_order_id)){{ $user->vip_order_id }}@else 無資料 @endif</td>
+                <td>@if(isset($user->vip_data)) @if($user->vip_data->free == 1) 是 @else 否 @endif @else 無資料 @endif</td>
+                <td>@if(isset($user->vip_data->order_id)){{ $user->vip_data->order_id }}
+                    @elseif(isset($user->vvip_data)){{ $user->vvip_data->order_id }}(VVIP))
+                    @else 無資料 @endif</td>
                 <td>@if(isset( $user->vip_data->payment_method))
                         @if ($user->vip_data->payment_method == 'CREDIT')
                             信用卡
@@ -189,15 +199,24 @@
                         @elseif ($user->vip_data->payment_method == 'BARCODE')
                             超商條碼
                         @endif
+                    @elseif(isset($user->vvip_data))信用卡
                     @else 無資料
                     @endif
                 </td>
             @endif
-            <td>@if(isset($user->vip_data->created_at))
+            <td>@if(isset($user->vip_data->created_at) || isset($user->vvip_data->created_at))
                     <a href="{{ route('stats/vip_log', $user->id) }}" target="_blank">
-                        				<a href="{{ url('admin/order#'.$user->email) }}" target="_blank">
-                        {{ $user->vip_data->created_at }}</a>@else 無資料 @endif</td>
-            <td>@if(isset($user['updated_at'])){{ $user['updated_at'] }}@else 無資料 @endif</td>
+{{--                        				<a href="{{ url('admin/order#'.$user->email) }}" target="_blank">--}}
+                        @if(isset($user->vip_data->created_at))
+                            {{ $user->vip_data->created_at }}
+                        @elseif(isset($user->vvip_data) && $user->vvip_data->created_at)
+                            {{ $user->vvip_data->created_at }}(VVIP)
+                        @endif
+                    </a>
+                @else 無資料 @endif</td>
+            <td>@if(isset($user->vip_data->updated_at)){{ $user->vip_data->updated_at }}
+                @elseif(isset($user->vvip_data->updated_at)){{ $user->vvip_data->updated_at }}(VVIP)
+                @else 無資料 @endif</td>
             <td>
                 <form method="POST" action="genderToggler" class="user_profile">{!! csrf_field() !!}
                     <input type="hidden" name='page' value="back">
@@ -206,11 +225,14 @@
                     <button type="submit" class="btn btn-warning">變更</button></form>
             </td>
             <td>
+                @if(!$userInfo->isVVIP())
                 <form method="POST" action="VIPToggler" class="vip">{!! csrf_field() !!}
                     <input type="hidden" name='page' value="back">
                     <input type="hidden" name='user_id' value="{{ $user->id }}">
                     <input type="hidden" name='isVip' value="@if($userInfo->isVip()) 1 @else 0 @endif">
-                    <button type="submit" class="btn btn-info">@if($userInfo->isVip()) 取消權限 @else 提供權限 @endif</button></form>
+                    <button type="submit" class="btn btn-info">@if($userInfo->isVip()) 取消權限 @else 提供權限 @endif</button>
+                </form>
+                @endif
             </td>
         </tr>
     @empty

@@ -18,12 +18,12 @@ use App\Services\ImagesCompareService;
 use App\Models\SearchIgnore;
 use App\Services\SearchIgnoreService;
 use App\Models\RealAuthUserModifyPic;
-use Laravel\Scout\Searchable;
+use Outl1ne\ScoutBatchSearchable\BatchSearchable;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 
 class UserMeta extends Model
 {
-    use Searchable, HasFactory;
+    use BatchSearchable, HasFactory;
     /**
      * The database table used by the model.
      *
@@ -799,9 +799,9 @@ class UserMeta extends Model
             $user_city = explode(',', $meta->city);
             $user_area = explode(',', $meta->area);
             /* 判斷搜索者的 city 和 area 是否被被搜索者封鎖 */
-//            foreach ($user_city as $key => $city) {
-//                 $query->whereRaw('(blockarea not LIKE "%' . $city .$user_area[$key]  .'%"  AND blockarea not LIKE "%'.$city.'全區%")');
-//            }
+             //foreach ($user_city as $key => $city) {
+                 //$query->whereRaw('(blockarea not LIKE "%' . $city .$user_area[$key]  .'%"  AND blockarea not LIKE "%'.$city.'全區%")');
+            //}
 
             foreach ($user_city as $key => $city){
                 $query->where(
@@ -1005,9 +1005,22 @@ class UserMeta extends Model
             $singlePageData = $NormalDataQuery->skip($start - $VvipDataQueryCount)->take($count)->get();
         }
 
-
-
-
+        // 隱藏非必要及敏感個人資料
+        $singlePageData = $singlePageData->makeHidden([
+            'email', 'fa_relation', 'meta', 'registered_from_mobile',
+            'engroup_change', 'enstatus', 'password_updated', 'updated_at',
+            'created_at', 'vip_record', 'noticeRead', 'isReadManual', 'isReadIntro',
+            'is_read_female_manual_part1', 'is_read_female_manual_part2',
+            'is_read_female_manual_part3', 'notice_has_new_evaluation', 'login_times',
+            'intro_login_times', 'is_hide_online', 'hide_online_time', 'hide_online_hide_time',
+            'line_notify_auth_code', 'line_notify_token', 'line_notify_switch',
+            'line_notify_alert', 'can_message_alert', 'show_can_message',
+            'is_admin_chat_channel_open', 'advance_auth_status', 'advance_auth_time',
+            'advance_auth_identity_no', 'advance_auth_identity_encode', 'advance_auth_birth',
+            'advance_auth_phone', 'advance_auth_email', 'advance_auth_email_token',
+            'advance_auth_email_at'
+        ]);
+        
         
         //$singlePageDataQuery = $DataQuery->skip($start)->take($count);
         //$singlePageData = $singlePageDataQuery->get();

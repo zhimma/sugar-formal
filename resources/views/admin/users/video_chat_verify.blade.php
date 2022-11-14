@@ -2,8 +2,12 @@
 @section('app-content')
     <head>
         <script src="https://sdk.amazonaws.com/js/aws-sdk-2.1155.0.min.js"></script>
-        <script src="https://unpkg.com/amazon-kinesis-video-streams-webrtc/dist/kvs-webrtc.min.js"></script>
+        <script src="https://unpkg.com/amazon-kinesis-video-streams-webrtc/dist/kvs-webrtc.min.js"></script>       
         {{--<script src="/new/js/aws-sdk-2.1143.0.min.js"></script>--}}
+        <script>
+            let video_verify_loading_pic = new Image();
+            video_verify_loading_pic.src="{{asset('/new/images/loading.svg')}}";    
+        </script>
     </head>
     
     <body style="padding: 15px;">
@@ -109,6 +113,7 @@
 
         $('#video_chat_switch_on').on('click',function(){
             start_video_chat();
+            $('body').attr('onkeydown',"if (window.event.keyCode == 116) window.sessionStorage.setItem('endcall_reload',true);");    
         });
 
         $(document).ready(function(){
@@ -116,13 +121,18 @@
             {
                 start_video_chat();
                 window.sessionStorage.removeItem('endcall_reload');
+                $('body').attr('onkeydown',"if (window.event.keyCode == 116) window.sessionStorage.setItem('endcall_reload',true);");    
             }
         });
 
         $('#video_chat_switch_off').on('click',function(){
+            window.sessionStorage.removeItem('endcall_reload');
             window.location.reload();
         });
 
         
     </script>
+    <script>
+    window.history.replaceState( {} , $('title').html(), location.pathname+'?{{csrf_token()}}='+(new Date().getTime()) );
+    </script>     
 @stop

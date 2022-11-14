@@ -27,6 +27,8 @@ return [
     */
 
     'env' => env('APP_ENV', 'production'),
+    
+    'bypass_stay_online_record' => env('BYPASS_STAY_ONLINE_RECORD', false),
 
     /*
     |--------------------------------------------------------------------------

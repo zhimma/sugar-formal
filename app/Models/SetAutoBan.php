@@ -18,11 +18,11 @@ use Carbon\Carbon;
 use App\Services\ImagesCompareService;
 use App\Jobs\BanJob;
 use Illuminate\Support\Facades\Cache;
-use Laravel\Scout\Searchable;
+use Outl1ne\ScoutBatchSearchable\BatchSearchable;
 
 class SetAutoBan extends Model
 {
-    use SoftDeletes, Searchable;
+    use SoftDeletes, BatchSearchable;
     //
     protected $table = 'set_auto_ban';
 	
@@ -167,10 +167,12 @@ class SetAutoBan extends Model
         Log::Info('start_LogoutAutoBan_logout_warned');
         Log::Info($uid);
         if(\App::isProduction()) {
-            LogoutAutoBan::dispatch($uid)->onConnection('sqs')->onQueue('auto-ban')->delay(SetAutoBan::_getDelayTime());
+            // LogoutAutoBan::dispatch($uid)->onConnection('sqs')->onQueue('auto-ban')->delay(SetAutoBan::_getDelayTime());
+            LogoutAutoBan::dispatchSync($uid);
         }
         else {
-            LogoutAutoBan::dispatch($uid)->onConnection('sqs')->onQueue('auto-ban-test')->delay(SetAutoBan::_getDelayTime());
+            // LogoutAutoBan::dispatch($uid)->onConnection('sqs')->onQueue('auto-ban-test')->delay(SetAutoBan::_getDelayTime());
+            LogoutAutoBan::dispatchSync($uid);
         }
     }
 
@@ -394,23 +396,23 @@ class SetAutoBan extends Model
                 }
             }
 
-            $content_days = Carbon::now()->subDays(1);
-            $msgs = Message::retrieve($uid, $content_days);
-            $msg_rule_sets = SetAutoBan::retrive('msg');
-            $rule_sets = $msg_rule_sets->merge($all_check_rule_sets);
-            $rule_sets->each(function($rule_set) use ($user, $msgs, $probing) {
-                $msgs->each(function($msg) use ($user, $rule_set, $probing) {
-                    if(str_contains($msg->content, $rule_set->content)) {
-                        if($probing) {
-                            echo $rule_set->type;
-                        }
-                        else {
-                            logger("User $user->id is banned by $rule_set->type");
-                        }
-                        SetAutoBan::banJobDispatcher($user, $rule_set, 'msg');
-                    }
-                });
-            });
+            // $content_days = Carbon::now()->subDays(1);
+            // $msgs = Message::retrieve($uid, $content_days);
+            // $msg_rule_sets = SetAutoBan::retrive('msg');
+            // $rule_sets = $msg_rule_sets->merge($all_check_rule_sets);
+            // $rule_sets->each(function($rule_set) use ($user, $msgs, $probing) {
+            //     $msgs->each(function($msg) use ($user, $rule_set, $probing) {
+            //         if(str_contains($msg->content, $rule_set->content)) {
+            //             if($probing) {
+            //                 echo $rule_set->type;
+            //             }
+            //             else {
+            //                 logger("User $user->id is banned by $rule_set->type");
+            //             }
+            //             SetAutoBan::banJobDispatcher($user, $rule_set, 'msg');
+            //         }
+            //     });
+            // });
 
             return 0;
         }
@@ -556,15 +558,15 @@ class SetAutoBan extends Model
                 }
             }
 
-            $content_days = Carbon::now()->subDays(1);
-            $msg = Message::select('updated_at', 'from_id', 'content')->where('from_id', $uid)->where('updated_at', '>', $content_days)->get();
-            foreach ($msg as $m) {
-                $msg_matched_set = SetAutoBan::whereIn('type', ['msg', 'allcheck'])->whereRaw("INSTR('{$m}', content) > 0")->first();
-                if ($msg_matched_set) {
-                    $type = 'message';
-                    SetAutoBan::banJobDispatcher($user, $msg_matched_set, 'message');
-                }
-            }
+            // $content_days = Carbon::now()->subDays(1);
+            // $msg = Message::select('updated_at', 'from_id', 'content')->where('from_id', $uid)->where('updated_at', '>', $content_days)->get();
+            // foreach ($msg as $m) {
+            //     $msg_matched_set = SetAutoBan::whereIn('type', ['msg', 'allcheck'])->whereRaw("INSTR('{$m}', content) > 0")->first();
+            //     if ($msg_matched_set) {
+            //         $type = 'message';
+            //         SetAutoBan::banJobDispatcher($user, $msg_matched_set, 'message');
+            //     }
+            // }
 
             return 0;
         }

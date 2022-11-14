@@ -11,6 +11,7 @@
             <th width="45%">內容</th>
             <th>上傳照片</th>
             <th width="5%">狀態</th>
+            <th width="12%">發訊時間</th>
         </tr>
         @forelse ($messages as $message)
             <tr>
@@ -168,6 +169,7 @@
                     @endif
                 </td>
                 <td nowrap>{{ $message->unsend?'已收回':'' }}</td>
+                <td nowrap>{{ $message->created_at }}</td>
             </tr>
         @empty
             沒有訊息
@@ -320,5 +322,13 @@ jQuery(document).ready(function(){
 
     });
 
+    if (window.parent.location.href.match(/from_advInfo=/)){
+        if (typeof (history.pushState) != "undefined") {
+            var obj = { Title: document.title, Url: window.parent.location.pathname };
+            history.pushState(obj, obj.Title, obj.Url);
+        } else {
+            window.parent.location = window.parent.location.pathname;
+        }
+    }
 </script>
 </html>

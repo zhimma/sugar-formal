@@ -298,7 +298,7 @@
 	@else
 	全部直到
 	@endif
-    <span style="{{$new_exec_log->count() && (\Carbon\Carbon::now()->diffInHours($end_date)>=48)?'color:red;':''}}">
+    <span style="{{ (\Carbon\Carbon::now()->diffInHours($end_date)>=48)?'color:red;':''}}">
 	{{$end_date}}
     </span>
 	@if(!$sdateOfIp)
@@ -313,7 +313,7 @@
         @else
         全部直到
         @endif
-        <span style="{{$new_exec_log->count() && (\Carbon\Carbon::now()->diffInHours($end_date)>=48)?'color:red;':''}}">
+        <span style="{{ (\Carbon\Carbon::now()->diffInHours($end_date)>=48)?'color:red;':''}}">
         {{$end_date}}
         </span>
         @if(!$sdateOfCfpId)

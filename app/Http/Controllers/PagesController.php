@@ -3167,6 +3167,14 @@ class PagesController extends BaseController
             $dataList_normal = [];
             $rap_service = $this->rap_service;
             foreach ($searchApi['singlePageData'] as $key=>$visitor){
+                // 隱藏非必要及敏感個人資料
+                $visitor->user_meta = $visitor->user_meta->makeHidden([
+                    'id', 'phone', 'marketing', 'updated_at', 'terms_and_cond',
+                    'blockcity', 'blockarea', 'memo', 'pic_original_name',
+                    'blockdomainType', 'blockdomain', 'isWarnedRead', 'adminNote',
+                    'name_change', 'exchange_period_change', 'isConsign',
+                    'consign_expiry_date', 'recipients_count'
+                ]);
                 if($visitor->isVVIP())
                 {
                     $temp_array = [];
@@ -3222,7 +3230,7 @@ class PagesController extends BaseController
                 'singlePageCount'=> $searchApi['singlePageCount'],
                 'allPageDataCount'=>$searchApi['allPageDataCount'],
                 'dataList'=>$dataList,
-                'user'=>$user,
+                'user_engroup'=>$user->engroup,
                 'userIsVip'=>$userIsVip,
                 'notes'=>MessageUserNote::where('user_id', $user->id)->get()->pluck('note','message_user_id'),
             );
@@ -3871,7 +3879,7 @@ class PagesController extends BaseController
 
 
             return view('new.dashboard.female_newer_manual')
-                ->with('show_sop_type', $version)
+                ->with('show_sop_type', $version ?? null)
                 ->with('user', $user);
         }
     }
@@ -4021,7 +4029,8 @@ class PagesController extends BaseController
             if (isset($cid)) {
                 $cid_user = $this->service->find($cid);
                 if($cid == "1049"){
-                    $messages = Message::allToFromSenderChatWithAdmin($user->id, 1049)->paginate(10);
+                    $messages = Message::allToFromSenderChatWithAdmin($user->id, 1049)->orderBy('id', 'desc')->paginate(10);
+                    $chatting_with_admin = true;
                 }
                 if(!$cid_user){
                     return '<h1>該會員不存在。</h1>';
@@ -4065,6 +4074,7 @@ class PagesController extends BaseController
                     ->with('is_truth_state',in_array(['to_id' =>$cid_user->id,'from_id' =>$user->id],Message::$truthMessages) || in_array(['to_id' =>$user->id,'from_id' =>$cid_user->id],Message::$truthMessages))
                     ->with('exist_is_truth_quota',Message::existIsTrueQuotaByFromUser($user))
                     ->with('remain_num_of_is_truth',Message::getRemainQuotaOfIsTruthByFromUser($user))
+                    ->with('chatting_with_admin', $chatting_with_admin ?? false)
                     ;
             }
             else {
@@ -4080,7 +4090,8 @@ class PagesController extends BaseController
                     ->with('tippopup', $tippopup)
                     ->with('messages', $messages)
                     ->with('report_reason', $report_reason->content)
-                    ->with('first_send_messenge', $first_send_messenge);
+                    ->with('first_send_messenge', $first_send_messenge)
+                    ->with('chatting_with_admin', $chatting_with_admin ?? false);
             }
         }
     }
@@ -8393,7 +8404,7 @@ class PagesController extends BaseController
         $admin_msgs = [];
         $admin_msgs_sys = [];
 
-        foreach($admin_msg_entrys->where('sys_notice',0)->where('sys_notice',0)->where('chat_with_admin', 0) as $admin_msg_entry) {
+        foreach($admin_msg_entrys->where('sys_notice',0)->where('chat_with_admin', 0) as $admin_msg_entry) {
             $admin_msg_entry->content = str_replace('NAME', $user->name, $admin_msg_entry->content);
             $admin_msg_entry->content = str_replace('|$report|', $user->name, $admin_msg_entry->content);
             $admin_msg_entry->content = str_replace('LINE_ICON', AdminService::$line_icon_html, $admin_msg_entry->content);
@@ -9592,9 +9603,11 @@ class PagesController extends BaseController
         }
 
         $checkReport = AnonymousChatReport::select('user_id', 'created_at')->where('reported_user_id', $user->id)->groupBy('user_id')->orderBy('created_at', 'desc')->get();
-        //dd($checkReport);
-        //dd($checkReport[0]->created_at);
-        if(count($checkReport) >= 5 && Carbon::parse($checkReport[0]->created_at)->diffInDays(Carbon::now())<3){
+        $times = 3;
+        if($user->isVVIP()){
+            $times = 5;
+        }
+        if(count($checkReport) >= $times && Carbon::parse($checkReport[0]->created_at)->diffInDays(Carbon::now())<3){
             return redirect('/dashboard/personalPage')->with('message', '因被檢舉次數過多，目前已限制使用匿名聊天室');
         }
 
@@ -9617,12 +9630,17 @@ class PagesController extends BaseController
         $msg = '檢舉成功';
 
         //判斷檢舉人數超過五人時刪除訊息
-        $checkReport = AnonymousChatReport::where('reported_user_id', $reported_user_id->user_id)->groupBy('user_id')->get();
-        if(count($checkReport) >= 5){
+        $checkReport = AnonymousChatReport::where('reported_user_id', $reported_user_id->user_id)->where('created_at', '>=', Carbon::now()->startOfWeek()->toDateTimeString())->groupBy('user_id')->get();
+        $reported_user = User::findById($reported_user_id->user_id);
+        $times = 3;
+        if($reported_user->isVVIP()){
+            $times = 5;
+        }
+        if(count($checkReport) >= $times){
             AnonymousChat::where('user_id', $reported_user_id->user_id)->delete();
         }
-
-        return back()->with('message', $msg);
+//        return back()->with('message', $msg);
+        return response()->json(['msg' => 'OK']);
     }
 
     public function anonymous_chat_message(Request $request) {

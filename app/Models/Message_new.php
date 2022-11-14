@@ -476,10 +476,9 @@ class Message_new extends Model
                     ->whereNull('b5.blocked_id')
                     ->whereNull('b6.blocked_id')
                     ->whereNull('b7.member_id')
-                    ->where(function ($query) use ($uid,$admin_id) {
-                        $query->where([['message.from_id', $admin_id], ['message.chat_with_admin', 1], ['message.to_id', $uid]])
-                            ->orWhere([['message.from_id', '<>', $admin_id], ['message.to_id', $uid], ['message.from_id', '!=', $uid]])    
-                            ->orWhere([['message.from_id', $uid], ['message.to_id', '!=',$uid]]);
+                    ->where(function ($query) use ($uid) {
+                        $query->where([['message.to_id', $uid], ['message.from_id', '<>', $uid]])    
+                            ->orWhere([['message.from_id', $uid], ['message.to_id', '<>',$uid]]);
                     });    
 
             if($forEventSenders) 
@@ -515,31 +514,38 @@ class Message_new extends Model
         }
         
         /**
-         * 
          * 20221017 效能調整：改使用 Scout 進行搜尋
-         * 
+         * Usage:
+         *  $customers = \App\Models\User::search('', function (
+         *      $meiliSearch,
+         *      string $query
+         *  ) {
+         *      $options['filter'] = 'birthdate > UNIX TIMESTAMP';
+         *
+         *      return $meiliSearch->search($query, $options);
+         *  })->get();
          */
         if (Features::accessible('message_uses_scout')) {
+            
+            // todo: 7 天、40 天、 180 天的 Room_id
             $userRooms = $user->messageRooms->pluck('id')->toArray();
             $messages = Message::scoutSearch()->whereIn('room_id', $userRooms)->get();
             $blockedUsers = $user->blocked->pluck('blocked_id')->toArray();
             
             foreach ($messages as &$message) {
+                // 排除不存在的會員
                 if (!$message->sender || !$message->receiver) {
                     unset($message);
                     continue;
                 }
 
-                if ($message->sender_is_banned || $message->receiver_is_banned || $message->sender_is_implicitly_banned || $message->receiver_is_implicitly_banned) {
-                    unset($message);
-                    continue;
-                }
-                
+                // 排除被封鎖、被隱性封鎖的會員，包含收雙方
                 if ($message->sender_is_banned || $message->receiver_is_banned || $message->sender_is_implicitly_banned || $message->receiver_is_implicitly_banned) {
                     unset($message);
                     continue;
                 }
 
+                // 排除自己封鎖的會員
                 if (in_array($message->from_id, $blockedUsers)) {
                     unset($message);
                     continue;
@@ -559,7 +565,15 @@ class Message_new extends Model
                 $mm[$v->from_id] = 0;
             }
             if($v->read=='N' && $v->all_delete_count != $uid && $v->is_row_delete_1 != $uid && $v->is_row_delete_2 != $uid && $v->is_single_delete_1 != $uid && $v->is_single_delete_2 != $uid){
-                $mm[$v->from_id]++;
+                if(($v->from_id == AdminService::checkAdmin()->id) or
+                    ($v->to_id == AdminService::checkAdmin()->id)){
+                    if($v->chat_with_admin) {
+                        $mm[$v->from_id]++;
+                    }                    
+                }
+                else {
+                    $mm[$v->from_id]++;
+                }
             }
 
         }
@@ -785,6 +799,9 @@ class Message_new extends Model
         return Message::where([['to_id', $uid],['from_id', $sid]])->orWhere([['from_id', $uid],['to_id', $sid]])->distinct()->orderBy('created_at', 'desc')->paginate(10);
     }
 
+    /**
+     * 未使用
+     */
     public static function unread($uid)
     {
         // block information
@@ -926,15 +943,20 @@ class Message_new extends Model
             ->whereNull('b5.blocked_id')
             ->whereNull('b6.blocked_id')
             ->whereNull('b7.member_id')
-            ->where(function ($query) use ($uid,$admin_id) {
-                $query->where([['message.to_id', $uid], ['message.from_id', '!=', $uid],['message.from_id','!=',$admin_id]])
-                    ->orWhere([['message.from_id', $uid], ['message.to_id', '!=',$uid],['message.to_id','!=',$admin_id]]);
+            ->where(function ($query) use ($uid) {
+                $query->where([['message.to_id', $uid], ['message.from_id', '!=', $uid]])
+                    ->orWhere([['message.from_id', $uid], ['message.to_id', '!=',$uid]]);
             });
 
-        if($user->id != 1049){
-            $query->where(function($query){
-                $query->where(DB::raw('(u1.engroup + u2.engroup)'), '<>', '2');
-                $query->orWhere(DB::raw('(u1.engroup + u2.engroup)'), '<>', '4');
+        if ($user->id != 1049) {
+            $query->where(function ($query) use ($admin_id) {
+                $query->where(function ($query) use ($admin_id) {
+                    $query->where(DB::raw('(u1.engroup + u2.engroup)'), '<>', '2')
+                        ->where(function ($query) use ($admin_id) {
+                            $query->where('message.from_id', '!=', $admin_id)
+                                ->orWhere('message.to_id', '!=', $admin_id);
+                        });
+                })->orWhere(DB::raw('(u1.engroup + u2.engroup)'), '<>', '4');
             });
         }
 
