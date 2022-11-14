@@ -39,7 +39,7 @@ class Kernel extends ConsoleKernel
     {
         if(app()->environment('MISC')) {            
             //每半小時檢查登入使用者
-            $schedule->command('UserLogin')->timezone('Asia/Taipei')->everyThirtyMinutes();
+            $schedule->command('UserLogin')->timezone('Asia/Taipei')->everyMinute();
         }
         if(app()->environment('CFP')){
             // $schedule->call('\App\Http\Controllers\Admin\FindPuppetController@entrance')->timezone('Asia/Taipei')->dailyAt('05:00');
