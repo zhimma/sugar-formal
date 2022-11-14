@@ -1447,14 +1447,6 @@ header("Expires: Fri, 01 Jan 1990 00:00:00 GMT");
                         
 
                         csrData +='<span class="u_info" style="overflow: hidden;display: inline-block;">';
-                        if(this.user.engroup==1){
-                            csrData +='<i class="j_lxx">丨</i><span>'+rowVisitorExchangePeriodName.name+'</span>';
-                            // if(this.userIsVip==1){
-                            //     csrData +='<i class="j_lxx">丨</i><span>'+rowVisitorExchangePeriodName.name+'</span>';
-                            // }else{
-                            //     csrData +='<i class="j_lxx">丨</i><span>包養關係<img src="/new/images/icon_35.png" class="nt_img"></span>';
-                            // }
-                        }
                         csrData +='</span>';
 
                         csrData +='<span class="u_profession">';
