@@ -3255,11 +3255,20 @@ function show_re_content(id){
                                 '<img src="'+ pic.file_path +'" style="max-width:130px;max-height:130px;margin-right: 5px;">'+
                             '</li>';
                         });
+                        name_color = '';
+                        if(value.engroup == 2)
+                        {
+                            name_color = 'color: #F00;';
+                        }
+                        else
+                        {
+                            name_color = 'color: #5867DD;';
+                        }
                         $('#message_room_detail_' + data.room_id).append(
                             '<tr>'+
                                 '<td style="text-align: right;">'+
                                     '<a>'+
-                                        '<p style="margin-bottom:0px;">'+
+                                        '<p style="margin-bottom:0px;'+ name_color +'">'+
                                             value.name +
                                         '</p>'+
                                     '</a>'+
