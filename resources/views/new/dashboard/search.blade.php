@@ -1447,8 +1447,15 @@ header("Expires: Fri, 01 Jan 1990 00:00:00 GMT");
                         
 
                         csrData +='<span class="u_info" style="overflow: hidden;display: inline-block;">';
+                        if(this.user_engroup==1){
+                            csrData +='<i class="j_lxx">丨</i><span>'+rowVisitorExchangePeriodName.name+'</span>';
+                            // if(this.userIsVip==1){
+                            //     csrData +='<i class="j_lxx">丨</i><span>'+rowVisitorExchangePeriodName.name+'</span>';
+                            // }else{
+                            //     csrData +='<i class="j_lxx">丨</i><span>包養關係<img src="/new/images/icon_35.png" class="nt_img"></span>';
+                            // }
+                        }
                         csrData +='</span>';
-
                         csrData +='<span class="u_profession">';
                         if(this.userIsVip==1){
                             if(rowEngroup == 2)
@@ -1467,15 +1474,8 @@ header("Expires: Fri, 01 Jan 1990 00:00:00 GMT");
                             csrData +='<span style="margin-left: 10px;"><span style="padding-left: 5px;">工作/學業</span><img src="/new/images/icon_35.png" class="nt_img"></span>';
                         }
                       
-                        if(this.user_engroup==1){
-                            csrData +='<i class="j_lxx">丨</i><span>'+rowVisitorExchangePeriodName.name+'</span>';
-                            // if(this.userIsVip==1){
-                            //     csrData +='<i class="j_lxx">丨</i><span>'+rowVisitorExchangePeriodName.name+'</span>';
-                            // }else{
-                            //     csrData +='<i class="j_lxx">丨</i><span>包養關係<img src="/new/images/icon_35.png" class="nt_img"></span>';
-                            // }
-                        }
                         
+                        csrData +='</span>';
                         csrData +='</h3>';
                         csrData +='<h3>最後上線時間：';
                         if(rowVisitorValueAddedServiceStatusHideOnline==1 && rowIsHideOnline==1){
