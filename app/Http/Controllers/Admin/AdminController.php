@@ -10,6 +10,9 @@ use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Log;
 use Carbon\Carbon;
 use App\Models\User;
+use App\Models\AdminMenuItemFolder;
+use App\Models\AdminMenuItems;
+use App\Models\AdminMenuItemXref;
 
 class AdminController extends \App\Http\Controllers\BaseController
 {
@@ -129,4 +132,44 @@ class AdminController extends \App\Http\Controllers\BaseController
         return response()->json(['answer_id' => $request->answer_id,'topic_user' => $topic_user,'user_answer' => $user_answer,'correct_answer' => $correct_answer], 200);
     }
 
+    public function admin_item_folder_manage(Request $request)
+    {
+        $user = $request->user();
+        $folders = AdminMenuItemFolder::with('items')->where('user_id', $user->id)->get();
+        $admin_items = AdminMenuItems::where('status', 1)->get();
+        return view('admin.admin_item_folder_manage')
+                ->with('folders', $folders)
+                ->with('admin_items', $admin_items)
+                ;
+    }
+
+    public function admin_item_folder_create(Request $request)
+    {
+        $user = $request->user();
+        $folder = new AdminMenuItemFolder();
+        $folder->user_id = $user->id;
+        $folder->folder_name = $request->folder_name;
+        $folder->save();
+        return back()->with('message', '新增成功');
+    }
+
+    public function admin_item_folder_delete(Request $request)
+    {
+        AdminMenuItemFolder::where('id', $request->folder_id)->delete();
+        AdminMenuItemXref::where('folder_id', $request->folder_id)->delete();
+        return back()->with('message', '刪除成功');
+    } 
+
+    public function admin_item_folder_update(Request $request)
+    {
+        AdminMenuItemXref::where('folder_id', $request->folder_id)->delete();
+        foreach($request->items as $item)
+        {
+            $Xref = new AdminMenuItemXref();
+            $Xref->folder_id = $request->folder_id;
+            $Xref->item_id = $item;
+            $Xref->save();
+        }
+        return back()->with('message', '更新成功');
+    }
 }

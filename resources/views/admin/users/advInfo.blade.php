@@ -297,7 +297,10 @@
         //VIP起始時間,現狀,付費方式,種類
         $vipInfo = \App\Models\Vip::findByIdWithDateDesc($user->id);
 
-        if(!is_null($vipInfo)){
+        $vvipInfo = \App\Models\ValueAddedService::where('member_id', $user->id)->where('service_name', 'VVIP')->orderBy('created_at', 'desc')->first();
+        $getUserInfo=\App\Models\User::findById($user->id);
+
+        if(!is_null($vipInfo) && !$getUserInfo->isVVIP()){
             $upgradeDay = date('Y-m-d', strtotime($vipInfo->created_at));
             $upgradeWay ='';
             if ($vipInfo->payment_method == 'CREDIT')
@@ -396,7 +399,33 @@
                 $showVipInfo = $showVipInfo_1;
             */
 
-        }else{
+        }
+        else if(!is_null($vvipInfo)){
+            $upgradeDay = date('Y-m-d', strtotime($vvipInfo->created_at));
+            $upgradeWay = '信用卡';
+            $upgradeKind ='';
+            if ($vvipInfo->payment == 'cc_quarterly_payment')
+                $upgradeKind = '持續季繳';
+            else if ($vvipInfo->payment == 'cc_monthly_payment')
+                $upgradeKind = '持續月繳';
+            else if ($vvipInfo->payment == 'one_quarter_payment')
+                $upgradeKind = '季繳一季';
+            else if ($vvipInfo->payment == 'one_month_payment')
+                $upgradeKind = '月繳一月';
+
+            $vvipLog = \App\Models\ValueAddedServiceLog::where("member_id", $user->id)->where('service_name', 'VVIP')->orderBy('id', 'desc')->first();
+            //現狀:只有持續中跟未持續兩種。已取消扣款或者一次付清都是未持續。
+            if(in_array($vvipInfo->payment, ['one_quarter_payment','one_month_payment']) || $vvipInfo->active ==0)
+                $nowStatus = '未持續';
+            else if(str_contains($vvipLog, 'cancel') || (str_contains($vvipLog, 'Cancel') && !str_contains($vvipLog, 'bypass')))
+                $nowStatus = '未持續';
+            else
+                $nowStatus = '持續中';
+
+            $isVVIPStatus=$getUserInfo->isVVIP() ? '是':'否';
+            $showVipInfo =  '(VVIP) '.$upgradeDay .' / '. $isVVIPStatus .' / '. $upgradeWay .' / '. $upgradeKind;
+        }
+        else{
             $nowStatus = '';
             //還沒有成為過vip
             $showVipInfo =  '未曾加入 / 否 / 無 / 無';
@@ -2001,11 +2030,11 @@
         <th width="15%">發送時間</th>
         <th width="8%">發送數 <br>本人/對方</th>
     </tr>
-    @foreach($userMessage_log as $Log)
+    @foreach($userMessage_log as $messageLog)
         @php
-            $ref_user = \App\Models\User::findById($Log->ref_user_id);
+            $ref_user = \App\Models\User::findById($messageLog->ref_user_id);
             if(!$ref_user) { continue; }
-            $ref_user_id = $Log->ref_user_id;
+            $ref_user_id = $messageLog->ref_user_id;
             $message_log = \App\Models\Message::withTrashed()
                                 ->where([['message.to_id', $ref_user->id ],['message.from_id', $user->id ]])
                                 ->orderBy('created_at')->first();
@@ -2018,15 +2047,17 @@
             $toCount_user_id=\App\Models\Message::withTrashed()->where('from_id',$user->id)->where('to_id',$ref_user_id)->get()->count();
             $toCount_ref_user_id=\App\Models\Message::withTrashed()->where('from_id',$ref_user_id)->where('to_id',$user->id)->get()->count();
         @endphp
-        <tr 
+        <tr id='message_room_{{$messageLog->room_id}}'
             {{--一次顯示50個 臨時搭建用--}}
             @if($toCount_user_id == 0 )
                 class='message_no_interactive' style="display:none"
             @endif>
             {{--一次顯示50個 臨時搭建用--}}
-            <td style="text-align: center;"><button data-toggle="collapse" data-target="#msgLog{{$ref_user_id}}" class="accordion-toggle btn btn-primary message_toggle">+</button></td>
+            <td style="text-align: center;">
+                <button data-toggle="collapse" data-target="#msgLog{{$ref_user_id}}" class="accordion-toggle btn btn-primary message_toggle" value="{{$messageLog->room_id}}">+</button>
+            </td>
             <td>@if(!empty($ref_user->name))<a href="{{ route('admin/showMessagesBetween', [$user->id, $ref_user_id]) }}" target="_blank">{{ $ref_user->name }}</a>@else 會員資料已刪除@endif</td>
-            <td id="new{{$Log->to_id}}">
+            <td id="new{{$messageLog->to_id}}">
                 @if($message_log)
                     {{($message_log->from_id==$message_1st->from_id ? '(發)' :'(回)') .$message_log->content}}
                 @endif
@@ -2054,6 +2085,7 @@
             <td id="new_time{{$ref_user_id}}">@if(!empty($ref_user->name)) {{ $message_log ? $message_log->created_at :''}} @else 會員資料已刪除 @endif</td>
             <td>@if(!empty($ref_user->name)) {{$toCount_user_id .'/'.$toCount_ref_user_id}} @else 會員資料已刪除 @endif</td>
         </tr>
+        {{--預定修改--}}
         <tr class="accordian-body collapse" id="msgLog{{$ref_user_id}}">
             <td class="hiddenRow" colspan="5">
                 <table class="table table-bordered">
@@ -2066,75 +2098,13 @@
                         <th width="5%" nowrap>狀態</th>
                     </tr>
                     </thead>
-                    <tbody>
-                    @foreach ($Log->items as $key => $item)
-                        {{--@if($key==0)--}}
-                            {{--<script>--}}
-                                {{--$('#new' + {{$Log->to_id}}).text('{{ $item->content }}');--}}
-                                {{--$('#new_time' + {{$Log->to_id}}).text('{{ $item->m_time }}');--}}
-                            {{--</script>--}}
-                        {{--@endif--}}
-                        <tr>
-                            <td style="text-align: right;">
-                                @php
-                                    $from_id_user=\App\Models\User::findById($item->from_id);
-                                @endphp
-                                <a href="{{ route('admin/showMessagesBetween', [$user->id, $ref_user_id]) }}" target="_blank">
-                                    <p style="margin-bottom:0px; @if($item->engroup == '2') color: #F00; @else color: #5867DD; @endif">{{$item->name }}
-                                    @php
-                                        $from_id_tipcount = \App\Models\Tip::TipCount_ChangeGood($item->from_id);
-                                        $from_id_vip = \App\Models\Vip::vip_diamond($item->from_id);
-                                    @endphp
-                                    @if($from_id_vip)
-                                        @if($from_id_vip=='diamond_black')
-                                            <img src="/img/diamond_black.png" style="height: 16px;width: 16px;">
-                                        @else
-                                            @for($z = 0; $z < $from_id_vip; $z++)
-                                                <img src="/img/diamond.png" style="height: 16px;width: 16px;">
-                                            @endfor
-                                        @endif
-                                    @endif
-                                    @for($i = 0; $i < $from_id_tipcount; $i++)
-                                        👍
-                                    @endfor
-                                    @if(!is_null($item->banned_id))
-                                        @if(!is_null($item->banned_expire_date))
-                                            ({{ round((strtotime($item->banned_expire_date) - getdate()[0])/3600/24 ) }}天)
-                                        @else
-                                            (永久)
-                                        @endif
-                                    @endif
-                                    </p>
-                                </a>
-                            </td>
-                            <td><p style="word-break:break-all;">{{ $item->content }}</p></td>
-                            <td class="evaluation_zoomIn">
-                                @php
-                                    $messagePics=is_null($item->pic) ? [] : json_decode($item->pic,true);
-                                @endphp
-                                @if(isset($messagePics))
-                                    @foreach( $messagePics as $messagePic)
-                                        @if(isset($messagePic['file_path']))
-                                            <li style="float:left;margin:2px 2px;list-style:none;display:block;white-space: nowrap;width: 135px;">
-                                                <img src="{{ $messagePic['file_path'] }}" style="max-width:130px;max-height:130px;margin-right: 5px;">
-                                            </li>
-                                        @else
-                                            <li style="float:left;margin:2px 2px;list-style:none;display:block;white-space: nowrap;width: 135px;">
-                                                無法找到圖片
-                                            </li>
-                                        @endif
-                                    @endforeach
-                                @endif
-                            </td>
-                            <td>{{ $item->m_time }}</td>
-                            <td nowrap>{{ $item->unsend?'已收回':'' }}</td>
-                        </tr>
-                    @endforeach
+                    <tbody id="message_room_detail_{{$messageLog->room_id}}">
                     </tbody>
                 </table>
             </td>
         </tr>
-        @endforeach
+        {{--預定修改--}}
+    @endforeach
 </table>
 {!! $userMessage_log->links('pagination::sg-pages3') !!}
 
@@ -2187,7 +2157,7 @@
                 @php
                     $exchange_period_name = DB::table('exchange_period_name')->where('id',$user->exchange_period)->first();
                 @endphp
-                {{$exchange_period_name->name}}
+                {{$exchange_period_name?->name}}
                 {!!$raa_service->getActualUncheckedExchangePeriodLayout()!!}
             </td>
 
@@ -2540,12 +2510,6 @@ jQuery(document).ready(function(){
         $(".tr_hide_" + $(this).attr("r_id")).toggle();
     });
     //test
-
-    $('.message_toggle').on('click',function(e){
-        $(this).text(function(i,old){
-            return old=='+' ?  '-' : '+';
-        });
-    });
 
     $('.delete-btn').on('click',function(e){
         if(!confirm('確定要刪除選取的訊息?')){
@@ -3269,6 +3233,100 @@ function show_re_content(id){
         }
     }
     //預算及車馬費警示警示
+
+    $('.message_toggle').on('click', function(){
+        if($(this).text() == '+')
+        {
+            $(this).text('-');
+            room_id = $(this).attr("value");
+            $.ajax({
+                type: 'GET',
+                url: '{{route('users/getMessageFromRoomId')}}',
+                data: {
+                    room_id: room_id,
+                },
+                success: function(data){
+                    data.message_detail.forEach(function(value){
+                        messagePics = (value.pic === null) ? [] : JSON.parse(value.pic);
+                        messagePicHTML = '';
+                        messagePics.forEach(function(pic){
+                            messagePicHTML =  messagePicHTML +
+                            '<li style="float:left;margin:2px 2px;list-style:none;display:block;white-space: nowrap;width: 135px;">'+
+                                '<img src="'+ pic.file_path +'" style="max-width:130px;max-height:130px;margin-right: 5px;">'+
+                            '</li>';
+                        });
+
+                        name_color = '';
+                        if(value.engroup == 2){
+                            name_color = 'color: #F00;';
+                        }
+                        else{
+                            name_color = 'color: #5867DD;';
+                        }
+
+                        user_icon = '';
+                        if(data.users_data[value.u_id]['vip']){
+                            if(data.users_data[value.u_id]['vip'] == 'diamond_black'){
+                                user_icon += '<img src="/img/diamond_black.png" style="height: 16px;width: 16px;">';
+                            }
+                            else{
+                                for(i = 0; i < data.users_data[value.u_id]['vip']; i++){
+                                    user_icon += '<img src="/img/diamond.png" style="height: 16px;width: 16px;">';
+                                }
+                            }
+                        }
+
+                        for(i = 0; i < data.users_data[value.u_id]['tipcount']; i++){
+                            user_icon += '👍';
+                        }
+
+                        if(value.banned_id){
+                            if(value.banned_expire_date){
+                                let exp_date = new Date(value.banned_expire_date);
+                                let now_date = Date.now();
+                                let idays = parseInt(Math.abs(exp_date - now_date) / 1000 / 60 / 60 / 24);
+                                user_icon += '(' + idays + '天)';
+                            }
+                            else{
+                                user_icon += '(永久)';
+                            }
+                        }
+
+                        $('#message_room_detail_' + data.room_id).append(
+                            '<tr>'+
+                                '<td style="text-align: right;">'+
+                                    '<a href="' + data.message_href + '" target="_blank">'+
+                                        '<p style="margin-bottom:0px;'+ name_color +'">'+
+                                            value.name + user_icon +
+                                        '</p>'+
+                                    '</a>'+
+                                '</td>'+
+                                '<td>'+
+                                    '<p style="word-break:break-all;">'+
+                                        value.content +
+                                    '</p>'+
+                                '</td>'+
+                                '<td class="evaluation_zoomIn">'+
+                                    messagePicHTML +
+                                '</td>'+
+                                '<td>'+
+                                    value.m_time +
+                                '</td>'+
+                                '<td nowrap>'+
+                                    (value.unsend ? '已收回' : '') +
+                                '</td>'+
+                            '</tr>'
+                        );
+                    });
+                    
+            }});
+        }
+        else if($(this).text() == '-')
+        {
+            $(this).text('+');
+            $('#message_room_detail_' + data.room_id).empty();
+        }
+    });
 </script>
 <!--照片查看end-->
 </html>

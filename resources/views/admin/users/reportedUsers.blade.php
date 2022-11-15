@@ -51,7 +51,8 @@
             <input type="hidden" name="msg" value="@if(isset($msg)) {{ $msg }}@endif" class="form-control" id="msg2">
             <input type='hidden' class="datepicker_1" name="date_start" data-date-format='yyyy-mm-dd' value="@if(isset($date_start)){{ $date_start }}@endif" class="form-control">
             <input type='hidden' class="datepicker_2" name="date_end" data-date-format='yyyy-mm-dd' value="@if(isset($date_end)){{ $date_end }}@endif" class="form-control">
-            <h3 style="text-align: left;">搜尋結果</h3>
+            <h3 style="text-align: left; display:inline-block;">搜尋結果</h3>
+            <a id='hide_switch' class='text-white btn btn-primary' value='false'>隱藏已處理案件</a>
             <table class="table-hover table table-bordered">
                 <tr>
                     <th>被檢舉者</th>
@@ -72,7 +73,7 @@
                             @continue
                         @endif
                     @endif
-                    <tr >
+                    <tr>
                         <td @if($result['isBlockedReceiver']) style="background-color:#FFFF00" @endif>
                             <a href="{{ route('users/advInfo', $result['reported_id']) }}" target='_blank'>
                                 <p @if($users[$result['reported_id']]['engroup'] == '2') style="color: #F00;" @else  style="color: #5867DD;"  @endif>
@@ -294,7 +295,7 @@
                         <td>
                             <a href="javascript:void(0);" data-id="{{ $result->id }}" data-memberid = "{{ $result->member_id }}" data-reportedid = "{{ $result->reported_id }}" class='btn btn-dark write_btn'>撰寫</a>
                             @if ($result->is_write == 1 || (!$reportedInfo || $reportedInfo && ($isBlocked == 1 || ($isAdminWarned == 1 && $isWomanWarned == 1))))
-                            <a href="javascript:void(0);" data-id="{{ $result->id }}" data-memberid = "{{ $result->member_id }}" data-reportedid = "{{ $result->reported_id }}" class='btn btn-success handle_status_btn' data-handlestatus="1">已處理</a>
+                            <a href="javascript:void(0);" data-id="{{ $result->id }}" data-memberid = "{{ $result->member_id }}" data-reportedid = "{{ $result->reported_id }}" class='btn btn-success handle_status_btn has_processed' data-handlestatus="1">已處理</a>
                             @else
                             <a href="javascript:void(0);" data-id="{{ $result->id }}" data-memberid = "{{ $result->member_id }}" data-reportedid = "{{ $result->reported_id }}" class='btn btn-dark handle_status_btn' data-handlestatus="0">未處理</a>
                             @endif
@@ -676,7 +677,7 @@
 
                     handleStatusBtn.removeClass('btn-dark');
 
-                    handleStatusBtn.addClass('btn-success');
+                    handleStatusBtn.addClass('btn-success has_processed');
 
                     window.open(url);
                 },
@@ -710,11 +711,11 @@
                     _self.text(handleStatus);
 
                     if (status == 1) {
-                        _self.removeClass('btn-success');
+                        _self.removeClass('btn-success has_processed');
                         _self.addClass('btn-dark');
                     } else {
                         _self.removeClass('btn-dark');
-                        _self.addClass('btn-success');
+                        _self.addClass('btn-success has_processed');
                     }
                 },
                 error: error => {
@@ -1036,5 +1037,19 @@
 
     });
     /*调起大图 E*/
+    $('#hide_switch').click(function() {
+        if($(this).attr("value") == "false")
+        {
+            $(this).attr("value","true");
+            $(this).text("顯示已處理案件");
+            $('.has_processed').parent('td').parent('tr').hide();
+        }
+        else
+        {
+            $(this).attr("value","false");
+            $(this).text("隱藏已處理案件");
+            $('.has_processed').parent('td').parent('tr').show();
+        }
+    });
 </script>
 @stop

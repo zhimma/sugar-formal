@@ -50,7 +50,7 @@
 
 <table class='table table-bordered table-hover'>
 	<tr>
-		<th>動作</th>
+		<th> VIP 動作</th>
 		<th>TXN ID</th>
         <th>Action</th>
         <th>是否免費</th>
@@ -75,7 +75,7 @@
 
 <table class='table table-bordered table-hover'>
 	<tr>
-		<th>動作</th>
+		<th>VVIP 動作</th>
 		<th>服務項目</th>
 		<th>訂單編號</th>
 		<th>TXN ID</th>
@@ -88,10 +88,10 @@
 			<td>{{ $row->content }}</td>
 			<td>{{ $row->service_name }}</td>
 			<td>{{ $row->order_id }}</td>
-			<td>{{ $result->txn_id }}</td>
-			<td>{{ $result->action }}</td>
-			<td>{{ $result->created_at }}</td>
-			<td>{{ $result->updated_at }}</td>
+			<td>{{ $row->txn_id }}</td>
+			<td>{{ $row->action }}</td>
+			<td>{{ $row->created_at }}</td>
+			<td>{{ $row->updated_at }}</td>
 		</tr>
 	@empty
 		<tr>

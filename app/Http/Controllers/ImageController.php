@@ -385,8 +385,8 @@ class ImageController extends BaseController
 
                 //更新大頭照模糊照片路徑
                 $avatarOriginPath=UserMeta::where('user_id', $userId)->first();
-                if(!is_null($avatarOriginPath) && $avatarOriginPath->pic){
-                    $blurPic=$this->createBlurPhoto($avatarOriginPath->pic);
+                if(!is_null($avatarOriginPath) && $path){
+                    $blurPic=$this->createBlurPhoto($path);
                     $avatarOriginPath->pic_blur=$blurPic;
                     $avatarOriginPath->save();
                 }
@@ -716,10 +716,14 @@ class ImageController extends BaseController
             //更新生活照模糊照片路徑
             $lifePhotoList=MemberPic::where('member_id', $userId)->get();
             foreach ($lifePhotoList as $lifePhoto){
-                if(!is_null($lifePhoto->pic)){
+                if($lifePhoto->pic){
                     $blurPic=$this->createBlurPhoto($lifePhoto->pic);
                     $lifePhoto->pic_blur=$blurPic;
                     $lifePhoto->save();
+                }
+                else {
+                    logger('ImageController no path.');
+                    \Sentry\captureMessage("ImageController no path.");
                 }
             }
         }
@@ -747,13 +751,15 @@ class ImageController extends BaseController
         return $upload['isSuccess'] ? $previous : $previous->withErrors($upload['warnings']);
     }
     
-    public static function handlePicturesUploadedFile($user,$path,$pic_original_name)
+    public function handlePicturesUploadedFile($user,$path,$pic_original_name)
     {
         $userId = $user->id;
        $addPicture = new MemberPic;
         $addPicture->member_id = $userId;
         $addPicture->pic = $path;
         $addPicture->original_name = $pic_original_name;
+        $blurPic=$this->createBlurPhoto($path);
+        $addPicture->pic_blur=$blurPic;
         $addPicture->save();
 
         // 新增生活照時,刪除AdminDeleteImageLog紀錄

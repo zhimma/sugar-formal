@@ -6,6 +6,7 @@ use App\Models\BannedUsersImplicitly;
 use App\Models\Reported;
 use App\Models\ReportedAvatar;
 use App\Models\ReportedPic;
+use App\Models\ValueAddedService;
 use Illuminate\Http\Request;
 use App\Models\User;
 use App\Models\LogChatPay;
@@ -133,12 +134,20 @@ class AdminService
                 $user['isBlocked']=1;
             }
             $user['vip'] = $user->isVip() ? 1 : 0;
-            if($user['vip'] == 1){
-                $user['vip_data'] = Vip::select('id', 'expiry')
-                    ->where('member_id', $user->id)
-                    ->orderBy('created_at', 'asc')
-                    ->get()->first();
-            }
+            $user['vip_data'] = Vip::select('id', 'free', 'expiry', 'order_id', 'updated_at', 'created_at', 'payment_method')
+                ->where('member_id', $user->id)
+                ->orderBy('created_at', 'desc')
+                ->get()->first();
+
+            $user['vvip'] = $user->isVVIP() ? 1 : 0;
+            $user['vvip_data'] = ValueAddedService::select('active', 'expiry', 'payment', 'created_at', 'updated_at', 'order_id')
+                ->where('member_id', $user->id)
+                ->where('service_name', 'VVIP')
+                ->orderBy('created_at', 'desc')
+                ->get()->first();
+        }
+        if($request->member_type =='vvip'){
+            $users = $users->sortByDesc('vvip');
         }
         if($request->member_type =='vip'){
 //            $users = collect($users)->sortBy('vip', true, true)->reverse()->toArray();

@@ -164,7 +164,6 @@ class Message_newController extends BaseController {
         //罐頭訊息警示 start
         if($user->engroup==1)
         {
-           
             $user->can_message_alert = $request->can_message_alert;
             $user->save();
         }
@@ -192,7 +191,9 @@ class Message_newController extends BaseController {
             else
                 $inbox_refuse_set->isrefused_warned_user = 0;
             $inbox_refuse_set->refuse_pr = $request->refuse_PR;
+            /*
             $inbox_refuse_set->refuse_canned_message_pr = $request->refuse_canned_message_PR;
+            */
             $inbox_refuse_set->refuse_register_days = $request->refuse_register_days;
             $inbox_refuse_set->save();
         }
@@ -328,11 +329,9 @@ class Message_newController extends BaseController {
             $isCanMessage = UserService::checkCanMessageWithGreetingRate($user, $to_user->id, $payload['msg']);
             if ($isCanMessage) {
                 Message::where('id', $messagePosted->id)->update(['is_can' => 1]);
-                if(!$user->is_vvip) {
-                    if($to_user->show_can_message != 1) {
-                        return array('error' => 2,
-                            'content' => '您好，此位女會員設定屏蔽罐頭訊息，如發罐頭訊息給她會被屏蔽');
-                    }
+                if($to_user->show_can_message != 1) {
+                    return array('error' => 2,
+                        'content' => '您好，此位女會員設定屏蔽罐頭訊息，如發罐頭訊息給她會被屏蔽');
                 }
             }
         }

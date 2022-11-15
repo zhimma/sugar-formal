@@ -1532,8 +1532,7 @@ class User extends Authenticatable implements JWTSubject
         /*此會員封鎖多少其他會員*/
 		if(!$wantIndexArr || in_array('blocked_other_count',$wantIndexArr)) {
 			$bannedUsers = \App\Services\UserService::getBannedId();
-			$advInfo['blocked_other_count']= \App\Models\Blocked::with(['blocked_user'])
-				->join('users', 'users.id', '=', 'blocked.blocked_id')
+			$advInfo['blocked_other_count']= \App\Models\Blocked::join('users', 'users.id', '=', 'blocked.blocked_id')
 				->where('blocked.member_id', $user->id)
 				->whereNotIn('blocked.blocked_id',$bannedUsers)
 				->whereNotNull('users.id')
@@ -1541,8 +1540,7 @@ class User extends Authenticatable implements JWTSubject
 		}
         /*此會員被多少會員封鎖*/
 		if(!$wantIndexArr || in_array('be_blocked_other_count',$wantIndexArr)) {
-			$advInfo['be_blocked_other_count'] = \App\Models\Blocked::with(['blocked_user'])
-				->join('users', 'users.id', '=', 'blocked.member_id')
+			$advInfo['be_blocked_other_count'] = \App\Models\Blocked::join('users', 'users.id', '=', 'blocked.member_id')
 				->where('blocked.blocked_id', $user->id)
 				->whereNotIn('blocked.member_id',$bannedUsers)
 				->whereNotNull('users.id')
@@ -2002,53 +2000,37 @@ class User extends Authenticatable implements JWTSubject
 
     public function is6MonthsVip()
     {
-        $currentMonths = 0;
         $months = 0;
-        $order_id = '';
         //6個月以上連續信用卡付費的 vip
-        $vip = Vip::where('member_id', $this->id)->where('free',0)
-                ->whereIn('payment_method', ['CREDIT', null])
-                ->first();
-        if(isset($vip)) {
-            if ($vip->expiry == '0000-00-00 00:00:00') {
-                $currentMonths = Carbon::parse($vip->created_at)->diffInMonths(Carbon::now());
-            } else {
-                $currentMonths = Carbon::parse($vip->created_at)->diffInMonths($vip->expiry);
-            }
-            $order_id = $vip->order_id;
-        }
-
+        //抓有效訂單計算
         $getOrderData = Order::where('user_id', $this->id)
-            ->where('order_id', '<>', $order_id)
+            ->where('service_name', 'VIP')
             ->where('payment_type', 'Credit_CreditCard')
+            ->where('payment', 'cc_monthly_payment')
             ->get();
         if(count($getOrderData)>0) {
             foreach ($getOrderData as $row) {
                 if($row->order_expire_date != ''){
                     $months = Carbon::parse($row->order_date)->diffInMonths(Carbon::parse($row->order_expire_date));
                     if($months > 6){ break; }
+                }else{
+                    $months = Carbon::parse($row->order_date)->diffInMonths(Carbon::now());
+                    if($months > 6){ break; }
                 }
             }
         }
-
-        if( $currentMonths > 6 || $months > 6 ){ return 1;}
+        if( $months > 6 ){ return 1;}
         return 0;
     }
 
     public function is12MonthsVip()
     {
         //12個月以上累計付費的 vip
-        $currentMonths = 0;
+        //抓有效訂單計算
         $months = 0;
-        $order_id = '';
-
-        $vip = Vip::where('member_id', $this->id)->where('active',1)->where('free',0)->first();
-        if(isset($vip)){
-            $currentMonths = Carbon::parse($vip->created_at)->diffInMonths(Carbon::now());
-            $order_id = $vip->order_id;
-        }
-
-        $getOrderData = Order::where('user_id', $this->id)->where('order_id', '<>', $order_id)->get();
+        $getOrderData = Order::where('user_id', $this->id)
+            ->where('service_name', 'VIP')
+            ->get();
         if(count($getOrderData)>0) {
             foreach ($getOrderData as $row) {
                 if($row->order_expire_date==''){
@@ -2059,7 +2041,6 @@ class User extends Authenticatable implements JWTSubject
             }
         }
 
-        $months += $currentMonths;
         if($months > 12){ return 1;}
         return 0;
     }
