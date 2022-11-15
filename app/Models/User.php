@@ -1776,6 +1776,7 @@ class User extends Authenticatable implements JWTSubject
             }
             //排序$Ip
             */
+            $sortIp = $Ip;
 
             $userLogin_log[$key]['Ip'] = $sortIp;
 
