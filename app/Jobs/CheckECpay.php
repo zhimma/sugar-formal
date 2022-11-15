@@ -56,10 +56,6 @@ class CheckECpay implements ShouldQueue
             $envStr = '';
         }
 
-
-
-
-
         //先檢查訂單
         if($this->vipData->business_id == Config::get('ecpay.payment'.$envStr.'.MerchantID') && substr($this->vipData->order_id,0,2) == 'SG') {
 
@@ -150,15 +146,37 @@ class CheckECpay implements ShouldQueue
                     $preOrderCheck = PaymentGetQrcodeLog::where('order_id', $this->vipData->order_id)->first();
                     if($preOrderCheck) {
                          if($this->userIsVip && $now->gt($preOrderCheck->ExpireDate)) {
+                             $checkOrder = false;
+                             //反查一次確認付款狀態
+                             if (!(EnvironmentService::isLocalOrTestMachine())) {
+                                 try {
+                                     //從ecPay
+                                     $checkOrder = Order::addEcPayOrder($this->vipData->order_id);
+                                     if (!$checkOrder) {
+                                         //從funPoint
+                                         $checkOrder = Order::addFunPointPayOrder($this->vipData->order_id);
+                                     }
+                                     //重新抓訂單
+                                     if ($checkOrder) {
+                                         $OrderDataCheck = Order::where('order_id', $this->vipData->order_id)->first();
+                                     }
+                                 }
+                                 catch (\Exception $exception) {
+                                     Log::info("VIP id: " . $this->vipData->id . "；order_id: " . $this->vipData->order_id . "：未完成付款");
+                                     Log::error($exception);
+                                 }
+                             }
                              //有賦予VIP者再檢查
                              //未完成交易時檢查
                              //超過期限未完成交易
                              //取消VIP
-                             $vipData = $user->getVipData(true);
-                             if($vipData){
-                                 $vipData->removeVIP();
+                             if(!$checkOrder) {
+                                 $vipData = $user->getVipData(true);
+                                 if ($vipData) {
+                                     $vipData->removeVIP();
+                                 }
+                                 \App\Models\VipLog::addToLog($user->id, 'order_id: ' . $this->vipData->order_id . '; 期限內(' . $preOrderCheck->ExpireDate . ')未完成付款：' . $this->vipData->payment_method, '自動取消', 0, 0);
                              }
-                             \App\Models\VipLog::addToLog($user->id, 'order_id: '.$this->vipData->order_id.'; 期限內('.$preOrderCheck->ExpireDate.')未完成付款：' . $this->vipData->payment_method, '自動取消', 0, 0);
                          }
                      }
                 }
