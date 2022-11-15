@@ -90,7 +90,8 @@ class UserMeta extends Model
         'budget_per_month_max',
         'budget_per_month_min',
         'transport_fare_max',
-        'transport_fare_min'
+        'transport_fare_min',
+        'pic_blur',
     ];
 
     /*

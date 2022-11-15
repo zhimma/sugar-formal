@@ -271,8 +271,11 @@ Route::group(['middleware' => ['auth', 'global', 'active', 'femaleActive', 'vipC
     //視訊功能
     Route::post('/video/call-user', 'VideoChatController@callUser');
     Route::post('/video/accept-call', 'VideoChatController@acceptCall');
+    Route::post('/video/decline-call', 'VideoChatController@declineCall');
+    Route::post('/video/abort-dial-call', 'VideoChatController@abortDialCall');
     Route::get('/video/receive-call-user-signal-data', 'VideoChatController@receiveCallUserSignalData');
     Route::get('/video/receive-accept-call-signal-data', 'VideoChatController@receiveAcceptCallSignalData');
+    Route::any('/video/log_video_chat_process', 'VideoChatController@log_video_chat_process')->name('log_video_chat_process');
 
     /*
     |--------------------------------------------------------------------------
@@ -1093,6 +1096,8 @@ Route::group(['middleware' => ['auth', 'global', 'active', 'femaleActive', 'vipC
         //視訊驗證影片紀錄
         Route::get('users/video_chat_verify_record_list', 'VideoChatController@video_chat_verify_record_list')->name('users/video_chat_verify_record_list');
         Route::get('users/video_chat_verify_record', 'VideoChatController@video_chat_verify_record')->name('users/video_chat_verify_record');
+
+        Route::get('users/video_chat_get_users', 'VideoChatController@video_chat_get_users')->name('users/video_chat_get_users');
 
         Route::get("stat_test", 'Api\MailController@test_stat');
 

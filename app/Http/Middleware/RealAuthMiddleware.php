@@ -48,7 +48,7 @@ class RealAuthMiddleware
             
             if( !$request->ajax() && !$request->real_auth &&
                 $first_url_seg!='advance_auth_activate' 
-                ){              
+                ){   
                 $this->service->forgetRealAuthProcess();
 
             }

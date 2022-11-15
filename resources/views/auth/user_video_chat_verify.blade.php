@@ -9,7 +9,7 @@
     <script src="https://sdk.amazonaws.com/js/aws-sdk-2.1155.0.min.js"></script>
     <script src="https://unpkg.com/amazon-kinesis-video-streams-webrtc/dist/kvs-webrtc.min.js"></script>
     {{--<script src="/new/js/aws-sdk-2.1143.0.min.js"></script>--}}
-<meta name="csrf-token" content="{{ csrf_token() }}">
+<meta name="csrf-token" content="{{ csrf_token() }}">       
 @stop
 @section('app-content')
 
@@ -43,6 +43,23 @@
             </div>
         </div>
     </div>
+    <script>
+        let video_verify_loading_pic = new Image();
+        video_verify_loading_pic.src="{{asset('/new/images/loading.svg')}}";                
+    
+        function log_video_chat_process(log_arr)
+        {
+            log_arr.url = location.href;
+            
+            fetch('/video/log_video_chat_process', {
+                  method: 'POST',
+                  headers: {'Content-Type': 'application/json'},
+                  body: JSON.stringify(log_arr)
+                  });
+                 
+        }
+    </script>
+    
     <script>
         let ice_servers;
         async function kinesis_init()
@@ -113,4 +130,7 @@
             });
         })
     </script>
+    <script>
+    window.history.replaceState( {} , $('title').html(), location.pathname+'?{{csrf_token()}}='+(new Date().getTime()) );
+    </script>    
 @stop
