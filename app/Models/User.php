@@ -1764,7 +1764,7 @@ class User extends Authenticatable implements JWTSubject
             //排序$Ip
             $sortIp = [];
             arsort($Ip['Ip_blocked_people']);
-            foreach($Ip['Ip_blocked_people'] as $skey => $value)
+            foreach($Ip['Ip_blocked_people'] as $skey => $svalue)
             {
                 $sortIp['Ip_group'][] = $Ip['Ip_group'][$skey];
                 $sortIp['Ip_group_items'][] = $Ip['Ip_group_items'][$skey];
