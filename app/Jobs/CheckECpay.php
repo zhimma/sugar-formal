@@ -146,7 +146,13 @@ class CheckECpay implements ShouldQueue
                     $preOrderCheck = PaymentGetQrcodeLog::where('order_id', $this->vipData->order_id)->first();
                     if($preOrderCheck) {
                         $originExpireDate = $preOrderCheck->ExpireDate;
-                        $newExpireDate = Carbon::parse($originExpireDate)->addDays(2);
+                        try {
+                            $newExpireDate = Carbon::parse($originExpireDate)->addDays(2);
+                        }
+                        catch (\Exception $exception) {
+                            \Sentry\captureException($exception);
+                            \Sentry\captureMessage($originExpireDate);
+                        }
                         if($this->userIsVip && $now->gt($newExpireDate)) {
                             $checkOrder = false;
                             //反查一次確認付款狀態
