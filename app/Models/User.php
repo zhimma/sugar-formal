@@ -1761,22 +1761,17 @@ class User extends Authenticatable implements JWTSubject
                 $Ip['Ip_blocked_people'][$Ip_key] = banned_users::whereIn('member_id',$IpUsers)->distinct('member_id')->count();
             }
 
-            Log::Info($Ip['Ip_blocked_people']);
-
-            /*
             //排序$Ip
             $sortIp = [];
             arsort($Ip['Ip_blocked_people']);
-            foreach($Ip['Ip_blocked_people'] as $key => $value)
+            foreach($Ip['Ip_blocked_people'] as $skey => $value)
             {
-                $sortIp['Ip_group'][$key] = $Ip['Ip_group'][$key];
-                $sortIp['Ip_group_items'][$key] = $Ip['Ip_group_items'][$key];
-                $sortIp['Ip_online_people'][$key] = $Ip['Ip_online_people'][$key];
-                $sortIp['Ip_blocked_people'][$key] = $Ip['Ip_blocked_people'][$key];
+                $sortIp['Ip_group'][] = $Ip['Ip_group'][$skey];
+                $sortIp['Ip_group_items'][] = $Ip['Ip_group_items'][$skey];
+                $sortIp['Ip_online_people'][] = $Ip['Ip_online_people'][$skey];
+                $sortIp['Ip_blocked_people'][] = $Ip['Ip_blocked_people'][$skey];
             }
             //排序$Ip
-            */
-            $sortIp = $Ip;
 
             $userLogin_log[$key]['Ip'] = $sortIp;
 
