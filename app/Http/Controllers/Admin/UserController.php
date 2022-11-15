@@ -84,6 +84,7 @@ use App\Models\Visited;
 use App\Services\RealAuthAdminService;
 use App\Models\UserVideoVerifyRecord;
 use App\Models\Features;
+use App\Models\MessageRoomUserXref;
 use App\Models\SpecialIndustriesTestAnswer;
 use Illuminate\Support\Facades\Log;
 use App\Models\RoleUser;
@@ -5843,7 +5844,7 @@ class UserController extends \App\Http\Controllers\BaseController
         if(Request()->get('cfp_id')){
             $isSetAutoBan_cfp_id = \App\Models\SetAutoBan::whereRaw('(content="'. Request()->get('cfp_id').'" AND expiry >="'. now().'")')->orWhereRaw('(content="'. Request()->get('cfp_id').'" AND expiry="0000-00-00 00:00:00")')->get();
         }else{
-            $isSetAutoBan_ip = \App\Models\SetAutoBan::whereRaw('(content="'. Request()->get('ip').'" AND expiry >="'. now().'")')->orWhereRaw('(content="'. Request()->get('ip').'" AND expiry="0000-00-00 00:00:00")')->get();
+            $isSetAutoBan_ip = \App\Models\SetAutoBan::whereRaw('(content="'. $ip.'" AND expiry >="'. now().'")')->orWhereRaw('(content="'. $ip.'" AND expiry="0000-00-00 00:00:00")')->get();
         }
         $male_user_list=User::where('engroup', 1)->whereIn('id', array_keys($getIpUsersData_origin->groupBy('user_id')->toArray()))->get()->pluck('id')->toArray();
         return view('admin.users.ipUsersList')
@@ -7536,8 +7537,7 @@ class UserController extends \App\Http\Controllers\BaseController
     {
         $room_id = $request->room_id;
 
-        //施工中
-        $message_detail = Message::withTrashed()->select('message.*', 'message.id as mid', 'message.created_at as m_time', 'u.*', 'b.id as banned_id', 'b.expire_date as banned_expire_date')
+        $message_detail = Message::withTrashed()->select('message.*', 'message.id as mid', 'message.created_at as m_time', 'u.*', 'u.id as u_id', 'b.id as banned_id', 'b.expire_date as banned_expire_date')
 		->leftJoin('users as u', 'u.id', 'message.from_id')
 		->leftJoin('banned_users as b', 'message.from_id', 'b.member_id')
         ->where('room_id', $room_id)
@@ -7545,11 +7545,24 @@ class UserController extends \App\Http\Controllers\BaseController
 		->orderBy('message.created_at')
 		->take(1000)
 		->get();
-        //施工中
+        
+        $room_users = MessageRoomUserXref::where('room_id', $room_id)->get();
+        $users_data = [];
+        $users = [];
+        foreach($room_users as $room_user)
+        {
+            $users[] = $room_user->user_id;
+            $users_data[$room_user->user_id]['tipcount'] =  Tip::TipCount_ChangeGood($room_user->user_id) ?? false;
+            $users_data[$room_user->user_id]['vip'] =  Vip::vip_diamond($room_user->user_id) ?? false;
+        }
+
+        $message_href = route('admin/showMessagesBetween', $users);
 
         return response()->json([
             'room_id' => $room_id,
-            'message_detail' => $message_detail
+            'message_detail' => $message_detail,
+            'users_data' => $users_data,
+            'message_href' => $message_href
         ], 201);
     }
 

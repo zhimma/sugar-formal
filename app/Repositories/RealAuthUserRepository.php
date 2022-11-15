@@ -883,7 +883,7 @@ class RealAuthUserRepository
         
         $status = $this->getAuthStatusByAuthTypeId($auth_type_id);        
         
-        return $status==1;
+        return intval($status)==1;
     }    
     
     

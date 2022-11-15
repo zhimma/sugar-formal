@@ -3252,19 +3252,56 @@ function show_re_content(id){
                 success: function(data){
                     data.message_detail.forEach(function(value){
                         messagePics = (value.pic === null) ? [] : JSON.parse(value.pic);
-                        messagePicHTML = ''
+                        messagePicHTML = '';
                         messagePics.forEach(function(pic){
                             messagePicHTML =  messagePicHTML +
                             '<li style="float:left;margin:2px 2px;list-style:none;display:block;white-space: nowrap;width: 135px;">'+
                                 '<img src="'+ pic.file_path +'" style="max-width:130px;max-height:130px;margin-right: 5px;">'+
                             '</li>';
                         });
+
+                        name_color = '';
+                        if(value.engroup == 2){
+                            name_color = 'color: #F00;';
+                        }
+                        else{
+                            name_color = 'color: #5867DD;';
+                        }
+
+                        user_icon = '';
+                        if(data.users_data[value.u_id]['vip']){
+                            if(data.users_data[value.u_id]['vip'] == 'diamond_black'){
+                                user_icon += '<img src="/img/diamond_black.png" style="height: 16px;width: 16px;">';
+                            }
+                            else{
+                                for(i = 0; i < data.users_data[value.u_id]['vip']; i++){
+                                    user_icon += '<img src="/img/diamond.png" style="height: 16px;width: 16px;">';
+                                }
+                            }
+                        }
+
+                        for(i = 0; i < data.users_data[value.u_id]['tipcount']; i++){
+                            user_icon += '👍';
+                        }
+
+                        if(value.banned_id){
+                            if(value.banned_expire_date){
+                                let exp_date = new Date(value.banned_expire_date);
+                                let now_date = Date.now();
+                                let idays = parseInt(Math.abs(exp_date - now_date) / 1000 / 60 / 60 / 24);
+                                user_icon += '(' + idays + '天)';
+                            }
+                            else{
+                                user_icon += '(永久)';
+                            }
+                        }
+
                         $('#message_room_detail_' + data.room_id).append(
                             '<tr>'+
                                 '<td style="text-align: right;">'+
-                                    '<a>'+
-                                        '<p style="margin-bottom:0px;">'+
-                                            value.name +
+                                    '<a href="' + data.message_href + '" target="_blank">'+
+                                        '<p style="margin-bottom:0px;'+ name_color +'">'+
+                                            value.name + user_icon +
                                         '</p>'+
                                     '</a>'+
                                 '</td>'+

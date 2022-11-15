@@ -8,7 +8,7 @@ header("Expires: Fri, 01 Jan 1990 00:00:00 GMT");
 @section('style')
 <style>
     .ss_xixn_input {
-        width: 200px;
+        width: 75px;
         border: none;
         background: transparent;
         height: 30px;
@@ -32,7 +32,7 @@ header("Expires: Fri, 01 Jan 1990 00:00:00 GMT");
         color: #fff;
     }
     .ss_xixn {
-        width: 240px;
+        width: 115px;
         margin: 0 auto;
         background: #fff;
         border-radius: 5px;
@@ -44,7 +44,8 @@ header("Expires: Fri, 01 Jan 1990 00:00:00 GMT");
     .n_ntab {
         position: absolute;
         bottom: 75px;
-        left: 10px;
+        /* left: 10px; */
+        /* right: 5px */
     }
     .nnn_one {
         position: relative;
@@ -57,14 +58,41 @@ header("Expires: Fri, 01 Jan 1990 00:00:00 GMT");
         width: 100%;
         float: unset;
     }
+    span.u_name {
+        margin: 0;
+        max-width: 150px;
+        overflow: hidden;
+        text-overflow: ellipsis;
+        white-space: nowrap;
+        display: inline-block;
+    }
+    span.u_area {
+        margin: 0;
+        overflow: hidden;
+        text-overflow: ellipsis;
+        white-space: nowrap;
+        display: inline-block;
+        /* width: 106px; */
+    }
+    span.u_profession {
+        overflow: hidden;
+        text-overflow: ellipsis;
+        white-space: nowrap;
+        display: inline-block;
+        width: 90px;
+        margin-left: 0; 
+    }
+    span.u_info,span.u_info span {
+        margin-left: 0; 
+    }
+    .j_lxx {
+        margin-left: 0; 
+    }
     @media (max-width: 766px) {
         .nnn_one {
             width: 100%;
             margin-left: 0%;
             margin-right: 0%;
-        }
-        .n_ntab {
-            left:0px;
         }
     }
 
@@ -1174,9 +1202,12 @@ header("Expires: Fri, 01 Jan 1990 00:00:00 GMT");
 
                                 have_vvip = 1;
                                 csrData +=  `<div class="nnn_one">`;
-                                    csrData +=  `<div class="ss_xixn n_ntab">
+                                    if(response.data.notes[rowID]) {
+                                        csrData +=  `<div class="ss_xixn n_ntab">
                                                     <input placeholder="您尚未留下備註" class="ss_xixn_input" id="massage_user_note_${rowID}" value="${response.data.notes[rowID]??''}"><a class="ss_button_a" onclick="massage_user_note('${rowID}');">確定</a>
                                                 </div>`;
+                                    }
+                                    
                                 csrData += `<li class="nt_fg vvip_bg1">`;
                             }else {
 
@@ -1190,23 +1221,28 @@ header("Expires: Fri, 01 Jan 1990 00:00:00 GMT");
                                 if (rowEngroup == 2) {
                                     if (rowExchangePeriod == 1) {
                                         csrData +=  `<div class="nnn_one">`;
+                                        if(response.data.notes[rowID]) {
                                             csrData +=  `<div class="ss_xixn n_ntab">
                                                             <input placeholder="您尚未留下備註" class="ss_xixn_input" id="massage_user_note_${rowID}" value="${response.data.notes[rowID]??''}"><a class="ss_button_a" onclick="massage_user_note('${rowID}');">確定</a>
                                                         </div>`;
-                                        
+                                        }
                                         csrData += `<li class="nt_fg vvip_bg1">`;
                                     } else {
                                         csrData +=  `<div class="nnn_one">`;
+                                        if(response.data.notes[rowID]) {
                                             csrData +=  `<div class="ss_xixn n_ntab">
                                                             <input placeholder="您尚未留下備註" class="ss_xixn_input" id="massage_user_note_${rowID}" value="${response.data.notes[rowID]??''}"><a class="ss_button_a" onclick="massage_user_note('${rowID}');">確定</a>
                                                         </div>`;
+                                        }
                                         csrData += `<li class="nt_fg vvip_bg2">`;
                                     }
                                 } else {
                                     csrData +=  `<div class="nnn_one">`;
+                                    if(response.data.notes[rowID]) {
                                         csrData +=  `<div class="ss_xixn n_ntab">
                                                         <input placeholder="您尚未留下備註" class="ss_xixn_input" id="massage_user_note_${rowID}" value="${response.data.notes[rowID]??''}"><a class="ss_button_a" onclick="massage_user_note('${rowID}');">確定</a>
                                                     </div>`;
+                                    }
                                     csrData +=  `<li class="nt_fg vvip_bg2">`;
                                 }
                             }
@@ -1376,7 +1412,7 @@ header("Expires: Fri, 01 Jan 1990 00:00:00 GMT");
                         
                         // csrData +='<div class="nt_bot nt_bgco">';
                         csrData +='<h2>';
-                        csrData +='<font class="left">'+rowName+'<span>'+rowVisitorAge+'歲</span></font>';
+                        csrData +='<font class="left"><span class="u_name">'+rowName+'</span><span style="overflow: hidden;display: inline-block;">'+rowVisitorAge+'歲</span></font>';
                         
                         if(this.userIsVip==1){
                             if(rowVisitorIsOnline==1 && rowIsHideOnline==0){
@@ -1387,26 +1423,40 @@ header("Expires: Fri, 01 Jan 1990 00:00:00 GMT");
                         }
 
                         csrData +='</h2>';
-                            csrData += `<div style="height:35px;" class="noactvie"></div>`;
-                        csrData +='<h3>';
+                            // csrData += `<div style="height:35px;" class="noactvie"></div>`;
+                        csrData +='<h3 style="line-height: 15px;margin-top: 6px;">';
+                        csrData +='<span class="u_area" style="margin:0;">';
                         if(umeta.city !== ""){
                             umeta.city.forEach((row, index) => {
                                 if (index==0){
                                     csrData +=  umeta.city[index];
-                                    if(umetaIsHideArea == 0){
+                                    if(umetaIsHideArea == 0 && this.user_engroup == 2){
                                         csrData +=  umetaArea[index]+'  ';
                                     }
                                 }else{
-                                    
                                     csrData +=  '<span>'+umeta.city[index];
-                                    if(umetaIsHideArea == 0){
-                                        csrData += (umetaArea[index]+'</span>');
+                                    if(umetaIsHideArea == 0 && this.user_engroup == 2){
+                                        csrData += (umetaArea[index]);
                                     }
+                                    csrData += '</span>';
                                 }
                             })
                         }           
+                        csrData +='</span>';
                         
-                           
+                        
+
+                        csrData +='<span class="u_info" style="overflow: hidden;display: inline-block;">';
+                        if(this.user_engroup==1){
+                            csrData +='<i class="j_lxx">丨</i><span>'+rowVisitorExchangePeriodName.name+'</span>';
+                            // if(this.userIsVip==1){
+                            //     csrData +='<i class="j_lxx">丨</i><span>'+rowVisitorExchangePeriodName.name+'</span>';
+                            // }else{
+                            //     csrData +='<i class="j_lxx">丨</i><span>包養關係<img src="/new/images/icon_35.png" class="nt_img"></span>';
+                            // }
+                        }
+                        csrData +='</span>';
+                        csrData +='<span class="u_profession">';
                         if(this.userIsVip==1){
                             if(rowEngroup == 2)
                             {
@@ -1424,15 +1474,8 @@ header("Expires: Fri, 01 Jan 1990 00:00:00 GMT");
                             csrData +='<span style="margin-left: 10px;"><span style="padding-left: 5px;">工作/學業</span><img src="/new/images/icon_35.png" class="nt_img"></span>';
                         }
                       
-                        if(this.user_engroup==1){
-                            csrData +='<i class="j_lxx">丨</i><span>'+rowVisitorExchangePeriodName.name+'</span>';
-                            // if(this.userIsVip==1){
-                            //     csrData +='<i class="j_lxx">丨</i><span>'+rowVisitorExchangePeriodName.name+'</span>';
-                            // }else{
-                            //     csrData +='<i class="j_lxx">丨</i><span>包養關係<img src="/new/images/icon_35.png" class="nt_img"></span>';
-                            // }
-                        }
                         
+                        csrData +='</span>';
                         csrData +='</h3>';
                         csrData +='<h3>最後上線時間：';
                         if(rowVisitorValueAddedServiceStatusHideOnline==1 && rowIsHideOnline==1){
@@ -1451,12 +1494,7 @@ header("Expires: Fri, 01 Jan 1990 00:00:00 GMT");
                     }else{
                         this.csrData = '<div class="fengsicon search"><img src="/new/images/loupe.png" class="feng_img"><span>沒有資料</span></div>';
                     }
-                    function remarkHandle() {
-                        $('.nnn_one').each(function(){
-                            let i = $(this);
-                            i.find('.ss_xixn').css({'bottom':(i.find('.nt_bot').height()-35)+'px'})
-                        })
-                    }
+                    
                     $(document).ready(function(){
                         $('[data-toggle="popover"]').popover({
                             animated: 'fade',
@@ -1465,18 +1503,49 @@ header("Expires: Fri, 01 Jan 1990 00:00:00 GMT");
                             html: true,
                             content: function () { return '<h4>' + $(this).data('content') + '</h4>'; }
                         });
-                        remarkHandle()
+                        remarkHandle();
                         
                     });
                     $(window).resize(function(){
                         remarkHandle()
                     });
+                    setTimeout("remarkHandle()",10);
                 })
             .catch(function (error) { // 请求失败处理
                 console.log(error);
             });
         }
         });
+
+        function remarkHandle() {
+            $('.nnn_one').each(function(){
+                let i = $(this);
+                let width = i.width();
+                let font_width = i.find('h2 font').width();
+                let online_width = 0;
+                let online = i.find('.onlineStatusSearch');
+                if(online.length > 0) {
+                    online_width = online.width() + 10;
+                }
+                i.find('.ss_xixn').css({
+                    'bottom':(i.find('.nt_bot').height()-5)+'px',
+                    'left': (font_width + online_width + 25) +'px',
+                    'width': (width - font_width - online_width - 40) +'px',
+                });
+                i.find('.ss_xixn .ss_xixn_input').css({
+                    'width': (width - font_width - online_width - 90) +'px',
+                })
+                let info_width = i.find('.u_info').width();
+                let profession_width = i.find('.u_profession').width();
+                let area_width = i.find('.u_area').width();
+                let new_width  = (width - info_width - profession_width - 28);
+                if(area_width > new_width) {
+                    i.find('.u_area').css({
+                        'width': new_width +'px',
+                    })
+                }
+            })
+        }
 
         function varCheck(variable){
             return (typeof variable !== 'undefined' && typeof variable !== undefined && typeof variable !== 'null' && typeof variable !== null && variable!==undefined && variable !=='undefined' && variable !== null && variable !=='null');
