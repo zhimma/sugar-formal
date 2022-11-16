@@ -1743,7 +1743,7 @@
     <a id="ip30days" href="/admin/users/ip/不指定/?type=detail&period=30days" target="_blank" class="btn btn-warning">30天</a>
     <div id="loading_data" class="btn btn-dark">loading全部登入紀錄</div>
 </div>
-<table class="table table-hover table-bordered">
+<table id="table_userLogin_log" class="table table-hover table-bordered">
     @foreach($userLogin_log as $logInLog)
         <tr>
             <td>
