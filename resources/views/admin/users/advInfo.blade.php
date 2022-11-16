@@ -1838,7 +1838,7 @@
                                 <td><a href="{{ route('getIpUsers', [$item->ip]) }}" target="_blank">{{$item->ip}}</a></td>
                                 <td>{{ $device }}</td>
                                 <td>{{ str_replace("Mozilla/5.0","", $item->userAgent) }}</td>
-                                <td>{{$item->cfp_id}}</td>{--$CfpID_link_array[$item->cfp_id]--}
+                                {!!$CfpID_link_array[$item->cfp_id]!!}
                                 <td>{{$item->country}}</td>
                             </tr>
                         @endforeach
@@ -1878,7 +1878,7 @@
                                 <td><a href="{{ route('getIpUsers', [$item->ip]) }}" target="_blank">{{$item->ip}}</a></td>
                                 <td>{{ $device }}</td>
                                 <td>{{ str_replace("Mozilla/5.0","", $item->userAgent) }}</td>
-                                <td>{{$item->cfp_id}}</td>
+                                {!!$CfpID_link_array[$item->cfp_id]!!}
                                 <td>{{$item->country}}</td>
                             </tr>
                         @endforeach
@@ -1919,7 +1919,7 @@
                                 <td><a href="{{ route('getIpUsers', [$item->ip]) }}" target="_blank">{{$item->ip}}</a></td>
                                 <td>{{ $device }}</td>
                                 <td>{{ str_replace("Mozilla/5.0","", $item->userAgent) }}</td>
-                                <td>{{$item->cfp_id}}</td>
+                                {!!$CfpID_link_array[$item->cfp_id]!!}
                                 <td>{{$item->country}}</td>
                             </tr>
                         @endforeach
