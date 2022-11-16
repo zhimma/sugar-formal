@@ -21,9 +21,13 @@ class CanMessageSeeder extends Seeder
      */
     public function run()
     {
-        $to_users = User::where('engroup', 2)->inRandomOrder()->take(10)->get();
-        $from_user_id_array = [15598,15601];
-        foreach($from_user_id_array as $from_user_id)
+        $to_users = User::where('engroup', 2)
+                            ->where(function ($query) {
+                                $query->where('email', 'like', '%@test%')
+                                    ->orWhere('email', 'like', '%sandyh.dlc%');
+                            })->inRandomOrder()->take(10)->get();
+        $from_user_id_array = [15598, 15601, 185840, 185841, 185842, 185843, 185844, 185845];
+        foreach ($from_user_id_array as $from_user_id)
         {
             foreach($to_users as $to_user)
             {
@@ -50,12 +54,14 @@ class CanMessageSeeder extends Seeder
                         'user_id' => $to_user->id
                     ]);
                 }
-                Message::create([
+                $model = Message::create([
                     'room_id' => $room_id,
                     'to_id' => $to_user->id,
                     'from_id' => $from_user_id,
                     'content' => '哈囉你好嗎?'
                 ]);
+                
+                \DB::update('update message set created_at = created_at - INTERVAL FLOOR(RAND() * 60) SECOND where id = ?', [$model->id]);
             }
         }
     }

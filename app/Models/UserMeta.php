@@ -1012,7 +1012,7 @@ class UserMeta extends Model
             'created_at', 'vip_record', 'noticeRead', 'isReadManual', 'isReadIntro',
             'is_read_female_manual_part1', 'is_read_female_manual_part2',
             'is_read_female_manual_part3', 'notice_has_new_evaluation', 'login_times',
-            'intro_login_times', 'is_hide_online', 'hide_online_time', 'hide_online_hide_time',
+            'intro_login_times', 'hide_online_time', 'hide_online_hide_time',
             'line_notify_auth_code', 'line_notify_token', 'line_notify_switch',
             'line_notify_alert', 'can_message_alert', 'show_can_message',
             'is_admin_chat_channel_open', 'advance_auth_status', 'advance_auth_time',

@@ -56,10 +56,6 @@ class CheckECpay implements ShouldQueue
             $envStr = '';
         }
 
-
-
-
-
         //先檢查訂單
         if($this->vipData->business_id == Config::get('ecpay.payment'.$envStr.'.MerchantID') && substr($this->vipData->order_id,0,2) == 'SG') {
 
@@ -149,18 +145,48 @@ class CheckECpay implements ShouldQueue
                 if($this->vipData->payment_method=='BARCODE' || $this->vipData->payment_method=='CVS' || $this->vipData->payment_method=='ATM') {
                     $preOrderCheck = PaymentGetQrcodeLog::where('order_id', $this->vipData->order_id)->first();
                     if($preOrderCheck) {
-                         if($this->userIsVip && $now->gt($preOrderCheck->ExpireDate)) {
-                             //有賦予VIP者再檢查
-                             //未完成交易時檢查
-                             //超過期限未完成交易
-                             //取消VIP
-                             $vipData = $user->getVipData(true);
-                             if($vipData){
-                                 $vipData->removeVIP();
-                             }
-                             \App\Models\VipLog::addToLog($user->id, 'order_id: '.$this->vipData->order_id.'; 期限內('.$preOrderCheck->ExpireDate.')未完成付款：' . $this->vipData->payment_method, '自動取消', 0, 0);
-                         }
-                     }
+                        $originExpireDate = $preOrderCheck->ExpireDate;
+                        try {
+                            $newExpireDate = Carbon::parse($originExpireDate)->addDays(2);
+                        }
+                        catch (\Exception $exception) {
+                            \Sentry\captureException($exception);
+                            \Sentry\captureMessage($originExpireDate);
+                        }
+                        if($this->userIsVip && $now->gt($newExpireDate)) {
+                            $checkOrder = false;
+                            //反查一次確認付款狀態
+                            if (!(EnvironmentService::isLocalOrTestMachine())) {
+                                try {
+                                    //從ecPay
+                                    $checkOrder = Order::addEcPayOrder($this->vipData->order_id);
+                                    if (!$checkOrder) {
+                                        //從funPoint
+                                        $checkOrder = Order::addFunPointPayOrder($this->vipData->order_id);
+                                    }
+                                    //重新抓訂單
+                                    if ($checkOrder) {
+                                        $OrderDataCheck = Order::where('order_id', $this->vipData->order_id)->first();
+                                    }
+                                }
+                                catch (\Exception $exception) {
+                                    Log::info("VIP id: " . $this->vipData->id . "；order_id: " . $this->vipData->order_id . "：未完成付款");
+                                    Log::error($exception);
+                                }
+                            }
+                            //有賦予VIP者再檢查
+                            //未完成交易時檢查
+                            //超過期限未完成交易
+                            //取消VIP
+                            if(!$checkOrder) {
+                                $vipData = $user->getVipData(true);
+                                if ($vipData) {
+                                    $vipData->removeVIP();
+                                }
+                                \App\Models\VipLog::addToLog($user->id, 'order_id: ' . $this->vipData->order_id . '; 期限內(' . $preOrderCheck->ExpireDate . ')未完成付款：' . $this->vipData->payment_method, '自動取消', 0, 0);
+                            }
+                        }
+                    }
                 }
                 //其他付款方式 無訂單時
                 else {
@@ -185,30 +211,39 @@ class CheckECpay implements ShouldQueue
                 }
             }
 
-            //依到期日與否進行檢查
+            //依到期日與否進行檢查 OrderDataCheck
             if($OrderDataCheck){
                 //有到期日
                 if($OrderDataCheck->order_expire_date != ''){
                     $vipData = $user->getVipData(true);
+
+                    //正常訂單檢查到期日
+                    //20天內差異者不異動
+                    if(Carbon::parse($OrderDataCheck->order_expire_date) !=  Carbon::parse($this->vipData->expiry) && Carbon::parse($OrderDataCheck->order_expire_date)->diffInDays(Carbon::parse($this->vipData->expiry))>20) {
+                        \App\Models\Vip::select('member_id', 'active')
+                            ->where('member_id', $this->vipData->member_id)
+                            ->update(array('expiry' => $OrderDataCheck->order_expire_date));
+                        \App\Models\VipLog::addToLog($user->id, 'order_id: ' . $this->vipData->order_id . '; VIP訂單檢查：' . $OrderDataCheck->payment_type, '到期日自動調整', 0, 0);
+                    }
                     //VIP檢查過期
-                    if( $this->userIsVip && $now->gt($OrderData->order_expire_date) && $now->gt($this->vipData->expiry) ){
+                    if( $this->userIsVip && $now->gt($OrderDataCheck->order_expire_date) && $now->gt($this->vipData->expiry) ){
                         //取消VIP 防呆處理
                         if($vipData){
                             $vipData->removeVIP();
-                            \App\Models\VipLog::addToLog($user->id, 'Background auto cancel, order expire date: ' . $OrderData->order_expire_date, '自動取消', 0, 0);
+                            \App\Models\VipLog::addToLog($user->id, 'Background auto cancel, order expire date: ' . $OrderDataCheck->order_expire_date, '自動取消', 0, 0);
                         }
 
                     }
                     //非VIP檢查尚未過期
-                    elseif(!$this->userIsVip && Carbon::parse($OrderData->order_expire_date)->gte($now) ){
+                    elseif(!$this->userIsVip && Carbon::parse($OrderDataCheck->order_expire_date)->gte($now) ){
                         Log::info('VIP 回復');
-                        $expiryDate = $OrderData->order_expire_date;
-                        if(Carbon::parse($this->vipData->expiry)->gt($OrderData->order_expire_date)){
+                        $expiryDate = $OrderDataCheck->order_expire_date;
+                        if(Carbon::parse($this->vipData->expiry)->gt($OrderDataCheck->order_expire_date)){
                             $expiryDate = $this->vipData->expiry;
                         }
                         \App\Models\Vip::where('member_id', $this->vipData->member_id)
                             ->update(array('active' => 1, 'expiry' => $expiryDate));
-                        \App\Models\VipLog::addToLog($user->id, 'Background auto upgrade, order expire date: ' . $OrderData->order_expire_date, '尚未到期，自動回復', 0, 0);
+                        \App\Models\VipLog::addToLog($user->id, 'Background auto upgrade, order expire date: ' . $OrderDataCheck->order_expire_date, '尚未到期，自動回復', 0, 0);
                     }
                 }
                 //訂單尚未到期
