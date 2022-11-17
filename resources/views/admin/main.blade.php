@@ -61,18 +61,6 @@
         font-size:20px;
     }
 </style>
-<script>
-    function log_video_chat_process(log_arr)
-    {
-        log_arr['url'] = location.href;
-
-        fetch('/video/log_video_chat_process', {
-              method: 'POST',
-              headers: {'Content-Type': 'application/json'},
-              body: JSON.stringify(log_arr)
-              });              
-    }
-</script>
 <body>
     @include('admin.panel')
     <div class="navbar">

@@ -11,9 +11,37 @@
                       method: 'POST',
                       headers: {'Content-Type': 'application/json'},
                       body: JSON.stringify(log_arr)
-                      });
-                     
+                      });       
             }
+            
+            function video_beforeunload_act()
+            {
+                console.log('start video_beforeunload_act');
+                axios
+                  .post("/video/unloading-video-page", {})
+                  .then(() => {
+                    var log_arr = {
+                        from_file:'VideoVerifyUser.vue'
+                        ,title:'then in unloading-video-page axios@VideoVerifyUser.vue'
+                        ,method:'then@unloading-video-page axios at begining in script'
+                        ,step:'within'
+                    };
+                    log_video_chat_process(log_arr);      
+                  })
+                  .catch((error) => {
+                    var log_arr = {
+                        from_file:'VideoVerifyUser.vue'
+                        ,title:'catch in unloading-video-page axios@VideoVerifyUser.vue'
+                        ,method:'catch@unloading-video-page axios'
+                        ,step:'within'
+                        ,data:{error:error}
+                    };
+                    log_video_chat_process(log_arr);    
+
+                    $("#error_message").text('loading-video-page axios error:' + error);
+                  });     
+            }            
+            
         </script>
         <style>
             #entire_site_video_app > div > .container {

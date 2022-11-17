@@ -128,6 +128,12 @@
     </div>
     <div class="mask_bg" id="break_by_partner_as_even_not_start_msg_block">
         <div class="loading"><span class="loading_text">失敗！！！<br><br>會員已自行結束通話<br>無法接通視訊<br><br>3秒後將自動重新整理頁面</span></div>
+    </div>  
+    <div class="mask_bg" id="decline_by_partner__msg_block">
+        <div class="loading"><span class="loading_text">失敗！！！<br><br>會員拒絕接受通話<br>無法接通視訊<br><br>3秒後將自動重新整理頁面</span></div>
+    </div> 
+    <div class="mask_bg" id="partner_leave_page_msg_block">
+        <div class="loading"><span class="loading_text">失敗！！！<br><br>會員已離開或重新整理視訊頁面<br>無法接通視訊<br><br>3秒後將自動重新整理頁面</span></div>
     </div>    
     <div class="mask_bg" id="video_error_msg_block">
         <div class="loading"><span class="loading_text"></span></div>
@@ -135,9 +141,53 @@
   </div>
 </template>
 <script>
+
+    function log_video_chat_process(log_arr)
+    {
+        log_arr['url'] = location.href;
+
+        fetch('/video/log_video_chat_process', {
+              method: 'POST',
+              headers: {'Content-Type': 'application/json'},
+              body: JSON.stringify(log_arr)
+              });              
+    }
+    
+
 import Peer from "simple-peer";
 //import { getPermissions } from "../helpers";
 import LZString from "../lz-string.js";
+
+axios
+  .post("/video/loading-video-page", {})
+  .then(() => {
+    var log_arr = {
+        from_file:'VideoChat.vue'
+        ,title:'then in loading-video-page axios at begining in script@VideoChat.vue'
+        ,method:'then@loading-video-page axios at begining in script'
+        ,step:'within'
+    };
+    log_video_chat_process(log_arr);      
+  })
+  .catch((error) => {
+    var log_arr = {
+        from_file:'VideoChat.vue'
+        ,title:'catch in loading-video-page axios  at begining in script@VideoChat.vue'
+        ,method:'catch@loading-video-page axios  at begining in script'
+        ,step:'within'
+        ,data:{error:error}
+    };
+    log_video_chat_process(log_arr);    
+
+    $("#error_message").text('loading-video-page axios error:' + error);
+  }); 
+
+    $(document).ready(function(){
+        var old_beforeunload = $('body').attr('onbeforeunload');
+        if(old_beforeunload==undefined) old_beforeunload = '';
+        $('body').attr('onbeforeunload','video_beforeunload_act();');
+    }); 
+  
 
 export default {
   props: [
@@ -470,8 +520,7 @@ export default {
         log_video_chat_process(log_arr)
         
         this.videoCallParams.users.splice(leavingUserIndex, 1);
-        if(this.callPlaced==true) this.callPlaced=false;
-        if(this.videoCallParams.receivingCall==true) this.videoCallParams.receivingCall=false;
+
         log_arr.act_step = 'after';
         log_arr.step = 'end';
         log_video_chat_process(log_arr)
@@ -585,6 +634,31 @@ export default {
             
             }
         } 
+        else if(this.isPeerError!=true && ( data.type ==='loadingVideoPage' || data.type ==='unloadingVideoPage' )) {
+            if(data.from==this.videoCallParams.dialingTo  ||  data.from==this.videoCallParams.caller) {
+                if(this.videoCallParams.callAccepted==true) {
+                    this.endCall();
+                }
+                else if(this.callPlaced==true || this.videoCallParams.receivingCall==true) {
+                    $('.mask_bg').hide();
+                    $('#partner_leave_page_msg_block').show();
+                    setTimeout(() => {
+                        this.callPlaced = false;
+                        this.videoCallParams.receivingCall=false;
+                        if(this.user_permission == 'admin')
+                        {
+                            window.sessionStorage.setItem('endcall_reload',true);
+                        }                
+
+                        log_arr.step = 'end';
+                        log_arr.act = 'location.reload();';
+                        log_arr.act_step = 'before';
+                        log_video_chat_process(log_arr);
+                        location.reload();
+                    }, 3000);                     
+                }
+            }
+        }
       });
         
         initializeCallListeners_log_arr.step='end';
@@ -859,11 +933,12 @@ export default {
         console.log('peer1 error');
         console.log(err);
         $("#error_message").text('peer1 error : ' + err);
-      
+        if(this.callPlaced==true) this.callPlaced=false;
+        if(this.videoCallParams.receivingCall==true) this.videoCallParams.receivingCall=false;      
         
         this.isPeerError = true;
         if(this.isNormalStop!=true) {
-            if(err.toString().indexOf('OperationError')>=0 && err.toString().indexOf('Transport')>=0 && err.toString().indexOf('channel')>=0 && err.toString().indexOf('closed')>=0) {
+            if(err.toString().indexOf('OperationError')>=0 && err.toString().indexOf('Transport')>=0 && err.toString().indexOf('channel')>=0 && err.toString().indexOf('closed')>=0 ||  err.code=='ERR_DATA_CHANNEL') {
                 $('.mask_bg').hide();
                 $('#break_by_partner_before_connect_msg_block').show();
                 return;
@@ -874,7 +949,10 @@ export default {
             if(this.mediaRecorder==null || !this.isUploading['partner']) {
               setTimeout(() => {
                 this.callPlaced = false;
-                
+                if(this.user_permission == 'admin')
+                {
+                    window.sessionStorage.setItem('endcall_reload',true);
+                }                  
                 log_arr.step = 'end';
                 log_arr.act = 'location.reload();';
                 log_arr.act_step = 'before';
@@ -897,6 +975,19 @@ export default {
         };
         log_video_chat_process(log_arr);          
         console.log("call closed caller");
+        console.log('this.isNormalStop=');
+        console.log(this.isNormalStop);
+        console.log('this.callPlaced=');
+        console.log(this.callPlaced);
+        console.log('this.videoCallParams.callAccepted=');
+        console.log(this.videoCallParams.callAccepted);         
+        if(this.isNormalStop!=true && this.callPlaced==true && this.isPeerError!=true && this.videoCallParams.callAccepted==true) {
+            this.endCall();
+        }
+        else {
+            if(this.callPlaced==true) this.callPlaced=false;
+            if(this.videoCallParams.receivingCall==true) this.videoCallParams.receivingCall=false;      
+        }
       });
 
       this.videoCallParams.channel.listen("StartVideoChat", ({ data }) => {
@@ -957,7 +1048,25 @@ export default {
             this.videoCallParams.peer1.signal(updatedSignal);
           }
         }
-      
+        else if(data.type === 'declineCall' &&  data.to== this.authuserid) {
+            $("#decline_by_partner__msg_block").show();
+
+            setTimeout(() => {
+                this.callPlaced = false;
+                
+                if(this.user_permission == 'admin')
+                {
+                    window.sessionStorage.setItem('endcall_reload',true);
+                }                
+
+                log_arr.step = 'end';
+                log_arr.act = 'location.reload();';
+                log_arr.act_step = 'before';
+                log_video_chat_process(log_arr);
+                location.reload();
+            }, 3000);             
+        } 
+        
         log_arr.step = 'end';
         log_arr.topic_step='after'
         log_video_chat_process(log_arr);          
@@ -1260,10 +1369,11 @@ export default {
         console.log('peer2 error');
         console.log(err);
         $("#error_message").text('peer2 error : ' + err);
-        
+        if(this.callPlaced==true) this.callPlaced=false;
+        if(this.videoCallParams.receivingCall==true) this.videoCallParams.receivingCall=false;        
         this.isPeerError = true;
         if(this.isNormalStop!=true) {
-            if(err.toString().indexOf('OperationError')>=0 && err.toString().indexOf('Transport')>=0 && err.toString().indexOf('channel')>=0 && err.toString().indexOf('closed')>=0) {
+            if(err.toString().indexOf('OperationError')>=0 && err.toString().indexOf('Transport')>=0 && err.toString().indexOf('channel')>=0 && err.toString().indexOf('closed')>=0  ||  err.code=='ERR_DATA_CHANNEL') {
                 $('.mask_bg').hide();
                 $('#break_by_partner_before_connect_msg_block').show();
                 return;
@@ -1301,6 +1411,19 @@ export default {
         log_video_chat_process(log_arr);          
         
         console.log("call closed accepter");
+        console.log('this.isNormalStop=');
+        console.log(this.isNormalStop);
+        console.log('this.callPlaced=');
+        console.log(this.callPlaced);
+        console.log('this.videoCallParams.callAccepted=');
+        console.log(this.videoCallParams.callAccepted);        
+        if(this.isNormalStop!=true && this.callPlaced==true && this.isPeerError!=true && this.videoCallParams.callAccepted==true) {
+            this.endCall();
+        }
+        else {      
+            if(this.callPlaced==true) this.callPlaced=false;
+            if(this.videoCallParams.receivingCall==true) this.videoCallParams.receivingCall=false;      
+        }
       });
 
         ac_log_arr.act = 'this.videoCallParams.peer2.signal(this.videoCallParams.callerSignal);';
@@ -1526,9 +1649,24 @@ export default {
         };
       log_video_chat_process(ssv_log_arr);
       
-      const stream = videoElem.srcObject;
-      const tracks = stream.getTracks();
-      this.isNormalStop = true;
+      
+      
+        if(typeof videoElem!='undefined' && videoElem!=null) {
+            const stream = videoElem.srcObject;
+            if(typeof stream!='undefined' && stream!=null) {
+                const tracks = stream.getTracks();
+            }
+        }
+        this.isNormalStop = true;
+        
+        if(typeof stream=='undefined' || typeof tracks=='undefined' || stream==null || tracks==null) { 
+
+            return;
+        }
+              
+      
+      
+      
       tracks.forEach((track) => {
         track.stop();
       });
