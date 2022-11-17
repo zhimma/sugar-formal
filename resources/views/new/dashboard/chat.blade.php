@@ -1549,9 +1549,6 @@ is_truth_icon_pic.src="{{asset('/new/images/zz_zt2.png')}}";
                                 }
 
                                 @if($user->engroup==1)
-                                    if (userGender==1 && e.user_id == 1049){
-                                        $('.sjlist_exchange_period_1').append(li).find('.row_data').addClass('date30 exchange_period_member_1 common30');
-                                    }
                                     @foreach($exchange_period_name as $row)
                                         if (userGender==1 && e.exchange_period=='{{$row->id}}' && e.user_id != 1049 && e.isWarned == 0 && e.isBanned==0){
                                             $('.sjlist_exchange_period_{{$row->id}}').append(li).find('.row_data').addClass('date30 exchange_period_member_{{$row->id}} common30');
