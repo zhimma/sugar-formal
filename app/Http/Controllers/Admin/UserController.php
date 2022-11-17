@@ -7566,4 +7566,8 @@ class UserController extends \App\Http\Controllers\BaseController
         ], 201);
     }
 
+    public function wait_for_more_data_list(Request $request)
+    {
+        return view('admin.users.wait_for_more_data_list');
+    }
 }
