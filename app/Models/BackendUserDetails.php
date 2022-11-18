@@ -4,7 +4,6 @@ namespace App\Models;
 
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
-use App\Models\AdminActionLog;
 
 class BackendUserDetails extends Model
 {
@@ -37,5 +36,15 @@ class BackendUserDetails extends Model
         $log->save();
 
         return $backend_user_detail;
+    }
+
+    public function check_extend_admin_action_log()
+    {
+        return $this->hasMany(AdminActionLog::class, 'target_id', 'user_id')->where('act','會員檢查等待更多資料')->orderByDesc('created_at');
+    }
+
+    public function user()
+    {
+        return $this->hasOne(User::class, 'id', 'user_id');
     }
 }

@@ -7570,6 +7570,12 @@ class UserController extends \App\Http\Controllers\BaseController
 
     public function wait_for_more_data_list(Request $request)
     {
-        return view('admin.users.wait_for_more_data_list');
+        $check_extend_list = BackendUserDetails::with('user')
+                                                ->with('check_extend_admin_action_log')
+                                                ->where('user_check_step2_wait_login_times', '>', 0)
+                                                ->get();
+        return view('admin.users.wait_for_more_data_list')
+                ->with('check_extend_list', $check_extend_list)
+                ;
     }
 }
