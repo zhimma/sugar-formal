@@ -1746,7 +1746,7 @@
 <table id="table_userLogin_log" class="table table-hover table-bordered">
     @foreach($userLogin_log as $logInLog)
         <tr>
-            <td style="vertical-align: middle;text-align: center;">
+            <td>
                 <span class="loginItem showRecord" id="showloginTime{{substr($logInLog->loginDate,0,7)}}" data-sectionName="loginTime{{substr($logInLog->loginDate,0,7)}}" data-ip="不指定">{{ substr($logInLog->loginDate,0,7) . ' ['. $logInLog->dataCount .']' }}</span>
                 <table>
                     @php
@@ -1771,6 +1771,8 @@
                             @endif
                             
                         @endforeach
+                    @endif
+                    @if($CFP_count>0 && $IP_count>0)
                         <th style="min-width: 100px"></th>
                     @endif
                     @if($IP_count>0)
