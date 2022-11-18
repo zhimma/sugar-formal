@@ -7527,7 +7527,9 @@ class UserController extends \App\Http\Controllers\BaseController
     public function check_extend(Request $request)
     {
         $uid = $request->user_id;
-        BackendUserDetails::check_extend($uid, 2);
+        $operator_id = Auth::user()->id;
+        $ip = $request->ip();
+        BackendUserDetails::check_extend($uid, 2, $operator_id, $ip);
         $msg_type    = 'message';
         $msg_content = '已延長等待更多資料';
         return back()->with($msg_type, $msg_content);
