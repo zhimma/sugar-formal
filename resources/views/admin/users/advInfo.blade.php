@@ -276,9 +276,9 @@
             $check_extend_log = \App\Models\AdminActionLog::where('target_id', $user->id)->where('act', '會員檢查等待更多資料')->orderByDesc('created_at')->first();
         @endphp
         @if($check_extend_log ?? false)
-            <button class="btn btn-secondary" disabled>{{$check_extend_log->created_at}}</button>
+            <button class="btn btn-dark" disabled>{{$check_extend_log->created_at}}</button>
         @else
-            <button class="btn btn-secondary" disabled>等待更多資料</button>
+            <button class="btn btn-dark" disabled>等待更多資料</button>
         @endif
     @endif
 
