@@ -1475,7 +1475,10 @@ header("Expires: Fri, 01 Jan 1990 00:00:00 GMT");
                         if(rowVisitorValueAddedServiceStatusHideOnline==1 && rowIsHideOnline==1){
                             if(rowHideOnlineTime) {
                                 csrData += rowHideOnlineTime.substr(0, 11);
-                            }                            
+                            }  
+                            else{
+                                csrData += rowLastLogin.substr(0, 11);
+                            }                          
                         }else{
                             csrData += rowLastLogin.substr(0, 11);
                         }
