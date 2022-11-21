@@ -444,7 +444,7 @@ class UserController extends \App\Http\Controllers\BaseController
             foreach ($request->ip as $value) {
                 if (!empty($value)) {
                     if (SetAutoBan::where([['type', 'ip'], ['content', $value], ['set_ban', '1']])->first() == null) {
-                        SetAutoBan::insert(['type' => 'ip', 'content' => $value, 'set_ban' => '1', 'cuz_user_set' => $request->user_id, 'expiry' => $now_time->addMonths(1)->format('Y-m-d H:i:s'), 'created_at' => $now_time, 'updated_at' => $now_time]);
+                        SetAutoBan::insert(['type' => 'ip', 'content' => $value, 'set_ban' => '1', 'cuz_user_set' => $request->user_id, 'expiry' => $now_time->copy()->addMonths(1)->format('Y-m-d H:i:s'), 'created_at' => $now_time, 'updated_at' => $now_time]);
                     }
                 }
             }
@@ -522,7 +522,7 @@ class UserController extends \App\Http\Controllers\BaseController
             $userBanned->vip_pass = $request->vip_pass;
             $userBanned->adv_auth = $request->adv_auth;
             if ($request->days != 'X') {
-                $userBanned->expire_date = $now_time->addDays($request->days);
+                $userBanned->expire_date = $now_time->copy()->addDays($request->days);
             }
             if (!empty($request->msg)) {
                 $userBanned->reason = $request->msg;
@@ -626,7 +626,7 @@ class UserController extends \App\Http\Controllers\BaseController
         $userWarned->vip_pass = $request->vip_pass;
         $userWarned->adv_auth = $request->adv_auth;
         if ($request->days != 'X') {
-            $userWarned->expire_date = $now_time->addDays($request->days);
+            $userWarned->expire_date = $now_time->copy()->addDays($request->days);
         }
         $userWarned->reason = $request->reason;
 
@@ -636,7 +636,7 @@ class UserController extends \App\Http\Controllers\BaseController
         $userWarned->save();
         BadUserCommon::addRemindMsgFromBadId($request->user_id);
         //寫入log
-        DB::table('is_warned_log')->insert(['user_id' => $request->user_id, 'reason' => $request->reason, 'vip_pass' => $request->vip_pass, 'adv_auth' => $request->adv_auth, 'created_at' => $now_time, 'expire_date' => $now_time->addDays($request->days)]);
+        DB::table('is_warned_log')->insert(['user_id' => $request->user_id, 'reason' => $request->reason, 'vip_pass' => $request->vip_pass, 'adv_auth' => $request->adv_auth, 'created_at' => $now_time, 'expire_date' => $now_time->copy()->addDays($request->days)]);
         //新增Admin操作log
         $this->insertAdminActionLog($request->user_id, '站方警示');
 
