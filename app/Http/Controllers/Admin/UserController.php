@@ -7574,6 +7574,7 @@ class UserController extends \App\Http\Controllers\BaseController
                                                 ->with('check_extend_admin_action_log')
                                                 ->where('user_check_step2_wait_login_times', '>', 0)
                                                 ->get();
+        //按照relationship排序
         $check_extend_list =  $check_extend_list->sortByDesc(function($query){
                                                     return $query->check_extend_admin_action_log->first()->created_at ?? false;
                                                  })
