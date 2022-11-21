@@ -7574,6 +7574,10 @@ class UserController extends \App\Http\Controllers\BaseController
                                                 ->with('check_extend_admin_action_log')
                                                 ->where('user_check_step2_wait_login_times', '>', 0)
                                                 ->get();
+        $check_extend_list =  $check_extend_list->sortByDesc(function($query){
+                                                    return $query->check_extend_admin_action_log->first()->created_at ?? false;
+                                                 })
+                                                 ->all();
         return view('admin.users.wait_for_more_data_list')
                 ->with('check_extend_list', $check_extend_list)
                 ;

@@ -59,6 +59,7 @@ class Step2CheckExtendRecheck extends Command
         {
             //如果最後登入時間早於等待檢查開始的時間則跳過
             $check_start_time = $check->check_extend_admin_action_log->first() ? $check->check_extend_admin_action_log->first()->created_at : false;
+            /*
             if($check_start_time)
             {
                 if($check_start_time > $check->user->last_login)
@@ -66,6 +67,7 @@ class Step2CheckExtendRecheck extends Command
                     continue;
                 }
             }
+            */
             $user_list[$check->user->id]['check_data'] = $check;
             $user_list[$check->user->id]['check_start_time'] = $check_start_time;
         }
