@@ -582,6 +582,7 @@ class UserController extends \App\Http\Controllers\BaseController
 
     public function toggleUserWarned(Request $request)
     {
+        $now_time = Carbon::now();
         ini_set('max_execution_time', -1);
         $userWarned = warned_users::where('member_id', $request->user_id)
             ->orderBy('created_at', 'desc')
@@ -602,9 +603,9 @@ class UserController extends \App\Http\Controllers\BaseController
 
                         //如果選項不是永久時新增天數
                         if ($request->days != 'X') {
-                            SetAutoBan::insert(['type' => 'allcheck', 'content' => $value, 'set_ban' => '3', 'cuz_user_set' => $request->user_id, 'expired_days' => $request->days, 'created_at' => now(), 'updated_at' => now()]);
+                            SetAutoBan::insert(['type' => 'allcheck', 'content' => $value, 'set_ban' => '3', 'cuz_user_set' => $request->user_id, 'expired_days' => $request->days, 'created_at' => $now_time, 'updated_at' => $now_time]);
                         } else {
-                            SetAutoBan::insert(['type' => 'allcheck', 'content' => $value, 'set_ban' => '3', 'cuz_user_set' => $request->user_id, 'created_at' => now(), 'updated_at' => now()]);
+                            SetAutoBan::insert(['type' => 'allcheck', 'content' => $value, 'set_ban' => '3', 'cuz_user_set' => $request->user_id, 'created_at' => $now_time, 'updated_at' => $now_time]);
                         }
                     }
                 }
@@ -637,7 +638,7 @@ class UserController extends \App\Http\Controllers\BaseController
         $userWarned->vip_pass = $request->vip_pass;
         $userWarned->adv_auth = $request->adv_auth;
         if ($request->days != 'X') {
-            $userWarned->expire_date = Carbon::now()->addDays($request->days);
+            $userWarned->expire_date = $now_time->addDays($request->days);
         }
         $userWarned->reason = $request->reason;
 
@@ -647,7 +648,7 @@ class UserController extends \App\Http\Controllers\BaseController
         $userWarned->save();
         BadUserCommon::addRemindMsgFromBadId($request->user_id);
         //寫入log
-        DB::table('is_warned_log')->insert(['user_id' => $request->user_id, 'reason' => $request->reason, 'vip_pass' => $request->vip_pass, 'adv_auth' => $request->adv_auth, 'created_at' => Carbon::now()]);
+        DB::table('is_warned_log')->insert(['user_id' => $request->user_id, 'reason' => $request->reason, 'vip_pass' => $request->vip_pass, 'adv_auth' => $request->adv_auth, 'created_at' => $now_time]);
         //新增Admin操作log
         $this->insertAdminActionLog($request->user_id, '站方警示');
 
