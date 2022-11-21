@@ -71,11 +71,13 @@ class Step2CheckExtendRecheck extends Command
             $user_list[$check->user->id]['check_data'] = $check;
             $user_list[$check->user->id]['check_start_time'] = $check_start_time;
         }
-        $message = Message::select('from_id','created_at')->whereIn('from_id', array_keys($user_list))->get();
+        $message = Message::select('from_id','to_id','created_at')->whereIn('from_id', array_keys($user_list))->get();
         
         foreach($user_list as $user_id => $check_data)
         {
-            $user_message_count = $message->where('from_id', $user_id)->where('created_at', '>', $check_data['check_start_time'])->count();
+            $user_message_count = $message->where('from_id', $user_id)->where('created_at', '>', $check_data['check_start_time'])->unique('to_id')->count();
+            Log::Info($user_id);
+            Log::Info($user_message_count);
             if($user_message_count > 5)
             {
                 SuspiciousUser::where('user_id', $user_id)->delete();
