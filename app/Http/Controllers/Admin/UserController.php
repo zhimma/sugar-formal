@@ -616,23 +616,10 @@ class UserController extends \App\Http\Controllers\BaseController
             $checkLog = DB::table('is_warned_log')->where('user_id', $userWarned->member_id)->where('created_at', $userWarned->created_at)->get()->first();
             if (!$checkLog) {
                 //寫入log
-                DB::table('is_warned_log')->insert(['user_id' => $userWarned->member_id, 'reason' => $userWarned->reason, 'created_at' => $userWarned->created_at, 'vip_pass' => $userWarned->vip_pass, 'adv_auth' => $userWarned->adv_auth]);
+                DB::table('is_warned_log')->insert(['user_id' => $userWarned->member_id, 'reason' => $userWarned->reason, 'expire_date' => $userWarned->expire_date, 'created_at' => $userWarned->created_at, 'vip_pass' => $userWarned->vip_pass, 'adv_auth' => $userWarned->adv_auth]);
             }
             $userWarned->delete();
         }
-        //            if(isset($request->page)){
-        //                switch($request->page){
-        //                    case 'advInfo':
-        //                        return redirect('admin/users/advInfo/'.$request->user_id);
-        //                    default:
-        //                        return redirect($request->page);
-        //                        break;
-        //                }
-        //            }else{
-        //                return back()->with('message', '已解除站方警示');
-        //            }
-        //        }
-        //        else{
         $userWarned = new warned_users;
         $userWarned->member_id = $request->user_id;
         $userWarned->vip_pass = $request->vip_pass;
@@ -648,7 +635,7 @@ class UserController extends \App\Http\Controllers\BaseController
         $userWarned->save();
         BadUserCommon::addRemindMsgFromBadId($request->user_id);
         //寫入log
-        DB::table('is_warned_log')->insert(['user_id' => $request->user_id, 'reason' => $request->reason, 'vip_pass' => $request->vip_pass, 'adv_auth' => $request->adv_auth, 'created_at' => $now_time]);
+        DB::table('is_warned_log')->insert(['user_id' => $request->user_id, 'reason' => $request->reason, 'vip_pass' => $request->vip_pass, 'adv_auth' => $request->adv_auth, 'created_at' => $now_time, 'expire_date' => $now_time->addDays($request->days)]);
         //新增Admin操作log
         $this->insertAdminActionLog($request->user_id, '站方警示');
 
