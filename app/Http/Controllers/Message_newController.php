@@ -734,6 +734,7 @@ class Message_newController extends BaseController {
                     }
                     $data = array_values($data);
                 }
+                /*
                 if($inbox_refuse_set->refuse_canned_message_pr != -1)
                 {
                     $count = 0;
@@ -754,6 +755,7 @@ class Message_newController extends BaseController {
                     }
                     $data = array_values($data);
                 }
+                */
                 if($inbox_refuse_set->refuse_register_days != 0)
                 {
                     $rtime = Carbon::now()->subDays($inbox_refuse_set->refuse_register_days);

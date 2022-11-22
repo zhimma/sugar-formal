@@ -15,6 +15,7 @@ class InboxRefuseSetFix extends Migration
     {
         Schema::table('inbox_refuse_set', function ($table) {
             $table->integer('refuse_canned_message_pr')->default(-1)->change();
+            $table->integer('refuse_pr')->default(-1)->change();
         });
     }
 
