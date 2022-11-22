@@ -5,6 +5,7 @@ namespace App\Http\Livewire;
 use App\Models\AnonymousChat;
 use App\Models\AnonymousChatMessage;
 use App\Models\AnonymousChatReport;
+use App\Models\SimpleTables\warned_users;
 use App\Models\User;
 use Carbon\Carbon;
 use Livewire\Component;
@@ -16,13 +17,18 @@ class AnonymousChatShow extends Component
 
     public function render()
     {
+
+        $bannedUsers = \App\Services\UserService::getBannedId();
+        $isAdminWarnedList = warned_users::select('member_id')->where('expire_date','>=',Carbon::now())->orWhere('expire_date',null)->get();
+
         $anonymousChat = AnonymousChat::select('anonymous_chat.*', 'users.engroup')
             ->LeftJoin('users', 'users.id','=','anonymous_chat.user_id')
+            ->whereNotIn('anonymous_chat.user_id', $isAdminWarnedList)
+            ->whereNotIn('anonymous_chat.user_id', $bannedUsers)
             ->where('anonymous_chat.created_at', '>', \DB::raw('DATE_SUB(DATE(NOW()), INTERVAL DAYOFWEEK(NOW())-1 DAY)'))
             ->orderBy('anonymous_chat.created_at', 'desc')
             ->take(1000)
             ->get();
-//            ->paginate(10);
         $anonymousChat = $anonymousChat->reverse();
 
         return view('livewire.anonymous-chat-show', compact('anonymousChat'));
@@ -64,6 +70,18 @@ class AnonymousChatShow extends Component
         }
         if(count($checkReport) >= $times && Carbon::parse($checkReport[0]->created_at)->diffInDays(Carbon::now())<3){
             return redirect('/dashboard/personalPage')->with('message', '因被檢舉次數過多，目前已限制使用匿名聊天室');
+        }
+
+        if(User::isAnonymousChatForbid(auth()->user()->id)){
+            return redirect('/dashboard/personalPage')->with('message', '您目前已被禁止進入匿名聊天室');
+        }
+
+        if(User::isWarned(auth()->user()->id)){
+            return redirect('/dashboard/personalPage')->with('message', '您已被站方警示，目前已限制使用匿名聊天室');
+        }
+
+        if(User::isBanned_v2(auth()->user()->id)){
+            return redirect('/dashboard/personalPage')->with('message', '您已被站方封鎖，目前已限制使用匿名聊天室');
         }
     }
 }

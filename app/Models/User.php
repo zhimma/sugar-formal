@@ -643,6 +643,44 @@ class User extends Authenticatable implements JWTSubject
     }
 
     /**
+     * 判定是否有在 站方警示名單裡面
+     *
+     *
+     * @param string|int $id 對象id
+     *
+     * @return boolean
+     */
+    public static function isWarned($id)
+    {
+        $c = warned_users::where('member_id', $id)
+            ->where(function ($q) use ($id) {
+                $today = Carbon::today();
+                $q->where("expire_date", null)->orWhere("expire_date", ">", $today);
+            })->get()->count();
+
+        return $c > 0;
+    }
+
+    /**
+     * 判定是否有在 匿名聊天室禁止進入名單裡面
+     *
+     *
+     * @param string|int $id 對象id
+     *
+     * @return boolean
+     */
+    public static function isAnonymousChatForbid($id)
+    {
+        $c = AnonymousChatForbid::where('user_id', $id)
+            ->where(function ($q) use ($id) {
+                $today = Carbon::today();
+                $q->where("expire_date", null)->orWhere("expire_date", ">", $today);
+            })->get()->count();
+
+        return $c > 0;
+    }
+
+    /**
      * Find by Name
      *
      * @param  string $name

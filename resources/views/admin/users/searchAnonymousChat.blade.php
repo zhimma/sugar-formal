@@ -70,14 +70,14 @@
 
             <thead>
                 <tr>
-                    <td>發送者</td>
-                    <td>匿名</td>
+                    <td width="8%">發送者</td>
+                    <td width="5%">匿名</td>
 {{--                    <td>性別</td>--}}
                     <td>訊息內容</td>
                     <td>圖片</td>
-                    <td>發訊時間</td>
-                    <td>狀態</td>
-                    <td>管理</td>
+                    <td width="12%">發訊時間</td>
+                    <td width="15%">狀態</td>
+                    <td width="20%">管理</td>
                 </tr>
             </thead>
 
@@ -92,7 +92,7 @@
                                 ->orderBy('created_at','desc')->first();
                     @endphp
                     <td style="@if(\App\Models\User::isBanned($row->user_id))background-color:#FFFF00;@endif @if($isWarned)background-color:#B0FFB1;@endif">
-                        @if($row->usersID)
+                        @if($row->userID)
                         <a href="{{ route('users/advInfo', $row->user_id) }}" style="color:{{($row->engroup==1)?'blue':'red'}};" target='_blank' >{{$row->name}}</a>
                         @else
                             <font style="font-size: 10pt;">會員資料已刪除</font>
@@ -115,7 +115,29 @@
                     <td>{{$row->created_at}}</td>
                     <td>@if($row->deleted_at)<span class="badge badge-danger">刪：{{$row->deleted_at}}</span>@endif</td>
                     <td>
-                        @if(!$row->deleted_at)<input type="button" class='btn btn-danger' onclick="deleteRow({{$row->id}})" value="刪除" />@endif
+                        @if(!$row->deleted_at)
+                            <input type="button" class='btn btn-danger' onclick="deleteRow({{$row->id}})" value="刪除" />
+                        @endif
+                        <div class="btn-group">
+                        @if($row->forbid_userID=='')
+                            <button type="button" class='btn btn-dark' data-toggle="modal" data-target="#forbid_modal" data-id="{{$row->user_id}}" data-name="{{$row->name}}" data-anonymous="{{$row->anonymous}}">禁止進入</button>
+                        @else
+                            <button type="button" class='btn btn-outline-dark userBlockRemove' data-id="{{$row->user_id}}" data-name="{{$row->name}}" data-block_type="anonymous_chat_forbid">解除禁止進入</button>
+                        @endif
+
+                        @if($row->warned_userID=='')
+                            <button type="button" class='btn btn-warning' data-toggle="modal" data-target="#warned_modal" data-id="{{$row->user_id}}" data-name="{{$row->name}}">警示</button>
+                        @else
+                            <button type="button" class='btn btn-outline-warning unwarned_user' data-id="{{$row->user_id}}" data-name="{{$row->name}}" data-block_type="anonymous_chat_warned">解除警示</button>
+                        @endif
+
+                        @if($row->banned_userID=='')
+                            <button type="button" class='btn btn-danger' data-toggle="modal" data-target="#banned_modal" data-id="{{$row->user_id}}" data-name="{{$row->name}}">封鎖</button>
+                        @else
+                            <button type="button" class='btn btn-outline-danger unblock_user' data-id="{{$row->user_id}}" data-name="{{$row->name}}" data-block_type="anonymous_chat_ban">解除封鎖</button>
+                        @endif
+
+                        </div>
                     </td>
                 </tr>
             @endforeach
@@ -137,15 +159,15 @@
 
             <thead>
             <tr>
-                <td>發送者</td>
-                <td>匿名</td>
+                <td width="8%">發送者</td>
+                <td width="5%">匿名</td>
 {{--                <td>性別</td>--}}
                 <td>訊息內容</td>
                 <td>圖片</td>
-                <td>發訊時間</td>
-                <td>檢舉人</td>
+                <td width="12%">發訊時間</td>
+                <td width="8%">檢舉人</td>
                 <td>檢舉內容</td>
-                <td>檢舉時間</td>
+                <td width="12%">檢舉時間</td>
                 <td>狀態</td>
                 <td>管理</td>
             </tr>
@@ -166,7 +188,7 @@
                                 ->orderBy('created_at','desc')->first();
                     @endphp
                     <td style="@if(\App\Models\User::isBanned($row->user_id))background-color:#FFFF00;@endif @if($isWarned)background-color:#B0FFB1;@endif">
-                        @if($row->usersID)
+                        @if($row->userID)
                         <a href="{{ route('users/advInfo', $row->user_id) }}" style="color:{{($row->engroup==1)?'blue':'red'}};" target='_blank' >{{$row->name}}</a>
                         @else
                             <font style="font-size: 10pt;">會員資料已刪除</font>
@@ -236,7 +258,142 @@
     @endif
 
     @endif
+    <div class="modal fade" id="banned_modal" tabindex="-1" role="dialog" aria-labelledby="exampleModalLabel" aria-hidden="true">
+        <div class="modal-dialog" role="document">
+            <div class="modal-content" >
+                <div class="modal-header">
+                    <h5 class="modal-title" id="bannedModalLabel">封鎖</h5>
+                    <button type="button" class="close" data-dismiss="modal" aria-label="Close">
+                        <span aria-hidden="true">&times;</span>
+                    </button>
+                </div>
+                <form action="{{ route('users/userBlock') }}" method="POST" id="clickToggleUserBanned">
+                    {!! csrf_field() !!}
+                    <input type="hidden" value="" name="user_id" id="bannedUserID">
+                    <input type="hidden" value="" name="name" id="bannedUserName">
+                    <input type="hidden" name="block_type" value="anonymous_chat_ban">
+                    <div class="modal-body">
+                        封鎖時間
+                        <select name="days" class="days">
+                            <option value="3">三天</option>
+                            <option value="7">七天</option>
+                            <option value="15">十五天</option>
+                            <option value="30">三十天</option>
+                            <option value="X" selected>永久</option>
+                        </select>
+                        <hr>
+                        封鎖原因
+                        @if(isset($results))
+                            @foreach($anonymousChatBanReason as $a)
+                                <a class="text-white btn btn-success blockReason" data-target="bannedReason">{{ $a->content }}</a>
+                            @endforeach
+                        @endif
+                        <br><br>
+                        <textarea class="form-control m-reason bannedReason" name="reason" id="msg" rows="4" maxlength="200">廣告</textarea>
+                        <label style="margin:10px 0px;">
+                            <input type="checkbox" name="addreason" style="vertical-align:middle;width:20px;height:20px;"/>
+                            <sapn style="vertical-align:middle;">加入常用封鎖原因</sapn>
+                        </label>
+                    </div>
+                    <div class="modal-footer">
+                        <button type="submit" class='btn btn-outline-success ban-user'> 送出 </button>
+                        <button type="button" class="btn btn-outline-danger" data-dismiss="modal">取消</button>
+                    </div>
+                </form>
+            </div>
+        </div>
+    </div>
+    <div class="modal fade" id="warned_modal" tabindex="-1" role="dialog" aria-labelledby="exampleModalLabel" aria-hidden="true">
+        <div class="modal-dialog" role="document">
+            <div class="modal-content">
+                <div class="modal-header">
+                    <h5 class="modal-title" id="warnedModalLabel">站方警示</h5>
+                    <button type="button" class="close" data-dismiss="modal" aria-label="Close">
+                        <span aria-hidden="true">&times;</span>
+                    </button>
+                </div>
+                <form action="{{ route('users/userBlock') }}" method="POST" id="clickToggleUserWarned">
+                    {!! csrf_field() !!}
+                    <input type="hidden" value="" name="user_id" id="warnedUserID">
+                    <input type="hidden" value="" name="name" id="warnedUserName">
+                    <input type="hidden" name="block_type" value="anonymous_chat_warned">
+                    <div class="modal-body">
+                        警示時間
+                        <select name="days" class="days">
+                            <option value="3">三天</option>
+                            <option value="7">七天</option>
+                            <option value="15">十五天</option>
+                            <option value="30">三十天</option>
+                            <option value="X" selected>永久</option>
+                        </select>
+                        <hr>
+                        警示原因
+                        @if(isset($results))
+                            @foreach($anonymousChatWarnedReason as $a)
+                                <a class="text-white btn btn-success blockReason" data-target="warnedReason">{{ $a->content }}</a>
+                            @endforeach
+                        @endif
+                        <textarea class="form-control m-reason warnedReason" name="reason" id="msg" rows="4" maxlength="200">廣告</textarea>
+                        <label style="margin:10px 0px;">
+                            <input type="checkbox" name="addreason" style="vertical-align:middle;width:20px;height:20px;"/>
+                            <sapn style="vertical-align:middle;">加入常用原因</sapn>
+                        </label>
+                    </div>
+                    <div class="modal-footer">
+                        <button type="submit" class='btn btn-outline-success ban-user'> 送出 </button>
+                        <button type="button" class="btn btn-outline-danger" data-dismiss="modal">取消</button>
+                    </div>
+                </form>
+            </div>
+        </div>
+    </div>
+    <div class="modal fade" id="forbid_modal" tabindex="-1" role="dialog" aria-labelledby="exampleModalLabel" aria-hidden="true">
+        <div class="modal-dialog" role="document">
+            <div class="modal-content">
+                <div class="modal-header">
+                    <h5 class="modal-title" id="forbidModalLabel">禁止進入</h5>
+                    <button type="button" class="close" data-dismiss="modal" aria-label="Close">
+                        <span aria-hidden="true">&times;</span>
+                    </button>
+                </div>
+                <form action="{{ route('users/userBlock') }}" method="POST" id="clickToggleUserForbid">
+                    {!! csrf_field() !!}
+                    <input type="hidden" value="" name="user_id" id="forbidUserID">
+                    <input type="hidden" value="" name="name" id="forbidUserName">
+                    <input type="hidden" value="" name="anonymous" id="forbidUserAnonymous">
+                    <input type="hidden" name="block_type" value="anonymous_chat_forbid">
+                    <div class="modal-body">
+                        禁止進入時間
+                        <select name="days" class="days">
+                            <option value="3">三天</option>
+                            <option value="7">七天</option>
+                            <option value="15">十五天</option>
+                            <option value="30">三十天</option>
+                            <option value="X" selected>永久</option>
+                        </select>
+                        <hr>
+                        禁止進入原因
+                        @if(isset($results))
+                            @foreach($anonymousChatForbidReason as $a)
+                                <a class="text-white btn btn-success blockReason" data-target="forbidReason">{{ $a->content }}</a>
+                            @endforeach
+                        @endif
+                        <textarea class="form-control m-reason forbidReason" name="reason" id="msg" rows="4" maxlength="200">廣告</textarea>
+                        <label style="margin:10px 0px;">
+                            <input type="checkbox" name="addreason" style="vertical-align:middle;width:20px;height:20px;"/>
+                            <sapn style="vertical-align:middle;">加入常用原因</sapn>
+                        </label>
+                    </div>
+                    <div class="modal-footer">
+                        <button type="submit" class='btn btn-outline-success ban-user'> 送出 </button>
+                        <button type="button" class="btn btn-outline-danger" data-dismiss="modal">取消</button>
+                    </div>
+                </form>
+            </div>
+        </div>
+    </div>
     @endif
+
 </body>
 
 <script>
@@ -371,51 +528,100 @@
         return String("00" + n).slice(-2);
     }
 
-    function toggleBanned(id) {
-        //  http://sugar.formal/5814
-        let url = "{{ url("") }}";
-        window.open(url + '/admin/users/toggleUserBlock/' + id);
-        history.go(0);
-    }
+    $('a[data-toggle=modal], button[data-toggle=modal]').click(function () {
+        if (typeof $(this).data('id') !== 'undefined') {
+            $("#bannedModalLabel").html('封鎖 '+ $(this).data('name'));
+            $("#bannedUserID").val($(this).data('id'));
+            $("#bannedUserName").val($(this).data('name'));
+            $("#warnedModalLabel").html('站方警示 '+ $(this).data('name'));
+            $("#warnedUserID").val($(this).data('id'));
+            $("#warnedUserName").val($(this).data('name'));
+            $("#forbidModalLabel").html('禁止 '+ $(this).data('name') + ' 進入');
+            $("#forbidUserID").val($(this).data('id'));
+            $("#forbidUserName").val($(this).data('name'));
+            $("#forbidUserAnonymous").val($(this).data('anonymous'));
+        }
+    });
 
-    function Release(id) {
-        $("#blockUserID").val(id);
-    }
-    function ReleaseWarnedUser(id) {
-        $("#warnedUserID").val(id);
-    }
-    function WarnedToggler(user_id,isWarned){
-        $.ajax({
-            type: 'POST',
-            url: "/admin/users/isWarned_user?{{csrf_token()}}={{now()->timestamp}}",
-            data:{
-                _token: '{{csrf_token()}}',
-                id: user_id,
-                status: isWarned
-            },
-            dataType:"json",
-            success: function(res){
-                if(isWarned ==1)
-                    alert('警示用戶成功');
-                else
-                    alert('取消警示用戶成功');
-                location.reload();
-            }
+    $(".blockReason").each( function(){
+        $(this).bind("click" , function(){
+            var id = $("a").index(this);
+            var clickval = $("a").eq(id).text();
+            var target_class = $(this).data('target');
+            $('.' + target_class).val(clickval);
         });
-    }
-    // let count = 0;
-    // function setDays(a, key) {
-    //     if (count === 0) {
-    //         let href = a.href;
-    //         if(key === '') {
-    //             let reason = $('.m-reason').val();
-    //             $('.ban-user' + key).attr("href", href + '/' + $('.days' + key).val() + '&' + reason);
-    //         }else{
-    //             $('.ban-user' + key).attr("href", href + '/' + $('.days' + key).val());
-    //         }
-    //     }
-    //     count++;
-    // }
+    });
+
+    $(".userBlockRemove").click(function(){
+        var data = $(this).data();
+        var block_type = $(this).data('block_type');
+        let msg1, msg2, name;
+        if(block_type=='anonymous_chat_forbid'){
+            name = $(this).data('name');
+            msg1 = '確定要解除 '+name+' 的禁止狀態?';
+            msg2 = '已解除 '+name+' 禁止狀態';
+        }
+
+        if(confirm(msg1)){
+            $.ajax({
+                type: 'POST',
+                url: "/admin/users/userBlockRemove?{{csrf_token()}}={{now()->timestamp}}",
+                data:{
+                    _token: '{{csrf_token()}}',
+                    data: data,
+                },
+                dataType:"json",
+                success: function(res){
+                    alert(msg2);
+                    location.reload();
+                }});
+        }
+        else{
+            return false;
+        }
+    });
+
+    $(".unblock_user").click(function(){
+        var data = $(this).data();
+        if(confirm('確定解除封鎖此會員?')){
+            $.ajax({
+                type: 'POST',
+                url: "/admin/users/unblock_user?{{csrf_token()}}={{now()->timestamp}}",
+                data:{
+                    _token: '{{csrf_token()}}',
+                    data: data,
+                },
+                dataType:"json",
+                success: function(res){
+                    alert('解除封鎖成功');
+                    location.reload();
+                }});
+        }
+        else{
+            return false;
+        }
+    });
+
+    $(".unwarned_user").click(function(){
+        var data = $(this).data();
+        if(confirm('確定解除此會員站方警示?')){
+            $.ajax({
+                type: 'POST',
+                url: "/admin/users/unwarned_user?{{csrf_token()}}={{now()->timestamp}}",
+                data:{
+                    _token: '{{csrf_token()}}',
+                    data: data,
+                },
+                dataType:"json",
+                success: function(res){
+                    alert('已解除站方警示');
+                    location.reload();
+                }});
+        }
+        else{
+            return false;
+        }
+    });
 </script>
 
 <script src="https://cdn.jsdelivr.net/npm/@fancyapps/ui@4.0/dist/fancybox.umd.js"></script>

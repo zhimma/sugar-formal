@@ -589,6 +589,7 @@ Route::group(['middleware' => ['auth', 'global', 'active', 'femaleActive', 'vipC
         Route::post('/dashboard/anonymousChatReport', 'PagesController@anonymous_chat_report')->name('anonymous_chat_report');
         Route::post('/dashboard/anonymousChatMessage', 'PagesController@anonymous_chat_message')->name('anonymous_chat_message');
         Route::post('/dashboard/anonymousChatSave', 'PagesController@anonymous_chat_save')->name('anonymous_chat_save');
+        Route::get('/dashboard/anonymous_chat_forbid_list', 'PagesController@anonymous_chat_forbid_list')->name('anonymous_chat_forbid_list');
         /*
         |--------------------------------------------------------------------------
         | Real Auth
@@ -771,6 +772,9 @@ Route::group(['middleware' => ['auth', 'global', 'active', 'femaleActive', 'vipC
         Route::post('users/deleteAnonymousChatRow', 'UserController@deleteAnonymousChatRow')->name('users/deleteAnonymousChatRow');
         Route::post('users/deleteAnonymousChatReportRow', 'UserController@deleteAnonymousChatReportRow')->name('users/deleteAnonymousChatReportRow');
         Route::post('users/deleteAnonymousChatReportAll', 'UserController@deleteAnonymousChatReportAll')->name('users/deleteAnonymousChatReportAll');
+
+        Route::post('users/userBlock', 'UserController@userBlock')->name('users/userBlock'); //共用式
+        Route::post('users/userBlockRemove', 'UserController@userBlockRemove')->name('users/userBlockRemove'); //共用式
 
         Route::get('users/ip/{ip}', 'UserController@getIpUsers')->name('getIpUsers');
 		Route::get('users/getLog', 'UserController@getUsersLog')->name('getUsersLog');
