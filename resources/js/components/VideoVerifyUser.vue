@@ -131,38 +131,6 @@ import Peer from "simple-peer";
 //import { getPermissions } from "../helpers";
 import LZString from "../lz-string.js";
 
-axios
-  .post("/video/loading-video-page", {})
-  .then(() => {
-    var log_arr = {
-        from_file:'VideoVerifyUser.vue'
-        ,title:'then in loading-video-page axios at begining in script@VideoVerifyUser.vue'
-        ,method:'then@loading-video-page axios at begining in script'
-        ,step:'within'
-    };
-    log_video_chat_process(log_arr);      
-  })
-  .catch((error) => {
-    var log_arr = {
-        from_file:'VideoVerifyUser.vue'
-        ,title:'catch in loading-video-page axios  at begining in script@VideoVerifyUser.vue'
-        ,method:'catch@loading-video-page axios  at begining in script'
-        ,step:'within'
-        ,data:{error:error}
-    };
-    log_video_chat_process(log_arr);    
-
-    $("#error_message").text('loading-video-page axios error:' + error);
-  });
-  
-    $(document).ready(function(){
-        var old_beforeunload = $('body').attr('onbeforeunload');
-        if(old_beforeunload==undefined) old_beforeunload = '';
-        $('body').attr('onbeforeunload','video_beforeunload_act();');
-    });  
-
-
-
 export default {
   props: [
     "allusers",
@@ -214,7 +182,38 @@ export default {
             ,act:'this.initializeChannel(); '
             ,act_step:'before'
         };
-        log_video_chat_process(log_arr);  
+        log_video_chat_process(log_arr);
+
+
+        axios
+          .post("/video/loading-video-page", {})
+          .then(() => {
+            var log_arr = {
+                from_file:'VideoVerifyUser.vue'
+                ,title:'then in loading-video-page axios at begining in script@VideoVerifyUser.vue'
+                ,method:'then@loading-video-page axios at begining in script'
+                ,step:'within'
+            };
+            log_video_chat_process(log_arr);      
+          })
+          .catch((error) => {
+            var log_arr = {
+                from_file:'VideoVerifyUser.vue'
+                ,title:'catch in loading-video-page axios  at begining in script@VideoVerifyUser.vue'
+                ,method:'catch@loading-video-page axios  at begining in script'
+                ,step:'within'
+                ,data:{error:error}
+            };
+            log_video_chat_process(log_arr);    
+
+            $("#error_message").text('loading-video-page axios error:' + error);
+          });
+
+
+        var old_beforeunload = $('body').attr('onbeforeunload');
+        if(old_beforeunload==undefined) old_beforeunload = '';
+        $('body').attr('onbeforeunload','video_beforeunload_act();');
+        
     this.initializeChannel(); // this initializes laravel echo
         log_arr.title = 'ing mounted@export default@VideoVerifyUser.vue';
         log_arr.act_step = 'after';

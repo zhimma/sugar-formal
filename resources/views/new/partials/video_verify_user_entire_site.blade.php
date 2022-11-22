@@ -16,14 +16,13 @@
             
             function video_beforeunload_act()
             {
-                console.log('start video_beforeunload_act');
                 axios
                   .post("/video/unloading-video-page", {})
                   .then(() => {
                     var log_arr = {
                         from_file:'VideoVerifyUser.vue'
-                        ,title:'then in unloading-video-page axios@VideoVerifyUser.vue'
-                        ,method:'then@unloading-video-page axios at begining in script'
+                        ,title:'then in unloading-video-page axios@video_verify_user_entire_site.tpl'
+                        ,method:'then@unloading-video-page axios@video_verify_user_entire_site.tpl'
                         ,step:'within'
                     };
                     log_video_chat_process(log_arr);      
@@ -31,8 +30,8 @@
                   .catch((error) => {
                     var log_arr = {
                         from_file:'VideoVerifyUser.vue'
-                        ,title:'catch in unloading-video-page axios@VideoVerifyUser.vue'
-                        ,method:'catch@unloading-video-page axios'
+                        ,title:'catch in unloading-video-page axios@video_verify_user_entire_site.tpl'
+                        ,method:'catch@unloading-video-page axios@video_verify_user_entire_site.tpl'
                         ,step:'within'
                         ,data:{error:error}
                     };
