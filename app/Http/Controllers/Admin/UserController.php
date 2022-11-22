@@ -5,6 +5,7 @@ namespace App\Http\Controllers\Admin;
 use App\Models\AccountStatusLog;
 use App\Models\AdminActionLog;
 use App\Models\AnonymousChat;
+use App\Models\AnonymousChatForbid;
 use App\Models\AnonymousChatReport;
 use App\Models\Board;
 use App\Models\EssenceStatisticsLog;
@@ -12,6 +13,7 @@ use App\Models\Evaluation;
 use App\Models\EvaluationPic;
 use App\Models\ExpectedBanningUsers;
 use App\Models\hideOnlineData;
+use App\Models\IsWarnedLog;
 use App\Models\lineNotifyChatSet;
 use App\Models\LogUserLogin;
 use App\Models\MemberPic;
@@ -6609,6 +6611,7 @@ class UserController extends \App\Http\Controllers\BaseController
         echo json_encode(['ok']);
     }
 
+    //AnonymousChat
     public function showAnonymousChatPage()
     {
         $admin = $this->admin->checkAdmin();
@@ -6625,14 +6628,47 @@ class UserController extends \App\Http\Controllers\BaseController
             $msg = isset($request->msg) ? $request->msg : '';
             $date_start = $request->date_start ? $request->date_start : '0000-00-00';
             $date_end = $request->date_end ? $request->date_end : date('Y-m-d');
-            $results = AnonymousChat::select('anonymous_chat.*', 'users.name', 'users.id as usersID', 'users.engroup')
+            $results = AnonymousChat::select(
+                'anonymous_chat.*',
+                'users.name',
+                'users.id as userID',
+                'users.engroup',
+                'banned_users.member_id as banned_userID',
+                'warned_users.member_id as warned_userID',
+                'anonymous_chat_forbid.user_id as forbid_userID'
+            )
                 ->leftJoin('users', 'users.id', 'anonymous_chat.user_id')
+                ->leftJoin('banned_users', 'banned_users.member_id', 'anonymous_chat.user_id')
+                ->where(
+                    function($q) {
+                        $q->where('banned_users.expire_date', null)->
+                        orWhere('banned_users.expire_date','>',Carbon::now());
+                    })
+                ->leftJoin('warned_users', 'warned_users.member_id', 'anonymous_chat.user_id')
+                ->where(
+                    function($q) {
+                        $q->where('warned_users.expire_date', null)->
+                        orWhere('warned_users.expire_date','>',Carbon::now());
+                    })
+                ->leftJoin('anonymous_chat_forbid', 'anonymous_chat_forbid.user_id', 'anonymous_chat.user_id')
+                ->where(
+                    function($q) {
+                        $q->where('anonymous_chat_forbid.expire_date', null)->
+                        orWhere('anonymous_chat_forbid.expire_date','>',Carbon::now());
+                    })
                 ->where('anonymous_chat.content', 'like', '%' . $msg . '%')
                 ->whereBetween('anonymous_chat.created_at', array($date_start . ' 00:00', $date_end . ' 23:59'))
                 ->orderBy('anonymous_chat.created_at', 'desc')
                 ->withTrashed()
                 ->paginate(100);
-            return view('admin.users.searchAnonymousChat')->with('results', $results);
+            $anonymousChatBanReason = DB::table('reason_list')->select('content')->where('type', 'anonymous_chat_ban')->get();
+            $anonymousChatWarnedReason = DB::table('reason_list')->select('content')->where('type', 'anonymous_chat_warned')->get();
+            $anonymousChatForbidReason = DB::table('reason_list')->select('content')->where('type', 'anonymous_chat_forbid')->get();
+            return view('admin.users.searchAnonymousChat')
+                ->with('anonymousChatBanReason', $anonymousChatBanReason)
+                ->with('anonymousChatWarnedReason', $anonymousChatWarnedReason)
+                ->with('anonymousChatForbidReason', $anonymousChatForbidReason)
+                ->with('results', $results);
         }elseif($request->searchAnonymousChatReport){
             $msg = isset($request->msg) ? $request->msg : '';
             $date_start = $request->date_start ? $request->date_start : '0000-00-00';
@@ -6710,6 +6746,136 @@ class UserController extends \App\Http\Controllers\BaseController
         AnonymousChatReport::where('reported_user_id', $user_id)->delete();
         echo json_encode(['ok']);
     }
+
+    public function userBlock(Request $request)
+    {
+        ini_set('max_execution_time', -1);
+
+        $user_id = $request->user_id;
+        $name = $request->name;
+        $block_type = $request->block_type;
+
+        if($block_type=='anonymous_chat_ban'){
+            //勾選加入常用列表後新增
+            if ($request->addreason) {
+                if (DB::table('reason_list')->where([['type', 'anonymous_chat_ban'], ['content', $request->reason]])->first() == null) {
+                    DB::table('reason_list')->insert(['type' => 'anonymous_chat_ban', 'content' => $request->reason]);
+                }
+            }
+            $userBanned = User::isBanned_v2($user_id);
+            if(!$userBanned){
+                $userBanned = new banned_users;
+                $userBanned->member_id = $user_id;
+                if ($request->days != 'X') {
+                    $userBanned->expire_date = Carbon::now()->addDays($request->days);
+                }
+                if(!empty($request->reason)) {
+                    $userBanned->reason = $request->reason;
+                }
+                $userBanned->save();
+                BadUserCommon::addRemindMsgFromBadId($user_id);
+                //寫入log
+                IsBannedLog::insert(['user_id' => $user_id, 'reason' => $userBanned->reason, 'expire_date' => $userBanned->expire_date, 'created_at' => Carbon::now()]);
+                //新增Admin操作log
+                $this->insertAdminActionLog($user_id, '封鎖會員');
+
+                return back()->with('message', '已封鎖 '.$name );
+            }
+        }
+        else if($block_type=='anonymous_chat_warned'){
+            //勾選加入常用列表後新增
+            if ($request->addreason) {
+                if (DB::table('reason_list')->where([['type', 'anonymous_chat_warned'], ['content', $request->reason]])->first() == null) {
+                    DB::table('reason_list')->insert(['type' => 'anonymous_chat_warned', 'content' => $request->reason]);
+                }
+            }
+            $userWarned = User::isWarned($user_id);
+            if(!$userWarned) {
+                $userWarned = new warned_users;
+                $userWarned->member_id = $user_id;
+                if ($request->days != 'X') {
+                    $userWarned->expire_date = Carbon::now()->addDays($request->days);
+                }
+                $userWarned->reason = $request->reason;
+
+                if (!empty($request->reason)) {
+                    $userWarned->reason = $request->reason;
+                }
+                $userWarned->save();
+                BadUserCommon::addRemindMsgFromBadId($user_id);
+                //寫入log
+                IsWarnedLog::insert(['user_id' => $user_id, 'reason' => $request->reason, 'created_at' => Carbon::now()]);
+                //新增Admin操作log
+                $this->insertAdminActionLog($user_id, '站方警示');
+                return back()->with('message', '已警示 '.$name );
+            }
+
+        }
+        else if($block_type=='anonymous_chat_forbid'){
+            //勾選加入常用列表後新增
+            if ($request->addreason) {
+                if (DB::table('reason_list')->where([['type', 'anonymous_chat_forbid'], ['content', $request->reason]])->first() == null) {
+                    DB::table('reason_list')->insert(['type' => 'anonymous_chat_forbid', 'content' => $request->reason]);
+                }
+            }
+            $userForbid = User::isAnonymousChatForbid($user_id);
+            if(!$userForbid){
+                $userForbid = new AnonymousChatForbid;
+                $userForbid->user_id = $user_id;
+                $userForbid->anonymous = $request->anonymous;
+                if ($request->days != 'X') {
+                    $userForbid->expire_date = Carbon::now()->addDays($request->days);
+                }
+                if (!empty($request->reason)) {
+                    $userForbid->reason = $request->reason;
+                }
+                $userForbid->save();
+                //寫入log
+                IsWarnedLog::insert(['user_id' => $user_id, 'reason' => $request->reason, 'created_at' => Carbon::now()]);
+                //新增Admin操作log
+                $this->insertAdminActionLog($user_id, '禁止進入匿名聊天室');
+                return back()->with('message', '已禁止 '.$name.' 進入匿名聊天室' );
+            }
+
+        }
+
+        return false;
+    }
+
+    public function userBlockRemove(Request $request)
+    {
+        $data = $request->post('data');
+        $msg = '';
+
+        if($data['block_type']=='anonymous_chat_forbid') {
+            $forbid = AnonymousChatForbid::where('user_id', $data['id'])->get();
+            if ($forbid->count() > 0) {
+                $delete = AnonymousChatForbid::where('user_id', $data['id'])->delete();
+                if($delete) {
+                    $msg = '解除禁止進入匿名聊天室';
+                }
+            }
+        }
+
+        if($msg != '') {
+            $this->messageService->setMessageHandlingBySenderId($data['id'], 0);
+            //新增Admin操作log
+            $this->insertAdminActionLog($data['id'], $msg);
+            $data = array(
+                'code' => '200',
+                'status' => 'success'
+            );
+            echo json_encode($data);
+        }else{
+            $data = array(
+                'code' => '204',
+                'status' => 'no content'
+            );
+            echo json_encode($data);
+        }
+
+    }
+    //AnonymousChat END
 
     public function member_profile_check_over(Request $request)
     {

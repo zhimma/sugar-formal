@@ -270,7 +270,8 @@
     <div class="n_blnr01 matop10">
         <div class="n_fengs">{!! isset($anonymous_chat_announcement)?$anonymous_chat_announcement:'' !!}
         </div>
-        <a class="n_bllbut matop30">進入聊天室</a>
+        <a href="{{ route('anonymous_chat_forbid_list') }}" class="n_bllbut matop30 left" style="padding: 0 40px; margin-bottom: 20px">本週懲處名單</a>
+        <a class="n_bllbut matop30 chat_enter right" style="padding: 0 40px; margin-bottom: 20px">進入聊天室</a>
     </div>
     <a id="" onclick="gmBtnNoReload()" class="bl_gb"><img src="/new/images/gb_icon.png"></a>
 </div>
