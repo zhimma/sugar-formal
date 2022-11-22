@@ -27,6 +27,9 @@
                             
                         @endforeach
                     @endif
+                    @if($CFP_count>0 && $IP_count>0)
+                        <th style="min-width: 100px"></th>
+                    @endif
                     @if($IP_count>0)
                         @php
                             $IpLogInLog = array_get($logInLog->Ip,'Ip_group',[]);
