@@ -8,6 +8,7 @@ use App\Models\AdminAnnounce;
 use App\Models\AdminCommonText;
 use App\Models\AnnouncementRead;
 use App\Models\AnonymousChat;
+use App\Models\AnonymousChatForbid;
 use App\Models\AnonymousChatMessage;
 use App\Models\AnonymousChatReport;
 use App\Models\BannedUsersImplicitly;
@@ -2268,13 +2269,13 @@ class PagesController extends BaseController
                         if($payload['service_name'] == 'hideOnline') {
                             $offVIP = '您已成功取消付費隱藏功能，下個月起將不再繼續扣款，目前的付費功能權限可以維持到 ' . $date;
                         }elseif($payload['service_name'] == 'VVIP') {
-                            $type = $user->applyVVIP_getData()->plan;
-                            if($type == 'VVIP_B') {
-                                $offVIP = '您已成功取消 VVIP，下個月起將不再繼續扣款，目前的付費功能權限可以維持到 ' . $date . '，您的預備金還剩' . $user->VvipMargin->balance .  '元';
-                            }
-                            else {
+//                            $type = $user->applyVVIP_getData()->plan;
+//                            if($type == 'VVIP_B') {
+//                                $offVIP = '您已成功取消 VVIP，下個月起將不再繼續扣款，目前的付費功能權限可以維持到 ' . $date . '，您的預備金還剩' . $user->VvipMargin->balance .  '元';
+//                            }
+//                            else {
                                 $offVIP = '您已成功取消 VVIP，下個月起將不再繼續扣款，目前的付費功能權限可以維持到 ' . $date;
-                            }
+//                            }
                         }
                         logger('$expiry: ' . $data->expiry);
                         logger('base day: ' . $date);
@@ -9588,13 +9589,13 @@ class PagesController extends BaseController
         if (User::isBanned($user->id)) {
             return redirect('/dashboard/personalPage')->with('message', '您已被站方封鎖，禁止使用聊天室。');
         }
-        $isWarned = warned_users::where('member_id', $user->id)
-            ->where('expire_date', null)->orWhere('expire_date','>',Carbon::now() )
-            ->where('member_id', $user->id)
-            ->orderBy('created_at','desc')->first();
-        if($isWarned){
+        if (User::isAnonymousChatForbid($user->id)) {
+            return redirect('/dashboard/personalPage')->with('message', '您已被禁止使用聊天室。');
+        }
+        if(User::isWarned($user->id)){
             return redirect('/dashboard/personalPage')->with('message', '您已被站方警示，禁止使用聊天室。');
         }
+
         if($user->engroup==1 && ( !$user->isVip() && !$user->isVVIP() )){
             $message = '目前僅提供給VIP會員使用，若欲前往使用，<a href="/dashboard/new_vip" class="red">請點此立即升級VIP！</a>';
             return redirect('/dashboard/personalPage')->with('message', $message);
@@ -9753,6 +9754,30 @@ class PagesController extends BaseController
 
         return response()->json(['msg' => 'error']);
 
+    }
+
+    public function anonymous_chat_forbid_list(Request $request)
+    {
+
+        $user = $request->user();
+
+        $forbid_users = AnonymousChatForbid::select('anonymous_chat_forbid.*','users.name')
+            ->where('anonymous_chat_forbid.created_at','>=',\Carbon\Carbon::now()->startOfWeek()->toDateTimeString())
+            ->join('users','anonymous_chat_forbid.user_id','=','users.id')
+            ->orderBy('anonymous_chat_forbid.created_at','desc');
+
+        //取得資料總筆數
+        $forbid_count = $forbid_users->get()->count();
+        $forbid_users = $forbid_users->paginate(15);
+
+        foreach ($forbid_users as &$b){
+            $b->name = $this->substr_cut($b->name);
+        }
+
+        return view('new.dashboard.anonymous_chat_forbid_list')
+            ->with('user', $user)
+            ->with('forbid_users', $forbid_users)
+            ->with('forbid_count', $forbid_count);
     }
     
     public function checkIsForceShowFaq(Request $request,FaqUserService $fuService) 

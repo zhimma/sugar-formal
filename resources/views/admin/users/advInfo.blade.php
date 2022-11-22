@@ -889,6 +889,7 @@
             $isEverWarned_log[$key]['reason']=$row->reason;
             $isEverWarned_log[$key]['vip_pass']=$row->vip_pass;
             $isEverWarned_log[$key]['adv_auth']=$row->adv_auth;
+            $isEverWarned_log[$key]['expire_date']=$row->expire_date;
             $isEverWarned_cancel=($isWarned->count() && $key || !$isWarned->count())?\App\Models\AdminActionLog::where('target_id', $user->id)->where('act','解除站方警示')->orderByDesc('created_at')->skip($isWarned && $key?$key-1:$key)->first():null;
             $isEverWarned_log[$key]['cancal_admin']=$isEverWarned_cancel? \App\Models\User::findById($isEverWarned_cancel->operator??''):'';
             $isEverWarned_log[$key]['cancal_time']=$isEverWarned_cancel?$isEverWarned_cancel->created_at:($isWarned->count() && !$key?'尚未解除':'');
@@ -907,6 +908,7 @@
             $isEverBanned_log[$key]['expire_date']=$row->expire_date;
             $isEverBanned_log[$key]['vip_pass']=$row->vip_pass;
             $isEverBanned_log[$key]['adv_auth']=$row->adv_auth;
+            $isEverBanned_log[$key]['expire_date']=$row->expire_date;
             $isEverBanned_cancel=($isBanned->count() && $key || !$isBanned->count())?\App\Models\AdminActionLog::where('target_id', $user->id)->where('act','解除封鎖')->orderByDesc('created_at')->skip($isBanned->count() && $key?$key-1:$key)->first():null;
             $isEverBanned_log[$key]['cancal_admin']=$isEverBanned_cancel? \App\Models\User::findById($isEverBanned_cancel->operator??'') :'';
             $isEverBanned_log[$key]['cancal_time']=$isEverBanned_cancel? $isEverBanned_cancel->created_at:($isBanned->count() && !$key?'尚未解除':'');
@@ -1744,9 +1746,9 @@
     <div id="loading_data" class="btn btn-dark">loading全部登入紀錄</div>
 </div>
 <table id="table_userLogin_log" class="table table-hover table-bordered">
-    @foreach($userLogin_log as $logInLog)
+    @foreach($userLogin_log as $key => $logInLog)
         <tr>
-            <td>
+            @if($key == 0)<td align="center">@else <td> @endif
                 <span class="loginItem showRecord" id="showloginTime{{substr($logInLog->loginDate,0,7)}}" data-sectionName="loginTime{{substr($logInLog->loginDate,0,7)}}" data-ip="不指定">{{ substr($logInLog->loginDate,0,7) . ' ['. $logInLog->dataCount .']' }}</span>
                 <table>
                     @php
@@ -1771,6 +1773,9 @@
                             @endif
                             
                         @endforeach
+                    @endif
+                    @if($CFP_count>0 && $IP_count>0)
+                        <th style="min-width: 100px"></th>
                     @endif
                     @if($IP_count>0)
                         @php
