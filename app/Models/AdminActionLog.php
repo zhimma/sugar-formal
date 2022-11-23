@@ -16,4 +16,9 @@ class AdminActionLog extends Model
         'act',
         'ip',
     ];
+
+    public function operator_user()
+    {
+        return $this->hasOne(User::class, 'id', 'operator');
+    }
 }
