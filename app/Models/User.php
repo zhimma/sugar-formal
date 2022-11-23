@@ -643,6 +643,44 @@ class User extends Authenticatable implements JWTSubject
     }
 
     /**
+     * 判定是否有在 站方警示名單裡面
+     *
+     *
+     * @param string|int $id 對象id
+     *
+     * @return boolean
+     */
+    public static function isWarned($id)
+    {
+        $c = warned_users::where('member_id', $id)
+            ->where(function ($q) use ($id) {
+                $today = Carbon::today();
+                $q->where("expire_date", null)->orWhere("expire_date", ">", $today);
+            })->get()->count();
+
+        return $c > 0;
+    }
+
+    /**
+     * 判定是否有在 匿名聊天室禁止進入名單裡面
+     *
+     *
+     * @param string|int $id 對象id
+     *
+     * @return boolean
+     */
+    public static function isAnonymousChatForbid($id)
+    {
+        $c = AnonymousChatForbid::where('user_id', $id)
+            ->where(function ($q) use ($id) {
+                $today = Carbon::today();
+                $q->where("expire_date", null)->orWhere("expire_date", ">", $today);
+            })->get()->count();
+
+        return $c > 0;
+    }
+
+    /**
      * Find by Name
      *
      * @param  string $name
@@ -1532,8 +1570,7 @@ class User extends Authenticatable implements JWTSubject
         /*此會員封鎖多少其他會員*/
 		if(!$wantIndexArr || in_array('blocked_other_count',$wantIndexArr)) {
 			$bannedUsers = \App\Services\UserService::getBannedId();
-			$advInfo['blocked_other_count']= \App\Models\Blocked::with(['blocked_user'])
-				->join('users', 'users.id', '=', 'blocked.blocked_id')
+			$advInfo['blocked_other_count']= \App\Models\Blocked::join('users', 'users.id', '=', 'blocked.blocked_id')
 				->where('blocked.member_id', $user->id)
 				->whereNotIn('blocked.blocked_id',$bannedUsers)
 				->whereNotNull('users.id')
@@ -1541,8 +1578,7 @@ class User extends Authenticatable implements JWTSubject
 		}
         /*此會員被多少會員封鎖*/
 		if(!$wantIndexArr || in_array('be_blocked_other_count',$wantIndexArr)) {
-			$advInfo['be_blocked_other_count'] = \App\Models\Blocked::with(['blocked_user'])
-				->join('users', 'users.id', '=', 'blocked.member_id')
+			$advInfo['be_blocked_other_count'] = \App\Models\Blocked::join('users', 'users.id', '=', 'blocked.member_id')
 				->where('blocked.blocked_id', $user->id)
 				->whereNotIn('blocked.member_id',$bannedUsers)
 				->whereNotNull('users.id')
@@ -1754,14 +1790,28 @@ class User extends Authenticatable implements JWTSubject
             $Ip = array();
             foreach ($Ip_group as $Ip_key => $group) {
                 $group['IP_set_auto_ban']=SetAutoBan::whereRaw('(content="'.$group['ip'].'" AND expiry >="'. now().'")')->orWhereRaw('(content="'.$group['ip'].'" AND expiry="0000-00-00 00:00:00")')->get()->count();
-                $Ip['Ip_group'][$Ip_key] = $group;
-                $Ip['Ip_group_items'][$Ip_key] = LogUserLogin::where('user_id', $user_id)->where('created_at', 'like', '%' . $value->loginMonth . '%')->where('ip', $group->ip)->orderBy('created_at', 'DESC')->get();
                 $IpUsers = LogUserLogin::where('ip',$group->ip)->distinct('user_id')->groupBy('user_id')->get()->toarray();
                 $IpUsers = array_column($IpUsers,'user_id');
+
+                $Ip['Ip_group'][$Ip_key] = $group;
+                $Ip['Ip_group_items'][$Ip_key] = LogUserLogin::where('user_id', $user_id)->where('created_at', 'like', '%' . $value->loginMonth . '%')->where('ip', $group->ip)->orderBy('created_at', 'DESC')->get();
                 $Ip['Ip_online_people'][$Ip_key] = LogUserLogin::where('ip',$group->ip)->distinct('user_id')->count();
                 $Ip['Ip_blocked_people'][$Ip_key] = banned_users::whereIn('member_id',$IpUsers)->distinct('member_id')->count();
             }
-            $userLogin_log[$key]['Ip'] = $Ip;
+
+            //排序$Ip
+            $sortIp = [];
+            arsort($Ip['Ip_blocked_people']);
+            foreach($Ip['Ip_blocked_people'] as $skey => $svalue)
+            {
+                $sortIp['Ip_group'][] = $Ip['Ip_group'][$skey];
+                $sortIp['Ip_group_items'][] = $Ip['Ip_group_items'][$skey];
+                $sortIp['Ip_online_people'][] = $Ip['Ip_online_people'][$skey];
+                $sortIp['Ip_blocked_people'][] = $Ip['Ip_blocked_people'][$skey];
+            }
+            //排序$Ip
+
+            $userLogin_log[$key]['Ip'] = $sortIp;
 
             //cfp_id
             $CfpID_group = LogUserLogin::where('user_id', $user_id)->where('created_at', 'like', '%' . $value->loginMonth . '%')
@@ -1772,10 +1822,11 @@ class User extends Authenticatable implements JWTSubject
             $CfpID = array();
             foreach ($CfpID_group as $CfpID_key => $group) {
                 $group['CfpID_set_auto_ban']=SetAutoBan::whereRaw('(content="'.$group['cfp_id'].'" AND expiry >="'. now().'")')->orWhereRaw('(content="'.$group['cfp_id'].'" AND expiry="0000-00-00 00:00:00")')->get()->count();
-                $CfpID['CfpID_group'][$CfpID_key] = $group;
-                $CfpID['CfpID_group_items'][$CfpID_key] = LogUserLogin::where('user_id', $user_id)->where('created_at', 'like', '%' . $value->loginMonth . '%')->where('cfp_id', $group->cfp_id)->orderBy('created_at', 'DESC')->get();
                 $CfpIDUsers = LogUserLogin::where('cfp_id',$group->cfp_id)->distinct('user_id')->groupBy('user_id')->get()->toarray();
                 $CfpIDUsers = array_column($CfpIDUsers,'user_id');
+
+                $CfpID['CfpID_group'][$CfpID_key] = $group;
+                $CfpID['CfpID_group_items'][$CfpID_key] = LogUserLogin::where('user_id', $user_id)->where('created_at', 'like', '%' . $value->loginMonth . '%')->where('cfp_id', $group->cfp_id)->orderBy('created_at', 'DESC')->get();
                 $CfpID['CfpID_online_people'][$CfpID_key] = count($CfpIDUsers);
                 $CfpID['CfpID_blocked_people'][$CfpID_key] = banned_users::whereIn('member_id',$CfpIDUsers)->distinct('member_id')->count();
 

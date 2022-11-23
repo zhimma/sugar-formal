@@ -164,7 +164,6 @@ class Message_newController extends BaseController {
         //罐頭訊息警示 start
         if($user->engroup==1)
         {
-           
             $user->can_message_alert = $request->can_message_alert;
             $user->save();
         }
@@ -192,7 +191,9 @@ class Message_newController extends BaseController {
             else
                 $inbox_refuse_set->isrefused_warned_user = 0;
             $inbox_refuse_set->refuse_pr = $request->refuse_PR;
+            /*
             $inbox_refuse_set->refuse_canned_message_pr = $request->refuse_canned_message_PR;
+            */
             $inbox_refuse_set->refuse_register_days = $request->refuse_register_days;
             $inbox_refuse_set->save();
         }
@@ -733,6 +734,7 @@ class Message_newController extends BaseController {
                     }
                     $data = array_values($data);
                 }
+                /*
                 if($inbox_refuse_set->refuse_canned_message_pr != -1)
                 {
                     $count = 0;
@@ -753,6 +755,7 @@ class Message_newController extends BaseController {
                     }
                     $data = array_values($data);
                 }
+                */
                 if($inbox_refuse_set->refuse_register_days != 0)
                 {
                     $rtime = Carbon::now()->subDays($inbox_refuse_set->refuse_register_days);

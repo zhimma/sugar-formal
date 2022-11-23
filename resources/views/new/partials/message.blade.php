@@ -263,14 +263,44 @@
             overflow-y: scroll;
         }
     }
+    @media (max-width:1280px) {
+        .chat_button_inner {
+            padding: 0 35px;
+        }
+    }
+    @media (max-width:912px) {
+        .chat_button_inner {
+            padding: 0 20px;
+        }
+    }
+    @media (max-width:414px) {
+        .chat_button_inner {
+            padding: 0 30px;
+        }
+    }
+    @media (max-width:360px) {
+        .chat_button_inner {
+            padding: 0 20px;
+        }
+    }
+    @media (max-width:320px) {
+        .chat_button_inner {
+            padding: 0 10px;
+        }
+    }
+
+
 </style>
 
 <div class="bl bl_tab tab_anonymousChatAlert" id="tab_anonymousChatAlert" style="top: 10%;">
     <div class="bltitle">聊天室重要規定</div>
     <div class="n_blnr01 matop10">
-        <div class="n_fengs">{!! isset($anonymous_chat_announcement)?$anonymous_chat_announcement:'' !!}
+        <div class="n_fengs" style="padding-right: unset;">{!! isset($anonymous_chat_announcement)?$anonymous_chat_announcement:'' !!}
         </div>
-        <a class="n_bllbut matop30">進入聊天室</a>
+        <div class="chat_button" style="display: flex;">
+        <a href="{{ route('anonymous_chat_forbid_list') }}" class="n_bllbut matop30 left chat_button_inner" style="display: flex;">本週懲處名單</a>
+        <a class="n_bllbut matop30 chat_enter right chat_button_inner" style="display: flex;">進入聊天室</a>
+        </div>
     </div>
     <a id="" onclick="gmBtnNoReload()" class="bl_gb"><img src="/new/images/gb_icon.png"></a>
 </div>

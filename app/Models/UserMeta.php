@@ -90,7 +90,8 @@ class UserMeta extends Model
         'budget_per_month_max',
         'budget_per_month_min',
         'transport_fare_max',
-        'transport_fare_min'
+        'transport_fare_min',
+        'pic_blur',
     ];
 
     /*
@@ -1004,12 +1005,22 @@ class UserMeta extends Model
             $singlePageData = $NormalDataQuery->skip($start - $VvipDataQueryCount)->take($count)->get();
         }
 
-        //makeHidden隱藏欄位避免資料外洩
-        $singlePageData = $singlePageData->makeHidden(['email','fa_relation','meta']);
+        // 隱藏非必要及敏感個人資料
+        $singlePageData = $singlePageData->makeHidden([
+            'email', 'fa_relation', 'meta', 'registered_from_mobile',
+            'engroup_change', 'enstatus', 'password_updated', 'updated_at',
+            'created_at', 'vip_record', 'noticeRead', 'isReadManual', 'isReadIntro',
+            'is_read_female_manual_part1', 'is_read_female_manual_part2',
+            'is_read_female_manual_part3', 'notice_has_new_evaluation', 'login_times',
+            'intro_login_times', 'hide_online_hide_time',
+            'line_notify_auth_code', 'line_notify_token', 'line_notify_switch',
+            'line_notify_alert', 'can_message_alert', 'show_can_message',
+            'is_admin_chat_channel_open', 'advance_auth_status', 'advance_auth_time',
+            'advance_auth_identity_no', 'advance_auth_identity_encode', 'advance_auth_birth',
+            'advance_auth_phone', 'advance_auth_email', 'advance_auth_email_token',
+            'advance_auth_email_at'
+        ]);
         
-
-
-
         
         //$singlePageDataQuery = $DataQuery->skip($start)->take($count);
         //$singlePageData = $singlePageDataQuery->get();

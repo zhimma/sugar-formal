@@ -1,4 +1,47 @@
     @if(view()->shared('user') && view()->shared('rap_service') && view()->shared('rap_service')->riseByUserEntry(view()->shared('user')->refresh())->isAllowUseVideoChat() && view()->shared('rap_service')->isUrlNeedEntireSiteVideoChat())
+        <script>
+            let video_verify_loading_pic = new Image();
+            video_verify_loading_pic.src="{{asset('/new/images/loading.svg')}}";    
+    
+            function log_video_chat_process(log_arr)
+            {
+                log_arr.url = location.href;
+
+                fetch('/video/log_video_chat_process', {
+                      method: 'POST',
+                      headers: {'Content-Type': 'application/json'},
+                      body: JSON.stringify(log_arr)
+                      });       
+            }
+            
+            function video_beforeunload_act()
+            {
+                axios
+                  .post("/video/unloading-video-page", {})
+                  .then(() => {
+                    var log_arr = {
+                        from_file:'VideoVerifyUser.vue'
+                        ,title:'then in unloading-video-page axios@video_verify_user_entire_site.tpl'
+                        ,method:'then@unloading-video-page axios@video_verify_user_entire_site.tpl'
+                        ,step:'within'
+                    };
+                    log_video_chat_process(log_arr);      
+                  })
+                  .catch((error) => {
+                    var log_arr = {
+                        from_file:'VideoVerifyUser.vue'
+                        ,title:'catch in unloading-video-page axios@video_verify_user_entire_site.tpl'
+                        ,method:'catch@unloading-video-page axios@video_verify_user_entire_site.tpl'
+                        ,step:'within'
+                        ,data:{error:error}
+                    };
+                    log_video_chat_process(log_arr);    
+
+                    $("#error_message").text('loading-video-page axios error:' + error);
+                  });     
+            }            
+            
+        </script>
         <style>
             #entire_site_video_app > div > .container {
                 

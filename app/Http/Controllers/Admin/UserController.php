@@ -5,6 +5,7 @@ namespace App\Http\Controllers\Admin;
 use App\Models\AccountStatusLog;
 use App\Models\AdminActionLog;
 use App\Models\AnonymousChat;
+use App\Models\AnonymousChatForbid;
 use App\Models\AnonymousChatReport;
 use App\Models\Board;
 use App\Models\EssenceStatisticsLog;
@@ -12,6 +13,7 @@ use App\Models\Evaluation;
 use App\Models\EvaluationPic;
 use App\Models\ExpectedBanningUsers;
 use App\Models\hideOnlineData;
+use App\Models\IsWarnedLog;
 use App\Models\lineNotifyChatSet;
 use App\Models\LogUserLogin;
 use App\Models\MemberPic;
@@ -87,6 +89,7 @@ use App\Services\RealAuthAdminService;
 use App\Services\EnvironmentService;
 use App\Models\UserVideoVerifyRecord;
 use App\Models\Features;
+use App\Models\MessageRoomUserXref;
 use App\Models\SpecialIndustriesTestAnswer;
 use Illuminate\Support\Facades\Log;
 use App\Models\RoleUser;
@@ -394,6 +397,7 @@ class UserController extends \App\Http\Controllers\BaseController
      */
     public function toggleUserBlock(Request $request)
     {
+        $now_time = Carbon::now();
         ini_set('max_execution_time', -1);
         $userBanned = banned_users::where('member_id', $request->user_id)
             ->orderBy('created_at', 'desc')
@@ -411,7 +415,7 @@ class UserController extends \App\Http\Controllers\BaseController
             foreach ($request->addautoban as $value) {
                 if (!empty($value)) {
                     if (SetAutoBan::where([['type', 'allcheck'], ['content', $value], ['set_ban', '1']])->first() == null) {
-                        SetAutoBan::insert(['type' => 'allcheck', 'content' => $value, 'set_ban' => '1', 'cuz_user_set' => $request->user_id, 'created_at' => now(), 'updated_at' => now()]);
+                        SetAutoBan::insert(['type' => 'allcheck', 'content' => $value, 'set_ban' => '1', 'cuz_user_set' => $request->user_id, 'created_at' => $now_time, 'updated_at' => $now_time]);
                     }
                 }
             }
@@ -422,7 +426,7 @@ class UserController extends \App\Http\Controllers\BaseController
             foreach ($request->addpicautoban as $value) {
                 if (!empty($value)) {
                     if (SetAutoBan::where([['type', 'picname'], ['content', $value], ['set_ban', '1']])->first() == null) {
-                        SetAutoBan::insert(['type' => 'picname', 'content' => $value, 'set_ban' => '1', 'cuz_user_set' => $request->user_id, 'created_at' => now(), 'updated_at' => now()]);
+                        SetAutoBan::insert(['type' => 'picname', 'content' => $value, 'set_ban' => '1', 'cuz_user_set' => $request->user_id, 'created_at' => $now_time, 'updated_at' => $now_time]);
                     }
                 }
             }
@@ -434,7 +438,7 @@ class UserController extends \App\Http\Controllers\BaseController
             foreach ($request->cfp_id as $value) {
                 if (!empty($value)) {
                     if (SetAutoBan::where([['type', 'cfp_id'], ['content', $value], ['set_ban', '1']])->first() == null) {
-                        SetAutoBan::insert(['type' => 'cfp_id', 'content' => $value, 'set_ban' => '1', 'cuz_user_set' => $request->user_id, 'created_at' => now(), 'updated_at' => now()]);
+                        SetAutoBan::insert(['type' => 'cfp_id', 'content' => $value, 'set_ban' => '1', 'cuz_user_set' => $request->user_id, 'created_at' => $now_time, 'updated_at' => $now_time]);
                     }
                 }
             }
@@ -445,7 +449,7 @@ class UserController extends \App\Http\Controllers\BaseController
             foreach ($request->ip as $value) {
                 if (!empty($value)) {
                     if (SetAutoBan::where([['type', 'ip'], ['content', $value], ['set_ban', '1']])->first() == null) {
-                        SetAutoBan::insert(['type' => 'ip', 'content' => $value, 'set_ban' => '1', 'cuz_user_set' => $request->user_id, 'expiry' => \Carbon\Carbon::now()->addMonths(1)->format('Y-m-d H:i:s'), 'created_at' => now(), 'updated_at' => now()]);
+                        SetAutoBan::insert(['type' => 'ip', 'content' => $value, 'set_ban' => '1', 'cuz_user_set' => $request->user_id, 'expiry' => $now_time->copy()->addMonths(1)->format('Y-m-d H:i:s'), 'created_at' => $now_time, 'updated_at' => $now_time]);
                     }
                 }
             }
@@ -456,7 +460,7 @@ class UserController extends \App\Http\Controllers\BaseController
             foreach ($request->userAgent as $value) {
                 if (!empty($value)) {
                     if (SetAutoBan::where([['type', 'userAgent'], ['content', $value], ['set_ban', '1']])->first() == null) {
-                        SetAutoBan::insert(['type' => 'userAgent', 'content' => $value, 'set_ban' => '1', 'cuz_user_set' => $request->user_id, 'created_at' => now(), 'updated_at' => now()]);
+                        SetAutoBan::insert(['type' => 'userAgent', 'content' => $value, 'set_ban' => '1', 'cuz_user_set' => $request->user_id, 'created_at' => $now_time, 'updated_at' => $now_time]);
                     }
                 }
             }
@@ -467,7 +471,7 @@ class UserController extends \App\Http\Controllers\BaseController
             foreach ($request->pic as $value) {
                 if (!empty($value)) {
                     if (SetAutoBan::where([['type', 'pic'], ['content', $value], ['set_ban', '1']])->first() == null) {
-                        SetAutoBan::insert(['type' => 'pic', 'content' => $value, 'set_ban' => '1', 'cuz_user_set' => $request->user_id, 'created_at' => now(), 'updated_at' => now()]);
+                        SetAutoBan::insert(['type' => 'pic', 'content' => $value, 'set_ban' => '1', 'cuz_user_set' => $request->user_id, 'created_at' => $now_time, 'updated_at' => $now_time]);
                     }
                 }
             }
@@ -523,7 +527,7 @@ class UserController extends \App\Http\Controllers\BaseController
             $userBanned->vip_pass = $request->vip_pass;
             $userBanned->adv_auth = $request->adv_auth;
             if ($request->days != 'X') {
-                $userBanned->expire_date = Carbon::now()->addDays($request->days);
+                $userBanned->expire_date = $now_time->copy()->addDays($request->days);
             }
             if (!empty($request->msg)) {
                 $userBanned->reason = $request->msg;
@@ -533,7 +537,7 @@ class UserController extends \App\Http\Controllers\BaseController
             $userBanned->save();
             BadUserCommon::addRemindMsgFromBadId($request->user_id);
             //寫入log
-            DB::table('is_banned_log')->insert(['user_id' => $request->user_id, 'reason' => $userBanned->reason, 'expire_date' => $userBanned->expire_date, 'vip_pass' => $userBanned->vip_pass, 'adv_auth' => $userBanned->adv_auth, 'created_at' => Carbon::now()]);
+            DB::table('is_banned_log')->insert(['user_id' => $request->user_id, 'reason' => $userBanned->reason, 'expire_date' => $userBanned->expire_date, 'vip_pass' => $userBanned->vip_pass, 'adv_auth' => $userBanned->adv_auth, 'created_at' => $now_time]);
             //新增Admin操作log
             $this->insertAdminActionLog($request->user_id, '封鎖會員');
 
@@ -584,6 +588,7 @@ class UserController extends \App\Http\Controllers\BaseController
 
     public function toggleUserWarned(Request $request)
     {
+        $now_time = Carbon::now();
         ini_set('max_execution_time', -1);
         $userWarned = warned_users::where('member_id', $request->user_id)
             ->orderBy('created_at', 'desc')
@@ -604,9 +609,9 @@ class UserController extends \App\Http\Controllers\BaseController
 
                         //如果選項不是永久時新增天數
                         if ($request->days != 'X') {
-                            SetAutoBan::insert(['type' => 'allcheck', 'content' => $value, 'set_ban' => '3', 'cuz_user_set' => $request->user_id, 'expired_days' => $request->days, 'created_at' => now(), 'updated_at' => now()]);
+                            SetAutoBan::insert(['type' => 'allcheck', 'content' => $value, 'set_ban' => '3', 'cuz_user_set' => $request->user_id, 'expired_days' => $request->days, 'created_at' => $now_time, 'updated_at' => $now_time]);
                         } else {
-                            SetAutoBan::insert(['type' => 'allcheck', 'content' => $value, 'set_ban' => '3', 'cuz_user_set' => $request->user_id, 'created_at' => now(), 'updated_at' => now()]);
+                            SetAutoBan::insert(['type' => 'allcheck', 'content' => $value, 'set_ban' => '3', 'cuz_user_set' => $request->user_id, 'created_at' => $now_time, 'updated_at' => $now_time]);
                         }
                     }
                 }
@@ -617,29 +622,16 @@ class UserController extends \App\Http\Controllers\BaseController
             $checkLog = DB::table('is_warned_log')->where('user_id', $userWarned->member_id)->where('created_at', $userWarned->created_at)->get()->first();
             if (!$checkLog) {
                 //寫入log
-                DB::table('is_warned_log')->insert(['user_id' => $userWarned->member_id, 'reason' => $userWarned->reason, 'created_at' => $userWarned->created_at, 'vip_pass' => $userWarned->vip_pass, 'adv_auth' => $userWarned->adv_auth]);
+                DB::table('is_warned_log')->insert(['user_id' => $userWarned->member_id, 'reason' => $userWarned->reason, 'expire_date' => $userWarned->expire_date, 'created_at' => $userWarned->created_at, 'vip_pass' => $userWarned->vip_pass, 'adv_auth' => $userWarned->adv_auth]);
             }
             $userWarned->delete();
         }
-        //            if(isset($request->page)){
-        //                switch($request->page){
-        //                    case 'advInfo':
-        //                        return redirect('admin/users/advInfo/'.$request->user_id);
-        //                    default:
-        //                        return redirect($request->page);
-        //                        break;
-        //                }
-        //            }else{
-        //                return back()->with('message', '已解除站方警示');
-        //            }
-        //        }
-        //        else{
         $userWarned = new warned_users;
         $userWarned->member_id = $request->user_id;
         $userWarned->vip_pass = $request->vip_pass;
         $userWarned->adv_auth = $request->adv_auth;
         if ($request->days != 'X') {
-            $userWarned->expire_date = Carbon::now()->addDays($request->days);
+            $userWarned->expire_date = $now_time->copy()->addDays($request->days);
         }
         $userWarned->reason = $request->reason;
 
@@ -649,7 +641,7 @@ class UserController extends \App\Http\Controllers\BaseController
         $userWarned->save();
         BadUserCommon::addRemindMsgFromBadId($request->user_id);
         //寫入log
-        DB::table('is_warned_log')->insert(['user_id' => $request->user_id, 'reason' => $request->reason, 'vip_pass' => $request->vip_pass, 'adv_auth' => $request->adv_auth, 'created_at' => Carbon::now()]);
+        DB::table('is_warned_log')->insert(['user_id' => $request->user_id, 'reason' => $request->reason, 'vip_pass' => $request->vip_pass, 'adv_auth' => $request->adv_auth, 'created_at' => $now_time, 'expire_date' => $now_time->copy()->addDays($request->days)]);
         //新增Admin操作log
         $this->insertAdminActionLog($request->user_id, '站方警示');
 
@@ -1122,13 +1114,13 @@ class UserController extends \App\Http\Controllers\BaseController
 
         $block = $request->block;
 
-        $user = User::where('id', 'like', $id)
+        $user = User::where('id', '=', $id)
             ->get()->first();
         if (!isset($user)) {
             if ($block == 'pic')  return;
             return '<h1>會員資料已刪除。</h1>';
         }
-        $userMeta = UserMeta::where('user_id', 'like', $id)->get()->first();
+        $userMeta = UserMeta::where('user_id', '=', $id)->get()->first();
 
         if ($block == 'pic') {
             return view('admin.users.advInfoPicBlock')
@@ -1171,28 +1163,14 @@ class UserController extends \App\Http\Controllers\BaseController
         }
 
         //groupby $userMessage
-        $userMessage_log = Message::withTrashed()->selectRaw("IF(message.to_id='" . $id . "', message.from_id, message.to_id) as ref_user_id, message.to_id, message.from_id, count(*) as toCount") //->from('message as m')
+        $userMessage_log = Message::withTrashed()->selectRaw("IF(message.to_id='" . $id . "', message.from_id, message.to_id) as ref_user_id, message.room_id, message.to_id, message.from_id, count(*) as toCount")
             ->where('message.from_id', $id)
             ->orWhere('message.to_id', $id)
-            ->where(DB::raw("message.created_at"), '>=', \Carbon\Carbon::parse("180 days ago")->toDateTimeString())
-            ->groupBy(DB::raw("ref_user_id"))
+            ->where("message.created_at", '>=', \Carbon\Carbon::parse("180 days ago")->toDateTimeString())
+            ->groupBy("ref_user_id")
             ->orderByRaw("IF(ref_user_id=1049, 1, 0)  desc")
             ->orderBy('message.created_at', 'DESC')
             ->paginate(1000);
-
-        foreach ($userMessage_log as $key => $value) {
-            $userMessage_log[$key]['items'] = Message::withTrashed()->select('message.*', 'message.id as mid', 'message.created_at as m_time', 'u.*', 'b.id as banned_id', 'b.expire_date as banned_expire_date')
-                //->from('message as m')
-                ->leftJoin('users as u', 'u.id', 'message.from_id')
-                ->leftJoin('banned_users as b', 'message.from_id', 'b.member_id')
-                ->where([['message.to_id', $id], ['message.from_id', $value->ref_user_id]])
-                ->orWhere([['message.from_id', $id], ['message.to_id', $value->ref_user_id]])
-                ->where('message.created_at', '>=', \Carbon\Carbon::parse("180 days ago")->toDateTimeString())
-                ->orderBy('message.created_at')
-                ->take(1000)
-                ->get();
-        }
-
         // 給予、取消優選
         $now = \Carbon\Carbon::now();
         $vip_date = Vip::select('id', 'updated_at')->where('member_id', $user->id)->orderBy('updated_at', 'desc')->get()->first();
@@ -5860,7 +5838,7 @@ class UserController extends \App\Http\Controllers\BaseController
         if(Request()->get('cfp_id')){
             $isSetAutoBan_cfp_id = \App\Models\SetAutoBan::whereRaw('(content="'. Request()->get('cfp_id').'" AND expiry >="'. now().'")')->orWhereRaw('(content="'. Request()->get('cfp_id').'" AND expiry="0000-00-00 00:00:00")')->get();
         }else{
-            $isSetAutoBan_ip = \App\Models\SetAutoBan::whereRaw('(content="'. Request()->get('ip').'" AND expiry >="'. now().'")')->orWhereRaw('(content="'. Request()->get('ip').'" AND expiry="0000-00-00 00:00:00")')->get();
+            $isSetAutoBan_ip = \App\Models\SetAutoBan::whereRaw('(content="'. $ip.'" AND expiry >="'. now().'")')->orWhereRaw('(content="'. $ip.'" AND expiry="0000-00-00 00:00:00")')->get();
         }
         $male_user_list=User::where('engroup', 1)->whereIn('id', array_keys($getIpUsersData_origin->groupBy('user_id')->toArray()))->get()->pluck('id')->toArray();
         return view('admin.users.ipUsersList')
@@ -6636,6 +6614,7 @@ class UserController extends \App\Http\Controllers\BaseController
         echo json_encode(['ok']);
     }
 
+    //AnonymousChat
     public function showAnonymousChatPage()
     {
         $admin = $this->admin->checkAdmin();
@@ -6652,14 +6631,47 @@ class UserController extends \App\Http\Controllers\BaseController
             $msg = isset($request->msg) ? $request->msg : '';
             $date_start = $request->date_start ? $request->date_start : '0000-00-00';
             $date_end = $request->date_end ? $request->date_end : date('Y-m-d');
-            $results = AnonymousChat::select('anonymous_chat.*', 'users.name', 'users.id as usersID', 'users.engroup')
+            $results = AnonymousChat::select(
+                'anonymous_chat.*',
+                'users.name',
+                'users.id as userID',
+                'users.engroup',
+                'banned_users.member_id as banned_userID',
+                'warned_users.member_id as warned_userID',
+                'anonymous_chat_forbid.user_id as forbid_userID'
+            )
                 ->leftJoin('users', 'users.id', 'anonymous_chat.user_id')
+                ->leftJoin('banned_users', 'banned_users.member_id', 'anonymous_chat.user_id')
+                ->where(
+                    function($q) {
+                        $q->where('banned_users.expire_date', null)->
+                        orWhere('banned_users.expire_date','>',Carbon::now());
+                    })
+                ->leftJoin('warned_users', 'warned_users.member_id', 'anonymous_chat.user_id')
+                ->where(
+                    function($q) {
+                        $q->where('warned_users.expire_date', null)->
+                        orWhere('warned_users.expire_date','>',Carbon::now());
+                    })
+                ->leftJoin('anonymous_chat_forbid', 'anonymous_chat_forbid.user_id', 'anonymous_chat.user_id')
+                ->where(
+                    function($q) {
+                        $q->where('anonymous_chat_forbid.expire_date', null)->
+                        orWhere('anonymous_chat_forbid.expire_date','>',Carbon::now());
+                    })
                 ->where('anonymous_chat.content', 'like', '%' . $msg . '%')
                 ->whereBetween('anonymous_chat.created_at', array($date_start . ' 00:00', $date_end . ' 23:59'))
                 ->orderBy('anonymous_chat.created_at', 'desc')
                 ->withTrashed()
                 ->paginate(100);
-            return view('admin.users.searchAnonymousChat')->with('results', $results);
+            $anonymousChatBanReason = DB::table('reason_list')->select('content')->where('type', 'anonymous_chat_ban')->get();
+            $anonymousChatWarnedReason = DB::table('reason_list')->select('content')->where('type', 'anonymous_chat_warned')->get();
+            $anonymousChatForbidReason = DB::table('reason_list')->select('content')->where('type', 'anonymous_chat_forbid')->get();
+            return view('admin.users.searchAnonymousChat')
+                ->with('anonymousChatBanReason', $anonymousChatBanReason)
+                ->with('anonymousChatWarnedReason', $anonymousChatWarnedReason)
+                ->with('anonymousChatForbidReason', $anonymousChatForbidReason)
+                ->with('results', $results);
         }elseif($request->searchAnonymousChatReport){
             $msg = isset($request->msg) ? $request->msg : '';
             $date_start = $request->date_start ? $request->date_start : '0000-00-00';
@@ -6737,6 +6749,136 @@ class UserController extends \App\Http\Controllers\BaseController
         AnonymousChatReport::where('reported_user_id', $user_id)->delete();
         echo json_encode(['ok']);
     }
+
+    public function userBlock(Request $request)
+    {
+        ini_set('max_execution_time', -1);
+
+        $user_id = $request->user_id;
+        $name = $request->name;
+        $block_type = $request->block_type;
+
+        if($block_type=='anonymous_chat_ban'){
+            //勾選加入常用列表後新增
+            if ($request->addreason) {
+                if (DB::table('reason_list')->where([['type', 'anonymous_chat_ban'], ['content', $request->reason]])->first() == null) {
+                    DB::table('reason_list')->insert(['type' => 'anonymous_chat_ban', 'content' => $request->reason]);
+                }
+            }
+            $userBanned = User::isBanned_v2($user_id);
+            if(!$userBanned){
+                $userBanned = new banned_users;
+                $userBanned->member_id = $user_id;
+                if ($request->days != 'X') {
+                    $userBanned->expire_date = Carbon::now()->addDays($request->days);
+                }
+                if(!empty($request->reason)) {
+                    $userBanned->reason = $request->reason;
+                }
+                $userBanned->save();
+                BadUserCommon::addRemindMsgFromBadId($user_id);
+                //寫入log
+                IsBannedLog::insert(['user_id' => $user_id, 'reason' => $userBanned->reason, 'expire_date' => $userBanned->expire_date, 'created_at' => Carbon::now()]);
+                //新增Admin操作log
+                $this->insertAdminActionLog($user_id, '封鎖會員');
+
+                return back()->with('message', '已封鎖 '.$name );
+            }
+        }
+        else if($block_type=='anonymous_chat_warned'){
+            //勾選加入常用列表後新增
+            if ($request->addreason) {
+                if (DB::table('reason_list')->where([['type', 'anonymous_chat_warned'], ['content', $request->reason]])->first() == null) {
+                    DB::table('reason_list')->insert(['type' => 'anonymous_chat_warned', 'content' => $request->reason]);
+                }
+            }
+            $userWarned = User::isWarned($user_id);
+            if(!$userWarned) {
+                $userWarned = new warned_users;
+                $userWarned->member_id = $user_id;
+                if ($request->days != 'X') {
+                    $userWarned->expire_date = Carbon::now()->addDays($request->days);
+                }
+                $userWarned->reason = $request->reason;
+
+                if (!empty($request->reason)) {
+                    $userWarned->reason = $request->reason;
+                }
+                $userWarned->save();
+                BadUserCommon::addRemindMsgFromBadId($user_id);
+                //寫入log
+                IsWarnedLog::insert(['user_id' => $user_id, 'reason' => $request->reason, 'created_at' => Carbon::now()]);
+                //新增Admin操作log
+                $this->insertAdminActionLog($user_id, '站方警示');
+                return back()->with('message', '已警示 '.$name );
+            }
+
+        }
+        else if($block_type=='anonymous_chat_forbid'){
+            //勾選加入常用列表後新增
+            if ($request->addreason) {
+                if (DB::table('reason_list')->where([['type', 'anonymous_chat_forbid'], ['content', $request->reason]])->first() == null) {
+                    DB::table('reason_list')->insert(['type' => 'anonymous_chat_forbid', 'content' => $request->reason]);
+                }
+            }
+            $userForbid = User::isAnonymousChatForbid($user_id);
+            if(!$userForbid){
+                $userForbid = new AnonymousChatForbid;
+                $userForbid->user_id = $user_id;
+                $userForbid->anonymous = $request->anonymous;
+                if ($request->days != 'X') {
+                    $userForbid->expire_date = Carbon::now()->addDays($request->days);
+                }
+                if (!empty($request->reason)) {
+                    $userForbid->reason = $request->reason;
+                }
+                $userForbid->save();
+                //寫入log
+                IsWarnedLog::insert(['user_id' => $user_id, 'reason' => $request->reason, 'created_at' => Carbon::now()]);
+                //新增Admin操作log
+                $this->insertAdminActionLog($user_id, '禁止進入匿名聊天室');
+                return back()->with('message', '已禁止 '.$name.' 進入匿名聊天室' );
+            }
+
+        }
+
+        return false;
+    }
+
+    public function userBlockRemove(Request $request)
+    {
+        $data = $request->post('data');
+        $msg = '';
+
+        if($data['block_type']=='anonymous_chat_forbid') {
+            $forbid = AnonymousChatForbid::where('user_id', $data['id'])->get();
+            if ($forbid->count() > 0) {
+                $delete = AnonymousChatForbid::where('user_id', $data['id'])->delete();
+                if($delete) {
+                    $msg = '解除禁止進入匿名聊天室';
+                }
+            }
+        }
+
+        if($msg != '') {
+            $this->messageService->setMessageHandlingBySenderId($data['id'], 0);
+            //新增Admin操作log
+            $this->insertAdminActionLog($data['id'], $msg);
+            $data = array(
+                'code' => '200',
+                'status' => 'success'
+            );
+            echo json_encode($data);
+        }else{
+            $data = array(
+                'code' => '204',
+                'status' => 'no content'
+            );
+            echo json_encode($data);
+        }
+
+    }
+    //AnonymousChat END
 
     public function member_profile_check_over(Request $request)
     {
@@ -7547,6 +7689,39 @@ class UserController extends \App\Http\Controllers\BaseController
         $msg_type    = 'message';
         $msg_content = '已延長等待更多資料';
         return back()->with($msg_type, $msg_content);
+    }
+
+    public function getMessageFromRoomId(Request $request)
+    {
+        $room_id = $request->room_id;
+
+        $message_detail = Message::withTrashed()->select('message.*', 'message.id as mid', 'message.created_at as m_time', 'u.*', 'u.id as u_id', 'b.id as banned_id', 'b.expire_date as banned_expire_date')
+		->leftJoin('users as u', 'u.id', 'message.from_id')
+		->leftJoin('banned_users as b', 'message.from_id', 'b.member_id')
+        ->where('room_id', $room_id)
+		->where('message.created_at', '>=', \Carbon\Carbon::parse("180 days ago")->toDateTimeString())
+		->orderBy('message.created_at')
+		->take(1000)
+		->get();
+        
+        $room_users = MessageRoomUserXref::where('room_id', $room_id)->get();
+        $users_data = [];
+        $users = [];
+        foreach($room_users as $room_user)
+        {
+            $users[] = $room_user->user_id;
+            $users_data[$room_user->user_id]['tipcount'] =  Tip::TipCount_ChangeGood($room_user->user_id) ?? false;
+            $users_data[$room_user->user_id]['vip'] =  Vip::vip_diamond($room_user->user_id) ?? false;
+        }
+
+        $message_href = route('admin/showMessagesBetween', $users);
+
+        return response()->json([
+            'room_id' => $room_id,
+            'message_detail' => $message_detail,
+            'users_data' => $users_data,
+            'message_href' => $message_href
+        ], 201);
     }
 
     public function vipIndex()

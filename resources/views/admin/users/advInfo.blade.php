@@ -889,6 +889,7 @@
             $isEverWarned_log[$key]['reason']=$row->reason;
             $isEverWarned_log[$key]['vip_pass']=$row->vip_pass;
             $isEverWarned_log[$key]['adv_auth']=$row->adv_auth;
+            $isEverWarned_log[$key]['expire_date']=$row->expire_date;
             $isEverWarned_cancel=($isWarned->count() && $key || !$isWarned->count())?\App\Models\AdminActionLog::where('target_id', $user->id)->where('act','解除站方警示')->orderByDesc('created_at')->skip($isWarned && $key?$key-1:$key)->first():null;
             $isEverWarned_log[$key]['cancal_admin']=$isEverWarned_cancel? \App\Models\User::findById($isEverWarned_cancel->operator??''):'';
             $isEverWarned_log[$key]['cancal_time']=$isEverWarned_cancel?$isEverWarned_cancel->created_at:($isWarned->count() && !$key?'尚未解除':'');
@@ -907,6 +908,7 @@
             $isEverBanned_log[$key]['expire_date']=$row->expire_date;
             $isEverBanned_log[$key]['vip_pass']=$row->vip_pass;
             $isEverBanned_log[$key]['adv_auth']=$row->adv_auth;
+            $isEverBanned_log[$key]['expire_date']=$row->expire_date;
             $isEverBanned_cancel=($isBanned->count() && $key || !$isBanned->count())?\App\Models\AdminActionLog::where('target_id', $user->id)->where('act','解除封鎖')->orderByDesc('created_at')->skip($isBanned->count() && $key?$key-1:$key)->first():null;
             $isEverBanned_log[$key]['cancal_admin']=$isEverBanned_cancel? \App\Models\User::findById($isEverBanned_cancel->operator??'') :'';
             $isEverBanned_log[$key]['cancal_time']=$isEverBanned_cancel? $isEverBanned_cancel->created_at:($isBanned->count() && !$key?'尚未解除':'');
@@ -1744,47 +1746,51 @@
     <div id="loading_data" class="btn btn-dark">loading全部登入紀錄</div>
 </div>
 <table id="table_userLogin_log" class="table table-hover table-bordered">
-    @foreach($userLogin_log as $logInLog)
+    @foreach($userLogin_log as $key => $logInLog)
         <tr>
-            <td>
+            @if($key == 0)<td align="center">@else <td> @endif
                 <span class="loginItem showRecord" id="showloginTime{{substr($logInLog->loginDate,0,7)}}" data-sectionName="loginTime{{substr($logInLog->loginDate,0,7)}}" data-ip="不指定">{{ substr($logInLog->loginDate,0,7) . ' ['. $logInLog->dataCount .']' }}</span>
                 <table>
                     @php
                         $CFP_count=count(array_get($logInLog->CfpID,'CfpID_group',[]));
                         $IP_count=count(array_get($logInLog->Ip,'Ip_group',[]));
                     @endphp
-                    <td style="min-width: 100px"></td>
-                    <td style="min-width: 100px"></td>
+                    @php
+                        $CfpIDLogInLog = array_get($logInLog->CfpID,'CfpID_group',[]);
+                        $CfpID_link_array = [];
+                    @endphp
                     @if($CFP_count>0)
-                        @foreach(array_get($logInLog->CfpID,'CfpID_group',[]) as $gpKey =>$group)
-                            @if($gpKey<5)
-                                <td class="loginItem" id="showcfpID{{substr($logInLog->loginDate,0,7)}}_group{{$gpKey}}" data-sectionName="cfpID{{substr($logInLog->loginDate,0,7)}}_group{{$gpKey}}" data-assign_user_id="{{ $user->id }}" data-yearMonth="{{substr($logInLog->loginDate,0,7)}}" data-cfpID="{{$group->cfp_id}}" data-blocked-people="{{ $logInLog->CfpID['CfpID_blocked_people'][$gpKey] }}" data-online-people="{{ $logInLog->CfpID['CfpID_online_people'][$gpKey] }}" data-count="{{ $group->dataCount }}" style="margin-left: 20px;min-width: 100px;{{ $group->CfpID_set_auto_ban ? 'background:yellow;' : '' }}">{{ $group->cfp_id }} <span class="cfp_bp" style="{{ $logInLog->CfpID['CfpID_blocked_people'][$gpKey] > 0 ? 'background-color: yellow;' : '' }}">[{{ $logInLog->CfpID['CfpID_blocked_people'][$gpKey] }}/{{ $logInLog->CfpID['CfpID_online_people'][$gpKey] }}]</span> {{ '('.$group->dataCount .')' }}</td>
+                        @foreach($CfpIDLogInLog as $gpKey =>$group)
+                            @if($logInLog->CfpID['CfpID_online_people'][$gpKey] > 1)
+                                <td nowrap class="loginItem" id="showcfpID{{substr($logInLog->loginDate,0,7)}}_group{{$gpKey}}" data-sectionName="cfpID{{substr($logInLog->loginDate,0,7)}}_group{{$gpKey}}" data-assign_user_id="{{ $user->id }}" data-yearMonth="{{substr($logInLog->loginDate,0,7)}}" data-cfpID="{{$group->cfp_id}}" data-blocked-people="{{ $logInLog->CfpID['CfpID_blocked_people'][$gpKey] }}" data-online-people="{{ $logInLog->CfpID['CfpID_online_people'][$gpKey] }}" data-count="{{ $group->dataCount }}" style="margin-left: 20px;min-width: 100px;{{ $group->CfpID_set_auto_ban ? 'background:yellow;' : '' }}">{{ $group->cfp_id }} <span class="cfp_bp" style="{{ $logInLog->CfpID['CfpID_blocked_people'][$gpKey] > 0 ? 'background-color: yellow;' : '' }}">[{{ $logInLog->CfpID['CfpID_blocked_people'][$gpKey] }}/{{ $logInLog->CfpID['CfpID_online_people'][$gpKey] }}]</span></td>
+                                @php
+                                    $CfpID_link_array[$group->cfp_id] = '<td class="loginItem" data-sectionName="cfpID' . substr($logInLog->loginDate,0,7) . '_group' . $gpKey . '" data-assign_user_id="' .  $user->id  . '" data-yearMonth="' . substr($logInLog->loginDate,0,7) . '" data-cfpID="' . $group->cfp_id . '" data-blocked-people="' .  $logInLog->CfpID['CfpID_blocked_people'][$gpKey]  . '" data-online-people="' .  $logInLog->CfpID['CfpID_online_people'][$gpKey]  . '" data-count="' .  $group->dataCount  . '" style="margin-left: 20px;min-width: 100px;' .  ($group->CfpID_set_auto_ban ? 'background:yellow;' : '')  . '">' .  $group->cfp_id  . ' <span class="cfp_bp" style="' .  ($logInLog->CfpID['CfpID_blocked_people'][$gpKey] > 0 ? 'background-color: yellow;' : '')  . '">[' .  $logInLog->CfpID['CfpID_blocked_people'][$gpKey]  . '/' .  $logInLog->CfpID['CfpID_online_people'][$gpKey]  . ']</span></td>';
+                                @endphp
+                            @else
+                                @php
+                                    $CfpID_link_array[$group->cfp_id] = '<td class="loginItem" data-sectionName="cfpID' . substr($logInLog->loginDate,0,7) . '_group' . $gpKey . '" data-assign_user_id="' .  $user->id  . '" data-yearMonth="' . substr($logInLog->loginDate,0,7) . '" data-cfpID="' . $group->cfp_id . '" data-blocked-people="' .  $logInLog->CfpID['CfpID_blocked_people'][$gpKey]  . '" data-online-people="' .  $logInLog->CfpID['CfpID_online_people'][$gpKey]  . '" data-count="' .  $group->dataCount  . '" style="margin-left: 20px;min-width: 100px;' .  ($group->CfpID_set_auto_ban ? 'background:yellow;' : '')  . '">' .  $group->cfp_id  . '</td>';
+                                @endphp
                             @endif
+                            
                         @endforeach
                     @endif
-                    @for($i=0; $i< 5-$CFP_count; $i++)
-                        <th style="min-width: 100px"></th>
-                    @endfor
-                    @if($CFP_count>=6)
-                        <th style="min-width: 100px">...</th>
-                    @else
+                    @if($CFP_count>0 && $IP_count>0)
                         <th style="min-width: 100px"></th>
                     @endif
-
                     @if($IP_count>0)
-                        @foreach(array_get($logInLog->Ip,'Ip_group',[]) as $gpKey =>$group)
-                            @if($gpKey<10)
-                                <td class="loginItem ipItem" id="showIp{{substr($logInLog->loginDate,0,7)}}_group{{$gpKey}}" data-sectionName="Ip{{substr($logInLog->loginDate,0,7)}}_group{{$gpKey}}" data-assign_user_id="{{ $user->id }}" data-yearMonth="{{substr($logInLog->loginDate,0,7)}}" data-ip="{{ $group->ip }}" data-blocked-people="{{ $logInLog->Ip['Ip_blocked_people'][$gpKey] }}" data-online-people="{{ $logInLog->Ip['Ip_online_people'][$gpKey] }}" data-count="{{ $group->dataCount }}" style="margin-left: 20px;min-width: 150px;{{ $group->IP_set_auto_ban ? 'background:yellow;' : '' }}">{{ $group->ip }} <span class="cfp_bp" style="{{ $logInLog->Ip['Ip_blocked_people'][$gpKey] > 0 ? 'background-color: yellow;' : '' }}">[{{ $logInLog->Ip['Ip_blocked_people'][$gpKey] }}/{{ $logInLog->Ip['Ip_online_people'][$gpKey] }}]</span> {{ '('.$group->dataCount .')' }}</td>
+                        @php
+                            $IpLogInLog = array_get($logInLog->Ip,'Ip_group',[]);
+                        @endphp
+                        @foreach($IpLogInLog as $gpKey =>$group)
+                            @if($logInLog->Ip['Ip_online_people'][$gpKey] > 1)
+                                <td nowrap class="loginItem ipItem" id="showIp{{substr($logInLog->loginDate,0,7)}}_group{{$gpKey}}" data-sectionName="Ip{{substr($logInLog->loginDate,0,7)}}_group{{$gpKey}}" data-assign_user_id="{{ $user->id }}" data-yearMonth="{{substr($logInLog->loginDate,0,7)}}" data-ip="{{ $group->ip }}" data-blocked-people="{{ $logInLog->Ip['Ip_blocked_people'][$gpKey] }}" data-online-people="{{ $logInLog->Ip['Ip_online_people'][$gpKey] }}" data-count="{{ $group->dataCount }}" style="margin-left: 20px;min-width: 150px;{{ $group->IP_set_auto_ban ? 'background:yellow;' : '' }}">
+                                    {{ $group->ip }} 
+                                    <span class="cfp_bp" style="{{ $logInLog->Ip['Ip_blocked_people'][$gpKey] > 0 ? 'background-color: yellow;' : '' }}">
+                                        [{{ $logInLog->Ip['Ip_blocked_people'][$gpKey] }}/{{ $logInLog->Ip['Ip_online_people'][$gpKey] }}]
+                                    </span>
+                                </td>
                             @endif
                         @endforeach
-                    @endif
-                    @for($i=0; $i<10- $IP_count; $i++)
-                        <th style="min-width: 150px"></th>
-                    @endfor
-                    @if($IP_count>=11)
-                        <th style="min-width: 150px">...</th>
-                    @else
-                        <th style="min-width: 150px"></th>
                     @endif
                 </table>
             </td>
@@ -1820,7 +1826,11 @@
                                 <td><a href="{{ route('getIpUsers', [$item->ip]) }}" target="_blank">{{$item->ip}}</a></td>
                                 <td>{{ $device }}</td>
                                 <td>{{ str_replace("Mozilla/5.0","", $item->userAgent) }}</td>
-                                <td>{{$item->cfp_id}}</td>
+                                @if($item->cfp_id != '')
+                                    {!!$CfpID_link_array[$item->cfp_id]!!}
+                                @else
+                                    <td>{{$item->cfp_id}}</td>
+                                @endif
                                 <td>{{$item->country}}</td>
                             </tr>
                         @endforeach
@@ -1860,7 +1870,11 @@
                                 <td><a href="{{ route('getIpUsers', [$item->ip]) }}" target="_blank">{{$item->ip}}</a></td>
                                 <td>{{ $device }}</td>
                                 <td>{{ str_replace("Mozilla/5.0","", $item->userAgent) }}</td>
-                                <td>{{$item->cfp_id}}</td>
+                                @if($item->cfp_id != '')
+                                    {!!$CfpID_link_array[$item->cfp_id]!!}
+                                @else
+                                    <td>{{$item->cfp_id}}</td>
+                                @endif
                                 <td>{{$item->country}}</td>
                             </tr>
                         @endforeach
@@ -1901,7 +1915,11 @@
                                 <td><a href="{{ route('getIpUsers', [$item->ip]) }}" target="_blank">{{$item->ip}}</a></td>
                                 <td>{{ $device }}</td>
                                 <td>{{ str_replace("Mozilla/5.0","", $item->userAgent) }}</td>
-                                <td>{{$item->cfp_id}}</td>
+                                @if($item->cfp_id != '')
+                                    {!!$CfpID_link_array[$item->cfp_id]!!}
+                                @else
+                                    <td>{{$item->cfp_id}}</td>
+                                @endif
                                 <td>{{$item->country}}</td>
                             </tr>
                         @endforeach
@@ -2030,11 +2048,11 @@
         <th width="15%">發送時間</th>
         <th width="8%">發送數 <br>本人/對方</th>
     </tr>
-    @foreach($userMessage_log as $Log)
+    @foreach($userMessage_log as $messageLog)
         @php
-            $ref_user = \App\Models\User::findById($Log->ref_user_id);
+            $ref_user = \App\Models\User::findById($messageLog->ref_user_id);
             if(!$ref_user) { continue; }
-            $ref_user_id = $Log->ref_user_id;
+            $ref_user_id = $messageLog->ref_user_id;
             $message_log = \App\Models\Message::withTrashed()
                                 ->where([['message.to_id', $ref_user->id ],['message.from_id', $user->id ]])
                                 ->orderBy('created_at')->first();
@@ -2047,15 +2065,17 @@
             $toCount_user_id=\App\Models\Message::withTrashed()->where('from_id',$user->id)->where('to_id',$ref_user_id)->get()->count();
             $toCount_ref_user_id=\App\Models\Message::withTrashed()->where('from_id',$ref_user_id)->where('to_id',$user->id)->get()->count();
         @endphp
-        <tr 
+        <tr id='message_room_{{$messageLog->room_id}}'
             {{--一次顯示50個 臨時搭建用--}}
             @if($toCount_user_id == 0 )
                 class='message_no_interactive' style="display:none"
             @endif>
             {{--一次顯示50個 臨時搭建用--}}
-            <td style="text-align: center;"><button data-toggle="collapse" data-target="#msgLog{{$ref_user_id}}" class="accordion-toggle btn btn-primary message_toggle">+</button></td>
+            <td style="text-align: center;">
+                <button data-toggle="collapse" data-target="#msgLog{{$ref_user_id}}" class="accordion-toggle btn btn-primary message_toggle" value="{{$messageLog->room_id}}">+</button>
+            </td>
             <td>@if(!empty($ref_user->name))<a href="{{ route('admin/showMessagesBetween', [$user->id, $ref_user_id]) }}" target="_blank">{{ $ref_user->name }}</a>@else 會員資料已刪除@endif</td>
-            <td id="new{{$Log->to_id}}">
+            <td id="new{{$messageLog->to_id}}">
                 @if($message_log)
                     {{($message_log->from_id==$message_1st->from_id ? '(發)' :'(回)') .$message_log->content}}
                 @endif
@@ -2083,6 +2103,7 @@
             <td id="new_time{{$ref_user_id}}">@if(!empty($ref_user->name)) {{ $message_log ? $message_log->created_at :''}} @else 會員資料已刪除 @endif</td>
             <td>@if(!empty($ref_user->name)) {{$toCount_user_id .'/'.$toCount_ref_user_id}} @else 會員資料已刪除 @endif</td>
         </tr>
+        {{--預定修改--}}
         <tr class="accordian-body collapse" id="msgLog{{$ref_user_id}}">
             <td class="hiddenRow" colspan="5">
                 <table class="table table-bordered">
@@ -2095,75 +2116,13 @@
                         <th width="5%" nowrap>狀態</th>
                     </tr>
                     </thead>
-                    <tbody>
-                    @foreach ($Log->items as $key => $item)
-                        {{--@if($key==0)--}}
-                            {{--<script>--}}
-                                {{--$('#new' + {{$Log->to_id}}).text('{{ $item->content }}');--}}
-                                {{--$('#new_time' + {{$Log->to_id}}).text('{{ $item->m_time }}');--}}
-                            {{--</script>--}}
-                        {{--@endif--}}
-                        <tr>
-                            <td style="text-align: right;">
-                                @php
-                                    $from_id_user=\App\Models\User::findById($item->from_id);
-                                @endphp
-                                <a href="{{ route('admin/showMessagesBetween', [$user->id, $ref_user_id]) }}" target="_blank">
-                                    <p style="margin-bottom:0px; @if($item->engroup == '2') color: #F00; @else color: #5867DD; @endif">{{$item->name }}
-                                    @php
-                                        $from_id_tipcount = \App\Models\Tip::TipCount_ChangeGood($item->from_id);
-                                        $from_id_vip = \App\Models\Vip::vip_diamond($item->from_id);
-                                    @endphp
-                                    @if($from_id_vip)
-                                        @if($from_id_vip=='diamond_black')
-                                            <img src="/img/diamond_black.png" style="height: 16px;width: 16px;">
-                                        @else
-                                            @for($z = 0; $z < $from_id_vip; $z++)
-                                                <img src="/img/diamond.png" style="height: 16px;width: 16px;">
-                                            @endfor
-                                        @endif
-                                    @endif
-                                    @for($i = 0; $i < $from_id_tipcount; $i++)
-                                        👍
-                                    @endfor
-                                    @if(!is_null($item->banned_id))
-                                        @if(!is_null($item->banned_expire_date))
-                                            ({{ round((strtotime($item->banned_expire_date) - getdate()[0])/3600/24 ) }}天)
-                                        @else
-                                            (永久)
-                                        @endif
-                                    @endif
-                                    </p>
-                                </a>
-                            </td>
-                            <td><p style="word-break:break-all;">{{ $item->content }}</p></td>
-                            <td class="evaluation_zoomIn">
-                                @php
-                                    $messagePics=is_null($item->pic) ? [] : json_decode($item->pic,true);
-                                @endphp
-                                @if(isset($messagePics))
-                                    @foreach( $messagePics as $messagePic)
-                                        @if(isset($messagePic['file_path']))
-                                            <li style="float:left;margin:2px 2px;list-style:none;display:block;white-space: nowrap;width: 135px;">
-                                                <img src="{{ $messagePic['file_path'] }}" style="max-width:130px;max-height:130px;margin-right: 5px;">
-                                            </li>
-                                        @else
-                                            <li style="float:left;margin:2px 2px;list-style:none;display:block;white-space: nowrap;width: 135px;">
-                                                無法找到圖片
-                                            </li>
-                                        @endif
-                                    @endforeach
-                                @endif
-                            </td>
-                            <td>{{ $item->m_time }}</td>
-                            <td nowrap>{{ $item->unsend?'已收回':'' }}</td>
-                        </tr>
-                    @endforeach
+                    <tbody id="message_room_detail_{{$messageLog->room_id}}">
                     </tbody>
                 </table>
             </td>
         </tr>
-        @endforeach
+        {{--預定修改--}}
+    @endforeach
 </table>
 {!! $userMessage_log->links('pagination::sg-pages3') !!}
 
@@ -2569,12 +2528,6 @@ jQuery(document).ready(function(){
         $(".tr_hide_" + $(this).attr("r_id")).toggle();
     });
     //test
-
-    $('.message_toggle').on('click',function(e){
-        $(this).text(function(i,old){
-            return old=='+' ?  '-' : '+';
-        });
-    });
 
     $('.delete-btn').on('click',function(e){
         if(!confirm('確定要刪除選取的訊息?')){
@@ -3298,6 +3251,100 @@ function show_re_content(id){
         }
     }
     //預算及車馬費警示警示
+
+    $('.message_toggle').on('click', function(){
+        if($(this).text() == '+')
+        {
+            $(this).text('-');
+            room_id = $(this).attr("value");
+            $.ajax({
+                type: 'GET',
+                url: '{{route('users/getMessageFromRoomId')}}',
+                data: {
+                    room_id: room_id,
+                },
+                success: function(data){
+                    data.message_detail.forEach(function(value){
+                        messagePics = (value.pic === null) ? [] : JSON.parse(value.pic);
+                        messagePicHTML = '';
+                        messagePics.forEach(function(pic){
+                            messagePicHTML =  messagePicHTML +
+                            '<li style="float:left;margin:2px 2px;list-style:none;display:block;white-space: nowrap;width: 135px;">'+
+                                '<img src="'+ pic.file_path +'" style="max-width:130px;max-height:130px;margin-right: 5px;">'+
+                            '</li>';
+                        });
+
+                        name_color = '';
+                        if(value.engroup == 2){
+                            name_color = 'color: #F00;';
+                        }
+                        else{
+                            name_color = 'color: #5867DD;';
+                        }
+
+                        user_icon = '';
+                        if(data.users_data[value.u_id]['vip']){
+                            if(data.users_data[value.u_id]['vip'] == 'diamond_black'){
+                                user_icon += '<img src="/img/diamond_black.png" style="height: 16px;width: 16px;">';
+                            }
+                            else{
+                                for(i = 0; i < data.users_data[value.u_id]['vip']; i++){
+                                    user_icon += '<img src="/img/diamond.png" style="height: 16px;width: 16px;">';
+                                }
+                            }
+                        }
+
+                        for(i = 0; i < data.users_data[value.u_id]['tipcount']; i++){
+                            user_icon += '👍';
+                        }
+
+                        if(value.banned_id){
+                            if(value.banned_expire_date){
+                                let exp_date = new Date(value.banned_expire_date);
+                                let now_date = Date.now();
+                                let idays = parseInt(Math.abs(exp_date - now_date) / 1000 / 60 / 60 / 24);
+                                user_icon += '(' + idays + '天)';
+                            }
+                            else{
+                                user_icon += '(永久)';
+                            }
+                        }
+
+                        $('#message_room_detail_' + data.room_id).append(
+                            '<tr>'+
+                                '<td style="text-align: right;">'+
+                                    '<a href="' + data.message_href + '" target="_blank">'+
+                                        '<p style="margin-bottom:0px;'+ name_color +'">'+
+                                            value.name + user_icon +
+                                        '</p>'+
+                                    '</a>'+
+                                '</td>'+
+                                '<td>'+
+                                    '<p style="word-break:break-all;">'+
+                                        value.content +
+                                    '</p>'+
+                                '</td>'+
+                                '<td class="evaluation_zoomIn">'+
+                                    messagePicHTML +
+                                '</td>'+
+                                '<td>'+
+                                    value.m_time +
+                                '</td>'+
+                                '<td nowrap>'+
+                                    (value.unsend ? '已收回' : '') +
+                                '</td>'+
+                            '</tr>'
+                        );
+                    });
+                    
+            }});
+        }
+        else if($(this).text() == '-')
+        {
+            $(this).text('+');
+            $('#message_room_detail_' + data.room_id).empty();
+        }
+    });
 </script>
 <!--照片查看end-->
 </html>
