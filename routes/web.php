@@ -902,6 +902,12 @@ Route::group(['middleware' => ['auth', 'global', 'active', 'femaleActive', 'vipC
         Route::post('users/VVIP_cancellation/save', 'VvipController@updateVvipCancellation')->name('users/VVIP_cancellation/save');
         //Route::get('users/VVIP_invite', 'UserController@viewVvipInvite')->name('users/VVIP_invite');
 
+        Route::get('users/vip/search', 'UserController@vipIndex')->name('users/vip');
+        Route::post('users/vip/search', 'UserController@vipSearch')->name('users/vip/search');
+        Route::post('users/vip/period/extend', 'UserController@periodExtend')->name('users/vip/period/extend');
+        Route::post('users/vip/period/transfer', 'UserController@periodTransfer')->name('users/vip/period/transfer');
+        Route::post('users/vip/adv_auth_count/save', 'UserController@updateVipAdvandceAuthCount')->name('users/vip/adv_auth_count/save');
+
         Route::get('faq', 'UserController@showFaq')->name('admin/faq');
         Route::get('faq/edit/{id}', 'UserController@showFaqEdit')->name('admin/faq/edit');
         Route::post('faq/save', 'UserController@saveFaq')->name('admin/faq/save');
