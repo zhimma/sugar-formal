@@ -394,6 +394,7 @@ class UserController extends \App\Http\Controllers\BaseController
      */
     public function toggleUserBlock(Request $request)
     {
+        $now_time = Carbon::now();
         ini_set('max_execution_time', -1);
         $userBanned = banned_users::where('member_id', $request->user_id)
             ->orderBy('created_at', 'desc')
@@ -411,7 +412,7 @@ class UserController extends \App\Http\Controllers\BaseController
             foreach ($request->addautoban as $value) {
                 if (!empty($value)) {
                     if (SetAutoBan::where([['type', 'allcheck'], ['content', $value], ['set_ban', '1']])->first() == null) {
-                        SetAutoBan::insert(['type' => 'allcheck', 'content' => $value, 'set_ban' => '1', 'cuz_user_set' => $request->user_id, 'created_at' => now(), 'updated_at' => now()]);
+                        SetAutoBan::insert(['type' => 'allcheck', 'content' => $value, 'set_ban' => '1', 'cuz_user_set' => $request->user_id, 'created_at' => $now_time, 'updated_at' => $now_time]);
                     }
                 }
             }
@@ -422,7 +423,7 @@ class UserController extends \App\Http\Controllers\BaseController
             foreach ($request->addpicautoban as $value) {
                 if (!empty($value)) {
                     if (SetAutoBan::where([['type', 'picname'], ['content', $value], ['set_ban', '1']])->first() == null) {
-                        SetAutoBan::insert(['type' => 'picname', 'content' => $value, 'set_ban' => '1', 'cuz_user_set' => $request->user_id, 'created_at' => now(), 'updated_at' => now()]);
+                        SetAutoBan::insert(['type' => 'picname', 'content' => $value, 'set_ban' => '1', 'cuz_user_set' => $request->user_id, 'created_at' => $now_time, 'updated_at' => $now_time]);
                     }
                 }
             }
@@ -434,7 +435,7 @@ class UserController extends \App\Http\Controllers\BaseController
             foreach ($request->cfp_id as $value) {
                 if (!empty($value)) {
                     if (SetAutoBan::where([['type', 'cfp_id'], ['content', $value], ['set_ban', '1']])->first() == null) {
-                        SetAutoBan::insert(['type' => 'cfp_id', 'content' => $value, 'set_ban' => '1', 'cuz_user_set' => $request->user_id, 'created_at' => now(), 'updated_at' => now()]);
+                        SetAutoBan::insert(['type' => 'cfp_id', 'content' => $value, 'set_ban' => '1', 'cuz_user_set' => $request->user_id, 'created_at' => $now_time, 'updated_at' => $now_time]);
                     }
                 }
             }
@@ -445,7 +446,7 @@ class UserController extends \App\Http\Controllers\BaseController
             foreach ($request->ip as $value) {
                 if (!empty($value)) {
                     if (SetAutoBan::where([['type', 'ip'], ['content', $value], ['set_ban', '1']])->first() == null) {
-                        SetAutoBan::insert(['type' => 'ip', 'content' => $value, 'set_ban' => '1', 'cuz_user_set' => $request->user_id, 'expiry' => \Carbon\Carbon::now()->addMonths(1)->format('Y-m-d H:i:s'), 'created_at' => now(), 'updated_at' => now()]);
+                        SetAutoBan::insert(['type' => 'ip', 'content' => $value, 'set_ban' => '1', 'cuz_user_set' => $request->user_id, 'expiry' => $now_time->copy()->addMonths(1)->format('Y-m-d H:i:s'), 'created_at' => $now_time, 'updated_at' => $now_time]);
                     }
                 }
             }
@@ -456,7 +457,7 @@ class UserController extends \App\Http\Controllers\BaseController
             foreach ($request->userAgent as $value) {
                 if (!empty($value)) {
                     if (SetAutoBan::where([['type', 'userAgent'], ['content', $value], ['set_ban', '1']])->first() == null) {
-                        SetAutoBan::insert(['type' => 'userAgent', 'content' => $value, 'set_ban' => '1', 'cuz_user_set' => $request->user_id, 'created_at' => now(), 'updated_at' => now()]);
+                        SetAutoBan::insert(['type' => 'userAgent', 'content' => $value, 'set_ban' => '1', 'cuz_user_set' => $request->user_id, 'created_at' => $now_time, 'updated_at' => $now_time]);
                     }
                 }
             }
@@ -467,7 +468,7 @@ class UserController extends \App\Http\Controllers\BaseController
             foreach ($request->pic as $value) {
                 if (!empty($value)) {
                     if (SetAutoBan::where([['type', 'pic'], ['content', $value], ['set_ban', '1']])->first() == null) {
-                        SetAutoBan::insert(['type' => 'pic', 'content' => $value, 'set_ban' => '1', 'cuz_user_set' => $request->user_id, 'created_at' => now(), 'updated_at' => now()]);
+                        SetAutoBan::insert(['type' => 'pic', 'content' => $value, 'set_ban' => '1', 'cuz_user_set' => $request->user_id, 'created_at' => $now_time, 'updated_at' => $now_time]);
                     }
                 }
             }
@@ -523,7 +524,7 @@ class UserController extends \App\Http\Controllers\BaseController
             $userBanned->vip_pass = $request->vip_pass;
             $userBanned->adv_auth = $request->adv_auth;
             if ($request->days != 'X') {
-                $userBanned->expire_date = Carbon::now()->addDays($request->days);
+                $userBanned->expire_date = $now_time->copy()->addDays($request->days);
             }
             if (!empty($request->msg)) {
                 $userBanned->reason = $request->msg;
@@ -533,7 +534,7 @@ class UserController extends \App\Http\Controllers\BaseController
             $userBanned->save();
             BadUserCommon::addRemindMsgFromBadId($request->user_id);
             //寫入log
-            DB::table('is_banned_log')->insert(['user_id' => $request->user_id, 'reason' => $userBanned->reason, 'expire_date' => $userBanned->expire_date, 'vip_pass' => $userBanned->vip_pass, 'adv_auth' => $userBanned->adv_auth, 'created_at' => Carbon::now()]);
+            DB::table('is_banned_log')->insert(['user_id' => $request->user_id, 'reason' => $userBanned->reason, 'expire_date' => $userBanned->expire_date, 'vip_pass' => $userBanned->vip_pass, 'adv_auth' => $userBanned->adv_auth, 'created_at' => $now_time]);
             //新增Admin操作log
             $this->insertAdminActionLog($request->user_id, '封鎖會員');
 
@@ -584,6 +585,7 @@ class UserController extends \App\Http\Controllers\BaseController
 
     public function toggleUserWarned(Request $request)
     {
+        $now_time = Carbon::now();
         ini_set('max_execution_time', -1);
         $userWarned = warned_users::where('member_id', $request->user_id)
             ->orderBy('created_at', 'desc')
@@ -604,9 +606,9 @@ class UserController extends \App\Http\Controllers\BaseController
 
                         //如果選項不是永久時新增天數
                         if ($request->days != 'X') {
-                            SetAutoBan::insert(['type' => 'allcheck', 'content' => $value, 'set_ban' => '3', 'cuz_user_set' => $request->user_id, 'expired_days' => $request->days, 'created_at' => now(), 'updated_at' => now()]);
+                            SetAutoBan::insert(['type' => 'allcheck', 'content' => $value, 'set_ban' => '3', 'cuz_user_set' => $request->user_id, 'expired_days' => $request->days, 'created_at' => $now_time, 'updated_at' => $now_time]);
                         } else {
-                            SetAutoBan::insert(['type' => 'allcheck', 'content' => $value, 'set_ban' => '3', 'cuz_user_set' => $request->user_id, 'created_at' => now(), 'updated_at' => now()]);
+                            SetAutoBan::insert(['type' => 'allcheck', 'content' => $value, 'set_ban' => '3', 'cuz_user_set' => $request->user_id, 'created_at' => $now_time, 'updated_at' => $now_time]);
                         }
                     }
                 }
@@ -617,29 +619,16 @@ class UserController extends \App\Http\Controllers\BaseController
             $checkLog = DB::table('is_warned_log')->where('user_id', $userWarned->member_id)->where('created_at', $userWarned->created_at)->get()->first();
             if (!$checkLog) {
                 //寫入log
-                DB::table('is_warned_log')->insert(['user_id' => $userWarned->member_id, 'reason' => $userWarned->reason, 'created_at' => $userWarned->created_at, 'vip_pass' => $userWarned->vip_pass, 'adv_auth' => $userWarned->adv_auth]);
+                DB::table('is_warned_log')->insert(['user_id' => $userWarned->member_id, 'reason' => $userWarned->reason, 'expire_date' => $userWarned->expire_date, 'created_at' => $userWarned->created_at, 'vip_pass' => $userWarned->vip_pass, 'adv_auth' => $userWarned->adv_auth]);
             }
             $userWarned->delete();
         }
-        //            if(isset($request->page)){
-        //                switch($request->page){
-        //                    case 'advInfo':
-        //                        return redirect('admin/users/advInfo/'.$request->user_id);
-        //                    default:
-        //                        return redirect($request->page);
-        //                        break;
-        //                }
-        //            }else{
-        //                return back()->with('message', '已解除站方警示');
-        //            }
-        //        }
-        //        else{
         $userWarned = new warned_users;
         $userWarned->member_id = $request->user_id;
         $userWarned->vip_pass = $request->vip_pass;
         $userWarned->adv_auth = $request->adv_auth;
         if ($request->days != 'X') {
-            $userWarned->expire_date = Carbon::now()->addDays($request->days);
+            $userWarned->expire_date = $now_time->copy()->addDays($request->days);
         }
         $userWarned->reason = $request->reason;
 
@@ -649,7 +638,7 @@ class UserController extends \App\Http\Controllers\BaseController
         $userWarned->save();
         BadUserCommon::addRemindMsgFromBadId($request->user_id);
         //寫入log
-        DB::table('is_warned_log')->insert(['user_id' => $request->user_id, 'reason' => $request->reason, 'vip_pass' => $request->vip_pass, 'adv_auth' => $request->adv_auth, 'created_at' => Carbon::now()]);
+        DB::table('is_warned_log')->insert(['user_id' => $request->user_id, 'reason' => $request->reason, 'vip_pass' => $request->vip_pass, 'adv_auth' => $request->adv_auth, 'created_at' => $now_time, 'expire_date' => $now_time->copy()->addDays($request->days)]);
         //新增Admin操作log
         $this->insertAdminActionLog($request->user_id, '站方警示');
 

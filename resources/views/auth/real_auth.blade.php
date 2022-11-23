@@ -75,7 +75,7 @@
                         @if($service->isPassedByAuthTypeId(1))
                         <a href="javascript:void(0)" class="ga_3 ga_3_passed">已完成本人認證</a>    
                         @elseif($service->isSelfAuthWaitingCheck())
-                        <a href="{{url('user_video_chat_verify')}}" class="ga_1">等待審核中 - 重錄視頻</a>    
+                        <a href="{{url('user_video_chat_verify')}}" class="ga_1">等待審核中 - 重錄視訊</a>    
                         @elseif($service->isSelfAuthApplyNotVideoYet())
                         <a href="{{url('user_video_chat_verify')}}" class="ga_1">前往視訊頁面</a>
                         @else

@@ -889,6 +889,7 @@
             $isEverWarned_log[$key]['reason']=$row->reason;
             $isEverWarned_log[$key]['vip_pass']=$row->vip_pass;
             $isEverWarned_log[$key]['adv_auth']=$row->adv_auth;
+            $isEverWarned_log[$key]['expire_date']=$row->expire_date;
             $isEverWarned_cancel=($isWarned->count() && $key || !$isWarned->count())?\App\Models\AdminActionLog::where('target_id', $user->id)->where('act','解除站方警示')->orderByDesc('created_at')->skip($isWarned && $key?$key-1:$key)->first():null;
             $isEverWarned_log[$key]['cancal_admin']=$isEverWarned_cancel? \App\Models\User::findById($isEverWarned_cancel->operator??''):'';
             $isEverWarned_log[$key]['cancal_time']=$isEverWarned_cancel?$isEverWarned_cancel->created_at:($isWarned->count() && !$key?'尚未解除':'');
@@ -907,6 +908,7 @@
             $isEverBanned_log[$key]['expire_date']=$row->expire_date;
             $isEverBanned_log[$key]['vip_pass']=$row->vip_pass;
             $isEverBanned_log[$key]['adv_auth']=$row->adv_auth;
+            $isEverBanned_log[$key]['expire_date']=$row->expire_date;
             $isEverBanned_cancel=($isBanned->count() && $key || !$isBanned->count())?\App\Models\AdminActionLog::where('target_id', $user->id)->where('act','解除封鎖')->orderByDesc('created_at')->skip($isBanned->count() && $key?$key-1:$key)->first():null;
             $isEverBanned_log[$key]['cancal_admin']=$isEverBanned_cancel? \App\Models\User::findById($isEverBanned_cancel->operator??'') :'';
             $isEverBanned_log[$key]['cancal_time']=$isEverBanned_cancel? $isEverBanned_cancel->created_at:($isBanned->count() && !$key?'尚未解除':'');
@@ -1744,47 +1746,51 @@
     <div id="loading_data" class="btn btn-dark">loading全部登入紀錄</div>
 </div>
 <table id="table_userLogin_log" class="table table-hover table-bordered">
-    @foreach($userLogin_log as $logInLog)
+    @foreach($userLogin_log as $key => $logInLog)
         <tr>
-            <td>
+            @if($key == 0)<td align="center">@else <td> @endif
                 <span class="loginItem showRecord" id="showloginTime{{substr($logInLog->loginDate,0,7)}}" data-sectionName="loginTime{{substr($logInLog->loginDate,0,7)}}" data-ip="不指定">{{ substr($logInLog->loginDate,0,7) . ' ['. $logInLog->dataCount .']' }}</span>
                 <table>
                     @php
                         $CFP_count=count(array_get($logInLog->CfpID,'CfpID_group',[]));
                         $IP_count=count(array_get($logInLog->Ip,'Ip_group',[]));
                     @endphp
-                    <td style="min-width: 100px"></td>
-                    <td style="min-width: 100px"></td>
+                    @php
+                        $CfpIDLogInLog = array_get($logInLog->CfpID,'CfpID_group',[]);
+                        $CfpID_link_array = [];
+                    @endphp
                     @if($CFP_count>0)
-                        @foreach(array_get($logInLog->CfpID,'CfpID_group',[]) as $gpKey =>$group)
-                            @if($gpKey<5)
-                                <td class="loginItem" id="showcfpID{{substr($logInLog->loginDate,0,7)}}_group{{$gpKey}}" data-sectionName="cfpID{{substr($logInLog->loginDate,0,7)}}_group{{$gpKey}}" data-assign_user_id="{{ $user->id }}" data-yearMonth="{{substr($logInLog->loginDate,0,7)}}" data-cfpID="{{$group->cfp_id}}" data-blocked-people="{{ $logInLog->CfpID['CfpID_blocked_people'][$gpKey] }}" data-online-people="{{ $logInLog->CfpID['CfpID_online_people'][$gpKey] }}" data-count="{{ $group->dataCount }}" style="margin-left: 20px;min-width: 100px;{{ $group->CfpID_set_auto_ban ? 'background:yellow;' : '' }}">{{ $group->cfp_id }} <span class="cfp_bp" style="{{ $logInLog->CfpID['CfpID_blocked_people'][$gpKey] > 0 ? 'background-color: yellow;' : '' }}">[{{ $logInLog->CfpID['CfpID_blocked_people'][$gpKey] }}/{{ $logInLog->CfpID['CfpID_online_people'][$gpKey] }}]</span> {{ '('.$group->dataCount .')' }}</td>
+                        @foreach($CfpIDLogInLog as $gpKey =>$group)
+                            @if($logInLog->CfpID['CfpID_online_people'][$gpKey] > 1)
+                                <td nowrap class="loginItem" id="showcfpID{{substr($logInLog->loginDate,0,7)}}_group{{$gpKey}}" data-sectionName="cfpID{{substr($logInLog->loginDate,0,7)}}_group{{$gpKey}}" data-assign_user_id="{{ $user->id }}" data-yearMonth="{{substr($logInLog->loginDate,0,7)}}" data-cfpID="{{$group->cfp_id}}" data-blocked-people="{{ $logInLog->CfpID['CfpID_blocked_people'][$gpKey] }}" data-online-people="{{ $logInLog->CfpID['CfpID_online_people'][$gpKey] }}" data-count="{{ $group->dataCount }}" style="margin-left: 20px;min-width: 100px;{{ $group->CfpID_set_auto_ban ? 'background:yellow;' : '' }}">{{ $group->cfp_id }} <span class="cfp_bp" style="{{ $logInLog->CfpID['CfpID_blocked_people'][$gpKey] > 0 ? 'background-color: yellow;' : '' }}">[{{ $logInLog->CfpID['CfpID_blocked_people'][$gpKey] }}/{{ $logInLog->CfpID['CfpID_online_people'][$gpKey] }}]</span></td>
+                                @php
+                                    $CfpID_link_array[$group->cfp_id] = '<td class="loginItem" data-sectionName="cfpID' . substr($logInLog->loginDate,0,7) . '_group' . $gpKey . '" data-assign_user_id="' .  $user->id  . '" data-yearMonth="' . substr($logInLog->loginDate,0,7) . '" data-cfpID="' . $group->cfp_id . '" data-blocked-people="' .  $logInLog->CfpID['CfpID_blocked_people'][$gpKey]  . '" data-online-people="' .  $logInLog->CfpID['CfpID_online_people'][$gpKey]  . '" data-count="' .  $group->dataCount  . '" style="margin-left: 20px;min-width: 100px;' .  ($group->CfpID_set_auto_ban ? 'background:yellow;' : '')  . '">' .  $group->cfp_id  . ' <span class="cfp_bp" style="' .  ($logInLog->CfpID['CfpID_blocked_people'][$gpKey] > 0 ? 'background-color: yellow;' : '')  . '">[' .  $logInLog->CfpID['CfpID_blocked_people'][$gpKey]  . '/' .  $logInLog->CfpID['CfpID_online_people'][$gpKey]  . ']</span></td>';
+                                @endphp
+                            @else
+                                @php
+                                    $CfpID_link_array[$group->cfp_id] = '<td class="loginItem" data-sectionName="cfpID' . substr($logInLog->loginDate,0,7) . '_group' . $gpKey . '" data-assign_user_id="' .  $user->id  . '" data-yearMonth="' . substr($logInLog->loginDate,0,7) . '" data-cfpID="' . $group->cfp_id . '" data-blocked-people="' .  $logInLog->CfpID['CfpID_blocked_people'][$gpKey]  . '" data-online-people="' .  $logInLog->CfpID['CfpID_online_people'][$gpKey]  . '" data-count="' .  $group->dataCount  . '" style="margin-left: 20px;min-width: 100px;' .  ($group->CfpID_set_auto_ban ? 'background:yellow;' : '')  . '">' .  $group->cfp_id  . '</td>';
+                                @endphp
                             @endif
+                            
                         @endforeach
                     @endif
-                    @for($i=0; $i< 5-$CFP_count; $i++)
-                        <th style="min-width: 100px"></th>
-                    @endfor
-                    @if($CFP_count>=6)
-                        <th style="min-width: 100px">...</th>
-                    @else
+                    @if($CFP_count>0 && $IP_count>0)
                         <th style="min-width: 100px"></th>
                     @endif
-
                     @if($IP_count>0)
-                        @foreach(array_get($logInLog->Ip,'Ip_group',[]) as $gpKey =>$group)
-                            @if($gpKey<10)
-                                <td class="loginItem ipItem" id="showIp{{substr($logInLog->loginDate,0,7)}}_group{{$gpKey}}" data-sectionName="Ip{{substr($logInLog->loginDate,0,7)}}_group{{$gpKey}}" data-assign_user_id="{{ $user->id }}" data-yearMonth="{{substr($logInLog->loginDate,0,7)}}" data-ip="{{ $group->ip }}" data-blocked-people="{{ $logInLog->Ip['Ip_blocked_people'][$gpKey] }}" data-online-people="{{ $logInLog->Ip['Ip_online_people'][$gpKey] }}" data-count="{{ $group->dataCount }}" style="margin-left: 20px;min-width: 150px;{{ $group->IP_set_auto_ban ? 'background:yellow;' : '' }}">{{ $group->ip }} <span class="cfp_bp" style="{{ $logInLog->Ip['Ip_blocked_people'][$gpKey] > 0 ? 'background-color: yellow;' : '' }}">[{{ $logInLog->Ip['Ip_blocked_people'][$gpKey] }}/{{ $logInLog->Ip['Ip_online_people'][$gpKey] }}]</span> {{ '('.$group->dataCount .')' }}</td>
+                        @php
+                            $IpLogInLog = array_get($logInLog->Ip,'Ip_group',[]);
+                        @endphp
+                        @foreach($IpLogInLog as $gpKey =>$group)
+                            @if($logInLog->Ip['Ip_online_people'][$gpKey] > 1)
+                                <td nowrap class="loginItem ipItem" id="showIp{{substr($logInLog->loginDate,0,7)}}_group{{$gpKey}}" data-sectionName="Ip{{substr($logInLog->loginDate,0,7)}}_group{{$gpKey}}" data-assign_user_id="{{ $user->id }}" data-yearMonth="{{substr($logInLog->loginDate,0,7)}}" data-ip="{{ $group->ip }}" data-blocked-people="{{ $logInLog->Ip['Ip_blocked_people'][$gpKey] }}" data-online-people="{{ $logInLog->Ip['Ip_online_people'][$gpKey] }}" data-count="{{ $group->dataCount }}" style="margin-left: 20px;min-width: 150px;{{ $group->IP_set_auto_ban ? 'background:yellow;' : '' }}">
+                                    {{ $group->ip }} 
+                                    <span class="cfp_bp" style="{{ $logInLog->Ip['Ip_blocked_people'][$gpKey] > 0 ? 'background-color: yellow;' : '' }}">
+                                        [{{ $logInLog->Ip['Ip_blocked_people'][$gpKey] }}/{{ $logInLog->Ip['Ip_online_people'][$gpKey] }}]
+                                    </span>
+                                </td>
                             @endif
                         @endforeach
-                    @endif
-                    @for($i=0; $i<10- $IP_count; $i++)
-                        <th style="min-width: 150px"></th>
-                    @endfor
-                    @if($IP_count>=11)
-                        <th style="min-width: 150px">...</th>
-                    @else
-                        <th style="min-width: 150px"></th>
                     @endif
                 </table>
             </td>
@@ -1820,7 +1826,11 @@
                                 <td><a href="{{ route('getIpUsers', [$item->ip]) }}" target="_blank">{{$item->ip}}</a></td>
                                 <td>{{ $device }}</td>
                                 <td>{{ str_replace("Mozilla/5.0","", $item->userAgent) }}</td>
-                                <td>{{$item->cfp_id}}</td>
+                                @if($item->cfp_id != '')
+                                    {!!$CfpID_link_array[$item->cfp_id]!!}
+                                @else
+                                    <td>{{$item->cfp_id}}</td>
+                                @endif
                                 <td>{{$item->country}}</td>
                             </tr>
                         @endforeach
@@ -1860,7 +1870,11 @@
                                 <td><a href="{{ route('getIpUsers', [$item->ip]) }}" target="_blank">{{$item->ip}}</a></td>
                                 <td>{{ $device }}</td>
                                 <td>{{ str_replace("Mozilla/5.0","", $item->userAgent) }}</td>
-                                <td>{{$item->cfp_id}}</td>
+                                @if($item->cfp_id != '')
+                                    {!!$CfpID_link_array[$item->cfp_id]!!}
+                                @else
+                                    <td>{{$item->cfp_id}}</td>
+                                @endif
                                 <td>{{$item->country}}</td>
                             </tr>
                         @endforeach
@@ -1901,7 +1915,11 @@
                                 <td><a href="{{ route('getIpUsers', [$item->ip]) }}" target="_blank">{{$item->ip}}</a></td>
                                 <td>{{ $device }}</td>
                                 <td>{{ str_replace("Mozilla/5.0","", $item->userAgent) }}</td>
-                                <td>{{$item->cfp_id}}</td>
+                                @if($item->cfp_id != '')
+                                    {!!$CfpID_link_array[$item->cfp_id]!!}
+                                @else
+                                    <td>{{$item->cfp_id}}</td>
+                                @endif
                                 <td>{{$item->country}}</td>
                             </tr>
                         @endforeach

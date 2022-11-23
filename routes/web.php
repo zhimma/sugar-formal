@@ -270,6 +270,8 @@ Route::group(['middleware' => ['auth', 'global', 'active', 'femaleActive', 'vipC
 
     //視訊功能
     Route::post('/video/call-user', 'VideoChatController@callUser');
+    Route::post('/video/loading-video-page', 'VideoChatController@loadingVideoPage');    
+    Route::post('/video/unloading-video-page', 'VideoChatController@unloadingVideoPage');     
     Route::post('/video/accept-call', 'VideoChatController@acceptCall');
     Route::post('/video/decline-call', 'VideoChatController@declineCall');
     Route::post('/video/abort-dial-call', 'VideoChatController@abortDialCall');
