@@ -6164,7 +6164,7 @@ class UserController extends \App\Http\Controllers\BaseController
                 ->whereNotNull('birthdate')->whereNotNull('area')->whereNotNull('city');
             })
             ->whereDoesntHave('backend_user_details', function ($query) {
-                $query->where('user_check_step2_wait_login_times','!=', 0);
+                $query->where('is_waiting_for_more_data', 1);
             });
 
 
@@ -7687,7 +7687,7 @@ class UserController extends \App\Http\Controllers\BaseController
         $uid = $request->user_id;
         $operator_id = Auth::user()->id;
         $ip = $request->ip();
-        BackendUserDetails::check_extend($uid, 2, $operator_id, $ip);
+        BackendUserDetails::check_extend($uid, $operator_id, $ip);
         $msg_type    = 'message';
         $msg_content = '已延長等待更多資料';
         return back()->with($msg_type, $msg_content);
@@ -7924,7 +7924,7 @@ class UserController extends \App\Http\Controllers\BaseController
     {
         $check_extend_list = BackendUserDetails::with('user')
                                                 ->with('check_extend_admin_action_log')
-                                                ->where('user_check_step2_wait_login_times', '>', 0)
+                                                ->where('is_waiting_for_more_data',1)
                                                 ->get();
         //按照relationship排序
         $check_extend_list =  $check_extend_list->sortByDesc(function($query){
