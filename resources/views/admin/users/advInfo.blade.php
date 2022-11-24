@@ -265,7 +265,7 @@
         @endif
     @endif
 
-    @if($backend_detail->user_check_step2_wait_login_times == 0)
+    @if($backend_detail->is_waiting_for_more_data == 0)
         <form method="POST" style="display: inline;" action="{{ route('check_extend') }}">
             <input type="hidden" name="_token" value="{{ csrf_token() }}" >
             <input type="hidden" name='user_id' value="{{ $user->id }}">

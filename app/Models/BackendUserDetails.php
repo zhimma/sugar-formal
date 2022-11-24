@@ -9,7 +9,7 @@ class BackendUserDetails extends Model
 {
     protected $table = 'backend_user_details';
     protected $fillable = [
-        'user_check_step2_wait_login_times',
+        'is_waiting_for_more_data',
     ];
 
     public static function first_or_new($user_id){
@@ -23,9 +23,9 @@ class BackendUserDetails extends Model
         return $backend_user_detail;
     }
 
-    public static function check_extend($user_id, $times, $operator_id, $ip){
+    public static function check_extend($user_id, $operator_id, $ip){
         $backend_user_detail = BackendUserDetails::first_or_new($user_id);
-        $backend_user_detail->user_check_step2_wait_login_times = $backend_user_detail->user_check_step2_wait_login_times + $times;
+        $backend_user_detail->is_waiting_for_more_data = 1;
         $backend_user_detail->save();
 
         $log = new AdminActionLog();

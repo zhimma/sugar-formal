@@ -53,7 +53,7 @@ class Step2CheckExtendRecheck extends Command
         $check_list = BackendUserDetails::with('check_extend_admin_action_log')
                                         ->with('user')
                                         ->select('user_id')
-                                        ->where('user_check_step2_wait_login_times', '>', 0)
+                                        ->where('is_waiting_for_more_data', 1)
                                         ->get();
         foreach($check_list as $check)
         {
@@ -72,30 +72,9 @@ class Step2CheckExtendRecheck extends Command
             $user_list[$check->user->id]['check_start_time'] = $check_start_time;
         }
         $message = Message::select('from_id','to_id','created_at')->whereIn('from_id', array_keys($user_list))->orderByDesc('created_at')->get();
-        
-        $now_time = Carbon::now();
-        $today = Carbon::today();
-        $thirty_days_age = Carbon::today()->subDays(30);
 
         foreach($user_list as $user_id => $check_data)
         {
-            //2點到4點間以外的時間
-            //跳過30天沒發訊息的會員
-            if(!($now_time > $today->addHours(2) && $now_time < $today->addHours(4)))
-            {
-                if($message->where('from_id', $user_id)->first() ?? false)
-                {
-                    if(Carbon::parse($message->where('from_id', $user_id)->first()->created_at) < $thirty_days_age)
-                    {
-                        continue;
-                    }
-                }
-                else
-                {
-                    continue;
-                }
-            }
-
             $user_message_count = $message->where('from_id', $user_id)->where('created_at', '>', $check_data['check_start_time'])->unique('to_id')->count();
             //Log::Info($user_id);
             //Log::Info($user_message_count);

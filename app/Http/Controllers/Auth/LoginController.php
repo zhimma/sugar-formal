@@ -312,14 +312,6 @@ class LoginController extends \App\Http\Controllers\BaseController
             session()->forget('female_manual_has_been_read');
         }
 
-        //更新後台紀錄登入次數
-        $backend_user_details = BackendUserDetails::first_or_new($uid);
-        if($backend_user_details->user_check_step2_wait_login_times > 0)
-        {
-            $backend_user_details->user_check_step2_wait_login_times = $backend_user_details->user_check_step2_wait_login_times - 1;
-            $backend_user_details->save();
-        }
-
         //移至LogSuccessfulLoginListener
         /*
         //更新login_times
