@@ -235,14 +235,12 @@ class ApiDataLogger{
                         //解除vip_pass紀錄 banned_users warned_users
                         banned_users::where('vip_pass', 1)->where('member_id', $user->id)->delete();
                         warned_users::where('vip_pass', 1)->where('member_id', $user->id)->delete();
-
-                        if(!(EnvironmentService::isLocalOrTestMachine())) {
-                            //產生訂單 --正式環境訂單
-                            if(str_contains($_SERVER["HTTP_REFERER"], 'ecpay')) {
-                                Order::addEcPayOrder($payload['MerchantTradeNo'], null);
-                            }elseif(str_contains($_SERVER["HTTP_REFERER"], 'funpoint')){
-                                Order::addFunPointPayOrder($payload['MerchantTradeNo'], null);
-                            }
+                        
+                        //產生訂單 --正式環境訂單
+                        if(str_contains($_SERVER["HTTP_REFERER"], 'ecpay')) {
+                            Order::addEcPayOrder($payload['MerchantTradeNo'], null);
+                        }elseif(str_contains($_SERVER["HTTP_REFERER"], 'funpoint')){
+                            Order::addFunPointPayOrder($payload['MerchantTradeNo'], null);
                         }
 
 

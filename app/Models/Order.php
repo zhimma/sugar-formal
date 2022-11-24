@@ -5,6 +5,8 @@ namespace App\Models;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
 use Carbon\Carbon;
+use Illuminate\Support\Facades\Config;
+use App\Services\EnvironmentService;
 
 class Order extends Model
 {
@@ -43,18 +45,25 @@ class Order extends Model
 
         if($order_id != '' && substr($order_id,0,2) == 'SG') {
             //正式綠界訂單查詢
+            if(EnvironmentService::isLocalOrTestMachine()){
+                $envStr = '_test';
+            }
+            else{
+                $envStr = '';
+            }
+            
             $ecpay = new \App\Services\ECPay_AllInOne();
-            $ecpay->MerchantID = '3137610';
-            $ecpay->ServiceURL = 'https://payment.ecpay.com.tw/Cashier/QueryTradeInfo/V5';
-            $ecpay->HashIV = 'KOBKiDuvxIvjCSBz';
-            $ecpay->HashKey = 'BOerb1FcOOjccN8o';
+            $ecpay->MerchantID = Config::get('ecpay.payment' . $envStr . '.MerchantID');
+            $ecpay->ServiceURL = Config::get('ecpay.payment' . $envStr . '.OrderQueryURL');
+            $ecpay->HashIV = Config::get('ecpay.payment' . $envStr . '.HashIV');
+            $ecpay->HashKey = Config::get('ecpay.payment' . $envStr . '.HashKey');
             $ecpay->Query = [
                 'MerchantTradeNo' => $order_id,
                 'TimeStamp' => time()
             ];
             $paymentData = $ecpay->QueryTradeInfo();
 
-            $ecpay->ServiceURL = 'https://payment.ecpay.com.tw/Cashier/QueryCreditCardPeriodInfo';//定期定額查詢
+            $ecpay->ServiceURL = Config::get('ecpay.payment' . $envStr . '.ServiceURL');//定期定額查詢
             $paymentPeriodInfo = $ecpay->QueryPeriodCreditCardTradeInfo();
 
             //check order exist
