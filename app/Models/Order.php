@@ -485,6 +485,11 @@ class Order extends Model
         return false;
     }
 
+    public static function findByOrderId($order_id)
+    {
+        return Order::where('order_id', $order_id)->first();
+    }
+
     /**
      * @inheritDoc
      */
