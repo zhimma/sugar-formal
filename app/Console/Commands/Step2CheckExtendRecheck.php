@@ -87,6 +87,8 @@ class Step2CheckExtendRecheck extends Command
                 $suspicious_user->user_id = $user_id;
                 $suspicious_user->reason = '(系統自動新增)等待更多資料時與超過五個會員對話';
                 $suspicious_user->save();
+
+                BackendUserDetails::where('user_id', $user_id)->update(['is_waiting_for_more_data' => 0]);
             }
         }
         
