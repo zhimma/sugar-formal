@@ -66,6 +66,7 @@
                     :allusers="{{ view()->shared('self_auth_video_allusers') }}" 
                     :authUserId="{{ auth()->id() }}" 
                     user_permission = "normal"
+                    is_user_allow_video_chat = {{view()->shared('user') && view()->shared('rap_service') && view()->shared('rap_service')->riseByUserEntry(view()->shared('user')->refresh())->isAllowUseVideoChat() && view()->shared('rap_service')->isUrlNeedEntireSiteVideoChat()}}
                     ice_server_json="" 
                 />
                 

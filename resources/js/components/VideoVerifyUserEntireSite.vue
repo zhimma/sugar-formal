@@ -113,6 +113,7 @@ export default {
     "allusers",
     "authuserid",
     "user_permission",
+    "is_user_allow_video_chat",
     "ice_server_json",
   ],
   data() {
@@ -307,6 +308,8 @@ export default {
   methods: {
     initializeChannel() {
     
+      if(this.is_user_allow_video_chat == true)
+      {
         var log_arr = {
             from_file:'VideoVerifyUserEntireSite.vue'
             ,title:'start initializeChannel@methods@export default@VideoVerifyUserEntireSite.vue'
@@ -315,9 +318,19 @@ export default {
             ,act:'this.videoCallParams.channel = window.Echo.join("presence-video-channel");'
             ,act_step:'before'
         };
-        log_video_chat_process(log_arr);
-        
-      this.videoCallParams.channel = window.Echo.join("presence-video-channel");
+        this.videoCallParams.channel = window.Echo.join("presence-video-channel");
+      }
+      else
+      {
+        var log_arr = {
+            from_file:'VideoVerifyUserEntireSite.vue'
+            ,title:'start initializeChannel@methods@export default@VideoVerifyUserEntireSite.vue'
+            ,method:'initializeChannel@methods@export default'
+            ,step:'start'
+            ,act_step:'before'
+        };
+      }
+      log_video_chat_process(log_arr);
       
       log_arr.topic_step='after';
       log_arr.step = 'end';
