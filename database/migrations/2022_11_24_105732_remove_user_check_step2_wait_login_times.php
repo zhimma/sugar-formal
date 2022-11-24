@@ -15,7 +15,7 @@ class RemoveUserCheckStep2WaitLoginTimes extends Migration
     {
         Schema::table('backend_user_details', function($table) {
             $table->dropColumn('user_check_step2_wait_login_times');
-            $table->boolean('is_waiting_for_more_data')->default(0);
+            $table->boolean('is_waiting_for_more_data')->default(0)->after('user_id');
         });
     }
 
@@ -26,6 +26,9 @@ class RemoveUserCheckStep2WaitLoginTimes extends Migration
      */
     public function down()
     {
-        //
+        Schema::table('backend_user_details', function($table) {
+            $table->dropColumn('is_waiting_for_more_data');
+            $table->boolean('user_check_step2_wait_login_times')->default(0)->after('user_id');
+        });
     }
 }
