@@ -520,5 +520,12 @@ class VideoChatController extends Controller
         
         return response()->json($users);
     }
+
+    public function user_video_chat_verify_allow_check(Request $request, RealAuthPageService $rap_service) 
+    {   
+        $is_allow = $rap_service->riseByUserId(Auth::id())->isAllowUseVideoChat() ?? false;
+        return response()->json(['is_allow' => $is_allow]);
+    }
+    
     
 }
