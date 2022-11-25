@@ -11,6 +11,6 @@ class EnvironmentService
 
     public static function isLocalOrTestMachine()
     {
-        return app()->isLocal() || app()->environment('simon-test');
+        return app()->isLocal() || app()->environment('simon-test') || app()->environment('staging');
     }
 }

@@ -2353,4 +2353,57 @@ class User extends Authenticatable implements JWTSubject
             'birthdate_timestamp',
         ];
     }
+
+    public function ComputeRemainDay()
+    {      
+        $user = Vip::where('member_id', $this->id)->where('active', 1)->orderBy('created_at', 'desc')->first();;
+        $expiryDate = $user->expiry;
+        if($expiryDate == '0000-00-00 00:00:00'){
+        
+            $now = \Carbon\Carbon::now();
+            $latestUpdatedAt = \Carbon\Carbon::createFromFormat('Y-m-d H:i:s', $user->updated_at);
+            $baseDate = clone $now;
+            $daysDiff = clone $now;
+            $daysDiff = $daysDiff->diffInDays($latestUpdatedAt);
+            // 依照付款類形計算不同的取消當下距預計下一週期扣款日的天數
+            if($user->payment == 'cc_quarterly_payment'){
+                $periodRemained = 92 - ($daysDiff % 92);
+            }else {
+                $periodRemained = 30 - ($daysDiff % 30);
+            }
+            // 基準日加上得出的天數再加 1 (不加 1 到期日會少一天)，即為取消後的到期日
+            $expiryDate = $baseDate->addDays($periodRemained + 1);
+            /**
+             * Debugging codes.
+             * $output = new \Symfony\Component\Console\Output\ConsoleOutput();
+             * $output->writeln('$daysDiff: ' . $daysDiff);
+             * $output->writeln('$periodRemained: ' . $periodRemained);
+             * $output->writeln('$expiryDate: ' . $expiryDate);
+             */
+            // 如果是使用綠界付費，且取消日距預計下次扣款日小於七天，則到期日再加一個週期
+            // 3137610: 正式商店編號
+            // 2000132: 測試商店編號
+            if(($user->business_id == '3137610' || $user->business_id == '2000132') && $now->diffInDays($expiryDate) <= 7) {
+                // addMonthsNoOverflow(): 避免如 10/31 加了一個月後變 12/01 的情形出現
+                if($user->payment=='cc_quarterly_payment'){
+                    $expiryDate = $expiryDate->addMonthsNoOverflow(3);
+                }else {
+                    $expiryDate = $expiryDate->addMonthNoOverflow(1);
+                }
+            }
+
+            $order = Order::where('order_id', $user->order_id)->get()->first();
+            if (strpos($user->order_id, 'SG') !== false && isset($order)) {
+                $remain_days = $order->remain_days;
+            } else {
+                $remain_days = $user->remain_days;
+            }
+        
+            if($remain_days > 0){
+                $expiryDate = $expiryDate->addDays($remain_days);
+            }
+        }
+        
+        return $expiryDate;
+    }
 }

@@ -2,8 +2,11 @@
 
 namespace App\Jobs;
 
+use App\Models\IsBannedLog;
 use App\Models\Order;
 use App\Models\PaymentGetQrcodeLog;
+use App\Models\SetAutoBan;
+use App\Models\SimpleTables\banned_users;
 use Carbon\Carbon;
 use Illuminate\Bus\Queueable;
 use Illuminate\Queue\SerializesModels;
@@ -69,7 +72,7 @@ class CheckECpay implements ShouldQueue
             $OrderDataCheck = null;
             $admin = User::findByEmail(Config::get('social.admin.user-email'));
 
-            $OrderData = Order::where('order_id', $this->vipData->order_id)->first();
+            $OrderData = Order::findByOrderId($this->vipData->order_id);
             if($OrderData) {
                 //定期定額 未過期訂單
                 if(($this->vipData->payment=='' || substr($this->vipData->payment,0,3)=='cc_') &&
@@ -96,14 +99,14 @@ class CheckECpay implements ShouldQueue
                                     $updateEcPayOrder = Order::updateEcPayOrder($this->vipData->order_id);
                                     if ($updateEcPayOrder) {
                                         //重新查詢訂單並檢查
-                                        $OrderDataCheck = Order::where('order_id', $this->vipData->order_id)->first();
+                                        $OrderDataCheck = Order::findByOrderId($this->vipData->order_id);
                                     }
                                 }
                                 elseif ($OrderData->payment_flow == 'funpoint') {
                                     $updateFunPointPayOrder = Order::updateFunPointPayOrder($this->vipData->order_id);
                                     if ($updateFunPointPayOrder) {
                                         //重新查詢訂單並檢查
-                                        $OrderDataCheck = Order::where('order_id', $this->vipData->order_id)->first();
+                                        $OrderDataCheck = Order::findByOrderId($this->vipData->order_id);
                                     }
                                 }
                             }
@@ -166,7 +169,7 @@ class CheckECpay implements ShouldQueue
                                     }
                                     //重新抓訂單
                                     if ($checkOrder) {
-                                        $OrderDataCheck = Order::where('order_id', $this->vipData->order_id)->first();
+                                        $OrderDataCheck = Order::findByOrderId($this->vipData->order_id);
                                     }
                                 }
                                 catch (\Exception $exception) {
@@ -184,6 +187,38 @@ class CheckECpay implements ShouldQueue
                                     $vipData->removeVIP();
                                 }
                                 \App\Models\VipLog::addToLog($user->id, 'order_id: ' . $this->vipData->order_id . '; 期限內(' . $preOrderCheck->ExpireDate . ')未完成付款：' . $this->vipData->payment_method, '自動取消', 0, 0);
+
+                                if(!User::isBanned($user->id)) {
+                                    //累計三次未繳費加入封鎖
+                                    $getUserQrcodeHistory = PaymentGetQrcodeLog::select('order_id')
+                                        ->where('user_id', $user->id)
+                                        ->where('ExpireDate', '<', $now)
+                                        ->get();
+                                    $getUserPaidOrders = Order::where('user_id', $user->id)
+                                        ->whereIn('order_id', $getUserQrcodeHistory)
+                                        ->get();
+                                    $checkNoPayCounts = count($getUserQrcodeHistory) - count($getUserPaidOrders);
+                                    if ($checkNoPayCounts >= 3) {
+                                        //封鎖
+                                        $userBanned = new banned_users;
+                                        $userBanned->member_id = $user->id;
+                                        $userBanned->reason = "拒往";
+                                        $userBanned->save();
+                                        //寫入log
+                                        IsBannedLog::insert(['user_id' => $user->id, 'reason' => "拒往"]);
+                                        logger("Baned user {$user->id}, reason: 拒往");
+                                        //自動封鎖cfp_id
+                                        foreach($user->cfp as $row) {
+                                            $existData = SetAutoBan::where('type','cfp_id')
+                                                ->where('content', $row->cfp_id)
+                                                ->where('cuz_user_set', $user->id)
+                                                ->first();
+                                            if(!$existData) {
+                                                SetAutoBan::setAutoBanAdd('cfp_id', $row->cfp_id, 1, $user->id);
+                                            }
+                                        }
+                                    }
+                                }
                             }
                         }
                     }
@@ -200,7 +235,7 @@ class CheckECpay implements ShouldQueue
                             }
                             //重新抓訂單
                             if ($addOrder) {
-                                $OrderDataCheck = Order::where('order_id', $this->vipData->order_id)->first();
+                                $OrderDataCheck = Order::findByOrderId($this->vipData->order_id);
                             }
                         }
                         catch (\Exception $exception) {

@@ -265,12 +265,21 @@
         @endif
     @endif
 
-    @if($backend_detail->user_check_step2_wait_login_times == 0)
+    @if($backend_detail->is_waiting_for_more_data == 0)
         <form method="POST" style="display: inline;" action="{{ route('check_extend') }}">
             <input type="hidden" name="_token" value="{{ csrf_token() }}" >
             <input type="hidden" name='user_id' value="{{ $user->id }}">
             <button type="submit" class="btn btn-primary">等待更多資料</button>
         </form>
+    @else
+        @php
+            $check_extend_log = \App\Models\AdminActionLog::where('target_id', $user->id)->where('act', '會員檢查等待更多資料')->orderByDesc('created_at')->first();
+        @endphp
+        @if($check_extend_log ?? false)
+            <button class="btn btn-dark" disabled>{{$check_extend_log->created_at}}</button>
+        @else
+            <button class="btn btn-dark" disabled>等待更多資料</button>
+        @endif
     @endif
 
     @if(is_null($userMeta->activation_token))
