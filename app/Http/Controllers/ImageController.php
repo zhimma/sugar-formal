@@ -300,7 +300,7 @@ class ImageController extends BaseController
         $userId = $request->userId;
         $user = $request->user();
         $rap_service->riseByUserEntry($user);
-        $preloadedFiles = $this->getAvatar($request)->content();        
+        $preloadedFiles = $this->getAvatar($request)->content();                
         $preloadedFiles = json_decode($preloadedFiles, true);
 
         CheckPointUser::where('user_id', auth()->id())->delete();
@@ -330,7 +330,11 @@ class ImageController extends BaseController
 
         $upload = $fileUploader->upload();
 
-        if($upload['hasWarnings']??false) {
+        if(($upload['hasWarnings']??false) || !$upload['files']) {
+            if(!$upload['files'])  {
+                if(is_array($upload['warnings'])) $upload['warnings'][] = '您沒有選擇檔案。請重新選擇一個。';
+                else $upload['warnings'] = '您沒有選擇檔案。請重新選擇一個。';
+            }
             if($request->ajax()) {
                 echo is_array($upload['warnings'])?implode("\r\r",$upload['warnings']):$upload['warnings'];
                 exit;
@@ -398,7 +402,9 @@ class ImageController extends BaseController
             
             $msg="上傳成功";
 
-            $this->handleAvatarLogFreeVipPicAct($user);
+            $handled_msg = $this->handleAvatarLogFreeVipPicAct($user);
+            
+            if($handled_msg) $msg = $handled_msg;
             
             if($request->ajax()) {
                 if( $msg) {
@@ -407,7 +413,7 @@ class ImageController extends BaseController
                 else echo '1';
                 exit;
             }
-            return redirect()->back()->with(['message', $msg, 'real_auth'=>request()->real_auth ?? 0]);
+            return redirect()->back()->with(['message'=> $msg, 'real_auth'=>request()->real_auth ?? 0]);
         }
     }
     
@@ -430,6 +436,7 @@ class ImageController extends BaseController
     {
         $girl_to_vip = AdminCommonText::where('alias', 'girl_to_vip')->get()->first();
 
+        $msg = '';
         $user->load('meta','pic');
         $user->meta->compareImages('ImageController@uploadAvatar');
         $log_pic_acts_count = $user->log_free_vip_pic_acts->count();  
@@ -498,7 +505,9 @@ class ImageController extends BaseController
                        ,'shot_vip_record'=>$user->vip_record
                        ,'shot_is_free_vip'=>$user->isFreeVip()
                     ]);              
-        }         
+        }
+
+        return $msg;
     }
 
     public function deleteAvatar(Request $request)
@@ -665,7 +674,12 @@ class ImageController extends BaseController
 
         $upload = $fileUploader->upload();
         
-        if($upload['hasWarnings']??false) {
+        if(($upload['hasWarnings']??false) || !$upload['files']) {
+            if(!$upload['files'])  {
+                if(is_array($upload['warnings'])) $upload['warnings'][] = '您沒有選擇檔案。請重新選擇一個。';
+                else $upload['warnings'] = '您沒有選擇檔案。請重新選擇一個。';
+            }            
+            
             if($request->ajax()) {
                 echo is_array($upload['warnings'])?implode("\r\r",$upload['warnings']):$upload['warnings'];
                 exit;
@@ -730,7 +744,10 @@ class ImageController extends BaseController
         
         $msg="上傳成功";
     
-        $this->handlePicturesLogFreeVipPicAct($user);
+        $handled_msg = $this->handlePicturesLogFreeVipPicAct($user);
+        
+        if($handled_msg) $msg=$handled_msg;
+        
         if($request->ajax()) {
             $no_react = true;
             if( $msg) {
@@ -747,7 +764,7 @@ class ImageController extends BaseController
             if($no_react) echo '1';
             exit;
         }
-        $previous = redirect()->back()->with(['message', $msg, 'real_auth'=>request()->real_auth ?? 0]);
+        $previous = redirect()->back()->with(['message'=>$msg, 'real_auth' =>request()->real_auth ?? 0]);
         return $upload['isSuccess'] ? $previous : $previous->withErrors($upload['warnings']);
     }
     
@@ -774,6 +791,7 @@ class ImageController extends BaseController
     {
         $girl_to_vip = AdminCommonText::where('alias', 'girl_to_vip')->get()->first();
 
+        $msg = '';
         $user->load('pic','meta');         
         $log_pic_acts_count = $user->log_free_vip_pic_acts->count();  
         $last_mempic_act_log = $user->log_free_vip_member_pic_acts()->orderBy('created_at','DESC')->first();
@@ -856,7 +874,9 @@ class ImageController extends BaseController
                       ,'shot_vip_record'=>$user->vip_record
                      ,'shot_is_free_vip'=>$user->isFreeVip()
                     ]);              
-        }        
+        }
+
+        return $msg;
     }
 
     /**
