@@ -265,6 +265,8 @@ Route::group(['middleware' => ['auth', 'global', 'active', 'femaleActive', 'vipC
     //視訊驗證頁面
     Route::get('user_video_chat_verify', 'VideoChatController@user_video_chat_verify');
 
+    Route::get('user_video_chat_verify_allow_check', 'VideoChatController@user_video_chat_verify_allow_check')->name('user_video_chat_verify_allow_check');
+
     //視訊功能測試
     Route::get('/video-chat-test', 'VideoChatController@videoChatTest');
 
