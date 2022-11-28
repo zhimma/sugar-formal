@@ -1107,8 +1107,25 @@ class UserController extends \App\Http\Controllers\BaseController
      */
     public function advInfo(Request $request, $id)
     {
-        //新增Admin操作log
-        $this->insertAdminActionLog($id, '查看會員基本資料');
+        $operator = Auth::user();
+        $advInfo_check_log = AdminActionLog::where('act','查看會員基本資料')
+                                            ->where('operator',$operator->id)
+                                            ->where('target_id',$id)
+                                            ->orderByDesc('created_at')
+                                            ->first();
+        //2小時內如未重複查看時新增log
+        if($advInfo_check_log ?? false)
+        {
+            if($advInfo_check_log->created_at < Carbon::now()->subHours(2))
+            {
+                $this->insertAdminActionLog($id, '查看會員基本資料');
+            }
+        }
+        else
+        {
+            $this->insertAdminActionLog($id, '查看會員基本資料');
+        }
+        
 
         set_time_limit(900);
         if (!$id) {
