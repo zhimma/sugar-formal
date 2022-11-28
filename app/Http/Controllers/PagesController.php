@@ -2309,6 +2309,7 @@ class PagesController extends BaseController
     public function view_vipSelect(Request $request)
     {
         $user = $request->user();
+        $userAdvInfo = \App\Models\User::userAdvInfo($user->id);
         return view('new.dashboard.vipSelect')
             ->with('user', $user)->with('cur', $user);
     }
