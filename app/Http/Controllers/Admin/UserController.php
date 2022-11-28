@@ -6679,7 +6679,7 @@ class UserController extends \App\Http\Controllers\BaseController
             $resultsReport = AnonymousChatReport::select(
                 'anonymous_chat.*',
                 'users.name',
-                'users.id as usersID',
+                'users.id as userID',
                 'users.engroup',
                 'anonymous_chat_report.content as report_content',
                 'anonymous_chat_report.user_id as report_user',
