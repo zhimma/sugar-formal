@@ -5332,8 +5332,14 @@ class UserController extends \App\Http\Controllers\BaseController
             ->orderBy('suspicious_user.created_at', 'desc')
             ->paginate(20);
         $suspiciousUser = $query;
-
-        return view('admin.users.suspiciousUser', compact('suspiciousUser'));
+        $admin_array = RoleUser::get()->pluck('user_id');
+        $adminInfo_array = User::whereIn('id', $admin_array)->get();
+        $adminInfo = [];
+        foreach($adminInfo_array as $info)
+        {
+            $adminInfo[$info->id] = $info;
+        }
+        return view('admin.users.suspiciousUser', compact('suspiciousUser','adminInfo'));
     }
 
     public function modifyContent(Request $request)

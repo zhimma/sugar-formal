@@ -301,6 +301,12 @@ class User extends Authenticatable implements JWTSubject
         return $this->hasMany(AvatarDeleted::class, 'user_id', 'id')->orderByDesc('uploaded_at');
     }
     
+    //基本資料查看紀錄
+    public function advInfo_check_log()
+    {
+        return $this->hasMany(AdminActionLog::class, 'target_id', 'id')->where('act', '查看會員基本資料')->orderByDesc('created_at');
+    }
+
     /*
     |--------------------------------------------------------------------------
     | Mutators and Accessors

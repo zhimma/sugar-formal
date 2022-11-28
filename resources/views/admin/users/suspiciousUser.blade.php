@@ -18,7 +18,7 @@
     <table class="table-hover table table-bordered">
         <tr>
             <td width="12%">列入可疑名單的時間</td>
-            <td width="12%">原因</td>
+            <td width="12%">原因及查看紀錄</td>
             <td width="12%">標題(一句話形容自己）</td>
             <td width="12%">email</td>
             <td width="12%">暱稱</td>
@@ -41,11 +41,16 @@
                     $user['tipcount'] = \App\Models\Tip::TipCount_ChangeGood($userInfo->id);
                     $user['exchange_period'] = $userInfo->exchange_period;
                     $user['warnedicon'] = \App\Models\User::warned_icondata($row->id);
-                    $adminInfo=\App\Models\User::findById($row->suspicious_admin_id);
                 @endphp
                 <tr>
-                    <td>{{$row->suspicious_created_time }}@if($adminInfo)<br><span>提報人員：<a href="{{ route('users/advInfo', $row->suspicious_admin_id) }}" target='_blank'>{{ $adminInfo->email }}</a></span>@endif</td>
-                    <td>{{$row->suspicious_reason ? $row->suspicious_reason : '無' }}</td>
+                    <td>{{$row->suspicious_created_time }}@if($adminInfo[$row->suspicious_admin_id] ?? false)<br><span>提報人員：<a href="{{ route('users/advInfo', $row->suspicious_admin_id) }}" target='_blank'>{{ $adminInfo[$row->suspicious_admin_id]->email }}</a></span>@endif</td>
+                    <td>
+                        {{$row->suspicious_reason ? $row->suspicious_reason : '無' }}
+                        @foreach($userInfo->advInfo_check_log as $log)
+                        <br>
+                        {{$log->created_at}} {{$adminInfo[$log->operator]->name}}
+                        @endforeach
+                    </td>
                     <td>{{$row->title }}</td>
                     <td><a href="/admin/users/advInfo/{{ $row->id }}" target="_blank">{{ $row->email }}</a></td>
                     <td @if($result['isBlocked']) style="background-color:#FFFF00" @endif>
