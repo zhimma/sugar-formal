@@ -1107,6 +1107,9 @@ class UserController extends \App\Http\Controllers\BaseController
      */
     public function advInfo(Request $request, $id)
     {
+        //新增Admin操作log
+        $this->insertAdminActionLog($id, '查看會員基本資料');
+
         set_time_limit(900);
         if (!$id) {
             return redirect(route('users/advSearch'));
