@@ -1331,7 +1331,7 @@ class User extends Authenticatable implements JWTSubject
                                 })
                                 ->where('from_id','!=',1049)
                                 ->where('to_id','!=',1049)
-                                ->orderByDesc('created_at')
+                                ->orderByDesc('id')
                                 ->get();
 
         /*總通訊人數*/
