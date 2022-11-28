@@ -1325,7 +1325,7 @@ class User extends Authenticatable implements JWTSubject
         $seven_days_ago = Carbon::now()->subDays(7);
 
         /*使用者所有訊息*/
-        $messages_all = Message::withTrashed()->select('id','room_id','to_id','from_id','read','created_at')->where('to_id', $user->id)->orwhere('from_id', $user->id)->where('from_id','!=',1049)->orderByDesc('created_at')->get();
+        $messages_all = Message::withTrashed()->select('id','room_id','to_id','from_id','read','created_at')->where('to_id', $user->id)->orwhere('from_id', $user->id)->where('from_id','!=',1049)->where('to_id','!=',1049)->orderByDesc('created_at')->get();
 
         /*總通訊人數*/
         $advInfo['message_people_total'] = count($messages_all->unique('room_id'));
