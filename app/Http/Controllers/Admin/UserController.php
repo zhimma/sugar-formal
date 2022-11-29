@@ -1107,6 +1107,26 @@ class UserController extends \App\Http\Controllers\BaseController
      */
     public function advInfo(Request $request, $id)
     {
+        $operator = Auth::user();
+        $advInfo_check_log = AdminActionLog::where('act','查看會員基本資料')
+                                            ->where('operator',$operator->id)
+                                            ->where('target_id',$id)
+                                            ->orderByDesc('created_at')
+                                            ->first();
+        //2小時內如未重複查看時新增log
+        if($advInfo_check_log ?? false)
+        {
+            if($advInfo_check_log->created_at < Carbon::now()->subHours(2))
+            {
+                $this->insertAdminActionLog($id, '查看會員基本資料');
+            }
+        }
+        else
+        {
+            $this->insertAdminActionLog($id, '查看會員基本資料');
+        }
+        
+
         set_time_limit(900);
         if (!$id) {
             return redirect(route('users/advSearch'));
@@ -5312,8 +5332,14 @@ class UserController extends \App\Http\Controllers\BaseController
             ->orderBy('suspicious_user.created_at', 'desc')
             ->paginate(20);
         $suspiciousUser = $query;
-
-        return view('admin.users.suspiciousUser', compact('suspiciousUser'));
+        $admin_array = RoleUser::get()->pluck('user_id');
+        $adminInfo_array = User::whereIn('id', $admin_array)->get();
+        $adminInfo = [];
+        foreach($adminInfo_array as $info)
+        {
+            $adminInfo[$info->id] = $info;
+        }
+        return view('admin.users.suspiciousUser', compact('suspiciousUser','adminInfo'));
     }
 
     public function modifyContent(Request $request)
