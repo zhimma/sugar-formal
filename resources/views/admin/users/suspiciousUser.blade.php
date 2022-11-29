@@ -46,10 +46,16 @@
                     <td>{{$row->suspicious_created_time }}@if($adminInfo[$row->suspicious_admin_id] ?? false)<br><span>提報人員：<a href="{{ route('users/advInfo', $row->suspicious_admin_id) }}" target='_blank'>{{ $adminInfo[$row->suspicious_admin_id]->email }}</a></span>@endif</td>
                     <td>
                         {{$row->suspicious_reason ? $row->suspicious_reason : '無' }}
-                        @foreach($userInfo->advInfo_check_log as $log)
-                        <br>
-                        {{$log->created_at}} {{$adminInfo[$log->operator]->name}}
+                        @foreach($userInfo->advInfo_check_log as $key => $log)
+                            @if($key <3)
+                                <div class="log_line">{{$log->created_at}} {{$adminInfo[$log->operator]->name}}</div>
+                            @else
+                                <div class="log_line" style="display:none">{{$log->created_at}} {{$adminInfo[$log->operator]->name}}</div>
+                            @endif
                         @endforeach
+                        @if(count($userInfo->advInfo_check_log) > 3)
+                            <a class="look_more_log">. . .</a>
+                        @endif
                     </td>
                     <td>{{$row->title }}</td>
                     <td><a href="/admin/users/advInfo/{{ $row->id }}" target="_blank">{{ $row->email }}</a></td>
@@ -133,6 +139,15 @@
             $('#sid_toggle').submit();
         }
 
+    });
+
+    $('.look_more_log').on('click', function(){
+        $(this).text('');
+        $(this).parent('td').children('.log_line').each(function(){
+            if($(this).css("display") == "none"){
+                $(this).show();
+            }
+        });
     });
 
 </script>
