@@ -1374,9 +1374,9 @@ class User extends Authenticatable implements JWTSubject
         $advInfo['message_reply_count_7'] = count($reply_message_all->where('created_at','>', $seven_days_ago));
 
         /*未回人數*/
-        $advInfo['message_no_reply_count'] = count($send_message_all->unique('room_id')->where('read','Y'));
+        $advInfo['message_no_reply_count'] = count($messages_all->sortByDesc('id')->unique('room_id')->where('from_id',$user_id)->where('read','Y'));
         /*過去七天未回人數*/
-        $advInfo['message_no_reply_count_7'] = count($send_message_all->where('created_at','>', $seven_days_ago)->unique('room_id')->where('read','Y'));
+        $advInfo['message_no_reply_count_7'] = count($messages_all->sortByDesc('id')->where('created_at','>', $seven_days_ago)->unique('room_id')->where('from_id',$user_id)->where('read','Y'));
 
         /*總通訊人數*/
         $advInfo['message_people_total'] = $advInfo['message_people_count'] + $advInfo['message_reply_people_count'];

@@ -14,21 +14,21 @@
         <th>每周平均上線次數： {{ array_get($userAdvInfo,'login_times_per_week',0) }}</th>
     </tr>
     <tr>
-        <th>過去七天未回人數： {{ array_get($userAdvInfo,'message_no_reply_count_7',0) }}</th>
-        <th>總未回人數： {{ array_get($userAdvInfo,'message_no_reply_count',0) }}</th>
+        <th>過去七天未回(已讀不回)人數： {{ array_get($userAdvInfo,'message_no_reply_count_7',0) }}</th>
+        <th>總未回(已讀不回)人數： {{ array_get($userAdvInfo,'message_no_reply_count',0) }}</th>
         <th>收藏會員次數： {{ array_get($userAdvInfo,'fav_count',0) }}</th>
         <th></th>
     </tr>
     <tr>
         <th>過去七天發訊人數： {{ array_get($userAdvInfo,'message_people_count_7',0) }}</th>
         <th>發訊人數： {{ array_get($userAdvInfo,'message_people_count',0) }}</th>
-        <th></th>
+        <th>發訊:第一筆訊息為自己發出</th>
         <th></th>
     </tr>
     <tr>
         <th>過去七天回訊人數： {{ array_get($userAdvInfo,'message_reply_people_count_7',0) }}</th>
         <th>回訊人數： {{ array_get($userAdvInfo,'message_reply_people_count',0) }}</th>
-        <th></th>
+        <th>回訊:第一筆訊息為對方發出且自己有回覆訊息</th>
         <th></th>
     </tr>
     <tr>
