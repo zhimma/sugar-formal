@@ -47,7 +47,10 @@
                     <td>
                         {{$row->suspicious_reason ? $row->suspicious_reason : '無' }}
                         @foreach($userInfo->advInfo_check_log as $key => $log)
-                            @if($key <3)
+                            @if($key == 0)
+                                <hr>
+                            @endif
+                            @if($key < 3)
                                 <div class="log_line">{{$log->created_at}} {{$adminInfo[$log->operator]->name}}</div>
                             @else
                                 <div class="log_line" style="display:none">{{$log->created_at}} {{$adminInfo[$log->operator]->name}}</div>
