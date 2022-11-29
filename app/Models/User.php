@@ -1331,38 +1331,57 @@ class User extends Authenticatable implements JWTSubject
                                 })
                                 ->where('from_id','!=',1049)
                                 ->where('to_id','!=',1049)
-                                ->orderByDesc('id')
+                                ->orderBy('id')
                                 ->get();
+        /*總房間數*/
+        $first_messages_all = $messages_all->unique('room_id');
 
-        /*總通訊人數*/
-        $advInfo['message_people_total'] = count($messages_all->unique('room_id'));
-         /*過去7天總通訊人數*/
-        $advInfo['message_people_total_7'] = count($messages_all->where('created_at','>', $seven_days_ago)->unique('room_id'));
+        /*第一則訊息為發訊的房間*/
+        $first_send_room = $first_messages_all->where('from_id',$user_id)->pluck('room_id');
+        /*第一則訊息為收訊的房間*/
+        $first_reply_room = $first_messages_all->where('to_id',$user_id)->pluck('room_id');
+
+        $send_message_all = Message::withTrashed()->select('id','room_id','to_id','from_id','read','created_at')
+                                    ->whereIn('room_id', $first_send_room)
+                                    ->where('from_id',$user_id)
+                                    ->orderByDesc('id')
+                                    ->get();
+
+        $reply_message_all = Message::withTrashed()->select('id','room_id','to_id','from_id','read','created_at')
+                                    ->whereIn('room_id', $first_reply_room)
+                                    ->where('from_id',$user_id)
+                                    ->orderByDesc('id')
+                                    ->get();
 
         /*發信人數*/
-        $advInfo['message_people_count'] = count($messages_all->unique('room_id')->where('from_id',$user_id));
+        $advInfo['message_people_count'] = count($send_message_all->unique('room_id'));
         /*過去7天發信人數*/
-        $advInfo['message_people_count_7'] = count($messages_all->where('created_at','>', $seven_days_ago)->unique('room_id')->where('from_id',$user_id));
+        $advInfo['message_people_count_7'] = count($send_message_all->where('created_at','>', $seven_days_ago)->unique('room_id'));
 
         /*發信次數*/
-        $advInfo['message_count'] = count($messages_all->where('from_id',$user_id));
+        $advInfo['message_count'] = count($send_message_all);
         /*過去7天發信次數*/
-        $advInfo['message_count_7'] = count($messages_all->where('created_at','>', $seven_days_ago)->where('from_id',$user_id));
+        $advInfo['message_count_7'] = count($send_message_all->where('created_at','>', $seven_days_ago));
 
         /*回信人數*/
-        $advInfo['message_reply_people_count'] = count($messages_all->unique('room_id')->where('to_id',$user_id));
+        $advInfo['message_reply_people_count'] = count($reply_message_all->unique('room_id'));
         /*過去7天回信人數*/
-        $advInfo['message_reply_people_count_7'] = count($messages_all->where('created_at','>', $seven_days_ago)->unique('room_id')->where('to_id',$user_id));
+        $advInfo['message_reply_people_count_7'] = count($reply_message_all->where('created_at','>', $seven_days_ago)->unique('room_id'));
 
         /*回信次數*/
-        $advInfo['message_reply_count'] = count($messages_all->where('to_id',$user_id));
+        $advInfo['message_reply_count'] = count($reply_message_all);
         /*過去7天回信次數*/
-        $advInfo['message_reply_count_7'] = count($messages_all->where('created_at','>', $seven_days_ago)->where('to_id',$user_id));
+        $advInfo['message_reply_count_7'] = count($reply_message_all->where('created_at','>', $seven_days_ago));
 
         /*未回人數*/
-        $advInfo['message_no_reply_count'] = count($messages_all->unique('room_id')->where('from_id',$user_id)->where('read','Y'));
+        $advInfo['message_no_reply_count'] = count($send_message_all->unique('room_id')->where('read','Y'));
         /*過去七天未回人數*/
-        $advInfo['message_no_reply_count_7'] = count($messages_all->where('created_at','>', $seven_days_ago)->unique('room_id')->where('from_id',$user_id)->where('read','Y'));
+        $advInfo['message_no_reply_count_7'] = count($send_message_all->where('created_at','>', $seven_days_ago)->unique('room_id')->where('read','Y'));
+
+        /*總通訊人數*/
+        $advInfo['message_people_total'] = $advInfo['message_people_count'] + $advInfo['message_reply_people_count'];
+        /*過去7天總通訊人數*/
+        $advInfo['message_people_total_7'] = $advInfo['message_people_count_7'] + $advInfo['message_reply_people_count_7'];
 
         /*過去7天罐頭訊息比例*/
         $date_start = date("Y-m-d",strtotime("-6 days", strtotime(date('Y-m-d'))));
