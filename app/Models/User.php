@@ -301,6 +301,12 @@ class User extends Authenticatable implements JWTSubject
         return $this->hasMany(AvatarDeleted::class, 'user_id', 'id')->orderByDesc('uploaded_at');
     }
     
+    //基本資料查看紀錄
+    public function advInfo_check_log()
+    {
+        return $this->hasMany(AdminActionLog::class, 'target_id', 'id')->where('act', '查看會員基本資料')->orderByDesc('created_at');
+    }
+
     /*
     |--------------------------------------------------------------------------
     | Mutators and Accessors
@@ -1322,149 +1328,47 @@ class User extends Authenticatable implements JWTSubject
     public static function userAdvInfo($user_id,$wantIndexArr=[]){
         $user=User::findById($user_id);
         $date = date('Y-m-d H:m:s', strtotime('-7 days'));
-		
-        /*發信＆回信次數統計*/
-		$countInfo['message_count'] = 0;
-		$countInfo['message_count_7'] = 0;
-        $countInfo['message_reply_count'] = 0;
-		$countInfo['message_reply_count_7'] = 0;
-		$send = [];
-		$receive = [];
-        $reply_people = [];
-        $reply_people_7 = [];
-        if(!$wantIndexArr
-			|| in_array('message_count',$wantIndexArr)
-			|| in_array('message_reply_count',$wantIndexArr)
-			|| in_array('message_reply_count_7',$wantIndexArr)
-		) {
-			$messages_all = Message::withTrashed()->select('id','to_id','from_id','created_at')->where('to_id', $user->id)->orwhere('from_id', $user->id)->where('from_id','!=',1049)->orderBy('id')->get();
-			foreach ($messages_all as $message) {
-				//uid主動第一次發信
-				if($message->from_id == $user->id && array_get($send, $message->to_id) < $message->id){
-					$send[$message->to_id][]= $message->id;
-				}
-				//紀錄每個帳號第一次發信給uid
-				if ($message->to_id == $user->id && array_get($receive, $message->from_id) < $message->id) {
-					$receive[$message->from_id][] = $message->id;
-				}
-				if(!is_null(array_get($receive, $message->to_id))){
-					$countInfo['message_reply_count'] += 1;
-					if(!array_keys($reply_people,$message->to_id)){
-                        array_push($reply_people, $message->to_id);
-                    }
+        $seven_days_ago = Carbon::now()->subDays(7);
 
-					if($message->created_at >= $date){
-						//計算七天內回信次數
-						$countInfo['message_reply_count_7'] += 1;
-                        if(!array_keys($reply_people_7,$message->to_id)) {
-                            array_push($reply_people_7, $message->to_id);
-                        }
-                    }
-				}
-			}
+        /*使用者所有訊息*/
+        $messages_all = Message::withTrashed()->select('id','room_id','to_id','from_id','read','created_at')
+                                ->where(function($query) use($user) {                            
+                                    $query->where('to_id', $user->id)->orwhere('from_id', $user->id);
+                                })
+                                ->where('from_id','!=',1049)
+                                ->where('to_id','!=',1049)
+                                ->orderByDesc('id')
+                                ->get();
 
-			$message_count=0;
-            foreach ($send as $to_id =>$val){
-                $m_id=Message::where('from_id',$to_id)->where('to_id',$user->id)->orderBy('id')->first();
-                $m_id=$m_id? $m_id->id :null;
+        /*總通訊人數*/
+        $advInfo['message_people_total'] = count($messages_all->unique('room_id'));
+         /*過去7天總通訊人數*/
+        $advInfo['message_people_total_7'] = count($messages_all->where('created_at','>', $seven_days_ago)->unique('room_id'));
 
-                $retreived_data = Message::withTrashed()->where([['message.to_id', $user->id],['message.from_id', $to_id]])
-                    ->orWhere([['message.from_id', $user->id],['message.to_id', $to_id]])
-                    ->orderBy('created_at')
-                    ->where(function ($q) {
-                        $q->where(function ($q1) {
-                            $q1->where('unsend', 0);
-                        })
-                        ->orWhere(function ($q2) {
-                            $q2->where('unsend', 1);
-                        });
-                    })
-                    ->first();
-                $from_id_first = $retreived_data ? $retreived_data->from_id : null;
-
-                $message_temp = Message::where('from_id',$user->id)->where('to_id',$to_id)->orderBy('created_at');
-                if(!is_null($m_id)){
-                    $message_temp->where('id','<',$m_id);
-                }
-                $message_temp=$message_temp->get()->count();
-                if($message_temp && ($from_id_first == $user->id) ){
-                    $message_count+=$message_temp;
-                }else{
-                    unset($send[$to_id]);
-                }
-            }
-            $countInfo['message_count'] = count($send);
-        }
-		if(!$wantIndexArr || in_array('message_count_7',$wantIndexArr)) {
-			$messages_7days = Message::select('id','to_id','from_id','created_at')->whereRaw('(to_id ='. $user->id. ' OR from_id='.$user->id .')')->where('created_at','>=', $date)->where('from_id','!=',1049)->orderBy('id')->get();
-			$countInfo['message_count_7'] = 0;
-			$send = [];
-			foreach ($messages_7days as $message) {
-				//七天內uid主動第一次發信
-				if($message->from_id == $user->id && array_get($send, $message->to_id) < $message->id){
-					$send[$message->to_id][]= $message->id;
-				}
-			}
-            $message_count_7=0;
-            foreach ($send as $to_id =>$val){
-                $m_id=Message::where('from_id',$to_id)->where('to_id',$user->id)->where('created_at','>=', $date)->orderBy('id')->first();
-                $m_id=$m_id? $m_id->id :null;
-
-                $from_id_first=Message::where([['message.to_id', $user->id],['message.from_id', $to_id]])
-                    ->orWhere([['message.from_id', $user->id],['message.to_id', $to_id]])
-                    ->orderBy('created_at')->first()->from_id;
-
-                $message_temp=Message::where('from_id',$user->id)->where('to_id',$to_id)->where('created_at','>=', $date)->orderBy('created_at');
-                if(!is_null($m_id)){
-                    $message_temp->where('id','<',$m_id);
-                }
-                $message_temp=$message_temp->get();
-                if($message_temp && ($from_id_first == $user->id)){
-                    $test=Message::where([['message.to_id', $user->id],['message.from_id', $to_id]])
-                        ->where('id','<',$send[$to_id])
-                        ->orderBy('created_at','desc')->first();
-                    $message_count_7+=is_null($test) ? $message_temp->count() : 0;
-                }else{
-                    unset($send[$to_id]);
-                }
-            }
-            $countInfo['message_count_7'] = count($send);
-        }
-
-        /*總通訊人數=發訊人數+回訊人數*/
-        $advInfo['message_people_total'] = $countInfo['message_count']+count($reply_people);
-         /*過去7天總通訊人數=發訊人數+回訊人數*/
-        $advInfo['message_people_total_7'] = $countInfo['message_count_7']+count($reply_people_7);
         /*發信人數*/
-        $advInfo['message_people_count'] = $countInfo['message_count'];
+        $advInfo['message_people_count'] = count($messages_all->unique('room_id')->where('from_id',$user_id));
         /*過去7天發信人數*/
-        $advInfo['message_people_count_7'] = $countInfo['message_count_7'];
+        $advInfo['message_people_count_7'] = count($messages_all->where('created_at','>', $seven_days_ago)->unique('room_id')->where('from_id',$user_id));
+
         /*發信次數*/
-        $advInfo['message_count'] = $message_count;
+        $advInfo['message_count'] = count($messages_all->where('from_id',$user_id));
         /*過去7天發信次數*/
-        $advInfo['message_count_7'] = $message_count_7;
+        $advInfo['message_count_7'] = count($messages_all->where('created_at','>', $seven_days_ago)->where('from_id',$user_id));
 
         /*回信人數*/
-        $advInfo['message_reply_people_count'] = count($reply_people);
+        $advInfo['message_reply_people_count'] = count($messages_all->unique('room_id')->where('to_id',$user_id));
         /*過去7天回信人數*/
-        $advInfo['message_reply_people_count_7'] = count($reply_people_7);
-        /*回信次數*/
-        $advInfo['message_reply_count'] = $countInfo['message_reply_count'];
-        /*過去7天回信次數*/
-        $advInfo['message_reply_count_7'] = $countInfo['message_reply_count_7'];
+        $advInfo['message_reply_people_count_7'] = count($messages_all->where('created_at','>', $seven_days_ago)->unique('room_id')->where('to_id',$user_id));
 
-        /*過去七天未回人數*/
-        $no_reply_7_ary=Message::where('to_id', $user->id)->where('from_id','!=',1049)->where('created_at','>=', $date)
-            ->selectRaw('(select id from message as p where (p.from_id='.$user->id.' and  p.to_id=message.from_id) OR (p.from_id= message.from_id and  p.to_id='.$user->id.') order by id  desc limit 1 ) as msg_id')
-            ->whereRaw('(select from_id from message as p where (p.from_id='.$user->id.' and  p.to_id=message.from_id) OR (p.from_id= message.from_id and  p.to_id='.$user->id.') order by id  desc limit 1 ) !='.$user_id)
-            ->groupBy('from_id')->get()->pluck('msg_id');
-        $advInfo['message_no_reply_count_7'] =Message::whereIn('id',$no_reply_7_ary)->where('read','Y')->get()->count();
+        /*回信次數*/
+        $advInfo['message_reply_count'] = count($messages_all->where('to_id',$user_id));
+        /*過去7天回信次數*/
+        $advInfo['message_reply_count_7'] = count($messages_all->where('created_at','>', $seven_days_ago)->where('to_id',$user_id));
+
         /*未回人數*/
-        $no_reply_ary=Message::where('to_id', $user->id)->where('from_id','!=',1049)
-            ->selectRaw('(select id from message as p where (p.from_id='.$user->id.' and  p.to_id=message.from_id) OR (p.from_id= message.from_id and  p.to_id='.$user->id.') order by id  desc limit 1 ) as msg_id')
-            ->whereRaw('(select from_id from message as p where (p.from_id='.$user->id.' and  p.to_id=message.from_id) OR (p.from_id= message.from_id and  p.to_id='.$user->id.') order by id  desc limit 1 ) !='.$user_id)
-            ->groupBy('from_id')->get()->pluck('msg_id');
-        $advInfo['message_no_reply_count'] =Message::whereIn('id',$no_reply_ary)->where('read','Y')->get()->count();
+        $advInfo['message_no_reply_count'] = count($messages_all->unique('room_id')->where('from_id',$user_id)->where('read','Y'));
+        /*過去七天未回人數*/
+        $advInfo['message_no_reply_count_7'] = count($messages_all->where('created_at','>', $seven_days_ago)->unique('room_id')->where('from_id',$user_id)->where('read','Y'));
 
         /*過去7天罐頭訊息比例*/
         $date_start = date("Y-m-d",strtotime("-6 days", strtotime(date('Y-m-d'))));
@@ -2352,5 +2256,58 @@ class User extends Authenticatable implements JWTSubject
             'engroup',
             'birthdate_timestamp',
         ];
+    }
+
+    public function ComputeRemainDay()
+    {      
+        $user = Vip::where('member_id', $this->id)->where('active', 1)->orderBy('created_at', 'desc')->first();;
+        $expiryDate = $user->expiry;
+        if($expiryDate == '0000-00-00 00:00:00'){
+        
+            $now = \Carbon\Carbon::now();
+            $latestUpdatedAt = \Carbon\Carbon::createFromFormat('Y-m-d H:i:s', $user->updated_at);
+            $baseDate = clone $now;
+            $daysDiff = clone $now;
+            $daysDiff = $daysDiff->diffInDays($latestUpdatedAt);
+            // 依照付款類形計算不同的取消當下距預計下一週期扣款日的天數
+            if($user->payment == 'cc_quarterly_payment'){
+                $periodRemained = 92 - ($daysDiff % 92);
+            }else {
+                $periodRemained = 30 - ($daysDiff % 30);
+            }
+            // 基準日加上得出的天數再加 1 (不加 1 到期日會少一天)，即為取消後的到期日
+            $expiryDate = $baseDate->addDays($periodRemained + 1);
+            /**
+             * Debugging codes.
+             * $output = new \Symfony\Component\Console\Output\ConsoleOutput();
+             * $output->writeln('$daysDiff: ' . $daysDiff);
+             * $output->writeln('$periodRemained: ' . $periodRemained);
+             * $output->writeln('$expiryDate: ' . $expiryDate);
+             */
+            // 如果是使用綠界付費，且取消日距預計下次扣款日小於七天，則到期日再加一個週期
+            // 3137610: 正式商店編號
+            // 2000132: 測試商店編號
+            if(($user->business_id == '3137610' || $user->business_id == '2000132') && $now->diffInDays($expiryDate) <= 7) {
+                // addMonthsNoOverflow(): 避免如 10/31 加了一個月後變 12/01 的情形出現
+                if($user->payment=='cc_quarterly_payment'){
+                    $expiryDate = $expiryDate->addMonthsNoOverflow(3);
+                }else {
+                    $expiryDate = $expiryDate->addMonthNoOverflow(1);
+                }
+            }
+
+            $order = Order::where('order_id', $user->order_id)->get()->first();
+            if (strpos($user->order_id, 'SG') !== false && isset($order)) {
+                $remain_days = $order->remain_days;
+            } else {
+                $remain_days = $user->remain_days;
+            }
+        
+            if($remain_days > 0){
+                $expiryDate = $expiryDate->addDays($remain_days);
+            }
+        }
+        
+        return $expiryDate;
     }
 }

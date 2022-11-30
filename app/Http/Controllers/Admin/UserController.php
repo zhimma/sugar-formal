@@ -49,6 +49,7 @@ use App\Models\AdminAnnounce;
 use App\Models\MasterWords;
 use App\Models\AdminCommonText;
 use App\Models\VipLog;
+use App\Models\VipExpiryLog;
 use App\Models\Vip;
 use App\Models\Tip;
 use App\Models\Msglib;
@@ -83,7 +84,9 @@ use App\Models\StayOnlineRecord;
 use App\Models\StayOnlineRecordPageName;
 use App\Models\UserRecord;
 use App\Models\Visited;
+use App\Models\LogAdvAuthApi;
 use App\Services\RealAuthAdminService;
+use App\Services\EnvironmentService;
 use App\Models\UserVideoVerifyRecord;
 use App\Models\Features;
 use App\Models\MessageRoomUserXref;
@@ -1104,6 +1107,26 @@ class UserController extends \App\Http\Controllers\BaseController
      */
     public function advInfo(Request $request, $id)
     {
+        $operator = Auth::user();
+        $advInfo_check_log = AdminActionLog::where('act','查看會員基本資料')
+                                            ->where('operator',$operator->id)
+                                            ->where('target_id',$id)
+                                            ->orderByDesc('created_at')
+                                            ->first();
+        //2小時內如未重複查看時新增log
+        if($advInfo_check_log ?? false)
+        {
+            if($advInfo_check_log->created_at < Carbon::now()->subHours(2))
+            {
+                $this->insertAdminActionLog($id, '查看會員基本資料');
+            }
+        }
+        else
+        {
+            $this->insertAdminActionLog($id, '查看會員基本資料');
+        }
+        
+
         set_time_limit(900);
         if (!$id) {
             return redirect(route('users/advSearch'));
@@ -5309,8 +5332,14 @@ class UserController extends \App\Http\Controllers\BaseController
             ->orderBy('suspicious_user.created_at', 'desc')
             ->paginate(20);
         $suspiciousUser = $query;
-
-        return view('admin.users.suspiciousUser', compact('suspiciousUser'));
+        $admin_array = RoleUser::get()->pluck('user_id');
+        $adminInfo_array = User::whereIn('id', $admin_array)->get();
+        $adminInfo = [];
+        foreach($adminInfo_array as $info)
+        {
+            $adminInfo[$info->id] = $info;
+        }
+        return view('admin.users.suspiciousUser', compact('suspiciousUser','adminInfo'));
     }
 
     public function modifyContent(Request $request)
@@ -6161,7 +6190,7 @@ class UserController extends \App\Http\Controllers\BaseController
                 ->whereNotNull('birthdate')->whereNotNull('area')->whereNotNull('city');
             })
             ->whereDoesntHave('backend_user_details', function ($query) {
-                $query->where('user_check_step2_wait_login_times','!=', 0);
+                $query->where('is_waiting_for_more_data', 1);
             });
 
 
@@ -7682,7 +7711,9 @@ class UserController extends \App\Http\Controllers\BaseController
     public function check_extend(Request $request)
     {
         $uid = $request->user_id;
-        BackendUserDetails::check_extend($uid, 2);
+        $operator_id = Auth::user()->id;
+        $ip = $request->ip();
+        BackendUserDetails::check_extend($uid, $operator_id, $ip);
         $msg_type    = 'message';
         $msg_content = '已延長等待更多資料';
         return back()->with($msg_type, $msg_content);
@@ -7721,4 +7752,213 @@ class UserController extends \App\Http\Controllers\BaseController
         ], 201);
     }
 
+    public function vipIndex()
+    {
+        return view('admin.users.searchVip');
+    }
+
+    public function vipSearch(Request $request)
+    {
+       
+        if (!$request->search) {
+            return redirect('admin/users/vip');
+        }
+
+        $users = User::select('id', 'email', 'engroup')
+            ->where('email', 'like', '%' . $request->search . '%')
+            ->get();
+        foreach ($users as $user) {
+            $isVip = $user->isVip();
+            $user['advance_auth_count'] = LogAdvAuthApi::where('user_id', $user->id)->where('user_fault', 1)->count();
+            
+            if ($isVip == 1) {
+                $user['isVip'] = true;
+            } else {
+                $user['isVip'] = false;
+            }
+
+            if (member_vip::select("order_id")->where('member_id', $user->id)->get()->first()) {
+                $user['vip_order_id'] = member_vip::select("order_id")
+                    ->where('member_id', $user->id)
+                    ->get()->first()->order_id;
+            }
+            $user['vip_data'] = Vip::select('id', 'free', 'expiry', 'payment_method', 'created_at', 'updated_at')
+                ->where('member_id', $user->id)
+                ->orderBy('created_at', 'desc')
+                ->get()->first();
+            if (VipLog::select("updated_at")->where('member_id', $user->id)->orderBy('updated_at', 'desc')->get()->first()) {
+                $user['updated_at'] = VipLog::select("updated_at")->where('member_id', $user->id)->orderBy('updated_at', 'desc')->get()->first()->updated_at;
+            }
+        }
+        return view('admin.users.searchVip')
+            ->with('users', $users);
+    }
+
+    public function periodExtend(Request $request)
+    {
+        $extend = $request->extend;
+        $user = User::where('id', $request->user_id)->first();
+        if($user->isVip()) {
+            $vipData = $user->getVipData(true);
+            $payment = $vipData->payment;
+            $expire_origin = $vipData->expiry;
+            $expire_date = date("Y-m-d H:i:s",strtotime("+".$extend." days", strtotime($vipData->expiry)));
+            $remain_days_origin = $vipData->remain_days;
+            $remain_days = $remain_days_origin + $extend;
+    
+            if($payment=='one_quarter_payment' || $payment=='one_month_payment' || is_null($payment)){
+                $vipData->expiry= $expire_date;
+                $vipData->save();
+    
+                VipLog::addToLog($user->id, 'backend_extend_expiry_service: +'.$extend.' days', 'Manual Setting', 1, 0);
+                VipExpiryLog::addToLog($user->id, $vipData, $expire_origin, $expire_date, null, null);
+            }else if($payment=='cc_quarterly_payment' || $payment=='cc_monthly_payment'){
+
+                if($expire_origin=='0000-00-00 00:00:00') {
+                    $vipData->remain_days = $remain_days;
+                    $vipData->save();
+        
+                    if(!(EnvironmentService::isLocalOrTestMachine())) {
+                        $order_user = Vip::select('id', 'expiry', 'created_at', 'updated_at','payment','business_id', 'order_id','remain_days')
+                            ->where('member_id', $user->id)
+                            ->orderBy('created_at', 'desc')->get();
+                        $order = Order::where('order_id', $order_user[0]->order_id)->get()->first();
+                        if($order){
+                            Order::where('order_id', $order_user[0]->order_id)->update([
+                                'remain_days'=> $order->remain_days+ $extend
+                            ]);       
+                        }
+                    }
+                    VipLog::addToLog($user->id, 'backend_extend_expiry_service: +'.$extend.' remain_days', 'Manual Setting', 1, 0);
+                    VipExpiryLog::addToLog($user->id, $vipData, null, null, $remain_days_origin, $remain_days);
+                } else {
+                    $vipData->expiry= $expire_date;
+                    $vipData->save();
+                    VipLog::addToLog($user->id, 'backend_extend_expiry_service: +'.$extend.' days', 'Manual Setting', 1, 0);
+                    VipExpiryLog::addToLog($user->id, $vipData, $expire_origin, $expire_date, null, null);
+                }
+            }
+        }else {
+            $expire_date = date("Y-m-d H:i:s",strtotime("+".$extend." days"));
+            $vip = new Vip();
+            $vip->member_id = $user->id;
+            $vip->expiry = $expire_date;
+            $vip->active = 1;
+            $vip->free = 0;
+            $vip->save();
+            VipLog::addToLog($user->id, 'backend_extend_expiry_service: +'.$extend.' days', 'Manual Setting', 1, 0);
+            VipExpiryLog::addToLog($user->id, $user->getVipData(true), null, $expire_date, null, null);
+        }
+        
+        return response()->json(['msg'=>'新增天數成功!']);
+    }
+
+    public function periodTransfer(Request $request)
+    {
+        $from_user = User::where('id', $request->user_id)->first();
+        $to_user = User::where('email', $request->transfer_to)->first();
+        
+        $from_user_vipData = $from_user->getVipData(true);
+        $to_user_vipData = $to_user->getVipData(true);
+   
+        if($from_user->isVip()) {
+            $from_user_expire_origin = $from_user_vipData->expiry;
+            $from_user_remain_days = $from_user_vipData->remain_days;
+            $from_user_payment = $from_user_vipData->payment;
+            
+            $to_user_not_vip = is_null($to_user_vipData);
+            $same_payment = $from_user_payment == $to_user_vipData?->payment;
+  
+            if($to_user_not_vip || $same_payment) {
+                if($from_user_expire_origin != '0000-00-00 00:00:00') {
+                    VipLog::addToLog($from_user->id, 'backend_transfer_service to '.$to_user->id, 'Manual Setting', 0, 0);
+                    VipExpiryLog::addToLog($from_user->id, $from_user_vipData, $from_user_expire_origin, '0000-00-00 00:00:00', null, null);
+                } else {
+                    VipLog::addToLog($from_user->id, 'backend_transfer_service to '.$to_user->id, 'Manual Setting', 0, 0);
+                    VipExpiryLog::addToLog($from_user->id, $from_user_vipData, null, null, $from_user_remain_days, 0);
+                }
+            }
+
+            if($to_user_not_vip) {
+                $vip = new Vip();
+                $vip->member_id = $to_user->id;
+                $vip->business_id = $from_user_vipData->business_id;
+                $vip->order_id = $from_user_vipData->order_id;
+                $vip->expiry = $from_user_expire_origin;
+                $vip->payment = $from_user_payment;
+                $vip->amount = $from_user_vipData->amount;
+                $vip->remain_days = $from_user_remain_days;
+                $vip->active = 1;
+                $vip->free = 0;
+                $vip->save();
+
+                VipLog::addToLog($to_user->id, 'upgrade, receive backend_transfer_service from '.$from_user->id, 'Manual Setting', 1, 0);
+                VipExpiryLog::addToLog($to_user->id, $to_user->getVipData(true), null, $from_user_expire_origin, null, $from_user_remain_days);
+                
+            } else if ($same_payment) {
+                $from_user_expiry = $from_user_expire_origin;
+                if($from_user_expire_origin == '0000-00-00 00:00:00') {
+                    $from_user_expiry = $from_user->ComputeRemainDay();
+                }
+                $from_user_expiry = Carbon::parse($from_user_expiry);
+                $to_user_expire_origin = $to_user_vipData->expiry;
+                $to_user_payment = $to_user_vipData->payment;
+                
+                if(substr($to_user_payment,0,3) == 'cc_' && $to_user_expire_origin=='0000-00-00 00:00:00') {
+                    $from_user_vipDays = $from_user_expiry->diffInDays(Carbon::now());
+                    $to_user_remain_days_origin = $to_user_vipData->remain_days;
+                    $to_user_remain_days = $to_user_vipData->remain_days + $from_user_vipDays;
+                    $to_user_vipData->remain_days = $to_user_remain_days;
+                    $to_user_vipData->save();
+                    VipLog::addToLog($to_user->id, 'extend_expiry, receive backend_transfer_service from '.$from_user->id, 'Manual Setting', 1, 0);
+                    VipExpiryLog::addToLog($to_user->id, $to_user_vipData, null, null, $to_user_remain_days_origin, $to_user_remain_days);
+                } else{
+                    $from_user_vipDays = $from_user_expiry->diffInSeconds(Carbon::now());
+                    $to_user_expire_date = date("Y-m-d H:i:s",strtotime("+".$from_user_vipDays." seconds", strtotime($to_user_expire_origin)));
+                    $to_user_vipData->expiry = $to_user_expire_date;
+                    $to_user_vipData->save();
+                    VipLog::addToLog($to_user->id, 'extend_expiry, receive backend_transfer_service from '.$from_user->id, 'Manual Setting', 1, 0);
+                    VipExpiryLog::addToLog($to_user->id, $to_user_vipData, $to_user_expire_origin, $to_user_expire_date, null, null);
+                }
+            } else {
+                return response()->json(['msg'=>'兩位會員皆為vip且型態不同，無法進行此操作']);
+            }
+        } else {
+            return response()->json(['msg'=>'原會員非vip，無法進行此操作']);
+        }
+        
+        $from_user_vipData->removeVIP();
+        return response()->json(['msg'=>'移轉 vip 權限成功!']);
+    }
+
+    public function updateVipAdvandceAuthCount(Request $request)
+    {
+        $user = User::where('id', $request->user_id)->first();
+        $advance_auth_count = LogAdvAuthApi::where('user_id', $user->id)->where('user_fault', 1)->count();
+        if ($advance_auth_count == 3) {
+            LogAdvAuthApi::where('user_id', $user->id)->where('forbid_user', 1)->update([
+                'user_fault' => 0,
+                'forbid_user' => 0,
+                'pass_fault' => 1
+            ]);
+            return response()->json(['msg'=>'調整進階驗證次數成功!']);
+        } else {
+            return response()->json(['msg'=>'進階驗證次數小於3次，不需調整']);
+        }        
+    }
+    public function wait_for_more_data_list(Request $request)
+    {
+        $check_extend_list = BackendUserDetails::with('user')
+                                                ->with('check_extend_admin_action_log')
+                                                ->where('is_waiting_for_more_data',1)
+                                                ->get();
+        //按照relationship排序
+        $check_extend_list =  $check_extend_list->sortByDesc(function($query){
+                                                    return $query->check_extend_admin_action_log->first()->created_at ?? false;
+                                                 })
+                                                 ->all();
+        return view('admin.users.wait_for_more_data_list')
+                ->with('check_extend_list', $check_extend_list)
+                ;
+    }
 }

@@ -55,6 +55,7 @@ use App\Models\ReportedAvatar;
 use App\Models\ReportedPic;
 use App\Models\User;
 use App\Models\Vip;
+use App\Models\VipExpiryLog;
 use App\Models\Tip;
 use App\Models\MemberFav;
 use App\Models\Blocked;
@@ -7752,7 +7753,16 @@ class PagesController extends BaseController
         $admin = AdminService::checkAdmin();
         $user = \View::shared('user');
 
-        $vipStatus = '您目前還不是VIP，<a class="red" href="../dashboard/new_vip">立即成為VIP!</a>';
+        $vipTranferStatus='';
+        $latest_vip_log = $user->getLatestVipLog();
+        if($latest_vip_log && !is_null($latest_vip_log->isTransfer())) {
+            $transferUserName = User::where('id', $latest_vip_log->isTransfer())->pluck('name')->first();
+            $vipTranferStatus.='您好，您的 VIP 權限已從 '.$transferUserName.' 成功轉移。';
+        }
+        
+        $vipStatus = $vipTranferStatus.'您目前還不是VIP，<a class="red" href="../dashboard/new_vip">立即成為VIP!</a>';
+        $vipExpiryLogs=[];
+        
         $picTypeNameStrArr = ['avatar'=>'大頭照','member_pic'=> '生活照']; 
         $user->load('vip');
         
@@ -7788,7 +7798,7 @@ class PagesController extends BaseController
 
 
         if($user->isVip()) {
-            $vipStatus='您已是 VIP';
+            $vipStatus=$vipTranferStatus.'您已是 VIP';
             $vip_record = Carbon::parse($user->vip_record);
             $vipDays = $vip_record->diffInDays(Carbon::now());
             if(!$user->isFreeVip()) {               
@@ -7834,7 +7844,7 @@ class PagesController extends BaseController
                     switch ($vip->payment){
                         case 'cc_monthly_payment':
                             if(!$vip->isPaidCanceled() && ($nextProcessDate??null)){
-                                $vipStatus='您目前是每月持續付費的VIP，下次付費時間是'.$nextProcessDate.'。';
+                                $vipStatus=$vipTranferStatus.'您目前是每月持續付費的VIP，下次付費時間是'.$nextProcessDate.'。';
                             }else if($vip->isPaidCanceled()){
                                 $cancel_str = '';
                                 $latest_vip_log = $user->getLatestVipLog();
@@ -7842,12 +7852,12 @@ class PagesController extends BaseController
                                     $cancel_str='已於 '.substr($latest_vip_log->created_at,0,10).' 申請取消。';
                                 }
                                 
-                                $vipStatus='您目前是每月持續付費的VIP，'.$cancel_str.'VIP到期時間為 '. substr($vip->expiry,0,10).'。';
+                                $vipStatus=$vipTranferStatus.'您目前是每月持續付費的VIP，'.$cancel_str.'VIP到期時間為 '. substr($vip->expiry,0,10).'。';
                             }
                             break;
                         case 'cc_quarterly_payment':
                             if(!$vip->isPaidCanceled() && ($nextProcessDate??null)){
-                                $vipStatus='您目前是每季持續付費的VIP，下次付費時間是'.$nextProcessDate.'。';
+                                $vipStatus=$vipTranferStatus.'您目前是每季持續付費的VIP，下次付費時間是'.$nextProcessDate.'。';
                             }else if($vip->isPaidCanceled()){
                                 $cancel_str = '';
                                 $latest_vip_log = $user->getLatestVipLog();
@@ -7855,19 +7865,20 @@ class PagesController extends BaseController
                                     $cancel_str='已於 '.substr($latest_vip_log->created_at,0,10).' 申請取消，';
                                 }
                                 
-                                $vipStatus='您目前是每季持續付費的VIP，'.$cancel_str.'VIP到期日為 '. substr($vip->expiry,0,10).'。';
+                                $vipStatus=$vipTranferStatus.'您目前是每季持續付費的VIP，'.$cancel_str.'VIP到期日為 '. substr($vip->expiry,0,10).'。';
                             }
                             break;
                         case 'one_month_payment':
-                            $vipStatus='您目前是單次付費的VIP，VIP到期時間為'. substr($vip->expiry,0,10);
+                            $vipStatus=$vipTranferStatus.'您目前是單次付費的VIP，VIP到期時間為'. substr($vip->expiry,0,10);
                             break;
                         case 'one_quarter_payment':
-                            $vipStatus='您目前是單次付費的VIP，VIP到期時間為'. substr($vip->expiry,0,10);
+                            $vipStatus=$vipTranferStatus.'您目前是單次付費的VIP，VIP到期時間為'. substr($vip->expiry,0,10);
                             break;
                     }
                 }
+                
             }else{
-                $vipStatus = '您目前為免費VIP';
+                $vipStatus = $vipTranferStatus.'您目前為免費VIP';
 
                  if($vipStatusMsgType) {
                      switch($vipStatusMsgType) {
@@ -7980,6 +7991,22 @@ class PagesController extends BaseController
                 }
             
             }
+        }
+        $user_extend_expiry_logs = VipLog::where('member_id', $user->id)->where('member_name', 'like', '%backend_extend_expiry_service%')->orderBy('created_at', 'asc')->get();     
+        if(count($user_extend_expiry_logs) > 0) {
+            foreach($user_extend_expiry_logs as $log) {
+                $expiryLog = VipExpiryLog::where('vip_log_id', $log->id)->first();
+                if(($expiryLog->payment=='cc_quarterly_payment' || $expiryLog->payment=='cc_monthly_payment') && $expiryLog->is_cancel==0){
+                    $remain_days = $expiryLog->remain_days;
+                    if($remain_days > 0) {
+                        array_push($vipExpiryLogs, '您好，您的 VIP 天數已由系統給予 '.$remain_days.' 天');
+                    }
+                } else if (is_null($expiryLog->expire_origin)) {
+                    array_push($vipExpiryLogs, '您好，您的 VIP 天數延至 '.substr($expiryLog->expiry, 0, 10));
+                } else {
+                    array_push($vipExpiryLogs, '您好，您的 VIP 天數從 '.substr($expiryLog->expire_origin, 0, 10).' 延至 '.substr($expiryLog->expiry, 0, 10));
+                }
+            }   
         }
         
         $vasStatus = '';
@@ -8485,6 +8512,7 @@ class PagesController extends BaseController
         if (isset($user)) {
             $data = array(
                 'vipStatus' => $vipStatus,
+                'vipExpiryLogs' => $vipExpiryLogs,
                 'vasStatus'=> $vasStatus,
                 'isBannedStatus' => $isBannedStatus,
                 //'isBannedImplicitlyStatus' => $isBannedImplicitlyStatus,

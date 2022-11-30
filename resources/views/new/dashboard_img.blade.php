@@ -468,7 +468,7 @@ function requestBlurryAvatarDefault() {
                                 <input type="file" name="avatar" data-fileuploader-files=''>
                                 <input type="hidden" name="userId" value="{{ $user->id }}">
                                 <input type="hidden" name="_token" value="{{ csrf_token() }}">
-                                <input type="submit" class="vipbut upload_btn abtn" value="上傳大頭照" style="border-style: none;box-shadow: 0 0 20px #ffb6c5;" onclick="disable_onbeforeunload_hint();">
+                                <input type="submit" class="se_but1 vipbut upload_btn abtn" value="上傳大頭照" style="border-style: none;float:unset;width:250px !important;" onclick="disable_onbeforeunload_hint();">
                             </form>
                         </div>
                     </div>
@@ -527,7 +527,7 @@ function requestBlurryAvatarDefault() {
                                     <input type="file" name="pictures" data-fileuploader-files=''>
                                     <input type="hidden" name="userId" value="{{ $user->id }}">
                                     <input type="hidden" name="_token" value="{{ csrf_token() }}">
-                                    <input type="submit" class="vipbut upload_btn abtn" value="上傳生活照" style="border-style: none;box-shadow: 0 0 20px #ffb6c5;" onclick="disable_onbeforeunload_hint();">
+                                    <input type="submit" class="se_but1 vipbut upload_btn abtn" value="上傳生活照" style="border-style: none;float:unset;width:250px !important;" onclick="disable_onbeforeunload_hint();">
                                 </form>
                             </div>
                             <div>

@@ -52,4 +52,18 @@ class VipLog extends Model
         return stripos($this->member_name,'cancel')!==false;
        
     }
+
+    public function isExtendExpiry() {
+        return stripos($this->member_name,'backend_extend_expiry_service')!==false;
+    }
+
+    public function isTransfer() {
+        if (stripos($this->member_name,'backend_transfer_service to')!==false) {
+            return substr(strrchr($this->member_name, "to"), 2);
+        } else if (stripos($this->member_name,'backend_transfer_service from')!==false) {
+            return substr(strrchr($this->member_name, "from"), 4);
+        } else {
+            return null;
+        }
+    }
 }
