@@ -6190,7 +6190,7 @@ class UserController extends \App\Http\Controllers\BaseController
                 ->whereNotNull('birthdate')->whereNotNull('area')->whereNotNull('city');
             })
             ->whereDoesntHave('backend_user_details', function ($query) {
-                $query->where('is_waiting_for_more_data', 1);
+                $query->where('is_waiting_for_more_data', 1)->orWhere('remain_login_times_of_wait_for_more_data', '>', 0);
             });
 
 
@@ -7946,6 +7946,7 @@ class UserController extends \App\Http\Controllers\BaseController
             return response()->json(['msg'=>'進階驗證次數小於3次，不需調整']);
         }        
     }
+
     public function wait_for_more_data_list(Request $request)
     {
         $check_extend_list = BackendUserDetails::with('user')
@@ -7958,6 +7959,33 @@ class UserController extends \App\Http\Controllers\BaseController
                                                  })
                                                  ->all();
         return view('admin.users.wait_for_more_data_list')
+                ->with('check_extend_list', $check_extend_list)
+                ;
+    }
+
+    public function check_extend_by_login_time(Request $request)
+    {
+        $uid = $request->user_id;
+        $operator_id = Auth::user()->id;
+        $ip = $request->ip();
+        BackendUserDetails::check_extend_by_login_time($uid, 3, $operator_id, $ip);
+        $msg_type    = 'message';
+        $msg_content = '已延長等待更多資料(發回)';
+        return back()->with($msg_type, $msg_content);
+    }
+
+    public function wait_for_more_data_login_time_list(Request $request)
+    {
+        $check_extend_list = BackendUserDetails::with('user')
+                                                ->with('check_extend_admin_action_log')
+                                                ->where('remain_login_times_of_wait_for_more_data', '>', 0)
+                                                ->get();
+        //按照relationship排序
+        $check_extend_list =  $check_extend_list->sortByDesc(function($query){
+                                                    return $query->check_extend_login_time_admin_action_log->first()->created_at ?? false;
+                                                 })
+                                                 ->all();
+        return view('admin.users.wait_for_more_data_login_time_list')
                 ->with('check_extend_list', $check_extend_list)
                 ;
     }

@@ -769,6 +769,7 @@ Route::group(['middleware' => ['auth', 'global', 'active', 'femaleActive', 'vipC
 
         Route::post('users/forum_toggle', 'UserController@forum_toggle')->name('forum_toggle');
         Route::post('users/check_extend', 'UserController@check_extend')->name('check_extend');
+        Route::post('users/check_extend_by_login_time', 'UserController@check_extend_by_login_timed')->name('check_extend_by_login_time');
 
         Route::get('users/anonymousChat', 'UserController@showAnonymousChatPage')->name('users/showAnonymousChatPage');
         Route::get('users/searchAnonymousChat', 'UserController@searchAnonymousChatPage')->name('users/searchAnonymousChatPage');
@@ -1096,6 +1097,7 @@ Route::group(['middleware' => ['auth', 'global', 'active', 'femaleActive', 'vipC
         Route::get('special_industries_judgment_training_hide', 'AdminController@special_industries_judgment_training_hide')->name('admin/special_industries_judgment_training_hide');
 
         Route::get('users/wait_for_more_data_list', 'UserController@wait_for_more_data_list')->name('users/wait_for_more_data_list');
+        Route::get('users/wait_for_more_data_login_time_list', 'UserController@wait_for_more_data_login_time_list')->name('users/wait_for_more_data_login_time_list');
     });
     Route::group(['prefix' => 'admin', 'middleware' => 'Admin'], function () {
         //寄退信Log查詢
