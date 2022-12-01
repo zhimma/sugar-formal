@@ -7976,15 +7976,11 @@ class UserController extends \App\Http\Controllers\BaseController
 
     public function wait_for_more_data_login_time_list(Request $request)
     {
-        $check_extend_list = BackendUserDetails::with('user')
-                                                ->with('check_extend_admin_action_log')
-                                                ->where('remain_login_times_of_wait_for_more_data', '>', 0)
-                                                ->get();
-        //按照relationship排序
-        $check_extend_list =  $check_extend_list->sortByDesc(function($query){
-                                                    return $query->check_extend_login_time_admin_action_log->first()->created_at ?? false;
-                                                 })
-                                                 ->all();
+        $check_extend_list = AdminActionLog::with('operator_user')
+                                            ->with('user')
+                                            ->where('act','等待更多資料(發回)')
+                                            ->orderByDesc('id')
+                                            ->get();
         return view('admin.users.wait_for_more_data_login_time_list')
                 ->with('check_extend_list', $check_extend_list)
                 ;

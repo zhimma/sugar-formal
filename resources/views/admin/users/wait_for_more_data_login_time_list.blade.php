@@ -16,13 +16,8 @@
                     <tr>
                         <td>{{$check_extend_data->user->email}}</td>
                         <td>{{$check_extend_data->user->name}}</td>
-                        @if($check_extend_data->check_extend_login_time_admin_action_log->first() ?? false)
-                            <td>{{$check_extend_data->check_extend_login_time_admin_action_log->first()->created_at}}</td>
-                            <td>{{$check_extend_data->check_extend_login_time_admin_action_log->first()->operator_user->email}}</td>
-                        @else
-                            <td>未紀錄</td>
-                            <td>未紀錄</td>
-                        @endif
+                        <td>{{$check_extend_data->created_at}}</td>
+                        <td>{{$check_extend_data->operator_user->email}}</td>
                     </tr>
                 @endforeach
             </tbody>
