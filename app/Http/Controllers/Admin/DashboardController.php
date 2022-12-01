@@ -94,4 +94,9 @@ class DashboardController extends \App\Http\Controllers\BaseController
 
         return redirect('admin/dashboard/paymentFlowChoose')->with('message','修改成功');
     }
+
+    public function juniorAdminCheckRecord(Request $request)
+    {
+        return view('admin.juniorAdminCheckRecord');
+    }
 }
