@@ -14,6 +14,7 @@ class AdminActionLog extends Model
         'operator',
         'target_id',
         'act',
+        'action_id',
         'ip',
     ];
 

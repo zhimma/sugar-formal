@@ -5021,12 +5021,13 @@ class UserController extends \App\Http\Controllers\BaseController
         return view('admin.users.showAdminActionLog', compact('operator_list', 'getLogs'));
     }
 
-    public function insertAdminActionLog($targetAccountID, $action)
+    public function insertAdminActionLog($targetAccountID, $action, $action_id = 0)
     {
         AdminActionLog::create([
             'operator'    => Auth::user()->id,
             'target_id'  => $targetAccountID,
             'act'         => $action,
+            'action_id'     => $action_id,
             'ip'          => array_get($_SERVER, 'REMOTE_ADDR')
         ]);
     }
@@ -6914,6 +6915,8 @@ class UserController extends \App\Http\Controllers\BaseController
             $check_point_user->user_id = $user_id;
             $check_point_user->check_point_id = $request->check_point_id;
             $check_point_user->save();
+
+            $this->insertAdminActionLog($user_id, '會員檢查 Step2 通過', 23);
         }
         return redirect()->back();
     }
