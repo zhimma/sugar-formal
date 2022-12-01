@@ -27,4 +27,9 @@ class AdminActionLog extends Model
     {
         return $this->hasOne(User::class, 'id', 'target_id');
     }
+
+    public function action_name()
+    {
+        return $this->hasOne(AdminActionItem::class, 'id', 'action_id')->action_name;
+    }
 }
