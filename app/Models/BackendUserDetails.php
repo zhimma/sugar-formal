@@ -10,6 +10,7 @@ class BackendUserDetails extends Model
     protected $table = 'backend_user_details';
     protected $fillable = [
         'is_waiting_for_more_data',
+        'remain_login_times_of_wait_for_more_data',
     ];
 
     public static function first_or_new($user_id){
