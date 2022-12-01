@@ -21,4 +21,9 @@ class AdminActionLog extends Model
     {
         return $this->hasOne(User::class, 'id', 'operator');
     }
+
+    public function user()
+    {
+        return $this->hasOne(User::class, 'id', 'target_id');
+    }
 }
