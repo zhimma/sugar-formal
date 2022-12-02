@@ -138,7 +138,7 @@ class DashboardController extends \App\Http\Controllers\BaseController
             $admin_action_log = $admin_action_log->where('created_at', '<', Carbon::parse($request->end_time)->addDay());
         }
 
-        $admin_action_log = $admin_action_log->orderByDesc('id')
+        $admin_action_log = $admin_action_log->orderByDesc('created_at')
                                             ->get();
         foreach($admin_action_log as $log)
         {
