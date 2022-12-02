@@ -9,6 +9,8 @@ use App\Models\User;
 use Illuminate\Http\Request;
 use App\Http\Controllers\Controller;
 use Illuminate\Support\Facades\DB;
+use Illuminate\Support\Facades\Log;
+use App\Models\RoleUser;
 
 class DashboardController extends \App\Http\Controllers\BaseController
 {
@@ -97,6 +99,15 @@ class DashboardController extends \App\Http\Controllers\BaseController
 
     public function juniorAdminCheckRecord(Request $request)
     {
-        return view('admin.juniorAdminCheckRecord');
+        $operator_list = RoleUser::leftJoin('users', 'users.id', '=', 'role_user.user_id')->where('role_id', 3)->get();
+        return view('admin.juniorAdminCheckRecord')
+                ->with('operator_list', $operator_list);
+    }
+
+    public function juniorAdminCheckRecordShow(Request $request)
+    {
+        Log::Info('success_enter_ajax');
+        Log::Info($request);
+        return view('admin.juniorAdminCheckRecordShow');
     }
 }

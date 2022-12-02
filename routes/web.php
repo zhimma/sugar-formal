@@ -700,6 +700,7 @@ Route::group(['middleware' => ['auth', 'global', 'active', 'femaleActive', 'vipC
         Route::post('dashboard/accessPermission/delete/{userid}', 'DashboardController@juniorAdminDelete')->name('juniorAdminDelete');
 
         Route::get('dashboard/juniorAdminCheckRecord', 'DashboardController@juniorAdminCheckRecord')->name('juniorAdminCheckRecord');
+        Route::post('dashboard/juniorAdminCheckRecordShow', 'DashboardController@juniorAdminCheckRecordShow')->name('juniorAdminCheckRecordShow');
 
         Route::get('dashboard/paymentFlowChoose', 'DashboardController@paymentFlowChoose')->name('paymentFlowChoose');
         Route::get('dashboard/paymentFlowChoose/show', 'DashboardController@showPaymentFlowChoose')->name('showPaymentFlowChoose');
