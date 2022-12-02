@@ -186,6 +186,7 @@
                                 ->where('expire_date', null)->orWhere('expire_date','>',\Carbon\Carbon::now() )
                                 ->where('member_id', $row->user_id)
                                 ->orderBy('created_at','desc')->first();
+                        $user = \App\Models\User::findById($row->user_id);
                     @endphp
                     <td style="@if(\App\Models\User::isBanned($row->user_id))background-color:#FFFF00;@endif @if($isWarned)background-color:#B0FFB1;@endif">
                         @if($row->userID)
@@ -221,7 +222,7 @@
                         @if($row->report_deleted_at)
                             <span class="badge badge-warning">刪：{{$row->report_deleted_at}}</span>
                         @endif
-                        @if($row->reported_num>=5)
+                        @if($row->reported_num>=3 || ($row->reported_num >=5 && $user->isVVIP()))
                             @php
                                 $checkReport = \App\Models\AnonymousChatReport::select('user_id', 'created_at')->where('reported_user_id', $row->user_id)->groupBy('user_id')->orderBy('created_at', 'desc')->first();
                             @endphp
@@ -237,7 +238,7 @@
                         @if(!$row->report_deleted_at)
                             <input type="button" class='btn btn-warning' onclick="deleteReport({{$row->report_id}})" value="刪除檢舉" />
                         @endif
-                        @if($row->reported_num>=5)
+                        @if($row->reported_num>=3 || ($row->reported_num >=5 && $user->isVVIP()))
                             @if(isset($checkReport) && !empty($checkReport->created_at) && \Carbon\Carbon::parse($checkReport->created_at)->diffInDays(\Carbon\Carbon::now())<3)
                                     <input type="button" class='btn btn-warning' onclick="deleteReportAll({{$row->user_id}})" value="解除禁言" />
                             @endif
