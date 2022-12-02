@@ -73,8 +73,8 @@
                     <td width="8%">發送者</td>
                     <td width="5%">匿名</td>
 {{--                    <td>性別</td>--}}
-                    <td>訊息內容</td>
-                    <td>圖片</td>
+                    <td width="20%">訊息內容</td>
+                    <td width="20%">圖片</td>
                     <td width="12%">發訊時間</td>
                     <td width="15%">狀態</td>
                     <td width="20%">管理</td>
@@ -162,14 +162,14 @@
                 <td width="8%">發送者</td>
                 <td width="5%">匿名</td>
 {{--                <td>性別</td>--}}
-                <td>訊息內容</td>
-                <td>圖片</td>
-                <td width="12%">發訊時間</td>
+                <td width="12%">訊息內容</td>
+                <td width="12%">圖片</td>
+                <td width="10%">發訊時間</td>
                 <td width="8%">檢舉人</td>
-                <td>檢舉內容</td>
-                <td width="12%">檢舉時間</td>
-                <td>狀態</td>
-                <td>管理</td>
+                <td width="12%">檢舉內容</td>
+                <td width="10%">檢舉時間</td>
+                <td width="11%">狀態</td>
+                <td width="12%">管理</td>
             </tr>
             </thead>
 
