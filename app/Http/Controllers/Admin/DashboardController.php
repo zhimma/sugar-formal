@@ -120,7 +120,14 @@ class DashboardController extends \App\Http\Controllers\BaseController
 
         $admin_action_log = AdminActionLog::with('user')
                                             ->with('user_meta')
-                                            ->whereIn('operator', $perator);
+                                            ->whereIn('operator', $perator)
+                                            ->where(function($query) {
+                                                $query->where('action_id', 28);
+                                                $query->orWhere('act','封鎖會員');
+                                                $query->orWhere('act','隱性封鎖');
+                                                $query->orWhere('act','站方警示');
+                                                $query->orWhere('act','警示用戶');
+                                            });
         if($request->start_time ?? false)
         {
             $admin_action_log = $admin_action_log->where('created_at', '>', Carbon::parse($request->start_time));

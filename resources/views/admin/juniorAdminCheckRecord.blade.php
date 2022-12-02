@@ -125,6 +125,10 @@
                     operator_list.push($(this).val());
                 }
             });
+            if(operator_list == 0){
+                alert('請勾選Admin操作人員');
+                return false;
+            }
             $.ajax({
                 type: 'POST',
                 url: '{{route('juniorAdminCheckRecordShow')}}',

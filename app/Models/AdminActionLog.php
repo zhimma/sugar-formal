@@ -35,7 +35,14 @@ class AdminActionLog extends Model
 
     public function action_name()
     {
-        return $this->action_id ? $this->act : $this->hasOne(AdminActionItem::class, 'id', 'action_id')->action_name;
+        if($this->action_id == 0)
+        {
+            return $this->act;
+        }
+        else
+        {
+            return $this->hasOne(AdminActionItem::class, 'id', 'action_id')->action_name;
+        }
     }
 
     public static function insert_log($operator_id, $ip, $user_id, $action_name, $action_id = 0)
