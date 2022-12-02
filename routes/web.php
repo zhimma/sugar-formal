@@ -497,6 +497,7 @@ Route::group(['middleware' => ['auth', 'global', 'active', 'femaleActive', 'vipC
     Route::group(['middleware' => ['filled']], function () {
         //新樣板
         Route::get('/dashboard/chat2/{randomNo?}', 'Message_newController@chatview')->name('chat2View');
+        Route::get('/dashboard/chat2/chatShow/{cid}', 'PagesController@chat2')->name('chat2WithUser');
         Route::post('/dashboard/chat2/deletesingle', 'Message_newController@deleteSingle')->name('delete2Single');
         Route::post('/dashboard/chat2/unsend', 'Message_newController@unsendChat')->name('unsendChat');
         Route::post('/dashboard/chat2/increase_views', 'Message_newController@increaseViewsCount')->name('increase_views'); 
@@ -546,7 +547,6 @@ Route::group(['middleware' => ['auth', 'global', 'active', 'femaleActive', 'vipC
         Route::middleware("HasReferer:listSeatch2")->group(function (){
             Route::get('/dashboard/viewuser/{uid?}', 'PagesController@viewuser2')->name('viewuser'); //new route
             Route::get('/dashboard/viewuser_re/{uid?}', 'PagesController@viewuser_re')->name('viewuser_re');
-            Route::get('/dashboard/chat2/chatShow/{cid}', 'PagesController@chat2')->name('chat2WithUser');
         });
         Route::get('/dashboard/viewuser_vvip/{uid?}', 'PagesController@viewuser_vvip')->name('viewuser_vvip'); //new route
 
