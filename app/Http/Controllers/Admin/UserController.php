@@ -5297,7 +5297,6 @@ class UserController extends \App\Http\Controllers\BaseController
 
     public function suspicious_user_toggle(Request $request)
     {
-
         $sid = $request->sid;
         $uid = $request->uid;
         $reason = $request->reason;
