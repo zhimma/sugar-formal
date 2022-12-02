@@ -50,7 +50,9 @@ class AddActionLogColumn extends Migration
         '禁止進入匿名聊天室',
         '解除禁止進入匿名聊天室',
         '查看會員基本資料',
-        '等待更多資料(發回)'
+        '等待更多資料(發回)',
+        '加入可疑名單',
+        '刪除可疑名單'
         ];
         foreach($item_name as $name)
         {
