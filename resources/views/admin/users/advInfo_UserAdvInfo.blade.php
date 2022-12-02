@@ -1,17 +1,4 @@
-@php
-    //$userAdvInfo=\App\Models\User::userAdvInfo($user->id);
-@endphp
 <br>
-{{--<span>每周平均上線次數： {{ array_get($userAdvInfo,'login_times_per_week',0) }}</span>--}}
-{{--<span>收藏會員次數： {{ array_get($userAdvInfo,'fav_count',0) }}</span>--}}
-{{--<span>發信次數： {{ array_get($userAdvInfo,'message_count',0) }}</span>--}}
-{{--<span>過去7天發信次數： {{ array_get($userAdvInfo,'message_count_7',0) }}</span>--}}
-{{--<span>過去7天罐頭訊息比例： {{ array_get($userAdvInfo,'message_percent_7',0) }}</span>--}}
-{{--<span>瀏覽其他會員次數： {{ array_get($userAdvInfo,'visit_other_count',0) }}</span>--}}
-{{--<span>過去7天瀏覽其他會員次數： {{ array_get($userAdvInfo,'visit_other_count_7',0) }}</span>--}}
-{{--<span>封鎖多少會員： {{ array_get($userAdvInfo,'blocked_other_count',0) }}</span>--}}
-{{--<span>被多少會員封鎖： {{ array_get($userAdvInfo,'be_blocked_other_count',0) }}</span>--}}
-
 <h4>進階資料</h4>
 <table class="table table-hover table-bordered" style="width: 70%;">
     <tr>

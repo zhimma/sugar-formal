@@ -46,7 +46,7 @@
     <script>
         let video_verify_loading_pic = new Image();
         video_verify_loading_pic.src="{{asset('/new/images/loading.svg')}}";                
-    
+
         function log_video_chat_process(log_arr)
         {
             log_arr.url = location.href;
@@ -58,6 +58,33 @@
                   });
                  
         }
+        
+        function video_beforeunload_act()
+        {
+            axios
+              .post("/video/unloading-video-page", {})
+              .then(() => {
+                var log_arr = {
+                    from_file:'VideoVerifyUser.vue'
+                    ,title:'then in unloading-video-page axios@user_video_chat_verify.tpl'
+                    ,method:'then@unloading-video-page axios@user_video_chat_verify.tpl'
+                    ,step:'within'
+                };
+                log_video_chat_process(log_arr);      
+              })
+              .catch((error) => {
+                var log_arr = {
+                    from_file:'VideoVerifyUser.vue'
+                    ,title:'catch in unloading-video-page axios@user_video_chat_verify.tpl'
+                    ,method:'catch@unloading-video-page axios@user_video_chat_verify.tpl'
+                    ,step:'within'
+                    ,data:{error:error}
+                };
+                log_video_chat_process(log_arr);    
+
+                $("#error_message").text('loading-video-page axios error:' + error);
+              });     
+        }            
     </script>
     
     <script>

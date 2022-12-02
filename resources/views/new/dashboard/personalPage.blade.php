@@ -222,6 +222,13 @@
                                             </span>
                                         @endforeach
                                     </h2>
+                                    @if($vipExpiryLogs!=null)
+                                    <h2 class="tabbox_h2 ta_l">
+                                        @foreach ($vipExpiryLogs as $expiry_log)
+                                            <div @if(!$loop->first) style="border-top: #eee 1px dashed;" @endif>{!! $expiry_log !!}</div>
+                                        @endforeach
+                                    </h2>
+                                    @endif
                                 </div>
                             </div>
                         @endif

@@ -82,21 +82,38 @@
     <div class="mask_bg" id="video_only_reload_msg_block">
         <div class="loading"><span class="loading_text">更新視訊狀態中<br>請稍等</span></div>
     </div> 
+    <div class="mask_bg" id="mnger_leave_page_msg_block">
+        <div class="loading"><span class="loading_text">視訊連線已中斷</span></div>
+    </div>     
     <div class="mask_bg" id="video_error_msg_block">
         <div class="loading"><span class="loading_text"></span></div>
     </div>  
   </div>
 </template>
 <script>
+
+    function log_video_chat_process(log_arr)
+    {
+        log_arr['url'] = location.href;
+
+        fetch('/video/log_video_chat_process', {
+              method: 'POST',
+              headers: {'Content-Type': 'application/json'},
+              body: JSON.stringify(log_arr)
+              });              
+    }       
+                
+
 import Peer from "simple-peer";
 //import { getPermissions } from "../helpers";
 import LZString from "../lz-string.js";
-
+      
 export default {
   props: [
     "allusers",
     "authuserid",
     "user_permission",
+    "is_user_allow_video_chat",
     "ice_server_json",
   ],
   data() {
@@ -142,7 +159,38 @@ export default {
             ,act:'this.initializeChannel(); '
             ,act_step:'before'
         };
-        log_video_chat_process(log_arr);  
+        log_video_chat_process(log_arr);
+
+
+        axios
+          .post("/video/loading-video-page", {})
+          .then(() => {
+            var log_arr = {
+                from_file:'VideoVerifyUserEntireSite.vue'
+                ,title:'then in loading-video-page axios at begining in script@ideoVerifyUserEntireSite.vue'
+                ,method:'then@loading-video-page axios at begining in script'
+                ,step:'within'
+            };
+            log_video_chat_process(log_arr);      
+          })
+          .catch((error) => {
+            var log_arr = {
+                from_file:'VideoVerifyUserEntireSite.vue'
+                ,title:'catch in loading-video-page axios  at begining in script@VideoVerifyUserEntireSite.vue'
+                ,method:'catch@loading-video-page axios  at begining in script'
+                ,step:'within'
+                ,data:{error:error}
+            };
+            log_video_chat_process(log_arr);    
+
+            $("#error_message").text('loading-video-page axios error:' + error);
+          }); 
+  
+
+        var old_beforeunload = $('body').attr('onbeforeunload');
+        if(old_beforeunload==undefined) old_beforeunload = '';
+        $('body').attr('onbeforeunload','video_beforeunload_act();');
+        
     this.initializeChannel(); // this initializes laravel echo
         log_arr.title = 'ing mounted@export default@VideoVerifyUserEntireSite.vue';
         log_arr.act_step = 'after';
@@ -260,6 +308,8 @@ export default {
   methods: {
     initializeChannel() {
     
+      if(this.is_user_allow_video_chat == true)
+      {
         var log_arr = {
             from_file:'VideoVerifyUserEntireSite.vue'
             ,title:'start initializeChannel@methods@export default@VideoVerifyUserEntireSite.vue'
@@ -268,9 +318,19 @@ export default {
             ,act:'this.videoCallParams.channel = window.Echo.join("presence-video-channel");'
             ,act_step:'before'
         };
-        log_video_chat_process(log_arr);
-        
-      this.videoCallParams.channel = window.Echo.join("presence-video-channel");
+        this.videoCallParams.channel = window.Echo.join("presence-video-channel");
+      }
+      else
+      {
+        var log_arr = {
+            from_file:'VideoVerifyUserEntireSite.vue'
+            ,title:'start initializeChannel@methods@export default@VideoVerifyUserEntireSite.vue'
+            ,method:'initializeChannel@methods@export default'
+            ,step:'start'
+            ,act_step:'before'
+        };
+      }
+      log_video_chat_process(log_arr);
       
       log_arr.topic_step='after';
       log_arr.step = 'end';
@@ -552,6 +612,29 @@ export default {
                 $('.real_auth_video_entire_site_bg').hide();
             }
         } 
+        else if(this.isPeerError!=true && ( data.type ==='loadingVideoPage' || data.type ==='unloadingVideoPage' )) {
+            if(data.from==this.videoCallParams.dialingTo  ||  data.from==this.videoCallParams.caller) {
+                if(this.callPlaced==true || this.videoCallParams.receivingCall==true) {
+                    $('.mask_bg').hide();
+                    $('#mnger_leave_page_msg_block').show().css('z-index',40);
+                    setTimeout(() => {
+                        this.callPlaced = false;
+                        this.videoCallParams.receivingCall=false;
+                        if(this.user_permission == 'admin')
+                        {
+                            window.sessionStorage.setItem('endcall_reload',true);
+                        }                
+
+                        log_arr.step = 'end';
+                        log_arr.act = 'location.reload();';
+                        log_arr.act_step = 'before';
+                        log_video_chat_process(log_arr);
+                        location.reload();
+                    }, 3000);                     
+                }
+            }
+        }
+   
       });
         
         initializeCallListeners_log_arr.step='end';
@@ -800,7 +883,7 @@ export default {
         this.isPeerError = true;
         if(this.callPlaced==true) this.callPlaced=false;
         if(this.videoCallParams.receivingCall==true) this.videoCallParams.receivingCall=false;        
-        if(err.toString().indexOf('Transport')>=0 && err.toString().indexOf('channel')>=0 && err.toString().indexOf('closed')>=0) {
+        if(err.toString().indexOf('Transport')>=0 && err.toString().indexOf('channel')>=0 && err.toString().indexOf('closed')>=0  ||  err.code=='ERR_DATA_CHANNEL') {
             $("#video_error_msg_block").show();
                 setTimeout(() => {
 
@@ -821,7 +904,7 @@ export default {
                     }                    
                   }, 5000);  
         }       
-        else if(err.toString().indexOf('Connection')>=0 && err.toString().indexOf('failed')>=0 && err.toString().indexOf('Error:')>=0) {
+        else if(err.toString().indexOf('Connection')>=0 && err.toString().indexOf('failed')>=0 && err.toString().indexOf('Error:')>=0 || err.code=='ERR_CONNECTION_FAILURE') {
             $("#video_error_msg_block").show();
             if($(".blbg").length>0 && $("#tabPopM").length>0 && $("#tabPopM .bltext").length>0) {
                 $(".blbg").css('z-index','40').show();
@@ -887,7 +970,7 @@ export default {
         };
         log_video_chat_process(log_arr);  
         console.log("call closed caller");
-
+        if(this.videoCallParams.receivingCall==true) this.videoCallParams.receivingCall=false;         
         if(this.callPlaced==true && this.isPeerError!=true) {
             $("#video_error_msg_block").show();
             $('.real_auth_video_entire_site_bg').hide();
@@ -897,9 +980,7 @@ export default {
                 $("#tabPopM .bltext").text('視訊已關閉。');
               }, 5000);        
             
-        }
-
-        if(this.callPlaced==true) this.callPlaced=false;
+        } else if(this.callPlaced==true) this.callPlaced=false;
         if(this.videoCallParams.receivingCall==true) this.videoCallParams.receivingCall=false;                
         
       });
@@ -1195,7 +1276,7 @@ export default {
         if(this.callPlaced==true) this.callPlaced=false;
         if(this.videoCallParams.receivingCall==true) this.videoCallParams.receivingCall=false;                
         
-        if(err.toString().indexOf('Transport')>=0 && err.toString().indexOf('channel')>=0 && err.toString().indexOf('closed')>=0) {
+        if(err.toString().indexOf('Transport')>=0 && err.toString().indexOf('channel')>=0 && err.toString().indexOf('closed')>=0  ||  err.code=='ERR_DATA_CHANNEL') {
             $("#video_error_msg_block").show();
                 setTimeout(() => {
                     if($(".blbg").length>0 && $("#tabPopM").length>0 && $("#tabPopM .bltext").length>0) {
@@ -1215,7 +1296,7 @@ export default {
                     }                  
                   }, 5000);  
         }  
-        else if(err.toString().indexOf('Connection')>=0 && err.toString().indexOf('failed')>=0 && err.toString().indexOf('Error:')>=0) {
+        else if(err.toString().indexOf('Connection')>=0 && err.toString().indexOf('failed')>=0 && err.toString().indexOf('Error:')>=0  || err.code=='ERR_CONNECTION_FAILURE') {
             $("#video_error_msg_block").show();
             if($(".blbg").length>0 && $("#tabPopM").length>0 && $("#tabPopM .bltext").length>0) {
                 $(".blbg").css('z-index','40').show();
@@ -1292,9 +1373,7 @@ export default {
                 $("#tabPopM").css('z-index',40).show();
                 $("#tabPopM .bltext").text('視訊已關閉。');
               }, 5000);         
-        }
-        
-        if(this.callPlaced==true) this.callPlaced=false;
+        } else if(this.callPlaced==true) this.callPlaced=false;
         if(this.videoCallParams.receivingCall==true) this.videoCallParams.receivingCall=false;                
         
         console.log("call closed accepter");
@@ -1371,7 +1450,7 @@ export default {
       return true;
     },
 
-    declineCall() {
+    async declineCall() {
         var dc_log_arr = {
             from_file:'VideoVerifyUserEntireSite.vue'
             ,title:'start declineCall()@methods@export default@VideoVerifyUserEntireSite.vue'
@@ -1384,6 +1463,32 @@ export default {
         log_video_chat_process(dc_log_arr);   
 
       this.videoCallParams.receivingCall = false;
+
+      await axios
+          .post("/video/decline-call", {
+            to: this.videoCallParams.caller,
+          })
+          .then(() => {
+            var log_arr = {
+                from_file:'VideoVerifyUserEntireSite.vue'
+                ,title:'then in axios@declineCall@methods@export default@VideoVerifyUserEntireSite.vue'
+                ,method:'then@axios@declineCall@methods@export default'
+                ,step:'within'
+            };
+            log_video_chat_process(log_arr);      
+          })
+          .catch((error) => {
+            var log_arr = {
+                from_file:'VideoVerifyUserEntireSite.vue'
+                ,title:'catch in axios@declineCall@methods@export default@VideoVerifyUserEntireSite.vue'
+                ,method:'catch@axios@declineCall@methods@export default'
+                ,step:'within'
+                ,data:{error:error}
+            };
+            log_video_chat_process(log_arr);    
+
+            $("#error_message").text('decline axios error:' + error);
+          }); 
       
       $('.mask_bg').hide();
       $('#video_only_reload_msg_block').show();      
@@ -1853,8 +1958,8 @@ export default {
       
       log_video_chat_process({
         type:'fetch'
-        ,title:'before_fetch_video_chat_verify_upload_in_VideoVerifyUser.vue_at_downloadRecording'
-        ,file_name:'VideoVerifyUser.vue'
+        ,title:'before_fetch_video_chat_verify_upload_in_VideoVerifyUserEntireSite.vue_at_downloadRecording'
+        ,file_name:'VideoVerifyUserEntireSite.vue'
         ,method:'downloadRecording'
         ,step:'ing'
         ,act:'fetch(\'/admin/users/video_chat_verify_upload\', {'

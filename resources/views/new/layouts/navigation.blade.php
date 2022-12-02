@@ -177,7 +177,7 @@
 		/*版規提示*/
 		$(".announce_bg").show();
 		$('.tab_anonymousChatAlert').show();
-		$('.n_bllbut').on('click', function() {
+		$('.chat_enter').on('click', function() {
 			$(".announce_bg").hide();
 			$('.tab_anonymousChatAlert').hide();
 			window.location.href = "/dashboard/anonymousChat";

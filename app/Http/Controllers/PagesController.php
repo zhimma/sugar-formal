@@ -8,6 +8,7 @@ use App\Models\AdminAnnounce;
 use App\Models\AdminCommonText;
 use App\Models\AnnouncementRead;
 use App\Models\AnonymousChat;
+use App\Models\AnonymousChatForbid;
 use App\Models\AnonymousChatMessage;
 use App\Models\AnonymousChatReport;
 use App\Models\BannedUsersImplicitly;
@@ -54,6 +55,7 @@ use App\Models\ReportedAvatar;
 use App\Models\ReportedPic;
 use App\Models\User;
 use App\Models\Vip;
+use App\Models\VipExpiryLog;
 use App\Models\Tip;
 use App\Models\MemberFav;
 use App\Models\Blocked;
@@ -2268,13 +2270,13 @@ class PagesController extends BaseController
                         if($payload['service_name'] == 'hideOnline') {
                             $offVIP = '您已成功取消付費隱藏功能，下個月起將不再繼續扣款，目前的付費功能權限可以維持到 ' . $date;
                         }elseif($payload['service_name'] == 'VVIP') {
-                            $type = $user->applyVVIP_getData()->plan;
-                            if($type == 'VVIP_B') {
-                                $offVIP = '您已成功取消 VVIP，下個月起將不再繼續扣款，目前的付費功能權限可以維持到 ' . $date . '，您的預備金還剩' . $user->VvipMargin->balance .  '元';
-                            }
-                            else {
+//                            $type = $user->applyVVIP_getData()->plan;
+//                            if($type == 'VVIP_B') {
+//                                $offVIP = '您已成功取消 VVIP，下個月起將不再繼續扣款，目前的付費功能權限可以維持到 ' . $date . '，您的預備金還剩' . $user->VvipMargin->balance .  '元';
+//                            }
+//                            else {
                                 $offVIP = '您已成功取消 VVIP，下個月起將不再繼續扣款，目前的付費功能權限可以維持到 ' . $date;
-                            }
+//                            }
                         }
                         logger('$expiry: ' . $data->expiry);
                         logger('base day: ' . $date);
@@ -4041,10 +4043,12 @@ class PagesController extends BaseController
 
             
                 if($cid_user->engroup==2) {
+                    /*
                     $inbox_refuse_set = InboxRefuseSet::where('user_id', $cid)->first();
                     if($inbox_refuse_set?->refuse_canned_message_pr != -1) {
                         $cid_user->refuse_canned_message = true;
                     }
+                    */
                 }
 
                 if((!$user->isVip() && !$user->isVVIP() )&& $user->engroup == 1){
@@ -7749,7 +7753,16 @@ class PagesController extends BaseController
         $admin = AdminService::checkAdmin();
         $user = \View::shared('user');
 
-        $vipStatus = '您目前還不是VIP，<a class="red" href="../dashboard/new_vip">立即成為VIP!</a>';
+        $vipTranferStatus='';
+        $latest_vip_log = $user->getLatestVipLog();
+        if($latest_vip_log && !is_null($latest_vip_log->isTransfer())) {
+            $transferUserName = User::where('id', $latest_vip_log->isTransfer())->pluck('name')->first();
+            $vipTranferStatus.='您好，您的 VIP 權限已從 '.$transferUserName.' 成功轉移。';
+        }
+        
+        $vipStatus = $vipTranferStatus.'您目前還不是VIP，<a class="red" href="../dashboard/new_vip">立即成為VIP!</a>';
+        $vipExpiryLogs=[];
+        
         $picTypeNameStrArr = ['avatar'=>'大頭照','member_pic'=> '生活照']; 
         $user->load('vip');
         
@@ -7785,7 +7798,7 @@ class PagesController extends BaseController
 
 
         if($user->isVip()) {
-            $vipStatus='您已是 VIP';
+            $vipStatus=$vipTranferStatus.'您已是 VIP';
             $vip_record = Carbon::parse($user->vip_record);
             $vipDays = $vip_record->diffInDays(Carbon::now());
             if(!$user->isFreeVip()) {               
@@ -7831,7 +7844,7 @@ class PagesController extends BaseController
                     switch ($vip->payment){
                         case 'cc_monthly_payment':
                             if(!$vip->isPaidCanceled() && ($nextProcessDate??null)){
-                                $vipStatus='您目前是每月持續付費的VIP，下次付費時間是'.$nextProcessDate.'。';
+                                $vipStatus=$vipTranferStatus.'您目前是每月持續付費的VIP，下次付費時間是'.$nextProcessDate.'。';
                             }else if($vip->isPaidCanceled()){
                                 $cancel_str = '';
                                 $latest_vip_log = $user->getLatestVipLog();
@@ -7839,12 +7852,12 @@ class PagesController extends BaseController
                                     $cancel_str='已於 '.substr($latest_vip_log->created_at,0,10).' 申請取消。';
                                 }
                                 
-                                $vipStatus='您目前是每月持續付費的VIP，'.$cancel_str.'VIP到期時間為 '. substr($vip->expiry,0,10).'。';
+                                $vipStatus=$vipTranferStatus.'您目前是每月持續付費的VIP，'.$cancel_str.'VIP到期時間為 '. substr($vip->expiry,0,10).'。';
                             }
                             break;
                         case 'cc_quarterly_payment':
                             if(!$vip->isPaidCanceled() && ($nextProcessDate??null)){
-                                $vipStatus='您目前是每季持續付費的VIP，下次付費時間是'.$nextProcessDate.'。';
+                                $vipStatus=$vipTranferStatus.'您目前是每季持續付費的VIP，下次付費時間是'.$nextProcessDate.'。';
                             }else if($vip->isPaidCanceled()){
                                 $cancel_str = '';
                                 $latest_vip_log = $user->getLatestVipLog();
@@ -7852,19 +7865,20 @@ class PagesController extends BaseController
                                     $cancel_str='已於 '.substr($latest_vip_log->created_at,0,10).' 申請取消，';
                                 }
                                 
-                                $vipStatus='您目前是每季持續付費的VIP，'.$cancel_str.'VIP到期日為 '. substr($vip->expiry,0,10).'。';
+                                $vipStatus=$vipTranferStatus.'您目前是每季持續付費的VIP，'.$cancel_str.'VIP到期日為 '. substr($vip->expiry,0,10).'。';
                             }
                             break;
                         case 'one_month_payment':
-                            $vipStatus='您目前是單次付費的VIP，VIP到期時間為'. substr($vip->expiry,0,10);
+                            $vipStatus=$vipTranferStatus.'您目前是單次付費的VIP，VIP到期時間為'. substr($vip->expiry,0,10);
                             break;
                         case 'one_quarter_payment':
-                            $vipStatus='您目前是單次付費的VIP，VIP到期時間為'. substr($vip->expiry,0,10);
+                            $vipStatus=$vipTranferStatus.'您目前是單次付費的VIP，VIP到期時間為'. substr($vip->expiry,0,10);
                             break;
                     }
                 }
+                
             }else{
-                $vipStatus = '您目前為免費VIP';
+                $vipStatus = $vipTranferStatus.'您目前為免費VIP';
 
                  if($vipStatusMsgType) {
                      switch($vipStatusMsgType) {
@@ -7977,6 +7991,22 @@ class PagesController extends BaseController
                 }
             
             }
+        }
+        $user_extend_expiry_logs = VipLog::where('member_id', $user->id)->where('member_name', 'like', '%backend_extend_expiry_service%')->orderBy('created_at', 'asc')->get();     
+        if(count($user_extend_expiry_logs) > 0) {
+            foreach($user_extend_expiry_logs as $log) {
+                $expiryLog = VipExpiryLog::where('vip_log_id', $log->id)->first();
+                if(($expiryLog->payment=='cc_quarterly_payment' || $expiryLog->payment=='cc_monthly_payment') && $expiryLog->is_cancel==0){
+                    $remain_days = $expiryLog->remain_days;
+                    if($remain_days > 0) {
+                        array_push($vipExpiryLogs, '您好，您的 VIP 天數已由系統給予 '.$remain_days.' 天');
+                    }
+                } else if (is_null($expiryLog->expire_origin)) {
+                    array_push($vipExpiryLogs, '您好，您的 VIP 天數延至 '.substr($expiryLog->expiry, 0, 10));
+                } else {
+                    array_push($vipExpiryLogs, '您好，您的 VIP 天數從 '.substr($expiryLog->expire_origin, 0, 10).' 延至 '.substr($expiryLog->expiry, 0, 10));
+                }
+            }   
         }
         
         $vasStatus = '';
@@ -8482,6 +8512,7 @@ class PagesController extends BaseController
         if (isset($user)) {
             $data = array(
                 'vipStatus' => $vipStatus,
+                'vipExpiryLogs' => $vipExpiryLogs,
                 'vasStatus'=> $vasStatus,
                 'isBannedStatus' => $isBannedStatus,
                 //'isBannedImplicitlyStatus' => $isBannedImplicitlyStatus,
@@ -9588,13 +9619,13 @@ class PagesController extends BaseController
         if (User::isBanned($user->id)) {
             return redirect('/dashboard/personalPage')->with('message', '您已被站方封鎖，禁止使用聊天室。');
         }
-        $isWarned = warned_users::where('member_id', $user->id)
-            ->where('expire_date', null)->orWhere('expire_date','>',Carbon::now() )
-            ->where('member_id', $user->id)
-            ->orderBy('created_at','desc')->first();
-        if($isWarned){
+        if (User::isAnonymousChatForbid($user->id)) {
+            return redirect('/dashboard/personalPage')->with('message', '您已被禁止使用聊天室。');
+        }
+        if(User::isWarned($user->id)){
             return redirect('/dashboard/personalPage')->with('message', '您已被站方警示，禁止使用聊天室。');
         }
+
         if($user->engroup==1 && ( !$user->isVip() && !$user->isVVIP() )){
             $message = '目前僅提供給VIP會員使用，若欲前往使用，<a href="/dashboard/new_vip" class="red">請點此立即升級VIP！</a>';
             return redirect('/dashboard/personalPage')->with('message', $message);
@@ -9753,6 +9784,30 @@ class PagesController extends BaseController
 
         return response()->json(['msg' => 'error']);
 
+    }
+
+    public function anonymous_chat_forbid_list(Request $request)
+    {
+
+        $user = $request->user();
+
+        $forbid_users = AnonymousChatForbid::select('anonymous_chat_forbid.*','users.name')
+            ->where('anonymous_chat_forbid.created_at','>=',\Carbon\Carbon::now()->startOfWeek()->toDateTimeString())
+            ->join('users','anonymous_chat_forbid.user_id','=','users.id')
+            ->orderBy('anonymous_chat_forbid.created_at','desc');
+
+        //取得資料總筆數
+        $forbid_count = $forbid_users->get()->count();
+        $forbid_users = $forbid_users->paginate(15);
+
+        foreach ($forbid_users as &$b){
+            $b->name = $this->substr_cut($b->name);
+        }
+
+        return view('new.dashboard.anonymous_chat_forbid_list')
+            ->with('user', $user)
+            ->with('forbid_users', $forbid_users)
+            ->with('forbid_count', $forbid_count);
     }
     
     public function checkIsForceShowFaq(Request $request,FaqUserService $fuService) 

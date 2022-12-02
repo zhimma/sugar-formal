@@ -56,6 +56,67 @@ class VideoChatController extends Controller
         $this->logByArr($logArr);     
     
     }
+    
+    
+    public function loadingVideoPage(Request $request)
+    {
+        if(auth()->user()->id) {
+            session()->put('sess_user_id', auth()->user()->id);
+        }
+        $logArr = $this->getDefaultLogArr();
+        $logArr['method'] = 'VideoChatController@loadingVideoPage';
+        $logArr['step'] = 'start';
+        $logArr['title'] = '';
+        $this->logByArr($logArr);        
+
+        $data['from'] = Auth::id();
+        $data['type'] = 'loadingVideoPage';
+
+        $logArr['step'] = 'ending';
+        $logArr['title'] = 'before broadcast(new StartVideoChat($data))->toOthers();';
+        $logArr['act'] = 'broadcast new StartVideoChat($data)';
+        $logArr['act_step'] = 'before'; 
+        $logArr['data'] = $data;
+        $this->logByArr($logArr); 
+        
+        broadcast(new StartVideoChat($data))->toOthers();
+
+        $logArr['step'] = 'end';
+        $logArr['title'] = 'after broadcast(new StartVideoChat($data))->toOthers();';
+        $logArr['act_step'] = 'after'; 
+        $logArr['data'] = $data;
+        $this->logByArr($logArr); 
+    }     
+
+    public function unloadingVideoPage(Request $request)
+    {
+        if(auth()->user()->id) {
+            session()->put('sess_user_id', auth()->user()->id);
+        }
+        $logArr = $this->getDefaultLogArr();
+        $logArr['method'] = 'VideoChatController@unloadingVideoPage';
+        $logArr['step'] = 'start';
+        $logArr['title'] = '';
+        $this->logByArr($logArr);        
+
+        $data['from'] = Auth::id();
+        $data['type'] = 'unloadingVideoPage';
+
+        $logArr['step'] = 'ending';
+        $logArr['title'] = 'before broadcast(new StartVideoChat($data))->toOthers();';
+        $logArr['act'] = 'broadcast new StartVideoChat($data)';
+        $logArr['act_step'] = 'before'; 
+        $logArr['data'] = $data;
+        $this->logByArr($logArr); 
+        
+        broadcast(new StartVideoChat($data))->toOthers();
+
+        $logArr['step'] = 'end';
+        $logArr['title'] = 'after broadcast(new StartVideoChat($data))->toOthers();';
+        $logArr['act_step'] = 'after'; 
+        $logArr['data'] = $data;
+        $this->logByArr($logArr); 
+    }       
 
     public function acceptCall(Request $request)
     {
@@ -459,5 +520,12 @@ class VideoChatController extends Controller
         
         return response()->json($users);
     }
+
+    public function user_video_chat_verify_allow_check(Request $request, RealAuthPageService $rap_service) 
+    {   
+        $is_allow = $rap_service->riseByUserId(Auth::id())->isAllowUseVideoChat() ?? false;
+        return response()->json(['is_allow' => $is_allow]);
+    }
+    
     
 }
