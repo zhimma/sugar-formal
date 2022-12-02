@@ -106,8 +106,11 @@ class DashboardController extends \App\Http\Controllers\BaseController
 
     public function juniorAdminCheckRecordShow(Request $request)
     {
+        $admin_list = $request->operator_list;
+        $junior_admin_log_list = [];
         Log::Info('success_enter_ajax');
         Log::Info($request);
-        return view('admin.juniorAdminCheckRecordShow');
+        return view('admin.juniorAdminCheckRecordShow')
+            ->with('junior_admin_log_list', $junior_admin_log_list);
     }
 }
