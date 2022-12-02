@@ -46,7 +46,11 @@ class AddActionLogColumn extends Migration
         '升級隱藏',
         '會員檢查等待更多資料',
         '查看會員基本資料',
-        '會員檢查 Step2 通過'
+        '會員檢查 Step2 通過',
+        '禁止進入匿名聊天室',
+        '解除禁止進入匿名聊天室',
+        '查看會員基本資料',
+        '等待更多資料(發回)'
         ];
         foreach($item_name as $name)
         {

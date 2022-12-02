@@ -28,8 +28,13 @@ class AdminActionLog extends Model
         return $this->hasOne(User::class, 'id', 'target_id');
     }
 
+    public function user_meta()
+    {
+        return $this->hasOne(UserMeta::class, 'user_id', 'target_id');
+    }
+
     public function action_name()
     {
-        return $this->hasOne(AdminActionItem::class, 'id', 'action_id')->action_name;
+        return $this->act;
     }
 }

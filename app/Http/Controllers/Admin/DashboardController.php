@@ -8,9 +8,11 @@ use App\Models\PaymentFlowChoose;
 use App\Models\User;
 use Illuminate\Http\Request;
 use App\Http\Controllers\Controller;
+use App\Models\AdminActionLog;
 use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\Log;
 use App\Models\RoleUser;
+use Carbon\Carbon;
 
 class DashboardController extends \App\Http\Controllers\BaseController
 {
@@ -106,10 +108,36 @@ class DashboardController extends \App\Http\Controllers\BaseController
 
     public function juniorAdminCheckRecordShow(Request $request)
     {
-        $admin_list = $request->operator_list;
+        $perator = $request->operator_list;
         $junior_admin_log_list = [];
-        Log::Info('success_enter_ajax');
-        Log::Info($request);
+
+        $admin_user = User::whereIn('id', $perator)->get();
+        foreach($admin_user as $admin)
+        {
+            $junior_admin_log_list[$admin->id]['operator_data'] = $admin;
+            $junior_admin_log_list[$admin->id]['action_log'] = [];
+        }
+
+        $admin_action_log = AdminActionLog::with('user')
+                                            ->with('user_meta')
+                                            ->whereIn('operator', $perator);
+        if($request->start_time ?? false)
+        {
+            $admin_action_log = $admin_action_log->where('created_at', '>', Carbon::parse($request->start_time));
+        }
+
+        if($request->end_time ?? false)
+        {
+            $admin_action_log = $admin_action_log->where('created_at', '<', Carbon::parse($request->end_time)->addDay());
+        }
+
+        $admin_action_log = $admin_action_log->orderByDesc('id')
+                                            ->get();
+        foreach($admin_action_log as $log)
+        {
+            $junior_admin_log_list[$log->operator]['action_log'][] = $log;
+        }
+
         return view('admin.juniorAdminCheckRecordShow')
             ->with('junior_admin_log_list', $junior_admin_log_list);
     }
