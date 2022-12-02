@@ -282,6 +282,23 @@
         @endif
     @endif
 
+    @if($backend_detail->remain_login_times_of_wait_for_more_data == 0)
+        <form method="POST" style="display: inline;" action="{{ route('check_extend_by_login_time') }}">
+            <input type="hidden" name="_token" value="{{ csrf_token() }}" >
+            <input type="hidden" name='user_id' value="{{ $user->id }}">
+            <button type="submit" class="btn btn-primary">等待更多資料(發回)</button>
+        </form>
+    @else
+        @php
+            $check_extend_login_time_log = \App\Models\AdminActionLog::where('target_id', $user->id)->where('act', '等待更多資料(發回)')->orderByDesc('created_at')->first();
+        @endphp
+        @if($check_extend_login_time_log ?? false)
+            <button class="btn btn-dark" disabled>{{$check_extend_login_time_log->created_at}}</button>
+        @else
+            <button class="btn btn-dark" disabled>等待更多資料(發回)</button>
+        @endif
+    @endif
+
     @if(is_null($userMeta->activation_token))
         <b style="font-size:18px">已開通會員</b>
     @else
@@ -1006,6 +1023,34 @@
 </table>
 
 <br>
+
+<h4>等待更多資料紀錄</h4>
+<table class="table table-hover table-bordered" style="width: 80%;">
+    @php
+        $wait_for_more_data_record_list = \App\Models\AdminActionLog::with('operator_user')
+                                                                ->where('target_id', $user->id)
+                                                                ->where(function ($query) {
+                                                                    $query->where('act', '會員檢查等待更多資料')->orWhere('act', '等待更多資料(發回)');
+                                                                })
+                                                                ->orderByDesc('created_at')
+                                                                ->get();
+    @endphp
+    <tr>
+        <th width="33%">時間</th>
+        <th width="33%">紀錄</th>
+        <th width="33%">紀錄者</th>
+    </tr>
+    @foreach($wait_for_more_data_record_list as $wait_for_more_data_record)
+        <tr>
+            <td>{{$wait_for_more_data_record->created_at}}</th>
+            <td>{{$wait_for_more_data_record->act}}</th>
+            <td>{{$wait_for_more_data_record->operator_user->name}}</th>
+        </tr>
+    @endforeach
+<table>
+
+<br>
+
     <h4>封鎖與警示紀錄</h4>
     <table class="table table-hover table-bordered" style="width: 80%;">
         <tr>
