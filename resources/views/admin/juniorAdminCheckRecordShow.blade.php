@@ -18,7 +18,14 @@
                         <tbody>
                             @foreach($admin_log['action_log'] as $action_detail)
                                 <tr>
-                                    <td>{{$action_detail->user->email}}</td>
+                                    <td>
+                                        @if($action_detail->user->isPhoneAuth()) (手機) @endif
+                                        @if($action_detail->user->is_real==0) (本人) @endif
+                                        @if($action_detail->user->isAdvAuthUsable==0) (進階) @endif
+                                        <a href="/admin/users/advInfo/{{$action_detail->user->id}}">
+                                            {{$action_detail->user->email}}
+                                        </a>
+                                    </td>
                                     <td>{{$action_detail->user->name}}</td>
                                     <td>{{$action_detail->user->title}}</td>
                                     <td>{{$action_detail->user_meta->about}}</td>
