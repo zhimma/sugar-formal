@@ -108,10 +108,10 @@ class DashboardController extends \App\Http\Controllers\BaseController
 
     public function juniorAdminCheckRecordShow(Request $request)
     {
-        $perator = $request->operator_list;
+        $operator = $request->operator_list;
         $junior_admin_log_list = [];
 
-        $admin_user = User::whereIn('id', $perator)->get();
+        $admin_user = User::whereIn('id', $operator)->get();
         foreach($admin_user as $admin)
         {
             $junior_admin_log_list[$admin->id]['operator_data'] = $admin;
@@ -120,7 +120,7 @@ class DashboardController extends \App\Http\Controllers\BaseController
 
         $admin_action_log = AdminActionLog::with('user')
                                             ->with('user_meta')
-                                            ->whereIn('operator', $perator)
+                                            ->whereIn('operator', $operator)
                                             ->where(function($query) {
                                                 $query->where('action_id', 28);
                                                 $query->orWhere('act','封鎖會員');

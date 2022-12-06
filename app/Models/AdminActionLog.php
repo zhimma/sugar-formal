@@ -41,7 +41,7 @@ class AdminActionLog extends Model
         }
         else
         {
-            return $this->hasOne(AdminActionItem::class, 'id', 'action_id')->action_name;
+            return AdminActionItem::where('id', $this->action_id)->first()->action_name;
         }
     }
 
