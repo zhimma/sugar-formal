@@ -18,12 +18,14 @@
                         <tbody>
                             @foreach($admin_log['action_log'] as $action_detail)
                                 <tr
-                                    @if(!$action_detail->user->accountStatus)
-                                        bgcolor="gray"
+                                    @if(!$action_detail->user->account_status_admin)
+                                        bgcolor="#969696"
+                                    @elseif(!$action_detail->user->accountStatus)
+                                        bgcolor="#C9C9C9"
                                     @elseif($action_detail->user->is_banned())
-                                        bgcolor="yellow"
+                                        bgcolor="#FDFF8C"
                                     @elseif($action_detail->user->is_warned())
-                                        bgcolor="green"
+                                        bgcolor="#B0FFB1"
                                     @endif
                                 >
                                     <td>
