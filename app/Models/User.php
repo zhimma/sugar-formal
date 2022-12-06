@@ -648,6 +648,17 @@ class User extends Authenticatable implements JWTSubject
         return $c > 0;
     }
 
+    public function is_banned()
+    {
+        return banned_users::where('member_id', $this->id)
+                            ->where(function ($query){
+                                $today = Carbon::today();
+                                $query->where("expire_date", null)->orWhere("expire_date", ">", $today);
+                            })
+                            ->orderByDesc('created_at')
+                            ->first() ?? false;
+            }
+
     /**
      * 判定是否有在 站方警示名單裡面
      *
@@ -665,6 +676,17 @@ class User extends Authenticatable implements JWTSubject
             })->get()->count();
 
         return $c > 0;
+    }
+
+    public function is_warned()
+    {
+        return warned_users::where('member_id', $this->id)
+                    ->where(function ($query){
+                        $today = Carbon::today();
+                        $query->where("expire_date", null)->orWhere("expire_date", ">", $today);
+                    })
+                    ->orderByDesc('created_at')
+                    ->first() ?? false;
     }
 
     /**
