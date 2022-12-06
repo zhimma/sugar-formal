@@ -656,7 +656,7 @@ class User extends Authenticatable implements JWTSubject
                         $query->where("expire_date", null)->orWhere("expire_date", ">", $today);
                     })
                     ->orderByDesc('created_at')
-                    ->first();
+                    ->first() ?? false;
     }
 
     /**
@@ -686,7 +686,7 @@ class User extends Authenticatable implements JWTSubject
                         $query->where("expire_date", null)->orWhere("expire_date", ">", $today);
                     })
                     ->orderByDesc('created_at')
-                    ->first();
+                    ->first() ?? false;
     }
 
     /**
