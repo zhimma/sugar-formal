@@ -298,7 +298,7 @@
     let year = date.getFullYear();
     let month = date.getMonth() + 1;
     let day = date.getDate();
-    let today = new Date(year, month, day);
+    let today = new Date();
     let minus_date = new Date(today);
     jQuery(document).ready(function() {    
         $('#apply-dialog-submit').click(function(){
