@@ -1,7 +1,7 @@
 @if(config('app.bypass_stay_online_record') == false)
     <script>
         //上線時間紀錄
-        online_time_interval = setInterval("",stay_online_reocrd_interval*1000);
+        let online_time_interval = setInterval("",stay_online_reocrd_interval*1000);
         var hiddenProperty = 'hidden' in document ? 'hidden' :    
             'webkitHidden' in document ? 'webkitHidden' :    
             'mozHidden' in document ? 'mozHidden' :    
