@@ -30,8 +30,8 @@
                                 >
                                     <td>
                                         @if($action_detail->user->isPhoneAuth()) (手機) @endif
-                                        @if($action_detail->user->is_real) (本人) @endif
-                                        @if($action_detail->user->isAdvAuthUsable) (進階) @endif
+                                        @if($action_detail->user->is_real == 0) (本人) @endif
+                                        @if($action_detail->user->advance_auth_status) (進階) @endif
                                         <a href="/admin/users/advInfo/{{$action_detail->user->id}}" target="_blank">
                                             {{$action_detail->user->email}}
                                         </a>
