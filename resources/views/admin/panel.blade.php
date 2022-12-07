@@ -12,7 +12,7 @@
 		@endforeach
 		<a class="folder"><img src="/new/images/afp_1.png" width="30" height="30"><font color="white">所有選項</font></a>
 		<div class="folder_item" style="display:none">
-			@foreach(\App\Models\AdminMenuItems::where('status', 1)->get() as $key =>$item)
+			@foreach(\App\Models\AdminMenuItems::where('status', 1)->orderBy('sort')->get() as $key =>$item)
 				<a href="{{ $item->route_path }}">{{ $item->title }}</a>
 			@endforeach
 		</div>

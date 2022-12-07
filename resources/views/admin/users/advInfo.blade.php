@@ -1112,7 +1112,7 @@
             <th>原因</th>
             <td>
             @if($isBanned_show && count($isBanned_show)>0 && array_get($isBanned_show,'reason'))
-                {{ array_get($isBanned_show,'reason') }}
+                {{ str_replace('拒往','拒往(atm 詐騙)',array_get($isBanned_show,'reason')) }}
             @endif
             </td>
             <td>
@@ -1127,7 +1127,7 @@
             <td>
             @if($isEverBanned_log && count($isEverBanned_log)>0)
                 @if(array_get($isEverBanned_log,'0.reason'))
-                {{ array_get($isEverBanned_log,'0.reason') }}  
+                {{ str_replace('拒往','拒往(atm 詐騙)',array_get($isEverBanned_log,'0.reason')) }}  
                 @elseif(array_get($isEverBanned_log,'0.id'))
                     null
                 @endif
