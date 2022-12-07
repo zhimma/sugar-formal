@@ -42,6 +42,7 @@ use App\Models\PuppetAnalysisRow;
 use Illuminate\Support\Facades\Cache;
 use Tymon\JWTAuth\Contracts\JWTSubject;
 use Outl1ne\ScoutBatchSearchable\BatchSearchable;
+use App\Models\UserRemarksLog;
 
 class User extends Authenticatable implements JWTSubject
 {
@@ -558,6 +559,10 @@ class User extends Authenticatable implements JWTSubject
 
     public function backend_user_details(){
         return $this->hasMany(BackendUserDetails::class, 'user_id', 'id');
+    }
+
+    public function operator_commit(){
+        return $this->hasMany(UserRemarksLog::class, 'target_user_id', 'id')->orderByDesc('created_at');
     }
 
     /**
