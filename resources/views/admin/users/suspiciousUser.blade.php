@@ -59,7 +59,21 @@
                     </td>
                     <td>{{$row->title }}</td>
                     <td><a href="/admin/users/advInfo/{{ $row->id }}" target="_blank">{{ $row->email }}</a></td>
-                    <td @if($result['isBlocked']) style="background-color:#FFFF00" @endif>
+                    <td 
+                        @if(!$row->account_status_admin)
+                            bgcolor="#969696"
+                        @elseif(!$row->accountStatus)
+                            bgcolor="#C9C9C9"
+                        @elseif($row->is_banned())
+                            bgcolor="#FDFF8C"
+                        @elseif($row->is_warned())
+                            bgcolor="#B0FFB1"
+                        @elseif($row->is_waiting_for_more_data())
+                            bgcolor="#DBA5F2"
+                        @elseif($row->is_waiting_for_more_data_with_login_time())
+                            bgcolor="#A9D4F5"
+                        @endif
+                    >
                         <a href="{{ route('users/advInfo', $row->id) }}" target='_blank'>
                             <p @if($user['engroup'] == '2') style="color: #F00;" @else  style="color: #5867DD;"  @endif>
                                 {{ $row->name }}

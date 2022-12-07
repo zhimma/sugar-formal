@@ -708,6 +708,20 @@ class User extends Authenticatable implements JWTSubject
         return $c > 0;
     }
 
+    public function is_waiting_for_more_data()
+    {
+        return BackendUserDetails::where('user_id', $this->id)
+                                ->where('is_waiting_for_more_data', 1)
+                                ->first() ?? false;
+    }
+
+    public function is_waiting_for_more_data_with_login_time()
+    {
+        return BackendUserDetails::where('user_id', $this->id)
+                                ->where('remain_login_times_of_wait_for_more_data', '>', 1)
+                                ->first() ?? false;
+    }
+
     /**
      * Find by Name
      *
