@@ -1954,7 +1954,7 @@ class User extends Authenticatable implements JWTSubject
         }
     }
 
-    public function message()
+    public function message_sent()
     {
         return $this->hasMany(Message::class, 'from_id', 'id');
     }

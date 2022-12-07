@@ -316,6 +316,11 @@ class Message_newController extends BaseController {
 
             $messagePosted = $this->message_pic_save($messageInfo->id, $request->file('images'));
             $this->addEssenceStatisticsLog(['user_id'=>$user->id, 'to_id'=>$payload['to'], 'message_data'=>$messageInfo]);
+        
+            $todayTop3Msgs = $user->message_sent()->where('sys_notice','<>', 1)->whereDate('created_at', Carbon::today())->orderBy('id')->take(3)->get();
+            if($todayTop3Msgs->where('id',$messagePosted->id)->count()) {
+                $messagePosted->encodeImages('Message_newController@postChat');
+            }
         }else {
             $postArr = $payload;
             $postArr['from_id'] = $user->id;
@@ -326,14 +331,26 @@ class Message_newController extends BaseController {
         //罐頭訊息
         
         if ($user->engroup == 1) {
-            $isCanMessage = UserService::checkCanMessageWithGreetingRate($user, $to_user->id, $payload['msg']);
-            if ($isCanMessage) {
+            if($messagePosted->pic){
+
+                $isCanPicMessage = UserService::checkCanPicMessageWithGreetingRate($user, $messagePosted);
+            }
+            else {
+                $isCanMessage = UserService::checkCanMessageWithGreetingRate($user, $to_user->id, $payload['msg']);
+            }
+            
+            if ($isCanMessage??null) {
                 Message::where('id', $messagePosted->id)->update(['is_can' => 1]);
                 if($to_user->show_can_message != 1) {
                     return array('error' => 2,
                         'content' => '您好，此位女會員設定屏蔽罐頭訊息，如發罐頭訊息給她會被屏蔽');
                 }
             }
+            
+            if ($isCanPicMessage??null) {
+                $messagePosted->is_can=1;
+                $messagePosted->save();
+            }            
         }
 
         //line通知訊息
@@ -574,6 +591,13 @@ class Message_newController extends BaseController {
         }          
         
         \App\Events\Chat::dispatch($messagePosted, $request->from, $request->to);
+
+        if ($isCanPicMessage??null) {
+                if($to_user->show_can_message != 1) {
+                    return array('is_can' => 1,
+                        'content' => '您好，此位女會員設定屏蔽罐頭訊息，如發罐頭訊息給她會被屏蔽');
+                }
+            }
       
         return back();
     }
