@@ -181,71 +181,36 @@ class CompareImagesSingle extends Command
                         $last_target = null;
                         
                         if(in_array($target->pic,$nowCompareFoundArr??[])) continue;
+                        $compareRs = ImagesCompareService::comparePairImageEncodeEntry($imgEncode,$target);
 
-
-                        $targetEncode =  json_decode($target->encode,true);
-                        if(!$targetEncode || count($targetEncode)==0) continue;
-                        
-                        $srcDiff = array_diff_key($srcEncode,$targetEncode);
-                        $targetDiff = array_diff_key($targetEncode,$srcEncode);
-                        
-                        $srcDiffSum = array_sum($srcDiff);
-                        $targetDiffSum = array_sum($targetDiff); 
-                        
-                        $srcInterset = array_intersect_key($srcEncode,$targetEncode);
-                        $targetInterset = array_intersect_key($targetEncode,$srcEncode);                        
-
-                        $srcPartInterDiffSum = 0;
-                        $i = 0;
-                        $srcIntersetSum = 0;
-                        foreach($srcInterset  as $ki => $vi) {  
-                            if($i>=10) break;
-                            $srcPartInterDiffSum+= ($vi-$targetEncode[$ki]>0)?($vi-$targetEncode[$ki]):0;
-                            $srcIntersetSum+=$vi;
-                            $i++;
-                        }
-
-                        if($srcIntersetSum == 0) {
-                            // 避免 ÷ 0 的問題發生
-                            continue;
-                        }
-                        $srcInterPercent = 100 - ( 100 * $srcPartInterDiffSum / $srcIntersetSum);
-
-                        $targetPartInterDiffSum = 0;
-                        $i=0;
-                        $targetIntersetSum=0;
-                        foreach($targetInterset  as $ki=>$vi) {  
-                            if($i>=10) break;
-                            $targetPartInterDiffSum+= ($vi-$srcEncode[$ki]>0)?($vi-$srcEncode[$ki]):0;
-                            $targetIntersetSum+=$vi;
-                            $i++;
-                        }
-                        $targetInterPercent =100-( 100*$targetPartInterDiffSum/ $targetIntersetSum);
-
-                        $srcPercent = 100- (($srcDiffSum/$imgEncode->total_spot)*100);
-                        $targetPercent = 100- (($targetDiffSum/$target->total_spot)*100);                    
-
-                        if((($srcPercent>=90 && $targetPercent>=80) || ($targetPercent>=90 && $srcPercent>=80))
-                                && $srcInterPercent>=50 && $targetInterPercent>=50
-                        ) {
-
-                            $compare = ImagesCompare::where('encode_id',$imgEncode->id)->where('found_encode_id',$target->id)->firstOrNew();
-
-                            if($compare->id??null) continue;
-                            $compare->encode_id = $imgEncode->id;
-                            $compare->pic = $imgEncode->pic;
-                            $compare->found_encode_id = $target->id;
-                            $compare->found_pic = $target->pic;
-                            $compare->asc_diff_count = count($srcDiff);
-                            $compare->desc_diff_count = count($targetDiff);
-                            $compare->asc_diff_sum = $srcDiffSum;
-                            $compare->desc_diff_sum = $targetDiffSum;
-                            $compare->asc_percent = $srcPercent;
-                            $compare->desc_percent = $targetPercent;
+                        if($compareRs) {
+                            foreach($compareRs  as $crk=>$crv) {
+                                $$crk = $crv;
+                            }
                             
-                            $compare->asc_inter_part_percent = $srcInterPercent;
-                            $compare->desc_inter_part_percent = $targetInterPercent;                             
-                            $compare->save();                        
+                            if((($srcPercent>=90 && $targetPercent>=80) || ($targetPercent>=90 && $srcPercent>=80))
+                                    && $srcInterPercent>=50 && $targetInterPercent>=50
+                            ) {
+
+                                $compare = ImagesCompare::where('encode_id',$imgEncode->id)->where('found_encode_id',$target->id)->firstOrNew();
+
+                                if($compare->id??null) continue;
+                                $compare->encode_id = $imgEncode->id;
+                                $compare->pic = $imgEncode->pic;
+                                $compare->found_encode_id = $target->id;
+                                $compare->found_pic = $target->pic;
+                                $compare->asc_diff_count = count($srcDiff);
+                                $compare->desc_diff_count = count($targetDiff);
+                                $compare->asc_diff_sum = $srcDiffSum;
+                                $compare->desc_diff_sum = $targetDiffSum;
+                                $compare->asc_percent = $srcPercent;
+                                $compare->desc_percent = $targetPercent;
+                                
+                                $compare->asc_inter_part_percent = $srcInterPercent;
+                                $compare->desc_inter_part_percent = $targetInterPercent;                             
+                                $compare->save();                        
+                            }
+                            
                         }
                         $last_target = $target;
                         $compare=$targetPercent=$srcPercent=$targetDiffSum=$srcDiffSum=$srcDiff=$targetDiff=null;
