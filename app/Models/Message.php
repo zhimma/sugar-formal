@@ -18,6 +18,7 @@ use App\Services\AdminService;
 use Intervention\Image\Facades\Image;
 use App\Models\SimpleTables\banned_users;
 use App\Services\UserService;
+use App\Services\ImagesCompareService;
 use Illuminate\Support\Facades\Cache;
 use YlsIdeas\FeatureFlags\Facades\Features;
 use Outl1ne\ScoutBatchSearchable\BatchSearchable;
@@ -1381,7 +1382,7 @@ class Message extends Model
     {
         $truth_count = 0;
        if($from_user) {          
-            $truth_count = $from_user->message()->where('is_truth',1)->where('created_at','>=',Carbon::now()->subDay())->count();
+            $truth_count = $from_user->message_sent()->where('is_truth',1)->where('created_at','>=',Carbon::now()->subDay())->count();
             $truth_count = intval($truth_count);
             
         } 
@@ -1439,4 +1440,12 @@ class Message extends Model
             'receiver_is_warned',
         ];
     }
+    
+    public function encodeImages($encode_by=null) {
+        $pic = $this->pic;
+        $pic_arr = json_decode($pic,true);
+        foreach($pic_arr as $k=>$v) {
+            ImagesCompareService::addIfNotEncodedByPic($v['file_path'],'message',$encode_by);
+        }
+    } 
 }

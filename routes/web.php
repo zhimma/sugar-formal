@@ -699,6 +699,9 @@ Route::group(['middleware' => ['auth', 'global', 'active', 'femaleActive', 'vipC
         Route::post('dashboard/accessPermission/edit', 'DashboardController@juniorAdminEdit')->name('juniorAdminEdit');
         Route::post('dashboard/accessPermission/delete/{userid}', 'DashboardController@juniorAdminDelete')->name('juniorAdminDelete');
 
+        Route::get('dashboard/juniorAdminCheckRecord', 'DashboardController@juniorAdminCheckRecord')->name('juniorAdminCheckRecord');
+        Route::post('dashboard/juniorAdminCheckRecordShow', 'DashboardController@juniorAdminCheckRecordShow')->name('juniorAdminCheckRecordShow');
+
         Route::get('dashboard/paymentFlowChoose', 'DashboardController@paymentFlowChoose')->name('paymentFlowChoose');
         Route::get('dashboard/paymentFlowChoose/show', 'DashboardController@showPaymentFlowChoose')->name('showPaymentFlowChoose');
         Route::post('dashboard/paymentFlowChoose/edit', 'DashboardController@paymentFlowChooseEdit')->name('paymentFlowChooseEdit');
@@ -991,6 +994,7 @@ Route::group(['middleware' => ['auth', 'global', 'active', 'femaleActive', 'vipC
         Route::post('users/suspicious_user_toggle', 'UserController@suspicious_user_toggle')->name('users/suspicious_user_toggle');
         Route::get('users/suspiciousUser', 'UserController@suspiciousUser')->name('users/suspiciousUser');
         Route::get('users/WarnedOrBannedLog/{logType}/{user_id}', 'UserController@isEverWarnedOrBannedLog');
+        Route::get('users/commitUser', 'UserController@commitUser')->name('users/commitUser');
 
         //訂單
         Route::get('order', 'OrderController@index')->name('order');

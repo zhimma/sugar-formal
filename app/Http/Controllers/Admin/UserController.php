@@ -93,6 +93,7 @@ use App\Models\MessageRoomUserXref;
 use App\Models\SpecialIndustriesTestAnswer;
 use Illuminate\Support\Facades\Log;
 use App\Models\RoleUser;
+use App\Models\UserRemarksLog;
 
 
 class UserController extends \App\Http\Controllers\BaseController
@@ -5021,14 +5022,9 @@ class UserController extends \App\Http\Controllers\BaseController
         return view('admin.users.showAdminActionLog', compact('operator_list', 'getLogs'));
     }
 
-    public function insertAdminActionLog($targetAccountID, $action)
+    public function insertAdminActionLog($targetAccountID, $action, $action_id = 0)
     {
-        AdminActionLog::create([
-            'operator'    => Auth::user()->id,
-            'target_id'  => $targetAccountID,
-            'act'         => $action,
-            'ip'          => array_get($_SERVER, 'REMOTE_ADDR')
-        ]);
+        AdminActionLog::insert_log(Auth::user()->id, array_get($_SERVER, 'REMOTE_ADDR'), $targetAccountID, $action, $action_id = 0);
     }
 
     public function getEssenceStatisticsRecord(Request $request)
@@ -5302,21 +5298,17 @@ class UserController extends \App\Http\Controllers\BaseController
 
     public function suspicious_user_toggle(Request $request)
     {
-
         $sid = $request->sid;
         $uid = $request->uid;
         $reason = $request->reason;
-        $admin_id = Auth::user()->id;
+        $admin = Auth::user();
+        $ip = array_get($_SERVER, 'REMOTE_ADDR');
 
         if ($sid == '') {
-            //先刪後增
-            SuspiciousUser::where('user_id', $uid)->delete();
-            //insert
-            SuspiciousUser::insert(['admin_id' => $admin_id, 'user_id' => $uid, 'reason' => $reason, 'created_at' => Carbon::now()]);
+            SuspiciousUser::insert_data($admin, $uid, $reason, $ip);
             return back()->with('message', '已加入可疑名單');
         } else {
-            //softDelete
-            SuspiciousUser::where('user_id', $sid)->delete();
+            SuspiciousUser::delete_data($admin, $uid, $reason, $ip);
             return back()->with('message', '已至可疑名單移除');
         }
     }
@@ -6473,26 +6465,7 @@ class UserController extends \App\Http\Controllers\BaseController
 
             try {
 
-                // 先刪後增
-                SuspiciousUser::where('user_id', $request->uid)->delete();
-                SuspiciousUser::insert([
-                    'admin_id'   => Auth::user()->id,
-                    'user_id'    => $request->uid,
-                    'reason'     => $request->reason,
-                    'created_at' => now()
-                ]);
-
-                // 操作紀錄
-                \App\Models\AdminPicturesSimilarActionLog::insert([
-                    'operator_id'   => Auth::user()->id,
-                    'operator_role' => Auth::user()->roles->first()->id,
-                    'target_id'     => $request->uid,
-                    'act'           => '加入可疑名單',
-                    'reason'        => $request->reason,
-                    'ip'            => $request->ip(),
-                    'created_at'    => now(),
-                    'updated_at'    => now(),
-                ]);
+                SuspiciousUser::insert_data(Auth::user(), $request->uid, $request->reason, $request->ip());
 
                 DB::commit();
 
@@ -6516,20 +6489,7 @@ class UserController extends \App\Http\Controllers\BaseController
 
             try {
 
-                // 刪除
-                SuspiciousUser::where('user_id', $request->uid)->delete();
-
-                // 操作紀錄
-                \App\Models\AdminPicturesSimilarActionLog::insert([
-                    'operator_id'   => Auth::user()->id,
-                    'operator_role' => Auth::user()->roles->first()->id,
-                    'target_id'     => $request->uid,
-                    'act'           => '刪除可疑名單',
-                    'reason'        => $request->reason,
-                    'ip'            => $request->ip(),
-                    'created_at'    => now(),
-                    'updated_at'    => now(),
-                ]);
+                SuspiciousUser::delete_data(Auth::user(), $request->uid, $request->reason, $request->ip());
 
                 DB::commit();
 
@@ -6914,6 +6874,8 @@ class UserController extends \App\Http\Controllers\BaseController
             $check_point_user->user_id = $user_id;
             $check_point_user->check_point_id = $request->check_point_id;
             $check_point_user->save();
+
+            $this->insertAdminActionLog($user_id, '會員檢查 Step2 通過', 23);
         }
         return redirect()->back();
     }
@@ -7984,5 +7946,17 @@ class UserController extends \App\Http\Controllers\BaseController
         return view('admin.users.wait_for_more_data_login_time_list')
                 ->with('check_extend_list', $check_extend_list)
                 ;
+    }
+
+    public function commitUser(Request $request)
+    {
+        $operator_id = Auth::user()->id;
+        $user_id = $request->user_id;
+        $commit = $request->commit;
+        
+        UserRemarksLog::insert_commit($operator_id, $user_id, $commit);
+        $msg_type    = 'message';
+        $msg_content = '已備註成功';
+        return back()->with($msg_type, $msg_content);
     }
 }
