@@ -195,7 +195,7 @@
                         </div>
                     </div>
                     @if($user->engroup==1)
-                        @if(!(isset($user->applyVVIP_getData()->created_at) && $user->applyVVIP_getData()->created_at != ''))
+                        @if(!$user->passVVIP())
                             <div class="sys_aa" id="vip_state_block">
                                 <div class="tabbox_new_dt"><span>VIP狀態</span>
                                     @if(!$user->isVip() && !$user->isVVIP())
