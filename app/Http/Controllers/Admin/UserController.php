@@ -93,6 +93,7 @@ use App\Models\MessageRoomUserXref;
 use App\Models\SpecialIndustriesTestAnswer;
 use Illuminate\Support\Facades\Log;
 use App\Models\RoleUser;
+use App\Models\UserRemarksLog;
 
 
 class UserController extends \App\Http\Controllers\BaseController
@@ -7945,5 +7946,17 @@ class UserController extends \App\Http\Controllers\BaseController
         return view('admin.users.wait_for_more_data_login_time_list')
                 ->with('check_extend_list', $check_extend_list)
                 ;
+    }
+
+    public function commitUser(Request $request)
+    {
+        $operator_id = Auth::user()->id;
+        $user_id = $request->user_id;
+        $commit = $request->commit;
+        
+        UserRemarksLog::insert_commit($operator_id, $user_id, $commit);
+        $msg_type    = 'message';
+        $msg_content = '已備註成功';
+        return back()->with($msg_type, $msg_content);
     }
 }

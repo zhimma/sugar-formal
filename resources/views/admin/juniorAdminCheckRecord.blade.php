@@ -50,7 +50,7 @@
         let year = date.getFullYear();
         let month = date.getMonth() + 1;
         let day = date.getDate();
-        let today = new Date(year, month, day);
+        let today = new Date();
         let minus_date = new Date(today);
         $( document ).ready(function() {
             jQuery("#datepicker_1").datepicker({

@@ -186,7 +186,7 @@ export default {
 
 
         axios
-          .post("/video/loading-video-page", {})
+          .post("/video/loading-video-page", {from_file:'VideoVerifyUser.vue'})
           .then(() => {
             var log_arr = {
                 from_file:'VideoVerifyUser.vue'

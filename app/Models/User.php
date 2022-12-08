@@ -42,6 +42,7 @@ use App\Models\PuppetAnalysisRow;
 use Illuminate\Support\Facades\Cache;
 use Tymon\JWTAuth\Contracts\JWTSubject;
 use Outl1ne\ScoutBatchSearchable\BatchSearchable;
+use App\Models\UserRemarksLog;
 
 class User extends Authenticatable implements JWTSubject
 {
@@ -560,6 +561,10 @@ class User extends Authenticatable implements JWTSubject
         return $this->hasMany(BackendUserDetails::class, 'user_id', 'id');
     }
 
+    public function operator_commit(){
+        return $this->hasMany(UserRemarksLog::class, 'target_user_id', 'id')->orderByDesc('created_at');
+    }
+
     /**
      * Find by Email
      *
@@ -706,6 +711,20 @@ class User extends Authenticatable implements JWTSubject
             })->get()->count();
 
         return $c > 0;
+    }
+
+    public function is_waiting_for_more_data()
+    {
+        return BackendUserDetails::where('user_id', $this->id)
+                                ->where('is_waiting_for_more_data', 1)
+                                ->first() ?? false;
+    }
+
+    public function is_waiting_for_more_data_with_login_time()
+    {
+        return BackendUserDetails::where('user_id', $this->id)
+                                ->where('remain_login_times_of_wait_for_more_data', '>', 1)
+                                ->first() ?? false;
     }
 
     /**
@@ -1954,7 +1973,7 @@ class User extends Authenticatable implements JWTSubject
         }
     }
 
-    public function message()
+    public function message_sent()
     {
         return $this->hasMany(Message::class, 'from_id', 'id');
     }

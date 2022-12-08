@@ -95,7 +95,7 @@
 			let year = date.getFullYear();
 			let month = date.getMonth() + 1;
 			let day = date.getDate();
-			let today = new Date(year, month, day);
+			let today = new Date();
 			let hour = date.getHours();
 			let minute = date.getMinutes();
 			let second = date.getSeconds();
@@ -104,8 +104,8 @@
 				$('.today').click(
 					function(){
 						minus_date.setDate(minus_date.getDate() - 1);
-						$('#datepicker_1').val(minus_date.getFullYear() + '-' + str_pad(minus_date.getMonth()) + '-' + str_pad(minus_date.getDate()));
-						$('.datepicker_1').val(minus_date.getFullYear() + '-' + str_pad(minus_date.getMonth()) + '-' + str_pad(minus_date.getDate()));
+						$('#datepicker_1').val(minus_date.getFullYear() + '-' + str_pad(minus_date.getMonth()+1) + '-' + str_pad(minus_date.getDate()));
+						$('.datepicker_1').val(minus_date.getFullYear() + '-' + str_pad(minus_date.getMonth()+1) + '-' + str_pad(minus_date.getDate()));
 						
 						set_now_time();
 						
@@ -115,8 +115,8 @@
 				$('.last3days').click(
 					function () {
 						minus_date.setDate(minus_date.getDate() - 3);
-						$('#datepicker_1').val(minus_date.getFullYear() + '-' + str_pad(minus_date.getMonth()) + '-' + str_pad(minus_date.getDate()));
-						$('.datepicker_1').val(minus_date.getFullYear() + '-' + str_pad(minus_date.getMonth()) + '-' + str_pad(minus_date.getDate()));
+						$('#datepicker_1').val(minus_date.getFullYear() + '-' + str_pad(minus_date.getMonth()+1) + '-' + str_pad(minus_date.getDate()));
+						$('.datepicker_1').val(minus_date.getFullYear() + '-' + str_pad(minus_date.getMonth()+1) + '-' + str_pad(minus_date.getDate()));
 						set_end_date();
 						set_now_time();
 						minus_date.setDate(minus_date.getDate() + 3);
@@ -124,8 +124,8 @@
 				$('.last10days').click(
 					function () {
 						minus_date.setDate(minus_date.getDate() - 10);
-						$('#datepicker_1').val(minus_date.getFullYear() + '-' + str_pad(minus_date.getMonth()) + '-' + str_pad(minus_date.getDate()));
-						$('.datepicker_1').val(minus_date.getFullYear() + '-' + str_pad(minus_date.getMonth()) + '-' + str_pad(minus_date.getDate()));
+						$('#datepicker_1').val(minus_date.getFullYear() + '-' + str_pad(minus_date.getMonth()+1) + '-' + str_pad(minus_date.getDate()));
+						$('.datepicker_1').val(minus_date.getFullYear() + '-' + str_pad(minus_date.getMonth()+1) + '-' + str_pad(minus_date.getDate()));
 						set_end_date();
 						set_now_time();
 						minus_date.setDate(minus_date.getDate() + 10);
@@ -141,8 +141,8 @@
 				$('.last7days').click(
 					function () {
 						minus_date.setDate(minus_date.getDate() - 7);
-						$('#datepicker_1').val(minus_date.getFullYear() + '-' + str_pad(minus_date.getMonth()) + '-' + str_pad(minus_date.getDate()));
-						$('.datepicker_1').val(minus_date.getFullYear() + '-' + str_pad(minus_date.getMonth()) + '-' + str_pad(minus_date.getDate()));
+						$('#datepicker_1').val(minus_date.getFullYear() + '-' + str_pad(minus_date.getMonth()+1) + '-' + str_pad(minus_date.getDate()));
+						$('.datepicker_1').val(minus_date.getFullYear() + '-' + str_pad(minus_date.getMonth()+1) + '-' + str_pad(minus_date.getDate()));
 						set_end_date();
 						set_now_time();
 						minus_date.setDate(minus_date.getDate() + 7);
