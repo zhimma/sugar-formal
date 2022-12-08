@@ -49,12 +49,19 @@ class AdminService
      * @return $admin or false
      */
     public static function checkAdmin(){
-//        $banned_users = banned_users::select('member_id')->get();
-//        $admin = User::where('name', 'like', '%'.'站長'.'%')
-//                       ->whereNotIn('id', $banned_users)
-//                       ->get()->first();
+        //$banned_users = banned_users::select('member_id')->get();
+        //$admin = User::where('name', 'like', '%'.'站長'.'%')
+                        //->whereNotIn('id', $banned_users)
+                        //->get()->first();
         // todo: 效能問題
-        $admin = User::find(1049);
+
+        $admin = User::leftJoin('banned_users', 'users.id', '=', 'banned_users.member_id')
+                        ->select('users.*')
+                        ->where('users.name', 'like', '%'.'站長'.'%')
+                        ->whereNull('banned_users.id')
+                        ->first();
+
+        //$admin = User::find(1049);
         if ($admin){
             return $admin;
         }
@@ -150,11 +157,11 @@ class AdminService
             $users = $users->sortByDesc('vvip');
         }
         if($request->member_type =='vip'){
-//            $users = collect($users)->sortBy('vip', true, true)->reverse()->toArray();
+            //$users = collect($users)->sortBy('vip', true, true)->reverse()->toArray();
             $users = $users->sortByDesc('vip');
         }
         if($request->member_type =='banned'){
-//            $users = collect($users)->sortBy('isBlocked')->reverse()->toArray();
+            //$users = collect($users)->sortBy('isBlocked')->reverse()->toArray();
             $users = $users->sortByDesc('isBlocked');
         }
         return $users;
