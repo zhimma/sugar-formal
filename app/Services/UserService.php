@@ -29,6 +29,7 @@ use App\Models\LogAdvAuthApi;
 use App\Models\ValueAddedService;
 use App\Models\hideOnlineData;
 use App\Models\UserOptionsXref;
+use App\Models\ImagesCompareEncode;
 
 class UserService
 {
@@ -49,6 +50,8 @@ class UserService
      * @var RoleService
      */
     protected $role;
+    
+    public static $today_greeting_rate = 0;
 
     public function __construct(
         User $model,
@@ -1560,6 +1563,7 @@ class UserService
         $avg = $query?->average_recipients_count_of_vip_male_senders;
         $median = $query?->median_recipients_count_of_vip_male_senders;
         $greeting_rate = max($avg ?? 999, $median ?? 999) * 1.75;
+        UserService::$today_greeting_rate = $greeting_rate;
         $recipients_count = UserMeta::where('user_id', $from_id)->pluck('recipients_count')->first();
         
         return $recipients_count > $greeting_rate;
@@ -1595,6 +1599,76 @@ class UserService
                         return false;
                     }
                 }    
+            }
+        }
+        return false;
+    }
+
+
+    public static function checkCanPicMessageWithGreetingRate($user, $msg_entry)
+    {
+        $user_open_alert = $user->can_message_alert;
+        UserService::isGreetingFrequently($user->id);
+        $today_greeting_rate = UserService::$today_greeting_rate;
+        $today_post_count = Message::where('from_id', $user->id)->where('to_id', $msg_entry->to_id)->whereDate('created_at', Carbon::today())->whereNotNull('pic')->where('pic','!=','')->count();
+        $compare_found_count = 0;
+
+        if ( $today_post_count == 1) {
+            
+            $date_start = date("Y-m-d",strtotime("-15 days", strtotime(date('Y-m-d'))));
+            $date_end = date('Y-m-d',strtotime("-1 days", strtotime(date('Y-m-d'))));
+            
+            $messages = Message::select('id','pic','created_at')
+                ->where('from_id', $user->id)
+                ->where('sys_notice','<>', 1)
+                ->whereBetween('created_at', array($date_start . ' 00:00', $date_end . ' 23:59'))
+                ->orderBy('created_at','desc')
+                ->whereNotNull('pic')->where('pic','!=','')
+                ->get();
+
+            $isCanMessage = false;
+
+            $date_count_arr = [];
+            
+            $src_pic_arr = json_decode($msg_entry->pic,true);
+            foreach($src_pic_arr  as $src_pic) {
+                
+                $srcEncodeEntry = ImagesCompareEncode::where('pic',$src_pic['file_path'])->first();
+                
+                foreach($messages as $data) {
+                    $now_msg_date = Carbon::parse($data['created_at'])->format('Y-m-d');
+                    $date_count_arr[$now_msg_date] = 0;;
+                    if($date_count_arr[$now_msg_date]>3) continue;
+                    else $date_count_arr[$now_msg_date]++;
+                    $now_pic_arr = json_decode($data->pic,true);
+                    
+                    foreach($now_pic_arr as $msg_pic) {
+
+                        $targetEncodeEntry = ImagesCompareEncode::where('pic',$msg_pic['file_path'])->first();
+
+                        $compareRs = ImagesCompareService::comparePairImageEncodeEntry($srcEncodeEntry,$targetEncodeEntry);
+                   
+                        if($compareRs) {
+                            foreach($compareRs  as $crk=>$crv) {
+                                $$crk = $crv;
+                            }                            
+                            
+                            if((($srcPercent>=90 && $targetPercent>=90) || ($srcEncodeEntry->file_md5==$targetEncodeEntry->file_md5))
+                                    && $srcInterPercent>=50 && $targetInterPercent>=50
+                            ) {
+                                $compare_found_count++;
+                                if ($user_open_alert && $compare_found_count>$today_greeting_rate*0.5) return true;
+                            }
+                        }
+                   }
+                    
+                } 
+            }
+                        
+            if ($user_open_alert && $compare_found_count>$today_greeting_rate*0.5) {
+                return true;
+            } else {
+                return false;
             }
         }
         return false;

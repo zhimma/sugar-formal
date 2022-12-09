@@ -67,6 +67,7 @@
             
             let pics = JSON.parse(m['pic']);            
             msg_pic_elt.html('');
+            
             pics.forEach( function (pic, key, pics)  {
                 if(key==0){
                     msg_pic_elt.html(msg_pic_elt.html() + '<a href="' + pic['file_path'] + '" target="_blank" data-pswp-index="' + key +'" class="pswp--item">' +
@@ -80,13 +81,14 @@
             });
 
             msg_pic_elt_origin.html('');
+            /*
             pics.forEach( function (pic, key, pics)  {
                 msg_pic_elt_origin.html(msg_pic_elt_origin.html() + '<a class="pswp--item">' +
                     '<img src="' + pic['file_path'] + '" class="n_pic_lt"></a>'
                 )
                 ;
             });
-
+            */
             msg_elt.attr('style','');
         } 
 

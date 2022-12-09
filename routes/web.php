@@ -265,6 +265,8 @@ Route::group(['middleware' => ['auth', 'global', 'active', 'femaleActive', 'vipC
     //視訊驗證頁面
     Route::get('user_video_chat_verify', 'VideoChatController@user_video_chat_verify');
 
+    Route::get('user_video_chat_verify_allow_check', 'VideoChatController@user_video_chat_verify_allow_check')->name('user_video_chat_verify_allow_check');
+
     //視訊功能測試
     Route::get('/video-chat-test', 'VideoChatController@videoChatTest');
 
@@ -697,6 +699,9 @@ Route::group(['middleware' => ['auth', 'global', 'active', 'femaleActive', 'vipC
         Route::post('dashboard/accessPermission/edit', 'DashboardController@juniorAdminEdit')->name('juniorAdminEdit');
         Route::post('dashboard/accessPermission/delete/{userid}', 'DashboardController@juniorAdminDelete')->name('juniorAdminDelete');
 
+        Route::get('dashboard/juniorAdminCheckRecord', 'DashboardController@juniorAdminCheckRecord')->name('juniorAdminCheckRecord');
+        Route::post('dashboard/juniorAdminCheckRecordShow', 'DashboardController@juniorAdminCheckRecordShow')->name('juniorAdminCheckRecordShow');
+
         Route::get('dashboard/paymentFlowChoose', 'DashboardController@paymentFlowChoose')->name('paymentFlowChoose');
         Route::get('dashboard/paymentFlowChoose/show', 'DashboardController@showPaymentFlowChoose')->name('showPaymentFlowChoose');
         Route::post('dashboard/paymentFlowChoose/edit', 'DashboardController@paymentFlowChooseEdit')->name('paymentFlowChooseEdit');
@@ -767,6 +772,7 @@ Route::group(['middleware' => ['auth', 'global', 'active', 'femaleActive', 'vipC
 
         Route::post('users/forum_toggle', 'UserController@forum_toggle')->name('forum_toggle');
         Route::post('users/check_extend', 'UserController@check_extend')->name('check_extend');
+        Route::post('users/check_extend_by_login_time', 'UserController@check_extend_by_login_time')->name('check_extend_by_login_time');
 
         Route::get('users/anonymousChat', 'UserController@showAnonymousChatPage')->name('users/showAnonymousChatPage');
         Route::get('users/searchAnonymousChat', 'UserController@searchAnonymousChatPage')->name('users/searchAnonymousChatPage');
@@ -988,6 +994,7 @@ Route::group(['middleware' => ['auth', 'global', 'active', 'femaleActive', 'vipC
         Route::post('users/suspicious_user_toggle', 'UserController@suspicious_user_toggle')->name('users/suspicious_user_toggle');
         Route::get('users/suspiciousUser', 'UserController@suspiciousUser')->name('users/suspiciousUser');
         Route::get('users/WarnedOrBannedLog/{logType}/{user_id}', 'UserController@isEverWarnedOrBannedLog');
+        Route::get('users/commitUser', 'UserController@commitUser')->name('users/commitUser');
 
         //訂單
         Route::get('order', 'OrderController@index')->name('order');
@@ -1094,6 +1101,7 @@ Route::group(['middleware' => ['auth', 'global', 'active', 'femaleActive', 'vipC
         Route::get('special_industries_judgment_training_hide', 'AdminController@special_industries_judgment_training_hide')->name('admin/special_industries_judgment_training_hide');
 
         Route::get('users/wait_for_more_data_list', 'UserController@wait_for_more_data_list')->name('users/wait_for_more_data_list');
+        Route::get('users/wait_for_more_data_login_time_list', 'UserController@wait_for_more_data_login_time_list')->name('users/wait_for_more_data_login_time_list');
     });
     Route::group(['prefix' => 'admin', 'middleware' => 'Admin'], function () {
         //寄退信Log查詢

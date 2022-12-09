@@ -4,6 +4,15 @@
     .table>tbody>tr>td,
     .table>tbody>tr>th {
         vertical-align: middle;
+        overflow-wrap: break-word;
+        word-wrap: break-word;
+        -ms-word-break: break-all;
+        word-break: break-all;
+        word-break: break-word;
+        -ms-hyphens: auto;
+        -moz-hyphens: auto;
+        -webkit-hyphens: auto;
+        hyphens: auto;
     }
 
     .table>tbody>tr>th {
@@ -73,8 +82,8 @@
                     <td width="8%">發送者</td>
                     <td width="5%">匿名</td>
 {{--                    <td>性別</td>--}}
-                    <td>訊息內容</td>
-                    <td>圖片</td>
+                    <td width="20%">訊息內容</td>
+                    <td width="20%">圖片</td>
                     <td width="12%">發訊時間</td>
                     <td width="15%">狀態</td>
                     <td width="20%">管理</td>
@@ -162,14 +171,14 @@
                 <td width="8%">發送者</td>
                 <td width="5%">匿名</td>
 {{--                <td>性別</td>--}}
-                <td>訊息內容</td>
-                <td>圖片</td>
-                <td width="12%">發訊時間</td>
+                <td width="12%">訊息內容</td>
+                <td width="12%">圖片</td>
+                <td width="10%">發訊時間</td>
                 <td width="8%">檢舉人</td>
-                <td>檢舉內容</td>
-                <td width="12%">檢舉時間</td>
-                <td>狀態</td>
-                <td>管理</td>
+                <td width="12%">檢舉內容</td>
+                <td width="10%">檢舉時間</td>
+                <td width="11%">狀態</td>
+                <td width="12%">管理</td>
             </tr>
             </thead>
 
@@ -186,6 +195,7 @@
                                 ->where('expire_date', null)->orWhere('expire_date','>',\Carbon\Carbon::now() )
                                 ->where('member_id', $row->user_id)
                                 ->orderBy('created_at','desc')->first();
+                        $user = \App\Models\User::findById($row->user_id);
                     @endphp
                     <td style="@if(\App\Models\User::isBanned($row->user_id))background-color:#FFFF00;@endif @if($isWarned)background-color:#B0FFB1;@endif">
                         @if($row->userID)
@@ -221,7 +231,7 @@
                         @if($row->report_deleted_at)
                             <span class="badge badge-warning">刪：{{$row->report_deleted_at}}</span>
                         @endif
-                        @if($row->reported_num>=5)
+                        @if( ($row->reported_num>=3 && !$user->isVVIP()) || ($row->reported_num >=5 && $user->isVVIP()) )
                             @php
                                 $checkReport = \App\Models\AnonymousChatReport::select('user_id', 'created_at')->where('reported_user_id', $row->user_id)->groupBy('user_id')->orderBy('created_at', 'desc')->first();
                             @endphp
@@ -237,7 +247,7 @@
                         @if(!$row->report_deleted_at)
                             <input type="button" class='btn btn-warning' onclick="deleteReport({{$row->report_id}})" value="刪除檢舉" />
                         @endif
-                        @if($row->reported_num>=5)
+                        @if( ($row->reported_num>=3 && !$user->isVVIP()) || ($row->reported_num >=5 && $user->isVVIP()) )
                             @if(isset($checkReport) && !empty($checkReport->created_at) && \Carbon\Carbon::parse($checkReport->created_at)->diffInDays(\Carbon\Carbon::now())<3)
                                     <input type="button" class='btn btn-warning' onclick="deleteReportAll({{$row->user_id}})" value="解除禁言" />
                             @endif
@@ -401,7 +411,7 @@
     let year = date.getFullYear();
     let month = date.getMonth() + 1;
     let day = date.getDate();
-    let today = new Date(year, month, day);
+    let today = new Date();
     let minus_date = new Date(today);
     jQuery(document).ready(function() {
         jQuery("#datepicker_1").datepicker({

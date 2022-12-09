@@ -63,11 +63,18 @@ class VideoChatController extends Controller
         if(auth()->user()->id) {
             session()->put('sess_user_id', auth()->user()->id);
         }
+        $is_log = true;
+        if($request->from_file=='VideoVerifyUserEntireSite.vue') {
+             $is_log = false;
+        }
+        
         $logArr = $this->getDefaultLogArr();
         $logArr['method'] = 'VideoChatController@loadingVideoPage';
         $logArr['step'] = 'start';
         $logArr['title'] = '';
-        $this->logByArr($logArr);        
+        $logArr['from_file'] = $request->from_file;
+        if($request->from_url) $logArr['url'] = $request->from_url;
+        if($is_log) $this->logByArr($logArr);        
 
         $data['from'] = Auth::id();
         $data['type'] = 'loadingVideoPage';
@@ -77,7 +84,7 @@ class VideoChatController extends Controller
         $logArr['act'] = 'broadcast new StartVideoChat($data)';
         $logArr['act_step'] = 'before'; 
         $logArr['data'] = $data;
-        $this->logByArr($logArr); 
+        if($is_log) $this->logByArr($logArr); 
         
         broadcast(new StartVideoChat($data))->toOthers();
 
@@ -85,7 +92,7 @@ class VideoChatController extends Controller
         $logArr['title'] = 'after broadcast(new StartVideoChat($data))->toOthers();';
         $logArr['act_step'] = 'after'; 
         $logArr['data'] = $data;
-        $this->logByArr($logArr); 
+        if($is_log) $this->logByArr($logArr); 
     }     
 
     public function unloadingVideoPage(Request $request)
@@ -93,11 +100,20 @@ class VideoChatController extends Controller
         if(auth()->user()->id) {
             session()->put('sess_user_id', auth()->user()->id);
         }
+        
+        $is_log = true;
+        if($request->from_file=='video_verify_user_entire_site.tpl') {
+            $is_log = false;
+        }
+        
         $logArr = $this->getDefaultLogArr();
         $logArr['method'] = 'VideoChatController@unloadingVideoPage';
         $logArr['step'] = 'start';
         $logArr['title'] = '';
-        $this->logByArr($logArr);        
+        $logArr['from_file'] = $request->from_file;
+        if($request->from_url) $logArr['url'] = $request->from_url;
+        
+        if($is_log) $this->logByArr($logArr);        
 
         $data['from'] = Auth::id();
         $data['type'] = 'unloadingVideoPage';
@@ -107,7 +123,7 @@ class VideoChatController extends Controller
         $logArr['act'] = 'broadcast new StartVideoChat($data)';
         $logArr['act_step'] = 'before'; 
         $logArr['data'] = $data;
-        $this->logByArr($logArr); 
+        if($is_log) $this->logByArr($logArr); 
         
         broadcast(new StartVideoChat($data))->toOthers();
 
@@ -115,7 +131,7 @@ class VideoChatController extends Controller
         $logArr['title'] = 'after broadcast(new StartVideoChat($data))->toOthers();';
         $logArr['act_step'] = 'after'; 
         $logArr['data'] = $data;
-        $this->logByArr($logArr); 
+        if($is_log) $this->logByArr($logArr); 
     }       
 
     public function acceptCall(Request $request)
@@ -444,6 +460,10 @@ class VideoChatController extends Controller
     
     public function log_video_chat_process(Request $request) 
     {
+        if($request->from_file=='VideoChat.vue'
+            && strpos($request->url,'dashboard/personalPage')!==false
+        )  return;
+        
         if(auth()->user()->id) {
             session()->put('sess_user_id', auth()->user()->id);
         }
@@ -520,5 +540,12 @@ class VideoChatController extends Controller
         
         return response()->json($users);
     }
+
+    public function user_video_chat_verify_allow_check(Request $request, RealAuthPageService $rap_service) 
+    {   
+        $is_allow = $rap_service->riseByUserId(Auth::id())->isAllowUseVideoChat() ?? false;
+        return response()->json(['is_allow' => $is_allow]);
+    }
+    
     
 }

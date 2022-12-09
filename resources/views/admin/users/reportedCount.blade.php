@@ -12,12 +12,12 @@
                     <tr>
                         <th>開始時間</th>
                         <td>
-                            <input type='text' id="datepicker_1" name="date_start" data-date-format='yyyy-mm-dd' value="{{ $date_start or "" }}" class="form-control">
+                            <input type='text' id="datepicker_1" name="date_start" data-date-format='yyyy-mm-dd' value="{{ ($date_start??null) or "" }}" class="form-control">
                         </td>
                     <tr>
                         <th>結束時間</th>
                         <td>
-                            <input type='text' id="datepicker_2" name="date_end" data-date-format='yyyy-mm-dd' value="{{ $date_end or "" }}" class="form-control">
+                            <input type='text' id="datepicker_2" name="date_end" data-date-format='yyyy-mm-dd' value="{{ ($date_end??null) or "" }}" class="form-control">
                         </td>
                     </tr>
                     <tr>
@@ -192,7 +192,7 @@
     let year = date.getFullYear();
     let month = date.getMonth() + 1;
     let day = date.getDate();
-    let today = new Date(year, month, day);
+    let today = new Date();
     let minus_date = new Date(today);
     jQuery(document).ready(function(){
         jQuery("#datepicker_1").datepicker(
@@ -227,16 +227,16 @@
         $('.last3days').click(
             function () {
                 minus_date.setDate(minus_date.getDate() - 2);
-                $('#datepicker_1').val(minus_date.getFullYear() + '-' + str_pad(minus_date.getMonth()) + '-' + str_pad(minus_date.getDate()));
-                $('.datepicker_1').val(minus_date.getFullYear() + '-' + str_pad(minus_date.getMonth()) + '-' + str_pad(minus_date.getDate()));
+                $('#datepicker_1').val(minus_date.getFullYear() + '-' + str_pad(minus_date.getMonth()+1) + '-' + str_pad(minus_date.getDate()));
+                $('.datepicker_1').val(minus_date.getFullYear() + '-' + str_pad(minus_date.getMonth()+1) + '-' + str_pad(minus_date.getDate()));
                 set_end_date();
                 minus_date.setDate(minus_date.getDate() + 2);
             });
         $('.last10days').click(
             function () {
                 minus_date.setDate(minus_date.getDate() - 9);
-                $('#datepicker_1').val(minus_date.getFullYear() + '-' + str_pad(minus_date.getMonth()) + '-' + str_pad(minus_date.getDate()));
-                $('.datepicker_1').val(minus_date.getFullYear() + '-' + str_pad(minus_date.getMonth()) + '-' + str_pad(minus_date.getDate()));
+                $('#datepicker_1').val(minus_date.getFullYear() + '-' + str_pad(minus_date.getMonth()+1) + '-' + str_pad(minus_date.getDate()));
+                $('.datepicker_1').val(minus_date.getFullYear() + '-' + str_pad(minus_date.getMonth()+1) + '-' + str_pad(minus_date.getDate()));
                 set_end_date();
                 minus_date.setDate(minus_date.getDate() + 9);
             });
@@ -250,16 +250,16 @@
         $('.last90days').click(
             function () {
                 minus_date.setDate(minus_date.getDate() - 89);
-                $('#datepicker_1').val(minus_date.getFullYear() + '-' + str_pad(minus_date.getMonth()) + '-' + str_pad(minus_date.getDate()));
-                $('.datepicker_1').val(minus_date.getFullYear() + '-' + str_pad(minus_date.getMonth()) + '-' + str_pad(minus_date.getDate()));
+                $('#datepicker_1').val(minus_date.getFullYear() + '-' + str_pad(minus_date.getMonth()+1) + '-' + str_pad(minus_date.getDate()));
+                $('.datepicker_1').val(minus_date.getFullYear() + '-' + str_pad(minus_date.getMonth()+1) + '-' + str_pad(minus_date.getDate()));
                 set_end_date();
                 minus_date.setDate(minus_date.getDate() + 89);
             });
         $('.last180days').click(
             function () {
                 minus_date.setDate(minus_date.getDate() - 179);
-                $('#datepicker_1').val(minus_date.getFullYear() + '-' + str_pad(minus_date.getMonth()) + '-' + str_pad(minus_date.getDate()));
-                $('.datepicker_1').val(minus_date.getFullYear() + '-' + str_pad(minus_date.getMonth()) + '-' + str_pad(minus_date.getDate()));
+                $('#datepicker_1').val(minus_date.getFullYear() + '-' + str_pad(minus_date.getMonth()+1) + '-' + str_pad(minus_date.getDate()));
+                $('.datepicker_1').val(minus_date.getFullYear() + '-' + str_pad(minus_date.getMonth()+1) + '-' + str_pad(minus_date.getDate()));
                 set_end_date();
                 minus_date.setDate(minus_date.getDate() + 179);
             });

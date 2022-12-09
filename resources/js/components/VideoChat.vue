@@ -215,7 +215,7 @@ export default {
         log_video_chat_process(log_arr);
 
         axios
-          .post("/video/loading-video-page", {})
+          .post("/video/loading-video-page", {from_file:'VideoChat.vue',from_url:location.href})
           .then(() => {
             var log_arr = {
                 from_file:'VideoChat.vue'

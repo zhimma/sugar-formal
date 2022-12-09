@@ -93,6 +93,7 @@ use App\Models\MessageRoomUserXref;
 use App\Models\SpecialIndustriesTestAnswer;
 use Illuminate\Support\Facades\Log;
 use App\Models\RoleUser;
+use App\Models\UserRemarksLog;
 
 
 class UserController extends \App\Http\Controllers\BaseController
@@ -1107,6 +1108,26 @@ class UserController extends \App\Http\Controllers\BaseController
      */
     public function advInfo(Request $request, $id)
     {
+        $operator = Auth::user();
+        $advInfo_check_log = AdminActionLog::where('act','查看會員基本資料')
+                                            ->where('operator',$operator->id)
+                                            ->where('target_id',$id)
+                                            ->orderByDesc('created_at')
+                                            ->first();
+        //2小時內如未重複查看時新增log
+        if($advInfo_check_log ?? false)
+        {
+            if($advInfo_check_log->created_at < Carbon::now()->subHours(2))
+            {
+                $this->insertAdminActionLog($id, '查看會員基本資料');
+            }
+        }
+        else
+        {
+            $this->insertAdminActionLog($id, '查看會員基本資料');
+        }
+        
+
         set_time_limit(900);
         if (!$id) {
             return redirect(route('users/advSearch'));
@@ -5001,14 +5022,9 @@ class UserController extends \App\Http\Controllers\BaseController
         return view('admin.users.showAdminActionLog', compact('operator_list', 'getLogs'));
     }
 
-    public function insertAdminActionLog($targetAccountID, $action)
+    public function insertAdminActionLog($targetAccountID, $action, $action_id = 0)
     {
-        AdminActionLog::create([
-            'operator'    => Auth::user()->id,
-            'target_id'  => $targetAccountID,
-            'act'         => $action,
-            'ip'          => array_get($_SERVER, 'REMOTE_ADDR')
-        ]);
+        AdminActionLog::insert_log(Auth::user()->id, array_get($_SERVER, 'REMOTE_ADDR'), $targetAccountID, $action, $action_id = 0);
     }
 
     public function getEssenceStatisticsRecord(Request $request)
@@ -5282,21 +5298,17 @@ class UserController extends \App\Http\Controllers\BaseController
 
     public function suspicious_user_toggle(Request $request)
     {
-
         $sid = $request->sid;
         $uid = $request->uid;
         $reason = $request->reason;
-        $admin_id = Auth::user()->id;
+        $admin = Auth::user();
+        $ip = array_get($_SERVER, 'REMOTE_ADDR');
 
         if ($sid == '') {
-            //先刪後增
-            SuspiciousUser::where('user_id', $uid)->delete();
-            //insert
-            SuspiciousUser::insert(['admin_id' => $admin_id, 'user_id' => $uid, 'reason' => $reason, 'created_at' => Carbon::now()]);
+            SuspiciousUser::insert_data($admin, $uid, $reason, $ip);
             return back()->with('message', '已加入可疑名單');
         } else {
-            //softDelete
-            SuspiciousUser::where('user_id', $sid)->delete();
+            SuspiciousUser::delete_data($admin, $uid, $reason, $ip);
             return back()->with('message', '已至可疑名單移除');
         }
     }
@@ -5312,8 +5324,14 @@ class UserController extends \App\Http\Controllers\BaseController
             ->orderBy('suspicious_user.created_at', 'desc')
             ->paginate(20);
         $suspiciousUser = $query;
-
-        return view('admin.users.suspiciousUser', compact('suspiciousUser'));
+        $admin_array = RoleUser::get()->pluck('user_id');
+        $adminInfo_array = User::whereIn('id', $admin_array)->get();
+        $adminInfo = [];
+        foreach($adminInfo_array as $info)
+        {
+            $adminInfo[$info->id] = $info;
+        }
+        return view('admin.users.suspiciousUser', compact('suspiciousUser','adminInfo'));
     }
 
     public function modifyContent(Request $request)
@@ -6164,7 +6182,7 @@ class UserController extends \App\Http\Controllers\BaseController
                 ->whereNotNull('birthdate')->whereNotNull('area')->whereNotNull('city');
             })
             ->whereDoesntHave('backend_user_details', function ($query) {
-                $query->where('user_check_step2_wait_login_times','!=', 0);
+                $query->where('is_waiting_for_more_data', 1)->orWhere('remain_login_times_of_wait_for_more_data', '>', 0);
             });
 
 
@@ -6447,26 +6465,7 @@ class UserController extends \App\Http\Controllers\BaseController
 
             try {
 
-                // 先刪後增
-                SuspiciousUser::where('user_id', $request->uid)->delete();
-                SuspiciousUser::insert([
-                    'admin_id'   => Auth::user()->id,
-                    'user_id'    => $request->uid,
-                    'reason'     => $request->reason,
-                    'created_at' => now()
-                ]);
-
-                // 操作紀錄
-                \App\Models\AdminPicturesSimilarActionLog::insert([
-                    'operator_id'   => Auth::user()->id,
-                    'operator_role' => Auth::user()->roles->first()->id,
-                    'target_id'     => $request->uid,
-                    'act'           => '加入可疑名單',
-                    'reason'        => $request->reason,
-                    'ip'            => $request->ip(),
-                    'created_at'    => now(),
-                    'updated_at'    => now(),
-                ]);
+                SuspiciousUser::insert_data(Auth::user(), $request->uid, $request->reason, $request->ip());
 
                 DB::commit();
 
@@ -6490,20 +6489,7 @@ class UserController extends \App\Http\Controllers\BaseController
 
             try {
 
-                // 刪除
-                SuspiciousUser::where('user_id', $request->uid)->delete();
-
-                // 操作紀錄
-                \App\Models\AdminPicturesSimilarActionLog::insert([
-                    'operator_id'   => Auth::user()->id,
-                    'operator_role' => Auth::user()->roles->first()->id,
-                    'target_id'     => $request->uid,
-                    'act'           => '刪除可疑名單',
-                    'reason'        => $request->reason,
-                    'ip'            => $request->ip(),
-                    'created_at'    => now(),
-                    'updated_at'    => now(),
-                ]);
+                SuspiciousUser::delete_data(Auth::user(), $request->uid, $request->reason, $request->ip());
 
                 DB::commit();
 
@@ -6658,9 +6644,14 @@ class UserController extends \App\Http\Controllers\BaseController
                     function($q) {
                         $q->where('anonymous_chat_forbid.expire_date', null)->
                         orWhere('anonymous_chat_forbid.expire_date','>',Carbon::now());
-                    })
-                ->where('anonymous_chat.content', 'like', '%' . $msg . '%')
-                ->whereBetween('anonymous_chat.created_at', array($date_start . ' 00:00', $date_end . ' 23:59'))
+                    });
+            if(isset($request->msg)) {
+                $results = $results->where('anonymous_chat.content', 'like', '%' . $msg . '%');
+            }
+            if(isset($request->date_start) && isset($request->date_end)) {
+                $results = $results->whereBetween('anonymous_chat.created_at', array($date_start . ' 00:00', $date_end . ' 23:59'));
+            }
+            $results = $results->orderBy('anonymous_chat.created_at', 'desc')
                 ->orderBy('anonymous_chat.created_at', 'desc')
                 ->withTrashed()
                 ->paginate(100);
@@ -6679,7 +6670,7 @@ class UserController extends \App\Http\Controllers\BaseController
             $resultsReport = AnonymousChatReport::select(
                 'anonymous_chat.*',
                 'users.name',
-                'users.id as usersID',
+                'users.id as userID',
                 'users.engroup',
                 'anonymous_chat_report.content as report_content',
                 'anonymous_chat_report.user_id as report_user',
@@ -6689,13 +6680,17 @@ class UserController extends \App\Http\Controllers\BaseController
                 'anonymous_chat_report.id as report_id',
                 'report_user.engroup as report_engroup'
             )
-                ->selectRaw('(select count(DISTINCT aa.user_id) from anonymous_chat_report as aa where (aa.reported_user_id=users.id) ) as reported_num')
+                ->selectRaw('(select count(DISTINCT aa.user_id) from anonymous_chat_report as aa where (aa.reported_user_id=users.id and aa.deleted_at is null) ) as reported_num')
                 ->leftJoin('anonymous_chat', 'anonymous_chat.id', 'anonymous_chat_report.anonymous_chat_id')
                 ->leftJoin('users', 'users.id', 'anonymous_chat_report.reported_user_id')
-                ->leftJoin('users as report_user', 'report_user.id', 'anonymous_chat_report.user_id')
-                ->where('anonymous_chat.content', 'like', '%' . $msg . '%')
-                ->whereBetween('anonymous_chat_report.created_at', array($date_start . ' 00:00', $date_end . ' 23:59'))
-                ->orderBy('anonymous_chat_report.created_at', 'desc')
+                ->leftJoin('users as report_user', 'report_user.id', 'anonymous_chat_report.user_id');
+            if(isset($request->msg)) {
+                $resultsReport = $resultsReport->where('anonymous_chat.content', 'like', '%' . $msg . '%');
+            }
+            if(isset($request->date_start) && isset($request->date_end)) {
+                $resultsReport = $resultsReport->whereBetween('anonymous_chat_report.created_at', array($date_start . ' 00:00', $date_end . ' 23:59'));
+            }
+            $resultsReport = $resultsReport->orderBy('anonymous_chat_report.created_at', 'desc')
                 ->orderBy('anonymous_chat.user_id', 'desc')
                 ->withTrashed()->paginate(100);
             return view('admin.users.searchAnonymousChat')->with('resultsReport', $resultsReport);
@@ -6888,6 +6883,8 @@ class UserController extends \App\Http\Controllers\BaseController
             $check_point_user->user_id = $user_id;
             $check_point_user->check_point_id = $request->check_point_id;
             $check_point_user->save();
+
+            $this->insertAdminActionLog($user_id, '會員檢查 Step2 通過', 23);
         }
         return redirect()->back();
     }
@@ -7687,7 +7684,7 @@ class UserController extends \App\Http\Controllers\BaseController
         $uid = $request->user_id;
         $operator_id = Auth::user()->id;
         $ip = $request->ip();
-        BackendUserDetails::check_extend($uid, 2, $operator_id, $ip);
+        BackendUserDetails::check_extend($uid, $operator_id, $ip);
         $msg_type    = 'message';
         $msg_content = '已延長等待更多資料';
         return back()->with($msg_type, $msg_content);
@@ -7920,11 +7917,12 @@ class UserController extends \App\Http\Controllers\BaseController
             return response()->json(['msg'=>'進階驗證次數小於3次，不需調整']);
         }        
     }
+
     public function wait_for_more_data_list(Request $request)
     {
         $check_extend_list = BackendUserDetails::with('user')
                                                 ->with('check_extend_admin_action_log')
-                                                ->where('user_check_step2_wait_login_times', '>', 0)
+                                                ->where('is_waiting_for_more_data',1)
                                                 ->get();
         //按照relationship排序
         $check_extend_list =  $check_extend_list->sortByDesc(function($query){
@@ -7934,5 +7932,40 @@ class UserController extends \App\Http\Controllers\BaseController
         return view('admin.users.wait_for_more_data_list')
                 ->with('check_extend_list', $check_extend_list)
                 ;
+    }
+
+    public function check_extend_by_login_time(Request $request)
+    {
+        $uid = $request->user_id;
+        $operator_id = Auth::user()->id;
+        $ip = $request->ip();
+        BackendUserDetails::check_extend_by_login_time($uid, 3, $operator_id, $ip);
+        $msg_type    = 'message';
+        $msg_content = '已延長等待更多資料(發回)';
+        return back()->with($msg_type, $msg_content);
+    }
+
+    public function wait_for_more_data_login_time_list(Request $request)
+    {
+        $check_extend_list = AdminActionLog::with('operator_user')
+                                            ->with('user')
+                                            ->where('act','等待更多資料(發回)')
+                                            ->orderByDesc('id')
+                                            ->get();
+        return view('admin.users.wait_for_more_data_login_time_list')
+                ->with('check_extend_list', $check_extend_list)
+                ;
+    }
+
+    public function commitUser(Request $request)
+    {
+        $operator_id = Auth::user()->id;
+        $user_id = $request->user_id;
+        $commit = $request->commit;
+        
+        UserRemarksLog::insert_commit($operator_id, $user_id, $commit);
+        $msg_type    = 'message';
+        $msg_content = '已備註成功';
+        return back()->with($msg_type, $msg_content);
     }
 }
