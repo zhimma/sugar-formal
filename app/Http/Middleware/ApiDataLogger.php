@@ -152,7 +152,7 @@ class ApiDataLogger{
                 }
 
                 //存入超商條碼取號紀錄 + ATM
-                if( isset($payload['RtnCode']) &&
+                if( isset($payload['RtnCode']) && $payload['CustomField4'] == 'VIP' &&
                     (
                         ($payload['RtnCode'] == '10100073' && ($payload['PaymentType'] == 'BARCODE_BARCODE' || $payload['PaymentType'] == 'CVS_CVS')) ||
                         ($payload['RtnCode'] == '2' && str_contains($payload['PaymentType'], 'ATM') )
