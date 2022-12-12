@@ -119,3 +119,31 @@ if (!function_exists('var_carrier')) {
         return $arr[$var_name];
     }
 }
+
+if (!function_exists('convertIntToSizeUnit')) {
+    function convertIntToSizeUnit($int)
+    {
+        if ($int >= 1048576)
+        {
+            $int = number_format($int / 1048576, 2) . ' MB';
+        }
+        elseif ($int >= 1024)
+        {
+            $int = number_format($int / 1024, 2) . ' KB';
+        }
+        elseif ($int > 1)
+        {
+            $int = $int . ' bytes';
+        }
+        elseif ($int == 1)
+        {
+            $int = $int . ' byte';
+        }
+        else
+        {
+            $int = '0 bytes';
+        }
+
+        return $int;
+    }
+}
