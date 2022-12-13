@@ -1786,7 +1786,13 @@ class UserController extends \App\Http\Controllers\BaseController
                 ,'YResolution'=>'垂直解析度'
                 ,'XResolution'=>'水平解析度'
             ]; 
-
+            
+        $step2_admin_log_entry = AdminActionLog::where('target_id',$id)
+                                            ->where(function($query) {
+                                                $query->where('action_id', 23);
+                                                $query->orWhere('act','會員檢查 Step2 通過');
+                                            })->first();
+                                            
         if (str_contains(url()->current(), 'edit')) {
             $birthday = date('Y-m-d', strtotime($userMeta->birthdate));
             $birthday = explode('-', $birthday);
@@ -1806,6 +1812,7 @@ class UserController extends \App\Http\Controllers\BaseController
                 ->with('fnm_step2_time_arr',$fnm_step2_time_arr ?? null)
                 ->with('fnm_step3_time_arr',$fnm_step3_time_arr ?? null)
                 ->with('exif_cat_lang_arr',$exif_cat_lang_arr)
+                ->with('step2_admin_log_entry',$step2_admin_log_entry)
                 ;
                 
         } else {
@@ -1858,6 +1865,7 @@ class UserController extends \App\Http\Controllers\BaseController
                 ->with('fnm_step3_time_arr', $fnm_step3_time_arr ?? null)
                 ->with('is_test', $is_test)
                 ->with('exif_cat_lang_arr',$exif_cat_lang_arr)
+                ->with('step2_admin_log_entry',$step2_admin_log_entry)
                 ;
         }
     }

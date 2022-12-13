@@ -72,6 +72,10 @@
     .exif_cat_title_block .exif_cat {font-weight:bold;font-size:1em;}
     .exif_cat_title_block hr {margin:0;}
     .exif_cat {font-weight:bold;font-size:1.1em;}
+
+    .step2_admin_log_block {margin-top:50%;text-align:center;}
+    .step2_admin_log_row {word-wrap:break-word;word-break: break-all;}
+    .upload_time_block {word-wrap:break-word;word-break: break-all;}
 </style>
 
 <body style="padding: 15px;">
@@ -502,13 +506,36 @@
 <h4>詳細資料</h4>
 <table class='table table-hover table-bordered'>
     <tr>
-        <th width="15%">照片 <br><a href="editPic_sendMsg/{{ $user->id }}" class='text-white btn btn-primary'>照片&發訊息</a></th>
+        <th width="15%">
+            照片 
+            <br><a href="editPic_sendMsg/{{ $user->id }}" class='text-white btn btn-primary'>照片&發訊息</a>
+            @if($step2_admin_log_entry??null)
+            <div class="step2_admin_log_block">
+                <span class="step2_admin_log_row">
+
+                    <span>
+                        
+                        {{substr($step2_admin_log_entry->operator_user->email,0,strpos($step2_admin_log_entry->operator_user->email,'@'))}}    
+                        
+                    </span>
+                    <span>/</span>
+                    <span>
+                        {{$step2_admin_log_entry->updated_at}}
+                    </span>
+                </span>
+            </div>
+            @endif
+        </th>
         <td width="85%">
             <div style="display: inline-flex;">
             @if($userMeta->pic)
                 <div style="width: 250px;">
                     <img src="{{$userMeta->pic}}" style="width: 250px;height: 250px;object-fit: contain;">
                     <span>照片原始檔名：{{$userMeta->pic_original_name}}</span>
+                    <div class="upload_time_block">
+                        <span>照片上傳時間：</span>
+                        <span>{{$userMeta->updated_at}}</span>
+                    </div>
                     @if($userMeta->pic_original_exif)
                     <div>
                         <span>照片原始exif：</span><span class="btn_show_pic_exif btn btn-primary" >+</span>
@@ -570,6 +597,10 @@
                     <input type="hidden" name="imgId" value="{{$pic->id}}">
                     <img src="{{$pic->pic}}" style="width: 250px;height: 250px;object-fit: contain;">
                     <span>照片原始檔名：{{$pic->original_name}}</span>
+                    <div class="upload_time_block">
+                        <span>照片上傳時間：</span>
+                        <span>{{$pic->created_at}}</span>
+                    </div>
                     @if($pic->original_exif)
                     <div>
                         <span>照片原始exif：</span><span class="btn_show_pic_exif btn btn-primary" >+</span>
