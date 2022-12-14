@@ -66,8 +66,7 @@ class EncodeImagesSingle extends Command
                 return;
             }
             $encode_by  = $this->argument('encode_by')??'cron';
-            $encodedPicArr = ImagesCompareEncode::select('pic')->orderBy('id')->get()->pluck('pic')->all();
-            $encodedMemPic = ImagesCompareEncode::select('pic')->where('pic_cat','member_pic')->where('encode_by','cron')->orderByDesc('id')->first();
+            $encodedPicArr = ImagesCompareEncode::select('pic')->orderBy('id')->where('pic',$specific_pic)->pluck('pic')->all();
             $lastMemPic = null;
             $breakMemPic = null;
 
@@ -108,7 +107,6 @@ class EncodeImagesSingle extends Command
 
             foreach($metaPicEntry as $metaPic) {
                 if(in_array($metaPic->pic,$encodedPicArr)) continue;
-
                 if(ImagesCompareService::addEncodeByEntry($metaPic,$encode_by)) {
                     $encodedPicArr[] = $metaPic->pic;
                 }

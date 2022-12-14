@@ -151,27 +151,11 @@ export default {
   },
 
   mounted() {
-        var log_arr = {
-            from_file:'VideoVerifyUserEntireSite.vue'
-            ,title:'start mounted@export default@VideoVerifyUserEntireSite.vue'
-            ,method:'mounted@export default'
-            ,step:'start'
-            ,act:'this.initializeChannel(); '
-            ,act_step:'before'
-        };
-        log_video_chat_process(log_arr);
 
 
         axios
-          .post("/video/loading-video-page", {})
-          .then(() => {
-            var log_arr = {
-                from_file:'VideoVerifyUserEntireSite.vue'
-                ,title:'then in loading-video-page axios at begining in script@ideoVerifyUserEntireSite.vue'
-                ,method:'then@loading-video-page axios at begining in script'
-                ,step:'within'
-            };
-            log_video_chat_process(log_arr);      
+          .post("/video/loading-video-page", {from_file:'VideoVerifyUserEntireSite.vue'})
+          .then(() => {      
           })
           .catch((error) => {
             var log_arr = {
@@ -192,19 +176,8 @@ export default {
         $('body').attr('onbeforeunload','video_beforeunload_act();');
         
     this.initializeChannel(); // this initializes laravel echo
-        log_arr.title = 'ing mounted@export default@VideoVerifyUserEntireSite.vue';
-        log_arr.act_step = 'after';
-        log_arr.step = 'ing';
-        log_video_chat_process(log_arr);
-        log_arr.act = 'this.initializeCallListeners();';
-        log_arr.act_step = 'before';
-        log_video_chat_process(log_arr);
+
     this.initializeCallListeners(); // subscribes to video presence channel and listens to video events
-        log_arr.act = 'this.initializeCallListeners();';
-        log_arr.act_step = 'after';
-        log_arr.step='end';
-        log_arr.title = 'end mounted@export default@VideoVerifyUserEntireSite.vue';
-        log_video_chat_process(log_arr);  
   },
   computed: {
     incomingCallDialog() {
@@ -220,7 +193,7 @@ export default {
                 ,authuserid:this.authuserid
             }
         };
-        log_video_chat_process(log_arr); 
+
       if (
         this.videoCallParams.receivingCall &&
         this.videoCallParams.caller !== this.authuserid
@@ -235,20 +208,9 @@ export default {
 
         if( $("#tabPopM").length>0 ) {
             $("#tabPopM").hide();
-        }     
-
-        log_arr.step = 'end';
-        log_arr.topic_step='after true';
-        log_arr.title = 'return true end incomingCallDialog@computed@export default@VideoVerifyUserEntireSite.vue';
-        log_video_chat_process(log_arr);
-
-            
+        }                 
         return true;
       }
-      log_arr.step = 'end';
-      log_arr.topic_step='after false';
-      log_arr.title = 'return false end incomingCallDialog@computed@export default@VideoVerifyUserEntireSite.vue';
-      log_video_chat_process(log_arr); 
       return false;
     },
 
@@ -310,33 +272,8 @@ export default {
     
       if(this.is_user_allow_video_chat == true)
       {
-        var log_arr = {
-            from_file:'VideoVerifyUserEntireSite.vue'
-            ,title:'start initializeChannel@methods@export default@VideoVerifyUserEntireSite.vue'
-            ,method:'initializeChannel@methods@export default'
-            ,step:'start'
-            ,act:'this.videoCallParams.channel = window.Echo.join("presence-video-channel");'
-            ,act_step:'before'
-        };
         this.videoCallParams.channel = window.Echo.join("presence-video-channel");
       }
-      else
-      {
-        var log_arr = {
-            from_file:'VideoVerifyUserEntireSite.vue'
-            ,title:'start initializeChannel@methods@export default@VideoVerifyUserEntireSite.vue'
-            ,method:'initializeChannel@methods@export default'
-            ,step:'start'
-            ,act_step:'before'
-        };
-      }
-      log_video_chat_process(log_arr);
-      
-      log_arr.topic_step='after';
-      log_arr.step = 'end';
-      log_arr.act_step='before';
-      log_arr.title = 'end initializeChannel@methods@export default@VideoVerifyUserEntireSite.vue';
-      log_video_chat_process(log_arr);
     },
 
     getMediaPermission() {
@@ -409,95 +346,34 @@ export default {
             ,method:'initializeCallListeners@methods@export default'
             ,step:'start'
         };
-        log_video_chat_process(initializeCallListeners_log_arr);
          
       this.videoCallParams.channel.here((users) => {
-      
-        var log_arr = {
-            from_file:'VideoVerifyUserEntireSite.vue'
-            ,title:'start this.videoCallParams.channel.here((users) =>@initializeCallListeners@methods@export default@VideoVerifyUserEntireSite.vue'
-            ,method:'this.videoCallParams.channel.here((users) =>@initializeCallListeners@methods@export default'
-            ,step:'start'
-            ,act:'this.videoCallParams.users = users;'
-            ,act_step:'before'
-        };
-        log_video_chat_process(log_arr); 
         
         this.videoCallParams.users = users;
-        
-        log_arr.title = 'end this.videoCallParams.channel.here((users) =>@initializeCallListeners@methods@export default@VideoVerifyUserEntireSite.vue';
-        log_arr.act_step='after';
-        log_arr.step = 'end';
-        log_video_chat_process(log_arr);
+
       });
 
-      this.videoCallParams.channel.joining((user) => {
-        var log_arr = {
-            from_file:'VideoVerifyUserEntireSite.vue'
-            ,title:'start this.videoCallParams.channel.joining((user) =>@initializeCallListeners@methods@export default@VideoVerifyUserEntireSite.vue'
-            ,method:'this.videoCallParams.channel.joining((users) =>@initializeCallListeners@methods@export default'
-            ,step:'start'
-            ,act:'const joiningUserIndex = this.videoCallParams.users.findIndex('
-            ,act_step:'before'
-            ,data:user
-        };
-        log_video_chat_process(log_arr);   
+      this.videoCallParams.channel.joining((user) => {  
         
         // check user availability
         const joiningUserIndex = this.videoCallParams.users.findIndex(
           (data) => data.id === user.id
         );
         
-        log_arr.step = 'ing';
-        log_arr.act_step = 'after';
-        log_arr.topic = 'if (joiningUserIndex < 0) ';
-        log_arr.topic_step = 'before';
-        log_arr.data = {joiningUserIndex:joiningUserIndex};
-        log_video_chat_process(log_arr); 
-        
         if (joiningUserIndex < 0) {
           this.videoCallParams.users.push(user);
         }
-
-        log_arr.topic_step = 'after';
-        log_arr.act_step = log_arr.act  = '';
-        log_arr.step = 'end';
-        log_video_chat_process(log_arr);  
         
       });
 
       this.videoCallParams.channel.leaving((user) => {
-      
-        var log_arr = {
-            from_file:'VideoVerifyUserEntireSite.vue'
-            ,title:'start this.videoCallParams.channel.leaving((user) =>@initializeCallListeners@methods@export default@VideoVerifyUserEntireSite.vue'
-            ,method:'this.videoCallParams.channel.leaving((user) =>@initializeCallListeners@methods@export default'
-            ,step:'start'
-            ,act:'const leavingUserIndex = this.videoCallParams.users.findIndex('
-            ,act_step:'before'
-            ,data:user
-        };
-        log_video_chat_process(log_arr); 
         
         const leavingUserIndex = this.videoCallParams.users.findIndex(
           (data) => data.id === user.id
         );
         
-        log_arr.act_step = 'after';
-        log_arr.step = 'ing';
-        log_arr.data = null;
-        log_video_chat_process(log_arr)
-        
-        log_arr.act = 'this.videoCallParams.users.splice(leavingUserIndex, 1);';
-        log_arr.act_step = 'before';        
-        log_arr.data = {leavingUserIndex:leavingUserIndex};
-        log_video_chat_process(log_arr)
-        
         this.videoCallParams.users.splice(leavingUserIndex, 1);
-
-        log_arr.act_step = 'after';
-        log_arr.step = 'end';
-        log_video_chat_process(log_arr)
+        
       });
       // listen to incomming call
       this.videoCallParams.channel.listen("StartVideoChat", ({ data }) => {
@@ -511,7 +387,6 @@ export default {
                 ,act:'this.videoCallParams.channel.listen("StartVideoChat", ({ data }) =>'
                 ,act_step:'start'
              };
-        log_video_chat_process(log_arr);
         
         if (data.type === "incomingCall"  && data.userToCall == this.authuserid) {
           let signal_data = '';
@@ -636,9 +511,6 @@ export default {
         }
    
       });
-        
-        initializeCallListeners_log_arr.step='end';
-        log_video_chat_process(initializeCallListeners_log_arr);  
     },
 
     async placeVideoCall(id, name) {

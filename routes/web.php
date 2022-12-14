@@ -497,6 +497,7 @@ Route::group(['middleware' => ['auth', 'global', 'active', 'femaleActive', 'vipC
     Route::group(['middleware' => ['filled']], function () {
         //新樣板
         Route::get('/dashboard/chat2/{randomNo?}', 'Message_newController@chatview')->name('chat2View');
+        Route::get('/dashboard/chat2/chatShow/{cid}', 'PagesController@chat2')->name('chat2WithUser');
         Route::post('/dashboard/chat2/deletesingle', 'Message_newController@deleteSingle')->name('delete2Single');
         Route::post('/dashboard/chat2/unsend', 'Message_newController@unsendChat')->name('unsendChat');
         Route::post('/dashboard/chat2/increase_views', 'Message_newController@increaseViewsCount')->name('increase_views'); 
@@ -546,7 +547,6 @@ Route::group(['middleware' => ['auth', 'global', 'active', 'femaleActive', 'vipC
         Route::middleware("HasReferer:listSeatch2")->group(function (){
             Route::get('/dashboard/viewuser/{uid?}', 'PagesController@viewuser2')->name('viewuser'); //new route
             Route::get('/dashboard/viewuser_re/{uid?}', 'PagesController@viewuser_re')->name('viewuser_re');
-            Route::get('/dashboard/chat2/chatShow/{cid}', 'PagesController@chat2')->name('chat2WithUser');
         });
         Route::get('/dashboard/viewuser_vvip/{uid?}', 'PagesController@viewuser_vvip')->name('viewuser_vvip'); //new route
 
@@ -699,6 +699,9 @@ Route::group(['middleware' => ['auth', 'global', 'active', 'femaleActive', 'vipC
         Route::post('dashboard/accessPermission/edit', 'DashboardController@juniorAdminEdit')->name('juniorAdminEdit');
         Route::post('dashboard/accessPermission/delete/{userid}', 'DashboardController@juniorAdminDelete')->name('juniorAdminDelete');
 
+        Route::get('dashboard/juniorAdminCheckRecord', 'DashboardController@juniorAdminCheckRecord')->name('juniorAdminCheckRecord');
+        Route::post('dashboard/juniorAdminCheckRecordShow', 'DashboardController@juniorAdminCheckRecordShow')->name('juniorAdminCheckRecordShow');
+
         Route::get('dashboard/paymentFlowChoose', 'DashboardController@paymentFlowChoose')->name('paymentFlowChoose');
         Route::get('dashboard/paymentFlowChoose/show', 'DashboardController@showPaymentFlowChoose')->name('showPaymentFlowChoose');
         Route::post('dashboard/paymentFlowChoose/edit', 'DashboardController@paymentFlowChooseEdit')->name('paymentFlowChooseEdit');
@@ -769,6 +772,7 @@ Route::group(['middleware' => ['auth', 'global', 'active', 'femaleActive', 'vipC
 
         Route::post('users/forum_toggle', 'UserController@forum_toggle')->name('forum_toggle');
         Route::post('users/check_extend', 'UserController@check_extend')->name('check_extend');
+        Route::post('users/check_extend_by_login_time', 'UserController@check_extend_by_login_time')->name('check_extend_by_login_time');
 
         Route::get('users/anonymousChat', 'UserController@showAnonymousChatPage')->name('users/showAnonymousChatPage');
         Route::get('users/searchAnonymousChat', 'UserController@searchAnonymousChatPage')->name('users/searchAnonymousChatPage');
@@ -990,6 +994,7 @@ Route::group(['middleware' => ['auth', 'global', 'active', 'femaleActive', 'vipC
         Route::post('users/suspicious_user_toggle', 'UserController@suspicious_user_toggle')->name('users/suspicious_user_toggle');
         Route::get('users/suspiciousUser', 'UserController@suspiciousUser')->name('users/suspiciousUser');
         Route::get('users/WarnedOrBannedLog/{logType}/{user_id}', 'UserController@isEverWarnedOrBannedLog');
+        Route::get('users/commitUser', 'UserController@commitUser')->name('users/commitUser');
 
         //訂單
         Route::get('order', 'OrderController@index')->name('order');
@@ -1096,6 +1101,7 @@ Route::group(['middleware' => ['auth', 'global', 'active', 'femaleActive', 'vipC
         Route::get('special_industries_judgment_training_hide', 'AdminController@special_industries_judgment_training_hide')->name('admin/special_industries_judgment_training_hide');
 
         Route::get('users/wait_for_more_data_list', 'UserController@wait_for_more_data_list')->name('users/wait_for_more_data_list');
+        Route::get('users/wait_for_more_data_login_time_list', 'UserController@wait_for_more_data_login_time_list')->name('users/wait_for_more_data_login_time_list');
     });
     Route::group(['prefix' => 'admin', 'middleware' => 'Admin'], function () {
         //寄退信Log查詢

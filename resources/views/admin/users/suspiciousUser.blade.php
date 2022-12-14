@@ -43,7 +43,29 @@
                     $user['warnedicon'] = \App\Models\User::warned_icondata($row->id);
                 @endphp
                 <tr>
-                    <td>{{$row->suspicious_created_time }}@if($adminInfo[$row->suspicious_admin_id] ?? false)<br><span>提報人員：<a href="{{ route('users/advInfo', $row->suspicious_admin_id) }}" target='_blank'>{{ $adminInfo[$row->suspicious_admin_id]->email }}</a></span>@endif</td>
+                    <td>
+                        {{$row->suspicious_created_time }}@if($adminInfo[$row->suspicious_admin_id] ?? false)<br><span>提報人員：<a href="{{ route('users/advInfo', $row->suspicious_admin_id) }}" target='_blank'>{{ $adminInfo[$row->suspicious_admin_id]->email }}</a></span>@endif
+                        
+                        <br>
+
+                        <form action="{{route('users/commitUser')}}">
+                            {!! csrf_field() !!}
+                            備註: <input name='commit' type="text">
+                            <input name='user_id' type="hidden" value={{$row->id}}>
+                            <input class='btn btn-primary btn-sm' type="submit">
+                        </form>
+
+                        @foreach($userInfo->operator_commit as $key => $commit_log)
+                            @if($key < 3)
+                                <div class="commit_line"><hr>{{$commit_log->created_at}} {{strstr($commit_log->operator_user->email, '@', true)}} {{$commit_log->commit}} </div>
+                            @else
+                                <div class="commit_line" style="display:none"><hr>{{$commit_log->created_at}} {{strstr($commit_log->operator_user->email, '@', true)}} {{$commit_log->commit}} </div>
+                            @endif
+                        @endforeach
+                        @if(count($userInfo->operator_commit) > 3)
+                            <a class="look_more_commit">. . .</a>
+                        @endif
+                    </td>
                     <td>
                         {{$row->suspicious_reason ? $row->suspicious_reason : '無' }}
                         @foreach($userInfo->advInfo_check_log as $key => $log)
@@ -59,7 +81,21 @@
                     </td>
                     <td>{{$row->title }}</td>
                     <td><a href="/admin/users/advInfo/{{ $row->id }}" target="_blank">{{ $row->email }}</a></td>
-                    <td @if($result['isBlocked']) style="background-color:#FFFF00" @endif>
+                    <td 
+                        @if(!$userInfo->account_status_admin)
+                            bgcolor="#969696"
+                        @elseif(!$userInfo->accountStatus)
+                            bgcolor="#C9C9C9"
+                        @elseif($userInfo->is_banned())
+                            bgcolor="#FDFF8C"
+                        @elseif($userInfo->is_warned())
+                            bgcolor="#B0FFB1"
+                        @elseif($userInfo->is_waiting_for_more_data())
+                            bgcolor="#DBA5F2"
+                        @elseif($userInfo->is_waiting_for_more_data_with_login_time())
+                            bgcolor="#A9D4F5"
+                        @endif
+                    >
                         <a href="{{ route('users/advInfo', $row->id) }}" target='_blank'>
                             <p @if($user['engroup'] == '2') style="color: #F00;" @else  style="color: #5867DD;"  @endif>
                                 {{ $row->name }}
@@ -144,6 +180,15 @@
     $('.look_more_log').on('click', function(){
         $(this).text('');
         $(this).parent('td').children('.log_line').each(function(){
+            if($(this).css("display") == "none"){
+                $(this).show();
+            }
+        });
+    });
+
+    $('.look_more_commit').on('click', function(){
+        $(this).text('');
+        $(this).parent('td').children('.commit_line').each(function(){
             if($(this).css("display") == "none"){
                 $(this).show();
             }

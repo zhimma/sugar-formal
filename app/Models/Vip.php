@@ -117,7 +117,8 @@ class Vip extends Model
                     //暫時性發放VIP者到期日不變更
                     $expiry = $vipData->expiry;
                     $logStrQrcode = '(期限內完成付款升級)';
-                }elseif(isset($checkDataByUser) && ($vipData->updated_at > $checkData->TradeDate && $vipData->updated_at < $checkData->ExpireDate) && $vipData->active==1){
+                }
+                elseif(isset($checkDataByUser) && ($vipData->updated_at > $checkDataByUser->TradeDate && $vipData->updated_at < $checkDataByUser->ExpireDate) && $vipData->active==1 && $vipData->order_id != $order_id){
                     //手動給VIP時的判斷 ATM除外
                     //原先只手動到期日者可能會抓不到
                     $expiry = $vipData->expiry;

@@ -65,6 +65,17 @@
 
     .newer_manual_time_detail_tb th {font-weight:549;text-align:center;}
     .newer_manual_time_detail_tb td {text-align:center;}
+
+    .pic_exif_show_block {display:none;}
+    .exif_cat_title_block {text-align:center;margin-top:0.5em;font-weight:bold;font-size:1.15em;}
+    .pic_exif_show_block > div {word-wrap:break-word;word-break: break-all;}
+    .exif_cat_title_block .exif_cat {font-weight:bold;font-size:1em;}
+    .exif_cat_title_block hr {margin:0;}
+    .exif_cat {font-weight:bold;font-size:1.1em;}
+
+    .step2_admin_log_block {margin-top:50%;text-align:center;}
+    .step2_admin_log_row {word-wrap:break-word;word-break: break-all;}
+    .upload_time_block {word-wrap:break-word;word-break: break-all;}
 </style>
 
 <body style="padding: 15px;">
@@ -282,6 +293,23 @@
         @endif
     @endif
 
+    @if($backend_detail->remain_login_times_of_wait_for_more_data == 0)
+        <form method="POST" style="display: inline;" action="{{ route('check_extend_by_login_time') }}">
+            <input type="hidden" name="_token" value="{{ csrf_token() }}" >
+            <input type="hidden" name='user_id' value="{{ $user->id }}">
+            <button type="submit" class="btn btn-primary">等待更多資料(發回)</button>
+        </form>
+    @else
+        @php
+            $check_extend_login_time_log = \App\Models\AdminActionLog::where('target_id', $user->id)->where('act', '等待更多資料(發回)')->orderByDesc('created_at')->first();
+        @endphp
+        @if($check_extend_login_time_log ?? false)
+            <button class="btn btn-dark" disabled>{{$check_extend_login_time_log->created_at}}</button>
+        @else
+            <button class="btn btn-dark" disabled>等待更多資料(發回)</button>
+        @endif
+    @endif
+
     @if(is_null($userMeta->activation_token))
         <b style="font-size:18px">已開通會員</b>
     @else
@@ -478,13 +506,85 @@
 <h4>詳細資料</h4>
 <table class='table table-hover table-bordered'>
     <tr>
-        <th width="15%">照片 <br><a href="editPic_sendMsg/{{ $user->id }}" class='text-white btn btn-primary'>照片&發訊息</a></th>
+        <th width="15%">
+            照片 
+            <br><a href="editPic_sendMsg/{{ $user->id }}" class='text-white btn btn-primary'>照片&發訊息</a>
+            @if($step2_admin_log_entry??null)
+            <div class="step2_admin_log_block">
+                <span class="step2_admin_log_row">
+
+                    <span>
+                        
+                        {{substr($step2_admin_log_entry->operator_user->email,0,strpos($step2_admin_log_entry->operator_user->email,'@'))}}    
+                        
+                    </span>
+                    <span>/</span>
+                    <span>
+                        {{$step2_admin_log_entry->updated_at}}
+                    </span>
+                </span>
+            </div>
+            @endif
+        </th>
         <td width="85%">
             <div style="display: inline-flex;">
             @if($userMeta->pic)
                 <div style="width: 250px;">
                     <img src="{{$userMeta->pic}}" style="width: 250px;height: 250px;object-fit: contain;">
                     <span>照片原始檔名：{{$userMeta->pic_original_name}}</span>
+                    <div class="upload_time_block">
+                        <span>照片上傳時間：</span>
+                        <span>{{$userMeta->updated_at}}</span>
+                    </div>
+                    @if($userMeta->pic_original_exif)
+                    <div>
+                        <span>照片原始exif：</span><span class="btn_show_pic_exif btn btn-primary" >+</span>
+                        <div class="pic_exif_show_block">
+                        <div class="exif_cat_title_block">照片原始exif<hr></div>
+                        @foreach(array_unique(json_decode($userMeta->pic_original_exif,true),SORT_REGULAR) as $ek=>$ev)
+                            @if(is_array($ev))
+                                @foreach($ev as $sub_ek=>$sub_ev)
+                                @if($sub_ek=='FileName') @continue @endif 
+                                <div>
+                                    <span class="exif_cat">{{$exif_cat_lang_arr[$sub_ek]??$sub_ek}}</span><span>：</span>
+                                    <span>
+                                        @switch($sub_ek)
+                                            @case('FileDateTime')
+                                                {{date('Y-m-d H:i:s',$sub_ev)}}
+                                            @break
+                                            @case('FileSize')
+                                                {{convertIntToSizeUnit($sub_ev)}}
+                                            @break
+                                            @default
+                                                @if(is_array($sub_ev))                                                
+                                                {{implode(',',$sub_ev)}}
+                                                @else
+                                                {{$sub_ev}}
+                                                @endif
+                                        @endswitch                                        
+                                    </span>
+                                </div>
+                                @endforeach
+                            @elseif($ek!='FileName')
+                                <div><span class="exif_cat">{{$exif_cat_lang_arr[$ek]??$ek}}</span><span>：</span>
+                                    <span>
+                                        @switch($ek)
+                                            @case('FileDateTime')
+                                                {{date('Y-m-d H:i:s',$ev)}}
+                                            @break
+                                            @case('FileSize')
+                                                {{convertIntToSizeUnit($ev)}}
+                                            @break
+                                            @default
+                                                {{$ev}}
+                                        @endswitch                                        
+                                    </span>
+                                </div>
+                            @endif
+                        @endforeach                        
+                        </div>
+                    </div>
+                    @endif
                 </div>
             @else
                 無
@@ -497,6 +597,67 @@
                     <input type="hidden" name="imgId" value="{{$pic->id}}">
                     <img src="{{$pic->pic}}" style="width: 250px;height: 250px;object-fit: contain;">
                     <span>照片原始檔名：{{$pic->original_name}}</span>
+                    <div class="upload_time_block">
+                        <span>照片上傳時間：</span>
+                        <span>{{$pic->created_at}}</span>
+                    </div>
+                    @if($pic->original_exif)
+                    <div>
+                        <span>照片原始exif：</span><span class="btn_show_pic_exif btn btn-primary" >+</span>
+                        <div  class="pic_exif_show_block">
+                            <div class="exif_cat_title_block">照片原始exif<hr></div>
+                        @foreach(array_unique(json_decode($pic->original_exif,true),SORT_REGULAR ) as $ek=>$ev)
+                            @if(is_array($ev))
+                                @foreach($ev as $sub_ek=>$sub_ev)
+                                @if($sub_ek=='FileName') @continue @endif 
+                                <div>
+                                    <span class="exif_cat">
+                                        {{$exif_cat_lang_arr[$sub_ek]??$sub_ek}}
+                                    </span>
+                                    <span>
+                                        ：
+                                    </span>
+                                    <span>
+                                        @switch($sub_ek)
+                                            @case('FileDateTime')
+                                                {{date('Y-m-d H:i:s',$sub_ev)}}
+                                            @break
+                                            @case('FileSize')
+                                                {{convertIntToSizeUnit($sub_ev)}}
+                                            @break
+                                            @default
+                                                @if(is_array($sub_ev))                                                
+                                                {{implode(',',$sub_ev)}}
+                                                @else
+                                                {{$sub_ev}}
+                                                @endif
+                                        @endswitch
+                                    </span>
+                                </div>
+                                @endforeach
+                            @elseif($ek!='FileName')
+                                <div>
+                                    <span class="exif_cat">
+                                        {{$exif_cat_lang_arr[$ek]??$ek}}
+                                    </span>
+                                    <span>
+                                        @switch($ek)
+                                            @case('FileDateTime')
+                                                {{date('Y-m-d H:i:s',$ev)}}
+                                            @break
+                                            @case('FileSize')
+                                                {{convertIntToSizeUnit($ev)}}
+                                            @break
+                                            @default
+                                                {{$ev}}
+                                        @endswitch
+                                    </span>
+                               </div>
+                            @endif
+                        @endforeach
+                        </div>
+                    </div>
+                    @endif
                 </div>
             @empty
                 此會員目前沒有生活照
@@ -1006,6 +1167,34 @@
 </table>
 
 <br>
+
+<h4>等待更多資料紀錄</h4>
+<table class="table table-hover table-bordered" style="width: 80%;">
+    @php
+        $wait_for_more_data_record_list = \App\Models\AdminActionLog::with('operator_user')
+                                                                ->where('target_id', $user->id)
+                                                                ->where(function ($query) {
+                                                                    $query->where('act', '會員檢查等待更多資料')->orWhere('act', '等待更多資料(發回)');
+                                                                })
+                                                                ->orderByDesc('created_at')
+                                                                ->get();
+    @endphp
+    <tr>
+        <th width="33%">時間</th>
+        <th width="33%">紀錄</th>
+        <th width="33%">紀錄者</th>
+    </tr>
+    @foreach($wait_for_more_data_record_list as $wait_for_more_data_record)
+        <tr>
+            <td>{{$wait_for_more_data_record->created_at}}</th>
+            <td>{{$wait_for_more_data_record->act}}</th>
+            <td>{{$wait_for_more_data_record->operator_user->name}}</th>
+        </tr>
+    @endforeach
+<table>
+
+<br>
+
     <h4>封鎖與警示紀錄</h4>
     <table class="table table-hover table-bordered" style="width: 80%;">
         <tr>
@@ -1067,7 +1256,7 @@
             <th>原因</th>
             <td>
             @if($isBanned_show && count($isBanned_show)>0 && array_get($isBanned_show,'reason'))
-                {{ array_get($isBanned_show,'reason') }}
+                {{ str_replace('拒往','拒往(atm 詐騙)',array_get($isBanned_show,'reason')) }}
             @endif
             </td>
             <td>
@@ -1082,7 +1271,7 @@
             <td>
             @if($isEverBanned_log && count($isEverBanned_log)>0)
                 @if(array_get($isEverBanned_log,'0.reason'))
-                {{ array_get($isEverBanned_log,'0.reason') }}  
+                {{ str_replace('拒往','拒往(atm 詐騙)',array_get($isEverBanned_log,'0.reason')) }}  
                 @elseif(array_get($isEverBanned_log,'0.id'))
                     null
                 @endif
@@ -3356,4 +3545,20 @@ function show_re_content(id){
     });
 </script>
 <!--照片查看end-->
+<script>
+$('.btn_show_pic_exif').click(function(){
+    var now_elt = $(this);
+    var detail_block = now_elt.parent().find('.pic_exif_show_block');
+    if( detail_block.css('display')=='none'){
+        detail_block.show();
+        now_elt.text('-');
+    }else{
+        
+    
+        detail_block.hide();
+        now_elt.text('+');
+
+    }
+});  
+</script>
 </html>

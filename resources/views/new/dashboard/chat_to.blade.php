@@ -9,7 +9,11 @@
             @if($user->engroup==1)
             add_adbut_on(document.getElementById('truth_actor'));
             @endif
-        }        
+        }   
+
+        if(m['is_can']==1) {            
+            show_canMessageAlert();
+        }
         
         var msg_elt = $('#unsend_form_' + m['id']);
         if(!msg_elt.length) msg_elt = $('#unsend_form_client_' + m['client_id']);        

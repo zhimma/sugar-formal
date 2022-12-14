@@ -42,6 +42,7 @@ use App\Models\PuppetAnalysisRow;
 use Illuminate\Support\Facades\Cache;
 use Tymon\JWTAuth\Contracts\JWTSubject;
 use Outl1ne\ScoutBatchSearchable\BatchSearchable;
+use App\Models\UserRemarksLog;
 
 class User extends Authenticatable implements JWTSubject
 {
@@ -560,6 +561,10 @@ class User extends Authenticatable implements JWTSubject
         return $this->hasMany(BackendUserDetails::class, 'user_id', 'id');
     }
 
+    public function operator_commit(){
+        return $this->hasMany(UserRemarksLog::class, 'target_user_id', 'id')->orderByDesc('created_at');
+    }
+
     /**
      * Find by Email
      *
@@ -648,6 +653,17 @@ class User extends Authenticatable implements JWTSubject
         return $c > 0;
     }
 
+    public function is_banned()
+    {
+        return banned_users::where('member_id', $this->id)
+                            ->where(function ($query){
+                                $today = Carbon::today();
+                                $query->where("expire_date", null)->orWhere("expire_date", ">", $today);
+                            })
+                            ->orderByDesc('created_at')
+                            ->first() ?? false;
+            }
+
     /**
      * 判定是否有在 站方警示名單裡面
      *
@@ -667,6 +683,17 @@ class User extends Authenticatable implements JWTSubject
         return $c > 0;
     }
 
+    public function is_warned()
+    {
+        return warned_users::where('member_id', $this->id)
+                    ->where(function ($query){
+                        $today = Carbon::today();
+                        $query->where("expire_date", null)->orWhere("expire_date", ">", $today);
+                    })
+                    ->orderByDesc('created_at')
+                    ->first() ?? false;
+    }
+
     /**
      * 判定是否有在 匿名聊天室禁止進入名單裡面
      *
@@ -684,6 +711,20 @@ class User extends Authenticatable implements JWTSubject
             })->get()->count();
 
         return $c > 0;
+    }
+
+    public function is_waiting_for_more_data()
+    {
+        return BackendUserDetails::where('user_id', $this->id)
+                                ->where('is_waiting_for_more_data', 1)
+                                ->first() ?? false;
+    }
+
+    public function is_waiting_for_more_data_with_login_time()
+    {
+        return BackendUserDetails::where('user_id', $this->id)
+                                ->where('remain_login_times_of_wait_for_more_data', '>', 1)
+                                ->first() ?? false;
     }
 
     /**
@@ -1337,38 +1378,57 @@ class User extends Authenticatable implements JWTSubject
                                 })
                                 ->where('from_id','!=',1049)
                                 ->where('to_id','!=',1049)
-                                ->orderByDesc('id')
+                                ->orderBy('id')
                                 ->get();
+        /*總房間數*/
+        $first_messages_all = $messages_all->unique('room_id');
 
-        /*總通訊人數*/
-        $advInfo['message_people_total'] = count($messages_all->unique('room_id'));
-         /*過去7天總通訊人數*/
-        $advInfo['message_people_total_7'] = count($messages_all->where('created_at','>', $seven_days_ago)->unique('room_id'));
+        /*第一則訊息為發訊的房間*/
+        $first_send_room = $first_messages_all->where('from_id',$user_id)->pluck('room_id');
+        /*第一則訊息為收訊的房間*/
+        $first_reply_room = $first_messages_all->where('to_id',$user_id)->pluck('room_id');
+
+        $send_message_all = Message::withTrashed()->select('id','room_id','to_id','from_id','read','created_at')
+                                    ->whereIn('room_id', $first_send_room)
+                                    ->where('from_id',$user_id)
+                                    ->orderByDesc('id')
+                                    ->get();
+
+        $reply_message_all = Message::withTrashed()->select('id','room_id','to_id','from_id','read','created_at')
+                                    ->whereIn('room_id', $first_reply_room)
+                                    ->where('from_id',$user_id)
+                                    ->orderByDesc('id')
+                                    ->get();
 
         /*發信人數*/
-        $advInfo['message_people_count'] = count($messages_all->unique('room_id')->where('from_id',$user_id));
+        $advInfo['message_people_count'] = count($send_message_all->unique('room_id'));
         /*過去7天發信人數*/
-        $advInfo['message_people_count_7'] = count($messages_all->where('created_at','>', $seven_days_ago)->unique('room_id')->where('from_id',$user_id));
+        $advInfo['message_people_count_7'] = count($send_message_all->where('created_at','>', $seven_days_ago)->unique('room_id'));
 
         /*發信次數*/
-        $advInfo['message_count'] = count($messages_all->where('from_id',$user_id));
+        $advInfo['message_count'] = count($send_message_all);
         /*過去7天發信次數*/
-        $advInfo['message_count_7'] = count($messages_all->where('created_at','>', $seven_days_ago)->where('from_id',$user_id));
+        $advInfo['message_count_7'] = count($send_message_all->where('created_at','>', $seven_days_ago));
 
         /*回信人數*/
-        $advInfo['message_reply_people_count'] = count($messages_all->unique('room_id')->where('to_id',$user_id));
+        $advInfo['message_reply_people_count'] = count($reply_message_all->unique('room_id'));
         /*過去7天回信人數*/
-        $advInfo['message_reply_people_count_7'] = count($messages_all->where('created_at','>', $seven_days_ago)->unique('room_id')->where('to_id',$user_id));
+        $advInfo['message_reply_people_count_7'] = count($reply_message_all->where('created_at','>', $seven_days_ago)->unique('room_id'));
 
         /*回信次數*/
-        $advInfo['message_reply_count'] = count($messages_all->where('to_id',$user_id));
+        $advInfo['message_reply_count'] = count($reply_message_all);
         /*過去7天回信次數*/
-        $advInfo['message_reply_count_7'] = count($messages_all->where('created_at','>', $seven_days_ago)->where('to_id',$user_id));
+        $advInfo['message_reply_count_7'] = count($reply_message_all->where('created_at','>', $seven_days_ago));
 
         /*未回人數*/
-        $advInfo['message_no_reply_count'] = count($messages_all->unique('room_id')->where('from_id',$user_id)->where('read','Y'));
+        $advInfo['message_no_reply_count'] = count($messages_all->sortByDesc('id')->unique('room_id')->where('from_id',$user_id)->where('read','Y'));
         /*過去七天未回人數*/
-        $advInfo['message_no_reply_count_7'] = count($messages_all->where('created_at','>', $seven_days_ago)->unique('room_id')->where('from_id',$user_id)->where('read','Y'));
+        $advInfo['message_no_reply_count_7'] = count($messages_all->sortByDesc('id')->where('created_at','>', $seven_days_ago)->unique('room_id')->where('from_id',$user_id)->where('read','Y'));
+
+        /*總通訊人數*/
+        $advInfo['message_people_total'] = $advInfo['message_people_count'] + $advInfo['message_reply_people_count'];
+        /*過去7天總通訊人數*/
+        $advInfo['message_people_total_7'] = $advInfo['message_people_count_7'] + $advInfo['message_reply_people_count_7'];
 
         /*過去7天罐頭訊息比例*/
         $date_start = date("Y-m-d",strtotime("-6 days", strtotime(date('Y-m-d'))));
@@ -1913,7 +1973,7 @@ class User extends Authenticatable implements JWTSubject
         }
     }
 
-    public function message()
+    public function message_sent()
     {
         return $this->hasMany(Message::class, 'from_id', 'id');
     }
