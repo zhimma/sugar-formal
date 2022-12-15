@@ -73,9 +73,11 @@
     .exif_cat_title_block hr {margin:0;}
     .exif_cat {font-weight:bold;font-size:1.1em;}
 
-    .step2_admin_log_block {margin-top:50%;text-align:center;}
+    .step2_admin_log_block,.step2_admin_log_toggle_block {margin-top:10%;text-align:left;}
     .step2_admin_log_row {word-wrap:break-word;word-break: break-all;}
     .upload_time_block {word-wrap:break-word;word-break: break-all;}
+    .step2_admin_log_toggle_block {display:none;}
+    .btn_show_more_admin_log {float:right;}
 </style>
 
 <body style="padding: 15px;">
@@ -509,22 +511,26 @@
         <th width="15%">
             照片 
             <br><a href="editPic_sendMsg/{{ $user->id }}" class='text-white btn btn-primary'>照片&發訊息</a>
-            @if($step2_admin_log_entry??null)
-            <div class="step2_admin_log_block">
-                <span class="step2_admin_log_row">
+            @foreach($step2_admin_log_list as $sallK=>$step2_admin_log_entry)
+            <div class="step2_admin_log_{{$sallK>=3?'toggle_':''}}block">
+                <div class="step2_admin_log_row">
 
-                    <span>
+                    <div>
                         
                         {{substr($step2_admin_log_entry->operator_user->email,0,strpos($step2_admin_log_entry->operator_user->email,'@'))}}    
                         
-                    </span>
-                    <span>/</span>
-                    <span>
+                    </div>
+                    <div>
                         {{$step2_admin_log_entry->updated_at}}
-                    </span>
-                </span>
+                    </div>
+                </div>
+                <hr>
+
             </div>
-            @endif
+            @if($sallK==2 && count($step2_admin_log_list)>3)
+            <span class="btn_show_more_admin_log btn btn-primary" >+</span>   
+            @endif            
+            @endforeach
         </th>
         <td width="85%">
             <div style="display: inline-flex;">
@@ -3556,6 +3562,22 @@ $('.btn_show_pic_exif').click(function(){
         
     
         detail_block.hide();
+        now_elt.text('+');
+
+    }
+});  
+</script>
+<script>
+$('.btn_show_more_admin_log').click(function(){
+    var now_elt = $(this);
+    var toggle_block = $('.step2_admin_log_toggle_block');
+    if( toggle_block.css('display')=='none'){
+        toggle_block.show();
+        now_elt.text('-');
+    }else{
+        
+    
+        toggle_block.hide();
         now_elt.text('+');
 
     }
