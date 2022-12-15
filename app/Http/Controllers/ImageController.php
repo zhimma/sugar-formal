@@ -313,14 +313,33 @@ class ImageController extends BaseController
         if($rap_service->isPassedByAuthTypeId(1) && $user_meta->pic ) {
             $file_input_name = 'apply_replace_pic';
         }
+        $exif = null;
         $exif_str = null;
         $orig_upload_entry = $request->file($file_input_name);    
-        if(file_exists($orig_upload_entry->getRealPath())) {
-            $image_type = exif_imagetype($orig_upload_entry->getRealPath());
+        if($orig_upload_entry && file_exists($orig_upload_entry->getRealPath())) {
+            $orgi_error_reporting = error_reporting();
+            try {
+                error_reporting(0);
+                $image_type = exif_imagetype($orig_upload_entry->getRealPath());
+                error_reporting($orgi_error_reporting);
+            } catch (Exception $e) {
+                $image_type = null;
+                error_reporting($orgi_error_reporting);
+            }              
+            
             if($image_type==IMAGETYPE_JPEG) {
-                $exif = exif_read_data($orig_upload_entry->getRealPath(),null,true,true);
+                
+                try {
+                    error_reporting(0);
+                    $exif = exif_read_data($orig_upload_entry->getRealPath(),null,true,true);
+                    error_reporting($orgi_error_reporting);
+                } catch (Exception $e) {
+                    $exif = null;
+                    error_reporting($orgi_error_reporting);
+                }  
+
                 if($exif['THUMBNAIL']??null) unset($exif['THUMBNAIL']);
-                $exif_str = json_encode($exif);                        
+                if($exif) $exif_str = json_encode($exif);                        
             }           
         }
 
@@ -651,14 +670,36 @@ class ImageController extends BaseController
         
         $exif_str_arr = [];
         $orig_upload_list = $request->file($file_input_name);        
+        if(!$orig_upload_list) $orig_upload_list = [];
+        
+        $orgi_error_reporting = error_reporting();
+        
         foreach($orig_upload_list as $oulk=>$orig_upload_entry) {
             $exif = null;
+            $image_type = null;
             if(file_exists($orig_upload_entry->getRealPath())) {
-                $image_type = exif_imagetype($orig_upload_entry->getRealPath());
+                try {
+                    error_reporting(0);
+                    $image_type = exif_imagetype($orig_upload_entry->getRealPath());
+                    error_reporting($orgi_error_reporting);
+                } catch (Exception $e) {
+                    $image_type = null;
+                    error_reporting($orgi_error_reporting);
+                }                
+                
                 if($image_type==IMAGETYPE_JPEG) {
-                    $exif = exif_read_data($orig_upload_entry->getRealPath(),null,true,true);
+                    
+                    try {
+                        error_reporting(0);
+                        $exif = exif_read_data($orig_upload_entry->getRealPath(),null,true,true);
+                        error_reporting($orgi_error_reporting);
+                    } catch (Exception $e) {
+                        $exif = null;
+                        error_reporting($orgi_error_reporting);
+                    }  
+                    
                     if($exif['THUMBNAIL']??null) unset($exif['THUMBNAIL']);
-                    $exif_str_arr[$oulk] = json_encode($exif);                        
+                    if($exif) $exif_str_arr[$oulk] = json_encode($exif);                        
                 }           
             }
         }
