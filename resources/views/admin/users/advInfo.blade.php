@@ -65,6 +65,19 @@
 
     .newer_manual_time_detail_tb th {font-weight:549;text-align:center;}
     .newer_manual_time_detail_tb td {text-align:center;}
+
+    .pic_exif_show_block {display:none;}
+    .exif_cat_title_block {text-align:center;margin-top:0.5em;font-weight:bold;font-size:1.15em;}
+    .pic_exif_show_block > div {word-wrap:break-word;word-break: break-all;}
+    .exif_cat_title_block .exif_cat {font-weight:bold;font-size:1em;}
+    .exif_cat_title_block hr {margin:0;}
+    .exif_cat {font-weight:bold;font-size:1.1em;}
+
+    .step2_admin_log_block,.step2_admin_log_toggle_block {margin-top:10%;text-align:left;}
+    .step2_admin_log_row {word-wrap:break-word;word-break: break-all;}
+    .upload_time_block {word-wrap:break-word;word-break: break-all;}
+    .step2_admin_log_toggle_block {display:none;}
+    .btn_show_more_admin_log {float:right;}
 </style>
 
 <body style="padding: 15px;">
@@ -495,13 +508,89 @@
 <h4>詳細資料</h4>
 <table class='table table-hover table-bordered'>
     <tr>
-        <th width="15%">照片 <br><a href="editPic_sendMsg/{{ $user->id }}" class='text-white btn btn-primary'>照片&發訊息</a></th>
+        <th width="15%">
+            照片 
+            <br><a href="editPic_sendMsg/{{ $user->id }}" class='text-white btn btn-primary'>照片&發訊息</a>
+            @foreach($step2_admin_log_list as $sallK=>$step2_admin_log_entry)
+            <div class="step2_admin_log_{{$sallK>=3?'toggle_':''}}block">
+                <div class="step2_admin_log_row">
+
+                    <div>
+                        
+                        {{substr($step2_admin_log_entry->operator_user->email,0,strpos($step2_admin_log_entry->operator_user->email,'@'))}}    
+                        
+                    </div>
+                    <div>
+                        {{$step2_admin_log_entry->updated_at}}
+                    </div>
+                </div>
+                <hr>
+
+            </div>
+            @if($sallK==2 && count($step2_admin_log_list)>3)
+            <span class="btn_show_more_admin_log btn btn-primary" >+</span>   
+            @endif            
+            @endforeach
+        </th>
         <td width="85%">
             <div style="display: inline-flex;">
             @if($userMeta->pic)
                 <div style="width: 250px;">
                     <img src="{{$userMeta->pic}}" style="width: 250px;height: 250px;object-fit: contain;">
                     <span>照片原始檔名：{{$userMeta->pic_original_name}}</span>
+                    <div class="upload_time_block">
+                        <span>照片上傳時間：</span>
+                        <span>{{$userMeta->updated_at}}</span>
+                    </div>
+                    @if($userMeta->pic_original_exif)
+                    <div>
+                        <span>照片原始exif：</span><span class="btn_show_pic_exif btn btn-primary" >+</span>
+                        <div class="pic_exif_show_block">
+                        <div class="exif_cat_title_block">照片原始exif<hr></div>
+                        @foreach(array_unique(json_decode($userMeta->pic_original_exif,true),SORT_REGULAR) as $ek=>$ev)
+                            @if(is_array($ev))
+                                @foreach($ev as $sub_ek=>$sub_ev)
+                                @if($sub_ek=='FileName') @continue @endif 
+                                <div>
+                                    <span class="exif_cat">{{$exif_cat_lang_arr[$sub_ek]??$sub_ek}}</span><span>：</span>
+                                    <span>
+                                        @switch($sub_ek)
+                                            @case('FileDateTime')
+                                                {{date('Y-m-d H:i:s',$sub_ev)}}
+                                            @break
+                                            @case('FileSize')
+                                                {{convertIntToSizeUnit($sub_ev)}}
+                                            @break
+                                            @default
+                                                @if(is_array($sub_ev))                                                
+                                                {{implode(',',$sub_ev)}}
+                                                @else
+                                                {{$sub_ev}}
+                                                @endif
+                                        @endswitch                                        
+                                    </span>
+                                </div>
+                                @endforeach
+                            @elseif($ek!='FileName')
+                                <div><span class="exif_cat">{{$exif_cat_lang_arr[$ek]??$ek}}</span><span>：</span>
+                                    <span>
+                                        @switch($ek)
+                                            @case('FileDateTime')
+                                                {{date('Y-m-d H:i:s',$ev)}}
+                                            @break
+                                            @case('FileSize')
+                                                {{convertIntToSizeUnit($ev)}}
+                                            @break
+                                            @default
+                                                {{$ev}}
+                                        @endswitch                                        
+                                    </span>
+                                </div>
+                            @endif
+                        @endforeach                        
+                        </div>
+                    </div>
+                    @endif
                 </div>
             @else
                 無
@@ -514,6 +603,67 @@
                     <input type="hidden" name="imgId" value="{{$pic->id}}">
                     <img src="{{$pic->pic}}" style="width: 250px;height: 250px;object-fit: contain;">
                     <span>照片原始檔名：{{$pic->original_name}}</span>
+                    <div class="upload_time_block">
+                        <span>照片上傳時間：</span>
+                        <span>{{$pic->created_at}}</span>
+                    </div>
+                    @if($pic->original_exif)
+                    <div>
+                        <span>照片原始exif：</span><span class="btn_show_pic_exif btn btn-primary" >+</span>
+                        <div  class="pic_exif_show_block">
+                            <div class="exif_cat_title_block">照片原始exif<hr></div>
+                        @foreach(array_unique(json_decode($pic->original_exif,true),SORT_REGULAR ) as $ek=>$ev)
+                            @if(is_array($ev))
+                                @foreach($ev as $sub_ek=>$sub_ev)
+                                @if($sub_ek=='FileName') @continue @endif 
+                                <div>
+                                    <span class="exif_cat">
+                                        {{$exif_cat_lang_arr[$sub_ek]??$sub_ek}}
+                                    </span>
+                                    <span>
+                                        ：
+                                    </span>
+                                    <span>
+                                        @switch($sub_ek)
+                                            @case('FileDateTime')
+                                                {{date('Y-m-d H:i:s',$sub_ev)}}
+                                            @break
+                                            @case('FileSize')
+                                                {{convertIntToSizeUnit($sub_ev)}}
+                                            @break
+                                            @default
+                                                @if(is_array($sub_ev))                                                
+                                                {{implode(',',$sub_ev)}}
+                                                @else
+                                                {{$sub_ev}}
+                                                @endif
+                                        @endswitch
+                                    </span>
+                                </div>
+                                @endforeach
+                            @elseif($ek!='FileName')
+                                <div>
+                                    <span class="exif_cat">
+                                        {{$exif_cat_lang_arr[$ek]??$ek}}
+                                    </span>
+                                    <span>
+                                        @switch($ek)
+                                            @case('FileDateTime')
+                                                {{date('Y-m-d H:i:s',$ev)}}
+                                            @break
+                                            @case('FileSize')
+                                                {{convertIntToSizeUnit($ev)}}
+                                            @break
+                                            @default
+                                                {{$ev}}
+                                        @endswitch
+                                    </span>
+                               </div>
+                            @endif
+                        @endforeach
+                        </div>
+                    </div>
+                    @endif
                 </div>
             @empty
                 此會員目前沒有生活照
@@ -3401,4 +3551,36 @@ function show_re_content(id){
     });
 </script>
 <!--照片查看end-->
+<script>
+$('.btn_show_pic_exif').click(function(){
+    var now_elt = $(this);
+    var detail_block = now_elt.parent().find('.pic_exif_show_block');
+    if( detail_block.css('display')=='none'){
+        detail_block.show();
+        now_elt.text('-');
+    }else{
+        
+    
+        detail_block.hide();
+        now_elt.text('+');
+
+    }
+});  
+</script>
+<script>
+$('.btn_show_more_admin_log').click(function(){
+    var now_elt = $(this);
+    var toggle_block = $('.step2_admin_log_toggle_block');
+    if( toggle_block.css('display')=='none'){
+        toggle_block.show();
+        now_elt.text('-');
+    }else{
+        
+    
+        toggle_block.hide();
+        now_elt.text('+');
+
+    }
+});  
+</script>
 </html>
