@@ -96,7 +96,8 @@
                                                         <input type="hidden" name="choosePayment" value="Credit">
                                                         <input type="hidden" name="choosePaymentFlow" value="">
                                                         <button type="submit"
-                                                                class="new_vpadd one_quarter_payment paySubmit"
+                                                                {{--                                                                class="new_vpadd one_quarter_payment paySubmit"--}}
+                                                                class="new_gvip_input one_quarter_payment paySubmit"
                                                                 style="border-style: none; outline: none;">信用卡</button>
                                                     </form>
                                                 </span>
@@ -151,7 +152,8 @@
                                                         <input type="hidden" name="type" value="one_month_payment">
                                                         <input type="hidden" name="choosePayment" value="Credit">
                                                         <input type="hidden" name="choosePaymentFlow" value="">
-                                                        <button class="new_vpadd one_month_payment paySubmit"
+{{--                                                        <button class="new_vpadd one_month_payment paySubmit"--}}
+                                                        <button class="new_gvip_input one_month_payment paySubmit"
                                                                 style="border-style: none; outline: none;">信用卡</button>
                                                     </form>
                                                 </span>
