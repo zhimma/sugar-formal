@@ -87,7 +87,7 @@
                                                     {{--                                                        <button type="submit" class="new_vpadd one_quarter_payment paySubmit" style="border-style: none; outline: none;">ATM繳費</button>--}}
                                                     {{--                                                    </form>--}}
                                                     {{--                                                </span>--}}
-                                                    <span>
+                                                    <span style="float: none;">
                                                     <form id="one_quarter_paymentCreditForm" class="m-form m-form--fit"
                                                           action="{{ route('upgradepay_ec') }}" method=post>
                                                         <input type="hidden" name="_token" value="{{ csrf_token() }}">
@@ -144,7 +144,7 @@
                                                     {{--                                                        <button class="new_vpadd one_month_payment paySubmit" style="border-style: none; outline: none;">ATM繳費</button>--}}
                                                     {{--                                                    </form>--}}
                                                     {{--                                                </span>--}}
-                                                    <span>
+                                                    <span style="float: none;">
                                                     <form id="one_month_paymentCreditForm" class="m-form m-form--fit"
                                                           action="{{ route('upgradepay_ec') }}" method=post>
                                                         <input type="hidden" name="_token" value="{{ csrf_token() }}">
