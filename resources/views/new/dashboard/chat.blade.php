@@ -134,6 +134,10 @@
         margin-right: 40px;
         margin-bottom: 20px;
     }
+    
+    .ys_inbut,.ys_inbut_hs {
+        cursor:pointer;
+    }
 </style>
 @if($user->isVip())
 <script>
@@ -508,20 +512,37 @@ is_truth_icon_pic.src="{{asset('/new/images/zz_zt2.png')}}";
             </div>
             <div class="n_shtab" style="position: relative;">
                 <h2 data-step="1" data-highlightClass="yd1a" data-tooltipClass="yd1"
+                    style="margin-bottom:0;"
                     data-intro="<p>不同等級會員可以有不同的信件讀取權限。</p>
                         <p>試用會員：信件可保存30天，通訊人數限制10人。</p>
                         <p>VIP 會員：信件可保存180天，無限制通訊人數。</p>
                         <h2>@if($isVip)您目前是 @if($user->isVVip()){{$letter_vvip}}@else{{$letter_vip}}@endif，所以不限制通訊人數，且信件可保存180天。@else您目前是 {{$letter_normal_member}}，所以限制通訊人數10，且信件保存30天。 @endif</h2><em></em><em></em>">
                     @if($isVip)
-                    <span>您目前為@if($user->isVVip()){{$letter_vvip}}@else{{$letter_vip}}@endif</span>訊息可保存天數：180，可通訊人數:無限數
+                    <span>您目前為@if($user->isVVip()){{$letter_vvip}}@else{{$letter_vip}}@endif</span>訊息可保存天數：180
+                    <br>可通訊人數:無限數
                     @else
-                    <span>您目前為{{$letter_normal_member}}</span>訊息可保存天數：30，可通訊人數:10
+                    <span>您目前為{{$letter_normal_member}}</span>訊息可保存天數：30
+                    <br>可通訊人數:10
                     @endif
+                                       
                 </h2>
                 @if($user->engroup==2)
-                <a href="javascript:void(0)" class="right ys_inbut" style="margin-right: 10px;position: absolute;right: 0px;top: 7px;"><img src="/new/images/zz_ztt.png"><span>{{ $user->show_can_message ? '收起罐頭訊息' : '顯示罐頭訊息' }}</span></a>
-                @endif
+                
+                <div onclick="bxs()" id="bxs" class="ys_inbut_hs" style="margin-right: 10px; position: absolute; right: 0px; top: 27px; display: {{$user->show_can_message?'block':'none'}};">罐頭訊息：不顯示</div>  
+                <div onclick="xs()" id="xs" data-isCan_num="0" class="ys_inbut" style="margin-right: 10px; position: absolute; right: 0px; top: 27px; display: {{$user->show_can_message?'none':'block'}};">罐頭訊息：顯示</div>                
+                @endif  
             </div>
+            <script>
+                function bxs() {
+                    $("#xs").show()
+                    $("#bxs").hide()
+                }
+    
+                function xs() {
+                    $("#bxs").show()
+                    $("#xs").hide()
+                }
+			</script>
             <div class="d-table">
                 <div class="select_cont msg_select_cont" style="display:none">
                     <select id="daysSelect" class="right">
@@ -2068,14 +2089,7 @@ is_truth_icon_pic.src="{{asset('/new/images/zz_zt2.png')}}";
         //   console.log($("#daysSelect option:selected").val())
         // });
 
-        $('.ys_inbut').on('click', function() {
-
-            let text = $(this).find('span').text();
-            if(text == '顯示罐頭訊息') {
-                $(this).find('span').text('收起罐頭訊息');
-            } else if(text == '收起罐頭訊息') {
-                $(this).find('span').text('顯示罐頭訊息');
-            }
+        $('.ys_inbut,.ys_inbut_hs').on('click', function() {
 
             $('.row_data.can').toggleClass('d-none');
             $('.row_data.can').next('.li_no_data').toggle();
