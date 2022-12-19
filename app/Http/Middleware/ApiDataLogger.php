@@ -168,22 +168,22 @@ class ApiDataLogger{
                         ]);
 
                     //暫時自動發放VIP權限
-                    $transactionType='';
-                    if($payload['PaymentType'] == 'Credit_CreditCard')
-                        $transactionType='CREDIT'; //信用卡
-                    elseif(str_contains($payload['PaymentType'], 'ATM'))
-                        $transactionType='ATM'; //ATM
-                    elseif($payload['PaymentType'] == 'BARCODE_BARCODE')
-                        $transactionType='BARCODE'; //超商條碼
-                    elseif ($payload['PaymentType'] == 'CVS_CVS')
-                        $transactionType='CVS'; //超商代號
-                    else
-                        $transactionType=$payload['PaymentType']; //寫入回傳的PaymentType
-
-                    logger('Middleware ApiDataLogger=> userID:'.$user->id.', 種類:' .$payload['CustomField3'].', 付款方式:' .$transactionType. '(預先給予權限)');
-
-                    $remain_days = $payload['CustomField2'];
-                    Vip::upgrade($user->id, $payload['MerchantID'], $payload['MerchantTradeNo'], $payload['TradeAmt'], '', 1, 0,$payload['CustomField3'],$transactionType,$remain_days);
+//                    $transactionType='';
+//                    if($payload['PaymentType'] == 'Credit_CreditCard')
+//                        $transactionType='CREDIT'; //信用卡
+//                    elseif(str_contains($payload['PaymentType'], 'ATM'))
+//                        $transactionType='ATM'; //ATM
+//                    elseif($payload['PaymentType'] == 'BARCODE_BARCODE')
+//                        $transactionType='BARCODE'; //超商條碼
+//                    elseif ($payload['PaymentType'] == 'CVS_CVS')
+//                        $transactionType='CVS'; //超商代號
+//                    else
+//                        $transactionType=$payload['PaymentType']; //寫入回傳的PaymentType
+//
+//                    logger('Middleware ApiDataLogger=> userID:'.$user->id.', 種類:' .$payload['CustomField3'].', 付款方式:' .$transactionType. '(預先給予權限)');
+//
+//                    $remain_days = $payload['CustomField2'];
+//                    Vip::upgrade($user->id, $payload['MerchantID'], $payload['MerchantTradeNo'], $payload['TradeAmt'], '', 1, 0,$payload['CustomField3'],$transactionType,$remain_days);
 
                 }
 
