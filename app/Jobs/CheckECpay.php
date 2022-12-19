@@ -188,37 +188,37 @@ class CheckECpay implements ShouldQueue
                                 }
                                 \App\Models\VipLog::addToLog($user->id, 'order_id: ' . $this->vipData->order_id . '; 期限內(' . $preOrderCheck->ExpireDate . ')未完成付款：' . $this->vipData->payment_method, '自動取消', 0, 0);
 
-                                if(!User::isBanned($user->id)) {
-                                    //累計三次未繳費加入封鎖
-                                    $getUserQrcodeHistory = PaymentGetQrcodeLog::select('order_id')
-                                        ->where('user_id', $user->id)
-                                        ->where('ExpireDate', '<', $now)
-                                        ->get();
-                                    $getUserPaidOrders = Order::where('user_id', $user->id)
-                                        ->whereIn('order_id', $getUserQrcodeHistory)
-                                        ->get();
-                                    $checkNoPayCounts = count($getUserQrcodeHistory) - count($getUserPaidOrders);
-                                    if ($checkNoPayCounts >= 3) {
-                                        //封鎖
-                                        $userBanned = new banned_users;
-                                        $userBanned->member_id = $user->id;
-                                        $userBanned->reason = "拒往";
-                                        $userBanned->save();
-                                        //寫入log
-                                        IsBannedLog::insert(['user_id' => $user->id, 'reason' => "拒往"]);
-                                        logger("Baned user {$user->id}, reason: 拒往");
-                                        //自動封鎖cfp_id
-                                        foreach($user->cfp as $row) {
-                                            $existData = SetAutoBan::where('type','cfp_id')
-                                                ->where('content', $row->cfp_id)
-                                                ->where('cuz_user_set', $user->id)
-                                                ->first();
-                                            if(!$existData) {
-                                                SetAutoBan::setAutoBanAdd('cfp_id', $row->cfp_id, 1, $user->id);
-                                            }
-                                        }
-                                    }
-                                }
+//                                if(!User::isBanned($user->id)) {
+//                                    //累計三次未繳費加入封鎖
+//                                    $getUserQrcodeHistory = PaymentGetQrcodeLog::select('order_id')
+//                                        ->where('user_id', $user->id)
+//                                        ->where('ExpireDate', '<', $now)
+//                                        ->get();
+//                                    $getUserPaidOrders = Order::where('user_id', $user->id)
+//                                        ->whereIn('order_id', $getUserQrcodeHistory)
+//                                        ->get();
+//                                    $checkNoPayCounts = count($getUserQrcodeHistory) - count($getUserPaidOrders);
+//                                    if ($checkNoPayCounts >= 3) {
+//                                        //封鎖
+//                                        $userBanned = new banned_users;
+//                                        $userBanned->member_id = $user->id;
+//                                        $userBanned->reason = "拒往";
+//                                        $userBanned->save();
+//                                        //寫入log
+//                                        IsBannedLog::insert(['user_id' => $user->id, 'reason' => "拒往"]);
+//                                        logger("Baned user {$user->id}, reason: 拒往");
+//                                        //自動封鎖cfp_id
+//                                        foreach($user->cfp as $row) {
+//                                            $existData = SetAutoBan::where('type','cfp_id')
+//                                                ->where('content', $row->cfp_id)
+//                                                ->where('cuz_user_set', $user->id)
+//                                                ->first();
+//                                            if(!$existData) {
+//                                                SetAutoBan::setAutoBanAdd('cfp_id', $row->cfp_id, 1, $user->id);
+//                                            }
+//                                        }
+//                                    }
+//                                }
                             }
                         }
                     }
