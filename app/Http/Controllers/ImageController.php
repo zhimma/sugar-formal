@@ -313,7 +313,36 @@ class ImageController extends BaseController
         if($rap_service->isPassedByAuthTypeId(1) && $user_meta->pic ) {
             $file_input_name = 'apply_replace_pic';
         }
+        $exif = null;
+        $exif_str = null;
+        $orig_upload_entry = $request->file($file_input_name);    
+        if($orig_upload_entry && file_exists($orig_upload_entry->getRealPath())) {
+            $orgi_error_reporting = error_reporting();
+            try {
+                error_reporting(0);
+                $image_type = exif_imagetype($orig_upload_entry->getRealPath());
+                error_reporting($orgi_error_reporting);
+            } catch (Exception $e) {
+                $image_type = null;
+                error_reporting($orgi_error_reporting);
+            }              
             
+            if($image_type==IMAGETYPE_JPEG) {
+                
+                try {
+                    error_reporting(0);
+                    $exif = exif_read_data($orig_upload_entry->getRealPath(),null,true,true);
+                    error_reporting($orgi_error_reporting);
+                } catch (Exception $e) {
+                    $exif = null;
+                    error_reporting($orgi_error_reporting);
+                }  
+
+                if($exif['THUMBNAIL']??null) unset($exif['THUMBNAIL']);
+                if($exif) $exif_str = json_encode($exif);                        
+            }           
+        }
+
         $fileUploader = new FileUploader($file_input_name, array(
             'fileMaxSize' => 8,
             'extensions' => ['jpg', 'jpeg', 'png', 'gif'],
@@ -346,7 +375,7 @@ class ImageController extends BaseController
             
             if($avatar)
             {
-                
+
                 $path = substr($avatar[0]['file'], strlen(public_path()));                 
                 $path[0] = '/';
                 if(!$rap_service->isPassedByAuthTypeId(1)) {
@@ -355,7 +384,7 @@ class ImageController extends BaseController
                     $removeFiles = $fileUploader->getRemovedFiles();
                     if($removeFiles)
                     {
-                        $file = public_path($removeFiles[0]['file']);
+                        $file = public_path($removeFiles[0]['file']);                        
                         if(File::exists($file))
                         {
                             $UserMeta = UserMeta::where('user_id', $userId)->first();
@@ -366,13 +395,14 @@ class ImageController extends BaseController
                     }                
                     
                     
-                    $this->handleAvatarUploadedFile($user,$path,$avatar[0]['old_name']);
+                    $this->handleAvatarUploadedFile($user,$path,$avatar[0]['old_name'],$exif_str);
                     
                     if($rap_service->isApplyEffectByAuthTypeId(1)) {
                         $rap_service->savePicModifyByReq($request);
                         $arr['pic'] = $path;
                         $arr['operate'] = 1;
                         $arr['original_name'] = $avatar[0]['old_name'];
+                        $arr['original_exif'] = $exif_str;
                         $arr['pic_cat'] = 'avatar';
                         $this->handleUploadedFileForRealAuth($rap_service,$arr);
                     }
@@ -417,12 +447,12 @@ class ImageController extends BaseController
         }
     }
     
-    public static function handleAvatarUploadedFile($user,$path,$pic_original_name)
+    public static function handleAvatarUploadedFile($user,$path,$pic_original_name,$pic_original_exif_str)
     {
             $userId = $user->id;
             $msg = '';    
             $path[0] = '/';
-            UserMeta::where('user_id', $userId)->update(['pic' => $path, 'pic_original_name'=>$pic_original_name]);
+            UserMeta::where('user_id', $userId)->update(['pic' => $path, 'pic_original_name'=>$pic_original_name,'pic_original_exif'=>$pic_original_exif_str]);
             if($user->engroup==2)
                 \App\Jobs\SimilarImagesSearcher::dispatch($path);                
     }
@@ -638,6 +668,41 @@ class ImageController extends BaseController
         
         $file_input_name = 'pictures';
         
+        $exif_str_arr = [];
+        $orig_upload_list = $request->file($file_input_name);        
+        if(!$orig_upload_list) $orig_upload_list = [];
+        
+        $orgi_error_reporting = error_reporting();
+        
+        foreach($orig_upload_list as $oulk=>$orig_upload_entry) {
+            $exif = null;
+            $image_type = null;
+            if(file_exists($orig_upload_entry->getRealPath())) {
+                try {
+                    error_reporting(0);
+                    $image_type = exif_imagetype($orig_upload_entry->getRealPath());
+                    error_reporting($orgi_error_reporting);
+                } catch (Exception $e) {
+                    $image_type = null;
+                    error_reporting($orgi_error_reporting);
+                }                
+                
+                if($image_type==IMAGETYPE_JPEG) {
+                    
+                    try {
+                        error_reporting(0);
+                        $exif = exif_read_data($orig_upload_entry->getRealPath(),null,true,true);
+                        error_reporting($orgi_error_reporting);
+                    } catch (Exception $e) {
+                        $exif = null;
+                        error_reporting($orgi_error_reporting);
+                    }  
+                    
+                    if($exif['THUMBNAIL']??null) unset($exif['THUMBNAIL']);
+                    if($exif) $exif_str_arr[$oulk] = json_encode($exif);                        
+                }           
+            }
+        }
         if($rap_service->isPassedByAuthTypeId(1) && $request->pic_kind) {
             $file_input_name = 'apply_replace_pic';
         }        
@@ -673,7 +738,7 @@ class ImageController extends BaseController
 //        }
 
         $upload = $fileUploader->upload();
-        
+
         if(($upload['hasWarnings']??false) || !$upload['files']) {
             if(!$upload['files'])  {
                 if(is_array($upload['warnings'])) $upload['warnings'][] = '您沒有選擇檔案。請重新選擇一個。';
@@ -697,12 +762,17 @@ class ImageController extends BaseController
 
             foreach($fileUploader->getUploadedFiles() as  $uploadIndex=>$uploadedFile)
             {
+                $exif_str = null;
+                if(file_exists($uploadedFile['file'])) {
+                    $exif_str = $exif_str_arr[$uploadIndex]??null;
+                }               
+                
                 $path = substr($uploadedFile['file'], strlen($publicPath));
 
                 $path[0] = "/";
 
                 if(!$rap_service->isPassedByAuthTypeId(1)) {
-                    $this->handlePicturesUploadedFile($user,$path,$uploadedFile['old_name']);
+                    $this->handlePicturesUploadedFile($user,$path,$uploadedFile['old_name'],$exif_str);
                     
                     if($rap_service->isSelfAuthWaitingCheck()) {
 
@@ -768,13 +838,14 @@ class ImageController extends BaseController
         return $upload['isSuccess'] ? $previous : $previous->withErrors($upload['warnings']);
     }
     
-    public function handlePicturesUploadedFile($user,$path,$pic_original_name)
+    public function handlePicturesUploadedFile($user,$path,$pic_original_name,$pic_original_exif_str)
     {
         $userId = $user->id;
        $addPicture = new MemberPic;
         $addPicture->member_id = $userId;
         $addPicture->pic = $path;
         $addPicture->original_name = $pic_original_name;
+        $addPicture->original_exif = $pic_original_exif_str;
         $blurPic=$this->createBlurPhoto($path);
         $addPicture->pic_blur=$blurPic;
         $addPicture->save();
