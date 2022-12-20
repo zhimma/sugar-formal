@@ -4059,7 +4059,7 @@ class PagesController extends BaseController
                         $m_time = $m_time->created_at;
                     }
                 }
-                return view('new.dashboard.chatWithUser')
+                return view('new.dashboard.chatWithUserLivewire')
                     ->with('user', $user)
                     ->with('admin', $admin)
                     ->with('is_banned', $is_banned)
@@ -4082,7 +4082,7 @@ class PagesController extends BaseController
                     ;
             }
             else {
-                return view('new.dashboard.chatWithUser')
+                return view('new.dashboard.chatWithUserLivewire')
                     ->with('user', $user)
                     ->with('admin', $admin)
                     ->with('is_banned', $is_banned)

@@ -974,6 +974,16 @@ class Message extends Model
         }
     }
 
+    public static function readFromDB($message, $uid)
+    {
+        if ($message->to_id == $uid && $message->read!='Y')
+        {
+            Message::where('id', $message->id)->update(['read'=>'Y']);
+            \App\Events\ChatRead::dispatch($message->id, $message->from_id, $message->to_id);
+            \App\Events\ChatReadSelf::dispatch($uid);
+        }
+    }
+
     public function compactRead(){
         $this->read($this, request()->user()->id);
     }
