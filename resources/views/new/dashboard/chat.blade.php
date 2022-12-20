@@ -447,6 +447,17 @@ is_truth_icon_pic.src="{{asset('/new/images/zz_zt2.png')}}";
     .ys_gt,.ys_gt1 {
         left:-10px;
     }
+    
+    #show_isCan_num {
+        eight: 20px;
+        width: 20px;
+        border-radius: 100px;
+        color: white;
+        text-align: center;
+        line-height: 20px;
+        position: absolute;
+        background:#fe92a8;
+    }
 </style>
 <!--引导弹出层-->
 <script type="text/javascript" src="/new/intro/intro.js"></script>
@@ -529,7 +540,7 @@ is_truth_icon_pic.src="{{asset('/new/images/zz_zt2.png')}}";
                 @if($user->engroup==2)
                 
                 <div onclick="bxs()" id="bxs" class="ys_inbut_hs" style="margin-right: 10px; position: absolute; right: 0px; top: 27px; display: {{$user->show_can_message?'block':'none'}};">罐頭訊息：不顯示</div>  
-                <div onclick="xs()" id="xs" data-isCan_num="0" class="ys_inbut" style="margin-right: 10px; position: absolute; right: 0px; top: 27px; display: {{$user->show_can_message?'none':'block'}};">罐頭訊息：顯示</div>                
+                <div onclick="xs()" id="xs" data-isCan_num="0" class="ys_inbut" style="margin-right: 10px; position: absolute; right: 0px; top: 27px; display: {{$user->show_can_message?'none':'block'}};">罐頭訊息：顯示<span id="show_isCan_num"></span></div>                
                 @endif  
             </div>
             <script>
@@ -2059,6 +2070,8 @@ is_truth_icon_pic.src="{{asset('/new/images/zz_zt2.png')}}";
                                 $('.sjlist_banned').append(no_row_li);
                             }                            
                         @endif
+                        
+                        $('#show_isCan_num').html($('.row_data.can').length);
                     }, 300);
 
                     $('[data-toggle="popover"]').popover({
