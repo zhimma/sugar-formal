@@ -78,16 +78,21 @@
                                                 <h2>NT$3988/季</h2>
                                                 <h2>單季體驗</h2>
                                                 <div class="new_abg">
-                                                    {{--                                                <span>--}}
-                                                    {{--                                                    <form id="one_quarter_paymentATMForm" class="m-form m-form--fit" action="{{ route('upgradepay_ec') }}" method=post>--}}
-                                                    {{--                                                        <input type="hidden" name="_token" value="{{ csrf_token() }}" >--}}
-                                                    {{--                                                        <input type="hidden" name="userId" value="{{$user->id}}">--}}
-                                                    {{--                                                        <input type="hidden" name="type" value="one_quarter_payment">--}}
-                                                    {{--                                                        <input type="hidden" name="choosePayment" value="ATM">--}}
-                                                    {{--                                                        <button type="submit" class="new_vpadd one_quarter_payment paySubmit" style="border-style: none; outline: none;">ATM繳費</button>--}}
-                                                    {{--                                                    </form>--}}
-                                                    {{--                                                </span>--}}
-                                                    <span style="float: none;">
+                                                    <span>
+                                                        <form id="one_quarter_paymentATMForm" class="m-form m-form--fit"
+                                                              action="{{ route('upgradepay_ec') }}" method=post>
+                                                            <input type="hidden" name="_token"
+                                                                   value="{{ csrf_token() }}">
+                                                            <input type="hidden" name="userId" value="{{$user->id}}">
+                                                            <input type="hidden" name="type"
+                                                                   value="one_quarter_payment">
+                                                            <input type="hidden" name="choosePayment" value="ATM">
+                                                            <button type="submit"
+                                                                    class="new_vpadd one_quarter_payment paySubmit"
+                                                                    style="border-style: none; outline: none;">ATM繳費</button>
+                                                        </form>
+                                                    </span>
+                                                    <span>
                                                     <form id="one_quarter_paymentCreditForm" class="m-form m-form--fit"
                                                           action="{{ route('upgradepay_ec') }}" method=post>
                                                         <input type="hidden" name="_token" value="{{ csrf_token() }}">
@@ -96,30 +101,37 @@
                                                         <input type="hidden" name="choosePayment" value="Credit">
                                                         <input type="hidden" name="choosePaymentFlow" value="">
                                                         <button type="submit"
-                                                                {{--                                                                class="new_vpadd one_quarter_payment paySubmit"--}}
-                                                                class="new_gvip_input one_quarter_payment paySubmit"
+                                                                class="new_vpadd one_quarter_payment paySubmit"
                                                                 style="border-style: none; outline: none;">信用卡</button>
                                                     </form>
                                                 </span>
-                                                    {{--                                                <span>--}}
-                                                    {{--                                                    <form class="m-form m-form--fit" action="{{ route('upgradepay_ec') }}" method=post>--}}
-                                                    {{--                                                        <input type="hidden" name="_token" value="{{ csrf_token() }}" >--}}
-                                                    {{--                                                        <input type="hidden" name="userId" value="{{$user->id}}">--}}
-                                                    {{--                                                        <input type="hidden" name="type" value="one_quarter_payment">--}}
-                                                    {{--                                                        <input type="hidden" name="choosePayment" value="BARCODE">--}}
-                                                    {{--                                                        <button type="submit" class="new_vpadd one_quarter_payment paySubmit" style="border-style: none; outline: none;">超商條碼</button>--}}
-                                                    {{--                                                    </form>--}}
-                                                    {{--                                                </span>--}}
-                                                    {{--                                                <font class="new_w100">--}}
-                                                    {{--                                                    <form id="one_quarter_paymentCVSForm" class="m-form m-form--fit" action="{{ route('upgradepay_ec') }}" method=post>--}}
-                                                    {{--                                                        <input type="hidden" name="_token" value="{{ csrf_token() }}" >--}}
-                                                    {{--                                                        <input type="hidden" name="userId" value="{{$user->id}}">--}}
-                                                    {{--                                                        <input type="hidden" name="type" value="one_quarter_payment">--}}
-                                                    {{--                                                        <input type="hidden" name="choosePayment" value="CVS">--}}
-                                                    {{--                                                        <button type="submit" class="new_vpadd one_quarter_payment paySubmit" style="border-style: none; outline: none;">超商代碼或條碼</button>--}}
-                                                    {{--                                                    </form>--}}
-                                                    {{--                                                </font>--}}
-
+                                                    <span>
+                                                    <form class="m-form m-form--fit"
+                                                          action="{{ route('upgradepay_ec') }}" method=post>
+                                                        <input type="hidden" name="_token" value="{{ csrf_token() }}">
+                                                        <input type="hidden" name="userId" value="{{$user->id}}">
+                                                        <input type="hidden" name="type" value="one_quarter_payment">
+                                                        <input type="hidden" name="choosePayment" value="BARCODE">
+                                                        <button type="submit"
+                                                                class="new_vpadd one_quarter_payment paySubmit"
+                                                                style="border-style: none; outline: none;">超商條碼</button>
+                                                    </form>
+                                                </span>
+                                                    <font class="new_w100">
+                                                        <form id="one_quarter_paymentCVSForm" class="m-form m-form--fit"
+                                                              action="{{ route('upgradepay_ec') }}" method=post>
+                                                            <input type="hidden" name="_token"
+                                                                   value="{{ csrf_token() }}">
+                                                            <input type="hidden" name="userId" value="{{$user->id}}">
+                                                            <input type="hidden" name="type"
+                                                                   value="one_quarter_payment">
+                                                            <input type="hidden" name="choosePayment" value="CVS">
+                                                            <button type="submit"
+                                                                    class="new_vpadd one_quarter_payment paySubmit"
+                                                                    style="border-style: none; outline: none;">超商代碼或條碼
+                                                            </button>
+                                                        </form>
+                                                    </font>
                                                 </div>
                                             </div>
                                             {{--                                        <form class="m-form m-form--fit" action="{{ route('upgradepay_ec') }}" method=post>--}}
@@ -135,16 +147,19 @@
                                                 <h2>NT$1899/月</h2>
                                                 <h2>單月體驗</h2>
                                                 <div class="new_abg">
-                                                    {{--                                                <span>--}}
-                                                    {{--                                                    <form id="one_month_paymentATMForm" class="m-form m-form--fit" action="{{ route('upgradepay_ec') }}" method=post>--}}
-                                                    {{--                                                        <input type="hidden" name="_token" value="{{ csrf_token() }}" >--}}
-                                                    {{--                                                        <input type="hidden" name="userId" value="{{$user->id}}">--}}
-                                                    {{--                                                        <input type="hidden" name="type" value="one_month_payment">--}}
-                                                    {{--                                                        <input type="hidden" name="choosePayment" value="ATM">--}}
-                                                    {{--                                                        <button class="new_vpadd one_month_payment paySubmit" style="border-style: none; outline: none;">ATM繳費</button>--}}
-                                                    {{--                                                    </form>--}}
-                                                    {{--                                                </span>--}}
-                                                    <span style="float: none;">
+                                                    <span>
+                                                        <form id="one_month_paymentATMForm" class="m-form m-form--fit"
+                                                              action="{{ route('upgradepay_ec') }}" method=post>
+                                                            <input type="hidden" name="_token"
+                                                                   value="{{ csrf_token() }}">
+                                                            <input type="hidden" name="userId" value="{{$user->id}}">
+                                                            <input type="hidden" name="type" value="one_month_payment">
+                                                            <input type="hidden" name="choosePayment" value="ATM">
+                                                            <button class="new_vpadd one_month_payment paySubmit"
+                                                                    style="border-style: none; outline: none;">ATM繳費</button>
+                                                        </form>
+                                                    </span>
+                                                    <span>
                                                     <form id="one_month_paymentCreditForm" class="m-form m-form--fit"
                                                           action="{{ route('upgradepay_ec') }}" method=post>
                                                         <input type="hidden" name="_token" value="{{ csrf_token() }}">
@@ -152,30 +167,34 @@
                                                         <input type="hidden" name="type" value="one_month_payment">
                                                         <input type="hidden" name="choosePayment" value="Credit">
                                                         <input type="hidden" name="choosePaymentFlow" value="">
-{{--                                                        <button class="new_vpadd one_month_payment paySubmit"--}}
-                                                        <button class="new_gvip_input one_month_payment paySubmit"
+                                                        <button class="new_vpadd one_month_payment paySubmit"
                                                                 style="border-style: none; outline: none;">信用卡</button>
                                                     </form>
                                                 </span>
-                                                    {{--                                                <span>--}}
-                                                    {{--                                                    <form class="m-form m-form--fit" action="{{ route('upgradepay_ec') }}" method=post>--}}
-                                                    {{--                                                        <input type="hidden" name="_token" value="{{ csrf_token() }}" >--}}
-                                                    {{--                                                        <input type="hidden" name="userId" value="{{$user->id}}">--}}
-                                                    {{--                                                        <input type="hidden" name="type" value="one_month_payment">--}}
-                                                    {{--                                                        <input type="hidden" name="choosePayment" value="BARCODE">--}}
-                                                    {{--                                                        <button class="new_vpadd one_month_payment paySubmit" style="border-style: none; outline: none;">超商條碼</button>--}}
-                                                    {{--                                                    </form>--}}
-                                                    {{--                                                </span>--}}
-                                                    {{--                                                <font class="new_w100">--}}
-                                                    {{--                                                    <form id="one_month_paymentCVSForm" class="m-form m-form--fit" action="{{ route('upgradepay_ec') }}" method=post>--}}
-                                                    {{--                                                        <input type="hidden" name="_token" value="{{ csrf_token() }}" >--}}
-                                                    {{--                                                        <input type="hidden" name="userId" value="{{$user->id}}">--}}
-                                                    {{--                                                        <input type="hidden" name="type" value="one_month_payment">--}}
-                                                    {{--                                                        <input type="hidden" name="choosePayment" value="CVS">--}}
-                                                    {{--                                                        <button class="new_vpadd one_month_payment paySubmit" style="border-style: none; outline: none;">超商代碼或條碼</button>--}}
-                                                    {{--                                                    </form>--}}
-                                                    {{--                                                </font>--}}
-
+                                                    <span>
+                                                    <form class="m-form m-form--fit"
+                                                          action="{{ route('upgradepay_ec') }}" method=post>
+                                                        <input type="hidden" name="_token" value="{{ csrf_token() }}">
+                                                        <input type="hidden" name="userId" value="{{$user->id}}">
+                                                        <input type="hidden" name="type" value="one_month_payment">
+                                                        <input type="hidden" name="choosePayment" value="BARCODE">
+                                                        <button class="new_vpadd one_month_payment paySubmit"
+                                                                style="border-style: none; outline: none;">超商條碼</button>
+                                                    </form>
+                                                </span>
+                                                    <font class="new_w100">
+                                                        <form id="one_month_paymentCVSForm" class="m-form m-form--fit"
+                                                              action="{{ route('upgradepay_ec') }}" method=post>
+                                                            <input type="hidden" name="_token"
+                                                                   value="{{ csrf_token() }}">
+                                                            <input type="hidden" name="userId" value="{{$user->id}}">
+                                                            <input type="hidden" name="type" value="one_month_payment">
+                                                            <input type="hidden" name="choosePayment" value="CVS">
+                                                            <button class="new_vpadd one_month_payment paySubmit"
+                                                                    style="border-style: none; outline: none;">超商代碼或條碼
+                                                            </button>
+                                                        </form>
+                                                    </font>
                                                 </div>
                                             </div>
                                             {{--                                        <form class="m-form m-form--fit" action="{{ route('upgradepay_ec') }}" method=post>--}}
@@ -185,8 +204,8 @@
                                             {{--                                            <button class="new_gvip_input one_month_payment" style="border-style: none; outline: none;">購買</button>--}}
                                             {{--                                        </form>--}}
                                         </li>
-                                </ul>
-                            </div>
+                                    </ul>
+                                </div>
                             </div>
                             <div class="paymentFlowChoose" style="display: none;">
                                 <div class="vipline"><img src="/new/images/VIP_05.png"></div>
