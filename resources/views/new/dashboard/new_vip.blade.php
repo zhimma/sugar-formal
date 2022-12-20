@@ -105,18 +105,6 @@
                                                                 style="border-style: none; outline: none;">信用卡</button>
                                                     </form>
                                                 </span>
-                                                    <span>
-                                                    <form class="m-form m-form--fit"
-                                                          action="{{ route('upgradepay_ec') }}" method=post>
-                                                        <input type="hidden" name="_token" value="{{ csrf_token() }}">
-                                                        <input type="hidden" name="userId" value="{{$user->id}}">
-                                                        <input type="hidden" name="type" value="one_quarter_payment">
-                                                        <input type="hidden" name="choosePayment" value="BARCODE">
-                                                        <button type="submit"
-                                                                class="new_vpadd one_quarter_payment paySubmit"
-                                                                style="border-style: none; outline: none;">超商條碼</button>
-                                                    </form>
-                                                </span>
                                                     <font class="new_w100">
                                                         <form id="one_quarter_paymentCVSForm" class="m-form m-form--fit"
                                                               action="{{ route('upgradepay_ec') }}" method=post>
@@ -169,17 +157,6 @@
                                                         <input type="hidden" name="choosePaymentFlow" value="">
                                                         <button class="new_vpadd one_month_payment paySubmit"
                                                                 style="border-style: none; outline: none;">信用卡</button>
-                                                    </form>
-                                                </span>
-                                                    <span>
-                                                    <form class="m-form m-form--fit"
-                                                          action="{{ route('upgradepay_ec') }}" method=post>
-                                                        <input type="hidden" name="_token" value="{{ csrf_token() }}">
-                                                        <input type="hidden" name="userId" value="{{$user->id}}">
-                                                        <input type="hidden" name="type" value="one_month_payment">
-                                                        <input type="hidden" name="choosePayment" value="BARCODE">
-                                                        <button class="new_vpadd one_month_payment paySubmit"
-                                                                style="border-style: none; outline: none;">超商條碼</button>
                                                     </form>
                                                 </span>
                                                     <font class="new_w100">
