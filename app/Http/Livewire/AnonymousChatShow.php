@@ -9,11 +9,19 @@ use App\Models\SimpleTables\warned_users;
 use App\Models\User;
 use Carbon\Carbon;
 use Livewire\Component;
-use Livewire\WithPagination;
 
 class AnonymousChatShow extends Component
 {
-    use WithPagination;
+    public $limitPerPage = 10;
+
+    protected $listeners = [
+        'load-more-chat' => 'loadMoreChat'
+    ];
+
+    public function loadMoreChat()
+    {
+        $this->limitPerPage = $this->limitPerPage + 6;
+    }
 
     public function render()
     {
@@ -27,11 +35,13 @@ class AnonymousChatShow extends Component
             ->whereNotIn('anonymous_chat.user_id', $bannedUsers)
             ->where('anonymous_chat.created_at', '>', \DB::raw('DATE_SUB(DATE(NOW()), INTERVAL DAYOFWEEK(NOW())-1 DAY)'))
             ->orderBy('anonymous_chat.created_at', 'desc')
-            ->take(1000)
-            ->get();
-        $anonymousChat = $anonymousChat->reverse();
+            ->paginate($this->limitPerPage)
+            ->reverse();
 
-        return view('livewire.anonymous-chat-show', compact('anonymousChat'));
+        $dataCounts = count($anonymousChat);
+        $checkMoreData = $dataCounts / $this->limitPerPage;
+
+        return view('livewire.anonymous-chat-show', compact('anonymousChat', 'checkMoreData'));
     }
 
     public function reply_message($content, $id, $pic)
