@@ -22,4 +22,8 @@ class Evaluation extends Model
     public function user(){
         return $this->hasOne(User::class, 'id', 'from_id');
     }
+
+    public function receiver(){
+        return $this->hasOne(User::class, 'id', 'to_id');
+    }
 }

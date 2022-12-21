@@ -391,6 +391,11 @@
         /*** iphone12 會吃掉右邊的字  ****/
         button.al_but {width:auto;white-space: nowrap;} 
     </style>
+    <style>
+        .primessage{
+            width: 70px;
+        }
+    </style>
     <script src="{{asset('/new/js/pick_real_error.js')}}" type="text/javascript"></script>
     <script type="application/javascript">
         function show_Warned() {
@@ -1605,6 +1610,7 @@
                                                     @if($row_user->id == $user->id)
                                                         <font class="sc content_delete" data-id="{{ $row->id }}" style="padding: 0px 3px;"><img src="/new/images/del_03.png" style="padding: 0px 0px 1px 5px;">刪除</font>
                                                     @endif
+                                                    @if ($row->content_violation_processing && $row->to_id==$user->id) <a class="primessage sc" href="{{ route('getAnonymousEvaluationChat',['evaluationid'=>$row->id]) }}">私訊溝通</a> @endif
                                                 </div>
                                                 <div class="con">
                                                     @if($row->is_check==1)
@@ -1729,6 +1735,7 @@
                                                     @if($row_user->id==$user->id)
                                                         <font class="sc content_delete" data-id="{{$row->id}}" style="padding: 0px 3px;"><img src="/new/images/del_03.png" style="padding: 0px 0px 1px 5px;">刪除</font>
                                                     @endif
+                                                    @if ($row->content_violation_processing && $row->to_id==$user->id) <a class="primessage sc" href="{{ route('getAnonymousEvaluationChat',['evaluationid'=>$row->id]) }}">私訊溝通</a> @endif
                                                 </div>
                                                 <div class="con">
                                                     @if($row->is_check==1)
