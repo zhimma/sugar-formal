@@ -121,7 +121,7 @@
         }
         .GoDown{
             position: fixed;
-            padding-bottom: 20px;
+            bottom: 60px;
         }
         .msg_has_parent {
             padding-top: 0 !important;
@@ -161,10 +161,29 @@
             float: initial !important;
         }
         .se_text_bot{
-            margin-top: 20px;
+            /*margin-top: 20px;*/
         }
         .msg_input{
             z-index: -1;
+        }
+        .chat_show_area::-webkit-scrollbar {
+            width: 5px;
+            height: 8px;
+            background-color: #ffe9ee; /* or add it to the track */
+        }
+        .chat_show_area::-webkit-scrollbar-thumb {
+            background: #fe92a8;
+        }
+
+        .chat_show_area {
+            -ms-overflow-style: -ms-autohiding-scrollbar;
+            width: 100%;
+            /*瀏覽器滾動條的長度大約是 18px*/
+            overflow: auto;
+            position: relative;
+        }
+        .message{
+            width: 100%;
         }
     </style>
 @endsection
@@ -191,12 +210,11 @@
 {{--                        <span><img src="/images/bgui.png"></span>--}}
 {{--                        <font>{!! $anonymous_chat_announcement !!}</font>--}}
 {{--                    </div>--}}
-                <div class="chat_show_area" style="overflow: auto; position: relative; max-height: 580px; min-height: 580px; display: flex; flex-direction: column-reverse;">
+                <div class="chat_show_area" id="chat_show_area" style="overflow: auto; position: relative; max-height: 580px; display: flex; flex-direction: column;">
                     <livewire:anonymous-chat-show />
                     <div id="GoDown" class="GoDown" style="cursor: pointer;">
-                        <img src="/images/arrow_bottom_icon.png" style="opacity: 0.4;border: 1px solid;border-radius: 50px; background-color: lightgray;">
+                        <img src="/new/images/go_to_end.jpg" style="opacity: 0.4;border: 1px solid #9c9c9c;border-radius: 50px; background-color: #c5c2c3; padding-left: 2px; width: 40px; float: right; margin-right: 10px;">
                     </div>
-                    <a href="goBottom"></a>
                 </div>
 
                 </div>
@@ -282,6 +300,25 @@
 <script>
 
     $(document).ready(function() {
+
+        messageContentToEnd();
+        var objDiv = document.getElementById("chat_show_area");
+
+        objDiv.onscroll = function (ev) {
+            var checkMoreData = $('#checkMoreData').val();
+            if(objDiv.scrollTop == 0 && checkMoreData==1)
+            {
+                window.livewire.emit('load-more-chat');
+            }
+        };
+
+        objDiv.onwheel = function(ev) {
+            var checkMoreData = $('#checkMoreData').val();
+            if(objDiv.scrollTop == 0 && checkMoreData==1 && ev.deltaY < 0)
+            {
+                window.livewire.emit('load-more-chat');
+            }
+        };
 
         // enable fileuploader plugin
         $('#file').fileuploader({
@@ -370,9 +407,39 @@
 
                     plusInput.insertAfter(item.html)[api.getOptions().limit && api.getChoosedFiles().length >= api.getOptions().limit ? 'hide' : 'show']();
 
+
                     if(item.format == 'image') {
                         item.html.find('.fileuploader-item-icon').hide();
                     }
+                    $(document).scrollTop($(document).height()); //go to end body
+
+                    if($('.fileuploader-items').is(":visible")) {
+                        var message_max_height;
+                        var message_height = $(window).height() - 42 - $('.shouxq').height();
+                        var footer_height;
+
+                        if ($('.bot').is(":visible")) {
+                            footer_height = $('.bot').height();
+                            $(".GoDown").css('bottom', $('.bot').height() + 102);
+                        }else{
+                            footer_height = 0;
+                            message_height = message_height + 70;
+                            $(".GoDown").css('bottom', 60);
+                        }
+
+                        if ($('.hetop').is(":visible")) {
+                            $('.message').css('padding-left', '30px');
+                            $('.bot').show();
+                            message_max_height = message_height - footer_height - $('.hetop').height() - 100;
+                        } else if ($('.heicon').is(":visible")) {
+                            $('.message').css('padding-left', '10px');
+                            message_max_height = message_height - footer_height - $('.heicon').height() - 100;
+                        }
+
+                        $('.chat_show_area').css('height', message_max_height - $('.fileuploader-items').height());
+                        $('.chat_show_area').css('max-height', message_max_height - $('.fileuploader-items').height());
+                    }
+
                 },
                 onItemRemove: function(html, listEl, parentEl, newInputEl, inputEl) {
                     var plusInput = listEl.find('.fileuploader-thumbnails-input'),
@@ -384,6 +451,35 @@
                         if (api.getOptions().limit && api.getChoosedFiles().length - 1 < api.getOptions().limit)
                             plusInput.show();
                     });
+
+                    $(document).scrollTop($(document).height()); //go to end body
+
+                    if(api.getChoosedFiles().length-1 == 0) {
+                        var message_max_height;
+                        var message_height = $(window).height() - 42 - $('.shouxq').height();
+                        var footer_height;
+
+                        if ($('.bot').is(":visible")) {
+                            footer_height = $('.bot').height();
+                            $(".GoDown").css('bottom', $('.bot').height() + 102);
+                        }else{
+                            footer_height = 0;
+                            message_height = message_height + 70;
+                            $(".GoDown").css('bottom', 60);
+                        }
+
+                        if ($('.hetop').is(":visible")) {
+                            $('.message').css('padding-left', '30px');
+                            $('.bot').show();
+                            message_max_height = message_height - footer_height - $('.hetop').height() - 120;
+                        } else if ($('.heicon').is(":visible")) {
+                            $('.message').css('padding-left', '10px');
+                            message_max_height = message_height - footer_height - $('.heicon').height() - 120;
+                        }
+
+                        $('.chat_show_area').css('height', message_max_height);
+                        $('.chat_show_area').css('max-height', message_max_height);
+                    }
                 }
             },
             dragDrop: {
@@ -398,6 +494,7 @@
                 });
 
                 api.getOptions().dragDrop.container = plusInput;
+
             },
             captions: {
                 confirm: '確認',
@@ -426,6 +523,9 @@
                 }
             }
         });
+
+
+
     });
 
     $('#anonymousChatSubmit').on('submit',function(e){
@@ -458,7 +558,36 @@
                         resetSpecificMsgElt();
                         $("#anonymousChatSubmit")[0].reset();
 
-                        $('.chat_show_area').scrollTop($('.chat_show_area')[0].scrollHeight).delay( 800 );
+                            var message_max_height;
+                            var message_height = $(window).height() - 42 - $('.shouxq').height();
+                            var footer_height;
+
+                            if ($('.bot').is(":visible")) {
+                                footer_height = $('.bot').height();
+                                $(".GoDown").css('bottom', $('.bot').height() + 102);
+                            }else{
+                                footer_height = 0;
+                                message_height = message_height + 70;
+                                $(".GoDown").css('bottom', 60);
+                            }
+
+                            if ($('.hetop').is(":visible")) {
+                                $('.message').css('padding-left', '30px');
+                                $('.bot').show();
+                                message_max_height = message_height - footer_height - $('.hetop').height() - 120;
+                            } else if ($('.heicon').is(":visible")) {
+                                $('.message').css('padding-left', '10px');
+                                message_max_height = message_height - footer_height - $('.heicon').height() - 120;
+                            }
+
+                            $('.chat_show_area').css('height', message_max_height);
+                            $('.chat_show_area').css('max-height', message_max_height);
+
+                            setTimeout(function() {
+                                messageContentToEnd();
+                            }, 3200);
+
+
 
                     }else{
                         c5(result.msg);
@@ -506,40 +635,7 @@
         $('#specific_msg_box').hide();
     }
 
-    $(".GoDown").click(function() {
-        $(".chat_show_area").animate({ scrollTop: $(document).height() }, "slow", function() {
-            $(".GoDown").fadeOut( "slow", function() {
-                $(".GoDown").hide();
-            });
-        });
-    });
 
-    $(".GoDown").hide();
-    $(".chat_show_area").scroll(function() {
-        if($(this).scrollTop() < 0) {
-            $(".GoDown").fadeIn( "slow", function() {
-                $(".GoDown").show();
-            });
-        }else if($(this).scrollTop()==0){
-            $(".GoDown").fadeOut( "slow", function() {
-                $(".GoDown").hide();
-            });
-        }
-
-        if ($(".dinone").is(":visible")) {
-            $(".GoDown").css('left', ($(window).width() - $(".dinone").width() - $(".right_content").width()) / 2 + $(".dinone").width() + $(".right_content").width() - 80);
-        } else {
-            $(".GoDown").css('left', ($(window).width() - $(".right_content").width()) / 2 + $(".right_content").width() - 80)  ;
-        }
-
-    });
-    $(window).resize(function() {
-        if ($(".dinone").is(":visible")) {
-            $(".GoDown").css('left', ($(window).width() - $(".dinone").width() - $(".right_content").width()) / 2 + $(".dinone").width() + $(".right_content").width() - 80);
-        } else {
-            $(".GoDown").css('left', ($(window).width() - $(".right_content").width()) / 2 + $(".right_content").width() - 80);
-        }
-    });
 
 
 
@@ -559,6 +655,119 @@
         $("#show_banned_ele").hide();
     });
 
+    //Layouts
+    function messageContentToEnd(){
+        var objDiv = document.getElementById("chat_show_area");
+        objDiv.scrollTop = objDiv.scrollHeight;
+    }
+
+    var message_max_height;
+    var message_height = $(window).height() - $('.se_text_bot').height() - $('.shouxq').height();
+    var footer_height = 0;
+
+    if($(window).width()<=912){
+        $('.bot').hide();
+    }
+
+    if($('.bot').is(":visible")){
+        footer_height = $('.bot').height();
+        message_height = message_height - 10;
+        $(".GoDown").css('bottom', $('.bot').height() + 102);
+    }else{
+        $(".GoDown").css('bottom', 60);
+        $('.se_text_bot').css('position','fixed');
+        $('.se_text_bot').css('bottom','5px');
+    }
+
+    if($('.hetop').is(":visible")){
+        $('.message').css('padding-left','30px');
+        message_max_height = message_height - footer_height - $('.hetop').height() - 110;
+    }else if($('.heicon').is(":visible")){
+        $('.message').css('padding-left','10px');
+
+        message_max_height = message_height - footer_height - $('.heicon').height() - 50;
+    }
+    // $('.message').css('height',message_max_height);
+    // $('.message').css('max-height',message_max_height);
+    $('.chat_show_area').css('height',message_max_height);
+    $('.chat_show_area').css('max-height',message_max_height);
+
+    $('.se_text').css('width',$('.shouxq').width());
+    $(".GoDown").css('width',$('.chat_show_area ').width());
+
+
+
+    $(document).ready(function () {
+        if($('.chat_show_area').scrollTop()==($('.chat_show_area').prop("scrollHeight") - $('.chat_show_area').height())){
+            $(".GoDown").fadeOut( "slow", function() {
+                $(".GoDown").hide();
+            });
+        }
+        $(".GoDown").hide();
+
+        $(".GoDown").click(function() {
+            $(".chat_show_area").animate({ scrollTop: ($(".chat_show_area").prop("scrollHeight") - $(".chat_show_area").height()) }, "slow", function() {
+                $(".GoDown").fadeOut( "slow", function() {
+                    $(".GoDown").hide();
+                });
+            });
+        });
+
+        $(".chat_show_area").scroll(function() {
+            if($(this).scrollTop() < ($(this).prop("scrollHeight") - $(this).height())) {
+                $(".GoDown").fadeIn( "slow", function() {
+                    $(".GoDown").show();
+                });
+            }else if($(this).scrollTop() == ($(this).prop("scrollHeight") - $(this).height())){
+                // alert($(this).scrollTop());
+                $(".GoDown").fadeOut( "slow", function() {
+                    $(".GoDown").hide();
+                });
+            }
+        });
+
+        $(window).resize(function() {
+            var message_max_height;
+            var message_height = $(window).height() - $('.se_text_bot').height() - $('.shouxq').height();
+            var footer_height = 0;
+
+            if($(window).width()<=912){
+                $('.bot').hide(); //footer
+            }
+            if($('.bot').is(":visible")){
+                footer_height = $('.bot').height();
+                message_height = message_height - 10;
+                $(".GoDown").css('bottom', $('.bot').height() + 102);
+                $('.se_text_bot').css('position','inherit');
+                $('.se_text_bot').css('bottom','5px');
+            }else{
+                $(".GoDown").css('bottom', 60);
+                $('.se_text_bot').css('position','fixed');
+                $('.se_text_bot').css('bottom','5px');
+            }
+
+            if($('.hetop').is(":visible")){
+                $('.message').css('padding-left','30px');
+                $('.bot').show();
+                message_max_height = message_height - footer_height - $('.hetop').height() - 50;
+            }else if($('.heicon').is(":visible")){
+                $('.message').css('padding-left','10px');
+                message_max_height = message_height - footer_height - $('.heicon').height() - 50;
+            }
+
+            $('.chat_show_area').css('height',message_max_height);
+            $('.chat_show_area').css('max-height',message_max_height);
+
+            $('.se_text').css('width',$('.shouxq').width());
+            $(".GoDown").css('width',$('.chat_show_area').width());
+
+            if($('.chat_show_area').scrollTop()==0){
+                $(".GoDown").fadeOut( "slow", function() {
+                    $(".GoDown").hide();
+                });
+            }
+        });
+    });
 </script>
 
 @stack('scripts')
