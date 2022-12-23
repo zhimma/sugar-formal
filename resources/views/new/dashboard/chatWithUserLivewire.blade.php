@@ -8,6 +8,9 @@
     <link href="{{ asset('css/jquery.fileuploader.min.css') }}" media="all" rel="stylesheet">
     <link href="{{ asset('new/css/fileupload.css') }}" media="all" rel="stylesheet">
     <link href="{{ asset('css/font/font-fileuploader.css') }}" media="all" rel="stylesheet">
+    <link href="/new/intro/introjs.css" rel="stylesheet">
+    <link href="/new/intro/cover.css" rel="stylesheet">
+    <script type="text/javascript" src="/new/intro/intro.js"></script>    
     <style>
         .chatWith>img {
             width: 40px;
@@ -471,7 +474,7 @@
                 <a class="fa_adbut1 left"
                     href="{{ !empty(session()->get('goBackPage_chat2')) ? session()->get('goBackPage_chat2') : \Illuminate\Support\Facades\URL::previous() }}"><img
                         class="fa_backicon" src="{{ asset('/new/images/back_icon.png') }}">返回</a>
-                <span style="se_rea">
+                <span class="se_rea">
                     @if($toUserIsBanned)
                         <a type="button" style="color: #fd5678;" onclick="c5('{{'此人已被站方封鎖'}}'),setTimeout(function(){window.location.href = ' {{ !empty(session()->get	('goBackPage_chat2')) ? session()->get('goBackPage_chat2') : \Illuminate\Support\Facades\URL::previous() }} '},3000)">{{$to->name}}</a>
                     @else
@@ -490,6 +493,10 @@
                                 @endif
                             </span>
                         </a>
+                        @if($to->engroup==2 && $to->show_can_message== 0)
+                            <img id="yd6"  class="yd6" src="{{ asset('/new/images/zz_ztt2.png') }}" data-position="top" data-highlightClass="yd6a" data-tooltipClass="yd6"
+                                data-intro="<p>注意!! 此符號代表該位女會員設定屏蔽罐頭訊息，您目前發出的訊息與過往訊息相似度太高，會被屏蔽，建議您重新調整訊息內容再發出。</p>">
+                        @endif
                     @endif
                 </span>
                 @if($user->engroup==1)     
@@ -1014,6 +1021,9 @@
                 else {
                     // Sent
                     // realtime_to(e);
+                    if(e.message['is_can']==1) {            
+                        show_canMessageAlert();
+                    }
                 }
             })
             // .listenForWhisper('sendMsg', (e) => {
@@ -2269,6 +2279,19 @@
     }
     @endif
     
+    function show_canMessageAlert() {
+        introJs().start().oncomplete(function() {
+            $('img.yd6').removeClass('highlight');
+        }).onexit(function() {
+            $('img.yd6').removeClass('highlight');
+        });
+        
+        $('img.yd6').addClass('highlight');
+        var notShowButton = document.createElement("a");  
+        notShowButton.setAttribute('class', 'introjs-button introjs-notshowbutton');
+        notShowButton.setAttribute('href', "{{ route('viewChatNotice') }}");
+        $('.introjs-tooltipbuttons').append(notShowButton);
+    }
 	function c_truth() {
 		 $(".blbg").show();
          $("#tab_truth").show();
