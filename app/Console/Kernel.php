@@ -37,13 +37,6 @@ class Kernel extends ConsoleKernel
      */
     protected function schedule(Schedule $schedule)
     {
-        //新增檢查等待更多資料名單
-        $schedule->command('Step2CheckExtendRecheck')->timezone('Asia/Taipei')->dailyAt('03:00');
-        $schedule->command('Step2CheckExtendRecheck')->timezone('Asia/Taipei')->dailyAt('09:00');
-        $schedule->command('Step2CheckExtendRecheck')->timezone('Asia/Taipei')->dailyAt('13:00');
-        $schedule->command('Step2CheckExtendRecheck')->timezone('Asia/Taipei')->dailyAt('18:30');
-        //新增檢查等待更多資料名單
-
         if(app()->environment('MISC')) {            
             //每半小時檢查登入使用者
             $schedule->command('UserLogin')->timezone('Asia/Taipei')->everyMinute();
@@ -89,6 +82,12 @@ class Kernel extends ConsoleKernel
 
             $schedule->command('TestCheck')->timezone('Asia/Taipei')->weeklyOn(1, '2:15');
 
+            //新增檢查等待更多資料名單
+            $schedule->command('Step2CheckExtendRecheck')->timezone('Asia/Taipei')->dailyAt('03:00');
+            $schedule->command('Step2CheckExtendRecheck')->timezone('Asia/Taipei')->dailyAt('09:00');
+            $schedule->command('Step2CheckExtendRecheck')->timezone('Asia/Taipei')->dailyAt('13:00');
+            $schedule->command('Step2CheckExtendRecheck')->timezone('Asia/Taipei')->dailyAt('18:30');
+            //新增檢查等待更多資料名單
         }
         if(app()->environment('CFP')){
             //$schedule->call('\App\Http\Controllers\Admin\FindPuppetController@entrance')->timezone('Asia/Taipei')->dailyAt('05:00');
