@@ -4059,7 +4059,7 @@ class PagesController extends BaseController
                         $m_time = $m_time->created_at;
                     }
                 }
-                return view('new.dashboard.chatWithUser')
+                return view('new.dashboard.chatWithUserLivewire')
                     ->with('user', $user)
                     ->with('admin', $admin)
                     ->with('is_banned', $is_banned)
@@ -4082,7 +4082,7 @@ class PagesController extends BaseController
                     ;
             }
             else {
-                return view('new.dashboard.chatWithUser')
+                return view('new.dashboard.chatWithUserLivewire')
                     ->with('user', $user)
                     ->with('admin', $admin)
                     ->with('is_banned', $is_banned)
@@ -5368,7 +5368,8 @@ class PagesController extends BaseController
 
         if(!$check_rs) {
             $id_serial = $data['MemberNo'] = strtoupper($request->id_serial);
-            $encode_id_serial = md5(sha1(md5($id_serial)));
+            $old_encode_id_serial = md5(sha1(md5($id_serial)));
+            $encode_id_serial = bcrypt($id_serial);
             $phone_number = $data['phone_number'] = $request->phone_number;
              $birth = $data['birth'] = date('Ymd', strtotime($request->year.'-'.$request->month.'-'.$request->day));
             $format_birth = $request->year.'-'.$request->month.'-'.$request->day;
@@ -5377,15 +5378,34 @@ class PagesController extends BaseController
             return back()->with('error_code', explode('_',$check_rs))
                     ->with('error_code_msg',['s'=>'僅供女會員驗證','i'=>'身分證字號','p'=>'門號','b'=>'生日','b18'=>'年齡未滿18歲，不得進行驗證','pf'=>'無法使用此手機號碼進行驗證','phack'=>'非通過驗證的手機號碼']);
         }
-        
-        if(User::where('advance_auth_identity_encode',$encode_id_serial)->where('advance_auth_status',1)->where('advance_auth_phone',$phone_number)->where('advance_auth_birth',$format_birth)->count()) {
+        $precheck_duplicate_user =  User::where('advance_auth_identity_encode',$old_encode_id_serial)->where('advance_auth_status',1)->orderByDesc('advance_auth_time')->first();
+        if($precheck_duplicate_user ) {
             $user->log_adv_auth_api()->create([
                     'birth'=>$data['birth']
                     ,'phone'=>$data['phone_number']
-                    ,'identity_encode'=>$encode_id_serial
+                    ,'identity_hash'=>$encode_id_serial
                     ,'is_duplicate'=>1
+                    ,'duplicate_user_id'=>$precheck_duplicate_user->id
                 ]);
             return back()->with('message', [$this->advance_auth_get_msg('have_wrong')]);
+        } 
+
+        $precheck_hash_users = User::where('advance_auth_identity_hash','!=','')->whereNotNull('advance_auth_identity_hash')->where('advance_auth_status',1)->orderByDesc('advance_auth_time')->get();
+        
+        if($precheck_hash_users->count()) {
+            foreach($precheck_hash_users as $ph_user) {
+                if (Hash::check($id_serial, $ph_user->advance_auth_identity_hash)) {
+					$user->log_adv_auth_api()->create([
+	                    'birth'=>$data['birth']
+	                    ,'phone'=>$data['phone_number']
+	                    ,'identity_hash'=>$encode_id_serial
+	                    ,'is_duplicate'=>1
+	                    ,'duplicate_user_id'=>$ph_user->id
+               		 ]);
+                    return back()->with('message', [$this->advance_auth_get_msg('have_wrong')]);
+                    break;
+                }                    
+            }
         }        
 
         $data['api_base'] = 'https://'.config('memadvauth.service.host').(config('memadvauth.service.port')?':'.config('memadvauth.service.port'):'').'/';
@@ -5417,13 +5437,13 @@ class PagesController extends BaseController
         $OutputParams = json_decode($output["OutputParams"]??'', JSON_UNESCAPED_UNICODE);        
      
         if($OutputParams['MemberNo']??null) {
-            $OutputParams['MemberNo'] = md5(sha1(md5($OutputParams['MemberNo'])));
+            $OutputParams['MemberNo'] = $encode_id_serial;//md5(sha1(md5($OutputParams['MemberNo'])));
             $output["OutputParams"] = json_encode($OutputParams);
         }
         $logArr = [
                     'birth'=>$data['birth']
                     ,'phone'=>$data['phone_number']
-                    ,'identity_encode'=>$encode_id_serial
+                    ,'identity_hash'=>$encode_id_serial
                     ,'return_response'=>json_encode($output)
                 ];
                 
@@ -5492,16 +5512,32 @@ class PagesController extends BaseController
             )  $test_auth_fail_mode = true;
         
         if($MIDOutputParams["code"]=="0000" && !$test_auth_fail_mode){
-            
-            if(User::where('advance_auth_identity_encode',$encode_id_serial)->where('advance_auth_status',1)->count()) {
+            $check_duplicate_user = User::where('advance_auth_identity_encode',$old_encode_id_serial)->where('advance_auth_identity_encode','!=','')->whereNotNull('advance_auth_identity_encode')->where('advance_auth_status',1)->orderByDesc('advance_auth_time')->first();
+            if($check_duplicate_user) {
                 $logAdvAuthApi->is_duplicate=1;
+                $logAdvAuthApi->duplicate_user_id = $check_duplicate_user->id;
                 $logAdvAuthApi->save();
                 return back()->with('message', [$this->advance_auth_get_msg('have_wrong')]);
             }
+            
+            $hash_users = User::where('advance_auth_identity_hash','!=','')->whereNotNull('advance_auth_identity_hash')->where('advance_auth_status',1)->orderByDesc('advance_auth_time')->get();
+            
+            if($hash_users->count()) {
+                foreach($hash_users as $h_user) {
+                    if (Hash::check($id_serial, $h_user->advance_auth_identity_hash)) {
+                        $logAdvAuthApi->is_duplicate=1;
+                        $logAdvAuthApi->duplicate_user_id = $h_user->id;
+                        $logAdvAuthApi->save();
+                        return back()->with('message', [$this->advance_auth_get_msg('have_wrong')]);
+                        break;
+                    }                    
+                }
+            }
+            
             $auth_date = date('Y-m-d H:i:s');
             $user->advance_auth_status = 1;
             $user->advance_auth_time = $auth_date;
-            $user->advance_auth_identity_encode = $encode_id_serial;
+            $user->advance_auth_identity_hash = $encode_id_serial;
             $user->advance_auth_birth = $format_birth;
             $user->advance_auth_phone = $request->phone_number;
             $user->save();
