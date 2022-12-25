@@ -7,6 +7,8 @@ use App\Models\AdminActionLog;
 use App\Models\AnonymousChat;
 use App\Models\AnonymousChatForbid;
 use App\Models\AnonymousChatReport;
+use App\Models\AnonymousEvaluationChat;
+use App\Models\AnonymousEvaluationMessage;
 use App\Models\Board;
 use App\Models\EssenceStatisticsLog;
 use App\Models\Evaluation;
@@ -4614,6 +4616,41 @@ class UserController extends \App\Http\Controllers\BaseController
         Session::flash('message', '審核已完成，系統將自動發信通知該會員');
 
         echo json_encode('ok');
+    }
+
+    public function showAnonymousChatMessage($chat_id)
+    {
+        $evaluation = User::select(
+            'e.to_id',
+            'e.from_id',
+            'to_user.name as to_user_name',
+            'from_user.name as from_user_name'
+        )
+        ->join('evaluation as e', 'e.from_id', 'users.id')
+        ->join('users as to_user', 'e.to_id', 'to_user.id')
+        ->join('users as from_user', 'e.from_id', 'from_user.id')
+        ->where('e.id', $chat_id)
+        ->first();
+
+        $anonymous_evaluation_chat_id = AnonymousEvaluationChat::where('evaluation_id', $chat_id)->pluck('id')->first();
+        $messages = AnonymousEvaluationMessage::where('anonymous_evaluation_chat_id', $anonymous_evaluation_chat_id)->get()->map(function($msg) use ($evaluation) {
+            $from_user = $msg->user_id;
+            if($from_user == $evaluation->to_id) {
+                $msg->to_user_name = $evaluation->from_user_name;
+                $msg->from_user_name = $evaluation->to_user_name;
+                $msg->to_user = $evaluation->from_id;
+                $msg->from_user = $evaluation->to_id;
+
+            }else {
+                $msg->to_user_name = $evaluation->to_user_name;
+                $msg->from_user_name = $evaluation->from_user_name;
+                $msg->to_user = $evaluation->to_id;
+                $msg->from_user = $evaluation->from_id;
+            }
+            return $msg;
+        });
+       
+        return view('admin.users.showAnonymousChatMessage', compact('messages'));
     }
 
     public function showAdminCheckAnonymousContent()
