@@ -15,13 +15,14 @@ class CreateAnonymousEvaluationChatsTable extends Migration
     {
         if (!Schema::hasTable('anonymous_evaluation_chats')) {
             Schema::create('anonymous_evaluation_chats', function (Blueprint $table) {
-                $table->unique(['creator','status'], 'unique_chat');
                 $table->bigIncrements('id');
                 $table->unsignedInteger('evaluation_id');
                 $table->string('members',50);
                 $table->unsignedInteger('deletor')->nullable();
+                $table->unsignedInteger('creator')->nullable();
                 $table->unsignedTinyInteger('status')->default(1);
                 $table->timestamps();
+                $table->unique(['creator', 'status'], 'unique_chat');
             });
         }
     }
