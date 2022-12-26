@@ -624,7 +624,9 @@
                                                 <span class="he_yuan"><img src="/new/images/ba_03.png" class="he_left_img"></span><i class="he_li30">回覆</i>
                                             </a>
                                         </font>`;
-                                $(this).find('.msg_content').after(str);
+                                if(event.target.nodeName != 'IMG') {
+                                    $(this).find('.msg_content').after(str);
+                                }
                                 $(this).blur(function(){
                                     setTimeout(function(){
                                         $('.atkbut').remove();
