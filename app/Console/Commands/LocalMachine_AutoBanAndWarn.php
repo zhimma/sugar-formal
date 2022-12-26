@@ -6,6 +6,8 @@ use Illuminate\Console\Command;
 
 use Illuminate\Support\Facades\Log;
 
+use App\Models\User;
+
 class LocalMachine_AutoBanAndWarn extends Command
 {
     /**
@@ -40,5 +42,7 @@ class LocalMachine_AutoBanAndWarn extends Command
     public function handle()
     {
         Log::Info('LocalMachine_AutoBanAndWarn_Start');
+        $user = User::first();
+        Log::Info($user->name);
     }
 }
