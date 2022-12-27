@@ -17,13 +17,16 @@ class LocalMachineReceiveController extends Controller
 		Log::Info($ban_list);
 		if($request->key == env('MISC_KEY') && $request->ip() == env('MISC_SERVER'))
 		{
-			foreach($ban_list as $item)
+			if($ban_list ?? false)
 			{
-				$uid = $item[0];
-				$ban_set = SetAutoBan::where('id', $item[1])->first();
-				$user = User::find($uid);
-				$type = $item[2];
-				BanJob::dispatch($uid, $ban_set, $user, $type)->onConnection('ban-job')->onQueue('ban-job');
+				foreach($ban_list as $item)
+				{
+					$uid = $item[0];
+					$ban_set = SetAutoBan::where('id', $item[1])->first();
+					$user = User::find($uid);
+					$type = $item[2];
+					BanJob::dispatch($uid, $ban_set, $user, $type)->onConnection('ban-job')->onQueue('ban-job');
+				}
 			}
 			return '接收成功';
 		}
