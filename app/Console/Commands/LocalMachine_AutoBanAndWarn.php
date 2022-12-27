@@ -3,10 +3,11 @@
 namespace App\Console\Commands;
 
 use Illuminate\Console\Command;
-
 use Illuminate\Support\Facades\Log;
-
 use App\Models\User;
+use GuzzleHttp\Client;
+use Carbon\Carbon;
+use App\Models\SetAutoBan;
 
 class LocalMachine_AutoBanAndWarn extends Command
 {
@@ -42,7 +43,29 @@ class LocalMachine_AutoBanAndWarn extends Command
     public function handle()
     {
         Log::Info('LocalMachine_AutoBanAndWarn_Start');
-        $user = User::first();
-        Log::Info($user->name);
+
+        $ban_list = [];
+        $users = User::where('last_login', '>', Carbon::now()->subSeconds(61))->get();
+        foreach($users as $user)
+        {
+            Log::info('User:' . $user->id);
+            $ban_list = array_merge($ban_list, SetAutoBan::local_machine_ban_and_warn($user->id));
+        }
+        Log::Info($ban_list);
+
+        $link_address = env('MISC_LINK_SERVER').'/LocalMachineReceive/BanAndWarn';
+        $post_data = [
+            'form_params' => [
+                'key' => env('MISC_KEY'),
+                'ban_list' => $ban_list
+            ]
+        ];
+        $client   = new Client();
+        $response = $client->request('POST', $link_address, $post_data);
+        $contents = $response->getBody()->getContents();
+        Log::Info($contents);
+        
+
+        Log::Info('LocalMachine_AutoBanAndWarn_End');
     }
 }
