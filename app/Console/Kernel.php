@@ -39,7 +39,7 @@ class Kernel extends ConsoleKernel
     {
         if(app()->environment('MISC')) {
             //$schedule->command('UserLogin')->timezone('Asia/Taipei')->everyMinute();
-            //$schedule->command('LocalMachine_AutoBanAndWarn')->timezone('Asia/Taipei')->everyMinute();
+            $schedule->command('LocalMachine_AutoBanAndWarn')->timezone('Asia/Taipei')->everyMinute();
         }
         if(app()->environment('CFP')){
             // $schedule->call('\App\Http\Controllers\Admin\FindPuppetController@entrance')->timezone('Asia/Taipei')->dailyAt('05:00');
