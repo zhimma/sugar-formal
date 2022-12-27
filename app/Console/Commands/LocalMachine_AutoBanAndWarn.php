@@ -49,7 +49,11 @@ class LocalMachine_AutoBanAndWarn extends Command
         foreach($users as $user)
         {
             Log::info('User:' . $user->id);
-            $ban_list = array_merge($ban_list, SetAutoBan::local_machine_ban_and_warn($user->id));
+            $merge_ban_list = SetAutoBan::local_machine_ban_and_warn($user->id);
+            if($merge_ban_list != [])
+            {
+                $ban_list = array_merge($ban_list, SetAutoBan::local_machine_ban_and_warn($user->id));
+            }
         }
         Log::Info($ban_list);
 
