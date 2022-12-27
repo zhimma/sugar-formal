@@ -29,6 +29,8 @@ class LocalMachineReceiveController extends Controller
 		}
 		else
 		{
+			Log::Info('外部IP請求失敗:');
+			Log::Info($request->ip());
 			return '接收失敗';
 		}
         
