@@ -52,7 +52,7 @@ class LocalMachine_AutoBanAndWarn extends Command
             $merge_ban_list = SetAutoBan::local_machine_ban_and_warn($user->id);
             if($merge_ban_list != [])
             {
-                $ban_list = array_merge($ban_list, SetAutoBan::local_machine_ban_and_warn($user->id));
+                $ban_list = array_merge($ban_list, $merge_ban_list);
             }
         }
         Log::Info($ban_list);
