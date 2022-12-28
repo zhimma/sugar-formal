@@ -646,10 +646,10 @@ class SetAutoBan extends Model
             $ban_meta_set_type = collect(['about', 'style']);
             $all_check_rule_sets = SetAutoBan::retrive('allcheck');  
 
-            $ban_set_type->each(function($type) use ($user, $all_check_rule_sets, $probing, $ban_list) {
+            $ban_set_type->each(function($type) use ($user, $all_check_rule_sets, $probing, &$ban_list) {
                 $type_rule_sets = SetAutoBan::retrive($type);
                 $rule_sets = $type_rule_sets->merge($all_check_rule_sets);
-                $rule_sets->each(function($rule_set) use ($user, $type, $probing, $ban_list) {
+                $rule_sets->each(function($rule_set) use ($user, $type, $probing, &$ban_list) {
                     if(str_contains($user->$type, $rule_set->content)) {  
                         if($probing) {
                             echo $rule_set->id . ' ' . $rule_set->type;
@@ -661,10 +661,10 @@ class SetAutoBan extends Model
                 });
             });
 
-            $ban_meta_set_type->each(function($type) use ($user, $all_check_rule_sets, $probing, $ban_list) {
+            $ban_meta_set_type->each(function($type) use ($user, $all_check_rule_sets, $probing, &$ban_list) {
                 $type_rule_sets = SetAutoBan::retrive($type);
                 $rule_sets = $type_rule_sets->merge($all_check_rule_sets);
-                $rule_sets->each(function($rule_set) use ($user, $type, $probing, $ban_list) {
+                $rule_sets->each(function($rule_set) use ($user, $type, $probing, &$ban_list) {
                     if(str_contains($user->user_meta->$type, $rule_set->content)) {  
                         if($probing) {
                             echo $rule_set->id . ' ' . $rule_set->type;
@@ -676,9 +676,9 @@ class SetAutoBan extends Model
                 });
             });
 
-            $user->log_user_login->each(function ($log) use ($user, $probing, $ban_list) {
+            $user->log_user_login->each(function ($log) use ($user, $probing, &$ban_list) {
                 $cfp_id_rule_sets = SetAutoBan::retrive('cfp_id');
-                $cfp_id_rule_sets->each(function($rule_set) use ($user, $log, $probing, $ban_list) {
+                $cfp_id_rule_sets->each(function($rule_set) use ($user, $log, $probing, &$ban_list) {
                     if($log->cfp_id == $rule_set->content) {
                         if($probing) {
                             echo $rule_set->id . ' ' . $rule_set->type;
@@ -690,7 +690,7 @@ class SetAutoBan extends Model
                 });
 
                 $user_agent_rule_sets = SetAutoBan::retrive('user_agent');
-                $user_agent_rule_sets->each(function($rule_set) use ($user, $log, $probing, $ban_list) {
+                $user_agent_rule_sets->each(function($rule_set) use ($user, $log, $probing, &$ban_list) {
                     if(str_contains($log->userAgent, $rule_set->content)) {
                         if($probing) {
                             echo $rule_set->id . ' ' . $rule_set->type;
@@ -704,7 +704,7 @@ class SetAutoBan extends Model
 
             //20220629新增圖片檔名
             $pic_rule_sets = SetAutoBan::retrive('pic');
-            $pic_rule_sets->each(function($rule_set) use ($user, $probing, $ban_list) {
+            $pic_rule_sets->each(function($rule_set) use ($user, $probing, &$ban_list) {
                 if(str_contains($user->user_meta->pic_original_name, $rule_set->content)) {
                     if($probing) {
                         echo $rule_set->id . ' ' . $rule_set->type;
@@ -717,8 +717,8 @@ class SetAutoBan extends Model
 
             //有一筆違規就可以封鎖了 
             $pic_name_rule_sets = SetAutoBan::retrive('picname');
-            $any_pic_violated = $user->pics->first(function($pic) use ($user, $pic_name_rule_sets, $probing, $ban_list) {
-                return $pic_name_rule_sets->each(function($rule_set) use ($user, $pic, $probing, $ban_list) {
+            $any_pic_violated = $user->pics->first(function($pic) use ($user, $pic_name_rule_sets, $probing, &$ban_list) {
+                return $pic_name_rule_sets->each(function($rule_set) use ($user, $pic, $probing, &$ban_list) {
                     if(str_contains($pic->original_name, $rule_set->content)) {
                         if($probing) {
                             echo 'any_pic_violated, ban set:' . $rule_set->id . ' ' . $rule_set->type;
