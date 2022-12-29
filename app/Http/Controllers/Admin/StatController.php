@@ -106,12 +106,14 @@ class StatController extends \App\Http\Controllers\BaseController
         $expiry = Vip::where('member_id', $id)->orderBy('created_at', 'asc')->get()->first();
         $order = order::where('user_id', $id)->orderBy('order_date','desc')->get();
         $vvip_log_data = ValueAddedServiceLog::where('member_id', $id)->where('service_name', 'like', '%VVIP%')->get();
+        $hideOnline_log_data = ValueAddedServiceLog::where('member_id', $id)->where('service_name', 'hideOnline')->get();
         return view('admin.stats.vipLog', [
             'results' => $results,
             'name' => $name,
             'expiry' => isset($expiry)?substr($expiry->expiry, 0, 10):'',
             'order' => $order,
-            'vvip_log_data' => $vvip_log_data
+            'vvip_log_data' => $vvip_log_data,
+            'hideOnline_log_data' => $hideOnline_log_data
         ]);
     }
     public function cronLog(){
