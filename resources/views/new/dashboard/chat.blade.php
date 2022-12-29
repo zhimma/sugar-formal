@@ -2590,12 +2590,24 @@ is_truth_icon_pic.src="{{asset('/new/images/zz_zt2.png')}}";
                     if(list.length > 0){
                         let str = '';
                         $.each(list,function(k,v){
+                            var blurryAvatar = v.blurry_avatar? v.blurry_avatar.split(',') : '';
+                            if(blurryAvatar.length > 1){
+                                var nowB = '{{$isVip? "VIP" : "general"}}';
+                                
+                                if( blurryAvatar.indexOf(nowB) != -1){
+                                    isBlur = true;
+                                } else {
+                                    isBlur = false;
+                                }
+                            } else {
+                                isBlur = false;
+                            }
                             str +=`<li>
                                         <div class="si_bg ys_pr">
                                             <a href="/dashboard/anonymousEvaluationChat/Room/${v.chatid}" target="_self">
                                                 <div style="width: 70px; float: left;">
-                                                    <div class="sjpic shanx">
-                                                        <img src="/new/images/${anonymousGender}.png">
+                                                    <div class="sjpic ${isBlur?'blur_img':''} shanx">
+                                                        <img src="${v.avatar?v.avatar:`/new/images/${anonymousGender}.png`}">
                                                         <div class="onlineStatusChatView"></div>
                                                     </div>
                                                 </div>
