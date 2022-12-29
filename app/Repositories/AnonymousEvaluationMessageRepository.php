@@ -67,7 +67,7 @@ class AnonymousEvaluationMessageRepository
     }
     
     public function getMessage($data){
-        return $this->model->withTrashed()->select('id','user_id','reply_id','read','unsend','content','pictures','deleted_at','created_at')->where('anonymous_evaluation_chat_id',$data['anonymous_evaluation_chat_id'])->where('id','>=',$data['id'])->orderBy('created_at','ASC')->get();
+        return $this->model->withTrashed()->select('id','anonymous_evaluation_chat_id','user_id','reply_id','read','unsend','content','pictures','deleted_at','created_at')->where('anonymous_evaluation_chat_id',$data['anonymous_evaluation_chat_id'])->where('id','>=',$data['id'])->orderBy('created_at','ASC')->get();
     }
 
     public function getMessageInfoById($id){

@@ -7,6 +7,8 @@ use App\Repositories\AnonymousEvaluationChatRepository;
 use App\Repositories\AnonymousEvaluationChatReportRepository;
 use App\Repositories\AnonymousEvaluationMessageRepository;
 use Illuminate\Support\Facades\Crypt;
+use App\Models\UserMeta;
+use App\Services\UserService;
 
 class EvaluationService
 {
@@ -27,10 +29,16 @@ class EvaluationService
 
         foreach($chats as $k => $v){
             if($v->messages()->count()==0) continue;
+            $is_anonymous = $v->evaluation()->first()->from_id!=$data['user_id'];
+            $to_id =  $v->evaluation()->first()->to_id;
+            $user_meta = UserMeta::where('user_id', $to_id)->first();
             $message = $v->messages()->orderBy('created_at','DESC')->first();
+            $avatar = file_exists(public_path().$user_meta->pic)?$user_meta->pic:null;
             $arr = [
                 'user_id'   => $data['user_id'],
-                'name'      => ($v->evaluation()->first()->from_id==$data['user_id'])?$v->evaluation()->first()->receiver()->first()->name:"匿名帳號",
+                'avatar'    => $is_anonymous?null:$avatar,
+                'blurry_avatar' =>  $user_meta->blurryAvatar,
+                'name'      => $is_anonymous?"匿名帳號":$v->evaluation()->first()->receiver()->first()->name,
                 'chatid'    => Crypt::encryptString($v->id),
                 'count'     => $v->messages()->where('read',0)->where('user_id','!=',$data['user_id'])->count(),
                 'content'   => isset($message->content)?$message->content:"",
@@ -86,6 +94,34 @@ class EvaluationService
                 $arr['read']  = $message->read;
                 $arr['content']  = $message->content;
                 $arr['pictures']  = json_decode($message->pictures);
+
+                $post_msg_user_meta = UserMeta::where('user_id', $message->user_id)->first();
+                $arr['avatar']  = $post_msg_user_meta->pic;
+                $blurryAvatar = $post_msg_user_meta->blurryAvatar? explode(",", $post_msg_user_meta->blurryAvatar): '';
+                if(count($blurryAvatar) > 1 && \Auth::user()->id!=$message->user_id){
+                    $nowB = \Auth::user()->isVip()? "VIP" : "general";
+                    
+                    if( in_array($nowB, $blurryAvatar)){
+                        $isBlur = true;
+                    } else {
+                        $isBlur = false;
+                    }
+                } else {
+                    $isBlur = false;
+                }
+                $arr['isBlur'] = $isBlur;
+                
+                $avatar_exists = file_exists(public_path().$post_msg_user_meta->pic);
+                if(!$avatar_exists) {
+                    $arr['avatar']  = null;
+                }else if($avatar_exists && (\Auth::user()->id!=$message->user_id)){
+                    $evaluationId = $this->anonymousEvaluationChat->getEvaluationIdByChatId($message->anonymous_evaluation_chat_id);
+                    $evaluation_to_user = $this->evaluation->getEvaluationMembers($evaluationId)->receiver()->first()->id;
+                    if(\Auth::user()->id == $evaluation_to_user){                        
+                        $arr['avatar']  = null;
+                    }
+                }
+                
             }else{
                 $arr['content']  = ((\Auth::user()->id==$message->user_id)?"您":"對方")."已收回訊息";
             }
