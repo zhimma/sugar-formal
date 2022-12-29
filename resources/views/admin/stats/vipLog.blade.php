@@ -50,7 +50,7 @@
 
 <table class='table table-bordered table-hover'>
 	<tr>
-		<th> VIP 動作</th>
+		<th>VIP 動作</th>
 		<th>TXN ID</th>
         <th>Action</th>
         <th>是否免費</th>
@@ -68,7 +68,7 @@
 	</tr>
 	@empty
 	<tr>
-	找不到資料
+		<td colspan="6">找不到資料</td>
 	</tr>
 	@endforelse
 </table>
@@ -95,11 +95,37 @@
 		</tr>
 	@empty
 		<tr>
-			找不到資料
+			<td colspan="7">找不到資料</td>
 		</tr>
 	@endforelse
 </table>
 
+<table class='table table-bordered table-hover'>
+	<tr>
+		<th>隱藏付費 動作</th>
+		<th>服務項目</th>
+		<th>訂單編號</th>
+		<th>TXN ID</th>
+		<th>Action</th>
+		<th>資料建立時間</th>
+		<th>資料建立時間</th>
+	</tr>
+	@forelse ($hideOnline_log_data as $row)
+		<tr>
+			<td>{{ $row->content }}</td>
+			<td>{{ $row->service_name }}</td>
+			<td>{{ $row->order_id }}</td>
+			<td>{{ $row->txn_id }}</td>
+			<td>{{ $row->action }}</td>
+			<td>{{ $row->created_at }}</td>
+			<td>{{ $row->updated_at }}</td>
+		</tr>
+	@empty
+		<tr>
+			<td colspan="7">找不到資料</td>
+		</tr>
+	@endforelse
+</table>
 </body>
 </html>
 @stop
