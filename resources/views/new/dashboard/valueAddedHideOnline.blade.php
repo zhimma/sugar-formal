@@ -212,9 +212,9 @@
                                                                     您已經取號過, <br>請直接使用下列超商條碼繳費即可
                                                                     <div class="barcode_style">
                                                                             <div class="barcode_cvs"><img src="/new/images/payment_1.jpg"></div>
-                                                                            <img src="data:image/png;base64,{{DNS1D::getBarcodePNG($data->Barcode1, 'C39+', 1, 33, array(1,1,1), true)}}" alt="barcode" />
-                                                                            <img src="data:image/png;base64,{{DNS1D::getBarcodePNG($data->Barcode2, 'C39+', 1, 33, array(1,1,1), true)}}" alt="barcode" />
-                                                                            <img src="data:image/png;base64,{{DNS1D::getBarcodePNG($data->Barcode3, 'C39+', 1, 33, array(1,1,1), true)}}" alt="barcode" />
+                                                                            <img src="data:image/png;base64,{{DNS1D::getBarcodePNG($data->Barcode1, 'C39', 1, 33, array(1,1,1), true)}}" alt="barcode" /><br>
+                                                                            <img src="data:image/png;base64,{{DNS1D::getBarcodePNG($data->Barcode2, 'C39', 1, 33, array(1,1,1), true)}}" alt="barcode" /><br>
+                                                                            <img src="data:image/png;base64,{{DNS1D::getBarcodePNG($data->Barcode3, 'C39', 1, 33, array(1,1,1), true)}}" alt="barcode" />
                                                                         </div>
                                                                     繳費期限：{{$data->ExpireDate}}
                                                                 @endif
@@ -353,9 +353,9 @@
                                                                     您已經取號過, <br>請直接使用下列超商條碼繳費即可
                                                                     <div class="barcode_style">
                                                                             <div class="barcode_cvs"><img src="/new/images/payment_1.jpg"></div>
-                                                                            <img src="data:image/png;base64,{{DNS1D::getBarcodePNG($data->Barcode1, 'C39+', 1, 33, array(1,1,1), true)}}" alt="barcode" />
-                                                                            <img src="data:image/png;base64,{{DNS1D::getBarcodePNG($data->Barcode2, 'C39+', 1, 33, array(1,1,1), true)}}" alt="barcode" />
-                                                                            <img src="data:image/png;base64,{{DNS1D::getBarcodePNG($data->Barcode3, 'C39+', 1, 33, array(1,1,1), true)}}" alt="barcode" />
+                                                                            <img src="data:image/png;base64,{{DNS1D::getBarcodePNG($data->Barcode1, 'C39', 1, 33, array(1,1,1), true)}}" alt="barcode" /><br>
+                                                                            <img src="data:image/png;base64,{{DNS1D::getBarcodePNG($data->Barcode2, 'C39', 1, 33, array(1,1,1), true)}}" alt="barcode" /><br>
+                                                                            <img src="data:image/png;base64,{{DNS1D::getBarcodePNG($data->Barcode3, 'C39', 1, 33, array(1,1,1), true)}}" alt="barcode" />
                                                                         </div>
                                                                     繳費期限：{{$data->ExpireDate}}
                                                                 @endif
