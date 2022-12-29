@@ -100,7 +100,6 @@ class ECPayment extends BaseController
             $obj->Send['NeedExtraPaidInfo'] = 'Y';
 
             if($request->type=='one_quarter_payment' || $request->type=='one_month_payment') {
-//                $obj->Send['ChoosePayment'] = $request->choosePayment;
                 //測試機測ALL才會回傳paymentInfo 正式機不確定 暫以ALL來寫
                 $obj->Send['ChoosePayment'] = ECPay_PaymentMethod::ALL;
                 $obj->Send['PaymentInfoURL'] = Config::get('ecpay.payment' . $envStr . '.PaymentInfoURL');
@@ -113,15 +112,14 @@ class ECPayment extends BaseController
                     }
                 }elseif($request->choosePayment=='ATM'){
                     $obj->Send['IgnorePayment']  = "WebATM#Credit#CVS#BARCODE" ;
+                    $obj->Send['ExpireDate']  = 30 ;
                 }elseif($request->choosePayment=='CVS'){
-                    $obj->Send['IgnorePayment']  = "WebATM#Credit#ATM" ;
+                    $obj->Send['IgnorePayment']  = "WebATM#Credit#ATM#BARCODE" ;
+                    $obj->Send['StoreExpireDate']  = 43200 ;
+                }elseif($request->choosePayment=='BARCODE'){
+                    $obj->Send['IgnorePayment']  = "WebATM#Credit#ATM#CVS" ;
+                    $obj->Send['StoreExpireDate']  = 30 ;
                 }
-//                elseif($request->choosePayment=='BARCODE'){
-//                    $obj->Send['IgnorePayment']  = "WebATM#Credit#ATM#CVS" ;
-//                }
-
-//                $obj->Send['ChoosePayment'] = ECPay_PaymentMethod::ALL;
-                //$obj->Send['IgnorePayment']     = ECPay_PaymentMethod::WebATM ;
             }else {
                 $obj->Send['ChoosePayment'] = ECPay_PaymentMethod::Credit;             //付款方式:Credit
                 $obj->SendExtend['Redeem'] = false ;           //是否使用紅利折抵，預設false
@@ -380,7 +378,6 @@ class ECPayment extends BaseController
             $obj->Send['NeedExtraPaidInfo'] = 'Y';
 
             if($request->payment=='one_quarter_payment' || $request->payment=='one_month_payment') {
-                //                $obj->Send['ChoosePayment'] = $request->choosePayment;
                 //測試機測ALL才會回傳paymentInfo 正式機不確定 暫以ALL來寫
                 $obj->Send['ChoosePayment'] = ECPay_PaymentMethod::ALL;
                 $obj->Send['PaymentInfoURL'] = Config::get('ecpay.payment' . $envStr . '.PaymentInfoURL');
@@ -389,15 +386,14 @@ class ECPayment extends BaseController
                     $obj->Send['IgnorePayment']  = "WebATM#ATM#CVS#BARCODE" ;
                 }elseif($request->choosePayment=='ATM'){
                     $obj->Send['IgnorePayment']  = "WebATM#Credit#CVS#BARCODE" ;
+                    $obj->Send['ExpireDate']  = 30 ;
                 }elseif($request->choosePayment=='CVS'){
-                    $obj->Send['IgnorePayment']  = "WebATM#Credit#ATM" ;
+                    $obj->Send['IgnorePayment']  = "WebATM#Credit#ATM#BARCODE" ;
+                    $obj->Send['StoreExpireDate']  = 43200 ;
+                }elseif($request->choosePayment=='BARCODE'){
+                    $obj->Send['IgnorePayment']  = "WebATM#Credit#ATM#CVS" ;
+                    $obj->Send['StoreExpireDate']  = 30 ;
                 }
-                //                elseif($request->choosePayment=='BARCODE'){
-                //                    $obj->Send['IgnorePayment']  = "WebATM#Credit#ATM#CVS" ;
-                //                }
-
-                //                $obj->Send['ChoosePayment'] = ECPay_PaymentMethod::ALL;
-                //$obj->Send['IgnorePayment']     = ECPay_PaymentMethod::WebATM ;
             }else {
                 $obj->Send['ChoosePayment'] = ECPay_PaymentMethod::Credit;             //付款方式:Credit
                 $obj->SendExtend['Redeem'] = false ;           //是否使用紅利折抵，預設false
