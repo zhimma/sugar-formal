@@ -1,15 +1,8 @@
 <?php
 namespace App\Http\Middleware;
 
-use App\Models\Blocked;
-use App\Models\hideOnlineData;
-use App\Models\MemberFav;
-use App\Models\Message;
-use App\Models\AdminCommonText;
 use App\Models\Order;
-use App\Models\Tip;
 use App\Models\ValueAddedService;
-use App\Models\Visited;
 use App\Models\VvipApplication;
 use Carbon\Carbon;
 use Closure;
@@ -160,11 +153,6 @@ class ValueAddedServiceApiDataLogger{
                         $remain_days = $payload['CustomField2'];
                         ValueAddedService::upgrade($user->id, $payload['CustomField4'], $payload['MerchantID'], $payload['MerchantTradeNo'], $payload['TradeAmt'], '', 1, $payload['CustomField3'], $remain_days);
 
-                        if(!(EnvironmentService::isLocalOrTestMachine())) {
-                            //產生訂單 --正式綠界
-                            Order::addEcPayOrder($payload['MerchantTradeNo'], null);
-                        }
-
                         //VVIP定期定額繳費成功後 存入申請表
                         if($payload['CustomField4'] == 'VVIP'){
                             $addData = new VvipApplication;
@@ -185,6 +173,11 @@ class ValueAddedServiceApiDataLogger{
 
                         if ($payload['CustomField4'] == 'hideOnline') {
                             ValueAddedService::addHideOnlineData($user->id);
+                        }
+
+                        if(!(EnvironmentService::isLocalOrTestMachine())) {
+                            //產生訂單 --正式綠界
+                            Order::addEcPayOrder($payload['MerchantTradeNo'], null);
                         }
 
                         return '1|OK';
