@@ -26,6 +26,8 @@ Route::post('Fingerprint2/addFingerprint', 'Fingerprint@addFingerprint');
 | API
 |--------------------------------------------------------------------------
 */
+Route::post('/LocalMachineReceive/BanAndWarn', 'LocalMachineReceiveController@BanAndWarn');
+
 Route::post('/Common/get_message', 'Common@get_message');
 Route::post('/Common/checkcode_during', 'Common@checkcode_during');
 Route::get('/Common/get_exif', 'Common@get_exif');
