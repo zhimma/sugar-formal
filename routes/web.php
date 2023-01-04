@@ -27,6 +27,7 @@ Route::post('Fingerprint2/addFingerprint', 'Fingerprint@addFingerprint');
 |--------------------------------------------------------------------------
 */
 Route::post('/LocalMachineReceive/BanAndWarn', 'LocalMachineReceiveController@BanAndWarn');
+Route::post('/LocalMachineReceive/BanSetIPUpdate', 'LocalMachineReceiveController@BanSetIPUpdate');
 
 Route::post('/Common/get_message', 'Common@get_message');
 Route::post('/Common/checkcode_during', 'Common@checkcode_during');
