@@ -685,7 +685,7 @@ class Message_new extends Model
                     $areaList = explode(',', $msgUser->user_meta->area);
                     foreach ($cityList as $k => $city) {
                         try {
-                            $cityAndArea .= $cityList[$k] . $areaList[$k] . ((count($cityList) - 1) == $k ? '' : '/');
+                            $cityAndArea .= $cityList[$k] . ($msgUser->user_meta->isHideArea? '': $areaList[$k]) . ((count($cityList) - 1) == $k ? '' : '/');
                         }
                         catch (\Exception $e) {                            
                             \Sentry\captureMessage('city and area error: ' . $e->getMessage());
