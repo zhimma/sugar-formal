@@ -827,7 +827,7 @@ class SetAutoBan extends Model
             $ip_list['type'] = $type;
             $ip_list['id'] = $id;
             $ip_list['expiry'] = \Carbon\Carbon::now()->addMonths(1)->format('Y-m-d H:i:s');
-            $ip_list['updated_at'] = now();
+            $ip_list['updated_at'] = \Carbon\Carbon::now()->format('Y-m-d H:i:s');
         }
         else if($type == 'delete')
         {

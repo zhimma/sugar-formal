@@ -45,27 +45,21 @@ class LocalMachineReceiveController extends Controller
 		Log::Info($ip_list);
 		if($request->key == config('localmachine.MISC_KEY') && $request->ip() == config('localmachine.MISC_SERVER'))
 		{
-			if($ip_list ?? false)
-			{
-				foreach($ip_list as $item)
-				{
-					$type = $item['type'];
-					$id = $item['id'];
-					$expiry = $item['expiry'];
-					$updated_at = $item['updated_at'];
+			$type = $ip_list['type'];
+			$id = $ip_list['id'];
+			$expiry = $ip_list['expiry'];
+			$updated_at = $ip_list['updated_at'];
 
-					if($type == 'update')
-					{
-						$ban_set = SetAutoBan::where('id', $id)->first();
-						$ban_set->expiry = $expiry;
-						$ban_set->updated_at = $updated_at;
-						$ban_set->save();
-					}
-					else if($type == 'delete')
-					{
-						$ban_set = SetAutoBan::where('id', $id)->first()->delete();
-					}
-				}
+			if($type == 'update')
+			{
+				$ban_set = SetAutoBan::where('id', $id)->first();
+				$ban_set->expiry = $expiry;
+				$ban_set->updated_at = $updated_at;
+				$ban_set->save();
+			}
+			else if($type == 'delete')
+			{
+				$ban_set = SetAutoBan::where('id', $id)->first()->delete();
 			}
 			return '自動封鎖列表-IP更新成功';
 		}
