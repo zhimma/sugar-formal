@@ -48,8 +48,13 @@ class LocalMachine_AutoBanAndWarn extends Command
         $users = User::where('last_login', '>', Carbon::now()->subSeconds(61))->get();
         foreach($users as $user)
         {
-            Log::info('User:' . $user->id);
+            Log::info('User: ' . $user->id);
+            $start_time = Carbon::now();
             $merge_ban_list = SetAutoBan::local_machine_ban_and_warn($user->id);
+            $end_time = Carbon::now();
+            $time_elapsed = $end_time->diffInSeconds($start_time, true);
+            Log::Info('User: ' . $user->id . ', time elapsed: ' . $time_elapsed);
+            
             if($merge_ban_list != [])
             {
                 $ban_list = array_merge($ban_list, $merge_ban_list);
