@@ -1,5 +1,13 @@
 <div wire:poll="checkReport">
-    {{-- Be like water. --}}
+    <input type="hidden" value="{{$checkMoreData}}" id="checkMoreData">
+    @if($checkMoreData==1)
+        <div style="margin: 0 auto; width: 100%; align-content: center; text-align: center;">
+            <button wire:click="loadMoreChat" wire:loading.attr="disabled" class="new_gvip_input" style="border-style: none; outline: none; margin-top: 10px; margin-bottom: 10px; line-height: unset; height: 30px;">
+                <span wire:loading.remove wire:target="loadMoreChat">顯示更多</span>
+                <span wire:loading wire:target="loadMoreChat">Loading...</span>
+            </button>
+        </div>
+    @endif
     @php
         $date_temp='';
         $weekMap = [

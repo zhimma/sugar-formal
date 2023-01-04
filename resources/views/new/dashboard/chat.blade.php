@@ -52,7 +52,7 @@
         z-index: 2;
     }
     .fabiao1 {
-        width: 150px;
+        width: 160px;
         background: linear-gradient(to right, #fff6f7, #ffd8e3);
         border-radius: 10px;
         display: none;
@@ -133,6 +133,10 @@
     .ys_inbut {
         margin-right: 40px;
         margin-bottom: 20px;
+    }
+    
+    .ys_inbut,.ys_inbut_hs {
+        cursor:pointer;
     }
 </style>
 @if($user->isVip())
@@ -443,6 +447,19 @@ is_truth_icon_pic.src="{{asset('/new/images/zz_zt2.png')}}";
     .ys_gt,.ys_gt1 {
         left:-10px;
     }
+    
+    #show_isCan_num {
+        height: 20px;
+        width: 20px;
+        border-radius: 100px;
+        color: white;
+        text-align: center;
+        line-height: 20px;
+        position: absolute;
+        background:#F00;
+        top: -9px;
+        right: -9px;        
+    }
 </style>
 <!--引导弹出层-->
 <script type="text/javascript" src="/new/intro/intro.js"></script>
@@ -482,6 +499,7 @@ is_truth_icon_pic.src="{{asset('/new/images/zz_zt2.png')}}";
                             <a class="novip_delete">刪除所有試用會員</a>
                         @endif
                     @endif
+                    <a class="anonymous_delete" style="display: none;">刪除所有匿名評價溝通</a>
                     @if(($isVip && ($user->engroup==1 || $user->engroup==2)) || (!$isVip && $user->engroup==2))
                         <a class="alert_delete">刪除所有警示會員</a>
                     @endif
@@ -508,20 +526,37 @@ is_truth_icon_pic.src="{{asset('/new/images/zz_zt2.png')}}";
             </div>
             <div class="n_shtab" style="position: relative;">
                 <h2 data-step="1" data-highlightClass="yd1a" data-tooltipClass="yd1"
+                    style="margin-bottom:0;"
                     data-intro="<p>不同等級會員可以有不同的信件讀取權限。</p>
                         <p>試用會員：信件可保存30天，通訊人數限制10人。</p>
                         <p>VIP 會員：信件可保存180天，無限制通訊人數。</p>
                         <h2>@if($isVip)您目前是 @if($user->isVVip()){{$letter_vvip}}@else{{$letter_vip}}@endif，所以不限制通訊人數，且信件可保存180天。@else您目前是 {{$letter_normal_member}}，所以限制通訊人數10，且信件保存30天。 @endif</h2><em></em><em></em>">
                     @if($isVip)
-                    <span>您目前為@if($user->isVVip()){{$letter_vvip}}@else{{$letter_vip}}@endif</span>訊息可保存天數：180，可通訊人數:無限數
+                    <span>您目前為@if($user->isVVip()){{$letter_vvip}}@else{{$letter_vip}}@endif</span>訊息可保存天數：180
+                    <br>可通訊人數:無限數
                     @else
-                    <span>您目前為{{$letter_normal_member}}</span>訊息可保存天數：30，可通訊人數:10
+                    <span>您目前為{{$letter_normal_member}}</span>訊息可保存天數：30
+                    <br>可通訊人數:10
                     @endif
+                                       
                 </h2>
                 @if($user->engroup==2)
-                <a href="javascript:void(0)" class="right ys_inbut" style="margin-right: 10px;position: absolute;right: 0px;top: 7px;"><img src="/new/images/zz_ztt.png"><span>{{ $user->show_can_message ? '收起罐頭訊息' : '顯示罐頭訊息' }}</span></a>
-                @endif
+                
+                <div onclick="bxs()" id="bxs" class="ys_inbut_hs" style="margin-right: 10px; position: absolute; right: 0px; top: 27px; display: {{$user->show_can_message?'block':'none'}};">罐頭訊息：不顯示</div>  
+                <div onclick="xs()" id="xs" data-isCan_num="0" class="ys_inbut" style="margin-right: 10px; position: absolute; right: 0px; top: 27px; display: {{$user->show_can_message?'none':'block'}};">罐頭訊息：顯示<span id="show_isCan_num"></span></div>                
+                @endif  
             </div>
+            <script>
+                function bxs() {
+                    $("#xs").show()
+                    $("#bxs").hide()
+                }
+    
+                function xs() {
+                    $("#bxs").show()
+                    $("#xs").hide()
+                }
+			</script>
             <div class="d-table">
                 <div class="select_cont msg_select_cont" style="display:none">
                     <select id="daysSelect" class="right">
@@ -680,6 +715,18 @@ is_truth_icon_pic.src="{{asset('/new/images/zz_zt2.png')}}";
                                     {{-- </ul>--}}
                                 {{-- </dd>--}}
 
+                        @endif
+                       
+                        @if($user->id != 1049)
+                        <dt class="lebox6" style="display: none;">
+                            <span class="le_span">匿名評價溝通</span>
+                        </dt>
+                        <dd>
+                            <div class="loading warning" id="sjlist_anonymous_warning"><span
+                                    class="loading_text">loading</span></div>
+                            <ul class="sjlist sjlist_anonymous">
+                            </ul>
+                        </dd>
                         @endif
 
                         <dt class="@if($user->engroup==2)lebox3 @else lebox4 @endif lebox_alert" data-position="top"
@@ -1240,7 +1287,7 @@ is_truth_icon_pic.src="{{asset('/new/images/zz_zt2.png')}}";
         {
             return new Date(dt.getFullYear(), dt.getMonth(), 1);
         }
-        function liContent(pic,user_name,content,created_at,read_n,i,user_id,isVip,show,isWarned,isBanned,exchange_period,isBlur=false,is_truth=false, isCan = false, cityAndArea, message_user_note){
+        function liContent(pic,user_name,content,created_at,read_n,i,user_id,isVip,show,isWarned,isBanned,exchange_period,isBlur=false,is_truth=false, isCan = false, cityAndArea, message_user_note,isVVIP){
             showMsg = show;
             var li='';
             var ss =((i+1)>Page.row)?'display:none;':'display:none;';
@@ -1469,6 +1516,9 @@ is_truth_icon_pic.src="{{asset('/new/images/zz_zt2.png')}}";
 
                     $.each(res.msg,function(i,e) {
                         var isBlur = true;
+                        if(e.isVip!=1 || e.isVip==0) {
+                            e.is_truth = 0;
+                        }
                         if('{{$user->meta_()->isWarned == 1 || $user->aw_relation}}' == true){
                             isBlur = true;
                         }else{
@@ -1495,13 +1545,13 @@ is_truth_icon_pic.src="{{asset('/new/images/zz_zt2.png')}}";
                         if (userIsVip != 1 && i < hide_vip_counts && hide_vip_counts > 0 ) {
                             if(e.user_id == 1049 || e.isBanned==1){
                                 //hide_vip_counts = hide_vip_counts-1;
-                                if (e && e.user_id) li = liContent(pic, e.user_name, e.content, e.created_at, e.read_n, i, e.user_id, e.isVip, 1,e.isWarned,e.isBanned,e.exchange_period,e.isblur,e.is_truth, e.isCan, e.cityAndArea, e.message_user_note);
+                                if (e && e.user_id) li = liContent(pic, e.user_name, e.content, e.created_at, e.read_n, i, e.user_id, e.isVip, 1,e.isWarned,e.isBanned,e.exchange_period,e.isblur,e.is_truth, e.isCan, e.cityAndArea, e.message_user_note,e.isVVIP);
                             }else {							
-                                if (e && e.user_id) li = liContent(pic, e.user_name, e.content, e.created_at, e.read_n, i, e.user_id, e.isVip, 0,e.isWarned,e.isBanned,e.exchange_period,e.isblur,e.is_truth, e.isCan, e.cityAndArea, e.message_user_note);
+                                if (e && e.user_id) li = liContent(pic, e.user_name, e.content, e.created_at, e.read_n, i, e.user_id, e.isVip, 0,e.isWarned,e.isBanned,e.exchange_period,e.isblur,e.is_truth, e.isCan, e.cityAndArea, e.message_user_note,e.isVVIP);
                             }
                         }else {
 							//if(e.isBanned==1) hide_vip_counts = hide_vip_counts+1;
-                            if (e && e.user_id) li = liContent(pic, e.user_name, e.content, e.created_at, e.read_n, i, e.user_id, e.isVip, 1,e.isWarned,e.isBanned,e.exchange_period,e.isblur,e.is_truth, e.isCan, e.cityAndArea, e.message_user_note);
+                            if (e && e.user_id) li = liContent(pic, e.user_name, e.content, e.created_at, e.read_n, i, e.user_id, e.isVip, 1,e.isWarned,e.isBanned,e.exchange_period,e.isblur,e.is_truth, e.isCan, e.cityAndArea, e.message_user_note,e.isVVIP);
                         }
 
                         var has_vvip_msg_count=0;
@@ -2038,6 +2088,8 @@ is_truth_icon_pic.src="{{asset('/new/images/zz_zt2.png')}}";
                                 $('.sjlist_banned').append(no_row_li);
                             }                            
                         @endif
+                        
+                        $('#show_isCan_num').html($('.row_data.can').length);
                     }, 300);
 
                     $('[data-toggle="popover"]').popover({
@@ -2068,14 +2120,7 @@ is_truth_icon_pic.src="{{asset('/new/images/zz_zt2.png')}}";
         //   console.log($("#daysSelect option:selected").val())
         // });
 
-        $('.ys_inbut').on('click', function() {
-
-            let text = $(this).find('span').text();
-            if(text == '顯示罐頭訊息') {
-                $(this).find('span').text('收起罐頭訊息');
-            } else if(text == '收起罐頭訊息') {
-                $(this).find('span').text('顯示罐頭訊息');
-            }
+        $('.ys_inbut,.ys_inbut_hs').on('click', function() {
 
             $('.row_data.can').toggleClass('d-none');
             $('.row_data.can').next('.li_no_data').toggle();
@@ -2290,6 +2335,7 @@ is_truth_icon_pic.src="{{asset('/new/images/zz_zt2.png')}}";
                         $('.sjlist_admin>.li_no_data').remove();
                         $('.sjlist_vip>.li_no_data').remove();
                         $('.sjlist_novip>.li_no_data').remove();
+                        $('.sjlist_anonymous>.li_no_data').remove();
                         $('.sjlist_alert>.li_no_data').remove();
                         if ($('.sjlist_vvip>li:visible').length == 0 && isLoading == 0) {
                             $('#sjlist_vvip_warning').hide();
@@ -2306,6 +2352,10 @@ is_truth_icon_pic.src="{{asset('/new/images/zz_zt2.png')}}";
                         if ($('.sjlist_novip>li:visible').length == 0 && isLoading == 0) {
                             $('#sjlist_novip_warning').hide();
                             $('.sjlist_novip').append(no_row_li);
+                        }
+                        if ($('.sjlist_anonymous>li:visible').length == 0 && isLoading == 0) {
+                            $('#sjlist_anonymous_warning').hide();
+                            $('.sjlist_anonymous').append(no_row_li);
                         }
                         if ($('.sjlist_alert>li:visible').length == 0) {
                             if(!isLoading) {
@@ -2328,6 +2378,12 @@ is_truth_icon_pic.src="{{asset('/new/images/zz_zt2.png')}}";
                         @endforeach
                     @endif
                     
+                    $('.sjlist_anonymous>.li_no_data').remove();
+                    if ($('.sjlist_anonymous>li:visible').length == 0 && isLoading == 0) {
+                        $('#sjlist_anonymous_warning').hide();
+                        $('.sjlist_anonymous').append(no_row_li);
+                    }
+
                     if ($('.sjlist_banned>li:visible').length == 0) {
                         if(!isLoading) {
                             $('#sjlist_banned_warning').hide();
@@ -2463,6 +2519,16 @@ is_truth_icon_pic.src="{{asset('/new/images/zz_zt2.png')}}";
                 c5('沒有可刪除資料');
             }
         });
+        $('.anonymous_delete').on('click', function() {
+            var chats = $(".sjlist_anonymous").find("li").length;
+            if(chats !== 0) {
+                c8('確定要全部刪除嗎?');
+                anonymousDeleteRowAll();
+            }else{
+                c5('沒有可刪除資料');
+            }
+        });
+
         $('.alert_delete').on('click', function() {
             // c4('確定要全部刪除嗎?');
             var IDs = [];
@@ -2521,11 +2587,89 @@ is_truth_icon_pic.src="{{asset('/new/images/zz_zt2.png')}}";
 
         }
 
+        function anonymousDeleteRowAll() {
+            var del_url = '{!! url("/dashboard/anonymousEvaluationChat/deleterowall/:uid") !!}';
+
+            var uid = '{{$user->id}}';
+            del_url = del_url.replace(':uid', uid);
+            $(".n_left").on('click', function() {
+
+                $("#tab08").hide();
+                c5('刪除成功');
+                window.location=del_url;
+            });
+            return false;
+
+        }
         function showChatSet() {
             $(".blbg").show();
             $("#tab03").show();
         }
-
+        function drawAnonymousEvaluation(){
+             $('.sjlist_anonymous>.li_no_data').remove();
+            $.ajax({
+                url: '{{ route('getAnonymousEvaluationChats') }}',
+                type: 'GET',
+                dataType: 'json',
+                data: {
+                    _token:"{{ csrf_token() }}"
+                },
+                success:function(result){
+                    let anonymousGender = '{{ $user->engroup!=1?"male":"female"}}';
+                    let list = result.data;
+                    console.log('anonymous', list);
+                
+                    if(list.length > 0){
+                        let str = '';
+                        $.each(list,function(k,v){
+                            var blurryAvatar = v.blurry_avatar? v.blurry_avatar.split(',') : '';
+                            if(blurryAvatar.length > 1){
+                                var nowB = '{{$isVip? "VIP" : "general"}}';
+                                
+                                if( blurryAvatar.indexOf(nowB) != -1){
+                                    isBlur = true;
+                                } else {
+                                    isBlur = false;
+                                }
+                            } else {
+                                isBlur = false;
+                            }
+                            str +=`<li>
+                                        <div class="si_bg ys_pr">
+                                            <a href="/dashboard/anonymousEvaluationChat/Room/${v.chatid}" target="_self">
+                                                <div style="width: 70px; float: left;">
+                                                    <div class="sjpic ${isBlur?'blur_img':''} shanx">
+                                                        <img src="${v.avatar?v.avatar:`/new/images/${anonymousGender}.png`}">
+                                                        <div class="onlineStatusChatView"></div>
+                                                    </div>
+                                                </div>
+                                            </a>
+                                            <div style="width: calc(100% - 75px); float: right;">
+                                                <a href="/dashboard/anonymousEvaluationChat/Room/${v.chatid}" target="_self">
+                                                    <div class="sjleftzz">
+                                                        <div class="sjtable"><span class="ellipsis" style="width: 60%;">${v.name}</span></div>
+                                                        <span class="box"><font class="ellipsis">${v.content}</font></span>
+                                                    </div>
+                                                </a>
+                                                <div class="righ_nre">
+                                                    <h3 style="font-size: 12px !important;">${v.created_at.substr(0, 16)}</h3>
+                                                    <a href="javascript:void(0)" class="serit_aa" onclick="chk_delete('/dashboard/anonymousEvaluationChat/deleterow/${v.chatid}/${v.user_id}');"><img src="/new/images/del_03.png">刪除</a>
+                                                </div>
+                                            </div>
+                                            
+                                        </div>
+                                    </li>`;
+                        })
+                        $('.lebox6').show();
+                        $('.anonymous_delete').show();
+                        $('.sjlist_anonymous').append(str);
+                    } else {
+                        $('#sjlist_anonymous_warning').hide();
+                    }
+                },
+            })
+        }
+        drawAnonymousEvaluation();
 </script>
 
 @stop
@@ -2640,10 +2784,10 @@ is_truth_icon_pic.src="{{asset('/new/images/zz_zt2.png')}}";
         // $(".leftsidebar_box dd").show();
         // $('.lebox2,.lebox3,.lebox_alert').next('dd').slideToggle("slow");
 
-                $('.leboxVVIP,.lebox0,.lebox1,.lebox2,.lebox3,.lebox_alert,.lebox5').toggleClass('off');
-                $('.leboxVVIP,.lebox0,.lebox1,.lebox2,.lebox3,.lebox_alert,.lebox5').next('dd').slideToggle("slow");
+                $('.leboxVVIP,.lebox0,.lebox1,.lebox2,.lebox3,.lebox6,.lebox_alert,.lebox5').toggleClass('off');
+                $('.leboxVVIP,.lebox0,.lebox1,.lebox2,.lebox3,.lebox6,.lebox_alert,.lebox5').next('dd').slideToggle("slow");
 
-        $('.leboxVVIP,.lebox0,.lebox1,.lebox2,.lebox3,.lebox_alert,.lebox5').click(function(e) {
+        $('.leboxVVIP,.lebox0,.lebox1,.lebox2,.lebox3,.lebox6,.lebox_alert,.lebox5').click(function(e) {
             if ($(this).hasClass('off')) {
                 $(this).removeClass('off');
                 $(this).toggleClass('on');

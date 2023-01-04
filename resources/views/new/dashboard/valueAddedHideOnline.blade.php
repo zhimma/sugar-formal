@@ -1,5 +1,26 @@
 @extends('new.layouts.website')
-
+@section('style')
+    <style>
+        .barcode_content{
+            display: none;
+        }
+        .barcode_style{
+            color: black;
+            font-size: 16px;
+            width: auto;
+            height: auto;
+            background-color: white;
+            line-height: 2.3;
+            padding: 5px;
+        }
+        .barcode_cvs{
+            padding-bottom: 5px;
+        }
+        .barcode_cvs>img{
+            height: 30px;
+        }
+    </style>
+@endsection
 @section('app-content')
     <div class="container matop70">
         <div class="row">
@@ -84,9 +105,39 @@
                                                         <input type="hidden" name="choosePayment" value="ATM">
                                                         <input type="hidden" name="service_name" value="hideOnline">
                                                         <input type="hidden" name="amount" value="1164">
-                                                        <button type="submit" class="new_vpadd one_quarter_payment paySubmit" style="border-style: none; outline: none;">ATM繳費</button>
+                                                        @php
+                                                            $codeNoPaidGetId = \App\Models\PaymentGetQrcodeLog::codeNoPaidGetId($user->id, 'hideOnline', 'ATM', 'one_quarter_payment');
+                                                        @endphp
+                                                        @if($codeNoPaidGetId != '')
+                                                            @php
+                                                                $data = \App\Models\PaymentGetQrcodeLog::findDataById($codeNoPaidGetId);
+                                                                if(\App\Services\EnvironmentService::isLocalOrTestMachine()){
+                                                                    $envStr = '_test';
+                                                                }
+                                                                else{
+                                                                    $envStr = '';
+                                                                }
+                                                                $CVSBarCodeURL = Config::get('ecpay.payment' . $envStr . '.CVSBarCodeURL').$data->PaymentNo;
+
+                                                            @endphp
+                                                            <div class="barcode_content" id="code_{{$codeNoPaidGetId}}">
+                                                                    @if(isset($data))
+                                                                    您已經取號過, <br>請轉帳至下列ATM繳費帳號即可
+                                                                    <div class="barcode_style">
+                                                                            <div>銀行代碼：{{$data->BankCode}}</div>
+                                                                            <div>帳號：{{$data->vAccount}}</div>
+                                                                        </div>
+                                                                    繳費期限：{{$data->ExpireDate}}
+                                                                @endif
+                                                                </div>
+                                                            <div class="new_vpadd payAlert"
+                                                                 data-id="{{$codeNoPaidGetId}}"
+                                                                 style="border-style: none; outline: none; word-break: break-all; white-space: nowrap;">ATM
+                                                                </div>
+                                                        @else
+                                                            <button type="submit" class="new_vpadd one_quarter_payment paySubmit" style="border-style: none; outline: none;">ATM</button>
+                                                        @endif
                                                     </form>
-{{--                                                    <a class="new_vpadd">ATM繳費</a>--}}
                                                 </span>
                                                 <span>
                                                     <form id="one_quarter_paymentCreditForm" class="m-form m-form--fit" action="{{ route('valueAddedService_ec') }}" method=post>
@@ -100,7 +151,7 @@
                                                     </form>
 {{--                                                    <a class="new_vpadd">WebATM</a>--}}
                                                 </span>
-                                                <font class="new_w100">
+                                                <span class="new_w100">
                                                     <form id="one_quarter_paymentCVSForm" class="m-form m-form--fit" action="{{ route('valueAddedService_ec') }}" method=post>
                                                         <input type="hidden" name="_token" value="{{ csrf_token() }}" >
                                                         <input type="hidden" name="userId" value="{{$user->id}}">
@@ -108,10 +159,75 @@
                                                         <input type="hidden" name="choosePayment" value="CVS">
                                                         <input type="hidden" name="service_name" value="hideOnline">
                                                         <input type="hidden" name="amount" value="1164">
-                                                        <button type="submit" class="new_vpadd one_quarter_payment paySubmit" style="border-style: none; outline: none;">超商代碼或條碼</button>
+                                                        @php
+                                                            $codeNoPaidGetId = \App\Models\PaymentGetQrcodeLog::codeNoPaidGetId($user->id, 'hideOnline', 'CVS', 'one_quarter_payment');
+                                                        @endphp
+                                                        @if($codeNoPaidGetId != '')
+                                                            @php
+                                                                $data = \App\Models\PaymentGetQrcodeLog::findDataById($codeNoPaidGetId);
+                                                                if(\App\Services\EnvironmentService::isLocalOrTestMachine()){
+                                                                    $envStr = '_test';
+                                                                }
+                                                                else{
+                                                                    $envStr = '';
+                                                                }
+                                                                $CVSBarCodeURL = Config::get('ecpay.payment' . $envStr . '.CVSBarCodeURL').$data->PaymentNo;
+
+                                                            @endphp
+                                                            <div class="barcode_content" id="code_{{$codeNoPaidGetId}}">
+                                                                    @if(isset($data))
+                                                                    您已經取號過, <br>請直接點選下列超商代碼繳費即可
+                                                                    <div class="barcode_style">
+                                                                            <a href="{{$CVSBarCodeURL}}" target="_blank">{{$data->PaymentNo}}</a>
+                                                                        </div>
+                                                                    繳費期限：{{$data->ExpireDate}}
+                                                                @endif
+                                                                </div>
+                                                            <div class="new_vpadd payAlert"
+                                                                 data-id="{{$codeNoPaidGetId}}"
+                                                                 style="border-style: none; outline: none; word-break: break-all; white-space: nowrap;">超商代碼
+                                                                </div>
+                                                        @else
+                                                            <button type="submit" class="new_vpadd one_quarter_payment paySubmit" style="border-style: none; outline: none; word-break: break-all; white-space: nowrap;">超商代碼</button>
+                                                        @endif
                                                     </form>
-{{--                                                    <a class="new_vpadd">超商代碼或條碼</a>--}}
-                                                </font>
+                                                </span>
+                                                <span class="new_w100">
+                                                    <form id="one_quarter_paymentBARCODEForm" class="m-form m-form--fit" action="{{ route('valueAddedService_ec') }}" method=post>
+                                                        <input type="hidden" name="_token" value="{{ csrf_token() }}" >
+                                                        <input type="hidden" name="userId" value="{{$user->id}}">
+                                                        <input type="hidden" name="payment" value="one_quarter_payment">
+                                                        <input type="hidden" name="choosePayment" value="BARCODE">
+                                                        <input type="hidden" name="service_name" value="hideOnline">
+                                                        <input type="hidden" name="amount" value="1164">
+                                                        @php
+                                                            $codeNoPaidGetId = \App\Models\PaymentGetQrcodeLog::codeNoPaidGetId($user->id, 'hideOnline', 'BARCODE', 'one_quarter_payment');
+                                                        @endphp
+                                                        @if($codeNoPaidGetId != '')
+                                                            @php
+                                                                $data = \App\Models\PaymentGetQrcodeLog::findDataById($codeNoPaidGetId);
+                                                            @endphp
+                                                            <div class="barcode_content" id="code_{{$codeNoPaidGetId}}">
+                                                                    @if(isset($data))
+                                                                    您已經取號過, <br>請直接使用下列超商條碼繳費即可
+                                                                    <div class="barcode_style">
+                                                                            <div class="barcode_cvs"><img src="/new/images/payment_1.jpg"></div>
+                                                                            <img src="data:image/png;base64,{{DNS1D::getBarcodePNG($data->Barcode1, 'C39', 1, 33, array(1,1,1), true)}}" alt="barcode" /><br>
+                                                                            <img src="data:image/png;base64,{{DNS1D::getBarcodePNG($data->Barcode2, 'C39', 1, 33, array(1,1,1), true)}}" alt="barcode" /><br>
+                                                                            <img src="data:image/png;base64,{{DNS1D::getBarcodePNG($data->Barcode3, 'C39', 1, 33, array(1,1,1), true)}}" alt="barcode" />
+                                                                        </div>
+                                                                    繳費期限：{{$data->ExpireDate}}
+                                                                @endif
+                                                                </div>
+                                                            <div class="new_vpadd payAlert"
+                                                                 data-id="{{$codeNoPaidGetId}}"
+                                                                 style="border-style: none; outline: none; word-break: break-all; white-space: nowrap;">超商條碼
+                                                                </div>
+                                                        @else
+                                                            <button type="submit" class="new_vpadd one_quarter_payment paySubmit" style="border-style: none; outline: none; word-break: break-all; white-space: nowrap;">超商條碼</button>
+                                                        @endif
+                                                    </form>
+                                                </span>
                                             </div>
                                         </div>
                                     </li>
@@ -129,7 +245,38 @@
                                                         <input type="hidden" name="choosePayment" value="ATM">
                                                         <input type="hidden" name="service_name" value="hideOnline">
                                                         <input type="hidden" name="amount" value="688">
-                                                        <button class="new_vpadd one_month_payment paySubmit" style="border-style: none; outline: none;">ATM繳費</button>
+                                                        @php
+                                                            $codeNoPaidGetId = \App\Models\PaymentGetQrcodeLog::codeNoPaidGetId($user->id, 'hideOnline', 'ATM', 'one_month_payment');
+                                                        @endphp
+                                                        @if($codeNoPaidGetId != '')
+                                                            @php
+                                                                $data = \App\Models\PaymentGetQrcodeLog::findDataById($codeNoPaidGetId);
+                                                                if(\App\Services\EnvironmentService::isLocalOrTestMachine()){
+                                                                    $envStr = '_test';
+                                                                }
+                                                                else{
+                                                                    $envStr = '';
+                                                                }
+                                                                $CVSBarCodeURL = Config::get('ecpay.payment' . $envStr . '.CVSBarCodeURL').$data->PaymentNo;
+
+                                                            @endphp
+                                                            <div class="barcode_content" id="code_{{$codeNoPaidGetId}}">
+                                                                    @if(isset($data))
+                                                                    您已經取號過, <br>請轉帳至下列ATM繳費帳號即可
+                                                                    <div class="barcode_style">
+                                                                            <div>銀行代碼：{{$data->BankCode}}</div>
+                                                                            <div>帳號：{{$data->vAccount}}</div>
+                                                                        </div>
+                                                                    繳費期限：{{$data->ExpireDate}}
+                                                                @endif
+                                                                </div>
+                                                            <div class="new_vpadd payAlert"
+                                                                 data-id="{{$codeNoPaidGetId}}"
+                                                                 style="border-style: none; outline: none; word-break: break-all; white-space: nowrap;">ATM
+                                                                </div>
+                                                        @else
+                                                            <button class="new_vpadd one_month_payment paySubmit" style="border-style: none; outline: none;">ATM</button>
+                                                        @endif
                                                     </form>
 {{--                                                    <a class="new_vpadd">ATM繳費</a>--}}
                                                 </span>
@@ -145,7 +292,7 @@
                                                     </form>
 {{--                                                    <a class="new_vpadd">WebATM</a>--}}
                                                 </span>
-                                                <font class="new_w100">
+                                                <span class="new_w100">
                                                     <form id="one_month_paymentCVSForm" class="m-form m-form--fit" action="{{ route('valueAddedService_ec') }}" method=post>
                                                         <input type="hidden" name="_token" value="{{ csrf_token() }}" >
                                                         <input type="hidden" name="userId" value="{{$user->id}}">
@@ -153,10 +300,75 @@
                                                         <input type="hidden" name="choosePayment" value="CVS">
                                                         <input type="hidden" name="service_name" value="hideOnline">
                                                         <input type="hidden" name="amount" value="688">
-                                                        <button class="new_vpadd one_month_payment paySubmit" style="border-style: none; outline: none;">超商代碼或條碼</button>
+                                                        @php
+                                                            $codeNoPaidGetId = \App\Models\PaymentGetQrcodeLog::codeNoPaidGetId($user->id, 'hideOnline', 'CVS', 'one_month_payment');
+                                                        @endphp
+                                                        @if($codeNoPaidGetId != '')
+                                                            @php
+                                                                $data = \App\Models\PaymentGetQrcodeLog::findDataById($codeNoPaidGetId);
+                                                                if(\App\Services\EnvironmentService::isLocalOrTestMachine()){
+                                                                    $envStr = '_test';
+                                                                }
+                                                                else{
+                                                                    $envStr = '';
+                                                                }
+                                                                $CVSBarCodeURL = Config::get('ecpay.payment' . $envStr . '.CVSBarCodeURL').$data->PaymentNo;
+
+                                                            @endphp
+                                                            <div class="barcode_content" id="code_{{$codeNoPaidGetId}}">
+                                                                    @if(isset($data))
+                                                                    您已經取號過, <br>請直接點選下列超商代碼繳費即可
+                                                                    <div class="barcode_style">
+                                                                            <a href="{{$CVSBarCodeURL}}" target="_blank">{{$data->PaymentNo}}</a>
+                                                                        </div>
+                                                                    繳費期限：{{$data->ExpireDate}}
+                                                                @endif
+                                                                </div>
+                                                            <div class="new_vpadd payAlert"
+                                                                 data-id="{{$codeNoPaidGetId}}"
+                                                                 style="border-style: none; outline: none; word-break: break-all; white-space: nowrap;">超商代碼
+                                                                </div>
+                                                        @else
+                                                            <button class="new_vpadd one_month_payment paySubmit" style="border-style: none; outline: none; word-break: break-all; white-space: nowrap;">超商代碼</button>
+                                                        @endif
                                                     </form>
-{{--                                                    <a class="new_vpadd">超商代碼或條碼</a>--}}
-                                                </font>
+                                                </span>
+                                                <span class="new_w100">
+                                                    <form id="one_month_paymentBARCODEForm" class="m-form m-form--fit" action="{{ route('valueAddedService_ec') }}" method=post>
+                                                        <input type="hidden" name="_token" value="{{ csrf_token() }}" >
+                                                        <input type="hidden" name="userId" value="{{$user->id}}">
+                                                        <input type="hidden" name="payment" value="one_month_payment">
+                                                        <input type="hidden" name="choosePayment" value="BARCODE">
+                                                        <input type="hidden" name="service_name" value="hideOnline">
+                                                        <input type="hidden" name="amount" value="688">
+                                                        @php
+                                                            $codeNoPaidGetId = \App\Models\PaymentGetQrcodeLog::codeNoPaidGetId($user->id, 'hideOnline', 'BARCODE', 'one_month_payment');
+                                                        @endphp
+                                                        @if($codeNoPaidGetId != '')
+                                                            @php
+                                                                $data = \App\Models\PaymentGetQrcodeLog::findDataById($codeNoPaidGetId);
+                                                            @endphp
+                                                            <div class="barcode_content" id="code_{{$codeNoPaidGetId}}">
+                                                                    @if(isset($data))
+                                                                    您已經取號過, <br>請直接使用下列超商條碼繳費即可
+                                                                    <div class="barcode_style">
+                                                                            <div class="barcode_cvs"><img src="/new/images/payment_1.jpg"></div>
+                                                                            <img src="data:image/png;base64,{{DNS1D::getBarcodePNG($data->Barcode1, 'C39', 1, 33, array(1,1,1), true)}}" alt="barcode" /><br>
+                                                                            <img src="data:image/png;base64,{{DNS1D::getBarcodePNG($data->Barcode2, 'C39', 1, 33, array(1,1,1), true)}}" alt="barcode" /><br>
+                                                                            <img src="data:image/png;base64,{{DNS1D::getBarcodePNG($data->Barcode3, 'C39', 1, 33, array(1,1,1), true)}}" alt="barcode" />
+                                                                        </div>
+                                                                    繳費期限：{{$data->ExpireDate}}
+                                                                @endif
+                                                                </div>
+                                                            <div class="new_vpadd payAlert"
+                                                                 data-id="{{$codeNoPaidGetId}}"
+                                                                 style="border-style: none; outline: none; word-break: break-all; white-space: nowrap;">超商條碼
+                                                                </div>
+                                                        @else
+                                                            <button class="new_vpadd one_month_payment paySubmit" style="border-style: none; outline: none; word-break: break-all; white-space: nowrap;">超商條碼</button>
+                                                        @endif
+                                                    </form>
+                                                </span>
                                             </div>
                                         </div>
                                     </li>
@@ -272,6 +484,12 @@
             changediv('vip2');
         }
 
+        $('.payAlert').on('click', function(event) {;
+            c5('');
+            $('.bltext').append($('#code_' + $(this).data('id')).html());
+            return false;
+        });
+
         $('.paySubmit').on('click', function(event) {
                 var id,choosePayment;
                 if($(this).hasClass("cc_monthly_payment")) {
@@ -315,7 +533,7 @@
                         id = 'one_month_payment';
                         choosePayment=$(this).parent().find("input[name='choosePayment']").val();
 
-                        if(choosePayment == 'ATM' || choosePayment == 'CVS'){
+                        if(choosePayment == 'ATM' || choosePayment == 'CVS' || choosePayment == 'BARCODE'){
                             $(".n_left").on('click', function () {
                                 common_confirm("{{$atm_cvs_notice}}","{{$atm_cvs_notice_red}}");
                                 $(".n_left").on('click', function () {
@@ -341,7 +559,7 @@
                         id = 'one_quarter_payment';
                         choosePayment=$(this).parent().find("input[name='choosePayment']").val();
 
-                        if(choosePayment == 'ATM' || choosePayment == 'CVS'){
+                        if(choosePayment == 'ATM' || choosePayment == 'CVS' || choosePayment == 'BARCODE'){
                             $(".n_left").on('click', function () {
                                 common_confirm("{{$atm_cvs_notice}}","{{$atm_cvs_notice_red}}");
                                 $(".n_left").on('click', function () {

@@ -691,6 +691,10 @@ background: transparent;
     position:relative;line-height:40px;cursor:pointer;text-align: center;}
 .lebox4.on{background:  url(../images/on.png) no-repeat right #ffc6a0;background-position:98%;  background-size:22px;position:relative;cursor:pointer;;color:#ea8948;}
 
+.lebox6{background: url(../images/off.png) no-repeat right #adadad; background-position:98%; background-size:22px; padding:0px 20px;color:#fff;font-size:16px;
+    position:relative;line-height:40px;cursor:pointer;text-align: center;}
+.lebox6.on{background:  url(../images/on.png) no-repeat right #adadad;background-position:98%;  background-size:22px;position:relative;cursor:pointer;;color:#fff;}
+
 .lebox_alert{background: url(../images/off.png) no-repeat right #ffe8a0; background-position:98%; background-size:22px; padding:0px 20px;color:#fb8800;font-size:16px;position:relative;line-height:40px;cursor:pointer;text-align: center;}
 .lebox_alert.on{background:  url(../images/on.png) no-repeat right #ffe8a0;background-position:98%;  background-size:22px;position:relative;cursor:pointer;color:#fb8800;}
 
@@ -6395,3 +6399,6 @@ overflow: hidden;justify-content: center;align-items: center;background: #ffffff
 .sm_vvip{width: 94%; margin: 0 auto; display:table; color: #666;}
 .shuo_nr{width: calc(100% - 30px); float: right; border-top: #eee 1px solid; padding-top:10px; margin-top: 10px;}
 .shuo_vip{background: linear-gradient(60deg,#fde8e6, #fab4b4) ;width: 20px; height:20px; border-radius: 5px; display: table; float: left; margin-right:6px; }
+.ys_inbut_hs{background: linear-gradient(to right,#f1f1f1,#dadada); border-radius:5px; height:33px; line-height: 33px; box-shadow: rgba(0,0,0,0.2) 0 6px 6px; 
+color: #666; padding: 0 10px; cursor: pointer;}
+.ys_inbut_hs img{ height:18px; margin-top: -2px; margin-right:5px;}

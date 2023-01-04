@@ -28,5 +28,6 @@ class VerifyCsrfToken extends Middleware
         '/dashboard/line/callback',
         '/cfp',
         '/video/log_video_chat_process',
+        '/LocalMachineReceive/BanAndWarn',
     ];
 }

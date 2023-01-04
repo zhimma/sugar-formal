@@ -1,5 +1,27 @@
 @extends('new.layouts.website')
 
+@section('style')
+    <style>
+        .barcode_content{
+            display: none;
+        }
+        .barcode_style{
+            color: black;
+            font-size: 16px;
+            width: auto;
+            height: auto;
+            background-color: white;
+            line-height: 2.3;
+            padding: 5px;
+        }
+        .barcode_cvs{
+            padding-bottom: 5px;
+        }
+        .barcode_cvs>img{
+            height: 30px;
+        }
+    </style>
+@endsection
 @section('app-content')
     <div class="container matop70">
         <div class="row">
@@ -78,16 +100,52 @@
                                                 <h2>NT$3988/季</h2>
                                                 <h2>單季體驗</h2>
                                                 <div class="new_abg">
-                                                    {{--                                                <span>--}}
-                                                    {{--                                                    <form id="one_quarter_paymentATMForm" class="m-form m-form--fit" action="{{ route('upgradepay_ec') }}" method=post>--}}
-                                                    {{--                                                        <input type="hidden" name="_token" value="{{ csrf_token() }}" >--}}
-                                                    {{--                                                        <input type="hidden" name="userId" value="{{$user->id}}">--}}
-                                                    {{--                                                        <input type="hidden" name="type" value="one_quarter_payment">--}}
-                                                    {{--                                                        <input type="hidden" name="choosePayment" value="ATM">--}}
-                                                    {{--                                                        <button type="submit" class="new_vpadd one_quarter_payment paySubmit" style="border-style: none; outline: none;">ATM繳費</button>--}}
-                                                    {{--                                                    </form>--}}
-                                                    {{--                                                </span>--}}
-                                                    <span style="float: none;">
+                                                    <span>
+                                                        <form id="one_quarter_paymentATMForm" class="m-form m-form--fit"
+                                                              action="{{ route('upgradepay_ec') }}" method=post>
+                                                            <input type="hidden" name="_token"
+                                                                   value="{{ csrf_token() }}">
+                                                            <input type="hidden" name="userId" value="{{$user->id}}">
+                                                            <input type="hidden" name="type"
+                                                                   value="one_quarter_payment">
+                                                            <input type="hidden" name="choosePayment" value="ATM">
+                                                            @php
+                                                                $codeNoPaidGetId = \App\Models\PaymentGetQrcodeLog::codeNoPaidGetId($user->id, 'VIP', 'ATM', 'one_quarter_payment');
+                                                            @endphp
+                                                            @if($codeNoPaidGetId != '')
+                                                                @php
+                                                                    $data = \App\Models\PaymentGetQrcodeLog::findDataById($codeNoPaidGetId);
+                                                                    if(\App\Services\EnvironmentService::isLocalOrTestMachine()){
+                                                                        $envStr = '_test';
+                                                                    }
+                                                                    else{
+                                                                        $envStr = '';
+                                                                    }
+                                                                    $CVSBarCodeURL = Config::get('ecpay.payment' . $envStr . '.CVSBarCodeURL').$data->PaymentNo;
+
+                                                                @endphp
+                                                                <div class="barcode_content" id="code_{{$codeNoPaidGetId}}">
+                                                                    @if(isset($data))
+                                                                        您已經取號過, <br>請轉帳至下列ATM繳費帳號即可
+                                                                        <div class="barcode_style">
+                                                                            <div>銀行代碼：{{$data->BankCode}}</div>
+                                                                            <div>帳號：{{$data->vAccount}}</div>
+                                                                        </div>
+                                                                        繳費期限：{{$data->ExpireDate}}
+                                                                    @endif
+                                                                </div>
+                                                                <div class="new_vpadd payAlert"
+                                                                     data-id="{{$codeNoPaidGetId}}"
+                                                                     style="border-style: none; outline: none; word-break: break-all; white-space: nowrap;">ATM
+                                                                </div>
+                                                            @else
+                                                                <button type="submit"
+                                                                        class="new_vpadd one_quarter_payment paySubmit"
+                                                                        style="border-style: none; outline: none;">ATM</button>
+                                                            @endif
+                                                        </form>
+                                                    </span>
+                                                    <span>
                                                     <form id="one_quarter_paymentCreditForm" class="m-form m-form--fit"
                                                           action="{{ route('upgradepay_ec') }}" method=post>
                                                         <input type="hidden" name="_token" value="{{ csrf_token() }}">
@@ -96,38 +154,96 @@
                                                         <input type="hidden" name="choosePayment" value="Credit">
                                                         <input type="hidden" name="choosePaymentFlow" value="">
                                                         <button type="submit"
-                                                                {{--                                                                class="new_vpadd one_quarter_payment paySubmit"--}}
-                                                                class="new_gvip_input one_quarter_payment paySubmit"
+                                                                class="new_vpadd one_quarter_payment paySubmit"
                                                                 style="border-style: none; outline: none;">信用卡</button>
                                                     </form>
                                                 </span>
-                                                    {{--                                                <span>--}}
-                                                    {{--                                                    <form class="m-form m-form--fit" action="{{ route('upgradepay_ec') }}" method=post>--}}
-                                                    {{--                                                        <input type="hidden" name="_token" value="{{ csrf_token() }}" >--}}
-                                                    {{--                                                        <input type="hidden" name="userId" value="{{$user->id}}">--}}
-                                                    {{--                                                        <input type="hidden" name="type" value="one_quarter_payment">--}}
-                                                    {{--                                                        <input type="hidden" name="choosePayment" value="BARCODE">--}}
-                                                    {{--                                                        <button type="submit" class="new_vpadd one_quarter_payment paySubmit" style="border-style: none; outline: none;">超商條碼</button>--}}
-                                                    {{--                                                    </form>--}}
-                                                    {{--                                                </span>--}}
-                                                    {{--                                                <font class="new_w100">--}}
-                                                    {{--                                                    <form id="one_quarter_paymentCVSForm" class="m-form m-form--fit" action="{{ route('upgradepay_ec') }}" method=post>--}}
-                                                    {{--                                                        <input type="hidden" name="_token" value="{{ csrf_token() }}" >--}}
-                                                    {{--                                                        <input type="hidden" name="userId" value="{{$user->id}}">--}}
-                                                    {{--                                                        <input type="hidden" name="type" value="one_quarter_payment">--}}
-                                                    {{--                                                        <input type="hidden" name="choosePayment" value="CVS">--}}
-                                                    {{--                                                        <button type="submit" class="new_vpadd one_quarter_payment paySubmit" style="border-style: none; outline: none;">超商代碼或條碼</button>--}}
-                                                    {{--                                                    </form>--}}
-                                                    {{--                                                </font>--}}
+                                                    <span class="new_w100">
+                                                        <form id="one_quarter_paymentCVSForm" class="m-form m-form--fit"
+                                                              action="{{ route('upgradepay_ec') }}" method=post>
+                                                            <input type="hidden" name="_token"
+                                                                   value="{{ csrf_token() }}">
+                                                            <input type="hidden" name="userId" value="{{$user->id}}">
+                                                            <input type="hidden" name="type"
+                                                                   value="one_quarter_payment">
+                                                            <input type="hidden" name="choosePayment" value="CVS">
+                                                            @php
+                                                                $codeNoPaidGetId = \App\Models\PaymentGetQrcodeLog::codeNoPaidGetId($user->id, 'VIP', 'CVS', 'one_quarter_payment');
+                                                            @endphp
+                                                            @if($codeNoPaidGetId != '')
+                                                                @php
+                                                                    $data = \App\Models\PaymentGetQrcodeLog::findDataById($codeNoPaidGetId);
+                                                                    if(\App\Services\EnvironmentService::isLocalOrTestMachine()){
+                                                                        $envStr = '_test';
+                                                                    }
+                                                                    else{
+                                                                        $envStr = '';
+                                                                    }
+                                                                    $CVSBarCodeURL = Config::get('ecpay.payment' . $envStr . '.CVSBarCodeURL').$data->PaymentNo;
 
+                                                                @endphp
+                                                                <div class="barcode_content" id="code_{{$codeNoPaidGetId}}">
+                                                                    @if(isset($data))
+                                                                        您已經取號過, <br>請直接點選下列超商代碼繳費即可
+                                                                        <div class="barcode_style">
+                                                                            <a href="{{$CVSBarCodeURL}}" target="_blank">{{$data->PaymentNo}}</a>
+                                                                        </div>
+                                                                        繳費期限：{{$data->ExpireDate}}
+                                                                    @endif
+                                                                </div>
+                                                                <div class="new_vpadd payAlert"
+                                                                     data-id="{{$codeNoPaidGetId}}"
+                                                                     style="border-style: none; outline: none; word-break: break-all; white-space: nowrap;">超商代碼
+                                                                </div>
+                                                            @else
+                                                                <button type="submit"
+                                                                        class="new_vpadd one_quarter_payment paySubmit"
+                                                                        style="border-style: none; outline: none; word-break: break-all; white-space: nowrap;">超商代碼
+                                                                </button>
+                                                            @endif
+                                                        </form>
+                                                    </span>
+                                                    <span class="new_w100">
+                                                        <form id="one_quarter_paymentBARCODEForm" class="m-form m-form--fit"
+                                                              action="{{ route('upgradepay_ec') }}" method=post>
+                                                            <input type="hidden" name="_token"
+                                                                   value="{{ csrf_token() }}">
+                                                            <input type="hidden" name="userId" value="{{$user->id}}">
+                                                            <input type="hidden" name="type"
+                                                                   value="one_quarter_payment">
+                                                            <input type="hidden" name="choosePayment" value="BARCODE">
+                                                            @php
+                                                                $codeNoPaidGetId = \App\Models\PaymentGetQrcodeLog::codeNoPaidGetId($user->id, 'VIP', 'BARCODE', 'one_quarter_payment');
+                                                            @endphp
+                                                            @if($codeNoPaidGetId != '')
+                                                                @php
+                                                                    $data = \App\Models\PaymentGetQrcodeLog::findDataById($codeNoPaidGetId);
+                                                                @endphp
+                                                                <div class="barcode_content" id="code_{{$codeNoPaidGetId}}">
+                                                                    @if(isset($data))
+                                                                        您已經取號過, <br>請直接使用下列超商條碼繳費即可
+                                                                        <div class="barcode_style">
+                                                                            <div class="barcode_cvs"><img src="/new/images/payment_1.jpg"></div>
+                                                                            <img src="data:image/png;base64,{{DNS1D::getBarcodePNG($data->Barcode1, 'C39', 1, 33, array(1,1,1), true)}}" alt="barcode" /><br>
+                                                                            <img src="data:image/png;base64,{{DNS1D::getBarcodePNG($data->Barcode2, 'C39', 1, 33, array(1,1,1), true)}}" alt="barcode" /><br>
+                                                                            <img src="data:image/png;base64,{{DNS1D::getBarcodePNG($data->Barcode3, 'C39', 1, 33, array(1,1,1), true)}}" alt="barcode" />
+                                                                        </div>
+                                                                        繳費期限：{{$data->ExpireDate}}
+                                                                    @endif
+                                                                </div>
+                                                                <div class="new_vpadd payAlert"
+                                                                        data-id="{{$codeNoPaidGetId}}"
+                                                                    style="border-style: none; outline: none; word-break: break-all; white-space: nowrap;">超商條碼
+                                                                </div>
+                                                            @else
+                                                                <button type="submit" class="new_vpadd one_quarter_payment paySubmit"
+                                                                     style="border-style: none; outline: none; word-break: break-all; white-space: nowrap;">超商條碼
+                                                                </button>
+                                                            @endif
+                                                        </form>
+                                                    </span>
                                                 </div>
                                             </div>
-                                            {{--                                        <form class="m-form m-form--fit" action="{{ route('upgradepay_ec') }}" method=post>--}}
-                                            {{--                                            <input type="hidden" name="_token" value="{{ csrf_token() }}" >--}}
-                                            {{--                                            <input type="hidden" name="userId" value="{{$user->id}}">--}}
-                                            {{--                                            <input type="hidden" name="type" value="one_quarter_payment">--}}
-                                            {{--                                            <button type="submit" class="new_gvip_input one_quarter_payment" style="border-style: none; outline: none;">購買</button>--}}
-                                            {{--                                        </form>--}}
                                         </li>
                                         <li>
                                             <div class="new_fa">單月支付</div>
@@ -135,16 +251,50 @@
                                                 <h2>NT$1899/月</h2>
                                                 <h2>單月體驗</h2>
                                                 <div class="new_abg">
-                                                    {{--                                                <span>--}}
-                                                    {{--                                                    <form id="one_month_paymentATMForm" class="m-form m-form--fit" action="{{ route('upgradepay_ec') }}" method=post>--}}
-                                                    {{--                                                        <input type="hidden" name="_token" value="{{ csrf_token() }}" >--}}
-                                                    {{--                                                        <input type="hidden" name="userId" value="{{$user->id}}">--}}
-                                                    {{--                                                        <input type="hidden" name="type" value="one_month_payment">--}}
-                                                    {{--                                                        <input type="hidden" name="choosePayment" value="ATM">--}}
-                                                    {{--                                                        <button class="new_vpadd one_month_payment paySubmit" style="border-style: none; outline: none;">ATM繳費</button>--}}
-                                                    {{--                                                    </form>--}}
-                                                    {{--                                                </span>--}}
-                                                    <span style="float: none;">
+                                                    <span>
+                                                        <form id="one_month_paymentATMForm" class="m-form m-form--fit"
+                                                              action="{{ route('upgradepay_ec') }}" method=post>
+                                                            <input type="hidden" name="_token"
+                                                                   value="{{ csrf_token() }}">
+                                                            <input type="hidden" name="userId" value="{{$user->id}}">
+                                                            <input type="hidden" name="type" value="one_month_payment">
+                                                            <input type="hidden" name="choosePayment" value="ATM">
+                                                            @php
+                                                                $codeNoPaidGetId = \App\Models\PaymentGetQrcodeLog::codeNoPaidGetId($user->id, 'VIP', 'ATM', 'one_month_payment');
+                                                            @endphp
+                                                            @if($codeNoPaidGetId != '')
+                                                                @php
+                                                                    $data = \App\Models\PaymentGetQrcodeLog::findDataById($codeNoPaidGetId);
+                                                                    if(\App\Services\EnvironmentService::isLocalOrTestMachine()){
+                                                                        $envStr = '_test';
+                                                                    }
+                                                                    else{
+                                                                        $envStr = '';
+                                                                    }
+                                                                    $CVSBarCodeURL = Config::get('ecpay.payment' . $envStr . '.CVSBarCodeURL').$data->PaymentNo;
+
+                                                                @endphp
+                                                                <div class="barcode_content" id="code_{{$codeNoPaidGetId}}">
+                                                                    @if(isset($data))
+                                                                        您已經取號過, <br>請轉帳至下列ATM繳費帳號即可
+                                                                        <div class="barcode_style">
+                                                                            <div>銀行代碼：{{$data->BankCode}}</div>
+                                                                            <div>帳號：{{$data->vAccount}}</div>
+                                                                        </div>
+                                                                        繳費期限：{{$data->ExpireDate}}
+                                                                    @endif
+                                                                </div>
+                                                                <div class="new_vpadd payAlert"
+                                                                     data-id="{{$codeNoPaidGetId}}"
+                                                                     style="border-style: none; outline: none; word-break: break-all; white-space: nowrap;">ATM
+                                                                </div>
+                                                            @else
+                                                            <button class="new_vpadd one_month_payment paySubmit"
+                                                                    style="border-style: none; outline: none;">ATM</button>
+                                                            @endif
+                                                        </form>
+                                                    </span>
+                                                    <span>
                                                     <form id="one_month_paymentCreditForm" class="m-form m-form--fit"
                                                           action="{{ route('upgradepay_ec') }}" method=post>
                                                         <input type="hidden" name="_token" value="{{ csrf_token() }}">
@@ -152,41 +302,96 @@
                                                         <input type="hidden" name="type" value="one_month_payment">
                                                         <input type="hidden" name="choosePayment" value="Credit">
                                                         <input type="hidden" name="choosePaymentFlow" value="">
-{{--                                                        <button class="new_vpadd one_month_payment paySubmit"--}}
-                                                        <button class="new_gvip_input one_month_payment paySubmit"
+                                                        <button class="new_vpadd one_month_payment paySubmit"
                                                                 style="border-style: none; outline: none;">信用卡</button>
                                                     </form>
                                                 </span>
-                                                    {{--                                                <span>--}}
-                                                    {{--                                                    <form class="m-form m-form--fit" action="{{ route('upgradepay_ec') }}" method=post>--}}
-                                                    {{--                                                        <input type="hidden" name="_token" value="{{ csrf_token() }}" >--}}
-                                                    {{--                                                        <input type="hidden" name="userId" value="{{$user->id}}">--}}
-                                                    {{--                                                        <input type="hidden" name="type" value="one_month_payment">--}}
-                                                    {{--                                                        <input type="hidden" name="choosePayment" value="BARCODE">--}}
-                                                    {{--                                                        <button class="new_vpadd one_month_payment paySubmit" style="border-style: none; outline: none;">超商條碼</button>--}}
-                                                    {{--                                                    </form>--}}
-                                                    {{--                                                </span>--}}
-                                                    {{--                                                <font class="new_w100">--}}
-                                                    {{--                                                    <form id="one_month_paymentCVSForm" class="m-form m-form--fit" action="{{ route('upgradepay_ec') }}" method=post>--}}
-                                                    {{--                                                        <input type="hidden" name="_token" value="{{ csrf_token() }}" >--}}
-                                                    {{--                                                        <input type="hidden" name="userId" value="{{$user->id}}">--}}
-                                                    {{--                                                        <input type="hidden" name="type" value="one_month_payment">--}}
-                                                    {{--                                                        <input type="hidden" name="choosePayment" value="CVS">--}}
-                                                    {{--                                                        <button class="new_vpadd one_month_payment paySubmit" style="border-style: none; outline: none;">超商代碼或條碼</button>--}}
-                                                    {{--                                                    </form>--}}
-                                                    {{--                                                </font>--}}
+                                                    <span class="new_w100">
+                                                        <form id="one_month_paymentCVSForm" class="m-form m-form--fit"
+                                                              action="{{ route('upgradepay_ec') }}" method=post>
+                                                            <input type="hidden" name="_token"
+                                                                   value="{{ csrf_token() }}">
+                                                            <input type="hidden" name="userId" value="{{$user->id}}">
+                                                            <input type="hidden" name="type" value="one_month_payment">
+                                                            <input type="hidden" name="choosePayment" value="CVS">
+                                                            @php
+                                                                $codeNoPaidGetId = \App\Models\PaymentGetQrcodeLog::codeNoPaidGetId($user->id, 'VIP', 'CVS', 'one_month_payment');
+                                                            @endphp
+                                                            @if($codeNoPaidGetId != '')
+                                                                @php
+                                                                    $data = \App\Models\PaymentGetQrcodeLog::findDataById($codeNoPaidGetId);
+                                                                    if(\App\Services\EnvironmentService::isLocalOrTestMachine()){
+                                                                        $envStr = '_test';
+                                                                    }
+                                                                    else{
+                                                                        $envStr = '';
+                                                                    }
+                                                                    $CVSBarCodeURL = Config::get('ecpay.payment' . $envStr . '.CVSBarCodeURL').$data->PaymentNo;
 
+                                                                @endphp
+                                                                <div class="barcode_content" id="code_{{$codeNoPaidGetId}}">
+                                                                    @if(isset($data))
+                                                                        您已經取號過, <br>請直接點選下列超商代碼繳費即可
+                                                                        <div class="barcode_style">
+                                                                            <a href="{{$CVSBarCodeURL}}" target="_blank">{{$data->PaymentNo}}</a>
+                                                                        </div>
+                                                                        繳費期限：{{$data->ExpireDate}}
+                                                                    @endif
+                                                                </div>
+                                                                <div class="new_vpadd payAlert"
+                                                                     data-id="{{$codeNoPaidGetId}}"
+                                                                     style="border-style: none; outline: none; word-break: break-all; white-space: nowrap;">超商代碼
+                                                                </div>
+                                                            @else
+                                                                <button class="new_vpadd one_month_payment paySubmit"
+                                                                        style="border-style: none; outline: none; word-break: break-all; white-space: nowrap;">超商代碼
+                                                                </button>
+                                                            @endif
+                                                        </form>
+                                                    </span>
+                                                    <span class="new_w100">
+                                                        <form id="one_month_paymentBARCODEForm" class="m-form m-form--fit"
+                                                              action="{{ route('upgradepay_ec') }}" method=post>
+                                                            <input type="hidden" name="_token"
+                                                                   value="{{ csrf_token() }}">
+                                                            <input type="hidden" name="userId" value="{{$user->id}}">
+                                                            <input type="hidden" name="type" value="one_month_payment">
+                                                            <input type="hidden" name="choosePayment" value="BARCODE">
+                                                            @php
+                                                                $codeNoPaidGetId = \App\Models\PaymentGetQrcodeLog::codeNoPaidGetId($user->id, 'VIP', 'BARCODE', 'one_month_payment');
+                                                            @endphp
+                                                            @if($codeNoPaidGetId != '')
+                                                                @php
+                                                                    $data = \App\Models\PaymentGetQrcodeLog::findDataById($codeNoPaidGetId);
+                                                                @endphp
+                                                                <div class="barcode_content" id="code_{{$codeNoPaidGetId}}">
+                                                                    @if(isset($data))
+                                                                        您已經取號過, <br>請直接使用下列超商條碼繳費即可
+                                                                        <div class="barcode_style">
+                                                                            <div class="barcode_cvs"><img src="/new/images/payment_1.jpg"></div>
+                                                                            <img src="data:image/png;base64,{{DNS1D::getBarcodePNG($data->Barcode1, 'C39', 1, 33, array(1,1,1), true)}}" alt="barcode" /><br>
+                                                                            <img src="data:image/png;base64,{{DNS1D::getBarcodePNG($data->Barcode2, 'C39', 1, 33, array(1,1,1), true)}}" alt="barcode" /><br>
+                                                                            <img src="data:image/png;base64,{{DNS1D::getBarcodePNG($data->Barcode3, 'C39', 1, 33, array(1,1,1), true)}}" alt="barcode" />
+                                                                        </div>
+                                                                        繳費期限：{{$data->ExpireDate}}
+                                                                    @endif
+                                                                </div>
+                                                                <div class="new_vpadd payAlert"
+                                                                     data-id="{{$codeNoPaidGetId}}"
+                                                                     style="border-style: none; outline: none; word-break: break-all; white-space: nowrap;">超商條碼
+                                                                </div>
+                                                            @else
+                                                                <button class="new_vpadd one_month_payment paySubmit"
+                                                                        style="border-style: none; outline: none; word-break: break-all; white-space: nowrap;">超商條碼
+                                                                </button>
+                                                            @endif
+                                                        </form>
+                                                    </span>
                                                 </div>
                                             </div>
-                                            {{--                                        <form class="m-form m-form--fit" action="{{ route('upgradepay_ec') }}" method=post>--}}
-                                            {{--                                            <input type="hidden" name="_token" value="{{ csrf_token() }}" >--}}
-                                            {{--                                            <input type="hidden" name="userId" value="{{$user->id}}">--}}
-                                            {{--                                            <input type="hidden" name="type" value="one_month_payment">--}}
-                                            {{--                                            <button class="new_gvip_input one_month_payment" style="border-style: none; outline: none;">購買</button>--}}
-                                            {{--                                        </form>--}}
                                         </li>
-                                </ul>
-                            </div>
+                                    </ul>
+                                </div>
                             </div>
                             <div class="paymentFlowChoose" style="display: none;">
                                 <div class="vipline"><img src="/new/images/VIP_05.png"></div>
@@ -248,7 +453,6 @@
                             @endif
                         </div>
                         {{-- cancel vip end --}}
-
                     </div>
 
                 </div>
@@ -321,6 +525,12 @@
 
         });
 
+        $('.payAlert').on('click', function(event) {;
+            c5('');
+            $('.bltext').append($('#code_' + $(this).data('id')).html());
+            return false;
+        });
+
         $('.paySubmit').on('click', function(event) {
 
             let id,choosePayment;
@@ -366,6 +576,7 @@
                     });
 
                 }else if($(this).hasClass("one_month_payment")){
+
                     //定期定額會員無法購買單次方案
                     @if($user->isVipNotCanceledNotOnePayment() && !$user->isVipOnePaymentNotExpire())
                         c5('您目前已是VIP會員');
@@ -375,7 +586,7 @@
                         id = 'one_month_payment';
                         choosePayment=$(this).parent().find("input[name='choosePayment']").val();
 
-                        if(choosePayment == 'ATM' || choosePayment == 'CVS'){
+                        if(choosePayment == 'ATM' || choosePayment == 'CVS' || choosePayment == 'BARCODE'){
                             $(".n_left").on('click', function () {
                                 common_confirm("{{$atm_cvs_notice}}","{{$atm_cvs_notice_red}}");
                                 $(".n_left").on('click', function () {
@@ -408,7 +619,7 @@
                         id = 'one_quarter_payment';
                         choosePayment=$(this).parent().find("input[name='choosePayment']").val();
 
-                        if(choosePayment == 'ATM' || choosePayment == 'CVS'){
+                        if(choosePayment == 'ATM' || choosePayment == 'CVS' || choosePayment == 'BARCODE'){
                             $(".n_left").on('click', function () {
                                 common_confirm("{{$atm_cvs_notice}}","{{$atm_cvs_notice_red}}");
                                 $(".n_left").on('click', function () {

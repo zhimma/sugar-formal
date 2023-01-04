@@ -51,6 +51,7 @@
                         @case(0)
                             <button type="button" class="btn btn-primary" onclick="checkAction({{$row->evaluation_id}},1,{{ $row->id }})" >通過</button>
                             <button type="button" class="btn btn-danger reject_button" onclick="checkAction({{$row->evaluation_id}},2,{{ $row->id }})" >不通過</button>
+                            <a class="btn btn-dark" href="{{ route('admin/showAnonymousChatMessage', $row->evaluation_id) }}" target="_blank">對話紀錄</a>
                             @if ($row->content_violation_processing != 'return')
                             <form method="POST" action="{{ route('evaluationModifyContent', $row->evaluation_id) }}" style="margin:0px;display:inline;">
                                 {!! csrf_field() !!}
@@ -63,6 +64,7 @@
                         @break
                         @case(1)
                             通過<br>
+                            <a class="btn btn-dark" href="{{ route('admin/showAnonymousChatMessage', $row->evaluation_id) }}" target="_blank">對話紀錄</a>
                             @if ($row->content_violation_processing != 'return')
                             <form method="POST" action="{{ route('evaluationModifyContent', $row->evaluation_id) }}" style="margin:0px;display:inline;">
                                 {!! csrf_field() !!}
@@ -75,6 +77,7 @@
                         @break
                         @case(2)
                             不通過<br>
+                            <a class="btn btn-dark" href="{{ route('admin/showAnonymousChatMessage', $row->evaluation_id) }}" target="_blank">對話紀錄</a>
                             @if ($row->content_violation_processing != 'return')
                             <form method="POST" action="{{ route('evaluationModifyContent', $row->evaluation_id) }}" style="margin:0px;display:inline;">
                                 {!! csrf_field() !!}

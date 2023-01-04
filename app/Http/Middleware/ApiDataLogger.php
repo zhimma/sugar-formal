@@ -4,7 +4,9 @@ use App\Models\Order;
 use App\Models\PaymentGetQrcodeLog;
 use App\Models\SimpleTables\banned_users;
 use App\Models\SimpleTables\warned_users;
+use App\Models\ValueAddedServiceLog;
 use App\Models\Vip;
+use App\Models\VipLog;
 use Carbon\Carbon;
 use Closure;
 use Illuminate\Support\Facades\Log;
@@ -151,39 +153,73 @@ class ApiDataLogger{
                     return '0|Error';
                 }
 
+                $transactionType='';
+                if($payload['PaymentType'] == 'Credit_CreditCard')
+                    $transactionType='CREDIT'; //信用卡
+                elseif(str_contains($payload['PaymentType'], 'ATM'))
+                    $transactionType='ATM'; //ATM
+                elseif($payload['PaymentType'] == 'BARCODE_BARCODE')
+                    $transactionType='BARCODE'; //超商條碼
+                elseif ($payload['PaymentType'] == 'CVS_CVS')
+                    $transactionType='CVS'; //超商代號
+                else
+                    $transactionType=$payload['PaymentType']; //寫入回傳的PaymentType
+
                 //存入超商條碼取號紀錄 + ATM
-                if( isset($payload['RtnCode']) && $payload['CustomField4'] == 'VIP' &&
+                if( isset($payload['RtnCode']) &&
                     (
                         ($payload['RtnCode'] == '10100073' && ($payload['PaymentType'] == 'BARCODE_BARCODE' || $payload['PaymentType'] == 'CVS_CVS')) ||
                         ($payload['RtnCode'] == '2' && str_contains($payload['PaymentType'], 'ATM') )
                     )
                   ){
 
-                    PaymentGetQrcodeLog::insert([
-                        'user_id' => $payload['CustomField1'],
-                        'ExpireDate' => $payload['ExpireDate'],
-                        'order_id' => $payload['MerchantTradeNo'],
-                        'TradeDate' => $payload['TradeDate'],
-                        'payment_type' => $payload['PaymentType']
-                        ]);
+                    $PaymentGetQrcode = new PaymentGetQrcodeLog();
+                    $PaymentGetQrcode->user_id = $payload['CustomField1'];
+                    $PaymentGetQrcode->service_name = $payload['CustomField4'];
+                    $PaymentGetQrcode->ExpireDate = $payload['ExpireDate'];
+                    $PaymentGetQrcode->order_id = $payload['MerchantTradeNo'];
+                    $PaymentGetQrcode->TradeDate = $payload['TradeDate'];
+                    $PaymentGetQrcode->payment = $payload['CustomField3'];
+                    $PaymentGetQrcode->payment_type = $payload['PaymentType'];
+                    if($payload['PaymentType'] == 'ATM'){
+                        $PaymentGetQrcode->BankCode = $payload['BankCode'];
+                        $PaymentGetQrcode->vAccount = $payload['vAccount'];
+                    }
+                    if($payload['PaymentType'] == 'BARCODE_BARCODE' || $payload['PaymentType'] == 'CVS_CVS'){
+                        $PaymentGetQrcode->PaymentNo = $payload['PaymentNo'];
+                        $PaymentGetQrcode->Barcode1 = $payload['Barcode1'];
+                        $PaymentGetQrcode->Barcode2 = $payload['Barcode2'];
+                        $PaymentGetQrcode->Barcode3 = $payload['Barcode3'];
+                    }
+                    $PaymentGetQrcode->save();
+
+                    $logStr = '取號完成, order id: ' . $payload['MerchantTradeNo'] . ', payment: ' . $payload['CustomField3'] . ', amount: ' . $payload['TradeAmt'] . ', transactionType: ' . $transactionType;
+                    if($payload['CustomField4']=='VIP'){
+                        VipLog::addToLog($payload['CustomField1'], $logStr, '', 0, 0);
+                    }else{
+                        if($payload['CustomField4'] != '') {
+                            $logStr = '取號完成, payment: ' . $payload['CustomField3'] . ', service： '.$payload['CustomField4'].', transactionType: ' . $transactionType;
+                            ValueAddedServiceLog::addToLog($payload['CustomField1'], $payload['CustomField4'], $logStr, $payload['MerchantTradeNo'], '', 0);
+                        }
+                    }
 
                     //暫時自動發放VIP權限
-                    $transactionType='';
-                    if($payload['PaymentType'] == 'Credit_CreditCard')
-                        $transactionType='CREDIT'; //信用卡
-                    elseif(str_contains($payload['PaymentType'], 'ATM'))
-                        $transactionType='ATM'; //ATM
-                    elseif($payload['PaymentType'] == 'BARCODE_BARCODE')
-                        $transactionType='BARCODE'; //超商條碼
-                    elseif ($payload['PaymentType'] == 'CVS_CVS')
-                        $transactionType='CVS'; //超商代號
-                    else
-                        $transactionType=$payload['PaymentType']; //寫入回傳的PaymentType
-
-                    logger('Middleware ApiDataLogger=> userID:'.$user->id.', 種類:' .$payload['CustomField3'].', 付款方式:' .$transactionType. '(預先給予權限)');
-
-                    $remain_days = $payload['CustomField2'];
-                    Vip::upgrade($user->id, $payload['MerchantID'], $payload['MerchantTradeNo'], $payload['TradeAmt'], '', 1, 0,$payload['CustomField3'],$transactionType,$remain_days);
+//                    $transactionType='';
+//                    if($payload['PaymentType'] == 'Credit_CreditCard')
+//                        $transactionType='CREDIT'; //信用卡
+//                    elseif(str_contains($payload['PaymentType'], 'ATM'))
+//                        $transactionType='ATM'; //ATM
+//                    elseif($payload['PaymentType'] == 'BARCODE_BARCODE')
+//                        $transactionType='BARCODE'; //超商條碼
+//                    elseif ($payload['PaymentType'] == 'CVS_CVS')
+//                        $transactionType='CVS'; //超商代號
+//                    else
+//                        $transactionType=$payload['PaymentType']; //寫入回傳的PaymentType
+//
+//                    logger('Middleware ApiDataLogger=> userID:'.$user->id.', 種類:' .$payload['CustomField3'].', 付款方式:' .$transactionType. '(預先給予權限)');
+//
+//                    $remain_days = $payload['CustomField2'];
+//                    Vip::upgrade($user->id, $payload['MerchantID'], $payload['MerchantTradeNo'], $payload['TradeAmt'], '', 1, 0,$payload['CustomField3'],$transactionType,$remain_days);
 
                 }
 
@@ -215,34 +251,22 @@ class ApiDataLogger{
                         $this->logService->writeLogToDB();
                         $this->logService->writeLogToFile();
 
-                        $transactionType='';
-                        if($payload['PaymentType'] == 'Credit_CreditCard')
-                            $transactionType='CREDIT'; //信用卡
-                        elseif(str_contains($payload['PaymentType'], 'ATM'))
-                            $transactionType='ATM'; //ATM
-                        elseif($payload['PaymentType'] == 'BARCODE_BARCODE')
-                            $transactionType='BARCODE'; //超商條碼
-                        elseif ($payload['PaymentType'] == 'CVS_CVS')
-                            $transactionType='CVS'; //超商代號
-                        else
-                            $transactionType=$payload['PaymentType']; //寫入回傳的PaymentType
-
-                        logger('Middleware ApiDataLogger=> userID:'.$user->id.', 種類:' .$payload['CustomField3'].', 付款方式:' .$transactionType);
+                        logger('Middleware ApiDataLogger=> userID:'.$user->id.'購買項目:'.$payload['CustomField4'].', 種類:' .$payload['CustomField3'].', 付款方式:' .$transactionType);
 
                         $remain_days = $payload['CustomField2'];
-                        Vip::upgrade($user->id, $payload['MerchantID'], $payload['MerchantTradeNo'], $payload['TradeAmt'], '', 1, 0,$payload['CustomField3'],$transactionType,$remain_days);
+
+                        Vip::upgrade($user->id, $payload['MerchantID'], $payload['MerchantTradeNo'], $payload['TradeAmt'], '', 1, 0, $payload['CustomField3'], $transactionType, $remain_days);
 
                         //解除vip_pass紀錄 banned_users warned_users
                         banned_users::where('vip_pass', 1)->where('member_id', $user->id)->delete();
                         warned_users::where('vip_pass', 1)->where('member_id', $user->id)->delete();
-                        
+
                         //產生訂單 --正式環境訂單
                         if(str_contains($_SERVER["HTTP_REFERER"], 'ecpay')) {
                             Order::addEcPayOrder($payload['MerchantTradeNo'], null);
                         }elseif(str_contains($_SERVER["HTTP_REFERER"], 'funpoint')){
                             Order::addFunPointPayOrder($payload['MerchantTradeNo'], null);
                         }
-
 
                         return '1|OK';
                     }
