@@ -57,10 +57,10 @@ class LocalMachine_AutoBanAndWarn extends Command
         }
         Log::Info($ban_list);
 
-        $link_address = env('MISC_LINK_SERVER').'/LocalMachineReceive/BanAndWarn';
+        $link_address = config('localmachine.MISC_LINK_SERVER').'/LocalMachineReceive/BanAndWarn';
         $post_data = [
             'form_params' => [
-                'key' => env('MISC_KEY'),
+                'key' => config('localmachine.MISC_KEY'),
                 'ban_list' => $ban_list
             ]
         ];

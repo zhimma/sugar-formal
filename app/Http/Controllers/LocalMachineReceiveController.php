@@ -15,7 +15,7 @@ class LocalMachineReceiveController extends Controller
 		Log::Info('Receive Data From Local Machine');
 		$ban_list = $request->ban_list;
 		Log::Info($ban_list);
-		if($request->key == env('MISC_KEY') && $request->ip() == env('MISC_SERVER'))
+		if($request->key == config('localmachine.MISC_KEY') && $request->ip() == config('localmachine.MISC_SERVER'))
 		{
 			if($ban_list ?? false)
 			{
