@@ -684,7 +684,7 @@ class SetAutoBan extends Model
 
             
 
-            $user->log_user_login->each(function ($log) use ($user, $probing, &$ban_list) {
+            $user->log_user_login->each(function ($log) use ($user, $probing, &$ban_list, $bypass) {
                 $cfp_id_rule_sets = SetAutoBan::retrive('cfp_id');
                 $cfp_id_rule_sets->each(function($rule_set) use ($user, $log, $probing, &$ban_list) {
                     if($log->cfp_id == $rule_set->content) {
@@ -697,17 +697,19 @@ class SetAutoBan extends Model
                     }
                 });
 
-                $user_agent_rule_sets = SetAutoBan::retrive('user_agent');
-                $user_agent_rule_sets->each(function($rule_set) use ($user, $log, $probing, &$ban_list) {
-                    if(str_contains($log->userAgent, $rule_set->content)) {
-                        if($probing) {
-                            echo $rule_set->id . ' ' . $rule_set->type;
-                        }  
-                        if($rule_set && $rule_set->id) {
-                            $ban_list[] = [$user->id, $rule_set->id, 'profile'];
+                if(!$bypass){
+                    $user_agent_rule_sets = SetAutoBan::retrive('user_agent');
+                    $user_agent_rule_sets->each(function($rule_set) use ($user, $log, $probing, &$ban_list) {
+                        if(str_contains($log->userAgent, $rule_set->content)) {
+                            if($probing) {
+                                echo $rule_set->id . ' ' . $rule_set->type;
+                            }  
+                            if($rule_set && $rule_set->id) {
+                                $ban_list[] = [$user->id, $rule_set->id, 'profile'];
+                            }
                         }
-                    }
-                });
+                    });
+                }
             });
 
             if(!$bypass){
