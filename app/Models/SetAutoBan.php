@@ -19,6 +19,7 @@ use App\Services\ImagesCompareService;
 use App\Jobs\BanJob;
 use Illuminate\Support\Facades\Cache;
 use Outl1ne\ScoutBatchSearchable\BatchSearchable;
+use GuzzleHttp\Client;
 
 class SetAutoBan extends Model
 {
@@ -758,20 +759,16 @@ class SetAutoBan extends Model
                 switch ($ban_set->type) {
                     case 'ip':
                         if($ban_set->expiry=='0000-00-00 00:00:00') {
-                            $ban_set->expiry = \Carbon\Carbon::now()->addMonths(1)->format('Y-m-d H:i:s');
-                            $ban_set->updated_at = now();
-                            $ban_set->save();						
+                            SetAutoBan::ip_update_send('update', $ban_set->id);			
                         }
                         if($ban_set->expiry<=\Carbon\Carbon::now()->format('Y-m-d H:i:s')) {
-                            $ban_set->delete();
+                            SetAutoBan::ip_update_send('delete', $ban_set->id);	
                             break;
                         }					
                         $ip = $user->log_user_login->sortByDesc('created_at')->first();
                         if($ip?->ip == $content) {
                             $violation = true;
-                            $ban_set->expiry = \Carbon\Carbon::now()->addMonths(1)->format('Y-m-d H:i:s');
-                            $ban_set->updated_at = now();
-                            $ban_set->save();						
+                            SetAutoBan::ip_update_send('update', $ban_set->id);						
                         }
                         break;
                     //20220629新增圖片檔名   
@@ -821,5 +818,36 @@ class SetAutoBan extends Model
             }
 
             return $ban_list;
+    }
+
+    public static function ip_update_send($type, $id){
+        $ip_list = [];
+        if($type == 'update')
+        {
+            $ip_list['type'] = $type;
+            $ip_list['id'] = $id;
+            $ip_list['expiry'] = \Carbon\Carbon::now()->addMonths(1)->format('Y-m-d H:i:s');
+            $ip_list['updated_at'] = now();
+        }
+        else if($type == 'delete')
+        {
+            $ip_list['type'] = $type;
+            $ip_list['id'] = $id;
+            $ip_list['expiry'] = '';
+            $ip_list['updated_at'] = '';
+        }
+        
+
+        $link_address = config('localmachine.MISC_LINK_SERVER').'/LocalMachineReceive/BanSetIPUpdate';
+        $post_data = [
+            'form_params' => [
+                'key' => config('localmachine.MISC_KEY'),
+                'ip_list' => $ip_list
+            ]
+        ];
+        $client   = new Client();
+        $response = $client->request('POST', $link_address, $post_data);
+        $contents = $response->getBody()->getContents();
+        Log::Info($contents);		
     }
 }

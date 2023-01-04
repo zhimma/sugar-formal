@@ -38,4 +38,42 @@ class LocalMachineReceiveController extends Controller
 		}
         
 	}
+	public function BanSetIPUpdate(Request $request)
+	{
+		Log::Info('Receive IP Update Data From Local Machine');
+		$ip_list = $request->ip_list;
+		Log::Info($ip_list);
+		if($request->key == config('localmachine.MISC_KEY') && $request->ip() == config('localmachine.MISC_SERVER'))
+		{
+			if($ip_list ?? false)
+			{
+				foreach($ip_list as $item)
+				{
+					$type = $item['type'];
+					$id = $item['id'];
+					$expiry = $item['expiry'];
+					$updated_at = $item['updated_at'];
+
+					if($type == 'update')
+					{
+						$ban_set = SetAutoBan::where('id', $id)->first();
+						$ban_set->expiry = $expiry;
+						$ban_set->updated_at = $updated_at;
+						$ban_set->save();
+					}
+					else if($type == 'delete')
+					{
+						$ban_set = SetAutoBan::where('id', $id)->first()->delete();
+					}
+				}
+			}
+			return '自動封鎖列表-IP更新成功';
+		}
+		else
+		{
+			Log::Info('外部IP請求失敗:');
+			Log::Info($request->ip());
+			return '自動封鎖列表-IP更新失敗';
+		}
+	}
 }
