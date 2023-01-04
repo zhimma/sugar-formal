@@ -848,7 +848,10 @@ Route::group(['middleware' => ['auth', 'global', 'active', 'femaleActive', 'vipC
 
         Route::get('statistics', 'UserController@statisticsReply')->name("statistics");
         Route::post('statistics', 'UserController@statisticsReply');
-
+        
+        Route::get('greetingRate/show', 'UserController@showAvgMedian');
+        Route::post('greetingRate/modify', 'UserController@modifyGreetingRateCalculations')->name('admin/greetingRate/modify');
+        
         Route::get('users/pics/reported', 'UserController@showReportedPicsPage')->name('users/pics/reported/GET');
         Route::get('users/reported', 'UserController@showReportedUsersPage')->name('users/reported/GET');
         Route::post('users/reported', 'UserController@showReportedUsersList')->name('users/reported');

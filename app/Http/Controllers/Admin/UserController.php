@@ -95,7 +95,7 @@ use App\Models\MessageRoomUserXref;
 use App\Models\SpecialIndustriesTestAnswer;
 use Illuminate\Support\Facades\Log;
 use App\Models\RoleUser;
-
+use App\Models\GreetingRateCalculation;
 
 class UserController extends \App\Http\Controllers\BaseController
 {
@@ -7954,5 +7954,29 @@ class UserController extends \App\Http\Controllers\BaseController
         } else {
             return response()->json(['msg'=>'進階驗證次數小於3次，不需調整']);
         }        
+    }
+
+    public function showAvgMedian(){
+        $day_statistic = DB::table('log_system_day_statistic')->where(
+            'date', '>=', Carbon::now()->subMonth()->toDateTimeString()
+        )->orderby('date', 'desc')->get();
+            
+        $calculations = DB::table('greeting_rate_calculations')->orderby('created_at', 'desc')->first();
+        $infix = $calculations->infix;
+        $greetingRate = UserService::computeGreetingRate($calculations->postfix);
+        return view('admin.users.showAvgMedian', compact('day_statistic', 'infix', 'greetingRate'));
+    }
+
+    public function modifyGreetingRateCalculations(Request $request){
+        $postfix = UserService::toPostfix($request->infix);
+        $v = UserService::computeGreetingRate($postfix);
+        if($request->save) {
+            $calculation = new GreetingRateCalculation;
+            $calculation->infix = $request->infix;
+            $calculation->postfix = $postfix;
+            $calculation->save();
+        }
+        
+        return response()->json($v);
     }
 }

@@ -1553,13 +1553,136 @@ class UserService
             $message_percent_15 = count($user_similar_msg) > 0 ? round( (count($user_similar_msg) / count($messages))*100 )  : 0;
             return $message_percent_15;
     }
-
-    public static function isGreetingFrequently($from_id)
+   
+    public static function priority($op)
+    {
+        switch($op){
+            case'+': case'-': return 1;
+            case'*': case'/': return 2;
+            default: return 0;
+        }
+    }
+    public static function toPostfix($infix){
+        $infix_arr = preg_split('~|(-?\d*(?:Max|Min|Avg|Median|\.\d+)?|[()*/+-])~', $infix, 0, PREG_SPLIT_NO_EMPTY | PREG_SPLIT_DELIM_CAPTURE);
+        $stack = [];
+        $opt = [];
+        
+        foreach ($infix_arr as $k=>$v) {
+            
+            switch($v){
+                case 'Max':case 'Min':case ',':case '(':
+                    array_push($stack, $v);
+                   
+                    break;
+                
+                case'+':case'-':case'*':case'/':
+                    
+                    $top = count($stack);
+                    if($top) {
+                        while(UserService::priority($stack[$top-1]) >= UserService::priority($v) ){
+                            array_push($opt, $stack[$top--]);
+                        }
+                    }
+                    array_push($stack, $v);
+                    break;
+                
+                case ')':
+                    $top = count($stack);
+                    $isCompare = false;
+                    
+                    while($stack[$top-1]!='('){
+                        
+                        $isCompare = $stack[$top-1]==',';
+                        if(!$isCompare){
+                            array_push($opt, $stack[$top-1]);
+                        }
+                        array_splice($stack,$top-1,1);
+                        $top--;
+                    }
+                    array_splice($stack,$top-1,1);
+                    $top--;
+                    
+                    if($isCompare){
+                        array_push($opt, $stack[$top-1]);
+                        array_splice($stack,$top-1,1);
+                    }
+                    break;
+                default:
+                    array_push($opt, $v);
+                    break;
+            }
+        }
+        
+        while(count($stack)>0){
+            $top = count($stack);
+            array_push($opt, $stack[$top-1]);
+            array_splice($stack,$top-1,1);
+            $top--;
+        }
+        
+        return implode(",", $opt);
+    }
+   
+    public static function computeGreetingRate($postfix)
     {
         $query = DB::table('log_system_day_statistic')->whereDate('date', Carbon::today())->first();
         $avg = $query?->average_recipients_count_of_vip_male_senders;
         $median = $query?->median_recipients_count_of_vip_male_senders;
-        $greeting_rate = max($avg ?? 999, $median ?? 999) * 1.75;
+
+        $postfix_arr = explode(",", $postfix);
+        $postfix_arr = str_replace('Avg', $avg ?? 999, $postfix_arr);
+        $postfix_arr = str_replace('Median', $median ?? 999, $postfix_arr);
+        $stack = [];
+        foreach ($postfix_arr as $v) {
+            switch($v) {
+                case '+':
+                    $top = count($stack);
+                    $stack[$top-2] = $stack[$top-2] + $stack[$top-1];
+                    array_splice($stack,$top-1,1);
+                    break;
+                case '-':
+                    $top = count($stack);
+                    $stack[$top-2] = $stack[$top-2] - $stack[$top-1];
+                    array_splice($stack,$top-1,1);
+                    break;
+                case '*':
+                    $top = count($stack);
+                    
+                    $stack[$top-2] = $stack[$top-2] * $stack[$top-1];
+                    array_splice($stack,$top-1,1);
+                    break;
+                case '/':
+                    $top = count($stack);
+                    $stack[$top-2] = $stack[$top-2] / $stack[$top-1];
+                    array_splice($stack,$top-1,1);
+                    break;
+                case 'Max':
+                    $top = count($stack);
+                    $stack[$top-2] = max($stack[$top-2], $stack[$top-1]);
+                    array_splice($stack,$top-1,1);
+                    break;
+                case 'Min':
+                    $top = count($stack);
+                    $stack[$top-2] = min($stack[$top-2], $stack[$top-1]);
+                    array_splice($stack,$top-1,1);
+                    break;
+                default:
+                    array_push($stack, $v);
+                    break;
+            }
+        }
+        return $stack[0];
+    }
+    public static function isGreetingFrequently($from_id)
+    {
+        
+        $query = DB::table('log_system_day_statistic')->whereDate('date', Carbon::today())->first();
+        $avg = $query?->average_recipients_count_of_vip_male_senders;
+        $median = $query?->median_recipients_count_of_vip_male_senders;
+        $greeting_rate = max($avg ?? 999, $median ?? 999) * 1.75; 
+        // 招手比後台調整，測試 OK 再使用下面2行，並刪除或註解上面 4行
+        // $postfix = DB::table('greeting_rate_calculations')->first()->postfix;
+        // $greeting_rate = UserService::computeGreetingRate($postfix);
         $recipients_count = UserMeta::where('user_id', $from_id)->pluck('recipients_count')->first();
         
         return $recipients_count > $greeting_rate;
