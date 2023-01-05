@@ -683,7 +683,7 @@ class SetAutoBan extends Model
             }
             
             //只取一天內的登入紀錄
-            Log::Info('開始檢查User: ' . $user->id . ' CFP_ID 共 ' . $user->log_user_login->count() . ' 筆登入紀錄');
+            Log::Info('開始檢查User: ' . $user->id . ' CFP_ID 共 ' . $user->log_user_login->where('created_at', '>', Carbon::now()->subDay())->sortByDesc('created_at')->count() . ' 筆登入紀錄');
             $user->log_user_login->where('created_at', '>', Carbon::now()->subDay())->each(function ($log) use ($user, $probing, &$ban_list, $bypass) {
                 $cfp_id_rule_sets = SetAutoBan::retrive('cfp_id');
                 $cfp_id_rule_sets->each(function($rule_set) use ($user, $log, $probing, &$ban_list) {
@@ -764,8 +764,6 @@ class SetAutoBan extends Model
                             SetAutoBan::ip_update_send('delete', $ban_set->id);	
                             break;
                         }	
-                        //只取一天內的登入紀錄	
-                        Log::Info('開始檢查User: ' . $user->id . ' IP 共 ' . $user->log_user_login->count() . ' 筆登入紀錄');			
                         $ip = $user->log_user_login->where('created_at', '>', Carbon::now()->subDay())->sortByDesc('created_at')->first();
                         if($ip?->ip == $content) {
                             $violation = true;
