@@ -15,7 +15,7 @@ class LocalMachineReceiveController extends Controller
 		Log::Info('Receive Data From Local Machine');
 		$ban_list = $request->ban_list;
 		Log::Info($ban_list);
-		if($request->key == config('localmachine.MISC_KEY') && $request->ip() == config('localmachine.MISC_SERVER'))
+		if($request->key == config('localmachine.MISC_KEY') && ($request->ip() == config('localmachine.MISC_SERVER') || $request->ip() == config('localmachine.MISC_SECOND_SERVER')))
 		{
 			if($ban_list ?? false)
 			{
@@ -38,6 +38,7 @@ class LocalMachineReceiveController extends Controller
 		}
         
 	}
+	
 	public function BanSetIPUpdate(Request $request)
 	{
 		Log::Info('Receive IP Update Data From Local Machine');
