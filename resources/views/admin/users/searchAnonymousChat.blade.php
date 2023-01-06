@@ -128,19 +128,19 @@
                             <input type="button" class='btn btn-danger' onclick="deleteRow({{$row->id}})" value="刪除" />
                         @endif
                         <div class="btn-group">
-                        @if($row->forbid_userID=='' || $row->forbid_userExpireDate < \Carbon\Carbon::now())
+                        @if($row->forbid_userID=='' || $row->forbid_userExpireDate->lt(now()))
                             <button type="button" class='btn btn-dark' data-toggle="modal" data-target="#forbid_modal" data-id="{{$row->user_id}}" data-name="{{$row->name}}" data-anonymous="{{$row->anonymous}}">禁止進入</button>
                         @else
                             <button type="button" class='btn btn-outline-dark userBlockRemove' data-id="{{$row->user_id}}" data-name="{{$row->name}}" data-block_type="anonymous_chat_forbid">解除禁止進入</button>
                         @endif
 
-                        @if($row->warned_userID=='' || $row->warned_userExpireDate < \Carbon\Carbon::now())
+                        @if($row->warned_userID=='' || $row->warned_userExpireDate->lt(now()))
                             <button type="button" class='btn btn-warning' data-toggle="modal" data-target="#warned_modal" data-id="{{$row->user_id}}" data-name="{{$row->name}}">警示</button>
                         @else
                             <button type="button" class='btn btn-outline-warning unwarned_user' data-id="{{$row->user_id}}" data-name="{{$row->name}}" data-block_type="anonymous_chat_warned">解除警示</button>
                         @endif
 
-                        @if($row->banned_userID=='' || $row->banned_userExpireDate < \Carbon\Carbon::now())
+                        @if($row->banned_userID=='' || $row->banned_userExpireDate->lt(now()))
                             <button type="button" class='btn btn-danger' data-toggle="modal" data-target="#banned_modal" data-id="{{$row->user_id}}" data-name="{{$row->name}}">封鎖</button>
                         @else
                             <button type="button" class='btn btn-outline-danger unblock_user' data-id="{{$row->user_id}}" data-name="{{$row->name}}" data-block_type="anonymous_chat_ban">解除封鎖</button>
