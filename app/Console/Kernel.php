@@ -42,7 +42,6 @@ class Kernel extends ConsoleKernel
             $schedule->command('LocalMachine_AutoBanAndWarn')->timezone('Asia/Taipei')->everyMinute();
         }
         if(app()->environment('MISC_SECOND')) {
-            //$schedule->command('UserLogin')->timezone('Asia/Taipei')->everyMinute();
             $schedule->command('LocalMachine_AutoBanAndWarn_Second')->timezone('Asia/Taipei')->everyMinute();
         }
         if(app()->environment('CFP')){
