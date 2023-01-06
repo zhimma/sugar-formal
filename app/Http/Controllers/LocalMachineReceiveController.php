@@ -15,7 +15,7 @@ class LocalMachineReceiveController extends Controller
 		Log::Info('Receive Data From Local Machine');
 		$ban_list = $request->ban_list;
 		Log::Info($ban_list);
-		if($request->key == env('MISC_KEY') && $request->ip() == env('MISC_SERVER'))
+		if($request->key == config('localmachine.MISC_KEY') && ($request->ip() == config('localmachine.MISC_SERVER') || $request->ip() == config('localmachine.MISC_SECOND_SERVER')))
 		{
 			if($ban_list ?? false)
 			{
@@ -37,5 +37,38 @@ class LocalMachineReceiveController extends Controller
 			return '接收失敗';
 		}
         
+	}
+	
+	public function BanSetIPUpdate(Request $request)
+	{
+		Log::Info('Receive IP Update Data From Local Machine');
+		$ip_list = $request->ip_list;
+		Log::Info($ip_list);
+		if($request->key == config('localmachine.MISC_KEY') && $request->ip() == config('localmachine.MISC_SERVER'))
+		{
+			$type = $ip_list['type'];
+			$id = $ip_list['id'];
+			$expiry = $ip_list['expiry'];
+			$updated_at = $ip_list['updated_at'];
+
+			if($type == 'update')
+			{
+				$ban_set = SetAutoBan::where('id', $id)->first();
+				$ban_set->expiry = $expiry;
+				$ban_set->updated_at = $updated_at;
+				$ban_set->save();
+			}
+			else if($type == 'delete')
+			{
+				$ban_set = SetAutoBan::where('id', $id)->first()->delete();
+			}
+			return '自動封鎖列表-IP更新成功';
+		}
+		else
+		{
+			Log::Info('外部IP請求失敗:');
+			Log::Info($request->ip());
+			return '自動封鎖列表-IP更新失敗';
+		}
 	}
 }

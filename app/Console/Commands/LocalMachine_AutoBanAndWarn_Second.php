@@ -9,14 +9,14 @@ use GuzzleHttp\Client;
 use Carbon\Carbon;
 use App\Models\SetAutoBan;
 
-class LocalMachine_AutoBanAndWarn extends Command
+class LocalMachine_AutoBanAndWarn_Second extends Command
 {
     /**
      * The name and signature of the console command.
      *
      * @var string
      */
-    protected $signature = 'LocalMachine_AutoBanAndWarn';
+    protected $signature = 'LocalMachine_AutoBanAndWarn_Second';
 
     /**
      * The console command description.
@@ -42,7 +42,7 @@ class LocalMachine_AutoBanAndWarn extends Command
      */
     public function handle()
     {
-        Log::Info('LocalMachine_AutoBanAndWarn_Start');
+        Log::Info('LocalMachine_AutoBanAndWarn_Second_Start');
 
         $ban_list = [];
         $users = User::where('last_login', '>', Carbon::now()->subSeconds(61))->get();
@@ -50,7 +50,7 @@ class LocalMachine_AutoBanAndWarn extends Command
         {
             Log::info('User: ' . $user->id);
             $start_time = Carbon::now();
-            $merge_ban_list = SetAutoBan::local_machine_ban_and_warn($user->id);
+            $merge_ban_list = SetAutoBan::local_machine_ban_and_warn_second($user->id);
             $end_time = Carbon::now();
             $time_elapsed = $end_time->diffInSeconds($start_time, true);
             Log::Info('User: ' . $user->id . ', time elapsed: ' . $time_elapsed);
@@ -73,8 +73,7 @@ class LocalMachine_AutoBanAndWarn extends Command
         $response = $client->request('POST', $link_address, $post_data);
         $contents = $response->getBody()->getContents();
         Log::Info($contents);
-        
 
-        Log::Info('LocalMachine_AutoBanAndWarn_End');
+        Log::Info('LocalMachine_AutoBanAndWarn_Second_End');
     }
 }

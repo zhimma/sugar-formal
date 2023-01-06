@@ -19,6 +19,7 @@ use App\Services\ImagesCompareService;
 use App\Jobs\BanJob;
 use Illuminate\Support\Facades\Cache;
 use Outl1ne\ScoutBatchSearchable\BatchSearchable;
+use GuzzleHttp\Client;
 
 class SetAutoBan extends Model
 {
@@ -624,6 +625,9 @@ class SetAutoBan extends Model
 
     public static function local_machine_ban_and_warn($uid, $probing = false)
     {
+        //因應效能需求暫時略過未來再關閉
+        $bypass = true;
+
         $ban_list = [];
         $user = User::find($uid);
             try {
@@ -642,41 +646,45 @@ class SetAutoBan extends Model
             //執行時間預設是30秒改為無上限
             set_time_limit(-1);
 
-            $ban_set_type = collect(['name', 'email', 'title']);
-            $ban_meta_set_type = collect(['about', 'style']);
-            $all_check_rule_sets = SetAutoBan::retrive('allcheck');  
+            if(!$bypass){
+                $ban_set_type = collect(['name', 'email', 'title']);
+                $ban_meta_set_type = collect(['about', 'style']);
+                $all_check_rule_sets = SetAutoBan::retrive('allcheck');  
 
-            $ban_set_type->each(function($type) use ($user, $all_check_rule_sets, $probing, &$ban_list) {
-                $type_rule_sets = SetAutoBan::retrive($type);
-                $rule_sets = $type_rule_sets->merge($all_check_rule_sets);
-                $rule_sets->each(function($rule_set) use ($user, $type, $probing, &$ban_list) {
-                    if(str_contains($user->$type, $rule_set->content)) {  
-                        if($probing) {
-                            echo $rule_set->id . ' ' . $rule_set->type;
+                $ban_set_type->each(function($type) use ($user, $all_check_rule_sets, $probing, &$ban_list) {
+                    $type_rule_sets = SetAutoBan::retrive($type);
+                    $rule_sets = $type_rule_sets->merge($all_check_rule_sets);
+                    $rule_sets->each(function($rule_set) use ($user, $type, $probing, &$ban_list) {
+                        if(str_contains($user->$type, $rule_set->content)) {  
+                            if($probing) {
+                                echo $rule_set->id . ' ' . $rule_set->type;
+                            }
+                            if($rule_set && $rule_set->id) {
+                                $ban_list[] = [$user->id, $rule_set->id, 'profile'];
+                            }
                         }
-                        if($rule_set && $rule_set->id) {
-                            $ban_list[] = [$user->id, $rule_set->id, 'profile'];
-                        }
-                    }
+                    });
                 });
-            });
 
-            $ban_meta_set_type->each(function($type) use ($user, $all_check_rule_sets, $probing, &$ban_list) {
-                $type_rule_sets = SetAutoBan::retrive($type);
-                $rule_sets = $type_rule_sets->merge($all_check_rule_sets);
-                $rule_sets->each(function($rule_set) use ($user, $type, $probing, &$ban_list) {
-                    if(str_contains($user->user_meta->$type, $rule_set->content)) {  
-                        if($probing) {
-                            echo $rule_set->id . ' ' . $rule_set->type;
-                        }                    
-                        if($rule_set && $rule_set->id) {
-                            $ban_list[] = [$user->id, $rule_set->id, 'profile'];
+                $ban_meta_set_type->each(function($type) use ($user, $all_check_rule_sets, $probing, &$ban_list) {
+                    $type_rule_sets = SetAutoBan::retrive($type);
+                    $rule_sets = $type_rule_sets->merge($all_check_rule_sets);
+                    $rule_sets->each(function($rule_set) use ($user, $type, $probing, &$ban_list) {
+                        if(str_contains($user->user_meta->$type, $rule_set->content)) {  
+                            if($probing) {
+                                echo $rule_set->id . ' ' . $rule_set->type;
+                            }                    
+                            if($rule_set && $rule_set->id) {
+                                $ban_list[] = [$user->id, $rule_set->id, 'profile'];
+                            }
                         }
-                    }
+                    });
                 });
-            });
-
-            $user->log_user_login->each(function ($log) use ($user, $probing, &$ban_list) {
+            }
+            
+            //只取一天內的登入紀錄
+            Log::Info('開始檢查User: ' . $user->id . ' CFP_ID 共 ' . $user->log_user_login->where('created_at', '>', Carbon::now()->subDay())->sortByDesc('created_at')->count() . ' 筆登入紀錄');
+            $user->log_user_login->where('created_at', '>', Carbon::now()->subDay())->each(function ($log) use ($user, $probing, &$ban_list, $bypass) {
                 $cfp_id_rule_sets = SetAutoBan::retrive('cfp_id');
                 $cfp_id_rule_sets->each(function($rule_set) use ($user, $log, $probing, &$ban_list) {
                     if($log->cfp_id == $rule_set->content) {
@@ -689,49 +697,59 @@ class SetAutoBan extends Model
                     }
                 });
 
-                $user_agent_rule_sets = SetAutoBan::retrive('user_agent');
-                $user_agent_rule_sets->each(function($rule_set) use ($user, $log, $probing, &$ban_list) {
-                    if(str_contains($log->userAgent, $rule_set->content)) {
+                if(!$bypass){
+                    $user_agent_rule_sets = SetAutoBan::retrive('user_agent');
+                    $user_agent_rule_sets->each(function($rule_set) use ($user, $log, $probing, &$ban_list) {
+                        if(str_contains($log->userAgent, $rule_set->content)) {
+                            if($probing) {
+                                echo $rule_set->id . ' ' . $rule_set->type;
+                            }  
+                            if($rule_set && $rule_set->id) {
+                                $ban_list[] = [$user->id, $rule_set->id, 'profile'];
+                            }
+                        }
+                    });
+                }
+            });
+
+            if(!$bypass){
+                //20220629新增圖片檔名
+                $pic_rule_sets = SetAutoBan::retrive('pic');
+                $pic_rule_sets->each(function($rule_set) use ($user, $probing, &$ban_list) {
+                    if(str_contains($user->user_meta->pic_original_name, $rule_set->content)) {
                         if($probing) {
                             echo $rule_set->id . ' ' . $rule_set->type;
                         }  
                         if($rule_set && $rule_set->id) {
-                            $ban_list[] = [$user->id, $rule_set->id, 'profile'];
-                        }
+                                $ban_list[] = [$user->id, $rule_set->id, 'profile'];
+                            }
                     }
                 });
-            });
 
-            //20220629新增圖片檔名
-            $pic_rule_sets = SetAutoBan::retrive('pic');
-            $pic_rule_sets->each(function($rule_set) use ($user, $probing, &$ban_list) {
-                if(str_contains($user->user_meta->pic_original_name, $rule_set->content)) {
-                    if($probing) {
-                        echo $rule_set->id . ' ' . $rule_set->type;
-                    }  
-                    if($rule_set && $rule_set->id) {
-                            $ban_list[] = [$user->id, $rule_set->id, 'profile'];
+                //有一筆違規就可以封鎖了 
+                $pic_name_rule_sets = SetAutoBan::retrive('picname');
+                $any_pic_violated = $user->pics->first(function($pic) use ($user, $pic_name_rule_sets, $probing, &$ban_list) {
+                    return $pic_name_rule_sets->each(function($rule_set) use ($user, $pic, $probing, &$ban_list) {
+                        if(str_contains($pic->original_name, $rule_set->content)) {
+                            if($probing) {
+                                echo 'any_pic_violated, ban set:' . $rule_set->id . ' ' . $rule_set->type;
+                            }  
+                            if($rule_set && $rule_set->id) {
+                                $ban_list[] = [$user->id, $rule_set->id, 'profile'];
+                            }
                         }
-                }
-            });
-
-            //有一筆違規就可以封鎖了 
-            $pic_name_rule_sets = SetAutoBan::retrive('picname');
-            $any_pic_violated = $user->pics->first(function($pic) use ($user, $pic_name_rule_sets, $probing, &$ban_list) {
-                return $pic_name_rule_sets->each(function($rule_set) use ($user, $pic, $probing, &$ban_list) {
-                    if(str_contains($pic->original_name, $rule_set->content)) {
-                        if($probing) {
-                            echo 'any_pic_violated, ban set:' . $rule_set->id . ' ' . $rule_set->type;
-                        }  
-                        if($rule_set && $rule_set->id) {
-                            $ban_list[] = [$user->id, $rule_set->id, 'profile'];
-                        }
-                    }
+                    });
                 });
-            });
+            }
 
             $ip_rule_sets = SetAutoBan::retrive('ip');
-            $auto_ban_rule_sets = $ip_rule_sets->merge($pic_rule_sets);
+            if(!$bypass){
+                $auto_ban_rule_sets = $ip_rule_sets->merge($pic_rule_sets);
+            }
+            else{
+                $auto_ban_rule_sets = $ip_rule_sets;
+            }
+
             
             foreach ($auto_ban_rule_sets as $ban_set) {
                 $content = $ban_set->content;
@@ -740,20 +758,16 @@ class SetAutoBan extends Model
                 switch ($ban_set->type) {
                     case 'ip':
                         if($ban_set->expiry=='0000-00-00 00:00:00') {
-                            $ban_set->expiry = \Carbon\Carbon::now()->addMonths(1)->format('Y-m-d H:i:s');
-                            $ban_set->updated_at = now();
-                            $ban_set->save();						
+                            SetAutoBan::ip_update_send('update', $ban_set->id);			
                         }
                         if($ban_set->expiry<=\Carbon\Carbon::now()->format('Y-m-d H:i:s')) {
-                            $ban_set->delete();
+                            SetAutoBan::ip_update_send('delete', $ban_set->id);	
                             break;
-                        }					
-                        $ip = $user->log_user_login->sortByDesc('created_at')->first();
+                        }	
+                        $ip = $user->log_user_login->where('created_at', '>', Carbon::now()->subDay())->sortByDesc('created_at')->first();
                         if($ip?->ip == $content) {
                             $violation = true;
-                            $ban_set->expiry = \Carbon\Carbon::now()->addMonths(1)->format('Y-m-d H:i:s');
-                            $ban_set->updated_at = now();
-                            $ban_set->save();						
+                            SetAutoBan::ip_update_send('update', $ban_set->id);						
                         }
                         break;
                     //20220629新增圖片檔名   
@@ -801,6 +815,79 @@ class SetAutoBan extends Model
                     
                 }
             }
+
+            return $ban_list;
+    }
+
+    public static function ip_update_send($type, $id){
+        $ip_list = [];
+        if($type == 'update')
+        {
+            $ip_list['type'] = $type;
+            $ip_list['id'] = $id;
+            $ip_list['expiry'] = \Carbon\Carbon::now()->addMonths(1)->format('Y-m-d H:i:s');
+            $ip_list['updated_at'] = \Carbon\Carbon::now()->format('Y-m-d H:i:s');
+        }
+        else if($type == 'delete')
+        {
+            $ip_list['type'] = $type;
+            $ip_list['id'] = $id;
+            $ip_list['expiry'] = '';
+            $ip_list['updated_at'] = '';
+        }
+        
+
+        $link_address = config('localmachine.MISC_LINK_SERVER').'/LocalMachineReceive/BanSetIPUpdate';
+        $post_data = [
+            'form_params' => [
+                'key' => config('localmachine.MISC_KEY'),
+                'ip_list' => $ip_list
+            ]
+        ];
+        $client   = new Client();
+        $response = $client->request('POST', $link_address, $post_data);
+        $contents = $response->getBody()->getContents();
+        Log::Info($contents);		
+    }
+
+    public static function local_machine_ban_and_warn_second($uid, $probing = false)
+    {
+        $ban_list = [];
+        $user = User::find($uid);
+            try {
+                if(isset($user) && $user->can('admin')){
+                    return;
+                }
+            }
+            catch (\Exception $e){
+
+            }
+            if(!$user || !$uid) {
+                logger('SetAutoBan local_machine_ban_and_warn() user not set, referer: ' . \Request::server('HTTP_REFERER'));
+                return;
+            }
+
+            //執行時間預設是30秒改為無上限
+            set_time_limit(-1);
+
+            $ban_set_type = collect(['name', 'email', 'title']);
+
+            $all_check_rule_sets = SetAutoBan::retrive('allcheck');  
+
+            $ban_set_type->each(function($type) use ($user, $all_check_rule_sets, $probing, &$ban_list) {
+                $type_rule_sets = SetAutoBan::retrive($type);
+                $rule_sets = $type_rule_sets->merge($all_check_rule_sets);
+                $rule_sets->each(function($rule_set) use ($user, $type, $probing, &$ban_list) {
+                    if(str_contains($user->$type, $rule_set->content)) {  
+                        if($probing) {
+                            echo $rule_set->id . ' ' . $rule_set->type;
+                        }
+                        if($rule_set && $rule_set->id) {
+                            $ban_list[] = [$user->id, $rule_set->id, 'profile'];
+                        }
+                    }
+                });
+            });
 
             return $ban_list;
     }
