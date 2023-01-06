@@ -51,9 +51,9 @@
                     $msg_user = \App\Models\User::where('id', $row->user_id)->first();
                 @endphp
                 
-                @if($row->user_id != auth()->user()->id && $msg_user->isVVIP())
+                @if($row->user_id != auth()->user()->id && ($msg_user && $msg_user->isVVIP()))
                     <img src="/new/images/v1_08.png" class="liaot_tx_l">
-                @elseif($msg_user->isVVIP())
+                @elseif(($msg_user && $msg_user->isVVIP()))
                     <img src="/new/images/v1_08.png" class="liaot_tx_r">
                 @endif
                 

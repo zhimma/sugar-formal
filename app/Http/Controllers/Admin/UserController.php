@@ -6686,27 +6686,15 @@ class UserController extends \App\Http\Controllers\BaseController
                 'users.engroup',
                 'banned_users.member_id as banned_userID',
                 'warned_users.member_id as warned_userID',
-                'anonymous_chat_forbid.user_id as forbid_userID'
+                'anonymous_chat_forbid.user_id as forbid_userID',
+                'banned_users.expire_date as banned_userExpireDate',
+                'warned_users.expire_date as warned_userExpireDate',
+                'anonymous_chat_forbid.expire_date as forbid_userExpireDate'
             )
                 ->leftJoin('users', 'users.id', 'anonymous_chat.user_id')
                 ->leftJoin('banned_users', 'banned_users.member_id', 'anonymous_chat.user_id')
-                ->where(
-                    function($q) {
-                        $q->where('banned_users.expire_date', null)->
-                        orWhere('banned_users.expire_date','>',Carbon::now());
-                    })
                 ->leftJoin('warned_users', 'warned_users.member_id', 'anonymous_chat.user_id')
-                ->where(
-                    function($q) {
-                        $q->where('warned_users.expire_date', null)->
-                        orWhere('warned_users.expire_date','>',Carbon::now());
-                    })
-                ->leftJoin('anonymous_chat_forbid', 'anonymous_chat_forbid.user_id', 'anonymous_chat.user_id')
-                ->where(
-                    function($q) {
-                        $q->where('anonymous_chat_forbid.expire_date', null)->
-                        orWhere('anonymous_chat_forbid.expire_date','>',Carbon::now());
-                    });
+                ->leftJoin('anonymous_chat_forbid', 'anonymous_chat_forbid.user_id', 'anonymous_chat.user_id');
             if(isset($request->msg)) {
                 $results = $results->where('anonymous_chat.content', 'like', '%' . $msg . '%');
             }
