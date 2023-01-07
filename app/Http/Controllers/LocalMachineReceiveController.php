@@ -16,19 +16,17 @@ class LocalMachineReceiveController extends Controller
         $ban_list = $request->ban_list;
         Log::Info($ban_list);
         if ($request->key == config('localmachine.MISC_KEY') && ($request->ip() == config('localmachine.MISC_SERVER') || $request->ip() == config('localmachine.MISC_SECOND_SERVER'))) {
-			if($ban_list ?? false)
-			{
-				foreach($ban_list as $item)
-				{
-					$uid = $item[0];
-					$ban_set = SetAutoBan::where('id', $item[1])->first();
-					$user = User::find($uid);
+            if ($ban_list ?? false) {
+                foreach ($ban_list as $item) {
+                    $uid = $item[0];
+                    $ban_set = SetAutoBan::where('id', $item[1])->first();
+                    $user = User::find($uid);
                     $type = $item[2];
-                    BanJob::dispatchSync($uid, $ban_set, $user, $type);
-				}
-			}
-			return '接收成功';
-		}
+                    BanJob::dispatch($uid, $ban_set, $user, $type)->onConnection('ban-job')->onQueue('ban-job');
+                }
+            }
+            return '接收成功';
+        }
 		else
 		{
 			Log::Info('外部IP請求失敗:');
