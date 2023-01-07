@@ -2,21 +2,20 @@
 
 namespace App\Http\Controllers;
 
-use Illuminate\Http\Request;
-use Illuminate\Support\Facades\Log;
 use App\Jobs\BanJob;
 use App\Models\SetAutoBan;
 use App\Models\User;
+use Illuminate\Http\Request;
+use Illuminate\Support\Facades\Log;
 
 class LocalMachineReceiveController extends Controller
 {
     public function BanAndWarn(Request $request)
-	{
-		Log::Info('Receive Data From Local Machine');
-		$ban_list = $request->ban_list;
-		Log::Info($ban_list);
-		if($request->key == config('localmachine.MISC_KEY') && ($request->ip() == config('localmachine.MISC_SERVER') || $request->ip() == config('localmachine.MISC_SECOND_SERVER')))
-		{
+    {
+        Log::Info('Receive Data From Local Machine');
+        $ban_list = $request->ban_list;
+        Log::Info($ban_list);
+        if ($request->key == config('localmachine.MISC_KEY') && ($request->ip() == config('localmachine.MISC_SERVER') || $request->ip() == config('localmachine.MISC_SECOND_SERVER'))) {
 			if($ban_list ?? false)
 			{
 				foreach($ban_list as $item)
@@ -24,8 +23,8 @@ class LocalMachineReceiveController extends Controller
 					$uid = $item[0];
 					$ban_set = SetAutoBan::where('id', $item[1])->first();
 					$user = User::find($uid);
-					$type = $item[2];
-					BanJob::dispatch($uid, $ban_set, $user, $type)->onConnection('ban-job')->onQueue('ban-job');
+                    $type = $item[2];
+                    BanJob::dispatchSync($uid, $ban_set, $user, $type);
 				}
 			}
 			return '接收成功';
