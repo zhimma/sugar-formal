@@ -1,6 +1,11 @@
 @extends('admin.main')
 @section('app-content')
 <body style="padding: 15px;">
+    <style>
+        .gender_1, a.gender_1.email_link, a.gender_1.email_link:visited, a.gender_1.email_link:active, a.gender_1.email_link:hover {color:blue;}
+        .gender_2, a.gender_2.email_link, a.gender_2.email_link:visited, a.gender_2.email_link:active, a.gender_2.email_link:hover {color:red;}
+        .reject_detail_edit_block {display:none;}
+    </style>
     <h1>站長審核 - 匿名評價訊息</h1>
     <table class="table-bordered table-hover center-block table" id="table">
         <thead>
@@ -21,9 +26,24 @@
         @foreach($data as $row)
             @php
                 $Vip = \App\Models\Vip::vip_diamond($row->id);
+                $cur_to_user = \App\Models\User::with('aw_relation', 'banned', 'implicitlyBanned')->find($row->to_id)??new \App\Models\User;            
             @endphp
             <tr>
-                <td scope="row"><a href="users/advInfo/{{$row->id}}" target="_blank">{{$row->email}}</a></td>
+                <td scope="row"
+                        @if($row->is_banned())
+                            bgcolor="#FDFF8C"
+                        @elseif($row->is_warned())
+                            bgcolor="#B0FFB1"
+                        @elseif(!$row->accountStatus)
+                            bgcolor="#C9C9C9"
+                        @elseif(!$row ->account_status_admin)
+                            bgcolor="#969696"
+                        @elseif($row->is_waiting_for_more_data())
+                            bgcolor="#DBA5F2"
+                        @elseif($row->is_waiting_for_more_data_with_login_time())
+                            bgcolor="#A9D4F5"
+                        @endif                  
+                ><a href="users/advInfo/{{$row->id}}" target="_blank" class="gender_{{$row->engroup}} email_link ">{{$row->email}}</a></td>
                 <td>{{$row->name}}</td>
                 <td>
                     @if($row->isVip()==1)
@@ -38,7 +58,21 @@
                 </td>
                 <td>@if($row->engroup==1)男@else女@endif</td>
                 <td>{{$row->WarnedScore()}}</td>
-                <td scope="row"><a href="users/advInfo/{{$row->to_id}}" target="_blank">{{$row->to_email}}</a></td>
+                <td scope="row"
+                        @if($cur_to_user->is_banned())
+                            bgcolor="#FDFF8C"
+                        @elseif($cur_to_user->is_warned())
+                            bgcolor="#B0FFB1"
+                        @elseif(!$cur_to_user->accountStatus)
+                            bgcolor="#C9C9C9"
+                        @elseif(!$cur_to_user->account_status_admin)
+                            bgcolor="#969696"
+                        @elseif($cur_to_user->is_waiting_for_more_data())
+                            bgcolor="#DBA5F2"
+                        @elseif($cur_to_user->is_waiting_for_more_data_with_login_time())
+                            bgcolor="#A9D4F5"
+                        @endif                
+                ><a href="users/advInfo/{{$cur_to_user->id}}" target="_blank" class="gender_{{$cur_to_user->engroup}} email_link ">{{$cur_to_user->email}}</a></td>
                 <td style="word-break: break-all">{{$row->content}}</td>
                 <td class="evaluation_zoomIn">
                     @foreach($row['pic'] as $evaluationPic)
@@ -47,10 +81,34 @@
                         </li>
                     @endforeach
                 </td>
-                <td>@switch($row->anonymous_content_status)
+                <td>
+                    <div>
+                        @switch($row->content_violation_processing)
+                            @case('modify_directly')
+                            接受站方修改
+                            @break
+                            @case('return')
+                            不接受站方修改
+                            @break
+                        @endswitch
+                    </div>
+                    @switch($row->anonymous_content_status)
                         @case(0)
                             <button type="button" class="btn btn-primary" onclick="checkAction({{$row->evaluation_id}},1,{{ $row->id }})" >通過</button>
-                            <button type="button" class="btn btn-danger reject_button" onclick="checkAction({{$row->evaluation_id}},2,{{ $row->id }})" >不通過</button>
+                            <br>
+                            <button type="button" class="btn btn-danger reject_button" onclick="showRejectDetailBlock(this);" >不通過</button>
+                            <div class="reject_detail_edit_block">
+                                <div>
+                                <b>請輸入不通過原因或直接送出</b>
+                                </div>
+                                <div>
+                                    <textarea name="status_reason" class="status_reason"></textarea>
+                                </div>
+                                <div>
+                                    <button class="btn btn-info" onclick="checkAction({{$row->evaluation_id}},2,{{ $row->id }},this)" >送出</button>
+                                    <button class="btn btn-danger" onclick="closeRejectDetailBlock(this);">取消</button>
+                                </div>
+                            </div>
                             <a class="btn btn-dark" href="{{ route('admin/showAnonymousChatMessage', $row->evaluation_id) }}" target="_blank">對話紀錄</a>
                             @if ($row->content_violation_processing != 'return')
                             <form method="POST" action="{{ route('evaluationModifyContent', $row->evaluation_id) }}" style="margin:0px;display:inline;">
@@ -89,6 +147,7 @@
                             @endif
                         @break
                     @endswitch
+                    <a href="/admin/users/message/anonymous-checked/to/{{$row->id}}/{{$row->evaluation_id}}" target="_blank" class="btn btn-dark">發送站長訊息</a>
                 </td>
                 <td>{{$row->created_at}}</td>
             </tr>
@@ -142,19 +201,24 @@
 <link rel="stylesheet" type="text/css" href="/new/css/swiper2.min.css"/>
 <script type="text/javascript" src="/new/js/swiper.min.js"></script>
 <script>
-    function checkAction(evaluation_id, status, user_id){
-        $.ajax({
-            type: 'POST',
-            url: "/admin/checkAnonymousContent?{{csrf_token()}}={{now()->timestamp}}",
-            data:{
+    function checkAction(evaluation_id, status, user_id,dom=null){
+        let send_data = {
                 _token: '{{csrf_token()}}',
                 evaluation_id: evaluation_id,
                 status: status,
-            },
+            };
+            
+        if(status==2 && dom!=null) {
+            send_data['status_reason'] = $(dom).closest('td').find('.status_reason').val();
+        }
+        
+        $.ajax({
+            type: 'POST',
+            url: "/admin/checkAnonymousContent?{{csrf_token()}}={{now()->timestamp}}",
+            data:send_data,
             dataType:"json",
             success: function(res){
-                //location.reload();
-                window.open(`/admin/users/message/anonymous-checked/to/${user_id}/${evaluation_id}`, '_blank');
+                location.reload();
             }});
     }
 
@@ -248,5 +312,21 @@
             "opacity": "0"
         });
     });
+    
+    function showRejectDetailBlock(dom) 
+    {
+        let now_elt = $(dom);
+        let now_parent = now_elt.closest('td');
+        now_parent.children().hide();
+        now_parent.find('.reject_detail_edit_block').show(); 
+    }
+    
+    function closeRejectDetailBlock(dom) 
+    {
+        let now_elt = $(dom);
+        let now_parent = now_elt.closest('td');
+        now_parent.children().show();
+        now_parent.find('.reject_detail_edit_block').hide(); 
+    }    
 </script>
 @stop
