@@ -41,12 +41,12 @@ use App\Models\StayOnlineRecord;
 use App\Models\PuppetAnalysisRow;
 use Illuminate\Support\Facades\Cache;
 use Tymon\JWTAuth\Contracts\JWTSubject;
-// use Outl1ne\ScoutBatchSearchable\BatchSearchable;
+use Outl1ne\ScoutBatchSearchable\BatchSearchable;
 use App\Models\UserRemarksLog;
 
 class User extends Authenticatable implements JWTSubject
 {
-    use HasFactory, Notifiable;
+    use HasFactory, Notifiable, BatchSearchable;
     /**
      * The database table used by the model.
      *

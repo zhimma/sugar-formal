@@ -6,11 +6,11 @@ use App\Models\User;
 use App\Models\SetAutoBan;
 use Illuminate\Database\Eloquent\Model;
 use Carbon\Carbon;
-// use Outl1ne\ScoutBatchSearchable\BatchSearchable;
+use Outl1ne\ScoutBatchSearchable\BatchSearchable;
 
 class LogUserLogin extends Model
 {
-    // use BatchSearchable;
+    use BatchSearchable;
     
     public $timestamps = false;
     /**
