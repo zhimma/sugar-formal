@@ -8,7 +8,7 @@ use Outl1ne\ScoutBatchSearchable\BatchSearchable;
 
 class WarnedUsers extends Model
 {
-    // use HasFactory;
+    use HasFactory, BatchSearchable;
 
     protected $table = 'warned_users';
 }

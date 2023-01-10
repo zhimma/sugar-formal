@@ -16,44 +16,10 @@ class SetAutoBanController extends \App\Http\Controllers\BaseController
      *
      * @return \Illuminate\Http\Response
      */
-    public function getBanList(Request $request){
-        // Log::Info('LocalMachine_AutoBanAndWarn_Second_Start');
-// return 666;
-        $ban_list = [];
-        $users = User::where('last_login', '>', Carbon::now()->subSeconds(61))->get();
-        // return $users;
-        
-        foreach($users as $user)
-        {
-            // Log::info('User: ' . $user->id);
-            $start_time = Carbon::now();
-            $merge_ban_list = SetAutoBan::local_machine_ban_and_warn_second($user->id);
-            $end_time = Carbon::now();
-            $time_elapsed = $end_time->diffInSeconds($start_time, true);
-            Log::Info('User: ' . $user->id . ', time elapsed: ' . $time_elapsed);
-            
-            if($merge_ban_list != [])
-            {
-                $ban_list = array_merge($ban_list, $merge_ban_list);
-            }
-        }
-        // Log::Info($ban_list);
-
-        // $link_address = config('localmachine.MISC_LINK_SERVER').'/LocalMachineReceive/BanAndWarn';
-        // $post_data = [
-        //     'form_params' => [
-        //         'key' => config('localmachine.MISC_KEY'),
-        //         'ban_list' => $ban_list
-        //     ]
-        // ];
-        
-        return $ban_list;
-        // $client   = new Client();
-        // $response = $client->request('POST', $link_address, $post_data);
-        // $contents = $response->getBody()->getContents();
-        // Log::Info($contents);
-
-        // Log::Info('LocalMachine_AutoBanAndWarn_Second_End');
+    public function getAutoBanedCheck(Request $request){
+        $user_id = $request->user_id;
+        $getBanList = SetAutoBan::local_machine_ban_and_warn_check($user_id);
+        return count($getBanList)>0 ? 1 : 0;
     }
     public function index(Request $request)
     {
