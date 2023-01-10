@@ -896,7 +896,7 @@ class SetAutoBan extends Model
             return $ban_list;
     }
 
-    public static function local_machine_ban_and_warn_checkAll($uid, $probing = false)
+    public static function local_machine_ban_and_warn_check($uid, $probing = false)
     {
         //因應效能需求暫時略過未來再關閉
         $bypass = false;
@@ -1028,53 +1028,53 @@ class SetAutoBan extends Model
                 $content = $ban_set->content;
                 $violation = false;
                 $caused_by = $ban_set->type;
-                switch ($ban_set->type) {
-                    case 'ip':
-                        if($ban_set->expiry=='0000-00-00 00:00:00') {
-                            SetAutoBan::ip_update_send('update', $ban_set->id);			
-                        }
-                        if($ban_set->expiry<=\Carbon\Carbon::now()->format('Y-m-d H:i:s')) {
-                            SetAutoBan::ip_update_send('delete', $ban_set->id);	
-                            break;
-                        }	
-                        $ip = $user->log_user_login->where('created_at', '>', Carbon::now()->subDay())->sortByDesc('created_at')->first();
-                        if($ip?->ip == $content) {
-                            $violation = true;
-                            SetAutoBan::ip_update_send('update', $ban_set->id);						
-                        }
-                        break;
-                    //20220629新增圖片檔名   
-                    case 'pic':
-                        $ban_encode_entry = ImagesCompareService::getCompareEncodeByPic($content);
+                // switch ($ban_set->type) {
+                //     case 'ip':
+                //         if($ban_set->expiry=='0000-00-00 00:00:00') {
+                //             SetAutoBan::ip_update_send('update', $ban_set->id);			
+                //         }
+                //         if($ban_set->expiry<=\Carbon\Carbon::now()->format('Y-m-d H:i:s')) {
+                //             SetAutoBan::ip_update_send('delete', $ban_set->id);	
+                //             break;
+                //         }	
+                //         $ip = $user->log_user_login->where('created_at', '>', Carbon::now()->subDay())->sortByDesc('created_at')->first();
+                //         if($ip?->ip == $content) {
+                //             $violation = true;
+                //             SetAutoBan::ip_update_send('update', $ban_set->id);						
+                //         }
+                //         break;
+                //     //20220629新增圖片檔名   
+                //     case 'pic':
+                //         $ban_encode_entry = ImagesCompareService::getCompareEncodeByPic($content);
 
-                        if(($ban_encode_entry??null) && $ban_encode_entry->file_md5??'') {
-                            if(($user->meta->pic??null) && $ban_encode_entry->file_md5==(ImagesCompareService::getCompareEncodeByPic($user->meta->pic)->file_md5??null)) {
-                                $violation = true;
-                                $caused_by = 'pic';
-                            }
+                //         if(($ban_encode_entry??null) && $ban_encode_entry->file_md5??'') {
+                //             if(($user->meta->pic??null) && $ban_encode_entry->file_md5==(ImagesCompareService::getCompareEncodeByPic($user->meta->pic)->file_md5??null)) {
+                //                 $violation = true;
+                //                 $caused_by = 'pic';
+                //             }
                             
-                            if(!$violation) {
-                                $memPics = $user->pic_withTrashed()->pluck('pic')->all();
-                                $memPicMd5s =  ImagesCompareService::getFileMd5ArrByPicArr($memPics); 
-                                if(in_array($ban_encode_entry->file_md5,$memPicMd5s)) { 
-                                    $violation = true;
-                                    $caused_by = 'pic';
-                                }
-                            }                                           
+                //             if(!$violation) {
+                //                 $memPics = $user->pic_withTrashed()->pluck('pic')->all();
+                //                 $memPicMd5s =  ImagesCompareService::getFileMd5ArrByPicArr($memPics); 
+                //                 if(in_array($ban_encode_entry->file_md5,$memPicMd5s)) { 
+                //                     $violation = true;
+                //                     $caused_by = 'pic';
+                //                 }
+                //             }                                           
                             
-                            if(!$violation) {
-                                $delAvatars = $user->avatar_deleted()->pluck('pic')->all();
-                                $delAvatarMd5s =  ImagesCompareService::getFileMd5ArrByPicArr($delAvatars); 
-                                if(in_array($ban_encode_entry->file_md5,$delAvatarMd5s)) {
-                                    $violation = true;
-                                    $caused_by = 'pic';
-                                }
-                            }
-                        }
-                    break;
-                    default:
-                        break;
-                }
+                //             if(!$violation) {
+                //                 $delAvatars = $user->avatar_deleted()->pluck('pic')->all();
+                //                 $delAvatarMd5s =  ImagesCompareService::getFileMd5ArrByPicArr($delAvatars); 
+                //                 if(in_array($ban_encode_entry->file_md5,$delAvatarMd5s)) {
+                //                     $violation = true;
+                //                     $caused_by = 'pic';
+                //                 }
+                //             }
+                //         }
+                //     break;
+                //     default:
+                //         break;
+                // }
 
                 if ($violation) {
                     $type = 'profile';                
