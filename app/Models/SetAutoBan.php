@@ -18,12 +18,12 @@ use Carbon\Carbon;
 use App\Services\ImagesCompareService;
 use App\Jobs\BanJob;
 use Illuminate\Support\Facades\Cache;
-use Outl1ne\ScoutBatchSearchable\BatchSearchable;
+// use Outl1ne\ScoutBatchSearchable\BatchSearchable;
 use GuzzleHttp\Client;
 
 class SetAutoBan extends Model
 {
-    use SoftDeletes, BatchSearchable;
+    use SoftDeletes;
     //
     protected $table = 'set_auto_ban';
 	
