@@ -21,11 +21,11 @@ use App\Services\UserService;
 use App\Services\ImagesCompareService;
 use Illuminate\Support\Facades\Cache;
 use YlsIdeas\FeatureFlags\Facades\Features;
-use Outl1ne\ScoutBatchSearchable\BatchSearchable;
+// use Outl1ne\ScoutBatchSearchable\BatchSearchable;
 
 class Message extends Model
 {
-    use SoftDeletes, BatchSearchable;
+    use SoftDeletes;
 
     /**
      * The database table used by the model.
