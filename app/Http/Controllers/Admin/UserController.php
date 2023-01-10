@@ -4661,14 +4661,15 @@ class UserController extends \App\Http\Controllers\BaseController
                     'e.anonymous_content_status',
                     'e.created_at',
                     'e.id as evaluation_id',
-                    'to_user.email as to_email',
-                    'to_user.id as to_id',
+                    'e.to_id',
                     'users.id',
                     'users.email',
                     'users.name',
-                    'users.engroup')
+                    'users.engroup',
+                    'users.account_status_admin',
+                    'users.accountStatus'
+                    )
                 ->join('evaluation as e', 'e.from_id', 'users.id')
-                ->join('users as to_user', 'e.to_id', 'to_user.id')
                 ->whereNotNull('e.content_violation_processing')
                 ->orderBy('e.created_at', 'desc')
                 ->get();
@@ -4684,9 +4685,30 @@ class UserController extends \App\Http\Controllers\BaseController
     {
         $evaluation_id = $request->evaluation_id;
         $status = $request->status;
-        DB::table('evaluation')->where('id', $evaluation_id)
-            ->update(['anonymous_content_status' => $status, 'updated_at' => now()]);
-        
+        $status_reason = $request->status_reason;
+        DB::table('evaluation')->where('id', $evaluation_id)->update(['anonymous_content_status' => $status, 'updated_at' => now(),'status_reason'=>$status_reason]);
+        $evaluation_entry = Evaluation::find($evaluation_id);
+        $content = '';
+        if($status==1) {
+            $content = $evaluation_entry->user->name . ' 您好，您在 ' . substr($evaluation_entry->created_at,0,16) .'對'.$evaluation_entry->receiver->name
+                    .' 提出的匿名訊息，經站長審核已通過。評價已上線，'.$evaluation_entry->receiver->name
+                    .'可以透過匿名對話向您解釋狀況，您可以自己決定是否回應。有問題可點右下聯絡我們或加站長<a href="https://lin.ee/rLqcCns"><img src="https://scdn.line-apps.com/n/line_add_friends/btn/zh-Hant.png" alt="加入好友" height="26" border="0" style="all: initial;all: unset;height: 26px; float: unset;"></a>反應';
+        }
+        else if($status==2) {
+            
+             $content = $evaluation_entry->user->name . ' 您好，您在 ' . substr($evaluation_entry->created_at,0,16) .'對'.$evaluation_entry->receiver->name
+                    .' 提出的匿名訊息，經站長審核，由於證據不足且您拒絕站方修改。故評價已撤回，您可以檢附證據重新評價，有問題可點右下聯絡我們或加站長<a href="https://lin.ee/rLqcCns"><img src="https://scdn.line-apps.com/n/line_add_friends/btn/zh-Hant.png" alt="加入好友" height="26" border="0" style="all: initial;all: unset;height: 26px; float: unset;"></a>反應';
+ 
+            
+            if($status_reason) {
+             $content = $evaluation_entry->user->name . ' 您好，您在 ' . substr($evaluation_entry->created_at,0,16) .'對'.$evaluation_entry->receiver->name
+                    .' 提出的匿名訊息，由於 '.$status_reason.'原因。故評價已撤回，您可以檢附證據重新評價。有問題可點右下聯絡我們或加站長<a href="https://lin.ee/rLqcCns"><img src="https://scdn.line-apps.com/n/line_add_friends/btn/zh-Hant.png" alt="加入好友" height="26" border="0" style="all: initial;all: unset;height: 26px; float: unset;"></a>反應';                
+            }
+            
+            
+        }
+        //站長系統訊息
+        Message::post(1049, $evaluation_entry->user->id, $content);        
         Session::flash('message', '審核已完成');
 
         echo json_encode('ok');

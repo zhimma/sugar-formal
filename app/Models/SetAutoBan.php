@@ -594,9 +594,13 @@ class SetAutoBan extends Model
 
     public static function retrive($type)
     {
+        /*
+        Cache::forget('auto_ban_set_' . $type);
         return Cache::remember('auto_ban_set' . $type, 3600, function () use ($type) {
             return SetAutoBan::where('type', $type)->get();
         });
+        */
+        return SetAutoBan::where('type', $type)->get();
     }
     
     /**
