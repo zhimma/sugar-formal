@@ -13,10 +13,12 @@ class AddColumnAdminMenuItems extends Migration
      */
     public function up()
     {
-        Schema::table('admin_menu_items', function (Blueprint $table) {
-            $table->tinyInteger('status')->default(1)->after('route_path');
-            $table->tinyInteger('sort')->nullable()->after('status');
-        });
+        if (!Schema::hasColumn('admin_menu_items', 'status')) {
+            Schema::table('admin_menu_items', function (Blueprint $table) {
+                $table->tinyInteger('status')->default(1)->after('route_path');
+                $table->tinyInteger('sort')->nullable()->after('status');
+            });
+        }
     }
 
     /**
@@ -26,9 +28,11 @@ class AddColumnAdminMenuItems extends Migration
      */
     public function down()
     {
-        Schema::table('admin_menu_items', function (Blueprint $table) {
-            $table->dropColumn('status');
-            $table->dropColumn('sort');
-        });
+        if (!Schema::hasColumn('admin_menu_items', 'status')) {
+            Schema::table('admin_menu_items', function (Blueprint $table) {
+                $table->dropColumn('status');
+                $table->dropColumn('sort');
+            });
+        }
     }
 }

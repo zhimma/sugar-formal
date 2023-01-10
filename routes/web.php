@@ -26,6 +26,9 @@ Route::post('Fingerprint2/addFingerprint', 'Fingerprint@addFingerprint');
 | API
 |--------------------------------------------------------------------------
 */
+Route::post('/LocalMachineReceive/BanAndWarn', 'LocalMachineReceiveController@BanAndWarn');
+Route::post('/LocalMachineReceive/BanSetIPUpdate', 'LocalMachineReceiveController@BanSetIPUpdate');
+
 Route::post('/Common/get_message', 'Common@get_message');
 Route::post('/Common/checkcode_during', 'Common@checkcode_during');
 Route::get('/Common/get_exif', 'Common@get_exif');
@@ -518,6 +521,18 @@ Route::group(['middleware' => ['auth', 'global', 'active', 'femaleActive', 'vipC
 
         Route::post('/dashboard/letTourRead', 'PagesController@letTourRead')->name('letTourRead');
 
+        Route::get('/dashboard/anonymousEvaluationChat/chats', 'EvaluationController@getActiveChats')->name('getAnonymousEvaluationChats');
+        Route::post('dashboard/anonymousEvaluationChat/closeChatRoom/{chatid}', 'EvaluationController@closeChatRoom')->name('closeChatRoom');
+        Route::get('/dashboard/anonymousEvaluationChat/{evaluationid}', 'EvaluationController@anonymousEvaluationChat')->name('getAnonymousEvaluationChat');
+        Route::get('/dashboard/anonymousEvaluationChat/Room/{chatid}', 'EvaluationController@anonymousEvaluationChatRoom')->name('getAnonymousEvaluationChatRoom');
+        Route::get('/dashboard/anonymousEvaluationChat/message/{chatid}/{messageid?}', 'EvaluationController@getAnonymousEvaluationChatMessage')->name('getAnonymousEvaluationChatMessage');
+        Route::patch('/dashboard/anonymousEvaluationChat/message/{chatid}', 'EvaluationController@readAnonymousEvaluationChatMessage')->name('readAnonymousEvaluationChatMessage');
+        Route::post('/dashboard/anonymousEvaluationChat/message/{chatid}', 'EvaluationController@sendAnonymousEvaluationChatMessage')->name('sendAnonymousEvaluationChatMessage');
+        Route::patch('/dashboard/anonymousEvaluationChat/revoke/{chatid}', 'EvaluationController@revokeAnonymousEvaluationChatMessage')->name('revokeAnonymousEvaluationChatMessage');
+        Route::post('/dashboard/anonymousEvaluationChat/accusation/{chatid}', 'EvaluationController@accusationAnonymousEvaluationChatMessage')->name('accusationAnonymousEvaluationChatMessage');
+        Route::get('/dashboard/anonymousEvaluationChat/deleterow/{chatid}/{uid}', 'EvaluationController@deleteBetweenGET')->name('delete2BetweenGETAnonymousEvaluationChatMessage');
+        Route::get('/dashboard/anonymousEvaluationChat/deleterowall/{uid}', 'EvaluationController@deleteBetweenGetAll')->name('deleteBetweenGetAllAnonymousEvaluationChatMessage');
+
         Route::get('/dashboard/evaluation/{uid}', 'PagesController@evaluation');
         Route::post('/dashboard/evaluation/save', 'PagesController@evaluation_save')->name('evaluation');
         Route::post('/dashboard/evaluation/re_content_save', 'PagesController@evaluation_re_content_save')->name('evaluation_re_content');
@@ -842,7 +857,10 @@ Route::group(['middleware' => ['auth', 'global', 'active', 'femaleActive', 'vipC
 
         Route::get('statistics', 'UserController@statisticsReply')->name("statistics");
         Route::post('statistics', 'UserController@statisticsReply');
-
+        
+        Route::get('greetingRate/show', 'UserController@showAvgMedian');
+        Route::post('greetingRate/modify', 'UserController@modifyGreetingRateCalculations')->name('admin/greetingRate/modify');
+        
         Route::get('users/pics/reported', 'UserController@showReportedPicsPage')->name('users/pics/reported/GET');
         Route::get('users/reported', 'UserController@showReportedUsersPage')->name('users/reported/GET');
         Route::post('users/reported', 'UserController@showReportedUsersList')->name('users/reported');
@@ -987,6 +1005,7 @@ Route::group(['middleware' => ['auth', 'global', 'active', 'femaleActive', 'vipC
         Route::post('checkExchangePeriod', 'UserController@AdminCheckExchangePeriodSave');
         Route::get('checkAnonymousContent', 'UserController@showAdminCheckAnonymousContent')->name('admin/checkAnonymousContent');
         Route::post('checkAnonymousContent', 'UserController@AdminCheckAnonymousContentSave');
+        Route::get('anonymous/showChatMessage/{chat_id}', 'UserController@showAnonymousChatMessage')->name('admin/showAnonymousChatMessage');
         Route::get('roleManage', 'UserController@adminRole')->name('admin/role');
         Route::post('roleEdit', 'UserController@adminRoleEdit')->name('admin/role/edit');
         Route::get('users/picturesSimple', 'UserController@showUserPicturesSimple')->name('users/picturesSimple');

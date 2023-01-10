@@ -28,6 +28,7 @@ return [
         'postMobileVerifyReturnURL' => "https://www.sugar-garden.org/dashboard/postMobileVerifyPayEC",  //背景傳送手機驗證通過付款結果的網址
         'ClientMobileVerifyBackURL' => "https:///www.sugar-garden.org/member_auth", //返回商店的網址
         'OrderQueryURL' => 'https://payment.ecpay.com.tw/Cashier/QueryTradeInfo/V5',
+        'CVSBarCodeURL' => 'https://payment.ecpay.com.tw/PaymentRule/CVSBarCode?PaymentNo=',
     ],
     'payment_test' => [
         'MerchantID' => "2000132",
@@ -38,7 +39,7 @@ return [
         'ReturnURL' => "https://sg-aws.test-tw.icu/dashboard/upgradepayEC",  //背景傳送付款結果的網址
         'postChatpayReturnURL' => "https://sg-aws.test-tw.icu/dashboard/postChatpayEC",  //背景傳送車馬費付款結果的網址
         'PeriodReturnURL' => "https://sg-aws.test-tw.icu/dashboard/upgradepayEC",  //背景傳送定期定額付款交易結果的網址
-        'ClientChatpayBackURL' => "https://sg-aws.test-tw.icu/dashboard/chat2", //返回商店的網址
+        'ClientChatpayBackURL' => "https://sg-aws.test-tw.icu/dashboard/personalPage", //返回商店的網址
         'ClientBackURL' => "https://sg-aws.test-tw.icu/dashboard/personalPage", //返回商店的網址
         'ServiceURL' => "https://payment-stage.ecpay.com.tw/Cashier/QueryCreditCardPeriodInfo",//定期定額查詢訂單
         'PaymentInfoURL' => "https://sg-aws.test-tw.icu/dashboard/paymentInfoEC",
@@ -47,5 +48,6 @@ return [
         'postMobileVerifyReturnURL' => "https://sg-aws.test-tw.icu/dashboard/postMobileVerifyPayEC",  //背景傳送手機驗證通過付款結果的網址
         'ClientMobileVerifyBackURL' => "https://sg-aws.test-tw.icu/member_auth", //返回商店的網址
         'OrderQueryURL' => 'https://payment-stage.ecpay.com.tw/Cashier/QueryTradeInfo/V5',
+        'CVSBarCodeURL' => 'https://payment-stage.ecpay.com.tw/PaymentRule/CVSBarCode?PaymentNo=',
     ],
 ];

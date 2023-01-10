@@ -5378,7 +5378,7 @@ class PagesController extends BaseController
             return back()->with('error_code', explode('_',$check_rs))
                     ->with('error_code_msg',['s'=>'僅供女會員驗證','i'=>'身分證字號','p'=>'門號','b'=>'生日','b18'=>'年齡未滿18歲，不得進行驗證','pf'=>'無法使用此手機號碼進行驗證','phack'=>'非通過驗證的手機號碼']);
         }
-        $precheck_duplicate_user =  User::where('advance_auth_identity_encode',$old_encode_id_serial)->where('advance_auth_status',1)->orderByDesc('advance_auth_time')->first();
+        $precheck_duplicate_user =  User::where('advance_auth_identity_encode',$old_encode_id_serial)->where('advance_auth_status',1)->where('advance_auth_phone',$phone_number)->where('advance_auth_birth',$format_birth)->orderByDesc('advance_auth_time')->first();
         if($precheck_duplicate_user ) {
             $user->log_adv_auth_api()->create([
                     'birth'=>$data['birth']
@@ -5390,7 +5390,7 @@ class PagesController extends BaseController
             return back()->with('message', [$this->advance_auth_get_msg('have_wrong')]);
         } 
 
-        $precheck_hash_users = User::where('advance_auth_identity_hash','!=','')->whereNotNull('advance_auth_identity_hash')->where('advance_auth_status',1)->orderByDesc('advance_auth_time')->get();
+        $precheck_hash_users = User::where('advance_auth_identity_hash','!=','')->whereNotNull('advance_auth_identity_hash')->where('advance_auth_status',1)->where('advance_auth_phone',$phone_number)->where('advance_auth_birth',$format_birth)->orderByDesc('advance_auth_time')->get();
         
         if($precheck_hash_users->count()) {
             foreach($precheck_hash_users as $ph_user) {
@@ -7567,7 +7567,7 @@ class PagesController extends BaseController
         $update_posts=EssencePosts::withTrashed()->where('id',$request->get('pid'))->first();
         if( $update_posts->verify_status==2 && $update_posts->reward==0){
             $user=User::findById($posts->user_id);
-            if($user->isVipOrIsVvip()){
+            if($user->isVip()){
                 //已是VIP會員
                 $vipData = $user->getVipData(true);
                 $expire_origin=$vipData->expiry;
@@ -7620,7 +7620,7 @@ class PagesController extends BaseController
                 }
                 VipLog::addToLog($user->id, 'essence_post_extend_expiry', 'Manual Setting', 1, 0);
                 EssencePostsRewardLog::addToLog($update_posts, $expire_origin, $expire_date);
-            }else{
+            }else if (!$user->isVip() && !$user->isVVIP()){
                 //非VIP會員
                 $vip = new Vip();
                 $vip->member_id = $user->id;

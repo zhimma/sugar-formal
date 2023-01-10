@@ -7,6 +7,8 @@ use App\Models\AdminActionLog;
 use App\Models\AnonymousChat;
 use App\Models\AnonymousChatForbid;
 use App\Models\AnonymousChatReport;
+use App\Models\AnonymousEvaluationChat;
+use App\Models\AnonymousEvaluationMessage;
 use App\Models\Board;
 use App\Models\EssenceStatisticsLog;
 use App\Models\Evaluation;
@@ -94,7 +96,7 @@ use App\Models\SpecialIndustriesTestAnswer;
 use Illuminate\Support\Facades\Log;
 use App\Models\RoleUser;
 use App\Models\UserRemarksLog;
-
+use App\Models\GreetingRateCalculation;
 
 class UserController extends \App\Http\Controllers\BaseController
 {
@@ -4616,6 +4618,41 @@ class UserController extends \App\Http\Controllers\BaseController
         echo json_encode('ok');
     }
 
+    public function showAnonymousChatMessage($chat_id)
+    {
+        $evaluation = User::select(
+            'e.to_id',
+            'e.from_id',
+            'to_user.name as to_user_name',
+            'from_user.name as from_user_name'
+        )
+        ->join('evaluation as e', 'e.from_id', 'users.id')
+        ->join('users as to_user', 'e.to_id', 'to_user.id')
+        ->join('users as from_user', 'e.from_id', 'from_user.id')
+        ->where('e.id', $chat_id)
+        ->first();
+
+        $anonymous_evaluation_chat_id = AnonymousEvaluationChat::where('evaluation_id', $chat_id)->pluck('id')->first();
+        $messages = AnonymousEvaluationMessage::where('anonymous_evaluation_chat_id', $anonymous_evaluation_chat_id)->get()->map(function($msg) use ($evaluation) {
+            $from_user = $msg->user_id;
+            if($from_user == $evaluation->to_id) {
+                $msg->to_user_name = $evaluation->from_user_name;
+                $msg->from_user_name = $evaluation->to_user_name;
+                $msg->to_user = $evaluation->from_id;
+                $msg->from_user = $evaluation->to_id;
+
+            }else {
+                $msg->to_user_name = $evaluation->to_user_name;
+                $msg->from_user_name = $evaluation->from_user_name;
+                $msg->to_user = $evaluation->to_id;
+                $msg->from_user = $evaluation->from_id;
+            }
+            return $msg;
+        });
+       
+        return view('admin.users.showAnonymousChatMessage', compact('messages'));
+    }
+
     public function showAdminCheckAnonymousContent()
     {
         $data = User::select(
@@ -4624,14 +4661,15 @@ class UserController extends \App\Http\Controllers\BaseController
                     'e.anonymous_content_status',
                     'e.created_at',
                     'e.id as evaluation_id',
-                    'to_user.email as to_email',
-                    'to_user.id as to_id',
+                    'e.to_id',
                     'users.id',
                     'users.email',
                     'users.name',
-                    'users.engroup')
+                    'users.engroup',
+                    'users.account_status_admin',
+                    'users.accountStatus'
+                    )
                 ->join('evaluation as e', 'e.from_id', 'users.id')
-                ->join('users as to_user', 'e.to_id', 'to_user.id')
                 ->whereNotNull('e.content_violation_processing')
                 ->orderBy('e.created_at', 'desc')
                 ->get();
@@ -4647,9 +4685,30 @@ class UserController extends \App\Http\Controllers\BaseController
     {
         $evaluation_id = $request->evaluation_id;
         $status = $request->status;
-        DB::table('evaluation')->where('id', $evaluation_id)
-            ->update(['anonymous_content_status' => $status, 'updated_at' => now()]);
-        
+        $status_reason = $request->status_reason;
+        DB::table('evaluation')->where('id', $evaluation_id)->update(['anonymous_content_status' => $status, 'updated_at' => now(),'status_reason'=>$status_reason]);
+        $evaluation_entry = Evaluation::find($evaluation_id);
+        $content = '';
+        if($status==1) {
+            $content = $evaluation_entry->user->name . ' 您好，您在 ' . substr($evaluation_entry->created_at,0,16) .'對'.$evaluation_entry->receiver->name
+                    .' 提出的匿名訊息，經站長審核已通過。評價已上線，'.$evaluation_entry->receiver->name
+                    .'可以透過匿名對話向您解釋狀況，您可以自己決定是否回應。有問題可點右下聯絡我們或加站長<a href="https://lin.ee/rLqcCns"><img src="https://scdn.line-apps.com/n/line_add_friends/btn/zh-Hant.png" alt="加入好友" height="26" border="0" style="all: initial;all: unset;height: 26px; float: unset;"></a>反應';
+        }
+        else if($status==2) {
+            
+             $content = $evaluation_entry->user->name . ' 您好，您在 ' . substr($evaluation_entry->created_at,0,16) .'對'.$evaluation_entry->receiver->name
+                    .' 提出的匿名訊息，經站長審核，由於證據不足且您拒絕站方修改。故評價已撤回，您可以檢附證據重新評價，有問題可點右下聯絡我們或加站長<a href="https://lin.ee/rLqcCns"><img src="https://scdn.line-apps.com/n/line_add_friends/btn/zh-Hant.png" alt="加入好友" height="26" border="0" style="all: initial;all: unset;height: 26px; float: unset;"></a>反應';
+ 
+            
+            if($status_reason) {
+             $content = $evaluation_entry->user->name . ' 您好，您在 ' . substr($evaluation_entry->created_at,0,16) .'對'.$evaluation_entry->receiver->name
+                    .' 提出的匿名訊息，由於 '.$status_reason.'原因。故評價已撤回，您可以檢附證據重新評價。有問題可點右下聯絡我們或加站長<a href="https://lin.ee/rLqcCns"><img src="https://scdn.line-apps.com/n/line_add_friends/btn/zh-Hant.png" alt="加入好友" height="26" border="0" style="all: initial;all: unset;height: 26px; float: unset;"></a>反應';                
+            }
+            
+            
+        }
+        //站長系統訊息
+        Message::post(1049, $evaluation_entry->user->id, $content);        
         Session::flash('message', '審核已完成');
 
         echo json_encode('ok');
@@ -6649,27 +6708,15 @@ class UserController extends \App\Http\Controllers\BaseController
                 'users.engroup',
                 'banned_users.member_id as banned_userID',
                 'warned_users.member_id as warned_userID',
-                'anonymous_chat_forbid.user_id as forbid_userID'
+                'anonymous_chat_forbid.user_id as forbid_userID',
+                'banned_users.expire_date as banned_userExpireDate',
+                'warned_users.expire_date as warned_userExpireDate',
+                'anonymous_chat_forbid.expire_date as forbid_userExpireDate'
             )
                 ->leftJoin('users', 'users.id', 'anonymous_chat.user_id')
                 ->leftJoin('banned_users', 'banned_users.member_id', 'anonymous_chat.user_id')
-                ->where(
-                    function($q) {
-                        $q->where('banned_users.expire_date', null)->
-                        orWhere('banned_users.expire_date','>',Carbon::now());
-                    })
                 ->leftJoin('warned_users', 'warned_users.member_id', 'anonymous_chat.user_id')
-                ->where(
-                    function($q) {
-                        $q->where('warned_users.expire_date', null)->
-                        orWhere('warned_users.expire_date','>',Carbon::now());
-                    })
-                ->leftJoin('anonymous_chat_forbid', 'anonymous_chat_forbid.user_id', 'anonymous_chat.user_id')
-                ->where(
-                    function($q) {
-                        $q->where('anonymous_chat_forbid.expire_date', null)->
-                        orWhere('anonymous_chat_forbid.expire_date','>',Carbon::now());
-                    });
+                ->leftJoin('anonymous_chat_forbid', 'anonymous_chat_forbid.user_id', 'anonymous_chat.user_id');
             if(isset($request->msg)) {
                 $results = $results->where('anonymous_chat.content', 'like', '%' . $msg . '%');
             }
@@ -7992,5 +8039,29 @@ class UserController extends \App\Http\Controllers\BaseController
         $msg_type    = 'message';
         $msg_content = '已備註成功';
         return back()->with($msg_type, $msg_content);
+    }
+
+    public function showAvgMedian(){
+        $day_statistic = DB::table('log_system_day_statistic')->where(
+            'date', '>=', Carbon::now()->subMonth()->toDateTimeString()
+        )->orderby('date', 'desc')->get();
+            
+        $calculations = DB::table('greeting_rate_calculations')->orderby('created_at', 'desc')->first();
+        $infix = $calculations->infix;
+        $greetingRate = UserService::computeGreetingRate($calculations->postfix);
+        return view('admin.users.showAvgMedian', compact('day_statistic', 'infix', 'greetingRate'));
+    }
+
+    public function modifyGreetingRateCalculations(Request $request){
+        $postfix = UserService::toPostfix($request->infix);
+        $v = UserService::computeGreetingRate($postfix);
+        if($request->save) {
+            $calculation = new GreetingRateCalculation;
+            $calculation->infix = $request->infix;
+            $calculation->postfix = $postfix;
+            $calculation->save();
+        }
+        
+        return response()->json($v);
     }
 }
