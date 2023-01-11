@@ -602,6 +602,10 @@ class SetAutoBan extends Model
         */
         return SetAutoBan::where('type', $type)->get();
     }
+
+    public static function retriveGroupAndCheck($typeArr, $uid){
+        return DB::table('set_auto_ban')->whereIn('type', $typeArr)->where('cuz_user_set', $uid)->get();
+    }
     
     /**
      * Get the name of the index associated with the model.
@@ -898,197 +902,20 @@ class SetAutoBan extends Model
 
     public static function local_machine_ban_and_warn_check($uid, $probing = false)
     {
-        //因應效能需求暫時略過未來再關閉
-        $bypass = false;
-
-        $ban_list = [];
         $user = User::find($uid);
-            try {
-                if(isset($user) && $user->can('admin')){
-                    return;
-                }
-            }
-            catch (\Exception $e){
+      
+        if(isset($user) && $user->can('admin')){
+            logger("user is admin");
+            return [];
+        }
 
-            }
-            if(!$user || !$uid) {
-                logger('SetAutoBan local_machine_ban_and_warn() user not set, referer: ' . \Request::server('HTTP_REFERER'));
-                return;
-            }
+        if(!$user || !$uid) {
+            logger("user is not found in db");
+            return ['x'=>'x'];
+        }
 
-            //執行時間預設是30秒改為無上限
-            set_time_limit(-1);
+        $rule_sets = SetAutoBan::retriveGroupAndCheck(['ip','name','email','title'], $uid);
 
-            if(!$bypass){
-                $ban_set_type = collect(['name', 'email', 'title']);
-                $ban_meta_set_type = collect(['about', 'style']);
-                $all_check_rule_sets = SetAutoBan::retrive('allcheck');  
-
-                $ban_set_type->each(function($type) use ($user, $all_check_rule_sets, $probing, &$ban_list) {
-                    $type_rule_sets = SetAutoBan::retrive($type);
-                    $rule_sets = $type_rule_sets->merge($all_check_rule_sets);
-                    $rule_sets->each(function($rule_set) use ($user, $type, $probing, &$ban_list) {
-                        if(str_contains($user->$type, $rule_set->content)) {  
-                            if($probing) {
-                                echo $rule_set->id . ' ' . $rule_set->type;
-                            }
-                            if($rule_set && $rule_set->id) {
-                                $ban_list[] = [$user->id, $rule_set->id, 'profile'];
-                            }
-                        }
-                    });
-                });
-
-                $ban_meta_set_type->each(function($type) use ($user, $all_check_rule_sets, $probing, &$ban_list) {
-                    $type_rule_sets = SetAutoBan::retrive($type);
-                    $rule_sets = $type_rule_sets->merge($all_check_rule_sets);
-                    $rule_sets->each(function($rule_set) use ($user, $type, $probing, &$ban_list) {
-                        if(str_contains($user->user_meta->$type, $rule_set->content)) {  
-                            if($probing) {
-                                echo $rule_set->id . ' ' . $rule_set->type;
-                            }                    
-                            if($rule_set && $rule_set->id) {
-                                $ban_list[] = [$user->id, $rule_set->id, 'profile'];
-                            }
-                        }
-                    });
-                });
-            }
-            
-            //只取一天內的登入紀錄
-            Log::Info('開始檢查User: ' . $user->id . ' CFP_ID 共 ' . $user->log_user_login->where('created_at', '>', Carbon::now()->subDay())->sortByDesc('created_at')->count() . ' 筆登入紀錄');
-            $user->log_user_login->where('created_at', '>', Carbon::now()->subDay())->each(function ($log) use ($user, $probing, &$ban_list, $bypass) {
-                $cfp_id_rule_sets = SetAutoBan::retrive('cfp_id');
-                $cfp_id_rule_sets->each(function($rule_set) use ($user, $log, $probing, &$ban_list) {
-                    if($log->cfp_id == $rule_set->content) {
-                        if($probing) {
-                            echo $rule_set->id . ' ' . $rule_set->type;
-                        }  
-                        if($rule_set && $rule_set->id) {
-                            $ban_list[] = [$user->id, $rule_set->id, 'profile'];
-                        }
-                    }
-                });
-
-                if(!$bypass){
-                    $user_agent_rule_sets = SetAutoBan::retrive('user_agent');
-                    $user_agent_rule_sets->each(function($rule_set) use ($user, $log, $probing, &$ban_list) {
-                        if(str_contains($log->userAgent, $rule_set->content)) {
-                            if($probing) {
-                                echo $rule_set->id . ' ' . $rule_set->type;
-                            }  
-                            if($rule_set && $rule_set->id) {
-                                $ban_list[] = [$user->id, $rule_set->id, 'profile'];
-                            }
-                        }
-                    });
-                }
-            });
-
-            if(!$bypass){
-                //20220629新增圖片檔名
-                $pic_rule_sets = SetAutoBan::retrive('pic');
-                $pic_rule_sets->each(function($rule_set) use ($user, $probing, &$ban_list) {
-                    if(str_contains($user->user_meta->pic_original_name, $rule_set->content)) {
-                        if($probing) {
-                            echo $rule_set->id . ' ' . $rule_set->type;
-                        }  
-                        if($rule_set && $rule_set->id) {
-                                $ban_list[] = [$user->id, $rule_set->id, 'profile'];
-                            }
-                    }
-                });
-
-                //有一筆違規就可以封鎖了 
-                $pic_name_rule_sets = SetAutoBan::retrive('picname');
-                $any_pic_violated = $user->pics->first(function($pic) use ($user, $pic_name_rule_sets, $probing, &$ban_list) {
-                    return $pic_name_rule_sets->each(function($rule_set) use ($user, $pic, $probing, &$ban_list) {
-                        if(str_contains($pic->original_name, $rule_set->content)) {
-                            if($probing) {
-                                echo 'any_pic_violated, ban set:' . $rule_set->id . ' ' . $rule_set->type;
-                            }  
-                            if($rule_set && $rule_set->id) {
-                                $ban_list[] = [$user->id, $rule_set->id, 'profile'];
-                            }
-                        }
-                    });
-                });
-            }
-
-            $ip_rule_sets = SetAutoBan::retrive('ip');
-            if(!$bypass){
-                $auto_ban_rule_sets = $ip_rule_sets->merge($pic_rule_sets);
-            }
-            else{
-                $auto_ban_rule_sets = $ip_rule_sets;
-            }
-
-            
-            foreach ($auto_ban_rule_sets as $ban_set) {
-                $content = $ban_set->content;
-                $violation = false;
-                $caused_by = $ban_set->type;
-                // switch ($ban_set->type) {
-                //     case 'ip':
-                //         if($ban_set->expiry=='0000-00-00 00:00:00') {
-                //             SetAutoBan::ip_update_send('update', $ban_set->id);			
-                //         }
-                //         if($ban_set->expiry<=\Carbon\Carbon::now()->format('Y-m-d H:i:s')) {
-                //             SetAutoBan::ip_update_send('delete', $ban_set->id);	
-                //             break;
-                //         }	
-                //         $ip = $user->log_user_login->where('created_at', '>', Carbon::now()->subDay())->sortByDesc('created_at')->first();
-                //         if($ip?->ip == $content) {
-                //             $violation = true;
-                //             SetAutoBan::ip_update_send('update', $ban_set->id);						
-                //         }
-                //         break;
-                //     //20220629新增圖片檔名   
-                //     case 'pic':
-                //         $ban_encode_entry = ImagesCompareService::getCompareEncodeByPic($content);
-
-                //         if(($ban_encode_entry??null) && $ban_encode_entry->file_md5??'') {
-                //             if(($user->meta->pic??null) && $ban_encode_entry->file_md5==(ImagesCompareService::getCompareEncodeByPic($user->meta->pic)->file_md5??null)) {
-                //                 $violation = true;
-                //                 $caused_by = 'pic';
-                //             }
-                            
-                //             if(!$violation) {
-                //                 $memPics = $user->pic_withTrashed()->pluck('pic')->all();
-                //                 $memPicMd5s =  ImagesCompareService::getFileMd5ArrByPicArr($memPics); 
-                //                 if(in_array($ban_encode_entry->file_md5,$memPicMd5s)) { 
-                //                     $violation = true;
-                //                     $caused_by = 'pic';
-                //                 }
-                //             }                                           
-                            
-                //             if(!$violation) {
-                //                 $delAvatars = $user->avatar_deleted()->pluck('pic')->all();
-                //                 $delAvatarMd5s =  ImagesCompareService::getFileMd5ArrByPicArr($delAvatars); 
-                //                 if(in_array($ban_encode_entry->file_md5,$delAvatarMd5s)) {
-                //                     $violation = true;
-                //                     $caused_by = 'pic';
-                //                 }
-                //             }
-                //         }
-                //     break;
-                //     default:
-                //         break;
-                // }
-
-                if ($violation) {
-                    $type = 'profile';                
-                    if($probing) {
-                        echo $caused_by;
-                    }
-                    else {
-                        logger("User $uid is banned by $caused_by");
-                    }
-                    $ban_list[] = [$uid, $ban_set->id, $type];
-                    
-                }
-            }
-
-            return $ban_list;
+        return $rule_sets;
     }
 }
