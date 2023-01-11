@@ -61,8 +61,10 @@ class Step2CheckExtendRecheck extends Command
                 }
             }
             */
-            $user_list[$check->user->id]['check_data'] = $check;
-            $user_list[$check->user->id]['check_start_time'] = $check_start_time;
+            if ($check->user) {
+                $user_list[$check->user->id]['check_data'] = $check;
+                $user_list[$check->user->id]['check_start_time'] = $check_start_time;
+            }
         }
         $message = Message::select('from_id','to_id','created_at')->whereIn('from_id', array_keys($user_list))->orderByDesc('created_at')->get();
 
