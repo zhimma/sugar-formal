@@ -603,8 +603,8 @@ class SetAutoBan extends Model
         return SetAutoBan::where('type', $type)->get();
     }
 
-    public static function retriveGroupAndCheck($typeArr, $user){
-        return SetAutoBan::whereIn('type', $typeArr)->where('cuz_user_set', $user->id)->get();
+    public static function retriveGroupAndCheck($typeArr, $uid){
+        return DB::table('set_auto_ban')->whereIn('type', $typeArr)->where('cuz_user_set', $uid)->get();
     }
     
     /**
@@ -914,7 +914,7 @@ class SetAutoBan extends Model
             return ['x'=>'x'];
         }
 
-        $rule_sets = SetAutoBan::retriveGroupAndCheck(['ip','name','email','title'], $user);
+        $rule_sets = SetAutoBan::retriveGroupAndCheck(['ip','name','email','title'], $uid);
 
         return $rule_sets;
     }
