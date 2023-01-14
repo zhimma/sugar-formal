@@ -620,19 +620,19 @@ class SetAutoBan extends Model
             }
 
             if($row->type=='title'){
-                if(str_contains($row->content, $user->title)){
+                if(str_contains($user->title, $row->content)){
                     $checkStatus = true;
                 }
             }
 
             if($row->type=='name'){
-                if(str_contains($row->content, $user->name)){
+                if(str_contains($user->name, $row->content)){
                     $checkStatus = true;
                 }
             }
 
             if($row->type=='email'){
-                if(str_contains('@'.$row->content, $user->email)){
+                if(str_contains($user->email, '@'.$row->content)){
                     $checkStatus = true;
                 }
             }
