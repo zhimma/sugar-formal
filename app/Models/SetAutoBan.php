@@ -604,7 +604,7 @@ class SetAutoBan extends Model
     }
 
     public static function retriveGroupAndCheck($typeArr, $email){
-        $set_auto_ban_list_by_type =  DB::table('set_auto_ban')->leftJoin('users','users.id','=','set_auto_ban.cuz_user_set')->whereIn('set_auto_ban.type', $typeArr)->get()->toArray();
+        $set_auto_ban_list_by_type =  DB::table('set_auto_ban')->leftJoin('users','users.id','=','set_auto_ban.cuz_user_set')->whereIn('set_auto_ban.type', $typeArr)->whereNull('set_auto_ban.deleted_at')->get()->toArray();
 
         $checkStatus=false;
 
