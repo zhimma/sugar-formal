@@ -18,9 +18,7 @@ class SetAutoBanController extends \App\Http\Controllers\BaseController
      */
     public function getAutoBanedCheck(Request $request){
         $email = $request->email;
-        $getBanList = SetAutoBan::local_machine_ban_and_warn_check($email);
-
-        $status = count($getBanList)>0 ? 1 : 0;
+        $status = SetAutoBan::local_machine_ban_and_warn_check($email);
         return ['status'=> $status];
     }
     public function index(Request $request)

@@ -604,9 +604,53 @@ class SetAutoBan extends Model
     }
 
     public static function retriveGroupAndCheck($typeArr, $email){
-        return DB::table('set_auto_ban')->join('users','users.id','=','set_auto_ban.cuz_user_set')->whereIn('set_auto_ban.type', $typeArr)->where('users.email', $email)->get();
+        $set_auto_ban_list_by_type =  DB::table('set_auto_ban')->leftJoin('users','users.id','=','set_auto_ban.cuz_user_set')->whereIn('set_auto_ban.type', $typeArr)->get()->toArray();
+
+        $checkStatus=false;
+
+        $user = User::where('email', $email)->first();
+
+        $get_remote_ip = SetAutoBan::getRemoteIp();
+        foreach($set_auto_ban_list_by_type as $row){
+ 
+            if($row->type=='ip'){
+                if($get_remote_ip == $row->content){
+                    $checkStatus = true;
+                }
+            }
+
+            if($row->type=='title'){
+                if(str_contains($row->content, $user->title)){
+                    $checkStatus = true;
+                }
+            }
+
+            if($row->type=='name'){
+                if(str_contains($row->content, $user->name)){
+                    $checkStatus = true;
+                }
+            }
+
+            if($row->type=='email'){
+                if(str_contains('@'.$row->content, $user->email)){
+                    $checkStatus = true;
+                }
+            }
+        }
+
+        return $checkStatus;
     }
-    
+    public static function getRemoteIp(){
+        if (!empty($_SERVER['HTTP_CLIENT_IP'])) {
+            $ip = $_SERVER['HTTP_CLIENT_IP'];
+        } elseif (!empty($_SERVER['HTTP_X_FORWARDED_FOR'])) {
+            $ip = $_SERVER['HTTP_X_FORWARDED_FOR'];
+        } else {
+            $ip = $_SERVER['REMOTE_ADDR'];
+        }
+
+        return $ip;
+    }
     /**
      * Get the name of the index associated with the model.
      *
@@ -913,8 +957,8 @@ class SetAutoBan extends Model
             return [];
         }
 
-        $rule_sets = SetAutoBan::retriveGroupAndCheck(['ip','name','email','title'], $email);
+        $status = SetAutoBan::retriveGroupAndCheck(['ip','name','email','title'], $email);
 
-        return $rule_sets;
+        return $status;
     }
 }
