@@ -345,7 +345,20 @@ Route::group(['middleware' => ['auth', 'global', 'active', 'femaleActive', 'vipC
         Route::post('/dashboard/essence_posts_recover', 'PagesController@essence_posts_recover');/*討論區留言恢復*/
         Route::post('/dashboard/essence_verify_status', 'PagesController@essence_verify_status');/*討論區留言審核*/
 
+    });
 
+    //心情文章
+    Route::group(['prefix' => 'mood'], function () {
+        //Route::get('/posts_list', 'PagesController@posts_list_mood')->name('posts_list_mood');/*投稿列表功能*/
+        Route::get('/post_detail/{pid}', 'PagesController@post_detail_mood');
+        Route::post('/getPosts', 'PagesController@getPosts_mood');/*動態取得列表資料*/
+        Route::get('/posts', 'PagesController@posts_mood');/*投稿功能*/
+        Route::get('/postsEdit/{id}/{editType}', 'PagesController@postsEdit_mood');/*投稿修改功能*/
+        Route::post('/doPosts', 'PagesController@doPosts_mood');/*投稿功能*/
+        Route::post('/posts_reply', 'PagesController@posts_reply_mood');/*討論區留言回覆*/
+        Route::post('/posts_delete', 'PagesController@posts_delete_mood');/*討論區留言刪除*/
+        Route::post('/posts_recover', 'PagesController@posts_recover_mood');/*討論區留言恢復*/
+        Route::post('/post_views', 'PagesController@post_views_mood');
     });
 
     //留言板
