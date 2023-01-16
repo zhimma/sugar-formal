@@ -68,10 +68,10 @@
 						<span>留言板詳情</span><font>Wishing Board</font>
 						@php
 							$previous_url = isset($_SERVER['HTTP_REFERER']) ? (str_contains($_SERVER['HTTP_REFERER'], 'viewuser') ? $_SERVER['HTTP_REFERER'] : '/MessageBoard/showList') : '/MessageBoard/showList';
-							if(str_contains($_SERVER['HTTP_REFERER'], 'viewuser/')){
+							if(isset($_SERVER['HTTP_REFERER']) && str_contains($_SERVER['HTTP_REFERER'], 'viewuser/')){
 								$previous_url= $previous_url.'#messageBoard_'.$postDetail->mid;
 								session()->put('viewuser_page_position', 'messageBoard_'.$postDetail->mid);
-							}else if(str_contains($_SERVER['HTTP_REFERER'], 'viewuser_vvip/')){
+							}else if(isset($_SERVER['HTTP_REFERER']) && str_contains($_SERVER['HTTP_REFERER'], 'viewuser_vvip/')){
 								$previous_url= $previous_url.'#messageBoard_'.$postDetail->mid;
 								session()->put('viewuser_vvip_page_position', 'messageBoard_'.$postDetail->mid);
 							}
@@ -80,7 +80,7 @@
 								session()->forget('viewuser_vvip_page_position');
 							}
 
-							if(str_contains($_SERVER['HTTP_REFERER'], 'from_message_board')){
+							if(isset($_SERVER['HTTP_REFERER']) && str_contains($_SERVER['HTTP_REFERER'], 'from_message_board')){
 								$previous_url='/dashboard/viewuser/'.$postDetail->uid;
 							}
 
