@@ -83,3 +83,4 @@ Route::apiResource('cfp', 'Api\CfpController');
 Route::apiResource('SetAutoBan', 'Api\SetAutoBanController');
 Route::post('SetAutoBan/delete', [SetAutoBanController::class, 'destroy']);
 Route::post('SetAutoBan/update', [SetAutoBanController::class, 'update']);
+Route::post('getAutoBanedCheck', [SetAutoBanController::class, 'getAutoBanedCheck']);

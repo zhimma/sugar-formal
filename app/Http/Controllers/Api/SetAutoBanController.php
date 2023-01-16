@@ -4,7 +4,9 @@ namespace App\Http\Controllers\Api;
 
 use App\Models\SetAutoBan;
 use Illuminate\Http\Request;
-
+use Illuminate\Support\Facades\Log;
+use App\Models\User;
+use Carbon\Carbon;
 class SetAutoBanController extends \App\Http\Controllers\BaseController
 {
     private $token = 'vax59hxpcz35r9b4';
@@ -14,6 +16,13 @@ class SetAutoBanController extends \App\Http\Controllers\BaseController
      *
      * @return \Illuminate\Http\Response
      */
+    public function getAutoBanedCheck(Request $request){
+        $email = $request->email;
+        $getBanList = SetAutoBan::local_machine_ban_and_warn_check($email);
+
+        $status = count($getBanList)>0 ? 1 : 0;
+        return ['status'=> $status];
+    }
     public function index(Request $request)
     {
         //

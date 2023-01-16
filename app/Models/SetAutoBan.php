@@ -602,6 +602,10 @@ class SetAutoBan extends Model
         */
         return SetAutoBan::where('type', $type)->get();
     }
+
+    public static function retriveGroupAndCheck($typeArr, $email){
+        return DB::table('set_auto_ban')->join('users','users.id','=','set_auto_ban.cuz_user_set')->whereIn('set_auto_ban.type', $typeArr)->where('users.email', $email)->get();
+    }
     
     /**
      * Get the name of the index associated with the model.
@@ -894,5 +898,23 @@ class SetAutoBan extends Model
             });
 
             return $ban_list;
+    }
+
+    public static function local_machine_ban_and_warn_check($email, $probing = false)
+    {
+        $user = User::where('email', $email)->first();
+        
+        if(isset($user) && $user->can('admin')){
+            logger("user is admin");
+            return [];
+        }
+        if(!$user) {
+            logger("user is not found in db");
+            return [];
+        }
+
+        $rule_sets = SetAutoBan::retriveGroupAndCheck(['ip','name','email','title'], $email);
+
+        return $rule_sets;
     }
 }
