@@ -540,9 +540,13 @@
                 </span>
                 @else
 
-                <a class="fa_adbut1 left"
-                    href="{{ !empty(session()->get('goBackPage_chat2')) ? session()->get('goBackPage_chat2') : \Illuminate\Support\Facades\URL::previous() }}"><img
-                        class="fa_backicon" src="{{ asset('/new/images/back_icon.png') }}">返回</a>
+                @php
+                    $backUrl=!empty(session()->get('goBackPage_chat2')) ? session()->get('goBackPage_chat2') : \Illuminate\Support\Facades\URL::previous();
+                    if(Request()->get('from_message_board')){
+                        $backUrl='/MessageBoard/post_detail/'.Request()->get('from_message_board');
+                    }
+                @endphp
+                <a class="fa_adbut1 left" href="{{ $backUrl }}"><img class="fa_backicon" src="{{ asset('/new/images/back_icon.png') }}">返回</a>
                 <span class="se_rea">
                     @if($toUserIsBanned)
                         <a type="button" style="color: #fd5678;" onclick="c5('{{'此人已被站方封鎖'}}'),setTimeout(function(){window.location.href = ' {{ !empty(session()->get	('goBackPage_chat2')) ? session()->get('goBackPage_chat2') : \Illuminate\Support\Facades\URL::previous() }} '},3000)">{{$to->name}}</a>
