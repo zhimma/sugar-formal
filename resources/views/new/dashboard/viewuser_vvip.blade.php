@@ -465,6 +465,7 @@
                                 <a href="/mood/post_detail/{{ $mood_article->id }}" ontouchstart="">
                                     <div id="moodArticle_{{ $mood_article->id }}" class="db_but02">
                                         <b class="dl_font" style="word-break: break-all;">{{ $mood_article->title }}</b>
+                                        <font class="m_a_created_at" style="float: right;margin-top:2px;color: #999999;">{{ substr($mood_article->created_at,0,10) }}</font>
                                         {{--<a class="db_buta" data-openLink="/mood/postsEdit/{{ $mood_article->id }}/all"><span class="db_icon"><img src="/new/images/z_bianjn.png"></span>編輯</a>--}}
                                     </div>
                                 </a>
