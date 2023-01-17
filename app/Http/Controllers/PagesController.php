@@ -9759,7 +9759,7 @@ class PagesController extends BaseController
             if($request->ajax()) {
                 return response()->json([
                     'message' => '修改成功',
-                    'return_url' => '/MessageBoard/post_detail/'.$request->get('mid')
+                    'return_url' => '/MessageBoard/post_detail/'.$request->get('mid').($request->from_viewuser_vvip_page ? '?from_viewuser_vvip_page=1':'').($request->from_viewuser_page ? '?from_viewuser_page=1':'')
                 ]);                
             }
             return redirect('/MessageBoard/post_detail/'.$request->get('mid'))->with('message','修改成功');
