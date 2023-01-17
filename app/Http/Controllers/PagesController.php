@@ -3075,6 +3075,10 @@ class PagesController extends BaseController
                 /*此會員封鎖多少其他會員*/
                 $blocked_other_count = Blocked::with(['blocked_user'])
                 ->join('users', 'users.id', '=', 'blocked.blocked_id')
+                ->join('message', function($join){
+                    $join->on('blocked.member_id', '=', 'message.from_id');
+                    $join->on('blocked.blocked_id','=', 'message.to_id');
+                })
                 ->leftJoin('user_meta as um', 'um.user_id', '=', 'blocked.blocked_id')
                 ->leftJoin('warned_users as w2', 'w2.member_id', '=', 'blocked.blocked_id')
                 ->where('um.isWarned',0)
@@ -3084,11 +3088,17 @@ class PagesController extends BaseController
                 ->whereNotNull('users.id')
                 ->where('users.accountStatus', 1)
                 ->where('users.account_status_admin', 1)
-                ->count();
+                ->whereNotNull('message.id')
+                ->distinct()
+				->count('blocked.blocked_id');
         
                 /*此會員被多少會員封鎖*/
                 $be_blocked_other_count = Blocked::with(['blocked_user'])
                     ->join('users', 'users.id', '=', 'blocked.member_id')
+                    ->join('message', function($join){
+                        $join->on('blocked.member_id', '=', 'message.from_id');
+                        $join->on('blocked.blocked_id','=', 'message.to_id');
+                    })
                     ->leftJoin('user_meta as um', 'um.user_id', '=', 'blocked.member_id')
                     ->leftJoin('warned_users as w2', 'w2.member_id', '=', 'blocked.member_id')
                     ->where('um.isWarned',0)
@@ -3098,7 +3108,9 @@ class PagesController extends BaseController
                     ->whereNotNull('users.id')
                     ->where('users.accountStatus', 1)
                     ->where('users.account_status_admin', 1)
-                    ->count();
+                    ->whereNotNull('message.id')
+                    ->distinct()
+				    ->count('blocked.blocked_id');
             }
     
             $output = array(
