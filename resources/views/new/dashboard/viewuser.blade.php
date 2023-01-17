@@ -1893,7 +1893,7 @@
                                         <div class="pjliuyan02 amar15" style=" min-height: auto; margin-bottom: 0;">
                                             <ul>
                                                 @foreach($message_board_list as $list)
-                                                    <a href="/MessageBoard/post_detail/{{ $list->id }}">
+                                                    <a href="/MessageBoard/post_detail/{{ $list->id }}?from_viewuser_page=1">
                                                         <div class="ly_prilist" >
                                                             <div id="messageBoard_{{ $list->id }}" class="ly_text">
                                                                 <div class="ly_text_1"><div class="ly_lfontleft">{{ $list->title }}</div><div class="ly_time">{{ date('Y-m-d', strtotime($list->created_at)) }}</div></div>

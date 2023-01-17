@@ -504,7 +504,7 @@
                                 <ul class="hypbgul">
                                     @foreach($message_board_list as $list)
                                         <div class="jah">
-                                            <a href="/MessageBoard/post_detail/{{ $list->id }}">
+                                            <a href="/MessageBoard/post_detail/{{ $list->id }}?from_viewuser_vvip_page=1">
                                                 <div id="messageBoard_{{ $list->id }}" class="ly_text">
                                                     <div class="ly_text_1"><div class="ly_lfontleft">{{ $list->title }}</div><div class="ly_time">{{ date('Y-m-d', strtotime($list->created_at)) }}</div></div>
                                                     <div class="liu_text_2">{{ $list->contents }}</div>
