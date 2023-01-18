@@ -462,7 +462,7 @@
                         </div>
                         @foreach($mood_article_lists as $key =>$mood_article)
                             <div @if($key<=2) class="db_but01" @else  class="db_but01 plshow showMoreArticle" style="display: none;" @endif>
-                                <a href="/mood/post_detail/{{ $mood_article->id }}" ontouchstart="">
+                                <a href="/mood/post_detail/{{ $mood_article->id }}?from_viewuser_vvip_page=1" ontouchstart="">
                                     <div id="moodArticle_{{ $mood_article->id }}" class="db_but02">
                                         <b class="dl_font" style="word-break: break-all;">{{ $mood_article->title }}</b>
                                         <font class="m_a_created_at" style="float: right;margin-top:2px;color: #999999;">{{ substr($mood_article->created_at,0,10) }}</font>

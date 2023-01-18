@@ -344,7 +344,8 @@
             },
         async mounted () {
 			let pid={{$pid}};
-                await axios
+			let return_page='{{$return_page}}';
+			await axios
                 .post('/MessageBoard/getItemHeader', { pid:pid })
                 .then(response => {
 					console.log(response,'getItemHeader');
@@ -355,7 +356,7 @@
                 });
    
                 axios
-                .post('/MessageBoard/getItemContent',{ pid:pid })
+                .post('/MessageBoard/getItemContent?return_page='+return_page,{ pid:pid })
 
                 .then(response => {
 					console.log(response);
