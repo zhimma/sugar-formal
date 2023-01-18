@@ -480,7 +480,7 @@
 				c4('確定要刪除嗎?');
 				$(".n_left").on('click', function() {
 					$.ajax({
-						url: '/mood/posts_delete?{{ csrf_token() }}={{now()->timestamp}} ',
+						url: '/mood/posts_delete?{{ csrf_token() }}={{now()->timestamp}}&from_viewuser_vvip_page=1',
 						method: 'POST',
 						data: {
 							_token: "{{ csrf_token() }}",

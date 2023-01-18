@@ -6935,11 +6935,12 @@ class PagesController extends BaseController
             return response()->json(['msg'=>'留言刪除失敗 不可刪除別人的留言!']);
         }else{
             $postsType = $posts->type;
+            $posts_user_id = $posts->user_id;
             PostsMood::where('id',$request->get('pid'))->update(['deleted_by'=>auth()->user()->id]);
             $posts->delete();
 
             if($postsType=='main')
-                return response()->json(['msg'=>'刪除成功!','postType'=>'main','redirectTo'=>'/dashboard/viewuser_vvip/']);
+                return response()->json(['msg'=>'刪除成功!','postType'=>'main','redirectTo'=>'/dashboard/viewuser_vvip/'.$posts_user_id]);
             else
                 return response()->json(['msg'=>'留言刪除成功!','postType'=>'sub']);
         }
@@ -9590,7 +9591,7 @@ class PagesController extends BaseController
         $ssrData .= '<div class="liu_yf">'. $postDetail->mtitle .'<h2>'. substr($postDetail->mcreated_at,0,10) .'</h2></div>';
                     if($postDetail->uid== auth()->user()->id){
                         $ssrData.='<div class="right">';
-                        $ssrData.='<form action="/MessageBoard/delete/'. $postDetail->mid .'" id="delete_form" method="POST" enctype="multipart/form-data">';
+                        $ssrData.='<form action="/MessageBoard/delete/'. $postDetail->mid .'?return_page='.$request->return_page.'" id="delete_form" method="POST" enctype="multipart/form-data">';
                         $ssrData.='<input type="hidden" name="_token" value="'. csrf_token() .'">';
                         $ssrData.='</form>';
                         $ssrData.='<a class="sc_cc" onclick="send_delete_submit()"><img src="/new/images/del_03n.png">刪除</a>';
@@ -9707,7 +9708,14 @@ class PagesController extends BaseController
             return  redirect('/MessageBoard/showList');
         }
 
-        return view('/dashboard/messageBoard_detail', compact('postDetail', 'images','pid'))->with('user', $user);
+        $return_page='';
+        if($request->from_viewuser_vvip_page){
+            $return_page='viewuser_vvip';
+        }
+        else if($request->from_viewuser_page){
+            $return_page='viewuser';
+        }
+        return view('/dashboard/messageBoard_detail', compact('postDetail', 'images','pid','return_page'))->with('user', $user);
     }
 
 
@@ -9804,13 +9812,19 @@ class PagesController extends BaseController
         }
     }
 
-    public function messageBoard_delete($mid)
+    public function messageBoard_delete(Request $request,$mid)
     {
         $posts = MessageBoard::where('id',$mid)->first();
         if($posts->user_id!== auth()->user()->id){
             return response()->json(['msg'=>'刪除失敗,不可刪除別人的留言!']);
         }
         if($posts){
+            $return_page='';
+            if($request->return_page=='viewuser_vvip'){
+                $return_page='/dashboard/viewuser_vvip/'.$posts->user_id;
+            } else if($request->return_page=='viewuser'){
+                $return_page='/dashboard/viewuser/'.$posts->user_id;
+            }
             $messageBoardImages=MessageBoardPic::selectRaw('id,pic')->where('msg_board_id',$posts->id)->get();
             foreach ($messageBoardImages as $key => $dbImage) {
                 if (file_exists(public_path().$dbImage->pic)) {
@@ -9820,8 +9834,10 @@ class PagesController extends BaseController
             }
             $posts->delete();
         }
-
-        return redirect('/MessageBoard/showList')->with('message','留言刪除成功');
+        if($return_page)
+            return redirect($return_page)->with('message','留言刪除成功');
+        else
+            return redirect('/MessageBoard/showList')->with('message','留言刪除成功');
     }
 
 

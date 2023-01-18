@@ -34,6 +34,7 @@
 			<div class="two_tg">
 				<div class="tow_input">
 					@php
+						$str='';
 						if(isset($_SERVER['HTTP_REFERER'])){
 							if(str_contains($_SERVER['HTTP_REFERER'], 'from_viewuser_vvip')){
 								$str='&from_viewuser_vvip_page=1';
