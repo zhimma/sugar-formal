@@ -6,6 +6,7 @@ use App\Models\Blocked;
 use App\Models\Message;
 use Illuminate\Support\Facades\DB;
 use Livewire\Component;
+use App\Services\AdminService;
 
 class ChatShowContent extends Component
 {
@@ -36,15 +37,20 @@ class ChatShowContent extends Component
         $isBlurAvatar = $this->isBlurAvatar;
         $isVip = $this->isVip;
         $showSlide = $this->showSlide;
+        $admin_id = AdminService::checkAdmin()->id;
 
         if(Blocked::isBlocked($to->id, auth()->user()->id)) {
             $blockTime = Blocked::getBlockTime($to->id, auth()->user()->id);
             //用model會抓不到unsend欄位 所以這邊用DB來抓
-            $messages = DB::table('message')->where(function($q)use($to){$q->where([['to_id', $to->id],['from_id', auth()->user()->id],['created_at', '<=', $blockTime->created_at]])->orWhere([['from_id', $to->id],['to_id', auth()->user()->id]]);})
+            $messages = DB::table('message')->where(function($q)use($to,$admin_id){$q->where([['to_id', $to->id],['to_id', '!=', $admin_id],['from_id', auth()->user()->id],['created_at', '<=', $blockTime->created_at]])->orWhere([['from_id', $to->id],['from_id', '!=',$admin_id],['to_id', auth()->user()->id]])
+                ->orWhere([['to_id', auth()->user()->id], ['from_id',$admin_id],['chat_with_admin',1]])
+                ->orWhere([['from_id', auth()->user()->id], ['to_id', $admin_id],['chat_with_admin',1]]);})
                 ->distinct()->orderBy('created_at', 'desc');
         }else{
             //用model會抓不到unsend欄位 所以這邊用DB來抓
-            $messages = DB::table('message')->where(function($q)use($to){$q->where([['to_id', $to->id],['from_id', auth()->user()->id]])->orWhere([['from_id', $to->id],['to_id', auth()->user()->id]]);})
+            $messages = DB::table('message')->where(function($q)use($to,$admin_id){$q->where([['to_id', $to->id],['to_id','!=' ,$admin_id],['from_id', auth()->user()->id]])->orWhere([['from_id', $to->id],['from_id','!=', $admin_id],['to_id', auth()->user()->id]])
+                ->orWhere([['to_id', auth()->user()->id], ['from_id',$admin_id],['chat_with_admin',1]])
+                ->orWhere([['from_id', auth()->user()->id], ['to_id', $admin_id],['chat_with_admin',1]]);})
                 ->distinct()->orderBy('created_at', 'desc');
 
         }
