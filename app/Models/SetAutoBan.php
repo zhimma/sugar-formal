@@ -603,14 +603,14 @@ class SetAutoBan extends Model
         return SetAutoBan::where('type', $type)->get();
     }
 
-    public static function retriveGroupAndCheck($typeArr, $email){
+    public static function retriveGroupAndCheck($typeArr, $email, $get_remote_ip){
         $set_auto_ban_list_by_type =  DB::table('set_auto_ban')->leftJoin('users','users.id','=','set_auto_ban.cuz_user_set')->whereIn('set_auto_ban.type', $typeArr)->whereNull('set_auto_ban.deleted_at')->get()->toArray();
 
         $checkStatus=false;
 
         $user = User::where('email', $email)->first();
 
-        $get_remote_ip = SetAutoBan::getRemoteIp();
+        // $get_remote_ip = SetAutoBan::getRemoteIp();
         foreach($set_auto_ban_list_by_type as $row){
  
             if($row->type=='ip'){
@@ -648,7 +648,6 @@ class SetAutoBan extends Model
         } else {
             $ip = $_SERVER['REMOTE_ADDR'];
         }
-
         return $ip;
     }
     /**
@@ -944,7 +943,7 @@ class SetAutoBan extends Model
             return $ban_list;
     }
 
-    public static function local_machine_ban_and_warn_check($email, $probing = false)
+    public static function local_machine_ban_and_warn_check($email, $ip, $probing = false)
     {
         $user = User::where('email', $email)->first();
         
@@ -957,7 +956,7 @@ class SetAutoBan extends Model
             return [];
         }
 
-        $status = SetAutoBan::retriveGroupAndCheck(['ip','name','email','title'], $email);
+        $status = SetAutoBan::retriveGroupAndCheck(['ip','name','email','title'], $email, $ip);
 
         return $status;
     }
