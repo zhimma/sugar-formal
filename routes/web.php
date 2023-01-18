@@ -1152,7 +1152,11 @@ Route::group(['middleware' => ['auth', 'global', 'active', 'femaleActive', 'vipC
         Route::get('users/video_chat_verify_record', 'VideoChatController@video_chat_verify_record')->name('users/video_chat_verify_record');
 
         Route::get('users/video_chat_get_users', 'VideoChatController@video_chat_get_users')->name('users/video_chat_get_users');
-
+        
+        Route::post('users/video_chat_verify_record_save', 'VideoChatController@video_chat_verify_record_save')->name('users/video_chat_verify_record_save');
+        
+        Route::post('users/video_chat_memo_save', 'VideoChatController@video_chat_memo_save')->name('users/video_chat_memo_save');
+        Route::post('users/user_question_into_chat_time_save', 'VideoChatController@user_question_into_chat_time_save')->name('users/user_question_into_chat_time_save');
         Route::get("stat_test", 'Api\MailController@test_stat');
 
         Route::get("jsfp_pro_validation", function() {
