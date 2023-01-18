@@ -5151,6 +5151,11 @@ class PagesController extends BaseController
         if(!$request->session()->get('message') && $rap_service->isInRealAuthProcess() && $user->isAdvanceAuth()) {
             $rap_service->applyRealAuthByReq($request);
             $users = DB::table('role_user')->leftJoin('users', 'role_user.user_id', '=', 'users.id')->where('users.id', '<>', Auth::id())->get();
+            
+            if(!view()->shared('self_auth_video_allusers')) {
+                \View::share('self_auth_video_allusers',$users);
+            }            
+            
             $success_msg = $rap_service->getSelfAuthApplyMsgBeforeVideo();
             $request->session()->flash('message', [$success_msg??null]);                        
         }        

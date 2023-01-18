@@ -40,7 +40,6 @@
             .video_status_text_show_elt {float:none !important;}
             #app,#app .btn-success {height:0 !important;width:0 !important;}
             #app {display:none !important;}
-            .video_status_online_intro,.video_status_offline_intro {display:none;}
             
         </style>        
         <script>
@@ -301,11 +300,10 @@
             </div>
             <a  onclick="gmBtn1()" class="bl_gb"><img src="/auth/images/gb_icon.png"></a>
         </div>
-
         @if($rap_service->isInRealAuthProcess() && $rap_service->isSelfAuthApplyNotVideoYet())
-        <div style="position:relative;" id="video_app_container">
-            <div id="app" style="display:none;">
-                <video-chat 
+        <div style="position:relative;" id="video_app_after_apply_container">
+            <div id="app_after_apply" style="display:none;">
+                <video-verify-user-after-apply 
                     :allusers="{{ $users }}" 
                     :authUserId="{{ auth()->id() }}" 
                     user_permission = "normal"
@@ -315,7 +313,7 @@
             </div>
         </div>
         </div>
-        @endif     
+        @endif 
 
         <script>
             $(function(){
@@ -365,7 +363,7 @@
     @if($rap_service->isInRealAuthProcess() && $rap_service->isSelfAuthApplyNotVideoYet())
         <script>
             let ice_servers;
-            async function kinesis_init()
+            async function kinesis_init_after_apply()
             {
                 // DescribeSignalingChannel API can also be used to get the ARN from a channel name.
                 const channelARN = 'arn:aws:kinesisvideo:ap-southeast-1:428876234027:channel/videos/1653476269290';
@@ -426,38 +424,14 @@
                 ice_servers = iceServers;
             }
 
-            kinesis_init().then(function(result){
-                $('#app video-chat').attr('ice_server_json',JSON.stringify(ice_servers));
+            kinesis_init_after_apply().then(function(result){
+                $('#app_after_apply video-verify-user-after-apply').attr('ice_server_json',JSON.stringify(ice_servers));
                 new Vue({
-                    el:'#app'
+                    el:'#app_after_apply'
                 });
             })
-            
-            setTimeout(change_video_status, 3000);
-            setInterval(change_video_status, 10000);
 
         tab01_n_left_onclick_str = $('#tab01 .n_bbutton .n_left').attr('onclick');
-        
-        function change_video_status() 
-        {
-            $('.video_status_text_show_elt').hide().removeAttr('id');
-            $('.video_status_init_intro').hide();
-            var tab01_n_left_elt = $('#tab01 .n_bbutton .n_left');
-            
-            if($('#app .btn-success').length) {
-                //$('.video_status_show_elt').show().attr('src','{{asset("/new/images/kai-1.png")}}');
-                $('.video_status_offline_intro').hide();
-                $('.video_status_online_intro').show();
-                
-                tab01_n_left_elt.attr('href',get_passed_real_auth_confirm_href()).attr('onclick','');
-            }
-            else {
-                //$('.video_status_show_elt').show().attr('src','{{asset("/new/images/guan.png")}}');
-                $('.video_status_offline_intro').show();
-                $('.video_status_online_intro').hide();
-                tab01_n_left_elt.removeAttr('href').attr('onclick',tab01_n_left_onclick_str);
-            }
-        } 
 
         function get_passed_real_auth_confirm_href()
         {

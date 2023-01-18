@@ -1,33 +1,116 @@
 <template>
   <div>
-    <div class="container">
-      <div class="row">
-        <div class="col">
-          <div class="btn-group" role="group" style="flex-wrap:wrap;display:inline-block;" v-for="user in allusers">
-            <button
-              type="button"
-              class="btn mr-2"
-              :key="user.id"
-              :class="generateBtnClass(getUserOnlineStatus(user.id))"
-              :style="generateBtnStyle(getUserOnlineStatus(user.id))"
-              @click="getUserOnlineStatus(user.id) ? placeVideoCall(user.id, user.name) : null"
-            >
-              {{ user.id }} {{ user.name }}
-              <span v-if=getUserOnlineStatus(user.id) class="badge badge-light">上線中</span>
-              <span v-else class="badge badge-light">下線</span>
-            </button>
-            <div style="text-align:center;">
-                <a             
-                target="_blank"
-                :href="generateBtnUserAdvInfoUrl(user.id)"  
-                :style="generateBtnStyle(getUserOnlineStatus(user.id))"
-                >{{ user.id }} {{ user.name }}</a>
-            </div>
-          </div>
-        </div>
-      </div>
+    <div class="container">  
+        <table class="display table cell-border" id="data-table">
+            <thead>
+                <tr>
+                    <th class="width2word">會員上線狀態</th>
+                    <th>暱稱</th>
+                    <th>關於我</th>
+                    <th>註冊時間</th>
+                    <th>申請類型</th>
+                    <th>申請日期</th>
+                    <th>驗證狀況</th>
+                    <th>通訊紀錄</th>
+                    <th>通訊主持人</th>
+                    <th>user提出問題</th>
+                    <th>清晰頭像設定</th>
+                    <th>清晰生活照設定</th>
+                    
+                    <th></th>
+                </tr>
+            </thead>
+            <tbody>
+                <tr  v-for="user,row_index in getUsers" :key="user.id">
+                    <td class="nowrap">
+                        <span v-if="getUserOnlineStatus(user.id)" class="badge badge-light">上線中</span>
+                        <span v-else-if="user.self_auth_apply.status==1 && user.self_auth_apply.from_auto==1"  class="badge badge-light">已本人認證</span>
+                        <span v-else-if="user.self_auth_apply.status==1"  class="badge badge-light">已認證</span>
+                        <span v-else class="badge badge-light">下線</span>                    
+                    </td>                    
+                    <td>
+                        <a :href="getAdvInfoRelativeUrl(user.id)" target="_blank">
+                        {{ user.name }}
+                        </a>
+                    </td>
+                    <td>{{ user.user_meta.about }}</td>
+                    <td  class="nowrap">{{ user.created_at.substring(0,10) }}</td>
+                    <td class="nowrap">{{ user.self_auth_apply.from_auto?'美顏':'本人'}}</td>
+                    <td class="nowrap">{{ user.self_auth_apply.created_at.substring(0,10)}}</td>                   
+                    <td class="nowrap">{{getSelfAuthStatusContent(user.self_auth_apply.status,user.self_auth_apply.latest_video_modify,user.self_auth_apply.from_auto)}}</td> 
+                    <td>
+                        <div class="video_record_list_item_block" v-for="record in user.video_verify_record">
+                            {{getVideoRecordContent(record)}}
+                        </div>
+                    </td>                       
+                    <td>
+                        <div class="video_admin_list_item_block" v-for="record in user.video_verify_record">
+                            {{record.admin_user==null?'未記錄':record.admin_user.email.substr(0,record.admin_user.email.indexOf('@'))}}
+                        </div>
+                    </td>
+                    <td>
+                        <div 
+                        :class="generateVideoUserQuestionColorClass(user.video_verify_memo?user.video_verify_memo.user_question_at:'',user.video_verify_memo?user.video_verify_memo.user_question_into_chat_at:'',user.video_verify_memo?user.video_verify_memo.user_question:'',user.self_auth_apply.status)" 
+                        ref="userQuestionShowBlock"
+                        >{{user.video_verify_memo!=null?user.video_verify_memo.user_question:''}}
+                        </div>
+                        <div class="video_user_question_edit_block" ref="userQuestionEditBlock">
+                            <textarea 
+                                :value="user.video_verify_memo!=null?user.video_verify_memo.user_question:''"   
+                                ref="userQuestionTextarea"></textarea>
+                            <button type="button" class="text-white btn btn-success" :key="user.id"  @click="saveUserQuestion(user.id,row_index)" >送出</button>
+                            <button type="button" class="text-white btn btn-danger" onclick="$(this).closest('td').children().hide();$(this).closest('td').find('.video_user_question_edit_btn_block,.video_user_question_show_block').show();">取消</button>
+                        </div>
+                        <div class="video_user_question_edit_btn_block" ref="userQuestionEditBtnBlock">
+                            <button v-if="user.self_auth_apply.status==0" type="button" class="text-white btn btn-primary" onclick="$(this).closest('td').find('textarea').css('height',Math.max($(this).closest('td').find('.video_user_question_show_block').height(),100));$(this).closest('td').children().hide();$(this).closest('td').find('.video_user_question_edit_block').show();">修改</button>
+                        </div>
+                    </td>
+                    <td class="nowrap">
+                        <div class="video_user_blurry_avatar_show_block" ref="blurryAvatarShowBlock">
+                        {{user.video_verify_memo==null?'':getBlurryContent(user.video_verify_memo.blurryAvatar)}}
+                        </div>
+                    </td>
+                    <td class="nowrap">
+                        <div class="video_user_blurry_life_photo_show_block" ref="blurryLifePhotoShowBlock">
+                        {{user.video_verify_memo==null?'':getBlurryContent(user.video_verify_memo.blurryLifePhoto)}}
+                        </div>                   
+                    </td>
+                    <td class="operator-col">
+                        <button
+                          type="button"
+                          class="btn mr-2"
+                          :key="user.id"
+                          :class="generateBtnClass(getUserOnlineStatus(user.id))"
+                          :style="generateBtnStyle(getUserOnlineStatus(user.id))"
+                          @click="getUserOnlineStatus(user.id) ? placeVideoCall(user) : null"
+                        >視訊</button> 
+                        <button 
+                          v-if="user.self_auth_apply.status==0 && authuserid==1049 && user.video_verify_memo && user.video_verify_memo.user_question"
+                          :class="generateAdminChatBtnClass(user.is_admin_chat_channel_open)"
+                          @click="isChat( user.id,row_index )">回覆問題</button>
+                    </td>
+                </tr>
+            </tbody>
+            <tfoot>
+                <tr>
+                    <th>會員上線狀態</th>
+                    <th>暱稱</th>
+                    <th>關於我</th>
+                    <th>註冊時間</th>
+                    <th>申請類型</th>
+                    <th>申請日期</th>
+                    <th>驗證狀況</th>
+                    <th>通訊紀錄</th>
+                    <th>通訊主持人</th>
+                    <th>user提出問題</th>
+                    <th>清晰頭像設定</th>
+                    <th>清晰生活照設定</th>                    
+                    <th></th>
+                </tr>
+            </tfoot>
+        </table>
       <!--Placing Video Call-->
-      <div class="row mt-5" id="video-row">
+      <div class="row mt-5" id="video-row"  v-if="callPlaced">       
         <div class="col-12 video-container" v-if="callPlaced">
           <video
             id="user_video_screen"
@@ -67,6 +150,53 @@
               </div>
             </div>
           </div>
+          <div v-if="videoCallParams.callAccepted" id="video_chat_user_setting_block">
+            <div id="user_question_edit_block_with_video">
+                <div class="video_memo_edit_title_block">user提出問題</div>
+                <div>
+                    <textarea
+                    v-model="videoChatUserQuestion"
+                    ref="videoChatUserQuestionTextarea"                
+                    ></textarea>
+                </div>
+            </div> 
+            <div>
+                <div class="video_memo_edit_title_block">清晰頭像設定</div>
+                <div>
+                    <label>
+                        <input v-model="videoChatPicBlurryAvatar" name="picBlurryAvatar" type="checkbox" value="VIP" >VIP
+                    </label>
+                </div>
+                <div>
+                    <label>
+                        <input v-model="videoChatPicBlurryAvatar" name="picBlurryAvatar" type="checkbox" value="general" >試用會員
+                    </label>
+                </div>
+                <div>
+                    <label>
+                        <input v-model="videoChatPicBlurryAvatar" name="picBlurryAvatar" type="checkbox" value="PR" >pr <input v-model="videoChatAvatarPrValue" type="number" name="avatar_pr_value" min="0" max="100" style="height: 22px;">
+                    </label>
+                </div>           
+            </div>
+            <div>
+                <div class="video_memo_edit_title_block">清晰生活照設定</div>
+                <div>
+                    <label>
+                        <input v-model="videoChatPicBlurryLifePhoto" name="picBlurryLifePhoto" type="checkbox" value="VIP" >VIP
+                    </label>
+                </div>
+                <div>
+                    <label>
+                        <input v-model="videoChatPicBlurryLifePhoto" name="picBlurryLifePhoto" type="checkbox" value="general" >試用會員
+                    </label>
+                </div>
+                <div>
+                    <label>
+                        <input v-model="videoChatPicBlurryLifePhoto" name="picBlurryLifePhoto" type="checkbox" value="PR" >pr <input v-model="videoChatLifePhotoPrValue"  type="number" name="life_photo_pr_value" min="0" max="100" style="height: 22px;">
+                    </label>
+                </div>           
+            </div>            
+          </div>
           <div class="action-btns">
             <button v-if="this.user_permission == 'admin'" type="button" class="btn btn-info" @click="toggleMuteAudio">
               {{ mutedAudio ? "關閉靜音" : "開啟靜音" }}
@@ -91,7 +221,7 @@
       <!-- End of Placing Video Call  -->
 
       <!-- Incoming Call  -->
-      <div class="row" v-if="incomingCallDialog">
+      <div class="row" id="video_income_call_dialog" v-if="incomingCallDialog">
         <div class="col">
           <p>
             來自 <strong>{{ callerDetails.id }} {{ callerDetails.name }} 的通話要求</strong>
@@ -117,6 +247,11 @@
       </div>
       <!-- End of Incoming Call  -->
     </div>
+   
+    <div class="video_chat_call_placed_mask_bg mask_bg" v-if=" callPlaced">
+    </div>
+    <div class="video_chat_incomingCallDialog_mask_bg mask_bg" v-if="incomingCallDialog">
+    </div>
     <div class="video_chat_mask_bg mask_bg">
         <div class="loading"><span class="loading_text">請稍等,正在上傳視訊<br><br>請勿重新整理<br>或離開本頁面</span></div>
     </div>
@@ -140,6 +275,7 @@
     </div>       
   </div>
 </template>
+
 <script>
 
     function log_video_chat_process(log_arr)
@@ -167,9 +303,16 @@ export default {
   ],
   data() {
     return {
+      userList:[],
       isFocusMyself: true,
       callPlaced: false,
       callPartner: null,
+      callUser:null,
+      videoChatUserQuestion:'',
+      videoChatPicBlurryAvatar:[],
+      videoChatPicBlurryLifePhoto:[],
+      videoChatAvatarPrValue : null,
+      videoChatLifePhotoPrValue : null,
       mutedAudio: false,
       mutedVideo: false,
       audioSet: false,
@@ -238,7 +381,6 @@ export default {
             $("#error_message").text('loading-video-page axios error:' + error);
           }); 
 
-
         var old_beforeunload = $('body').attr('onbeforeunload');
         if(old_beforeunload==undefined) old_beforeunload = '';
         $('body').attr('onbeforeunload','video_beforeunload_act();');
@@ -252,13 +394,30 @@ export default {
         log_arr.act_step = 'before';
         log_video_chat_process(log_arr);  
     this.initializeCallListeners(); // subscribes to video presence channel and listens to video events
+        $.noConflict();
+        
         log_arr.act = 'this.initializeCallListeners();';
         log_arr.act_step = 'after';
         log_arr.step='end';
         log_arr.title = 'end mounted@export default@VideoChat.vue';
         log_video_chat_process(log_arr);  
   },
-  computed: {
+  updated: function() {console.log('updated');console.log(this.userList);$('#data-table').DataTable().destroy();this.initDataTable(); },
+  computed: {  
+    getUsers() {
+        let now_vue = this;
+        
+        let userList = [];
+        if(now_vue.userList.length) {
+            userList = now_vue.userList;
+        }
+        else {
+            userList = now_vue.allusers;
+        }
+        console.log('getUsers userList：');
+        console.log(userList);
+        return userList;
+    },    
     incomingCallDialog() {
         var log_arr = {
             from_file:'VideoChat.vue'
@@ -315,9 +474,17 @@ export default {
         log_arr.act_step = 'before';
         log_video_chat_process(log_arr); 
         
-        const incomingCaller = this.allusers.filter(
+        let incomingCallerArr = this.allusers.filter(
           (user) => user.id === this.videoCallParams.caller
         );
+        
+        if(incomingCallerArr.length==0) {
+            incomingCallerArr = this.videoCallParams.users.filter(
+              (user) => user.id === this.videoCallParams.caller
+            );
+        }
+        
+        const incomingCaller = incomingCallerArr;
         
         log_arr.act_step = 'after';
         log_arr.step = 'end';
@@ -344,6 +511,59 @@ export default {
     },
   },
   methods: {
+    initDataTable() {
+        let table = $('#data-table').DataTable({
+            "order": [[6,'asc'],[ 0,'asc' ],[5,'desc']]
+          }); 
+        return table;
+    },
+  
+    getBlurryImgValue(img_type) {
+        let blurry_options = null;
+        let values = '';
+        let pr_value = 0;
+        switch(img_type) {
+            case 'avatar':
+                blurry_options = this.videoChatPicBlurryAvatar;
+                pr_value = this.videoChatAvatarPrValue;
+            break;
+            case 'pic':
+                blurry_options = this.videoChatPicBlurryLifePhoto;
+                pr_value = this.videoChatLifePhotoPrValue;
+            break;
+        }
+        console.log('blurry_options=');
+        console.log(blurry_options);
+        if(blurry_options==null) return;
+        if(pr_value=='' || pr_value==null || pr_value==undefined || !(pr_value===pr_value)) pr_value=0;
+        for (var i=0; i<blurry_options.length; ++i) {
+            let cur_option = blurry_options[i];
+            if(cur_option=='PR'){
+                values = values + cur_option +'_' + pr_value +',';          
+            }
+            else {
+                if(cur_option=='VIP') {
+                    values = cur_option +','+values  ;
+                }
+                else {
+                    if(values.indexOf('VIP')>=0) {
+                        values = values.replace('VIP','VIP,'+cur_option);
+                    }
+                    else {
+                        values = cur_option +','+values  ;
+                    }
+                }
+            }
+        }
+        values = values.replace(',,',',').replace(',,',',').replace(',,',',');
+        console.log('values='+values);
+        
+        return values;
+    }, 
+    updateUserList(new_value) {     
+        this.userList = new_value;
+    },
+  
     initializeChannel() {
         var log_arr = {
             from_file:'VideoChat.vue'
@@ -436,6 +656,7 @@ export default {
             ,step:'start'
             ,act:'this.videoCallParams.users = users;'
             ,act_step:'before'
+            ,data:{users:users}
         };
         log_video_chat_process(log_arr);             
         this.videoCallParams.users = users;
@@ -457,34 +678,47 @@ export default {
         };
         log_video_chat_process(log_arr);   
         // check user availability
+        let now_vue = this;
         await fetch('/admin/users/video_chat_get_users')
                 .then((response) => {
                     return response.json();
                      
                 })
                 .then((response)=>{
-                    this.allusers = response;
+                    var responseUserIndex = response.findIndex(
+                      function(data) {return data.id === user.id;}
+                    ); 
+                    
+                    if(responseUserIndex<0) return;
+                    
+                    
+                    
+                    let responseUser = response[responseUserIndex];
+                    
+                    
+                    var joiningUserIndex = now_vue.videoCallParams.users.findIndex(
+                      function(data) {return data.id === user.id;}
+                    );                    
+                    
+                   if (joiningUserIndex < 0) {
+                      now_vue.videoCallParams.users.push(responseUser);
+                    }  
+
+                    now_vue.userList = now_vue.allusers;
+
+                    var joiningUserIndexInList = now_vue.userList.findIndex(
+                      function(data) {return data.id === user.id;}
+                    );
+
+                    if(joiningUserIndexInList<0) {
+                        $('#data-table').DataTable().destroy();
+                        Vue.set(this, 'userList', response);
+                        now_vue.updateUserList(now_vue.userList);
+                    }                    
                 }
                
                );
 
-        var joiningUserIndex = this.videoCallParams.users.findIndex(
-          function(data) {return data.id === user.id;}
-        );
-        log_arr.step = 'ing';
-        log_arr.act_step = 'after';
-        log_arr.topic = 'if (joiningUserIndex < 0) ';
-        log_arr.topic_step = 'before';
-        log_arr.data = {joiningUserIndex:joiningUserIndex};
-        log_video_chat_process(log_arr);   
-        if (joiningUserIndex < 0) {
-          this.videoCallParams.users.push(user);
-        }
-        
-        this.videoCallParams.users.findIndex(
-          function(data) {return data.id === user.id;}
-        );
-        
         log_arr.topic_step = 'after';
         log_arr.act_step = log_arr.act  = '';
         log_arr.step = 'end';
@@ -547,6 +781,28 @@ export default {
           log_arr.topic='data.type === "incomingCall"';
           log_arr.topic_step='after true';
           log_video_chat_process(log_arr );          
+          
+          if(this.callPlaced==true ) {
+            
+            axios
+              .post("/video/decline-call", {
+                to: data.from,
+                verify_record_id:data.record_id
+              })
+              .then(() => {
+              })
+              .catch((error) => {
+                $("#error_message").text('decline axios error:' + error);
+              });             
+            
+            
+            alert('\n系統偵測到您正在視訊通話中，\n\n但此時有另一個會員('+data.from+')主動撥打視訊給站方，\n\n因此系統已自動回絕此會員的撥打來電，\n\n並且系統紀錄上將標註為站方未接。');
+            return;
+          }
+          
+          
+          window.sessionStorage.setItem('verify_record_id', data.record_id);
+          
           $.ajax({
             async:false,
             type:'get',
@@ -664,7 +920,9 @@ export default {
         log_video_chat_process(initializeCallListeners_log_arr);     
     },
 
-    async placeVideoCall(id, name) {
+    async placeVideoCall(user_obj) {
+        let id = user_obj.id;
+        let name = user_obj.name;
         var pvc_log_arr = {
             from_file:'VideoChat.vue'
             ,title:'start async placeVideoCall(id, name)@methods@export default@VideoChat.vue'
@@ -702,8 +960,44 @@ export default {
      
       this.callPlaced = true;
       this.callPartner = name;
+      this.callUser = user_obj;
       this.videoCallParams.dialingTo = id;
+      this.videoChatUserQuestion =  this.callUser.video_verify_memo!=null?this.callUser.video_verify_memo.user_question:'';
+      
+      let blurryAvatar = '';
+      let blurryAvatarChkStr = '';
+      let blurryLifePhoto = '';
+      let blurryLifePhotoChkStr = '';
+      
+      if(this.callUser.video_verify_memo!=null) {
+        blurryAvatar = this.callUser.video_verify_memo.blurryAvatar;
+        let underline_pos = blurryAvatar?blurryAvatar.indexOf('_'):-1;
+        if(underline_pos>=0) {
+            blurryAvatarChkStr = blurryAvatar.substr(0,underline_pos);
+            this.videoChatPicBlurryAvatar = blurryAvatarChkStr.split(',');
+            console.log(this.videoChatPicBlurryAvatar);
+            this.videoChatAvatarPrValue = blurryAvatar.replace(blurryAvatarChkStr+'_','').replace(',','');
+            console.log('this.videoChatAvatarPrValue='+this.videoChatAvatarPrValue);
+        }
+        else {
+            this.videoChatPicBlurryAvatar = blurryAvatar?blurryAvatar.split(','):[];
+        }
 
+        underline_pos = -1;
+        blurryLifePhoto = this.callUser.video_verify_memo.blurryLifePhoto;
+        underline_pos = blurryLifePhoto?blurryLifePhoto.indexOf('_'):-1;
+        if(underline_pos>=0) {
+            blurryLifePhotoChkStr = blurryLifePhoto.substr(0,underline_pos);
+            this.videoChatPicBlurryLifePhoto = blurryLifePhotoChkStr.split(',');
+            this.videoChatLifePhotoPrValue = blurryLifePhoto.replace(blurryLifePhotoChkStr+'_','').replace(',','');
+        }
+        else {
+            this.videoChatPicBlurryLifePhoto = blurryLifePhoto?blurryLifePhoto.split(','):[];
+        }    
+      }
+
+        $('.mask_bg').hide();
+        
         pvc_log_arr.act  ='await this.getMediaPermission();';
         pvc_log_arr.act_step = 'before'; 
         pvc_log_arr.topic = pvc_log_arr.topic_step = '';
@@ -778,13 +1072,17 @@ export default {
             //signal_data: JSON.stringify(data),
             signal_data: data,
             from: this.authuserid,
+            from_admin:1
           })
-          .then(() => {
+          .then((data) => {
+            window.sessionStorage.setItem('verify_record_id', data.data);
+
             var log_arr = {
                 from_file:'VideoChat.vue'
                 ,title:'then in this.videoCallParams.peer1.on("signal", (data) =>@async placeVideoCall(id, name)@methods@export default@VideoChat.vue'
                 ,method:'then@this.videoCallParams.peer1.on("signal", (data) =>@async placeVideoCall(id, name)@methods@export default'
                 ,step:'within'
+                ,data:data
             };
             log_video_chat_process(log_arr);                           
               
@@ -851,31 +1149,7 @@ export default {
             log_arr.title='after peer1 connected and this.user_permission == \'admin\' before ajax in this.videoCallParams.peer1.on("connect", () =>';
             log_arr.topic_step = 'after true';
             log_video_chat_process(log_arr);
-          
-          $.ajax({
-            type:'post',
-            url:'/admin/users/video_chat_verify_upload_init',
-            data:{
-              _token:this.csrf,
-              verify_user_id:id
-            },
-            success:function(data){
-                log_arr.title='after_success_ajax_this.videoCallParams.peer1.on("connect", () =>_in_VideoChat.vue';
-                log_arr.ajax_url = '/admin/users/video_chat_verify_upload_init';
-                log_arr.ajax_step='success_start';
-                log_arr.ajax_sdata=this.data;
-                log_arr.ajax_rdata=data;
-                log_video_chat_process(log_arr);            
-              window.sessionStorage.setItem('verify_record_id', data.record_id);
-            }
-            ,error:function(xhr) {
-                log_arr.title='after_error_ajax_this.videoCallParams.peer1.on("connect", () =>_in_VideoChat.vue';
-                log_arr.ajax_error = xhr;
-                log_arr.ajax_step='error';
-                log_video_chat_process(log_arr); 
-            }
-          });
-          
+
           log_arr.title='before this.startRecording() in this.videoCallParams.peer1.on("connect", () =>_in_VideoChat.vue';
             log_arr.act = 'this.startRecording();';
             log_arr.act_step = 'before';
@@ -972,14 +1246,7 @@ export default {
             ,method:'this.videoCallParams.peer1.on("close", () =>@async placeVideoCall(id, name)@methods@export default'
             ,step:'within'
         };
-        log_video_chat_process(log_arr);          
-        console.log("call closed caller");
-        console.log('this.isNormalStop=');
-        console.log(this.isNormalStop);
-        console.log('this.callPlaced=');
-        console.log(this.callPlaced);
-        console.log('this.videoCallParams.callAccepted=');
-        console.log(this.videoCallParams.callAccepted);         
+        log_video_chat_process(log_arr);                  
         if(this.isNormalStop!=true && this.callPlaced==true && this.isPeerError!=true && this.videoCallParams.callAccepted==true) {
             this.endCall();
         }
@@ -1118,7 +1385,57 @@ export default {
       
       this.callPlaced = true;
       this.videoCallParams.callAccepted = true;
+      let nowCallId = this.videoCallParams.caller;
+      let nowCallerDetail = null;
+      let callerUserIndex = this.allusers.findIndex(
+        (data) => data.id === nowCallId
+      ); 
+      if(callerUserIndex>=0) {
+        nowCallerDetail = this.allusers[callerUserIndex];
+      }
+      else {
+          callerUserIndex = this.videoCallParams.users.findIndex(
+            (data) => data.id === nowCallId
+          );
+          
+         if(callerUserIndex>=0) {
+            nowCallerDetail = this.videoCallParams.users[callerUserIndex];
+         }
+         else return;          
+      }
+     
+     this.videoChatUserQuestion = nowCallerDetail.video_verify_memo!=null?nowCallerDetail.video_verify_memo.user_question:'';
+      let blurryAvatar = '';
+      let blurryAvatarChkStr = '';
+      let blurryLifePhoto = '';
+      let blurryLifePhotoChkStr = '';
       
+      if(nowCallerDetail.video_verify_memo!=null) {
+        blurryAvatar = nowCallerDetail.video_verify_memo.blurryAvatar;
+        let underline_pos = blurryAvatar?blurryAvatar.indexOf('_'):-1;
+        if(underline_pos>=0) {
+            blurryAvatarChkStr = blurryAvatar.substr(0,underline_pos);
+            this.videoChatPicBlurryAvatar = blurryAvatarChkStr.split(',');
+            console.log(this.videoChatPicBlurryAvatar);
+            this.videoChatAvatarPrValue = blurryAvatar.replace(blurryAvatarChkStr+'_','').replace(',','');
+            console.log('this.videoChatAvatarPrValue='+this.videoChatAvatarPrValue);
+        }
+        else {
+            this.videoChatPicBlurryAvatar = blurryAvatar?blurryAvatar.split(','):[];
+        }
+
+        underline_pos = -1;
+        blurryLifePhoto = nowCallerDetail.video_verify_memo.blurryLifePhoto;
+        underline_pos = blurryLifePhoto?blurryLifePhoto.indexOf('_'):-1;
+        if(underline_pos>=0) {
+            blurryLifePhotoChkStr = blurryLifePhoto.substr(0,underline_pos);
+            this.videoChatPicBlurryLifePhoto = blurryLifePhotoChkStr.split(',');
+            this.videoChatLifePhotoPrValue = blurryLifePhoto.replace(blurryLifePhotoChkStr+'_','').replace(',','');
+        }
+        else {
+            this.videoChatPicBlurryLifePhoto = blurryLifePhoto?blurryLifePhoto.split(','):[];
+        } 
+      }
         ac_log_arr.act  ='await this.getMediaPermission();';
         ac_log_arr.act_step = 'before'; 
         ac_log_arr.topic = ac_log_arr.topic_step = '';
@@ -1195,6 +1512,7 @@ export default {
             //signal: JSON.stringify(data),
             signal: data,
             to: this.videoCallParams.caller,
+            verify_record_id:window.sessionStorage.getItem('verify_record_id')
           })
           .then(() => {
             var log_arr = {
@@ -1271,7 +1589,7 @@ export default {
           log_arr.ajax_step = 'before'          
           log_arr.ajax_sdata = {
               _token:this.csrf,
-              verify_user_id:this.videoCallParams.caller
+              verify_user_id:this.videoCallParams.caller            
             };
           log_arr.title = 'after peer2 connected and this.user_permission == \'admin\' before ajax in this.videoCallParams.peer2.on("connect", () =>';
           log_video_chat_process(log_arr);
@@ -1281,7 +1599,9 @@ export default {
             url:'/admin/users/video_chat_verify_upload_init',
             data:{
               _token:this.csrf,
-              verify_user_id:this.videoCallParams.caller
+              verify_user_id:this.videoCallParams.caller,
+              verify_record_id:window.sessionStorage.getItem('verify_record_id')
+              
             },
             success:function(data){
                 log_arr.act = 'window.sessionStorage.setItem(\'verify_record_id\', data.record_id);';
@@ -1408,14 +1728,7 @@ export default {
             ,step:'within'
         };
         log_video_chat_process(log_arr);          
-        
-        console.log("call closed accepter");
-        console.log('this.isNormalStop=');
-        console.log(this.isNormalStop);
-        console.log('this.callPlaced=');
-        console.log(this.callPlaced);
-        console.log('this.videoCallParams.callAccepted=');
-        console.log(this.videoCallParams.callAccepted);        
+             
         if(this.isNormalStop!=true && this.callPlaced==true && this.isPeerError!=true && this.videoCallParams.callAccepted==true) {
             this.endCall();
         }
@@ -1485,7 +1798,7 @@ export default {
       log_video_chat_process(tca_log_arr);  
     },
 
-    getUserOnlineStatus(id) {
+    getUserOnlineStatus(id) { 
       const onlineUserIndex = this.videoCallParams.users.findIndex(
         (data) => data.id === id
       );
@@ -1495,6 +1808,111 @@ export default {
       return true;
     },
 
+    getSelfAuthStatusContent(status,latest_video_modify,from_auto) {
+        let content = '';
+        if(status==1) {
+            if(from_auto==1) content = '已本人認證';
+            else content = '已認證';
+        }
+        else if(status==2) content = '已取消';
+        else if(latest_video_modify!=null && latest_video_modify!=undefined) {
+            content = '已視訊';
+        }
+        else if(status==0) {
+            content = '尚未';
+        }
+        
+        return content;
+    },
+
+    getVideoRecordContent(record) {
+        let content = '';
+        let status_str = '';
+        let rd_created_at = record.created_at;
+         rd_created_at   = new Date(rd_created_at);
+
+        content+=(rd_created_at.getMonth() + 1).toString().padStart(2, '0')+'_'+rd_created_at.getDate().toString().padStart(2, '0')+'_'+rd_created_at.getHours().toString().padStart(2, '0')+'_'+rd_created_at.getMinutes().toString().padStart(2, '0');
+
+        switch (record.admin_last_action) {
+            case 'upload_complete':
+                status_str = '順利結束';
+                break;
+            case 'upload_user_video':
+                status_str = '僅存會員視訊';
+                break;
+            case 'upload_admin_video':
+                status_str = '僅存站方視訊';
+                break;
+        } 
+
+        let last_role = '';
+        let last_action = '';
+
+        if(status_str=='') {
+            if(record.admin_last_action_at >= record.user_last_action_at) {
+                last_role = 'admin';
+                last_action = record.admin_last_action;
+            }
+            else {
+                last_role = 'user';
+                last_action = record.user_last_action;            
+            }
+            
+            if(last_action=='' || last_action==null) {
+                if(record.admin_video!='' && record.admin_video!=null && record.user_video!='' && record.user_video!=null) {
+                    status_str = '順利結束';
+                }
+                else {
+                    switch(record.is_caller_admin) {
+                        case 0:
+                            status_str = '站方未接';
+                        break;
+                        case 1:
+                            status_str = '會員未接';
+                        break;
+                    }                
+                }
+            
+
+            }
+            
+            if(status_str=='') {
+            
+                if(last_action=='declineCall') {
+                    status_str = last_role.replace('admin','站方').replace('user','會員')+'拒接';
+                }
+                if(last_action=='callAccepted') {
+                    status_str = '通話中或已中斷';
+                }
+            }
+            
+            if(status_str=='') {
+                status_str = '已中斷';
+            }
+            
+            content = content + status_str;
+
+            return content;
+        }
+        
+        if(status_str=='') {
+            status_str = '已中斷';
+        }
+        
+        content+=status_str;
+        return content;
+    },
+    
+    getBlurryContent(blurry) {
+        if(blurry==undefined || blurry==null) return;
+       
+        return blurry.replace('general','試用會員');
+    },
+
+    getAdvInfoRelativeUrl(id) {
+        return './advInfo/'+id;
+    },
+    
     declineCall() {
         var dc_log_arr = {
             from_file:'VideoChat.vue'
@@ -1512,6 +1930,7 @@ export default {
         axios
           .post("/video/decline-call", {
             to: this.videoCallParams.caller,
+            verify_record_id:window.sessionStorage.getItem('verify_record_id')
           })
           .then(() => {
             var log_arr = {
@@ -1644,7 +2063,7 @@ export default {
             ,step:'start'
             ,act:'const tracks = stream.getTracks();tracks.forEach((track) => {track.stop();});'
             ,act_step:'before'
-            ,data:{videoElem:videoElem,stream:videoElem.srcObject,tracks:videoElem.srcObject.getTracks()}
+            ,data:{videoElem:videoElem!=undefined?videoElem:null,stream:videoElem!=undefined?videoElem.srcObject:null,tracks:videoElem!=undefined?videoElem.srcObject.getTracks():null}
         };
       log_video_chat_process(ssv_log_arr);
       
@@ -1686,6 +2105,10 @@ export default {
             ,data:{}
         };
         log_video_chat_process(ec_log_arr); 
+      
+      if(window.sessionStorage.getItem('verify_record_id'))
+            this.saveUserMemoWithoutRenewByRecordId(window.sessionStorage.getItem('verify_record_id'));
+      
       if(this.isPeerError!=true && this.isNormalStop!=true) {
           $('.mask_bg').hide();
           $('.video_chat_mask_bg').show();
@@ -1736,8 +2159,6 @@ export default {
             ec_log_arr.act_step = 'after catch error';
             ec_log_arr.data = {e:e,e_toString:e.toString()};
             log_video_chat_process(ec_log_arr);            
-            
-            console.log('peer has destroy');
 
             if(this.videoCallParams.dialingTo!=null) {
                 axios
@@ -1786,7 +2207,6 @@ export default {
             ec_log_arr.act_step = 'after catch error';
             ec_log_arr.data = {e:e,e_toString:e.toString()};
             log_video_chat_process(ec_log_arr);
-          console.log('peer has destroy');
 
             if(this.videoCallParams.dialingTo!=null) {
                 axios
@@ -1905,7 +2325,32 @@ export default {
     
     generateBtnUserAdvInfoUrl(userid) {
         return './advInfo/'+userid;
-    },    
+    },
+
+    generateAdminChatBtnClass(is_admin_chat_channel_open) {
+      let color_class = '';
+      if(is_admin_chat_channel_open){
+        color_class =  'btn-success';
+      }
+      else{
+        color_class =  'btn-danger'
+      }
+      
+      return 'btn '+color_class+' message_record_btn';
+    }, 
+
+    generateVideoUserQuestionColorClass(user_question_at,into_chat_at,user_question,status) {
+        let color_class = '';
+        let base_class = 'video_user_question_show_block ';
+        if(status!=0) return base_class;
+        if(user_question=='' || user_question==undefined || user_question==null) return base_class;
+        if(into_chat_at==null || into_chat_at==undefined || into_chat_at=='' || user_question_at>into_chat_at) {
+            color_class = 'not_into_chat_yet';
+        }
+         
+        return base_class+color_class;
+        
+    } ,  
 
     //video record
     startRecording() {
@@ -1983,8 +2428,7 @@ export default {
         console.error('Exception while creating MediaRecorder:', e);
         return;
       }
-      console.log('Created MediaRecorder', this.mediaRecorder, 'with options', options);
-      console.log('Created MediaRecorder2', this.mediaRecorder2, 'with options', options);
+      
       this.mediaRecorder.onstop = (event) => {
         
         var mros_log_arr = {
@@ -1995,10 +2439,7 @@ export default {
             ,act:"this.downloadRecording(this.recordedBlobs,'partner');"
             ,act_step:'before'
         };
-        log_video_chat_process(mros_log_arr);
-        
-        console.log('Recorder stopped: ', event);
-        console.log('Recorded Blobs: ', this.recordedBlobs);
+        log_video_chat_process(mros_log_arr);        
         
         this.downloadRecording(this.recordedBlobs,'partner');
       
@@ -2018,10 +2459,7 @@ export default {
             ,act_step:'before'
         };
         log_video_chat_process(mr2os_log_arr);
-        
-        console.log('Recorder2 stopped: ', event);
-        console.log('Recorded Blobs2: ', this.recordedBlobs2);
-        
+
         this.downloadRecording(this.recordedBlobs2,'user');
       
         mr2os_log_arr.act_step = 'after success';
@@ -2041,9 +2479,7 @@ export default {
             ,data:{event:event,event_data:event.data}
         };
         log_video_chat_process(mroda_log_arr);
-        
-        console.log('handleDataAvailable', event);
-        
+
         if (event.data && event.data.size > 0) {
         
           mroda_log_arr.topic_step = 'after success';
@@ -2074,8 +2510,7 @@ export default {
             ,data:{event:event,event_data:event.data}
         };
         log_video_chat_process(mr2oda_log_arr);
-        
-        console.log('handleDataAvailable2', event);
+
         if (event.data && event.data.size > 0) {
           mr2oda_log_arr.topic_step = 'after success';
           mr2oda_log_arr.step = 'ing';
@@ -2112,9 +2547,6 @@ export default {
       sr_log_arr.act_step = 'after';
       sr_log_arr.step = 'end';
       log_video_chat_process(sr_log_arr);
-      
-      console.log('MediaRecorder started', this.mediaRecorder);
-      console.log('MediaRecorder2 started', this.mediaRecorder2);
     },
 
     stopRecording() {
@@ -2156,7 +2588,7 @@ export default {
       log_video_chat_process(dlr_log_arr);  
       dlr_log_arr.step = 'ing';
       
-      let verify_record_id = window.sessionStorage.getItem('verify_record_id')
+      let verify_record_id = window.sessionStorage.getItem('verify_record_id');
       let time = Date.now();
       let file_name = 'video';
       switch (who)
@@ -2175,6 +2607,10 @@ export default {
       formData.append('who', who);
       formData.append('verify_record_id', verify_record_id);
       formData.append( "_token", this.csrf );
+      if(this.videoChatUserQuestion==null || this.videoChatUserQuestion==undefined) this.videoChatUserQuestion='';
+      formData.append( "user_question",this.videoChatUserQuestion);
+      formData.append( "blurryAvatar",this.getBlurryImgValue('avatar'));
+      formData.append( "blurryLifePhoto",this.getBlurryImgValue('pic'));
       const formDataObj = {};
       
       formData.forEach((value, key) => (formDataObj[key] = value));
@@ -2422,6 +2858,81 @@ export default {
               });
       });
     },
+    
+    updateUserMemoByRowIndex(memo,row_index) {
+        let memo_obj = memo;
+        let old_arr = this.userList;
+        if(old_arr.length==0) old_arr=this.allusers;
+        let temp_arr = old_arr.splice(row_index,old_arr.length-1);
+        let cur_arr = temp_arr.shift();
+        cur_arr.video_verify_memo = memo_obj;
+        temp_arr.unshift(cur_arr);
+        this.updateUserList(old_arr.concat(temp_arr));    
+    },
+    
+    saveUserMemoWithoutRenewByRecordId(verify_record_id) {
+      let vue_obj = this;
+      let saveData = {};
+      saveData['_token'] = vue_obj.csrf;
+      saveData['verify_record_id'] = verify_record_id;
+      if(this.videoChatUserQuestion==null || this.videoChatUserQuestion==undefined) this.videoChatUserQuestion='';
+      saveData['user_question'] = this.videoChatUserQuestion;
+      saveData['blurryAvatar'] = this.getBlurryImgValue('avatar');
+      saveData['blurryLifePhoto'] = this.getBlurryImgValue('pic');
+
+          $.ajax({
+            type:'post',
+            url:'/admin/users/video_chat_memo_save',
+            data:saveData,
+          });       
+    },
+  
+    saveUserQuestion(verify_user_id,row_index) {
+          let vue_obj = this;
+          
+          $.ajax({
+            type:'post',
+            url:'/admin/users/video_chat_memo_save',
+            data:{
+              _token:vue_obj.csrf
+              ,verify_user_id:verify_user_id
+              ,user_question:vue_obj.$refs.userQuestionTextarea[row_index].value
+              
+            },
+            success:function(data){
+                vue_obj.updateUserMemoByRowIndex(data.memo,row_index);
+
+                vue_obj.$refs.userQuestionShowBlock[row_index].style="display:block;";
+                vue_obj.$refs.userQuestionEditBlock[row_index].style="display:none;";
+                vue_obj.$refs.userQuestionEditBtnBlock[row_index].style="display:block;";
+           }
+            ,error:function(xhr) {
+
+            }
+          });    
+    },
+   
+    isChat(id,row_index) {
+        window.open('/admin/users/message/record/' + id + '?from_videoChat=1');
+        let csrf_token = this.csrf;
+        let vue_obj = this;
+        
+        $.ajax({
+            type: 'POST',
+            url: '/admin/users/user_question_into_chat_time_save',
+            data:{
+                _token: csrf_token,
+                verify_user_id: id,
+            },
+            dataType:"json",
+            success: function(data){
+                if(data==null || data=='' || data==undefined || data.memo==null || data.memo==undefined) return;
+                vue_obj.updateUserMemoByRowIndex(data.memo,row_index);
+            }
+        });
+        
+    }
+  
   },
 };
 </script>
@@ -2430,6 +2941,7 @@ export default {
 #video-row {
   width: 700px;
   max-width: 90vw;
+  padding-top:100px;
 }
 
 #incoming-call-card {
@@ -2527,5 +3039,5 @@ export default {
         color: #f14a6c;
         z-index:35;
         letter-spacing:1em;
-    } 
+    }
 </style>

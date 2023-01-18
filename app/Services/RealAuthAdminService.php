@@ -174,6 +174,35 @@ class RealAuthAdminService {
                             $apply_entry->video_modify_id = $apply_entry->latest_working_video_modify->id??null;
                             if(!($b_auth_reply_auto_new_modify??null)) $apply_entry->reply_modify_id = $apply_entry->latest_working_reply_modify->id??null;
                             $apply_entry->save();                    
+                            
+                            if($auth_type_id == 1) {
+                                $meta = $this->user()->meta;
+                                $video_verify_memo_entry = $this->user()->video_verify_memo; 
+                                if($meta) {
+                                    if($video_verify_memo_entry && $video_verify_memo_entry->blurryLifePhoto) {
+                                        $meta->blurryLifePhoto = $video_verify_memo_entry->blurryLifePhoto;
+                                    }
+                                    else {
+                                        $meta->blurryLifePhoto = 'VIP,general,';
+                                    }
+                                    
+                                    if($video_verify_memo_entry && $video_verify_memo_entry->blurryAvatar) {
+                                        $meta->blurryAvatar = $video_verify_memo_entry->blurryAvatar;
+                                    }
+                                    else {
+                                        $meta->blurryAvatar = 'VIP,general,';
+                                    }
+                                    
+                                    $meta->save();
+                                }
+                                $tag = $this->user()->self_auth_tags_display;
+                                if($tag) {
+                                    $tag->vip_show = 0;
+                                    $tag->more_than_pr_show = NULL;
+                                    $tag->save();
+                                }
+                            }
+                                                  
                         break;
                         case 2:
                             $apply_entry->unchecked_modify()->update(['status'=>2,'status_at'=>Carbon::now()]);                   
@@ -183,21 +212,7 @@ class RealAuthAdminService {
                     }
                 }
             }
-            if($auth_type_id == 1) {
-                $meta = $this->user()->meta;
-                if($meta) {
-                    $meta->blurryLifePhoto = 'VIP,general,';
-                    $meta->blurryAvatar = 'VIP,general,';
-                    $meta->save();
-                }
-                $tag = $this->user()->self_auth_tags_display;
-                if($tag) {
-                    $tag->vip_show = 0;
-                    $tag->more_than_pr_show = NULL;
-                    $tag->save();
-                }
-            }
-        }
+       }
         
         return $rs;
     }  

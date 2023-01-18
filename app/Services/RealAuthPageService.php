@@ -6,6 +6,7 @@ use Illuminate\Database\Eloquent\Collection;
 use Illuminate\Support\Carbon;
 use Illuminate\Support\Collection as SupportCollection;
 use Illuminate\Support\Facades\Log;
+use Illuminate\Support\Facades\DB;
 use \FileUploader;
 
 class RealAuthPageService {
@@ -322,29 +323,12 @@ class RealAuthPageService {
         else if($real_auth==2) {
             $start_msg_str = '還差一點！只剩最後兩個步驟即可完成美顏認證：視訊驗證和填寫美顏認證表。';
         }
-        
+        $users = DB::table('role_user')->leftJoin('users', 'role_user.user_id', '=', 'users.id')->where('users.id', '<>', auth()->id())->get();
         return $start_msg_str.' 
                     <br>
-                    <div class="video_status_init_intro">
-                    <span class="video_status_text_show_elt">
-                    <a href="'.url('user_video_chat_verify').'">
-                    前往視訊頁面
-                    </a>
-                    </span>
-                    </div>
-                    <div class="video_status_online_intro">
-                      
-                        <a href="'.url('user_video_chat_verify').'" style="color:#e44e71;">
-                            
-                            請點此立即進行視訊驗證！
-                        </a>
-                        
-                    </div>
-                    <div class="video_status_offline_intro">
-                    但很抱歉可提供視訊審核的站方人員不在線，
-                    您可以隨時在<a href="'.url('/dashboard/personalPage').'">專屬頁面</a>查看，
-                    若審核人員在線，
-                    會顯示 <img src="'.asset('/new/images/kai-1.png').'" class="center line_notify video_status_show_elt" style="height: 30px;">您可以隨時進行驗證。</div>
+        <div class="self_auth_msg_before_video">
+
+        </div>
                     <br>
                         ';
     }
@@ -442,7 +426,6 @@ class RealAuthPageService {
     public function saveVideoRecordId($vrid) 
     {
         $self_auth_apply_entry = $this->getApplyByAuthTypeId(1);
-
         $latest_vmodify = $self_auth_apply_entry->latest_working_video_modify;
         
         if($latest_vmodify)

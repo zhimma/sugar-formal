@@ -43,6 +43,8 @@ use Illuminate\Support\Facades\Cache;
 use Tymon\JWTAuth\Contracts\JWTSubject;
 use Outl1ne\ScoutBatchSearchable\BatchSearchable;
 use App\Models\UserRemarksLog;
+use App\Models\UserVideoVerifyRecord;
+use App\Models\UserVideoVerifyMemo;
 
 class User extends Authenticatable implements JWTSubject
 {
@@ -394,7 +396,7 @@ class User extends Authenticatable implements JWTSubject
     {
         return $this->hasOne(RealAuthUserApply::class,'user_id','id')
                 ->where('auth_type_id',1)
-                ->orderByDesc('id')->take(1);
+                ->latest();
     }
     
     public function self_auth_unchecked_apply() 
@@ -403,15 +405,24 @@ class User extends Authenticatable implements JWTSubject
         return $this->hasOne(RealAuthUserApply::class,'user_id','id')
                 ->where('auth_type_id',1)
                 ->where(function($q) {$q->whereNull('status')->orWhere('status','!=',1);})
-                ->orderByDesc('id')->take(1);
+                ->latest();
     }
     
+    public function video_verify_record() 
+    {
+        return $this->hasMany(UserVideoVerifyRecord::class,'user_id','id');
+    }     
     
+    public function video_verify_memo() 
+    {
+        return $this->hasOne(UserVideoVerifyMemo::class,'user_id','id');
+    }  
+ 
     public function beauty_auth_apply() 
     {
         return $this->hasOne(RealAuthUserApply::class,'user_id','id')
                 ->where('auth_type_id',2)
-                ->orderByDesc('id')->take(1);
+                ->latest();
     }    
     
     public function beauty_auth_unchecked_apply() 
@@ -420,14 +431,14 @@ class User extends Authenticatable implements JWTSubject
         return $this->hasOne(RealAuthUserApply::class,'user_id','id')
                 ->where('auth_type_id',2)
                 ->where(function($q) {$q->whereNull('status')->orWhere('status','!=',1);})
-                ->orderByDesc('id')->take(1);
+                ->latest();
     }
     
     public function famous_auth_apply() 
     {
         return $this->hasOne(RealAuthUserApply::class,'user_id','id')
                 ->where('auth_type_id',3)
-                ->orderByDesc('id')->take(1);
+                ->latest();
     }     
 
     public function famous_auth_unchecked_apply() 
@@ -435,7 +446,7 @@ class User extends Authenticatable implements JWTSubject
         return $this->hasOne(RealAuthUserApply::class,'user_id','id')
                 ->where('auth_type_id',3)
                 ->where(function($q) {$q->whereNull('status')->orWhere('status','!=',1);})
-                ->orderByDesc('id')->take(1);
+                ->latest();
     } 
     
     public function real_auth_user_modify() 

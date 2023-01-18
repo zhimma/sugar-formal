@@ -51,8 +51,8 @@
       <!-- Incoming Call  -->
       <div class="row" v-if="incomingCallDialog">
         <div class="col">
-          <p>
-            來自 <strong>{{ callerDetails.id }} {{ callerDetails.name }} 的通話要求</strong>
+          <p style="margin-bottom:10px;">
+            {{authuser.name}}您好，您在{{authuser.self_auth_unchecked_apply.created_at.substr(0,10)}}時於本站申請 本人認證。現站方人員將與您進行視訊驗證，約需時3 分鐘。謝謝。
           </p>
           <div class="btn-group" role="group">
             <button
@@ -90,9 +90,9 @@
     </div>  
   </div>
 </template>
-<script>
+<script  type="application/javascript">
 
-    function log_video_chat_process(log_arr)
+    function log_video_chat_process_entire_site(log_arr)
     {
         log_arr['url'] = location.href;
 
@@ -112,6 +112,7 @@ export default {
   props: [
     "allusers",
     "authuserid",
+    "authuser",
     "user_permission",
     "is_user_allow_video_chat",
     "ice_server_json",
@@ -151,7 +152,7 @@ export default {
   },
 
   mounted() {
-
+        if(this.is_user_allow_video_chat!=true && this.is_user_allow_video_chat!=1)  return;
 
         axios
           .post("/video/loading-video-page", {from_file:'VideoVerifyUserEntireSite.vue'})
@@ -165,7 +166,7 @@ export default {
                 ,step:'within'
                 ,data:{error:error}
             };
-            log_video_chat_process(log_arr);    
+            log_video_chat_process_entire_site(log_arr);    
 
             $("#error_message").text('loading-video-page axios error:' + error);
           }); 
@@ -173,7 +174,8 @@ export default {
 
         var old_beforeunload = $('body').attr('onbeforeunload');
         if(old_beforeunload==undefined) old_beforeunload = '';
-        $('body').attr('onbeforeunload','video_beforeunload_act();');
+        else if(old_beforeunload!='') old_beforeunload+=';';
+        $('body').attr('onbeforeunload',old_beforeunload+'video_beforeunload_act_entire_site();');
         
     this.initializeChannel(); // this initializes laravel echo
 
@@ -226,7 +228,7 @@ export default {
                 ,authuserid:this.authuserid
             }
         };
-        log_video_chat_process(log_arr); 
+        log_video_chat_process_entire_site(log_arr); 
         
       if (
         this.videoCallParams.caller &&
@@ -237,7 +239,7 @@ export default {
         log_arr.title = 'ing callerDetails@computed@export default@VideoVerifyUserEntireSite.vue';
         log_arr.act = 'const incomingCaller = this.allusers.filter(';
         log_arr.act_step = 'before';
-        log_video_chat_process(log_arr); 
+        log_video_chat_process_entire_site(log_arr); 
         
         const incomingCaller = this.allusers.filter(
           (user) => user.id === this.videoCallParams.caller
@@ -250,7 +252,7 @@ export default {
           id: this.videoCallParams.caller,
           name: `${incomingCaller[0].name}`,
         };
-        log_video_chat_process(log_arr); 
+        log_video_chat_process_entire_site(log_arr); 
 
         return {
           id: this.videoCallParams.caller,
@@ -262,7 +264,7 @@ export default {
         log_arr.step = 'end';
         log_arr.title = 'return null  end callerDetails@computed@export default@VideoVerifyUserEntireSite.vue';
         log_arr.data = null;
-        log_video_chat_process(log_arr);       
+        log_video_chat_process_entire_site(log_arr);       
       
       return null;
     },
@@ -284,7 +286,7 @@ export default {
             ,method:'getMediaPermission@methods@export default'
             ,step:'start&end'
         };
-        log_video_chat_process(log_arr);  
+        log_video_chat_process_entire_site(log_arr);  
         
       return this.getPermissions()
         .then((stream) => {
@@ -296,31 +298,31 @@ export default {
                 ,act:'this.videoCallParams.stream = stream;'
                 ,act_step:'before'
             };
-            log_video_chat_process(log_arr); 
+            log_video_chat_process_entire_site(log_arr); 
             
           this.videoCallParams.stream = stream;
           
             log_arr.act_step = 'after';
-            log_video_chat_process(log_arr);             
+            log_video_chat_process_entire_site(log_arr);             
             log_arr.topic = 'if (this.$refs.userVideo)';
             log_arr.topic_step = 'before';
             log_arr.act_step = '';
             log_arr.act = '';
-            log_video_chat_process(log_arr);  
+            log_video_chat_process_entire_site(log_arr);  
           if (this.$refs.userVideo) {
             log_arr.topic_step = 'after true';
             log_arr.act_step = 'this.$refs.userVideo.srcObject = stream;';
             log_arr.act = 'before';
-            log_video_chat_process(log_arr);
+            log_video_chat_process_entire_site(log_arr);
             
             this.$refs.userVideo.srcObject = stream;
             
             log_arr.act = 'after';
-            log_video_chat_process(log_arr);  
+            log_video_chat_process_entire_site(log_arr);  
           }
           
           log_arr.step='end';
-          log_video_chat_process(log_arr);
+          log_video_chat_process_entire_site(log_arr);
         })
         .catch((error) => {
         
@@ -331,7 +333,7 @@ export default {
                 ,step:'within'
                 ,data:{error:error}
             };
-            log_video_chat_process(log_arr);  
+            log_video_chat_process_entire_site(log_arr);  
             
           console.log(error);
           $("#error_message").text(error);
@@ -397,8 +399,10 @@ export default {
           log_arr.ajax_sdata = {signal_data_id:data.signalData};
           log_arr.topic='data.type === "incomingCall"';
           log_arr.topic_step='after true';
-          log_video_chat_process(log_arr ); 
-           
+          log_video_chat_process_entire_site(log_arr ); 
+         
+          window.sessionStorage.setItem('verify_record_id', data.record_id);
+          console.log('window.sessionStorage.setItem='+data.record_id);
           $.ajax({
             async:false,
             type:'get',
@@ -408,7 +412,7 @@ export default {
             },
             success:function(s_data){
             
-              log_video_chat_process({
+              log_video_chat_process_entire_site({
                             title:'after_success_ajax_receive-call-user-signal-data_in_VideoVerifyUserEntireSite.vue'
                             ,ajax_rdata:s_data
                             ,ajax_url:'/video/receive-call-user-signal-data'
@@ -478,7 +482,7 @@ export default {
                     log_arr.step='end';
                     log_arr.act='location.reload();';
                     log_arr.act_step = 'before';
-                    log_video_chat_process(log_arr);
+                    log_video_chat_process_entire_site(log_arr);
                     
                     location.reload();
                 }
@@ -503,7 +507,7 @@ export default {
                         log_arr.step = 'end';
                         log_arr.act = 'location.reload();';
                         log_arr.act_step = 'before';
-                        log_video_chat_process(log_arr);
+                        log_video_chat_process_entire_site(log_arr);
                         location.reload();
                     }, 3000);                     
                 }
@@ -524,7 +528,7 @@ export default {
             ,act_step:'before'
             ,data:{id:id,name:name}
         };
-        log_video_chat_process(pvc_log_arr);
+        log_video_chat_process_entire_site(pvc_log_arr);
             
       await this.checkDevices();
       
@@ -533,7 +537,7 @@ export default {
         pvc_log_arr.topic = 'if(!this.deviceReady)';
         pvc_log_arr.topic_step = 'before';
         pvc_log_arr.data = {this_deviceReady:this.deviceReady};
-        log_video_chat_process(pvc_log_arr);   
+        log_video_chat_process_entire_site(pvc_log_arr);   
         
       //console.log('deviceReady:' + this.deviceReady);
       if(!this.deviceReady)
@@ -544,7 +548,7 @@ export default {
         pvc_log_arr.step = 'end';
         pvc_log_arr.topic_step = 'after true';
         pvc_log_arr.title = 'not deviceReady';
-        log_video_chat_process(pvc_log_arr);
+        log_video_chat_process_entire_site(pvc_log_arr);
         
         return;
       }
@@ -552,7 +556,7 @@ export default {
         pvc_log_arr.act_step = pvc_log_arr.act  ='';
         pvc_log_arr.topic_step = 'after false';
         pvc_log_arr.title = 'is deviceReady';
-        log_video_chat_process(pvc_log_arr);
+        log_video_chat_process_entire_site(pvc_log_arr);
      
       this.callPlaced = true;
       this.callPartner = name;
@@ -561,14 +565,14 @@ export default {
         pvc_log_arr.act_step = 'before'; 
         pvc_log_arr.topic = pvc_log_arr.topic_step = '';
         pvc_log_arr.title = '';
-        log_video_chat_process(pvc_log_arr); 
+        log_video_chat_process_entire_site(pvc_log_arr); 
       
       await this.getMediaPermission();
       
         pvc_log_arr.topic = 'if(this.getUserMediaError)';
         pvc_log_arr.topic_step = 'before';
         pvc_log_arr.act_step = 'after';
-        log_video_chat_process(pvc_log_arr); 
+        log_video_chat_process_entire_site(pvc_log_arr); 
         
       if(this.getUserMediaError)
       {
@@ -576,7 +580,7 @@ export default {
         pvc_log_arr.act_step = 'before';
         pvc_log_arr.topic_step = 'after true';
         pvc_log_arr.title = 'is getUserMediaError';
-        log_video_chat_process(pvc_log_arr);          
+        log_video_chat_process_entire_site(pvc_log_arr);          
         
         alert('未取得鏡頭或麥克風裝置權限');
         this.callPlaced = false;
@@ -584,7 +588,7 @@ export default {
         pvc_log_arr.act_step = 'after';
         pvc_log_arr.step = 'end';
         pvc_log_arr.title = 'after this.callPlaced = false;return';
-        log_video_chat_process(pvc_log_arr);  
+        log_video_chat_process_entire_site(pvc_log_arr);  
         
         return;
       }
@@ -594,7 +598,7 @@ export default {
         pvc_log_arr.topic_step = 'after false';
         pvc_log_arr.title = 'no getUserMediaError';
         pvc_log_arr.data = {iceserver:JSON.parse(this.ice_server_json.trim())};
-        log_video_chat_process(pvc_log_arr);
+        log_video_chat_process_entire_site(pvc_log_arr);
         
       //console.log("iceserver_json: " + this.ice_server_json);
       const iceserver = JSON.parse(this.ice_server_json.trim());
@@ -603,11 +607,11 @@ export default {
       pvc_log_arr.act_step = 'after';
       pvc_log_arr.topic = pvc_log_arr.topic_step = '';
       pvc_log_arr.data = null;
-      log_video_chat_process(pvc_log_arr);
+      log_video_chat_process_entire_site(pvc_log_arr);
 
       pvc_log_arr.act = 'this.videoCallParams.peer1 = new Peer({';
       pvc_log_arr.act_step = 'before';
-      log_video_chat_process(pvc_log_arr);
+      log_video_chat_process_entire_site(pvc_log_arr);
       
       this.videoCallParams.peer1 = new Peer({
         initiator: true,
@@ -620,7 +624,7 @@ export default {
 
        pvc_log_arr.act_step = 'after';
        pvc_log_arr.data = {this_videoCallParams_peer1:this.videoCallParams.peer1};
-      log_video_chat_process(pvc_log_arr);
+      log_video_chat_process_entire_site(pvc_log_arr);
 
       this.videoCallParams.peer1.on("signal", (data) => {
         //console.log(data);
@@ -639,7 +643,7 @@ export default {
                 ,method:'then@this.videoCallParams.peer1.on("signal", (data) =>@async placeVideoCall(id, name)@methods@export default'
                 ,step:'within'
             };
-            log_video_chat_process(log_arr);                           
+            log_video_chat_process_entire_site(log_arr);                           
               
           })          
           .catch((error) => {
@@ -650,7 +654,7 @@ export default {
                 ,step:'within'
                 ,data:{error:error}
             };
-            log_video_chat_process(log_arr); 
+            log_video_chat_process_entire_site(log_arr); 
             console.log('signal axios error:' + error);
             $("#error_message").text('signal axios error:' + error);
           });
@@ -664,7 +668,7 @@ export default {
             ,step:'start'
             ,data:{stream:stream}
         };
-        log_video_chat_process(log_arr);         
+        log_video_chat_process_entire_site(log_arr);         
         
         console.log("call streaming");
         
@@ -672,20 +676,20 @@ export default {
         log_arr.topic = 'if (this.$refs.partnerVideo)';
         log_arr.topic_step = 'before';
         log_arr.data = {this_refs_partnerVideo:this.$refs.partnerVideo};
-        log_video_chat_process(log_arr);         
+        log_video_chat_process_entire_site(log_arr);         
         
         if (this.$refs.partnerVideo) {
         
           log_arr.title = 'has this.$refs.partnerVideo';
           log_arr.topic_step='after true';
-          log_video_chat_process(log_arr); 
+          log_video_chat_process_entire_site(log_arr); 
           
           this.$refs.partnerVideo.srcObject = stream;
         }
         
         log_arr.topic_step='after';
         log_arr.step='end';
-        log_video_chat_process(log_arr); 
+        log_video_chat_process_entire_site(log_arr); 
         
       });
 
@@ -700,7 +704,7 @@ export default {
                 ,topic:'if(this.user_permission == \'normal\')'
                 ,topic_step:'before'
              };
-        log_video_chat_process(log_arr);
+        log_video_chat_process_entire_site(log_arr);
         
         console.log("peer1 connected");
         this.videoCallParams.connecting_peer = this.videoCallParams.peer1;
@@ -714,7 +718,7 @@ export default {
 
         log_arr.step = 'end';
         log_arr.act = log_arr.act_step = log_arr.topic = log_arr.topic_step = '';
-        log_video_chat_process(log_arr);
+        log_video_chat_process_entire_site(log_arr);
       });
 
       this.videoCallParams.peer1.on("data", (data) => {
@@ -728,14 +732,14 @@ export default {
             ,act:'this.receive_data(data);'
             ,act_step:'before'
         };
-        log_video_chat_process(log_arr);  
+        log_video_chat_process_entire_site(log_arr);  
         
         console.log('peer1 receive data:');
         this.receive_data(data);
         
         log_arr.act_step = 'after';
         log_arr.step = 'end';
-        log_video_chat_process(log_arr);
+        log_video_chat_process_entire_site(log_arr);
       });
 
       this.videoCallParams.peer1.on("error", (err) => {
@@ -747,7 +751,7 @@ export default {
                 ,method:'this.videoCallParams.peer1.on("error", (err) =>@async placeVideoCall(id, name)@methods@export default@VideoVerifyUserEntireSite.vue'
                 ,step:'within'
              };
-        log_video_chat_process(log_arr);
+        log_video_chat_process_entire_site(log_arr);
         
         console.log('peer1 error');
         console.log(err);
@@ -770,7 +774,7 @@ export default {
                         log_arr.step='end';
                         log_arr.act='location.reload();';
                         log_arr.act_step = 'before';
-                        log_video_chat_process(log_arr);
+                        log_video_chat_process_entire_site(log_arr);
                         
                         location.reload();
                     }                    
@@ -789,7 +793,7 @@ export default {
                 log_arr.step='end';
                 log_arr.act='location.reload();';
                 log_arr.act_step = 'before';
-                log_video_chat_process(log_arr);
+                log_video_chat_process_entire_site(log_arr);
                 
                 location.reload();
             }              
@@ -807,7 +811,7 @@ export default {
                 log_arr.step='end';
                 log_arr.act='location.reload();';
                 log_arr.act_step = 'before';
-                log_video_chat_process(log_arr);
+                log_video_chat_process_entire_site(log_arr);
                 
                 location.reload();
             }              
@@ -825,7 +829,7 @@ export default {
                 log_arr.step='end';
                 log_arr.act='location.reload();';
                 log_arr.act_step = 'before';
-                log_video_chat_process(log_arr);
+                log_video_chat_process_entire_site(log_arr);
                 
                 location.reload();
             }              
@@ -840,7 +844,7 @@ export default {
             ,method:'this.videoCallParams.peer1.on("close", () =>@async placeVideoCall(id, name)@methods@export default'
             ,step:'within'
         };
-        log_video_chat_process(log_arr);  
+        log_video_chat_process_entire_site(log_arr);  
         console.log("call closed caller");
         if(this.videoCallParams.receivingCall==true) this.videoCallParams.receivingCall=false;         
         if(this.callPlaced==true && this.isPeerError!=true) {
@@ -868,7 +872,7 @@ export default {
             ,topic:'if (data.type === "callAccepted") {'
             ,topic_step:'before'
         };
-        log_video_chat_process(log_arr);      
+        log_video_chat_process_entire_site(log_arr);      
 
         if (data.type === "callAccepted") {
           
@@ -876,7 +880,7 @@ export default {
           log_arr.ajax_url = '/video/receive-accept-call-signal-data';
           log_arr.ajax_step = 'before';
           log_arr.ajax_sdata = {signal_data_id:data.signal};         
-          log_video_chat_process(log_arr);
+          log_video_chat_process_entire_site(log_arr);
           
           let signal_data = '';
 
@@ -892,14 +896,14 @@ export default {
               log_arr.ajax_rdata = s_data;
               log_arr.ajax_step = 'success';
               log_arr.data = {signal_data:s_data};
-              log_video_chat_process(log_arr);
+              log_video_chat_process_entire_site(log_arr);
 
               signal_data = s_data;
             },
             error:function(xhr) {
               log_arr.ajax_error = xhr;
               log_arr.ajax_step = 'error';
-              log_video_chat_process(log_arr); 
+              log_video_chat_process_entire_site(log_arr); 
             }
           });
           //console.log('ajaxoutput ' + signal_data);
@@ -930,7 +934,7 @@ export default {
             ,act:'await this.checkDevices();'
             ,act_step:'before'
         };
-        log_video_chat_process(ac_log_arr);        
+        log_video_chat_process_entire_site(ac_log_arr);        
         
       await this.checkDevices();
       
@@ -939,7 +943,7 @@ export default {
         ac_log_arr.topic = 'if(!this.deviceReady)';
         ac_log_arr.topic_step = 'before';
         ac_log_arr.data = {this_deviceReady:this.deviceReady};
-        log_video_chat_process(ac_log_arr);       
+        log_video_chat_process_entire_site(ac_log_arr);       
       
       //console.log('deviceReady:' + this.deviceReady);
       if(!this.deviceReady)
@@ -950,7 +954,7 @@ export default {
         ac_log_arr.step = 'end';
         ac_log_arr.topic_step = 'after true';
         ac_log_arr.title = 'not deviceReady';
-        log_video_chat_process(ac_log_arr);        
+        log_video_chat_process_entire_site(ac_log_arr);        
         
         return;
       }
@@ -958,7 +962,7 @@ export default {
         ac_log_arr.act_step = ac_log_arr.act  ='';
         ac_log_arr.topic_step = 'after false';
         ac_log_arr.title = 'is deviceReady';
-        log_video_chat_process(ac_log_arr);      
+        log_video_chat_process_entire_site(ac_log_arr);      
       
       this.callPlaced = true;
       this.videoCallParams.callAccepted = true;
@@ -967,14 +971,14 @@ export default {
         ac_log_arr.act_step = 'before'; 
         ac_log_arr.topic = ac_log_arr.topic_step = '';
         ac_log_arr.title = '';
-        log_video_chat_process(ac_log_arr);       
+        log_video_chat_process_entire_site(ac_log_arr);       
       
       await this.getMediaPermission();
       
         ac_log_arr.topic = 'if(this.getUserMediaError)';
         ac_log_arr.topic_step = 'before';
         ac_log_arr.act_step = 'after';
-        log_video_chat_process(ac_log_arr);       
+        log_video_chat_process_entire_site(ac_log_arr);       
       
       if(this.getUserMediaError)
       {
@@ -983,7 +987,7 @@ export default {
         ac_log_arr.act_step = 'before';
         ac_log_arr.topic_step = 'after true';
         ac_log_arr.title = 'is getUserMediaError';
-        log_video_chat_process(ac_log_arr);             
+        log_video_chat_process_entire_site(ac_log_arr);             
           
         alert('未取得鏡頭或麥克風裝置權限');
         this.callPlaced = false;
@@ -991,7 +995,7 @@ export default {
         ac_log_arr.act_step = 'after';
         ac_log_arr.step = 'end';
         ac_log_arr.title = 'after this.callPlaced = false;return';
-        log_video_chat_process(ac_log_arr);          
+        log_video_chat_process_entire_site(ac_log_arr);          
         
         return;
       }
@@ -1001,7 +1005,7 @@ export default {
         ac_log_arr.topic_step = 'after false';
         ac_log_arr.title = 'no getUserMediaError';
         ac_log_arr.data = {iceserver:JSON.parse(this.ice_server_json.trim())};
-        log_video_chat_process(ac_log_arr);      
+        log_video_chat_process_entire_site(ac_log_arr);      
 
       const iceserver = JSON.parse(this.ice_server_json.trim());
       //console.log("iceserver: " + iceserver);
@@ -1009,11 +1013,11 @@ export default {
       ac_log_arr.act_step = 'after';
       ac_log_arr.topic = ac_log_arr.topic_step = '';
       ac_log_arr.data = null;
-      log_video_chat_process(ac_log_arr);
+      log_video_chat_process_entire_site(ac_log_arr);
       
       ac_log_arr.act = 'this.videoCallParams.peer2 = new Peer({';
       ac_log_arr.act_step = 'before';
-      log_video_chat_process(ac_log_arr);      
+      log_video_chat_process_entire_site(ac_log_arr);      
       $('.mask_bg').hide();
       $('#connecting_msg_block').show();
       
@@ -1028,7 +1032,7 @@ export default {
 
        ac_log_arr.act_step = 'after';
        ac_log_arr.data = {this_videoCallParams_peer2:this.videoCallParams.peer2};
-      log_video_chat_process(ac_log_arr);      
+      log_video_chat_process_entire_site(ac_log_arr);      
 
       this.videoCallParams.receivingCall = false;
       this.videoCallParams.peer2.on("signal", (data) => {
@@ -1038,6 +1042,7 @@ export default {
             //signal: JSON.stringify(data),
             signal: data,
             to: this.videoCallParams.caller,
+            verify_record_id:window.sessionStorage.getItem('verify_record_id')
           })
           .then(() => {
             var log_arr = {
@@ -1046,7 +1051,7 @@ export default {
                 ,method:'then@this.videoCallParams.peer2.on("signal", (data) =>@async acceptCall()@methods@export default'
                 ,step:'within'
             };
-            log_video_chat_process(log_arr);      
+            log_video_chat_process_entire_site(log_arr);      
           })
           .catch((error) => {
             var log_arr = {
@@ -1056,7 +1061,7 @@ export default {
                 ,step:'within'
                 ,data:{error:error}
             };
-            log_video_chat_process(log_arr);             
+            log_video_chat_process_entire_site(log_arr);             
             console.log('signal axios error:' + error);
             $("#error_message").text('signal axios error:' + error);
           });
@@ -1072,7 +1077,7 @@ export default {
             ,act:'this.videoCallParams.callAccepted = true;this.$refs.partnerVideo.srcObject = stream;'
             ,act_step:'before'
         };
-        log_video_chat_process(log_arr);   
+        log_video_chat_process_entire_site(log_arr);   
         
         this.videoCallParams.callAccepted = true;
         this.$refs.partnerVideo.srcObject = stream;
@@ -1082,7 +1087,7 @@ export default {
         log_arr.data = {this_videoCallParams_callAccepted:this.videoCallParams.callAccepted
                         ,this_$refs_partnerVideo_srcObject:this.$refs.partnerVideo.srcObject
                         }
-        log_video_chat_process(log_arr);   
+        log_video_chat_process_entire_site(log_arr);   
         
       });
 
@@ -1098,7 +1103,7 @@ export default {
             ,act_step:'before'
             ,title:"peer2 connected"
         };
-        log_video_chat_process(log_arr);
+        log_video_chat_process_entire_site(log_arr);
         
         console.log("peer2 connected");
         this.videoCallParams.callAccepted = true;
@@ -1109,7 +1114,7 @@ export default {
         
         log_arr.step = 'end';
         log_arr.act = log_arr.act_step = log_arr.topic = log_arr.topic_step = '';
-        log_video_chat_process(log_arr); 
+        log_video_chat_process_entire_site(log_arr); 
       });
 
       this.videoCallParams.peer2.on("data", (data) => {
@@ -1122,14 +1127,14 @@ export default {
             ,act:'this.receive_data(data);'
             ,act_step:'before'
         };
-        log_video_chat_process(log_arr);           
+        log_video_chat_process_entire_site(log_arr);           
         
         console.log('peer2 receive data:');
         this.receive_data(data);
         
         log_arr.act_step = 'after';
         log_arr.step = 'end';
-        log_video_chat_process(log_arr); 
+        log_video_chat_process_entire_site(log_arr); 
       });
 
       this.videoCallParams.peer2.on("error", (err) => {
@@ -1140,7 +1145,7 @@ export default {
                 ,method:'this.videoCallParams.peer2.on("error", (err) =>@async acceptCall()@methods@export default@VideoVerifyUserEntireSite.vue'
                 ,step:'within'
              };
-        log_video_chat_process(log_arr);
+        log_video_chat_process_entire_site(log_arr);
         console.log('peer2 error');
         console.log(err);
         $("#error_message").text('peer2 error : ' + err);
@@ -1162,7 +1167,7 @@ export default {
                         log_arr.step='end';
                         log_arr.act='location.reload();';
                         log_arr.act_step = 'before';
-                        log_video_chat_process(log_arr);
+                        log_video_chat_process_entire_site(log_arr);
                         
                         location.reload();
                     }                  
@@ -1182,7 +1187,7 @@ export default {
                 log_arr.step='end';
                 log_arr.act='location.reload();';
                 log_arr.act_step = 'before';
-                log_video_chat_process(log_arr);
+                log_video_chat_process_entire_site(log_arr);
                 
                 location.reload();
             }            
@@ -1201,7 +1206,7 @@ export default {
                 log_arr.step='end';
                 log_arr.act='location.reload();';
                 log_arr.act_step = 'before';
-                log_video_chat_process(log_arr);
+                log_video_chat_process_entire_site(log_arr);
                 
                 location.reload();
             }            
@@ -1220,7 +1225,7 @@ export default {
                 log_arr.step='end';
                 log_arr.act='location.reload();';
                 log_arr.act_step = 'before';
-                log_video_chat_process(log_arr);
+                log_video_chat_process_entire_site(log_arr);
                 
                 location.reload();
             }            
@@ -1235,7 +1240,7 @@ export default {
             ,method:'this.videoCallParams.peer2.on("close", () =>@async acceptCall()@methods@export default'
             ,step:'within'
         };
-        log_video_chat_process(log_arr);
+        log_video_chat_process_entire_site(log_arr);
 
         if(this.callPlaced==true  && this.isPeerError!=true) {
             $("#video_error_msg_block").show();
@@ -1258,7 +1263,7 @@ export default {
         ac_log_arr.act = 'this.videoCallParams.peer2.signal(this.videoCallParams.callerSignal);';
         ac_log_arr.act_step = 'before';        
         ac_log_arr.data = {this_videoCallParams_callerSignal:this.videoCallParams.callerSignal};
-        log_video_chat_process(ac_log_arr);
+        log_video_chat_process_entire_site(ac_log_arr);
 
       this.videoCallParams.peer2.signal(this.videoCallParams.callerSignal);
 
@@ -1266,7 +1271,7 @@ export default {
         ac_log_arr.topic = "if(this.user_permission == 'normal')";
         ac_log_arr.topic_step = 'before';
         ac_log_arr.data = {this_videoCallParams_callerSignal:this.videoCallParams.callerSignal};
-        log_video_chat_process(ac_log_arr);
+        log_video_chat_process_entire_site(ac_log_arr);
 
       if(this.user_permission == 'normal')
       {
@@ -1278,7 +1283,7 @@ export default {
          ac_log_arr.topic_step = 'after';
         ac_log_arr.data = null;
         ac_log_arr.step = 'end';
-        log_video_chat_process(ac_log_arr);  
+        log_video_chat_process_entire_site(ac_log_arr);  
     },
 
     toggleCameraArea() {
@@ -1291,25 +1296,25 @@ export default {
             ,topic_step:'before'
             ,data:{this_videoCallParams_callAccepted:this.videoCallParams.callAccepted,this_isFocusMyself:this.isFocusMyself}
         };
-        log_video_chat_process(tca_log_arr);  
+        log_video_chat_process_entire_site(tca_log_arr);  
         
       if (this.videoCallParams.callAccepted) {
           tca_log_arr.topic_step = 'after true';
           tca_log_arr.step = 'ing';
           tca_log_arr.act = 'this.isFocusMyself = !this.isFocusMyself;';
           tca_log_arr.act_step = 'before';
-          log_video_chat_process(tca_log_arr);
+          log_video_chat_process_entire_site(tca_log_arr);
           
         this.isFocusMyself = !this.isFocusMyself;
         
           tca_log_arr.act_step = 'after';
           tca_log_arr.data = {this_isFocusMyself:this.isFocusMyself};
-          log_video_chat_process(tca_log_arr);
+          log_video_chat_process_entire_site(tca_log_arr);
       }
       
       tca_log_arr.topic_step = 'after';
       tca_log_arr.step = 'end';
-      log_video_chat_process(tca_log_arr);  
+      log_video_chat_process_entire_site(tca_log_arr);  
     },
 
     getUserOnlineStatus(id) {
@@ -1332,13 +1337,14 @@ export default {
             ,act_step:'before'
             ,data:{this_videoCallParams_receivingCall:this.videoCallParams.receivingCall}
         };
-        log_video_chat_process(dc_log_arr);   
+        log_video_chat_process_entire_site(dc_log_arr);   
 
       this.videoCallParams.receivingCall = false;
 
       await axios
           .post("/video/decline-call", {
             to: this.videoCallParams.caller,
+            verify_record_id:window.sessionStorage.getItem('verify_record_id')
           })
           .then(() => {
             var log_arr = {
@@ -1347,7 +1353,7 @@ export default {
                 ,method:'then@axios@declineCall@methods@export default'
                 ,step:'within'
             };
-            log_video_chat_process(log_arr);      
+            log_video_chat_process_entire_site(log_arr);      
           })
           .catch((error) => {
             var log_arr = {
@@ -1357,7 +1363,7 @@ export default {
                 ,step:'within'
                 ,data:{error:error}
             };
-            log_video_chat_process(log_arr);    
+            log_video_chat_process_entire_site(log_arr);    
 
             $("#error_message").text('decline axios error:' + error);
           }); 
@@ -1369,7 +1375,7 @@ export default {
       
       dc_log_arr.act_step = 'after';
       dc_log_arr.step = 'end';
-      log_video_chat_process(dc_log_arr); 
+      log_video_chat_process_entire_site(dc_log_arr); 
     },
 
     toggleMuteAudio() {
@@ -1410,7 +1416,7 @@ export default {
             ,topic_step:'before'
             ,data:{data:data,TextDecoder_utf_8_decode_data:new TextDecoder('utf-8').decode(data)}
         };
-        log_video_chat_process(rd_log_arr);      
+        log_video_chat_process_entire_site(rd_log_arr);      
     
       if(new TextDecoder('utf-8').decode(data) === 'mutedVideo_false')
       {
@@ -1418,14 +1424,14 @@ export default {
           rd_log_arr.step = 'ing';
           rd_log_arr.act = '$(\'#partner_video_screen\').show();$(\'#none_partner_video\').hide();';
           rd_log_arr.act_step = 'before';
-          log_video_chat_process(rd_log_arr);      
+          log_video_chat_process_entire_site(rd_log_arr);      
       
         console.log('Log_mutedVideo_false');
         $('#partner_video_screen').show();
         $('#none_partner_video').hide();
         
          rd_log_arr.act_step = 'after';
-          log_video_chat_process(rd_log_arr);
+          log_video_chat_process_entire_site(rd_log_arr);
       }
       else if(new TextDecoder('utf-8').decode(data) === 'mutedVideo_true')
       {
@@ -1433,19 +1439,19 @@ export default {
         rd_log_arr.topic_step = 'after true';
           rd_log_arr.act = "$('#partner_video_screen').hide();$('#none_partner_video').show();";
           rd_log_arr.act_step = 'before';
-          log_video_chat_process(rd_log_arr); 
+          log_video_chat_process_entire_site(rd_log_arr); 
       
         console.log('Log_mutedVideo_true');
         $('#partner_video_screen').hide();
         $('#none_partner_video').show();
         
         rd_log_arr.act_step = 'after';
-          log_video_chat_process(rd_log_arr);
+          log_video_chat_process_entire_site(rd_log_arr);
       }
       
       rd_log_arr.topic_step = 'after';
       rd_log_arr.step = 'end';
-      log_video_chat_process(rd_log_arr); 
+      log_video_chat_process_entire_site(rd_log_arr); 
     },
 
     stopStreamedVideo(videoElem) {
@@ -1458,7 +1464,7 @@ export default {
             ,act_step:'before'
             ,data:{videoElem:videoElem,stream:videoElem.srcObject,tracks:videoElem.srcObject.getTracks()}
         };
-      log_video_chat_process(ssv_log_arr);
+      log_video_chat_process_entire_site(ssv_log_arr);
       
       const stream = videoElem.srcObject;
       const tracks = stream.getTracks();
@@ -1471,7 +1477,7 @@ export default {
       ssv_log_arr.act_step = 'after';
       ssv_log_arr.step = 'end';
       ssv_log_arr.data = {videoElem:videoElem,stream:videoElem.srcObject};
-      log_video_chat_process(ssv_log_arr);  
+      log_video_chat_process_entire_site(ssv_log_arr);  
     },
 
     endCall() {
@@ -1482,7 +1488,7 @@ export default {
             ,step:'start'
             ,data:{}
         };
-        log_video_chat_process(ec_log_arr); 
+        log_video_chat_process_entire_site(ec_log_arr); 
         
         if(this.isPeerError!=true) {
           $('.mask_bg').hide();
@@ -1497,7 +1503,7 @@ export default {
       ec_log_arr.act = "if (this.mutedVideo) this.toggleMuteVideo();";
       ec_log_arr.act_step = 'after';
       ec_log_arr.data = {this_mutedVideo:this.mutedVideo};
-      log_video_chat_process(ec_log_arr);
+      log_video_chat_process_entire_site(ec_log_arr);
       
       
       if (this.mutedAudio) this.toggleMuteAudio();
@@ -1548,7 +1554,7 @@ export default {
         ec_log_arr.step = 'end';
         ec_log_arr.act = 'location.reload();';
         ec_log_arr.act_step = 'before';
-        log_video_chat_process(ec_log_arr);
+        log_video_chat_process_entire_site(ec_log_arr);
         
         location.reload();
       }, 3000);
@@ -1580,7 +1586,7 @@ export default {
             ,method:'startRecording()@methods@export default'
             ,step:'start'
         };
-        log_video_chat_process(sr_log_arr);  
+        log_video_chat_process_entire_site(sr_log_arr);  
         sr_log_arr.step = 'ing';
         
       this.recordedBlobs = [];
@@ -1605,7 +1611,7 @@ export default {
                 sr_log_arr.step = 'end';
                 sr_log_arr.act = 'location.reload();';
                 sr_log_arr.act_step = 'before';
-                log_video_chat_process(sr_log_arr);
+                log_video_chat_process_entire_site(sr_log_arr);
                 location.reload();
             }, 3000);         
         }
@@ -1623,21 +1629,21 @@ export default {
                 sr_log_arr.step = 'end';
                 sr_log_arr.act = 'location.reload();';
                 sr_log_arr.act_step = 'before';
-                log_video_chat_process(sr_log_arr);
+                log_video_chat_process_entire_site(sr_log_arr);
                 location.reload();
             }, 3000);        
         }
         
         sr_log_arr.act = 'this.mediaRecorder = new MediaRecorder(this.$refs.partnerVideo.srcObject, options);this.mediaRecorder2 = new MediaRecorder(this.$refs.userVideo.srcObject, options);';
         sr_log_arr.act_step = 'after success';
-        log_video_chat_process(sr_log_arr); 
+        log_video_chat_process_entire_site(sr_log_arr); 
          
       } catch (e) {
       
         sr_log_arr.act = 'this.mediaRecorder = new MediaRecorder(this.$refs.partnerVideo.srcObject, options);this.mediaRecorder2 = new MediaRecorder(this.$refs.userVideo.srcObject, options);';
         sr_log_arr.act_step = 'after catch error';
         sr_log_arr.data = {e:e,e_toString:e.toString()};
-        log_video_chat_process(sr_log_arr); 
+        log_video_chat_process_entire_site(sr_log_arr); 
         
         console.error('Exception while creating MediaRecorder:', e);
         return;
@@ -1654,7 +1660,7 @@ export default {
             ,act:"this.downloadRecording(this.recordedBlobs,'partner');"
             ,act_step:'before'
         };
-        log_video_chat_process(mros_log_arr);
+        log_video_chat_process_entire_site(mros_log_arr);
         
         console.log('Recorder stopped: ', event);
         console.log('Recorded Blobs: ', this.recordedBlobs);
@@ -1663,7 +1669,7 @@ export default {
       
         mros_log_arr.act_step = 'after success';
         mros_log_arr.step = 'end';
-        log_video_chat_process(mros_log_arr);
+        log_video_chat_process_entire_site(mros_log_arr);
         
       };
       this.mediaRecorder2.onstop = (event) => {
@@ -1676,7 +1682,7 @@ export default {
             ,act:"this.downloadRecording(this.recordedBlobs2,'user');"
             ,act_step:'before'
         };
-        log_video_chat_process(mr2os_log_arr);
+        log_video_chat_process_entire_site(mr2os_log_arr);
         
         console.log('Recorder2 stopped: ', event);
         console.log('Recorded Blobs2: ', this.recordedBlobs2);
@@ -1685,7 +1691,7 @@ export default {
       
         mr2os_log_arr.act_step = 'after success';
         mr2os_log_arr.step = 'end';
-        log_video_chat_process(mr2os_log_arr);  
+        log_video_chat_process_entire_site(mr2os_log_arr);  
            
       };
       this.mediaRecorder.ondataavailable = (event) => {
@@ -1699,7 +1705,7 @@ export default {
             ,topic_step:'before'
             ,data:{event:event,event_data:event.data}
         };
-        log_video_chat_process(mroda_log_arr);
+        log_video_chat_process_entire_site(mroda_log_arr);
         
         console.log('handleDataAvailable', event);
 
@@ -1709,18 +1715,18 @@ export default {
           mroda_log_arr.step = 'ing';
           mroda_log_arr.act = 'this.recordedBlobs.push(event.data);';
           mroda_log_arr.act_step = 'before';
-          log_video_chat_process(mroda_log_arr);
+          log_video_chat_process_entire_site(mroda_log_arr);
           
           this.recordedBlobs.push(event.data);
         
           mroda_log_arr.act_step = 'after success';
-          log_video_chat_process(mroda_log_arr);
+          log_video_chat_process_entire_site(mroda_log_arr);
           
         }
         
           mroda_log_arr.step =  'end';
           mroda_log_arr.topic_step =  'after';
-          log_video_chat_process(mroda_log_arr);
+          log_video_chat_process_entire_site(mroda_log_arr);
       }
       this.mediaRecorder2.ondataavailable = (event) => {
         var mr2oda_log_arr = {
@@ -1732,7 +1738,7 @@ export default {
             ,topic_step:'before'
             ,data:{event:event,event_data:event.data}
         };
-        log_video_chat_process(mr2oda_log_arr);
+        log_video_chat_process_entire_site(mr2oda_log_arr);
         
         console.log('handleDataAvailable2', event);
         if (event.data && event.data.size > 0) {
@@ -1740,37 +1746,37 @@ export default {
           mr2oda_log_arr.step = 'ing';
           mr2oda_log_arr.act = 'this.recordedBlobs2.push(event.data);';
           mr2oda_log_arr.act_step = 'before';
-          log_video_chat_process(mr2oda_log_arr);
+          log_video_chat_process_entire_site(mr2oda_log_arr);
           
           this.recordedBlobs2.push(event.data);
         
           mr2oda_log_arr.act_step = 'after success';
-          log_video_chat_process(mr2oda_log_arr);
+          log_video_chat_process_entire_site(mr2oda_log_arr);
         }
         
         mr2oda_log_arr.step =  'end';
         mr2oda_log_arr.topic_step =  'after';
-        log_video_chat_process(mr2oda_log_arr);
+        log_video_chat_process_entire_site(mr2oda_log_arr);
       }
       
       sr_log_arr.act = 'this.mediaRecorder.start();';
       sr_log_arr.act_step = 'before';
-      log_video_chat_process(sr_log_arr);  
+      log_video_chat_process_entire_site(sr_log_arr);  
       
       this.mediaRecorder.start();
       
       sr_log_arr.act_step = 'after';
-      log_video_chat_process(sr_log_arr);
+      log_video_chat_process_entire_site(sr_log_arr);
       
       sr_log_arr.act = 'this.mediaRecorder2.start();';
       sr_log_arr.act_step = 'before';
-      log_video_chat_process(sr_log_arr);
+      log_video_chat_process_entire_site(sr_log_arr);
       
       this.mediaRecorder2.start();
       
       sr_log_arr.act_step = 'after';
       sr_log_arr.step = 'end';
-      log_video_chat_process(sr_log_arr);
+      log_video_chat_process_entire_site(sr_log_arr);
       
       console.log('MediaRecorder started', this.mediaRecorder);
       console.log('MediaRecorder2 started', this.mediaRecorder2);
@@ -1785,22 +1791,22 @@ export default {
             ,act:'this.mediaRecorder.stop();'
             ,act_step:'before'
         };
-      log_video_chat_process(sr_log_arr);  
+      log_video_chat_process_entire_site(sr_log_arr);  
       sr_log_arr.step = 'ing';
          
       if(this.mediaRecorder.state!='inactive') this.mediaRecorder.stop();
       
       sr_log_arr.act_step = 'after';
-      log_video_chat_process(sr_log_arr);
+      log_video_chat_process_entire_site(sr_log_arr);
       
       sr_log_arr.act = 'this.mediaRecorder2.stop();';
       sr_log_arr.act_step = 'before';
-      log_video_chat_process(sr_log_arr);s     
+      log_video_chat_process_entire_site(sr_log_arr);s     
       
       if(this.mediaRecorder2.state!='inactive') this.mediaRecorder2.stop();
 
       sr_log_arr.act_step = 'after';
-      log_video_chat_process(sr_log_arr);
+      log_video_chat_process_entire_site(sr_log_arr);
     },
 
     downloadRecording(recordedChunks,who) {
@@ -1828,7 +1834,7 @@ export default {
       
       formData.forEach((value, key) => (formDataObj[key] = value));
       
-      log_video_chat_process({
+      log_video_chat_process_entire_site({
         type:'fetch'
         ,title:'before_fetch_video_chat_verify_upload_in_VideoVerifyUserEntireSite.vue_at_downloadRecording'
         ,file_name:'VideoVerifyUserEntireSite.vue'
@@ -1871,10 +1877,10 @@ export default {
             ,act_step:'before'
             ,data:{navigator_mediaDevices:navigator.mediaDevices}
         };
-        log_video_chat_process(cd_log_arr);  
+        log_video_chat_process_entire_site(cd_log_arr);  
       
       return navigator.mediaDevices.enumerateDevices()
-        .then( dev => {this.gotDevices(dev);cd_log_arr.act_step='then';cd_log_arr.data={dev:dev};log_video_chat_process(cd_log_arr); } )  
+        .then( dev => {this.gotDevices(dev);cd_log_arr.act_step='then';cd_log_arr.data={dev:dev};log_video_chat_process_entire_site(cd_log_arr); } )  
         .catch( err => console.warn(err));
     },
     
@@ -2031,8 +2037,12 @@ export default {
     top: 0px;
     left: 0;
     background: rgba(0,0,0,0.8);
-    z-index: 9;
+    z-index: 20;
     display: none;
+}
+
+div.mask_bg.real_auth_video_entire_site_bg {
+    z-index:20;
 }
 
     .loading {

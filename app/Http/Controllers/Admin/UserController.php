@@ -2660,7 +2660,14 @@ class UserController extends \App\Http\Controllers\BaseController
                 $controller->TogglerIsChat($request);
                 $user->refresh();
             }
-
+            
+            if(request()->input('from_videoChat') and request()->input('from_videoChat') == 1) {
+                if(auth()->user()->id!=1049) {
+                    return redirect()->route('users/video_chat_verify');
+                }
+                
+                $this->insertAdminActionLog($user->id, '視訊驗證 - 進入站長與 user 對話');
+            }
             $messages = Message::allToFromSenderChatWithAdmin($id, 1049)->orderBy('id', 'asc')->get();
             
             $admin = User::where('id', 1049)->get()->first();
@@ -2863,7 +2870,11 @@ class UserController extends \App\Http\Controllers\BaseController
             // }
         }
         //新增Admin操作log
-        $this->insertAdminActionLog($id, '撰寫站長訊息');
+        $cat_prefix = '';
+        if(request()->from_videoChat && auth()->user()->id==1049) {
+            $cat_prefix  = '視訊驗證 - ';
+        } 
+        $this->insertAdminActionLog($id, $cat_prefix.'撰寫站長訊息');
 
         return back()->with('message', '傳送成功');
     }
