@@ -28,6 +28,7 @@ use App\Models\MessageBoardPic;
 use App\Models\Forum;
 use App\Models\MessageUserNote;
 use App\Models\Order;
+use App\Models\PostsMood;
 use App\Models\PostsVvip;
 use App\Models\RealAuthUserTagsDisplay;
 use App\Models\ReportedMessageBoard;
@@ -2550,7 +2551,7 @@ class PagesController extends BaseController
                     session()->forget('chat2_page_enter_root');
                     session()->forget('goBackPage_chat2');
                 }
-                if(!str_contains($_SERVER['HTTP_REFERER'],'dashboard/chat2/chatShow') && !str_contains($_SERVER['HTTP_REFERER'],'dashboard/viewuser')){
+                if(!str_contains($_SERVER['HTTP_REFERER'],'dashboard/chat2/chatShow') && !str_contains($_SERVER['HTTP_REFERER'],'dashboard/viewuser') && !str_contains($_SERVER['HTTP_REFERER'],'MessageBoard')){
                     session()->put('goBackPage',$_SERVER['HTTP_REFERER']);
                 }
             }
@@ -2560,6 +2561,13 @@ class PagesController extends BaseController
             //會員頁->聊天頁, 避免Loop
             if(str_contains($_SERVER['HTTP_REFERER'], 'dashboard/viewuser') && str_contains($_SERVER['REQUEST_URI'], 'chatShow')){
                 session()->put('goBackPage',  session()->get('chat2_page_enter_root'));
+            }
+
+            //是否從聊天頁->進入到會員頁
+            if(str_contains($_SERVER['HTTP_REFERER'],'dashboard/chat2/chatShow') && str_contains($_SERVER['REQUEST_URI'],'dashboard/viewuser')) {
+                session()->put('chatView_into_viewuser', 1);
+            }else{
+                session()->forget('chatView_into_viewuser');
             }
 
             //判斷自己是否封鎖該用戶
@@ -2688,6 +2696,14 @@ class PagesController extends BaseController
             $bool_value['budget_per_month_warn'] = warned_users::where('member_id', $uid)->where('type', 'month_budget')->first();
             $data['note']   =    MessageUserNote::where('user_id', $user->id)->where('message_user_id', $to->id)->first();
 
+            //留言板
+            $message_board_list=MessageBoard::where('user_id', $to->id)
+                ->whereRaw('(message_expiry_time >="'.date("Y-m-d H:i:s").'" OR set_period is NULL)')
+                ->where('hide_by_admin',0)
+                ->orderBy('created_at','desc')->get();
+            if(!str_contains($_SERVER['HTTP_REFERER'],'MessageBoard/post_detail')) {
+                session()->forget('viewuser_page_position');
+            }
             return view('new.dashboard.viewuser', $data ?? [])
                     ->with('user', $user)
                     ->with('blockadepopup', $blockadepopup)
@@ -2733,6 +2749,7 @@ class PagesController extends BaseController
                     ->with('life_style', $life_style)
                     ->with('advance_auth_status', $advance_auth_status)
                     ->with('bool_value', $bool_value)
+                    ->with('message_board_list', $message_board_list)
                     ;
         }
 
@@ -3058,6 +3075,10 @@ class PagesController extends BaseController
                 /*此會員封鎖多少其他會員*/
                 $blocked_other_count = Blocked::with(['blocked_user'])
                 ->join('users', 'users.id', '=', 'blocked.blocked_id')
+                ->join('message', function($join){
+                    $join->on('blocked.member_id', '=', 'message.from_id');
+                    $join->on('blocked.blocked_id','=', 'message.to_id');
+                })
                 ->leftJoin('user_meta as um', 'um.user_id', '=', 'blocked.blocked_id')
                 ->leftJoin('warned_users as w2', 'w2.member_id', '=', 'blocked.blocked_id')
                 ->where('um.isWarned',0)
@@ -3067,11 +3088,17 @@ class PagesController extends BaseController
                 ->whereNotNull('users.id')
                 ->where('users.accountStatus', 1)
                 ->where('users.account_status_admin', 1)
-                ->count();
+                ->whereNotNull('message.id')
+                ->distinct()
+				->count('blocked.blocked_id');
         
                 /*此會員被多少會員封鎖*/
                 $be_blocked_other_count = Blocked::with(['blocked_user'])
                     ->join('users', 'users.id', '=', 'blocked.member_id')
+                    ->join('message', function($join){
+                        $join->on('blocked.member_id', '=', 'message.from_id');
+                        $join->on('blocked.blocked_id','=', 'message.to_id');
+                    })
                     ->leftJoin('user_meta as um', 'um.user_id', '=', 'blocked.member_id')
                     ->leftJoin('warned_users as w2', 'w2.member_id', '=', 'blocked.member_id')
                     ->where('um.isWarned',0)
@@ -3081,7 +3108,9 @@ class PagesController extends BaseController
                     ->whereNotNull('users.id')
                     ->where('users.accountStatus', 1)
                     ->where('users.account_status_admin', 1)
-                    ->count();
+                    ->whereNotNull('message.id')
+                    ->distinct()
+				    ->count('blocked.blocked_id');
             }
     
             $output = array(
@@ -6660,6 +6689,282 @@ class PagesController extends BaseController
         PostsVvip::where('id', $pid)->update($update);
     }
 
+    public function posts_list_mood(Request $request)
+    {
+        $user = $this->user;
+        if ($user && $user->engroup == 2){
+            return back();
+        }
+
+        $posts = PostsMood::selectraw('posts_mood.top, users.id as uid, users.name as uname, users.engroup as uengroup, posts_mood.is_anonymous as panonymous, user_meta.pic as umpic, posts_mood.id as pid, posts_mood.title as ptitle, posts_mood.contents as pcontents, posts_mood.updated_at as pupdated_at, posts_mood.created_at as pcreated_at, posts_mood.deleted_by, posts_mood.deleted_at, posts_mood.article_id as aid')
+            ->selectRaw('(select updated_at from posts_mood where (id=aid or reply_id=aid ) order by updated_at desc limit 1) as currentReplyTime')
+            ->selectRaw('(case when users.id=1049 then 1 else 0 end) as adminFlag')
+            ->LeftJoin('users', 'users.id', '=', 'posts_mood.user_id')
+            ->join('user_meta', 'users.id', '=', 'user_meta.user_id')
+            ->where('posts_mood.type', 'main')
+            ->orderBy('posts_mood.deleted_at', 'asc')
+            ->orderBy('posts_mood.top', 'desc')
+            ->orderBy('adminFlag', 'desc')
+            ->orderBy('currentReplyTime', 'desc')
+            ->orderBy('pcreated_at', 'desc')
+            ->withTrashed()
+            ->paginate(10);
+
+        $data = array(
+            'posts' => $posts
+        );
+
+        if ($user)
+        {
+            // blocked by user->id
+            $blocks = \App\Models\Blocked::where('member_id', $user->id)->paginate(15);
+
+            $usersInfo = array();
+            foreach($blocks as $blockUser){
+                $id = $blockUser->blocked_id;
+                $usersInfo[$id] = User::findById($id);
+            }
+
+        }
+
+        //檢查是否為連續兩個月以上的VIP會員
+        $checkUserVip=0;
+        $isVip =Vip::where('member_id',auth()->user()->id)->where('active',1)->where('free',0)->first();
+        if($isVip){
+            $months = Carbon::parse($isVip->created_at)->diffInMonths(Carbon::now());
+            if($months>=2 || $isVip->payment=='cc_quarterly_payment' || $isVip->payment=='one_quarter_payment'){
+                $checkUserVip=1;
+            }
+        }
+        if($user->isVVIP()){
+            $checkUserVip=1;
+        }
+
+        return view('/dashboard/mood_posts_list', $data)
+            ->with('checkUserVip', $checkUserVip)
+            ->with('blocks', $blocks)
+            ->with('users', $usersInfo)
+            ->with('user', $user);
+    }
+
+    public function post_detail_mood(Request $request)
+    {
+        $user = $request->user();
+
+        $pid = $request->pid;
+        $postDetail = PostsMood::withTrashed()->selectraw('posts_mood.top, users.id as uid, users.name as uname, users.engroup as uengroup, posts_mood.is_anonymous as panonymous, posts_mood.views as uviews, user_meta.pic as umpic, posts_mood.id as pid, posts_mood.title as ptitle, posts_mood.contents as pcontents, posts_mood.images as pimages, posts_mood.updated_at as pupdated_at,  posts_mood.created_at as pcreated_at, posts_mood.deleted_at as pdeleted_at')
+            ->LeftJoin('users', 'users.id','=','posts_mood.user_id')
+            ->join('user_meta', 'users.id','=','user_meta.user_id')
+            ->where('posts_mood.id', $pid)->first();
+
+        if(!$postDetail) {
+            $request->session()->flash('message', '找不到文章：' . $pid);
+            $request->session()->reflash();
+            return redirect()->route('posts_list');
+        }
+
+        $replyDetail = PostsMood::selectraw('users.id as uid, users.name as uname, users.engroup as uengroup, posts_mood.is_anonymous as panonymous, posts_mood.views as uviews, user_meta.pic as umpic, posts_mood.id as pid, posts_mood.title as ptitle, posts_mood.contents as pcontents, posts_mood.images as pimages, posts_mood.updated_at as pupdated_at,  posts_mood.created_at as pcreated_at')
+            ->LeftJoin('users', 'users.id','=','posts_mood.user_id')
+            ->join('user_meta', 'users.id','=','user_meta.user_id')
+            ->orderBy('pcreated_at','desc')
+            ->where('posts_mood.reply_id', $pid)->get();
+
+        //檢查是否為連續兩個月以上的VIP會員
+        $checkUserVip=0;
+        $isVip =Vip::where('member_id',auth()->user()->id)->where('active',1)->where('free',0)->first();
+        if($isVip){
+            $months = Carbon::parse($isVip->created_at)->diffInMonths(Carbon::now());
+            if($months>=2 || $isVip->payment=='cc_quarterly_payment' || $isVip->payment=='one_quarter_payment'){
+                $checkUserVip=1;
+            }
+        }
+        if($user->isVVIP()){
+            $checkUserVip=1;
+        }
+        return view('/dashboard/mood_post_detail', compact('postDetail','replyDetail', 'checkUserVip'))->with('user', $user);
+    }
+
+    public function getPosts_mood(Request $request)
+    {
+        $page = $request->page;
+        $perPage = 10;
+        $startPost = $page*$perPage;
+
+        /*撈取資料*/
+    }
+
+    public function posts_mood(Request $request)
+    {
+        $user = $this->user;
+        if ($user && $user->engroup == 2){
+            return back();
+        }
+        $url = $request->fullUrl();
+        //echo $url;
+
+        if(str_contains($url, '?img')) {
+            $tabName = 'm_user_profile_tab_4';
+        }
+        else {
+            $tabName = 'm_user_profile_tab_1';
+        }
+
+        $member_pics = DB::table('member_pic')->select('*')->where('member_id',$user->id)->get()->take(6);
+
+        $birthday = date('Y-m-d', strtotime($user->meta_()->birthdate));
+        $birthday = explode('-', $birthday);
+        $year = $birthday[0];
+        $month = $birthday[1];
+        $day = $birthday[2];
+        if($year=='1970'){
+            $year=$month=$day='';
+        }
+        if ($user) {
+            $cancel_notice = $request->session()->get('cancel_notice');
+            $message = $request->session()->get('message');
+            if(isset($cancel_notice)){
+                return view('/dashboard/mood_posts')
+                    ->with('user', $user)
+                    ->with('tabName', $tabName)
+                    ->with('cur', $user)
+                    ->with('year', $year)
+                    ->with('month', $month)
+                    ->with('day', $day)
+                    ->with('message', $message)
+                    ->with('cancel_notice', $cancel_notice);
+            }
+            if($user->engroup==1){
+                return view('/dashboard/mood_posts')
+                    ->with('user', $user)
+                    ->with('tabName', $tabName)
+                    ->with('cur', $user)
+                    ->with('year', $year)
+                    ->with('month', $month)
+                    ->with('day', $day)
+                    ->with('member_pics', $member_pics);
+            }else{
+                return view('/dashboard/mood_posts')
+                    ->with('user', $user)
+                    ->with('tabName', $tabName)
+                    ->with('cur', $user)
+                    ->with('year', $year)
+                    ->with('month', $month)
+                    ->with('day', $day)
+                    ->with('member_pics', $member_pics);
+            }
+        }
+    }
+
+    public function postsEdit_mood($id, $editType='all')
+    {
+        $postInfo = PostsMood::find($id);
+        $images=json_decode($postInfo->images, true);
+        $imagesGroup=array();
+        if(!is_null($images) && count($images)){
+            foreach ($images as $key => $path) {
+                if(file_exists(public_path($path))){
+                    $imagePath = $path;
+                    $imagesGroup['type'][$key] = \App\Helpers\fileUploader_helper::mime_content_type(ltrim($imagePath, '/'));
+                    $imagesGroup['name'][$key] = Arr::last(explode('/', $imagePath));
+                    $imagesGroup['size'][$key] = str_starts_with($imagePath, 'http') ? null :filesize(ltrim($imagePath, '/'));
+                    $imagesGroup['local'][$key] = $imagePath;
+                    $imagesGroup['file'][$key] = $imagePath;
+                    $imagesGroup['data'][$key] = [
+                        'url' => $imagePath,
+                        'thumbnail' =>$imagePath,
+                        'renderForce' => true
+                    ];
+                }
+            }
+        }
+        $images=$imagesGroup;
+
+        return view('/dashboard/mood_posts_edit',compact('postInfo','editType', 'images'));
+    }
+
+    public function doPosts_mood(Request $request)
+    {
+        $user=$request->user();
+
+        //儲存照片
+        $fileuploaderListImages = $request->get('fileuploader-list-images');
+        $destinationPath=$this->posts_pic_save($request->get('post_id'), $fileuploaderListImages, $request->file('images'));
+        if($request->get('action') == 'update'){
+            PostsMood::find($request->get('post_id'))->update(['title'=>$request->get('title'),'contents'=>$request->get('contents'), 'images' => isset($destinationPath) ? $destinationPath : null]);
+            return redirect($request->get('redirect_path'))->with('message','修改成功');
+
+        }else{
+            $posts = new PostsMood;
+            $posts->user_id = $user->id;
+            $posts->title = $request->get('title');
+            $posts->type = $request->get('type','main');
+            $posts->contents=$request->get('contents');
+            $posts->images=isset($destinationPath) ? $destinationPath : null;
+            $posts->save();
+            DB::table('posts')->where('id',$posts->id)->update(['article_id'=>$posts->id]);
+
+            //return redirect('/mood/posts_list')->with('message','發表成功');
+            return redirect('/dashboard/viewuser_vvip/'.$user->id)->with('message','發表成功');
+
+        }
+    }
+
+    public function posts_reply_mood(Request $request)
+    {
+        //儲存照片
+        $fileuploaderListImages = $request->get('fileuploader-list-images');
+        $destinationPath=$this->posts_pic_save($request->get('post_id'), $fileuploaderListImages, $request->file('images'));
+
+        $posts = new PostsMood();
+        $posts->article_id = $request->get('article_id');
+        $posts->reply_id = $request->get('reply_id');
+        $posts->user_id = $request->get('user_id');
+        $posts->type = $request->get('type','sub');
+        $posts->contents   = str_replace('..','',$request->get('contents'));
+        $posts->images=isset($destinationPath) ? $destinationPath : null;
+        $posts->tag_user_id = $request->get('tag_user_id');
+        $posts->save();
+
+        return back()->with('message', '留言成功!');
+    }
+
+    public function posts_delete_mood(Request $request)
+    {
+        $posts = PostsMood::where('id',$request->get('pid'))->first();
+        if($posts->user_id!== auth()->user()->id && auth()->user()->id != 1049){
+            return response()->json(['msg'=>'留言刪除失敗 不可刪除別人的留言!']);
+        }else{
+            $postsType = $posts->type;
+            PostsMood::where('id',$request->get('pid'))->update(['deleted_by'=>auth()->user()->id]);
+            $posts->delete();
+
+            if($postsType=='main')
+                return response()->json(['msg'=>'刪除成功!','postType'=>'main','redirectTo'=>'/dashboard/viewuser_vvip/']);
+            else
+                return response()->json(['msg'=>'留言刪除成功!','postType'=>'sub']);
+        }
+    }
+
+    public function posts_recover_mood(Request $request)
+    {
+        $posts = PostsMood::withTrashed()->where('id',$request->get('pid'))->first();
+        $postsType = $posts->type;
+        PostsVvip::withTrashed()->where('id',$request->get('pid'))->update(['deleted_at'=> null, 'deleted_by' => null ]);
+        if($postsType=='main')
+            return response()->json(['msg'=>'回復成功!','postType'=>'main','redirectTo'=>'/dashboard/viewuser_vvip/']);
+        else
+            return response()->json(['msg'=>'留言回復成功!','postType'=>'sub']);
+    }
+
+    public function post_views_mood($pid)
+    {
+        $views = PostsMood::where('id', $pid)->first()->views;
+        $update = array(
+            'views'=>$views+1,
+        );
+        PostsMood::where('id', $pid)->update($update);
+    }
+
 
     public function forum(Request $request)
     {
@@ -8993,7 +9298,7 @@ class PagesController extends BaseController
                 $areaList=explode(',',$list->area);
                 $cityAndArea='';
                 foreach ($cityList as $key => $city){
-                    $cityAndArea.= $cityList[$key].$areaList[$key] . ((count($cityList)-1)==$key ? '':', ');
+                    $cityAndArea.= $cityList[$key]. ($userMeta->isHideArea? '': $areaList[$key]) . ((count($cityList)-1)==$key ? '':', ');
                 }
                 if($isBlurAvatar){
                     $is_blur = 'blur_img';  
@@ -9218,7 +9523,7 @@ class PagesController extends BaseController
         $areaList=explode(',',$postDetail->area);
         $cityAndArea='';
         foreach ($cityList as $key => $city){
-            $cityAndArea.= $cityList[$key].$areaList[$key] . ((count($cityList)-1)==$key ? '':', ');
+            $cityAndArea.= $cityList[$key]. ($userMeta->isHideArea? '': $areaList[$key]) . ((count($cityList)-1)==$key ? '':', ');
         }
             
         if($isBlurAvatar){
@@ -9249,7 +9554,7 @@ class PagesController extends BaseController
                     
                 // $ssrData .= $postDetail->uid. $postDetail->uname .  $userMeta->age(). $cityAndArea ;
         if($postDetail->uid!==$user->id){
-            $ssrData .='<a href="/dashboard/chat2/chatShow/'.$postDetail->uid.'" class="liuyicon"></a>';
+            $ssrData .='<a href="/dashboard/chat2/chatShow/'.$postDetail->uid.'?from_message_board='.$pid.'" class="liuyicon"></a>';
         }
         $ssrData .='</div>';
 
@@ -9466,7 +9771,7 @@ class PagesController extends BaseController
             if($request->ajax()) {
                 return response()->json([
                     'message' => '修改成功',
-                    'return_url' => '/MessageBoard/post_detail/'.$request->get('mid')
+                    'return_url' => '/MessageBoard/post_detail/'.$request->get('mid').($request->from_viewuser_vvip_page ? '?from_viewuser_vvip_page=1':'').($request->from_viewuser_page ? '?from_viewuser_page=1':'')
                 ]);                
             }
             return redirect('/MessageBoard/post_detail/'.$request->get('mid'))->with('message','修改成功');
@@ -10716,6 +11021,18 @@ class PagesController extends BaseController
             $assets_image = VvipOptionXref::viewSelectOptionInfo('assets_image', $to->id);
             $quality_life_image = VvipOptionXref::viewSelectOptionInfo('quality_life_image', $to->id);
 
+            //心情文章
+            $mood_article_lists=PostsMood::where('user_id', $to->id)->where('type', 'main')->orderBy('created_at','desc')->get();
+
+            //留言板
+            $message_board_list=MessageBoard::where('user_id', $to->id)
+                ->whereRaw('(message_expiry_time >="'.date("Y-m-d H:i:s").'" OR set_period is NULL)')
+                ->where('hide_by_admin',0)
+                ->orderBy('created_at','desc')->get();
+
+            if(!str_contains($_SERVER['HTTP_REFERER'],'MessageBoard/post_detail')) {
+                session()->forget('viewuser_vvip_page_position');
+            }
             return view('new.dashboard.viewuser_vvip', $data ?? [])
                 ->with('user', $user)
                 ->with('blockadepopup', $blockadepopup)
@@ -10750,6 +11067,8 @@ class PagesController extends BaseController
                 ->with('vvipInfo', $vvipInfo)
                 ->with('assets_image', $assets_image)
                 ->with('quality_life_image', $quality_life_image)
+                ->with('mood_article_lists', $mood_article_lists)
+                ->with('message_board_list', $message_board_list)
                 ;
         }
 

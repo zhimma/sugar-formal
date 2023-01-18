@@ -88,7 +88,7 @@
 {{--        $isBlurAvatar = \App\Services\UserService::isBlurAvatar($targetUser, $user);--}}
 {{--        $isBlurLifePhoto = \App\Services\UserService::isBlurLifePhoto($targetUser, $user);--}}
 {{--    @endphp--}}
-    <div id="app">
+    <div id="app"  ontouchstart="" onmouseover="">
     <div class="container matop70">
         <div class="row">
             <div class="col-sm-2 col-xs-2 col-md-2 dinone">
@@ -450,6 +450,72 @@
                         </div>
                     </div>
 
+                    @if(($targetUser->id==$user->id) || $mood_article_lists->count())
+                        <div class="shou" style="border-bottom: none; margin-bottom:5px; margin-top:20px;">
+                            <span style="font-size: 18px;">心情文章</span>
+                            <font>Article on Mood</font>
+                            @if($targetUser->id==$user->id)
+                                <a href="/mood/posts" class="c_but_01 left">
+                                    <div class="c_but_1">新增<img src="/new/images/z_jih.png"></div>
+                                </a>
+                            @endif
+                        </div>
+                        @foreach($mood_article_lists as $key =>$mood_article)
+                            <div @if($key<=2) class="db_but01" @else  class="db_but01 plshow showMoreArticle" style="display: none;" @endif>
+                                <a href="/mood/post_detail/{{ $mood_article->id }}" ontouchstart="">
+                                    <div id="moodArticle_{{ $mood_article->id }}" class="db_but02">
+                                        <b class="dl_font" style="word-break: break-all;">{{ $mood_article->title }}</b>
+                                        <font class="m_a_created_at" style="float: right;margin-top:2px;color: #999999;">{{ substr($mood_article->created_at,0,10) }}</font>
+                                        {{--<a class="db_buta" data-openLink="/mood/postsEdit/{{ $mood_article->id }}/all"><span class="db_icon"><img src="/new/images/z_bianjn.png"></span>編輯</a>--}}
+                                    </div>
+                                </a>
+                            </div>
+                        @endforeach
+                        @if($mood_article_lists->count())
+                            @if($mood_article_lists->count()>3)
+                                <div class="hzk_but">
+                                    <img src="/new/images/z_jt-down.png" onclick="test(this)">
+                                </div>
+                            @endif
+                        @else
+                            <div class="db_but01" style="box-shadow:unset;">暫無資料</div>
+                        @endif
+                        <!-- js 控制 展开 隐藏div -->
+                        <script type="text/javascript">
+                            function test(obj) {
+                                $(".showMoreArticle").each(function() {
+                                    if ($(this).css('display') == "block") {
+                                        $(this).css('display','none');
+                                        obj.src = "/new/images/z_jt-down.png";
+                                    } else {
+                                        $(this).css('display','block');
+                                        obj.src = "/new/images/z_jt-up.png";
+                                    }
+                                });
+                            }
+                        </script>
+                    @endif
+                    @if($message_board_list->count())
+                        <dl class="system" style="margin-top: 30px;">
+                            <dt class="hypbg">
+                                <span>留言記錄</span><font class="">Record of message</font>
+                            </dt>
+                            <dd id="showMoreMsg">
+                                <ul class="hypbgul">
+                                    @foreach($message_board_list as $list)
+                                        <div class="jah">
+                                            <a href="/MessageBoard/post_detail/{{ $list->id }}?from_viewuser_vvip_page=1">
+                                                <div id="messageBoard_{{ $list->id }}" class="ly_text">
+                                                    <div class="ly_text_1"><div class="ly_lfontleft">{{ $list->title }}</div><div class="ly_time">{{ date('Y-m-d', strtotime($list->created_at)) }}</div></div>
+                                                    <div class="liu_text_2">{{ $list->contents }}</div>
+                                                </div>
+                                            </a>
+                                        </div>
+                                    @endforeach
+                                </ul>
+                            </dd>
+                        </dl>
+                    @endif
                 </div>
             </div>
         </div>
@@ -1446,4 +1512,36 @@
 
     rendorItemNthText.nthEnum = '一二三四五六七八九十'.split('');
 </script>
+
+<script type="text/javascript">
+    $(function() {
+        $(".system dd").hide();
+        $(".system dt").click(function() {
+
+        });
+    })
+
+    $('.system dt').click(function(e) {
+        $(this).toggleClass('on');
+        $(this).next('dd').slideToggle();
+    });
+    $( document ).ready(function() {
+
+        var position ='{{ session()->get('viewuser_vvip_page_position')}}';
+        if(position !=''){
+            if (position.indexOf("moodArticle") >= 0){
+                if($('#'+position).is(":hidden")){
+                    test($('#'+position));
+                    $('.hzk_but img').attr('src',"/new/images/z_jt-up.png");
+                }
+                $("html,body").animate({scrollTop: $('#'+position).offset().top}, 1000);
+
+            }else if (position.indexOf("messageBoard") >= 0){
+                $('.hypbg').addClass('on');
+                $('#showMoreMsg').show();
+            }
+        }
+    });
+</script>
+
 @stop
