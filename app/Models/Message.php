@@ -674,7 +674,8 @@ class Message extends Model
         if(!$user){
             $user = User::find($uid);
         }
-        $isAdminSender = AdminService::checkAdmin()->id==$sid;
+        $admin_id = AdminService::checkAdmin()->id;
+        $isAdminSender = $admin_id==$sid;
 		if(!$isAdminSender) 
         {
             $includeUnsend = $includeDeleted;
@@ -700,7 +701,7 @@ class Message extends Model
             }
         }  
         else {
-            $query = Message::whereNotNull('id');
+           $query = Message::whereNotNull('id');
         }
 		
 		$min_bad_date = self::getNotShowBadUserDate($uid, $sid);
@@ -710,13 +711,12 @@ class Message extends Model
         $query = $query->where(function ($query) use ($uid,$sid,$isAdminSender,$includeDeleted) {
 			$whereArr1 = [['to_id', $uid],['from_id', $sid]];
 			$whereArr2 = [['from_id', $uid],['to_id', $sid]];
-			if(!$includeDeleted) {
+			if($isAdminSender) $whereArr1[] = ['chat_with_admin', 1];
+            if(!$includeDeleted) {
 				array_push($whereArr1,['is_single_delete_1','<>',$uid],['is_row_delete_1','<>',$uid]);
 				array_push($whereArr2,['is_single_delete_1','<>',$uid],['is_row_delete_1','<>',$uid]);
 			}
             $query->where($whereArr1);
-
-            if(!$isAdminSender) 
             $query->orWhere($whereArr2);
 
         });
