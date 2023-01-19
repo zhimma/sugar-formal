@@ -2369,7 +2369,7 @@ class PagesController extends BaseController
             $visited_id = 0;
             if ($user->id != $uid) {
                 if(isset($canViewUsers)){
-                    if( $user->is_hide_online != 1 ) {
+                    if( $user->is_hide_online != 1 && $user->is_hide_online != 2) {
                         $visited_id = Visited::visit($user->id, $targetUser);
                     }
                 }
@@ -2381,7 +2381,7 @@ class PagesController extends BaseController
                 ){
                     return redirect()->route('listSeatch2');
                 }else{
-                    if( $user->is_hide_online != 1 ) {
+                    if( $user->is_hide_online != 1 && $user->is_hide_online != 2) {
                         $visited_id = Visited::visit($user->id, $targetUser);
                     }
                 }
@@ -2931,7 +2931,7 @@ class PagesController extends BaseController
 
         
             $userHideOnlinePayStatus = ValueAddedService::status($uid,'hideOnline');
-            if($userHideOnlinePayStatus == 1 && $targetUser->is_hide_online == 1){
+            if($userHideOnlinePayStatus == 1 && ($targetUser->is_hide_online == 1 || $targetUser->is_hide_online == 2){
                 $hideOnlineData = hideOnlineData::where('user_id',$uid)->where('deleted_at',null)->get()->first();
                 if(isset($hideOnlineData)){
                     // $hideOnlineDays = now()->diffInDays($hideOnlineData->created_at);
@@ -10255,7 +10255,7 @@ class PagesController extends BaseController
             return false;
         }
         $visited_record->visited_time = ($visited_record->visited_time ?? 0) + $second;
-        if( $user->is_hide_online != 1 ) {
+        if( $user->is_hide_online != 1 && $user->is_hide_online != 2) {
             $visited_record->save();
         }else{
             return false;
@@ -10857,7 +10857,7 @@ class PagesController extends BaseController
             $visited_id = 0;
             if ($user->id != $uid) {
                 if(isset($canViewUsers)){
-                    if( $user->is_hide_online != 1 ) {
+                    if( $user->is_hide_online != 1 && $user->is_hide_online != 2) {
                         $visited_id = Visited::visit($user->id, $targetUser);
                     }
                 }
@@ -10870,7 +10870,7 @@ class PagesController extends BaseController
 //                    return redirect()->route('listSeatch2');
 //                }
                 else{
-                    if( $user->is_hide_online != 1 ) {
+                    if( $user->is_hide_online != 1 && $user->is_hide_online != 2) {
                         $visited_id = Visited::visit($user->id, $targetUser);
                     }
                 }
