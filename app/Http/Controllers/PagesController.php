@@ -2931,7 +2931,7 @@ class PagesController extends BaseController
 
         
             $userHideOnlinePayStatus = ValueAddedService::status($uid,'hideOnline');
-            if($userHideOnlinePayStatus == 1 && ($targetUser->is_hide_online == 1 || $targetUser->is_hide_online == 2){
+            if($userHideOnlinePayStatus == 1 && ($targetUser->is_hide_online == 1 || $targetUser->is_hide_online == 2)){
                 $hideOnlineData = hideOnlineData::where('user_id',$uid)->where('deleted_at',null)->get()->first();
                 if(isset($hideOnlineData)){
                     // $hideOnlineDays = now()->diffInDays($hideOnlineData->created_at);
