@@ -2680,10 +2680,26 @@ class PagesController extends BaseController
             $data['note']   =    MessageUserNote::where('user_id', $user->id)->where('message_user_id', $to->id)->first();
 
             //留言板
-            $message_board_list=MessageBoard::where('user_id', $to->id)
-                ->whereRaw('(message_expiry_time >="'.date("Y-m-d H:i:s").'" OR set_period is NULL)')
-                ->where('hide_by_admin',0)
-                ->orderBy('created_at','desc')->get();
+            $bannedId =  \App\Services\UserService::getBannedId();
+            $banTheUser = \App\Models\Blocked::where('member_id', $user->id)->get();
+            $banByUser = \App\Models\Blocked::where('member_id', $to->id)->get();
+            
+            $total_ban_num = $bannedId->where('user_id',$to->id)->count()
+                            + $bannedId->where('user_id',$user->id)->count()
+                            + $banTheUser->where('blocked_id',$to->id)->count()
+                             + $banByUser->where('blocked_id',$user->id)->count()
+                             ;
+                             
+            if($total_ban_num) {
+                $message_board_list = collect([]);
+            }
+            else {
+            
+                $message_board_list=MessageBoard::where('user_id', $to->id)
+                    ->whereRaw('(message_expiry_time >="'.date("Y-m-d H:i:s").'" OR set_period is NULL)')
+                    ->where('hide_by_admin',0)
+                    ->orderBy('created_at','desc')->get();
+            }
             if(!str_contains($_SERVER['HTTP_REFERER'],'MessageBoard/post_detail')) {
                 session()->forget('viewuser_page_position');
             }
