@@ -1068,12 +1068,6 @@ class Message extends Model
             ->whereNull('b5.blocked_id')
             ->whereNull('b6.blocked_id')
             ->whereNull('b7.member_id')
-            /*
-            ->where(function ($innerQuery) use ($uid, $admin_id) {
-                $innerQuery->where([['message.to_id', $uid], ['message.from_id', '!=', $uid],['message.from_id','!=',$admin_id]])
-                    ->orWhere([['message.from_id', $uid], ['message.to_id', '!=',$uid],['message.to_id','!=',$admin_id]]);
-            })
-            */
             ;
         $query->where([['message.created_at','>=',self::$date]]);
         $query->whereRaw('message.created_at < IFNULL(b1.created_at,"2999-12-31 23:59:59")');
@@ -1081,14 +1075,7 @@ class Message extends Model
         $query->whereRaw('message.created_at < IFNULL(b3.created_at,"2999-12-31 23:59:59")');
         $query->whereRaw('message.created_at < IFNULL(b4.created_at,"2999-12-31 23:59:59")');
         $query->where([['message.is_row_delete_1','<>',$uid],['message.is_single_delete_1', '<>' ,$uid], ['message.all_delete_count', '<>' ,$uid],['message.is_row_delete_2', '<>' ,$uid],['message.is_single_delete_2', '<>' ,$uid],['message.temp_id', '=', 0]]);
-        /*
-        if($user->id != 1049){
-            $query->where(function($query){
-                $query->where(DB::raw('(u1.engroup + u2.engroup)'), '<>', '2');
-                $query->orWhere(DB::raw('(u1.engroup + u2.engroup)'), '<>', '4');
-            });
-        }
-        */
+
         if($tinker){
             /* 除錯用 SQL 
              * select u1.engroup AS u1_engroup,u2.engroup AS u2_engroup from `message` as `m`
