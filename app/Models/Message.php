@@ -814,6 +814,7 @@ class Message extends Model
         if(!$user){
             $user = User::find($uid);
         }
+        $admin_id = AdminService::checkAdmin()->id;
         $banned_users = banned_users::where('member_id', $uid)->first();
         $BannedUsersImplicitly = BannedUsersImplicitly::where('target', $uid)->first();
         if((isset($banned_users) && ($banned_users->expire_date == null || $banned_users->expire_date >= Carbon::now())) || isset($BannedUsersImplicitly)){
@@ -873,17 +874,6 @@ class Message extends Model
                         ->whereNull('b5.blocked_id')
                         ->whereNull('b6.blocked_id')
                         ->whereNull('b7.member_id')
-                        ->where(function($query) use ($uid) {
-                            $query->where([
-                                ['message.to_id', $uid],
-                                ['message.from_id', '!=', $uid],
-                                ['message.from_id', '!=',AdminService::checkAdmin()->id]
-                            ])->orWhere([                                
-                                ['message.to_id', $uid],
-                                ['message.from_id', '=',AdminService::checkAdmin()->id],
-                                ['message.chat_with_admin', 1]
-                            ]);
-                        })
                         ->where([['message.is_row_delete_1','<>',$uid],['message.is_single_delete_1', '<>' ,$uid], ['message.all_delete_count', '<>' ,$uid],['message.is_row_delete_2', '<>' ,$uid],['message.is_single_delete_2', '<>' ,$uid],['message.temp_id', '=', 0]])
                         ->where('message.read', 'N')
                         ->where([['message.created_at','>=',self::$date]])
@@ -918,13 +908,51 @@ class Message extends Model
                 $all_msg = $all_msg->where('u1.created_at', '<=', $rtime);
             }
         }
+        
+        $query_to = clone $all_msg;
+        $query_from = clone $all_msg;
+        $query_to_admin = clone $all_msg;
+        $query_from_admin = clone $all_msg;
+        
+        $query_to->where([
+                        ['message.to_id', $uid],
+                        ['message.from_id', '<>', $uid],
+                        ['message.from_id', '<>', $admin_id]
+                    ]);
+                    
+        $query_from->where([
+                        ['message.from_id', $uid],
+                        ['message.to_id', '<>', $uid],
+                        ['message.to_id', '<>', $admin_id]
+                    ]);
+                    
+        $query_to_admin->where([
+                        ['message.from_id', $uid],
+                        ['message.to_id', $admin_id],
+                        ['chat_with_admin', 1]
+                    ]);
 
+        $query_from_admin->where([
+                        ['message.to_id', $uid],
+                        ['message.from_id', $admin_id],
+                        ['chat_with_admin', 1]
+                    ]);                        
+        
         if($user->id != 1049){
-            $all_msg = $all_msg->where(function($query){
+            
+            $query_to->where(function($query){
                 $query->where(DB::raw('(u1.engroup + u2.engroup)'), '<>', '2');
                 $query->orWhere(DB::raw('(u1.engroup + u2.engroup)'), '<>', '4');
             });
+            
+            $query_from->where(function($query){
+                $query->where(DB::raw('(u1.engroup + u2.engroup)'), '<>', '2');
+                $query->orWhere(DB::raw('(u1.engroup + u2.engroup)'), '<>', '4');
+            });
+            
         }
+        
+        $all_msg = $query_to->union($query_from)->union($query_from_admin)->union($query_to_admin);        
 
 		$all_msg = $all_msg->get();
 
@@ -1040,24 +1068,27 @@ class Message extends Model
             ->whereNull('b5.blocked_id')
             ->whereNull('b6.blocked_id')
             ->whereNull('b7.member_id')
+            /*
             ->where(function ($innerQuery) use ($uid, $admin_id) {
                 $innerQuery->where([['message.to_id', $uid], ['message.from_id', '!=', $uid],['message.from_id','!=',$admin_id]])
                     ->orWhere([['message.from_id', $uid], ['message.to_id', '!=',$uid],['message.to_id','!=',$admin_id]]);
-            });
+            })
+            */
+            ;
         $query->where([['message.created_at','>=',self::$date]]);
         $query->whereRaw('message.created_at < IFNULL(b1.created_at,"2999-12-31 23:59:59")');
         $query->whereRaw('message.created_at < IFNULL(b2.created_at,"2999-12-31 23:59:59")');
         $query->whereRaw('message.created_at < IFNULL(b3.created_at,"2999-12-31 23:59:59")');
         $query->whereRaw('message.created_at < IFNULL(b4.created_at,"2999-12-31 23:59:59")');
         $query->where([['message.is_row_delete_1','<>',$uid],['message.is_single_delete_1', '<>' ,$uid], ['message.all_delete_count', '<>' ,$uid],['message.is_row_delete_2', '<>' ,$uid],['message.is_single_delete_2', '<>' ,$uid],['message.temp_id', '=', 0]]);
-
+        /*
         if($user->id != 1049){
             $query->where(function($query){
                 $query->where(DB::raw('(u1.engroup + u2.engroup)'), '<>', '2');
                 $query->orWhere(DB::raw('(u1.engroup + u2.engroup)'), '<>', '4');
             });
         }
-
+        */
         if($tinker){
             /* 除錯用 SQL 
              * select u1.engroup AS u1_engroup,u2.engroup AS u2_engroup from `message` as `m`
@@ -1095,6 +1126,51 @@ class Message extends Model
             */
             dd($query);
         }
+        
+        $query_to = clone $query;
+        $query_from = clone $query;
+        $query_to_admin = clone $query;
+        $query_from_admin = clone $query;
+        
+        $query_to->where([
+                        ['message.to_id', $uid],
+                        ['message.from_id', '<>', $uid],
+                        ['message.from_id', '<>', $admin_id]
+                    ]);
+                    
+        $query_from->where([
+                        ['message.from_id', $uid],
+                        ['message.to_id', '<>', $uid],
+                        ['message.to_id', '<>', $admin_id]
+                    ]);
+                    
+        $query_to_admin->where([
+                        ['message.from_id', $uid],
+                        ['message.to_id', $admin_id],
+                        ['chat_with_admin', 1]
+                    ]);
+
+        $query_from_admin->where([
+                        ['message.to_id', $uid],
+                        ['message.from_id', $admin_id],
+                        ['chat_with_admin', 1]
+                    ]);                        
+        
+        if($user->id != 1049){
+            
+            $query_to->where(function($query){
+                $query->where(DB::raw('(u1.engroup + u2.engroup)'), '<>', '2');
+                $query->orWhere(DB::raw('(u1.engroup + u2.engroup)'), '<>', '4');
+            });
+            
+            $query_from->where(function($query){
+                $query->where(DB::raw('(u1.engroup + u2.engroup)'), '<>', '2');
+                $query->orWhere(DB::raw('(u1.engroup + u2.engroup)'), '<>', '4');
+            });
+            
+        }
+        
+        $query = $query_to->union($query_from)->union($query_from_admin)->union($query_to_admin);        
 
         return $query->count();
     }

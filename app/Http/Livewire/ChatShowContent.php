@@ -38,57 +38,51 @@ class ChatShowContent extends Component
         $isVip = $this->isVip;
         $showSlide = $this->showSlide;
         $admin_id = AdminService::checkAdmin()->id;
+        //用model會抓不到unsend欄位 所以這邊用DB來抓
+        $query = DB::table('message');
+
+        $query_to = clone $query;
+        $query_from = clone $query;
+        $query_to_admin = clone $query;
+        $query_from_admin = clone $query;
 
         if(Blocked::isBlocked($to->id, auth()->user()->id)) {
             $blockTime = Blocked::getBlockTime($to->id, auth()->user()->id);
-            //用model會抓不到unsend欄位 所以這邊用DB來抓
-            $messages = DB::table('message')->where(
-                function ($q) use ($to, $admin_id, $blockTime) {
-                    $q->where([
-                        ['to_id', $to->id],
-                        ['to_id', '!=', $admin_id],
-                        ['from_id', auth()->user()->id],
-                        ['created_at', '<=', $blockTime->created_at]
-                    ])->orWhere([
-                        ['from_id', $to->id],
-                        ['from_id', '!=',$admin_id],
-                        ['to_id', auth()->user()->id]
-                    ])->orWhere([
-                        ['to_id', auth()->user()->id],
-                        ['from_id',$admin_id],
-                        ['chat_with_admin',1]
-                    ])->orWhere([
-                        ['from_id', auth()->user()->id],
-                        ['to_id', $admin_id], ['chat_with_admin',1]
-                    ]);
-                }
-            )->distinct()->orderBy('created_at', 'desc');
+            
+           $query_from->where([
+                ['to_id', $to->id],
+                ['to_id', '!=', $admin_id],
+                ['from_id', auth()->user()->id],
+                ['created_at', '<=', $blockTime->created_at]
+                        ]);           
         }else{
-            //用model會抓不到unsend欄位 所以這邊用DB來抓
-            $messages = DB::table('message')->where(
-                function ($q) use($to, $admin_id) {
-                    $q->where([
+           $query_from->where([
                         ['to_id', $to->id],
                         ['to_id', '!=', $admin_id],
                         ['from_id', auth()->user()->id]
-                    ])->orWhere([
+                        ]);             
+        }
+        
+        $query_to->where([
                         ['from_id', $to->id],
-                        ['from_id', '!=', $admin_id],
+                        ['from_id', '!=',$admin_id],
                         ['to_id', auth()->user()->id]
-                    ])->orWhere([
+                    ]);  
+
+        $query_from_admin->where([
                         ['to_id', auth()->user()->id],
                         ['from_id', $admin_id],
                         ['chat_with_admin', 1]
-                    ])->orWhere([
+                    ]);  
+
+        $query_to_admin->where([
                         ['from_id', auth()->user()->id],
                         ['to_id', $admin_id],
                         ['chat_with_admin', 1]
-                    ]);
-                }
-            )->distinct()->orderBy('created_at', 'desc');
-        }
-       
+                    ]);                          
+        $messages = $query_to->union($query_from)->union($query_from_admin)->union($query_to_admin);
         $messages = Message::addAutoDestroyWhereToQuery($messages)
+				->orderBy('created_at', 'desc')
                 ->paginate($this->limitPerPage)
                 ->reverse();
 
