@@ -910,26 +910,12 @@ class Message extends Model
         }
         
         $query_to = clone $all_msg;
-        $query_from = clone $all_msg;
-        $query_to_admin = clone $all_msg;
         $query_from_admin = clone $all_msg;
         
         $query_to->where([
                         ['message.to_id', $uid],
                         ['message.from_id', '<>', $uid],
                         ['message.from_id', '<>', $admin_id]
-                    ]);
-                    
-        $query_from->where([
-                        ['message.from_id', $uid],
-                        ['message.to_id', '<>', $uid],
-                        ['message.to_id', '<>', $admin_id]
-                    ]);
-                    
-        $query_to_admin->where([
-                        ['message.from_id', $uid],
-                        ['message.to_id', $admin_id],
-                        ['chat_with_admin', 1]
                     ]);
 
         $query_from_admin->where([
@@ -939,20 +925,13 @@ class Message extends Model
                     ]);                        
         
         if($user->id != 1049){
-            
             $query_to->where(function($query){
                 $query->where(DB::raw('(u1.engroup + u2.engroup)'), '<>', '2');
                 $query->orWhere(DB::raw('(u1.engroup + u2.engroup)'), '<>', '4');
             });
-            
-            $query_from->where(function($query){
-                $query->where(DB::raw('(u1.engroup + u2.engroup)'), '<>', '2');
-                $query->orWhere(DB::raw('(u1.engroup + u2.engroup)'), '<>', '4');
-            });
-            
         }
         
-        $all_msg = $query_to->union($query_from)->union($query_from_admin)->union($query_to_admin);        
+        $all_msg = $query_to->union($query_from_admin);
 
 		$all_msg = $all_msg->get();
 
