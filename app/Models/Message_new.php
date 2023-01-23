@@ -499,7 +499,7 @@ class Message_new extends Model
             $query->whereRaw('message.created_at < IFNULL(b2.created_at,"2999-12-31 23:59:59")');
             $query->whereRaw('message.created_at < IFNULL(b3.created_at,"2999-12-31 23:59:59")');
             $query->whereRaw('message.created_at < IFNULL(b4.created_at,"2999-12-31 23:59:59")');
-            $query->where([['message.is_row_delete_1','<>',$uid],['message.is_single_delete_1', '<>' ,$uid], ['message.all_delete_count', '<>' ,$uid],['message.is_row_delete_2', '<>' ,$uid],['message.is_single_delete_2', '<>' ,$uid],['message.temp_id', '=', 0]]);
+            $query->where([['message.is_row_delete_1','<>',$uid],['message.is_single_delete_1', '<>' ,$uid], ['message.all_delete_count', '<>' ,$uid],['message.is_row_delete_2', '<>' ,$uid],['message.is_single_delete_2', '<>' ,$uid],['message.temp_id', '=', DB::raw('0')]]);
             
             $query_to = clone $query;
             $query_from = clone $query;
@@ -994,7 +994,7 @@ class Message_new extends Model
                 self::$date = \Carbon\Carbon::parse("30 days ago")->toDateTimeString();
             }
         }
-        $query->where([['message.is_row_delete_1','<>',$uid],['message.is_single_delete_1', '<>' ,$uid], ['message.all_delete_count', '<>' ,$uid],['message.is_row_delete_2', '<>' ,$uid],['message.is_single_delete_2', '<>' ,$uid],['message.temp_id', '=', 0]]);
+        $query->where([['message.is_row_delete_1','<>',$uid],['message.is_single_delete_1', '<>' ,$uid], ['message.all_delete_count', '<>' ,$uid],['message.is_row_delete_2', '<>' ,$uid],['message.is_single_delete_2', '<>' ,$uid],['message.temp_id', '=', DB::raw('0')]]);
         $query->where([['message.created_at','>=',self::$date]]);
         $query->whereRaw('message.created_at < IFNULL(b1.created_at,"2999-12-31 23:59:59")');
         $query->whereRaw('message.created_at < IFNULL(b2.created_at,"2999-12-31 23:59:59")');
