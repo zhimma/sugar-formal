@@ -53,13 +53,13 @@ class RealAuthUserApplyLog extends Model
 
     public function latest_modify() {
         return $this->hasOne(RealAuthUserModify::class,'apply_id','id')
-                ->orderByDesc('id')->take(1);        
+                ->latest();
     } 
 
     public function latest_unchecked_modify() {
         return $this->hasOne(RealAuthUserModify::class,'apply_id','id')
                 ->where(function($q) {$q->whereNull('status')->orWhere('status',0);})
-                ->orderByDesc('id')->take(1);        
+                ->latest();       
     }    
 
 }

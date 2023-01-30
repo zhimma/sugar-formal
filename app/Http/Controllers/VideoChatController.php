@@ -11,9 +11,11 @@ use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\Log;
 use App\Models\UserVideoVerifyRecord;
 use App\Models\UserVideoVerifyRecordLog;
+use App\Models\UserVideoVerifyMemo;
 use App\Services\RealAuthPageService;
 use LZCompressor\LZString;
 use App\Models\WebrtcSignalData;
+use App\Http\Controllers\Admin\UserController;
 
 class VideoChatController extends Controller
 {
@@ -34,11 +36,28 @@ class VideoChatController extends Controller
         $save_data = new WebrtcSignalData;
         $save_data->signal_data = $signal_data;
         $save_data->save();
-
+                
         $data['userToCall'] = $request->user_to_call;
         $data['signalData'] = $save_data->id;
         $data['from'] = Auth::id();
         $data['type'] = 'incomingCall';
+        
+        $from_admin = $request->from_admin;
+        $verify_user_id = null;
+        $admin_id = null;
+        
+        if($from_admin) {
+            $admin_id = auth()->user()->id;
+            $verify_user_id = $data['userToCall'];
+        }
+        else {
+            $admin_id = $data['userToCall'];
+            $verify_user_id = auth()->user()->id;
+        }
+        
+        $record_id = $this->_video_chat_verify_record_init_core($verify_user_id,$admin_id,$from_admin);        
+        
+        $data['record_id'] = $record_id;
 
         $logArr['step'] = 'ending';
         $logArr['title'] = 'before broadcast(new StartVideoChat($data))->toOthers();';
@@ -55,6 +74,7 @@ class VideoChatController extends Controller
         $logArr['data'] = $data;
         $this->logByArr($logArr);     
     
+        return  $record_id;
     }
     
     
@@ -164,6 +184,10 @@ class VideoChatController extends Controller
         
         broadcast(new StartVideoChat($data))->toOthers();
 
+        $verify_record_id = $request->verify_record_id;
+        $data['action'] = 'acceptCall';
+        $this->_video_chat_verify_record_save_core($verify_record_id,$data);
+
         $logArr['step'] = 'end';
         $logArr['title'] = 'after broadcast(new StartVideoChat($data))->toOthers();';
         $logArr['act_step'] = 'after'; 
@@ -193,6 +217,10 @@ class VideoChatController extends Controller
         $this->logByArr($logArr); 
         
         broadcast(new StartVideoChat($data))->toOthers();
+
+        $verify_record_id = $request->verify_record_id;
+        $data_arr['action'] = $data['type'];
+        $this->_video_chat_verify_record_save_core($verify_record_id,$data_arr);
 
         $logArr['step'] = 'end';
         $logArr['title'] = 'after broadcast(new StartVideoChat($data))->toOthers();';
@@ -348,7 +376,7 @@ class VideoChatController extends Controller
         
         return view('video-chat-test', ['users' => $users]);
     }
-
+    
     public function video_chat_verify_upload_init(Request $request)
     {
         if(auth()->user()->id) {
@@ -362,21 +390,78 @@ class VideoChatController extends Controller
         $this->logByArr($logArr);        
 
         $verify_user_id = $request->verify_user_id;
-
-        $user_video_verify_record = new UserVideoVerifyRecord;
-        $user_video_verify_record->user_id = $verify_user_id;       
-        $rs = $user_video_verify_record->save();
-
+        
+        $verify_record_id = $request->verify_record_id;
+        $data['action'] = 'upload_init';
+        $this->_video_chat_verify_record_save_core($verify_record_id,$data);        
+        
         $logArr['data']['verify_user_id'] = $verify_user_id;
-        $logArr['data']['user_video_verify_record'] = $user_video_verify_record;
-        $logArr['data']['rs'] = $rs;
+        $logArr['data']['data'] = $data;
+        $logArr['data']['verify_record_id'] = $verify_record_id;
         $logArr['step'] = 'end';
         $logArr['act'] = '$user_video_verify_record->save()';
         $logArr['act_step'] = 'after';
         $logArr['title'] = 'before return response()->json([\'record_id\' => $user_video_verify_record->id]); after $rs = $user_video_verify_record->save();';
         $this->logByArr($logArr); 
         
-        return response()->json(['record_id' => $user_video_verify_record->id]);
+        return response()->json(['record_id' => $verify_record_id]);
+    }    
+
+    private function _video_chat_verify_record_init_core($verify_user_id,$admin_id,$from_admin=0)
+    {
+        if(auth()->user()->id) {
+            session()->put('sess_user_id', auth()->user()->id);
+        }
+
+        $user_video_verify_record = new UserVideoVerifyRecord;
+        $user_video_verify_record->user_id = $verify_user_id;
+        $user_video_verify_record->admin_id = $admin_id;               
+        $user_video_verify_record->is_caller_admin = $from_admin?1:0;
+        $rs = $user_video_verify_record->save();
+        if($rs) {
+            $memo_entry = UserVideoVerifyMemo::where('user_id',$verify_user_id)->first();
+            if(!$memo_entry) {
+                $memo_entry = new UserVideoVerifyMemo;
+                $memo_entry->user_id = $verify_user_id;
+                $memo_entry->last_edit_admin_id = $admin_id; 
+                $memo_entry->save();
+            }
+            return $user_video_verify_record->id;
+        }
+    }
+
+    public function video_chat_verify_record_init(Request $request)
+    {
+        if(auth()->user()->id) {
+            session()->put('sess_user_id', auth()->user()->id);
+        }
+        
+        $verify_record_id = $request->verify_record_id;
+        
+        if($verify_record_id) {
+            
+            return response()->json(['record_id' => $verify_record_id]);
+        }
+        
+        $from_admin = $request->from_admin;
+        $user_to_call = $request->user_to_call;
+        $verify_user_id = null;
+        $admin_id = null;
+        
+        if($from_admin) {
+            $admin_id = auth()->user()->id;
+            $verify_user_id = $user_to_call;
+        }
+        else {
+            $admin_id = $user_to_call;
+            $verify_user_id = auth()->user()->id;
+        }        
+        
+        
+        
+        $verify_record_id = $this->_video_chat_verify_record_init_core($verify_user_id,$admin_id,$from_admin);
+
+        return response()->json(['record_id' => $verify_record_id]);
     }
 
     public function video_chat_verify_upload(Request $request,RealAuthPageService $rap_service)
@@ -394,10 +479,25 @@ class VideoChatController extends Controller
         $path = $request->file('video')->store('video_chat_verify');
 
         $who = $request->who;
+        $user_question = $request->user_question;
+        $blurryAvatar = $request->blurryAvatar;
+        $blurryLifePhoto = $request->blurryLifePhoto;
 
         $verify_record_id = $request->verify_record_id;
 
         $user_video_verify_record = UserVideoVerifyRecord::where('id',$verify_record_id)->first();
+
+        if($user_question) {
+            $user_video_verify_record->user_question = $user_question; 
+        }
+        
+        if($blurryAvatar) {
+            $user_video_verify_record->blurryAvatar = $blurryAvatar; 
+        }
+        
+        if($blurryLifePhoto) {
+            $user_video_verify_record->blurryLifePhoto = $blurryLifePhoto; 
+        }
 
         $logArr['data']['path'] = $path;
         $logArr['data']['who'] = $who;
@@ -405,11 +505,11 @@ class VideoChatController extends Controller
         $logArr['data']['user_video_verify_record'] = $user_video_verify_record;
         $logArr['step'] = 'ing';
         $this->logByArr($logArr);
-        
+
         if($who == 'partner')
         {
             $user_video_verify_record->user_video = $path;
-            $rap_service->riseByUserId($user_video_verify_record->user_id);
+            
         }
         elseif($who == 'user')
         {
@@ -417,13 +517,25 @@ class VideoChatController extends Controller
         }
         if($user_video_verify_record->save())
         {
+            if($user_question || $blurryAvatar || $blurryLifePhoto) {
+                $this->video_chat_memo_save($request);   
+            }
             $logArr['title'] = $request->user()->id.' $user_video_verify_record->save() success';
             $logArr['act'] = '$user_video_verify_record->save()';
             $logArr['act_step'] = 'success';
             $this->logByArr($logArr);
             if($who == 'partner') {
+                $rap_service->riseByUserId($user_video_verify_record->user_id);
                 $rap_service->saveVideoRecordId($user_video_verify_record->id);
+                $action = 'upload_user_video';
+                
             }
+            else {
+                $action = 'upload_admin_video';
+            }
+            
+            if($user_video_verify_record->user_video && $user_video_verify_record->admin_video) $action = 'upload_complete';
+            $this->_video_chat_verify_record_save_core($user_video_verify_record->id,['action'=>$action]);
 
             $logArr['title'] = $request->user()->id.' video_chat_verify_upload $user_video_verify_record->save() success return end。';
             $logArr['step'] = 'end';
@@ -438,6 +550,58 @@ class VideoChatController extends Controller
         
                 ']);
     }
+
+    private function _video_chat_verify_record_save_core($verify_record_id,$data_arr)
+    {
+        if(auth()->user()->id) {
+            session()->put('sess_user_id', auth()->user()->id);
+        }
+
+        $action = $data_arr['action']??null;
+        $user_video_verify_record = UserVideoVerifyRecord::where('id',$verify_record_id)->first();
+        
+        if($user_video_verify_record->user_id == auth()->user()->id)
+        {
+            if($action) {
+                $user_video_verify_record->user_last_action = $action;
+                $user_video_verify_record->user_last_action_at = Carbon::now();     
+            }
+        }
+        elseif($user_video_verify_record->admin_id == auth()->user()->id)
+        {
+            if($action) {
+                $user_video_verify_record->admin_last_action = $action;
+                $user_video_verify_record->admin_last_action_at = Carbon::now();
+            }
+        }
+
+        $user_question = $data_arr['user_question']??null;
+        $blurryAvatar = $data_arr['blurryAvatar']??null;
+        $blurryLifePhoto = $data_arr['blurryLifePhoto']??null;
+        
+        if($user_question) $user_video_verify_record->user_question = $user_question;
+        if($blurryAvatar) $user_video_verify_record->blurryAvatar = $blurryAvatar;
+        if($blurryLifePhoto) $user_video_verify_record->blurryLifePhoto = $blurryLifePhoto;
+
+        return $user_video_verify_record->save();
+
+    }      
+    
+    public function video_chat_verify_record_save(Request $request,RealAuthPageService $rap_service)
+    {
+        if(auth()->user()->id) {
+            session()->put('sess_user_id', auth()->user()->id);
+        }
+
+        $verify_record_id = $request->verify_record_id;
+        
+        if($request->action) $data['action'] = $request->action;
+        if($request->user_question) $data['user_question'] = $request->user_question;
+        if($request->blurryAvatar) $data['blurryAvatar'] = $request->blurryAvatar;
+        if($request->blurryLifePhoto) $data['blurryLifePhoto'] = $request->blurryLifePhoto;        
+        
+        return $this->_video_chat_verify_record_save_core($verify_record_id,$data);
+    }    
 
     public function video_chat_verify_record_list(Request $request)
     {
@@ -529,11 +693,11 @@ class VideoChatController extends Controller
     
     public function video_chat_get_users(Request $request,$not_json_output=false) 
     {
-        $users = User::where('id', '<>', Auth::id())->where('last_login', '>', Carbon::now()->subDay())
-                    ->select('id','name')
-                    ->without('user_meta','vip')
+        $users = User::with(['video_verify_memo','self_auth_apply','self_auth_apply.latest_video_modify','video_verify_record'=>function($q){$q->with('admin_user')->orderByDesc('id');}])->where('id', '<>', Auth::id())->where('last_login', '>', Carbon::now()->subDay())
+                    ->select('id','name','created_at')
+                    ->without('vip')
                     ->where('engroup',2)
-                    ->whereHas('self_auth_unchecked_apply')
+                    ->whereHas('self_auth_apply')
                     ->get();
                     
         if($not_json_output) return $users;
@@ -546,6 +710,99 @@ class VideoChatController extends Controller
         $is_allow = $rap_service->riseByUserId(Auth::id())->isAllowUseVideoChat() ?? false;
         return response()->json(['is_allow' => $is_allow]);
     }
+    
+    public function video_chat_memo_save(Request $request) 
+    {
+        $who = $request->who;
+        $verify_user_id = $request->verify_user_id;
+        if(!$verify_user_id) $verify_user_id = $request->user_id;
+        if(!$verify_user_id) {
+            if($request->verify_record_id) {
+                $verify_record_id = $request->verify_record_id;
+                $user_video_verify_record = UserVideoVerifyRecord::where('id',$verify_record_id)->first();
+                if($user_video_verify_record) {
+                    $verify_user_id = $user_video_verify_record->user_id;
+                
+                    if(!$who) {
+                        if($request->user_question) $user_video_verify_record->user_question = $request->user_question;
+                        if($request->blurryAvatar) $user_video_verify_record->blurryAvatar = $request->blurryAvatar;
+                        if($request->blurryLifePhoto) $user_video_verify_record->blurryLifePhoto = $request->blurryLifePhoto;
+                        $user_video_verify_record->save();
+                    }
+                }
+            }
+            
+        }
+        if(!$verify_user_id) return;
+            
+        $verify_user_entry = User::find($verify_user_id);
+        
+        if(!$verify_user_entry)  return;
+        $memo_entry = $verify_user_entry->video_verify_memo;
+        
+        $memo_data = ['last_edit_admin_id'=>auth()->user()->id];
+        if($request->user_question) {
+            if(!$memo_entry || $memo_entry->user_question!=$request->user_question) {
+                $memo_data['user_question'] = $request->user_question;
+                $memo_data['user_question_at'] = Carbon::now();
+            }
+        }
+        
+        $isLogAdminBlurry = false;
+        
+        if($request->blurryAvatar) {
+           $memo_data['blurryAvatar'] = $request->blurryAvatar; 
+           if(!$memo_entry || $memo_entry->blurryAvatar!=$request->blurryAvatar) {
+               $isLogAdminBlurry = true;
+           }
+           
+        }
+        if($request->blurryLifePhoto) {
+            $memo_data['blurryLifePhoto'] = $request->blurryLifePhoto;
+            if(!$memo_entry || $memo_entry->blurryLifePhoto!=$request->blurryLifePhoto) {
+                $isLogAdminBlurry = true;
+            }
+        }
+        $rs = false;
+        if($memo_entry) {
+            $rs = $verify_user_entry->video_verify_memo()->update($memo_data);                    
+        }
+        else {
+          $rs = $verify_user_entry->video_verify_memo()->create($memo_data);                      
+        }
+        if($rs) {
+           if($isLogAdminBlurry) {
+                $uCtrl = app(UserController::class);
+                $uCtrl->insertAdminActionLog($verify_user_entry->id, '視訊驗證 - 設定照片'); 
+           }
+           
+           return response()->json(['memo' => $verify_user_entry->video_verify_memo()->firstOrNew()]); 
+        }
+        
+ 
+    }
+    
+    public function user_question_into_chat_time_save(Request $request) 
+    {
+        $verify_user_id = $request->verify_user_id;
+        if(!$verify_user_id) $verify_user_id = $request->user_id;
+
+        if(!$verify_user_id) return;
+            
+        $verify_user_entry = User::find($verify_user_id);
+        
+        if(!$verify_user_entry)  return;
+        
+        $rs = false;
+        if($verify_user_entry->video_verify_memo) {
+            $rs = $verify_user_entry->video_verify_memo()->update(['user_question_into_chat_at'=>Carbon::now()]);                    
+        }                   
+        
+        if($rs) {
+            return response()->json(['memo' => $verify_user_entry->video_verify_memo()->firstOrNew()]);
+        }
+ 
+    }    
     
     
 }

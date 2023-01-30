@@ -748,20 +748,6 @@
          </div>
     </div>
     @endif
-    @if($rap_service->isSelfAuthApplyNotVideoYet())
-        <div style="position:relative;" id="video_app_container">
-            <div id="app" style="display: none;">
-                <video-chat 
-                    :allusers="{{ $users }}" 
-                    :authUserId="{{ auth()->id() }}" 
-                    user_permission = "normal"
-                    ice_server_json="" 
-                />
-                
-            </div>
-        </div>
-    @endif
-
     @if(isset($user->applyVVIP_getData()->created_at) && $user->applyVVIP_getData()->created_at != '')
         <div class="bl bl_tab" id="show_vvip_user_note">
             <div class="bltitle"><span>回報末五碼</span></div>
@@ -1584,98 +1570,6 @@ display: flex;-webkit-box-pack: center;-ms-flex-pack: center;-webkit-justify-con
         } 
 
         return true;
-    }
-    
-</script>
-@endif
-@if($rap_service->isSelfAuthApplyNotVideoYet())
-<script>
-    let ice_servers;
-    async function kinesis_init()
-    {
-        // DescribeSignalingChannel API can also be used to get the ARN from a channel name.
-        const channelARN = 'arn:aws:kinesisvideo:ap-southeast-1:428876234027:channel/videos/1653476269290';
-
-        // AWS Credentials
-        const accessKeyId = 'AKIAWHWYD7UVXA6QL2GN';
-        const secretAccessKey = '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';
-        const region = 'ap-southeast-1';
-
-        const kinesisVideoClient = new AWS.KinesisVideo({
-            region,
-            accessKeyId,
-            secretAccessKey,
-            correctClockSkew: true,
-        });
-
-        const getSignalingChannelEndpointResponse = await kinesisVideoClient
-            .getSignalingChannelEndpoint({
-                ChannelARN: channelARN,
-                SingleMasterChannelEndpointConfiguration: {
-                    Protocols: ['WSS', 'HTTPS'],
-                    Role: KVSWebRTC.Role.VIEWER,
-                },
-            })
-            .promise();
-        
-        const endpointsByProtocol = getSignalingChannelEndpointResponse.ResourceEndpointList.reduce((endpoints, endpoint) => {
-            endpoints[endpoint.Protocol] = endpoint.ResourceEndpoint;
-            return endpoints;
-        }, {});
-
-        const kinesisVideoSignalingChannelsClient = new AWS.KinesisVideoSignalingChannels({
-            region,
-            accessKeyId,
-            secretAccessKey,
-            endpoint: endpointsByProtocol.HTTPS,
-            correctClockSkew: true,
-        });
-        
-        const getIceServerConfigResponse = await kinesisVideoSignalingChannelsClient
-            .getIceServerConfig({
-                ChannelARN: channelARN,
-            })
-            .promise();
-
-        const iceServers = [
-            { urls: `stun:stun.kinesisvideo.${region}.amazonaws.com:443` }
-        ];
-
-        getIceServerConfigResponse.IceServerList.forEach(iceServer =>
-            iceServers.push({
-                urls: iceServer.Uris,
-                username: iceServer.Username,
-                credential: iceServer.Password,
-            }),
-        );
-
-        ice_servers = iceServers;
-    }
-
-    kinesis_init().then(function(result){
-        $('#app video-chat').attr('ice_server_json',JSON.stringify(ice_servers));
-        
-        new Vue({
-            el:'#app'
-        });
-    })
-    
-    setTimeout(change_video_status, 3000);
-    setInterval(change_video_status, 10000);
-    
-    function change_video_status() 
-    {
-        var video_state_intro_block = $('#video_status_text_show_elt');
-        var video_status_show_elt = $('.video_status_show_elt');
-        if($('#app .btn-success').length) {
-            if(video_status_show_elt.eq(0).attr('src')!='{{asset("/new/images/kai-1.png")}}')  video_status_show_elt.attr('src','');
-            video_status_show_elt.attr('src','{{asset("/new/images/kai-1.png")}}').show();
-            video_state_intro_block.html('現在可以進行視訊驗證，<span style="color:#e44e71;">點此開始驗證</span>');
-        }
-        else {
-            video_status_show_elt.attr('src','{{asset("/new/images/guan.png")}}').show();
-            video_state_intro_block.html('視訊審核的站方人員不在線，請稍後再試。');
-        }
     }
     
 </script>

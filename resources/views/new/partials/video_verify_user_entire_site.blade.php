@@ -1,8 +1,8 @@
 <script>
-    let video_verify_loading_pic = new Image();
-    video_verify_loading_pic.src="{{asset('/new/images/loading.svg')}}";    
+    let video_verify_loading_pic_entire_site = new Image();
+    video_verify_loading_pic_entire_site.src="{{asset('/new/images/loading.svg')}}";    
 
-    function log_video_chat_process(log_arr)
+    function log_video_chat_process_entire_site(log_arr)
     {
         log_arr.url = location.href;
 
@@ -13,7 +13,7 @@
                 });       
     }
     
-    function video_beforeunload_act()
+    function video_beforeunload_act_entire_site()
     {
         axios
             .post("/video/unloading-video-page", {from_file:'video_verify_user_entire_site.tpl'})
@@ -27,7 +27,7 @@
                 ,step:'within'
                 ,data:{error:error}
             };
-            log_video_chat_process(log_arr);    
+            log_video_chat_process_entire_site(log_arr);    
 
             $("#error_message").text('loading-video-page axios error:' + error);
             });     
@@ -57,8 +57,9 @@
         <video-verify-user-entire-site
             :allusers="{{ view()->shared('self_auth_video_allusers') }}" 
             :authUserId="{{ auth()->id() }}" 
+            :authUser="{{ auth()->user()?auth()->user()->load('self_auth_unchecked_apply'):null }}"
             user_permission = "normal"
-            is_user_allow_video_chat = {{view()->shared('user') && view()->shared('rap_service') && view()->shared('rap_service')->riseByUserEntry(view()->shared('user')->refresh())->isAllowUseVideoChat() && view()->shared('rap_service')->isUrlNeedEntireSiteVideoChat()}}
+            is_user_allow_video_chat = "{{view()->shared('user') && view()->shared('rap_service') && view()->shared('rap_service')->riseByUserEntry(view()->shared('user')->refresh())->isAllowUseVideoChat() && view()->shared('rap_service')->isUrlNeedEntireSiteVideoChat()}}"
             ice_server_json="" 
         />
         

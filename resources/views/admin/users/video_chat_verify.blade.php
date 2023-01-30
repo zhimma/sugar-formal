@@ -1,6 +1,5 @@
 @extends('admin.main')
 @section('app-content')
-    <head>
         <script src="https://sdk.amazonaws.com/js/aws-sdk-2.1155.0.min.js"></script>
         <script src="https://unpkg.com/amazon-kinesis-video-streams-webrtc/dist/kvs-webrtc.min.js"></script>       
         {{--<script src="/new/js/aws-sdk-2.1143.0.min.js"></script>--}}
@@ -8,13 +7,62 @@
             let video_verify_loading_pic = new Image();
             video_verify_loading_pic.src="{{asset('/new/images/loading.svg')}}";    
         </script>
-    </head>
-    
-    <body style="padding: 15px;">
+        <style>
+            #data-table th {white-space:nowrap;}
+
+            .nowrap {
+                white-space:nowrap;
+            }
+            
+            .width2word {
+                width:2.5em !important;
+            }
+            
+            .video_user_question_edit_block {display:none;}
+            #user_question_edit_block_with_video textarea {
+                width:250px;
+                height:70px;
+            }
+
+            #video_chat_user_setting_block {
+                position:absolute;
+                top:-100px;
+                width:100%;
+            }
+            
+            #video-row,#video_income_call_dialog {
+              z-index:29;
+              background-color:white;
+              position:fixed;
+            }  
+            
+            #video-row {
+              top: calc((100% - 450px) / 2);
+              left:  calc((100% - 700px) / 2);
+            } 
+
+            #video_income_call_dialog {
+              top: calc((100% - 75px) / 2);
+              left:  calc((100% - 227px) / 2);
+            } 
+
+            .video_chat_call_placed_mask_bg,.video_chat_incomingCallDialog_mask_bg {
+                display:block !important;
+                z-index:28 !important;
+            }
+            
+            #video_chat_user_setting_block > div {display:inline-block;margin-left:2em;vertical-align:top;}
+            #video_chat_user_setting_block > div > div > label > input {margin-right:0.5em;}
+            .video_record_list_item_block {white-space:nowrap;}
+            .video_user_question_show_block {margin-bottom:10px;word-break: break-all;word-wrap:break-word;white-space:pre-line;}
+            .video_memo_edit_title_block {font-weight:bolder;}
+            .not_into_chat_yet {background-color:yellow;padding:5px;}
+            .operator-col button {margin-bottom:5px;}
+        </style>
+          
+    <div style="padding: 15px;">
         <meta name="csrf-token" content="{{ csrf_token() }}">
         <h1>視訊驗證</h1>
-        <button id="video_chat_switch_on" class="btn" style="background-color: #e7e7e7; color: black; cursor: default; ">ON</button>
-        <button id="video_chat_switch_off" class="btn" style="background-color: #f44336; color: white; cursor: not-allowed;">OFF</button>
         <br>
         <br>
         <div class="row">
@@ -27,8 +75,8 @@
                 />
             </div>
         </div>
-    </body>
-
+    </div>
+    <script src="https://cdn.datatables.net/1.10.25/js/jquery.dataTables.min.js"></script>
     <script>
         let ice_servers;
         async function kinesis_init()
@@ -93,16 +141,6 @@
         }
 
         function start_video_chat(){
-            $('#video_chat_switch_on').css({
-                'background-color': '#4CAF50',
-                'color': 'white',
-                'cursor': 'not-allowed'
-            });
-            $('#video_chat_switch_off').css({
-                'background-color': '#e7e7e7',
-                'color': 'black',
-                'cursor': 'default'
-            });
             kinesis_init().then(function(result){
                 $('#app video-chat').attr('ice_server_json',JSON.stringify(ice_servers));
                 new Vue({
@@ -137,31 +175,11 @@
                 $("#error_message").text('loading-video-page axios error:' + error);
               });     
         }          
-
-        $('#video_chat_switch_on').on('click',function(){
-            start_video_chat();
-            $('body').attr('onkeydown',"if (window.event.keyCode == 116) window.sessionStorage.setItem('endcall_reload',true);");    
-        });
-
-        $(document).ready(function(){
-            if(window.sessionStorage.endcall_reload)
-            {
-                start_video_chat();
-                window.sessionStorage.removeItem('endcall_reload');
-                $('body').attr('onkeydown',"if (window.event.keyCode == 116) window.sessionStorage.setItem('endcall_reload',true);");    
-            }
-        });
-
-        $('#video_chat_switch_off').on('click',function(){
-            video_beforeunload_act();
-            window.sessionStorage.removeItem('endcall_reload');
-              var old_beforeunload = $('body').attr('onbeforeunload');
-              $('body').attr('onbeforeunload',old_beforeunload.replace('video_beforeunload_act()',''));            
-                
-            window.location.reload();
-        });
-
         
+        $(document).ready(function(){
+            
+            start_video_chat();
+        });
     </script>
     <script>
     window.history.replaceState( {} , $('title').html(), location.pathname+'?{{csrf_token()}}='+(new Date().getTime()) );

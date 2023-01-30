@@ -76,15 +76,21 @@
 								session()->put('viewuser_vvip_page_position', 'messageBoard_'.$postDetail->mid);
 							}
 							else{
-							    session()->forget('viewuser_page_position');
-								session()->forget('viewuser_vvip_page_position');
+								if(isset($_SERVER['HTTP_REFERER']) && !str_contains($_SERVER['HTTP_REFERER'], 'MessageBoard/edit') && !str_contains($_SERVER['HTTP_REFERER'], 'MessageBoard/post_detail')){
+								    session()->forget('viewuser_page_position');
+									session()->forget('viewuser_vvip_page_position');
+								}
 							}
 
 							if(isset($_SERVER['HTTP_REFERER']) && str_contains($_SERVER['HTTP_REFERER'], 'from_message_board')){
 								$previous_url='/dashboard/viewuser/'.$postDetail->uid;
 							}
-
-
+							if(isset($_SERVER['REQUEST_URI']) && str_contains($_SERVER['REQUEST_URI'], 'from_viewuser_vvip_page')){
+								$previous_url='/dashboard/viewuser_vvip/'.$postDetail->uid.'#messageBoard_'.$postDetail->mid;
+							}
+							if(isset($_SERVER['REQUEST_URI']) && str_contains($_SERVER['REQUEST_URI'], 'from_viewuser_page')){
+								$previous_url='/dashboard/viewuser/'.$postDetail->uid.'#messageBoard_'.$postDetail->mid;
+							}
 						@endphp
 						<a href="{{ $previous_url }}" class="toug_back btn_img">
 							<div class="btn_back"></div>
@@ -338,7 +344,8 @@
             },
         async mounted () {
 			let pid={{$pid}};
-                await axios
+			let return_page='{{$return_page}}';
+			await axios
                 .post('/MessageBoard/getItemHeader', { pid:pid })
                 .then(response => {
 					console.log(response,'getItemHeader');
@@ -349,7 +356,7 @@
                 });
    
                 axios
-                .post('/MessageBoard/getItemContent',{ pid:pid })
+                .post('/MessageBoard/getItemContent?return_page='+return_page,{ pid:pid })
 
                 .then(response => {
 					console.log(response);

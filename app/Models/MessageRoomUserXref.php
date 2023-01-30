@@ -7,8 +7,7 @@ use Illuminate\Database\Eloquent\Model;
 use App\Services\AdminService;
 use App\Models\SimpleTables\banned_users;
 use Carbon\Carbon;
-
-use function Clue\StreamFilter\fun;
+use Illuminate\Support\Facades\DB;
 
 class MessageRoomUserXref extends Model
 {
@@ -27,7 +26,7 @@ class MessageRoomUserXref extends Model
                              ['message.all_delete_count', '<>', $user->id],
                              ['message.is_row_delete_2', '<>', $user->id],
                              ['message.is_single_delete_2', '<>', $user->id],
-                             ['message.temp_id', '=', 0]]);
+                             ['message.temp_id', '=', DB::raw('0')]]);
     }
 
     public function latestMessage() {
@@ -116,7 +115,7 @@ class MessageRoomUserXref extends Model
         $query->whereRaw('message.created_at < IFNULL(b2.created_at,"2999-12-31 23:59:59")');
         $query->whereRaw('message.created_at < IFNULL(b3.created_at,"2999-12-31 23:59:59")');
         $query->whereRaw('message.created_at < IFNULL(b4.created_at,"2999-12-31 23:59:59")');
-        $query->where([['message.is_row_delete_1','<>',$uid],['message.is_single_delete_1', '<>' ,$uid], ['message.all_delete_count', '<>' ,$uid],['message.is_row_delete_2', '<>' ,$uid],['message.is_single_delete_2', '<>' ,$uid],['message.temp_id', '=', 0]]);
+        $query->where([['message.is_row_delete_1','<>',$uid],['message.is_single_delete_1', '<>' ,$uid], ['message.all_delete_count', '<>' ,$uid],['message.is_row_delete_2', '<>' ,$uid],['message.is_single_delete_2', '<>' ,$uid],['message.temp_id', '=', DB::raw('0')]]);
         $query->orderBy('message.created_at', 'desc');
         if($user->id != 1049){
             $query->where(function($query){

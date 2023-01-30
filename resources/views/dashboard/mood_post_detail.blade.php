@@ -89,7 +89,7 @@
 						<font>Article on Mood</font>
 						@php
 							$previous_url='/dashboard/viewuser_vvip/'.$postDetail->uid;
-							if(str_contains($_SERVER['HTTP_REFERER'], 'viewuser_vvip/')){
+							if(isset($_SERVER['HTTP_REFERER']) && str_contains($_SERVER['HTTP_REFERER'], 'viewuser_vvip/')){
 								$previous_url= $previous_url.'#moodArticle_'.$postDetail->pid;
 								session()->put('viewuser_vvip_page_position', 'moodArticle_'.$postDetail->pid);
 							}
@@ -480,7 +480,7 @@
 				c4('確定要刪除嗎?');
 				$(".n_left").on('click', function() {
 					$.ajax({
-						url: '/mood/posts_delete?{{ csrf_token() }}={{now()->timestamp}} ',
+						url: '/mood/posts_delete?{{ csrf_token() }}={{now()->timestamp}}&from_viewuser_vvip_page=1',
 						method: 'POST',
 						data: {
 							_token: "{{ csrf_token() }}",

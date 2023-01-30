@@ -29,15 +29,11 @@
                         <video-verify-user 
                             :allusers="{{ $users }}" 
                             :authUserId="{{ auth()->id() }}" 
+                            :authUser="{{ auth()->user()->load('self_auth_unchecked_apply') }}"
                             user_permission = "normal"
                             ice_server_json="" 
                         />
                         
-                    </div>
-                    <div style="flex-wrap: wrap;position: absolute;top: 0;z-index: -1;">
-                        <button type="button" class="btn mr-2 btn-secondary disabled" style="padding:0;">           
-                            <span class="badge badge-light" style="line-height:normal;letter-spacing:2px;text-align:left;background:transparent;color:black;">請等待10~20秒，<br>將會有撥打給站方的按鈕，<br>才可開始視訊</span>
-                        </button>
                     </div>
                 </div>
             </div>

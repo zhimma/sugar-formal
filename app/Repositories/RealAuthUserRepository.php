@@ -187,7 +187,7 @@ class RealAuthUserRepository
     public function riseByUserId($user_id) 
     {
         $user_entry = $this->user()->find($user_id);
-        $this->user($user_entry);
+        $this->user($user_entry);       
         return $this;    
     }    
     
@@ -785,6 +785,7 @@ class RealAuthUserRepository
     {
         $apply_entry = null;
         $user = $this->user();
+
         switch($auth_type_id) {
             case 1:
                 $apply_entry = $user->self_auth_apply;

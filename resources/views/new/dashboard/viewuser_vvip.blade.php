@@ -462,9 +462,10 @@
                         </div>
                         @foreach($mood_article_lists as $key =>$mood_article)
                             <div @if($key<=2) class="db_but01" @else  class="db_but01 plshow showMoreArticle" style="display: none;" @endif>
-                                <a href="/mood/post_detail/{{ $mood_article->id }}" ontouchstart="">
+                                <a href="/mood/post_detail/{{ $mood_article->id }}?from_viewuser_vvip_page=1" ontouchstart="">
                                     <div id="moodArticle_{{ $mood_article->id }}" class="db_but02">
                                         <b class="dl_font" style="word-break: break-all;">{{ $mood_article->title }}</b>
+                                        <font class="m_a_created_at" style="float: right;margin-top:2px;color: #999999;">{{ substr($mood_article->created_at,0,10) }}</font>
                                         {{--<a class="db_buta" data-openLink="/mood/postsEdit/{{ $mood_article->id }}/all"><span class="db_icon"><img src="/new/images/z_bianjn.png"></span>編輯</a>--}}
                                     </div>
                                 </a>
@@ -503,7 +504,7 @@
                                 <ul class="hypbgul">
                                     @foreach($message_board_list as $list)
                                         <div class="jah">
-                                            <a href="/MessageBoard/post_detail/{{ $list->id }}">
+                                            <a href="/MessageBoard/post_detail/{{ $list->id }}?from_viewuser_vvip_page=1">
                                                 <div id="messageBoard_{{ $list->id }}" class="ly_text">
                                                     <div class="ly_text_1"><div class="ly_lfontleft">{{ $list->title }}</div><div class="ly_time">{{ date('Y-m-d', strtotime($list->created_at)) }}</div></div>
                                                     <div class="liu_text_2">{{ $list->contents }}</div>
