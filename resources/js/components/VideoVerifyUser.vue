@@ -57,11 +57,17 @@
         </div>
       </div>
       <!-- End of Placing Video Call  -->
-      <div class="row" v-if="!callPlaced && !incomingCallDialog">
+      <div class="row" v-if="!callPlaced && !incomingCallDialog && authuserisselfauthwaitingcheck!=1">
         <div class="col">
           <p style="margin-top:20px;">
-            {{authuser.name}}您好，您在{{authuser.self_auth_unchecked_apply.created_at.substr(0,10)}}時於本站申請 本人認證。請等候站方人員撥打視訊通話給您，謝謝。
-            
+            {{authuser.name}}您好，您在{{authuser.self_auth_unchecked_apply.created_at.substr(0,10)}}時於本站申請 本人認證。站方人員可從本站任一頁面跟您視訊，請等候站方人員撥打視訊通話給您，謝謝。
+          </p>
+        </div>
+      </div>
+      <div class="row" v-if="!callPlaced && !incomingCallDialog && authuserisselfauthwaitingcheck">
+        <div class="col">
+          <p style="margin-top:20px;">
+            {{authuser.name}}您好，您在{{authuser.self_auth_unchecked_apply.created_at.substr(0,10)}}時於本站申請 本人認證。目前已進入站方審核階段，請耐心等候，謝謝。
           </p>
         </div>
       </div>
@@ -129,6 +135,7 @@ export default {
     "allusers",
     "authuserid",
     "authuser",
+    "authuserisselfauthwaitingcheck",
     "user_permission",
     "ice_server_json",
   ],
