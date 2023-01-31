@@ -67,7 +67,7 @@
       <div class="row" v-if="!callPlaced && !incomingCallDialog && authuserisselfauthwaitingcheck">
         <div class="col">
           <p style="margin-top:20px;">
-            {{authuser.name}}您好，您在{{authuser.self_auth_unchecked_apply.created_at.substr(0,10)}}時於本站申請 本人認證。目前已進入站方審核階段，請耐心等候，謝謝。
+            {{authuser.name}}您好，您在{{authuser.self_auth_unchecked_apply.created_at.substr(0,10)}}時於本站申請 本人認證。目前還在審核中請稍候，請稍候，若有問題請與站長聯絡 <a href="https://lin.ee/rLqcCns"><img src="https://scdn.line-apps.com/n/line_add_friends/btn/zh-Hant.png" alt="加入好友" height="26" border="0" style="all: initial;all: unset;height: 26px; float: unset;vertical-align:middle !important;"></a>
           </p>
         </div>
       </div>
