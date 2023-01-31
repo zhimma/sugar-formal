@@ -67,6 +67,9 @@ class ChatShowContent extends Component
         if ($to->id == $admin_id || $user->id == $admin_id) {
             $messages->where('chat_with_admin', 1);
         }
+        
+        $uid = $user->id;
+        $messages->where([['message.is_row_delete_1','<>',$uid],['message.is_single_delete_1', '<>' ,$uid], ['message.all_delete_count', '<>' ,$uid],['message.is_row_delete_2', '<>' ,$uid],['message.is_single_delete_2', '<>' ,$uid],['message.temp_id', '=', DB::raw('0')]]);
        
         $messages = Message::addAutoDestroyWhereToQuery($messages)
                 ->paginate($this->limitPerPage)
