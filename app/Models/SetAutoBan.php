@@ -607,7 +607,7 @@ class SetAutoBan extends Model
         $set_auto_ban_list_by_type =  DB::table('set_auto_ban')->leftJoin('users','users.id','=','set_auto_ban.cuz_user_set')->whereIn('set_auto_ban.type', $typeArr)->whereNull('set_auto_ban.deleted_at')->get()->toArray();
 
         $checkStatus=false;
-
+        $ban_type=[];
         
 
         // $get_remote_ip = SetAutoBan::getRemoteIp();
@@ -617,6 +617,7 @@ class SetAutoBan extends Model
                 if($get_remote_ip == $row->content){
                     if(Carbon::now()<$row->expiry){
                         $checkStatus = true;
+                        array_push($ban_type,'ip');
                     }
                 }
             }
@@ -624,35 +625,40 @@ class SetAutoBan extends Model
             if($row->type=='style'){
                 if(strpos($user->style, $row->content) !== false){
                     $checkStatus = true;
+                    array_push($ban_type,'期待的約會模式');
                 }
             }
 
             if($row->type=='about'){
                 if(strpos($user->about, $row->content) !== false){
                     $checkStatus = true;
+                    array_push($ban_type,'關於我');
                 }
             }
 
             if($row->type=='title'){
                 if(str_contains($user->title, $row->content)){
                     $checkStatus = true;
+                    array_push($ban_type,'一句話形容自己');
                 }
             }
 
             if($row->type=='name'){
                 if(str_contains($user->name, $row->content)){
                     $checkStatus = true;
+                    array_push($ban_type,'暱稱');
                 }
             }
 
             if($row->type=='email'){
                 if(str_contains($user->email, '@'.$row->content)){
                     $checkStatus = true;
+                    array_push($ban_type,'email');
                 }
             }
         }
 
-        return $checkStatus;
+        return [$checkStatus, $ban_type];
     }
     public static function getRemoteIp(){
         if (!empty($_SERVER['HTTP_CLIENT_IP'])) {
@@ -964,8 +970,8 @@ class SetAutoBan extends Model
             return [];
         }
 
-        $status = SetAutoBan::retriveGroupAndCheck(['ip','name','email','title','about', 'style'], $user, $ip);
+        [$status, $ban_type] = SetAutoBan::retriveGroupAndCheck(['ip','name','email','title','about', 'style'], $user, $ip);
 
-        return $status;
+        return [$status, $ban_type];
     }
 }

@@ -19,8 +19,8 @@ class SetAutoBanController extends \App\Http\Controllers\BaseController
     public function getAutoBanedCheck(Request $request){
         $user_json = $request->user_json;
         $ip = $request->ip ?? '0.0.0.0';
-        $status = SetAutoBan::local_machine_ban_and_warn_check(json_decode($user_json), $ip);
-        return ['status'=> $status];
+        [$status, $ban_type] = SetAutoBan::local_machine_ban_and_warn_check(json_decode($user_json), $ip);
+        return ['status'=> $status, 'ban_type'=> $ban_type];
     }
     public function index(Request $request)
     {
