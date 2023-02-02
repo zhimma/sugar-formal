@@ -4029,7 +4029,7 @@ class PagesController extends BaseController
             $isVVIP = $user->isVVIP();
             $isVip = ($user->isVip()||$isVVIP);
             $tippopup = AdminCommonText::getCommonText(3);//id3車馬費popup說明
-            $messages = Message::allToFromSender($user->id, $cid,true);
+            $messages = Message::allToFromSender($user->id, $cid,false);
             $c_user_meta = UserMeta::where('user_id', $cid)->get()->first();
             //$messages = Message::allSenders($user->id, 1);
 
