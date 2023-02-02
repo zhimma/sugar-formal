@@ -1651,16 +1651,18 @@
                                                                     @else
                                                                         <p class="many-txt">{!! nl2br($row->content) !!}@if(!is_null($row->admin_comment))<span style="color: red;">{{ ' ('.$row->admin_comment.')' }}</span> @endif</p>
                                                                     @endif
-                                                                    @php
-                                                                        $evaluationPics=\App\Models\EvaluationPic::where('evaluation_id',$row->id)->where('member_id',$row->from_id)->get();
-                                                                    @endphp
-                                                                    @if($row->is_check==0)
-                                                                        @if($evaluationPics->count()>0)
-                                                                            <ul class="zap_photo {{ $evaluationPics->count()>3 ? 'huiyoic':'' }}">
-                                                                                @foreach($evaluationPics as $evaluationPic)
-                                                                                    <li><img src="{{ $evaluationPic->pic }}"></li>
-                                                                                @endforeach
-                                                                            </ul>
+                                                                    @if(!$row->only_show_text)
+                                                                        @php
+                                                                            $evaluationPics=\App\Models\EvaluationPic::where('evaluation_id',$row->id)->where('member_id',$row->from_id)->get();
+                                                                        @endphp
+                                                                        @if($row->is_check==0)
+                                                                            @if($evaluationPics->count()>0)
+                                                                                <ul class="zap_photo {{ $evaluationPics->count()>3 ? 'huiyoic':'' }}">
+                                                                                    @foreach($evaluationPics as $evaluationPic)
+                                                                                        <li><img src="{{ $evaluationPic->pic }}"></li>
+                                                                                    @endforeach
+                                                                                </ul>
+                                                                            @endif
                                                                         @endif
                                                                     @endif
                                                                     <h4>
@@ -1702,16 +1704,18 @@
                                                                                 @else
                                                                                     <div id="test" class="context-wrap" style="word-break: break-all;">{!! nl2br($row->re_content) !!}</div>
                                                                                 @endif
-                                                                                @php
-                                                                                    $evaluationPics=\App\Models\EvaluationPic::where('evaluation_id',$row->id)->where('member_id',$to->id)->get();
-                                                                                @endphp
-                                                                                @if($row->is_check==0)
-                                                                                    @if($evaluationPics->count()>0)
-                                                                                        <ul class="zap_photo {{ $evaluationPics->count()>3 ? 'huiyoic':'' }}">
-                                                                                            @foreach($evaluationPics as $evaluationPic)
-                                                                                                <li><img src="{{ $evaluationPic->pic }}"></li>
-                                                                                            @endforeach
-                                                                                        </ul>
+                                                                                @if(!$row->only_show_text)
+                                                                                    @php
+                                                                                        $evaluationPics=\App\Models\EvaluationPic::where('evaluation_id',$row->id)->where('member_id',$to->id)->get();
+                                                                                    @endphp
+                                                                                    @if($row->is_check==0)
+                                                                                        @if($evaluationPics->count()>0)
+                                                                                            <ul class="zap_photo {{ $evaluationPics->count()>3 ? 'huiyoic':'' }}">
+                                                                                                @foreach($evaluationPics as $evaluationPic)
+                                                                                                    <li><img src="{{ $evaluationPic->pic }}"></li>
+                                                                                                @endforeach
+                                                                                            </ul>
+                                                                                        @endif
                                                                                     @endif
                                                                                 @endif
                                                                             </div>
@@ -1776,16 +1780,18 @@
                                                                             @else
                                                                                 <p class="many-txt">{!! nl2br($row->content) !!}@if(!is_null($row->admin_comment))<span style="color: red;">{{ ' ('.$row->admin_comment.')' }}</span> @endif</p>
                                                                             @endif
-                                                                            @php
-                                                                                $evaluationPics=\App\Models\EvaluationPic::where('evaluation_id',$row->id)->where('member_id',$row->from_id)->get();
-                                                                            @endphp
-                                                                            @if($row->is_check==0)
-                                                                                @if($evaluationPics->count()>0)
-                                                                                    <ul class="zap_photo {{ $evaluationPics->count()>3 ? 'huiyoic':'' }}">
-                                                                                        @foreach($evaluationPics as $evaluationPic)
-                                                                                            <li><img src="{{ $evaluationPic->pic }}"></li>
-                                                                                        @endforeach
-                                                                                    </ul>
+                                                                            @if(!$row->only_show_text)
+                                                                                @php
+                                                                                    $evaluationPics=\App\Models\EvaluationPic::where('evaluation_id',$row->id)->where('member_id',$row->from_id)->get();
+                                                                                @endphp
+                                                                                @if($row->is_check==0)
+                                                                                    @if($evaluationPics->count()>0)
+                                                                                        <ul class="zap_photo {{ $evaluationPics->count()>3 ? 'huiyoic':'' }}">
+                                                                                            @foreach($evaluationPics as $evaluationPic)
+                                                                                                <li><img src="{{ $evaluationPic->pic }}"></li>
+                                                                                            @endforeach
+                                                                                        </ul>
+                                                                                    @endif
                                                                                 @endif
                                                                             @endif
                                                                             <h4>
@@ -1828,16 +1834,18 @@
                                                                                     @else
                                                                                         <div id="test" class="context-wrap" style="word-break: break-all;">{!! nl2br($row->re_content) !!}</div>
                                                                                     @endif
-                                                                                    @php
-                                                                                        $evaluationPics=\App\Models\EvaluationPic::where('evaluation_id',$row->id)->where('member_id',$to->id)->get();
-                                                                                    @endphp
-                                                                                    @if($row->is_check==0)
-                                                                                        @if($evaluationPics->count()>0)
-                                                                                            <ul class="zap_photo {{ $evaluationPics->count()>3 ? 'huiyoic':'' }}">
-                                                                                                @foreach($evaluationPics as $evaluationPic)
-                                                                                                    <li><img src="{{ $evaluationPic->pic }}"></li>
-                                                                                                @endforeach
-                                                                                            </ul>
+                                                                                    @if(!$row->only_show_text)
+                                                                                        @php
+                                                                                            $evaluationPics=\App\Models\EvaluationPic::where('evaluation_id',$row->id)->where('member_id',$to->id)->get();
+                                                                                        @endphp
+                                                                                        @if($row->is_check==0)
+                                                                                            @if($evaluationPics->count()>0)
+                                                                                                <ul class="zap_photo {{ $evaluationPics->count()>3 ? 'huiyoic':'' }}">
+                                                                                                    @foreach($evaluationPics as $evaluationPic)
+                                                                                                        <li><img src="{{ $evaluationPic->pic }}"></li>
+                                                                                                    @endforeach
+                                                                                                </ul>
+                                                                                            @endif
                                                                                         @endif
                                                                                     @endif
                                                                                 </div>

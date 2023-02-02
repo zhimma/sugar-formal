@@ -5063,7 +5063,7 @@ class PagesController extends BaseController
                 \View::share('self_auth_video_allusers', $users);
             }
 
-            $success_msg = $rap_service->getSelfAuthApplyMsgBeforeVideo($user);
+            $success_msg = $rap_service->getSelfAuthApplyMsgBeforeVideo();
             $request->session()->flash('message', [$success_msg ?? null]);
         }
 
@@ -5166,7 +5166,7 @@ class PagesController extends BaseController
             $init_check_msg = '您已通過進階驗證。';
 
             if ($rap_service->riseByUserEntry($user)->isInRealAuthProcess()) {
-                $init_check_msg = $rap_service->getSelfAuthApplyMsgBeforeVideo($user);
+                $init_check_msg = $rap_service->getSelfAuthApplyMsgBeforeVideo();
             }
         } else {
             if ($user->advance_auth_email ?? null) {
@@ -5444,7 +5444,7 @@ class PagesController extends BaseController
                     ';
             if($rap_service->isInRealAuthProcess(true)) {
                 $rap_service->applyRealAuthByReq($request);
-                $success_msg = $rap_service->getSelfAuthApplyMsgBeforeVideo($user);
+                $success_msg = $rap_service->getSelfAuthApplyMsgBeforeVideo();
 
             }
 
@@ -5805,7 +5805,7 @@ class PagesController extends BaseController
                     if ($request->real_auth && $rap_service->isAuthHaveProfileProcess($request->real_auth)) {
                         session()->put('real_auth_type', $request->real_auth);
                         $url_query_str .= '?real_auth=' . $request->real_auth;
-                        $success_msg .= '&nbsp;&nbsp;&nbsp;&nbsp;' . $rap_service->getSelfAuthApplyMsgBeforeVideo(request()->user());
+                        $success_msg .= '&nbsp;&nbsp;&nbsp;&nbsp;' . $rap_service->getSelfAuthApplyMsgBeforeVideo();
                     }
                     return redirect('advance_auth' . $url_query_str)->with('message', [$success_msg]);
                 } else {
