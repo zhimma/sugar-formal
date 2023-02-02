@@ -424,7 +424,7 @@ class Message_new extends Model
         ->delete();
     }
 
-    public static function allSendersAJAX($uid, $isVip, $d = 7,$forEventSenders=false)
+    public static function allSendersAJAX($uid, $isVip, $d = 7, $forEventSenders = false, $isProbing = false)
     {
 		if($forEventSenders) $user = null;
         else 
@@ -545,6 +545,9 @@ class Message_new extends Model
             
             $query = $query_to->union($query_from)->union($query_from_admin)->union($query_to_admin);
             $query->orderBy('created_at', 'desc');
+            if ($isProbing) {
+                $query = $query->showSql();
+            }
             $messages = $query->get();
         }
         
@@ -616,13 +619,13 @@ class Message_new extends Model
         if(count($saveMessages) == 0){
             return array_values(['No data']);
         }else{
-            return Message_new::sortMessages($saveMessages, null, $mm, $mCount,$forEventSenders?$uid:null);
+            return Message_new::sortMessages($saveMessages, null, $mm, $mCount,$forEventSenders ? $uid : null, $isProbing);
         }
         //return Message::where([['to_id', $uid],['from_id', '!=' ,$uid]])->whereRaw('id IN (select MAX(id) FROM message GROUP BY from_id)')->orderBy('created_at', 'desc')->take(Config::get('social.limit.show-chat'))->get();
     }
 
 
-    public static function sortMessages($messages, $userBlockList = null, $mm = [], $mCount = 10,$uid=null)
+    public static function sortMessages($messages, $userBlockList = null, $mm = [], $mCount = 10, $uid = null, $isProbing = false)
     {
         if ($messages instanceof Illuminate\Database\Eloquent\Collection) {
             $messages = $messages->toArray();
@@ -630,14 +633,21 @@ class Message_new extends Model
         
         $truthMessages = Self::$truthMessages??[];
         if(!$truthMessages) $truthMessages = [];
-		if($uid)
-			$user=User::find($uid);
-        else
-			$user = Auth::user();
+		if ($uid) {
+            $user = User::find($uid);
+        }
+        else {
+            $user = Auth::user();
+        }
         $block_people =  Config::get('social.block.block-people');
 		$admin_id = AdminService::checkAdmin()->id;
         $messagesForTruth = [];
-
+        if (!$user) {
+            if($isProbing) {
+                echo "user is null\n";
+            }
+            $user = User::find($uid);
+        }
         foreach ($messages as $key => &$message) {		
 			if (!$message['sender'] || !$message['receiver']) {
                 logger('message sender or receiver is null: ' . json_encode($message));
