@@ -603,10 +603,73 @@ class SetAutoBan extends Model
         return SetAutoBan::where('type', $type)->get();
     }
 
-    public static function retriveGroupAndCheck($typeArr, $email){
-        return DB::table('set_auto_ban')->join('users','users.id','=','set_auto_ban.cuz_user_set')->whereIn('set_auto_ban.type', $typeArr)->where('users.email', $email)->get();
+    public static function retriveGroupAndCheck($typeArr, $user, $get_remote_ip){
+        $set_auto_ban_list_by_type =  DB::table('set_auto_ban')->leftJoin('users','users.id','=','set_auto_ban.cuz_user_set')->whereIn('set_auto_ban.type', $typeArr)->whereNull('set_auto_ban.deleted_at')->get()->toArray();
+
+        $checkStatus=false;
+        $ban_type=[];
+        
+
+        // $get_remote_ip = SetAutoBan::getRemoteIp();
+        foreach($set_auto_ban_list_by_type as $row){
+ 
+            if($row->type=='ip'){
+                if($get_remote_ip == $row->content){
+                    if(Carbon::now()<$row->expiry){
+                        $checkStatus = true;
+                        array_push($ban_type,'ip');
+                    }
+                }
+            }
+
+            if($row->type=='style'){
+                if(strpos($user->style, $row->content) !== false){
+                    $checkStatus = true;
+                    array_push($ban_type,'期待的約會模式');
+                }
+            }
+
+            if($row->type=='about'){
+                if(strpos($user->about, $row->content) !== false){
+                    $checkStatus = true;
+                    array_push($ban_type,'關於我');
+                }
+            }
+
+            if($row->type=='title'){
+                if(str_contains($user->title, $row->content)){
+                    $checkStatus = true;
+                    array_push($ban_type,'一句話形容自己');
+                }
+            }
+
+            if($row->type=='name'){
+                if(str_contains($user->name, $row->content)){
+                    $checkStatus = true;
+                    array_push($ban_type,'暱稱');
+                }
+            }
+
+            if($row->type=='email'){
+                if(str_contains($user->email, '@'.$row->content)){
+                    $checkStatus = true;
+                    array_push($ban_type,'email');
+                }
+            }
+        }
+
+        return [$checkStatus, $ban_type];
     }
-    
+    public static function getRemoteIp(){
+        if (!empty($_SERVER['HTTP_CLIENT_IP'])) {
+            $ip = $_SERVER['HTTP_CLIENT_IP'];
+        } elseif (!empty($_SERVER['HTTP_X_FORWARDED_FOR'])) {
+            $ip = $_SERVER['HTTP_X_FORWARDED_FOR'];
+        } else {
+            $ip = $_SERVER['REMOTE_ADDR'];
+        }
+        return $ip;
+    }
     /**
      * Get the name of the index associated with the model.
      *
@@ -900,21 +963,15 @@ class SetAutoBan extends Model
             return $ban_list;
     }
 
-    public static function local_machine_ban_and_warn_check($email, $probing = false)
+    public static function local_machine_ban_and_warn_check($user, $ip, $probing = false)
     {
-        $user = User::where('email', $email)->first();
-        
-        if(isset($user) && $user->can('admin')){
-            logger("user is admin");
-            return [];
-        }
         if(!$user) {
             logger("user is not found in db");
             return [];
         }
 
-        $rule_sets = SetAutoBan::retriveGroupAndCheck(['ip','name','email','title'], $email);
+        [$status, $ban_type] = SetAutoBan::retriveGroupAndCheck(['ip','name','email','title','about', 'style'], $user, $ip);
 
-        return $rule_sets;
+        return [$status, $ban_type];
     }
 }

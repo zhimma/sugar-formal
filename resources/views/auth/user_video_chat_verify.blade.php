@@ -30,6 +30,7 @@
                             :allusers="{{ $users }}" 
                             :authUserId="{{ auth()->id() }}" 
                             :authUser="{{ auth()->user()->load('self_auth_unchecked_apply') }}"
+                            :authUserIsSelfAuthWaitingCheck="{{intval(!!$rap_service->isSelfAuthWaitingCheck())}}"
                             user_permission = "normal"
                             ice_server_json="" 
                         />

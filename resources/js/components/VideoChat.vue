@@ -408,6 +408,10 @@ export default {
         let now_vue = this;
         
         let userList = [];
+        console.log(' now_vue.userList = ');
+        console.log(now_vue.userList);
+        console.log('now_vue.allusers = ');
+        console.log(now_vue.allusers);        
         if(now_vue.userList.length) {
             userList = now_vue.userList;
         }
@@ -677,6 +681,10 @@ export default {
             ,data:user
         };
         log_video_chat_process(log_arr);   
+        console.log('joining user = ');
+        console.log(user);
+        console.log('vue.allusers = ');
+        console.log(this.allusers);
         // check user availability
         let now_vue = this;
         await fetch('/admin/users/video_chat_get_users')
