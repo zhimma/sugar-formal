@@ -14,12 +14,12 @@
     <table class="table-bordered table-hover center-block table" id="table">
         <thead>
             <tr style="border-bottom:solid;">
-                <th scope="row"></th>
+                <th scope="row" width="3em"></th>
                 <th width="15%" scope="col">email</th>
-                <th width="10%" scope="col">暱稱</th>
-                <th width="5%" scope="col">VIP</th>
-                <th width="20%" scope="col">評價內容</th>
-                <th width="5%" scope="col">評價圖片</th>
+                <th width="8em" scope="col">暱稱</th>
+                <th width="3em" scope="col">VIP</th>
+                <th scope="col">評價內容</th>
+                <th  scope="col" width="20%" style="min-width:150px;">評價圖片</th>
                 <th width="5%" scope="col">審核狀態</th>
                 <th width="10%" scope="col">評價時間</th>
             </tr>
@@ -48,8 +48,8 @@
                             bgcolor="#A9D4F5"
                         @endif                  
                 ><a href="users/advInfo/{{$row->id}}" target="_blank" class="gender_{{$row->engroup}} email_link ">{{$row->email}}</a></td>
-                <td>{{$row->name}}</td>
-                <td>
+                <td nowrap>{{$row->name}}</td>
+                <td nowrap>
                     @if($row->isVip()==1)
                         @if($Vip=='diamond_black')
                             <img src="/img/diamond_black.png" style="height: 1.5rem;">
@@ -163,8 +163,8 @@
                             bgcolor="#A9D4F5"
                         @endif                
                 ><a href="users/advInfo/{{$cur_to_user->id}}" target="_blank" class="gender_{{$cur_to_user->engroup}} email_link ">{{$cur_to_user->email}}</a></td>                
-                <td scope="row">{{$cur_to_user->name}}</td>
-                <td>
+                <td scope="row"  nowrap>{{$cur_to_user->name}}</td>
+                <td  nowrap>
                     @if($cur_to_user->isVip()==1)
                         @if($cur_to_user_Vip=='diamond_black')
                             <img src="/img/diamond_black.png" style="height: 1.5rem;">
