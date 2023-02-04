@@ -60,14 +60,14 @@
       <div class="row" v-if="!callPlaced && !incomingCallDialog && authuserisselfauthwaitingcheck!=1">
         <div class="col">
           <p style="margin-top:20px;">
-            {{authuser.name}}您好，您在{{authuser.self_auth_unchecked_apply.created_at.substr(0,10)}}時於本站申請 本人認證。站方人員可從本站任一頁面跟您視訊，請等候站方人員撥打視訊通話給您，謝謝。
+            {{authuser.name}}您好，您在{{authuser.self_auth_unchecked_apply.first_modify.created_at.substr(0,10)}}時於本站申請 本人認證。站方人員可從本站任一頁面跟您視訊，請等候站方人員撥打視訊通話給您，謝謝。
           </p>
         </div>
       </div>
       <div class="row" v-if="!callPlaced && !incomingCallDialog && authuserisselfauthwaitingcheck">
         <div class="col">
           <p style="margin-top:20px;">
-            {{authuser.name}}您好，您在{{authuser.self_auth_unchecked_apply.created_at.substr(0,10)}}時於本站申請 本人認證。目前還在審核中請稍候，請稍候，若有問題請與站長聯絡 <a href="https://lin.ee/rLqcCns"><img src="https://scdn.line-apps.com/n/line_add_friends/btn/zh-Hant.png" alt="加入好友" height="26" border="0" style="all: initial;all: unset;height: 26px; float: unset;vertical-align:middle !important;"></a>
+            {{authuser.name}}您好，您在{{authuser.self_auth_unchecked_apply.first_modify.created_at.substr(0,10)}}時於本站申請 本人認證。目前還在審核中請稍候，請稍候，若有問題請與站長聯絡 <a href="https://lin.ee/rLqcCns"><img src="https://scdn.line-apps.com/n/line_add_friends/btn/zh-Hant.png" alt="加入好友" height="26" border="0" style="all: initial;all: unset;height: 26px; float: unset;vertical-align:middle !important;"></a>
           </p>
         </div>
       </div>
@@ -75,7 +75,7 @@
       <div class="row" v-if="incomingCallDialog">
         <div class="col">
           <p style="margin-bottom:10px;margin-top:20px;">
-            {{authuser.name}}您好，您在{{authuser.self_auth_unchecked_apply.created_at.substr(0,10)}}時於本站申請 本人認證。現站方人員將與您進行視訊驗證，約需時3 分鐘。謝謝。
+            {{authuser.name}}您好，您在{{authuser.self_auth_unchecked_apply.first_modify.created_at.substr(0,10)}}時於本站申請 本人認證。現站方人員將與您進行視訊驗證，約需時3 分鐘。謝謝。
             
           </p>
           <div class="btn-group" role="group">

@@ -39,8 +39,8 @@
             .sa_video_status {cursor: pointer;}
             .video_status_text_show_elt {float:none !important;}
             #app,#app .btn-success {height:0 !important;width:0 !important;}
-            #app {display:none !important;}
-            
+            #app {display:none !important;}        
+            .de_input {white-space:nowrap;}
         </style>        
         <script>
             real_auth_process_check();
@@ -300,20 +300,6 @@
             </div>
             <a  onclick="gmBtn1()" class="bl_gb"><img src="/auth/images/gb_icon.png"></a>
         </div>
-        @if($rap_service->isInRealAuthProcess() && $rap_service->isSelfAuthApplyNotVideoYet())
-        <div style="position:relative;" id="video_app_after_apply_container">
-            <div id="app_after_apply" style="display:none;">
-                <video-verify-user-after-apply 
-                    :allusers="{{ $users }}" 
-                    :authUserId="{{ auth()->id() }}" 
-                    user_permission = "normal"
-                    ice_server_json="" 
-                />
-                
-            </div>
-        </div>
-        </div>
-        @endif 
 
         <script>
             $(function(){
@@ -359,85 +345,6 @@
                 $('body').attr('onkeydown',"if (window.event.keyCode == 116) $(this).attr('onbeforeunload','');");    
             }
         </script>
-    @endif
-    @if($rap_service->isInRealAuthProcess() && $rap_service->isSelfAuthApplyNotVideoYet())
-        <script>
-            let ice_servers;
-            async function kinesis_init_after_apply()
-            {
-                // DescribeSignalingChannel API can also be used to get the ARN from a channel name.
-                const channelARN = 'arn:aws:kinesisvideo:ap-southeast-1:428876234027:channel/videos/1653476269290';
-
-                // AWS Credentials
-                const accessKeyId = 'AKIAWHWYD7UVXA6QL2GN';
-                const secretAccessKey = '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';
-                const region = 'ap-southeast-1';
-
-                const kinesisVideoClient = new AWS.KinesisVideo({
-                    region,
-                    accessKeyId,
-                    secretAccessKey,
-                    correctClockSkew: true,
-                });
-
-                const getSignalingChannelEndpointResponse = await kinesisVideoClient
-                    .getSignalingChannelEndpoint({
-                        ChannelARN: channelARN,
-                        SingleMasterChannelEndpointConfiguration: {
-                            Protocols: ['WSS', 'HTTPS'],
-                            Role: KVSWebRTC.Role.VIEWER,
-                        },
-                    })
-                    .promise();
-                
-                const endpointsByProtocol = getSignalingChannelEndpointResponse.ResourceEndpointList.reduce((endpoints, endpoint) => {
-                    endpoints[endpoint.Protocol] = endpoint.ResourceEndpoint;
-                    return endpoints;
-                }, {});
-
-                const kinesisVideoSignalingChannelsClient = new AWS.KinesisVideoSignalingChannels({
-                    region,
-                    accessKeyId,
-                    secretAccessKey,
-                    endpoint: endpointsByProtocol.HTTPS,
-                    correctClockSkew: true,
-                });
-                
-                const getIceServerConfigResponse = await kinesisVideoSignalingChannelsClient
-                    .getIceServerConfig({
-                        ChannelARN: channelARN,
-                    })
-                    .promise();
-
-                const iceServers = [
-                    { urls: `stun:stun.kinesisvideo.${region}.amazonaws.com:443` }
-                ];
-
-                getIceServerConfigResponse.IceServerList.forEach(iceServer =>
-                    iceServers.push({
-                        urls: iceServer.Uris,
-                        username: iceServer.Username,
-                        credential: iceServer.Password,
-                    }),
-                );
-
-                ice_servers = iceServers;
-            }
-
-            kinesis_init_after_apply().then(function(result){
-                $('#app_after_apply video-verify-user-after-apply').attr('ice_server_json',JSON.stringify(ice_servers));
-                new Vue({
-                    el:'#app_after_apply'
-                });
-            })
-
-        tab01_n_left_onclick_str = $('#tab01 .n_bbutton .n_left').attr('onclick');
-
-        function get_passed_real_auth_confirm_href()
-        {
-            return "{{url('user_video_chat_verify')}}";
-        }
-        </script>    
     @endif
     @include('new.partials.video_verify_user_entire_site')            
 	@include('new.partials.stay_online_record')
