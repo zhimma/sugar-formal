@@ -275,26 +275,41 @@ class RealAuthPageService {
         return $this->rau_repo()->getApplyByAuthTypeId($auth_type_id);
     }
 
-    public function getSelfAuthApplyMsgBeforeVideo($user = null)
+    public function getSelfAuthApplyMsgBeforeVideo()
     {
+        $user = $this->user();
         $real_auth = request()->real_auth;
         $start_msg_str = '';
 
-        if ($real_auth == 1) {
+        if ($real_auth == 1 ||  $real_auth == 2) {
             if ($user) {
-                $real_auth_user_apply_last = $user->real_auth_user_apply->sortByDesc('id')->first();
-                $start_msg_str = $user->name . '您好，您在' . $real_auth_user_apply_last->created_at . '時於本站申請' . $real_auth_user_apply_last->real_auth_type->name . '。請等候站方人員撥打視訊通話給您，謝謝。';
-            } else {
-                $start_msg_str = '還差一點！只要通過最後的視訊驗證即可完成認證。';
+                $user_sa_apply = $this->getApplyByAuthTypeId(1);
+                if(!$user_sa_apply) {
+                    $this->user()->refresh();
+                   $user_sa_apply = $this->getApplyByAuthTypeId(1); 
+                }
+                $sa_apply_first_modify = $user_sa_apply->first_modify;
+                $start_msg_str = $user->name . '您好，您在' . $sa_apply_first_modify->created_at . '時於本站申請' . ($user_sa_apply->from_auto?'美顏推薦':'本人認證') ;
+            } 
+            else {
+                if ($real_auth == 1 ) {
+                    $start_msg_str = '還差一點！只要通過最後的視訊驗證即可完成認證。';
+                } else if ($real_auth == 2) {
+                    $start_msg_str = '還差一點！只剩最後兩個步驟即可完成美顏認證：視訊驗證和填寫美顏認證表。';
+                }
             }
-        } else if ($real_auth == 2) {
-            $start_msg_str = '還差一點！只剩最後兩個步驟即可完成美顏認證：視訊驗證和填寫美顏認證表。';
-        }
+        } 
         $users = DB::table('role_user')->leftJoin('users', 'role_user.user_id', '=', 'users.id')->where('users.id', '<>', auth()->id())->get();
         return $start_msg_str . ' 
                     <br>
         <div class="self_auth_msg_before_video">
-
+  <div style="margin-top:1em;">
+    <div  class="video_status_online_intro">
+      
+        站方人員可從本站任一頁面跟您視訊，請等候站方人員撥打視訊通話給您，謝謝。
+        
+    </div> 
+ </div>
         </div>
                     <br>
                         ';
