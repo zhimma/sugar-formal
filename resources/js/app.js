@@ -22,6 +22,7 @@ Vue.component('example-component', require('./components/ExampleComponent.vue').
 Vue.component("video-chat", require("./components/VideoChat.vue").default);
 Vue.component("video-verify-user", require("./components/VideoVerifyUser.vue").default);
 Vue.component("video-verify-user-entire-site", require("./components/VideoVerifyUserEntireSite.vue").default);
+Vue.component("video-verify-user-after-apply", require("./components/VideoVerifyUserAfterApply.vue").default);
 
 /**
  * Next, we will create a fresh Vue application instance and attach it to

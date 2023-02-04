@@ -13,7 +13,7 @@
 		<a class="folder"><img src="/new/images/afp_1.png" width="30" height="30"><font color="white">所有選項</font></a>
 		<div class="folder_item" style="display:none">
 			@foreach(\App\Models\AdminMenuItems::where('status', 1)->orderBy('sort')->get() as $key =>$item)
-				<a href="{{ $item->route_path }}">{{ $item->title }}</a>
+				<a href="{{ $item->route_path }}" @if($item->title=='招手比調整') target="_blank" @endif>{{ $item->title }}</a>
 			@endforeach
 		</div>
 
@@ -32,7 +32,7 @@
 		@endphp
 		@if(!is_null($getPermission))
 			@foreach(\App\Models\AdminMenuItems::whereIn('id',$getMenuList)->where('status', 1)->get() as $key =>$item)
-				<a href="{{ $item->route_path }}">{{ $item->title }}</a>
+				<a href="{{ $item->route_path }}" @if($item->title=='招手比調整') target="_blank" @endif>{{ $item->title }}</a>
 			@endforeach
 		@endif
 

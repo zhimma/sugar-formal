@@ -8,7 +8,10 @@
         <meta name="Description" content="甜心花園網是台灣最完善的媒合網站，有人數最多的甜心與最優質的糖爹，最優秀男女約會的交友包養網站。">		
 		<script src="https://cdnjs.cloudflare.com/ajax/libs/webfont/1.6.28/webfontloader.js"></script>
 		<script src="https://cdnjs.cloudflare.com/ajax/libs/jquery/3.2.1/jquery.min.js"></script>
-		<script src="/js/search.js"></script>
+        <link href="https://cdn.datatables.net/1.10.25/css/jquery.dataTables.min.css" rel="stylesheet">
+        <link href="https://cdn.datatables.net/1.10.21/css/dataTables.bootstrap4.min.css" rel="stylesheet">                
+          		
+        <script src="/js/search.js"></script>
 		<script src="/js/dashboard.js"></script>
 		<script>
        /*   WebFont.load({
@@ -46,6 +49,6 @@
 		<link rel="stylesheet" href="/css/message.css">
 		<link rel="stylesheet" href="/css/dashboard.css">
 		<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/cropperjs/1.0.0/cropper.min.css" />
-		<link rel="shortcut icon" href="img/favicon.jpg" />
-		<script src="{{ mix('js/app.js') }}" type="text/javascript"></script>
+		<link rel="shortcut icon" href="img/favicon.jpg" />		
+        <script src="{{ mix('js/app.js') }}" type="text/javascript"></script>
 	</head>

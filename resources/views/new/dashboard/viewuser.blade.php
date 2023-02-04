@@ -396,12 +396,35 @@
             width: 70px;
         }
     </style>
+    <style>
+        :root {
+            --primary-light: #8abdff;
+            --primary: #6d5dfc;
+            --primary-dark: #5b0eeb;
+            --white: #FFFFFF;
+            --greyLight-1: #E4EBF5;
+            --greyLight-2: #e3e3e3;
+            --greyLight-3: #bec8e4;
+            --greyDark: #9baacf;
+        }
+
+        .ly_prilist{width:100%; box-shadow: 0 0 20px #eee; border-radius: 10px;padding: 10px 0;margin-top: 15px;}
+        .ly_prilist:active {box-shadow: inset 0.2rem 0.2rem 0.5rem var(--greyLight-2), inset -0.2rem -0.2rem 0.5rem var(--white);}
+        .ly_prilist_active {box-shadow: inset 0.2rem 0.2rem 0.5rem var(--greyLight-2), inset -0.2rem -0.2rem 0.5rem var(--white);}
+
+
+        .ly_text{width: 96%;margin: 0 auto;display: table;}
+        .ly_text_1{width: 100%;background:linear-gradient(to right,#fff1f1,#fffdfd); color: #fd5a7b;padding: 5px 5px; display: table; height: 30px; line-height: 30px;}
+        .ly_lfontleft{width: calc(100% - 90px); float: left; height: 30px;overflow: hidden;text-overflow: ellipsis;display: -webkit-box;-webkit-line-clamp: 1;-webkit-box-orient: vertical;;}
+        .ly_time{float: right; color: #999999;}
+        .liu_text_2{margin-bottom: unset;}
+    </style>
     <script src="{{asset('/new/js/pick_real_error.js')}}" type="text/javascript"></script>
     <script type="application/javascript">
         function show_Warned() {
             return  c5('您目前被站方警示，無檢舉權限');
-        }    
-    
+        }
+
         function setTextAreaHeight(rowid) {
             $('#re_content_'+rowid).each(function () {
                 this.setAttribute('style', 'height:' + (this.scrollHeight) + 'px;overflow-y:hidden;');
@@ -530,28 +553,34 @@
         $isBlurLifePhoto = \App\Services\UserService::isBlurLifePhoto($to, $user);
         $isPersonalTagShow = \App\Services\UserService::isPersonalTagShow($to, $user);
     @endphp
-    <div id="app">
+    <div id="app" ontouchstart="" onmouseover="">
     <div class="container matop80">
         <div class="row">
             <div class="col-sm-2 col-xs-2 col-md-2 dinone">
                 @include('new.dashboard.panel')
             </div>
-            <div class="col-sm-12 col-xs-12 col-md-10">				
+            <div class="col-sm-12 col-xs-12 col-md-10">
                 @if(isset($to))
                 <div class="rightbg">
                     <div class="metx">
                         @if(Request()->get('page_mode')=='edit')
                             <a href="{!! url('dashboard') !!}" class="zh_shed" style="z-index: 6;"></a>
                         @else
-                            <a href="{{ !empty(session()->get('goBackPage')) ? session()->get('goBackPage') : \Illuminate\Support\Facades\URL::previous() }}" {{--href="javascript: history.back()"--}} class="hyneback" style="z-index: 6;"><img src="/new/images/back_icon.png">返回</a>                          
-                        @endif   
+                            @php
+                                $backUrl= !empty(session()->get('goBackPage')) ? session()->get('goBackPage') : \Illuminate\Support\Facades\URL::previous();
+                                if(isset($_SERVER['HTTP_REFERER']) && str_contains($_SERVER['HTTP_REFERER'], 'from_message_board')){
+                                    $backUrl=$_SERVER['HTTP_REFERER'];
+                                }
+                            @endphp
+                            <a href="{{ $backUrl }}" {{--href="javascript: history.back()"--}} class="hyneback" style="z-index: 6;"><img src="/new/images/back_icon.png">返回</a>
+                        @endif
 
                         @if(!empty($to->exchange_period) && $to->engroup==2)
                             @php
                                 $exchange_period_name = DB::table('exchange_period_name')->where('id',$to->exchange_period)->first();
                             @endphp
                             <span class="rgnback"><img src="/new/images/zx_x.png">{{$exchange_period_name->name}}</span>
-                        @endif  
+                        @endif
 
                         <div class="swiper-container photo">
                             <div class="swiper-wrapper">
@@ -1529,8 +1558,9 @@
                     <div class="line"></div>
 
                     <div id="hash_evaluation" class="ziliao ziliao3">
-                        <div class="ztitle"><span>會員評價</span>Evaluation<a class="zw_dw click_me">請按我</a>
-                            <div id="click_me" class="he_tkcn showslide_evaluation2" style="top:unset;z-index:1;">
+                        <dl class="hy_ceng system">
+                            <a class="diwo click_me">請按我</a>
+                            <div id="click_me" class="he_tkcn showslide_evaluation2" style="top:unset;z-index:1;margin-top:20px;">
                                 <ul>
                                     <a class="myself_evaluation">
                                         <img src="/new/images/icon_p1.png" class="he_tkcn_img">本人評價
@@ -1540,305 +1570,353 @@
                                     </a>
                                 </ul>
                             </div>
-                        </div>
-                        <script>
-                            $('.click_me').click(function() {
-                                event.stopPropagation()
-                                var on3 = $('.bottub').find('.on3');
-                                if(on3.length) {
-                                    on3.removeClass('on3');
-                                    $('.bottub').find('.showslide_evaluation2').fadeOut();
-                                }
-                                if($(this).hasClass('on3')) {
-                                    $(this).removeClass('on3')
-                                    $('.showslide_evaluation2').fadeOut()
-                                } else {
-                                    $(this).addClass('on3')
-                                    $('.fadeinboxs').fadeIn()
-                                    $('.showslide_evaluation2').fadeIn()
-                                }
-                            })
-                        </script>
-                        <div class="xiliao_input">
-                            <div class="xl_text">
-                                <div class="pjliuyan02 amar15 mohu_li" style=" min-height: auto; margin-bottom: 0;">
-                                    @php
-                                        // print_r($evaluation_data);
-                                         $showCount = 0;
-                                         $blockMidList = array();
-                                         $isVip=($user->isVip() || $user->isVVIP());
-                                    @endphp
-                                    @if((!$isVip && $user->id!=$to->id) && sizeof($evaluation_data) > 0)<div class="mohu_icon" id="mohu_icon"><img src="/new/images/icon_36.png"></div>@endif
-                                    @if(sizeof($evaluation_data) > 0)
-                                    <ul style="width: 100%;" class="showSelfEvaluation_notvip" ></ul>
-                                    <ul style="width: 100%;" class="evaluationList {{ !$isVip && $user->id!=$to->id ? 'mohu01':'' }}">
-                                        @foreach( $evaluation_data as $row)
+                            <script>
+                                $('.click_me').click(function() {
+                                    event.stopPropagation()
+                                    var on3 = $('.bottub').find('.on3');
+                                    if(on3.length) {
+                                        on3.removeClass('on3');
+                                        $('.bottub').find('.showslide_evaluation2').fadeOut();
+                                    }
+                                    if($(this).hasClass('on3')) {
+                                        $(this).removeClass('on3')
+                                        $('.showslide_evaluation2').fadeOut()
+                                    } else {
+                                        $(this).addClass('on3')
+                                        $('.fadeinboxs').fadeIn()
+                                        $('.showslide_evaluation2').fadeIn()
+                                    }
+                                })
+                            </script>
+                            @if(sizeof($evaluation_data) > 0)
+                                <dt class="hypingjia">
+                                    <div class="hy_font1">會員評價</div><div class="hy_font2">Evaluation</div>
+                                </dt>
+                                <dd class="xiliao_input" style="margin-top: -8px;">
+                                    <div class="xl_text">
+                                        <div class="pjliuyan02 amar15 mohu_li" style=" min-height: auto; margin-bottom: 0;">
                                             @php
-                                                $row_user = \App\Models\User::findById($row->from_id);
-                                                $to_user = \App\Models\User::findById($row->to_id);
-                                                $isBlocked = \App\Models\Blocked::isBlocked($row->to_id, $row->from_id);
-                                                $hadWarned = DB::table('is_warned_log')->where('user_id',$row_user->id)->first();
-                                                $warned_users = DB::table('warned_users')->where('member_id',$row_user->id)
-                                                    ->where(function($warned_users){
-                                                    $warned_users->where('expire_date', '>=', \Carbon\Carbon::now())
-                                                        ->orWhere('expire_date', null); })->first();
-
-                                                if($isBlocked || isset($hadWarned) || isset($warned_users)) {
-                                                    array_push( $blockMidList, $row );
-                                                    continue;
-                                                }
-                                                $showCount++;
+                                                // print_r($evaluation_data);
+                                                 $showCount = 0;
+                                                 $blockMidList = array();
+                                                 $isVip=($user->isVip() || $user->isVVIP());
                                             @endphp
-                                            @if(!$isBlocked && !isset($hadWarned) && !isset($warned_users))
-                                            <li class="{{ ($row_user->id == $user->id)  ? 'showSelfEvaluation':'' }}">
-                                                <div class="piname">
-                                                   {{-- <span>
-                                                        @for ($i = 1; $i <= 5; $i++)
-                                                            @if($row->rating>=$i)
-                                                                <img src="/new/images/sxx_1.png">
-                                                            @else
-                                                                <img src="/new/images/sxx_4.png">
-                                                            @endif
-                                                        @endfor
-                                                    </span>--}}
-                                                    @if ($row->content_violation_processing)
-                                                        <span>匿名評價</span><span style="color: red; font-size:12px;">(站方代發)</span>
-                                                    @else
-                                                        <a href="/dashboard/viewuser/{{ $row_user->id }}">{{ $row->user->name }}</a>
-                                                    @endif
-                                                    {{--                                <font>{{ substr($row->created_at,0,10)}}</font>--}}
-                                                    @if($row_user->id == $user->id)
-                                                        <font class="sc content_delete" data-id="{{ $row->id }}" style="padding: 0px 3px;"><img src="/new/images/del_03.png" style="padding: 0px 0px 1px 5px;">刪除</font>
-                                                    @endif
-                                                    @if ($row->content_violation_processing && $row->to_id==$user->id) <a class="primessage sc" href="{{ route('getAnonymousEvaluationChat',['evaluationid'=>$row->id]) }}">私訊溝通</a> @endif
-                                                </div>
-                                                <div class="con">
-                                                    @if($row->is_check==1)
-                                                        <p class="many-txt" style="color: red;">***此評價目前由站方審核中***</p>
-                                                    @else
-                                                        <p class="many-txt">{!! nl2br($row->content) !!}@if(!is_null($row->admin_comment))<span style="color: red;">{{ ' ('.$row->admin_comment.')' }}</span> @endif</p>
-                                                    @endif
-                                                    @php
-                                                        $evaluationPics=\App\Models\EvaluationPic::where('evaluation_id',$row->id)->where('member_id',$row->from_id)->get();
-                                                    @endphp
-                                                    @if($row->is_check==0)
-                                                        @if($evaluationPics->count()>0)
-                                                        <ul class="zap_photo {{ $evaluationPics->count()>3 ? 'huiyoic':'' }}">
-                                                            @foreach($evaluationPics as $evaluationPic)
-                                                                <li><img src="{{ $evaluationPic->pic }}"></li>
+                                            @if((!$isVip && $user->id!=$to->id) && sizeof($evaluation_data) > 0)<div class="mohu_icon" id="mohu_icon"><img src="/new/images/icon_36.png"></div>@endif
+                                            @if(sizeof($evaluation_data) > 0)
+                                                <ul style="width: 100%;" class="showSelfEvaluation_notvip" ></ul>
+                                                <ul style="width: 100%;" class="evaluationList {{ !$isVip && $user->id!=$to->id ? 'mohu01':'' }}">
+                                                    @foreach( $evaluation_data as $row)
+                                                        @php
+                                                            $row_user = \App\Models\User::findById($row->from_id);
+                                                            $to_user = \App\Models\User::findById($row->to_id);
+                                                            $isBlocked = \App\Models\Blocked::isBlocked($row->to_id, $row->from_id);
+                                                            $hadWarned = DB::table('is_warned_log')->where('user_id',$row_user->id)->first();
+                                                            $warned_users = DB::table('warned_users')->where('member_id',$row_user->id)
+                                                                ->where(function($warned_users){
+                                                                $warned_users->where('expire_date', '>=', \Carbon\Carbon::now())
+                                                                    ->orWhere('expire_date', null); })->first();
+
+                                                            if($isBlocked || isset($hadWarned) || isset($warned_users)) {
+                                                                array_push( $blockMidList, $row );
+                                                                continue;
+                                                            }
+                                                            $showCount++;
+                                                        @endphp
+                                                        @if(!$isBlocked && !isset($hadWarned) && !isset($warned_users))
+                                                            <li class="{{ ($row_user->id == $user->id)  ? 'showSelfEvaluation':'' }}">
+                                                                <div class="piname">
+                                                                    {{-- <span>
+                                                                         @for ($i = 1; $i <= 5; $i++)
+                                                                             @if($row->rating>=$i)
+                                                                                 <img src="/new/images/sxx_1.png">
+                                                                             @else
+                                                                                 <img src="/new/images/sxx_4.png">
+                                                                             @endif
+                                                                         @endfor
+                                                                     </span>--}}
+                                                                    @if ($row->content_violation_processing)
+                                                                        <span>匿名評價</span><span style="color: red; font-size:12px;">(站方代發)</span>
+                                                                    @else
+                                                                        <a href="/dashboard/viewuser/{{ $row_user->id }}">{{ $row->user->name }}</a>
+                                                                    @endif
+                                                                    {{--                                <font>{{ substr($row->created_at,0,10)}}</font>--}}
+                                                                    @if($row_user->id == $user->id)
+                                                                        <font class="sc content_delete" data-id="{{ $row->id }}" style="padding: 0px 3px;"><img src="/new/images/del_03.png" style="padding: 0px 0px 1px 5px;">刪除</font>
+                                                                    @endif
+                                                                    @if ($row->content_violation_processing && $row->to_id==$user->id) <a class="primessage sc" href="{{ route('getAnonymousEvaluationChat',['evaluationid'=>$row->id]) }}">私訊溝通</a> @endif
+                                                                </div>
+                                                                <div class="con">
+                                                                    @if($row->is_check==1)
+                                                                        <p class="many-txt" style="color: red;">***此評價目前由站方審核中***</p>
+                                                                    @else
+                                                                        <p class="many-txt">{!! nl2br($row->content) !!}@if(!is_null($row->admin_comment))<span style="color: red;">{{ ' ('.$row->admin_comment.')' }}</span> @endif</p>
+                                                                    @endif
+                                                                    @if(!$row->only_show_text)
+                                                                        @php
+                                                                            $evaluationPics=\App\Models\EvaluationPic::where('evaluation_id',$row->id)->where('member_id',$row->from_id)->get();
+                                                                        @endphp
+                                                                        @if($row->is_check==0)
+                                                                            @if($evaluationPics->count()>0)
+                                                                                <ul class="zap_photo {{ $evaluationPics->count()>3 ? 'huiyoic':'' }}">
+                                                                                    @foreach($evaluationPics as $evaluationPic)
+                                                                                        <li><img src="{{ $evaluationPic->pic }}"></li>
+                                                                                    @endforeach
+                                                                                </ul>
+                                                                            @endif
+                                                                        @endif
+                                                                    @endif
+                                                                    <h4>
+                                                                        <span class="btime">{{ substr($row->created_at,0,10)}}</span>
+                                                                        <button type="button" class="al_but show_all_evaluation">[完整評價]</button>
+                                                                    </h4>
+                                                                </div>
+                                                                {{--                                                || $user->id==697--}}
+                                                                @if(empty($row->re_content) && $to->id == $user->id)
+                                                                    <div class="huf" style="width: 100%;">
+                                                                        <form id="form_re_content{{$row->id}}" action="{{ route('evaluation_re_content')."?n=".time() }}" method="post" enctype="multipart/form-data">
+                                                                            <input type="hidden" name="_token" value="{{ csrf_token() }}">
+                                                                            <span class="huinput">
+                                                                    <a id="xin_nleft_qq_{{ $row->id }}" class="xin_nleft_qq" onclick="tab_evaluation_reply_show('{{$row->id}}','{{$to->id}}');"><img src="/new/images/moren_pic.png"></a>
+                                                                    <textarea id="re_content_{{ $row->id }}"name="re_content" type="text" class="hf_i xin_input_qq" placeholder="請輸入回覆（最多120個字元）" maxlength="120"></textarea>
+                                                                </span>
+                                                                            <div id="re_area_{{ $row->id }}" class="re_area">
+                                                                                <a class="hf_but" data-id="{{$row->id}}" {{--onclick="form_re_content_submit()"--}}>回覆</a>
+                                                                            </div>
+                                                                            <input type="hidden" name="id" value={{$row->id}}>
+                                                                            <input type="hidden" name="eid" value={{$to->id}}>
+                                                                        </form>
+                                                                    </div>
+                                                                    <script type="application/javascript">
+                                                                        setTextAreaHeight('{{ $row->id }}');
+                                                                    </script>
+                                                                @elseif(!empty($row->re_content))
+                                                                    <div class="hu_p">
+                                                                        <div class="he_b">
+                                                                            <span class="left"><img src="@if(file_exists( public_path().$to->meta->pic ) && $to->meta->pic != ""){{$to->meta->pic}} @elseif($to->engroup==2)/new/images/female.png @else/new/images/male.png @endif" class="he_zp">{{$to->name}}</span>
+                                                                            @if($to->id==$user->id)
+                                                                                <font class="sc re_content_delete" data-id="{{$row->id}}" data-userid="{{ $to->id }}"><img src="/new/images/del_03.png">刪除</font>
+                                                                            @endif
+                                                                        </div>
+                                                                        <div class="he_two">
+                                                                            <div class="context">
+                                                                                @if($row->is_check==1)
+                                                                                    <div id="test" class="context-wrap" style="word-break: break-all;color: red;">***此評價目前由站方審核中***</div>
+                                                                                @else
+                                                                                    <div id="test" class="context-wrap" style="word-break: break-all;">{!! nl2br($row->re_content) !!}</div>
+                                                                                @endif
+                                                                                @if(!$row->only_show_text)
+                                                                                    @php
+                                                                                        $evaluationPics=\App\Models\EvaluationPic::where('evaluation_id',$row->id)->where('member_id',$to->id)->get();
+                                                                                    @endphp
+                                                                                    @if($row->is_check==0)
+                                                                                        @if($evaluationPics->count()>0)
+                                                                                            <ul class="zap_photo {{ $evaluationPics->count()>3 ? 'huiyoic':'' }}">
+                                                                                                @foreach($evaluationPics as $evaluationPic)
+                                                                                                    <li><img src="{{ $evaluationPic->pic }}"></li>
+                                                                                                @endforeach
+                                                                                            </ul>
+                                                                                        @endif
+                                                                                    @endif
+                                                                                @endif
+                                                                            </div>
+                                                                        </div>
+                                                                        <div class="he_twotime">{{ substr($row->re_created_at,0,10)}}<span class="z_more">展開</span></div>
+                                                                    </div>
+                                                                @endif
+                                                            </li>
+                                                        @endif
+                                                    @endforeach
+                                                    @if(sizeof($blockMidList) > 0)
+                                                        @php
+                                                            //print_r($blockMidList);
+                                                        @endphp
+                                                        <div style="display: none;" id="plshow">
+                                                            @foreach($blockMidList as $row)
+                                                                @php
+                                                                    //print_r($row->from_id);
+                                                                        $row_user = \App\Models\User::findById($row->from_id);
+                                                                        $to_user = \App\Models\User::findById($row->to_id);
+                                                                        //$isBlocked = \App\Models\Blocked::isBlocked($user->id, $row->from_id);
+                                                                        $hadWarned = DB::table('is_warned_log')->where('user_id',$row_user->id)->first();
+                                                                        $warned_users = DB::table('warned_users')->where('member_id',$row_user->id)
+                                                                            ->where(function($warned_users){
+                                                                            $warned_users->where('expire_date', '>=', \Carbon\Carbon::now())
+                                                                                ->orWhere('expire_date', null); })->first();
+                                                                        $showCount++;
+                                                                @endphp
+                                                                <li class="{{ ($row_user->id == $user->id)  ? 'showSelfEvaluation_block':'' }}">
+                                                                    <div class="kll">
+                                                                        <div class="piname">
+                                                                            {{--<span>
+                                                                                @if(!$warned_users && !$hadWarned)
+                                                                                    @for ($i = 1; $i <= 5; $i++)
+                                                                                        @if($row->rating>=$i)
+                                                                                            <img src="/new/images/sxx_1.png">
+                                                                                        @else
+                                                                                            <img src="/new/images/sxx_4.png">
+                                                                                        @endif
+                                                                                    @endfor
+                                                                                @endif
+                                                                            </span>--}}
+                                                                            @if ($row->content_violation_processing)
+                                                                                <span>匿名評價</span><span style="color: red; font-size:12px;">(站方代發)</span>
+                                                                            @else
+                                                                                <a href="/dashboard/viewuser/{{$row_user->id}}">{{$row_user->name}}</a>
+                                                                            @endif
+                                                                            @if(isset($warned_users) || isset($hadWarned))
+                                                                                <img src="/new/images/kul.png" class="sxyh">
+                                                                            @else
+                                                                                <img src="/new/images/kul02.png" class="sxyh">
+                                                                            @endif
+                                                                            {{--                                <font>{{ substr($row->created_at,0,10)}}</font>--}}
+                                                                            @if($row_user->id==$user->id)
+                                                                                <font class="sc content_delete" data-id="{{$row->id}}" style="padding: 0px 3px;"><img src="/new/images/del_03.png" style="padding: 0px 0px 1px 5px;">刪除</font>
+                                                                            @endif
+                                                                            @if ($row->content_violation_processing && $row->to_id==$user->id) <a class="primessage sc" href="{{ route('getAnonymousEvaluationChat',['evaluationid'=>$row->id]) }}">私訊溝通</a> @endif
+                                                                        </div>
+                                                                        <div class="con">
+                                                                            @if($row->is_check==1)
+                                                                                <p class="many-txt" style="color: red;">***此評價目前由站方審核中***</p>
+                                                                            @else
+                                                                                <p class="many-txt">{!! nl2br($row->content) !!}@if(!is_null($row->admin_comment))<span style="color: red;">{{ ' ('.$row->admin_comment.')' }}</span> @endif</p>
+                                                                            @endif
+                                                                            @if(!$row->only_show_text)
+                                                                                @php
+                                                                                    $evaluationPics=\App\Models\EvaluationPic::where('evaluation_id',$row->id)->where('member_id',$row->from_id)->get();
+                                                                                @endphp
+                                                                                @if($row->is_check==0)
+                                                                                    @if($evaluationPics->count()>0)
+                                                                                        <ul class="zap_photo {{ $evaluationPics->count()>3 ? 'huiyoic':'' }}">
+                                                                                            @foreach($evaluationPics as $evaluationPic)
+                                                                                                <li><img src="{{ $evaluationPic->pic }}"></li>
+                                                                                            @endforeach
+                                                                                        </ul>
+                                                                                    @endif
+                                                                                @endif
+                                                                            @endif
+                                                                            <h4>
+                                                                                <span class="btime">{{ substr($row->created_at,0,10)}}</span>
+                                                                                <button type="button" class="al_but show_all_evaluation">[完整評價]</button>
+                                                                            </h4>
+                                                                        </div>
+                                                                    </div>
+
+                                                                    @if(empty($row->re_content) && $to->id == $user->id)
+                                                                        <div class="huf" style="width: 100%;">
+                                                                            <form id="form_re_content{{$row->id}}" action="{{ route('evaluation_re_content')."?n=".time() }}" method="post" method="post" enctype="multipart/form-data">
+                                                                                <input type="hidden" name="_token" value="{{ csrf_token() }}">
+                                                                                <span class="huinput">
+                                                                    <a id="xin_nleft_qq_{{$row->id}}" class="xin_nleft_qq" onclick="tab_evaluation_reply_show('{{$row->id}}','{{$to->id}}');"><img src="/new/images/moren_pic.png"></a>
+                                                                    <textarea id="re_content_{{ $row->id }}" name="re_content" type="text" class="hf_i xin_input_qq" placeholder="請輸入回覆（最多120個字元）" maxlength="120"></textarea>
+                                                                </span>
+                                                                                <div id="re_area_{{$row->id}}" class="re_area">
+                                                                                    <a class="hf_but" data-id="{{$row->id}}" {{--onclick="form_re_content_submit()"--}}>回覆</a>
+                                                                                </div>
+                                                                                <input type="hidden" name="id" value={{$row->id}}>
+                                                                                <input type="hidden" name="eid" value={{$to->id}}>
+                                                                            </form>
+                                                                        </div>
+                                                                        <script type="application/javascript">
+                                                                            setTextAreaHeight('{{ $row->id }}');
+                                                                        </script>
+                                                                    @elseif(!empty($row->re_content))
+                                                                        <div class="hu_p">
+                                                                            <div class="he_b">
+                                                                                <span class="left"><img src="@if(file_exists( public_path().$to_user->meta_()->pic ) && $to_user->meta_()->pic != ""){{$to_user->meta_()->pic}} @elseif($to_user->engroup==2)/new/images/female.png @else/new/images/male.png @endif" class="he_zp">{{$to_user->name}}</span>
+                                                                                @if($to_user->id==$user->id)
+                                                                                    <font class="sc re_content_delete" data-id="{{$row->id}}" data-userid="{{ $to->id }}"><img src="/new/images/del_03.png">刪除</font>
+                                                                                @endif
+                                                                            </div>
+                                                                            <div class="he_two">
+                                                                                <div class="context">
+                                                                                    @if($row->is_check==1)
+                                                                                        <div id="test" class="context-wrap" style="word-break: break-all;color: red;">***此評價目前由站方審核中***</div>
+                                                                                    @else
+                                                                                        <div id="test" class="context-wrap" style="word-break: break-all;">{!! nl2br($row->re_content) !!}</div>
+                                                                                    @endif
+                                                                                    @if(!$row->only_show_text)
+                                                                                        @php
+                                                                                            $evaluationPics=\App\Models\EvaluationPic::where('evaluation_id',$row->id)->where('member_id',$to->id)->get();
+                                                                                        @endphp
+                                                                                        @if($row->is_check==0)
+                                                                                            @if($evaluationPics->count()>0)
+                                                                                                <ul class="zap_photo {{ $evaluationPics->count()>3 ? 'huiyoic':'' }}">
+                                                                                                    @foreach($evaluationPics as $evaluationPic)
+                                                                                                        <li><img src="{{ $evaluationPic->pic }}"></li>
+                                                                                                    @endforeach
+                                                                                                </ul>
+                                                                                            @endif
+                                                                                        @endif
+                                                                                    @endif
+                                                                                </div>
+                                                                            </div>
+                                                                            <div class="he_twotime">{{ substr($row->re_created_at,0,10)}}<span class="z_more">展開</span></div>
+                                                                        </div>
+                                                                    @endif
+                                                                </li>
                                                             @endforeach
-                                                        </ul>
-                                                        @endif
+                                                        </div>
+                                                        <div class="hzk toggleBlockMid">
+                                                            <img src="/new/images/zk_icon.png">
+                                                            <h2>部分被封鎖的會員評價已經被隱藏，點此全部顯示</h2>
+                                                        </div>
                                                     @endif
-                                                    <h4>
-                                                        <span class="btime">{{ substr($row->created_at,0,10)}}</span>
-                                                        <button type="button" class="al_but show_all_evaluation">[完整評價]</button>
-                                                    </h4>
+                                                </ul>
+                                                <div id="evaluation_page" style="text-align: center;">
+                                                    {!! $evaluation_data->appends(request()->input())->links('pagination::sg-pages2') !!}
                                                 </div>
-{{--                                                || $user->id==697--}}
-                                                @if(empty($row->re_content) && $to->id == $user->id)
-                                                    <div class="huf" style="width: 100%;">
-                                                        <form id="form_re_content{{$row->id}}" action="{{ route('evaluation_re_content')."?n=".time() }}" method="post" enctype="multipart/form-data">
-                                                            <input type="hidden" name="_token" value="{{ csrf_token() }}">
-                                                            <span class="huinput">
-                                                                <a id="xin_nleft_qq_{{ $row->id }}" class="xin_nleft_qq" onclick="tab_evaluation_reply_show('{{$row->id}}','{{$to->id}}');"><img src="/new/images/moren_pic.png"></a>
-                                                                <textarea id="re_content_{{ $row->id }}"name="re_content" type="text" class="hf_i xin_input_qq" placeholder="請輸入回覆（最多120個字元）" maxlength="120"></textarea>
-                                                            </span>
-                                                            <div id="re_area_{{ $row->id }}" class="re_area">
-                                                                <a class="hf_but" data-id="{{$row->id}}" {{--onclick="form_re_content_submit()"--}}>回覆</a>
-                                                            </div>
-                                                            <input type="hidden" name="id" value={{$row->id}}>
-                                                            <input type="hidden" name="eid" value={{$to->id}}>
-                                                        </form>
-                                                    </div>
-                                                    <script type="application/javascript">
-                                                        setTextAreaHeight('{{ $row->id }}');
-                                                    </script>
-                                                @elseif(!empty($row->re_content))
-                                                    <div class="hu_p">
-                                                        <div class="he_b">
-                                                            <span class="left"><img src="@if(file_exists( public_path().$to->meta->pic ) && $to->meta->pic != ""){{$to->meta->pic}} @elseif($to->engroup==2)/new/images/female.png @else/new/images/male.png @endif" class="he_zp">{{$to->name}}</span>
-                                                            @if($to->id==$user->id)
-                                                                <font class="sc re_content_delete" data-id="{{$row->id}}" data-userid="{{ $to->id }}"><img src="/new/images/del_03.png">刪除</font>
-                                                            @endif
-                                                        </div>
-                                                        <div class="he_two">
-                                                            <div class="context">
-                                                                @if($row->is_check==1)
-                                                                    <div id="test" class="context-wrap" style="word-break: break-all;color: red;">***此評價目前由站方審核中***</div>
-                                                                @else
-                                                                    <div id="test" class="context-wrap" style="word-break: break-all;">{!! nl2br($row->re_content) !!}</div>
-                                                                @endif
-                                                                @php
-                                                                    $evaluationPics=\App\Models\EvaluationPic::where('evaluation_id',$row->id)->where('member_id',$to->id)->get();
-                                                                @endphp
-                                                                @if($row->is_check==0)
-                                                                    @if($evaluationPics->count()>0)
-                                                                    <ul class="zap_photo {{ $evaluationPics->count()>3 ? 'huiyoic':'' }}">
-                                                                        @foreach($evaluationPics as $evaluationPic)
-                                                                            <li><img src="{{ $evaluationPic->pic }}"></li>
-                                                                        @endforeach
-                                                                    </ul>
-                                                                    @endif
-                                                                @endif
-                                                            </div>
-                                                        </div>
-                                                        <div class="he_twotime">{{ substr($row->re_created_at,0,10)}}<span class="z_more">展開</span></div>
+                                                @if($showCount < 1)
+                                                    <div class="pjliuyan02 amar15" style=" min-height: auto; margin-bottom: 0;">
+                                                        <div class="huiy_na"><img src="/new/images/pjicon.png" class="feng_img"><span>暫無資料</span></div>
                                                     </div>
                                                 @endif
-                                            </li>
+                                            @else
+                                                <div class="pjliuyan02 amar15" style=" min-height: auto; margin-bottom: 0;">
+                                                    <div class="huiy_na"><img src="/new/images/pjicon.png" class="feng_img"><span>暫無資料</span></div>
+                                                </div>
                                             @endif
-                                        @endforeach
-                                        @if(sizeof($blockMidList) > 0)
-                                            @php
-                                            //print_r($blockMidList);
-                                            @endphp
-                                        <div style="display: none;" id="plshow">
-                                        @foreach($blockMidList as $row)
-                                            @php
-                                            //print_r($row->from_id);
-                                                $row_user = \App\Models\User::findById($row->from_id);
-                                                $to_user = \App\Models\User::findById($row->to_id);
-                                                //$isBlocked = \App\Models\Blocked::isBlocked($user->id, $row->from_id);
-                                                $hadWarned = DB::table('is_warned_log')->where('user_id',$row_user->id)->first();
-                                                $warned_users = DB::table('warned_users')->where('member_id',$row_user->id)
-                                                    ->where(function($warned_users){
-                                                    $warned_users->where('expire_date', '>=', \Carbon\Carbon::now())
-                                                        ->orWhere('expire_date', null); })->first();
-                                                $showCount++;
-                                            @endphp
-                                            <li class="{{ ($row_user->id == $user->id)  ? 'showSelfEvaluation_block':'' }}">
-                                                <div class="kll">
-                                                <div class="piname">
-                                                    {{--<span>
-                                                        @if(!$warned_users && !$hadWarned)
-                                                            @for ($i = 1; $i <= 5; $i++)
-                                                                @if($row->rating>=$i)
-                                                                    <img src="/new/images/sxx_1.png">
-                                                                @else
-                                                                    <img src="/new/images/sxx_4.png">
-                                                                @endif
-                                                            @endfor
-                                                        @endif
-                                                    </span>--}}
-                                                    @if ($row->content_violation_processing)
-                                                        <span>匿名評價</span><span style="color: red; font-size:12px;">(站方代發)</span>
-                                                    @else
-                                                        <a href="/dashboard/viewuser/{{$row_user->id}}">{{$row_user->name}}</a>
-                                                    @endif
-                                                    @if(isset($warned_users) || isset($hadWarned))
-                                                        <img src="/new/images/kul.png" class="sxyh">
-                                                    @else
-                                                        <img src="/new/images/kul02.png" class="sxyh">
-                                                    @endif
-                                                    {{--                                <font>{{ substr($row->created_at,0,10)}}</font>--}}
-                                                    @if($row_user->id==$user->id)
-                                                        <font class="sc content_delete" data-id="{{$row->id}}" style="padding: 0px 3px;"><img src="/new/images/del_03.png" style="padding: 0px 0px 1px 5px;">刪除</font>
-                                                    @endif
-                                                    @if ($row->content_violation_processing && $row->to_id==$user->id) <a class="primessage sc" href="{{ route('getAnonymousEvaluationChat',['evaluationid'=>$row->id]) }}">私訊溝通</a> @endif
-                                                </div>
-                                                <div class="con">
-                                                    @if($row->is_check==1)
-                                                        <p class="many-txt" style="color: red;">***此評價目前由站方審核中***</p>
-                                                    @else
-                                                        <p class="many-txt">{!! nl2br($row->content) !!}@if(!is_null($row->admin_comment))<span style="color: red;">{{ ' ('.$row->admin_comment.')' }}</span> @endif</p>
-                                                    @endif
-                                                    @php
-                                                        $evaluationPics=\App\Models\EvaluationPic::where('evaluation_id',$row->id)->where('member_id',$row->from_id)->get();
-                                                    @endphp
-                                                    @if($row->is_check==0)
-                                                        @if($evaluationPics->count()>0)
-                                                            <ul class="zap_photo {{ $evaluationPics->count()>3 ? 'huiyoic':'' }}">
-                                                                @foreach($evaluationPics as $evaluationPic)
-                                                                    <li><img src="{{ $evaluationPic->pic }}"></li>
-                                                                @endforeach
-                                                            </ul>
-                                                        @endif
-                                                    @endif
-                                                    <h4>
-                                                        <span class="btime">{{ substr($row->created_at,0,10)}}</span>
-                                                        <button type="button" class="al_but show_all_evaluation">[完整評價]</button>
-                                                    </h4>
-                                                </div>
-                                                </div>
-
-                                                @if(empty($row->re_content) && $to->id == $user->id)
-                                                    <div class="huf" style="width: 100%;">
-                                                        <form id="form_re_content{{$row->id}}" action="{{ route('evaluation_re_content')."?n=".time() }}" method="post" method="post" enctype="multipart/form-data">
-                                                            <input type="hidden" name="_token" value="{{ csrf_token() }}">
-                                                            <span class="huinput">
-                                                                <a id="xin_nleft_qq_{{$row->id}}" class="xin_nleft_qq" onclick="tab_evaluation_reply_show('{{$row->id}}','{{$to->id}}');"><img src="/new/images/moren_pic.png"></a>
-                                                                <textarea id="re_content_{{ $row->id }}" name="re_content" type="text" class="hf_i xin_input_qq" placeholder="請輸入回覆（最多120個字元）" maxlength="120"></textarea>
-                                                            </span>
-                                                            <div id="re_area_{{$row->id}}" class="re_area">
-                                                                <a class="hf_but" data-id="{{$row->id}}" {{--onclick="form_re_content_submit()"--}}>回覆</a>
-                                                            </div>
-                                                            <input type="hidden" name="id" value={{$row->id}}>
-                                                            <input type="hidden" name="eid" value={{$to->id}}>
-                                                        </form>
-                                                    </div>
-                                                    <script type="application/javascript">
-                                                        setTextAreaHeight('{{ $row->id }}');
-                                                    </script>
-                                                @elseif(!empty($row->re_content))
-                                                    <div class="hu_p">
-                                                        <div class="he_b">
-                                                            <span class="left"><img src="@if(file_exists( public_path().$to_user->meta_()->pic ) && $to_user->meta_()->pic != ""){{$to_user->meta_()->pic}} @elseif($to_user->engroup==2)/new/images/female.png @else/new/images/male.png @endif" class="he_zp">{{$to_user->name}}</span>
-                                                            @if($to_user->id==$user->id)
-                                                                <font class="sc re_content_delete" data-id="{{$row->id}}" data-userid="{{ $to->id }}"><img src="/new/images/del_03.png">刪除</font>
-                                                            @endif
-                                                        </div>
-                                                        <div class="he_two">
-                                                            <div class="context">
-                                                                @if($row->is_check==1)
-                                                                    <div id="test" class="context-wrap" style="word-break: break-all;color: red;">***此評價目前由站方審核中***</div>
-                                                                @else
-                                                                    <div id="test" class="context-wrap" style="word-break: break-all;">{!! nl2br($row->re_content) !!}</div>
-                                                                @endif
-                                                                @php
-                                                                    $evaluationPics=\App\Models\EvaluationPic::where('evaluation_id',$row->id)->where('member_id',$to->id)->get();
-                                                                @endphp
-                                                                @if($row->is_check==0)
-                                                                    @if($evaluationPics->count()>0)
-                                                                        <ul class="zap_photo {{ $evaluationPics->count()>3 ? 'huiyoic':'' }}">
-                                                                            @foreach($evaluationPics as $evaluationPic)
-                                                                                <li><img src="{{ $evaluationPic->pic }}"></li>
-                                                                            @endforeach
-                                                                        </ul>
-                                                                    @endif
-                                                                @endif
-                                                            </div>
-                                                        </div>
-                                                        <div class="he_twotime">{{ substr($row->re_created_at,0,10)}}<span class="z_more">展開</span></div>
-                                                    </div>
-                                                @endif
-                                            </li>
-                                        @endforeach
                                         </div>
-                                        <div class="hzk toggleBlockMid">
-                                            <img src="/new/images/zk_icon.png">
-                                            <h2>部分被封鎖的會員評價已經被隱藏，點此全部顯示</h2>
-                                        </div>
-                                        @endif
-                                    </ul>
-                                    <div style="text-align: center;">
-                                        {!! $evaluation_data->appends(request()->input())->links('pagination::sg-pages2') !!}
                                     </div>
-                                        @if($showCount < 1)
-                                        <div class="pjliuyan02 amar15" style=" min-height: auto; margin-bottom: 0;">
-                                            <div class="huiy_na"><img src="/new/images/pjicon.png" class="feng_img"><span>暫無資料</span></div>
-                                        </div>
-                                        @endif
-                                    @else
-                                    <div class="pjliuyan02 amar15" style=" min-height: auto; margin-bottom: 0;">
-                                         <div class="huiy_na"><img src="/new/images/pjicon.png" class="feng_img"><span>暫無資料</span></div>
-                                    </div>
-                                    @endif
+                                </dd>
+                            @else
+                                <dt class="hypingjia" style="background-image: linear-gradient(90deg,#ffced9,#ffeef1)">
+                                    <div class="hy_font1">會員評價</div><div class="hy_font2">Evaluation</div>
+                                </dt>
+                                <div class="pjliuyan02 amar15" style=" min-height: auto; margin-bottom: 10px;">
+                                    <div class="huiy_na"><img src="/new/images/pjicon.png" class="feng_img"><span>暫無資料</span></div>
                                 </div>
-                            </div>
-                        </div>
-                    </div>
+                            @endif
+                        </dl>
 
+
+                    </div>
+                    @if($message_board_list->count())
+                        <div class="ziliao ziliao3">
+                            <dl class="hy_ceng system" style="margin-bottom: 50px;">
+                                <dt class="hypingjia">
+                                    <div class="hy_font1">留言紀錄</div><div class="hy_font2"> Wishing Board</div>
+                                </dt>
+                                <dd id="showMoreMsg" class="xiliao_input nerong" style="display: none;" >
+                                    <div class="xl_text">
+                                        <div class="pjliuyan02 amar15" style=" min-height: auto; margin-bottom: 0;">
+                                            <ul>
+                                                @foreach($message_board_list as $list)
+                                                    <a href="/MessageBoard/post_detail/{{ $list->id }}?from_viewuser_page=1">
+                                                        <div class="ly_prilist" >
+                                                            <div id="messageBoard_{{ $list->id }}" class="ly_text">
+                                                                <div class="ly_text_1"><div class="ly_lfontleft">{{ $list->title }}</div><div class="ly_time">{{ date('Y-m-d', strtotime($list->created_at)) }}</div></div>
+                                                                <div class="liu_text_2">{{ $list->contents }}</div>
+                                                            </div>
+                                                        </div>
+                                                    </a>
+                                                @endforeach
+                                            </ul>
+                                        </div>
+                                    </div>
+                                </dd>
+                            </dl>
+                        </div>
+                    @endif
                 @endif
             </div>
         </div>
@@ -3678,4 +3756,38 @@ rendorItemNthText.nthEnum = '一二三四五六七八九十'.split('');
 
 </script>
 
+<script type="text/javascript">
+    $(function() {
+        $(".system dd").hide();
+        $(".system dt").click(function() {
+
+        });
+    });
+
+    $('.system dt').click(function(e) {
+        $(this).toggleClass('on');
+        $(this).next('dd').slideToggle();
+    });
+
+    $( document ).ready(function() {
+
+        var position ='{{ session()->get('viewuser_page_position')}}';
+        if(position !=''){
+            if (position.indexOf("messageBoard") >= 0){
+                $('.hypbg').addClass('on');
+                $('#showMoreMsg').show();
+            }
+            $("html,body").animate({scrollTop: $('#'+position).offset().top}, 1000);
+        }
+
+        var evaluate_pagination='{{Request()->has('page')}}';
+        if(evaluate_pagination){
+            $('.toggleBlockMid').click();
+            $("#hash_evaluation .hypingjia").addClass('on');
+            $("#hash_evaluation .xiliao_input").show();
+            $("html,body").animate({scrollTop: $("#hash_evaluation").offset().top}, 1000);
+        }
+
+    });
+</script>
 @stop

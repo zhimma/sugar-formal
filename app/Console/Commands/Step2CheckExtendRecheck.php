@@ -2,19 +2,10 @@
 
 namespace App\Console\Commands;
 
-use Illuminate\Console\Command;
-
 use App\Models\BackendUserDetails;
-
-use App\Models\User;
-
 use App\Models\Message;
-
 use App\Models\SuspiciousUser;
-
-use Illuminate\Support\Facades\Log;
-
-use Carbon\Carbon;
+use Illuminate\Console\Command;
 
 class Step2CheckExtendRecheck extends Command
 {
@@ -49,12 +40,14 @@ class Step2CheckExtendRecheck extends Command
      */
     public function handle()
     {
+        logger('Step2CheckExtendRecheck start');
         $user_list = [];
         $check_list = BackendUserDetails::with('check_extend_admin_action_log')
-                                        ->with('user')
-                                        ->select('user_id')
-                                        ->where('is_waiting_for_more_data', 1)
-                                        ->get();
+            ->with('user')
+            ->select('user_id')
+            ->where('is_waiting_for_more_data', 1)
+            ->get();
+        logger('Step2CheckExtendRecheck check_list count: ' . count($check_list));
         foreach($check_list as $check)
         {
             //如果最後登入時間早於等待檢查開始的時間則跳過
@@ -68,8 +61,10 @@ class Step2CheckExtendRecheck extends Command
                 }
             }
             */
-            $user_list[$check->user->id]['check_data'] = $check;
-            $user_list[$check->user->id]['check_start_time'] = $check_start_time;
+            if ($check->user) {
+                $user_list[$check->user->id]['check_data'] = $check;
+                $user_list[$check->user->id]['check_start_time'] = $check_start_time;
+            }
         }
         $message = Message::select('from_id','to_id','created_at')->whereIn('from_id', array_keys($user_list))->orderByDesc('created_at')->get();
 
@@ -77,7 +72,7 @@ class Step2CheckExtendRecheck extends Command
         {
             $user_message_count = $message->where('from_id', $user_id)->where('created_at', '>', $check_data['check_start_time'])->unique('to_id')->count();
             //Log::Info($user_id);
-            //Log::Info($user_message_count);
+            logger('Step2CheckExtendRecheck user_id: ' . $user_id . ', user_message_count: ' . $user_message_count);
             if($user_message_count > 5)
             {
                 SuspiciousUser::where('user_id', $user_id)->delete();
@@ -89,6 +84,7 @@ class Step2CheckExtendRecheck extends Command
                 $suspicious_user->save();
 
                 BackendUserDetails::where('user_id', $user_id)->update(['is_waiting_for_more_data' => 0]);
+                logger('Step2CheckExtendRecheck user_id: ' . $user_id . ', is_waiting_for_more_data: 0');
             }
         }
         

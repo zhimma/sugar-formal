@@ -1810,7 +1810,28 @@
     </tr>
     @foreach($out_evaluation_data_2 as $row)
         <tr>
-            <td><a href="{{ route('admin/showMessagesBetween', [$user->id, $row['to_id']]) }}" target="_blank">{{ $row['to_name'] }}</a></td>
+            <td>
+                <a href="{{ route('admin/showMessagesBetween', [$user->id, $row['to_id']]) }}" target="_blank">{{ $row['to_name'] }}</a>
+                @if($row['content_violation_processing'])
+                    ( 匿名 )
+                    (
+                    @switch($row['anonymous_content_status'])
+                        @case('0')
+                        未審核
+                        @break
+                        @case('1')
+                        通過
+                        @if($row['only_show_text'])
+                        -不附照片
+                        @endif
+                        @break
+                        @case('2')
+                        不通過
+                        @break
+                    @endswitch
+                    )
+                @endif
+            </td>
             <td><a href="{{ route('users/advInfo', $row['to_id']) }}" target='_blank'>{{ $row['to_email'] }}</a></td>
             <td>{{ $row['created_at'] }}</td>
             <td>@if($row['to_isvip']==1) VIP @endif</td>
@@ -1876,7 +1897,28 @@
     </tr>
     @foreach($out_evaluation_data as $row)
         <tr>
-            <td><a href="{{ route('admin/showMessagesBetween', [$user->id, $row['to_id']]) }}" target="_blank">{{ $row['to_name'] }}</a></td>
+            <td>
+                <a href="{{ route('admin/showMessagesBetween', [$user->id, $row['to_id']]) }}" target="_blank">{{ $row['to_name'] }}</a>
+               @if($row['content_violation_processing'])
+                    ( 匿名 )
+                    (
+                    @switch($row['anonymous_content_status'])
+                        @case('0')
+                        未審核
+                        @break
+                        @case('1')
+                        通過
+                        @if($row['only_show_text'])
+                        -不附照片
+                        @endif
+                        @break
+                        @case('2')
+                        不通過
+                        @break
+                    @endswitch
+                    )
+                @endif                
+            </td>
             <td><a href="{{ route('users/advInfo', $row['to_id']) }}" target='_blank'>{{ $row['to_email'] }}</a></td>
             <td>{{ $row['created_at'] }}</td>
             <td>@if($row['to_isvip']==1) VIP @endif</td>

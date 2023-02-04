@@ -43,6 +43,8 @@ use Illuminate\Support\Facades\Cache;
 use Tymon\JWTAuth\Contracts\JWTSubject;
 use Outl1ne\ScoutBatchSearchable\BatchSearchable;
 use App\Models\UserRemarksLog;
+use App\Models\UserVideoVerifyRecord;
+use App\Models\UserVideoVerifyMemo;
 
 class User extends Authenticatable implements JWTSubject
 {
@@ -394,7 +396,7 @@ class User extends Authenticatable implements JWTSubject
     {
         return $this->hasOne(RealAuthUserApply::class,'user_id','id')
                 ->where('auth_type_id',1)
-                ->orderByDesc('id')->take(1);
+                ->latest();
     }
     
     public function self_auth_unchecked_apply() 
@@ -403,15 +405,24 @@ class User extends Authenticatable implements JWTSubject
         return $this->hasOne(RealAuthUserApply::class,'user_id','id')
                 ->where('auth_type_id',1)
                 ->where(function($q) {$q->whereNull('status')->orWhere('status','!=',1);})
-                ->orderByDesc('id')->take(1);
+                ->latest();
     }
     
+    public function video_verify_record() 
+    {
+        return $this->hasMany(UserVideoVerifyRecord::class,'user_id','id');
+    }     
     
+    public function video_verify_memo() 
+    {
+        return $this->hasOne(UserVideoVerifyMemo::class,'user_id','id');
+    }  
+ 
     public function beauty_auth_apply() 
     {
         return $this->hasOne(RealAuthUserApply::class,'user_id','id')
                 ->where('auth_type_id',2)
-                ->orderByDesc('id')->take(1);
+                ->latest();
     }    
     
     public function beauty_auth_unchecked_apply() 
@@ -420,14 +431,14 @@ class User extends Authenticatable implements JWTSubject
         return $this->hasOne(RealAuthUserApply::class,'user_id','id')
                 ->where('auth_type_id',2)
                 ->where(function($q) {$q->whereNull('status')->orWhere('status','!=',1);})
-                ->orderByDesc('id')->take(1);
+                ->latest();
     }
     
     public function famous_auth_apply() 
     {
         return $this->hasOne(RealAuthUserApply::class,'user_id','id')
                 ->where('auth_type_id',3)
-                ->orderByDesc('id')->take(1);
+                ->latest();
     }     
 
     public function famous_auth_unchecked_apply() 
@@ -435,7 +446,7 @@ class User extends Authenticatable implements JWTSubject
         return $this->hasOne(RealAuthUserApply::class,'user_id','id')
                 ->where('auth_type_id',3)
                 ->where(function($q) {$q->whereNull('status')->orWhere('status','!=',1);})
-                ->orderByDesc('id')->take(1);
+                ->latest();
     } 
     
     public function real_auth_user_modify() 
@@ -1535,18 +1546,30 @@ class User extends Authenticatable implements JWTSubject
 		if(!$wantIndexArr || in_array('blocked_other_count',$wantIndexArr)) {
 			$bannedUsers = \App\Services\UserService::getBannedId();
 			$advInfo['blocked_other_count']= \App\Models\Blocked::join('users', 'users.id', '=', 'blocked.blocked_id')
+                ->join('message', function($join){
+                    $join->on('blocked.member_id', '=', 'message.from_id');
+                    $join->on('blocked.blocked_id','=', 'message.to_id');
+                })
 				->where('blocked.member_id', $user->id)
 				->whereNotIn('blocked.blocked_id',$bannedUsers)
 				->whereNotNull('users.id')
-				->count();
+                ->whereNotNull('message.id')
+                ->distinct()
+				->count('blocked.blocked_id');
 		}
         /*此會員被多少會員封鎖*/
 		if(!$wantIndexArr || in_array('be_blocked_other_count',$wantIndexArr)) {
 			$advInfo['be_blocked_other_count'] = \App\Models\Blocked::join('users', 'users.id', '=', 'blocked.member_id')
+                ->join('message', function($join){
+                    $join->on('blocked.member_id', '=', 'message.from_id');
+                    $join->on('blocked.blocked_id','=', 'message.to_id');
+                })
 				->where('blocked.blocked_id', $user->id)
 				->whereNotIn('blocked.member_id',$bannedUsers)
 				->whereNotNull('users.id')
-				->count();
+                ->whereNotNull('message.id')
+				->distinct()
+				->count('blocked.blocked_id');
 		}
         return $advInfo;
     }

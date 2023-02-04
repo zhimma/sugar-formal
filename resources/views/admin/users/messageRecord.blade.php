@@ -183,12 +183,18 @@
             </ul>
         </nav>
     </div>
+    @if(request()->from_videoChat==1)
+    <h4>視訊驗證user提出問題</h4>
+    <div style="margin-bottom:4%;">
+        {!!nl2br($user->video_verify_memo?$user->video_verify_memo->user_question:'')!!}
+    </div>
+    @endif
     <h4>發送站長訊息給 {{$user->name}}(收件者)</h4>
-    <form action="{{ route('admin/send', $user->id) }}" id='message' method='POST'>
+    <form action="{{ route('admin/send', $user->id) }}{{request()->from_videoChat?'?from_videoChat='.request()->from_videoChat:''}}" id='message' method='POST'>
         {!! csrf_field() !!}
         <input type="hidden" value="{{ $admin->id }}" name="admin_id">
         <input type="hidden" value="1" name="chat_with_admin">
-        <textarea name="msg" id="msg2" class="form-control" cols="80" rows="5"></textarea>
+        <textarea name="msg" id="msg2" class="form-control" cols="80" rows="5">{{request()->from_videoChat==1 && $user->video_verify_memo?$user->video_verify_memo->user_question:''}}</textarea>
         <br>
         <button type='submit' class='text-white btn btn-primary'>送出</button>
         @if($user->is_admin_chat_channel_open)

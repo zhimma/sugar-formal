@@ -3,21 +3,6 @@
     <div class="container">
       <div class="row">
         <div class="col">
-          <div class="btn-group" role="group" style="flex-wrap:wrap">
-            <button
-              type="button"
-              class="btn mr-2"
-              v-for="user in allusers"
-              :key="user.id"
-              :class="generateBtnClass(getUserOnlineStatus(user.id))"
-              :style="generateBtnStyle(getUserOnlineStatus(user.id))"
-              @click="getUserOnlineStatus(user.id) ? placeVideoCall(user.id, user.name) : null"
-            >
-              {{ user.id }} {{ user.name }}
-              <span v-if=getUserOnlineStatus(user.id) class="badge badge-light">上線中</span>
-              <span v-else class="badge badge-light">下線</span>
-            </button>
-          </div>
         </div>
       </div>
       <!--Placing Video Call-->
@@ -72,12 +57,26 @@
         </div>
       </div>
       <!-- End of Placing Video Call  -->
-
+      <div class="row" v-if="!callPlaced && !incomingCallDialog && authuserisselfauthwaitingcheck!=1">
+        <div class="col">
+          <p style="margin-top:20px;">
+            {{authuser.name}}您好，您在{{authuser.self_auth_unchecked_apply.created_at.substr(0,10)}}時於本站申請 本人認證。站方人員可從本站任一頁面跟您視訊，請等候站方人員撥打視訊通話給您，謝謝。
+          </p>
+        </div>
+      </div>
+      <div class="row" v-if="!callPlaced && !incomingCallDialog && authuserisselfauthwaitingcheck">
+        <div class="col">
+          <p style="margin-top:20px;">
+            {{authuser.name}}您好，您在{{authuser.self_auth_unchecked_apply.created_at.substr(0,10)}}時於本站申請 本人認證。目前還在審核中請稍候，請稍候，若有問題請與站長聯絡 <a href="https://lin.ee/rLqcCns"><img src="https://scdn.line-apps.com/n/line_add_friends/btn/zh-Hant.png" alt="加入好友" height="26" border="0" style="all: initial;all: unset;height: 26px; float: unset;vertical-align:middle !important;"></a>
+          </p>
+        </div>
+      </div>
       <!-- Incoming Call  -->
       <div class="row" v-if="incomingCallDialog">
         <div class="col">
-          <p>
-            來自 <strong>{{ callerDetails.id }} {{ callerDetails.name }} 的通話要求</strong>
+          <p style="margin-bottom:10px;margin-top:20px;">
+            {{authuser.name}}您好，您在{{authuser.self_auth_unchecked_apply.created_at.substr(0,10)}}時於本站申請 本人認證。現站方人員將與您進行視訊驗證，約需時3 分鐘。謝謝。
+            
           </p>
           <div class="btn-group" role="group">
             <button
@@ -135,6 +134,8 @@ export default {
   props: [
     "allusers",
     "authuserid",
+    "authuser",
+    "authuserisselfauthwaitingcheck",
     "user_permission",
     "ice_server_json",
   ],
@@ -530,7 +531,9 @@ export default {
           log_arr.topic='data.type === "incomingCall"';
           log_arr.topic_step='after true';
           log_video_chat_process(log_arr ); 
-            
+          
+          window.sessionStorage.setItem('verify_record_id', data.record_id);
+          
           $.ajax({
             async:false,
             type:'get',
@@ -1147,6 +1150,7 @@ export default {
             //signal: JSON.stringify(data),
             signal: data,
             to: this.videoCallParams.caller,
+            verify_record_id:window.sessionStorage.getItem('verify_record_id')
           })
           .then(() => {
             var log_arr = {
@@ -1422,6 +1426,7 @@ export default {
       await axios
           .post("/video/decline-call", {
             to: this.videoCallParams.caller,
+            verify_record_id:window.sessionStorage.getItem('verify_record_id')
           })
           .then(() => {
             var log_arr = {

@@ -24,13 +24,27 @@
 			<div class="shou">
 				<span><img src="/new/images/tg_15.png" style="height: 26px; margin-right: 5px; margin-bottom: 8px;">修改留言</span>
 				<font>Wishing</font>
-				<a href="/MessageBoard/showList" class="toug_back btn_img">
+				@php
+					$backUrl=isset($_SERVER['HTTP_REFERER']) ? $_SERVER['HTTP_REFERER'] : '/MessageBoard/showList';
+				@endphp
+				<a href="{{ $backUrl }}" class="toug_back btn_img">
 					<div class="btn_back"></div>
 				</a>
 			</div>
 			<div class="two_tg">
 				<div class="tow_input">
-					<form action="/MessageBoard/doPosts?{{ csrf_token() }}={{ \Carbon\Carbon::now()->timestamp }}" id="posts" method="POST" enctype="multipart/form-data">
+					@php
+						$str='';
+						if(isset($_SERVER['HTTP_REFERER'])){
+							if(str_contains($_SERVER['HTTP_REFERER'], 'from_viewuser_vvip')){
+								$str='&from_viewuser_vvip_page=1';
+							}else if(str_contains($_SERVER['HTTP_REFERER'], 'from_viewuser_page')){
+								$str='&from_viewuser_page=1';
+							}
+						}
+
+					@endphp
+					<form action="/MessageBoard/doPosts?{{ csrf_token() }}={{ \Carbon\Carbon::now()->timestamp }}{{ $str }}" id="posts" method="POST" enctype="multipart/form-data">
 						<input type="hidden" name="_token" value="{{ csrf_token() }}">
 						<input type="hidden" name="action" value="edit">
 						<input type="hidden" name="mid" value="{{ $editInfo->mid }}">

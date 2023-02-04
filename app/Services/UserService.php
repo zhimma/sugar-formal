@@ -2,34 +2,27 @@
 
 namespace App\Services;
 
+use App\Events\UserRegisteredEmail;
+use App\Models\ImagesCompareEncode;
+use App\Models\LogAdvAuthApi;
+use App\Models\LogUserLogin;
+use App\Models\Message;
+use App\Models\Role;
 use App\Models\Tip;
-use App\Models\Vip;
-use DB;
-use Auth;
-use Mail;
-use Config;
-use Session;
-use Exception;
 use App\Models\User;
 use App\Models\UserMeta;
-use App\Models\Role;
-use App\Models\Message;
-use App\Repositories\UserRepository;
-use App\Events\UserRegisteredEmail;
+use App\Models\UserOptionsXref;
+use App\Models\Vip;
 use App\Notifications\ActivateUserEmail;
 use App\Notifications\AdvAuthUserEmail;
-use Illuminate\Support\Facades\Schema;
-use Illuminate\Support\Facades\Log;
 use App\Observer\BadUserCommon;
+use Auth;
 use Carbon\Carbon;
-use App\Models\LogUserLogin;
-use App\Models\IsWarnedLog;
-use App\Models\IsBannedLog;
-use App\Models\LogAdvAuthApi;
-use App\Models\ValueAddedService;
-use App\Models\hideOnlineData;
-use App\Models\UserOptionsXref;
-use App\Models\ImagesCompareEncode;
+use DB;
+use Exception;
+use Illuminate\Support\Facades\Log;
+use Illuminate\Support\Facades\Schema;
+use Session;
 
 class UserService
 {
@@ -50,13 +43,13 @@ class UserService
      * @var RoleService
      */
     protected $role;
-    
+
     public static $today_greeting_rate = 0;
 
     public function __construct(
-        User $model,
+        User     $model,
         UserMeta $userMeta,
-        Role $role=null
+        Role     $role=null
     ) {
         $this->model = $model;
         $this->userMeta = $userMeta;
@@ -172,8 +165,7 @@ class UserService
                         'user_id' => $user->id
                     ]);
                     event(new UserRegisteredEmail($user, $password));
-                }
-                else{
+                } else{
                     $this->userMeta->firstOrCreate([
                         'user_id' => $user->id,
                         'is_active' => 1
@@ -190,10 +182,9 @@ class UserService
                             'user_id' => '0',
                             'target' => $user->id,
                             'created_at' => \Carbon\Carbon::now()]
-                    ))
-                    {
+                    )) {
                         BadUserCommon::addRemindMsgFromBadId($user->id);
-                    }                            
+                    }
                 }
             }
             if ($sendEmail) {
@@ -253,8 +244,7 @@ class UserService
         //Log::Info($payload);
 
         //更新職業
-        if(isset($payload['new_occupation']))
-        {
+        if(isset($payload['new_occupation'])) {
             UserOptionsXref::update_occupation($userId, $payload['new_occupation'], $payload['new_occupation_other']);
         }
 
@@ -294,7 +284,7 @@ class UserService
         foreach($setBlockKeys as $setBlockKeys){
             // dump($setBlockKeys);
             foreach($payload as $key => $value) {
-                
+
                 if($key!='blockcity'&&$key!='blockarea'&&preg_match("/$setBlockKeys/i", $key)){
                     if($key != $setBlockKeys){
                         if(is_null($payload[$key])){
@@ -305,7 +295,7 @@ class UserService
                                 if(!in_array($key, $notLikeBlockKeys)){
                                     $payload[$setBlockKeys] = $payload[$setBlockKeys]. ",". $value;
                                     unset($payload[$key]);
-                                 }
+                                }
                             }else{
                                 $payload[$setBlockKeys] = $payload[$setBlockKeys]. ",". $value;
                                 unset($payload[$key]);
@@ -365,12 +355,12 @@ class UserService
         if(isset($payload['city']) && isset($payload['area'])){
             $city_tmp=explode(',',$payload['city']);
             $area_tmp=explode(',',$payload['area']);
-            foreach ($city_tmp as $k  =>$city){
+            foreach ($city_tmp as $k  => $city){
                 $city_area[]=$city.','.array_get($area_tmp,$k);
             }
             $city_n='';
             $area_n='';
-            foreach (array_unique($city_area) as $k  =>$cityArea){
+            foreach (array_unique($city_area) as $k  => $cityArea){
                 $city_n.=explode(',',$cityArea)[0].',';
                 $area_n.=explode(',',$cityArea)[1].',';
             }
@@ -394,232 +384,187 @@ class UserService
                 }
 
                 unset($payload['meta']['marketing']);
-                if (isset($payload['city']))
-                {
-                  $payload['meta']['city'] = $payload['city'];
-                  unset($payload['city']);
+                if (isset($payload['city'])) {
+                    $payload['meta']['city'] = $payload['city'];
+                    unset($payload['city']);
                 }
-                if (isset($payload['isHideCup']))
-                {
-                $payload['meta']['isHideCup'] = $payload['isHideCup'];
-                unset($payload['isHideCup']);
+                if (isset($payload['isHideCup'])) {
+                    $payload['meta']['isHideCup'] = $payload['isHideCup'];
+                    unset($payload['isHideCup']);
                 }
-                if (isset($payload['isHideArea']))
-                {
-                $payload['meta']['isHideArea'] = $payload['isHideArea'];
-                unset($payload['isHideArea']);
+                if (isset($payload['isHideArea'])) {
+                    $payload['meta']['isHideArea'] = $payload['isHideArea'];
+                    unset($payload['isHideArea']);
                 }
-                if (isset($payload['isHideWeight']))
-                {
-                $payload['meta']['isHideWeight'] = $payload['isHideWeight'];
-                unset($payload['isHideWeight']);
+                if (isset($payload['isHideWeight'])) {
+                    $payload['meta']['isHideWeight'] = $payload['isHideWeight'];
+                    unset($payload['isHideWeight']);
                 }
-                if (isset($payload['isHideOccupation']))
-                {
-                $payload['meta']['isHideOccupation'] = $payload['isHideOccupation'];
-                unset($payload['isHideOccupation']);
+                if (isset($payload['isHideOccupation'])) {
+                    $payload['meta']['isHideOccupation'] = $payload['isHideOccupation'];
+                    unset($payload['isHideOccupation']);
                 }
-                if (isset($payload['income']))
-                {
-                $payload['meta']['income'] = $payload['income'];
-                unset($payload['income']);
+                if (isset($payload['income'])) {
+                    $payload['meta']['income'] = $payload['income'];
+                    unset($payload['income']);
                 }
-                if (isset($payload['assets']))
-                {
-                $payload['meta']['assets'] = $payload['assets'];
-                unset($payload['assets']);
+                if (isset($payload['assets'])) {
+                    $payload['meta']['assets'] = $payload['assets'];
+                    unset($payload['assets']);
                 }
-                if (isset($payload['area']))
-                {
-                $payload['meta']['area'] = $payload['area'];
-                unset($payload['area']);
+                if (isset($payload['area'])) {
+                    $payload['meta']['area'] = $payload['area'];
+                    unset($payload['area']);
                 }
-                if (isset($payload['budget']))
-                {
-                $payload['meta']['budget'] = $payload['budget'];
-                unset($payload['budget']);
+                if (isset($payload['budget'])) {
+                    $payload['meta']['budget'] = $payload['budget'];
+                    unset($payload['budget']);
                 }
-                if (isset($payload['birthdate']) && !($user->advance_auth_status??null))
-                {
-                $payload['meta']['birthdate'] = $payload['birthdate'];
-                unset($payload['birthdate']);
+                if (isset($payload['birthdate']) && !($user->advance_auth_status??null)) {
+                    $payload['meta']['birthdate'] = $payload['birthdate'];
+                    unset($payload['birthdate']);
                 }
-                if (isset($payload['year']) && isset($payload['month']) && isset($payload['day']))
-                {
+                if (isset($payload['year']) && isset($payload['month']) && isset($payload['day'])) {
                     $payload['meta']['birthdate'] = $payload['year'].'-'.$payload['month'].'-'.$payload['day'];
                     unset($payload['year']);
                     unset($payload['month']);
                     unset($payload['day']);
                 }
-                if (isset($payload['height']))
-                {
-                $payload['meta']['height'] = $payload['height'];
-                unset($payload['height']);
+                if (isset($payload['height'])) {
+                    $payload['meta']['height'] = $payload['height'];
+                    unset($payload['height']);
                 }
-                if (isset($payload['weight']))
-                {
-                $payload['meta']['weight'] = $payload['weight'];
-                unset($payload['weight']);
+                if (isset($payload['weight'])) {
+                    $payload['meta']['weight'] = $payload['weight'];
+                    unset($payload['weight']);
                 }
-                if (isset($payload['cup']))
-                {
-                $payload['meta']['cup'] = $payload['cup'];
-                unset($payload['cup']);
+                if (isset($payload['cup'])) {
+                    $payload['meta']['cup'] = $payload['cup'];
+                    unset($payload['cup']);
                 }
-                if (isset($payload['available_time']))
-                {
+                if (isset($payload['available_time'])) {
                     $payload['meta']['available_time'] = $payload['available_time'];
                     unset($payload['available_time']);
                 }
-                if (isset($payload['family_situation']))
-                {
+                if (isset($payload['family_situation'])) {
                     $payload['meta']['family_situation'] = $payload['family_situation'];
                     unset($payload['family_situation']);
                 }
-                if (isset($payload['job']))
-                {
-                $payload['meta']['job'] = $payload['job'];
-                unset($payload['job']);
+                if (isset($payload['job'])) {
+                    $payload['meta']['job'] = $payload['job'];
+                    unset($payload['job']);
                 }
-                if (isset($payload['domain']))
-                {
-                $payload['meta']['domain'] = $payload['domain'];
-                unset($payload['domain']);
+                if (isset($payload['domain'])) {
+                    $payload['meta']['domain'] = $payload['domain'];
+                    unset($payload['domain']);
                 }
-                if (isset($payload['domainType']))
-                {
-                $payload['meta']['domainType'] = $payload['domainType'];
-                unset($payload['domainType']);
+                if (isset($payload['domainType'])) {
+                    $payload['meta']['domainType'] = $payload['domainType'];
+                    unset($payload['domainType']);
                 }
-                if (isset($payload['blockdomain']))
-                {
-                $payload['meta']['blockdomain'] = $payload['blockdomain'];
-                unset($payload['blockdomain']);
+                if (isset($payload['blockdomain'])) {
+                    $payload['meta']['blockdomain'] = $payload['blockdomain'];
+                    unset($payload['blockdomain']);
                 }
-                if (isset($payload['domainType']))
-                {
-                $payload['meta']['domainType'] = $payload['domainType'];
-                unset($payload['domainType']);
+                if (isset($payload['domainType'])) {
+                    $payload['meta']['domainType'] = $payload['domainType'];
+                    unset($payload['domainType']);
                 }
-                if (isset($payload['blockdomainType']))
-                {
-                $payload['meta']['blockdomainType'] = $payload['blockdomainType'];
-                unset($payload['blockdomainType']);
+                if (isset($payload['blockdomainType'])) {
+                    $payload['meta']['blockdomainType'] = $payload['blockdomainType'];
+                    unset($payload['blockdomainType']);
                 }
-                if (isset($payload['blockcity']))
-                {
-                $payload['meta']['blockcity'] = $payload['blockcity'];
-                unset($payload['blockcity']);
+                if (isset($payload['blockcity'])) {
+                    $payload['meta']['blockcity'] = $payload['blockcity'];
+                    unset($payload['blockcity']);
                 }else{
                     $payload['meta']['blockcity'] = null;
                     unset($payload['blockcity']);
                 }
-                if (isset($payload['blockarea']))
-                {
-                $payload['meta']['blockarea'] = $payload['blockarea'];
-                unset($payload['blockarea']);
+                if (isset($payload['blockarea'])) {
+                    $payload['meta']['blockarea'] = $payload['blockarea'];
+                    unset($payload['blockarea']);
                 }else{
                     $payload['meta']['blockarea'] = null;
                     unset($payload['blockarea']);
                 }
-                if (isset($payload['body']))
-                {
-                $payload['meta']['body'] = $payload['body'];
-                unset($payload['body']);
+                if (isset($payload['body'])) {
+                    $payload['meta']['body'] = $payload['body'];
+                    unset($payload['body']);
                 }
-                if (isset($payload['about']))
-                {
+                if (isset($payload['about'])) {
                     $payload['meta']['about'] = $payload['about'];
                     unset($payload['about']);
-                }
-                else
-                {
+                } else {
                     $payload['meta']['about'] = '';
                 }
-                if (isset($payload['style']))
-                {
+                if (isset($payload['style'])) {
                     $payload['meta']['style'] = $payload['style'];
                     unset($payload['style']);
-                }
-                else
-                {
+                } else {
                     $payload['meta']['style'] = '';
                 }
-                if (isset($payload['situation']))
-                {
-                $payload['meta']['situation'] = $payload['situation'];
-                unset($payload['situation']);
+                if (isset($payload['situation'])) {
+                    $payload['meta']['situation'] = $payload['situation'];
+                    unset($payload['situation']);
                 }
-                if (isset($payload['education']))
-                {
-                $payload['meta']['education'] = $payload['education'];
-                unset($payload['education']);
+                if (isset($payload['education'])) {
+                    $payload['meta']['education'] = $payload['education'];
+                    unset($payload['education']);
                 }
-                if (isset($payload['marriage']))
-                {
-                $payload['meta']['marriage'] = $payload['marriage'];
-                unset($payload['marriage']);
+                if (isset($payload['marriage'])) {
+                    $payload['meta']['marriage'] = $payload['marriage'];
+                    unset($payload['marriage']);
                 }
-                if (isset($payload['is_pure_dating']))
-                {
-                $payload['meta']['is_pure_dating'] = $payload['is_pure_dating'];
-                unset($payload['is_pure_dating']);
+                if (isset($payload['is_pure_dating'])) {
+                    $payload['meta']['is_pure_dating'] = $payload['is_pure_dating'];
+                    unset($payload['is_pure_dating']);
                 }
-                if (isset($payload['is_dating_other_county']))
-                {
-                $payload['meta']['is_dating_other_county'] = $payload['is_dating_other_county'];
-                unset($payload['is_dating_other_county']);
+                if (isset($payload['is_dating_other_county'])) {
+                    $payload['meta']['is_dating_other_county'] = $payload['is_dating_other_county'];
+                    unset($payload['is_dating_other_county']);
                 }
-                if (isset($payload['drinking']))
-                {
-                $payload['meta']['drinking'] = $payload['drinking'];
-                unset($payload['drinking']);
+                if (isset($payload['drinking'])) {
+                    $payload['meta']['drinking'] = $payload['drinking'];
+                    unset($payload['drinking']);
                 }
-                if (isset($payload['smoking']))
-                {
-                $payload['meta']['smoking'] = $payload['smoking'];
-                unset($payload['smoking']);
+                if (isset($payload['smoking'])) {
+                    $payload['meta']['smoking'] = $payload['smoking'];
+                    unset($payload['smoking']);
                 }
-                if (isset($payload['occupation']))
-                {
-                $payload['meta']['occupation'] = $payload['occupation'];
-                unset($payload['occupation']);
+                if (isset($payload['occupation'])) {
+                    $payload['meta']['occupation'] = $payload['occupation'];
+                    unset($payload['occupation']);
                 }
-                if (isset($payload['notifmessage']))
-                {
-                $payload['meta']['notifmessage'] = $payload['notifmessage'];
-                unset($payload['notifmessage']);
+                if (isset($payload['notifmessage'])) {
+                    $payload['meta']['notifmessage'] = $payload['notifmessage'];
+                    unset($payload['notifmessage']);
                 }
-                if (isset($payload['notifhistory']))
-                {
-                $payload['meta']['notifhistory'] = $payload['notifhistory'];
-                unset($payload['notifhistory']);
+                if (isset($payload['notifhistory'])) {
+                    $payload['meta']['notifhistory'] = $payload['notifhistory'];
+                    unset($payload['notifhistory']);
                 }
-                if (isset($payload['adminNote']))
-                {
+                if (isset($payload['adminNote'])) {
                     $payload['meta']['adminNote'] = $payload['adminNote'];
                     unset($payload['adminNote']);
-                }
-                else{
+                } else{
                     $payload['meta']['adminNote'] = '';
                 }
 
                 //if(isset($payload['exchange_period']))
                 //{
-                    //$payload['meta']['exchange_period'] = $payload['exchange_period'];
-                    //unset($payload['exchange_period']);
+                //$payload['meta']['exchange_period'] = $payload['exchange_period'];
+                //unset($payload['exchange_period']);
                 //}
 
-                if (isset($payload['budget_per_month_min']) && isset($payload['budget_per_month_max']))
-                {
+                if (isset($payload['budget_per_month_min']) && isset($payload['budget_per_month_max'])) {
                     $payload['meta']['budget_per_month_min'] = $payload['budget_per_month_min'];
                     unset($payload['budget_per_month_min']);
                     $payload['meta']['budget_per_month_max'] = $payload['budget_per_month_max'];
                     unset($payload['budget_per_month_max']);
                 }
 
-                if (isset($payload['transport_fare_min']) && isset($payload['transport_fare_max']))
-                {
+                if (isset($payload['transport_fare_min']) && isset($payload['transport_fare_max'])) {
                     $payload['meta']['transport_fare_min'] = $payload['transport_fare_min'];
                     unset($payload['transport_fare_min']);
                     $payload['meta']['transport_fare_max'] = $payload['transport_fare_max'];
@@ -627,13 +572,11 @@ class UserService
                 }
 
                 $meta = $user->meta_();
-                if (isset($payload['meta']))
-                {
+                if (isset($payload['meta'])) {
                     $meta->exists = true;
                     $meta->update($payload['meta']);
                     $userMetaResult = true;
-                }
-                else $userMetaResult = false;
+                } else $userMetaResult = false;
                 if(isset($payload['engroup'])) {
                     if ($payload['engroup'] != $user->engroup) {
                         $user->engroup_change = $user->engroup_change + 1;
@@ -649,8 +592,8 @@ class UserService
 
                 $user->update($payload);
                 $user->tattoo()->delete();
-                if(isset($payload['tattoo_part']) && 
-                   (($payload['tattoo_part'] ?? null) || ($payload['tattoo_range'] ?? null))) {
+                if(isset($payload['tattoo_part']) &&
+                    (($payload['tattoo_part'] ?? null) || ($payload['tattoo_range'] ?? null))) {
                     $user->tattoo()->create(['part'=>$payload['tattoo_part'],'range'=>$payload['tattoo_range']]);
                 }
                 return $user;
@@ -707,8 +650,7 @@ class UserService
                                   <img src='../../img/member_tags/star_21.png'>
                                   <img src='../../img/member_tags/star_23.png'>";
                         $height = '480px';
-                    }
-                    else{
+                    } else{
                         $description = $targetUser->name."是本站於".$vip_date->toDateString()."成為VIP的長期VIP會員。";
                         $stars = "<img src='../../img/member_tags/star_19.png'>
                                   <img src='../../img/member_tags/star_19.png'>
@@ -728,8 +670,7 @@ class UserService
                                   <img src='../../img/member_tags/star_19.png'>
                                   <img src='../../img/member_tags/star_21.png'>";
                         $height = '480px';
-                    }
-                    else{
+                    } else{
                         $description = $targetUser->name."是本站於".$vip_date->toDateString()."成為VIP的長期VIP會員。";
                         $stars = "<img src='../../img/member_tags/star_19.png'>
                                   <img src='../../img/member_tags/star_19.png'>
@@ -775,11 +716,11 @@ class UserService
         }
 
         return ['description' => $description,
-                'stars' => $stars,
-                'background' => $background,
-                'title' => $title,
-                'button' =>  $button,
-                'height' => $height];
+            'stars' => $stars,
+            'background' => $background,
+            'title' => $title,
+            'button' =>  $button,
+            'height' => $height];
     }
 
     /**
@@ -879,24 +820,24 @@ class UserService
 
         $user->notify(new ActivateUserEmail($token));
     }
-    
+
     public function setAndSendUserAdvAuthEmailToken($user)
     {
         $token = md5(str_random(40));
 
         $user->advance_auth_email_token=$token;
         $user->save();
-        
+
         $receiver = new User;
 
         $receiver->email = $user->advance_auth_email;
         $receiver->name = $user->name;
 
         $receiver->notify(new AdvAuthUserEmail($token,request()));
-        
+
         $user->advance_auth_email_at = Carbon::now();
         $user->save();
-    }    
+    }
 
     /*
     |--------------------------------------------------------------------------
@@ -940,8 +881,7 @@ class UserService
         $banned = \App\Models\SimpleTables\banned_users::select('member_id AS user_id')->get();
         if($except){
             $implicitlyBanned = \App\Models\BannedUsersImplicitly::select('target AS user_id')->where('target' , '<>', $except)->get();
-        }
-        else{
+        } else{
             $implicitlyBanned = \App\Models\BannedUsersImplicitly::select('target AS user_id')->get();
         }
 
@@ -961,7 +901,7 @@ class UserService
         $user = $this->find($userId);
         $user->roles()->detach();
     }
-    
+
     /**
      * Message is replied from reciever
      *
@@ -972,8 +912,7 @@ class UserService
     public function beenRepliedMessage($msg_id)
     {
         $msg = Message::where('id', $msg_id)->first();
-        if($msg)
-        {
+        if($msg) {
             $replied = Message::where('id', '>', $msg->id)
                 ->where('from_id', $msg->to_id)
                 ->where('to_id', $msg->from_id)
@@ -995,8 +934,7 @@ class UserService
     {
         $tipMessages = Tip::selectTipMessage($start, $end);
         $result = array();
-        foreach($tipMessages as $message)
-        {
+        foreach($tipMessages as $message) {
             // from_id 邀請 to_id
             if($message->to_id != NULL)
                 $isReply = Message::isReplied($message->from_id, $message->to_id, $message->created_at);
@@ -1011,13 +949,11 @@ class UserService
         $users = User::where('engroup', $engroup);
 
         $users = $users->join('user_meta', 'user_meta.user_id', '=', 'users.id');
-        if(count($city)>0)
-        {
+        if(count($city)>0) {
             $users->whereIn('city', $city);
         }
-        
-        if($isVip)
-        {
+
+        if($isVip) {
             $users->join('member_vip', 'member_vip.member_id','=','user_meta.user_id');
         }
 
@@ -1028,7 +964,7 @@ class UserService
         }else{
             $messages = 0;
         }
-            
+
 
         return ['users' => $users->count(), 'messages' => $messages];
     }
@@ -1046,10 +982,10 @@ class UserService
             ->where(function($query){
                 ///成為VIP超過三個月
                 $query->where('member_vip.created_at', '<', \Carbon\Carbon::now()->subMonths(3))
-                ->orWhere(function($query){
-                    //或成為VIP超過一個月且有使用車馬費邀請過
-                    $query->where('member_vip.created_at', '<', \Carbon\Carbon::now()->subMonths(1));
-                });
+                    ->orWhere(function($query){
+                        //或成為VIP超過一個月且有使用車馬費邀請過
+                        $query->where('member_vip.created_at', '<', \Carbon\Carbon::now()->subMonths(1));
+                    });
             });
         return $members->get();
     }
@@ -1070,38 +1006,33 @@ class UserService
             ->where(function($query){
                 ///成為VIP超過三個月
                 $query->where('member_vip.created_at', '<', \Carbon\Carbon::now()->subMonths(3))
-                ->orWhere(function($query){
-                    //或成為VIP超過一個月且有使用車馬費邀請過
-                    $query->where('member_vip.created_at', '<', \Carbon\Carbon::now()->subMonths(1));
-                });
+                    ->orWhere(function($query){
+                        //或成為VIP超過一個月且有使用車馬費邀請過
+                        $query->where('member_vip.created_at', '<', \Carbon\Carbon::now()->subMonths(1));
+                    });
             });
 
         return $member->first() ? true : false;
     }
+
     /**
      * Grouping male member
      *
-     * @param array users 
+     * @param array users
      *
      * @return array The keys are 'normal', 'vip', 'recommend'
      */
     public function groupingMale($userIds)
     {
         $results = array('Recommend'=>array(), 'Vip'=>array(), 'Normal'=>array());
-        foreach($userIds as $id)
-        {
+        foreach($userIds as $id) {
             $isVip = Vip::select('active')->where('member_id', $id)->where('active', 1)->orderBy('created_at', 'desc')->first();
 
-            if($this->isRecommendMember($id))
-            {
+            if($this->isRecommendMember($id)) {
                 array_push($results['Recommend'], $id);
-            }
-            else if($isVip)
-            {
+            } else if($isVip) {
                 array_push($results['Vip'], $id);
-            }
-            else
-            {
+            } else {
                 array_push($results['Normal'], $id);
             }
         }
@@ -1125,17 +1056,18 @@ class UserService
 
         return $query->get();
     }
+
     /**
      * 日期區間內, 男會員被回覆的訊息比
      *
      * @param date start
      * @param date end
      *
-     * @return array 
+     * @return array
      */
     public function repliedMessagesProportion($start, $end)
     {
-        
+
         $query = Message::join('users', 'from_id', '=', 'users.id')
             ->where('engroup', 1)
             ->whereBetween('message.created_at', [$start, $end]);
@@ -1144,14 +1076,14 @@ class UserService
         $query = Message::join('users', 'to_id', '=', 'users.id')
             ->where('engroup', 1);
         $girl_reply = $query->get()->keyBy('from_id')->keys()->toArray();
-        
+
 
         /*判斷是哪種會員*/
 
         $girl_intersect = array_intersect($girl_receive, $girl_reply);
         $data['girl_reply_ratio'] = count($girl_receive)!=0 ? count($girl_intersect)/count($girl_receive):0;
-           
-          
+
+
         // $messages = $this->selectMessagesByGender($start, $end, 1);
         // $replied = $messages->filter(function($msg){
         //     if($this->beenRepliedMessage($msg->id))
@@ -1161,7 +1093,7 @@ class UserService
         $groupingMsg = $messages->pluck('from_id');
         $groupingMsg = $this->groupingMale($groupingMsg);
 
-        
+
         $groupingReplied = $replied->pluck('from_id');
         $groupingReplied = $this->groupingMale($groupingReplied);
         return ['messages' => $groupingMsg, 'replied' => $groupingReplied];
@@ -1171,8 +1103,7 @@ class UserService
         if(!$userIsFreeVip){
             if(is_object($vipData)){
                 \App\Jobs\CheckECpay::dispatch($vipData, $userIsVip);
-            }
-            else{
+            } else{
                 Log::info('VIP data null, user id: ' . \Auth::user()->id);
             }
         }
@@ -1189,8 +1120,7 @@ class UserService
         $show = false;
         if($user->meta->isWarned == 1 || $user->aw_relation){
             $show = false;
-        }
-        else{
+        } else{
             $getPr  =   $user->pr_log?$user->pr_log->pr:0;
             if($setting) {
                 if($user->isVip() && $setting->vip_show) {
@@ -1200,9 +1130,9 @@ class UserService
                     $show   =   ($getPr >=$setting->more_than_pr_show);
                 }
             }
-            
+
             if($user->isVVIP() || $getPr>=80 ){
-            // if($user->isVVIP() || ($user->isVip() && $getPr>=80) ){
+                // if($user->isVVIP() || ($user->isVip() && $getPr>=80) ){
                 $show = true;
             }
 
@@ -1221,13 +1151,11 @@ class UserService
         $blurryAvatar = explode(',', $blurryAvatar);
         if($user->meta->isWarned == 1 || $user->aw_relation){
             $isBlurAvatar = true;
-        }
-        else{
+        } else{
             if(sizeof($blurryAvatar)>1){
                 $nowB = $user->isVipOrIsVvip()? 'VIP' : 'general';
                 $isBlurAvatar = in_array($nowB, $blurryAvatar);
-            }
-            else {
+            } else {
                 $isBlurAvatar = false;
             }
 
@@ -1239,7 +1167,7 @@ class UserService
                 }
             }
             if($user->isVVIP() || $getPr>=80 ){
-            // if($user->isVVIP() || ($user->isVip() && $getPr>=80) ){
+                // if($user->isVVIP() || ($user->isVip() && $getPr>=80) ){
                 $isBlurAvatar = false;
             }
 
@@ -1255,13 +1183,11 @@ class UserService
         $blurryLifePhoto = explode(',', $blurryLifePhoto);
         if($user->meta->isWarned == 1 || $user->aw_relation ){
             $isBlurLifePhoto = true;
-        }
-        else{
+        } else{
             if(sizeof($blurryLifePhoto)>1){
                 $nowB = $user->isVipOrIsVvip()? 'VIP' : 'general';
                 $isBlurLifePhoto = in_array($nowB, $blurryLifePhoto);
-            }
-            else {
+            } else {
                 $isBlurLifePhoto = false;
             }
 
@@ -1274,7 +1200,7 @@ class UserService
             }
 
             if($user->isVVIP() || $getPr>=80 ){
-            // if($user->isVVIP() || ($user->isVip() && $getPr>=80) ){
+                // if($user->isVVIP() || ($user->isVip() && $getPr>=80) ){
                 $isBlurLifePhoto = false;
             }
 
@@ -1303,16 +1229,16 @@ class UserService
 
         return $cfp;
     }
-    
+
     public static function checkNewSugarForbidMsg($femaleUser,$maleUser) {
-        
+
         $new_sugar_no_msg_days = 7;
         $new_sugar_error_user_type = '普通';
 
         if(($maleUser->user_meta->isWarned??false) || ($maleUser->aw_relation??false)) {
             $new_sugar_no_msg_days = 20;
-            $new_sugar_error_user_type = '警示';            
-        }        
+            $new_sugar_error_user_type = '警示';
+        }
 
         $recommend_data = UserService::checkRecommendedUser($femaleUser);
         $femaleUser_cdate = Carbon::parse($femaleUser->created_at);
@@ -1323,73 +1249,73 @@ class UserService
         if($femaleUser_cdate->diffInDays(Carbon::now())>=$new_sugar_no_msg_days ) return false;
         if($femaleUser->sentMessages()->where('to_id',$maleUser->id)->count()>0) return false;
         if($new_sugar_no_msg_days == 7 && (($femaleUser->tiny_setting()->where('cat','new_sugar_chat_with_notvip')->first()->value)??null))  return false;
-       
+
         return ['days'=>$new_sugar_no_msg_days
-                ,'user_type_str'=>$new_sugar_error_user_type
-                ,'end_date'=>$femaleUser_cdate->addDays($new_sugar_no_msg_days )->format('Y/m/d H:i')];
+            ,'user_type_str'=>$new_sugar_error_user_type
+            ,'end_date'=>$femaleUser_cdate->addDays($new_sugar_no_msg_days )->format('Y/m/d H:i')];
     }
-	
-	public static function isShowMultiUserForbidHintUserId($value,$type,$user_id=null) {
-		
+
+    public static function isShowMultiUserForbidHintUserId($value,$type,$user_id=null) {
+
         $type = strtolower($type);
-		$logUserArr = [];
+        $logUserArr = [];
         $logEntrys = [];
-		switch($type) {
-			case 'ip':
-				$query = LogUserLogin::queryOfIpUsedByOtherUserId($value,$user_id);
-				if($query)
-					$logEntrys = $query->distinct('user_id')->get();
-			break;
-			case 'cfp_id':
-				$query = LogUserLogin::queryOfCfpIdUsedByOtherUserId($value,$user_id);
-				if($query)
-					$logEntrys = $query->distinct('user_id')->get();
-			break;			
-		}
-		$user_list = [];
-		$b_count_total=0;
-		$w_count_total=0;
-		$b_vip_pass_count_total =0;
-		$w_vip_pass_count_total = 0;
-        
-		foreach($logEntrys as $logEntry) {
-			$b_vip_pass_count = 0;
-			$w_vip_pass_count = 0;
-			$b_count = 0;
-			$w_count = 0;
-			if($logEntry->user->user_meta->isWarned??null) return false;
-            
-			if(($logEntry->user->aw_relation??null) && $logEntry->user->aw_relation()->where('vip_pass',0)->count()) {
-                return false;
-			}
-			if($logEntry->user->implicitlyBanned??null) return false;
-            
-          
-			if(($logEntry->user->banned??null) && $logEntry->user->banned()->where('vip_pass',0)->count()) {
-                return false;
-			}
-			
-			if(($logEntry->user->banned)??null) $b_vip_pass_count= ($logEntry->user->banned()->where('vip_pass',1)->count())??0;
-			if(($logEntry->user->aw_relation)??null) $w_vip_pass_count= ($logEntry->user->aw_relation()->where('vip_pass',1)->count())??0;
-			if(($logEntry->user->is_banned_log)??null) $b_count= $logEntry->user->is_banned_log()->count();
-			if(($logEntry->user->is_warned_log)??null) $w_count= $logEntry->user->is_warned_log()->count();
-			if(($b_count - $b_vip_pass_count)>0 || ($w_count- $w_vip_pass_count)>0) return false;
+        switch($type) {
+            case 'ip':
+                $query = LogUserLogin::queryOfIpUsedByOtherUserId($value,$user_id);
+                if($query)
+                    $logEntrys = $query->distinct('user_id')->get();
+                break;
+            case 'cfp_id':
+                $query = LogUserLogin::queryOfCfpIdUsedByOtherUserId($value,$user_id);
+                if($query)
+                    $logEntrys = $query->distinct('user_id')->get();
+                break;
+        }
+        $user_list = [];
+        $b_count_total=0;
+        $w_count_total=0;
+        $b_vip_pass_count_total =0;
+        $w_vip_pass_count_total = 0;
 
-			$b_count_total+=$b_count;
-			$w_count_total+=$w_count;
-			$b_vip_pass_count_total+=$b_vip_pass_count;
-			$w_vip_pass_count_total+=$w_vip_pass_count;
-		}
+        foreach($logEntrys as $logEntry) {
+            $b_vip_pass_count = 0;
+            $w_vip_pass_count = 0;
+            $b_count = 0;
+            $w_count = 0;
+            if($logEntry->user->user_meta->isWarned??null) return false;
 
-		return !(($b_count_total+$w_count_total-$b_vip_pass_count_total - $w_vip_pass_count_total)>0 ) ;
-        
-	}
-    
+            if(($logEntry->user->aw_relation??null) && $logEntry->user->aw_relation()->where('vip_pass',0)->count()) {
+                return false;
+            }
+            if($logEntry->user->implicitlyBanned??null) return false;
+
+
+            if(($logEntry->user->banned??null) && $logEntry->user->banned()->where('vip_pass',0)->count()) {
+                return false;
+            }
+
+            if(($logEntry->user->banned)??null) $b_vip_pass_count= ($logEntry->user->banned()->where('vip_pass',1)->count())??0;
+            if(($logEntry->user->aw_relation)??null) $w_vip_pass_count= ($logEntry->user->aw_relation()->where('vip_pass',1)->count())??0;
+            if(($logEntry->user->is_banned_log)??null) $b_count= $logEntry->user->is_banned_log()->count();
+            if(($logEntry->user->is_warned_log)??null) $w_count= $logEntry->user->is_warned_log()->count();
+            if(($b_count - $b_vip_pass_count)>0 || ($w_count- $w_vip_pass_count)>0) return false;
+
+            $b_count_total+=$b_count;
+            $w_count_total+=$w_count;
+            $b_vip_pass_count_total+=$b_vip_pass_count;
+            $w_vip_pass_count_total+=$w_vip_pass_count;
+        }
+
+        return !(($b_count_total+$w_count_total-$b_vip_pass_count_total - $w_vip_pass_count_total)>0 ) ;
+
+    }
+
     public static function isAdvAuthUsableByUser($user) {
-        return !($user->isForbidAdvAuth() 
-                || $user->isPauseAdvAuth()
-                || $user->isDuplicateAdvAuth()
-                || LogAdvAuthApi::isPauseApi());
+        return !($user->isForbidAdvAuth()
+            || $user->isPauseAdvAuth()
+            || $user->isDuplicateAdvAuth()
+            || LogAdvAuthApi::isPauseApi());
 
     }
 
@@ -1397,187 +1323,311 @@ class UserService
     {
         $targetUser = User::where('id', $uid)->where('accountStatus',1)->where('account_status_admin',1)->get()->first();
 
-        if(!$targetUser) { 
-            return 100; 
+        if(!$targetUser) {
+            return 100;
         }
 
         $date_start = date("Y-m-d",strtotime("-6 days", strtotime(date('Y-m-d'))));
-            $date_end = date('Y-m-d');
-            $query = Message::select('users.email','users.name','users.title','users.engroup','users.created_at','users.last_login','message.id','message.from_id','message.content','user_meta.about')
-                ->join('users', 'message.from_id', '=', 'users.id')
-                ->join('user_meta', 'message.from_id', '=', 'user_meta.user_id')
-                ->leftJoin('banned_users as b1', 'b1.member_id', '=', 'message.from_id')
-                ->leftJoin('banned_users_implicitly as b3', 'b3.target', '=', 'message.from_id')
-                ->leftJoin('warned_users as wu', function($join) {
-                    $join->on('wu.member_id', '=', 'message.from_id')
-                         ->where(function($join) {                            
-                            $join->where('wu.expire_date', '>=', Carbon::now())
+        $date_end = date('Y-m-d');
+        $query = Message::select('users.email','users.name','users.title','users.engroup','users.created_at','users.last_login','message.id','message.from_id','message.content','user_meta.about')
+            ->join('users', 'message.from_id', '=', 'users.id')
+            ->join('user_meta', 'message.from_id', '=', 'user_meta.user_id')
+            ->leftJoin('banned_users as b1', 'b1.member_id', '=', 'message.from_id')
+            ->leftJoin('banned_users_implicitly as b3', 'b3.target', '=', 'message.from_id')
+            ->leftJoin('warned_users as wu', function($join) {
+                $join->on('wu.member_id', '=', 'message.from_id')
+                    ->where(function($join) {
+                        $join->where('wu.expire_date', '>=', Carbon::now())
                             ->orWhere('wu.expire_date', null);
-                         }); })
-                ->whereNull('b1.member_id')
-                ->whereNull('b3.target')
-                ->whereNull('wu.member_id')
-                ->where('users.id', $targetUser->id)
-                ->where('users.accountStatus', 1)
-                ->where('users.account_status_admin', 1)
-                ->where(function($query)use($date_start,$date_end) {
-                    $query->where('message.from_id','<>',1049)
-                        ->where('message.sys_notice', 0)
-                        ->orWhereNull('message.sys_notice')
-                        ->whereBetween('message.created_at', array($date_start . ' 00:00', $date_end . ' 23:59'));
-                });
-            $results_a = $query->distinct('message.from_id')->get();
+                    }); })
+            ->whereNull('b1.member_id')
+            ->whereNull('b3.target')
+            ->whereNull('wu.member_id')
+            ->where('users.id', $targetUser->id)
+            ->where('users.accountStatus', 1)
+            ->where('users.account_status_admin', 1)
+            ->where(function($query)use($date_start,$date_end) {
+                $query->where('message.from_id','<>',1049)
+                    ->where('message.sys_notice', 0)
+                    ->orWhereNull('message.sys_notice')
+                    ->whereBetween('message.created_at', array($date_start . ' 00:00', $date_end . ' 23:59'));
+            });
+        $results_a = $query->distinct('message.from_id')->get();
 
-            if ($results_a != null) {
-                $msg = array();
-                $from_content = array();
-                $user_similar_msg = array();
+        if ($results_a != null) {
+            $msg = array();
+            $from_content = array();
+            $user_similar_msg = array();
 
-                $messages = Message::select('id','content','created_at')
-                    ->where('from_id', $targetUser->id)
-                    ->where(function ($query) {
-                        $query->where('sys_notice', 0)
+            $messages = Message::select('id','content','created_at')
+                ->where('from_id', $targetUser->id)
+                ->where(function ($query) {
+                    $query->where('sys_notice', 0)
                         ->orWhereNull('sys_notice');
-                    })
-                    ->whereBetween('created_at', array($date_start . ' 00:00', $date_end . ' 23:59'))
-                    ->orderBy('created_at','desc')
-                    ->take(100)
-                    ->get();
+                })
+                ->whereBetween('created_at', array($date_start . ' 00:00', $date_end . ' 23:59'))
+                ->orderBy('created_at','desc')
+                ->take(100)
+                ->get();
 
-                foreach($messages as $row){
-                    array_push($msg,array('id'=>$row->id,'content'=>$row->content,'created_at'=>$row->created_at));
-                }
+            foreach($messages as $row){
+                array_push($msg,array('id'=>$row->id,'content'=>$row->content,'created_at'=>$row->created_at));
+            }
 
-                array_push($from_content,  array('msg'=>$msg));
+            array_push($from_content,  array('msg'=>$msg));
 
-                $unique_id = array(); //過濾重複ID用
-                //比對訊息
-                foreach($from_content as $data) {
-                    foreach ($data['msg'] as $word1) {
-                        foreach ($data['msg'] as $word2) {
-                            if ($word1['created_at'] != $word2['created_at']) {
-                                if(strlen($word1['content']) > 200) {
-                                    continue;
-                                }
-                                similar_text($word1['content'], $word2['content'], $percent);
-                                if ($percent >= 70) {
-                                    if(!in_array($word1['id'],$unique_id)) {
-                                        array_push($unique_id,$word1['id']);
-                                        array_push($user_similar_msg, array($word1['id'], $word1['content'], $word1['created_at'], $percent));
-                                    }
+            $unique_id = array(); //過濾重複ID用
+            //比對訊息
+            foreach($from_content as $data) {
+                foreach ($data['msg'] as $word1) {
+                    foreach ($data['msg'] as $word2) {
+                        if ($word1['created_at'] != $word2['created_at']) {
+                            if(strlen($word1['content']) > 200) {
+                                continue;
+                            }
+                            similar_text($word1['content'], $word2['content'], $percent);
+                            if ($percent >= 70) {
+                                if(!in_array($word1['id'],$unique_id)) {
+                                    array_push($unique_id,$word1['id']);
+                                    array_push($user_similar_msg, array($word1['id'], $word1['content'], $word1['created_at'], $percent));
                                 }
                             }
                         }
                     }
                 }
             }
-            $message_percent_7 = count($user_similar_msg) > 0 ? round( (count($user_similar_msg) / count($messages))*100 )  : 0;
-            return $message_percent_7;
+        }
+        $message_percent_7 = count($user_similar_msg) > 0 ? round( (count($user_similar_msg) / count($messages))*100 )  : 0;
+        return $message_percent_7;
     }
 
     public static function computeCanMessagePercent_15($uid)
     {
         $targetUser = User::where('id', $uid)->where('accountStatus',1)->where('account_status_admin',1)->get()->first();
 
-        if(!$targetUser) { 
-            return 100; 
+        if(!$targetUser) {
+            return 100;
         }
 
         $date_start = date("Y-m-d",strtotime("-14 days", strtotime(date('Y-m-d'))));
-            $date_end = date('Y-m-d');
-            $query = Message::select('users.email','users.name','users.title','users.engroup','users.created_at','users.last_login','message.id','message.from_id','message.content','user_meta.about')
-                ->join('users', 'message.from_id', '=', 'users.id')
-                ->join('user_meta', 'message.from_id', '=', 'user_meta.user_id')
-                ->leftJoin('banned_users as b1', 'b1.member_id', '=', 'message.from_id')
-                ->leftJoin('banned_users_implicitly as b3', 'b3.target', '=', 'message.from_id')
-                ->leftJoin('warned_users as wu', function($join) {
-                    $join->on('wu.member_id', '=', 'message.from_id')
-                         ->where(function($join) {                            
-                            $join->where('wu.expire_date', '>=', Carbon::now())
+        $date_end = date('Y-m-d');
+        $query = Message::select('users.email','users.name','users.title','users.engroup','users.created_at','users.last_login','message.id','message.from_id','message.content','user_meta.about')
+            ->join('users', 'message.from_id', '=', 'users.id')
+            ->join('user_meta', 'message.from_id', '=', 'user_meta.user_id')
+            ->leftJoin('banned_users as b1', 'b1.member_id', '=', 'message.from_id')
+            ->leftJoin('banned_users_implicitly as b3', 'b3.target', '=', 'message.from_id')
+            ->leftJoin('warned_users as wu', function($join) {
+                $join->on('wu.member_id', '=', 'message.from_id')
+                    ->where(function($join) {
+                        $join->where('wu.expire_date', '>=', Carbon::now())
                             ->orWhere('wu.expire_date', null);
-                         }); })
-                ->whereNull('b1.member_id')
-                ->whereNull('b3.target')
-                ->whereNull('wu.member_id')
-                ->where('users.id', $targetUser->id)
-                ->where('users.accountStatus', 1)
-                ->where('users.account_status_admin', 1)
-                ->where(function($query)use($date_start,$date_end) {
-                    $query->where('message.from_id','<>',1049)
-                        ->where('message.sys_notice', 0)
-                        ->orWhereNull('message.sys_notice')
-                        ->whereBetween('message.created_at', array($date_start . ' 00:00', $date_end . ' 23:59'));
-                });
-            $results_a = $query->distinct('message.from_id')->get();
+                    }); })
+            ->whereNull('b1.member_id')
+            ->whereNull('b3.target')
+            ->whereNull('wu.member_id')
+            ->where('users.id', $targetUser->id)
+            ->where('users.accountStatus', 1)
+            ->where('users.account_status_admin', 1)
+            ->where(function($query)use($date_start,$date_end) {
+                $query->where('message.from_id','<>',1049)
+                    ->where('message.sys_notice', 0)
+                    ->orWhereNull('message.sys_notice')
+                    ->whereBetween('message.created_at', array($date_start . ' 00:00', $date_end . ' 23:59'));
+            });
+        $results_a = $query->distinct('message.from_id')->get();
 
-            if ($results_a != null) {
-                $msg = array();
-                $from_content = array();
-                $user_similar_msg = array();
+        if ($results_a != null) {
+            $msg = array();
+            $from_content = array();
+            $user_similar_msg = array();
 
-                $messages = Message::select('id','content','created_at')
-                    ->where('from_id', $targetUser->id)
-                    ->where(function ($query) {
-                        $query->where('sys_notice', 0)
+            $messages = Message::select('id','content','created_at')
+                ->where('from_id', $targetUser->id)
+                ->where(function ($query) {
+                    $query->where('sys_notice', 0)
                         ->orWhereNull('sys_notice');
-                    })
-                    ->whereBetween('created_at', array($date_start . ' 00:00', $date_end . ' 23:59'))
-                    ->orderBy('created_at','desc')
-                    ->take(100)
-                    ->get();
+                })
+                ->whereBetween('created_at', array($date_start . ' 00:00', $date_end . ' 23:59'))
+                ->orderBy('created_at','desc')
+                ->take(100)
+                ->get();
 
-                foreach($messages as $row){
-                    array_push($msg,array('id'=>$row->id,'content'=>$row->content,'created_at'=>$row->created_at));
-                }
+            foreach($messages as $row){
+                array_push($msg,array('id'=>$row->id,'content'=>$row->content,'created_at'=>$row->created_at));
+            }
 
-                array_push($from_content,  array('msg'=>$msg));
+            array_push($from_content,  array('msg'=>$msg));
 
-                $unique_id = array(); //過濾重複ID用
-                //比對訊息
-                foreach($from_content as $data) {
-                    foreach ($data['msg'] as $word1) {
-                        foreach ($data['msg'] as $word2) {
-                            if ($word1['created_at'] != $word2['created_at']) {
-                                if(strlen($word1['content']) > 200) {
-                                    continue;
-                                }
-                                similar_text($word1['content'], $word2['content'], $percent);
-                                if ($percent >= 70) {
-                                    if(!in_array($word1['id'],$unique_id)) {
-                                        array_push($unique_id,$word1['id']);
-                                        array_push($user_similar_msg, array($word1['id'], $word1['content'], $word1['created_at'], $percent));
-                                    }
+            $unique_id = array(); //過濾重複ID用
+            //比對訊息
+            foreach($from_content as $data) {
+                foreach ($data['msg'] as $word1) {
+                    foreach ($data['msg'] as $word2) {
+                        if ($word1['created_at'] != $word2['created_at']) {
+                            if(strlen($word1['content']) > 200) {
+                                continue;
+                            }
+                            similar_text($word1['content'], $word2['content'], $percent);
+                            if ($percent >= 70) {
+                                if(!in_array($word1['id'],$unique_id)) {
+                                    array_push($unique_id,$word1['id']);
+                                    array_push($user_similar_msg, array($word1['id'], $word1['content'], $word1['created_at'], $percent));
                                 }
                             }
                         }
                     }
                 }
             }
-            $message_percent_15 = count($user_similar_msg) > 0 ? round( (count($user_similar_msg) / count($messages))*100 )  : 0;
-            return $message_percent_15;
+        }
+        $message_percent_15 = count($user_similar_msg) > 0 ? round( (count($user_similar_msg) / count($messages))*100 )  : 0;
+        return $message_percent_15;
     }
 
-    public static function isGreetingFrequently($from_id)
+    public static function priority($op)
+    {
+        switch($op){
+            case'+': case'-': return 1;
+            case'*': case'/': return 2;
+            default: return 0;
+        }
+    }
+
+    public static function toPostfix($infix){
+        $infix_arr = preg_split('~|(-?\d*(?:Max|Min|Avg|Median|\.\d+)?|[()*/+-])~', $infix, 0, PREG_SPLIT_NO_EMPTY | PREG_SPLIT_DELIM_CAPTURE);
+        $stack = [];
+        $opt = [];
+
+        foreach ($infix_arr as $k=> $v) {
+
+            switch($v){
+                case 'Max':case 'Min':case ',':case '(':
+                array_push($stack, $v);
+
+                break;
+
+                case'+':case'-':case'*':case'/':
+
+                $top = count($stack);
+                if($top) {
+                    while(UserService::priority($stack[$top-1]) >= UserService::priority($v) ){
+                        array_push($opt, $stack[$top--]);
+                    }
+                }
+                array_push($stack, $v);
+                break;
+
+                case ')':
+                    $top = count($stack);
+                    $isCompare = false;
+
+                    while($stack[$top-1]!='('){
+
+                        $isCompare = $stack[$top-1]==',';
+                        if(!$isCompare){
+                            array_push($opt, $stack[$top-1]);
+                        }
+                        array_splice($stack,$top-1,1);
+                        $top--;
+                    }
+                    array_splice($stack,$top-1,1);
+                    $top--;
+
+                    if($isCompare){
+                        array_push($opt, $stack[$top-1]);
+                        array_splice($stack,$top-1,1);
+                    }
+                    break;
+                default:
+                    array_push($opt, $v);
+                    break;
+            }
+        }
+
+        while(count($stack)>0){
+            $top = count($stack);
+            array_push($opt, $stack[$top-1]);
+            array_splice($stack,$top-1,1);
+            $top--;
+        }
+
+        return implode(",", $opt);
+    }
+
+    public static function computeGreetingRate($postfix)
     {
         $query = DB::table('log_system_day_statistic')->whereDate('date', Carbon::today())->first();
         $avg = $query?->average_recipients_count_of_vip_male_senders;
         $median = $query?->median_recipients_count_of_vip_male_senders;
-        $greeting_rate = max($avg ?? 999, $median ?? 999) * 1.75;
-        UserService::$today_greeting_rate = $greeting_rate;
+
+        $postfix_arr = explode(",", $postfix);
+        $postfix_arr = str_replace('Avg', $avg ?? 999, $postfix_arr);
+        $postfix_arr = str_replace('Median', $median ?? 999, $postfix_arr);
+        $stack = [];
+        foreach ($postfix_arr as $v) {
+            switch($v) {
+                case '+':
+                    $top = count($stack);
+                    $stack[$top-2] = $stack[$top-2] + $stack[$top-1];
+                    array_splice($stack,$top-1,1);
+                    break;
+                case '-':
+                    $top = count($stack);
+                    $stack[$top-2] = $stack[$top-2] - $stack[$top-1];
+                    array_splice($stack,$top-1,1);
+                    break;
+                case '*':
+                    $top = count($stack);
+
+                    $stack[$top-2] = $stack[$top-2] * $stack[$top-1];
+                    array_splice($stack,$top-1,1);
+                    break;
+                case '/':
+                    $top = count($stack);
+                    $stack[$top-2] = $stack[$top-2] / $stack[$top-1];
+                    array_splice($stack,$top-1,1);
+                    break;
+                case 'Max':
+                    $top = count($stack);
+                    $stack[$top-2] = max($stack[$top-2], $stack[$top-1]);
+                    array_splice($stack,$top-1,1);
+                    break;
+                case 'Min':
+                    $top = count($stack);
+                    $stack[$top-2] = min($stack[$top-2], $stack[$top-1]);
+                    array_splice($stack,$top-1,1);
+                    break;
+                default:
+                    array_push($stack, $v);
+                    break;
+            }
+        }
+        return $stack[0];
+    }
+
+    public static function isGreetingFrequently($from_id)
+    {
+        //        $query = DB::table('log_system_day_statistic')->whereDate('date', Carbon::today())->first();
+        //        $avg = $query?->average_recipients_count_of_vip_male_senders;
+        //        $median = $query?->median_recipients_count_of_vip_male_senders;
+        //        $greeting_rate = max($avg ?? 999, $median ?? 999) * 1.75;
+        // 招手比後台調整，測試 OK 再使用下面2行，並刪除或註解上面 4行
+        $postfix = DB::table('greeting_rate_calculations')->first()->postfix;
+        $greeting_rate = UserService::computeGreetingRate($postfix);
         $recipients_count = UserMeta::where('user_id', $from_id)->pluck('recipients_count')->first();
         
         return $recipients_count > $greeting_rate;
     }
+
     public static function checkCanMessageWithGreetingRate($user, $to_id, $content)
     {
         $gr_exceed = UserService::isGreetingFrequently($user->id);
         $today_post_count = Message::where('from_id', $user->id)->where('to_id', $to_id)->whereDate('created_at', Carbon::today())->count();
-        
+
         if ($gr_exceed && $today_post_count == 1) {
-            
+
             $date_start = date("Y-m-d",strtotime("-15 days", strtotime(date('Y-m-d'))));
             $date_end = date('Y-m-d',strtotime("-1 days", strtotime(date('Y-m-d'))));
-            
+
             $messages = Message::select('id','content','created_at')
                 ->where('from_id', $user->id)
                 ->where('sys_notice','<>', 1)
@@ -1598,7 +1648,7 @@ class UserService
                     }else {
                         return false;
                     }
-                }    
+                }
             }
         }
         return false;
@@ -1614,10 +1664,10 @@ class UserService
         $compare_found_count = 0;
 
         if ( $today_post_count == 1) {
-            
+
             $date_start = date("Y-m-d",strtotime("-15 days", strtotime(date('Y-m-d'))));
             $date_end = date('Y-m-d',strtotime("-1 days", strtotime(date('Y-m-d'))));
-            
+
             $messages = Message::select('id','pic','created_at')
                 ->where('from_id', $user->id)
                 ->where('sys_notice','<>', 1)
@@ -1629,42 +1679,42 @@ class UserService
             $isCanMessage = false;
 
             $date_count_arr = [];
-            
+
             $src_pic_arr = json_decode($msg_entry->pic,true);
-            foreach($src_pic_arr  as $src_pic) {
-                
+            foreach($src_pic_arr as $src_pic) {
+
                 $srcEncodeEntry = ImagesCompareEncode::where('pic',$src_pic['file_path'])->first();
-                
+
                 foreach($messages as $data) {
                     $now_msg_date = Carbon::parse($data['created_at'])->format('Y-m-d');
                     $date_count_arr[$now_msg_date] = 0;;
                     if($date_count_arr[$now_msg_date]>3) continue;
                     else $date_count_arr[$now_msg_date]++;
                     $now_pic_arr = json_decode($data->pic,true);
-                    
+
                     foreach($now_pic_arr as $msg_pic) {
 
                         $targetEncodeEntry = ImagesCompareEncode::where('pic',$msg_pic['file_path'])->first();
 
                         $compareRs = ImagesCompareService::comparePairImageEncodeEntry($srcEncodeEntry,$targetEncodeEntry);
-                   
+
                         if($compareRs) {
-                            foreach($compareRs  as $crk=>$crv) {
+                            foreach($compareRs as $crk=> $crv) {
                                 $$crk = $crv;
-                            }                            
-                            
+                            }
+
                             if((($srcPercent>=90 && $targetPercent>=90) || ($srcEncodeEntry->file_md5==$targetEncodeEntry->file_md5))
-                                    && $srcInterPercent>=50 && $targetInterPercent>=50
+                                && $srcInterPercent>=50 && $targetInterPercent>=50
                             ) {
                                 $compare_found_count++;
                                 if ($user_open_alert && $compare_found_count>$today_greeting_rate*0.5) return true;
                             }
                         }
-                   }
-                    
-                } 
+                    }
+
+                }
             }
-                        
+
             if ($user_open_alert && $compare_found_count>$today_greeting_rate*0.5) {
                 return true;
             } else {
@@ -1673,8 +1723,8 @@ class UserService
         }
         return false;
     }
-    
-    public function AdminCheckExchangePeriodSave($request,$raa_service) 
+
+    public function AdminCheckExchangePeriodSave($request,$raa_service)
     {
         $id = $request->id??null;
         if(!$id) $id = $this->model->id;
@@ -1697,9 +1747,8 @@ class UserService
             //修改
             $rs = User::where('id', $current_data->user_id)->update(['exchange_period' => $current_data->exchange_period]);
             UserMeta::where('user_id', $current_data->user_id)->update(['exchange_period_change' => 1]);
-            
-            if($rs)
-            {
+
+            if($rs) {
                 $raa_service->riseByUserEntry($user)->passExchangePeriodModify();
             }
         } else {
@@ -1708,33 +1757,33 @@ class UserService
         }
 
         //站長系統訊息
-        Message::post(1049, $user->id, $content, true, 1);        
-    
-        return $current_data->status==$status;
-    } 
+        Message::post(1049, $user->id, $content, true, 1);
 
-    public static function getRegisterDaysByUser($userEntry) 
+        return $current_data->status==$status;
+    }
+
+    public static function getRegisterDaysByUser($userEntry)
     {
         $now = Carbon::now();
         $register_at = Carbon::parse($userEntry->created_at);
         $diff_days = $register_at->diffInDays($now);
-        
+
         return $diff_days;
-    } 
+    }
 
     public static function getOptionWordByWeightValue($weight)
     {
         return $weight?($weight-4).' ~ '.$weight:str_replace('0','不填寫',$weight);
     }
 
-    public function riseByUserEntry($userEntry) 
+    public function riseByUserEntry($userEntry)
     {
         if(!$userEntry) {
             $this->model = new User;
             $this->userMeta = new UserMeta;
             return $this;
         }
-        
+
         $this->model = $userEntry;
         // 如果目標會員帳號已關閉，則 userEntry 就會是 null
         $this->userMeta = $userEntry->meta;

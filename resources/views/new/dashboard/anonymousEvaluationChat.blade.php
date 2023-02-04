@@ -169,12 +169,7 @@
         .he_left_img{ height:30px;width: 30px;}
         .he_li30{ line-height: 30px; font-style: normal;}
         .hangup {background: #fe92a8;border:0;color:#fff;border-radius: 50px;width: 200px;height: 50px;}
-        .jide_but{position: absolute;left:50%;bottom:15px;transform: translate3d(-50%,0,0);}
-        @media (max-width:915px) {
-            .jide_but {
-                width: 80%;
-            }
-        }
+        .jide_but{padding-bottom:15px;}
         .jiesu_dh{ margin: 0 auto; text-align: center;  display: table; padding: 8px 50px; cursor: pointer;
         background: radial-gradient(circle farthest-side at 0 0, rgba(255,119,147,0.9) 0%, rgba(255,181,196,0.7) 100%);border-radius:100px; line-height: 30px;
         color: #ffffff !important; font-weight: bold; font-size: 18px;box-shadow: 0 10px 20px rgba(238,84,114,0.4);}
@@ -231,12 +226,11 @@
                     </div>
                     <a href="goBottom"></a>
                 </div>
-                <div class="jide_but">
-                    <div class="jiesu_dh" onclick="closeChat()"><span><img src="/new/images/zx_x001.png"></span>結束對話</div>
-                </div>
             </div>
             
-
+            <div class="jide_but">
+                <div class="jiesu_dh" onclick="closeChat()"><span><img src="/new/images/zx_x001.png"></span>結束對話</div>
+            </div>
             <div class="se_text_bot" id="message_input">
            
                 <form id="anonymousChatSubmit" enctype="multipart/form-data">
@@ -321,10 +315,10 @@
                 $('.se_text_bot').css('bottom',$('.se_text_bot_add_bottom').height() -70);
             }
          
-            $('.message').css('height',message_max_height-40);
-            $('.message').css('max-height',message_max_height-40);
-            $('.chat_show_area').css('min-height',message_max_height-40);
-            $('.chat_show_area').css('max-height',message_max_height-40);
+            $('.message').css('height',message_max_height-105);
+            $('.message').css('max-height',message_max_height-105);
+            $('.chat_show_area').css('min-height',message_max_height-105);
+            $('.chat_show_area').css('max-height',message_max_height-105);
     }
     message_height_resize();
     window.onresize = message_height_resize;
@@ -526,7 +520,7 @@
                                         }
                                         str+= `<div class="${message.role=="sender"?"show":"send"}" data-messageid="${message.id}" data-read="${message.read}">
                                                     <div class="msg  msg1">
-                                                        <img src="/new/images/${message.gender==1?"male":"female"}.png">
+                                                        <img class="${message.isBlur?'blur_img ':''}" src="${message.avatar?message.avatar:`/new/images/${message.gender==1?"male":"female"}.png`}">
                                                         <p tabindex="0" class="${reply!=""?'msg_has_parent':''}">
                                                             ${reply!=""?reply:""}
                                                             <i class="msg_input"></i>
