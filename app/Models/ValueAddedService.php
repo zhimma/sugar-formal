@@ -290,6 +290,10 @@ class ValueAddedService extends Model
             User::where('id',$member_id)->update(['is_hide_online' => 0]);
         }
 
+        if($service_name=='VVIP'){
+            User::where('id',$member_id)->update(['is_vvip' => 0]);
+        }
+
         return ValueAddedService::where('member_id', $member_id)
             ->where('service_name', $service_name)
             ->update(array('active' => 0, 'expiry' => null));

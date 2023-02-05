@@ -1109,6 +1109,15 @@ class UserService
         }
     }
 
+    public function dispatchCheckECPayForValueAddedService($service_name, $valueAddedServiceData){
+
+        if(is_object($valueAddedServiceData)){
+            \App\Jobs\CheckECpayForValueAddedService::dispatch($valueAddedServiceData);
+        } else{
+            Log::info($service_name.' data null, user id: ' . \Auth::user()->id);
+        }
+    }
+
     public static function isPersonalTagShow($to, $user) {
         if(($to->id == $user->id)) {
             return true;

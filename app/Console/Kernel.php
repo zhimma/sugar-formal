@@ -63,6 +63,7 @@ class Kernel extends ConsoleKernel
             $schedule->command('MessageSchedule')->timezone('Asia/Taipei')->dailyAt('01:30');
             $schedule->call(function (){
                 $this->checkECPayVip();
+                $this->checkECPayForValueAddedService();
                 $this->checkEmailVailUser();
             })->timezone('Asia/Taipei')->dailyAt('3:00');
             $schedule->call(function (){
@@ -195,6 +196,15 @@ class Kernel extends ConsoleKernel
         // $vipDatas = \App\Models\Vip::where('business_id','3137610')->where('order_id','like','SG%')->get();
         foreach ($vipDatas as $vipData){
             \App\Jobs\CheckECpay::dispatch($vipData);
+        }
+    }
+
+    protected function checkECPayForValueAddedService(){
+        $valueAddedServiceData = \App\Models\ValueAddedService::where(['active' => 1])
+            ->whereIn('service_name', ['hideOnline', 'VVIP'])
+            ->get();
+        foreach ($valueAddedServiceData as $Data){
+            \App\Jobs\CheckECpayForValueAddedService::dispatch($Data);
         }
     }
 
