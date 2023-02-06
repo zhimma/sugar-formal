@@ -9852,12 +9852,7 @@ class PagesController extends BaseController
             return redirect('/dashboard/personalPage')->with('message', '目前僅提供給完成手機驗證的VIP會員使用');
         }
 
-        $checkReport = AnonymousChatReport::select('user_id', 'created_at')->where('reported_user_id', $user->id)->groupBy('user_id')->orderBy('created_at', 'desc')->get();
-        $times = 3;
-        if($user->isVVIP()){
-            $times = 5;
-        }
-        if(count($checkReport) >= $times && Carbon::parse($checkReport[0]->created_at)->diffInDays(Carbon::now())<3){
+        if(User::isAnonymousChatReportedSilence($user->id)){
             return redirect('/dashboard/personalPage')->with('message', '因被檢舉次數過多，目前已限制使用匿名聊天室');
         }
 
@@ -9889,7 +9884,7 @@ class PagesController extends BaseController
         if(count($checkReport) >= $times){
             AnonymousChat::where('user_id', $reported_user_id->user_id)->delete();
         }
-//        return back()->with('message', $msg);
+
         return response()->json(['msg' => 'OK']);
     }
 
