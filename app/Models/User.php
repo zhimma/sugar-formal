@@ -724,6 +724,50 @@ class User extends Authenticatable implements JWTSubject
         return $c > 0;
     }
 
+    /**
+     * 判斷在匿名聊天室檢舉次數已達禁言
+     *
+     *
+     * @param string|int $id 對象id
+     *
+     * @return boolean
+     */
+    public static function isAnonymousChatReportedSilence($id)
+    {
+        $user = User::findById($id);
+        $times = 3;
+        if($user->isVVIP()){
+            $times = 5;
+        }
+        $this_week = Carbon::now()->startOfWeek()->toDateTimeString();
+
+        //檢查上週是否還在禁言中
+        $last_week = Carbon::now()->startOfWeek(Carbon::now()->dayOfWeek+1)->subWeek()->setTimeFromTimeString('23:59:59');
+        $checkReport_last_week = AnonymousChatReport::select('user_id', 'created_at')
+            ->where('reported_user_id', $id)
+            ->where('created_at', '>', $last_week)
+            ->where('created_at', '<', $this_week)
+            ->groupBy('user_id')
+            ->orderBy('created_at', 'desc')
+            ->get();
+        if(count($checkReport_last_week) >= $times && Carbon::parse($checkReport_last_week[0]->created_at)->diffInDays(Carbon::now())<3){
+            return true;
+        }
+        //檢查上週是否還在禁言中_end
+
+        $checkReport = AnonymousChatReport::select('user_id', 'created_at')
+            ->where('reported_user_id', $id)
+            ->where('created_at', '>=', $this_week)
+            ->groupBy('user_id')
+            ->orderBy('created_at', 'desc')
+            ->get();
+
+        if(count($checkReport) >= $times && Carbon::parse($checkReport[0]->created_at)->diffInDays(Carbon::now())<3){
+            return true;
+        }
+        return false;
+    }
+
     public function is_waiting_for_more_data()
     {
         return BackendUserDetails::where('user_id', $this->id)

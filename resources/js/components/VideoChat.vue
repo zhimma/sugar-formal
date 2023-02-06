@@ -67,12 +67,12 @@
                     </td>
                     <td class="nowrap">
                         <div class="video_user_blurry_avatar_show_block" ref="blurryAvatarShowBlock">
-                        {{user.video_verify_memo==null?'':getBlurryContent(user.video_verify_memo.blurryAvatar)}}
+                        {{user.video_verify_memo==null?'':getClearContent(user.video_verify_memo.blurryAvatar)}}
                         </div>
                     </td>
                     <td class="nowrap">
                         <div class="video_user_blurry_life_photo_show_block" ref="blurryLifePhotoShowBlock">
-                        {{user.video_verify_memo==null?'':getBlurryContent(user.video_verify_memo.blurryLifePhoto)}}
+                        {{user.video_verify_memo==null?'':getClearContent(user.video_verify_memo.blurryLifePhoto)}}
                         </div>                   
                     </td>
                     <td class="operator-col">
@@ -164,17 +164,17 @@
                 <div class="video_memo_edit_title_block">清晰頭像設定</div>
                 <div>
                     <label>
-                        <input v-model="videoChatPicBlurryAvatar" name="picBlurryAvatar" type="checkbox" value="VIP" >VIP
+                        <input v-model="videoChatPicClearAvatar" name="picBlurryAvatar"  type="checkbox" value="VIP" >VIP
                     </label>
                 </div>
                 <div>
                     <label>
-                        <input v-model="videoChatPicBlurryAvatar" name="picBlurryAvatar" type="checkbox" value="general" >試用會員
+                        <input v-model="videoChatPicClearAvatar" name="picBlurryAvatar" type="checkbox" value="general" >試用會員
                     </label>
                 </div>
                 <div>
                     <label>
-                        <input v-model="videoChatPicBlurryAvatar" name="picBlurryAvatar" type="checkbox" value="PR" >pr <input v-model="videoChatAvatarPrValue" type="number" name="avatar_pr_value" min="0" max="100" style="height: 22px;">
+                        <input v-model="videoChatPicClearAvatar" name="picBlurryAvatar" type="checkbox" value="PR" >pr <input v-model="videoChatAvatarPrValue" type="number" name="avatar_pr_value" min="0" max="100" style="height: 22px;">
                     </label>
                 </div>           
             </div>
@@ -182,17 +182,17 @@
                 <div class="video_memo_edit_title_block">清晰生活照設定</div>
                 <div>
                     <label>
-                        <input v-model="videoChatPicBlurryLifePhoto" name="picBlurryLifePhoto" type="checkbox" value="VIP" >VIP
+                        <input v-model="videoChatPicClearLifePhoto" name="picBlurryLifePhoto" type="checkbox" value="VIP" >VIP
                     </label>
                 </div>
                 <div>
                     <label>
-                        <input v-model="videoChatPicBlurryLifePhoto" name="picBlurryLifePhoto" type="checkbox" value="general" >試用會員
+                        <input v-model="videoChatPicClearLifePhoto" name="picBlurryLifePhoto" type="checkbox" value="general" >試用會員
                     </label>
                 </div>
                 <div>
                     <label>
-                        <input v-model="videoChatPicBlurryLifePhoto" name="picBlurryLifePhoto" type="checkbox" value="PR" >pr <input v-model="videoChatLifePhotoPrValue"  type="number" name="life_photo_pr_value" min="0" max="100" style="height: 22px;">
+                        <input v-model="videoChatPicClearLifePhoto" name="picBlurryLifePhoto" type="checkbox" value="PR" >pr <input v-model="videoChatLifePhotoPrValue"  type="number" name="life_photo_pr_value" min="0" max="100" style="height: 22px;">
                     </label>
                 </div>           
             </div>            
@@ -310,7 +310,10 @@ export default {
       callUser:null,
       videoChatUserQuestion:'',
       videoChatPicBlurryAvatar:[],
+      videoChatPicClearAvatar:[],
       videoChatPicBlurryLifePhoto:[],
+      videoChatPicClearLifePhoto:[],
+      videoChatPicClearRoleArr:['VIP','general'],
       videoChatAvatarPrValue : null,
       videoChatLifePhotoPrValue : null,
       mutedAudio: false,
@@ -340,6 +343,7 @@ export default {
       isUploaded: {user:false,partner:false},
       isNormalStop:false,
       isPeerError:false,
+      isUpdated:false,
       uploadedIntervalId:0,
       uploadedResponse:{user:null,partner:null},
       csrf: document.querySelector('meta[name="csrf-token"]').getAttribute('content'),
@@ -384,7 +388,12 @@ export default {
         var old_beforeunload = $('body').attr('onbeforeunload');
         if(old_beforeunload==undefined) old_beforeunload = '';
         $('body').attr('onbeforeunload','video_beforeunload_act();');
-        
+        setTimeout(() => {
+            if(!this.isUpdated) {
+                $('#data-table').DataTable().destroy();
+                this.initDataTable();
+            }
+        }, 3000);        
     this.initializeChannel(); // this initializes laravel echo
         log_arr.title = 'ing mounted@export default@VideoChat.vue';
         log_arr.act_step = 'after';
@@ -402,7 +411,7 @@ export default {
         log_arr.title = 'end mounted@export default@VideoChat.vue';
         log_video_chat_process(log_arr);  
   },
-  updated: function() {console.log('updated');console.log(this.userList);$('#data-table').DataTable().destroy();this.initDataTable(); },
+  updated: function() {console.log('updated');console.log(this.userList);this.isUpdated=true;$('#data-table').DataTable().destroy();this.initDataTable(); },
   computed: {  
     getUsers() {
         let now_vue = this;
@@ -523,45 +532,38 @@ export default {
     },
   
     getBlurryImgValue(img_type) {
-        let blurry_options = null;
+        let clear_options = null;
         let values = '';
         let pr_value = 0;
         switch(img_type) {
             case 'avatar':
-                blurry_options = this.videoChatPicBlurryAvatar;
+                clear_options = this.videoChatPicClearAvatar;
                 pr_value = this.videoChatAvatarPrValue;
             break;
             case 'pic':
-                blurry_options = this.videoChatPicBlurryLifePhoto;
+                clear_options = this.videoChatPicClearLifePhoto;
                 pr_value = this.videoChatLifePhotoPrValue;
             break;
         }
-        console.log('blurry_options=');
-        console.log(blurry_options);
-        if(blurry_options==null) return;
-        if(pr_value=='' || pr_value==null || pr_value==undefined || !(pr_value===pr_value)) pr_value=0;
-        for (var i=0; i<blurry_options.length; ++i) {
-            let cur_option = blurry_options[i];
-            if(cur_option=='PR'){
-                values = values + cur_option +'_' + pr_value +',';          
-            }
-            else {
-                if(cur_option=='VIP') {
-                    values = cur_option +','+values  ;
-                }
-                else {
-                    if(values.indexOf('VIP')>=0) {
-                        values = values.replace('VIP','VIP,'+cur_option);
-                    }
-                    else {
-                        values = cur_option +','+values  ;
-                    }
-                }
-            }
-        }
-        values = values.replace(',,',',').replace(',,',',').replace(',,',',');
-        console.log('values='+values);
+        console.log('clear_options=');
+        console.log(clear_options);
+        let clear_role_arr = this.videoChatPicClearRoleArr;
         
+        if(clear_options.length==0) return clear_role_arr.join(',')+',';
+        if(pr_value=='' || pr_value==null || pr_value==undefined || !(pr_value===pr_value)) pr_value=0;
+        let blurry_arr = [];
+        for(let c=0;c<clear_role_arr.length;c++) {
+            if(clear_options.indexOf(clear_role_arr[c])<0) {
+                blurry_arr.push(clear_role_arr[c]);
+            }
+        } 
+        
+        values = blurry_arr.join(',')+',';
+        
+        if(clear_options.indexOf('PR')>=0) {
+            values = values+'PR_'+pr_value+',';
+        }
+        console.log('values='+values);
         return values;
     }, 
     updateUserList(new_value) {     
@@ -976,32 +978,82 @@ export default {
       let blurryAvatarChkStr = '';
       let blurryLifePhoto = '';
       let blurryLifePhotoChkStr = '';
-      
+      this.videoChatPicClearAvatar = [];
+      this.videoChatPicClearLifePhoto = [];
+
       if(this.callUser.video_verify_memo!=null) {
         blurryAvatar = this.callUser.video_verify_memo.blurryAvatar;
-        let underline_pos = blurryAvatar?blurryAvatar.indexOf('_'):-1;
-        if(underline_pos>=0) {
-            blurryAvatarChkStr = blurryAvatar.substr(0,underline_pos);
-            this.videoChatPicBlurryAvatar = blurryAvatarChkStr.split(',');
-            console.log(this.videoChatPicBlurryAvatar);
-            this.videoChatAvatarPrValue = blurryAvatar.replace(blurryAvatarChkStr+'_','').replace(',','');
-            console.log('this.videoChatAvatarPrValue='+this.videoChatAvatarPrValue);
+
+        if(blurryAvatar==null || blurryAvatar==undefined || blurryAvatar=='') {
+            this.videoChatPicBlurryAvatar = [];
         }
         else {
-            this.videoChatPicBlurryAvatar = blurryAvatar?blurryAvatar.split(','):[];
+            let underline_pos = blurryAvatar?blurryAvatar.indexOf('_'):-1;
+            if(underline_pos>=0) {
+                blurryAvatarChkStr = blurryAvatar.substr(0,underline_pos);
+                this.videoChatPicBlurryAvatar = blurryAvatarChkStr.split(',');
+                console.log(this.videoChatPicBlurryAvatar);
+                this.videoChatAvatarPrValue = blurryAvatar.replace(blurryAvatarChkStr+'_','').replace(',','');
+                console.log('this.videoChatAvatarPrValue='+this.videoChatAvatarPrValue);
+            }
+            else {
+                this.videoChatPicBlurryAvatar = blurryAvatar?blurryAvatar.split(','):[];
+            }       
+        }
+        
+        if(this.videoChatPicBlurryAvatar.length==0) {
+            this.videoChatPicClearAvatar=this.videoChatPicClearRoleArr;;
+        } 
+        else {
+          let clear_role_arr = this.videoChatPicClearRoleArr;
+
+            for(let c=0;c<clear_role_arr.length;c++) {
+                let blurryAvatarEltIndexOf = this.videoChatPicBlurryAvatar.indexOf(clear_role_arr[c]);
+                if(blurryAvatarEltIndexOf<0) {
+                    this.videoChatPicClearAvatar.push(clear_role_arr[c]);
+                }
+            }        
+
+            if(this.videoChatPicBlurryAvatar.indexOf('PR')>=0) {
+                this.videoChatPicClearAvatar.push('PR');
+            }   
         }
 
-        underline_pos = -1;
         blurryLifePhoto = this.callUser.video_verify_memo.blurryLifePhoto;
-        underline_pos = blurryLifePhoto?blurryLifePhoto.indexOf('_'):-1;
-        if(underline_pos>=0) {
-            blurryLifePhotoChkStr = blurryLifePhoto.substr(0,underline_pos);
-            this.videoChatPicBlurryLifePhoto = blurryLifePhotoChkStr.split(',');
-            this.videoChatLifePhotoPrValue = blurryLifePhoto.replace(blurryLifePhotoChkStr+'_','').replace(',','');
+
+        if(blurryLifePhoto==null || blurryLifePhoto==undefined || blurryLifePhoto=='') {
+            this.videoChatPicBlurryLifePhoto = [];
         }
         else {
-            this.videoChatPicBlurryLifePhoto = blurryLifePhoto?blurryLifePhoto.split(','):[];
-        }    
+
+            let underline_pos = blurryLifePhoto?blurryLifePhoto.indexOf('_'):-1;
+            if(underline_pos>=0) {
+                blurryLifePhotoChkStr = blurryLifePhoto.substr(0,underline_pos);
+                this.videoChatPicBlurryLifePhoto = blurryLifePhotoChkStr.split(',');
+                this.videoChatLifePhotoPrValue = blurryLifePhoto.replace(blurryLifePhotoChkStr+'_','').replace(',','');
+            }
+            else {
+                this.videoChatPicBlurryLifePhoto = blurryLifePhoto?blurryLifePhoto.split(','):[];
+            }             
+        }
+        
+        if(this.videoChatPicBlurryLifePhoto.length==0) {
+            this.videoChatPicClearLifePhoto= this.videoChatPicClearRoleArr;
+        } 
+        else {
+           let clear_role_arr = this.videoChatPicClearRoleArr;
+
+            for(let c=0;c<clear_role_arr.length;c++) {
+                let blurryLifePhotoEltIndexOf = this.videoChatPicBlurryLifePhoto.indexOf(clear_role_arr[c]);
+                if(blurryLifePhotoEltIndexOf<0) {
+                    this.videoChatPicClearLifePhoto.push(clear_role_arr[c]);
+                }
+            } 
+
+            if(this.videoChatPicBlurryLifePhoto.indexOf('PR')>=0) {
+                this.videoChatPicClearLifePhoto.push('PR');
+            }               
+        }
       }
 
         $('.mask_bg').hide();
@@ -1417,7 +1469,7 @@ export default {
       let blurryAvatarChkStr = '';
       let blurryLifePhoto = '';
       let blurryLifePhotoChkStr = '';
-      
+
       if(nowCallerDetail.video_verify_memo!=null) {
         blurryAvatar = nowCallerDetail.video_verify_memo.blurryAvatar;
         let underline_pos = blurryAvatar?blurryAvatar.indexOf('_'):-1;
@@ -1432,7 +1484,7 @@ export default {
             this.videoChatPicBlurryAvatar = blurryAvatar?blurryAvatar.split(','):[];
         }
 
-        underline_pos = -1;
+
         blurryLifePhoto = nowCallerDetail.video_verify_memo.blurryLifePhoto;
         underline_pos = blurryLifePhoto?blurryLifePhoto.indexOf('_'):-1;
         if(underline_pos>=0) {
@@ -1911,10 +1963,24 @@ export default {
         return content;
     },
     
-    getBlurryContent(blurry) {
-        if(blurry==undefined || blurry==null) return;
-       
-        return blurry.replace('general','試用會員');
+    getClearContent(blurry) {
+        if(blurry==undefined || blurry==null  || blurry=='') {
+            return 'VIP,試用會員';
+        }
+        let clear_role_arr = this.videoChatPicClearRoleArr;
+        let clear_str = '';
+        for(let i=0;i<clear_role_arr.length;i++) {
+            if(blurry.indexOf(clear_role_arr[i])>=0) {
+                blurry = blurry.replace(clear_role_arr[i] ,'');
+            }
+            else {
+                clear_str+=clear_role_arr[i]+',';
+            }
+            
+        }
+        clear_str = clear_str.replace('general','試用會員')+blurry.replace(',,','').replace(',','');
+        if(clear_str.trim()=='') clear_str = '都不開放';
+        return clear_str;
     },
 
     getAdvInfoRelativeUrl(id) {

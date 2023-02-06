@@ -230,13 +230,8 @@
                         @if($row->report_deleted_at)
                             <span class="badge badge-warning">刪：{{$row->report_deleted_at}}</span>
                         @endif
-                        @if( ($row->reported_num>=3 && !$user->isVVIP()) || ($row->reported_num >=5 && $user->isVVIP()) )
-                            @php
-                                $checkReport = \App\Models\AnonymousChatReport::select('user_id', 'created_at')->where('reported_user_id', $row->user_id)->groupBy('user_id')->orderBy('created_at', 'desc')->first();
-                            @endphp
-                            @if(isset($checkReport) && !empty($checkReport->created_at) && \Carbon\Carbon::parse($checkReport->created_at)->diffInDays(\Carbon\Carbon::now())<3)
-                                <span class="badge badge-warning">禁言中</span>
-                            @endif
+                        @if(\App\Models\User::isAnonymousChatReportedSilence($row->user_id))
+                            <span class="badge badge-warning">禁言中</span>
                         @endif
                     </td>
                     <td>
@@ -246,10 +241,8 @@
                         @if(!$row->report_deleted_at)
                             <input type="button" class='btn btn-warning' onclick="deleteReport({{$row->report_id}})" value="刪除檢舉" />
                         @endif
-                        @if( ($row->reported_num>=3 && !$user->isVVIP()) || ($row->reported_num >=5 && $user->isVVIP()) )
-                            @if(isset($checkReport) && !empty($checkReport->created_at) && \Carbon\Carbon::parse($checkReport->created_at)->diffInDays(\Carbon\Carbon::now())<3)
-                                    <input type="button" class='btn btn-warning' onclick="deleteReportAll({{$row->user_id}})" value="解除禁言" />
-                            @endif
+                        @if(\App\Models\User::isAnonymousChatReportedSilence($row->user_id))
+                            <input type="button" class='btn btn-warning' onclick="deleteReportAll({{$row->user_id}})" value="解除禁言" />
                         @endif
                     </td>
                 </tr>
