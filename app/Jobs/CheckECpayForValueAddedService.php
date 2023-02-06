@@ -134,7 +134,11 @@ class CheckECpayForValueAddedService implements ShouldQueue
              if ($OrderDataCheck) {
                  //有到期日
                  if ($OrderDataCheck->order_expire_date != '') {
-                     $valueAddedServiceData = ValueAddedService::where('service_name', $OrderDataCheck->service_name)->where('member_id ', $this->valueAddedServiceData->member_id)->where('active ', 1)->orderBy('created_at', 'desc')->first();
+                     $valueAddedServiceData = ValueAddedService::where('service_name', $OrderDataCheck->service_name)
+                        ->where('member_id', $this->valueAddedServiceData->member_id)
+                        ->where('active', 1)
+                        ->orderBy('created_at', 'desc')
+                        ->first();
                      //檢查過期
                      if ($now->gt($OrderDataCheck->order_expire_date) && $now->gt($this->valueAddedServiceData->expiry)) {
                          //取消 [service_name] 防呆處理
