@@ -27,7 +27,8 @@ class OrderController extends \App\Http\Controllers\BaseController
         if ($request->ajax()) {
             $data = Order::leftJoin('users','users.id','order.user_id')
                 ->select(['order.*', 'users.email'])
-                ->orderBy('order.order_date','desc');
+//                ->orderBy('order.order_date','desc')
+            ;
             return Datatables::eloquent($data)->make(true);
         }
     }
