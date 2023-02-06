@@ -27,7 +27,8 @@ class OrderController extends \App\Http\Controllers\BaseController
         if ($request->ajax()) {
             $data = Order::leftJoin('users','users.id','order.user_id')
                 ->select(['order.*', 'users.email'])
-                ->orderBy('order.order_date','desc');
+//                ->orderBy('order.order_date','desc')
+            ;
             return Datatables::eloquent($data)->make(true);
         }
     }
@@ -232,10 +233,12 @@ class OrderController extends \App\Http\Controllers\BaseController
                 $lastProcessDate = \Carbon\Carbon::createFromFormat('Y/m/d H:i:s', $lastProcessDate);
                 //付款日期有差異時更新訂單
                 $currentOrder = Order::where('order_id', $order_id)->first();
-                $current_order_pay_date = last(json_decode($currentOrder->pay_date));
-                if($last['RtnCode'] == 1 && $lastProcessDate != $current_order_pay_date[0]){
-                    Order::updateEcPayOrder($order_id);
-                    $result .= '更新訂單資訊<br>';
+                if($currentOrder) {
+                    $current_order_pay_date = last(json_decode($currentOrder->pay_date));
+                    if ($last['RtnCode'] == 1 && $lastProcessDate != $current_order_pay_date[0]) {
+                        Order::updateEcPayOrder($order_id);
+                        $result .= '更新訂單資訊<br>';
+                    }
                 }
             }
 
@@ -290,7 +293,39 @@ class OrderController extends \App\Http\Controllers\BaseController
                         $result .= '升級HideOnline<br>';
                     }
                 }
-            }else{
+            }
+            elseif($paymentData['CustomField4']=='VVIP'){
+                //VVIP
+                $updateVVIP='';
+                //check user VVIP status
+                $VVIP = ValueAddedService::where('service_name', $paymentData['CustomField4'])->where('member_id',$paymentData['CustomField1'])->first();
+
+                if($VVIP && $VVIP->active==1){
+                    $result .= '該會員當前已有VVIP<br>';
+                }else{
+                    //檢查交易日期與購買週期
+                    if(str_contains($paymentData['CustomField3'], 'cc')) {
+                        $last = last($paymentPeriodInfo['ExecLog']);
+                        $lastProcessDate = str_replace('%20', ' ', $last['process_date']);
+                        $lastProcessDate = \Carbon\Carbon::createFromFormat('Y/m/d H:i:s', $lastProcessDate);
+                        $lastProcessDateDiffDays = $lastProcessDate->diffInDays(Carbon::now());
+                        if($last['RtnCode']==1 && $paymentPeriodInfo['ExecStatus'] == 1){
+                            //定期定額正常狀態中 更新VVIP
+                            if(str_contains($paymentData['CustomField3'], 'quarterly')){
+                                $result .= 'VVIP定期定額季付效期內<br>';
+                                $updateVVIP = 1;
+                            }
+                        }
+
+                    }
+
+                    if($updateVVIP == 1){
+                        ValueAddedService::upgrade($paymentData['CustomField1'], $paymentData['CustomField4'], $paymentData['MerchantID'], $paymentData['MerchantTradeNo'], $paymentData['TradeAmt'], '', 1, $paymentData['CustomField3'], $paymentData['CustomField2']);
+                        $result .= '升級VVIP<br>';
+                    }
+                }
+            }
+            else{
                 //vip
                 $updateVip='';
                 //check user vip status
@@ -360,12 +395,15 @@ class OrderController extends \App\Http\Controllers\BaseController
             ->leftJoin('user_meta', 'user_meta.user_id', 'users.id')
             ->where('users.id', $paymentData['CustomField1'])->first();
 
+
+
         if(isset($userInfo)) {
             //VIP帳號：起始時間,付費方式,種類,現狀
             //VIP起始時間,現狀,付費方式,種類
             $vipInfo = Vip::findByIdWithDateDesc($paymentData['CustomField1']);
-
-            if (!is_null($vipInfo)) {
+            $vvipInfo = ValueAddedService::where('member_id', $paymentData['CustomField1'])->where('service_name', 'VVIP')->orderBy('created_at', 'desc')->first();
+            $getUserInfo = User::findById($paymentData['CustomField1']);
+            if (!is_null($vipInfo) && !$getUserInfo->isVVIP()) {
                 $upgradeDay = date('Y-m-d', strtotime($vipInfo->created_at));
                 $upgradeWay = '';
                 if ($vipInfo->payment_method == 'CREDIT')
@@ -396,13 +434,31 @@ class OrderController extends \App\Http\Controllers\BaseController
                     $upgradeWay = '免費';
                     $upgradeKind = '免費';
                 }
-                $getUserInfo = \App\Models\User::findById($paymentData['CustomField1']);//->isVip? '是':'否';
+
                 $isVipStatus = $getUserInfo->isVip() ? '是' : '否';
                 $showVipInfo = $upgradeDay . ' / ' . $isVipStatus . ' / ' . $upgradeWay . ' / ' . $upgradeKind;
-            } else {
+            }
+            elseif(!is_null($vvipInfo)) {
+                $upgradeDay = date('Y-m-d', strtotime($vvipInfo->created_at));
+                $upgradeWay = '信用卡';
+                $upgradeKind = '';
+                if ($vvipInfo->payment == 'cc_quarterly_payment')
+                    $upgradeKind = '持續季繳';
+                else if ($vvipInfo->payment == 'cc_monthly_payment')
+                    $upgradeKind = '持續月繳';
+                else if ($vvipInfo->payment == 'one_quarter_payment')
+                    $upgradeKind = '季繳一季';
+                else if ($vvipInfo->payment == 'one_month_payment')
+                    $upgradeKind = '月繳一月';
+
+                $isVVIPStatus = $getUserInfo->isVVIP() ? '是' : '否';
+                $showVipInfo = '(VVIP) ' . $upgradeDay . ' / ' . $isVVIPStatus . ' / ' . $upgradeWay . ' / ' . $upgradeKind;
+            }
+            else {
                 $showVipInfo = '未曾加入 / 否 / 無 / 無';
             }
-        }else{
+        }
+        else{
             $showVipInfo = '';
         }
 
@@ -530,7 +586,39 @@ class OrderController extends \App\Http\Controllers\BaseController
                         $result .= '升級HideOnline<br>';
                     }
                 }
-            }else{
+            }
+            elseif($paymentData['CustomField4']=='VVIP'){
+                //VVIP
+                $updateVVIP='';
+                //check user VVIP status
+                $VVIP = ValueAddedService::where('service_name', $paymentData['CustomField4'])->where('member_id',$paymentData['CustomField1'])->first();
+
+                if($VVIP && $VVIP->active==1){
+                    $result .= '該會員當前已有VVIP<br>';
+                }else{
+                    //檢查交易日期與購買週期
+                    if(str_contains($paymentData['CustomField3'], 'cc')) {
+                        $last = last($paymentPeriodInfo['ExecLog']);
+                        $lastProcessDate = str_replace('%20', ' ', $last['process_date']);
+                        $lastProcessDate = \Carbon\Carbon::createFromFormat('Y/m/d H:i:s', $lastProcessDate);
+                        $lastProcessDateDiffDays = $lastProcessDate->diffInDays(Carbon::now());
+                        if($last['RtnCode']==1 && $paymentPeriodInfo['ExecStatus'] == 1){
+                            //定期定額正常狀態中 更新VVIP
+                            if(str_contains($paymentData['CustomField3'], 'quarterly')){
+                                $result .= 'VVIP定期定額季付效期內<br>';
+                                $updateVVIP = 1;
+                            }
+                        }
+
+                    }
+
+                    if($updateVVIP == 1){
+                        ValueAddedService::upgrade($paymentData['CustomField1'], $paymentData['CustomField4'], $paymentData['MerchantID'], $paymentData['MerchantTradeNo'], $paymentData['TradeAmt'], '', 1, $paymentData['CustomField3'], $paymentData['CustomField2']);
+                        $result .= '升級VVIP<br>';
+                    }
+                }
+            }
+            else{
                 //vip
                 $updateVip='';
                 //check user vip status

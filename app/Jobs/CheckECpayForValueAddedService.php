@@ -55,7 +55,7 @@ class CheckECpayForValueAddedService implements ShouldQueue
 
              $user = User::findById($this->valueAddedServiceData->member_id);
              if (!$user) {
-                 logger("Null user found, vip data id: " . $this->valueAddedServiceData->id);
+                 logger("Null user found, valueAddedService data id: " . $this->valueAddedServiceData->id);
                  return;
              }
 
@@ -110,7 +110,6 @@ class CheckECpayForValueAddedService implements ShouldQueue
                  }
              } //Order無訂單資料時 從金流新增訂單
              else {
-
                  if (!(EnvironmentService::isLocalOrTestMachine())) {
                      try {
                          //從ecPay
