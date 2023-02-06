@@ -130,7 +130,7 @@ class Order extends Model
                     } elseif ($payment == 'cc_quarterly_payment' && $lastProcessDate != '' && $paymentPeriodInfo['ExecStatus'] == 0) {
                         //ExecStatus=0 定期定額取消直接補上到期日
                         $order->order_expire_date = $lastProcessDate->addMonthsNoOverflow(3);
-                        if($paymentData['CustomField2'] != '' && $paymentData['CustomField2']>0 && ($service_name == 'VIP' || $service_name == 'hideOnline')){
+                        if($paymentData['CustomField2'] != '' && $paymentData['CustomField2']>0 && ($service_name == 'VIP' || $service_name == 'hideOnline' || $service_name == 'VVIP')){
                             $temp_day = $order->order_expire_date;
                             $order->order_expire_date = $temp_day->addDays($paymentData['CustomField2']);
                         }
@@ -266,7 +266,7 @@ class Order extends Model
                     } elseif ($payment == 'cc_quarterly_payment' && $lastProcessDate != '' && $paymentPeriodInfo['ExecStatus'] == 0) {
                         //ExecStatus=0 定期定額取消直接補上到期日
                         $order->order_expire_date = $lastProcessDate->addMonthsNoOverflow(3);
-                        if($paymentData['CustomField2'] != '' && $paymentData['CustomField2']>0 && ($service_name == 'VIP' || $service_name == 'hideOnline')){
+                        if($paymentData['CustomField2'] != '' && $paymentData['CustomField2']>0 && ($service_name == 'VIP' || $service_name == 'hideOnline' || $service_name == 'VVIP')){
                             $temp_day = $order->order_expire_date;
                             $order->order_expire_date = $temp_day->addDays($paymentData['CustomField2']);
                         }
@@ -369,7 +369,7 @@ class Order extends Model
                 }elseif($payment=='cc_quarterly_payment' && $lastProcessDate != '' && $paymentPeriodInfo['ExecStatus'] == 0){
                     //ExecStatus=0 定期定額取消直接補上到期日
                     $order_expire_date = $lastProcessDate->addMonthsNoOverflow(3);
-                    if($paymentData['CustomField2'] != '' && ($paymentData['CustomField4'] == 'VIP' || $paymentData['CustomField4'] == 'hideOnline')){
+                    if($paymentData['CustomField2'] != '' && ($paymentData['CustomField4'] == 'VIP' || $paymentData['CustomField4'] == 'hideOnline' || $paymentData['CustomField4'] == 'VVIP')){
                         $order_expire_date = $order_expire_date->addDays($paymentData['CustomField2']);
                     }
                 }elseif($payment=='cc_monthly_payment' && $lastProcessDate != '' && $paymentPeriodInfo['ExecStatus'] == 0){
@@ -461,7 +461,7 @@ class Order extends Model
                 }elseif($payment=='cc_quarterly_payment' && $lastProcessDate != '' && $paymentPeriodInfo['ExecStatus'] == 0){
                     //ExecStatus=0 定期定額取消直接補上到期日
                     $order_expire_date = $lastProcessDate->addMonthsNoOverflow(3);
-                    if($paymentData['CustomField2'] != '' && ($paymentData['CustomField4'] == 'VIP' || $paymentData['CustomField4'] == 'hideOnline')){
+                    if($paymentData['CustomField2'] != '' && ($paymentData['CustomField4'] == 'VIP' || $paymentData['CustomField4'] == 'hideOnline' || $paymentData['CustomField4'] == 'VVIP')){
                         $order_expire_date = $order_expire_date->addDays($paymentData['CustomField2']);
                     }
                 }elseif($payment=='cc_monthly_payment' && $lastProcessDate != '' && $paymentPeriodInfo['ExecStatus'] == 0){

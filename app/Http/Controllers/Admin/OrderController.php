@@ -297,7 +297,7 @@ class OrderController extends \App\Http\Controllers\BaseController
             elseif($paymentData['CustomField4']=='VVIP'){
                 //VVIP
                 $updateVVIP='';
-                //check user hideOnline status
+                //check user VVIP status
                 $VVIP = ValueAddedService::where('service_name', $paymentData['CustomField4'])->where('member_id',$paymentData['CustomField1'])->first();
 
                 if($VVIP && $VVIP->active==1){
@@ -586,7 +586,39 @@ class OrderController extends \App\Http\Controllers\BaseController
                         $result .= '升級HideOnline<br>';
                     }
                 }
-            }else{
+            }
+            elseif($paymentData['CustomField4']=='VVIP'){
+                //VVIP
+                $updateVVIP='';
+                //check user VVIP status
+                $VVIP = ValueAddedService::where('service_name', $paymentData['CustomField4'])->where('member_id',$paymentData['CustomField1'])->first();
+
+                if($VVIP && $VVIP->active==1){
+                    $result .= '該會員當前已有VVIP<br>';
+                }else{
+                    //檢查交易日期與購買週期
+                    if(str_contains($paymentData['CustomField3'], 'cc')) {
+                        $last = last($paymentPeriodInfo['ExecLog']);
+                        $lastProcessDate = str_replace('%20', ' ', $last['process_date']);
+                        $lastProcessDate = \Carbon\Carbon::createFromFormat('Y/m/d H:i:s', $lastProcessDate);
+                        $lastProcessDateDiffDays = $lastProcessDate->diffInDays(Carbon::now());
+                        if($last['RtnCode']==1 && $paymentPeriodInfo['ExecStatus'] == 1){
+                            //定期定額正常狀態中 更新VVIP
+                            if(str_contains($paymentData['CustomField3'], 'quarterly')){
+                                $result .= 'VVIP定期定額季付效期內<br>';
+                                $updateVVIP = 1;
+                            }
+                        }
+
+                    }
+
+                    if($updateVVIP == 1){
+                        ValueAddedService::upgrade($paymentData['CustomField1'], $paymentData['CustomField4'], $paymentData['MerchantID'], $paymentData['MerchantTradeNo'], $paymentData['TradeAmt'], '', 1, $paymentData['CustomField3'], $paymentData['CustomField2']);
+                        $result .= '升級VVIP<br>';
+                    }
+                }
+            }
+            else{
                 //vip
                 $updateVip='';
                 //check user vip status
