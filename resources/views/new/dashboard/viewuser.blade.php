@@ -2858,66 +2858,79 @@
                 // $(".announce_bg").show();
                 // $('body').css("overflow", "hidden");
             @else
-                c5('您已評價過');
+                c5('您好，對於 {{$to->name}} 您於 {{\Carbon\Carbon::parse($evaluation_self->created_at)->format("Y-m-d")}}已經有過評價，不能重複評價哦!');
                 return false;
             @endif
+            @if($too_soon_evaluation)
+                c5('您好，系統限制30分鐘之內只能給出一個評價');
+                return false;
+            
+            @else
+                $('.alert_tip').text('');
+                $('.self_illustrate').find('input[name="agree"]').prop('checked', false); // 清除偽裝的犯罪現場
+                resetImageUploader(document.querySelector('#form1'));
 
-            $('.alert_tip').text('');
-            $('.self_illustrate').find('input[name="agree"]').prop('checked', false); // 清除偽裝的犯罪現場
-            resetImageUploader(document.querySelector('#form1'));
-
-            $('.vipDays').addClass('hide');
-            $('.phone_auth').addClass('hide');
-            $('.need_vip').addClass('hide');
-            $('.advance_auth').addClass('hide');
-            $('.enter_tab_evaluation').removeClass('evaluation_type_anonymous');
-            $('.enter_tab_evaluation').removeClass('evaluation_type_myself');
-            $('.anonymous_illustrate').hide();
-            $('.self_illustrate').show();
-            $('input[name=content_processing_method]').val('');
-            @if($user->engroup==2)
-                $('#tab_reject_female').show();
-                $('.phone_auth').removeClass('hide');
-                $(".announce_bg").show();
-                $('.enter_tab_evaluation').addClass('evaluation_type_myself');
-            @elseif($user->engroup==1)
-                $('#tab_reject_male').show();
-                $('.vipDays').removeClass('hide');
-                $(".announce_bg").show();
-                $('.enter_tab_evaluation').addClass('evaluation_type_myself');
+                $('.vipDays').addClass('hide');
+                $('.phone_auth').addClass('hide');
+                $('.need_vip').addClass('hide');
+                $('.advance_auth').addClass('hide');
+                $('.enter_tab_evaluation').removeClass('evaluation_type_anonymous');
+                $('.enter_tab_evaluation').removeClass('evaluation_type_myself');
+                $('.anonymous_illustrate').hide();
+                $('.self_illustrate').show();
+                $('input[name=content_processing_method]').val('');
+                @if($user->engroup==2)
+                    $('#tab_reject_female').show();
+                    $('.phone_auth').removeClass('hide');
+                    $(".announce_bg").show();
+                    $('.enter_tab_evaluation').addClass('evaluation_type_myself');
+                @elseif($user->engroup==1)
+                    $('#tab_reject_male').show();
+                    $('.vipDays').removeClass('hide');
+                    $(".announce_bg").show();
+                    $('.enter_tab_evaluation').addClass('evaluation_type_myself');
+                @endif
             @endif
         });
 
         // 匿名評價
         $('.anonymous_evaluation').click(function() {
-            // 首先清除狀態
-            $('#evaluation_description').find('input[name="message_processing"]').prop('checked', false);
-            $('#evaluation_description').find('.evaluation_check_alert_tip').text('');
-            $('.alert_tip').text('');
-            resetImageUploader(document.querySelector('#form1'));
-
-            $('.vipDays').addClass('hide');
-            $('.phone_auth').addClass('hide');
-            $('.need_vip').addClass('hide');
-            $('.advance_auth').addClass('hide');
-            $('.enter_tab_evaluation').removeClass('evaluation_type_anonymous');
-            $('.enter_tab_evaluation').removeClass('evaluation_type_myself');
-            @if($user->engroup==2)
-                $('#tab_reject_female').show();
-                //$('.new_tkfont').text('您目前未達匿名評價標準，無法使用');
-                $('.advance_auth').removeClass('hide');
-                $(".announce_bg").show();
-                $('.enter_tab_evaluation').addClass('evaluation_type_anonymous');
-            @elseif($user->engroup==1)
-                $('#tab_reject_male').show();
-                //$('.new_tkfont').text('您目前未達匿名評價標準，無法使用');
-                $('.need_vip').removeClass('hide');
-                $(".announce_bg").show();
-                $('.enter_tab_evaluation').addClass('evaluation_type_anonymous');
+            @if(($evaluation_anonymous??null))
+                c5('您好，對於 {{$to->name}} 您於 {{\Carbon\Carbon::parse($evaluation_anonymous->created_at)->format("Y-m-d")}}已經有過匿名評價，不能重複評價哦!');
+                return false;
+            @elseif($too_soon_evaluation)
+                c5('您好，系統限制30分鐘之內只能給出一個評價');
+                return false;
             @else
-                // 訊息處理選擇
-                // $('#evaluation_description').show();
-                // $(".announce_bg").show();
+                // 首先清除狀態
+                $('#evaluation_description').find('input[name="message_processing"]').prop('checked', false);
+                $('#evaluation_description').find('.evaluation_check_alert_tip').text('');
+                $('.alert_tip').text('');
+                resetImageUploader(document.querySelector('#form1'));
+
+                $('.vipDays').addClass('hide');
+                $('.phone_auth').addClass('hide');
+                $('.need_vip').addClass('hide');
+                $('.advance_auth').addClass('hide');
+                $('.enter_tab_evaluation').removeClass('evaluation_type_anonymous');
+                $('.enter_tab_evaluation').removeClass('evaluation_type_myself');
+                @if($user->engroup==2)
+                    $('#tab_reject_female').show();
+                    //$('.new_tkfont').text('您目前未達匿名評價標準，無法使用');
+                    $('.advance_auth').removeClass('hide');
+                    $(".announce_bg").show();
+                    $('.enter_tab_evaluation').addClass('evaluation_type_anonymous');
+                @elseif($user->engroup==1)
+                    $('#tab_reject_male').show();
+                    //$('.new_tkfont').text('您目前未達匿名評價標準，無法使用');
+                    $('.need_vip').removeClass('hide');
+                    $(".announce_bg").show();
+                    $('.enter_tab_evaluation').addClass('evaluation_type_anonymous');
+                @else
+                    // 訊息處理選擇
+                    // $('#evaluation_description').show();
+                    // $(".announce_bg").show();
+                @endif
             @endif
         });
 
