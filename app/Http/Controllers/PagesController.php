@@ -724,17 +724,13 @@ class PagesController extends BaseController
         if($user->vip_any) {
             $this->service->dispatchCheckECPay($this->userIsVip, $this->userIsFreeVip, $user->vip_any->first());
         }
-        //valueAddedService
-        if($this->valueAddedServices['hideOnline'] == 1){
-            //如未來service有多個以上則此段需設計並再改寫成ALL in one的方式
-            $service_name = 'hideOnline';
-            $valueAddedServiceData = \App\Models\ValueAddedService::getData($user->id,'hideOnline');
-            if (is_object($valueAddedServiceData)) {
-                $this->dispatch(new CheckECpayForValueAddedService($valueAddedServiceData));
-            } else {
-                Log::info('ValueAddedService ' . $service_name . ' data null, user id: ' . $user->id);
-            }
-
+        $valueAddedServiceData_hideOnline = ValueAddedService::getData($user->id, 'hideOnline');
+        if($valueAddedServiceData_hideOnline){
+            $this->service->dispatchCheckECPayForValueAddedService('hideOnline', $valueAddedServiceData_hideOnline);
+        }
+        $valueAddedServiceData_VVIP = ValueAddedService::getData($user->id, 'VVIP');
+        if($valueAddedServiceData_VVIP){
+            $this->service->dispatchCheckECPayForValueAddedService('VVIP', $valueAddedServiceData_VVIP);
         }
 
 
@@ -4000,16 +3996,13 @@ class PagesController extends BaseController
             $this->service->dispatchCheckECPay($this->userIsVip, $this->userIsFreeVip, $user->vip_any->first());
         }
         //valueAddedService
-        if($this->valueAddedServices['hideOnline'] == 1){
-            //如未來service有多個以上則此段需設計並再改寫成ALL in one的方式
-            $service_name = 'hideOnline';
-            $valueAddedServiceData = \App\Models\ValueAddedService::getData($user->id,'hideOnline');
-            if (is_object($valueAddedServiceData)) {
-                $this->dispatch(new CheckECpayForValueAddedService($valueAddedServiceData));
-            } else {
-                Log::info('ValueAddedService ' . $service_name . ' data null, user id: ' . $user->id);
-            }
-
+        $valueAddedServiceData_hideOnline = ValueAddedService::getData($user->id, 'hideOnline');
+        if($valueAddedServiceData_hideOnline){
+            $this->service->dispatchCheckECPayForValueAddedService('hideOnline', $valueAddedServiceData_hideOnline);
+        }
+        $valueAddedServiceData_VVIP = ValueAddedService::getData($user->id, 'VVIP');
+        if($valueAddedServiceData_VVIP){
+            $this->service->dispatchCheckECPayForValueAddedService('VVIP', $valueAddedServiceData_VVIP);
         }
 
         //紀錄返回上一頁的url
@@ -4263,17 +4256,15 @@ class PagesController extends BaseController
             $this->service->dispatchCheckECPay($this->userIsVip, $this->userIsFreeVip, $user->vip_any->first());
         }
         //valueAddedService
-        if($this->valueAddedServices['hideOnline'] == 1){
-            //如未來service有多個以上則此段需設計並再改寫成ALL in one的方式
-            $service_name = 'hideOnline';
-            $valueAddedServiceData = \App\Models\ValueAddedService::getData($user->id,'hideOnline');
-            if (is_object($valueAddedServiceData)) {
-                $this->dispatch(new CheckECpayForValueAddedService($valueAddedServiceData));
-            } else {
-                Log::info('ValueAddedService ' . $service_name . ' data null, user id: ' . $user->id);
-            }
-
+        $valueAddedServiceData_hideOnline = ValueAddedService::getData($user->id, 'hideOnline');
+        if($valueAddedServiceData_hideOnline){
+            $this->service->dispatchCheckECPayForValueAddedService('hideOnline', $valueAddedServiceData_hideOnline);
         }
+        $valueAddedServiceData_VVIP = ValueAddedService::getData($user->id, 'VVIP');
+        if($valueAddedServiceData_VVIP){
+            $this->service->dispatchCheckECPayForValueAddedService('VVIP', $valueAddedServiceData_VVIP);
+        }
+
         return view('new.dashboard.search')->with('user', $user)->with('rap_service',$rap_service);
     }
 
