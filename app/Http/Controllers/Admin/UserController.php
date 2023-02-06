@@ -6808,7 +6808,6 @@ class UserController extends \App\Http\Controllers\BaseController
                 'anonymous_chat_report.id as report_id',
                 'report_user.engroup as report_engroup'
             )
-                ->selectRaw('(select count(DISTINCT aa.user_id) from anonymous_chat_report as aa where (aa.reported_user_id=users.id and aa.deleted_at is null) ) as reported_num')
                 ->leftJoin('anonymous_chat', 'anonymous_chat.id', 'anonymous_chat_report.anonymous_chat_id')
                 ->leftJoin('users', 'users.id', 'anonymous_chat_report.reported_user_id')
                 ->leftJoin('users as report_user', 'report_user.id', 'anonymous_chat_report.user_id');
