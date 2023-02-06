@@ -2026,8 +2026,9 @@ class PagesController extends BaseController
         $isHideOnline = $request->input('isHideOnline');
         $insertData = false;
         $status_msg = 'error';
+        $user = User::where('id', $user_id)->get()->first();
 
-        if($isHideOnline == 0){
+        if($isHideOnline == 0 || $user->valueAddedServiceStatus('hideOnline') == 0){
 
             User::where('id', $user_id)->update(['is_hide_online' => 0]);
             $status_msg = '搜索排序設定已變更。';
@@ -2035,7 +2036,6 @@ class PagesController extends BaseController
         }else if($isHideOnline == 1){
             //check current is_hide_online
             $checkHideOnlineData = hideOnlineData::where('user_id',$user_id)->where('deleted_at', null)->get()->first();
-            $user = User::where('id', $user_id)->get()->first();
             $insertData = true;
 
             if($user->is_hide_online==2 && isset($checkHideOnlineData)){
@@ -2049,7 +2049,6 @@ class PagesController extends BaseController
         }else if($isHideOnline == 2){
             //check current is_hide_online
             $checkHideOnlineData = hideOnlineData::where('user_id',$user_id)->where('deleted_at', null)->get()->first();
-            $user = User::where('id', $user_id)->get()->first();
             $insertData = true;
 
             if($user->is_hide_online==1 && isset($checkHideOnlineData)){
