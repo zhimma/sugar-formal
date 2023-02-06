@@ -3065,7 +3065,7 @@ class PagesController extends BaseController
         if($is_vip) {
             $uid = $request->uid;
             $target_user = User::find($uid);
-            if ($target_user->valueAddedServiceStatus('hideOnline') && $target_user->is_hide_online == 1) {
+            if ($target_user->valueAddedServiceStatus('hideOnline') && $target_user->is_hide_online != 0) {
                 $data = hideOnlineData::select('user_id', 'blocked_other_count', 'be_blocked_other_count')->where('user_id', $uid)->first();
                 /*此會員封鎖多少其他會員*/
                 $blocked_other_count = $data->blocked_other_count;
@@ -3134,7 +3134,7 @@ class PagesController extends BaseController
         if($is_vip){
             $uid = $request->uid;
             $target_user = User::find($uid);
-            if ($target_user->valueAddedServiceStatus('hideOnline') && $target_user->is_hide_online == 1) {
+            if ($target_user->valueAddedServiceStatus('hideOnline') && $target_user->is_hide_online != 0) {
                 $data = hideOnlineData::select('user_id', 'fav_count', 'be_fav_count')->where('user_id', $uid)->first();
                 /*收藏會員次數*/
                 $fav_count = $data->fav_count;
