@@ -10974,6 +10974,17 @@ class PagesController extends BaseController
     public function view_vvipSelectionReward(Request $request)
     {
         $user = auth()->user();
+        if(!$user->isVVIP()){
+            return back()->with('message', '此活動僅限 VVIP 參加');
+        }
+        //check application
+        $checkVvipSelectionReward = VvipSelectionReward::where('user_id', $user->id)
+            ->whereIn('status', [0, 1])
+            ->first();
+        if($checkVvipSelectionReward){
+            return back()->with('message', '您已申請過或活動尚未結束');
+        }
+
         return view('new.dashboard.vvipSelectionReward')
             ->with('user', $user);
     }
@@ -10991,20 +11002,12 @@ class PagesController extends BaseController
     {
         $user = auth()->user();
 
-        //check application
-        $checkVvipSelectionReward = VvipSelectionReward::where('user_id', $user->id)
-            ->whereIn('status', [0, 10])
-            ->first();
-        if($checkVvipSelectionReward){
-            return back()->with('message', '您已申請過或活動尚未結束');
-        }
         $new_array = array();
         if(is_array(json_decode($request->option_selection_reward))) {
             foreach (json_decode($request->option_selection_reward) as $key => $row) {
                 $new_array[$key+1] = $row;
             }
         }
-
         //default value
         $identify_method = array();
         $identify_method[1] = '本人驗證';
