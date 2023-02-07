@@ -10995,7 +10995,7 @@ class PagesController extends BaseController
         $option_selection_reward = DB::table('vvip_option_selection_reward')->get();
         return view('new.dashboard.vvipSelectionRewardApply')
             ->with('user', $user)
-            ->with('vvip_option_selection_reward', $option_selection_reward);
+            ->with('option_selection_reward', $option_selection_reward);
     }
 
     public function vvipSelectionRewardApply(Request $request)
