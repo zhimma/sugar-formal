@@ -713,6 +713,7 @@ class Message_new extends Model
                 $messages[$key]['read_n'] = $mm[$msgUser->id] ?? 0;
                 $messages[$key]['isVip'] = $msgUser->isVip();
                 $messages[$key]['isVVIP'] = $msgUser->isVVIP();
+                $messages[$key]['isVvipSelectionRewardActive'] = $msgUser->isVvipSelectionRewardActive($user->id);
 
                 $cityAndArea='';
                 if(isset($msgUser->user_meta->city)) {

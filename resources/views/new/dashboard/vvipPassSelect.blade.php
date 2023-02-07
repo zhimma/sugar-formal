@@ -41,17 +41,31 @@
                                         </a>
                                     </div>
 
-                                    <div class="xh_left50 xh_liner xhpt">
+                                    <div class="xh_left50 xh_liner xh_liner_l xhp">
                                         <a href="{!! url('dashboard/vvipExclusive') !!}">
                                         <div class="xh_span"><img src="/new/images/quxiao_2.png"></div>
                                         <h2>VVIP專屬功能</h2>
                                         </a>
                                     </div>
-                                    <div class="xh_left50 xhpt">
-                                        <a @if(view()->shared('valueAddedServices')['VVIP'] == 1) href="{!! url('dashboard/vvipCancel') !!}" @else onclick="vvip_cancel_alert()"@endif>
-                                        <div class="xh_span"><img src="/new/images/quxiao_1.png"></div>
-                                        <h2>取消VVIP</h2>
+                                    <div class="xh_left50 xh_liner_l xhp">
+                                        <a href="/dashboard/vvipSelectionReward">
+                                            <div class="xh_span"><img src="/new/images/quxiao_2.png"></div>
+                                            <h2>VVIP選拔甜心</h2>
                                         </a>
+                                    </div>
+
+                                    <div class="xh_left50 xh_liner xhpt">
+
+                                        <a @if(view()->shared('valueAddedServices')['VVIP'] == 1) href="{!! url('dashboard/vvipCancel') !!}" @else onclick="vvip_cancel_alert()"@endif>
+                                            <div class="xh_span"><img src="/new/images/quxiao_1.png"></div>
+                                            <h2>取消VVIP</h2>
+                                        </a>
+                                    </div>
+                                    <div class="xh_left50 xh_liner xhpt">
+{{--                                        <a @if(view()->shared('valueAddedServices')['VVIP'] == 1) href="{!! url('dashboard/vvipCancel') !!}" @else onclick="vvip_cancel_alert()"@endif>--}}
+{{--                                            <div class="xh_span"><img src="/new/images/quxiao_1.png"></div>--}}
+{{--                                            <h2>取消VVIP</h2>--}}
+{{--                                        </a>--}}
                                     </div>
                         </div>
 

@@ -445,6 +445,13 @@ Route::group(['middleware' => ['auth', 'global', 'active', 'femaleActive', 'vipC
     Route::get('/dashboard/vvipInfo', 'PagesController@view_vvipInfo')->name('vvipInfo')->withoutMiddleware('VvipCheck'); //new route
     Route::post('/dashboard/vvipInfoEdit', 'PagesController@edit_vvipInfo')->name('vvipInfoEdit')->withoutMiddleware('VvipCheck'); //new route
 //    Route::post('/dashboard/VVIPisInvitedUpdateStatus', 'PagesController@VVIPisInvitedUpdateStatus')->name('VVIPisInvitedUpdateStatus');
+    Route::get('/dashboard/vvipSelectionReward', 'PagesController@view_vvipSelectionReward');
+    Route::get('/dashboard/vvipSelectionRewardApply', 'PagesController@view_vvipSelectionRewardApply');
+    Route::post('/dashboard/vvipSelectionRewardApply', 'PagesController@vvipSelectionRewardApply')->name('vvipSelectionRewardApply');
+    Route::post('/dashboard/vvipSelectionRewardIgnore', 'PagesController@vvipSelectionRewardIgnore')->name('vvipSelectionRewardIgnore');
+    Route::post('/dashboard/vvipSelectionRewardGirlApply', 'PagesController@vvipSelectionRewardGirlApply')->name('vvipSelectionRewardGirlApply');
+    Route::post('/dashboard/vvipSelectionRewardUserNoteEdit', 'PagesController@vvipSelectionRewardUserNoteEdit');
+
     //--vvip end--//
 
     Route::get('/dashboard2', 'PagesController@dashboard2');
@@ -938,6 +945,15 @@ Route::group(['middleware' => ['auth', 'global', 'active', 'femaleActive', 'vipC
         Route::get('users/VVIP_cancellation_list', 'VvipController@viewVvipCancellationList')->name('users/VVIP_cancellation_list');
         Route::post('users/VVIP_cancellation/save', 'VvipController@updateVvipCancellation')->name('users/VVIP_cancellation/save');
         //Route::get('users/VVIP_invite', 'UserController@viewVvipInvite')->name('users/VVIP_invite');
+        Route::get('users/VvipSelectionReward', 'UserController@viewVvipSelectionRewardApply');
+        Route::post('users/VvipSelectionRewardUpdate', 'UserController@vvipSelectionRewardApplyUpdate')->name('vvipSelectionRewardApplyUpdate');
+        Route::post('users/vvipSelectionRewardDeleteKey', 'UserController@vvipSelectionRewardApplyDeleteKey')->name('vvipSelectionRewardApplyDeleteKey');
+        Route::get('users/vvipSelectionRewardList', 'UserController@getVvipSelectionRewardData')->name('vvipSelectionReward/list');
+        Route::post('users/vvipSelectionRewardApplyKeyUpdate', 'UserController@vvipSelectionRewardApplyKeyUpdate')->name('vvipSelectionRewardApplyKeyUpdate');
+        Route::post('users/vvipSelectionRewardApplyAddData', 'UserController@vvipSelectionRewardApplyAddData')->name('vvipSelectionRewardApplyAddData');
+        Route::get('users/vvipSelectionRewardApplyList/{id}', 'UserController@viewVvipSelectionRewardApplyList');
+        Route::post('users/vvipSelectionRewardApplyListUpdate', 'UserController@vvipSelectionRewardApplyListUpdate')->name('vvipSelectionRewardApplyListUpdate');
+
 
         Route::get('users/vip/search', 'UserController@vipIndex')->name('users/vip');
         Route::post('users/vip/search', 'UserController@vipSearch')->name('users/vip/search');
