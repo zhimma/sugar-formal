@@ -94,7 +94,7 @@
 				@if($user->isVip && $user->vip_data->expiry!="0000-00-00 00:00:00") (到期日: {{ substr($user->vip_data->expiry, 0, 10) }})
 				@elseif($user->isVVIP && $user->vvip_data->expiry!="0000-00-00 00:00:00") (到期日: {{ substr($user->vvip_data->expiry, 0, 10) }} (VVIP))
 				@endif</td>
-			<td>@if($user->vip_data->free == 1 && !$user->isVVIP) 是 @else 否 @endif</td>
+			<td>@if($user->vip_data?->free == 1 && !$user->isVVIP) 是 @else 否 @endif</td>
 			<td>@if($user->isVVIP){{ $user->vvip_data->order_id }}(VVIP)
 				@elseif($user->isVip){{ $user->vip_order_id }}
 				@endif</td>
