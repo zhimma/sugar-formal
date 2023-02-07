@@ -2512,7 +2512,7 @@ class PagesController extends BaseController
             $evaluation_self = Evaluation::where('to_id',$uid)->where('from_id',$user->id)->whereNull('content_violation_processing')->orderByDesc('created_at')->first();
             $too_soon_evaluation = false;
             if($evaluation_anonymous || $evaluation_self) {
-                $latest_evaluation = $evaluation_anonymous??$evaluation_self;
+                $latest_evaluation = Evaluation::where('from_id',$user->id)->orderByDesc('created_at')->first();
                 $too_soon_evaluation = Carbon::now()->diffInMinutes(Carbon::parse($latest_evaluation->created_at))<=30;
                 
                 
