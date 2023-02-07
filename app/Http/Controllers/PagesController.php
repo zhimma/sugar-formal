@@ -10990,11 +10990,17 @@ class PagesController extends BaseController
     public function vvipSelectionRewardApply(Request $request)
     {
         $user = auth()->user();
+
+        //check application
+        $checkVvipSelectionReward = VvipSelectionReward::where('user_id', $user->id)
+            ->whereIn('status', [0, 10])
+            ->first();
+        if($checkVvipSelectionReward){
+            return back()->with('message', '您已申請過或活動尚未結束');
+        }
         $new_array = array();
         if(is_array(json_decode($request->option_selection_reward))) {
-
             foreach (json_decode($request->option_selection_reward) as $key => $row) {
-                //array_push($new_array, $row);
                 $new_array[$key+1] = $row;
             }
         }
@@ -11007,7 +11013,6 @@ class PagesController extends BaseController
         $bonus_distribution = array();
         $bonus_distribution[1] = '通過初步驗證立即發放 5000';
         $bonus_distribution[2] = '約見成功後，再發放車馬費 5000';
-
 
         $vvipSelectionReward = new VvipSelectionReward();
         $vvipSelectionReward->user_id = $user->id;
