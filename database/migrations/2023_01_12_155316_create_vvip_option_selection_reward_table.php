@@ -4,7 +4,7 @@ use Illuminate\Database\Migrations\Migration;
 use Illuminate\Database\Schema\Blueprint;
 use Illuminate\Support\Facades\Schema;
 
-class CreateOptionSelectionRewardTable extends Migration
+class CreateVvipOptionSelectionRewardTable extends Migration
 {
     /**
      * Run the migrations.
@@ -13,14 +13,14 @@ class CreateOptionSelectionRewardTable extends Migration
      */
     public function up()
     {
-        if (!Schema::hasTable('option_selection_reward')) {
-            Schema::create('option_selection_reward', function (Blueprint $table) {
+        if (!Schema::hasTable('vvip_option_selection_reward')) {
+            Schema::create('vvip_option_selection_reward', function (Blueprint $table) {
                 $table->id();
                 $table->string('option_name');
                 $table->string('option_content')->nullable();
             });
 
-            DB::table('option_selection_reward')->insert([
+            DB::table('vvip_option_selection_reward')->insert([
                 ['option_name' => '皮膚白皙', 'option_content'=> '，此條件可能會大幅提高審核金額'],
                 ['option_name' => '身高170cm以上', 'option_content'=> '，此條件可能會大大提高審核金額'],
                 ['option_name' => '可配合daddy調整髮色/髮型', 'option_content'=> '，需指定髮色/髮型供站方審核'],
@@ -45,6 +45,6 @@ class CreateOptionSelectionRewardTable extends Migration
      */
     public function down()
     {
-        Schema::dropIfExists('option_selection_reward');
+        Schema::dropIfExists('vvip_option_selection_reward');
     }
 }
