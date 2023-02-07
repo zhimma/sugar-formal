@@ -131,6 +131,16 @@
                             @endif
                         </div>
                         <div class="tabbox_new_dd">
+                            @if($vvip_selection_reward_notice)
+                                <h2 class="tabbox_h2 ta_l">
+                                    <span class="tu_dfont">
+                                        您有申請甜心選拔「{{$vvip_selection_reward_notice->title}}」，經站方審核後，此次的選拔單人費用是 {{$vvip_selection_reward_notice->per_person_price}}，人數是 {{$vvip_selection_reward_notice->limit}} 人。<br>
+                                        總費用是 {{$vvip_selection_reward_notice->per_person_price*$vvip_selection_reward_notice->limit}}，<br>
+                                        請匯款至 國泰世華(013) 015035004430 信宏資產管理有限公司，<br>
+                                        匯款完成後請<font color="red">保留收據</font>並將帳號後五碼 <a onclick="vvipSelectionRewardUserNoteEdit_show()" class='btn btn-primary' style="height: 30px; line-height: 15px;">輸入於此</a>
+                                    </span>
+                                </h2>
+                            @endif
                             @if(isset($admin_msgs) && count($admin_msgs))
                                 @foreach($admin_msgs as $amsg)
                                     <h2 class="tabbox_h2 ta_l"  data-recordtype="admin_msgs" data-rowid="{{$amsg->id}}" >
@@ -142,16 +152,7 @@
                             @else
                                 <h2 class="tabbox_h2 ta_l system_msg_none"><span class="tu_dfont">暫無系統信</span></h2>
                             @endif
-                                @if($vvip_selection_reward_notice)
-                                    <h2 class="tabbox_h2">
-                                    <span class="tu_dfont">
-                                        您有申請甜心選拔「{{$vvip_selection_reward_notice->title}}」，經站方審核後，此次的選拔單人費用是 {{$vvip_selection_reward_notice->per_person_price}}，人數是 {{$vvip_selection_reward_notice->limit}} 人。<br>
-                                        總費用是 {{$vvip_selection_reward_notice->per_person_price*$vvip_selection_reward_notice->limit}}，<br>
-                                        請匯款至 國泰世華(013) 015035004430 信宏資產管理有限公司，<br>
-                                        匯款完成後請<font color="red">保留收據</font>並將帳號後五碼 <a onclick="vvipSelectionRewardUserNoteEdit_show()" class='btn btn-primary' style="height: 30px; line-height: 15px;">輸入於此</a>
-                                    </span>
-                                    </h2>
-                                @endif
+
                         </div>
                     </div>
                     @if($user->engroup==1)

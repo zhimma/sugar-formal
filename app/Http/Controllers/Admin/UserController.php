@@ -8025,7 +8025,8 @@ class UserController extends \App\Http\Controllers\BaseController
                 $success = true;
 
                 if($request->name == 'status' && $request->value == 1) {
-                    Message::post($getSelectionRewardData->user_id, $data->user_id, '您已通過「'.$getSelectionRewardData->title.'」活動選拔，現在您可以與對方交談約見。', false, 1);
+                    Message::post($data->user_id, $getSelectionRewardData->user_id,  '您已通過「'.$getSelectionRewardData->title.'」活動選拔，現在您可以與對方交談約見。', false, 1);
+                    Message::post($getSelectionRewardData->user_id, $data->user_id,   '對方已通過「'.$getSelectionRewardData->title.'」活動選拔，現在您可以與對方交談約見。', false, 1);
                 }
 
             }

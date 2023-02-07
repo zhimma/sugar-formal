@@ -671,7 +671,7 @@ background: transparent;
 .leboxVVIP.on{background:  url(../images/on.png) no-repeat right #ffbcca;background-position:98%;  background-size:22px;position:relative;cursor:pointer;color: #ff3e65;}
 
 .leboxVvipSelectionRewardActive,.lebox0,.lebox1{background: url(../images/off.png) no-repeat right #f9dbe1; background-position:98%; background-size:22px; padding:0px 20px;color:#ff3e65;font-size:16px;position:relative;line-height:40px;cursor:pointer;text-align: center;}
-.leboxVvipSelectionRewardActive,.lebox0,.lebox1.on{background:  url(../images/on.png) no-repeat right #f9dbe1;background-position:98%;  background-size:22px;position:relative;cursor:pointer;color: #ff3e65;}
+.leboxVvipSelectionRewardActive.on,.lebox0.on,.lebox1.on{background:  url(../images/on.png) no-repeat right #f9dbe1;background-position:98%;  background-size:22px;position:relative;cursor:pointer;color: #ff3e65;}
 
 .lebox2{background: url(../images/off.png) no-repeat right #98d0ff; background-position:98%; background-size:22px; padding:0px 20px;color:#0089ff;font-size:16px;position:relative;line-height:40px;cursor:pointer;text-align: center;}
 /*.lebox0.on,.lebox1.on{background:  url(../images/on.png) no-repeat right #ffbcca;background-position:98%;  background-size:22px;position:relative;cursor:pointer;color: #ff3e65;}*/
