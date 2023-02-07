@@ -2134,7 +2134,8 @@
             <div class="new_tkfont" style="text-align: left;margin-top: 10px;">
                 <span>1:請盡量附上證據(對話截圖或其他)，若無相關證據有可能被移除。</span><br>
                 <span>2:請平鋪直敘事情經過，<span style="color: red;">禁止人身攻擊，情緒性發言</span>。</span><br>
-                <span>3:相關證據請保留兩周，供站方查核</span>
+                <span>3:相關證據請保留兩周，供站方查核</span><br>
+                <span>4:匿名評價為站方代會員發表較為嚴重的評價，例如放鴿子，言行前後不一等，心情抒發與好評請直接具名評價。</span>
             </div>
             <div class="n_bbutton" style="margin-top:10px;">
                 <div style="display: inline-flex;">
@@ -3240,7 +3241,7 @@
             theme: 'thumbnails',
             enableApi: true,
             addMore: true,
-            limit: 5,
+            limit: 15,
             thumbnails: {
                 box: '<div class="fileuploader-items">' +
                     '<ul class="fileuploader-items-list">' +
@@ -3406,7 +3407,12 @@ function resetImageUploader(form) {
 function rendorItemNthText(parentEl) {
     parentEl.find('.fileuploader-item, .fileuploader-thumbnails-input').each(function (i) {
         let nthText = rendorItemNthText.nthEnum[i] || 'N';
-
+        if(i>9) {
+            nthText = '';
+            let i_str_arr = i.toString().split('');
+            nthText+= rendorItemNthText.nthEnum[9];
+            nthText+= rendorItemNthText.nthEnum[i_str_arr[1]];
+        }
         this.setAttribute('data-nth-text', `第${nthText}張`);
     });
 }
