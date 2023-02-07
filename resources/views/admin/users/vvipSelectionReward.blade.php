@@ -20,10 +20,10 @@
 </style>
 
 <body style="padding: 15px;">
-<h1>VVIP徵選管理</h1>
+<h1>VVIP 徵選活動管理</h1>
 <h5>點選「暱稱」可查詢應徵名單</h5>
 
-<table class="display table cell-border" id="data-table">
+<table class="display table cell-border" id="data-table" width="100%">
     <thead>
     <tr>
         <th>ID</th>

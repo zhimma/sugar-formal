@@ -573,8 +573,8 @@ is_truth_icon_pic.src="{{asset('/new/images/zz_zt2.png')}}";
                     <dl class="system_log">
 
                         <!-- vvip selection reward-->
-                        <div class="vvipSelectionRewardMode">
-                            <dt class="leboxVvipSelectionRewardActive" data-position="top" style="background-color: blanchedalmond;">
+                        <div class="vvipSelectionRewardMode" style="display: none;">
+                            <dt class="leboxVvipSelectionRewardActive" style="background-color: blanchedalmond;">
                                 <span class="le_span">徵選活動</span>
                             </dt>
                             <dd>
@@ -826,12 +826,12 @@ is_truth_icon_pic.src="{{asset('/new/images/zz_zt2.png')}}";
 
 <script>
     let showMsg = false;
-        let isLoading = 1;
-        var total = 0;//總筆數
-        var no_row_li='';
-        no_row_li = '<li class="li_no_data"><div class="listicon02 nodata"><img src="/new/images/xj.png" class="list_img"><span>您目前尚無訊息</span></div></li>';
-        var userIsVip = '{{ $isVip }}';
-        var userGender = '{{ $user->engroup }}';
+    let isLoading = 1;
+    var total = 0;//總筆數
+    var no_row_li='';
+    no_row_li = '<li class="li_no_data"><div class="listicon02 nodata"><img src="/new/images/xj.png" class="list_img"><span>您目前尚無訊息</span></div></li>';
+    var userIsVip = '{{ $isVip }}';
+    var userGender = '{{ $user->engroup }}';
 
     //vvipSelectionRewardActive
     var Page_vvipSelectionRewardActive = {
@@ -1383,8 +1383,7 @@ is_truth_icon_pic.src="{{asset('/new/images/zz_zt2.png')}}";
                            isCan = false,
                            cityAndArea,
                            message_user_note,
-                           isVVIP,
-                           isVvipSelectionRewardActive){
+                           isVVIP){
             showMsg = show;
             var li='';
             var ss =((i+1)>Page.row)?'display:none;':'display:none;';
@@ -1661,6 +1660,7 @@ is_truth_icon_pic.src="{{asset('/new/images/zz_zt2.png')}}";
                                     $('.sjlist_alert').append(li).find('.row_data').addClass('date7 alertMember common30');
                                 }
                                 else if (e.isVvipSelectionRewardActive) {
+                                    $('.vvipSelectionRewardMode').show();
                                     $('.sjlist_vvipSelectionRewardActive').append(li).find('.row_data').addClass('date7 vvipSelectionRewardActiveMember common30');
                                 }
                                 else if (e.isVVIP == 1 && userGender==2) {
@@ -1693,6 +1693,7 @@ is_truth_icon_pic.src="{{asset('/new/images/zz_zt2.png')}}";
                                     $('.sjlist_alert').append(li).find('.row_data').addClass('date30 alertMember common30');
                                 }
                                 else if (e.isVvipSelectionRewardActive) {
+                                    $('.vvipSelectionRewardMode').show();
                                     $('.sjlist_vvipSelectionRewardActive').append(li).find('.row_data').addClass('date30 vvipSelectionRewardActiveMember common30');
                                 }
                                 else if (e.isVVIP == 1 && userGender==2) {
@@ -1725,6 +1726,7 @@ is_truth_icon_pic.src="{{asset('/new/images/zz_zt2.png')}}";
                                     $('.sjlist_alert').append(li).find('.row_data').addClass('dateAll alertMember');
                                 }
                                 else if (e.isVvipSelectionRewardActive) {
+                                    $('.vvipSelectionRewardMode').show();
                                     $('.sjlist_vvipSelectionRewardActive').append(li).find('.row_data').addClass('dateAll vvipSelectionRewardActiveMember');
                                 }
                                 else if (e.isVVIP == 1 && userGender==2) {
@@ -2581,7 +2583,7 @@ is_truth_icon_pic.src="{{asset('/new/images/zz_zt2.png')}}";
             return false;
         }
 
-    function massage_user_note(sid){
+        function massage_user_note(sid){
         let massage_user_note_content = $('#massage_user_note_' + sid).val();
         $.post('{{ route('messageUserNoteAJAX') }}', {
             user_id: '{{ $user->id }}',
@@ -2913,26 +2915,6 @@ is_truth_icon_pic.src="{{asset('/new/images/zz_zt2.png')}}";
                 //window.location.reload();
             });
         });
-
-        // $('.lebox1,.lebox2,.lebox3').toggleClass('on');
-
-        // $('.lebox1').removeClass('off');
-        // $('.lebox1').removeClass('on');
-
-        // $('.lebox1,.lebox2,.lebox3,.lebox_alert').removeClass('off');
-        // $('.lebox1,.lebox2,.lebox3,.lebox_alert').removeClass('on');
-
-{{--        @if($user->engroup==2)--}}
-{{--        $('.lebox1').toggleClass('on');--}}
-{{--        $('.lebox2,.lebox3,.lebox_alert').toggleClass('off');--}}
-{{--        $('.lebox2,.lebox3,.lebox_alert').next('dd').slideToggle("slow");--}}
-{{--        @elseif($user->engroup==1)--}}
-{{--        $('.lebox1,.lebox2,.lebox3,.lebox_alert').toggleClass('off');--}}
-{{--        $('.lebox1,.lebox2,.lebox3,.lebox_alert').next('dd').slideToggle("slow");--}}
-{{--        @endif--}}
-        // $('.lebox1,.lebox2,.lebox3,.lebox_alert').toggleClass('off');
-        // $(".leftsidebar_box dd").show();
-        // $('.lebox2,.lebox3,.lebox_alert').next('dd').slideToggle("slow");
 
         $('.leboxVvipSelectionRewardActive,.leboxVVIP,.lebox0,.lebox1,.lebox2,.lebox3,.lebox6,.lebox_alert,.lebox5').toggleClass('off');
         $('.leboxVvipSelectionRewardActive,.leboxVVIP,.lebox0,.lebox1,.lebox2,.lebox3,.lebox6,.lebox_alert,.lebox5').next('dd').slideToggle("slow");

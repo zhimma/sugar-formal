@@ -970,7 +970,6 @@
             $('.vvip_selection_reward').trigger('next.owl.carousel');
         });
         $(".vvip_selection_reward").on('initialized.owl.carousel changed.owl.carousel refreshed.owl.carousel', function (e) {
-            alert(1);
             if (!e.namespace) return;
             var carousel = e.relatedTarget,
                 current = carousel.current();
