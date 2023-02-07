@@ -353,6 +353,7 @@
     
     function showRejectDetailBlock(dom) 
     {
+        window.open('/admin/users/message/anonymous-checked/to/{{$row->id}}/{{$row->evaluation_id}}');
         let now_elt = $(dom);
         let now_parent = now_elt.closest('td');
         now_parent.children().hide();
