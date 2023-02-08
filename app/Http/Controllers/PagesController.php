@@ -11023,6 +11023,7 @@ class PagesController extends BaseController
         $vvipSelectionReward->condition = json_encode($new_array, JSON_UNESCAPED_UNICODE);
         $vvipSelectionReward->identify_method = json_encode($identify_method, JSON_UNESCAPED_UNICODE);
         $vvipSelectionReward->bonus_distribution = json_encode($bonus_distribution, JSON_UNESCAPED_UNICODE);
+        $vvipSelectionReward->limit = $request->limit;
         $vvipSelectionReward->status = 0;
         $vvipSelectionReward->save();
         return redirect('/dashboard/vvipPassSelect')->with('message', '已送出申請');

@@ -25,7 +25,7 @@
 
                         <dt class="bhui_new">
                             <span class="x_p5">1.請輸入徵選主題</span>
-                            <font><input name="title" type="text" class="select_xx01 x_tpbo" placeholder="請輸入至多六個字標題" required></font>
+                            <font><input name="title" type="text" class="select_xx01 x_tpbo" id="title" placeholder="請輸入至多六個字標題" maxlength="6" required></font>
                         </dt>
                         <dt class="bhui_new">
                             <span class="x_p5">2.請選擇條件</span>
@@ -36,7 +36,7 @@
                                         @foreach($option_selection_reward as $row)
                                             @if($row->id==3)<div class="left">@endif
                                             <div class="custom_s a1 option_selection_reward" data-id="{{$row->id}}" data-name={{$row->option_name}}>{{$row->option_name}}
-                                                <b class="cr_b cr_{{$row->id}}">{{$row->option_content}}</b>
+                                                <b class="cr_b cr_{{$row->id}}">({{$row->option_content}})</b>
                                             </div>
                                                 @if($row->id==3)</div>@endif
                                         @endforeach
@@ -69,6 +69,10 @@
                                 </div>
                             </font>
                             <a href="javascript:void(0)" type="button" id="add_image" class="zj_tiaojian" name="button"><b>+</b>新增條件</a>
+                        </dt>
+                        <dt class="bhui_new">
+                            <span class="x_p5">4.請輸入招選人數</span>
+                            <font><input name="limit" type="number" class="select_xx01 x_tpbo" id="limit" placeholder="請輸入招選人數" required></font>
                         </dt>
                     </div>
                 </div>
@@ -113,8 +117,12 @@
             });
 
             $('.form_submit').on('click',function (e) {
-                if($('.x_tpbo').val()==''){
+                if($('#title').val()==''){
                     c5('請輸入徵選主題');
+                    return false;
+                }
+                if($('#limit').val()==''){
+                    c5('請輸入招選人數');
                     return false;
                 }
                 option_array = [];
