@@ -724,17 +724,13 @@ class PagesController extends BaseController
         if($user->vip_any) {
             $this->service->dispatchCheckECPay($this->userIsVip, $this->userIsFreeVip, $user->vip_any->first());
         }
-        //valueAddedService
-        if($this->valueAddedServices['hideOnline'] == 1){
-            //如未來service有多個以上則此段需設計並再改寫成ALL in one的方式
-            $service_name = 'hideOnline';
-            $valueAddedServiceData = \App\Models\ValueAddedService::getData($user->id,'hideOnline');
-            if (is_object($valueAddedServiceData)) {
-                $this->dispatch(new CheckECpayForValueAddedService($valueAddedServiceData));
-            } else {
-                Log::info('ValueAddedService ' . $service_name . ' data null, user id: ' . $user->id);
-            }
-
+        $valueAddedServiceData_hideOnline = ValueAddedService::getData($user->id, 'hideOnline');
+        if($valueAddedServiceData_hideOnline){
+            $this->service->dispatchCheckECPayForValueAddedService('hideOnline', $valueAddedServiceData_hideOnline);
+        }
+        $valueAddedServiceData_VVIP = ValueAddedService::getData($user->id, 'VVIP');
+        if($valueAddedServiceData_VVIP){
+            $this->service->dispatchCheckECPayForValueAddedService('VVIP', $valueAddedServiceData_VVIP);
         }
 
 
@@ -2512,8 +2508,15 @@ class PagesController extends BaseController
                 ->where('evaluation.to_id', $uid);
 
             $evaluation_data = $query->paginate(10);
-
-            $evaluation_self = Evaluation::where('to_id',$uid)->where('from_id',$user->id)->whereNull('content_violation_processing')->first();
+            $evaluation_anonymous = Evaluation::where('to_id',$uid)->where('from_id',$user->id)->whereNotNull('content_violation_processing')->orderByDesc('created_at')->first();
+            $evaluation_self = Evaluation::where('to_id',$uid)->where('from_id',$user->id)->whereNull('content_violation_processing')->orderByDesc('created_at')->first();
+            $too_soon_evaluation = false;
+            if($evaluation_anonymous || $evaluation_self) {
+                $latest_evaluation = Evaluation::where('from_id',$user->id)->orderByDesc('created_at')->first();
+                $too_soon_evaluation = Carbon::now()->diffInMinutes(Carbon::parse($latest_evaluation->created_at))<=30;
+                
+                
+            }
             /*編輯文案-被封鎖者看不到封鎖者的提示-START*/
             //$user_closed = AdminCommonText::where('alias','user_closed')->get()->first();
             /*編輯文案-被封鎖者看不到封鎖者的提示-END*/
@@ -2724,6 +2727,8 @@ class PagesController extends BaseController
                 // ->with('rating_avg',$rating_avg)
                 //->with('user_closed',$user_closed->content)
                 ->with('evaluation_self', $evaluation_self)
+                ->with('evaluation_anonymous', $evaluation_anonymous)
+                ->with('too_soon_evaluation',$too_soon_evaluation)
                 ->with('evaluation_data', $evaluation_data)
                 ->with('vipDays', $vipDays)
                 ->with('isReadIntro', $isReadIntro)
@@ -3364,8 +3369,30 @@ class PagesController extends BaseController
 
     public function evaluation_save(Request $request)
     {
+        $evaluation_anonymous = Evaluation::where('to_id',$request->input('eid'))->where('from_id',auth()->id())->whereNotNull('content_violation_processing')->orderByDesc('created_at')->first();
+        $evaluation_self = Evaluation::where('to_id',$request->input('eid'))->where('from_id',auth()->id())->whereNull('content_violation_processing')->orderByDesc('created_at')->first();
+        $too_soon_evaluation = false;
+        if($evaluation_anonymous || $evaluation_self) {
+            $latest_evaluation = $evaluation_anonymous??$evaluation_self;
+            $too_soon_evaluation = Carbon::now()->diffInMinutes(Carbon::parse($latest_evaluation->created_at))<=30;  
+        } 
+
+        if($too_soon_evaluation ) {
+            
+            return back()->withErrors(['錯誤!評價失敗。系統限制30分鐘之內只能給出一個評價，請稍等片刻再進行評價']);
+        }
+        
+        if($request->input('content_processing_method') && $evaluation_anonymous) {
+            return back()->withErrors(['錯誤!評價失敗。您對此會員 已經有過匿名評價，不能重複匿名評價']);
+        }
+        
+        if(!$request->input('content_processing_method') && $evaluation_self) {
+            return back()->withErrors(['錯誤!評價失敗。您對此會員 已經有過評價，不能重複評價']);
+        }        
+        
         $evaluation=Evaluation::create([
-            'from_id' => $request->input('uid'),
+            //'from_id' => $request->input('uid'),
+            'from_id' => auth()->id(),//只能新增自己的評價
             'to_id' => $request->input('eid'),
             'content' => $request->input('content'),
             'rating' => $request->input('rating'),
@@ -3969,16 +3996,13 @@ class PagesController extends BaseController
             $this->service->dispatchCheckECPay($this->userIsVip, $this->userIsFreeVip, $user->vip_any->first());
         }
         //valueAddedService
-        if($this->valueAddedServices['hideOnline'] == 1){
-            //如未來service有多個以上則此段需設計並再改寫成ALL in one的方式
-            $service_name = 'hideOnline';
-            $valueAddedServiceData = \App\Models\ValueAddedService::getData($user->id,'hideOnline');
-            if (is_object($valueAddedServiceData)) {
-                $this->dispatch(new CheckECpayForValueAddedService($valueAddedServiceData));
-            } else {
-                Log::info('ValueAddedService ' . $service_name . ' data null, user id: ' . $user->id);
-            }
-
+        $valueAddedServiceData_hideOnline = ValueAddedService::getData($user->id, 'hideOnline');
+        if($valueAddedServiceData_hideOnline){
+            $this->service->dispatchCheckECPayForValueAddedService('hideOnline', $valueAddedServiceData_hideOnline);
+        }
+        $valueAddedServiceData_VVIP = ValueAddedService::getData($user->id, 'VVIP');
+        if($valueAddedServiceData_VVIP){
+            $this->service->dispatchCheckECPayForValueAddedService('VVIP', $valueAddedServiceData_VVIP);
         }
 
         //紀錄返回上一頁的url
@@ -4232,17 +4256,15 @@ class PagesController extends BaseController
             $this->service->dispatchCheckECPay($this->userIsVip, $this->userIsFreeVip, $user->vip_any->first());
         }
         //valueAddedService
-        if($this->valueAddedServices['hideOnline'] == 1){
-            //如未來service有多個以上則此段需設計並再改寫成ALL in one的方式
-            $service_name = 'hideOnline';
-            $valueAddedServiceData = \App\Models\ValueAddedService::getData($user->id,'hideOnline');
-            if (is_object($valueAddedServiceData)) {
-                $this->dispatch(new CheckECpayForValueAddedService($valueAddedServiceData));
-            } else {
-                Log::info('ValueAddedService ' . $service_name . ' data null, user id: ' . $user->id);
-            }
-
+        $valueAddedServiceData_hideOnline = ValueAddedService::getData($user->id, 'hideOnline');
+        if($valueAddedServiceData_hideOnline){
+            $this->service->dispatchCheckECPayForValueAddedService('hideOnline', $valueAddedServiceData_hideOnline);
         }
+        $valueAddedServiceData_VVIP = ValueAddedService::getData($user->id, 'VVIP');
+        if($valueAddedServiceData_VVIP){
+            $this->service->dispatchCheckECPayForValueAddedService('VVIP', $valueAddedServiceData_VVIP);
+        }
+
         return view('new.dashboard.search')->with('user', $user)->with('rap_service',$rap_service);
     }
 
