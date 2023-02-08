@@ -59,6 +59,7 @@
                             @endfor
                         @endif
                     @endif
+                    <button type="button" class="btn btn-warning" onclick="window.open('{{route('admin/showAdminCheckAnonymousBetweenMessages',['evaluate_from'=>$row->id,'evaluate_to'=>$cur_to_user->id])}}');" style="vertical-align:bottom;display:block;" >站內對話</button>
                 </td>                
                 <td rowspan="2" style="word-break: break-all">
                     <div class="show_content_{{$row->evaluation_id}}">
