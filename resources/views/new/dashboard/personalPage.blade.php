@@ -296,7 +296,7 @@
                             @elseif($rap_service->isSelfAuthWaitingCheck())
                                 <h2 class="tabbox_h2"><span class="tu_dfont">站方審核中</span></h2>
                             @elseif($rap_service->isSelfAuthApplyNotVideoYet())
-                                <h2 class="tabbox_h2"><span class="tu_dfont"><span class="sa_video_status video_status_text_show_elt" id="video_status_text_show_elt">前往視訊</span><img id="video_status_show_elt" src="{{ asset('/new/images/guan.png') }}" class="sa_video_status video_status_show_elt"  style="cursor: pointer;height: 30px;display:none;"/></span></h2>
+                                <h2 class="tabbox_h2"><span class="tu_dfont"><span class="video_status_text_show_elt" id="video_status_text_show_elt">站方人員可從本站任一頁面跟您視訊，請等候站方人員撥打視訊通話給您</span><img id="video_status_show_elt" src="{{ asset('/new/images/guan.png') }}" class="sa_video_status video_status_show_elt"  style="cursor: pointer;height: 30px;display:none;"/></span></h2>
                             @else
                                 <h2 class="tabbox_h2"><span class="tu_dfont">尚未通過</span></h2>
                             @endif
@@ -1373,11 +1373,7 @@
     $(function() {
 		@if(isset($admin_msgs) && count($admin_msgs))
 		    $('.btn_admin_msgs').show();
-		@endif
-        
-        $('.sa_video_status').click(function(){
-            location.href="{{url('user_video_chat_verify')}}";
-        });        
+		@endif      
 	});
 
 </script>

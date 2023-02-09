@@ -17,6 +17,7 @@ use App\Models\User;
 use App\Models\UserMeta;
 use App\Models\SetAutoBan;
 use App\Models\AdminCommonText;
+use App\Models\ValueAddedService;
 use App\Services\UserService;
 use Carbon\Carbon;
 use Illuminate\Support\Facades\Auth;
@@ -609,6 +610,14 @@ class Message_newController extends BaseController {
         if (isset($user)) {
             if($user->id == 1049) { set_time_limit(0); }
             $this->service->dispatchCheckECPay($this->userIsVip, $this->userIsFreeVip, $this->userVipData);
+            $valueAddedServiceData_hideOnline = ValueAddedService::getData($user->id, 'hideOnline');
+            if($valueAddedServiceData_hideOnline){
+                $this->service->dispatchCheckECPayForValueAddedService('hideOnline', $valueAddedServiceData_hideOnline);
+            }
+            $valueAddedServiceData_VVIP = ValueAddedService::getData($user->id, 'VVIP');
+            if($valueAddedServiceData_VVIP){
+                $this->service->dispatchCheckECPayForValueAddedService('VVIP', $valueAddedServiceData_VVIP);
+            }
             $isVip = ($user->isVip()||$user->isVVIP());
             /*編輯文案-檢舉大頭照-START*/
             $vip_member = AdminCommonText::where('alias','vip_member')->get()->first();
