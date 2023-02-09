@@ -4773,6 +4773,46 @@ class UserController extends \App\Http\Controllers\BaseController
         echo json_encode('ok');
     }
     
+    public function showAdminCheckAnonymousBetweenMessages(Request $request,$evaluate_from,$evaluate_to)
+    {
+        $messages = 
+            Message::withTrashed()->where('from_id',$evaluate_from)->where('to_id',$evaluate_to)
+            ->orWhere(function($q) use ($evaluate_from,$evaluate_to)  {
+                $q->where('to_id',$evaluate_from)->where('from_id',$evaluate_to);
+            })
+            ->orderByDesc('id')
+            ->get()
+        ;
+        $message_1st = $messages->first();
+        $ref_user = $evaluator = $ref_user_id = null;
+        if($message_1st) {
+            if($message_1st->from_id==$evaluate_from){
+                $ref_user = $message_1st->receiver;  
+                $evaluator =  $message_1st->sender;
+            }
+            else if($message_1st->to_id==$evaluate_from) {
+                $ref_user = $message_1st->sender; 
+                $evaluator =  $message_1st->receiver;
+            }
+        }
+        
+        if($ref_user) $ref_user_id = $ref_user->id;
+        
+        $cwa_user = $evaluator;
+        
+        return view('admin.adminCheckAnonymousBetweenMessages')
+            ->with('message_1st', $message_1st)
+            ->with('evaluate_from',$evaluate_from)
+            ->with('evaluate_to',$evaluate_to)
+            ->with('ref_user',$ref_user)
+            ->with('ref_user_id',$ref_user_id)
+            ->with('evaluator',$evaluator)
+            ->with('cwa_user',$cwa_user)
+            ->with('messages',$messages)
+            ;            
+        
+    }
+    
     public function showSpamTextMessage()
     {
         return view('admin.users.searchSpamTextMessage');

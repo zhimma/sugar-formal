@@ -1035,6 +1035,7 @@ Route::group(['middleware' => ['auth', 'global', 'active', 'femaleActive', 'vipC
         Route::get('checkAnonymousContent', 'UserController@showAdminCheckAnonymousContent')->name('admin/checkAnonymousContent');
         Route::post('checkAnonymousContent', 'UserController@AdminCheckAnonymousContentSave');
         Route::get('anonymous/showChatMessage/{chat_id}', 'UserController@showAnonymousChatMessage')->name('admin/showAnonymousChatMessage');
+        Route::get('anonymous/showChatMessageBetweeInAdminCheck/{evaluate_from}/{evaluate_to}', 'UserController@showAdminCheckAnonymousBetweenMessages')->name('admin/showAdminCheckAnonymousBetweenMessages');
         Route::get('roleManage', 'UserController@adminRole')->name('admin/role');
         Route::post('roleEdit', 'UserController@adminRoleEdit')->name('admin/role/edit');
         Route::get('users/picturesSimple', 'UserController@showUserPicturesSimple')->name('users/picturesSimple');
