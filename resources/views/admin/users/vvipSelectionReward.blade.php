@@ -345,7 +345,7 @@
                     data: 'email',
                     name: 'users.email',
                     render: function(data,type,row,meta) {
-                        return data ? '<a href="users/advInfo/' + row.user_id + '" target="_blank">' + data + '</a>' : '';
+                        return data ? '<a href="/admin/users/advInfo/' + row.user_id + '" target="_blank">' + data + '</a>' : '';
                     }
                 },
                 {
@@ -473,7 +473,7 @@
                                 text = '活動結束';
                                 break;
                             case 4:
-                                text = '取消申請';
+                                text = '關閉';
                                 break;
                         }
                         return '<a href="javascript:void(0);" class="update_status" data-type="select" data-name="status" data-pk="'+row.id+'" data-value="'+data+'" data-title="輸入">'+text+'</a>';

@@ -7854,6 +7854,21 @@ class UserController extends \App\Http\Controllers\BaseController
 //                }
             }
 
+            $currentData = VvipSelectionReward::find($request->pk);
+            if( $success == true){
+                if($request->name=='status'){
+                    switch ($request->value) {
+                        case 1:
+                            Message::post(1049, $currentData->user_id, '您有申請甜心選拔「'.$currentData->title.'」已通過, 目前徵選活動已開始, 通過條件驗證的女會員將出現在您的徵選收件夾中。', true, 0);
+                            break;
+                        case 2:
+                            Message::post(1049, $currentData->user_id, '您有申請甜心選拔「'.$currentData->title.'」不通過, 如有任何問題請與站長聯絡。', true, 0);
+                            break;
+                    }
+                }
+            }
+
+
             return response()->json(['success' => $success, 'msg' => $msg]);
         }
     }

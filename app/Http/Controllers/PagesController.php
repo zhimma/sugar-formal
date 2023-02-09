@@ -10979,13 +10979,38 @@ class PagesController extends BaseController
         }
         //check application
         $checkVvipSelectionReward = VvipSelectionReward::where('user_id', $user->id)
-            ->whereIn('status', [0, 1])
+            ->where('status', 0)
+            ->orWhere(function($query) {
+                $query->where('expire_date', '<>', '')
+                    ->Where('expire_date', '>', Carbon::now())
+                    ->where('status', 1)
+                ;})
+            ->orWhere(function($query) {
+                $query->where('expire_date', '')
+                    ->where('status', 1)
+                ;})
             ->first();
         if($checkVvipSelectionReward){
             return back()->with('message', '您已申請過或活動尚未結束');
         }
 
+        $adminCommonTexts = AdminCommonText::whereIn('alias', ['vvip_selection_reward_area1_title', 'vvip_selection_reward_area1', 'vvip_selection_reward_area2', 'vvip_selection_reward_area3', 'vvip_selection_reward_area4'])->get();
+        $adminCommonTextArray = array();
+        foreach($adminCommonTexts as $adminCommonText){
+            $adminCommonTextArray[$adminCommonText->alias] = $adminCommonText;
+        }
+        $area1_title = $adminCommonTextArray['vvip_selection_reward_area1_title'];
+        $area1 = $adminCommonTextArray['vvip_selection_reward_area1'];
+        $area2 = $adminCommonTextArray['vvip_selection_reward_area2'];
+        $area3 = $adminCommonTextArray['vvip_selection_reward_area3'];
+        $area4 = $adminCommonTextArray['vvip_selection_reward_area4'];
+
         return view('new.dashboard.vvipSelectionReward')
+            ->with('area1_title', $area1_title)
+            ->with('area1', $area1)
+            ->with('area2', $area2)
+            ->with('area3', $area3)
+            ->with('area4', $area4)
             ->with('user', $user);
     }
 
@@ -11003,11 +11028,18 @@ class PagesController extends BaseController
         $user = auth()->user();
 
         $new_array = array();
+        $array1 = array();
         if(is_array(json_decode($request->option_selection_reward))) {
-            foreach (json_decode($request->option_selection_reward) as $key => $row) {
-                $new_array[$key+1] = $row;
-            }
+            $array1 = json_decode($request->option_selection_reward);
         }
+
+        $array2 = $request->condition;
+        $result = array_merge($array1, $array2);
+
+        foreach ($result as $key => $row) {
+            $new_array[$key+1] = $row;
+        }
+        
         //default value
         $identify_method = array();
         $identify_method[1] = '本人驗證';

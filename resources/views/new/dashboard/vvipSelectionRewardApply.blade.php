@@ -36,7 +36,9 @@
                                         @foreach($option_selection_reward as $row)
                                             @if($row->id==3)<div class="left">@endif
                                             <div class="custom_s a1 option_selection_reward" data-id="{{$row->id}}" data-name={{$row->option_name}}>{{$row->option_name}}
+                                                @if($row->option_content!='')
                                                 <b class="cr_b cr_{{$row->id}}">({{$row->option_content}})</b>
+                                                @endif
                                             </div>
                                                 @if($row->id==3)</div>@endif
                                         @endforeach
@@ -72,7 +74,7 @@
                         </dt>
                         <dt class="bhui_new">
                             <span class="x_p5">4.請輸入招選人數</span>
-                            <font><input name="limit" type="number" class="select_xx01 x_tpbo" id="limit" placeholder="請輸入招選人數" required></font>
+                            <font><input name="limit" type="number" class="select_xx01 x_tpbo" id="limit" min="1" placeholder="請輸入招選人數" required></font>
                         </dt>
                     </div>
                 </div>
@@ -121,11 +123,11 @@
                     c5('請輸入徵選主題');
                     return false;
                 }
-                if($('#limit').val()==''){
+                if($('#limit').val()=='' || $('#limit').val()==0){
                     c5('請輸入招選人數');
                     return false;
                 }
-                option_array = [];
+                let option_array = [];
                 $('.option_selection_reward.cractive').each(function () {
                     if($(this).data('name').indexOf("髮色")>=0){
                         option_array.push($(this).data('name')+':'+$("input[name='hair_style']").val());
@@ -133,6 +135,16 @@
                         option_array.push($(this).data('name'));
                     }
                 });
+                let values = [];
+                $("textarea[name^='condition']").each(function(){
+                    let text = $(this).val();
+                    values.push(text);
+                });
+
+                if(option_array=='' && values == ''){
+                    c5('請輸入徵選條件');
+                    return false;
+                }
                 option_array = JSON.stringify(option_array);
                 $('#option_selection_reward').val(option_array);
 
