@@ -133,7 +133,7 @@
                         </div>
 {{--                        @endif--}}
 
-                        <div><a href="editPic_sendMsg/{{$row->user_id}}" class='text-white btn btn-primary'>照片&發訊息</a></div>
+                        <div><a href="advInfo/editPic_sendMsg/{{$row->user_id}}" class='text-white btn btn-primary' target="_blank">照片&發訊息</a></div>
                     </td>
                     <td>
                         @if(empty($row->vvip_user_id))

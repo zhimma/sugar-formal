@@ -73,7 +73,10 @@ use App\Models\VvipAssetsImage;
 use App\Models\VvipInfo;
 use App\Models\VvipOptionXref;
 use App\Models\VvipQualityLifeImage;
+use App\Models\VvipSelectionRewardApply;
+use App\Models\VvipSelectionRewardIgnore;
 use App\Models\VvipSubOptionXref;
+use App\Models\VvipSelectionReward;
 use App\Repositories\SuspiciousRepository;
 use App\Services\AdminService;
 use App\Services\EnvironmentService;
@@ -8745,6 +8748,21 @@ class PagesController extends BaseController
         $isFaqDuringCountDown = $faqUserService->isDuringCountDown();
         $isForceShowFaqPopup = $faqUserService->isForceShowFaqPopup();
 
+        //vvip_selection_reward
+        $vvip_selection_reward_ignore= VvipSelectionRewardIgnore::select('vvip_selection_reward_id')->where('user_id', $user->id)->get();
+        $vvip_selection_reward = VvipSelectionReward::where('status', 1)
+            ->whereNotIn('id', $vvip_selection_reward_ignore)
+            ->where(function ($query) {
+                return $query->where('expire_date', '>',  Carbon::now())
+                    ->orwhere('expire_date', null);
+            })
+            ->get();
+
+        //vvip_selection_reward notice
+        $vvip_selection_reward_notice = VvipSelectionReward::where('user_id', $user->id)
+            ->where('status', 0)
+            ->where('notice_status', 1)->first();
+
         if (isset($user)) {
             $data = array(
                 'vipStatus' => $vipStatus,
@@ -8773,7 +8791,9 @@ class PagesController extends BaseController
                 'isFaqDuringCountDown'=>$isFaqDuringCountDown,
                 'isForceShowFaqPopup'=>$isForceShowFaqPopup,
                 'faqCountDownTime'=>$faqCountDownTime,
-                'faqCountDownSeconds'=>$faqCountDownSeconds
+                'faqCountDownSeconds'=>$faqCountDownSeconds,
+                'vvip_selection_reward' => $vvip_selection_reward,
+                'vvip_selection_reward_notice' => $vvip_selection_reward_notice
             );
             $allMessage = \App\Models\Message::allMessage($user->id);
             $forum = Forum::withTrashed()->where('user_id',$user->id)->orderby('id','desc')->first();
@@ -10968,7 +10988,158 @@ class PagesController extends BaseController
 //            ), 200);
 //        }
 //    }
+    public function view_vvipSelectionReward(Request $request)
+    {
+        $user = auth()->user();
+        if(!$user->isVVIP()){
+            return back()->with('message', '此活動僅限 VVIP 參加');
+        }
+        //check application
+        $checkVvipSelectionReward = VvipSelectionReward::where('user_id', $user->id)
+            ->where('status', 0)
+            ->orWhere(function($query) {
+                $query->where('expire_date', '<>', '')
+                    ->Where('expire_date', '>', Carbon::now())
+                    ->where('status', 1)
+                ;})
+            ->orWhere(function($query) {
+                $query->where('expire_date', '')
+                    ->where('status', 1)
+                ;})
+            ->first();
+        if($checkVvipSelectionReward){
+            return back()->with('message', '您已申請過或活動尚未結束');
+        }
 
+        $adminCommonTexts = AdminCommonText::whereIn('alias', ['vvip_selection_reward_area1_title', 'vvip_selection_reward_area1', 'vvip_selection_reward_area2', 'vvip_selection_reward_area3', 'vvip_selection_reward_area4'])->get();
+        $adminCommonTextArray = array();
+        foreach($adminCommonTexts as $adminCommonText){
+            $adminCommonTextArray[$adminCommonText->alias] = $adminCommonText;
+        }
+        $area1_title = $adminCommonTextArray['vvip_selection_reward_area1_title'];
+        $area1 = $adminCommonTextArray['vvip_selection_reward_area1'];
+        $area2 = $adminCommonTextArray['vvip_selection_reward_area2'];
+        $area3 = $adminCommonTextArray['vvip_selection_reward_area3'];
+        $area4 = $adminCommonTextArray['vvip_selection_reward_area4'];
+
+        return view('new.dashboard.vvipSelectionReward')
+            ->with('area1_title', $area1_title)
+            ->with('area1', $area1)
+            ->with('area2', $area2)
+            ->with('area3', $area3)
+            ->with('area4', $area4)
+            ->with('user', $user);
+    }
+
+    public function view_vvipSelectionRewardApply(Request $request)
+    {
+        $user = auth()->user();
+        $option_selection_reward = DB::table('vvip_option_selection_reward')->get();
+        return view('new.dashboard.vvipSelectionRewardApply')
+            ->with('user', $user)
+            ->with('option_selection_reward', $option_selection_reward);
+    }
+
+    public function vvipSelectionRewardApply(Request $request)
+    {
+        $user = auth()->user();
+
+        $new_array = array();
+        $array1 = array();
+        if(is_array(json_decode($request->option_selection_reward))) {
+            $array1 = json_decode($request->option_selection_reward);
+        }
+
+        $array2 = $request->condition;
+        $result = array_merge($array1, $array2);
+
+        foreach ($result as $key => $row) {
+            $new_array[$key+1] = $row;
+        }
+        
+        //default value
+        $identify_method = array();
+        $identify_method[1] = '本人驗證';
+        $identify_method[2] = '其他方式';
+
+        $bonus_distribution = array();
+        $bonus_distribution[1] = '通過初步驗證立即發放 5000';
+        $bonus_distribution[2] = '約見成功後，再發放車馬費 5000';
+
+        $vvipSelectionReward = new VvipSelectionReward();
+        $vvipSelectionReward->user_id = $user->id;
+        $vvipSelectionReward->title = $request->title;
+        $vvipSelectionReward->condition = json_encode($new_array, JSON_UNESCAPED_UNICODE);
+        $vvipSelectionReward->identify_method = json_encode($identify_method, JSON_UNESCAPED_UNICODE);
+        $vvipSelectionReward->bonus_distribution = json_encode($bonus_distribution, JSON_UNESCAPED_UNICODE);
+        $vvipSelectionReward->limit = $request->limit;
+        $vvipSelectionReward->status = 0;
+        $vvipSelectionReward->save();
+        return redirect('/dashboard/vvipPassSelect')->with('message', '已送出申請');
+    }
+
+    public function vvipSelectionRewardIgnore(Request $request)
+    {
+        if ($request->ajax()) {
+
+            $data = VvipSelectionRewardIgnore::where('user_id', $request->user_id)->where('vvip_selection_reward_id', $request->id)->first();
+
+            if($request->ignore==1 && !$data){
+                $newData = new VvipSelectionRewardIgnore();
+                $newData->user_id = $request->user_id;
+                $newData->vvip_selection_reward_id = $request->id;
+                $newData->save();
+            }elseif($request->ignore==0 && $data){
+                VvipSelectionRewardIgnore::where('user_id', $request->user_id)->where('vvip_selection_reward_id', $request->id)->delete();
+            }
+
+            return response()->json(['success' => true]);
+        }
+    }
+
+    public function vvipSelectionRewardGirlApply(Request $request)
+    {
+        if ($request->ajax()) {
+
+            //限女
+            $checkEngroup = User::find($request->user_id);
+            if($checkEngroup->engroup==1){
+                $msg = '活動限女性參加';
+                return response()->json(['success' => true, 'message' => $msg]);
+            }
+            $data = VvipSelectionRewardApply::where('user_id', $request->user_id)->where('vvip_selection_reward_id', $request->id)->first();
+
+            if(!$data){
+                $newData = new VvipSelectionRewardApply();
+                $newData->user_id = $request->user_id;
+                $newData->vvip_selection_reward_id = $request->id;
+                $newData->save();
+                $msg = '您已應徵完成';
+            }elseif($data){
+                $msg = '您已經應徵過此選拔';
+            }
+
+            return response()->json(['success' => true, 'message' => $msg]);
+        }
+    }
+    public function vvipSelectionRewardUserNoteEdit(Request $request)
+    {
+        $user = auth()->user();
+        $new_user_note = $request->input('user_note');
+
+        $old_user_note = VvipSelectionReward::where('id', $request->input('id'))->first()->user_note;
+        $br = '';
+        if($old_user_note != ''){
+            $br = '; ';
+        }
+        $user_note  = $old_user_note.$br.$new_user_note .' ('. Carbon::now() .')';
+        $action = VvipSelectionReward::where('id', $request->input('id'))->update(['user_note' => nl2br($user_note)]);
+        if($action) {
+            return back()->with('message', '資料已送出');
+        }
+        return back()->with('message', '發送失敗');
+
+    }
     //vvip end
     public function getChatIsTruthRemainQuota(Request $request)
     {

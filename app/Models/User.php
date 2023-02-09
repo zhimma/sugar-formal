@@ -2335,6 +2335,38 @@ class User extends Authenticatable implements JWTSubject
 //        if(isset($VVIPisBeInvitedCheckStatus)){ return 1;}
 //        return 0;
 //    }
+    public function isVvipSelectionRewardActive($to_user)
+    {
+        if($this->engroup==1){
+            $check1 = VvipSelectionReward::where('user_id', $this->id)
+                ->whereIn('status', [1, 3])
+                ->first();
+            $check2 = null;
+            if($check1) {
+                $check2 = VvipSelectionRewardApply::where('vvip_selection_reward_id', $check1->id)
+                    ->where('user_id', $to_user)
+                    ->where('status', 1)
+                    ->first();
+            }
+
+            return $check1 !== null && $check2 !== null;
+
+        }
+        else if($this->engroup==2){
+            $check1 = VvipSelectionRewardApply::where('user_id', $this->id)
+                ->where('status', 1)
+                ->first();
+            $check2 = null;
+            if($check1) {
+                $check2 = VvipSelectionReward::where('id', $check1->vvip_selection_reward_id)
+                    ->where('user_id', $to_user)
+                    ->whereIn('status', [1, 3])
+                    ->first();
+            }
+            return $check1 !== null && $check2 !== null;
+
+        }
+    }
 
     //--VVIP END--//
     public static function retrive($id)

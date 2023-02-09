@@ -718,6 +718,7 @@ class Message_new extends Model
                 $messages[$key]['read_n'] = $mm[$msgUser->id] ?? 0;
                 $messages[$key]['isVip'] = $msgUser->isVip();
                 $messages[$key]['isVVIP'] = $msgUser->isVVIP();
+                $messages[$key]['isVvipSelectionRewardActive'] = $msgUser->isVvipSelectionRewardActive($user->id);
 
                 $cityAndArea='';
                 if(isset($msgUser->user_meta->city)) {
@@ -766,7 +767,7 @@ class Message_new extends Model
                     $messages[$key]['is_truth'] = 0;
                 }
 
-                if(isset($messages[$key])) {
+                if(isset($messages[$key]) && !$messages[$key]['isVvipSelectionRewardActive']) {
                     if ($msgUser->engroup == 1) {
                         $gr_exceed = UserService::isGreetingFrequently($msgUser->id);
                         if (!$gr_exceed) {

@@ -34,6 +34,8 @@ use App\Models\ValueAddedServiceLog;
 use App\Models\VvipApplication;
 use App\Models\VvipInfo;
 use App\Models\VvipProveImg;
+use App\Models\VvipSelectionReward;
+use App\Models\VvipSelectionRewardApply;
 use App\Notifications\AccountConsign;
 use App\Notifications\BannedUserImplicitly;
 use Illuminate\Database\Eloquent\Collection;
@@ -97,6 +99,7 @@ use Illuminate\Support\Facades\Log;
 use App\Models\RoleUser;
 use App\Models\UserRemarksLog;
 use App\Models\GreetingRateCalculation;
+use Yajra\DataTables\Facades\DataTables;
 
 class UserController extends \App\Http\Controllers\BaseController
 {
@@ -7804,6 +7807,292 @@ class UserController extends \App\Http\Controllers\BaseController
 //        return view('admin.users.vvipInvite', compact('inviteData'));
 //    }
 
+    public function viewVvipSelectionRewardApply() {
+        return view('admin.users.vvipSelectionReward');
+    }
+
+    public function getVvipSelectionRewardData(Request $request)
+    {
+        if ($request->ajax()) {
+            $data = VvipSelectionReward::
+            select([
+                'vvip_selection_reward.*',
+                'users.email',
+                'users.name'
+            ])
+                ->selectRaw('(select CAST(count(*) AS UNSIGNED) as num from vvip_selection_reward_apply as aa where aa.vvip_selection_reward_id=vvip_selection_reward.id) as applyCounts')
+                ->leftJoin('users','users.id','vvip_selection_reward.user_id')
+            ;
+
+            return Datatables::eloquent($data)->make(true);
+        }
+    }
+
+    public function vvipSelectionRewardApplyUpdate(Request $request)
+    {
+        if ($request->ajax()) {
+            $msg = '';
+            $success = '';
+
+            if($request->name=='status'){
+                $data = VvipSelectionReward::where('id', $request->pk)->first();
+                if($request->value == 1 && ($data->limit == '' || $data->limit == 0)){
+                    $success = false;
+                    $msg = '請先設定核定人數，系統將依人數通知繳款費用';
+                    return response()->json(['success' => $success, 'msg' => $msg]);
+                }
+            }
+            elseif($request->name=='notice_status'){
+                $data = VvipSelectionReward::where('id', $request->pk)->first();
+                if($data->limit == '' || $data->limit == 0){
+                    $success = false;
+                    $msg = '請先設定核定人數，系統將依人數通知繳款費用';
+                    return response()->json(['success' => $success, 'msg' => $msg]);
+                }
+            }
+
+            if($request->name=='condition' || $request->name=='identify_method' || $request->name=='bonus_distribution'){
+                $array = explode("_", $request->pk);
+                $pk = $array[0];
+                $key = $array[1];
+
+                $data = VvipSelectionReward::where('id', $pk)->first();
+
+                switch ($request->name) {
+                    case 'condition':
+                        $jsonData = json_decode($data->condition, JSON_UNESCAPED_UNICODE);
+                        break;
+                    case 'identify_method':
+                        $jsonData = json_decode($data->identify_method, JSON_UNESCAPED_UNICODE);
+                        break;
+                    case 'bonus_distribution':
+                        $jsonData = json_decode($data->bonus_distribution, JSON_UNESCAPED_UNICODE);
+                        break;
+                }
+
+                $jsonData[$key] = $request->value;
+                $newValue = json_encode($jsonData, JSON_UNESCAPED_UNICODE);
+
+                VvipSelectionReward::find($pk)
+                    ->update([
+                        $request->name => $newValue
+                    ]);
+                $success = true;
+            }
+            elseif($request->name=='expire_date'){
+                VvipSelectionReward::find($request->pk)
+                    ->update([
+                        $request->name => $request->value." 23:59:59"
+                    ]);
+                $success = true;
+            }
+            else {
+                VvipSelectionReward::find($request->pk)
+                    ->update([
+                        $request->name => $request->value
+                    ]);
+                $success = true;
+
+//                if($request->name=='notice_status' && $request->value==1){
+//                    //通知繳費
+//                }
+            }
+
+            $currentData = VvipSelectionReward::find($request->pk);
+            if( $success == true){
+                if($request->name=='status'){
+                    switch ($request->value) {
+                        case 1:
+                            Message::post(1049, $currentData->user_id, '您有申請甜心選拔「'.$currentData->title.'」已通過, 目前徵選活動已開始, 通過條件驗證的女會員將出現在您的徵選收件夾中。', true, 0);
+                            break;
+                        case 2:
+                            Message::post(1049, $currentData->user_id, '您有申請甜心選拔「'.$currentData->title.'」不通過, 如有任何問題請與站長聯絡。', true, 0);
+                            break;
+                    }
+                }
+            }
+
+
+            return response()->json(['success' => $success, 'msg' => $msg]);
+        }
+    }
+
+    public function vvipSelectionRewardApplyDeleteKey(Request $request)
+    {
+        if ($request->ajax()) {
+
+            $data = VvipSelectionReward::where('id',$request->pk)->first();
+
+            switch ($request->name) {
+                case 'condition':
+                    $jsonData = json_decode($data->condition, JSON_UNESCAPED_UNICODE);
+                    break;
+                case 'identify_method':
+                    $jsonData = json_decode($data->identify_method, JSON_UNESCAPED_UNICODE);
+                    break;
+                case 'bonus_distribution':
+                    $jsonData = json_decode($data->bonus_distribution, JSON_UNESCAPED_UNICODE);
+                    break;
+            }
+            unset($jsonData[$request->key]);
+            $new_array = array();
+            $kk=1;
+            foreach ($jsonData as $key=>$value){
+                $new_array[$kk] = $value;
+                $kk = $kk+1;
+            }
+            $newValue = json_encode($new_array, JSON_UNESCAPED_UNICODE);
+            VvipSelectionReward::find($request->pk)
+                ->update([
+                    $request->name => $newValue
+                ]);
+
+            return response()->json(['success' => true]);
+        }
+    }
+
+    public function vvipSelectionRewardApplyKeyUpdate(Request $request)
+    {
+        if ($request->ajax()) {
+
+            $data = VvipSelectionReward::where('id',$request->pk)->first();
+            $jsonData = json_decode($data->condition, JSON_UNESCAPED_UNICODE);
+            ksort($jsonData);
+            $new_array = array();
+            $start_pos = $request->start_pos;
+            $end_pos = $request->end_pos;
+            $kk=1;
+            if($start_pos>$end_pos) {
+                foreach ($jsonData as $key => $value) {
+                    if($kk==$end_pos+1){
+                        $new_array[$end_pos+2] = $value;
+                    }elseif($kk<$start_pos+1 && $kk >$end_pos+1) {
+                        $new_array[$kk+1] = $value;
+                    }elseif($kk==$start_pos+1){
+                        $new_array[$end_pos+1] = $value;
+                    }else{
+                        $new_array[$kk] = $value;
+                    }
+                    $kk = $kk+1;
+
+                }
+            }elseif($start_pos<$end_pos){
+                foreach ($jsonData as $key => $value) {
+                    if($kk>$start_pos+1 && $kk<=$end_pos+1) {
+                        $new_array[$kk-1] = $value;
+                    }elseif($kk==$start_pos+1){
+                        $new_array[$end_pos+1] = $value;
+                    }else{
+                        $new_array[$kk] = $value;
+                    }
+                    $kk = $kk+1;
+
+                }
+            }
+            ksort($new_array);
+            $newValue = json_encode($new_array, JSON_UNESCAPED_UNICODE);
+            VvipSelectionReward::find($request->pk)
+                ->update([
+                    $request->name => $newValue
+                ]);
+
+            return response()->json(['success' => true]);
+        }
+    }
+
+    public function vvipSelectionRewardApplyAddData(Request $request)
+    {
+        if ($request->ajax()) {
+
+            $data = VvipSelectionReward::where('id',$request->pk)->first();
+            switch ($request->name) {
+                case 'condition':
+                    $jsonData = json_decode($data->condition, JSON_UNESCAPED_UNICODE);
+                    break;
+                case 'identify_method':
+                    $jsonData = json_decode($data->identify_method, JSON_UNESCAPED_UNICODE);
+                    break;
+                case 'bonus_distribution':
+                    $jsonData = json_decode($data->bonus_distribution, JSON_UNESCAPED_UNICODE);
+                    break;
+            }
+
+            $new_array = array();
+
+            $kk=1;
+            foreach ($jsonData as $key=>$value){
+                $new_array[$kk] = $value;
+                $kk = $kk+1;
+            }
+
+            $new_array[$kk] = $request->value;
+            ksort($new_array);
+            $newValue = json_encode($new_array, JSON_UNESCAPED_UNICODE);
+            VvipSelectionReward::find($request->pk)
+                ->update([
+                    $request->name => $newValue
+                ]);
+
+            return response()->json(['success' => true]);
+        }
+    }
+
+    public function viewVvipSelectionRewardApplyList(Request $request) {
+
+        $selectionRewardData = VvipSelectionReward::select(
+            'users.name',
+            'users.email',
+            'vvip_selection_reward.*'
+        )
+            ->leftJoin('users','users.id','vvip_selection_reward.user_id')
+            ->where('vvip_selection_reward.id', $request->id)
+            ->first();
+
+        $applicationData = VvipSelectionRewardApply::select(
+            'users.name',
+            'users.email',
+            'vvip_selection_reward_apply.*'
+        )
+            ->leftJoin('users','users.id','vvip_selection_reward_apply.user_id')
+            ->where('vvip_selection_reward_id', $request->id)
+            ->get();
+        return view('admin.users.vvipSelectionRewardApplyList', compact('applicationData', 'selectionRewardData'));
+    }
+    public function vvipSelectionRewardApplyListUpdate(Request $request)
+    {
+        if ($request->ajax()) {
+            $msg = '';
+            $success = '';
+            $data = VvipSelectionRewardApply::find($request->pk);
+            //get limit
+            $getSelectionRewardData = VvipSelectionReward::find($data->vvip_selection_reward_id);
+            //get pass counts
+            $passCounts = VvipSelectionRewardApply::select('id')
+                ->where('vvip_selection_reward_id', $getSelectionRewardData->id)
+                ->where('status', 1)
+                ->get()->count();
+
+            if($passCounts >= $getSelectionRewardData->limit && $request->value == 1){
+                $success = false;
+                $msg = '通過人數已超過核定人數';
+            }else {
+
+                VvipSelectionRewardApply::find($request->pk)
+                    ->update([
+                        $request->name => $request->value
+                    ]);
+                $success = true;
+
+                if($request->name == 'status' && $request->value == 1) {
+                    Message::post($data->user_id, $getSelectionRewardData->user_id,  '您已通過「'.$getSelectionRewardData->title.'」活動選拔，現在您可以與對方交談約見。', true, 1);
+                    Message::post($getSelectionRewardData->user_id, $data->user_id,   '對方已通過「'.$getSelectionRewardData->title.'」活動選拔，現在您可以與對方交談約見。', true, 1);
+                }
+
+            }
+
+            return response()->json(['success' => $success, 'msg' => $msg]);
+        }
+    }
     //vvip end
 
     public function check_extend(Request $request)

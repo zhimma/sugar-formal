@@ -16,148 +16,98 @@
     #self_auth_state_block .tabbox_h2,#self_auth_state_block .tabbox_h2 .tu_dfont {display:block;}
     #app,#app .btn-success {height:0 !important;width:0 !important;}
     #app {display:none !important;}
-</style>
-@stop
-@section('app-content')
-    <style>
-        .table>tbody>tr>td{
-            border-top: unset;
-            border-bottom: 1px solid #ddd;
-        }
-        .on {min-height: 24px;}
-		
-		.ta_l{ border-bottom: #eee 1px solid; display: table; margin-bottom: 6px; padding-bottom: 6px; line-height: 24px;}
-		.tu_dfont{
-			width: calc(100% - 30px);
-			 float: left;
-			 /*max-height: 45px;*/
-			 word-break: break-all;
-			 text-overflow: ellipsis;
-			 display: -webkit-box;
-			 -webkit-box-orient: vertical;
-			 /*-webkit-line-clamp: 2;*/
-			 overflow: hidden;
-		}	
 
-		.tabbox_h2 .check{
-			float:left;margin-right:15px;margin-top:5px;
-		}	
-		.fr_nbj{ float: right;}
-		@media (max-width:320px) {
-			.fr_nbj{ float: none;}
-		}
+    .table>tbody>tr>td{
+        border-top: unset;
+        border-bottom: 1px solid #ddd;
+    }
+    .on {min-height: 24px;}
 
-        .tu_dfont a img{
-            all:unset !important;height:26px !important; margin:-7px 5px !important;
-        }
-    </style>
-    <style>
-        .pj_add_a{margin: 0 auto;display: table;margin-bottom: 10px;}
-        .dongt_fb{width: 100%;margin: 0 auto;display: block;margin-top: 0px;padding: 0 5px;}
-        .new_npop{width: 96%; padding-bottom: 0; padding-top: 0; margin-top:15px; margin-bottom: 15px;margin-left: 2%; height: auto;}
-        @media (max-width:823px){
-            .dongt_fb{height:220px;overflow-y: scroll;}
-        }
-        @media (max-width:797px){
-            .dongt_fb{height: auto;overflow-y: hidden;}
-        }
-        @media (max-width:736px){
-            .dongt_fb{height:180px;overflow-y: scroll;}
-        }
-        @media (max-width:450px){
-            .dongt_fb{height:auto;overflow-y: hidden;}
-        }
-        .line_img{width: 80%; margin: 0 auto; display: table;}
-        .li_span{width: 100%; text-align: center; margin-bottom: 15px; display: table; font-size: 15px;}
-        .li_span span{width: 100%; display: table;}
+    .ta_l{ border-bottom: #eee 1px solid; display: table; margin-bottom: 6px; padding-bottom: 6px; line-height: 24px;}
+    .tu_dfont{
+        width: calc(100% - 30px);
+        float: left;
+        /*max-height: 45px;*/
+        word-break: break-all;
+        text-overflow: ellipsis;
+        display: -webkit-box;
+        -webkit-box-orient: vertical;
+        /*-webkit-line-clamp: 2;*/
+        overflow: hidden;
+    }
 
-        .sl_bllbut{width:260px;height: 40px;background: #8a9ff0;border-radius:200px;color: #ffffff;text-align: center;line-height: 40px;display: table;
-            margin: 0 auto;font-size:16px; margin-top:15px;cursor: pointer;}
-        .sl_bllbut:hover{color:#ffffff;box-shadow:inset 0px 15px 10px -10px #4c6ded,inset 0px -10px 10px -20px #4c6ded;}
+    .tabbox_h2 .check{
+        float:left;margin-right:15px;margin-top:5px;
+    }
+    .fr_nbj{ float: right;}
+    @media (max-width:320px) {
+        .fr_nbj{ float: none;}
+    }
 
-        .sl_bllbut01{width:260px;height: 40px;background: #fff;border-radius:200px;color: #8a9ff0;text-align: center;
-            line-height: 40px;display: table;margin: 0 auto;font-size:16px; margin-top:15px; border: #8a9ff0 1px solid; cursor: pointer;}
-        .sl_bllbut01:hover{color:#fff;background: #8a9ff0;box-shadow:inset 0px 15px 10px -10px #4c6ded,inset 0px -10px 10px -20px #4c6ded;}
+    .tu_dfont a img{
+        all:unset !important;height:26px !important; margin:-7px 5px !important;
+    }
 
-    </style>
-    <style>
-        .pj_add_a{margin: 0 auto;display: table;margin-bottom: 10px;}
-        .dongt_fb{width: 100%;margin: 0 auto;display: block;margin-top: 0px;padding: 0 5px;}
-        .new_npop{width: 96%; padding-bottom: 0; padding-top: 0; margin-top:15px; margin-bottom: 15px;margin-left: 2%; height: auto;}
-        @media (max-width:823px){
-            .dongt_fb{height:220px;overflow-y: scroll;}
-        }
-        @media (max-width:797px){
-            .dongt_fb{height: auto;overflow-y: hidden;}
-        }
-        @media (max-width:736px){
-            .dongt_fb{height:180px;overflow-y: scroll;}
-        }
-        @media (max-width:450px){
-            .dongt_fb{height:auto;overflow-y: hidden;}
-        }
-        .line_img{width: 80%; margin: 0 auto; display: table;}
-        .li_span{width: 100%; text-align: center; margin-bottom: 15px; display: table; font-size: 15px;}
-        .li_span span{width: 100%; display: table;}
+    .pj_add_a{margin: 0 auto;display: table;margin-bottom: 10px;}
+    .dongt_fb{width: 100%;margin: 0 auto;display: block;margin-top: 0px;padding: 0 5px;}
+    .new_npop{width: 96%; padding-bottom: 0; padding-top: 0; margin-top:15px; margin-bottom: 15px;margin-left: 2%; height: auto;}
+    @media (max-width:823px){
+        .dongt_fb{height:220px;overflow-y: scroll;}
+    }
+    @media (max-width:797px){
+        .dongt_fb{height: auto;overflow-y: hidden;}
+    }
+    @media (max-width:736px){
+        .dongt_fb{height:180px;overflow-y: scroll;}
+    }
+    @media (max-width:450px){
+        .dongt_fb{height:auto;overflow-y: hidden;}
+    }
+    .line_img{width: 80%; margin: 0 auto; display: table;}
+    .li_span{width: 100%; text-align: center; margin-bottom: 15px; display: table; font-size: 15px;}
+    .li_span span{width: 100%; display: table;}
 
-        .sl_bllbut{width:260px;height: 40px;background: #8a9ff0;border-radius:200px;color: #ffffff;text-align: center;line-height: 40px;display: table;
-            margin: 0 auto;font-size:16px; margin-top:15px;cursor: pointer;}
-        .sl_bllbut:hover{color:#ffffff;box-shadow:inset 0px 15px 10px -10px #4c6ded,inset 0px -10px 10px -20px #4c6ded;}
+    .sl_bllbut{width:260px;height: 40px;background: #8a9ff0;border-radius:200px;color: #ffffff;text-align: center;line-height: 40px;display: table;
+        margin: 0 auto;font-size:16px; margin-top:15px;cursor: pointer;}
+    .sl_bllbut:hover{color:#ffffff;box-shadow:inset 0px 15px 10px -10px #4c6ded,inset 0px -10px 10px -20px #4c6ded;}
 
-        .sl_bllbut01{width:260px;height: 40px;background: #fff;border-radius:200px;color: #8a9ff0;text-align: center;
-            line-height: 40px;display: table;margin: 0 auto;font-size:16px; margin-top:15px; border: #8a9ff0 1px solid; cursor: pointer;}
-        .sl_bllbut01:hover{color:#fff;background: #8a9ff0;box-shadow:inset 0px 15px 10px -10px #4c6ded,inset 0px -10px 10px -20px #4c6ded;}
+    .sl_bllbut01{width:260px;height: 40px;background: #fff;border-radius:200px;color: #8a9ff0;text-align: center;
+        line-height: 40px;display: table;margin: 0 auto;font-size:16px; margin-top:15px; border: #8a9ff0 1px solid; cursor: pointer;}
+    .sl_bllbut01:hover{color:#fff;background: #8a9ff0;box-shadow:inset 0px 15px 10px -10px #4c6ded,inset 0px -10px 10px -20px #4c6ded;}
 
-    </style>
-    <style>
     #vip_state_block .tu_dfont,#self_auth_state_block .tu_dfont  {width:auto;max-height:unset; -webkit-box-orient: vertical; -webkit-line-clamp:none; -webkit-line-clamp:unset;}
     #vip_state_block .tabbox_new_dt a.zs_buttonn,#self_auth_state_block  .tabbox_new_dt a.zs_buttonn,#adv_auth_state_block .tabbox_new_dt a.zs_buttonn{font-size: 15px; line-height: 30px;font-weight:normal;margin-right:2%; }
-    </style>
-    <style>
-        span.main_word {color:#fd5678;font-weight:bolder;}
-        div.one_row_sys_aa {overflow:hidden;}
-        div.one_row_sys_aa div.sys_aa {width:49%;}
-        div.one_row_sys_aa div.sys_aa_first {float:left;}
-        div.one_row_sys_aa div.sys_aa_last {float:right;}
-        div.one_row_sys_aa div.tabbox_new_dt span {margin-left:5%;}
-        div.one_row_sys_aa .tabbox_new_dd .tabbox_hsz {width:88%;}
-        div.sys_remind {
-            margin-top:10px;
-            border: #ffc8cd 1px solid;
-        }
-        div.sys_remind .tu_dfont {
-            width: calc(100% - 100px);
-            max-height: 45px;
-            -webkit-line-clamp: 2;
-        }
-        div.sys_remind > div.tabbox_new_dt.tabbox_new_ss {background:#fff5f6;}
-        div.sys_remind > div.tabbox_new_dt.tabbox_new_ss > span {color:#fe5476;}
-    </style>
-    <style>
-        .wifontext{font-size: 16px;/* background: #fff100; */ background:rgba(253,79,119,0.5);  color: #fff; font-size: 20px; font-weight: bold; border-radius: 10px;padding: 10px 15px;
-            text-align: left;margin-top: 20px; }
-        .cjwt{ margin: 0 auto; display: table;margin-top: 20px; padding: 10px 15px;color: #000; margin-bottom: 15px;}
-        @media (min-width:916px){
-            .ga_d{display: none;}
-        }
-    </style>
 
-    <script>
-        //廣告頁面登入
-        if(window.sessionStorage.getItem('advertise_id'))
-        {
-            $.ajax({
-                type:'GET',
-                url:'{{ route('advertise_record_change') }}',
-                data:{
-                    advertise_id:window.sessionStorage.getItem('advertise_id'),
-                    type:'login'
-                },
-                success:function(){}
-            });
-        }
-    </script>
+    span.main_word {color:#fd5678;font-weight:bolder;}
+    div.one_row_sys_aa {overflow:hidden;}
+    div.one_row_sys_aa div.sys_aa {width:49%;}
+    div.one_row_sys_aa div.sys_aa_first {float:left;}
+    div.one_row_sys_aa div.sys_aa_last {float:right;}
+    div.one_row_sys_aa div.tabbox_new_dt span {margin-left:5%;}
+    div.one_row_sys_aa .tabbox_new_dd .tabbox_hsz {width:88%;}
+    div.sys_remind {
+        margin-top:10px;
+        border: #ffc8cd 1px solid;
+    }
+    div.sys_remind .tu_dfont {
+        width: calc(100% - 100px);
+        max-height: 45px;
+        -webkit-line-clamp: 2;
+    }
+    div.sys_remind > div.tabbox_new_dt.tabbox_new_ss {background:#fff5f6;}
+    div.sys_remind > div.tabbox_new_dt.tabbox_new_ss > span {color:#fe5476;}
 
+    .wifontext{font-size: 16px;/* background: #fff100; */ background:rgba(253,79,119,0.5);  color: #fff; font-size: 20px; font-weight: bold; border-radius: 10px;padding: 10px 15px;
+        text-align: left;margin-top: 20px; }
+    .cjwt{ margin: 0 auto; display: table;margin-top: 20px; padding: 10px 15px;color: #000; margin-bottom: 15px;}
+    @media (min-width:916px){
+        .ga_d{display: none;}
+    }
+</style>
+<link rel="stylesheet" href="/new/css/vvip_selection_reward.css">
+@stop
+
+@section('app-content')
     <div class="container matop70">
         <div class="row">
             <div class="col-sm-2 col-xs-2 col-md-2 dinone">
@@ -181,6 +131,17 @@
                             @endif
                         </div>
                         <div class="tabbox_new_dd">
+                            @if($vvip_selection_reward_notice)
+                                <h2 class="tabbox_h2 ta_l">
+                                    <span class="tu_dfont">
+                                        您有申請甜心選拔「{{$vvip_selection_reward_notice->title}}」，經站方審核後，此次的選拔單人費用是 {{$vvip_selection_reward_notice->per_person_price}}，人數是 {{$vvip_selection_reward_notice->limit}} 人。<br>
+                                        總費用是 {{$vvip_selection_reward_notice->per_person_price*$vvip_selection_reward_notice->limit}}，<br>
+                                        請匯款至 台新銀行(812) <br>
+                                        帳號 2077-01-0000964-9 <br>
+                                        匯款完成後請<font color="red">保留收據</font>並將帳號後五碼 <a onclick="vvipSelectionRewardUserNoteEdit_show()" class='btn btn-primary' style="height: 30px; line-height: 15px;">輸入於此</a>
+                                    </span>
+                                </h2>
+                            @endif
                             @if(isset($admin_msgs) && count($admin_msgs))
                                 @foreach($admin_msgs as $amsg)
                                     <h2 class="tabbox_h2 ta_l"  data-recordtype="admin_msgs" data-rowid="{{$amsg->id}}" >
@@ -190,8 +151,9 @@
                                     </h2>
                                 @endforeach
                             @else
-                                <h2 class="tabbox_h2 ta_l"><span class="tu_dfont">暫無系統信</span></h2>
+                                <h2 class="tabbox_h2 ta_l system_msg_none"><span class="tu_dfont">暫無系統信</span></h2>
                             @endif
+
                         </div>
                     </div>
                     @if($user->engroup==1)
@@ -296,7 +258,12 @@
                                     @endif
                                 </div>
                             </div>
+
+
                         @endif
+
+
+
                     @endif
                     @if($user->engroup==2)
                         <div class="sys_aa" id="adv_auth_state_block">
@@ -763,15 +730,273 @@
         </div>
     @endif
 
+    @if($vvip_selection_reward_notice)
+        <div class="bl bl_tab" id="show_vvip_selection_reward_user_note">
+            <div class="bltitle"><span>回報末五碼</span></div>
+            <div class="n_blnr01 ">
+                <form class="m-form m-form--fit m-form--label-align-right" method="POST" action="{{ url('/dashboard/vvipSelectionRewardUserNoteEdit') }}" id="">
+                    <input type="hidden" name="_token" value="{{ csrf_token() }}" >
+                    <input type="hidden" name="id" id="id" value="{{ $vvip_selection_reward_notice->id }}">
+                    <textarea onkeyup="value=value.replace(/[^\d]/g,'') " name="user_note" id="user_note" cols="" rows="" class="n_nutext" placeholder="請輸入內容" required></textarea>
+                    <input type="submit" class="n_bllbut msgsnd" value="送出" style="border-style: none;">
+                </form>
+            </div>
+            <a id="" onclick="gmBtnNoReload()" class="bl_gb"><img src="/new/images/gb_icon.png"></a>
+        </div>
+    @endif
+
+    @if(Session::has('announceClose') && $vvip_selection_reward && count($vvip_selection_reward)>0 && $user->engroup==2)
+        <div class="announce_bg" onclick="gmBtnNoReload()" style="display:block;"></div>
+        <div class="gg_tab" id="vvip_selection_reward" style="display: block;">
+            <div class="owl-carousel owl-theme vvip_selection_reward">
+                @foreach( $vvip_selection_reward as $row)
+                <div class="v_bg_fb01">
+                    <div class="v_bimg v_yc_sj" ><img src="/new/images/xb_1.png"></div>
+                    <div class="v_bimg v_yc_pc" ><img src="/new/images/xb_2.png"></div>
+                    <div class="v_fb_k v_fb_k_bg">
+                        <img src="/new/images/xb_4.png" class="v_k1img01" style="width: unset;">
+                        <div class="v_fb_knr01">
+                            <h2>名稱：{{$row->title}}</h2>
+                            <h3>此選拔活動為站方代替本站VVIP發布，相關規定如下</h3>
+                        </div>
+                        <img src="/new/images/xb05.png" style="width: 95%; margin: 0 auto; display: table;">
+                        <div class="v_fanr02">
+                            <li>
+                                <span class="v_ficon02"></span>
+                                <span class="v_ftext mabot_5 v_font15">選拔條件</span>
+                                <div class="nta_table">
+                                    @foreach(json_decode($row->condition, true) as $key => $item)
+                                        <h2><span>★</span><font>{{$item}}</font></h2>
+                                    @endforeach
+{{--                                    <h2><span>★</span><font>皮膚白皙</font></h2>--}}
+{{--                                    <h2><span>★</span><font>身高170cm以上</font></h2>--}}
+{{--                                    <h2><span>★</span><font>可配合daddy調整髮色/髮型</font></h2>--}}
+                                </div>
+
+                            </li>
+                            <li>
+                                <span class="v_ficon02"></span>
+                                <span class="v_ftext mabot_5 v_font15">驗證方式</span>
+                                <div class="nta_table">
+                                    @foreach(json_decode($row->identify_method, true) as $key => $item)
+                                        <h2><span>★</span><font>{{$item}}</font></h2>
+                                    @endforeach
+{{--                                    <h2><span>★</span><font>本人驗證</font></h2>--}}
+{{--                                    <h2><span>★</span><font>其他方式</font></h2>--}}
+                                </div>
+                            </li>
+                            <li>
+                                <span class="v_ficon02"></span>
+                                <span class="v_ftext mabot_5 v_font15">獎金發放</span>
+                                <div class="nta_table">
+                                    @foreach(json_decode($row->bonus_distribution, true) as $key => $item)
+                                        <h2><span>★</span><font>{{$item}}</font></h2>
+                                    @endforeach
+{{--                                    <h2><span>★</span><font>通過初步驗證立即發放 5000</font></h2>--}}
+{{--                                    <h2><span>★</span><font>約見成功後，再發放車馬費 5000 。</font></h2>--}}
+                                </div>
+                            </li>
+                        </div>
+                    </div>
+                    <img src="/new/images/xb08.png" style="width: 100%; margin: 0 auto; display: table; height: 15px;">
+
+
+                    <div class="v_ftextf">
+                        <h3><input type="checkbox" id="check" class="ignore_event" style="width:15px; height: 15px; margin-right: 5px; position: relative; top:3px;" data-id="{{$row->id}}"/>沒有意願</h3>
+                    </div>
+
+                    <div class="n_txbut matop20">
+                        <a href="javascript:void(0);" class="vvip_selection_reward_page_left gog_pager" style="cursor: pointer;"><img src="/new/images/bk_03.png" class="left" style="width: unset;"></a>
+                        <a href="javascript:void(0);" class="se_but1 apply_event" data-id="{{$row->id}}">我要應徵</a>
+                        <a href="javascript:void(0);" class="se_but2" style="cursor: pointer;">跳過</a>
+                        <a href="javascript:void(0);" class=" vvip_selection_reward_page_right gog_pager right" style="cursor: pointer;"><img src="/new/images/bk_05.png" class="right" style="width: unset;"></a>
+                    </div>
+
+
+                </div>
+                @endforeach
+{{--                <div class="v_bg_fb01">--}}
+{{--                    <div class="v_bimg v_yc_sj" ><img src="/new/images/xb_1.png"></div>--}}
+{{--                    <div class="v_bimg v_yc_pc" ><img src="/new/images/xb_2.png"></div>--}}
+{{--                    <div class="v_fb_k v_fb_k_bg">--}}
+{{--                        <img src="/new/images/xb_4.png" class="v_k1img01" style="width: unset;">--}}
+{{--                        <div class="v_fb_knr01">--}}
+{{--                            <h2>名稱：選拔身材柔軟甜心</h2>--}}
+{{--                            <h3>此選拔活動為站方代替本站VVIP發布，相關規定如下</h3>--}}
+{{--                        </div>--}}
+{{--                        <img src="/new/images/xb05.png" style="width: 95%; margin: 0 auto; display: table;">--}}
+{{--                        <div class="v_fanr02">--}}
+{{--                            <li>--}}
+{{--                                <span class="v_ficon02"></span>--}}
+{{--                                <span class="v_ftext mabot_5 v_font15">選拔條件</span>--}}
+{{--                                <div class="nta_table">--}}
+{{--                                    <h2><span>★</span><font>皮膚白皙</font></h2>--}}
+{{--                                    <h2><span>★</span><font>身高170cm以上</font></h2>--}}
+{{--                                    <h2><span>★</span><font>可配合daddy調整髮色/髮型</font></h2>--}}
+{{--                                </div>--}}
+
+{{--                            </li>--}}
+{{--                            <li>--}}
+{{--                                <span class="v_ficon02"></span>--}}
+{{--                                <span class="v_ftext mabot_5 v_font15">驗證方式</span>--}}
+{{--                                <div class="nta_table">--}}
+{{--                                    <h2><span>★</span><font>本人驗證</font></h2>--}}
+{{--                                    <h2><span>★</span><font>其他方式</font></h2>--}}
+{{--                                </div>--}}
+{{--                            </li>--}}
+{{--                            <li>--}}
+{{--                                <span class="v_ficon02"></span>--}}
+{{--                                <span class="v_ftext mabot_5 v_font15">獎金發放</span>--}}
+{{--                                <div class="nta_table">--}}
+{{--                                    <h2><span>★</span><font>通過初步驗證立即發放 5000</font></h2>--}}
+{{--                                    <h2><span>★</span><font>約見成功後，再發放車馬費 5000 。</font></h2>--}}
+{{--                                </div>--}}
+{{--                            </li>--}}
+{{--                        </div>--}}
+{{--                    </div>--}}
+{{--                    <img src="/new/images/xb08.png" style="width: 100%; margin: 0 auto; display: table; height: 15px;">--}}
+
+
+{{--                    <div class="v_ftextf">--}}
+{{--                        <h3><input type="checkbox" id="check" style="width:15px; height: 15px; margin-right: 5px; position: relative; top:3px;" />沒有意願</h3>--}}
+{{--                    </div>--}}
+
+{{--                    <div class="n_txbut matop20">--}}
+{{--                        <a href="javascript:void(0);" class="vvip_selection_reward_page_left gog_pager"><img src="/new/images/bk_03.png" class="left" style="width: unset;"></a>--}}
+{{--                        <a href="" class="se_but1">我要應徵</a>--}}
+{{--                        <a href="javascript:void(0);" class="se_but2" style="cursor: pointer;">跳過</a>--}}
+{{--                        <a href="javascript:void(0);" class=" vvip_selection_reward_page_right gog_pager right"><img src="/new/images/bk_05.png" class="right" style="width: unset;"></a>--}}
+{{--                    </div>--}}
+{{--                </div>--}}
+            </div>
+        </div>
+    @endif
 @stop
 
 @section('javascript')
+    <script>
+        //廣告頁面登入
+        if(window.sessionStorage.getItem('advertise_id'))
+        {
+            $.ajax({
+                type:'GET',
+                url:'{{ route('advertise_record_change') }}',
+                data:{
+                    advertise_id:window.sessionStorage.getItem('advertise_id'),
+                    type:'login'
+                },
+                success:function(){}
+            });
+        }
+    </script>
 <script type="text/javascript">
+
+    $(document).ready(function() {
+
+        $('.ignore_event').change(function() {
+            let ignore;
+            if($(this).is(":checked")) {
+                ignore = 1;
+            }else if(!$(this).is(":checked")){
+                ignore = 0;
+            }
+            $.ajax({
+                type: 'POST',
+                url: '{{ route('vvipSelectionRewardIgnore') }}',
+                data: {
+                    _token: '{{csrf_token()}}',
+                    ignore: ignore,
+                    user_id: '{{ $user->id }}',
+                    id: $(this).data('id'),
+                },
+                success: function(xhr, status, error){
+                    console.log();
+                },
+
+            });
+        });
+
+        $('.apply_event').on('click', function () {
+            $.ajax({
+                type: 'POST',
+                url: '{{ route('vvipSelectionRewardGirlApply') }}',
+                data: {
+                    _token: '{{csrf_token()}}',
+                    user_id: '{{ $user->id }}',
+                    id: $(this).data('id'),
+                },
+                success: function(xhr, status, error){
+                    console.log();
+                    $('#vvip_selection_reward').hide();
+                    c5(xhr.message);
+                },
+
+            });
+        });
+
+        $('.vvip_selection_reward').owlCarousel({
+            loop: false,
+            margin: 0,
+            responsiveClass: true,
+            autoHeight:true,
+            responsive: {
+                0: {
+                    items: 1,
+                    nav: false,
+                    dots:false,
+                    // beforeMove : function(){
+                    //     alert(1);
+                    //     if(this.currentItem === this.maximumItem){
+                    //         alert(1);
+                    //     }
+                    // }
+                    // afterMove : function(){
+                    //     if(this.currentItem === this.maximumItem){
+                    //         alert(1);
+                    //     }
+                    // }
+                }
+            }
+        });
+        $(".vvip_selection_reward_page_left").on('click', function () {
+            $('.vvip_selection_reward').trigger('prev.owl.carousel');
+        });
+        $(".vvip_selection_reward_page_right").on('click', function () {
+            $('.vvip_selection_reward').trigger('next.owl.carousel');
+        });
+        $(".se_but2").on('click', function () {
+            @if($vvip_selection_reward && count($vvip_selection_reward)>0)
+                gmBtnNoReload();
+            @endif
+            $('.vvip_selection_reward').trigger('next.owl.carousel');
+        });
+        $(".vvip_selection_reward").on('initialized.owl.carousel changed.owl.carousel refreshed.owl.carousel', function (e) {
+            if (!e.namespace) return;
+            var carousel = e.relatedTarget,
+                current = carousel.current();
+            if (current === carousel.maximum()) {
+                $(".se_but2").on('click', function () {
+                    gmBtnNoReload();
+                });
+            }
+        });
+    });
+
     function vvipUserNoteEdit_show() {
         $('#show_vvip_user_note').show();
         $('.announce_bg').show();
 
     }
+
+    function vvipSelectionRewardUserNoteEdit_show() {
+        $('#show_vvip_selection_reward_user_note').show();
+        $('.announce_bg').show();
+
+    }
+
+    @if($vvip_selection_reward_notice)
+        $('.system_msg_none').hide();
+    @endif
 
     $(function() {
         $('#user_note').keypress(function(e) {
