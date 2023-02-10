@@ -180,8 +180,7 @@ jQuery(document).ready(function(){
     $('.message_toggle').on('click', function(){
         let room_id = $(this).attr("value");
         let cur_room_block = $('#message_room_' + room_id).next().find('.hiddenRow');
-        if($(this).text() == '+')
-        {
+        if($(this).text() == '+') {
             $(this).text('-');
 
             console.log('cur_room_block=');
@@ -191,17 +190,17 @@ jQuery(document).ready(function(){
                 url: '{{route('users/getAdminMessageRecordDetailFromRoomId')}}',
                 data: {
                     room_id: room_id,
-                    {{csrf_token()}}:Date.now(),
+                    csrf_{{csrf_token()}}: Date.now(),
                 },
-                success: function(data){
+                success: function (data) {
                     console.log('cur_room_block=');
                     console.log(cur_room_block);
                     console.log('data=');
 
                     cur_room_block.html(data);
-                    getPagination('#table-message-'+room_id);
+                    getPagination('#table-message-' + room_id);
                     return;
-                    data.message_detail.forEach(function(value){
+                    data.message_detail.forEach(function (value) {
                         messagePics = (value.pic === null) ? [] : JSON.parse(value.pic);
                         messagePicHTML = '';
                         messagePics.forEach(function(pic){
