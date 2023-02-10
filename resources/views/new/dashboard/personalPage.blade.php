@@ -745,7 +745,7 @@
         </div>
     @endif
 
-    @if(Session::has('announceClose') && $vvip_selection_reward && count($vvip_selection_reward)>0 && $user->engroup==2)
+    @if((Session::has('announceClose')==1 || !Session::has('announceClose')) && $vvip_selection_reward && count($vvip_selection_reward)>0 && $user->engroup==2)
         <div class="announce_bg" onclick="gmBtnNoReload()" style="display:block;"></div>
         <div class="gg_tab" id="vvip_selection_reward" style="display: block;">
             <div class="owl-carousel owl-theme vvip_selection_reward">
