@@ -2703,6 +2703,69 @@ class UserController extends \App\Http\Controllers\BaseController
         }
         
     }
+    
+    public function showAdminMessageAllRecord()
+    {
+        $admin = $this->admin->checkAdmin();
+        $chat_with_admin_users = 
+            User::with(['message_sent'=>function($q) use ($admin){
+                User::addChatWithAdminClauseToQuery($q);
+                $q->where('to_id',$admin->id);
+            }])->with(['message_accepted'=>function($q) use ($admin){
+                User::addChatWithAdminClauseToQuery($q);
+                $q->where('from_id',$admin->id);
+            }])->whereHas('message_sent',function($q) use ($admin){
+                $q = User::addChatWithAdminClauseToQuery($q)->where('to_id',$admin->id);
+            })->orWhereHas('message_accepted',function($q) use ($admin){
+                $q = User::addChatWithAdminClauseToQuery($q)->where('from_id',$admin->id);
+            })->get()
+        ;
+        
+        return view('admin.users.messageAllRecordChatWithAdmin')
+            ->with('chat_with_admin_users', $chat_with_admin_users)
+            ->with('admin',$admin)
+            ;        
+    }
+    
+    public function getAdminMessageRecordDetailFromRoomId(Request $request)
+    {
+        $ref_user = null;
+        $room_id = $request->cwa_user_id;
+        $admin=$this->admin->checkAdmin();
+        
+        $room_id = $request->room_id;
+
+        $query = Message::withTrashed()
+        ->where('room_id', $room_id)
+		->where('created_at', '>=', \Carbon\Carbon::parse("180 days ago")->toDateTimeString())
+		->orderByDesc('created_at')
+        ->where('chat_with_admin',1);
+        
+        $messages = $query->get();
+
+        $first_message = $messages->first();
+        
+        if($first_message) {
+            if($first_message->from_id==$admin->id) 
+            {
+                $ref_user = $first_message->receiver;
+                
+            }
+            else if($first_message->to_id==$admin->id) {
+               $ref_user = $first_message->sender; 
+            }
+            else {
+                echo '異常錯誤!非管理者有參與的訊息紀錄';
+            }
+        }
+        return view('admin.users.messageAllRecordChatWithAdminDetail')
+            ->with('messages', $messages)
+            ->with('ref_user',$ref_user)
+            ->with('admin',$admin)
+            ;        
+            ;        
+            
+    }    
 
     public function showAdminMessengerWithReportedId($id, $reported_id, $pic_id = null, $isPic = null, $isReported = null)
     {
@@ -8149,16 +8212,26 @@ class UserController extends \App\Http\Controllers\BaseController
     public function getMessageFromRoomId(Request $request)
     {
         $room_id = $request->room_id;
-
-        $message_detail = Message::withTrashed()->select('message.*', 'message.id as mid', 'message.created_at as m_time', 'u.*', 'u.id as u_id', 'b.id as banned_id', 'b.expire_date as banned_expire_date')
+        $chat_with_admin = $request->chat_with_admin;
+        $query = Message::withTrashed()->select('message.*', 'message.id as mid', 'message.created_at as m_time', 'u.*', 'u.id as u_id', 'b.id as banned_id', 'b.expire_date as banned_expire_date')
 		->leftJoin('users as u', 'u.id', 'message.from_id')
 		->leftJoin('banned_users as b', 'message.from_id', 'b.member_id')
         ->where('room_id', $room_id)
 		->where('message.created_at', '>=', \Carbon\Carbon::parse("180 days ago")->toDateTimeString())
 		->orderBy('message.created_at')
 		->take(1000)
-		->get();
+		;
         
+        if($chat_with_admin) {
+            $query->where('chat_with_admin',$chat_with_admin);
+        }
+        
+        $message_detail = $query->get();
+        
+        //給getAdminMessageRecordDetailFromRoomId用的
+        if($chat_with_admin) {
+            return $message_detail;
+        }
         $room_users = MessageRoomUserXref::where('room_id', $room_id)->get();
         $users_data = [];
         $users = [];

@@ -2045,6 +2045,21 @@ class User extends Authenticatable implements JWTSubject
         return $this->hasMany(Message::class, 'from_id', 'id');
     }
     
+    public function message_accepted()
+    {
+        return $this->hasMany(Message::class, 'to_id', 'id');
+    } 
+
+    public static function addChatWithAdminClauseToQuery($query)
+    {
+        $during_date = Carbon::parse("180 days ago")->toDateTimeString();
+        $query->withTrashed()
+                ->where('created_at','>=',$during_date)
+                ->where('chat_with_admin', 1)
+                ;                
+        return $query;
+    }
+    
     /**
      * Get the identifier that will be stored in the subject claim of the JWT.
      *
