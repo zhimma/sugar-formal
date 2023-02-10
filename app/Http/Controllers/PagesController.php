@@ -1439,8 +1439,9 @@ class PagesController extends BaseController
         $user = $request->user();
         $input = $request->input();
 
-        if($user->email == $input['email']){
-            if(Auth::attempt(array('email' => $input['email'], 'password' => $input['password'])) ){
+        if(strtolower(trim($user->email)) == strtolower(trim($input['email']))){
+            $input['email'] = $user->email;
+            if(Auth::attempt(array('email' => strtolower( $input['email']), 'password' => $input['password'])) ){
                 //驗證成功
                 $reasonType = $request->get('reasonType');
                 if ($reasonType == '3') {
@@ -1541,8 +1542,9 @@ class PagesController extends BaseController
             }
 
             if((auth()->user()->isVip() || auth()->user()->isVVIP()) || $waitDay <=0){
-                if($user->email == $input['email']){
-                    if(Auth::attempt(array('email' => $input['email'], 'password' => $input['password'])) ){
+                if(strtolower(trim($user->email)) == strtolower(trim($input['email']))){
+                    $input['email'] = $user->email;
+                    if(Auth::attempt(array('email' => strtolower( $input['email']), 'password' => $input['password'])) ){
                         //驗證成功
                         $user->accountStatus = 1;
                         $user->accountStatus_updateTime = Carbon::now();
