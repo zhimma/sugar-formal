@@ -722,7 +722,7 @@
                 <form class="m-form m-form--fit m-form--label-align-right" method="POST" action="{{ url('/dashboard/vvipUserNoteEdit') }}" id="">
                     <input type="hidden" name="_token" value="{{ csrf_token() }}" >
                     <input type="hidden" name="id" id="id" value="{{ $user->applyVVIP_getData()->id }}">
-                    <textarea onkeyup="value=value.replace(/[^\d]/g,'') " name="user_note" id="user_note" cols="" rows="" class="n_nutext" placeholder="請輸入內容" required></textarea>
+                    <textarea onkeyup="value=value.replace(/[^\d]/g,'') " name="user_note" id="user_note" cols="" rows="" class="n_nutext" maxlength="5" placeholder="請輸入內容" required></textarea>
                     <input type="submit" class="n_bllbut msgsnd" value="送出" style="border-style: none;">
                 </form>
             </div>
@@ -737,7 +737,7 @@
                 <form class="m-form m-form--fit m-form--label-align-right" method="POST" action="{{ url('/dashboard/vvipSelectionRewardUserNoteEdit') }}" id="">
                     <input type="hidden" name="_token" value="{{ csrf_token() }}" >
                     <input type="hidden" name="id" id="id" value="{{ $vvip_selection_reward_notice->id }}">
-                    <textarea onkeyup="value=value.replace(/[^\d]/g,'') " name="user_note" id="user_note" cols="" rows="" class="n_nutext" placeholder="請輸入內容" required></textarea>
+                    <textarea onkeyup="value=value.replace(/[^\d]/g,'') " name="user_note" id="user_note" cols="" rows="" class="n_nutext" maxlength="5" placeholder="請輸入內容" required></textarea>
                     <input type="submit" class="n_bllbut msgsnd" value="送出" style="border-style: none;">
                 </form>
             </div>
