@@ -119,35 +119,46 @@
             });
 
             $('.form_submit').on('click',function (e) {
-                if($('#title').val()==''){
+
+                if ($('#title').val().trim() == '') {
+                    $('#title').val('');
                     c5('請輸入徵選主題');
                     return false;
                 }
-                if($('#limit').val()=='' || $('#limit').val()==0){
+                if ($('#limit').val() == '' || $('#limit').val() < 0) {
+                    $('#limit').val('');
                     c5('請輸入招選人數');
                     return false;
                 }
                 let option_array = [];
                 $('.option_selection_reward.cractive').each(function () {
-                    if($(this).data('name').indexOf("髮色")>=0){
-                        option_array.push($(this).data('name')+':'+$("input[name='hair_style']").val());
-                    }else {
+                    if ($(this).data('name').indexOf("髮色") >= 0) {
+                        option_array.push($(this).data('name') + ':' + $("input[name='hair_style']").val());
+                    } else {
                         option_array.push($(this).data('name'));
                     }
                 });
                 let values = [];
-                $("textarea[name^='condition']").each(function(){
-                    let text = $(this).val();
+                let text;
+                $("textarea[name^='condition']").each(function () {
+                    text = $(this).val().trim();
+                    // if (text == '') {
+                    //     $(this).val('');
+                    //     c5('請輸入徵選條件');
+                    //     return false;
+                    // }
+
                     values.push(text);
+
                 });
 
-                if(option_array=='' && values == ''){
+                if (option_array == '' && values == '' ) {
                     c5('請輸入徵選條件');
                     return false;
                 }
+
                 option_array = JSON.stringify(option_array);
                 $('#option_selection_reward').val(option_array);
-
                 $('#formVvipSelectionRewardApply').submit();
             });
 
@@ -160,11 +171,11 @@
                 e.preventDefault();
                 if(14 - max_fields >= x) {
                     x++;
-                    if($('.x_text:last').val()==''){
+                    if($('.x_text:last').val().trim()==''){
                         c5('您尚未輸入文字');
                         return false;
                     }else {
-                        $(wrapper).append('<div class="custom"><textarea class="x_text" name="condition[]" placeholder="請輸入"></textarea><a href="#" class="remove_field"><img src="/new/images/del_03w.png"></a></div>'); //add input box
+                        $(wrapper).append('<div class="custom"><textarea class="x_text" name="condition[]" placeholder="請輸入"></textarea><a href="#" class="remove_field" required><img src="/new/images/del_03w.png"></a></div>'); //add input box
                     }
                 } else {
                     alert('');

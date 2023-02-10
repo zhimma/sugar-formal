@@ -11050,7 +11050,7 @@ class PagesController extends BaseController
             $array1 = json_decode($request->option_selection_reward);
         }
 
-        $array2 = $request->condition;
+        $array2 = array_filter($request->condition);
         $result = array_merge($array1, $array2);
 
         foreach ($result as $key => $row) {
@@ -11103,10 +11103,16 @@ class PagesController extends BaseController
 
             //限女
             $checkEngroup = User::find($request->user_id);
+            $checkBanned = User::isBanned_v2($checkEngroup->id);
             if($checkEngroup->engroup==1){
                 $msg = '活動限女性參加';
                 return response()->json(['success' => true, 'message' => $msg]);
             }
+            if($checkBanned){
+                $msg = '您不符合報名資格';
+                return response()->json(['success' => true, 'message' => $msg]);
+            }
+
             $data = VvipSelectionRewardApply::where('user_id', $request->user_id)->where('vvip_selection_reward_id', $request->id)->first();
 
             if(!$data){
