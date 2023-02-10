@@ -3109,7 +3109,7 @@ class PagesController extends BaseController
                     ->where('users.accountStatus', 1)
                     ->where('users.account_status_admin', 1)
                     ->whereNotNull('message.id')
-                    ->distinct()
+                    ->distinct(\DB::raw("blocked.member_id, blocked_id"))
                     ->count('blocked.blocked_id');
             }
 
