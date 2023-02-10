@@ -10996,18 +10996,11 @@ class PagesController extends BaseController
         }
         //check application
         $checkVvipSelectionReward = VvipSelectionReward::where('user_id', $user->id)
-            ->where('status', 0)
-            ->orWhere(function($query) {
-                $query->where('expire_date', '<>', '')
-                    ->Where('expire_date', '>', Carbon::now())
-                    ->where('status', 1)
-                ;})
-            ->orWhere(function($query) {
-                $query->where('expire_date', '')
-                    ->where('status', 1)
-                ;})
+            ->whereIn('status', [0, 1])
             ->first();
-        if($checkVvipSelectionReward){
+        if($checkVvipSelectionReward &&
+            (($checkVvipSelectionReward->expire_date && Carbon::parse($checkVvipSelectionReward->expire_date) > Carbon::now()) || ($checkVvipSelectionReward->expire_date == ''))
+        ){
             return back()->with('message', '您已申請過或活動尚未結束');
         }
 
