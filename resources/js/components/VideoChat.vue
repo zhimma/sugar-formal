@@ -1858,8 +1858,8 @@
     },
 
     getUserOnlineStatus(id) {
-      console.log("Online users: ")
-      console.log(this.videoCallParams.users)
+      // console.log("Online users: ")
+      // console.log(this.videoCallParams.users)
       const onlineUserIndex = this.videoCallParams.users.findIndex(
           (data) => data.id === id
       );
