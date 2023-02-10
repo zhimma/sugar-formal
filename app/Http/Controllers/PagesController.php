@@ -2025,8 +2025,9 @@ class PagesController extends BaseController
         $isHideOnline = $request->input('isHideOnline');
         $insertData = false;
         $status_msg = 'error';
+        $user = User::where('id', $user_id)->get()->first();
 
-        if($isHideOnline == 0){
+        if($isHideOnline == 0 || $user->valueAddedServiceStatus('hideOnline') == 0){
 
             User::where('id', $user_id)->update(['is_hide_online' => 0]);
             $status_msg = '搜索排序設定已變更。';
@@ -2034,7 +2035,6 @@ class PagesController extends BaseController
         }else if($isHideOnline == 1){
             //check current is_hide_online
             $checkHideOnlineData = hideOnlineData::where('user_id',$user_id)->where('deleted_at', null)->get()->first();
-            $user = User::where('id', $user_id)->get()->first();
             $insertData = true;
 
             if($user->is_hide_online==2 && isset($checkHideOnlineData)){
@@ -2048,7 +2048,6 @@ class PagesController extends BaseController
         }else if($isHideOnline == 2){
             //check current is_hide_online
             $checkHideOnlineData = hideOnlineData::where('user_id',$user_id)->where('deleted_at', null)->get()->first();
-            $user = User::where('id', $user_id)->get()->first();
             $insertData = true;
 
             if($user->is_hide_online==1 && isset($checkHideOnlineData)){
@@ -2487,7 +2486,7 @@ class PagesController extends BaseController
                 ->whereNull('evaluation.content_violation_processing')
                 ->whereNull('b1.member_id')
                 ->whereNull('b3.target')
-                ->where('um.isWarned',0)
+                ->where('um.isWarned', \DB::raw('0'))
                 ->whereNull('w2.id')
                 ->whereNotNull('u1.id')
                 //->whereNotNull('u2.id')
@@ -2502,7 +2501,7 @@ class PagesController extends BaseController
                 ->where('evaluation.anonymous_content_status', 1)
                 ->whereNull('b1.member_id')
                 ->whereNull('b3.target')
-                ->where('um.isWarned',0)
+                ->where('um.isWarned', \DB::raw('0'))
                 ->whereNull('w2.id')
                 ->whereNotNull('u1.id')
                 ->where('u1.accountStatus', 1)
@@ -3073,7 +3072,7 @@ class PagesController extends BaseController
         if($is_vip) {
             $uid = $request->uid;
             $target_user = User::find($uid);
-            if ($target_user->valueAddedServiceStatus('hideOnline') && $target_user->is_hide_online == 1) {
+            if ($target_user->valueAddedServiceStatus('hideOnline') && $target_user->is_hide_online != 0) {
                 $data = hideOnlineData::select('user_id', 'blocked_other_count', 'be_blocked_other_count')->where('user_id', $uid)->first();
                 /*此會員封鎖多少其他會員*/
                 $blocked_other_count = $data->blocked_other_count;
@@ -3118,7 +3117,7 @@ class PagesController extends BaseController
                     ->where('users.accountStatus', 1)
                     ->where('users.account_status_admin', 1)
                     ->whereNotNull('message.id')
-                    ->distinct()
+                    ->distinct(\DB::raw("blocked.member_id, blocked_id"))
                     ->count('blocked.blocked_id');
             }
 
@@ -3142,7 +3141,7 @@ class PagesController extends BaseController
         if($is_vip){
             $uid = $request->uid;
             $target_user = User::find($uid);
-            if ($target_user->valueAddedServiceStatus('hideOnline') && $target_user->is_hide_online == 1) {
+            if ($target_user->valueAddedServiceStatus('hideOnline') && $target_user->is_hide_online != 0) {
                 $data = hideOnlineData::select('user_id', 'fav_count', 'be_fav_count')->where('user_id', $uid)->first();
                 /*收藏會員次數*/
                 $fav_count = $data->fav_count;
@@ -3304,7 +3303,7 @@ class PagesController extends BaseController
             ->leftJoin('users as u', 'u.id', '=', 'evaluation.to_id')
             ->leftJoin('user_meta as um', 'um.user_id', '=', 'evaluation.to_id')
             ->leftJoin('warned_users as w2', 'w2.member_id', '=', 'evaluation.to_id')
-            ->where('um.isWarned',0)
+            ->where('um.isWarned', \DB::raw('0'))
             ->whereNull('w2.id')
             ->whereNull('b1.member_id')
             ->whereNull('b3.target')
@@ -10856,7 +10855,7 @@ class PagesController extends BaseController
                 //->orWhere('wu.expire_date', null); }); })
                 ->whereNull('b1.member_id')
                 ->whereNull('b3.target')
-                ->where('um.isWarned',0)
+                ->where('um.isWarned', \DB::raw('0'))
                 ->whereNull('w2.id')
                 ->whereNotNull('u1.id')
                 //->whereNotNull('u2.id')
