@@ -2027,8 +2027,9 @@ class PagesController extends BaseController
         $isHideOnline = $request->input('isHideOnline');
         $insertData = false;
         $status_msg = 'error';
+        $user = User::where('id', $user_id)->get()->first();
 
-        if($isHideOnline == 0){
+        if($isHideOnline == 0 || $user->valueAddedServiceStatus('hideOnline') == 0){
 
             User::where('id', $user_id)->update(['is_hide_online' => 0]);
             $status_msg = '搜索排序設定已變更。';
@@ -2036,7 +2037,6 @@ class PagesController extends BaseController
         }else if($isHideOnline == 1){
             //check current is_hide_online
             $checkHideOnlineData = hideOnlineData::where('user_id',$user_id)->where('deleted_at', null)->get()->first();
-            $user = User::where('id', $user_id)->get()->first();
             $insertData = true;
 
             if($user->is_hide_online==2 && isset($checkHideOnlineData)){
@@ -2050,7 +2050,6 @@ class PagesController extends BaseController
         }else if($isHideOnline == 2){
             //check current is_hide_online
             $checkHideOnlineData = hideOnlineData::where('user_id',$user_id)->where('deleted_at', null)->get()->first();
-            $user = User::where('id', $user_id)->get()->first();
             $insertData = true;
 
             if($user->is_hide_online==1 && isset($checkHideOnlineData)){
@@ -2489,7 +2488,7 @@ class PagesController extends BaseController
                 ->whereNull('evaluation.content_violation_processing')
                 ->whereNull('b1.member_id')
                 ->whereNull('b3.target')
-                ->where('um.isWarned',0)
+                ->where('um.isWarned', \DB::raw('0'))
                 ->whereNull('w2.id')
                 ->whereNotNull('u1.id')
                 //->whereNotNull('u2.id')
@@ -2504,7 +2503,7 @@ class PagesController extends BaseController
                 ->where('evaluation.anonymous_content_status', 1)
                 ->whereNull('b1.member_id')
                 ->whereNull('b3.target')
-                ->where('um.isWarned',0)
+                ->where('um.isWarned', \DB::raw('0'))
                 ->whereNull('w2.id')
                 ->whereNotNull('u1.id')
                 ->where('u1.accountStatus', 1)
@@ -3075,7 +3074,7 @@ class PagesController extends BaseController
         if($is_vip) {
             $uid = $request->uid;
             $target_user = User::find($uid);
-            if ($target_user->valueAddedServiceStatus('hideOnline') && $target_user->is_hide_online == 1) {
+            if ($target_user->valueAddedServiceStatus('hideOnline') && $target_user->is_hide_online != 0) {
                 $data = hideOnlineData::select('user_id', 'blocked_other_count', 'be_blocked_other_count')->where('user_id', $uid)->first();
                 /*此會員封鎖多少其他會員*/
                 $blocked_other_count = $data->blocked_other_count;
@@ -3120,7 +3119,7 @@ class PagesController extends BaseController
                     ->where('users.accountStatus', 1)
                     ->where('users.account_status_admin', 1)
                     ->whereNotNull('message.id')
-                    ->distinct()
+                    ->distinct(\DB::raw("blocked.member_id, blocked_id"))
                     ->count('blocked.blocked_id');
             }
 
@@ -3144,7 +3143,7 @@ class PagesController extends BaseController
         if($is_vip){
             $uid = $request->uid;
             $target_user = User::find($uid);
-            if ($target_user->valueAddedServiceStatus('hideOnline') && $target_user->is_hide_online == 1) {
+            if ($target_user->valueAddedServiceStatus('hideOnline') && $target_user->is_hide_online != 0) {
                 $data = hideOnlineData::select('user_id', 'fav_count', 'be_fav_count')->where('user_id', $uid)->first();
                 /*收藏會員次數*/
                 $fav_count = $data->fav_count;
@@ -3306,7 +3305,7 @@ class PagesController extends BaseController
             ->leftJoin('users as u', 'u.id', '=', 'evaluation.to_id')
             ->leftJoin('user_meta as um', 'um.user_id', '=', 'evaluation.to_id')
             ->leftJoin('warned_users as w2', 'w2.member_id', '=', 'evaluation.to_id')
-            ->where('um.isWarned',0)
+            ->where('um.isWarned', \DB::raw('0'))
             ->whereNull('w2.id')
             ->whereNull('b1.member_id')
             ->whereNull('b3.target')
@@ -10858,7 +10857,7 @@ class PagesController extends BaseController
                 //->orWhere('wu.expire_date', null); }); })
                 ->whereNull('b1.member_id')
                 ->whereNull('b3.target')
-                ->where('um.isWarned',0)
+                ->where('um.isWarned', \DB::raw('0'))
                 ->whereNull('w2.id')
                 ->whereNotNull('u1.id')
                 //->whereNotNull('u2.id')
@@ -10998,18 +10997,11 @@ class PagesController extends BaseController
         }
         //check application
         $checkVvipSelectionReward = VvipSelectionReward::where('user_id', $user->id)
-            ->where('status', 0)
-            ->orWhere(function($query) {
-                $query->where('expire_date', '<>', '')
-                    ->Where('expire_date', '>', Carbon::now())
-                    ->where('status', 1)
-                ;})
-            ->orWhere(function($query) {
-                $query->where('expire_date', '')
-                    ->where('status', 1)
-                ;})
+            ->whereIn('status', [0, 1])
             ->first();
-        if($checkVvipSelectionReward){
+        if($checkVvipSelectionReward &&
+            (($checkVvipSelectionReward->expire_date && Carbon::parse($checkVvipSelectionReward->expire_date) > Carbon::now()) || ($checkVvipSelectionReward->expire_date == ''))
+        ){
             return back()->with('message', '您已申請過或活動尚未結束');
         }
 
@@ -11052,7 +11044,7 @@ class PagesController extends BaseController
             $array1 = json_decode($request->option_selection_reward);
         }
 
-        $array2 = $request->condition;
+        $array2 = array_filter($request->condition);
         $result = array_merge($array1, $array2);
 
         foreach ($result as $key => $row) {
@@ -11105,10 +11097,16 @@ class PagesController extends BaseController
 
             //限女
             $checkEngroup = User::find($request->user_id);
+            $checkBanned = User::isBanned_v2($checkEngroup->id);
             if($checkEngroup->engroup==1){
                 $msg = '活動限女性參加';
                 return response()->json(['success' => true, 'message' => $msg]);
             }
+            if($checkBanned){
+                $msg = '您不符合報名資格';
+                return response()->json(['success' => true, 'message' => $msg]);
+            }
+
             $data = VvipSelectionRewardApply::where('user_id', $request->user_id)->where('vvip_selection_reward_id', $request->id)->first();
 
             if(!$data){
