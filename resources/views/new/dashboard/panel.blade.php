@@ -3,7 +3,7 @@
     <div class="leftbg">
         <div class="leftimg">
             <img src="@if(file_exists( public_path().$user->meta->pic ) && $user->meta->pic != ""){{$user->meta->pic}} @elseif($user->engroup==2)/new/images/female.png @else/new/images/male.png @endif">
-            <h2 style="word-break: break-word;">@if (str_contains(url()->current(), 'dashboard') || str_contains(url()->current(), 'MessageBoard')) {{ $user->name }} @elseif (isset($cur)) {{ $cur->name }} @endif
+            <h2 style="word-break: break-word;">@if (str_contains(url()->current(), 'dashboard') || str_contains(url()->current(), 'MessageBoard') || str_contains(url()->current(), 'user_video_chat_verify')) {{ $user->name }} @elseif (isset($cur)) {{ $cur->name }} @endif
                 @if(isset($user) && ($user->isVVIP()))(VVIP)@elseif (((isset($cur) && $cur->isVip() && $cur->engroup == '1')) || isset($user) && ($user->isVip() && str_contains(url()->current(), 'dashboard'))) (VIP) @endif @if((view()->shared('valueAddedServices')['hideOnline'] ?? 0) == 1)<br>(隱藏) @endif</h2>
         </div>
         <div class="leul">

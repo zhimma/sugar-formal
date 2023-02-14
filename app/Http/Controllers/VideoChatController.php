@@ -16,9 +16,17 @@ use App\Services\RealAuthPageService;
 use LZCompressor\LZString;
 use App\Models\WebrtcSignalData;
 use App\Http\Controllers\Admin\UserController;
+use App\Services\UserService;
+use App\Services\VipLogService;
+use App\Repositories\SuspiciousRepository;
 
-class VideoChatController extends Controller
+class VideoChatController extends BaseController
 {
+    
+    public function __construct(UserService $userService, VipLogService $logService, SuspiciousRepository $suspiciousRepo, RealAuthPageService $rap_service)
+    {
+        parent::__construct();
+    }    
     
     public function callUser(Request $request)
     {
