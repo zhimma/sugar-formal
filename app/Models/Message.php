@@ -53,6 +53,7 @@ class Message extends Model
         'show_time_limit',
         'room_id',
         'is_truth',
+        'chat_with_admin',
     ];
 
     static $date = null;
