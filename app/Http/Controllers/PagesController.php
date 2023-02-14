@@ -4079,6 +4079,10 @@ class PagesController extends BaseController
                     $messages = Message::allToFromSenderChatWithAdmin($user->id, 1049)->orderBy('id', 'desc')->paginate(10);
                     $chatting_with_admin = true;
                 }
+                else if($user->id==$admin->id) {
+                    $chatting_with_admin = true;
+                }
+                
                 if(!$cid_user){
                     return '<h1>該會員不存在。</h1>';
                 }
