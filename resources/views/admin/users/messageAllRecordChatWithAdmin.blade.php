@@ -12,17 +12,17 @@
         <th width="8%">發送數 <br>本人/管理者</th>
     </tr>
     @foreach($chat_with_admin_users as $cwa_user)
-        <tr id="message_room_{{(($messages=$cwa_user->message_sent->merge($cwa_user->message_accepted)->sortByDesc('created_at')) && $message_1st=$messages->first())?$message_1st->room_id:''}}" >
+        <tr id="message_room_{{$cwa_user->latest_message_with_admin()->room_id}}" >
             <td style="text-align: center;">
-                <button data-toggle="collapse" data-target="#msgLog{{($ref_user_id=($message_1st->from_id==$admin->id?$message_1st->to_id:$message_1st->from_id))?$ref_user_id:''}}" class="accordion-toggle btn btn-primary message_toggle" value="{{$message_1st->room_id}}">+</button>
+                <button data-toggle="collapse" data-target="#msgLog{{$cwa_user->id}}" class="accordion-toggle btn btn-primary message_toggle" value="{{$cwa_user->latest_message_with_admin()->room_id}}">+</button>
             </td>
-            <td>@if(($ref_user=($message_1st->sender?->id==$ref_user_id?$message_1st->sender:$message_1st->receiver)) && $ref_user->name)<a href="{{ route('AdminMessageRecord', [$ref_user_id]) }}" target="_blank">{{ $ref_user->name }}</a>@else 會員資料已刪除@endif</td>
-            <td id="new{{$message_1st->to_id}}">
-                {{($cwa_user->id==$message_1st->from_id ? '(發)' :'(回)') .$message_1st->content}}
+            <td><a href="{{ route('AdminMessageRecord', [$cwa_user->id]) }}" target="_blank">{{ $cwa_user->name }}</a></td>
+            <td id="new{{$cwa_user->latest_message_with_admin()->to_id}}">
+                {{($cwa_user->id==$cwa_user->latest_message_with_admin()->from_id ? '(發)' :'(回)') .$cwa_user->latest_message_with_admin()->content}}
             </td>
             <td class="evaluation_zoomIn">
-            @if($message_1st->pic)
-                @if($messagePics=json_decode($message_1st->pic,true))
+            @if($cwa_user->latest_message_with_admin()->pic)
+                @if($messagePics=json_decode($cwa_user->latest_message_with_admin()->pic,true))
                     @foreach( $messagePics as $messagePic)
                         @if(isset($messagePic['file_path']))
                             <li style="float:left;margin:2px 2px;list-style:none;display:block;white-space: nowrap;width: 135px;">
@@ -37,10 +37,10 @@
                 @endif
             @endif
             </td>
-            <td id="new_time{{$ref_user_id}}"> {{  $message_1st->created_at ??''}}</td>
-            <td> {{$cwa_user->message_sent->count()}} / {{$cwa_user->message_accepted->count()}} </td>
+            <td id="new_time{{$cwa_user->id}}"> {{  $cwa_user->latest_message_with_admin()->created_at ??''}}</td>
+            <td> {{$cwa_user->message_sent_to_admin->count()}} / {{$cwa_user->message_accepted_from_admin->count()}} </td>
         </tr>
-        <tr class="accordian-body collapse" id="msgLog{{$ref_user_id}}">
+        <tr class="accordian-body collapse" id="msgLog{{$cwa_user->id}}">
             <td class="hiddenRow" colspan="6">
             </td>
         </tr>

@@ -45,6 +45,7 @@ use Outl1ne\ScoutBatchSearchable\BatchSearchable;
 use App\Models\UserRemarksLog;
 use App\Models\UserVideoVerifyRecord;
 use App\Models\UserVideoVerifyMemo;
+use App\Services\AdminService;
 
 class User extends Authenticatable implements JWTSubject
 {
@@ -2049,6 +2050,29 @@ class User extends Authenticatable implements JWTSubject
     {
         return $this->hasMany(Message::class, 'to_id', 'id');
     } 
+    
+    public function message_sent_to_admin()
+    {
+        $admin = AdminService::checkAdmin();
+
+        return $this->addChatWithAdminClauseToQuery($this->message_sent())->where('to_id',$admin->id);
+    }
+    
+    public function message_accepted_from_admin()
+    {
+        $admin = AdminService::checkAdmin();
+        return $this->addChatWithAdminClauseToQuery($this->message_accepted())->where('from_id',$admin->id);
+    } 
+
+    public function message_with_admin()
+    {
+        return $this->message_sent_to_admin->merge($this->message_accepted_from_admin);
+    } 
+
+    public function latest_message_with_admin()
+    {
+        return $this->message_with_admin()->sortByDesc('created_at')->first();
+    }     
 
     public static function addChatWithAdminClauseToQuery($query)
     {
