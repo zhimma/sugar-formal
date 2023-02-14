@@ -8749,12 +8749,14 @@ class PagesController extends BaseController
         $isForceShowFaqPopup = $faqUserService->isForceShowFaqPopup();
 
         //vvip_selection_reward
-        $vvip_selection_reward_ignore= VvipSelectionRewardIgnore::select('vvip_selection_reward_id')->where('user_id', $user->id)->get();
+        $vvip_selection_reward_ignore = VvipSelectionRewardIgnore::select('vvip_selection_reward_id')->where('user_id', $user->id)->get();
+        $vvip_selection_reward_apply = VvipSelectionRewardApply::select('vvip_selection_reward_id')->where('user_id', $user->id)->get();
         $vvip_selection_reward = VvipSelectionReward::where('status', 1)
             ->whereNotIn('id', $vvip_selection_reward_ignore)
+            ->whereNotIn('id', $vvip_selection_reward_apply)
             ->where(function ($query) {
                 return $query->where('expire_date', '>',  Carbon::now())
-                    ->orwhere('expire_date', null);
+                    ->orWhere('expire_date', null);
             })
             ->get();
 
@@ -8762,6 +8764,19 @@ class PagesController extends BaseController
         $vvip_selection_reward_notice = VvipSelectionReward::where('user_id', $user->id)
             ->where('status', 0)
             ->where('notice_status', 1)->first();
+
+        $vvip_selection_reward_apply_self = VvipSelectionRewardApply::select('users.name as name',
+            'vvip_selection_reward.title as title',
+            'vvip_selection_reward_apply.status as status')
+            ->leftJoin('vvip_selection_reward', 'vvip_selection_reward.id', 'vvip_selection_reward_apply.vvip_selection_reward_id')
+            ->leftJoin('users', 'users.id', 'vvip_selection_reward.user_id')
+            ->where('vvip_selection_reward_apply.user_id', $user->id)
+            ->where('vvip_selection_reward.status', 1)
+            ->where(function ($query) {
+                return $query->where('vvip_selection_reward.expire_date', '>',  Carbon::now())
+                    ->orWhere('vvip_selection_reward.expire_date', null);
+            })
+            ->get();
 
         if (isset($user)) {
             $data = array(
@@ -8793,7 +8808,8 @@ class PagesController extends BaseController
                 'faqCountDownTime'=>$faqCountDownTime,
                 'faqCountDownSeconds'=>$faqCountDownSeconds,
                 'vvip_selection_reward' => $vvip_selection_reward,
-                'vvip_selection_reward_notice' => $vvip_selection_reward_notice
+                'vvip_selection_reward_notice' => $vvip_selection_reward_notice,
+                'vvip_selection_reward_apply_self' => $vvip_selection_reward_apply_self
             );
             $allMessage = \App\Models\Message::allMessage($user->id);
             $forum = Forum::withTrashed()->where('user_id',$user->id)->orderby('id','desc')->first();

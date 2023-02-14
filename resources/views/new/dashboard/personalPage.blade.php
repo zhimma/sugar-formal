@@ -142,6 +142,29 @@
                                     </span>
                                 </h2>
                             @endif
+                            @if($vvip_selection_reward_apply_self && count($vvip_selection_reward_apply_self)>0)
+                                @foreach($vvip_selection_reward_apply_self as $row)
+                                    @php
+                                        switch ($row->status){
+                                            case 0:
+                                                $status = '審核中';
+                                                break;
+                                            case 1:
+                                                $status = '已通過';
+                                                break;
+                                            case 2:
+                                                $status = '未通過';
+                                                break;
+                                        }
+                                    @endphp
+                                    <h2 class="tabbox_h2 ta_l">
+                                    <span class="tu_dfont">
+                                        您應徵了{{$row->name}}發出{{$row->title}}的選拔，目前狀態{{$status}}。
+                                    </span>
+                                    </h2>
+                                @endforeach
+                            @endif
+
                             @if(isset($admin_msgs) && count($admin_msgs))
                                 @foreach($admin_msgs as $amsg)
                                     <h2 class="tabbox_h2 ta_l"  data-recordtype="admin_msgs" data-rowid="{{$amsg->id}}" >
@@ -945,7 +968,7 @@
 
     }
 
-    @if($vvip_selection_reward_notice)
+    @if($vvip_selection_reward_notice || ($vvip_selection_reward_apply_self && count($vvip_selection_reward_apply_self)>0))
         $('.system_msg_none').hide();
     @endif
 

@@ -7879,7 +7879,8 @@ class UserController extends \App\Http\Controllers\BaseController
             select([
                 'vvip_selection_reward.*',
                 'users.email',
-                'users.name'
+                'users.name',
+                'users.is_admin_chat_channel_open'
             ])
                 ->selectRaw('(select CAST(count(*) AS UNSIGNED) as num from vvip_selection_reward_apply as aa where aa.vvip_selection_reward_id=vvip_selection_reward.id) as applyCounts')
                 ->leftJoin('users','users.id','vvip_selection_reward.user_id');
