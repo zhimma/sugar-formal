@@ -484,6 +484,7 @@ class RealAuthPageService {
         $user = $this->user();
         $apply_entry = $this->getApplyByAuthTypeId(1);
 
+        if(!$apply_entry)  return;
 
         $data['item_id'] = 2;
 
