@@ -42,9 +42,7 @@
         <th>通知繳費</th>
         <th>異動時間</th>
         <th>申請時間</th>
-        <th>管理</th>
-
-{{--        <th>管理申請資料</th>--}}
+{{--        <th>管理</th>--}}
     </tr>
     </thead>
     <tbody>
@@ -67,9 +65,7 @@
         <th>通知繳費</th>
         <th>異動時間</th>
         <th>申請時間</th>
-        <th>管理</th>
-
-{{--        <th>管理申請資料</th>--}}
+{{--        <th>管理</th>--}}
     </tr>
     </tfoot>
 </table>
@@ -89,6 +85,14 @@
 <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/bootstrap-datetimepicker/6.2.10/css/tempus-dominus.css" integrity="sha512-rVtAwvz6BFSgOOmHkGnBcJH6T5NsA8HG2FFQ0vWZFCyCmChs4ZNZKk0B2WDzBK/sxDG0iVeC10JquS5cH5D/xQ==" crossorigin="anonymous" referrerpolicy="no-referrer" />
 
 <script>
+
+    function isChat(id, is_open) {
+        window.open('/admin/users/message/record/' + id + '?from_advInfo=1' );
+
+        setTimeout(function() {
+            location.reload();
+        }, 1500);
+    }
 
     $.fn.editable.defaults.mode = 'inline';
 
@@ -345,7 +349,17 @@
                     data: 'email',
                     name: 'users.email',
                     render: function(data,type,row,meta) {
-                        return data ? '<a href="/admin/users/advInfo/' + row.user_id + '" target="_blank">' + data + '</a>' : '';
+                        let class_name, status_name;
+                        if(row.is_admin_chat_channel_open==1){
+                            class_name = 'btn-success';
+                            status_name = '對話中';
+                        }else{
+                            class_name = 'btn-danger';
+                            status_name = '開啟會員對話';
+                        }
+                        return data ? '<a href="/admin/users/advInfo/' + row.user_id + '" target="_blank">' + data + '</a><br><br>' +
+                            '<a class="btn btn-dark" href="/admin/users/message/to/'+ row.user_id +'" target="_blank">撰寫站長訊息</a><br><br>' +
+                            '<button class="btn ' + class_name + ' message_record_btn" onclick="isChat( '+row.user_id+', '+ !row.is_admin_chat_channel_open +')">'+status_name+'</button>': '';
                     }
                 },
                 {
@@ -512,14 +526,14 @@
                         return data ? moment(data).format("YYYY-MM-DD HH:mm") : '';
                     }
                 },
-                {
-                    data: 'user_id',
-                    name: 'user_id',
-                    render: function(data,type,row,meta) {
-                        // data.format("YYYY-MM-DD H:i");
-                        return data ? '<a href="advInfo/editPic_sendMsg/'+data+'" class="text-white btn btn-primary" target="_blank">照片&發訊息</a>' : '';
-                    }
-                },
+                // {
+                //     data: 'user_id',
+                //     name: 'user_id',
+                //     render: function(data,type,row,meta) {
+                //         // data.format("YYYY-MM-DD H:i");
+                //         return data ? '<a href="advInfo/editPic_sendMsg/'+data+'" class="text-white btn btn-primary" target="_blank">照片&發訊息</a>' : '';
+                //     }
+                // },
 
             ]
         });
