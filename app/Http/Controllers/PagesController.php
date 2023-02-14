@@ -1821,7 +1821,7 @@ class PagesController extends BaseController
                 //未動過者首次直接通過
                 User::where('id', $user->id)->update(['exchange_period' => $period]);
                 $rs = DB::table('exchange_period_temp')->insert(['user_id' => $user->id, 'created_at' => \Carbon\Carbon::now()]);
-                if($rs) {
+                if($rs && $rap_service->getApplyByAuthTypeId(1)) {
                     $rap_service->riseByUserEntry($user)->saveProfileModifyByReq($request);
                 }
                 return back()->with('message', '已完成首次設定，無需審核');
