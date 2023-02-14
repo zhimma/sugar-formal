@@ -2526,17 +2526,17 @@ class UserController extends \App\Http\Controllers\BaseController
     {
         $admin = $this->admin->checkAdmin();
         $chat_with_admin_users =
-            User::with(['message_sent'=>function($q) use ($admin){
-                User::addChatWithAdminClauseToQuery($q);
-                $q->where('to_id',$admin->id);
-            }])->with(['message_accepted'=>function($q) use ($admin){
-                User::addChatWithAdminClauseToQuery($q);
-                $q->where('from_id',$admin->id);
-            }])->whereHas('message_sent',function($q) use ($admin){
-                $q = User::addChatWithAdminClauseToQuery($q)->where('to_id',$admin->id);
-            })->orWhereHas('message_accepted',function($q) use ($admin){
-                $q = User::addChatWithAdminClauseToQuery($q)->where('from_id',$admin->id);
-            })->get();
+            User::with('message_sent_to_admin','message_accepted_from_admin')
+                ->whereHas('message_sent_to_admin')
+                ->orWhereHas('message_accepted_from_admin')
+                ->get()
+                ->sortByDesc(function ($cas_user, $key) {
+                        return max(
+                                $cas_user->message_sent_to_admin->sortByDesc('created_at')->first()
+                                ,$cas_user->message_accepted_from_admin->sortByDesc('created_at')->first()
+                            );
+                    })
+                ;
 
         return view('admin.users.messageAllRecordChatWithAdmin')
             ->with('chat_with_admin_users', $chat_with_admin_users)
