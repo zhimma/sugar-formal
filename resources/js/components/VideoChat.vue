@@ -410,7 +410,7 @@
         log_arr.title = 'end mounted@export default@VideoChat.vue';
         log_video_chat_process(log_arr);  
   },
-  updated: function() {console.log('updated');console.log(this.userList);this.isUpdated=true;$('#data-table').DataTable().destroy();this.initDataTable(); },
+  updated: function() {console.log('updated');console.log(this.userList);this.isUpdated=true;$('#data-table').DataTable().draw( false ); },
   computed: {  
     getUsers() {
         let now_vue = this;
