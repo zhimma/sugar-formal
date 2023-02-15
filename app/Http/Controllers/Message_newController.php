@@ -32,6 +32,7 @@ use App\Models\InboxRefuseSet;
 use App\Models\Pr_log;
 use YlsIdeas\FeatureFlags\Facades\Features;
 use App\Models\ExchangePeriodName;
+use App\Models\MessageErrorLog;
 
 class Message_newController extends BaseController {
     public function __construct(UserService $userService) {
@@ -234,16 +235,31 @@ class Message_newController extends BaseController {
         
         $user = Auth::user();
         
+        $error_log_arr = [
+            'from_id'=>$payload['from']
+            ,'to_id'=>  $payload['to']
+            ,'content'=>$payload['msg']
+            ,'pic'=>json_encode($request->file('images')??[])
+            ,'error_from'=>'Message_newController@postChat'
+        ];
+        
         if($payload['from']!=$user->id) {
             $already_logout_error_msg='您已登出或基於帳號安全由系統自動登出，請重新登入。';
             Session::flush();
             $request->session()->forget('announceClose');
             Auth::logout();            
             if($isCalledByEvent){
+                MessageErrorLog::create(array_merge([
+                    'error'=>$already_logout_error_msg
+                    ,'error_return_data'=>json_encode(array('error' => 401, 'content' => $already_logout_error_msg))
+                ],$error_log_arr));
                 return array('error' => 401,
                     'content' => $already_logout_error_msg);
             }  
-          
+            MessageErrorLog::create(array_merge([
+                'error'=>$already_logout_error_msg
+                ,'error_back_url'=>url()->previous()
+            ],$error_log_arr));
             return back()->withErrors([$already_logout_error_msg]);             
         }
         
@@ -253,18 +269,33 @@ class Message_newController extends BaseController {
         if($forbid_msg_data) {
             $new_sugar_error_msg='新進甜心只接收 vip 信件，'.$forbid_msg_data['user_type_str'].'會員要於 '.$forbid_msg_data['end_date'].' 後方可發信給這位女會員';
             if($isCalledByEvent){
+                MessageErrorLog::create(array_merge([
+                    'error'=>$new_sugar_error_msg
+                    ,'error_return_data'=>json_encode(array('error' => 1, 'content' => $new_sugar_error_msg))
+                ],$error_log_arr));               
                 return array('error' => 1,
                     'content' => $new_sugar_error_msg);
             }  
-          
+            MessageErrorLog::create(array_merge([
+                'error'=>$new_sugar_error_msg
+                ,'error_back_url'=>url()->previous()
+            ],$error_log_arr));          
             return back()->withErrors([$new_sugar_error_msg]);           
         }
         
         if(!isset($payload['msg']) && !$request->hasFile('images')){
             if($isCalledByEvent){
+                MessageErrorLog::create(array_merge([
+                    'error'=>'請勿僅輸入空白！'
+                    ,'error_return_data'=>json_encode(array('error' => 1, 'content' => '請勿僅輸入空白！'))
+                ],$error_log_arr));                 
                 return array('error' => 1,
                     'content' => '請勿僅輸入空白！');
             }
+            MessageErrorLog::create(array_merge([
+                'error'=>'請勿僅輸入空白'
+                ,'error_back_url'=>url()->previous()
+            ],$error_log_arr));            
             return back()->withErrors(['請勿僅輸入空白！']);
         }
         //$user = Auth::user();
@@ -278,9 +309,17 @@ class Message_newController extends BaseController {
                 $diffInSecs = abs(strtotime(date("Y-m-d H:i:s")) - strtotime($m_time->created_at));
                 if ($diffInSecs < 8) {
                     if($isCalledByEvent){
+                        MessageErrorLog::create(array_merge([
+                            'error'=>'您好，由於系統偵測到您的發訊頻率太高(每 8 秒限一則訊息)。為維護系統運作效率，請降低發訊頻率。'
+                            ,'error_return_data'=>json_encode(array('error' => 1, 'content' => '您好，由於系統偵測到您的發訊頻率太高(每 8 秒限一則訊息)。為維護系統運作效率，請降低發訊頻率。'))
+                        ],$error_log_arr));                                                
                         return array('error' => 1,
                                     'content' => '您好，由於系統偵測到您的發訊頻率太高(每 8 秒限一則訊息)。為維護系統運作效率，請降低發訊頻率。');
                     }
+                    MessageErrorLog::create(array_merge([
+                        'error'=>'您好，由於系統偵測到您的發訊頻率太高(每 8 秒限一則訊息)。為維護系統運作效率，請降低發訊頻率。'
+                        ,'error_back_url'=>url()->previous()
+                    ],$error_log_arr));                     
                     return back()->withErrors(['您好，由於系統偵測到您的發訊頻率太高(每 8 秒限一則訊息)。為維護系統運作效率，請降低發訊頻率。']);
                 }
             }
@@ -293,9 +332,17 @@ class Message_newController extends BaseController {
                 $diffInSecs = abs(strtotime(date("Y-m-d H:i:s")) - strtotime($m_time->created_at));
                 if ($diffInSecs < 8) {
                     if($isCalledByEvent){
+                        MessageErrorLog::create(array_merge([
+                            'error'=>'您好，由於系統偵測到您的發訊頻率太高(每 8 秒限一則訊息)。為維護系統運作效率，請降低發訊頻率。'
+                            ,'error_return_data'=>json_encode(array('error' => 1, 'content' => '您好，由於系統偵測到您的發訊頻率太高(每 8 秒限一則訊息)。為維護系統運作效率，請降低發訊頻率。'))
+                        ],$error_log_arr));                        
                         return array('error' => 1,
                             'content' => '您好，由於系統偵測到您的發訊頻率太高(每 8 秒限一則訊息)。為維護系統運作效率，請降低發訊頻率。');
-                    }                
+                    }  
+                    MessageErrorLog::create(array_merge([
+                        'error'=>'您好，由於系統偵測到您的發訊頻率太高(每 8 秒限一則訊息)。為維護系統運作效率，請降低發訊頻率。'
+                        ,'error_back_url'=>url()->previous()
+                    ],$error_log_arr));                     
                     return back()->withErrors(['您好，由於系統偵測到您的發訊頻率太高(每 8 秒限一則訊息)。為維護系統運作效率，請降低發訊頻率。']);
                 }
             }
@@ -344,6 +391,10 @@ class Message_newController extends BaseController {
             if ($isCanMessage??null) {
                 Message::where('id', $messagePosted->id)->update(['is_can' => 1]);
                 if($to_user->show_can_message != 1) {
+                    MessageErrorLog::create(array_merge([
+                        'error'=>'您好，此位女會員設定屏蔽罐頭訊息，如發罐頭訊息給她會被屏蔽'
+                        ,'error_return_data'=>json_encode(array('error' => 2, 'content' => '您好，此位女會員設定屏蔽罐頭訊息，如發罐頭訊息給她會被屏蔽'))
+                    ],$error_log_arr));                                        
                     return array('error' => 2,
                         'content' => '您好，此位女會員設定屏蔽罐頭訊息，如發罐頭訊息給她會被屏蔽');
                 }
@@ -596,11 +647,17 @@ class Message_newController extends BaseController {
 
         if ($isCanPicMessage??null) {
                 if($to_user->show_can_message != 1) {
+                    MessageErrorLog::create(array_merge([
+                        'error'=>'您好，此位女會員設定屏蔽罐頭訊息，如發罐頭訊息給她會被屏蔽'
+                        ,'error_return_data'=>json_encode(array('is_can' => 1, 'content' => '您好，此位女會員設定屏蔽罐頭訊息，如發罐頭訊息給她會被屏蔽'))
+                    ],$error_log_arr));                    
                     return array('is_can' => 1,
                         'content' => '您好，此位女會員設定屏蔽罐頭訊息，如發罐頭訊息給她會被屏蔽');
                 }
             }
-      
+        MessageErrorLog::create(array_merge([
+            'error_back_url'=>url()->previous()
+        ],$error_log_arr));       
         return back();
     }
 

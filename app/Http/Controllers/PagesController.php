@@ -41,6 +41,7 @@ use App\Models\Message;
 use App\Models\Message_new;
 use App\Models\MessageBoard;
 use App\Models\MessageBoardPic;
+use App\Models\MessageErrorLog;
 use App\Models\MessageUserNote;
 use App\Models\Order;
 use App\Models\Posts;
@@ -11163,7 +11164,23 @@ class PagesController extends BaseController
     public function getChatIsTruthRemainQuota(Request $request)
     {
         return intval(Message::getRemainQuotaOfIsTruthByFromUser($request->user()));
-    }  
+    } 
+
+    public function logChatWithError(Request $request)
+    {
+        $payload = $request->all();
+        $error_log_arr = [
+            'from_id'=>$payload['from']
+            ,'to_id'=>  $payload['to']
+            ,'content'=>$payload['msg']
+            ,'pic'=>json_encode($request->file('images')??[])
+            ,'error_from'=>'client'
+            ,'error'=>$payload['error']
+            ,'error_return_data'=>$payload['error_return_data']
+        ];
+
+        MessageErrorLog::create($error_log_arr);
+    }    
 }
 
 

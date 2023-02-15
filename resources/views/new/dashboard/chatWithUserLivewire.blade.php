@@ -1967,11 +1967,17 @@
                         if(logout_all_finded) postmsg_error_show_msg+='。您已登出或基於帳號安全由系統自動登出，請重新登入。'
                         else postmsg_error_show_msg+= e.name+'-'+e.message;
                         show_pop_message(postmsg_error_show_msg);
+                        formData.append('error',postmsg_error_show_msg);
+                        formData.append('error_return_data',response);
+                        $.post( "{{route('logChatWithError')}}", formData);                        
                         return;
                     }   
                     if(rentry.error!=undefined && rentry.error) {
                         if(rentry.error==401) {
                             show_pop_message('傳送失敗：'+rentry.content);
+                            formData.append('error','傳送失敗'+rentry.content);
+                            formData.append('error_return_data',response);
+                            $.post( "{{route('logChatWithError')}}", formData);                             
                         }
                         else if(rentry.error==2){
                             show_canMessageAlert(rentry.content);
@@ -1989,6 +1995,9 @@
             }
             xhr.onerror = function(e) {
                 c5('傳送失敗!');
+                formData.append('error','傳送失敗');
+                formData.append('error_return_data',e);
+                $.post( "{{route('logChatWithError')}}", formData);                 
                 $('.n_bllbut').focus();
             }
             if(formData.get('is_truth')==1) {
