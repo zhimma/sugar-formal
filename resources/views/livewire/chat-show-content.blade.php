@@ -54,11 +54,22 @@
                     <div class="msg">
                         <img src="/new/images/admin-avatar.jpg">
                         <p style="background: #DDF3FF;">
+                            @if($message->pic)
+                                @foreach(json_decode($message->pic,true) as $key => $pic)
+                                    @if(isset($pic['file_path']))
+                                        <a class="pswp--item" href="{{$pic['file_path'] }}" target="_blank"
+                                           data-pswp-index="{{ $key }}">
+                                            <img src="{{ $pic['file_path'] }}" class="n_pic_lt @if($key==0) n_pic_lt_{{ $message->client_id }} n_pic_lt_official_{{ $message->id }}  @endif">
+                                        </a> 
+                                    @endif  
+                                @endforeach            
+                            @else
                             <i class="msg_input_blue"></i>
                             {!! nl2br($message->content) !!}
                             <font class="sent_ri @if(!$isVip) novip @endif dr_r">
                                 <span>{{ substr($message->created_at,11,5) }}</span>
                             </font>
+                            @endif
                         </p>
                     </div>
                 </div>

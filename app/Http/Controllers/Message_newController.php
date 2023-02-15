@@ -313,8 +313,9 @@ class Message_newController extends BaseController {
                 'views_count_quota' => ($payload['views_count_quota']??0),
                 'show_time_limit' => ($payload['show_time_limit']??0),
                 'is_truth' => ($payload['is_truth'] ?? 0)?intval(Message::existIsTrueQuotaByFromUser($user)):0,//$payload['is_truth'] ?? 0,
+                'chat_with_admin' => $payload['chat_with_admin']??0,
             ]);
-
+            \Log::info($messageInfo);
             $messagePosted = $this->message_pic_save($messageInfo->id, $request->file('images'));
             $this->addEssenceStatisticsLog(['user_id'=>$user->id, 'to_id'=>$payload['to'], 'message_data'=>$messageInfo]);
         

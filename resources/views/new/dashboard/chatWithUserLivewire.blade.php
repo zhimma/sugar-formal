@@ -698,7 +698,8 @@
             value="{{ \Carbon\Carbon::now()->timestamp }}">
         <input type="hidden" name="parent" class="message_parent" value="">
         <input type="hidden" name="is_truth" id="is_truth_of_form_uploadPic" value="0">
-                <input type="hidden" name="client_id" class="client_id" value="">
+        <input type="hidden" name="client_id" class="client_id" value="">
+        <input type="hidden" name="chat_with_admin" value="{{ $chatting_with_admin }}">
         <div class="bl_tab_bb">
             <div class="bltitle"><span style="text-align: center; float: none;">上傳照片</span></div>
             <div class="new_pot1 new_poptk_nn new_height_mobile ">
