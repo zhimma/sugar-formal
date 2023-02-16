@@ -773,7 +773,7 @@
         <div class="gg_tab" id="vvip_selection_reward" style="display: none;">
             <div class="owl-carousel owl-theme vvip_selection_reward">
                 @foreach( $vvip_selection_reward as $row)
-                <div class="v_bg_fb01">
+                <div class="v_bg_fb01" data-id="{{$row->id}}">
                     <div class="v_bimg v_yc_sj" ><img src="/new/images/xb_1.png"></div>
                     <div class="v_bimg v_yc_pc" ><img src="/new/images/xb_2.png"></div>
                     <div class="v_fb_k v_fb_k_bg">
@@ -831,7 +831,7 @@
                     <div class="n_txbut matop20">
                         <a href="javascript:void(0);" class="vvip_selection_reward_page_left gog_pager" style="cursor: pointer;"><img src="/new/images/bk_03.png" class="left" style="width: unset;"></a>
                         <a href="javascript:void(0);" class="se_but1 apply_event" data-id="{{$row->id}}">應徵</a>
-                        <a href="javascript:void(0);" class="se_but2 skip" style="cursor: pointer;">考慮中</a>
+                        <a href="javascript:void(0);" class="se_but2 skip" style="cursor: pointer;" data-id="{{$row->id}}">考慮中</a>
                         <a href="javascript:void(0);" class="se_but2 ignore_event" style="cursor: pointer;" data-id="{{$row->id}}">不參加</a>
                         <a href="javascript:void(0);" class=" vvip_selection_reward_page_right gog_pager right" style="cursor: pointer;"><img src="/new/images/bk_05.png" class="right" style="width: unset;"></a>
                     </div>
@@ -892,6 +892,7 @@
         {{--});--}}
 
         $('.ignore_event').on('click', function () {
+            let this_id = $(this).data('id');
             $.ajax({
                 type: 'POST',
                 url: '{{ route('vvipSelectionRewardIgnore') }}',
@@ -899,10 +900,13 @@
                     _token: '{{csrf_token()}}',
                     ignore: 1,
                     user_id: '{{ $user->id }}',
-                    id: $(this).data('id'),
+                    id: this_id,
                 },
                 success: function(xhr, status, error){
                     console.log();
+                    if($('.v_bg_fb01').last().data('id')==this_id){
+                        gmBtnNoReload();
+                    }
                     $('.vvip_selection_reward').trigger('next.owl.carousel');
                 },
 
@@ -946,8 +950,33 @@
         $(".vvip_selection_reward_page_right").on('click', function () {
             $('.vvip_selection_reward').trigger('next.owl.carousel');
         });
+        // let skip = [];
         $(".skip").on('click', function () {
-            $('.vvip_selection_reward').trigger('next.owl.carousel');
+            let this_id = $(this).data('id');
+            // if($('.v_bg_fb01').last().data('id')==$(this).data('id')){
+            //     gmBtnNoReload();
+            // }
+            // $('.vvip_selection_reward').trigger('next.owl.carousel');
+            $.ajax({
+                type: 'POST',
+                url: '{{ route('vvipSelectionRewardIgnore') }}',
+                data: {
+                    _token: '{{csrf_token()}}',
+                    ignore: 1,
+                    user_id: '{{ $user->id }}',
+                    id: this_id,
+                    mode: 'skip',
+                },
+                success: function(xhr, status, error){
+                    console.log();
+                    if($('.v_bg_fb01').last().data('id')==this_id){
+                        gmBtnNoReload();
+                    }
+                    $('.vvip_selection_reward').trigger('next.owl.carousel');
+                },
+
+            });
+
         });
         $(".vvip_selection_reward").on('initialized.owl.carousel changed.owl.carousel refreshed.owl.carousel', function (e) {
             if (!e.namespace) return;
@@ -959,6 +988,9 @@
                 });
             }
         });
+        // $(".vvip_selection_reward").on('changed.owl.carousel', function( event) {
+        // alert(event);
+        // });
     });
 
     function vvipUserNoteEdit_show() {

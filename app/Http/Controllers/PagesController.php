@@ -8747,7 +8747,6 @@ class PagesController extends BaseController
         $faqCountDownSeconds = $faqUserService->getCountDownSeconds();
         $isFaqDuringCountDown = $faqUserService->isDuringCountDown();
         $isForceShowFaqPopup = $faqUserService->isForceShowFaqPopup();
-
         //vvip_selection_reward
         $vvip_selection_reward_ignore = VvipSelectionRewardIgnore::select('vvip_selection_reward_id')->where('user_id', $user->id)->get();
         $vvip_selection_reward_apply = VvipSelectionRewardApply::select('vvip_selection_reward_id')->where('user_id', $user->id)->get();
@@ -8757,8 +8756,11 @@ class PagesController extends BaseController
             ->where(function ($query) {
                 return $query->where('expire_date', '>',  Carbon::now())
                     ->orWhere('expire_date', null);
-            })
-            ->get();
+            });
+        if( count( session()->get('skip.id',[])) > 0){
+            $vvip_selection_reward = $vvip_selection_reward->whereNotIn('id', session()->get('skip.id',[]));
+        }
+        $vvip_selection_reward = $vvip_selection_reward->get();
 
         //vvip_selection_reward notice
         $vvip_selection_reward_notice = VvipSelectionReward::where('user_id', $user->id)
@@ -11013,6 +11015,7 @@ class PagesController extends BaseController
         //check application
         $checkVvipSelectionReward = VvipSelectionReward::where('user_id', $user->id)
             ->whereIn('status', [0, 1])
+            ->orderBy('created_at', 'desc')
             ->first();
         if($checkVvipSelectionReward &&
             (($checkVvipSelectionReward->expire_date && Carbon::parse($checkVvipSelectionReward->expire_date) > Carbon::now()) || ($checkVvipSelectionReward->expire_date == ''))
@@ -11090,18 +11093,20 @@ class PagesController extends BaseController
     public function vvipSelectionRewardIgnore(Request $request)
     {
         if ($request->ajax()) {
+            if($request->mode=='skip'){
+                session()->push('skip.id', $request->id);
+            }else {
+                $data = VvipSelectionRewardIgnore::where('user_id', $request->user_id)->where('vvip_selection_reward_id', $request->id)->first();
 
-            $data = VvipSelectionRewardIgnore::where('user_id', $request->user_id)->where('vvip_selection_reward_id', $request->id)->first();
-
-            if($request->ignore==1 && !$data){
-                $newData = new VvipSelectionRewardIgnore();
-                $newData->user_id = $request->user_id;
-                $newData->vvip_selection_reward_id = $request->id;
-                $newData->save();
-            }elseif($request->ignore==0 && $data){
-                VvipSelectionRewardIgnore::where('user_id', $request->user_id)->where('vvip_selection_reward_id', $request->id)->delete();
+                if ($request->ignore == 1 && !$data) {
+                    $newData = new VvipSelectionRewardIgnore();
+                    $newData->user_id = $request->user_id;
+                    $newData->vvip_selection_reward_id = $request->id;
+                    $newData->save();
+                } elseif ($request->ignore == 0 && $data) {
+                    VvipSelectionRewardIgnore::where('user_id', $request->user_id)->where('vvip_selection_reward_id', $request->id)->delete();
+                }
             }
-
             return response()->json(['success' => true]);
         }
     }
