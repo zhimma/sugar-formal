@@ -74,7 +74,7 @@
                         </dt>
                         <dt class="bhui_new">
                             <span class="x_p5">4.請輸入招選人數</span>
-                            <font><input name="limit" type="number" class="select_xx01 x_tpbo" id="limit" min="1" placeholder="請輸入招選人數" required></font>
+                            <font><input name="limit" type="text" class="select_xx01 x_tpbo" id="limit" min="1" max="99" maxlength="2" onkeyup="value=value.replace(/[^1-9]/g,'') " placeholder="請輸入招選人數" required></font>
                         </dt>
                     </div>
                 </div>
@@ -125,7 +125,7 @@
                     c5('請輸入徵選主題');
                     return false;
                 }
-                if ($('#limit').val() == '' || $('#limit').val() < 0) {
+                if ($('#limit').val() == '' || $('#limit').val() <= 0) {
                     $('#limit').val('');
                     c5('請輸入招選人數');
                     return false;

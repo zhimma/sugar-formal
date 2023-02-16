@@ -773,7 +773,7 @@
         <div class="gg_tab" id="vvip_selection_reward" style="display: none;">
             <div class="owl-carousel owl-theme vvip_selection_reward">
                 @foreach( $vvip_selection_reward as $row)
-                <div class="v_bg_fb01">
+                <div class="v_bg_fb01" data-id="{{$row->id}}">
                     <div class="v_bimg v_yc_sj" ><img src="/new/images/xb_1.png"></div>
                     <div class="v_bimg v_yc_pc" ><img src="/new/images/xb_2.png"></div>
                     <div class="v_fb_k v_fb_k_bg">
@@ -824,14 +824,15 @@
                     <img src="/new/images/xb08.png" style="width: 100%; margin: 0 auto; display: table; height: 15px;">
 
 
-                    <div class="v_ftextf">
-                        <h3><input type="checkbox" id="check" class="ignore_event" style="width:15px; height: 15px; margin-right: 5px; position: relative; top:3px;" data-id="{{$row->id}}"/>沒有意願</h3>
-                    </div>
+{{--                    <div class="v_ftextf">--}}
+{{--                        <h3><input type="checkbox" id="check" class="ignore_event" style="width:15px; height: 15px; margin-right: 5px; position: relative; top:3px;" data-id="{{$row->id}}"/>沒有意願</h3>--}}
+{{--                    </div>--}}
 
                     <div class="n_txbut matop20">
                         <a href="javascript:void(0);" class="vvip_selection_reward_page_left gog_pager" style="cursor: pointer;"><img src="/new/images/bk_03.png" class="left" style="width: unset;"></a>
-                        <a href="javascript:void(0);" class="se_but1 apply_event" data-id="{{$row->id}}">我要應徵</a>
-                        <a href="javascript:void(0);" class="se_but2" style="cursor: pointer;">跳過</a>
+                        <a href="javascript:void(0);" class="se_but1 apply_event" data-id="{{$row->id}}">應徵</a>
+                        <a href="javascript:void(0);" class="se_but2 skip" style="cursor: pointer;" data-id="{{$row->id}}">考慮中</a>
+                        <a href="javascript:void(0);" class="se_but2 ignore_event" style="cursor: pointer;" data-id="{{$row->id}}">不參加</a>
                         <a href="javascript:void(0);" class=" vvip_selection_reward_page_right gog_pager right" style="cursor: pointer;"><img src="/new/images/bk_05.png" class="right" style="width: unset;"></a>
                     </div>
 
@@ -867,24 +868,46 @@
             $('#vvip_selection_reward').show();
         }
 
-        $('.ignore_event').change(function() {
-            let ignore;
-            if($(this).is(":checked")) {
-                ignore = 1;
-            }else if(!$(this).is(":checked")){
-                ignore = 0;
-            }
+        {{--$('.ignore_event').change(function() {--}}
+        {{--    let ignore;--}}
+        {{--    if($(this).is(":checked")) {--}}
+        {{--        ignore = 1;--}}
+        {{--    }else if(!$(this).is(":checked")){--}}
+        {{--        ignore = 0;--}}
+        {{--    }--}}
+        {{--    $.ajax({--}}
+        {{--        type: 'POST',--}}
+        {{--        url: '{{ route('vvipSelectionRewardIgnore') }}',--}}
+        {{--        data: {--}}
+        {{--            _token: '{{csrf_token()}}',--}}
+        {{--            ignore: ignore,--}}
+        {{--            user_id: '{{ $user->id }}',--}}
+        {{--            id: $(this).data('id'),--}}
+        {{--        },--}}
+        {{--        success: function(xhr, status, error){--}}
+        {{--            console.log();--}}
+        {{--        },--}}
+
+        {{--    });--}}
+        {{--});--}}
+
+        $('.ignore_event').on('click', function () {
+            let this_id = $(this).data('id');
             $.ajax({
                 type: 'POST',
                 url: '{{ route('vvipSelectionRewardIgnore') }}',
                 data: {
                     _token: '{{csrf_token()}}',
-                    ignore: ignore,
+                    ignore: 1,
                     user_id: '{{ $user->id }}',
-                    id: $(this).data('id'),
+                    id: this_id,
                 },
                 success: function(xhr, status, error){
                     console.log();
+                    if($('.v_bg_fb01').last().data('id')==this_id){
+                        gmBtnNoReload();
+                    }
+                    $('.vvip_selection_reward').trigger('next.owl.carousel');
                 },
 
             });
@@ -918,17 +941,6 @@
                     items: 1,
                     nav: false,
                     dots:false,
-                    // beforeMove : function(){
-                    //     alert(1);
-                    //     if(this.currentItem === this.maximumItem){
-                    //         alert(1);
-                    //     }
-                    // }
-                    // afterMove : function(){
-                    //     if(this.currentItem === this.maximumItem){
-                    //         alert(1);
-                    //     }
-                    // }
                 }
             }
         });
@@ -938,22 +950,47 @@
         $(".vvip_selection_reward_page_right").on('click', function () {
             $('.vvip_selection_reward').trigger('next.owl.carousel');
         });
-        $(".se_but2").on('click', function () {
-            @if($vvip_selection_reward && count($vvip_selection_reward)>0)
-                gmBtnNoReload();
-            @endif
-            $('.vvip_selection_reward').trigger('next.owl.carousel');
+        // let skip = [];
+        $(".skip").on('click', function () {
+            let this_id = $(this).data('id');
+            // if($('.v_bg_fb01').last().data('id')==$(this).data('id')){
+            //     gmBtnNoReload();
+            // }
+            // $('.vvip_selection_reward').trigger('next.owl.carousel');
+            $.ajax({
+                type: 'POST',
+                url: '{{ route('vvipSelectionRewardIgnore') }}',
+                data: {
+                    _token: '{{csrf_token()}}',
+                    ignore: 1,
+                    user_id: '{{ $user->id }}',
+                    id: this_id,
+                    mode: 'skip',
+                },
+                success: function(xhr, status, error){
+                    console.log();
+                    if($('.v_bg_fb01').last().data('id')==this_id){
+                        gmBtnNoReload();
+                    }
+                    $('.vvip_selection_reward').trigger('next.owl.carousel');
+                },
+
+            });
+
         });
         $(".vvip_selection_reward").on('initialized.owl.carousel changed.owl.carousel refreshed.owl.carousel', function (e) {
             if (!e.namespace) return;
             var carousel = e.relatedTarget,
                 current = carousel.current();
             if (current === carousel.maximum()) {
-                $(".se_but2").on('click', function () {
+                $(".skip, .ignore_event").on('click', function () {
                     gmBtnNoReload();
                 });
             }
         });
+        // $(".vvip_selection_reward").on('changed.owl.carousel', function( event) {
+        // alert(event);
+        // });
     });
 
     function vvipUserNoteEdit_show() {
