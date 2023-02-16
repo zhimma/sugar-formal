@@ -2376,34 +2376,35 @@ class User extends Authenticatable implements JWTSubject
 //    }
     public function isVvipSelectionRewardActive($to_user)
     {
-        if($this->engroup==1){
-            $check1 = VvipSelectionReward::where('user_id', $this->id)
+        if($this->engroup==2){
+            $check1 = VvipSelectionReward::select('id')
+                ->where('user_id', $to_user)
                 ->whereIn('status', [1, 3])
-                ->first();
+                ->get();
             $check2 = null;
             if($check1) {
-                $check2 = VvipSelectionRewardApply::where('vvip_selection_reward_id', $check1->id)
-                    ->where('user_id', $to_user)
+                $check2 = VvipSelectionRewardApply::whereIn('vvip_selection_reward_id', $check1)
+                    ->where('user_id', $this->id)
                     ->where('status', 1)
-                    ->first();
+                    ->get();
             }
 
-            return $check1 !== null && $check2 !== null;
+            return count($check1)>0 && count($check2)>0;
 
         }
-        else if($this->engroup==2){
-            $check1 = VvipSelectionRewardApply::where('user_id', $this->id)
+        else if($this->engroup==1){
+            $check1 = VvipSelectionRewardApply::select('vvip_selection_reward_id')
+                ->where('user_id', $to_user)
                 ->where('status', 1)
-                ->first();
+                ->get();
             $check2 = null;
             if($check1) {
-                $check2 = VvipSelectionReward::where('id', $check1->vvip_selection_reward_id)
-                    ->where('user_id', $to_user)
+                $check2 = VvipSelectionReward::whereIn('id', $check1)
+                    ->where('user_id', $this->id)
                     ->whereIn('status', [1, 3])
-                    ->first();
+                    ->get();
             }
-            return $check1 !== null && $check2 !== null;
-
+            return count($check1)>0 && count($check2)>0;
         }
     }
 
