@@ -2,32 +2,28 @@
 
 namespace App\Models;
 
-use App\Models\LogUserLogin;
-use App\Models\User;
-use App\Models\UserMeta;
-use App\Models\Message;
-use App\Models\SimpleTables\warned_users;
-use App\Models\SimpleTables\banned_users;
-use Illuminate\Database\Eloquent\Model;
-use Illuminate\Support\Facades\Log;
-use Illuminate\Support\Facades\DB;
-use Illuminate\Database\Eloquent\SoftDeletes;
 use App\Jobs\AutoBanCaller;
-use App\Jobs\LogoutAutoBan;
-use Carbon\Carbon;
-use App\Services\ImagesCompareService;
 use App\Jobs\BanJob;
-use Illuminate\Support\Facades\Cache;
-use Outl1ne\ScoutBatchSearchable\BatchSearchable;
+use App\Jobs\LogoutAutoBan;
+use App\Models\SimpleTables\warned_users;
+use App\Services\ImagesCompareService;
+use Carbon\Carbon;
+use GuzzleHttp\Client;
+use GuzzleHttp\Client;
+use GuzzleHttp\Client;
+use Illuminate\Database\Eloquent\Model;
+use Illuminate\Database\Eloquent\SoftDeletes;
+use Illuminate\Support\Facades\DB;
+use Illuminate\Support\Facades\Log;
 use GuzzleHttp\Client;
 
 class SetAutoBan extends Model
 {
-    use SoftDeletes, BatchSearchable;
+    use SoftDeletes;
+
     //
+    public $timestamps = false;
     protected $table = 'set_auto_ban';
-	
-	public $timestamps = false;
 
     public function __construct(array $attributes = [])
     {
@@ -44,16 +40,28 @@ class SetAutoBan extends Model
         Log::info('start_SetAutoBan_auto_ban');
         AutoBanCaller::dispatch($uid)->onConnection('database-long')->onQueue('long-jobs')->delay(SetAutoBan::_getDelayTime());
     }
-    
+
+    private static function _getDelayTime()
+    {
+        $delay = 0;
+        $now = Carbon::now();
+        $next = $now->addDay();
+        $stime = Carbon::parse($now->format('Y-m-d') . ' 18:00:00');
+        $etime = Carbon::parse($next->format('Y-m-d') . ' 01:00:00');
+        if ($now->gt($stime) && $now->lt($etime)) $delay = 25200;
+        return $delay;
+    }
+
+    //發訊後的自動封鎖
+
     public static function autoBan($uid)
     {
         $user = User::findById($uid);
         try {
-            if(isset($user) && $user->can('admin')){
+            if (isset($user) && $user->can('admin')) {
                 return;
             }
-        }
-        catch (\Exception $e){
+        } catch (\Exception $e){
 
         }
         $auto_ban = SetAutoBan::select('type', 'set_ban', 'id', 'content', 'expired_days')->orderBy('id', 'desc')->get();
@@ -93,11 +101,11 @@ class SetAutoBan extends Model
                 //20220629新增圖片檔名
                 case 'picname':
                     if(UserMeta::where('user_id',$uid)->where('pic_original_name','like','%'.$content.'%')->first() != null) $violation = true;
-                    
+
                     //有一筆違規就可以封鎖了
                     if(MemberPic::where('member_id',$uid)->where('original_name','like','%'.$content.'%')->first() != null) $violation = true;
                     break;
-                //20220629新增圖片檔名   
+                //20220629新增圖片檔名
 
                 case 'pic':
                     $ban_encode_entry = ImagesCompareService::getCompareEncodeByPic($content);
@@ -105,20 +113,20 @@ class SetAutoBan extends Model
                         if(($user->meta->pic??null) && $ban_encode_entry->file_md5==ImagesCompareService::getCompareEncodeByPic($user->meta->pic)->file_md5) {
                             $violation = true;
                         }
-                        
+
                         if(!$violation) {
                             $memPics = $user->pic_withTrashed()->pluck('pic')->all();
-                            $memPicMd5s =  ImagesCompareService::getFileMd5ArrByPicArr($memPics); 
+                            $memPicMd5s = ImagesCompareService::getFileMd5ArrByPicArr($memPics);
                             if(in_array($memPics,$memPicMd5s)) $violation = true;
                         }
-                        
+
                         if(!$violation) {
                             $delAvatars = $user->avatar_deleted()->pluck('pic')->all();
-                            $delAvatarMd5s =  ImagesCompareService::getFileMd5ArrByPicArr($delAvatars); 
+                            $delAvatarMd5s = ImagesCompareService::getFileMd5ArrByPicArr($delAvatars);
                             if(in_array($delAvatars,$delAvatarMd5s)) $violation = true;
                         }
                     }
-                break;                       
+                    break;
                 default:
                     break;
             }
@@ -131,21 +139,21 @@ class SetAutoBan extends Model
         }
     }
 
-    //發訊後的自動封鎖
     public static function msg_auto_ban($uid, $toid, $msg)
-    {                   
-        AutoBanCaller::dispatch($uid, $toid, $msg)->onConnection('database-long')->onQueue('long-jobs')->delay(SetAutoBan::_getDelayTime());                   
+    {
+        AutoBanCaller::dispatch($uid, $toid, $msg)->onConnection('database-long')->onQueue('long-jobs')->delay(SetAutoBan::_getDelayTime());
     }
-    
+
+    //登出後的警示
+
     public static function autoBanMsg($uid, $toid, $msg)
     {
         $user = User::findById($uid);
         try {
-            if(isset($user) && $user->can('admin')){
+            if (isset($user) && $user->can('admin')) {
                 return;
             }
-        }
-        catch (\Exception $e){
+        } catch (\Exception $e){
 
         }
         $auto_ban = SetAutoBan::select('type', 'set_ban', 'id', 'content', 'expired_days')->where('type', 'msg')->orwhere('type', 'allcheck')->orderBy('id', 'desc')->get();
@@ -162,22 +170,21 @@ class SetAutoBan extends Model
         }
     }
 
-    //登出後的警示
+    //登入時的警示
+
     public static function logout_warned($uid)
     {
         Log::Info('start_LogoutAutoBan_logout_warned');
         Log::Info($uid);
-        if(\App::isProduction()) {
+        if (\App::isProduction()) {
             // LogoutAutoBan::dispatch($uid)->onConnection('sqs')->onQueue('auto-ban')->delay(SetAutoBan::_getDelayTime());
             LogoutAutoBan::dispatchSync($uid);
-        }
-        else {
+        } else {
             // LogoutAutoBan::dispatch($uid)->onConnection('sqs')->onQueue('auto-ban-test')->delay(SetAutoBan::_getDelayTime());
             LogoutAutoBan::dispatchSync($uid);
         }
     }
 
-    //登入時的警示
     public static function login_warned($uid)
     {
         $user = User::where('id', $uid)->first();
@@ -213,19 +220,6 @@ class SetAutoBan extends Model
         {
             warned_users::where('member_id', $uid)->where('type', 'no_mobile_verify')->delete();
         }
-    }
-
-    public static function banJobDispatcher($user, $matched_set, $data_type)
-    {
-        if($matched_set && $matched_set->id) {
-            logger("User $user->id violated auto-ban set: $matched_set->id");
-            BanJob::dispatch($user->id, $matched_set, $user, $data_type)->onConnection('ban-job')->onQueue('ban-job');
-        }
-        else {
-            logger("Ban job dispatcher called but no matched set, user: $user->id.");
-        }
-
-        return 0;
     }
 
     public static function logoutWarned($uid, $probing = false)
@@ -573,25 +567,6 @@ class SetAutoBan extends Model
         }
     }
 
-    public static function setAutoBanAdd($type, $content, $set_ban, $cuz_user_set = null, $expiry = '0000-00-00 00:00:00', $host = null)
-    {
-        if($type == 'ip'){
-            $expiry = \Carbon\Carbon::now()->addMonths(1)->format('Y-m-d H:i:s');
-        }
-        SetAutoBan::insert(['type' => $type, 'content' => $content, 'set_ban' => $set_ban, 'cuz_user_set' => $cuz_user_set, 'expiry' => $expiry, 'host' => $host, 'created_at' => now(), 'updated_at' => now() ]);
-        return;
-    }
-    
-    private static function _getDelayTime() {
-        $delay = 0;
-        $now=Carbon::now();
-        $next = $now->addDay();
-        $stime = Carbon::parse($now->format('Y-m-d').' 18:00:00');
-        $etime = Carbon::parse($next->format('Y-m-d').' 01:00:00');
-        if($now->gt($stime) && $now->lt($etime)) $delay=25200; 
-        return $delay;
-    }    
-
     public static function retrive($type)
     {
         /*
@@ -603,64 +578,29 @@ class SetAutoBan extends Model
         return SetAutoBan::where('type', $type)->get();
     }
 
-    public static function retriveGroupAndCheck($typeArr, $user, $get_remote_ip){
-        $set_auto_ban_list_by_type =  DB::table('set_auto_ban')->leftJoin('users','users.id','=','set_auto_ban.cuz_user_set')->whereIn('set_auto_ban.type', $typeArr)->whereNull('set_auto_ban.deleted_at')->get()->toArray();
-
-        $checkStatus=false;
-        $ban_type=[];
-        
-
-        // $get_remote_ip = SetAutoBan::getRemoteIp();
-        foreach($set_auto_ban_list_by_type as $row){
- 
-            if($row->type=='ip'){
-                if($get_remote_ip == $row->content){
-                    if(Carbon::now()<$row->expiry){
-                        $checkStatus = true;
-                        array_push($ban_type,'ip');
-                    }
-                }
-            }
-
-            if($row->type=='style'){
-                if(strpos($user->style, $row->content) !== false){
-                    $checkStatus = true;
-                    array_push($ban_type,'期待的約會模式');
-                }
-            }
-
-            if($row->type=='about'){
-                if(strpos($user->about, $row->content) !== false){
-                    $checkStatus = true;
-                    array_push($ban_type,'關於我');
-                }
-            }
-
-            if($row->type=='title'){
-                if(str_contains($user->title, $row->content)){
-                    $checkStatus = true;
-                    array_push($ban_type,'一句話形容自己');
-                }
-            }
-
-            if($row->type=='name'){
-                if(str_contains($user->name, $row->content)){
-                    $checkStatus = true;
-                    array_push($ban_type,'暱稱');
-                }
-            }
-
-            if($row->type=='email'){
-                if(str_contains($user->email, '@'.$row->content)){
-                    $checkStatus = true;
-                    array_push($ban_type,'email');
-                }
-            }
+    public static function banJobDispatcher($user, $matched_set, $data_type)
+    {
+        if ($matched_set && $matched_set->id) {
+            logger("User $user->id violated auto-ban set: $matched_set->id");
+            BanJob::dispatch($user->id, $matched_set, $user, $data_type)->onConnection('ban-job')->onQueue('ban-job');
+        } else {
+            logger("Ban job dispatcher called but no matched set, user: $user->id.");
         }
 
-        return [$checkStatus, $ban_type];
+        return 0;
     }
-    public static function getRemoteIp(){
+
+    public static function setAutoBanAdd($type, $content, $set_ban, $cuz_user_set = null, $expiry = '0000-00-00 00:00:00', $host = null)
+    {
+        if ($type == 'ip') {
+            $expiry = \Carbon\Carbon::now()->addMonths(1)->format('Y-m-d H:i:s');
+        }
+        SetAutoBan::insert(['type' => $type, 'content' => $content, 'set_ban' => $set_ban, 'cuz_user_set' => $cuz_user_set, 'expiry' => $expiry, 'host' => $host, 'created_at' => now(), 'updated_at' => now()]);
+        return;
+    }
+
+    public static function getRemoteIp()
+    {
         if (!empty($_SERVER['HTTP_CLIENT_IP'])) {
             $ip = $_SERVER['HTTP_CLIENT_IP'];
         } elseif (!empty($_SERVER['HTTP_X_FORWARDED_FOR'])) {
@@ -669,29 +609,6 @@ class SetAutoBan extends Model
             $ip = $_SERVER['REMOTE_ADDR'];
         }
         return $ip;
-    }
-    /**
-     * Get the name of the index associated with the model.
-     *
-     * @return string
-     */
-    public function searchableAs()
-    {
-        return 'autoban_set';
-    }
-
-    /**
-     * Get the indexable data array for the model.
-     *
-     * @return array
-     */
-    public function toSearchableArray()
-    {
-        $array = $this->toArray();
- 
-        // Customize the data array...
- 
-        return $array;
     }
 
     public static function local_machine_ban_and_warn($uid, $probing = false)
@@ -720,17 +637,17 @@ class SetAutoBan extends Model
             if(!$bypass){
                 $ban_set_type = collect(['name', 'email', 'title']);
                 $ban_meta_set_type = collect(['about', 'style']);
-                $all_check_rule_sets = SetAutoBan::retrive('allcheck');  
+                $all_check_rule_sets = SetAutoBan::retrive('allcheck');
 
                 $ban_set_type->each(function($type) use ($user, $all_check_rule_sets, $probing, &$ban_list) {
                     $type_rule_sets = SetAutoBan::retrive($type);
                     $rule_sets = $type_rule_sets->merge($all_check_rule_sets);
                     $rule_sets->each(function($rule_set) use ($user, $type, $probing, &$ban_list) {
-                        if(str_contains($user->$type, $rule_set->content)) {  
-                            if($probing) {
+                        if (str_contains($user->$type, $rule_set->content)) {
+                            if ($probing) {
                                 echo $rule_set->id . ' ' . $rule_set->type;
                             }
-                            if($rule_set && $rule_set->id) {
+                            if ($rule_set && $rule_set->id) {
                                 $ban_list[] = [$user->id, $rule_set->id, 'profile'];
                             }
                         }
@@ -741,18 +658,18 @@ class SetAutoBan extends Model
                     $type_rule_sets = SetAutoBan::retrive($type);
                     $rule_sets = $type_rule_sets->merge($all_check_rule_sets);
                     $rule_sets->each(function($rule_set) use ($user, $type, $probing, &$ban_list) {
-                        if(str_contains($user->user_meta->$type, $rule_set->content)) {  
-                            if($probing) {
+                        if (str_contains($user->user_meta->$type, $rule_set->content)) {
+                            if ($probing) {
                                 echo $rule_set->id . ' ' . $rule_set->type;
-                            }                    
-                            if($rule_set && $rule_set->id) {
+                            }
+                            if ($rule_set && $rule_set->id) {
                                 $ban_list[] = [$user->id, $rule_set->id, 'profile'];
                             }
                         }
                     });
                 });
             }
-            
+
             //只取一天內的登入紀錄
             Log::Info('開始檢查User: ' . $user->id . ' CFP_ID 共 ' . $user->log_user_login->where('created_at', '>', Carbon::now()->subDay())->sortByDesc('created_at')->count() . ' 筆登入紀錄');
             $user->log_user_login->where('created_at', '>', Carbon::now()->subDay())->each(function ($log) use ($user, $probing, &$ban_list, $bypass) {
@@ -761,7 +678,7 @@ class SetAutoBan extends Model
                     if($log->cfp_id == $rule_set->content) {
                         if($probing) {
                             echo $rule_set->id . ' ' . $rule_set->type;
-                        }  
+                        }
                         if($rule_set && $rule_set->id) {
                             $ban_list[] = [$user->id, $rule_set->id, 'profile'];
                         }
@@ -774,7 +691,7 @@ class SetAutoBan extends Model
                         if(str_contains($log->userAgent, $rule_set->content)) {
                             if($probing) {
                                 echo $rule_set->id . ' ' . $rule_set->type;
-                            }  
+                            }
                             if($rule_set && $rule_set->id) {
                                 $ban_list[] = [$user->id, $rule_set->id, 'profile'];
                             }
@@ -790,21 +707,21 @@ class SetAutoBan extends Model
                     if(str_contains($user->user_meta->pic_original_name, $rule_set->content)) {
                         if($probing) {
                             echo $rule_set->id . ' ' . $rule_set->type;
-                        }  
+                        }
                         if($rule_set && $rule_set->id) {
                                 $ban_list[] = [$user->id, $rule_set->id, 'profile'];
                             }
                     }
                 });
 
-                //有一筆違規就可以封鎖了 
+                //有一筆違規就可以封鎖了
                 $pic_name_rule_sets = SetAutoBan::retrive('picname');
                 $any_pic_violated = $user->pics->first(function($pic) use ($user, $pic_name_rule_sets, $probing, &$ban_list) {
                     return $pic_name_rule_sets->each(function($rule_set) use ($user, $pic, $probing, &$ban_list) {
                         if(str_contains($pic->original_name, $rule_set->content)) {
                             if($probing) {
                                 echo 'any_pic_violated, ban set:' . $rule_set->id . ' ' . $rule_set->type;
-                            }  
+                            }
                             if($rule_set && $rule_set->id) {
                                 $ban_list[] = [$user->id, $rule_set->id, 'profile'];
                             }
@@ -821,7 +738,7 @@ class SetAutoBan extends Model
                 $auto_ban_rule_sets = $ip_rule_sets;
             }
 
-            
+
             foreach ($auto_ban_rule_sets as $ban_set) {
                 $content = $ban_set->content;
                 $violation = false;
@@ -829,19 +746,19 @@ class SetAutoBan extends Model
                 switch ($ban_set->type) {
                     case 'ip':
                         if($ban_set->expiry=='0000-00-00 00:00:00') {
-                            SetAutoBan::ip_update_send('update', $ban_set->id);			
+                            SetAutoBan::ip_update_send('update', $ban_set->id);
                         }
                         if($ban_set->expiry<=\Carbon\Carbon::now()->format('Y-m-d H:i:s')) {
-                            SetAutoBan::ip_update_send('delete', $ban_set->id);	
+                            SetAutoBan::ip_update_send('delete', $ban_set->id);
                             break;
-                        }	
+                        }
                         $ip = $user->log_user_login->where('created_at', '>', Carbon::now()->subDay())->sortByDesc('created_at')->first();
                         if($ip?->ip == $content) {
                             $violation = true;
-                            SetAutoBan::ip_update_send('update', $ban_set->id);						
+                            SetAutoBan::ip_update_send('update', $ban_set->id);
                         }
                         break;
-                    //20220629新增圖片檔名   
+                    //20220629新增圖片檔名
                     case 'pic':
                         $ban_encode_entry = ImagesCompareService::getCompareEncodeByPic($content);
 
@@ -850,20 +767,20 @@ class SetAutoBan extends Model
                                 $violation = true;
                                 $caused_by = 'pic';
                             }
-                            
-                            if(!$violation) {
+
+                            if (!$violation) {
                                 $memPics = $user->pic_withTrashed()->pluck('pic')->all();
-                                $memPicMd5s =  ImagesCompareService::getFileMd5ArrByPicArr($memPics); 
-                                if(in_array($ban_encode_entry->file_md5,$memPicMd5s)) { 
+                                $memPicMd5s = ImagesCompareService::getFileMd5ArrByPicArr($memPics);
+                                if (in_array($ban_encode_entry->file_md5, $memPicMd5s)) {
                                     $violation = true;
                                     $caused_by = 'pic';
                                 }
-                            }                                           
-                            
-                            if(!$violation) {
+                            }
+
+                            if (!$violation) {
                                 $delAvatars = $user->avatar_deleted()->pluck('pic')->all();
-                                $delAvatarMd5s =  ImagesCompareService::getFileMd5ArrByPicArr($delAvatars); 
-                                if(in_array($ban_encode_entry->file_md5,$delAvatarMd5s)) {
+                                $delAvatarMd5s = ImagesCompareService::getFileMd5ArrByPicArr($delAvatars);
+                                if (in_array($ban_encode_entry->file_md5, $delAvatarMd5s)) {
                                     $violation = true;
                                     $caused_by = 'pic';
                                 }
@@ -875,7 +792,7 @@ class SetAutoBan extends Model
                 }
 
                 if ($violation) {
-                    $type = 'profile';                
+                    $type = 'profile';
                     if($probing) {
                         echo $caused_by;
                     }
@@ -883,7 +800,7 @@ class SetAutoBan extends Model
                         logger("User $uid is banned by $caused_by");
                     }
                     $ban_list[] = [$uid, $ban_set->id, $type];
-                    
+
                 }
             }
 
@@ -906,7 +823,7 @@ class SetAutoBan extends Model
             $ip_list['expiry'] = '';
             $ip_list['updated_at'] = '';
         }
-        
+
 
         $link_address = config('localmachine.MISC_LINK_SERVER').'/LocalMachineReceive/BanSetIPUpdate';
         $post_data = [
@@ -918,7 +835,7 @@ class SetAutoBan extends Model
         $client   = new Client();
         $response = $client->request('POST', $link_address, $post_data);
         $contents = $response->getBody()->getContents();
-        Log::Info($contents);		
+        Log::Info($contents);
     }
 
     public static function local_machine_ban_and_warn_second($uid, $probing = false)
@@ -943,17 +860,17 @@ class SetAutoBan extends Model
 
             $ban_set_type = collect(['name', 'email', 'title']);
 
-            $all_check_rule_sets = SetAutoBan::retrive('allcheck');  
+        $all_check_rule_sets = SetAutoBan::retrive('allcheck');
 
             $ban_set_type->each(function($type) use ($user, $all_check_rule_sets, $probing, &$ban_list) {
                 $type_rule_sets = SetAutoBan::retrive($type);
                 $rule_sets = $type_rule_sets->merge($all_check_rule_sets);
                 $rule_sets->each(function($rule_set) use ($user, $type, $probing, &$ban_list) {
-                    if(str_contains($user->$type, $rule_set->content)) {  
-                        if($probing) {
+                    if (str_contains($user->$type, $rule_set->content)) {
+                        if ($probing) {
                             echo $rule_set->id . ' ' . $rule_set->type;
                         }
-                        if($rule_set && $rule_set->id) {
+                        if ($rule_set && $rule_set->id) {
                             $ban_list[] = [$user->id, $rule_set->id, 'profile'];
                         }
                     }
@@ -965,13 +882,96 @@ class SetAutoBan extends Model
 
     public static function local_machine_ban_and_warn_check($user, $ip, $probing = false)
     {
-        if(!$user) {
+        if (!$user) {
             logger("user is not found in db");
             return [];
         }
 
-        [$status, $ban_type] = SetAutoBan::retriveGroupAndCheck(['ip','name','email','title','about', 'style'], $user, $ip);
+        [$status, $ban_type] = SetAutoBan::retriveGroupAndCheck(['ip', 'name', 'email', 'title', 'about', 'style'], $user, $ip);
 
         return [$status, $ban_type];
+    }
+
+    public static function retriveGroupAndCheck($typeArr, $user, $get_remote_ip)
+    {
+        $set_auto_ban_list_by_type = DB::table('set_auto_ban')->leftJoin('users', 'users.id', '=', 'set_auto_ban.cuz_user_set')->whereIn('set_auto_ban.type', $typeArr)->whereNull('set_auto_ban.deleted_at')->get()->toArray();
+
+        $checkStatus = false;
+        $ban_type = [];
+
+
+        // $get_remote_ip = SetAutoBan::getRemoteIp();
+        foreach ($set_auto_ban_list_by_type as $row) {
+
+            if ($row->type == 'ip') {
+                if ($get_remote_ip == $row->content) {
+                    if (Carbon::now() < $row->expiry) {
+                        $checkStatus = true;
+                        array_push($ban_type, 'ip');
+                    }
+                }
+            }
+
+            if ($row->type == 'style') {
+                if (strpos($user->style, $row->content) !== false) {
+                    $checkStatus = true;
+                    array_push($ban_type, '期待的約會模式');
+                }
+            }
+
+            if ($row->type == 'about') {
+                if (strpos($user->about, $row->content) !== false) {
+                    $checkStatus = true;
+                    array_push($ban_type, '關於我');
+                }
+            }
+
+            if ($row->type == 'title') {
+                if (str_contains($user->title, $row->content)) {
+                    $checkStatus = true;
+                    array_push($ban_type, '一句話形容自己');
+                }
+            }
+
+            if ($row->type == 'name') {
+                if (str_contains($user->name, $row->content)) {
+                    $checkStatus = true;
+                    array_push($ban_type, '暱稱');
+                }
+            }
+
+            if ($row->type == 'email') {
+                if (str_contains($user->email, '@' . $row->content)) {
+                    $checkStatus = true;
+                    array_push($ban_type, 'email');
+                }
+            }
+        }
+
+        return [$checkStatus, $ban_type];
+    }
+
+    /**
+     * Get the name of the index associated with the model.
+     *
+     * @return string
+     */
+    public function searchableAs()
+    {
+        return 'autoban_set';
+    }
+
+    /**
+     * Get the indexable data array for the model.
+     *
+     * @return array
+     */
+    public function toSearchableArray()
+    {
+        $array = $this->toArray();
+
+        // Customize the data array...
+
+        return $array;
     }
 }

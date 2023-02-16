@@ -2,28 +2,24 @@
 
 namespace App\Models;
 
-use App\Models\SimpleTables\warned_users;
-use \Datetime;
-use App\Models\User;
-use Illuminate\Database\Eloquent\Model;
-use Illuminate\Support\Facades\Config;
-use App\Models\SimpleTables\banned_users;
 use App\Models\Blocked as blocked;
-use Carbon\Carbon;
-use Illuminate\Support\Facades\Log;
-use Illuminate\Support\Facades\DB;
-use App\Models\Pr_log;
-use App\Models\Vip;
+use App\Models\SimpleTables\banned_users;
+use App\Models\SimpleTables\warned_users;
 use App\Services\ImagesCompareService;
-use App\Models\SearchIgnore;
 use App\Services\SearchIgnoreService;
-use App\Models\RealAuthUserModifyPic;
-use Outl1ne\ScoutBatchSearchable\BatchSearchable;
+use Carbon\Carbon;
+use Datetime;
+use Illuminate\Database\Eloquent\Factories\HasFactory;
+use Illuminate\Database\Eloquent\Factories\HasFactory;
+use Illuminate\Database\Eloquent\Factories\HasFactory;
+use Illuminate\Database\Eloquent\Model;
+use Illuminate\Support\Facades\DB;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 
 class UserMeta extends Model
 {
-    use BatchSearchable, HasFactory;
+    use HasFactory;
+
     /**
      * The database table used by the model.
      *
@@ -100,86 +96,10 @@ class UserMeta extends Model
     |--------------------------------------------------------------------------
     */
 
-    public function user(){
-         return $this->belongsTo(User::class, 'user_id', 'id');
-    }
-
-    public function users(){
-        return $this->belongsTo(User::class, 'user_id', 'id');
-    }
-
-    public function age() {
-        if (isset($this->birthdate) && $this->birthdate !== null && $this->birthdate != 'NULL')
-        {
-            $userDob = $this->birthdate;
-            $dob = new DateTime($userDob);
-
-            $now = new DateTime();
-
-            $difference = $now->diff($dob);
-
-            $age = $difference->y;
-            return $age;
-        }
-        return 0;
-    }
-
-    public function isAllSet($engroup = 2)
-    {
-        if($engroup == 1) {
-            //return isset($this->smoking) && isset($this->drinking) && isset($this->marriage) && isset($this->education) && isset($this->about) && isset($this->style) && isset($this->birthdate) && isset($this->budget) && $this->height > 0 && isset($this->area) && isset($this->city) && isset($this->income) && isset($this->assets);
-            return isset($this->smoking) && isset($this->drinking) && isset($this->marriage) && isset($this->education) && isset($this->about) && isset($this->style) && isset($this->birthdate) && $this->height > 0 && isset($this->area) && isset($this->city);
-        }else{
-            return isset($this->smoking) && isset($this->drinking) && isset($this->marriage) && isset($this->education) && isset($this->about) && isset($this->style) && isset($this->birthdate) && $this->height > 0 && isset($this->area) && isset($this->city);
-        }
-        
-    }
-
-    public function returnUnSet()
-    {
-        $string = '';
-        if(!isset( $this->smoking)){
-            $string .= '抽菸、';
-        }
-        if(!isset($this->drinking)){
-            $string .= '喝酒、';
-        }
-        if(!isset($this->marriage)){
-            $string .= '婚姻、';
-        }
-        if(!isset($this->education)){
-            $string .= '教育、';
-        }
-        if(!isset($this->about)){
-            $string .= '關於我、';
-        }
-        if(!isset($this->style)){
-            $string .= '期待的約會模式、';
-        }
-        if(!isset($this->birthdate)){
-            $string .= '生日、';
-        }
-        if(!isset($this->budget)){
-            $string .= '預算、';
-        }
-        if($this->height <= 0){
-            $string = $string .'身高、';
-        }
-        if(!isset($this->area)){
-            $string .= '地區、';
-        }
-        if(!isset($this->city)){
-            $string .= '縣市、';
-        }
-        return substr($string, 0, -3).'未填寫！';
-    }
-
-
     public static function uploadUserHeader($uid, $fieldContent) {
         return DB::table('user_meta')->where('user_id', $uid)->update(['pic' => $fieldContent]);
     }
 
-    // 包養關係預設值為空是為了避免有的使用者在舊的 view 下出現錯誤
     public static function search($city,
                                   $area,
                                   $cup,
@@ -211,14 +131,14 @@ class UserMeta extends Model
                                   $isVip = '',
                                   $isWarned = 2,
                                   $isPhoneAuth = '',
-                                  $isAdvanceAuth=null,
-                                  $tattoo=null,
-                                    $city2=null,
-                                    $area2=null, 
-                                    $city3=null,
-                                    $area3=null,
-                                    $weight='',
-                                    $registered_from_mobile = 0                               
+                                  $isAdvanceAuth = null,
+                                  $tattoo = null,
+                                  $city2 = null,
+                                  $area2 = null,
+                                  $city3 = null,
+                                  $area3 = null,
+                                  $weight = '',
+                                  $registered_from_mobile = 0
                                   )
     {
         if ($engroup == 1) { $engroup = 2; }
@@ -261,7 +181,7 @@ class UserMeta extends Model
             $city3,
             $area3,
             $weight,
-            $registered_from_mobile            
+            $registered_from_mobile
             ){
 
             if ($registered_from_mobile == 1) {
@@ -269,7 +189,7 @@ class UserMeta extends Model
             } else {
                 $query->select('*')->where('user_meta.birthdate', '<', Carbon::now()->subYears(18));
             }
-            
+
             if($city || $city2 || $city3) {
                 $query->where(function($q) use ($city,$city2,$city3,$area,$area2,$area3) {
                     if($city) {
@@ -280,8 +200,8 @@ class UserMeta extends Model
                             }
                         });
                     }
-                    
-                    
+
+
                     if($city2) {
                         $q->orWhere(function($qq) use ($city2,$area2) {
                             $qq->where('city','like','%'.$city2.'%');
@@ -291,15 +211,15 @@ class UserMeta extends Model
                         });
                     }
 
-                    if($city3) {
-                        $q->orWhere(function($qq) use ($city3,$area3) {
-                            $qq->where('city','like','%'.$city3.'%');
-                            if($area3) {
-                                $qq->where('area','like','%'.$area3.'%');
+                    if ($city3) {
+                        $q->orWhere(function ($qq) use ($city3, $area3) {
+                            $qq->where('city', 'like', '%' . $city3 . '%');
+                            if ($area3) {
+                                $qq->where('area', 'like', '%' . $area3 . '%');
                             }
                         });
-                    }                    
-                    
+                    }
+
                 });
             }
 
@@ -484,7 +404,7 @@ class UserMeta extends Model
         if($isAdvanceAuth && isset($isAdvanceAuth) && $isAdvanceAuth==1){
                 $query->where('users.advance_auth_status',$isAdvanceAuth);
         }
-	
+
 
         if($userIsVip && isset($isVip) && $isVip==1){
             $query->whereIn('users.id', function($query) use ($userid, $isVip){
@@ -494,14 +414,14 @@ class UserMeta extends Model
                     ->where('active', $isVip);
             });
         }
-        
+
         if($tattoo==1) {
             $query->has('tattoo');
         }
         else if($tattoo==-1) {
             $query->doesntHave('tattoo');
         }
-            
+
         if($userIsVip) {
             $siService = new SearchIgnoreService(new \App\Services\UserService(new User,new UserMeta));
             $ignore_user_ids = $siService->member_query()->get()->pluck('ignore_id')->all();
@@ -513,7 +433,7 @@ class UserMeta extends Model
     public static function searchApi($request)
     {
         //Log::Info($request->all()); //純測試用
-        // $time_start = microtime(true); 
+        // $time_start = microtime(true);
         $city = $request->city;
         $area = $request->area;
         $cup = $request->cup;
@@ -549,7 +469,7 @@ class UserMeta extends Model
         $page = $request->page;
         $tattoo = $request->tattoo ?? null;
         $city2 = $request->city2 ?? null;
-        $area2 = $request->area2 ?? null; 
+        $area2 = $request->area2 ?? null;
         $city3 = $request->city3 ?? null;
         $area3 = $request->area3 ?? null;
         $city4 = $request->city4 ?? null;
@@ -568,21 +488,19 @@ class UserMeta extends Model
 
         //如果xref type有在搜尋選項裡就開啟
         //type於option_type資料表內
-        if($relationship_status)
-        {
+        if ($relationship_status) {
             $xref_option_search_switch = true;
         }
 
-        if ($engroup == 1) { 
-            $engroup = 2; 
+        if ($engroup == 1) {
+            $engroup = 2;
+        } else if ($engroup == 2) {
+            $engroup = 1;
         }
-        else if ($engroup == 2) {             
-            $engroup = 1; 
-        }
-        if(isset($seqtime) && $seqtime == 2){ 
-            $orderBy = 'users.created_at'; 
-        }else{ 
-            $orderBy = 'last_login'; 
+        if (isset($seqtime) && $seqtime == 2) {
+            $orderBy = 'users.created_at';
+        } else {
+            $orderBy = 'last_login';
         }
 
         $constraint = function ($query) use (
@@ -678,52 +596,52 @@ class UserMeta extends Model
                         $q->orWhere(function($qq) use ($city3,$area3) {
                             if($area3) {
                                 $qq->whereRaw('SUBSTRING_INDEX(SUBSTRING_INDEX(city,",", 2),",",-1) like "%'.$city3.'%" AND SUBSTRING_INDEX(SUBSTRING_INDEX(area,",", 2),",",-1) like "%'.$area3.'%"');
-                            }else{
-                                $qq->where('city','like','%'.$city3.'%');
+                            } else {
+                                $qq->where('city', 'like', '%' . $city3 . '%');
                             }
                         });
-                        $q->orWhere(function($qq) use ($city3,$area3) {
-                            if($area3) {
-                                $qq->whereRaw('SUBSTRING_INDEX(city,",", -1) like "%'.$city3.'%" AND SUBSTRING_INDEX(area,",", -1) like "%'.$area3.'%"');
-                            }else{
-                                $qq->where('city','like','%'.$city3.'%');
+                        $q->orWhere(function ($qq) use ($city3, $area3) {
+                            if ($area3) {
+                                $qq->whereRaw('SUBSTRING_INDEX(city,",", -1) like "%' . $city3 . '%" AND SUBSTRING_INDEX(area,",", -1) like "%' . $area3 . '%"');
+                            } else {
+                                $qq->where('city', 'like', '%' . $city3 . '%');
                             }
                         });
-                    }                    
-                    
-                    if($city4) {
-                        $q->orWhere(function($qq) use ($city4,$area4) {
-                            if($area4) {
-                                $qq->whereRaw('SUBSTRING_INDEX(city,",", 1) like "%'.$city4.'%" AND SUBSTRING_INDEX(area,",", 1) like "%'.$area4.'%"');
-                            }else{
-                                $qq->where('city','like','%'.$city4.'%');
+                    }
+
+                    if ($city4) {
+                        $q->orWhere(function ($qq) use ($city4, $area4) {
+                            if ($area4) {
+                                $qq->whereRaw('SUBSTRING_INDEX(city,",", 1) like "%' . $city4 . '%" AND SUBSTRING_INDEX(area,",", 1) like "%' . $area4 . '%"');
+                            } else {
+                                $qq->where('city', 'like', '%' . $city4 . '%');
                             }
                         });
-                        $q->orWhere(function($qq) use ($city4,$area4) {
+                        $q->orWhere(function ($qq) use ($city4,$area4) {
                             if($area4) {
                                 $qq->whereRaw('SUBSTRING_INDEX(SUBSTRING_INDEX(city,",", 2),",",-1) like "%'.$city4.'%" AND SUBSTRING_INDEX(SUBSTRING_INDEX(area,",", 2),",",-1) like "%'.$area4.'%"');
-                            }else{
-                                $qq->where('city','like','%'.$city4.'%');
+                            } else {
+                                $qq->where('city', 'like', '%' . $city4 . '%');
                             }
                         });
-                        $q->orWhere(function($qq) use ($city4,$area4) {
-                            if($area4) {
-                                $qq->whereRaw('SUBSTRING_INDEX(city,",", -1) like "%'.$city4.'%" AND SUBSTRING_INDEX(area,",", -1) like "%'.$area4.'%"');
-                            }else{
-                                $qq->where('city','like','%'.$city4.'%');
+                        $q->orWhere(function ($qq) use ($city4, $area4) {
+                            if ($area4) {
+                                $qq->whereRaw('SUBSTRING_INDEX(city,",", -1) like "%' . $city4 . '%" AND SUBSTRING_INDEX(area,",", -1) like "%' . $area4 . '%"');
+                            } else {
+                                $qq->where('city', 'like', '%' . $city4 . '%');
                             }
                         });
-                    }  
-                    
-                    if($city5) {
-                        $q->orWhere(function($qq) use ($city5,$area5) {
-                            if($area5) {
-                                $qq->whereRaw('SUBSTRING_INDEX(city,",", 1) like "%'.$city5.'%" AND SUBSTRING_INDEX(area,",", 1) like "%'.$area5.'%"');
-                            }else{
-                                $qq->where('city','like','%'.$city5.'%');
+                    }
+
+                    if ($city5) {
+                        $q->orWhere(function ($qq) use ($city5, $area5) {
+                            if ($area5) {
+                                $qq->whereRaw('SUBSTRING_INDEX(city,",", 1) like "%' . $city5 . '%" AND SUBSTRING_INDEX(area,",", 1) like "%' . $area5 . '%"');
+                            } else {
+                                $qq->where('city', 'like', '%' . $city5 . '%');
                             }
                         });
-                        $q->orWhere(function($qq) use ($city5,$area5) {
+                        $q->orWhere(function ($qq) use ($city5,$area5) {
                             if($area5) {
                                 $qq->whereRaw('SUBSTRING_INDEX(SUBSTRING_INDEX(city,",", 2),",",-1) like "%'.$city5.'%" AND SUBSTRING_INDEX(SUBSTRING_INDEX(area,",", 2),",",-1) like "%'.$area5.'%"');
                             }else{
@@ -737,9 +655,9 @@ class UserMeta extends Model
                                 $qq->where('city','like','%'.$city5.'%');
                             }
                         });
-                    }  
+                    }
                 });
-            }            
+            }
 
             if (isset($cup) && $cup!=''){
                 if(count($cup) > 0){
@@ -952,7 +870,7 @@ class UserMeta extends Model
         if($isAdvanceAuth && isset($isAdvanceAuth) && $isAdvanceAuth==1){
                 $query->where('users.advance_auth_status',$isAdvanceAuth);
         }
-	
+
 
         if($userIsVip && isset($isVip) && $isVip==1){
             $query->whereIn('users.id', function($query) use ($userid, $isVip){
@@ -962,27 +880,27 @@ class UserMeta extends Model
                     ->where('active', $isVip);
             });
         }
-    
+
         if($tattoo==1) {
             $query->has('tattoo');
         }
         else if($tattoo==-1) {
             $query->doesntHave('tattoo');
         }
-            
+
         if($userIsVip) {
             $siService = new SearchIgnoreService(new \App\Services\UserService(new User,new UserMeta));
             $ignore_user_ids = $siService->member_query()->get()->pluck('ignore_id')->all();
             $query->whereNotIn('users.id',$ignore_user_ids);
-        }    
+        }
         // $time_end = microtime(true);
-        
+
         $page = $page-1;
         $count = $request->perPageCount;
         $start = $page*$count;
         $allPageDataCount = $query->count();
         $DataQuery = $query->orderBy($orderBy, 'desc');
-        
+
         // $execution_time = ($time_end - $time_start);
         // echo '<b>Total Execution Time:</b> '.($execution_time*1000).'Milliseconds';
 
@@ -1020,67 +938,32 @@ class UserMeta extends Model
             'advance_auth_phone', 'advance_auth_email', 'advance_auth_email_token',
             'advance_auth_email_at'
         ]);
-        
-        
+
+
         //$singlePageDataQuery = $DataQuery->skip($start)->take($count);
         //$singlePageData = $singlePageDataQuery->get();
         $singlePageCount = $singlePageData->count();
-        
+
         $output = array(
             'singlePageData'=> $singlePageData,
             'singlePageCount'=> $singlePageCount,
-            'allPageDataCount'=>$allPageDataCount 
+            'allPageDataCount' => $allPageDataCount
         );
         // dd($output);
         // var_dump($output['singlePageCOunt'], $output['allPageDataCount']);
         return $output;
     }
-    
+
     public static function findByMemberId($memberId)
     {
         return UserMeta::where('user_id', $memberId)->first();
     }
-    
-    public function getCompareStatus() {
-        return ImagesCompareService::getCompareStatusByPic($this->pic);
-    }      
-    
-    public function getCompareEncode() {
-        return ImagesCompareService::getCompareEncodeByPic($this->pic);
-    }    
-    
-    public function getCompareRsImg() {
-        return ImagesCompareService::getCompareRsImgByPic($this->pic);
- 
-    }
- 
-    public function getSameImg() {
-        return ImagesCompareService::getSameImgByPic($this->pic);
- 
-    } 
-
-    public function compareImages($encode_by=null,$delay=0) {
-        return ImagesCompareService::compareImagesByPic($this->pic,$encode_by,$delay);
-    }  
-
-    public function isPicFileExists() {
-        return ImagesCompareService::isFileExistsByPic($this->pic);
-    }
-    
-    public function isPicNeedCompare() {
-        return ImagesCompareService::isNeedCompareByEntry($this);
-    } 
-
-    public function actual_unchecked_rau_modify_pic()
-    {
-        return $this->hasOne(RealAuthUserModifyPic::class, 'old_pic', 'pic')->whereHas('real_auth_user_modify',function($q){$q->where([['status',0],['apply_status_shot',1]])->whereHas('real_auth_user_apply',function($qq){$qq->where('status',1);});})->latest();
-    }       
 
     /**
      * Perform a search against the model's indexed data.
      *
-     * @param  string  $query
-     * @param  \Closure  $callback
+     * @param string $query
+     * @param \Closure $callback
      * @return \Laravel\Scout\Builder
      */
     public static function scoutSearch($query = '', $callback = null)
@@ -1089,8 +972,128 @@ class UserMeta extends Model
             'model' => new static,
             'query' => $query,
             'callback' => $callback,
-            'softDelete'=> static::usesSoftDelete() && config('scout.soft_delete', false),
+            'softDelete' => static::usesSoftDelete() && config('scout.soft_delete', false),
         ]);
+    }
+
+    public function user()
+    {
+        return $this->belongsTo(User::class, 'user_id', 'id');
+    }
+
+    // 包養關係預設值為空是為了避免有的使用者在舊的 view 下出現錯誤
+
+    public function users()
+    {
+        return $this->belongsTo(User::class, 'user_id', 'id');
+    }
+
+    public function age()
+    {
+        if (isset($this->birthdate) && $this->birthdate !== null && $this->birthdate != 'NULL') {
+            $userDob = $this->birthdate;
+            $dob = new DateTime($userDob);
+
+            $now = new DateTime();
+
+            $difference = $now->diff($dob);
+
+            $age = $difference->y;
+            return $age;
+        }
+        return 0;
+    }
+
+    public function isAllSet($engroup = 2)
+    {
+        if ($engroup == 1) {
+            //return isset($this->smoking) && isset($this->drinking) && isset($this->marriage) && isset($this->education) && isset($this->about) && isset($this->style) && isset($this->birthdate) && isset($this->budget) && $this->height > 0 && isset($this->area) && isset($this->city) && isset($this->income) && isset($this->assets);
+            return isset($this->smoking) && isset($this->drinking) && isset($this->marriage) && isset($this->education) && isset($this->about) && isset($this->style) && isset($this->birthdate) && $this->height > 0 && isset($this->area) && isset($this->city);
+        } else {
+            return isset($this->smoking) && isset($this->drinking) && isset($this->marriage) && isset($this->education) && isset($this->about) && isset($this->style) && isset($this->birthdate) && $this->height > 0 && isset($this->area) && isset($this->city);
+        }
+
+    }
+
+    public function returnUnSet()
+    {
+        $string = '';
+        if (!isset($this->smoking)) {
+            $string .= '抽菸、';
+        }
+        if (!isset($this->drinking)) {
+            $string .= '喝酒、';
+        }
+        if (!isset($this->marriage)) {
+            $string .= '婚姻、';
+        }
+        if (!isset($this->education)) {
+            $string .= '教育、';
+        }
+        if (!isset($this->about)) {
+            $string .= '關於我、';
+        }
+        if (!isset($this->style)) {
+            $string .= '期待的約會模式、';
+        }
+        if (!isset($this->birthdate)) {
+            $string .= '生日、';
+        }
+        if (!isset($this->budget)) {
+            $string .= '預算、';
+        }
+        if ($this->height <= 0) {
+            $string = $string . '身高、';
+        }
+        if (!isset($this->area)) {
+            $string .= '地區、';
+        }
+        if (!isset($this->city)) {
+            $string .= '縣市、';
+        }
+        return substr($string, 0, -3) . '未填寫！';
+    }
+
+    public function getCompareStatus()
+    {
+        return ImagesCompareService::getCompareStatusByPic($this->pic);
+    }
+
+    public function getCompareEncode()
+    {
+        return ImagesCompareService::getCompareEncodeByPic($this->pic);
+    }
+
+    public function getCompareRsImg()
+    {
+        return ImagesCompareService::getCompareRsImgByPic($this->pic);
+
+    }
+
+    public function getSameImg()
+    {
+        return ImagesCompareService::getSameImgByPic($this->pic);
+
+    }
+
+    public function compareImages($encode_by = null, $delay = 0)
+    {
+        return ImagesCompareService::compareImagesByPic($this->pic, $encode_by, $delay);
+    }
+
+    public function isPicFileExists()
+    {
+        return ImagesCompareService::isFileExistsByPic($this->pic);
+    }
+
+    public function isPicNeedCompare()
+    {
+        return ImagesCompareService::isNeedCompareByEntry($this);
+    }
+
+    public function actual_unchecked_rau_modify_pic()
+    {
+        return $this->hasOne(RealAuthUserModifyPic::class, 'old_pic', 'pic')->whereHas('real_auth_user_modify',function($q){$q->where([['status',0],['apply_status_shot',1]])->whereHas('real_auth_user_apply',function($qq){$qq->where('status',1);});})->latest();
     }
 }
 
