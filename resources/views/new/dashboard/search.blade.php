@@ -1465,7 +1465,13 @@ header("Expires: Fri, 01 Jan 1990 00:00:00 GMT");
                                 }
                             }
                         }else{
-                            csrData +='<span style="margin-left: 10px;"><span style="padding-left: 5px;">工作/學業</span><img src="/new/images/icon_35.png" class="nt_img"></span>';
+                            var jobTag='';
+                            if(rowEngroup == 2){
+                                jobTag='工作/學業';
+                            }else{
+                                jobTag='職業';
+                            }
+                            csrData +='<span style="margin-left: 10px;"><span style="padding-left: 5px;">'+jobTag+'</span><img src="/new/images/icon_35.png" class="nt_img"></span>';
                         }
                       
                         
