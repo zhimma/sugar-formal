@@ -342,7 +342,7 @@
                     data: 'name',
                     name: 'users.name',
                     render: function(data,type,row,meta) {
-                        return data ? '<a href="/admin/users/vvipSelectionRewardApplyList/'+row.id+'" target="_blank">' + data + '</a> ('+row.applyCounts+')' : '';
+                        return data ? data + '<br><br><a href="/admin/users/vvipSelectionRewardApplyList/'+row.id+'" class="btn btn-brand" target="_blank">應徵女會員列表('+row.applyCounts+')</a>' : '';
                     }
                 },
                 {
