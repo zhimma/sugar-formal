@@ -9434,6 +9434,7 @@ class PagesController extends BaseController
 
         $user = $request->user();
         $pid = $request->pid;
+        $page_referer=$request->page_referer;
 
         $postDetail =MessageBoard::selectRaw('users.id as uid, users.name as uname, users.engroup as uengroup, user_meta.pic as umpic, user_meta.city, user_meta.area')
             ->selectRaw('message_board.id as mid, message_board.title as mtitle, message_board.contents as mcontents, message_board.updated_at as mupdated_at, message_board.created_at as mcreated_at')
@@ -9489,7 +9490,11 @@ class PagesController extends BaseController
 
         // $ssrData .= $postDetail->uid. $postDetail->uname .  $userMeta->age(). $cityAndArea ;
         if ($postDetail->uid !== $user->id) {
-            $ssrData .= '<a href="/dashboard/chat2/chatShow/' . $postDetail->uid . '?from_message_board=' . $pid . '" class="liuyicon"></a>';
+            $back_root='';
+            if(str_contains($page_referer, 'MessageBoard/showList')){
+                $back_root='&back_message_board_list=1';
+            }
+            $ssrData .= '<a href="/dashboard/chat2/chatShow/' . $postDetail->uid . '?from_message_board=' . $pid .$back_root. '" class="liuyicon"></a>';
         }
         $ssrData .= '</div>';
 
