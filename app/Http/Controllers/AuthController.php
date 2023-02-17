@@ -582,7 +582,7 @@ class AuthController extends Controller
 
     public function getBlockUser($uid) {
         $target_user = User::find($uid);
-        if($target_user->valueAddedServiceStatus('hideOnline')) {
+        if($target_user->valueAddedServiceStatus('hideOnline') && $target_user->is_hide_online != 0) {
             $data = hideOnlineData::select('user_id', 'blocked_other_count', 'be_blocked_other_count')->where('user_id', $uid)->first();
             /*此會員封鎖多少其他會員*/
             $blocked_other_count = $data->blocked_other_count;
@@ -596,7 +596,7 @@ class AuthController extends Controller
                 ->join('users', 'users.id', '=', 'blocked.blocked_id')
                 ->leftJoin('user_meta as um', 'um.user_id', '=', 'blocked.blocked_id')
                 ->leftJoin('warned_users as w2', 'w2.member_id', '=', 'blocked.blocked_id')
-                ->where('um.isWarned',0)
+                ->where('um.isWarned', \DB::raw('0'))
                 ->whereNull('w2.id')
                 ->where('blocked.member_id', $uid)
                 ->whereNotIn('blocked.blocked_id',$bannedUsers)
@@ -610,7 +610,7 @@ class AuthController extends Controller
                     ->join('users', 'users.id', '=', 'blocked.member_id')
                     ->leftJoin('user_meta as um', 'um.user_id', '=', 'blocked.member_id')
                     ->leftJoin('warned_users as w2', 'w2.member_id', '=', 'blocked.member_id')
-                    ->where('um.isWarned',0)
+                    ->where('um.isWarned', \DB::raw('0'))
                     ->whereNull('w2.id')
                     ->where('blocked.blocked_id', $uid)
                     ->whereNotIn('blocked.member_id',$bannedUsers)
@@ -628,7 +628,7 @@ class AuthController extends Controller
 
     public function getFavCount($uid) {
         $target_user = User::find($uid);
-        if ($target_user->valueAddedServiceStatus('hideOnline')) {
+        if ($target_user->valueAddedServiceStatus('hideOnline') && $target_user->is_hide_online != 0) {
             $data = hideOnlineData::select('user_id', 'fav_count', 'be_fav_count')->where('user_id', $uid)->first();
             /*收藏會員次數*/
             $fav_count = $data->fav_count;
@@ -642,7 +642,7 @@ class AuthController extends Controller
                 ->join('users', 'users.id', '=', 'member_fav.member_fav_id')
                 ->leftJoin('user_meta as um', 'um.user_id', '=', 'member_fav.member_fav_id')
                 ->leftJoin('warned_users as w2', 'w2.member_id', '=', 'member_fav.member_fav_id')
-                ->where('um.isWarned',0)
+                ->where('um.isWarned', \DB::raw('0'))
                 ->whereNull('w2.id')
                 ->whereNotNull('users.id')
                 ->where('users.accountStatus', 1)
@@ -656,7 +656,7 @@ class AuthController extends Controller
                     ->join('users', 'users.id', '=', 'member_fav.member_id')
                     ->leftJoin('user_meta as um', 'um.user_id', '=', 'member_fav.member_id')
                     ->leftJoin('warned_users as w2', 'w2.member_id', '=', 'member_fav.member_id')
-                    ->where('um.isWarned',0)
+                    ->where('um.isWarned', \DB::raw('0'))
                     ->whereNull('w2.id')
                     ->whereNotNull('users.id')
                     ->where('users.accountStatus', 1)
@@ -1293,7 +1293,7 @@ class AuthController extends Controller
 //                                ->orWhere('wu.expire_date', null); }); })
                 ->whereNull('b1.member_id')
                 ->whereNull('b3.target')
-                ->where('um.isWarned',0)
+                ->where('um.isWarned', \DB::raw('0'))
                 ->whereNull('w2.id')
                 ->whereNotNull('u1.id')
 //                ->whereNotNull('u2.id')

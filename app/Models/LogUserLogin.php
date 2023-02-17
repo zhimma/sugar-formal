@@ -2,16 +2,11 @@
 
 namespace App\Models;
 
-use App\Models\User;
-use App\Models\SetAutoBan;
-use Illuminate\Database\Eloquent\Model;
 use Carbon\Carbon;
-use Outl1ne\ScoutBatchSearchable\BatchSearchable;
+use Illuminate\Database\Eloquent\Model;
 
 class LogUserLogin extends Model
 {
-    use BatchSearchable;
-    
     public $timestamps = false;
     /**
      * The database table used by the model.
@@ -27,70 +22,40 @@ class LogUserLogin extends Model
      */
     protected $fillable = ['user_id', 'cfp_id', 'userAgent', 'ip', 'created_date', 'created_at', 'log_hide'];
 
-    public function setReadOnly() {
-        $this->guarded =  ['*'];
-    }
-	
-    public function user(){
-        return $this->belongsTo(User::class, 'user_id', 'id');
+    public static function isIpUsedByOtherUserId($ip, $user_id = null, $d = 3)
+    {
+        $query = LogUserLogin::queryOfIpUsedByOtherUserId($ip, $user_id, $d);
+
+        return $query->count() ? true : false;
     }
 
-	public function visitor(){
-		return $this->belongsTo(Visitor::class, 'visitor_id', 'id');
-	}
-
-	public function cfp(){
-        return $this->hasMany(CustomFingerPrint::class, 'id', 'cfp_id');
-    }
-	
-	public static function queryOfIpUsedByOtherUserId($ip,$user_id=null,$d=3) {
-		if(!$ip) return null;
-		$start_date =  \Carbon\Carbon::now()->subDays($d)->format('Y-m-d H:i:s');
-		$end_date =  \Carbon\Carbon::now()->format('Y-m-d H:i:s');
-		$query = LogUserLogin::where('ip',$ip)
-			->where('created_at','>=',$start_date)
+    public static function queryOfIpUsedByOtherUserId($ip, $user_id = null, $d = 3)
+    {
+        if (!$ip) return null;
+        $start_date = \Carbon\Carbon::now()->subDays($d)->format('Y-m-d H:i:s');
+        $end_date = \Carbon\Carbon::now()->format('Y-m-d H:i:s');
+        $query = LogUserLogin::where('ip', $ip)
+            ->where('created_at', '>=', $start_date)
 			->where('created_at','<=',$end_date);
 		if($user_id) $query->where('user_id','<>',$user_id);
 		return $query;
 	}
-	
-	public static function isIpUsedByOtherUserId($ip,$user_id=null,$d=3) {
-		$query = LogUserLogin::queryOfIpUsedByOtherUserId($ip,$user_id,$d);
-		
-		return $query->count()?true:false;		
-	}
-	
-	public static function queryOfCfpIdUsedByOtherUserId($cfp_id,$user_id=null) {
-		if(!$cfp_id) return null;
-		$query = LogUserLogin::where('cfp_id',$cfp_id);
-		if($user_id) $query->where('user_id','<>',$user_id);
-		return $query;
-	}
-	
-	public static function isCfpIdUsedByOtherUserId($cfp_id,$user_id=null) {
-		$query = LogUserLogin::queryOfCfpIdUsedByOtherUserId($cfp_id,$user_id);
-		return $query->count()?true:false;
-	}
-	
-	public function isCfpIdExist() {
-		return LogUserLogin::isCfpIdUsedByOtherUserId($this->cfp_id,$this->user_id);
-	}	
 
 	public static function countOfUser($user_id) {
 		return LogUserLogin::where('user_id', $user_id)->count();
-	}	
+    }
 
-	public static function recordLoginData($user, $cfp_hash) 
-	{
-		$userAgent = $_SERVER['HTTP_USER_AGENT'];
+    public static function recordLoginData($user, $cfp_hash)
+    {
+        $userAgent = $_SERVER['HTTP_USER_AGENT'];
         $ip = $_SERVER['REMOTE_ADDR'];
-		$now_time = Carbon::now();
+        $now_time = Carbon::now();
 
-		//更新最後登入時間
-		$user->last_login = $now_time;
+        //更新最後登入時間
+        $user->last_login = $now_time;
 
-		//更新登入次數
-		$user->login_times = $user->login_times +1;
+        //更新登入次數
+        $user->login_times = $user->login_times +1;
 
 		$user->save();
 
@@ -157,8 +122,7 @@ class LogUserLogin extends Model
                 ];
                 if(!in_array($user->email, $whiteList))
                 {
-                    if($country != "TW" && $country != "??") 
-                    {
+                    if ($country != "TW" && $country != "??") {
                         logger("None TW login, user id: " . $user->id);
                         //if($event->user->engroup == 2)
                         //{
@@ -168,32 +132,73 @@ class LogUserLogin extends Model
                     }
                 }
             }
-        }
-        catch (\Exception $e)
-        {
+        } catch (\Exception $e) {
             logger($e);
         }
     }
-    
-    public function set_auto_ban_of_cfp_id()
+
+    public function setReadOnly()
     {
-        return $this->hasOne(SetAutoBan::class, 'content', 'cfp_id')->where('type','cfp_id');
+        $this->guarded = ['*'];
     }
-    
+
+    public function user()
+    {
+        return $this->belongsTo(User::class, 'user_id', 'id');
+    }
+
+    public function visitor()
+    {
+        return $this->belongsTo(Visitor::class, 'visitor_id', 'id');
+    }
+
+    public function cfp()
+    {
+        return $this->hasMany(CustomFingerPrint::class, 'id', 'cfp_id');
+    }
+
+    public function isCfpIdExist()
+    {
+        return LogUserLogin::isCfpIdUsedByOtherUserId($this->cfp_id, $this->user_id);
+    }
+
+    public static function isCfpIdUsedByOtherUserId($cfp_id, $user_id = null)
+    {
+        $query = LogUserLogin::queryOfCfpIdUsedByOtherUserId($cfp_id, $user_id);
+        return $query->count() ? true : false;
+    }
+
+    public static function queryOfCfpIdUsedByOtherUserId($cfp_id, $user_id = null)
+    {
+        if (!$cfp_id) return null;
+        $query = LogUserLogin::where('cfp_id', $cfp_id);
+        if ($user_id) $query->where('user_id', '<>', $user_id);
+        return $query;
+    }
+
     public function active_set_auto_ban_of_cfp_id()
     {
         return $this->set_auto_ban_of_cfp_id()
-                ->where(function($q) {$q->where('expiry','>=',now())->orWhere('expiry','0000-00-00 00:00:00');});
-    }    
-    
-    public function set_auto_ban_of_ip()
+            ->where(function ($q) {
+                $q->where('expiry', '>=', now())->orWhere('expiry', '0000-00-00 00:00:00');
+            });
+    }
+
+    public function set_auto_ban_of_cfp_id()
     {
-        return $this->hasOne(SetAutoBan::class, 'content', 'ip')->where('type','ip');
-    } 
+        return $this->hasOne(SetAutoBan::class, 'content', 'cfp_id')->where('type', 'cfp_id');
+    }
 
     public function active_set_auto_ban_of_ip()
     {
         return $this->set_auto_ban_of_ip()
-                ->where(function($q) {$q->where('expiry','>=',now())->orWhere('expiry','0000-00-00 00:00:00');});
-    }     
+            ->where(function ($q) {
+                $q->where('expiry', '>=', now())->orWhere('expiry', '0000-00-00 00:00:00');
+            });
+    }
+
+    public function set_auto_ban_of_ip()
+    {
+        return $this->hasOne(SetAutoBan::class, 'content', 'ip')->where('type', 'ip');
+    }
 }
