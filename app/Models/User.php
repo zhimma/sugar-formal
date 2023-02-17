@@ -2,27 +2,53 @@
 
 namespace App\Models;
 
+use App\Models\Role;
+use App\Models\Blocked;
+use App\Models\ValueAddedService;
+use App\Models\ValueAddedServiceLog;
+use App\Models\Vip;
+use App\Models\Tip;
+use App\Models\UserMeta;
+use App\Models\MemberPic;
 use App\Models\SimpleTables\banned_users;
-use App\Models\SimpleTables\short_message;
 use App\Models\SimpleTables\warned_users;
+use App\Models\FaqUserGroup;
+use App\Models\FaqUserReply;
+use App\Models\RealAuthUserPatch;
+use App\Models\RealAuthUserApply;
+use App\Models\RealAuthUserReply;
+use App\Models\RealAuthUserModify;
 use App\Notifications\ResetPassword;
-use App\Services\AdminService;
-use App\Services\UserService;
-use Carbon\Carbon;
-use Illuminate\Database\Eloquent\Factories\HasFactory;
-use Illuminate\Foundation\Auth\User as Authenticatable;
 use Illuminate\Notifications\Notifiable;
-use Illuminate\Support\Facades\Cache;
-use Illuminate\Support\Facades\Config;
-use Illuminate\Support\Facades\DB;
+use Illuminate\Foundation\Auth\User as Authenticatable;
 use Illuminate\Support\Facades\Hash;
+use Illuminate\Support\Facades\Config;
 use Ixudra\Curl\Facades\Curl;
+use Carbon\Carbon;
+use Illuminate\Support\Facades\Log;
+use Illuminate\Support\Facades\DB;
+use \App\Services\UserService;
+use App\Models\LogFreeVipPicAct;
+use App\Models\LogUserLogin;
+use App\Models\UserTinySetting;
+use App\Models\IsBannedLog;
+use App\Models\IsWarnedLog;
+use App\Models\SimpleTables\short_message;
+use App\Models\LogAdvAuthApi;
+use App\Models\UserTattoo;
+use Illuminate\Database\Eloquent\Factories\HasFactory;
+use App\Models\StayOnlineRecord;
+use App\Models\PuppetAnalysisRow;
+use Illuminate\Support\Facades\Cache;
 use Tymon\JWTAuth\Contracts\JWTSubject;
+use App\Models\UserRemarksLog;
+use App\Models\UserVideoVerifyRecord;
+use App\Models\UserVideoVerifyMemo;
+use App\Services\AdminService;
 
 class User extends Authenticatable implements JWTSubject
 {
     use HasFactory, Notifiable;
-
     /**
      * The database table used by the model.
      *
@@ -72,13 +98,483 @@ class User extends Authenticatable implements JWTSubject
     */
 
     // UserMeta
+    public function meta()
+    {
+        return $this->hasOne(UserMeta::class, 'user_id', 'id');
+    }
+
+    //Vip
+    public function vip()
+    {
+        return $this->hasMany(Vip::class, 'member_id', 'id')->where('active', 1)->orderBy('id', 'desc');
+    }
+
+    public function vip_any()
+    {
+        return $this->hasMany(Vip::class, 'member_id', 'id')->orderBy('created_at', 'desc');
+    }
+    
+    public function vip_log()
+    {
+        return $this->hasMany(VipLog::class, 'member_id', 'id');
+    }    
+
+    public function vas()
+    {
+        return $this->hasMany(ValueAddedService::class, 'member_id', 'id')->where('active', 1)->orderBy('created_at', 'desc');
+    }
+    
+    public function vas_log()
+    {
+        return $this->hasMany(ValueAddedServiceLog::class, 'member_id', 'id');
+    }    
+
+    public function aw_relation() {
+        return $this->hasOne(\App\Models\SimpleTables\warned_users::class, 'member_id', 'id')->where(function ($query){
+            $query->whereNull('expire_date')->orWhere('expire_date', '>=', Carbon::now());
+        });
+    }
+
+    public function fa_relation() {
+        return $this->hasOne(\App\Models\SimpleTables\short_message::class, 'member_id', 'id')->where('mobile','!=','')->where('active', 1);
+    }
+
+    public function self_auth_tags_display() {
+        return $this->hasOne(RealAuthUserTagsDisplay::class, 'user_id', 'id')->where('auth_type_id', 1);
+    }
+
+    public function beauty_auth_tags_display() {
+        return $this->hasOne(RealAuthUserTagsDisplay::class, 'user_id', 'id')->where('auth_type_id', 2);
+    }
+
+    public function famous_auth_tags_display() {
+        return $this->hasOne(RealAuthUserTagsDisplay::class, 'user_id', 'id')->where('auth_type_id', 3);
+    }
+
+    public function pr_log() {
+        return $this->hasOne(Pr_log::class, 'user_id', 'id')->where('active', 1);
+    }
+
+    //sent messages
+    public function sentMessages()
+    {
+        return $this->hasMany(Message_new::class, 'from_id', 'id');
+    }
+
+    //received messages
+    public function receivedMessages()
+    {
+        return $this->hasMany(Message_new::class, 'to_id', 'id');
+    }
+
+    public function messageRooms()
+    {
+        return $this->hasManyThrough(MessageRoom::class, MessageRoomUserXref::class, 'user_id', 'id', 'id', 'room_id');
+    }
+
+    //生活照
+    public function pic()
+    {
+        return $this->hasMany(MemberPic::class, 'member_id', 'id');
+    }
+
+    public function pics()
+    {
+        return $this->hasMany(MemberPic::class, 'member_id', 'id');
+    }
+    
+    //免費VIP照片管理log
+    public function log_free_vip_pic_acts()
+    {
+        return $this->hasMany(LogFreeVipPicAct::class, 'user_id', 'id');
+    } 
+    
+    public function log_free_vip_avatar_acts()
+    {
+        return $this->hasMany(LogFreeVipPicAct::class, 'user_id', 'id')->where('pic_type','avatar');
+    }  
+    
+    public function log_free_vip_member_pic_acts()
+    {
+        return $this->hasMany(LogFreeVipPicAct::class, 'user_id', 'id')->where('pic_type','member_pic');
+    } 
+
+    public function log_user_login()
+    {
+        return $this->hasMany(LogUserLogin::class, 'user_id', 'id');
+    }  
+    // 送往api驗證身分證、生日和電話的紀錄，
+    // 驗證通過的生日和電話，會同時更新到user_meta上原本的生日和電話
+    public function log_adv_auth_api()
+    {
+        return $this->hasMany(LogAdvAuthApi::class, 'user_id', 'id');
+    }
+
+    //新手教學時間
+    public function newer_manual_stay_online_time()
+    {
+        return $this->hasOne(StayOnlineRecord::class, 'user_id', 'id')->select(DB::raw("SUM(newer_manual) as time"));
+    }
+    
+    //停留時間
+    public function stay_online_record()
+    {
+        return $this->hasMany(StayOnlineRecord::class, 'user_id', 'id');
+    }
+
+    public function stay_online_record_only_page()
+    {
+        return StayOnlineRecord::addOnlyPageClauseToQuery($this->stay_online_record());//->whereNotNull('stay_online_time')->whereNotNull('url');
+    }  
+
+    public function female_newer_manual_time_list()
+    {
+        
+        return $this->stay_online_record_only_page()
+            ->where('url','like','%#nr_fnm%')
+            ->groupBy('url')
+            ->selectRaw('SUBSTRING(url, -3, 3) as step,sum(stay_online_time) as time')
+            ;
+    }
+    
+    public function getFemaleNewerManualTotalTime()
+    {
+        return $this->female_newer_manual_time_list->sum('time');
+    }
+    
+    //多重帳號row
+    public function puppet_analysis_row()
+    {
+        return $this->hasMany(PuppetAnalysisRow::class, 'name', 'id');
+    }
+    
+    public function puppet_analysis_row_standard()
+    {
+        return $this->puppet_analysis_row()->where('cat','');
+    }    
+    
+    public function puppet_analysis_row_only_cfpid()
+    {
+        return $this->puppet_analysis_row()->where('cat','only_cfpid');
+    } 
+    //簡易設定 用在簡易量少的設定上
+    public function tiny_setting() {
+        return $this->hasMany(UserTinySetting::class, 'user_id', 'id');
+    }
+	
+    public function is_banned_log() {
+        return $this->hasMany(IsBannedLog::class, 'user_id', 'id');
+    }	
+	
+    public function is_warned_log() {
+        return $this->hasMany(IsWarnedLog::class, 'user_id', 'id');
+    }	
+    
+    public function short_message() {
+        return $this->hasMany(short_message::class, 'member_id', 'id');
+    }	    
+
+    // 可疑
+    public function suspicious()
+    {
+        return $this->hasOne(SuspiciousUser::class, 'user_id', 'id')->whereNull('deleted_at');
+    }
+
+    //生活照倒序
+    public function pic_orderByDecs()
+    {
+        return $this->hasMany(MemberPic::class, 'member_id', 'id')->orderByDesc('created_at');
+    }
+
+    // 只列出已刪除的生活照
+    public function pic_onlyTrashed()
+    {
+        return $this->hasMany(MemberPic::class, 'member_id', 'id')->onlyTrashed()->orderByDesc('created_at');
+    }
+
+    // 列出含已刪除的所有生活照
+    public function pic_withTrashed()
+    {
+        return $this->hasMany(MemberPic::class, 'member_id', 'id')->withTrashed();
+    }
+
+    // 列出已刪除頭像
+    public function avatar_deleted()
+    {
+        return $this->hasMany(AvatarDeleted::class, 'user_id', 'id')->orderByDesc('uploaded_at');
+    }
+    
+    //基本資料查看紀錄
+    public function advInfo_check_log()
+    {
+        return $this->hasMany(AdminActionLog::class, 'target_id', 'id')->where('act', '查看會員基本資料')->orderByDesc('created_at');
+    }
+
+    /*
+    |--------------------------------------------------------------------------
+    | Mutators and Accessors
+    |--------------------------------------------------------------------------
+    | Set virtual attributes
+    |
+    */
 
     public static function id_($uid)
     {
         return User::where('id', $uid)->first();
     }
 
-    //Vip
+
+    public function meta_($queries = null)
+    {
+        if(!isset($queries)){
+            $queries = '*';
+        }
+        return UserMeta::select($queries)->where('user_id', $this->id)->first();
+    }
+
+    /**
+     * User Roles
+     *
+     * @return Relationship
+     */
+    public function roles()
+    {
+        return $this->belongsToMany(Role::class);
+    }
+
+    public function user_meta(){
+        return $this->hasOne('App\Models\UserMeta');
+    }
+
+    public function user_options_xref(){
+        return $this->hasMany(UserOptionsXref::class, 'user_id', 'id');
+    }
+
+    public function banned(){
+        return $this->hasOne(banned_users::class, 'member_id', 'id');
+    }
+
+    public function implicitlyBanned(){
+        return $this->hasOne(BannedUsersImplicitly::class, 'target', 'id');
+    }
+    
+    public function blocked() {
+        return $this->hasMany(Blocked::class, 'member_id', 'id');
+    }
+    
+    public function blockedInBlocked() {
+        return $this->hasMany(Blocked::class, 'blocked_id', 'id');
+    } 
+
+    public function tip() {
+        return $this->hasMany(Tip::class, 'member_id', 'id');
+    }
+    
+    //faq
+    public function faq_user_group() 
+    {
+        return $this->hasMany(FaqUserGroup::class);
+    }
+    
+    public function faq_user_reply() 
+    {
+        return $this->hasMany(FaqUserReply::class);
+    } 
+
+    //real auth
+    public function real_auth_user_patch() 
+    {
+        return $this->hasMany(RealAuthUserPatch::class,'user_id','id');
+    }     
+    
+    public function real_auth_user_apply() 
+    {
+        return $this->hasMany(RealAuthUserApply::class,'user_id','id');
+    } 
+    
+    public function self_auth_apply() 
+    {
+        return $this->hasOne(RealAuthUserApply::class,'user_id','id')
+                ->where('auth_type_id',1)
+                ->latest();
+    }
+    
+    public function self_auth_unchecked_apply() 
+    {
+        
+        return $this->hasOne(RealAuthUserApply::class,'user_id','id')
+                ->where('auth_type_id',1)
+                ->where(function($q) {$q->whereNull('status')->orWhere('status','!=',1);})
+                ->latest();
+    }
+    
+    public function video_verify_record() 
+    {
+        return $this->hasMany(UserVideoVerifyRecord::class,'user_id','id');
+    }     
+    
+    public function video_verify_memo() 
+    {
+        return $this->hasOne(UserVideoVerifyMemo::class,'user_id','id');
+    }  
+ 
+    public function beauty_auth_apply() 
+    {
+        return $this->hasOne(RealAuthUserApply::class,'user_id','id')
+                ->where('auth_type_id',2)
+                ->latest();
+    }    
+    
+    public function beauty_auth_unchecked_apply() 
+    {
+        
+        return $this->hasOne(RealAuthUserApply::class,'user_id','id')
+                ->where('auth_type_id',2)
+                ->where(function($q) {$q->whereNull('status')->orWhere('status','!=',1);})
+                ->latest();
+    }
+    
+    public function famous_auth_apply() 
+    {
+        return $this->hasOne(RealAuthUserApply::class,'user_id','id')
+                ->where('auth_type_id',3)
+                ->latest();
+    }     
+
+    public function famous_auth_unchecked_apply() 
+    {
+        return $this->hasOne(RealAuthUserApply::class,'user_id','id')
+                ->where('auth_type_id',3)
+                ->where(function($q) {$q->whereNull('status')->orWhere('status','!=',1);})
+                ->latest();
+    } 
+    
+    public function real_auth_user_modify() 
+    {
+        return $this->hasManyThrough(RealAuthUserModify::class,RealAuthUserApply::class,'user_id','apply_id');
+    } 
+    
+    public function real_auth_user_modify_with_trashed() 
+    {
+        return $this->real_auth_user_modify()->withTrashed();
+    } 
+
+    public function real_auth_modify_item_group_for_admincheck_last_modify()
+    {
+        return $this->real_auth_user_modify()
+                    ->groupBy('apply_id')
+                    ->groupByRaw('item_id*!ifnull(patch_id_shot,0)')
+                    ->groupBy('is_formal_first')
+                    ->selectRaw('max(real_auth_user_modify.id) as id,min(real_auth_user_modify.id) as check_first')
+                    ->where('item_id','!=',1)
+                    
+                    ->Where(function($q)
+                    {
+                        $q->where('real_auth_user_modify.apply_status_shot',1)
+                          ->orWhere('is_formal_first',1)
+                          ->orWhere(function($qq)
+                          {
+                            $qq->where('real_auth_user_modify.apply_status_shot','!=',1)
+                               ->whereNotNull('patch_id_shot')
+                              
+                               ;                            
+                        })
+                        
+                        ;
+
+                    })
+                                        
+                    ;
+    } 
+
+    public function real_auth_modify_item_group_for_admincheck_last_modify_with_trashed()
+    {
+        return $this->real_auth_modify_item_group_for_admincheck_last_modify()->withTrashed();
+    }     
+   
+    public function real_auth_modify_item_group_modify()
+    {
+        return $this->real_auth_modify_item_group_for_admincheck_last_modify();
+
+    }  
+
+    public function real_auth_modify_item_group_modify_with_trashed()
+    {
+        return $this->real_auth_modify_item_group_for_admincheck_last_modify_with_trashed()->addSelect('user_id')->orderByDesc('id');        
+    }     
+
+    public function latest_real_auth_user_modify() 
+    {
+        return $this->hasOneThrough(RealAuthUserModify::class,RealAuthUserApply::class,'user_id','apply_id')->orderByDesc('real_auth_user_modify.id')->take(1);
+    }     
+    
+    public function real_auth_user_modify_max_created_at() 
+    {
+        return $this->hasOneThrough(RealAuthUserModify::class,RealAuthUserApply::class,'user_id','apply_id')
+                    ->select(DB::raw('max(real_auth_user_modify.created_at) as max_created_at'))
+                    ->groupBy('real_auth_user_applies.user_id')
+                    ->where('real_auth_user_modify.status',0)
+                    ->where('real_auth_user_modify.item_id','!=',1)
+                    ;
+    }
+
+    public function order()
+    {
+        return $this->hasMany(Order::class,'user_id','id');
+    }
+
+    /**
+     * Check if user has role
+     *
+     * @param  string  $role
+     * @return boolean
+     */
+    public function hasRole($role)
+    {
+        $roles = array_column($this->roles->toArray(), 'name');
+        return array_search($role, $roles) > -1;
+    }
+
+    /**
+     * Check if user has permission
+     *
+     * @param  string  $permission
+     * @return boolean
+     */
+    public function hasPermission($permission)
+    {
+        return $this->roles->each(function ($role) use ($permission) {
+            if (in_array($permission, explode(',', $role->permissions))) {
+                return true;
+            }
+        });
+
+        return false;
+    }
+
+    public function cfp(){
+        return $this->hasMany(CFP_User::class, 'user_id', 'id');
+    }
+
+    public function isOnline() {
+        return \Cache::has('user-is-online-' . $this->id);
+    }
+
+    public function check_point_user(){
+        return $this->hasMany(CheckPointUser::class, 'user_id', 'id');
+    }
+
+    public function check_point_name(){
+        return $this->hasManyThrough(CheckPoints::class, CheckPointUser::class, 'user_id', 'id','id','check_point_id');
+    }
+
+    public function backend_user_details(){
+        return $this->hasMany(BackendUserDetails::class, 'user_id', 'id');
+    }
+
+    public function operator_commit(){
+        return $this->hasMany(UserRemarksLog::class, 'target_user_id', 'id')->orderByDesc('created_at');
+    }
 
     /**
      * Find by Email
@@ -100,11 +596,27 @@ class User extends Authenticatable implements JWTSubject
 
         return $results->paginate(12);
     }
-    
+
+    public static function findById($id)
+    {
+        return User::where('id', $id)->first();
+    }
+
     public static function isCorrectAccount($email, $password) {
         $user = auth()->user();
 
         if($user->email == $email && Hash::check($password, $user->password)) {
+            return true;
+        }
+        return false;
+    }
+
+    public function isAdmin() {
+        $user = auth()->user();
+        //dd(Config::get('social.admin.email'));
+        //dd(Config::get('social.vip.free-days'));
+
+        if($user->email == Config::get('social.admin.user-email')) {
             return true;
         }
         return false;
@@ -131,7 +643,7 @@ class User extends Authenticatable implements JWTSubject
             return false;
         }
     }
-    
+
     /**
      * 判定是否有在 封鎖名單裡面 第二版
      *
@@ -152,6 +664,17 @@ class User extends Authenticatable implements JWTSubject
         return $c > 0;
     }
 
+    public function is_banned()
+    {
+        return banned_users::where('member_id', $this->id)
+                            ->where(function ($query){
+                                $today = Carbon::today();
+                                $query->where("expire_date", null)->orWhere("expire_date", ">", $today);
+                            })
+                            ->orderByDesc('created_at')
+                            ->first() ?? false;
+            }
+
     /**
      * 判定是否有在 站方警示名單裡面
      *
@@ -169,6 +692,17 @@ class User extends Authenticatable implements JWTSubject
             })->get()->count();
 
         return $c > 0;
+    }
+
+    public function is_warned()
+    {
+        return warned_users::where('member_id', $this->id)
+                    ->where(function ($query){
+                        $today = Carbon::today();
+                        $query->where("expire_date", null)->orWhere("expire_date", ">", $today);
+                    })
+                    ->orderByDesc('created_at')
+                    ->first() ?? false;
     }
 
     /**
@@ -234,26 +768,173 @@ class User extends Authenticatable implements JWTSubject
         return false;
     }
 
-    public static function findById($id)
+    public function is_waiting_for_more_data()
     {
-        return User::where('id', $id)->first();
+        return BackendUserDetails::where('user_id', $this->id)
+                                ->where('is_waiting_for_more_data', 1)
+                                ->first() ?? false;
     }
 
-    public function isVVIP()
+    public function is_waiting_for_more_data_with_login_time()
     {
-        //拿掉VVIP功能
-        //return 0;
+        return BackendUserDetails::where('user_id', $this->id)
+                                ->where('remain_login_times_of_wait_for_more_data', '>', 1)
+                                ->first() ?? false;
+    }
 
-        //VVIP有效狀態
-        return ValueAddedService::select('active')
-                ->where('member_id', $this->id)
-                ->where('active', 1)
-                ->where('service_name', 'VVIP')
-                ->where(function($query) {
-                    $query->where('expiry', '0000-00-00 00:00:00')
-                        ->orWhere('expiry', '>=', Carbon::now());}
-                )->orderBy('created_at', 'desc')->first() !== null &&
-            VvipApplication::where('user_id', $this->id)->where('status',1)->first() !== null;
+    /**
+     * Find by Name
+     *
+     * @param  string $name
+     * @return User
+     */
+     public function findByName($name)
+     {
+         return $this->where('name', $name)->first();
+     }
+
+    /**
+     * Send the given notification.
+     *
+     * @param  mixed  $instance
+     * @return void
+     */
+
+    public function notify($instance){
+        $blocked = false;
+        $bannedPatterns = config('banned.patterns');
+        foreach ($bannedPatterns as $pattern){
+            if(preg_match($pattern, $this->email)){
+                $blocked = true;
+            }
+        }
+        if(in_array($this->email, config('banned.emails'))){
+            $blocked = true;
+        }
+        if($blocked){
+            logger("Email blocked: " . $this->email);
+            logger("IP: " . \Request::ip());
+            return;
+        }
+        if(db_config('send-email')){
+            app(\Illuminate\Contracts\Notifications\Dispatcher::class)->send($this, $instance);
+        }
+    }
+
+    /**
+     * Send the password reset notification.
+     *
+     * @param  string  $token
+     * @return void
+     */
+    public function sendPasswordResetNotification($token)
+    {
+        $this->notify(new ResetPassword($token));
+    }
+
+    public function isVip()
+    {
+        // Middleware 下的 VipCheck 會將「是 VIP」但「過期」的會員取消權限，
+        // 如果這邊就先針對到期日過濾掉的話，後續會導致問題，如下次重新付費升級
+        // 會依舊顯示非 VIP
+        return $this->vip->first() !== null;
+        // return Vip::select('active')->where('member_id', $this->id)->where('active', 1)->where(function($query)
+        //             {$query->where('expiry', '0000-00-00 00:00:00')->orwhere('expiry', '>=', Carbon::now());}
+        //            )->orderBy('created_at', 'desc')->first() !== null;
+    }
+
+    // public function isAdvanceAuth(){
+    //     $count =  $this->where('advance_auth_status', 1)->count();
+    //     var_dumP($count);
+    //     $res = $count >0 ? 1:0;
+    //     return $res;
+    // }
+    /**
+     * 取得 VIP 資料，預設回傳所有記錄，使用參數決定是否回傳單筆記錄
+     *
+     * @param  string $first
+     * @return User
+     */
+    public function getVipData($first = false)
+    {
+        if($first){
+            return Vip::where('member_id', $this->id)->where('active', 1)->orderBy('created_at', 'desc')->first();
+        }
+        else{
+            return Vip::where('member_id', $this->id)->where('active', 1)->orderBy('created_at', 'desc')->get();
+        }
+    }
+
+    public function isFreeVip()
+    {
+        return Vip::where('member_id', $this->id)->where('active', 1)->where('free', 1)->orderBy('created_at', 'desc')->first() !== null;
+    }
+
+    public function isVipNotCanceledNotOnePayment()
+    {
+        //return true: VIP未取消
+        //return false: VIP已取消，但權限還沒過期
+        $vip = Vip::where('member_id', $this->id)->where('active', 1)->orderBy('created_at', 'desc')->first();
+        return isset($vip) && $vip->expiry=='0000-00-00 00:00:00';
+    }
+
+    public function isVipOnePaymentNotExpire()
+    {
+        //return true: VIP未取消
+        //return false: VIP已取消，但權限還沒過期
+        $vip = Vip::where('member_id', $this->id)->where('active', 1)->orderBy('created_at', 'desc')->first();
+        return isset($vip) && $vip->expiry >= now() && substr($vip->payment,0,4)=='one_';
+    }
+
+    public function isVipNotOnePaymentNotExpiry()
+    {
+        //return true: VIP未取消
+        //return false: VIP已取消，但權限還沒過期
+        $vip = Vip::where('member_id', $this->id)->where('active', 1)->orderBy('created_at', 'desc')->first();
+        return isset($vip) && $vip->expiry >= now() && ($vip->payment==null || substr($vip->payment,0,3)=='cc_');
+    }
+
+    public function isVipBoolean()
+    {
+        //return Vip::where('member_id', $this->id)->where('expiry', '>=',   Carbon::now())->orderBy('created_at', 'desc')->first() !== null;
+        $vip = Vip::where('member_id', $this->id)->where('active', 1)->orderBy('created_at', 'desc')->count();
+        return  $vip > 0 ? true : false ;
+    }
+    
+    public function getVipDiamond() {
+        return Vip::vip_diamond($this->id);
+    }  
+
+    public function getVipMonths() {
+        return Vip::vipMonths($this->id);
+    }     
+
+    public function existHeaderImage() {
+        $pics = MemberPic::where('member_id', $this->id)->count();
+        //echo $pics;
+        //$user_meta = view()->shared('user_meta');
+        $user_meta = $this->meta;
+        return isset($user_meta->pic) && ($pics >= 3);
+    }
+
+    public function isActive() {
+
+        if($this->engroup == 1) return;
+
+        $now = Carbon::now();
+        $user = Vip::where('member_id', $this->id)->firstOrFail();
+
+        //if($user == null) return false;
+
+        $activateDays = $now->diffInDays($user->created_at);
+
+
+        if($activateDays >= Config::get('social.vip.free-days')) {
+            Vip::cancel($this->id);
+        }
+        else {
+            echo '您已升級為VIP會員';
+        }
     }
 
     public static function isLoginSuccess($email, $password) {
@@ -265,19 +946,170 @@ class User extends Authenticatable implements JWTSubject
         return $response;
     }
 
-    //sent messages
+    public function isBlocked($blocker)
+    {
+        $result = Blocked::where('member_id', $this->id)->where('blocked_id', $blocker)->count() > 0;
+        if (isset($result) && strlen($result) !== 0) $result = '是';
+        else $result = '否';
+        return $result;
+    }
+
+    public function isSeen($visitor)
+    {
+        $result = Visited::where('member_id', $this->id)->where('visited_id', $visitor)->count() > 0;
+        if (isset($result) && strlen($result) !== 0) $result = '是';
+        else $result = '否';
+        return $result;
+    }
+
+    public function isSent3Msg($tid)
+    {
+        $msg_count = Message::where('from_id', $tid)->where('to_id', $this->id)
+//            ->where('is_row_delete_1','<>',$this->id)
+//            ->where('is_row_delete_2','<>',$this->id)
+//            ->where('is_single_delete_1','<>',$this->id)
+//            ->where('is_single_delete_2','<>',$this->id)
+            ->count();
+        return $msg_count>=3;
+    }
+
+    public function WarnedScore()
+    {
+        $score=0;
+        //照片檢舉
+        $pic_report1 = ReportedAvatar::select('reporter_id as uid')->where('reported_user_id',$this->id)->where('cancel','0')->where('reporter_id','!=',$this->id)->distinct('reporter_id')->get();
+        // Log::info('ReportedAvatar'.$pic_report1);
+        $pic_report2 = ReportedPic::select('reported_pic.reporter_id as uid')->join('member_pic','reported_pic.reported_pic_id','=','member_pic.id')->where('member_pic.member_id',$this->id)->where('reported_pic.reporter_id','!=',$this->id)->where('reported_pic.cancel','0')->distinct('reported_pic.reporter_id')->get();
+        // Log::info('ReportedPic'.$pic_report2);
+
+        //大頭照與照片合併計算
+        //$collection = collect([$pic_report1, $pic_report2]);
+        //$pic_all_report = $collection->collapse()->unique('uid');
+        // $pic_all_report->unique()->all();
+
+        //訊息檢舉
+        $msg_report = Message::select('to_id as uid')->where('from_id',$this->id)->where('isReported',1)->where('cancel','0')->where('to_id','!=',$this->id)->distinct('to_id')->get();
+        //會員檢舉
+        $report = Reported::select('member_id as uid')->where('reported_id',$this->id)->where('cancel','0')->where('member_id','!=',$this->id)->distinct('member_id')->get();
+
+        //所有檢舉合併計算
+        $collection = collect([$pic_report1, $pic_report2,$msg_report,$report]);
+        $pic_all_report = $collection->collapse()->unique('uid');
+
+        if(isset($pic_all_report) && count($pic_all_report)>0){
+            foreach($pic_all_report as $row){
+                $user = User::findById($row->uid);
+                if(!isset($user)){
+                    continue;
+                }
+                if($user->engroup==2){
+                    if($user->isPhoneAuth()==1){
+                        $score = $score + 5;
+                    }else{
+                        $score = $score + 3.5;
+                    }
+                }else if($user->engroup==1){
+                    if($user->isVipOrIsVvip()){
+                        $score = $score + 5;
+                    }else{
+                        $score = $score + 3.5;
+                    }
+                }
+            }
+        }
+//        //訊息檢舉
+//        $msg_report = Message::select('to_id')->where('from_id',$this->id)->where('isReported',1)->where('cancel','0')->where('to_id','!=',$this->id)->distinct('to_id')->get();
+//        if(isset($msg_report) && count($msg_report)>0){
+//            foreach($msg_report as $row){
+//                $user = User::findById($row->to_id);
+//                if($user->engroup==2){
+//                    if($user->isPhoneAuth()==1){
+//                        $score = $score + 5;
+//                    }else{
+//                        $score = $score + 3.5;
+//                    }
+//                }else if($user->engroup==1){
+//                    if($user->isVipOrIsVvip()){
+//                        $score = $score + 5;
+//                    }else{
+//                        $score = $score + 3.5;
+//                    }
+//                }
+//            }
+//        }
+//        //會員檢舉
+//        $report = Reported::select('member_id')->where('reported_id',$this->id)->where('cancel','0')->where('member_id','!=',$this->id)->distinct('member_id')->get();
+//        if(isset($report) && count($report)>0){
+//            foreach($report as $row){
+//                $user = User::findById($row->member_id);
+//                if(isset($user->engroup) && $user->engroup==2){
+//                    if($user->isPhoneAuth()==1){
+//                        $score = $score + 5;
+//                    }else{
+//                        $score = $score + 3.5;
+//                    }
+//                }else if(isset($user->engroup) && $user->engroup==1){
+//                    if($user->isVipOrIsVvip()){
+//                        $score = $score + 5;
+//                    }else{
+//                        $score = $score + 3.5;
+//                    }
+//                }
+//            }
+//        }
+
+        return $score;
+    }
+
+    public function isPhoneAuth()
+    {
+        $auth_phone = DB::table('short_message')->where('member_id',$this->id)->where('active',1)->count(); //->where('mobile','!=','')
+        return isset($auth_phone) && $auth_phone>0;
+    }
+
+    public function isAdvanceAuth()
+    {
+        return $this->advance_auth_status ;
+    }
+    
+    public function isImgAuth()
+    {
+        $auth_img = DB::table('auth_img')->where('user_id',$this->id)->where('status',1)->count();
+        return isset($auth_img) && $auth_img>0;
+    }
+
+    public function isAdminWarned(){
+        $data = warned_users::where('member_id', $this->id)->first();
+        if(isset($data) && ($data->expire_date==null || $data->expire_date >=  Carbon::now() )){
+            return true;
+        }else{
+            return false;
+        }
+    }
 
     public static function isWarnedRead($uid)
     {
         DB::table('user_meta')->where('user_id',$uid)->update(['isWarnedRead'=>1]);
     }
 
-    //received messages
-
     public static function isAdminWarnedRead($uid)
     {
         DB::table('warned_users')->where('member_id',$uid)->update(['isAdminWarnedRead'=>1]);
     }
+
+//    public function isReportedByUser($uid)
+//    {
+//        $AvatarCount = ReportedAvatar::select('reported_user_id')->where('reported_user_id',$this->id)->where('cancel','0')->where('reporter_id',$uid)->count();
+//        $PicCount = ReportedPic::select('reported_pic.reporter_id')
+//            ->join('member_pic','reported_pic.reported_pic_id','=','member_pic.id')
+//            ->where('member_pic.member_id',$this->id)
+//            ->where('reported_pic.reporter_id',$uid)
+//            ->where('reported_pic.cancel','0')->count();
+//        $msgCount = Message::select('from_id')->where('from_id',$this->id)->where('isReported',1)->where('cancel','0')->where('to_id',$uid)->count();
+//        $memberCount = Reported::select('reported_id')->where('reported_id',$this->id)->where('cancel','0')->where('member_id',$uid)->count();
+//
+//        return $AvatarCount>0 || $PicCount>0 || $msgCount>0 || $memberCount>0;
+//    }
 
     public static function PR($uid)
     {
@@ -438,25 +1270,20 @@ class User extends Authenticatable implements JWTSubject
         return Pr_log::insert([ 'user_id' => $uid, 'pr' => $pr, 'pr_log' => $pr_log, 'active' => 1]);
     }
 
-    //生活照
+    public function age(){
+        if (isset($this->user_meta->birthdate) && $this->user_meta->birthdate !== null && $this->user_meta->birthdate != 'NULL')
+        {
+            $userDob = $this->user_meta->birthdate;
+            $dob = new \DateTime($userDob);
 
-    public function isVipOrIsVvip()
-    {
-        return $this->isVVIP() || $this->isVip();
-    }
+            $now = new \DateTime();
 
-    public function isVip()
-    {
-        // Middleware 下的 VipCheck 會將「是 VIP」但「過期」的會員取消權限，
-        // 如果這邊就先針對到期日過濾掉的話，後續會導致問題，如下次重新付費升級
-        // 會依舊顯示非 VIP
-        return $this->vip->first() !== null;
-        // return Vip::select('active')->where('member_id', $this->id)->where('active', 1)->where(function($query)
-        //             {$query->where('expiry', '0000-00-00 00:00:00')->orwhere('expiry', '>=', Carbon::now());}
-        //            )->orderBy('created_at', 'desc')->first() !== null;
+            $difference = $now->diff($dob);
+
+            $age = $difference->y;
+            return $age;
+        }
     }
-    
-    //免費VIP照片管理log
 
     public static function rating($uid)
     {
@@ -477,7 +1304,68 @@ class User extends Authenticatable implements JWTSubject
         $rating_avg = floatval($rating_avg);
         return $rating_avg;
     }
+
+    public function msgCount()
+    {
+        return Message::where('from_id', $this->id)->count();
+    }
+
+        public function msgsevenCount()
+    {
+        return Message::where('from_id', $this->id)->whereBetween('created_at',  [Carbon::now()->subDays(7), Carbon::now()])->count();
+    }
+
+    public function favCount()
+    {
+        return MemberFav::where('member_id', $this->id)->count();
+    }
+
+    public function favedCount()
+    {
+        return MemberFav::where('member_fav_id', $this->id)->count();
+    }
+
+    public function tipCount()
+    {
+        return Tip::where('member_id', $this->id)->count();
+    }
     
+    public function getTipCountChangeGood() {
+        Tip::TipCount_ChangeGood($this->id);
+    }    
+
+    public function visitCount()
+    {
+        return Visited::where('member_id', $this->id)->count();
+    }
+
+        public function visitedCount()
+    {
+        return Visited::where('visited_id', $this->id)->count();
+    }
+
+        public function visitedsevenCount()
+    {
+        return Visited::where('visited_id', $this->id)->whereBetween('created_at',  [Carbon::now()->subSeconds(Config::get('social.user.viewed-seconds')), Carbon::now()])->count();
+    }
+
+    public function checkTourRead($page,$step)
+    {
+        $checkData = DB::table('tour_read')->where('user_id',$this->id)->where('page',$page)->where('step',$step)->where('isRead',1)->first();
+        $login_times = User::select('login_times')->withOut(['user_meta', 'vip'])->where('id',$this->id)->first();
+        if(isset($checkData) && $login_times->login_times >= 2){
+            $isRead =1;
+        }else{
+            $isRead =0;
+        }
+        return $isRead;
+    }
+
+    public function valueAddedServiceStatus($service_name = null)
+    {
+        return ValueAddedService::status($this->id,$service_name);
+    }
+
     public static function sendLineNotify($access_token, $message) {
 
         if (is_array($message)) {
@@ -502,7 +1390,37 @@ class User extends Authenticatable implements JWTSubject
         $output = curl_exec($ch);
         curl_close($ch);
     }
+
+    public static function warned_icondata($id)
+    {
+        $userMeta = UserMeta::where('user_id', $id)->get()->first();
+        $warned_users = warned_users::where('member_id', $id)->first();
+        $f_user = User::findById($id);
+        if (isset($warned_users) && ($warned_users->expire_date == null || $warned_users->expire_date >= Carbon::now())) {
+            $data['isAdminWarned'] = 1;
+        } else {
+            $data['isAdminWarned'] = 0;
+        }
+        $data['auth_status'] = 0;
+        if (isset($userMeta)) {
+            $data['isWarned'] = $userMeta->isWarned;
+        } else {
+            $data['isWarned'] = null;
+        }
+        if (isset($f_user)) {
+            $data['WarnedScore'] = $f_user->WarnedScore();
+            $data['auth_status'] = $f_user->isPhoneAuth();
+        } else {
+            $data['WarnedScore'] = null;
+            $data['auth_status'] = null;
+        }
+        return $data;
+    }
     
+    public function getWarnedIconData() {
+        return User::warned_icondata($this->id);
+    }
+
     public static function userAdvInfo($user_id,$wantIndexArr=[]){
         $user=User::findById($user_id);
         $date = date('Y-m-d H:m:s', strtotime('-7 days'));
@@ -510,7 +1428,7 @@ class User extends Authenticatable implements JWTSubject
 
         /*使用者所有訊息*/
         $messages_all = Message::withTrashed()->select('id','room_id','to_id','from_id','read','created_at')
-                                ->where(function($query) use($user) {
+                                ->where(function($query) use($user) {                            
                                     $query->where('to_id', $user->id)->orwhere('from_id', $user->id);
                                 })
                                 ->where('from_id','!=',1049)
@@ -570,7 +1488,7 @@ class User extends Authenticatable implements JWTSubject
         /*過去7天罐頭訊息比例*/
         $date_start = date("Y-m-d",strtotime("-6 days", strtotime(date('Y-m-d'))));
         $date_end = date('Y-m-d');
-
+		
 		if(!$wantIndexArr || in_array('message_percent_7',$wantIndexArr)) {
 			/**
 			 * 效能調整：使用左結合以大幅降低處理時間
@@ -584,7 +1502,7 @@ class User extends Authenticatable implements JWTSubject
 				->leftJoin('banned_users_implicitly as b3', 'b3.target', '=', 'message.from_id')
 				->leftJoin('warned_users as wu', function($join) {
                     $join->on('wu.member_id', '=', 'message.from_id')
-                         ->where(function($join) {
+                         ->where(function($join) {                            
                             $join->where('wu.expire_date', '>=', Carbon::now())
                             ->orWhere('wu.expire_date', null);
                          }); })
@@ -657,15 +1575,15 @@ class User extends Authenticatable implements JWTSubject
 			}
 		}
         /*收藏會員次數*/
-		if(!$wantIndexArr || in_array('fav_count',$wantIndexArr))
+		if(!$wantIndexArr || in_array('fav_count',$wantIndexArr)) 
 			$advInfo['fav_count'] = MemberFav::where('member_id', $user->id)->get()->count();
 
         /*瀏覽其他會員次數*/
-		if(!$wantIndexArr || in_array('visit_other_count',$wantIndexArr))
+		if(!$wantIndexArr || in_array('visit_other_count',$wantIndexArr)) 
 			$advInfo['visit_other_count']  = Visited::where('member_id', $user->id)->distinct('visited_id')->count();
 
         /*過去7天瀏覽其他會員次數*/
-		if(!$wantIndexArr || in_array('visit_other_count_7',$wantIndexArr))
+		if(!$wantIndexArr || in_array('visit_other_count_7',$wantIndexArr)) 
 			$advInfo['visit_other_count_7'] = Visited::where('member_id', $user->id)->where('created_at', '>=', $date)->distinct('visited_id')->count();
 
         /*此會員封鎖多少其他會員*/
@@ -700,994 +1618,6 @@ class User extends Authenticatable implements JWTSubject
         return $advInfo;
     }
 
-    public static function userLoginLog($user_id, $request){
-        $userLogin_log = LogUserLogin::selectRaw('LEFT(created_at,7) as loginMonth, DATE(created_at) as loginDate, user_id as userID, ip, count(*) as dataCount')
-            ->where('user_id', $user_id)
-            ->groupBy(DB::raw("LEFT(created_at,7)"));
-
-        if($request->loading_data!=='all'){
-            $userLogin_log=$userLogin_log->where('created_at','>=', date('Y-m-d', strtotime('-3 months')));
-        }
-        $userLogin_log=$userLogin_log->orderBy('created_at', 'DESC')->get();
-        foreach ($userLogin_log as $key => $value) {
-            $dataLog = LogUserLogin::where('user_id', $user_id)->where('created_at', 'like', '%' . $value->loginMonth . '%')->orderBy('created_at', 'DESC');
-            $userLogin_log[$key]['items'] = $dataLog->get();
-
-            //ip
-            $Ip_group = LogUserLogin::where('user_id', $user_id)->where('created_at', 'like', '%' . $value->loginMonth . '%')
-                ->from('log_user_login as log')
-                ->selectRaw('ip, count(*) as dataCount, (select created_at from log_user_login as s where s.user_id=log.user_id and s.ip=log.ip and s.created_at like "%' . $value->loginMonth . '%" order by created_at desc LIMIT 1 ) as loginTime')
-                ->groupBy(DB::raw("ip"))->orderBy('loginTime', 'desc')->get();
-            $Ip = array();
-            foreach ($Ip_group as $Ip_key => $group) {
-                $group['IP_set_auto_ban']=SetAutoBan::whereRaw('(content="'.$group['ip'].'" AND expiry >="'. now().'")')->orWhereRaw('(content="'.$group['ip'].'" AND expiry="0000-00-00 00:00:00")')->get()->count();
-                $IpUsers = LogUserLogin::where('ip',$group->ip)->distinct('user_id')->groupBy('user_id')->get()->toarray();
-                $IpUsers = array_column($IpUsers,'user_id');
-
-                $Ip['Ip_group'][$Ip_key] = $group;
-                $Ip['Ip_group_items'][$Ip_key] = LogUserLogin::where('user_id', $user_id)->where('created_at', 'like', '%' . $value->loginMonth . '%')->where('ip', $group->ip)->orderBy('created_at', 'DESC')->get();
-                $Ip['Ip_online_people'][$Ip_key] = LogUserLogin::where('ip',$group->ip)->distinct('user_id')->count();
-                $Ip['Ip_blocked_people'][$Ip_key] = banned_users::whereIn('member_id',$IpUsers)->distinct('member_id')->count();
-            }
-
-            //排序$Ip
-            $sortIp = [];
-            arsort($Ip['Ip_blocked_people']);
-            foreach($Ip['Ip_blocked_people'] as $skey => $svalue)
-            {
-                $sortIp['Ip_group'][] = $Ip['Ip_group'][$skey];
-                $sortIp['Ip_group_items'][] = $Ip['Ip_group_items'][$skey];
-                $sortIp['Ip_online_people'][] = $Ip['Ip_online_people'][$skey];
-                $sortIp['Ip_blocked_people'][] = $Ip['Ip_blocked_people'][$skey];
-            }
-            //排序$Ip
-
-            $userLogin_log[$key]['Ip'] = $sortIp;
-
-            //cfp_id
-            $CfpID_group = LogUserLogin::where('user_id', $user_id)->where('created_at', 'like', '%' . $value->loginMonth . '%')
-                ->from('log_user_login as log')
-                ->selectRaw('cfp_id,count(*) as dataCount, (select created_at from log_user_login as s where s.user_id=log.user_id and s.cfp_id=log.cfp_id and s.created_at like "%' . $value->loginMonth . '%" order by created_at desc LIMIT 1 ) as loginTime')
-                ->whereNotNull('cfp_id')
-                ->groupBy(DB::raw("cfp_id"))->orderBy('loginTime', 'desc')->get();
-            $CfpID = array();
-            foreach ($CfpID_group as $CfpID_key => $group) {
-                $group['CfpID_set_auto_ban']=SetAutoBan::whereRaw('(content="'.$group['cfp_id'].'" AND expiry >="'. now().'")')->orWhereRaw('(content="'.$group['cfp_id'].'" AND expiry="0000-00-00 00:00:00")')->get()->count();
-                $CfpIDUsers = LogUserLogin::where('cfp_id',$group->cfp_id)->distinct('user_id')->groupBy('user_id')->get()->toarray();
-                $CfpIDUsers = array_column($CfpIDUsers,'user_id');
-
-                $CfpID['CfpID_group'][$CfpID_key] = $group;
-                $CfpID['CfpID_group_items'][$CfpID_key] = LogUserLogin::where('user_id', $user_id)->where('created_at', 'like', '%' . $value->loginMonth . '%')->where('cfp_id', $group->cfp_id)->orderBy('created_at', 'DESC')->get();
-                $CfpID['CfpID_online_people'][$CfpID_key] = count($CfpIDUsers);
-                $CfpID['CfpID_blocked_people'][$CfpID_key] = banned_users::whereIn('member_id',$CfpIDUsers)->distinct('member_id')->count();
-
-            }
-            $userLogin_log[$key]['CfpID'] = $CfpID;
-        }
-        return $userLogin_log;
-    }
-    // 送往api驗證身分證、生日和電話的紀錄，
-    // 驗證通過的生日和電話，會同時更新到user_meta上原本的生日和電話
-
-    public static function retrive($id)
-    {
-        if($id) {
-            return Cache::remember('user_' . $id, 3600, function () use ($id) {
-                return User::find($id);
-            });
-        }
-        return Cache::remember('users' , 3600, function () {
-            return User::all();
-        });
-    }
-
-    //新手教學時間
-
-    public static function getSearchFilterAttributes()
-    {
-        return [
-            'name',
-            'engroup',
-            'birthdate_timestamp',
-        ];
-    }
-    
-    //停留時間
-
-    public function meta()
-    {
-        return $this->hasOne(UserMeta::class, 'user_id', 'id');
-    }
-
-    public function vip()
-    {
-        return $this->hasMany(Vip::class, 'member_id', 'id')->where('active', 1)->orderBy('id', 'desc');
-    }
-
-    public function vip_any()
-    {
-        return $this->hasMany(Vip::class, 'member_id', 'id')->orderBy('created_at', 'desc');
-    }
-    
-    public function vas()
-    {
-        return $this->hasMany(ValueAddedService::class, 'member_id', 'id')->where('active', 1)->orderBy('created_at', 'desc');
-    }
-    
-    //多重帳號row
-
-    public function fa_relation() {
-        return $this->hasOne(\App\Models\SimpleTables\short_message::class, 'member_id', 'id')->where('mobile','!=','')->where('active', 1);
-    }
-    
-    public function self_auth_tags_display() {
-        return $this->hasOne(RealAuthUserTagsDisplay::class, 'user_id', 'id')->where('auth_type_id', 1);
-    }
-    
-    public function beauty_auth_tags_display() {
-        return $this->hasOne(RealAuthUserTagsDisplay::class, 'user_id', 'id')->where('auth_type_id', 2);
-    }
-    //簡易設定 用在簡易量少的設定上
-
-    public function famous_auth_tags_display() {
-        return $this->hasOne(RealAuthUserTagsDisplay::class, 'user_id', 'id')->where('auth_type_id', 3);
-    }
-	
-    public function pr_log() {
-        return $this->hasOne(Pr_log::class, 'user_id', 'id')->where('active', 1);
-    }
-	
-    public function sentMessages()
-    {
-        return $this->hasMany(Message_new::class, 'from_id', 'id');
-    }
-    
-    public function receivedMessages()
-    {
-        return $this->hasMany(Message_new::class, 'to_id', 'id');
-    }
-
-    // 可疑
-
-    public function messageRooms()
-    {
-        return $this->hasManyThrough(MessageRoom::class, MessageRoomUserXref::class, 'user_id', 'id', 'id', 'room_id');
-    }
-
-    //生活照倒序
-
-    public function pic()
-    {
-        return $this->hasMany(MemberPic::class, 'member_id', 'id');
-    }
-
-    // 只列出已刪除的生活照
-
-    public function pics()
-    {
-        return $this->hasMany(MemberPic::class, 'member_id', 'id');
-    }
-
-    // 列出含已刪除的所有生活照
-
-    public function log_free_vip_pic_acts()
-    {
-        return $this->hasMany(LogFreeVipPicAct::class, 'user_id', 'id');
-    }
-
-    // 列出已刪除頭像
-
-    public function log_free_vip_avatar_acts()
-    {
-        return $this->hasMany(LogFreeVipPicAct::class, 'user_id', 'id')->where('pic_type','avatar');
-    }
-    
-    //基本資料查看紀錄
-
-    public function log_free_vip_member_pic_acts()
-    {
-        return $this->hasMany(LogFreeVipPicAct::class, 'user_id', 'id')->where('pic_type','member_pic');
-    }
-
-    /*
-    |--------------------------------------------------------------------------
-    | Mutators and Accessors
-    |--------------------------------------------------------------------------
-    | Set virtual attributes
-    |
-    */
-
-    public function log_user_login()
-    {
-        return $this->hasMany(LogUserLogin::class, 'user_id', 'id');
-    }
-
-    public function newer_manual_stay_online_time()
-    {
-        return $this->hasOne(StayOnlineRecord::class, 'user_id', 'id')->select(DB::raw("SUM(newer_manual) as time"));
-    }
-
-    public function female_newer_manual_time_list()
-    {
-
-        return $this->stay_online_record_only_page()
-            ->where('url','like','%#nr_fnm%')
-            ->groupBy('url')
-            ->selectRaw('SUBSTRING(url, -3, 3) as step,sum(stay_online_time) as time')
-            ;
-    }
-
-    public function stay_online_record_only_page()
-    {
-        return StayOnlineRecord::addOnlyPageClauseToQuery($this->stay_online_record());//->whereNotNull('stay_online_time')->whereNotNull('url');
-    }
-
-    public function stay_online_record()
-    {
-        return $this->hasMany(StayOnlineRecord::class, 'user_id', 'id');
-    }
-
-    public function getFemaleNewerManualTotalTime()
-    {
-        return $this->female_newer_manual_time_list->sum('time');
-    }
-
-    public function puppet_analysis_row_standard()
-    {
-        return $this->puppet_analysis_row()->where('cat','');
-    }
-    
-    public function puppet_analysis_row()
-    {
-        return $this->hasMany(PuppetAnalysisRow::class, 'name', 'id');
-    }
-    
-    public function puppet_analysis_row_only_cfpid()
-    {
-        return $this->puppet_analysis_row()->where('cat','only_cfpid');
-    }
-
-    public function tiny_setting() {
-        return $this->hasMany(UserTinySetting::class, 'user_id', 'id');
-    }
-    
-    //faq
-
-    public function is_banned_log() {
-        return $this->hasMany(IsBannedLog::class, 'user_id', 'id');
-    }
-    
-    public function is_warned_log() {
-        return $this->hasMany(IsWarnedLog::class, 'user_id', 'id');
-    }
-
-    //real auth
-
-    public function suspicious()
-    {
-        return $this->hasOne(SuspiciousUser::class, 'user_id', 'id')->whereNull('deleted_at');
-    }
-    
-    public function pic_orderByDecs()
-    {
-        return $this->hasMany(MemberPic::class, 'member_id', 'id')->orderByDesc('created_at');
-    }
-    
-    public function pic_onlyTrashed()
-    {
-        return $this->hasMany(MemberPic::class, 'member_id', 'id')->onlyTrashed()->orderByDesc('created_at');
-    }
-    
-    public function pic_withTrashed()
-    {
-        return $this->hasMany(MemberPic::class, 'member_id', 'id')->withTrashed();
-    }
-    
-    public function avatar_deleted()
-    {
-        return $this->hasMany(AvatarDeleted::class, 'user_id', 'id')->orderByDesc('uploaded_at');
-    }
-    
-    public function advInfo_check_log()
-    {
-        return $this->hasMany(AdminActionLog::class, 'target_id', 'id')->where('act', '查看會員基本資料')->orderByDesc('created_at');
-    }
- 
-    public function meta_($queries = null)
-    {
-        if(!isset($queries)){
-            $queries = '*';
-        }
-        return UserMeta::select($queries)->where('user_id', $this->id)->first();
-    }
-    
-    /**
-     * User Roles
-     *
-     * @return Relationship
-     */
-    public function roles()
-    {
-        return $this->belongsToMany(Role::class);
-    }
-    
-    public function user_options_xref(){
-        return $this->hasMany(UserOptionsXref::class, 'user_id', 'id');
-    }
-
-    public function implicitlyBanned(){
-        return $this->hasOne(BannedUsersImplicitly::class, 'target', 'id');
-    }
-    
-    public function blocked() {
-        return $this->hasMany(Blocked::class, 'member_id', 'id');
-    }
-    
-    public function blockedInBlocked() {
-        return $this->hasMany(Blocked::class, 'blocked_id', 'id');
-    }
-
-    public function tip() {
-        return $this->hasMany(Tip::class, 'member_id', 'id');
-    }
-
-    public function faq_user_group()
-    {
-        return $this->hasMany(FaqUserGroup::class);
-    }
-   
-    public function faq_user_reply()
-    {
-        return $this->hasMany(FaqUserReply::class);
-    }
-
-    public function real_auth_user_patch()
-    {
-        return $this->hasMany(RealAuthUserPatch::class,'user_id','id');
-    }
-
-    public function real_auth_user_apply()
-    {
-        return $this->hasMany(RealAuthUserApply::class,'user_id','id');
-    }
-    
-    public function self_auth_apply()
-    {
-        return $this->hasOne(RealAuthUserApply::class,'user_id','id')
-                ->where('auth_type_id',1)
-                ->latest();
-    }
-
-    public function self_auth_unchecked_apply()
-    {
-
-        return $this->hasOne(RealAuthUserApply::class,'user_id','id')
-                ->where('auth_type_id',1)
-                ->where(function($q) {$q->whereNull('status')->orWhere('status','!=',1);})
-                ->latest();
-    }
-
-    public function video_verify_record()
-    {
-        return $this->hasMany(UserVideoVerifyRecord::class,'user_id','id');
-    }
-
-    public function video_verify_memo()
-    {
-        return $this->hasOne(UserVideoVerifyMemo::class,'user_id','id');
-    }
-
-    public function beauty_auth_apply()
-    {
-        return $this->hasOne(RealAuthUserApply::class,'user_id','id')
-                ->where('auth_type_id',2)
-                ->latest();
-    }
-
-    public function beauty_auth_unchecked_apply()
-    {
-
-        return $this->hasOne(RealAuthUserApply::class,'user_id','id')
-                ->where('auth_type_id',2)
-                ->where(function($q) {$q->whereNull('status')->orWhere('status','!=',1);})
-                ->latest();
-    }
-
-    public function famous_auth_apply()
-    {
-        return $this->hasOne(RealAuthUserApply::class,'user_id','id')
-                ->where('auth_type_id',3)
-                ->latest();
-    }
-
-    public function famous_auth_unchecked_apply()
-    {
-        return $this->hasOne(RealAuthUserApply::class,'user_id','id')
-                ->where('auth_type_id',3)
-                ->where(function($q) {$q->whereNull('status')->orWhere('status','!=',1);})
-                ->latest();
-    }
-
-    public function real_auth_user_modify_with_trashed()
-    {
-        return $this->real_auth_user_modify()->withTrashed();
-    }
-
-    public function real_auth_user_modify()
-    {
-        return $this->hasManyThrough(RealAuthUserModify::class,RealAuthUserApply::class,'user_id','apply_id');
-    }
-
-    public function real_auth_modify_item_group_modify()
-    {
-        return $this->real_auth_modify_item_group_for_admincheck_last_modify();
-
-    }
-
-    public function real_auth_modify_item_group_for_admincheck_last_modify()
-    {
-        return $this->real_auth_user_modify()
-                    ->groupBy('apply_id')
-                    ->groupByRaw('item_id*!ifnull(patch_id_shot,0)')
-                    ->groupBy('is_formal_first')
-                    ->selectRaw('max(real_auth_user_modify.id) as id,min(real_auth_user_modify.id) as check_first')
-                    ->where('item_id','!=',1)
-
-                    ->Where(function($q)
-                    {
-                        $q->where('real_auth_user_modify.apply_status_shot',1)
-                          ->orWhere('is_formal_first',1)
-                          ->orWhere(function($qq)
-                          {
-                            $qq->where('real_auth_user_modify.apply_status_shot','!=',1)
-                               ->whereNotNull('patch_id_shot')
-
-                               ;
-                        })
-
-                        ;
-
-                    })
-
-                    ;
-    }
-
-    public function real_auth_modify_item_group_modify_with_trashed()
-    {
-        return $this->real_auth_modify_item_group_for_admincheck_last_modify_with_trashed()->addSelect('user_id')->orderByDesc('id');
-    }
-
-    public function real_auth_modify_item_group_for_admincheck_last_modify_with_trashed()
-    {
-        return $this->real_auth_modify_item_group_for_admincheck_last_modify()->withTrashed();
-    }
-
-    public function latest_real_auth_user_modify()
-    {
-        return $this->hasOneThrough(RealAuthUserModify::class,RealAuthUserApply::class,'user_id','apply_id')->orderByDesc('real_auth_user_modify.id')->take(1);
-    }
-
-    public function real_auth_user_modify_max_created_at()
-    {
-        return $this->hasOneThrough(RealAuthUserModify::class,RealAuthUserApply::class,'user_id','apply_id')
-                    ->select(DB::raw('max(real_auth_user_modify.created_at) as max_created_at'))
-                    ->groupBy('real_auth_user_applies.user_id')
-                    ->where('real_auth_user_modify.status',0)
-                    ->where('real_auth_user_modify.item_id','!=',1)
-                    ;
-    }
-
-    public function order()
-    {
-        return $this->hasMany(Order::class,'user_id','id');
-    }
-
-    /**
-     * Check if user has role
-     *
-     * @param  string  $role
-     * @return boolean
-     */
-    public function hasRole($role)
-    {
-        $roles = array_column($this->roles->toArray(), 'name');
-        return array_search($role, $roles) > -1;
-    }
-
-    /**
-     * Check if user has permission
-     *
-     * @param  string  $permission
-     * @return boolean
-     */
-    public function hasPermission($permission)
-    {
-        return $this->roles->each(function ($role) use ($permission) {
-            if (in_array($permission, explode(',', $role->permissions))) {
-                return true;
-            }
-        });
-
-        return false;
-    }
-
-    public function cfp(){
-        return $this->hasMany(CFP_User::class, 'user_id', 'id');
-    }
-
-    public function isOnline() {
-        return \Cache::has('user-is-online-' . $this->id);
-    }
-
-    public function check_point_user(){
-        return $this->hasMany(CheckPointUser::class, 'user_id', 'id');
-    }
-
-    public function check_point_name(){
-        return $this->hasManyThrough(CheckPoints::class, CheckPointUser::class, 'user_id', 'id','id','check_point_id');
-    }
-
-    public function backend_user_details(){
-        return $this->hasMany(BackendUserDetails::class, 'user_id', 'id');
-    }
-
-    public function operator_commit(){
-        return $this->hasMany(UserRemarksLog::class, 'target_user_id', 'id')->orderByDesc('created_at');
-    }
-
-    public function isAdmin() {
-        $user = auth()->user();
-        //dd(Config::get('social.admin.email'));
-        //dd(Config::get('social.vip.free-days'));
-
-        if($user->email == Config::get('social.admin.user-email')) {
-            return true;
-        }
-        return false;
-    }
-
-    public function is_banned()
-    {
-        return banned_users::where('member_id', $this->id)
-                            ->where(function ($query){
-                                $today = Carbon::today();
-                                $query->where("expire_date", null)->orWhere("expire_date", ">", $today);
-                            })
-                            ->orderByDesc('created_at')
-                            ->first() ?? false;
-            }
-
-    public function is_warned()
-    {
-        return warned_users::where('member_id', $this->id)
-                    ->where(function ($query){
-                        $today = Carbon::today();
-                        $query->where("expire_date", null)->orWhere("expire_date", ">", $today);
-                    })
-                    ->orderByDesc('created_at')
-                    ->first() ?? false;
-    }
-
-    // public function isAdvanceAuth(){
-    //     $count =  $this->where('advance_auth_status', 1)->count();
-    //     var_dumP($count);
-    //     $res = $count >0 ? 1:0;
-    //     return $res;
-    // }
-
-    public function is_waiting_for_more_data()
-    {
-        return BackendUserDetails::where('user_id', $this->id)
-                                ->where('is_waiting_for_more_data', 1)
-                                ->first() ?? false;
-    }
-
-    public function is_waiting_for_more_data_with_login_time()
-    {
-        return BackendUserDetails::where('user_id', $this->id)
-                                ->where('remain_login_times_of_wait_for_more_data', '>', 1)
-                                ->first() ?? false;
-    }
-
-    /**
-     * Find by Name
-     *
-     * @param  string $name
-     * @return User
-     */
-     public function findByName($name)
-     {
-         return $this->where('name', $name)->first();
-     }
-
-    /**
-     * Send the password reset notification.
-     *
-     * @param  string  $token
-     * @return void
-     */
-    public function sendPasswordResetNotification($token)
-    {
-        $this->notify(new ResetPassword($token));
-    }
-
-    /**
-     * Send the given notification.
-     *
-     * @param  mixed  $instance
-     * @return void
-     */
-
-    public function notify($instance){
-        $blocked = false;
-        $bannedPatterns = config('banned.patterns');
-        foreach ($bannedPatterns as $pattern){
-            if(preg_match($pattern, $this->email)){
-                $blocked = true;
-            }
-        }
-        if(in_array($this->email, config('banned.emails'))){
-            $blocked = true;
-        }
-        if($blocked){
-            logger("Email blocked: " . $this->email);
-            logger("IP: " . \Request::ip());
-            return;
-        }
-        if(db_config('send-email')){
-            app(\Illuminate\Contracts\Notifications\Dispatcher::class)->send($this, $instance);
-        }
-    }
-
-    /**
-     * 取得 VIP 資料，預設回傳所有記錄，使用參數決定是否回傳單筆記錄
-     *
-     * @param  string $first
-     * @return User
-     */
-    public function getVipData($first = false)
-    {
-        if($first){
-            return Vip::where('member_id', $this->id)->where('active', 1)->orderBy('created_at', 'desc')->first();
-        }
-        else{
-            return Vip::where('member_id', $this->id)->where('active', 1)->orderBy('created_at', 'desc')->get();
-        }
-    }
-    
-    public function isFreeVip()
-    {
-        return Vip::where('member_id', $this->id)->where('active', 1)->where('free', 1)->orderBy('created_at', 'desc')->first() !== null;
-    }
-
-    public function isVipNotCanceledNotOnePayment()
-    {
-        //return true: VIP未取消
-        //return false: VIP已取消，但權限還沒過期
-        $vip = Vip::where('member_id', $this->id)->where('active', 1)->orderBy('created_at', 'desc')->first();
-        return isset($vip) && $vip->expiry=='0000-00-00 00:00:00';
-    }
-
-    public function isVipOnePaymentNotExpire()
-    {
-        //return true: VIP未取消
-        //return false: VIP已取消，但權限還沒過期
-        $vip = Vip::where('member_id', $this->id)->where('active', 1)->orderBy('created_at', 'desc')->first();
-        return isset($vip) && $vip->expiry >= now() && substr($vip->payment,0,4)=='one_';
-    }
-
-    public function isVipNotOnePaymentNotExpiry()
-    {
-        //return true: VIP未取消
-        //return false: VIP已取消，但權限還沒過期
-        $vip = Vip::where('member_id', $this->id)->where('active', 1)->orderBy('created_at', 'desc')->first();
-        return isset($vip) && $vip->expiry >= now() && ($vip->payment==null || substr($vip->payment,0,3)=='cc_');
-    }
-
-    public function isVipBoolean()
-    {
-        //return Vip::where('member_id', $this->id)->where('expiry', '>=',   Carbon::now())->orderBy('created_at', 'desc')->first() !== null;
-        $vip = Vip::where('member_id', $this->id)->where('active', 1)->orderBy('created_at', 'desc')->count();
-        return  $vip > 0 ? true : false ;
-    }
-
-    public function getVipDiamond() {
-        return Vip::vip_diamond($this->id);
-    }
-
-    public function getVipMonths() {
-        return Vip::vipMonths($this->id);
-    }
-
-    public function existHeaderImage() {
-        $pics = MemberPic::where('member_id', $this->id)->count();
-        //echo $pics;
-        //$user_meta = view()->shared('user_meta');
-        $user_meta = $this->meta;
-        return isset($user_meta->pic) && ($pics >= 3);
-    }
-
-    public function isActive() {
-
-        if($this->engroup == 1) return;
-
-        $now = Carbon::now();
-        $user = Vip::where('member_id', $this->id)->firstOrFail();
-
-        //if($user == null) return false;
-
-        $activateDays = $now->diffInDays($user->created_at);
-
-
-        if($activateDays >= Config::get('social.vip.free-days')) {
-            Vip::cancel($this->id);
-        }
-        else {
-            echo '您已升級為VIP會員';
-        }
-    }
-
-    public function isBlocked($blocker)
-    {
-        $result = Blocked::where('member_id', $this->id)->where('blocked_id', $blocker)->count() > 0;
-        if (isset($result) && strlen($result) !== 0) $result = '是';
-        else $result = '否';
-        return $result;
-    }
-
-    public function isSeen($visitor)
-    {
-        $result = Visited::where('member_id', $this->id)->where('visited_id', $visitor)->count() > 0;
-        if (isset($result) && strlen($result) !== 0) $result = '是';
-        else $result = '否';
-        return $result;
-    }
-    
-    public function isSent3Msg($tid)
-    {
-        $msg_count = Message::where('from_id', $tid)->where('to_id', $this->id)
-//            ->where('is_row_delete_1','<>',$this->id)
-//            ->where('is_row_delete_2','<>',$this->id)
-//            ->where('is_single_delete_1','<>',$this->id)
-//            ->where('is_single_delete_2','<>',$this->id)
-            ->count();
-        return $msg_count>=3;
-    }
-
-    public function isAdvanceAuth()
-    {
-        return $this->advance_auth_status ;
-    }
-
-    public function isImgAuth()
-    {
-        $auth_img = DB::table('auth_img')->where('user_id',$this->id)->where('status',1)->count();
-        return isset($auth_img) && $auth_img>0;
-    }
-
-    public function isAdminWarned(){
-        $data = warned_users::where('member_id', $this->id)->first();
-        if(isset($data) && ($data->expire_date==null || $data->expire_date >=  Carbon::now() )){
-            return true;
-        }else{
-            return false;
-        }
-    }
-
-//    public function isReportedByUser($uid)
-//    {
-//        $AvatarCount = ReportedAvatar::select('reported_user_id')->where('reported_user_id',$this->id)->where('cancel','0')->where('reporter_id',$uid)->count();
-//        $PicCount = ReportedPic::select('reported_pic.reporter_id')
-//            ->join('member_pic','reported_pic.reported_pic_id','=','member_pic.id')
-//            ->where('member_pic.member_id',$this->id)
-//            ->where('reported_pic.reporter_id',$uid)
-//            ->where('reported_pic.cancel','0')->count();
-//        $msgCount = Message::select('from_id')->where('from_id',$this->id)->where('isReported',1)->where('cancel','0')->where('to_id',$uid)->count();
-//        $memberCount = Reported::select('reported_id')->where('reported_id',$this->id)->where('cancel','0')->where('member_id',$uid)->count();
-//
-//        return $AvatarCount>0 || $PicCount>0 || $msgCount>0 || $memberCount>0;
-//    }
-
-    public function age(){
-        if (isset($this->user_meta->birthdate) && $this->user_meta->birthdate !== null && $this->user_meta->birthdate != 'NULL')
-        {
-            $userDob = $this->user_meta->birthdate;
-            $dob = new \DateTime($userDob);
-
-            $now = new \DateTime();
-
-            $difference = $now->diff($dob);
-
-            $age = $difference->y;
-            return $age;
-        }
-    }
-
-    public function msgCount()
-    {
-        return Message::where('from_id', $this->id)->count();
-    }
-
-        public function msgsevenCount()
-    {
-        return Message::where('from_id', $this->id)->whereBetween('created_at',  [Carbon::now()->subDays(7), Carbon::now()])->count();
-    }
-
-    public function favCount()
-    {
-        return MemberFav::where('member_id', $this->id)->count();
-    }
-
-    public function favedCount()
-    {
-        return MemberFav::where('member_fav_id', $this->id)->count();
-    }
-
-    public function tipCount()
-    {
-        return Tip::where('member_id', $this->id)->count();
-    }
-
-    public function getTipCountChangeGood() {
-        Tip::TipCount_ChangeGood($this->id);
-    }
-
-    public function visitCount()
-    {
-        return Visited::where('member_id', $this->id)->count();
-    }
-    
-        public function visitedCount()
-    {
-        return Visited::where('visited_id', $this->id)->count();
-    }
-
-        public function visitedsevenCount()
-    {
-        return Visited::where('visited_id', $this->id)->whereBetween('created_at',  [Carbon::now()->subSeconds(Config::get('social.user.viewed-seconds')), Carbon::now()])->count();
-    }
-
-    public function checkTourRead($page,$step)
-    {
-        $checkData = DB::table('tour_read')->where('user_id',$this->id)->where('page',$page)->where('step',$step)->where('isRead',1)->first();
-        $login_times = User::select('login_times')->withOut(['user_meta', 'vip'])->where('id',$this->id)->first();
-        if(isset($checkData) && $login_times->login_times >= 2){
-            $isRead =1;
-        }else{
-            $isRead =0;
-        }
-        return $isRead;
-    }
-
-    public function valueAddedServiceStatus($service_name = null)
-    {
-        return ValueAddedService::status($this->id,$service_name);
-    }
-
-    public function getWarnedIconData() {
-        return User::warned_icondata($this->id);
-    }
-
-    public static function warned_icondata($id)
-    {
-        $userMeta = UserMeta::where('user_id', $id)->get()->first();
-        $warned_users = warned_users::where('member_id', $id)->first();
-        $f_user = User::findById($id);
-        if (isset($warned_users) && ($warned_users->expire_date == null || $warned_users->expire_date >= Carbon::now())) {
-            $data['isAdminWarned'] = 1;
-        } else {
-            $data['isAdminWarned'] = 0;
-        }
-        $data['auth_status'] = 0;
-        if (isset($userMeta)) {
-            $data['isWarned'] = $userMeta->isWarned;
-        } else {
-            $data['isWarned'] = null;
-        }
-        if (isset($f_user)) {
-            $data['WarnedScore'] = $f_user->WarnedScore();
-            $data['auth_status'] = $f_user->isPhoneAuth();
-        } else {
-            $data['WarnedScore'] = null;
-            $data['auth_status'] = null;
-        }
-        return $data;
-    }
-
-    public function WarnedScore()
-    {
-        $score=0;
-        //照片檢舉
-        $pic_report1 = ReportedAvatar::select('reporter_id as uid')->where('reported_user_id',$this->id)->where('cancel','0')->where('reporter_id','!=',$this->id)->distinct('reporter_id')->get();
-        // Log::info('ReportedAvatar'.$pic_report1);
-        $pic_report2 = ReportedPic::select('reported_pic.reporter_id as uid')->join('member_pic','reported_pic.reported_pic_id','=','member_pic.id')->where('member_pic.member_id',$this->id)->where('reported_pic.reporter_id','!=',$this->id)->where('reported_pic.cancel','0')->distinct('reported_pic.reporter_id')->get();
-        // Log::info('ReportedPic'.$pic_report2);
-
-        //大頭照與照片合併計算
-        //$collection = collect([$pic_report1, $pic_report2]);
-        //$pic_all_report = $collection->collapse()->unique('uid');
-        // $pic_all_report->unique()->all();
-
-        //訊息檢舉
-        $msg_report = Message::select('to_id as uid')->where('from_id',$this->id)->where('isReported',1)->where('cancel','0')->where('to_id','!=',$this->id)->distinct('to_id')->get();
-        //會員檢舉
-        $report = Reported::select('member_id as uid')->where('reported_id',$this->id)->where('cancel','0')->where('member_id','!=',$this->id)->distinct('member_id')->get();
-
-        //所有檢舉合併計算
-        $collection = collect([$pic_report1, $pic_report2,$msg_report,$report]);
-        $pic_all_report = $collection->collapse()->unique('uid');
-
-        if(isset($pic_all_report) && count($pic_all_report)>0){
-            foreach($pic_all_report as $row){
-                $user = User::findById($row->uid);
-                if(!isset($user)){
-                    continue;
-                }
-                if($user->engroup==2){
-                    if($user->isPhoneAuth()==1){
-                        $score = $score + 5;
-                    }else{
-                        $score = $score + 3.5;
-                    }
-                }else if($user->engroup==1){
-                    if($user->isVipOrIsVvip()){
-                        $score = $score + 5;
-                    }else{
-                        $score = $score + 3.5;
-                    }
-                }
-            }
-        }
-//        //訊息檢舉
-//        $msg_report = Message::select('to_id')->where('from_id',$this->id)->where('isReported',1)->where('cancel','0')->where('to_id','!=',$this->id)->distinct('to_id')->get();
-//        if(isset($msg_report) && count($msg_report)>0){
-//            foreach($msg_report as $row){
-//                $user = User::findById($row->to_id);
-//                if($user->engroup==2){
-//                    if($user->isPhoneAuth()==1){
-//                        $score = $score + 5;
-//                    }else{
-//                        $score = $score + 3.5;
-//                    }
-//                }else if($user->engroup==1){
-//                    if($user->isVipOrIsVvip()){
-//                        $score = $score + 5;
-//                    }else{
-//                        $score = $score + 3.5;
-//                    }
-//                }
-//            }
-//        }
-//        //會員檢舉
-//        $report = Reported::select('member_id')->where('reported_id',$this->id)->where('cancel','0')->where('member_id','!=',$this->id)->distinct('member_id')->get();
-//        if(isset($report) && count($report)>0){
-//            foreach($report as $row){
-//                $user = User::findById($row->member_id);
-//                if(isset($user->engroup) && $user->engroup==2){
-//                    if($user->isPhoneAuth()==1){
-//                        $score = $score + 5;
-//                    }else{
-//                        $score = $score + 3.5;
-//                    }
-//                }else if(isset($user->engroup) && $user->engroup==1){
-//                    if($user->isVipOrIsVvip()){
-//                        $score = $score + 5;
-//                    }else{
-//                        $score = $score + 3.5;
-//                    }
-//                }
-//            }
-//        }
-
-        return $score;
-    }
-
-    public function isPhoneAuth()
-    {
-        $auth_phone = DB::table('short_message')->where('member_id',$this->id)->where('active',1)->count(); //->where('mobile','!=','')
-        return isset($auth_phone) && $auth_phone>0;
-    }
-    
     public function getAdvInfo($wantIndexArr=[]) : array{
         $user = $this;
         $date = date('Y-m-d H:m:s', strtotime('-7 days'));
@@ -1763,7 +1693,7 @@ class User extends Authenticatable implements JWTSubject
                 ->leftJoin('banned_users_implicitly as b3', 'b3.target', '=', 'message.from_id')
                 ->leftJoin('warned_users as wu', function($join) {
                     $join->on('wu.member_id', '=', 'message.from_id')
-                         ->where(function($join) {
+                         ->where(function($join) {                            
                             $join->where('wu.expire_date', '>=', Carbon::now())
                             ->orWhere('wu.expire_date', null);
                          }); })
@@ -1870,6 +1800,73 @@ class User extends Authenticatable implements JWTSubject
         return $advInfo;
     }
 
+    public static function userLoginLog($user_id, $request){
+        $userLogin_log = LogUserLogin::selectRaw('LEFT(created_at,7) as loginMonth, DATE(created_at) as loginDate, user_id as userID, ip, count(*) as dataCount')
+            ->where('user_id', $user_id)
+            ->groupBy(DB::raw("LEFT(created_at,7)"));
+
+        if($request->loading_data!=='all'){
+            $userLogin_log=$userLogin_log->where('created_at','>=', date('Y-m-d', strtotime('-3 months')));
+        }
+        $userLogin_log=$userLogin_log->orderBy('created_at', 'DESC')->get();
+        foreach ($userLogin_log as $key => $value) {
+            $dataLog = LogUserLogin::where('user_id', $user_id)->where('created_at', 'like', '%' . $value->loginMonth . '%')->orderBy('created_at', 'DESC');
+            $userLogin_log[$key]['items'] = $dataLog->get();
+
+            //ip
+            $Ip_group = LogUserLogin::where('user_id', $user_id)->where('created_at', 'like', '%' . $value->loginMonth . '%')
+                ->from('log_user_login as log')
+                ->selectRaw('ip, count(*) as dataCount, (select created_at from log_user_login as s where s.user_id=log.user_id and s.ip=log.ip and s.created_at like "%' . $value->loginMonth . '%" order by created_at desc LIMIT 1 ) as loginTime')
+                ->groupBy(DB::raw("ip"))->orderBy('loginTime', 'desc')->get();
+            $Ip = array();
+            foreach ($Ip_group as $Ip_key => $group) {
+                $group['IP_set_auto_ban']=SetAutoBan::whereRaw('(content="'.$group['ip'].'" AND expiry >="'. now().'")')->orWhereRaw('(content="'.$group['ip'].'" AND expiry="0000-00-00 00:00:00")')->get()->count();
+                $IpUsers = LogUserLogin::where('ip',$group->ip)->distinct('user_id')->groupBy('user_id')->get()->toarray();
+                $IpUsers = array_column($IpUsers,'user_id');
+
+                $Ip['Ip_group'][$Ip_key] = $group;
+                $Ip['Ip_group_items'][$Ip_key] = LogUserLogin::where('user_id', $user_id)->where('created_at', 'like', '%' . $value->loginMonth . '%')->where('ip', $group->ip)->orderBy('created_at', 'DESC')->get();
+                $Ip['Ip_online_people'][$Ip_key] = LogUserLogin::where('ip',$group->ip)->distinct('user_id')->count();
+                $Ip['Ip_blocked_people'][$Ip_key] = banned_users::whereIn('member_id',$IpUsers)->distinct('member_id')->count();
+            }
+
+            //排序$Ip
+            $sortIp = [];
+            arsort($Ip['Ip_blocked_people']);
+            foreach($Ip['Ip_blocked_people'] as $skey => $svalue)
+            {
+                $sortIp['Ip_group'][] = $Ip['Ip_group'][$skey];
+                $sortIp['Ip_group_items'][] = $Ip['Ip_group_items'][$skey];
+                $sortIp['Ip_online_people'][] = $Ip['Ip_online_people'][$skey];
+                $sortIp['Ip_blocked_people'][] = $Ip['Ip_blocked_people'][$skey];
+            }
+            //排序$Ip
+
+            $userLogin_log[$key]['Ip'] = $sortIp;
+
+            //cfp_id
+            $CfpID_group = LogUserLogin::where('user_id', $user_id)->where('created_at', 'like', '%' . $value->loginMonth . '%')
+                ->from('log_user_login as log')
+                ->selectRaw('cfp_id,count(*) as dataCount, (select created_at from log_user_login as s where s.user_id=log.user_id and s.cfp_id=log.cfp_id and s.created_at like "%' . $value->loginMonth . '%" order by created_at desc LIMIT 1 ) as loginTime')
+                ->whereNotNull('cfp_id')
+                ->groupBy(DB::raw("cfp_id"))->orderBy('loginTime', 'desc')->get();
+            $CfpID = array();
+            foreach ($CfpID_group as $CfpID_key => $group) {
+                $group['CfpID_set_auto_ban']=SetAutoBan::whereRaw('(content="'.$group['cfp_id'].'" AND expiry >="'. now().'")')->orWhereRaw('(content="'.$group['cfp_id'].'" AND expiry="0000-00-00 00:00:00")')->get()->count();
+                $CfpIDUsers = LogUserLogin::where('cfp_id',$group->cfp_id)->distinct('user_id')->groupBy('user_id')->get()->toarray();
+                $CfpIDUsers = array_column($CfpIDUsers,'user_id');
+
+                $CfpID['CfpID_group'][$CfpID_key] = $group;
+                $CfpID['CfpID_group_items'][$CfpID_key] = LogUserLogin::where('user_id', $user_id)->where('created_at', 'like', '%' . $value->loginMonth . '%')->where('cfp_id', $group->cfp_id)->orderBy('created_at', 'DESC')->get();
+                $CfpID['CfpID_online_people'][$CfpID_key] = count($CfpIDUsers);
+                $CfpID['CfpID_blocked_people'][$CfpID_key] = banned_users::whereIn('member_id',$CfpIDUsers)->distinct('member_id')->count();
+
+            }
+            $userLogin_log[$key]['CfpID'] = $CfpID;
+        }
+        return $userLogin_log;
+    }
+
     public function isForbidAdvAuth() {
         return $this->log_adv_auth_api()->where(
             function ($query) {
@@ -1877,18 +1874,21 @@ class User extends Authenticatable implements JWTSubject
             }
         )->count() > 0;
     }
-
-    public function log_adv_auth_api()
-    {
-        return $this->hasMany(LogAdvAuthApi::class, 'user_id', 'id');
-    }
-
+    
     public function isDuplicateAdvAuth() {
         return $this->log_adv_auth_api()->where(
             function ($query) {
                 $query->where('is_duplicate',1);
             }
         )->count() > 0;
+    }    
+    
+    public function getPassAdvAuthApiQuery() {
+        return $this->log_adv_auth_api()->where('return_code','0000')->where('user_fault',0);
+    }
+    
+    public function getLatestPassAdvAuthApi() {
+        return $this->getPassAdvAuthApiQuery()->orderBy('created_at','DESC')->first();
     }
 
     public function getEffectFaultAdvAuthApiQuery() {
@@ -1899,15 +1899,7 @@ class User extends Authenticatable implements JWTSubject
         }
         return $effectFaultQuery;
     }
-    
-    public function getLatestPassAdvAuthApi() {
-        return $this->getPassAdvAuthApiQuery()->orderBy('created_at','DESC')->first();
-    }
-    
-    public function getPassAdvAuthApiQuery() {
-        return $this->log_adv_auth_api()->where('return_code','0000')->where('user_fault',0);
-    }
-    
+
     public function isPauseAdvAuth() {
         $user_pause_during = config('memadvauth.user.pause_during');
         $latest_log = $this->log_adv_auth_api()->orderBy('created_at','DESC')->first();
@@ -1915,36 +1907,24 @@ class User extends Authenticatable implements JWTSubject
             return Carbon::parse($latest_log->created_at)->diffInMinutes(Carbon::now())<$user_pause_during;
         }
         else return false;
-    }
+    } 
 
-    public function isNeedAdvAuth() {
-        $userBanned = $this->getBannedOfAdvAuthQuery()->count();
-        $user_meta = $this->meta;
-        $userWarned = $this->getWarnedOfAdvAuthQuery()->count();
-        $isWarnedUser = $user_meta->isWarnedType=='adv_auth'?$user_meta->isWarned:0;
-        return ($userBanned || $userWarned || $isWarnedUser);
-    }
-
-    public function getBannedOfAdvAuthQuery() {
-        return $this->banned()->where('adv_auth',1);
-    }
-
-    public function banned(){
-        return $this->hasOne(banned_users::class, 'member_id', 'id');
-    }
-    
     public function getWarnedOfAdvAuthQuery() {
         return $this->aw_relation()->where('adv_auth',1);
     }
+    
+    public function getBannedOfAdvAuthQuery() {
+        return $this->banned()->where('adv_auth',1);
+    }
     //檢查是否需要進階驗證
-
-    public function aw_relation() {
-        return $this->hasOne(\App\Models\SimpleTables\warned_users::class, 'member_id', 'id')->where(function ($query){
-            $query->whereNull('expire_date')->orWhere('expire_date', '>=', Carbon::now());
-        });
+    public function isNeedAdvAuth() {
+        $userBanned = $this->getBannedOfAdvAuthQuery()->count(); 
+        $user_meta = $this->meta;
+        $userWarned = $this->getWarnedOfAdvAuthQuery()->count();                
+        $isWarnedUser = $user_meta->isWarnedType=='adv_auth'?$user_meta->isWarned:0;        
+        return ($userBanned || $userWarned || $isWarnedUser);
     }
     //將國際碼轉成09格式
-
     public function getAuthMobile($to_local=false) {
         $authMobile = null;
         $latestAuthSms = $this->short_message()->where('mobile','!=','')->where('active', 1)->orderByDesc('createdate')->first();
@@ -1964,10 +1944,6 @@ class User extends Authenticatable implements JWTSubject
             }
         }
         return $authMobile;
-    }
-
-    public function short_message() {
-        return $this->hasMany(short_message::class, 'member_id', 'id');
     }
 
     public function isCanPosts_vip() {
@@ -1998,8 +1974,14 @@ class User extends Authenticatable implements JWTSubject
         return IsWarnedLog::where('user_id', $this->id)->orderBy('created_at', 'desc')->first();
     }
 
-    //略過搜尋
+    public function isEverWarnedAndBanned() {
+        return IsWarnedLog::where('user_id', $this->id)->orderBy('created_at', 'desc')->first() !== null ||
+            IsBannedLog::where('user_id', $this->id)->orderBy('created_at', 'desc')->first() !== null ||
+            banned_users::where('member_id', $this->id)->orderBy('created_at', 'desc')->first() !== null ||
+            warned_users::where('member_id', $this->id)->orderBy('created_at', 'desc')->first() !== null;
+    }
 
+    //略過搜尋
     public function search_ignore()
     {
         return $this->hasMany(SearchIgnore::class, 'member_id', 'id');
@@ -2022,24 +2004,18 @@ class User extends Authenticatable implements JWTSubject
         return $this->vip_log()->orderByDesc('created_at')->first();
     }
     
-    public function vip_log()
-    {
-        return $this->hasMany(VipLog::class, 'member_id', 'id');
-    }
-
     public function getLatestVasLog($service_name=null) {
         $query = $this->vas_log()->orderByDesc('created_at');
         if($service_name) $query->where('service_name',$service_name);
         return $query->first();
     }
 
-    public function vas_log()
-    {
-        return $this->hasMany(ValueAddedServiceLog::class, 'member_id', 'id');
+    public function spamMessagePercentIn7Days(){
+        return $this->hasOne('App\Models\SpamMessagePercentIn7Days');
     }
 
     public function getSpamMessagePercentIn7Days($uid){
-
+        
         $user = new User;
         $spamMessagePercentIn7DaysQuery = $user->spamMessagePercentIn7Days($uid)->where('user_id',$uid);
 
@@ -2063,10 +2039,16 @@ class User extends Authenticatable implements JWTSubject
             }
         }
     }
-    
-    public function spamMessagePercentIn7Days(){
-        return $this->hasOne('App\Models\SpamMessagePercentIn7Days');
+
+    public function message_sent()
+    {
+        return $this->hasMany(Message::class, 'from_id', 'id');
     }
+    
+    public function message_accepted()
+    {
+        return $this->hasMany(Message::class, 'to_id', 'id');
+    } 
     
     public function message_sent_to_admin()
     {
@@ -2075,44 +2057,32 @@ class User extends Authenticatable implements JWTSubject
         return $this->addChatWithAdminClauseToQuery($this->message_sent())->where('to_id',$admin->id);
     }
     
+    public function message_accepted_from_admin()
+    {
+        $admin = AdminService::checkAdmin();
+        return $this->addChatWithAdminClauseToQuery($this->message_accepted())->where('from_id',$admin->id);
+    } 
+
+    public function message_with_admin()
+    {
+        return $this->message_sent_to_admin->merge($this->message_accepted_from_admin);
+    } 
+
+    public function latest_message_with_admin()
+    {
+        return $this->message_with_admin()->sortByDesc('created_at')->first();
+    }     
+
     public static function addChatWithAdminClauseToQuery($query)
     {
         $during_date = Carbon::parse("180 days ago")->toDateTimeString();
         $query->withTrashed()
                 ->where('created_at','>=',$during_date)
                 ->where('chat_with_admin', 1)
-                ;
+                ;                
         return $query;
     }
-
-    public function message_sent()
-    {
-        return $this->hasMany(Message::class, 'from_id', 'id');
-    }
-
-    public function message_accepted_from_admin()
-    {
-        $admin = AdminService::checkAdmin();
-        return $this->addChatWithAdminClauseToQuery($this->message_accepted())->where('from_id',$admin->id);
-    }
-
-    public function message_accepted()
-    {
-        return $this->hasMany(Message::class, 'to_id', 'id');
-    }
     
-    public function latest_message_with_admin()
-    {
-        return $this->message_with_admin()->sortByDesc('created_at')->first();
-    }
-
-    public function message_with_admin()
-    {
-        return $this->message_sent_to_admin->merge($this->message_accepted_from_admin);
-    }
-
-    //--VVIP--//
-
     /**
      * Get the identifier that will be stored in the subject claim of the JWT.
      *
@@ -2133,6 +2103,7 @@ class User extends Authenticatable implements JWTSubject
         return [];
     }
 
+    //--VVIP--//
     public function VVIP()
     {
         return $this->hasMany(ValueAddedService::class, 'member_id', 'id')->where('service_name','VVIP')->where('active', 1)->orderBy('id', 'desc');
@@ -2146,16 +2117,6 @@ class User extends Authenticatable implements JWTSubject
             $months = Carbon::parse($vip->created_at)->diffInMonths(Carbon::now());
             if($months <= 3){ return 0;}
             return 1;
-        }
-    }
-
-    public function canVVIP()
-    {
-        $user = $this;
-        if(( $user->is6MonthsVip() || $user->is12MonthsVip()) && !$user->isEverWarnedAndBanned() ){
-            return 1;
-        }else{
-            return 0;
         }
     }
 
@@ -2206,11 +2167,19 @@ class User extends Authenticatable implements JWTSubject
         return 0;
     }
 
-    public function isEverWarnedAndBanned() {
-        return IsWarnedLog::where('user_id', $this->id)->orderBy('created_at', 'desc')->first() !== null ||
-            IsBannedLog::where('user_id', $this->id)->orderBy('created_at', 'desc')->first() !== null ||
-            banned_users::where('member_id', $this->id)->orderBy('created_at', 'desc')->first() !== null ||
-            warned_users::where('member_id', $this->id)->orderBy('created_at', 'desc')->first() !== null;
+    public function canVVIP()
+    {
+        $user = $this;
+        if(( $user->is6MonthsVip() || $user->is12MonthsVip()) && !$user->isEverWarnedAndBanned() ){
+            return 1;
+        }else{
+            return 0;
+        }
+    }
+
+    public function VvipApplication()
+    {
+        return $this->hasMany(VvipApplication::class);
     }
 
     public function applyingVVIP()
@@ -2220,11 +2189,6 @@ class User extends Authenticatable implements JWTSubject
         // return 0;
 
         return $this->VvipApplication()->where('status', 0)->count() > 0;
-    }
-
-    public function VvipApplication()
-    {
-        return $this->hasMany(VvipApplication::class);
     }
 
     public function applyingVVIP_getDeadline()
@@ -2246,7 +2210,7 @@ class User extends Authenticatable implements JWTSubject
         // $passVVIP = VvipApplication::where('user_id', $this->id)->where('status',1)->orderBy('created_at', 'desc')->first();
         // if(isset($passVVIP)){ return 1;}
         // return 0;
-
+        
         return $this->VvipApplication()->where('status', 1)->count() > 0;
     }
 
@@ -2255,6 +2219,28 @@ class User extends Authenticatable implements JWTSubject
         $cancelVVIP = VvipApplication::where('user_id', $this->id)->where('status',4)->orderBy('created_at', 'desc')->first();
         if(isset($cancelVVIP)){ return 1;}
         return 0;
+    }
+
+    public function isVVIP()
+    {
+        //拿掉VVIP功能
+        //return 0;
+
+        //VVIP有效狀態
+        return ValueAddedService::select('active')
+                ->where('member_id', $this->id)
+                ->where('active', 1)
+                ->where('service_name', 'VVIP')
+                ->where(function($query) {
+                    $query->where('expiry', '0000-00-00 00:00:00')
+                        ->orWhere('expiry', '>=', Carbon::now());}
+                )->orderBy('created_at', 'desc')->first() !== null &&
+            VvipApplication::where('user_id', $this->id)->where('status',1)->first() !== null;
+    }
+
+    public function isVipOrIsVvip()
+    {
+        return $this->isVVIP() || $this->isVip();
     }
 
     public function VvipInfoStatus()
@@ -2270,19 +2256,19 @@ class User extends Authenticatable implements JWTSubject
     public function VvipInfo()
     {
         return $this->hasOne(VvipInfo::class);
-    }
+    } 
 
     public function VvipMargin()
     {
         return $this->hasOne(VvipMarginDeposit::class);
     }
-    
-    //VvipOption
 
     public function VvipMarginLog()
     {
         return $this->hasMany(VvipMarginLog::class);
     }
+    
+    //VvipOption
 
     public function VvipAssetsImage()
     {
@@ -2314,12 +2300,12 @@ class User extends Authenticatable implements JWTSubject
         return $this->hasManyThrough(VvipPointInfo::class, VvipOptionXref::class, 'user_id', 'id', 'id', 'option_id')->where('option_type', 'point_information');
     }
 
-    //VvipSubOption
-
     public function VvipQualityLifeImage()
     {
         return $this->hasManyThrough(VvipQualityLifeImage::class, VvipOptionXref::class, 'user_id', 'id', 'id', 'option_id')->where('option_type', 'quality_life_image');
     }
+
+    //VvipSubOption
 
     public function VvipSubOptionCeoTitle()
     {
@@ -2361,6 +2347,11 @@ class User extends Authenticatable implements JWTSubject
         return $this->hasManyThrough(VvipSubOptionProfessionalNetwork::class, VvipSubOptionXref::class, 'user_id', 'id', 'id', 'option_id')->where('option_type', 'professional_network');
     }
 
+    public function VvipSubOptionSpecialProblemHandling()
+    {
+        return $this->hasManyThrough(VvipSubOptionSpecialProblemHandling::class, VvipSubOptionXref::class, 'user_id', 'id', 'id', 'option_id')->where('option_type', 'special_problem_handling');
+    }
+
 
 //    public function VVIPisInvite()
 //    {
@@ -2382,14 +2373,6 @@ class User extends Authenticatable implements JWTSubject
 //        if(isset($VVIPisBeInvitedCheckStatus)){ return 1;}
 //        return 0;
 //    }
-
-    public function VvipSubOptionSpecialProblemHandling()
-    {
-        return $this->hasManyThrough(VvipSubOptionSpecialProblemHandling::class, VvipSubOptionXref::class, 'user_id', 'id', 'id', 'option_id')->where('option_type', 'special_problem_handling');
-    }
-
-    //--VVIP END--//
-
     public function isVvipSelectionRewardActive($to_user)
     {
         if($this->engroup==2){
@@ -2424,6 +2407,20 @@ class User extends Authenticatable implements JWTSubject
         }
     }
 
+    //--VVIP END--//
+    public static function retrive($id)
+    {
+        if($id) {
+            return Cache::remember('user_' . $id, 3600, function () use ($id) {
+                return User::find($id);
+            });
+        }
+        return Cache::remember('users' , 3600, function () {
+            return User::all();
+        });
+    }
+
+    
     public function getUser()
     {
         return $this;
@@ -2450,8 +2447,13 @@ class User extends Authenticatable implements JWTSubject
         ];
     }
 
-    public function user_meta(){
-        return $this->hasOne('App\Models\UserMeta');
+    public static function getSearchFilterAttributes()
+    {
+        return [
+            'name',
+            'engroup',
+            'birthdate_timestamp',
+        ];
     }
 
     public function ComputeRemainDay()
