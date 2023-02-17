@@ -10,11 +10,8 @@ use App\Services\SearchIgnoreService;
 use Carbon\Carbon;
 use Datetime;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
-use Illuminate\Database\Eloquent\Factories\HasFactory;
-use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Support\Facades\DB;
-use Illuminate\Database\Eloquent\Factories\HasFactory;
 
 class UserMeta extends Model
 {
