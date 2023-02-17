@@ -4,7 +4,6 @@ namespace App\Http\Controllers;
 
 use App\Http\Controllers\Admin\UserController;
 use App\Http\Requests\ProfileUpdateRequest;
-use App\Jobs\CheckECpayForValueAddedService;
 use App\Models\AccountStatusLog;
 use App\Models\AdminAnnounce;
 use App\Models\AdminCommonText;
@@ -74,10 +73,10 @@ use App\Models\VvipAssetsImage;
 use App\Models\VvipInfo;
 use App\Models\VvipOptionXref;
 use App\Models\VvipQualityLifeImage;
+use App\Models\VvipSelectionReward;
 use App\Models\VvipSelectionRewardApply;
 use App\Models\VvipSelectionRewardIgnore;
 use App\Models\VvipSubOptionXref;
-use App\Models\VvipSelectionReward;
 use App\Repositories\SuspiciousRepository;
 use App\Services\AdminService;
 use App\Services\EnvironmentService;
@@ -2766,6 +2765,9 @@ class PagesController extends BaseController
     {
 
         $user = $request->user();
+        if (!$user) {
+            return false;
+        }
         $is_vip = ($user->isVip() || $user->isVVIP());
         $uid = $request->uid;
         $targetUser = User::where('id', $uid)->where('accountStatus', 1)->where('account_status_admin', 1)->get()->first();
