@@ -33,25 +33,25 @@
         </tr>
         </thead>
         <tbody>
-            @foreach ($applicationData as $row)
-                <tr>
-{{--                    <td><a href="javascript:void(0);" class="get_prove_img" data-user_id="{{ $row->user_id }}" data-name="{{$row->name}}" data-updated_at="{{$row->updated_at}}" data-deadline="{{$row->deadline}}" data-toggle="modal" data-target="#exampleModalLong">{{$row->name}}</a></td>--}}
-                    <td>{{$row->user_id}}</td>
-                    <td>{{$row->name}}</td>
-                    <td><a href="advInfo/{{ $row->user_id }}" target="_blank">{{$row->email}}</a></td>
-                    <td>
-                        @php
-                            switch($row->status) {
-                                case 0:
-                                    $text = '申請中';
-                                    break;
-                                case 1:
-                                    $text = '通過';
-                                    break;
-                                case 2:
-                                    $text = '不通過';
-                                    break;
-                            }
+        @foreach ($applicationData as $row)
+            <tr>
+                {{--                    <td><a href="javascript:void(0);" class="get_prove_img" data-user_id="{{ $row->user_id }}" data-name="{{$row->name}}" data-updated_at="{{$row->updated_at}}" data-deadline="{{$row->deadline}}" data-toggle="modal" data-target="#exampleModalLong">{{$row->name}}</a></td>--}}
+                <td>{{$row->user_id}}</td>
+                <td>{{$row->name}}</td>
+                <td><a href="/admin/users/advInfo/{{ $row->user_id }}" target="_blank">{{$row->email}}</a></td>
+                <td>
+                    @php
+                        switch($row->status) {
+                            case 0:
+                                $text = '申請中';
+                                break;
+                            case 1:
+                                $text = '通過';
+                                break;
+                            case 2:
+                                $text = '不通過';
+                                break;
+                        }
                         @endphp
                         <a href="javascript:void(0);" class="update_status" data-type="select" data-name="status" data-pk="{{$row->id}}" data-value="{{$row->status}}" data-title="輸入狀態">{{$text}}</a>
                     </td>
