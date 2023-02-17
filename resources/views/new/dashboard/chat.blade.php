@@ -2917,7 +2917,7 @@ is_truth_icon_pic.src="{{asset('/new/images/zz_zt2.png')}}";
         });
 
         $('.leboxVvipSelectionRewardActive,.leboxVVIP,.lebox0,.lebox1,.lebox2,.lebox3,.lebox6,.lebox_alert,.lebox5').toggleClass('off');
-        $('.leboxVvipSelectionRewardActive,.leboxVVIP,.lebox0,.lebox1,.lebox2,.lebox3,.lebox6,.lebox_alert,.lebox5').next('dd').slideToggle("slow");
+        $('.leboxVvipSelectionRewardActive,.leboxVVIP,.lebox1,.lebox2,.lebox3,.lebox6,.lebox_alert,.lebox5').next('dd').slideToggle("slow");
 
         $('.leboxVvipSelectionRewardActive,.leboxVVIP,.lebox0,.lebox1,.lebox2,.lebox3,.lebox6,.lebox_alert,.lebox5').click(function(e) {
             if ($(this).hasClass('off')) {
