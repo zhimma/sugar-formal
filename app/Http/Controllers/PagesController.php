@@ -2771,6 +2771,9 @@ class PagesController extends BaseController
         $is_vip = ($user->isVip() || $user->isVVIP());
         $uid = $request->uid;
         $targetUser = User::where('id', $uid)->where('accountStatus', 1)->where('account_status_admin', 1)->get()->first();
+        if (!$targetUser) {
+            return false;
+        }
         /*七天前*/
         $date = date('Y-m-d H:m:s', strtotime('-7 days'));
         /*車馬費邀請次數*/
