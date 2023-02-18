@@ -4088,7 +4088,7 @@ class PagesController extends BaseController
                 else if($user->id==$admin->id) {
                     $chatting_with_admin = true;
                 }
-                
+
                 if(!$cid_user){
                     return '<h1>該會員不存在。</h1>';
                 }
@@ -4652,7 +4652,8 @@ class PagesController extends BaseController
         abort(404);
     }
 
-    public function showWebAnnouncement(Request $request) {
+    public function showWebAnnouncement(Request $request)
+    {
         $user = $request->user();
         $start = \Carbon\Carbon::now()->subDays(30)->toDateTimeString();
         $end = \Carbon\Carbon::now()->toDateTimeString();
@@ -4660,11 +4661,11 @@ class PagesController extends BaseController
             ->whereBetween('banned_users.created_at', [($start), ($end)])
             ->join('users', 'banned_users.member_id', '=', 'users.id')
             ->orderBy('banned_users.created_at', 'asc')->get();
-        foreach($userBanned as $userData){
-            if(mb_strlen(trim($userData['name']),"utf-8") <= 3){
-                $userData['name'] = (mb_substr($userData['name'],0 ,1,"utf-8").'***');
-            }else{
-                $userData['name'] = (mb_substr($userData['name'],0 ,3,"utf-8").'***');
+        foreach ($userBanned as $userData) {
+            if (mb_strlen(trim($userData['name']), "utf-8") <= 3) {
+                $userData['name'] = (mb_substr($userData['name'], 0, 1, "utf-8") . '***');
+            } else {
+                $userData['name'] = (mb_substr($userData['name'], 0, 3, "utf-8") . '***');
             }
         }
 
@@ -6114,6 +6115,7 @@ class PagesController extends BaseController
     }
 
     //官方討論區_照片上傳
+
     public function posts_pic_save($post_id, $images, $newImages)
     {
         $suspicious=Posts::where('id',$post_id)->first();
@@ -6170,7 +6172,7 @@ class PagesController extends BaseController
     {
         //儲存照片
         $fileuploaderListImages = $request->get('fileuploader-list-images');
-        $destinationPath=$this->posts_pic_save($request->get('post_id'), $fileuploaderListImages, $request->file('images'));
+        $destinationPath = $this->posts_pic_save($request->get('post_id'), $fileuploaderListImages, $request->file('images'));
 
         $posts = new Posts;
         $posts->article_id = $request->get('article_id');
@@ -6509,6 +6511,7 @@ class PagesController extends BaseController
     }
 
     //官方討論區_照片上傳
+
     public function posts_pic_save_VVIP($post_id, $images, $newImages)
     {
         $suspicious=PostsVvip::where('id',$post_id)->first();
@@ -6565,7 +6568,7 @@ class PagesController extends BaseController
     {
         //儲存照片
         $fileuploaderListImages = $request->get('fileuploader-list-images');
-        $destinationPath=$this->posts_pic_save($request->get('post_id'), $fileuploaderListImages, $request->file('images'));
+        $destinationPath = $this->posts_pic_save($request->get('post_id'), $fileuploaderListImages, $request->file('images'));
 
         $posts = new PostsVvip();
         $posts->article_id = $request->get('article_id');
@@ -6891,7 +6894,6 @@ class PagesController extends BaseController
         );
         PostsMood::where('id', $pid)->update($update);
     }
-
 
     public function forum(Request $request)
     {
@@ -9663,7 +9665,6 @@ class PagesController extends BaseController
         return view('/dashboard/messageBoard_detail', compact('postDetail', 'images','pid','return_page'))->with('user', $user);
     }
 
-
     public function messageBoard_posts(Request $request)
     {
         $user = $this->user;
@@ -10142,7 +10143,13 @@ class PagesController extends BaseController
     public function advertise_record_change(Request $request)
     {
         $user = \Auth::user();
+        if (!$request->advertise_id) {
+            return response()->json(['msg' => 'advertise_id is required']);
+        }
         $advertise_record = ComeFromAdvertise::where('id', $request->advertise_id)->first();
+        if (!$advertise_record) {
+            return response()->json(['msg' => 'advertise record not found']);
+        }
         if ($user ?? false) {
             $advertise_record->user_id = $user->id;
         }
@@ -10185,7 +10192,6 @@ class PagesController extends BaseController
         }
 
     }
-
 
     public function showRealAuth(Request $request, RealAuthPageService $service)
     {
@@ -10336,7 +10342,6 @@ class PagesController extends BaseController
         }
     }
 
-
     public function showTagDisplaySettings(Request $request, RealAuthPageService $service)
     {
 
@@ -10378,7 +10383,6 @@ class PagesController extends BaseController
 
         return redirect()->back()->with('message', '更新完成');
     }
-
 
     public function stay_online_time(Request $request)
     {
@@ -10457,6 +10461,7 @@ class PagesController extends BaseController
     }
 
     //vvip
+
     public function view_vvipSelect(Request $request)
     {
 
@@ -10479,7 +10484,7 @@ class PagesController extends BaseController
             }
 
             $temp = warned_users::where('member_id', $user->id)->orderBy('created_at', 'desc')->first();
-            if($temp && $temp->created_at > $warn_ban_reason?->created_at){
+            if ($temp && $temp->created_at > $warn_ban_reason?->created_at) {
                 $warn_ban_reason = $temp;
             }
         }
@@ -10491,10 +10496,10 @@ class PagesController extends BaseController
     public function view_vvipSelect_a(Request $request)
     {
         $user = auth()->user();
-        $refund='';
-        $vip_text='';
+        $refund = '';
+        $vip_text = '';
 
-        if($user->isVip() && !$user->isFreeVip()) {
+        if ($user->isVip() && !$user->isFreeVip()) {
             [, $vip_text] = PaymentService::calculatesRefund($user, 'vip_refund');
         }
 
@@ -11012,21 +11017,22 @@ class PagesController extends BaseController
 
     //    public function VVIPisInvitedUpdateStatus(Request $request)
     //    {
-//        $user_id = $request->uid;
-//        $status = $request->status;
-//        $exist = VvipInvite::where('invite_user_id', $user_id)->where('status', 0)->first();
-//        if(isset($exist)){
-//            VvipInvite::where('invite_user_id', $user_id)->where('status', 0)->update(['status' => $status]);
-//            return response()->json(array(
-//                'status' => 1,
-//                'msg' => 'ok',
-//            ), 200);
-//        }
-//    }
+    //        $user_id = $request->uid;
+    //        $status = $request->status;
+    //        $exist = VvipInvite::where('invite_user_id', $user_id)->where('status', 0)->first();
+    //        if(isset($exist)){
+    //            VvipInvite::where('invite_user_id', $user_id)->where('status', 0)->update(['status' => $status]);
+    //            return response()->json(array(
+    //                'status' => 1,
+    //                'msg' => 'ok',
+    //            ), 200);
+    //        }
+    //    }
+
     public function view_vvipSelectionReward(Request $request)
     {
         $user = auth()->user();
-        if(!$user->isVVIP()){
+        if (!$user->isVVIP()) {
             return back()->with('message', '此活動僅限 VVIP 參加');
         }
         //check application
@@ -11085,7 +11091,7 @@ class PagesController extends BaseController
         foreach ($result as $key => $row) {
             $new_array[$key+1] = $row;
         }
-        
+
         //default value
         $identify_method = array();
         $identify_method[1] = '本人驗證';
@@ -11159,6 +11165,7 @@ class PagesController extends BaseController
             return response()->json(['success' => true, 'message' => $msg]);
         }
     }
+
     public function vvipSelectionRewardUserNoteEdit(Request $request)
     {
         $user = auth()->user();
@@ -11171,33 +11178,35 @@ class PagesController extends BaseController
         }
         $user_note  = $old_user_note.$br.$new_user_note .' ('. Carbon::now() .')';
         $action = VvipSelectionReward::where('id', $request->input('id'))->update(['user_note' => nl2br($user_note)]);
-        if($action) {
+        if ($action) {
             return back()->with('message', '資料已送出');
         }
         return back()->with('message', '發送失敗');
 
     }
+
     //vvip end
+
     public function getChatIsTruthRemainQuota(Request $request)
     {
         return intval(Message::getRemainQuotaOfIsTruthByFromUser($request->user()));
-    } 
+    }
 
     public function logChatWithError(Request $request)
     {
         $payload = $request->all();
         $error_log_arr = [
-            'from_id'=>$payload['from']
-            ,'to_id'=>  $payload['to']
-            ,'content'=>$payload['msg']
-            ,'pic'=>json_encode($request->file('images')??[])
-            ,'error_from'=>'client'
-            ,'error'=>$payload['error']
-            ,'error_return_data'=>$payload['error_return_data']
+            'from_id' => $payload['from']
+            , 'to_id' => $payload['to']
+            , 'content' => $payload['msg']
+            , 'pic' => json_encode($request->file('images') ?? [])
+            , 'error_from' => 'client'
+            , 'error' => $payload['error']
+            , 'error_return_data' => $payload['error_return_data']
         ];
 
         MessageErrorLog::create($error_log_arr);
-    }    
+    }
 }
 
 
