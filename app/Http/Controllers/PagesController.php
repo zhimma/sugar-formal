@@ -8607,6 +8607,7 @@ class PagesController extends BaseController
             ->where('b.accountStatus', 1)
             ->where('b.account_status_admin', 1)
             ->where('last_login', '>=', Carbon::now()->subDays(7))
+            ->orderBy('last_login', 'desc')
             ->where('a.hide_member_id_log',0)
             ->groupBy('a.member_fav_id')
             ->get();
@@ -8627,6 +8628,7 @@ class PagesController extends BaseController
             ->where('b.accountStatus', 1)
             ->where('b.account_status_admin', 1)
             ->where('last_login', '>=', Carbon::now()->subDays(7))
+            ->orderBy('last_login', 'desc')
             ->where('a.hide_member_fav_id_log',0)
             ->get();
 
