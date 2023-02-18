@@ -9815,8 +9815,11 @@ class PagesController extends BaseController
     public function messageBoard_delete(Request $request, $mid)
     {
         $posts = MessageBoard::where('id', $mid)->first();
+        if (!$posts) {
+            return response()->json(['msg' => '刪除失敗，找不到該留言!']);
+        }
         if ($posts->user_id !== auth()->user()->id) {
-            return response()->json(['msg' => '刪除失敗,不可刪除別人的留言!']);
+            return response()->json(['msg' => '刪除失敗，不可刪除別人的留言!']);
         }
         if ($posts) {
             $return_page = '';
