@@ -133,9 +133,12 @@ class ValueAddedService extends Model
 
         }else{
             // 檢查重複升級
-            if(isset(ValueAddedServiceLog::getLatestLog($member_id)->order_id) && ValueAddedServiceLog::getLatestLog($member_id)->order_id == $order_id){
-                ValueAddedServiceLog::addToLog($member_id, $service_name,'Upgrade duplicated.', $order_id, $txn_id, 0);
-                return 0;
+            $latestLog = ValueAddedServiceLog::getLatestLog($member_id);
+            if(isset($latestLog->order_id) && $latestLog->order_id == $order_id){
+                if(strpos($latestLog->content,'取號完成')<0) {
+                    ValueAddedServiceLog::addToLog($member_id, $service_name,'Upgrade duplicated.', $order_id, $txn_id, 0);
+                    return 0;
+                }
             }
             // 舊資料更新 從原expiry計算
             if($payment == 'one_quarter_payment'){

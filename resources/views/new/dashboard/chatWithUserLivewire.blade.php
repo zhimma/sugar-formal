@@ -2217,7 +2217,7 @@
                         var postmsg_error_show_msg = '傳送失敗 ';
                         if(logout_all_finded) postmsg_error_show_msg+='。您已登出或基於帳號安全由系統自動登出，請重新登入。'
                         else postmsg_error_show_msg+= e.name+'-'+e.message;
-                        if(postmsg_error_show_msg.toLowerCase().indexOf('pusher') && postmsg_error_show_msg.toLowerCase().indexOf('error')) {
+                        if(postmsg_error_show_msg.toLowerCase().indexOf('pusher error')>=0) {
                             postmsg_error_show_msg = '(hidden)'+postmsg_error_show_msg;
                         }
                         else {
