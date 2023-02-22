@@ -63,6 +63,7 @@ use App\Models\UserOptionsXref;
 use App\Models\UserProvisionalVariables;
 use App\Models\UserRecord;
 use App\Models\UserTinySetting;
+use App\Models\UserTinySettingTo;
 use App\Models\ValueAddedService;
 use App\Models\Vip;
 use App\Models\VipExpiryLog;
@@ -2709,6 +2710,15 @@ class PagesController extends BaseController
             if(!str_contains($_SERVER['HTTP_REFERER'],'MessageBoard/post_detail')) {
                 session()->forget('viewuser_page_position');
             }
+            
+            $user_tiny_setting_to_blurry = null;
+            $user_not_show_not_blurry_popup = $user_not_show_to_blurry_popup = null;
+            if($user->engroup==2) {
+                $user_tiny_setting_to_blurry = $user->tiny_setting_to_blurry()->where('to_id',$to->id)->firstOrNew();
+                $user_not_show_not_blurry_popup = $user->tiny_setting()->where('cat','not_blurry_not_show_popup')->firstOrNew();
+                $user_not_show_to_blurry_popup = $user->tiny_setting()->where('cat','to_blurry_not_show_popup')->firstOrNew();
+            }
+            
             return view('new.dashboard.viewuser', $data ?? [])
                 ->with('user', $user)
                 ->with('blockadepopup', $blockadepopup)
@@ -2756,7 +2766,11 @@ class PagesController extends BaseController
                 ->with('life_style', $life_style)
                 ->with('advance_auth_status', $advance_auth_status)
                 ->with('bool_value', $bool_value)
-                ->with('message_board_list', $message_board_list);
+                ->with('message_board_list', $message_board_list)
+                ->with('user_tiny_setting_to_blurry',$user_tiny_setting_to_blurry)
+                ->with('user_not_show_not_blurry_popup',$user_not_show_not_blurry_popup)
+                ->with('user_not_show_to_blurry_popup',$user_not_show_to_blurry_popup)
+                ;
         }
 
     }
@@ -4095,7 +4109,8 @@ class PagesController extends BaseController
 
                 $cid_recommend_data = [];
                 $forbid_msg_data = UserService::checkNewSugarForbidMsg($cid_user,$user);
-
+                $user_tiny_setting_to_blurry = null;
+                $user_not_show_not_blurry_popup = $user_not_show_to_blurry_popup  = null;
 
                 if($cid_user->engroup==2) {
                     /*
@@ -4104,6 +4119,12 @@ class PagesController extends BaseController
                         $cid_user->refuse_canned_message = true;
                     }
                     */
+                }
+                
+                if($user->engroup==2) {
+                    $user_tiny_setting_to_blurry = $user->tiny_setting_to_blurry()->where('to_id',$cid_user->id)->firstOrNew();
+                    $user_not_show_not_blurry_popup = $user->tiny_setting()->where('cat','not_blurry_not_show_popup')->firstOrNew();
+                    $user_not_show_to_blurry_popup =  $user->tiny_setting()->where('cat','to_blurry_not_show_popup')->firstOrNew();
                 }
 
                 if((!$user->isVip() && !$user->isVVIP() )&& $user->engroup == 1){
@@ -4133,7 +4154,11 @@ class PagesController extends BaseController
                     ->with('is_truth_state', in_array(['to_id' => $cid_user->id, 'from_id' => $user->id], Message::$truthMessages) || in_array(['to_id' => $user->id, 'from_id' => $cid_user->id], Message::$truthMessages))
                     ->with('exist_is_truth_quota', Message::existIsTrueQuotaByFromUser($user))
                     ->with('remain_num_of_is_truth', Message::getRemainQuotaOfIsTruthByFromUser($user))
-                    ->with('chatting_with_admin', $chatting_with_admin ?? false);
+                    ->with('chatting_with_admin', $chatting_with_admin ?? false)
+                    ->with('user_tiny_setting_to_blurry',$user_tiny_setting_to_blurry)
+                    ->with('user_not_show_not_blurry_popup',$user_not_show_not_blurry_popup)
+                    ->with('user_not_show_to_blurry_popup',$user_not_show_to_blurry_popup)
+                    ;
             } else {
                 return view('new.dashboard.chatWithUserLivewire')
                     ->with('user', $user)
@@ -11209,6 +11234,42 @@ class PagesController extends BaseController
         ];
 
         MessageErrorLog::create($error_log_arr);
+    }    
+    
+    public function setBlurryToUser(Request $request)
+    {
+        $target = $request->target;
+        $act = $request->act;
+        $user = $request->user();
+        
+        if(!$user) return;
+        if(!$target) return;
+        if(!$act) return;
+        if(!in_array($act,[1,-1])) return;
+        
+        $setting = $user->tiny_setting_to()->where([['to_id',$target],['cat','blurry_to_user']])->firstOrNew();
+        
+        if($setting->id){
+            if($setting->value==$act) {
+                return 1;
+            }
+            else {
+                $setting->value = $act;
+            
+                if($setting->save()) {
+                    return 1;
+                }            
+            }
+        }
+        else {
+            $setting->to_id = $target;
+            $setting->cat = 'blurry_to_user';
+            $setting->value =$act;
+
+            if($setting->save()) {
+                return 1;
+            }
+        }     
     }
 }
 

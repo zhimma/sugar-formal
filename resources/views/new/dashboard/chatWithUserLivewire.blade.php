@@ -94,7 +94,7 @@
             right: -10px;
             display: flex;
             float: right;
-
+            
         }
 
         .shdel_word>span {
@@ -441,6 +441,88 @@
             bottom: 60px;
         }
     </style>
+    <style>   
+        .xxi{min-height:500px;width:92%; margin:0 auto}
+        .msg>p{ cursor: pointer;}
+        @media (max-width:1024px) {
+        .xxi{min-height:920px;}
+        }
+        @media (max-width:992px) {
+        .xxi{min-height:560px;}
+        }
+        
+        @media (max-width:760px) {
+        .xxi{min-height:360px;}
+        }
+        
+        @media (max-width: 766px){
+        .msg>p { max-width: 13rem;}
+        }
+        
+        .atkbut{width: 88px;padding:5px 5px; background: #fff6f7;border-radius: 10px;box-shadow: 0 5px 5px #ffc1cd; display:none ;}
+        .at_left{position: absolute;left: 0;bottom:-120px; z-index: 99;}
+        .at_right{position: absolute;right: 0;bottom:-120px; z-index: 99;}
+        
+        .atkbut a{width: 94%;padding:5px 0px;margin: 0 auto; display: table; display: table; font-size: 14px; border-bottom: #ffccd2 1px solid; position: relative;}
+        .atkbut a:hover{background: #fff; border-radius: 5px;}
+        .atkbut a:last-child{ border-bottom: 0;}
+        
+        .he_yuan{width:30px; height:30px; border-radius: 100px; box-shadow:0 10px 10px rgba(255,203,203,0.8); background: #fff; display: table; float: left; margin-right: 4px;}
+        .he_left_img{ height:30px;width: 30px;}
+        .he_li30{ line-height: 30px; font-style: normal;}
+        .img_vip{ position: absolute; left:10px;width:55px; top: -0px;}
+        .z_mohu {top:3px !important;right:5%;}
+     </style> 
+     <style>
+     
+        .n_left{ float:right;width:120px;height: 40px;background: #8a9ff0;border-radius: 200px;color: #ffffff;text-align: center;line-height: 40px;font-size: 16px; margin-right:11px;}
+        .btn_left:hover{color:#ffffff;box-shadow:inset 0px 15px 10px -10px #4c6ded,inset 0px -10px 10px -20px #4c6ded;}
+        .btn_right{ float:left;width:120px;height: 40px;background: #ffffff; border: #8a9ff0 1px solid;border-radius: 200px;color: #8a9ff0;text-align: center;line-height: 40px;font-size: 16px; margin-left:11px;}
+        .btn_right:hover{color:#ffffff;box-shadow:inset 0px 15px 10px -10px #516cd4,inset 0px -10px 10px -20px #516cd4; background:#8a9ff0}
+     
+        .btn_left {
+            float: right;
+            width: 120px;
+            height: 40px;
+            background: #8a9ff0;
+            border-radius: 200px;
+            color: #ffffff;
+            text-align: center;
+            line-height: 40px;
+            font-size: 16px;
+            margin-right: 11px;            
+        }
+        
+        .btn_right {
+            float: left;
+            width: 120px;
+            height: 40px;
+            background: #ffffff;
+            border: #8a9ff0 1px solid;
+            border-radius: 200px;
+            color: #8a9ff0;
+            text-align: center;
+            line-height: 40px;
+            font-size: 16px;
+            margin-left: 11px;
+        } 
+
+        .blbg_not_blurry {
+            width: 100%;
+            height: 100%;
+            position: fixed;
+            top: 0px;
+            left: 0;
+            background: rgba(0,0,0,0.5);
+            z-index: 9;            
+        }
+        
+        #tab_not_blurry .new_poptk {height:auto;}
+     
+        #tab_not_blurry .new_poptk::-webkit-scrollbar {
+            width: 0px;
+        }      
+     </style>
 @endsection
 
 @section('app-content')
@@ -452,7 +534,7 @@
         <div class="col-sm-12 col-xs-12 col-md-10">
             @if(isset($to))
             {{-- <div class="fbuttop"></div>--}}
-            <div class="shouxq  te_ce" >
+            <div class="shouxq  te_ce" style="{{($user->engroup==2)?'margin-bottom:0;':''}}">
                 @if(isset($admin))
                 @if($to->id == $admin->id)
                 <a class="fa_adbut1 left" href="{!! url('dashboard/personalPage') !!}">
@@ -552,7 +634,171 @@
             @else
             {{ logger('Chat with non-existing user: ' . url()->current()) }}
             @endif
-            <div class="message pad_bot" id="message_content_show">
+            @if($user->engroup==2)
+                <div style="position:relative;height:20px;text-align:right;z-index:1;">
+                    <div onclick="{{$user_not_show_not_blurry_popup->value==1?'bxs();':'c_not_blurry()';}}"  id="bxs" class="z_mohu"><span class="z_mohu_a"><img src="/new/images/z_mohu.png">開放清晰照</span></div>
+                    <div onclick="{{$user_not_show_to_blurry_popup->value==1?'xs();':'c_not_blurry()';}}" id="xs" class="z_mohu" ><span class="z_mohu_a"><img src="/new/images/z_jcmohu.png">取消清晰照</span></div>
+                </div>
+                <div class="blbg_not_blurry" id="blbg_not_blurry"  onclick="gmBtn1_not_blurry();$(this).hide()"  style="display: none;"></div>
+                <div class="bl bl_tab " id="tab_not_blurry">
+                    <div class="bltitle"><font>開放清晰照說明</font></div>
+                    <div class="new_poptk">
+                        <p  class="context"  style="-webkit-user-modify: read-only;outline: none;white-space: pre-line; margin: auto;width:80%;padding-left:5px;font-size:18px;">
+                            此功能會開放您的照片為清晰照給您當前指定的會員，包含大頭照、生活照，您可以隨時取消。
+                        </p>
+                        <div class="n_bbutton">
+                            <span><a class="btn_left blured_s" onclick="gmBtn1_not_blurry();not_show_blurry_switch_popup('not_blurry_not_show_popup');bxs();">不再提示</a></span>
+                            <span><a class="btn_right blured_s" onclick="gmBtn1_not_blurry();bxs();">確定開放</a></span>
+                            <span><a class="btn_left cleared_s" onclick="gmBtn1_not_blurry();not_show_blurry_switch_popup('to_blurry_not_show_popup');xs();">不再提示</a></span>
+                            <span><a class="btn_right cleared_s" onclick="gmBtn1_not_blurry();xs();">確定取消</a></span>                            
+                        </div>
+                    </div>
+                    <a onclick="gmBtn1_not_blurry();" class="bl_gb"><img src="/new/images/gb_icon.png"></a>
+                </div>
+                <script>
+                @if($user_tiny_setting_to_blurry->value==1)
+                    $('#xs').hide();
+                    $('#bxs').show();
+                    $('.blured_s').show();
+                    $('.cleared_s').hide();
+                    $('#tab_not_blurry .context').html('此功能會開放您的照片為清晰版給您當前指定的會員，包含大頭照、生活照，您可以隨時取消。');
+                    $('#tab_not_blurry .bltitle font').html('開放清晰照說明');
+                @elseif($user_tiny_setting_to_blurry->value==-1)
+                    $('#bxs').hide();
+                    $('#xs').show();
+                    $('.blured_s').hide();
+                    $('.cleared_s').show();
+                    $('#tab_not_blurry .context').html('此功能會將您的照片轉為模糊版給您當前指定的會員，包含大頭照、生活照，您可以隨時重新開放清晰照。');
+                    $('#tab_not_blurry .bltitle font').html('取消清晰照說明');
+                @elseif(!$user_tiny_setting_to_blurry->id)
+                    $('#xs').hide();
+                    $('#bxs').show();
+                    $('.blured_s').show();
+                    $('.cleared_s').hide();
+                    $('#tab_not_blurry .context').html('此功能會開放您的照片為清晰版給您當前指定的會員，包含大頭照、生活照，您可以隨時取消。');
+                    $('#tab_not_blurry .bltitle font').html('開放清晰照說明');
+                @endif
+                
+                    function c_not_blurry() {
+                         $("#blbg_not_blurry").show();
+                         $("#tab_not_blurry").show();
+                         $('body').css("overflow", "hidden");
+                    }
+                    
+                    function gmBtn1_not_blurry(){
+                        $("#blbg_not_blurry").hide();
+                        $("#tab_not_blurry").hide();
+                        $('body').css("overflow", "");        
+                            
+                    } 
+
+                    function not_show_blurry_switch_popup(catalog)
+                    {
+                        switch(catalog) {
+                            case 'not_blurry_not_show_popup':
+                                $('#bxs').attr('onclick','bxs();');
+                            break;
+                            case 'to_blurry_not_show_popup':
+                                $('#xs').attr('onclick','xs();');
+                            break;
+                        }
+                        
+                        
+                         $.ajax({
+                            type: 'GET',
+                            url: '{{ route('setTinySetting') }}?{{csrf_token()}}={{now()->timestamp}}',
+                            data: { catalog: catalog, value: 1},
+                            dataType:'json',
+                            success: function(data){
+                                if(data.msg!=undefined) {
+                                    if(data.msg.indexOf('成功')>=0) {
+                                        switch(catalog) {
+                                            case 'not_blurry_not_show_popup':                                        
+                                                $('#bxs').attr('onclick','bxs();');
+                                            break;
+                                            case 'to_blurry_not_show_popup':
+                                                $('#xs').attr('onclick','xs();');
+                                            break;
+                                        }
+                                        
+                                        return;
+                                    }
+                                }
+                                
+                            },
+                        });              
+                    }                    
+                
+                    function bxs(only_toggle=false) {
+                        $("#xs").show();
+                        $("#bxs").hide();
+
+                        if(only_toggle!=false) return;
+                        let bFormData = new FormData();
+                        bFormData.append('_token','{{csrf_token()}}');
+                        bFormData.append('act','-1');
+                        bFormData.append('target','{{$to->id}}');
+                        $.ajax({
+                            type: 'POST',
+                            url: "{{route('setBlurryToUser')}}",
+                            data:bFormData,
+                            success: function(res){
+                                if(res!=1) {
+                                   c5('開放清晰照失敗!請重新操作。');
+                                   xs(true);
+                                }
+                                else {
+                                    c5('成功開放清晰照');
+                                    $('.cleared_s').show();
+                                    $('.blured_s').hide();
+                                    $('#tab_not_blurry .context').html('此功能會將您的照片轉為模糊版給您當前指定的會員，包含大頭照、生活照，您可以隨時重新開放清晰照。');
+                                    $('#tab_not_blurry .bltitle font').html('取消清晰照說明');                                    
+                                }
+                            },
+                            error:function(jqXHR,statusStr,errorStr) {
+                                c5('發生錯誤，解除清晰照失敗!請重新操作。'+statusStr+' '+errorStr);
+                                xs(true);
+                            }
+                        });                    
+                    }
+                            
+                    function xs(only_toggle=false) {
+                        $("#bxs").show();
+                        $("#xs").hide();
+                        
+                        if(only_toggle!=false) return;
+                        let bFormData = new FormData();
+                        bFormData.append('_token','{{csrf_token()}}');
+                        bFormData.append('act','1');
+                        bFormData.append('target','{{$to->id}}');
+                        $.ajax({
+                            type: 'POST',
+                            url: "{{route('setBlurryToUser')}}",
+                            data:bFormData,
+                            success: function(res){
+                                if(res!=1) {
+                                   c5('取消清晰照失敗!請重新操作。');
+                                   bxs(true);
+                                }
+                                else {
+                                    c5('成功取消清晰照');
+                                    $('.blured_s').show();
+                                    $('.cleared_s').hide();
+                                    $('#tab_not_blurry .context').html('此功能會開放您的照片為清晰版給您當前指定的會員，包含大頭照、生活照，您可以隨時取消。');
+                                    $('#tab_not_blurry .bltitle font').html('開放清晰照說明');                                    
+                                }
+                            },
+                            error:function(jqXHR,statusStr,errorStr) {
+                                c5('發生錯誤，取消清晰照失敗!請重新操作。'+statusStr+' '+errorStr);
+                                bxs(true);
+                            }
+                        });                         
+                    }
+                </script>
+                @endif            
+            <div class="message pad_bot xxi" id="message_content_show" style="position: relative;">
+                
+                <div style="margin-top: 60px;"></div>
                 @php
                     $isBlurAvatar = \App\Services\UserService::isBlurAvatar($to, $user);
                 @endphp
@@ -788,6 +1034,11 @@
 <input type="hidden" id="not_show_is_truth_popup" value="0">
 @endif
 </div>
+
+
+
+
+
 @endif
 @stop
 @section('javascript')
@@ -1966,7 +2217,12 @@
                         var postmsg_error_show_msg = '傳送失敗 ';
                         if(logout_all_finded) postmsg_error_show_msg+='。您已登出或基於帳號安全由系統自動登出，請重新登入。'
                         else postmsg_error_show_msg+= e.name+'-'+e.message;
-                        show_pop_message(postmsg_error_show_msg);
+                        if(postmsg_error_show_msg.toLowerCase().indexOf('pusher') && postmsg_error_show_msg.toLowerCase().indexOf('error')) {
+                            postmsg_error_show_msg = '(hidden)'+postmsg_error_show_msg;
+                        }
+                        else {
+                            show_pop_message(postmsg_error_show_msg);
+                        }
                         formData.append('error',postmsg_error_show_msg);
                         formData.append('error_return_data',response);
                         $.post( "{{route('logChatWithError')}}", formData);                        
@@ -1975,7 +2231,7 @@
                     if(rentry.error!=undefined && rentry.error) {
                         if(rentry.error==401) {
                             show_pop_message('傳送失敗：'+rentry.content);
-                            formData.append('error','傳送失敗'+rentry.content);
+                            formData.append('error','傳送失敗：'+rentry.content);
                             formData.append('error_return_data',response);
                             $.post( "{{route('logChatWithError')}}", formData);                             
                         }
@@ -1994,9 +2250,9 @@
                     @endif
             }
             xhr.onerror = function(e) {
-                c5('傳送失敗!');
-                formData.append('error','傳送失敗');
-                formData.append('error_return_data',e);
+                c5('傳送失敗!'+xhr.statusText);
+                formData.append('error','傳送失敗!'+xhr.statusText);
+                formData.append('error_return_data',JSON.stringify(e));
                 $.post( "{{route('logChatWithError')}}", formData);                 
                 $('.n_bllbut').focus();
             }
